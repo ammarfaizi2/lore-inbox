@@ -1,59 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWEaNjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWEaNoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964994AbWEaNjW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 09:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWEaNjW
+	id S965002AbWEaNoL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 09:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWEaNoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 09:39:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:12075 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964994AbWEaNjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 09:39:21 -0400
-Date: Wed, 31 May 2006 15:41:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com
+	Wed, 31 May 2006 09:44:11 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:56962 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965002AbWEaNoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 09:44:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=SoUeM1fDtU9kF0qNfHOLfk8oS8/qJd+x/eyQ4SaSFQfX93a2MLcClEiZHa9Eon1E2QOWJppDH2okKgPjWE4m30yDEodgDQIzk1AZktv35tpOmffQgDngghN3AXVf7A1PpyZLuFW9DMMaj8URgPHfDFHIm/7+pWJzd7SQOPzVTYg=  ;
+Message-ID: <447D9D9C.1030602@yahoo.com.au>
+Date: Wed, 31 May 2006 23:43:56 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com,
+       torvalds@osdl.org
 Subject: Re: [rfc][patch] remove racy sync_page?
-Message-ID: <20060531134125.GQ29535@suse.de>
-References: <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447D9A41.8040601@yahoo.com.au>
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <20060529201444.cd89e0d8.akpm@osdl.org> <20060530090549.GF4199@suse.de>
+In-Reply-To: <20060530090549.GF4199@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31 2006, Nick Piggin wrote:
-> Now having a mechanism for a task to batch up requests might be a
-> good idea. Eg.
+Hi Jens,
+Sorry, I don't think I gave you any reply to this...
+
+Jens Axboe wrote:
+> On Mon, May 29 2006, Andrew Morton wrote:
 > 
-> plug();
-> submit reads
-> unplug();
-> wait for page
+>>
+>>Mysterious question, that.  A few years ago I think Jens tried pulling
+>>unplugging out, but some devices still want it (magneto-optical
+>>storage iirc).  And I think we did try removing it, and it caused
+>>hurt.
+> 
+> 
+> I did, back when we had problems due to the blk_plug_lock being a global
+> one. I first wanted to investigate if plugging still made a difference,
+> otherwise we could've just ripped it out back than and the problem would
+> be solved. But it did get us about a 10% boost on normal SCSI drives
+> (don't think I tested MO drives at all), so it was fixed up.
 
-How's this different from what we have now? The plugging will happen
-implicitly, if we need to. If the queue is already running, chances are
-that there are requests there so you won't get to your first read first
-anyways.
+Interesting. I'd like to know where from. I wonder if my idea of a
+process context plug/unplug would solve it...
 
-The unplug(); wait_for_page(); is already required unless you want to
-wait for the plugging to time out (unlikely, since you are now waiting
-for io completion on one of them).
+> 
+> 
+>>>With splice, the mapping can change, so you can have the wrong
+>>>sync_page callback run against the page.
+>>
+>>Oh.
+> 
+> 
+> Maybe I'm being dense, but I don't see a problem there. You _should_
+> call the new mapping sync page if it has been migrated.
 
-> I'd think this would give us the benefits of corse grained (per-queue)
-> plugging and more (e.g. it works when the request queue isn't empty).
-> And it would be simpler because the unplug point is explicit and doesn't
-> need to be kicked by lock_page or wait_on_page
+But can some other thread calling lock_page first find the old mapping,
+and then run its ->sync_page which finds the new mapping? While it may
+not matter for anyone in-tree, it does break the API so it would be
+better to either fix it or rip it out than be silently buggy.
 
-I kind of like having the implicit unplug, for several reasons. One is
-that people forget to unplug. We had all sorts of hangs there in 2.4 and
-earlier because of that. Making the plugging implicit should help that
-though. The other is that I don't see what the explicit unplug gains
-you. Once you start waiting for one of the pages submitted, that is
-exactly the point where you want to unplug in the first place.
+>>>
+>>>The ->pin() calls in pipe_to_file and pipe_to_sendpage?
+>>
+>>One for Jens...
+> 
+> 
+> splice never incs/decs any inode related reference counts, so if it
+> needs to then yes it's broken. Any references to kernel code that deals
+> with that?
+
+Most code in the VM that has an inode/mapping gets called from the VFS,
+which already does its thing somehow (I guess something like the file
+pins the dentry which pins the inode). An iget might solve it. Or you
+could use the lock_page_nosync() if/when the patch goes in (although I
+don't want that to spread too far just yet).
 
 -- 
-Jens Axboe
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

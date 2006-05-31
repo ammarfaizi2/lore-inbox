@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWEaT2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbWEaT2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbWEaT2V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 15:28:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWEaT2V
+	id S965120AbWEaT2W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 15:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWEaT2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 15:28:21 -0400
-Received: from dvhart.com ([64.146.134.43]:56721 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965118AbWEaT2U (ORCPT
+	Wed, 31 May 2006 15:28:22 -0400
+Received: from mail.tmr.com ([64.65.253.246]:21178 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S965120AbWEaT2V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 15:28:20 -0400
-Message-ID: <447DEE53.2010301@mbligh.org>
-Date: Wed, 31 May 2006 12:28:19 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Wed, 31 May 2006 15:28:21 -0400
+Message-ID: <447DEEB7.2060707@tmr.com>
+Date: Wed, 31 May 2006 15:29:59 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andy Whitcroft <apw@shadowen.org>
-Subject: 2.6.17-rc5-mm1 panic on p-series
+To: Theodore Tso <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+References: <8.420169009@selenic.com> <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com> <20060505172424.GV15445@waste.org> <20060505191127.GA16076@thunk.org> <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org> <20060506180551.GB22474@thunk.org> <6935C0D2-528C-47B5-A7A8-7FCA2672FCD7@neostrada.pl> <20060525000829.GA24897@thunk.org>
+In-Reply-To: <20060525000829.GA24897@thunk.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get a different panic on -mm1 from mainline (and much
-earlier)
+Theodore Tso wrote:
+> On Thu, May 25, 2006 at 12:47:18AM +0200, Marcin Dalecki wrote:
+>> Anytime you start to make unquantified assumptions in the context of
+>> / dev/random the issue turns up that this whole thing is not worth
+>> the trouble because much simpler approaches will be sufficient
+>> enough to acomplish what it does. On the other hand you can't
+>> provide any actual full analysis of it's behaviour - which is just
+>> *not acceptable* for anybody trully concerned. And this in
+>> conjunction makes the WHOLE idea behind it questionable.
+> 
+> Nobody can provide any kind of full analysis about whether or not
+> SHA-2 or AES is secure, either.  Does that we mean we just give up and
+> go home?  No, we do the best job we can, with the best information we
+> have.  Sometimes that means we have to make assumptions, but the
+> entire construction of AES and SHA-2 is based on similar assumptions,
+> too.
+> 
+> Academics who make "full analysis" generally use as axioms things like
+> "assume MD5 is secure" or "assume SHA-1 is secure", which are really
+> fancy assumptions.  If we had used a "simpler approaches" based such
+> axioms we might have been in trouble.  So I think some of the analysis
+> and designs choices that I made in /dev/random is most definitely
+> worth the trouble.
+> 
+> Regards,
+> 
+> 						- Ted
+As usual I agree with you, for lack of a really good random source it's 
+worth doing the best possible job with what's available. Would be nice 
+to have a cheap USB bit babbler, tho.
 
-http://test.kernel.org/abat/33808/debug/console.log
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.
 
-Badness in local_bh_disable at kernel/softirq.c:86
-Call Trace:
-[C00000000051F280] [C00000000000EEC8] .show_stack+0x74/0x1b4 (unreliable)
-[C00000000051F330] [C000000000338664] .program_check_exception+0x1f4/0x65c
-[C00000000051F410] [C0000000000044EC] program_check_common+0xec/0x100
---- Exception: 700 at .local_bh_disable+0x34/0x4c
-     LR = .do_softirq+0x64/0xd0
-[C00000000051F790] [C000000000063B64] .irq_exit+0x64/0x7c
-[C00000000051F810] [C0000000000228E0] .timer_interrupt+0x464/0x48c
-[C00000000051F8E0] [C0000000000034EC] decrementer_common+0xec/0x100
---- Exception: 901 at .memset+0x80/0xfc
-     LR = .__alloc_bootmem_core+0x39c/0x3dc
-[C00000000051FBD0] [C0000000004460E8] 0xc0000000004460e8 (unreliable)
-[C00000000051FC90] [C0000000003D51B0] .__alloc_bootmem_nopanic+0x44/0xb0
-[C00000000051FD30] [C0000000003D523C] .__alloc_bootmem+0x20/0x5c
-[C00000000051FDB0] [C0000000003D6124] .alloc_large_system_hash+0x130/0x268
-[C00000000051FE70] [C0000000003D78D4] .vfs_caches_init_early+0x5c/0xd4
-[C00000000051FEF0] [C0000000003BD718] .start_kernel+0x220/0x320
-[C00000000051FF90] [C000000000008594] .start_here_common+0x88/0x8c
-Badness in __local_bh_enable at kernel/softirq.c:100
-Call Trace:
-[C00000000051F280] [C00000000000EEC8] .show_stack+0x74/0x1b4 (unreliable)
-[C00000000051F330] [C000000000338664] .program_check_exception+0x1f4/0x65c
-[C00000000051F410] [C0000000000044EC] program_check_common+0xec/0x100
---- Exception: 700 at .__local_bh_enable+0x60/0x7c
-     LR = .do_softirq+0xb0/0xd0
-[C00000000051F700] [C00000000000B518] .do_softirq+0xa8/0xd0 (unreliable)
-[C00000000051F790] [C000000000063B64] .irq_exit+0x64/0x7c
-[C00000000051F810] [C0000000000228E0] .timer_interrupt+0x464/0x48c
-[C00000000051F8E0] [C0000000000034EC] decrementer_common+0xec/0x100
---- Exception: 901 at .memset+0x80/0xfc
-     LR = .__alloc_bootmem_core+0x39c/0x3dc
-[C00000000051FBD0] [C0000000004460E8] 0xc0000000004460e8 (unreliable)
-[C00000000051FC90] [C0000000003D51B0] .__alloc_bootmem_nopanic+0x44/0xb0
-[C00000000051FD30] [C0000000003D523C] .__alloc_bootmem+0x20/0x5c
-[C00000000051FDB0] [C0000000003D6124] .alloc_large_system_hash+0x130/0x268
-[C00000000051FE70] [C0000000003D78D4] .vfs_caches_init_early+0x5c/0xd4
-[C00000000051FEF0] [C0000000003BD718] .start_kernel+0x220/0x320
-[C00000000051FF90] [C000000000008594] .start_here_common+0x88/0x8c
-Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes)

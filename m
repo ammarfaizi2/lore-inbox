@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWEaHRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWEaHZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWEaHRo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 03:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWEaHRo
+	id S964826AbWEaHZU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 03:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWEaHZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 03:17:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:957 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S964833AbWEaHRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 03:17:43 -0400
-Date: Wed, 31 May 2006 09:19:05 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Ondrej Zajicek <santiago@mail.cz>, linux-kernel@vger.kernel.org
+	Wed, 31 May 2006 03:25:20 -0400
+Received: from smtp.enter.net ([216.193.128.24]:14858 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S964826AbWEaHZT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 03:25:19 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
 Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <mj+md-20060531.071735.13578.atrey@ucw.cz>
-References: <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <20060530223513.GA32267@localhost.localdomain> <9e4733910605301555o287cbd18i99c8813ca6592494@mail.gmail.com> <mj+md-20060531.064701.10737.atrey@ucw.cz> <9e4733910605310013y22dfa6cah766047957ad2a3c0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Wed, 31 May 2006 03:25:09 +0000
+User-Agent: KMail/1.8.1
+Cc: "Martin Mares" <mj@ucw.cz>, "Ondrej Zajicek" <santiago@mail.cz>,
+       linux-kernel@vger.kernel.org
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <mj+md-20060531.064701.10737.atrey@ucw.cz> <9e4733910605310013y22dfa6cah766047957ad2a3c0@mail.gmail.com>
 In-Reply-To: <9e4733910605310013y22dfa6cah766047957ad2a3c0@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605310325.10030.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >On most servers, you don't need (and you don't want) anything like that.
-> >In such cases, everything should be kept simple.
-> 
+On Wednesday 31 May 2006 07:13, Jon Smirl wrote:
+> On 5/31/06, Martin Mares <mj@ucw.cz> wrote:
+> > > My thoughts are mixed on continuing to support text mode for anything
+> > > other than initial boot/install. Linux is all about multiple languages
+> > > and the character ROMs for text mode don't support all of these
+> > > languages.
+> >
+> > On most servers, you don't need (and you don't want) anything like that.
+> > In such cases, everything should be kept simple.
+>
 > Not so simple if you only speak Chinese and are installing that server.
 
-Then, you are free to run fbcon.
+In cases such as that there is more needed than just having the display 
+showing the language in it's proper characters, be that zhongwen for the 
+Chinese, Katakana for the Japanese or Cyrillic for the Russians.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-How do I type 'for i in *.dvi ; do xdvi $i ; done' in a GUI?
+In the case of Oriental languages the system also needs to understand the 
+keyboard and it's input method. Research I have done for a project not 
+related to the kernel (or programming) has led me to the fact that the most 
+common Chinese system uses a combination of several keystrokes to generate 
+each character. The other systems rely on a "smart" system to translate 
+pinyin or related systems of writing chinese in roman characters into 
+zhongwen.
+
+That being the case, the kernel would then be best served by also 
+understanding this input method. The work I am currently doing should enable 
+the console to display any true-type font, not just the ones currently 
+allowed, though vgacon and the fbdev drivers will still have the current 
+limitation.
+
+DRH

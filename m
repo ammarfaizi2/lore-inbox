@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWEaGpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWEaGqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWEaGpf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 02:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWEaGpf
+	id S964840AbWEaGqc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 02:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWEaGqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 02:45:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:13076 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964838AbWEaGpe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 02:45:34 -0400
-Date: Wed, 31 May 2006 08:47:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Mark Lord <liml@rtr.ca>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patch] libata resume fix
-Message-ID: <20060531064730.GG29535@suse.de>
-References: <20060528203419.GA15087@havoc.gtf.org> <1148938482.5959.27.camel@localhost.localdomain> <447C4718.6090802@rtr.ca> <Pine.LNX.4.64.0605301122340.5623@g5.osdl.org> <1149028674.9986.71.camel@localhost.localdomain>
+	Wed, 31 May 2006 02:46:32 -0400
+Received: from mse2fe2.mse2.exchange.ms ([66.232.26.194]:3296 "EHLO
+	mse2fe2.mse2.exchange.ms") by vger.kernel.org with ESMTP
+	id S964840AbWEaGqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 02:46:32 -0400
+Subject: Re: linux-2.6 x86_64 kgdb issue
+From: Piet Delaney <piet@bluelane.com>
+Reply-To: piet@bluelane.com
+To: Andi Kleen <ak@suse.de>
+Cc: Piet Delaney <piet@bluelane.com>, "Amit S. Kale" <amitkale@linsyssoft.com>,
+       "Vladimir A. Barinov" <vbarinov@ru.mvista.com>,
+       Andrew Morton <akpm@osdl.org>, kgdb-bugreport@lists.sourceforge.net,
+       trini@kernel.crashing.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200605310750.34047.ak@suse.de>
+References: <446E0B4B.9070003@ru.mvista.com>
+	 <200605251207.27699.amitkale@linsyssoft.com>
+	 <1149050728.26542.85.camel@piet2.bluelane.com>
+	 <200605310750.34047.ak@suse.de>
+Content-Type: text/plain
+Organization: BlueLane Tech,
+Date: Tue, 30 May 2006 23:46:27 -0700
+Message-Id: <1149057987.26542.116.camel@piet2.bluelane.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149028674.9986.71.camel@localhost.localdomain>
+X-Mailer: Evolution 2.0.4-3mdk 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 May 2006 06:46:31.0343 (UTC) FILETIME=[F33F53F0:01C6847D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31 2006, Benjamin Herrenschmidt wrote:
-> > At least at one point, in order to get a M$ hw qualification (whatever 
-> > it's called - but every single hw manufacturer wants it, because some 
-> > vendors won't use your hardware if you don't have it), a laptop needed to 
-> > boot up in less than 30 seconds or something.
-> > 
-> > And that wasn't the disk spin-up time. That was the time until the Windows 
-> > desktop was visible.
+On Wed, 2006-05-31 at 07:50 +0200, Andi Kleen wrote:
+> > Perhaps we should add a kgdb config menu option and #define
+> > CONFIG_16KSTACKS to double the stack size so the kernel can be 
+> > debugged with more context available. I'm currently using -O0 for 
+> > the networking stack and -O1 for the rest of the kernel. Sounds like 
+> > it would be helpful now for AMD64 targets.
 > 
-> Doesn't window spin drives asynchronously ? The main problem I've seen
-> in practice (appart from the above maxtor drives) are ATAPI CD/DVD
-> drives. There are whole generations of those that will happily drive
-> your bus to some crazy state (even when only slave and not selected) for
-> a long time while they spin up and try to identify the disk in them on a
-> hard reset (and if they have trouble identifying the disk, like a
-> scratched disk, that can take a loooong time).
+> You only got stack overflows when working with kgdb right?
 
-FWIW, I've seen the very same thing. Resume/power-up with a cd/dvd that
-has a media loaded can take _ages_ to get ready.
+Yes, I was using kgdb to look at the stack audits I stored in
+the thread structure.
 
-> > Desktops could do a bit longer, and I think servers didn't have any time 
-> > limits, but the point is that selling a disk that takes a long time to 
-> > start working is actually not that easy. 
-> > 
-> > The market that has accepted slow bootup times is historically the server 
-> > market (don't ask me why - you'd think that with five-nines uptime 
-> > guarantees you'd want fast bootup), and so you'll find large SCSI disks in 
-> > particular with long spin-up times. In the laptop and desktop space I'd be 
-> > very surprised to see anythign longer than a few seconds.
+>  
+> Sounds like a kgdb problem to me then that can and should be probably fixed. e.g. 
+> afaik kgdb isn't reentrant anyways so it could just use static buffers.
+
+On Solaris the problem was that the kernel stack was larger because tail
+optimization was disabled with optimization disabled. I'm not having
+a kgdb problem with i386, it seems that Vladimir is/was and Amit
+suspected it being due to the AMD64 requiring largers stacks. Seems
+plausible to me. I thought you might have thoughts on that.
+
 > 
-> It's only a timeout. If you drives are fast, it will come up fast... if
-> you drives are slow, it will come up slow, and if your drives are
-> broken, you'll wait at most 31 seconds. Seems ok to me... It would be
-> nicer in the long run if libata could resume asynchronously (by keeping
-> the request queue blocked until full resume and polling the BUSY from a
-> thread or a timer), but I don't think we should lower the timeout.
+> I would suggest against adding any new config options for this - it would
+> conflict with the great goal of having loadable debuggers that work
+> on any kernels.
 
-In reality it probably doesn't matter much, since everything will be
-stalled until the queue is unfrozen anyways. Unless of course you have
-several slow-to-resume devices so you would at least get some overlap.
-But it would be nicer from a design view point.
+What's the conflict with larger kernel stacks and a loadable (kgdb)
+module? Like Andy Morton I prefer to avoid using modules when using
+kgdb; so I wouldn't have run into a problem. 
 
+I was suggesting larger stack space for the kernel, not kgdb. I agree
+this case might be one where kgdb has caused the kernel to trip over 
+the edge. I don't feel comfortable running on a kernel that running
+that close to running out of stack space. Maybe that's just a personal
+preference; I'm paranoid I guess. I like having rock solid systems and
+wacking the stack isn't always detected. On SunOS we had a REDZONE but
+last I check Linux didn't; has one been added? If it hasn't it might
+be good to keep in mind having a CPU specific physical page available
+when we grow into the REDZONE. Looked to me like the stack grows right
+into the thread structure; might make a nice exploit for a linux root
+kit.
+
+Having loadable debuggers seems a bit high hopes, as 'we' haven't even
+release linux with kgdb built into the Linux src yet. 
+
+-piet
+ 
+ 
+> -Andi
+> 
 -- 
-Jens Axboe
+---
+piet@bluelane.com
 

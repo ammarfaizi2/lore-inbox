@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbWEaVzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbWEaV4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965139AbWEaVzO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbWEaVzO
+	id S965186AbWEaV4d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbWEaV4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:55:14 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:63719 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965139AbWEaVzM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:55:12 -0400
-Date: Wed, 31 May 2006 23:54:45 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Janos Haar <djani22@netcenter.hu>
-cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen
- 64bit linux)
-In-Reply-To: <00f501c68488$4d10c080$1800a8c0@dcccs>
-Message-ID: <Pine.LNX.4.61.0605312353530.30170@yvahk01.tjqt.qr>
-References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs> <20060527234350.GA13881@voodoo.jdc.home>
- <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com>
- <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs>
- <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu>
- <1149038431.21827.20.camel@localhost.localdomain>
- <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 May 2006 17:56:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43930 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965186AbWEaV4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:56:32 -0400
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
+	disable_irq()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060531214729.GA4059@elte.hu>
+References: <20060531200236.GA31619@elte.hu>
+	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
+	 <20060531214139.GA8196@devserv.devel.redhat.com>
+	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
+	 <20060531214729.GA4059@elte.hu>
+Content-Type: text/plain
+Date: Wed, 31 May 2006 23:56:22 +0200
+Message-Id: <1149112582.3114.91.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Hey, i think i found something.
->My quota on my huge device is broken.
+On Wed, 2006-05-31 at 23:47 +0200, Ingo Molnar wrote:
+> * Arjan van de Ven <arjan@infradead.org> wrote:
+> 
+> > On Wed, 2006-05-31 at 17:41 -0400, Alan Cox wrote:
+> > > On Wed, May 31, 2006 at 10:31:40PM +0200, Arjan van de Ven wrote:
+> > > > > 8390.c knows that ei_local->page_lock can only be used by an irq
+> > > > > context that it disabled -
+> > > > 
+> > > > btw I think this is no longer correct with the irq polling stuff Alan
+> > > > added to the kernel recently...
+> > > 
+> > > We could make the misrouted IRQ logic skip all handlers on a disabled IRQ
+> > > but that might actually be worse than the disease we are trying to cure by
+> > > doing so.
+> > 
+> > yeah since misrouted irqs will cause the kernel do disable irqs 'at 
+> > random' more or less .. for which the handlers now would become 
+> > unreachable which isn't good.
+> 
+> couldnt most of these problems be avoided by tracking whether a handler 
+> _ever_ returned a success status? That means that irqpoll could safely 
+> poll handlers for which we know that they somehow arent yet matched up 
+> to any IRQ line?
 
-That should not be a problem. I ran into that "problem" too but had no 
-lockups back then (2.6.16-rc1).
+I suspect the real solution is to have a
 
->(inferno   -- 18014398504855404       0       0        18446744073709551519
->0     0)
->I cant found a way to re-initialize it.
+disable_irq_handler(irq, handler) 
 
-Reinit:
+function which does 2 things
+1) disable the irq at the hardware level
+2) mark the handler as "don't call me"
 
-quotaoff /mntpt
-umount /mntpt
-mount /mntpt
-
->But anyway, at this point i dont need it, trying to disable the quota usage.
->We will see....
+it matches the semantics here; what these drivers want is 1) not get an
+irq handler called and 2) not get an irq flood
 
 
-Jan Engelhardt
--- 

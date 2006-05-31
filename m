@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWEaHZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWEaHpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbWEaHZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 03:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWEaHZU
+	id S964857AbWEaHpn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 03:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWEaHpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 03:25:20 -0400
-Received: from smtp.enter.net ([216.193.128.24]:14858 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S964826AbWEaHZT (ORCPT
+	Wed, 31 May 2006 03:45:42 -0400
+Received: from gw.openss7.com ([142.179.199.224]:7148 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S964836AbWEaHpm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 03:25:19 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Wed, 31 May 2006 03:25:09 +0000
-User-Agent: KMail/1.8.1
-Cc: "Martin Mares" <mj@ucw.cz>, "Ondrej Zajicek" <santiago@mail.cz>,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <mj+md-20060531.064701.10737.atrey@ucw.cz> <9e4733910605310013y22dfa6cah766047957ad2a3c0@mail.gmail.com>
-In-Reply-To: <9e4733910605310013y22dfa6cah766047957ad2a3c0@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 31 May 2006 03:45:42 -0400
+Date: Wed, 31 May 2006 01:45:40 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: David Miller <davem@davemloft.net>
+Cc: draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060531014540.A1319@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: David Miller <davem@davemloft.net>,
+	draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <20060531042908.10463.qmail@web51410.mail.yahoo.com> <20060530235525.A30563@openss7.org> <20060531.001027.60486156.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605310325.10030.dhazelton@enter.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060531.001027.60486156.davem@davemloft.net>; from davem@davemloft.net on Wed, May 31, 2006 at 12:10:27AM -0700
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 May 2006 07:13, Jon Smirl wrote:
-> On 5/31/06, Martin Mares <mj@ucw.cz> wrote:
-> > > My thoughts are mixed on continuing to support text mode for anything
-> > > other than initial boot/install. Linux is all about multiple languages
-> > > and the character ROMs for text mode don't support all of these
-> > > languages.
-> >
-> > On most servers, you don't need (and you don't want) anything like that.
-> > In such cases, everything should be kept simple.
->
-> Not so simple if you only speak Chinese and are installing that server.
+David,
 
-In cases such as that there is more needed than just having the display 
-showing the language in it's proper characters, be that zhongwen for the 
-Chinese, Katakana for the Japanese or Cyrillic for the Russians.
+On Wed, 31 May 2006, David Miller wrote:
 
-In the case of Oriental languages the system also needs to understand the 
-keyboard and it's input method. Research I have done for a project not 
-related to the kernel (or programming) has led me to the fact that the most 
-common Chinese system uses a combination of several keystrokes to generate 
-each character. The other systems rely on a "smart" system to translate 
-pinyin or related systems of writing chinese in roman characters into 
-zhongwen.
+> From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+> Date: Tue, 30 May 2006 23:55:26 -0600
+> 
+> > For example, it goes to great pains to permute upper order bits in
+> > the local address, which for most connections will be a constant
+> > value.
+> 
+> Consider an apache server hosting thousands of virtual
+> hosts.  The local address will be different for every
+> such host.
+> 
 
-That being the case, the kernel would then be best served by also 
-understanding this input method. The work I am currently doing should enable 
-the console to display any true-type font, not just the ones currently 
-allowed, though vgacon and the fbdev drivers will still have the current 
-limitation.
+If you mean named virtual hosts, no.  They have the same
+addresses.
 
-DRH
+If you mean actual hosts (with an IP address), perhaps in
+the low order bits (host number), but unlikely in the high
+order bits of the local address (network mask bits).
+
+Also, in such a case the local port number will be rather
+constant (80, etc); a condition also not exploited by the
+function.
+
+Also consider that the function simply folds the values
+rather than permuting bits across the key field by shifting
+by some other value than a multiple of 8 between XOR
+operations.  This will result in a longer collision list
+because the entropy of the key value has not been
+sufficiently reduced.
+
+It might sound like I'm complaining, but I'm not.  The
+function works for me.  But from a purist point of view,
+the hash function is not as efficient as it could be and
+there is room for improvement.

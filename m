@@ -1,100 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWEaPUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWEaPW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbWEaPUM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 11:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbWEaPUM
+	id S965067AbWEaPW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 11:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWEaPW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 11:20:12 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:21909 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965063AbWEaPUK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 11:20:10 -0400
-Date: Wed, 31 May 2006 17:20:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: [patch, -rc5-mm1] lock validator: irqflags-trace entry.S fix
-Message-ID: <20060531152030.GA15553@elte.hu>
-References: <20060530022925.8a67b613.akpm@osdl.org> <6bffcb0e0605301155h3b472d79h65e8403e7fa0b214@mail.gmail.com> <6bffcb0e0605310651u61b9756fpfce3515ab046bf42@mail.gmail.com> <20060531140201.GA11617@elte.hu> <20060531141208.GA12296@elte.hu> <6bffcb0e0605310805l5e040e06i8ccc376a88667c34@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6bffcb0e0605310805l5e040e06i8ccc376a88667c34@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 31 May 2006 11:22:28 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:8287 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965067AbWEaPW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 11:22:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=bRpt7+4syUV2bg7xYjPz0awStiRkUmUgRtZp/fy8I+e+4SDbqicLiWj8OpOx+FbRo7aZCAXcKrUKw7ZkN83DJ/6W2aelWESnEozI29Z+zYzVK0bSbKkf6dE4lTLKIZ8Zyt+9H4uZLG6tN20s7v1pn2Ls/X2kDeDBzw4wT1Qmu1g=  ;
+Message-ID: <447DB4AB.9090008@yahoo.com.au>
+Date: Thu, 01 Jun 2006 01:22:19 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
+       andrea@suse.de, torvalds@osdl.org
+Subject: Re: [rfc][patch] remove racy sync_page?
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <20060529201444.cd89e0d8.akpm@osdl.org> <20060530090549.GF4199@suse.de> <447D9D9C.1030602@yahoo.com.au> <Pine.LNX.4.64.0605311602020.26969@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0605311602020.26969@blonde.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-
-> >here's the fix for the irqs-off iret irqflags-tracing problem. Does this
-> >fix the bug(s) on your box?
+Hugh Dickins wrote:
+> On Wed, 31 May 2006, Nick Piggin wrote:
 > 
-> Yes. Thanks!
+>>Jens Axboe wrote:
+>>
+>>>Maybe I'm being dense, but I don't see a problem there. You _should_
+>>>call the new mapping sync page if it has been migrated.
+>>
+>>But can some other thread calling lock_page first find the old mapping,
+>>and then run its ->sync_page which finds the new mapping? While it may
+>>not matter for anyone in-tree, it does break the API so it would be
+>>better to either fix it or rip it out than be silently buggy.
+> 
+> 
+> Splicing a page from one mapping to another is rather worrying/exciting,
+> but it does look safely done to me.  remove_mapping checks page_count
+> while page lock and old mapping->tree_lock are held, and gives up if
+> anyone else has an interest in the page.  And we already know it's
+> unsafe to lock_page without holding a reference to the page, don't we?
 
-great! Here's the cleaned up fix for Andrew:
+Oh, that's true. I had thought that splice allows stealing pages with
+an elevated refcount, which Jens was thinking about at one stage. But
+I see that code isn't in mainline. AFAIKS it would allow other
+->pin()ers to attempt to lock the page while it was being stolen.
 
-----------------------------
-Subject: lock validator: irqflags-trace entry.S fix
-From: Ingo Molnar <mingo@elte.hu>
-
-this fixes the irqflags-tracing bug reported (and relentlessly
-debugged) by Michal Piotrowski: if we took a fault while interrupts
-were disabled (for example of a vmalloc area) then irqflags-tracing
-mistakenly assumed that the iret would re-enable interrupts.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- arch/i386/kernel/entry.S |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
-
-Index: linux/arch/i386/kernel/entry.S
-===================================================================
---- linux.orig/arch/i386/kernel/entry.S
-+++ linux/arch/i386/kernel/entry.S
-@@ -84,6 +84,15 @@ VM_MASK		= 0x00020000
- #define resume_kernel		restore_nocheck
- #endif
- 
-+.macro TRACE_IRQS_IRET
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	testl $IF_MASK,EFLAGS(%esp)     # interrupts off?
-+	jz 1f
-+	TRACE_IRQS_ON
-+1:
-+#endif
-+.endm
-+
- #ifdef CONFIG_VM86
- #define resume_userspace_sig	check_userspace
- #else
-@@ -364,7 +373,7 @@ restore_all:
- 	CFI_REMEMBER_STATE
- 	je ldt_ss			# returning to user-space with LDT SS
- restore_nocheck:
--	TRACE_IRQS_ON
-+	TRACE_IRQS_IRET
- restore_nocheck_notrace:
- 	RESTORE_REGS
- 	addl $4, %esp
-@@ -404,7 +413,7 @@ ldt_ss:
- 	 * and a switch16 pointer on top of the current frame. */
- 	call setup_x86_bogus_stack
- 	CFI_ADJUST_CFA_OFFSET -8	# frame has moved
--	TRACE_IRQS_ON
-+	TRACE_IRQS_IRET
- 	RESTORE_REGS
- 	lss 20+4(%esp), %esp	# switch to 16bit stack
- 1:	iret
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,82 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWEaSLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWEaSK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbWEaSLO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 14:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWEaSLO
+	id S1751220AbWEaSK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 14:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWEaSK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 14:11:14 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43314 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S965025AbWEaSLK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 14:11:10 -0400
-Date: Wed, 31 May 2006 20:13:13 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com
-Subject: Re: [rfc][patch] remove racy sync_page?
-Message-ID: <20060531181312.GA29535@suse.de>
-References: <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au> <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <Pine.LNX.4.64.0605310755210.24646@g5.osdl.org>
+	Wed, 31 May 2006 14:10:57 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:40935 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751220AbWEaSK4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 14:10:56 -0400
+Date: Wed, 31 May 2006 11:43:22 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
+Subject: Re: [Fastboot] [RFC][PATCH] Add missing notifier before crashing
+Message-ID: <20060531154322.GA8475@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060530183359.a8d5d736.akiyama.nobuyuk@jp.fujitsu.com> <20060530145658.GC6536@in.ibm.com> <20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605310755210.24646@g5.osdl.org>
+In-Reply-To: <20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31 2006, Linus Torvalds wrote:
+On Wed, May 31, 2006 at 06:20:45PM +0900, Akiyama, Nobuyuki wrote:
+> Hello Vivek-san,
 > 
+> On Tue, 30 May 2006 10:56:58 -0400
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
 > 
-> On Wed, 31 May 2006, Linus Torvalds wrote:
+> > On Tue, May 30, 2006 at 06:33:59PM +0900, Akiyama, Nobuyuki wrote:
+> > > Hello,
+> > > 
+> > > The panic notifier(i.e. panic_notifier_list) does not be called
+> > > if kdump is activated because crash_kexec() does not return.
+> > > And there is nothing to notify of crash before crashing by SysRq-c.
+> > > 
+> > > Although notify_die() exists, the function depends on architecture.
+> > > If notify_die() is added in panic and SysRq respectively like existing
+> > > implementation, the code will be ugly.
+> > > I think that adding a generic hook in crash_kexec() is better to simplify
+> > > the code. The panic_notifier_list-user will have nothing to do.
+> > > If you want to catch SysRq, use the crash_notifier_list.
+> > > 
 > > 
-> > The reason it's kicked by wait_on_page() is that is when it's needed.
+> > What's the use of introducing crash_notifier_list? Who is going to use
+> > it for what purpose?
+> > 
+> > Probably we don't want to create any such infrastructure because carries
+> > the risk of hanging in between and reducing the reliability of dump 
+> > operation.
 > 
-> Btw, that's not how it has always been done.
+> I really understand what you concern about.
+> But a certain program indeed needs some processing before
+> crashing even if panic occurs.
+> Now standard kernel includes some panic_notifier_list-user,
+> these are the familiar examples.
+
+I see the panic_notifier_list but I am afraid that we can not afford
+to send the crash/panic notifications if system admin has chosen to load
+the kdump kernel and has decided to take a dump in case of a crash event.
+This might very seriously compromise the reliability of kdump. IIRC, we
+recently saw an issue with powerpc where we did not even start booting into
+the second kernel as system lost way somewhere while handling notifiers.
+
+So far on a panic event kernel only used to display the panic string
+and halt the system but now it tries to do much more. That is boot
+into the second kernel and caputure the dump. Of course, one can argue
+that I want to implement a different policy in case of system crash. In
+that case probably we should not load the kdump kernel at all.
+
+panic_notifier_list helps in this regard that multiple subsystem can
+register their own policy and policy will be excuted in the registered
+priority order. Given the nature of kdump, I feel it is kind of 
+mutually exclusive and can not co-exist with other policies. Otherwise, we 
+will end up calling all other policies first and trigger booting into
+the second kernel last. This is equivalent to giving higher priority to
+all other policies and least priority to kdump.
+
 > 
-> For the longest time, it was actually triggered by scheduler activity, in 
-> particular, plugging used to be a workqueue event that was triggered by 
-> the scheduler (or any explicit points when you wanted it to be triggered 
-> earlier).
+> As other example, a cluster support software needs to clean up
+> current environment and to take over immediately.  > To do so, the cluster software immediately and surely want to
+> know the current node dies.
+> Some mission critical systems demand to start taking over
+> within a few milli-second after the system dies.
+> 
 
-Now it's time for me to give Linus a history lesson on plugging,
-apparently.
+I am no failover expert, but a quick thought suggests me that doing
+anything after the panic is not reliable. So should't all failover
+mechanisms depend on auto detecting that failure has occurred instead
+of failing system informing that I am about to fail so you better take
+over. Something like syncying two systems with a hearbeat message kind
+of thing and if main node fails, it will stop generating hearbeat
+messages and spare node will take over.
 
-Plugging used to be done by the issuer and with immediate unplugging
-when you were done issuing the blocks. Both of these actions happened in
-ll_rw_block() if the caller was submitting more than on buffer_head, and
-it happened without the caller knowing about plugging.  He never had to
-unplug.
-
-1.2 then expanded that to be able to plug more than one device at the
-time. It didn't really do much except allow the array of buffers passed
-in being on separate devices. The plugging was still hidden from the
-caller.
-
-1.3 and on introduced a more generalised infrastructure for this, moving
-the plugging to a task queue (tq_disk). This meant that we could finally
-separate the plugging and unplugging from the direct IO issue. So
-whenever someone wanted to the a wait_on_buffer/lock_page() equiv for
-something that might to be issued, it would have to do a
-run_task_queue(&tq_disk) first which would then unplug all the queues
-that were plugged.
-
-tq_disk was then removed and moved to a block list during the 2.5
-massive io/bio changes. The functionality remained the same, though -
-you had to kick all queues to force the unplug of the page you wanted.
-This infrastructure lasted all up to the point where silly people with
-lots of CPU's started complaining about lock contention for 32-way
-systems with thousands of disks. This is the point where I reevaluated
-the benefits of plugging, found it good, and decided to fix it up.
-Plugging then became a simple state bit in the queue, and you would have
-to pass in eg the page you wanted when asking to unplug. This would kick
-just the specific queue you needed. It also got a timer tied to it, so
-that we could unplug after foo msecs if we wanted. Additionally, it will
-also self-unplug once a certain plug depth has been reached (like 4
-requests).
-
-Anyway, the point I wanted to make is that this was never driven by
-scheduler activity. So there!
-
--- 
-Jens Axboe
-
+Thanks
+Vivek

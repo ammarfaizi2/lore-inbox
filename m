@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWEaAkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWEaArr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751506AbWEaAkt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 20:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWEaAkt
+	id S964839AbWEaArr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 20:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWEaArr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 20:40:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25533 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751506AbWEaAks (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 20:40:48 -0400
-Date: Tue, 30 May 2006 20:40:40 -0400
-From: Dave Jones <davej@redhat.com>
-To: Eric Sandall <eric@sandall.us>
-Cc: linux-kernel@vger.kernel.org, Mattia Dongili <malattia@linux.it>
-Subject: Re: cpufreq and kernel >2.6.15.6 is limited
-Message-ID: <20060531004040.GI13966@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Eric Sandall <eric@sandall.us>, linux-kernel@vger.kernel.org,
-	Mattia Dongili <malattia@linux.it>
-References: <447CE276.5080808@sandall.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 May 2006 20:47:47 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:26254 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932479AbWEaArq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 20:47:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GbsTAobyz6EHfclOwiWtS/KrJ9wr2l85cwseE8l4EtyMzVj1/JyB0TmtCQG0+eOJxWzvmapvyAvhRxQ3q9aQNrXBjuhyGdaYILSDOBxzqd26iV3BtQ3WxO4RFc/JukTulwbG/jmyrZuJUR6aBfMOpMaaMZIVvxYUZ/KvyFw32r8=
+Message-ID: <9e4733910605301747x13e1271atf5aecf335eee61c5@mail.gmail.com>
+Date: Tue, 30 May 2006 20:47:36 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Dave Airlie" <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <447CDCB7.8080708@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <447CE276.5080808@sandall.us>
-User-Agent: Mutt/1.4.2.1i
+References: <200605280112.01639.dhazelton@enter.net>
+	 <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com>
+	 <20060529124840.GD746@elf.ucw.cz>
+	 <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>
+	 <20060530202401.GC16106@elf.ucw.cz>
+	 <9e4733910605301356k64dcd75fo38e45e1b7572817f@mail.gmail.com>
+	 <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com>
+	 <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com>
+	 <20060530233826.GE16106@elf.ucw.cz> <447CDCB7.8080708@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 05:25:26PM -0700, Eric Sandall wrote:
- > -----BEGIN PGP SIGNED MESSAGE-----
- > Hash: SHA1
- > 
- > It seems that any kernel on my Dell Inspiron 5100 after 2.6.15.6
- > (including 2.6.17-rc5) 'breaks' my cpufreq in that up to and including
- > 2.6.15.6 I can scale between 300MHz-2.4GHz, but after (starting with
- > 2.6.16) I can only scale between 2.1GHz and 2.4GHz.
- > 
- > I've attached the files, sorted by kernel, I assume may be helpful. Let
- > me know if you need any more.
+On 5/30/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> > Actually, vbetool is the piece of puzzle we currently use to
+> > reinitialize graphics cards after resume. (suspend.sf.net).
+>
+> But vbetool can only handle primary cards, can't it?
 
-It may have worked in the past, but the CPU has an errata which makes
-it an unsafe operation to scale below 2GHz.
+That is correct, but you can get the ROM image for all adapters out of
+sysfs now so it is not really hard to change it.  Handling secondary
+cards is another feature of the new tools that isn't finished yet.
 
-		Dave
+The tool should also put the image back into the kernel after the ROM
+is run. A lot of these ROM assume they are running out of shadow RAM
+and make changes to the image.
+
+> > We currently do it all in userspace; it would be cleaner to do it as
+> > call_usermodehelper() from kernel.
+>
+> I had a patch sometime before, vm86d.  It's a daemon in userspace that
+> accepts requests from the kernel which executes x86 instructions using
+> lrmi, then pushes the result back to the kernel.  I modified vesafb
+> so that it uses this daemon which makes vesafb acquire the capability
+> to do on the fly mode switching (similar in functionality with
+> vesafb-tng which uses a different method).
+>
+> I abandoned this patch, but it seems there's might be at least one user.
+>
+> spblinux (http://spblinux.sourceforge.net/)
+
+This is very similar to what I am proposing. I would just spawn the
+app off each time instead of using a daemon; it's not like you are
+changing mode every few seconds. By spawning each time you can avoid
+the problem of the kernel trying to figure out if the daemon has died.
 
 -- 
-http://www.codemonkey.org.uk
+Jon Smirl
+jonsmirl@gmail.com

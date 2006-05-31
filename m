@@ -1,126 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWEaGkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWEaGpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWEaGkx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 02:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbWEaGkx
+	id S964845AbWEaGpf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 02:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWEaGpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 02:40:53 -0400
-Received: from gate.crashing.org ([63.228.1.57]:48779 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964828AbWEaGkw (ORCPT
+	Wed, 31 May 2006 02:45:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:13076 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964838AbWEaGpe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 02:40:52 -0400
-Subject: Re: [patch, -rc5-mm1] genirq MSI fixes
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060531061500.GA20609@elte.hu>
-References: <20060531061500.GA20609@elte.hu>
-Content-Type: text/plain
-Date: Wed, 31 May 2006 16:40:37 +1000
-Message-Id: <1149057637.766.42.camel@localhost.localdomain>
+	Wed, 31 May 2006 02:45:34 -0400
+Date: Wed, 31 May 2006 08:47:30 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Mark Lord <liml@rtr.ca>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patch] libata resume fix
+Message-ID: <20060531064730.GG29535@suse.de>
+References: <20060528203419.GA15087@havoc.gtf.org> <1148938482.5959.27.camel@localhost.localdomain> <447C4718.6090802@rtr.ca> <Pine.LNX.4.64.0605301122340.5623@g5.osdl.org> <1149028674.9986.71.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149028674.9986.71.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-31 at 08:15 +0200, Ingo Molnar wrote:
-> this is a fixed up and cleaned up replacement for 
-> genirq-msi-fixes.patch, which should solve the i386 4KSTACKS problem. I 
-> also added Ben's idea of pushing the __do_IRQ() check into 
-> generic_handle_irq().
+On Wed, May 31 2006, Benjamin Herrenschmidt wrote:
+> > At least at one point, in order to get a M$ hw qualification (whatever 
+> > it's called - but every single hw manufacturer wants it, because some 
+> > vendors won't use your hardware if you don't have it), a laptop needed to 
+> > boot up in less than 30 seconds or something.
+> > 
+> > And that wasn't the disk spin-up time. That was the time until the Windows 
+> > desktop was visible.
 > 
-> i booted this with MSI enabled, but i only have MSI devices, not MSI-X 
-> devices. I'd still expect MSI-X to work now.
+> Doesn't window spin drives asynchronously ? The main problem I've seen
+> in practice (appart from the above maxtor drives) are ATAPI CD/DVD
+> drives. There are whole generations of those that will happily drive
+> your bus to some crazy state (even when only slave and not selected) for
+> a long time while they spin up and try to identify the disk in them on a
+> hard reset (and if they have trouble identifying the disk, like a
+> scratched disk, that can take a loooong time).
 
-Looks good except the likely statement in generic_handle_irq() :) I'd
-let the CPU speculate here and not try to influence the choice... but
-heh... I understand why you want to "favor" the new scheme :)
+FWIW, I've seen the very same thing. Resume/power-up with a cd/dvd that
+has a media loaded can take _ages_ to get ready.
 
-Ben.
+> > Desktops could do a bit longer, and I think servers didn't have any time 
+> > limits, but the point is that selling a disk that takes a long time to 
+> > start working is actually not that easy. 
+> > 
+> > The market that has accepted slow bootup times is historically the server 
+> > market (don't ask me why - you'd think that with five-nines uptime 
+> > guarantees you'd want fast bootup), and so you'll find large SCSI disks in 
+> > particular with long spin-up times. In the laptop and desktop space I'd be 
+> > very surprised to see anythign longer than a few seconds.
+> 
+> It's only a timeout. If you drives are fast, it will come up fast... if
+> you drives are slow, it will come up slow, and if your drives are
+> broken, you'll wait at most 31 seconds. Seems ok to me... It would be
+> nicer in the long run if libata could resume asynchronously (by keeping
+> the request queue blocked until full resume and polling the BUSY from a
+> thread or a timer), but I don't think we should lower the timeout.
 
-> --------------
-> Subject: genirq-msi-fixes
-> From: Ingo Molnar <mingo@elte.hu>
-> 
-> irqchip migration helper: call __do_IRQ() if a descriptor is attached
-> to an irqtype-style controller. This also fixes MSI-X IRQ handling on
-> i386 and x86_64.
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
-> 
->  arch/i386/kernel/irq.c |    5 +++++
->  include/linux/irq.h    |   27 ++++++++++++++++-----------
->  2 files changed, 21 insertions(+), 11 deletions(-)
-> 
-> Index: linux/arch/i386/kernel/irq.c
-> ===================================================================
-> --- linux.orig/arch/i386/kernel/irq.c
-> +++ linux/arch/i386/kernel/irq.c
-> @@ -77,6 +77,10 @@ fastcall unsigned int do_IRQ(struct pt_r
->  	}
->  #endif
->  
-> +	if (!irq_desc[irq].handle_irq) {
-> +		__do_IRQ(irq, regs);
-> +		goto out_exit;
-> +	}
->  #ifdef CONFIG_4KSTACKS
->  
->  	curctx = (union irq_ctx *) current_thread_info();
-> @@ -109,6 +113,7 @@ fastcall unsigned int do_IRQ(struct pt_r
->  #endif
->  		desc->handle_irq(irq, desc, regs);
->  
-> +out_exit:
->  	irq_exit();
->  
->  	return 1;
-> Index: linux/include/linux/irq.h
-> ===================================================================
-> --- linux.orig/include/linux/irq.h
-> +++ linux/include/linux/irq.h
-> @@ -176,17 +176,6 @@ typedef struct irq_desc		irq_desc_t;
->   */
->  #include <asm/hw_irq.h>
->  
-> -/*
-> - * Architectures call this to let the generic IRQ layer
-> - * handle an interrupt:
-> - */
-> -static inline void generic_handle_irq(unsigned int irq, struct pt_regs *regs)
-> -{
-> -	struct irq_desc *desc = irq_desc + irq;
-> -
-> -	desc->handle_irq(irq, desc, regs);
-> -}
-> -
->  extern int setup_irq(unsigned int irq, struct irqaction *new);
->  
->  #ifdef CONFIG_GENERIC_HARDIRQS
-> @@ -324,6 +313,22 @@ handle_irq_name(void fastcall (*handle)(
->   */
->  extern fastcall unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs);
->  
-> +/*
-> + * Architectures call this to let the generic IRQ layer
-> + * handle an interrupt. If the descriptor is attached to an
-> + * irqchip-style controller then we call the ->handle_irq() handler,
-> + * and it calls __do_IRQ() if it's attached to an irqtype-style controller.
-> + */
-> +static inline void generic_handle_irq(unsigned int irq, struct pt_regs *regs)
-> +{
-> +	struct irq_desc *desc = irq_desc + irq;
-> +
-> +	if (likely(desc->handle_irq))
-> +		desc->handle_irq(irq, desc, regs);
-> +	else
-> +		__do_IRQ(irq, regs);
-> +}
-> +
->  /* Handling of unhandled and spurious interrupts: */
->  extern void note_interrupt(unsigned int irq, struct irq_desc *desc,
->  			   int action_ret, struct pt_regs *regs);
+In reality it probably doesn't matter much, since everything will be
+stalled until the queue is unfrozen anyways. Unless of course you have
+several slow-to-resume devices so you would at least get some overlap.
+But it would be nicer from a design view point.
+
+-- 
+Jens Axboe
 

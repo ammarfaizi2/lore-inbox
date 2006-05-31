@@ -1,96 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbWEaWsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWEaWq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965222AbWEaWsv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 18:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbWEaWsv
+	id S964812AbWEaWq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 18:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbWEaWqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 18:48:51 -0400
-Received: from mx1.suse.de ([195.135.220.2]:14767 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965222AbWEaWsv (ORCPT
+	Wed, 31 May 2006 18:46:55 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:21451 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964812AbWEaWqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 18:48:51 -0400
-Date: Wed, 31 May 2006 15:46:24 -0700
-From: Greg KH <gregkh@suse.de>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, lcapitulino@mandriva.com.br,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] ipaq.c bugfixes
-Message-ID: <20060531224624.GA17667@suse.de>
-References: <20060529204724.GA22250@fks.be> <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com> <20060531213828.GA17711@fks.be> <20060531215523.GA13745@suse.de> <20060531224245.GB17711@fks.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060531224245.GB17711@fks.be>
-User-Agent: Mutt/1.5.11
+	Wed, 31 May 2006 18:46:55 -0400
+Date: Thu, 1 Jun 2006 00:46:25 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       Martin Bligh <mbligh@google.com>, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: 2.6.17-rc5-mm1
+In-Reply-To: <20060531221242.GA5269@elte.hu>
+Message-ID: <Pine.LNX.4.64.0606010026160.17704@scrub.home>
+References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org>
+ <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org>
+ <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org>
+ <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org>
+ <20060531221242.GA5269@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 12:42:45AM +0200, Frank Gevaerts wrote:
-> This patch fixes several problems in the ipaq.c driver with connecting
-> and disconnecting pocketpc devices: 
-> * The read urb stayed active if the connect failed, causing nullpointer
->   dereferences later on. 
-> * If a write failed, the driver continued as if nothing happened. Now it
->   handles that case the same way as other usb serial devices (fix by 
->   "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>)
+Hi,
+
+On Thu, 1 Jun 2006, Ingo Molnar wrote:
+
+> on one side, the -mm kernel is about showcasing new code and finding
+> bugs in them as fast as possible. Having new debugging options enabled
+> by default is an important part of the testing effort. Users will care
+> more about having no crashes than about having 0.5% more performance in
+> select benchmarks.
 > 
-> The connect_retries parameter is added because if a pocketpc device is
-> connected while it is rebooting, it can take a long time after the USB
-> connect (sometimes several minutes) before it starts accepting the
-> control packet that starts the serial connection. Since this is not the
-> normal usecase, it is probably better to leave the default number of
-> retries as-is.
+> on the other side, you obviously dont want a 0.5% overhead for select 
+> benchmarks, as that would mess up the history! A very fair and valid 
+> position too.
 > 
-> Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
-> 
-> diff -pur linux-2.6.17-rc4/drivers/usb/serial/ipaq.c linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c
-> --- linux-2.6.17-rc4/drivers/usb/serial/ipaq.c	2006-03-20 06:53:29.000000000 +0100
-> +++ linux-2.6.17-rc4.test/drivers/usb/serial/ipaq.c	2006-05-30 20:46:23.000000000 +0200
-> @@ -71,6 +71,7 @@
->  
->  static __u16 product, vendor;
->  static int debug;
-> +static int connect_retries;
->  
->  /* Function prototypes for an ipaq */
->  static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
-> @@ -583,7 +584,7 @@ static int ipaq_open(struct usb_serial_p
->  	struct ipaq_private	*priv;
->  	struct ipaq_packet	*pkt;
->  	int			i, result = 0;
-> -	int			retries = KP_RETRIES;
-> +	int			retries = connect_retries;
->  
->  	dbg("%s - port %d", __FUNCTION__, port->number);
->  
-> @@ -681,6 +682,7 @@ enomem:
->  	result = -ENOMEM;
->  	err("%s - Out of memory", __FUNCTION__);
->  error:
-> +	usb_kill_urb(port->read_urb);
->  	ipaq_destroy_lists(port);
->  	kfree(priv);
->  	return result;
-> @@ -855,6 +857,7 @@ static void ipaq_write_bulk_callback(str
->  	
->  	if (urb->status) {
->  		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);
-> +		return;
->  	}
->  
->  	spin_lock_irqsave(&write_list_lock, flags);
-> @@ -967,3 +970,6 @@ MODULE_PARM_DESC(vendor, "User specified
->  
->  module_param(product, ushort, 0);
->  MODULE_PARM_DESC(product, "User specified USB idProduct");
-> +
-> +module_param(connect_retries, int, KP_RETRIES);
+> but one side has to give, we cant have both.
 
-I really do not think that you want KP_RETRIES as a mode value in sysfs
-:)
+As I mentioned before, please keep these defaults as a -mm-only patch, 
+Giving them testing in -mm is fine, but defaults are already way too much 
+abused as is. The default rule should be to enable an option explicitly, 
+if it's needed, it should not be auto-enabled, because its author likes 
+it so much. Using a "default y" should be close to hiding the option via 
+CONFIG_EMBEDDED or some other option and the default should not differ 
+between hidden and visible state, e.g.:
 
-This is not how you pre-initialize a module parameter...
+config FOO
+	bool "foo" if BAR
+	default y
 
-thanks,
-
-greg k-h
+bye, Roman

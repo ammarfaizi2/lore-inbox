@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWEaMKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWEaMMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWEaMKA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 08:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWEaMKA
+	id S964974AbWEaMMn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 08:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWEaMMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 08:10:00 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:33721 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S964969AbWEaMKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 08:10:00 -0400
-From: Oliver =?iso-8859-1?q?K=F6nig?= <k.oliver@t-online.de>
-To: linux-kernel@vger.kernel.org
-Subject: __alloc_pages: 0-order allocation failed
-Date: Wed, 31 May 2006 14:09:40 +0200
-User-Agent: KMail/1.9.1
+	Wed, 31 May 2006 08:12:43 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:18104 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964974AbWEaMMm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 08:12:42 -0400
+Message-ID: <447D878C.8090907@aitel.hist.no>
+Date: Wed, 31 May 2006 14:09:48 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Martin Mares <mj@ucw.cz>
+CC: Jon Smirl <jonsmirl@gmail.com>, Ondrej Zajicek <santiago@mail.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <20060530223513.GA32267@localhost.localdomain> <9e4733910605301555o287cbd18i99c8813ca6592494@mail.gmail.com> <mj+md-20060531.064701.10737.atrey@ucw.cz>
+In-Reply-To: <mj+md-20060531.064701.10737.atrey@ucw.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605311409.40560.k.oliver@t-online.de>
-X-ID: GzNEg8ZQgeVwvTNY9V4skkZvUAQ-+ana-uhz-VMbvABRxbDoamTcc4
-X-TOI-MSGID: cca310e2-998f-491f-9d1f-3ae8aef260d7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I run Debian 3.1 (Sarge) with Debian-Kernel 2.4.27-3-686-smp on Dell 
-Poweredge 2850 with the following setup/config:
+Martin Mares wrote:
+> Hi!
+>
+>   
+>> My thoughts are mixed on continuing to support text mode for anything
+>> other than initial boot/install. Linux is all about multiple languages
+>> and the character ROMs for text mode don't support all of these
+>> languages.
+>>     
+>
+> On most servers, you don't need (and you don't want) anything like that.
+> In such cases, everything should be kept simple.
+Linux isn't all about servers - but still, a framebuffer is not
+"complicated" compared to vga textmode.  It uses more
+memory, but that is graphichs memory the server can't
+put to better use anyway.
 
-Model: Dell Poweredge 2850
-CPU: 2x3.0 GHz
-RAM: 2 GB
-SWAP: 1 GB
-Raid 1 with Dell PowerEdge Expandable RAID controller 4 (SCSI)
-Kernel: 2.4.27-3-686-smp (CONFIG_HIGHMEM4G=y)
-Web server: apache2
-SQL server: mysql4.1
-MTA: exim4
 
-Occasionally all of a sudden the load average increases from around 1 
-to 50-150. Primarily apache2 and also mysql are then consuming most of the CPU 
-and memory. I checked the hardware with the Dell 32-bit diagnostic but could 
-not find any errors. /var/log/message produces the following or similar 
-output:
-
-May 24 09:06:44 server kernel: VM: killing process cron
-May 24 09:06:44 server kernel: __alloc_pages: 0-order allocation failed 
-(gfp=0x1d2/0)
-May 24 09:06:44 server last message repeated 6 times
-May 24 09:06:44 server kernel: VM: killing process apache2
-May 24 09:06:56 server logger: Hole TAFSYNOP-Wetterdaten...
-May 24 09:11:09 server kernel: __alloc_pages: 0-order allocation failed 
-(gfp=0x1d2/0)
-[..]
-
-The server is then so slow tom react that the only way to get rid of the 
-problem is to reset the server.
-
-What can we do to fix the problem?
-Thanks.
-Oliver
+Helge Hafting

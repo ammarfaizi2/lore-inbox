@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbWEaXMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbWEaXLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965242AbWEaXMp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965249AbWEaXMp
+	id S965246AbWEaXLc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965253AbWEaXLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:12:45 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:10605 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965242AbWEaXMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:12:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BznJ8XU52SJQ/lqzckDn1Vq8fCi8pBuu3Vimnh2otWLkSpdYL53zrH7NERN8XTsv8nLx6hDb1YWHH8X1TGa1BGqrXCr5tzMkS63VRIsO8seUfApaff5n8/jOop/WOP56FMa2kIMYLi6pncUPlynxwWIx9IAYGPuj9oPUEaFBKnY=
-Message-ID: <20f65d530605311612n15820847sca559d0c443fc230@mail.gmail.com>
-Date: Thu, 1 Jun 2006 11:12:43 +1200
-From: "Keith Chew" <keith.chew@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: IO APIC IRQ assignment
+	Wed, 31 May 2006 19:11:32 -0400
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:46057 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S965244AbWEaXLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 19:11:31 -0400
+Date: Wed, 31 May 2006 16:14:05 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0606010002200.30170@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] ARM: Fix XScale PMD setting
+Message-ID: <20060531231405.GA19573@plexity.net>
+Reply-To: dsaxena@plexity.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
-	 <20060530135017.GD5151@harddisk-recovery.com>
-	 <20f65d530605300705l60bfcca7k47a41c95bf42a0ef@mail.gmail.com>
-	 <Pine.LNX.4.61.0606010002200.30170@yvahk01.tjqt.qr>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> Plus
-> CONFIG_X86_UP_APIC=y
-> CONFIG_X86_UP_IOAPIC=y
-> CONFIG_X86_LOCAL_APIC=y
-> CONFIG_X86_IO_APIC=y
->
-> but I guess you already have these.
->
 
-Yes, I have these options enabled.
+The ARM Architecture Reference Manual lists bit 4 of the PMD as "implementation 
+defined" and it must be set to zero on Intel XScale CPUs or the cache does
+not behave properly. Found by Mike Rapoport while debugging a flash issue
+on the PXA255: 
 
-*sigh*
+http://marc.10east.com/?l=linux-arm-kernel&m=114845287600782&w=1
 
-Keith
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+
+diff --git a/arch/arm/mm/mm-armv.c b/arch/arm/mm/mm-armv.c
+index f14b2d0..95273de 100644
+--- a/arch/arm/mm/mm-armv.c
++++ b/arch/arm/mm/mm-armv.c
+@@ -376,7 +376,7 @@ #endif
+ 		ecc_mask = 0;
+ 	}
+ 
+-	if (cpu_arch <= CPU_ARCH_ARMv5TEJ) {
++	if (cpu_arch <= CPU_ARCH_ARMv5TEJ && !cpu_is_xscale()) {
+ 		for (i = 0; i < ARRAY_SIZE(mem_types); i++) {
+ 			if (mem_types[i].prot_l1)
+ 				mem_types[i].prot_l1 |= PMD_BIT4;
+@@ -631,7 +631,7 @@ void setup_mm_for_reboot(char mode)
+ 		pgd = init_mm.pgd;
+ 
+ 	base_pmdval = PMD_SECT_AP_WRITE | PMD_SECT_AP_READ | PMD_TYPE_SECT;
+-	if (cpu_architecture() <= CPU_ARCH_ARMv5TEJ)
++	if (cpu_architecture() <= CPU_ARCH_ARMv5TEJ && !cpu_is_xscale())
+ 		base_pmdval |= PMD_BIT4;
+ 
+ 	for (i = 0; i < FIRST_USER_PGD_NR + USER_PTRS_PER_PGD; i++, pgd++) {
+diff --git a/include/asm-arm/system.h b/include/asm-arm/system.h
+index 95b3abf..7c9568d 100644
+--- a/include/asm-arm/system.h
++++ b/include/asm-arm/system.h
+@@ -127,6 +127,12 @@ static inline int cpu_is_xsc3(void)
+ }
+ #endif
+ 
++#if !defined(CONFIG_CPU_XSCALE) && !defined(CONFIG_CPU_XSC3)
++#define	cpu_is_xscale()	0
++#else
++#define	cpu_is_xscale()	1
++#endif
++
+ #define set_cr(x)					\
+ 	__asm__ __volatile__(				\
+ 	"mcr	p15, 0, %0, c1, c0, 0	@ set CR"	\
+
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+In the end, they will not say, "those were dark times,"  they will ask
+"why were their poets silent?" - Bertold Brecht

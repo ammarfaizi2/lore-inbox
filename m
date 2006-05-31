@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751598AbWEaDRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbWEaD2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751598AbWEaDRl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 23:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbWEaDRl
+	id S1751601AbWEaD2S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 23:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbWEaD2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 23:17:41 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:19441 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751598AbWEaDRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 23:17:40 -0400
-Subject: Re: 2.6.17-rc5-mm1
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060530022925.8a67b613.akpm@osdl.org>
-References: <20060530022925.8a67b613.akpm@osdl.org>
+	Tue, 30 May 2006 23:28:18 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:22408 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751600AbWEaD2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 23:28:17 -0400
+Subject: Re: 2.6.14-rt1: oprofile doesn't work anymore
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <1131302759.13599.10.camel@mindpipe>
+References: <1131053974.23154.9.camel@mindpipe>
+	 <1131060132.4770.2.camel@mindpipe>  <1131302759.13599.10.camel@mindpipe>
 Content-Type: text/plain
-Date: Tue, 30 May 2006 23:17:28 -0400
-Message-Id: <1149045448.28264.4.camel@localhost.localdomain>
+Date: Tue, 30 May 2006 23:27:56 -0400
+Message-Id: <1149046077.4239.6.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh look what I found.  It seems that little driver of Andrew's has come
-back to haunt me :)  And I think it has to do with that cute little
-disable_irq in vortex_timer again.
+(replying to a very old thread)
 
+On Sun, 2005-11-06 at 13:45 -0500, Lee Revell wrote:
+> On Thu, 2005-11-03 at 18:22 -0500, Lee Revell wrote:
+> > I just tested this with oprofile both built into the kernel and as a
+> > module, and with oprofile userspace tools 0.9.1 and from CVS.  No
+> > change.  I have verified that /dev/oprofile is mounted.  It looks like
+> > the profiler never sees any samples.
+> > 
+> > rlrevell@mindpipe:~$ cat /dev/oprofile/stats/cpu0/sample_received 
+> > 0
+> > 
+> > Could one of the ktimers changes have broken the timer interrupt based
+> > profiling?
+> 
+> I have verified that oprofile does work with 2.6.14.  So the breakage is
+> unique to the -rt kernel.
 
-============================
-[ BUG: illegal lock usage! ]
-----------------------------
-illegal {in-hardirq-W} -> {hardirq-on-W} usage.
-idle/0 [HC0[0]:SC1[2]:HE1:SE0] takes:
- (&vp->lock){++..}, at: [<f8895b44>] vortex_timer+0x414/0x490 [3c59x]
-{in-hardirq-W} state was registered at:
-  [<c013c759>] lockdep_acquire+0x59/0x70
-  [<c031a11d>] _spin_lock+0x3d/0x50
-  [<f8898983>] boomerang_interrupt+0x33/0x470 [3c59x]
-  [<c0147a11>] handle_IRQ_event+0x31/0x70
-  [<c0149304>] handle_level_irq+0xa4/0x100
-  [<c0105658>] do_IRQ+0x58/0x90
-  [<c010348d>] common_interrupt+0x25/0x2c
-  [<c010162d>] cpu_idle+0x4d/0xb0
-  [<c01002e5>] rest_init+0x45/0x50
-  [<c03f881a>] start_kernel+0x32a/0x460
-  [<c0100210>] 0xc0100210
-irq event stamp: 220672
-hardirqs last  enabled at (220672): [<c031aa45>] _spin_unlock_irqrestore+0x65/00hardirqs last disabled at (220671): [<c031a5d6>] _spin_lock_irqsave+0x16/0x60
-softirqs last  enabled at (220658): [<c0124453>] __do_softirq+0xf3/0x110
-softirqs last disabled at (220667): [<c01244e5>] do_softirq+0x75/0x80
+Ingo,
 
-other info that might help us debug this:
-no locks held by idle/0.
+oprofile still does not work with the -rt kernel (verified with
+2.6.16-rt20).
 
-stack backtrace:
- <c01052bb> show_trace+0x1b/0x20  <c01052e6> dump_stack+0x26/0x30
- <c013af5d> print_usage_bug+0x22d/0x240  <c013b591> mark_lock+0x621/0x6c0
- <c013b6ff> __lockdep_acquire+0xcf/0xd30  <c013c759> lockdep_acquire+0x59/0x70
- <c031a172> _spin_lock_bh+0x42/0x50  <f8895b44> vortex_timer+0x414/0x490 [3c59x] <c0128cf9> run_timer_softirq+0xc9/0x1a0  <c01243e7> __do_softirq+0x87/0x110
- <c01244e5> do_softirq+0x75/0x80  <c0124650> irq_exit+0x50/0x60
- <c01102a3> smp_apic_timer_interrupt+0x73/0x80  <c010354e> apic_timer_interrupt0 <c010162d> cpu_idle+0x4d/0xb0  <c010f2a5> start_secondary+0x455/0x500
- <00000000> 0x0  <f7f85fb4> 0xf7f85fb4
+Can anyone else reproduce this?
 
+Lee
 
--- Steve
 
 

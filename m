@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWEaUbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWEaUcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbWEaUbv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 16:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWEaUbv
+	id S964872AbWEaUcw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 16:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWEaUcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 16:31:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:743 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964873AbWEaUbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 16:31:50 -0400
-Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
-	disable_irq()
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: alan@redhat.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060531200236.GA31619@elte.hu>
-References: <20060531200236.GA31619@elte.hu>
-Content-Type: text/plain
-Date: Wed, 31 May 2006 22:31:40 +0200
-Message-Id: <1149107500.3114.75.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 31 May 2006 16:32:52 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:33721 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S964849AbWEaUct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 16:32:49 -0400
+To: "Geert Uytterhoeven" <geert@linux-m68k.org>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       "Ondrej Zajicek" <santiago@mail.cz>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+In-Reply-To: <9e4733910605311257m19450bbai4c3ae6fdc7909a4@mail.gmail.com>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <20060530223513.GA32267@localhost.localdomain> <447CD367.5050606@gmail.com> <Pine.LNX.4.62.0605312033260.16745@pademelon.sonytel.be> <Pine.LNX.4.62.0605312033260.16745@pademelon.sonytel.be> <9e4733910605311257m19450bbai4c3ae6fdc7909a4@mail.gmail.com>
+Date: Wed, 31 May 2006 21:32:42 +0100
+Message-Id: <E1FlXMw-0002Md-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-31 at 22:02 +0200, Ingo Molnar wrote:
-> untested on 8390 hardware, but ought to solve the lockdep false 
-> positive.
-> 
-> -----------------
-> Subject: locking validator: special rule: 8390.c disable_irq()
-> From: Ingo Molnar <mingo@elte.hu>
-> 
-> 8390.c knows that ei_local->page_lock can only be used by an irq
-> context that it disabled -
+Jon Smirl <jonsmirl@gmail.com> wrote:
 
-btw I think this is no longer correct with the irq polling stuff Alan
-added to the kernel recently...
+> Moving back to a vgafb with text mode support in fbcon would be one
+> way to eliminate a few of the way too many graphics drivers. I don't
+> see any real downside side to doing this, does any one else see any
+> problems?
 
+Just to check what you mean by "text mode" - is this vga mode 3, or 
+a graphical vga mode with text drawn in it? vga16fb doesn't work on all 
+hardware that vgacon works on, much to my continued misery.
+
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWEaNGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWEaNM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965007AbWEaNGc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 09:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965011AbWEaNGc
+	id S965011AbWEaNM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 09:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWEaNMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 09:06:32 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:41862 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S964998AbWEaNGb (ORCPT
+	Wed, 31 May 2006 09:12:55 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:57640 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965011AbWEaNMz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 09:06:31 -0400
-Date: Wed, 31 May 2006 17:06:15 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: "Brian F. G. Bidulock" <bidulock@openss7.org>
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060531130615.GA32362@2ka.mipt.ru>
-References: <20060530235525.A30563@openss7.org> <20060531.001027.60486156.davem@davemloft.net> <20060531014540.A1319@openss7.org> <20060531.004953.91760903.davem@davemloft.net> <20060531020009.A1868@openss7.org> <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531110459.GA20551@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060531110459.GA20551@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 31 May 2006 17:06:16 +0400 (MSD)
+	Wed, 31 May 2006 09:12:55 -0400
+Message-ID: <447D95DE.1080903@sw.ru>
+Date: Wed, 31 May 2006 17:10:54 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au>
+In-Reply-To: <44781167.6060700@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 03:04:59PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> On Wed, May 31, 2006 at 02:58:18PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> > On Wed, May 31, 2006 at 03:51:24AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
-> > > Evgeniy,
-> > > 
-> > > On Wed, 31 May 2006, Evgeniy Polyakov wrote:
-> > > > 2. Compared Jenkins hash with XOR hash used in TCP socket selection code.
-> > > > http://tservice.net.ru/~s0mbre/blog/2006/05/14#2006_05_14
-> > > 
-> > > Two problems with the comparison:
-> > > 
-> > >   Port numbers can be collected into a 32 bit register in network
-> > >   byte order directly from the TCP packet without taking two 16 bit
-> > >   values and shifting and or'ing them.
-> > 
-> > They are.
-> > 
-> > u32 ports;
-> > 
-> > ports = lport;
-> > ports <<= 16;
-> > ports |= fport;
+>> Using a timer for releasing tasks from their sinbin sounds like a  bit
+>> of an overhead. Given that there could be 10s of thousands of tasks.
 > 
-> Using network or host byte order does not affect hash distribution,
-> that shifting was coded to simulate other types of mixing ports,
-> which actually never showed different results.
 > 
-> > >   Worse: he folded the jenkins algorith result with
-> > > 
-> > >    h ^= h >> 16;
-> > >    h ^= h >> 8;
-> > > 
-> > >   Destroying the coverage of the function.
-> > 
-> > It was done to simulate socket code which uses the same folding.
-> > Leaving 32bit space is just wrong, consider hash table size with that
-> > index.
+> The more runnable tasks there are the less likely it is that any of them 
+> is exceeding its hard cap due to normal competition for the CPUs.  So I 
+> think that it's unlikely that there will ever be a very large number of 
+> tasks in the sinbin at the same time.
+for containers this can be untrue... :( actually even for 1000 tasks (I 
+suppose this is the maximum in your case) it can slowdown significantly 
+as well.
 
-Btw, that probably requires some clarification.
-Since hash table size is definitely less than returned hash value, so
-higher bits are removed, for that case above folding is done both in
-XOR hash and my test case. 
-It is possible to just remove higher bits, but fairly ditributed parts
-being xored produce still fairly distributed value.
+>> Is it possible to use the scheduler_tick() function take a look at all
+>> deactivated tasks (as efficiently as possible) and activate them when
+>> its time to activate them or just fold the functionality by defining a
+>> time quantum after which everyone is worken up. This time quantum
+>> could be the same as the time over which limits are honoured.
+agree with it.
 
--- 
-	Evgeniy Polyakov
+Kirill
+

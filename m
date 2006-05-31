@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWEaS0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWEaS0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751781AbWEaS0w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 14:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWEaS0w
+	id S1751779AbWEaS0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 14:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWEaS0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 14:26:52 -0400
-Received: from rrcs-24-227-247-130.sw.biz.rr.com ([24.227.247.130]:65238 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id S1751781AbWEaS0v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 14:26:51 -0400
-From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH 0/2][RFC] iWARP Core Support
-Date: Wed, 31 May 2006 13:26:50 -0500
-To: rdreier@cisco.com, mshefty@ichips.intel.com
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       openib-general@openib.org
-Message-Id: <20060531182650.3308.81538.stgit@stevo-desktop>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
+	Wed, 31 May 2006 14:26:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27809 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751779AbWEaS0r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 14:26:47 -0400
+Date: Wed, 31 May 2006 11:26:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com
+Subject: Re: [rfc][patch] remove racy sync_page?
+In-Reply-To: <20060531181312.GA29535@suse.de>
+Message-ID: <Pine.LNX.4.64.0605311121390.24646@g5.osdl.org>
+References: <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
+ <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au>
+ <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au>
+ <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au>
+ <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <Pine.LNX.4.64.0605310755210.24646@g5.osdl.org>
+ <20060531181312.GA29535@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patchset defines the modifications to the Linux infiniband subsystem
-to support iWARP devices.  We're submitting it for review now with the
-goal for inclusion in the 2.6.19 kernel.  This code has gone through
-several reviews in the openib-general list.  Now we are submitting it
-for external review by the linux community.
 
-This StGIT patchset is cloned from Roland Dreier's infiniband.git
-for-2.6.18 branch.  The patchset consists of 2 patches:
+On Wed, 31 May 2006, Jens Axboe wrote:
+> 
+> Anyway, the point I wanted to make is that this was never driven by
+> scheduler activity. So there!
 
-        1 - New iWARP CM implementation.  
-        2 - Core changes to support iWARP.
+Heh. I confused tq_disk and tq_scheduler, methinks.
 
-Signed-off-by: Tom Tucker <tom@opengridcomputing.com>
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+And yes, "run_task_queue(&tq_disk)" was in lock_page(), not the scheduler.
+
+			Linus

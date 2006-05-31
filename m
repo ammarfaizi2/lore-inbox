@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWEaVPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbWEaVQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965066AbWEaVPP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWEaVPP
+	id S965084AbWEaVQl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbWEaVQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:15:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:1000 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965066AbWEaVPN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:15:13 -0400
-Date: Wed, 31 May 2006 23:15:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Bligh <mbligh@google.com>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060531211530.GA2716@elte.hu>
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060531140823.580dbece.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 31 May 2006 17:16:41 -0400
+Received: from ik55118.ikexpress.com ([213.246.55.118]:47496 "EHLO
+	ik55118.ikexpress.com") by vger.kernel.org with ESMTP
+	id S965084AbWEaVQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:16:40 -0400
+Message-ID: <447E07A1.1030601@free-electrons.com>
+Date: Wed, 31 May 2006 23:16:17 +0200
+From: Michael Opdenacker <michael-lists@free-electrons.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: How to extract the cpio archive in the kernel image?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Does anyone know a simple, command line way to extract the cpio archive 
+embedded in a (compressed) kernel image?
 
-> > EIP is at check_deadlock+0x15/0xe0
+That would be useful to modify the initramfs included in the kernel 
+image even if one only has the kernel binary and sources, but not the 
+initramfs sources.
 
-> >   <c012b77b> check_deadlock+0xa5/0xe0  <c012b922> 
-> > debug_mutex_add_waiter+0x46/0x55
-> >   <c02d50de> __mutex_lock_slowpath+0x9e/0x1c0  <c0160061> 
-> > lookup_create+0x19/0x5b
-> >   <c016043a> sys_mkdirat+0x4c/0xc3  <c01604c0> sys_mkdir+0xf/0x13
-> >   <c02d6217> syscall_call+0x7/0xb
-> 
-> Looks like the lock validator came unstuck.  But there's so much other 
-> crap happening in there it's hard to tell.  Did you try it without all 
-> the lockdep stuff enabled?
+Of course, it is always possible to get the initramfs contents from the 
+running kernel and dump them somewhere, or to write a custom program for 
+this purpose (accessing and uncompressing the embedded cpio archive as 
+the kernel does), but it would be nice it there was a simpler way with 
+regular Unix commands (I guess involving gunzip and cpio).
 
-AFAICS this isnt the lock validator but the normal mutex debugging code 
-(CONFIG_DEBUG_MUTEXES). The log does not indicate that lockdep was 
-enabled.
+In a nutshell, how to open the penguin and still get the golden egg? ;-)
 
-	Ingo
+    Cheers,
+
+    Michael.  
+
+-- 
+Michael Opdenacker, Free Electrons
+Free Embedded Linux Training Materials
+on http://free-electrons.com/training
+(More than 1000 pages!)
+

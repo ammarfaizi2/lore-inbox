@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWEaVBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWEaVBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbWEaVBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWEaVBE
+	id S964986AbWEaVBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWEaVBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:01:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18385 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964972AbWEaVBD (ORCPT
+	Wed, 31 May 2006 17:01:08 -0400
+Received: from ns2.suse.de ([195.135.220.15]:42219 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964986AbWEaVBH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:01:03 -0400
-Date: Wed, 31 May 2006 14:01:00 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] iWARP Connection Manager.
-Message-ID: <20060531140100.36024296@localhost.localdomain>
-In-Reply-To: <1149109080.7469.15.camel@stevo-desktop>
-References: <20060531182650.3308.81538.stgit@stevo-desktop>
-	<20060531182652.3308.1244.stgit@stevo-desktop>
-	<20060531114059.704ef1f1@localhost.localdomain>
-	<ada3beqyp39.fsf@cisco.com>
-	<1149109080.7469.15.camel@stevo-desktop>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 31 May 2006 17:01:07 -0400
+From: Andi Kleen <ak@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Subject: Re: linux-2.6 x86_64 kgdb issue
+Date: Wed, 31 May 2006 23:01:56 +0200
+User-Agent: KMail/1.9.1
+Cc: piet@bluelane.com, "Amit S. Kale" <amitkale@linsyssoft.com>,
+       "Vladimir A. Barinov" <vbarinov@ru.mvista.com>,
+       Andrew Morton <akpm@osdl.org>, kgdb-bugreport@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <446E0B4B.9070003@ru.mvista.com> <200605310913.54758.ak@suse.de> <20060531150343.GZ31210@smtp.west.cox.net>
+In-Reply-To: <20060531150343.GZ31210@smtp.west.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605312301.56452.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 May 2006 15:58:00 -0500
-Steve Wise <swise@opengridcomputing.com> wrote:
-
-> On Wed, 2006-05-31 at 12:24 -0700, Roland Dreier wrote:
-> > > > +	cm_id_priv = kzalloc(sizeof *cm_id_priv, GFP_KERNEL);
-> > 
-> > > Please put paren's after sizeof, it is not required by C but it
-> > > is easier to read.
-> > 
-> > I disagree -- I hate seeing sizeof look like a function call.
-> > 
-> 
-> For the most part, drivers/infiniband/core uses sizeof without
-> parentheses.  So I think the correct answer here is to keep the iwcm.c
-> file in line with the rest of the core.
-> 
+On Wednesday 31 May 2006 17:03, Tom Rini wrote:
+> On Wed, May 31, 2006 at 09:13:53AM +0200, Andi Kleen wrote:
+>
+> [snip]
+>
+> > Yes because you if modular works you don't need to build it in.
+> >
+> > Modular was working at some point on x86-64 for kdb and the original 2.6
+> > version of kgdb was nearly there too.
+>
+> FWIW, the only change the current version of kgdb makes that would
+> prevent it from being totally modular is the debugger_active check in
 > 
 
-Make yours right, Bunk will "fix" infiniband core.  The kernel style
-matters not the subsystem.  In Documentation/CodingStyle
+Can you post the patch and a description? 
 
-		Chapter 13: Allocating memory
-
-The kernel provides the following general purpose memory allocators:
-kmalloc(), kzalloc(), kcalloc(), and vmalloc().  Please refer to the API
-documentation for further information about them.
-
-The preferred form for passing a size of a struct is the following:
-
-	p = kmalloc(sizeof(*p), ...);
-
-The alternative form where struct name is spelled out hurts readability and
-introduces an opportunity for a bug when the pointer variable type is changed
-but the corresponding sizeof that is passed to a memory allocator is not.
-
-Casting the return value which is a void pointer is redundant. The
-conversion from void pointer to any other pointer type is guaranteed by
-the C programming language.
+-Andi

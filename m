@@ -1,92 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWEaFz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWEaGKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWEaFz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 01:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWEaFz2
+	id S964774AbWEaGKH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 02:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWEaGKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 01:55:28 -0400
-Received: from gw.openss7.com ([142.179.199.224]:26344 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S932499AbWEaFz1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 01:55:27 -0400
-Date: Tue, 30 May 2006 23:55:26 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Raghuram <draghuram@rocketmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060530235525.A30563@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Raghuram <draghuram@rocketmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20060531042908.10463.qmail@web51410.mail.yahoo.com>
+	Wed, 31 May 2006 02:10:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:42768 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964774AbWEaGKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 02:10:05 -0400
+Date: Wed, 31 May 2006 07:54:38 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: marcelo@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [PATCH-2.4] forcedeth update to 0.50
+Message-ID: <20060531055438.GA9142@w.ods.org>
+References: <20060530220319.GA6945@w.ods.org> <447D2EA8.8020001@colorfullife.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060531042908.10463.qmail@web51410.mail.yahoo.com>; from draghuram@rocketmail.com on Tue, May 30, 2006 at 09:29:08PM -0700
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+In-Reply-To: <447D2EA8.8020001@colorfullife.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raghuram,
-
-On Tue, 30 May 2006, Raghuram wrote:
-
+On Wed, May 31, 2006 at 07:50:32AM +0200, Manfred Spraul wrote:
+> Hi Willy,
 > 
-> Hi,
+> Willy Tarreau wrote:
 > 
-> I needed a hash function (in my TCP related work) for
-> a project and happened to look at the function used by
-> TCP implementation in Linux. I searched for some
-> information about this function but couldn't find much
-> info. I would appreciate it if someone can provide
-> details or some pointers in this regard. Specifically,
-> 
-> 
-> 1) Are there some design considerations/assumptions
-> behind the algorithm? In general, how was the
-> algorithm arrived at?
+> >I started from the latest backport you sent in september (0.42) and
+> >incrementally applied 2.6 updates. I stopped at 0.50 which provides
+> >VLAN support, because after this one, there are some 2.4-incompatible
+> >changes (64bit consistent memory allocation for rings, and MSI/MSIX
+> >support).
+> >
+> > 
+> >
+> I agree, 2.4 needs a backport. Either a full backport as you did, or a 
+> minimal one-liner fix.
+> Right now, the driver is not usable due to an incorrect initialization.
+> Or to be more accurate:
+>    # modprobe
+>    # ifup
+> works.
+> But
+>    # modprobe
+>    # ifup
+>    # ifdown
+>    # ifup
+> causes a misconfiguration, and the nic hangs hard after a few MB. And 
+> recent distros do the equivalent of ifup/ifdown/ifup somewhere in the 
+> initialization.
 
-If you mean tcp_hashfn() from 2.4 kernel, I don't believe so.
-In fact, if you analyze it, it is not even a very good nor
-efficient hash function.  For example, it goes to great pains
-to permute upper order bits in the local address, which for
-most connections will be a constant value.
+That's what I read in one of the changelogs, but I'm not sure at all that
+it's what happened, because I had the problem after an ifup only. What I
+was doing with this box was pure performance tests which drew me to compare
+the broadcom and nforce performance. My tests measured 3 creteria :
 
-> 2) What happens if there are collisions? I am assuming
-> that each entry in the array will point to a linked
-> list of structures. Is there any limit on the length
-> of this list? 
+  - number of HTTP/1.0 hits/s
+  - maximum data rate
+  - maximum packets/s
 
-The hash value is used to index a hash bucket that has
-established TCP sockets attached in a linked (collision)
-list.  Because the number of input values is limited, the
-number of collisions is bounded.  What the actual bound is
-can be determined by analysis or using numerical methods.
+on tg3, I got around 45 khits/s, 949 Mbps (TCP, =1.0 Gbps on wire) and
+1.05 Mpps receive (I want to build a high speed load-balancer and a sniffer).
+This was stable.
 
-Because local address has an extremely limited range, local
-port number has a limited range (for dynamic assigment) and
-the maximum number of connections will be limited by other
-factors (e.g. system maximum number of open file descriptors)
-the practical bound is much smaller than the theoretical bound
-on the length of the collision list.  Because it is not a very
-good hash function, the bound on collisions for a given range
-of input values might be greater than if a better function were
-used.  Also, TCP allocates rather large connection hash tables
-at startup further reducing the size of collision lists.
+On the nforce, I tried with the hits/s first because it's a good indication
+of hardware-based and driver-based optimizations. It reached 18 khits/s with
+a lot of difficulty and the machine was stuck at 100% of one CPU. But it ran
+for a few minutes like this. Then I tried data rate (which is the same test
+with 1MB objects), and it failed after about 2 seconds and few megabytes (or
+hundreds of megabytes) transferred.
 
-There are two typcial uses of TCP: well known port numbers
-upon which listening servers exist and outgoing client connections.
-Outgoing client connections will almost always use a unique port
-number.  The hash function does not really exploit this fact.
+I had to reboot to get it to work again. And I'm fairly sure that I did not
+do down/up this time as well, but the test came to the same end.
 
---brian
+That's why I'm not sure at all that the one-liner will be enough.
 
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+Moreover, after the update, I reached the same performance as with the
+broadcom, with a slight improvement on packet reception (1.09 Mpps), and
+low CPU usage (15%). So basically, the upgrade rendered the driver from
+barely usable for SSH to very performant.
+
+> Marcelo: Do you need a one-liner, or could you apply a large backport 
+> patch?
+
+I would really vote for the full backport, and I can break it into pieces
+if needed (I have them at hand, just have to re-inject the changelogs).
+However, I have separate changes from 0.42 to 0.50, because I started
+with your 0.30-0.42 backport patch.
+
+I have this machine till the end of the week, so I can perform other tests
+if you're interested in trying specific things.
+
+> --
+>    Manfred
+
+Cheers,
+Willy
+

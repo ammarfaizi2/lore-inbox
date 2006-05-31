@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbWEaXPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965254AbWEaX2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965249AbWEaXPm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWEaXPl
+	id S965254AbWEaX2s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbWEaX2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:15:41 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48869 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965249AbWEaXPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:15:41 -0400
-Date: Thu, 1 Jun 2006 01:16:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Drynoff <pauldrynoff@gmail.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
-Message-ID: <20060531231602.GA9610@elte.hu>
-References: <20060530195417.e870b305.pauldrynoff@gmail.com> <20060530132540.a2c98244.akpm@osdl.org> <20060531181926.51c4f4c5.pauldrynoff@gmail.com> <1149085739.3114.34.camel@laptopd505.fenrus.org> <20060531203823.bc77da92.pauldrynoff@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060531203823.bc77da92.pauldrynoff@gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 31 May 2006 19:28:48 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:709 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965254AbWEaX2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 19:28:47 -0400
+Message-ID: <447E26AC.7010102@bigpond.net.au>
+Date: Thu, 01 Jun 2006 09:28:44 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Kirill Korotaev <dev@sw.ru>
+CC: Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>
+In-Reply-To: <447D95DE.1080903@sw.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 31 May 2006 23:28:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kirill Korotaev wrote:
+>>> Using a timer for releasing tasks from their sinbin sounds like a  bit
+>>> of an overhead. Given that there could be 10s of thousands of tasks.
+>>
+>>
+>> The more runnable tasks there are the less likely it is that any of 
+>> them is exceeding its hard cap due to normal competition for the 
+>> CPUs.  So I think that it's unlikely that there will ever be a very 
+>> large number of tasks in the sinbin at the same time.
+> for containers this can be untrue...
 
-* Paul Drynoff <pauldrynoff@gmail.com> wrote:
+Why will this be untrue for containers?
 
-> On Wed, 31 May 2006 16:28:59 +0200
-> Arjan van de Ven <arjan@linux.intel.com> wrote:
+> :( actually even for 1000 tasks (I 
+> suppose this is the maximum in your case) it can slowdown significantly 
+> as well.
 > 
-> > On Wed, 2006-05-31 at 18:19 +0400, Paul Drynoff wrote:
-> 
-> > Make the ne2000 drivers use irqsave, they already disabled 
-> > interrupts generally so it is semi redundant, but it'll help the 
-> > lock validator at least...
-> 
-> Yes, this patch fixes situation.
+>>> Is it possible to use the scheduler_tick() function take a look at all
+>>> deactivated tasks (as efficiently as possible) and activate them when
+>>> its time to activate them or just fold the functionality by defining a
+>>> time quantum after which everyone is worken up. This time quantum
+>>> could be the same as the time over which limits are honoured.
+> agree with it.
 
-great!
+If there are a lot of RUNNABLE (i.e. on a run queue) tasks then normal 
+competition will mean that their CPU usage rates are small and therefore 
+unlikely to be greater than their cap.  The sinbin is only used for 
+tasks that are EXCEEDING their cap.
 
-	Ingo
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

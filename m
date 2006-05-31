@@ -1,81 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965246AbWEaXLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965250AbWEaXOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965246AbWEaXLc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 19:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965253AbWEaXLc
+	id S965250AbWEaXOq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 19:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWEaXOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 19:11:32 -0400
-Received: from sccrmhc11.comcast.net ([63.240.77.81]:46057 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S965244AbWEaXLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 19:11:31 -0400
-Date: Wed, 31 May 2006 16:14:05 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ARM: Fix XScale PMD setting
-Message-ID: <20060531231405.GA19573@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Wed, 31 May 2006 19:14:46 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:3758 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965250AbWEaXOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 19:14:46 -0400
+Date: Thu, 1 Jun 2006 01:15:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, mbligh@google.com,
+       linux-kernel@vger.kernel.org, apw@shadowen.org, ak@suse.de
+Subject: Re: 2.6.17-rc5-mm1
+Message-ID: <20060531231502.GA9560@elte.hu>
+References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <20060531230710.GA7484@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060531230710.GA7484@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5009]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The ARM Architecture Reference Manual lists bit 4 of the PMD as "implementation 
-defined" and it must be set to zero on Intel XScale CPUs or the cache does
-not behave properly. Found by Mike Rapoport while debugging a flash issue
-on the PXA255: 
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-http://marc.10east.com/?l=linux-arm-kernel&m=114845287600782&w=1
+> Martin, is the box still somewhat operational after such a crash? If 
+> yes then we could use my crash-tracer to see the kernel function call 
+> history leading up to the crash:
+> 
+>   http://redhat.com/~mingo/lockdep-patches/latency-tracing-lockdep.patch
+> 
+> just apply the patch, accept the offered Kconfig defaults and it will 
+> be configured to do the trace-crashes thing. Reproduce the crash and 
+> save /proc/latency_trace - it contains the execution history leading 
+> up to the crash. (on the CPU that crashes) Should work on i386 and 
+> x86_64.
+> 
+> the trace is saved upon the first crash or lockdep assert that occurs 
+> on the box. (but you'll have lockdep disabled, so it's the crash that 
+> matters)
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+i just provoked a NULL pointer dereference with the tracer applied, and 
+/proc/latency_trace contained the proper trace, leading up to the crash:
 
-diff --git a/arch/arm/mm/mm-armv.c b/arch/arm/mm/mm-armv.c
-index f14b2d0..95273de 100644
---- a/arch/arm/mm/mm-armv.c
-+++ b/arch/arm/mm/mm-armv.c
-@@ -376,7 +376,7 @@ #endif
- 		ecc_mask = 0;
- 	}
- 
--	if (cpu_arch <= CPU_ARCH_ARMv5TEJ) {
-+	if (cpu_arch <= CPU_ARCH_ARMv5TEJ && !cpu_is_xscale()) {
- 		for (i = 0; i < ARRAY_SIZE(mem_types); i++) {
- 			if (mem_types[i].prot_l1)
- 				mem_types[i].prot_l1 |= PMD_BIT4;
-@@ -631,7 +631,7 @@ void setup_mm_for_reboot(char mode)
- 		pgd = init_mm.pgd;
- 
- 	base_pmdval = PMD_SECT_AP_WRITE | PMD_SECT_AP_READ | PMD_TYPE_SECT;
--	if (cpu_architecture() <= CPU_ARCH_ARMv5TEJ)
-+	if (cpu_architecture() <= CPU_ARCH_ARMv5TEJ && !cpu_is_xscale())
- 		base_pmdval |= PMD_BIT4;
- 
- 	for (i = 0; i < FIRST_USER_PGD_NR + USER_PTRS_PER_PGD; i++, pgd++) {
-diff --git a/include/asm-arm/system.h b/include/asm-arm/system.h
-index 95b3abf..7c9568d 100644
---- a/include/asm-arm/system.h
-+++ b/include/asm-arm/system.h
-@@ -127,6 +127,12 @@ static inline int cpu_is_xsc3(void)
- }
- #endif
- 
-+#if !defined(CONFIG_CPU_XSCALE) && !defined(CONFIG_CPU_XSC3)
-+#define	cpu_is_xscale()	0
-+#else
-+#define	cpu_is_xscale()	1
-+#endif
-+
- #define set_cr(x)					\
- 	__asm__ __volatile__(				\
- 	"mcr	p15, 0, %0, c1, c0, 0	@ set CR"	\
+gettimeo-2333  0D... 2210us : trace_hardirqs_on (restore_nocheck)
+gettimeo-2333  0.... 2210us > sys_gettimeofday (00000000 00000000 0000007b)
+gettimeo-2333  0.... 2210us : sys_gettimeofday (sysenter_past_esp)
+gettimeo-2333  0D... 2211us : do_page_fault (error_code)
+gettimeo-2333  0D... 2211us : do_page_fault (c0123238 0 2)
+gettimeo-2333  0D... 2211us : do_page_fault (10202 202 7b)
+gettimeo-2333  0D... 2211us : trace_hardirqs_on (do_page_fault)
+gettimeo-2333  0.... 2211us : lockdep_acquire (do_page_fault)
 
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+for best trace output you should have KALLSYMS and KALLSYMS_ALL enabled.
 
-In the end, they will not say, "those were dark times,"  they will ask
-"why were their poets silent?" - Bertold Brecht
+of course it could happen that tracing makes your crash go away ...
+
+	Ingo

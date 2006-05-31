@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWEaBNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWEaBSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWEaBNj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 21:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWEaBNj
+	id S1750940AbWEaBSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 21:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWEaBSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 21:13:39 -0400
-Received: from hera.kernel.org ([140.211.167.34]:19076 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932394AbWEaBNi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 21:13:38 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: memcpy_toio on i386 using byte writes even when n%2==0
-Date: Tue, 30 May 2006 18:13:27 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e5iqjn$u22$1@terminus.zytor.com>
-References: <6gUec-3mb-7@gated-at.bofh.it> <6icVy-56r-9@gated-at.bofh.it> <6idov-5Tc-7@gated-at.bofh.it> <447CE99B.7070707@shaw.ca>
+	Tue, 30 May 2006 21:18:16 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:5250 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1750940AbWEaBSP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 21:18:15 -0400
+Date: Tue, 30 May 2006 18:20:36 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.16.19
+Message-ID: <20060531012035.GM18769@moss.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1149038007 30787 127.0.0.1 (31 May 2006 01:13:27 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 31 May 2006 01:13:27 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <447CE99B.7070707@shaw.ca>
-By author:    Robert Hancock <hancockr@shaw.ca>
-In newsgroup: linux.dev.kernel
-> > 
-> > Note that there isn't any code for moving dwords because the
-> > chances of gaining anything are slim (alignment may hurt).
-> 
-> I'd say the chances of gaining something from executing half as many 
-> instructions on copying a large block of memory are very good indeed..
-> 
+We (the -stable team) are announcing the release of the 2.6.16.19 kernel.
+Small fix for information leak with netfilter (CVE-2006-1343).
 
-For something that generates I/O transactions, it's imperative to
-generate the smallest possible number of transactions.  Furthermore,
-smaller than dword transactions aren't burstable, except at the
-beginning and end of a burst.
+The diffstat and short summary of the fixes are below.
 
-	-hpa
+I'll also be replying to this message with a copy of the patch between
+2.6.16.18 and 2.6.16.19, as it is small enough to do so.
+
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+
+thanks,
+-chris
+
+--------
+
+ Makefile                                       |    2 +-
+ net/ipv4/netfilter/ip_conntrack_core.c         |    1 +
+ net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c |    1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
+
+Summary of changes from v2.6.16.18 to v2.6.16.19
+================================================
+
+Chris Wright:
+      Linux 2.6.16.19
+
+Marcel Holtmann:
+      NETFILTER: Fix small information leak in SO_ORIGINAL_DST (CVE-2006-1343)
 

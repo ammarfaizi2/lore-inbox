@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbWEaToS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWEaTuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965128AbWEaToS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 15:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWEaToS
+	id S1751791AbWEaTuw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 15:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWEaTuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 15:44:18 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:58790 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965128AbWEaToR (ORCPT
+	Wed, 31 May 2006 15:50:52 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:52900 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1751788AbWEaTuv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 15:44:17 -0400
-Date: Wed, 31 May 2006 21:44:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, pauldrynoff@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
-Message-ID: <20060531194437.GA31121@elte.hu>
-References: <20060530195417.e870b305.pauldrynoff@gmail.com> <20060530132540.a2c98244.akpm@osdl.org> <20060531181926.51c4f4c5.pauldrynoff@gmail.com> <1149085739.3114.34.camel@laptopd505.fenrus.org> <20060531102128.eb0020ad.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060531102128.eb0020ad.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 31 May 2006 15:50:51 -0400
+Message-ID: <447DF38E.3020409@colorfullife.com>
+Date: Wed, 31 May 2006 21:50:38 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@kvack.org>
+CC: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [PATCH-2.4] forcedeth update to 0.50
+References: <20060530220319.GA6945@w.ods.org> <447D2EA8.8020001@colorfullife.com> <20060531055438.GA9142@w.ods.org> <20060531180545.GA30797@dmt>
+In-Reply-To: <20060531180545.GA30797@dmt>
+Content-Type: multipart/mixed;
+ boundary="------------010604090908050001060806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010604090908050001060806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Marcelo Tosatti wrote:
 
-> On Wed, 31 May 2006 16:28:59 +0200
-> Arjan van de Ven <arjan@linux.intel.com> wrote:
-> 
-> > --- linux-2.6.17-rc5-mm1.5.orig/drivers/net/8390.c
-> > +++ linux-2.6.17-rc5-mm1.5/drivers/net/8390.c
-> > @@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
-> >  	 
-> >  	disable_irq_nosync(dev->irq);
-> >  	
-> > -	spin_lock(&ei_local->page_lock);
-> > +	spin_lock_irqsave(&ei_local->page_lock, flags);
-> 
-> Again, notabug - we did disable_irq().
-> 
-> I think lockdep needs to be taught about this idiom.  Perhaps add a 
-> new disable_irq_tell_lockdep() which assumes that we're in an 
-> equivalent-to-local_irq_disable() state.
+>Since v2.4.33 should be out RSN, my opinion is that applying the one-liner 
+>to fix the bringup problem for now is more prudent..
+>
+>  
+>
+It's attached. Untested, but it should work. Just the relevant hunk from 
+the 0.42 patch.
 
-agreed. I'll cook up an API for that. The best would be to disable local 
-irqs if LOCKDEP is enabled - i.e. how about disable_irq_lockdep() that 
-maps to disable_irq() if !LOCKDEP and on LOCKDEP it also disables local 
-interrupts? Likewise there would be an enable_irq_lockdep() which would 
-re-enable local irqs.
+But I would disagree with waiting for 2.3.34 for a full backport:
+0.30 basically doesn't work, thus the update to 0.50 would be a big step 
+forward - it can't be worse that 0.30.
 
-	Ingo
+--
+    Manfred
+
+
+--------------010604090908050001060806
+Content-Type: text/plain;
+ name="patch-forcedeth-minimal"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-forcedeth-minimal"
+
+--- 2.6/drivers/net/forcedeth.c	2005-08-14 11:17:03.000000000 +0200
++++ build-2.6/drivers/net/forcedeth.c	2005-08-14 11:16:53.000000000 +0200
+@@ -2178,6 +2180,9 @@
+ 		writel(NVREG_MIISTAT_MASK, base + NvRegMIIStatus);
+ 		dprintk(KERN_INFO "startup: got 0x%08x.\n", miistat);
+ 	}
++	/* set linkspeed to invalid value, thus force nv_update_linkspeed
++	 * to init hw */
++	np->linkspeed = 0;
+ 	ret = nv_update_linkspeed(dev);
+ 	nv_start_rx(dev);
+ 	nv_start_tx(dev);
+
+--------------010604090908050001060806--

@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbWEaVnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbWEaVoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965178AbWEaVnN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWEaVnM
+	id S965179AbWEaVoK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbWEaVoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:43:12 -0400
-Received: from dvhart.com ([64.146.134.43]:10898 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965178AbWEaVnK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:43:10 -0400
-Message-ID: <447E0DEC.60203@mbligh.org>
-Date: Wed, 31 May 2006 14:43:08 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu>
-In-Reply-To: <20060531213340.GA3535@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 31 May 2006 17:44:09 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9894 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965179AbWEaVoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:44:07 -0400
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
+	disable_irq()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060531214139.GA8196@devserv.devel.redhat.com>
+References: <20060531200236.GA31619@elte.hu>
+	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
+	 <20060531214139.GA8196@devserv.devel.redhat.com>
+Content-Type: text/plain
+Date: Wed, 31 May 2006 23:43:58 +0200
+Message-Id: <1149111838.3114.87.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Martin J. Bligh <mbligh@mbligh.org> wrote:
+On Wed, 2006-05-31 at 17:41 -0400, Alan Cox wrote:
+> On Wed, May 31, 2006 at 10:31:40PM +0200, Arjan van de Ven wrote:
+> > > 8390.c knows that ei_local->page_lock can only be used by an irq
+> > > context that it disabled -
+> > 
+> > btw I think this is no longer correct with the irq polling stuff Alan
+> > added to the kernel recently...
 > 
-> 
->>>AFAICS this isnt the lock validator but the normal mutex debugging code 
->>>(CONFIG_DEBUG_MUTEXES). The log does not indicate that lockdep was 
->>>enabled.
->>
->>Buggered if I know how that got turned on. I thought we turned it off 
->>by default now? That's what screwed up all the perf results before.
->>
->>http://test.kernel.org/abat/33803/build/dotconfig
->>That's the build config it ran with.
->>
->>CONFIG_DEBUG_MUTEXES=y
-> 
-> 
-> still ... it shouldnt have crashed on us. I did change it in -mm1 so 
-> i'll take a look tomorrow.
-> 
-> 
->>Grrr. Humpf. I can't see the option being turned on for lockdep ...
->>what was the config option, and is it enabled by default?
+> We could make the misrouted IRQ logic skip all handlers on a disabled IRQ
+> but that might actually be worse than the disease we are trying to cure by
+> doing so.
 
-In the -mm1 patch:
-
-  config DEBUG_MUTEXES
--       bool "Mutex debugging, deadlock detection"
--       default n
-+       bool "Mutex debugging, basic checks"
-+       default y
-
-Please don't do thatas a default.
-It fucks up all the performance checking ;-(
+yeah since misrouted irqs will cause the kernel do disable irqs 'at
+random' more or less .. for which the handlers now would become
+unreachable which isn't good.
 
 
-M.

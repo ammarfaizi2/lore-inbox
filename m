@@ -1,52 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWEaGM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWEaGOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWEaGM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 02:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEaGM0
+	id S932482AbWEaGOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 02:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWEaGOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 02:12:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:42606 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932473AbWEaGMZ (ORCPT
+	Wed, 31 May 2006 02:14:39 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:59577 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932482AbWEaGOj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 02:12:25 -0400
-Date: Wed, 31 May 2006 08:11:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
-       andrea@suse.de, hugh@veritas.com
-Subject: Re: [rfc][patch] remove racy sync_page?
-Message-ID: <20060531061110.GB29535@suse.de>
-References: <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447CF252.7010704@rtr.ca>
+	Wed, 31 May 2006 02:14:39 -0400
+Date: Wed, 31 May 2006 08:15:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: [patch, -rc5-mm1] genirq MSI fixes
+Message-ID: <20060531061500.GA20609@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <447CF252.7010704@rtr.ca>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30 2006, Mark Lord wrote:
-> Linus wrote:
-> >(Yes, tagged queueing makes it less of an issue, of course. I know,
-> 
-> My observations with (S)ATA tagged/native queuing, is that it doesn't make
-> nearly the difference under Linux that it does under other OSs.
-> Probably because our block layer is so good at ordering requests,
-> either from plugging or simply from clever disk scheduling.
+this is a fixed up and cleaned up replacement for 
+genirq-msi-fixes.patch, which should solve the i386 4KSTACKS problem. I 
+also added Ben's idea of pushing the __do_IRQ() check into 
+generic_handle_irq().
 
-Hmm well, I have seen 30% performance increase for a random read work
-load with NCQ, I'd say that is pretty nice. And of course there's the
-whole write cache issue, with NCQ you _could_ get away with playing more
-safe and disabling write back caching.
+i booted this with MSI enabled, but i only have MSI devices, not MSI-X 
+devices. I'd still expect MSI-X to work now.
 
-NCQ helps us with something we can never fix in software - the
-rotational latency. Ordering is only a small part of the picture.
+--------------
+Subject: genirq-msi-fixes
+From: Ingo Molnar <mingo@elte.hu>
 
-Plus I think that more recent drives have a better NCQ implementation,
-the first models I tried were pure and utter crap. Lets just say it
-didn't instill a lot of confidence in firmware engineers at various
-unnamed drive companies.
+irqchip migration helper: call __do_IRQ() if a descriptor is attached
+to an irqtype-style controller. This also fixes MSI-X IRQ handling on
+i386 and x86_64.
 
--- 
-Jens Axboe
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
 
+ arch/i386/kernel/irq.c |    5 +++++
+ include/linux/irq.h    |   27 ++++++++++++++++-----------
+ 2 files changed, 21 insertions(+), 11 deletions(-)
+
+Index: linux/arch/i386/kernel/irq.c
+===================================================================
+--- linux.orig/arch/i386/kernel/irq.c
++++ linux/arch/i386/kernel/irq.c
+@@ -77,6 +77,10 @@ fastcall unsigned int do_IRQ(struct pt_r
+ 	}
+ #endif
+ 
++	if (!irq_desc[irq].handle_irq) {
++		__do_IRQ(irq, regs);
++		goto out_exit;
++	}
+ #ifdef CONFIG_4KSTACKS
+ 
+ 	curctx = (union irq_ctx *) current_thread_info();
+@@ -109,6 +113,7 @@ fastcall unsigned int do_IRQ(struct pt_r
+ #endif
+ 		desc->handle_irq(irq, desc, regs);
+ 
++out_exit:
+ 	irq_exit();
+ 
+ 	return 1;
+Index: linux/include/linux/irq.h
+===================================================================
+--- linux.orig/include/linux/irq.h
++++ linux/include/linux/irq.h
+@@ -176,17 +176,6 @@ typedef struct irq_desc		irq_desc_t;
+  */
+ #include <asm/hw_irq.h>
+ 
+-/*
+- * Architectures call this to let the generic IRQ layer
+- * handle an interrupt:
+- */
+-static inline void generic_handle_irq(unsigned int irq, struct pt_regs *regs)
+-{
+-	struct irq_desc *desc = irq_desc + irq;
+-
+-	desc->handle_irq(irq, desc, regs);
+-}
+-
+ extern int setup_irq(unsigned int irq, struct irqaction *new);
+ 
+ #ifdef CONFIG_GENERIC_HARDIRQS
+@@ -324,6 +313,22 @@ handle_irq_name(void fastcall (*handle)(
+  */
+ extern fastcall unsigned int __do_IRQ(unsigned int irq, struct pt_regs *regs);
+ 
++/*
++ * Architectures call this to let the generic IRQ layer
++ * handle an interrupt. If the descriptor is attached to an
++ * irqchip-style controller then we call the ->handle_irq() handler,
++ * and it calls __do_IRQ() if it's attached to an irqtype-style controller.
++ */
++static inline void generic_handle_irq(unsigned int irq, struct pt_regs *regs)
++{
++	struct irq_desc *desc = irq_desc + irq;
++
++	if (likely(desc->handle_irq))
++		desc->handle_irq(irq, desc, regs);
++	else
++		__do_IRQ(irq, regs);
++}
++
+ /* Handling of unhandled and spurious interrupts: */
+ extern void note_interrupt(unsigned int irq, struct irq_desc *desc,
+ 			   int action_ret, struct pt_regs *regs);

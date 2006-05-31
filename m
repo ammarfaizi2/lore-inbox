@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWEaQ6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbWEaRAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751732AbWEaQ6n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 12:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWEaQ6n
+	id S1751735AbWEaRAs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 13:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751734AbWEaRAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 12:58:43 -0400
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:18860 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751731AbWEaQ6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 12:58:42 -0400
-To: linux-kernel@vger.kernel.org
-Subject: PCI: Bus is hidden behind transparent bridge
-From: Chris Ball <cjb@mrao.cam.ac.uk>
-Date: Wed, 31 May 2006 17:58:24 +0100
-Message-ID: <yd37j42m8r3.fsf@islay.ra.phy.cam.ac.uk>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Social Property,
- linux)
+	Wed, 31 May 2006 13:00:48 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:50701 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751733AbWEaRAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 13:00:47 -0400
+Message-ID: <447DCBAD.8070307@shadowen.org>
+Date: Wed, 31 May 2006 18:00:29 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ralf Baechle <ralf@linux-mips.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Chad Reese <creese@caviumnetworks.com>
+Subject: Re: mem_map definition / declaration.
+References: <20060531162345.GA19674@linux-mips.org>
+In-Reply-To: <20060531162345.GA19674@linux-mips.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ralf Baechle wrote:
+> mm/memory defines mem_map and max_mapnr only if !CONFIG_NEED_MULTIPLE_NODES.
+> <linux/mm.h> declares mem_map[] if !CONFIG_DISCONTIGMEM.  Shouldn't
+> both depend on !CONFIG_FLATMEM?  As things are now mem_map may be
+> declared but not defined for a non-NUMA sparsemem system which may make
+> tracking a remaining mem_map reference in the code a little harder.
 
-Noticed in dmesg:
+Sounds suspect for sure.  I will take a look and see.  Thanks for the
+head up.
 
-   PCI: Bus #02 (-#05) is hidden behind transparent bridge #01 (-#02)
-   (try 'pci=assign-busses')
-   Please report the result to linux-kernel to fix this permanently
-
-Booting with pci=assign-busses removes these two lines from the dmesg,
-with no other noticeable change in behaviour.
-
-Full dmesgs:
-   http://www.inference.phy.cam.ac.uk/cjb/unity-dmesg
-   http://www.inference.phy.cam.ac.uk/cjb/unity-dmesg-assign-busses
-
-- Chris.
--- 
-Chris Ball   <cjb@mrao.cam.ac.uk>    <http://blog.printf.net/>
-
+-apw

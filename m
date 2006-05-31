@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWEaGK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWEaGM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWEaGK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 02:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWEaGK1
+	id S932473AbWEaGM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 02:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWEaGM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 02:10:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:20077 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964780AbWEaGK0 (ORCPT
+	Wed, 31 May 2006 02:12:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:42606 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932473AbWEaGMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 02:10:26 -0400
-Date: Wed, 31 May 2006 08:12:35 +0200
+	Wed, 31 May 2006 02:12:25 -0400
+Date: Wed, 31 May 2006 08:11:10 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: [PATCH] fcache: a remapping boot cache
-Message-ID: <20060531061234.GC29535@suse.de>
-References: <20060515091806.GA4110@suse.de> <20060515101019.GA4068@suse.de> <20060516074628.GA16317@suse.de> <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
+       andrea@suse.de, hugh@veritas.com
+Subject: Re: [rfc][patch] remove racy sync_page?
+Message-ID: <20060531061110.GB29535@suse.de>
+References: <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447CF252.7010704@rtr.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d8e3fd30605301438k457f6242x1df64df9bab7f8f1@mail.gmail.com>
+In-Reply-To: <447CF252.7010704@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30 2006, Paolo Ciarrocchi wrote:
-> On 5/16/06, Jens Axboe <axboe@suse.de> wrote:
-> >On Mon, May 15 2006, Jens Axboe wrote:
-> >> On Mon, May 15 2006, Jens Axboe wrote:
-> >> > o Trying it on my notebook brought the time from the kernel starts
-> >> >   loading to kde has fully auto-logged in down from 50 seconds to 38
-> >> >   seconds. The primed boot took 61 seconds. The notebook is about 4
-> >> >   months old and the file system is very fresh, so better results 
-> >should
-> >> >   be seen on more fragmented installs.
-> >>
-> [...]
-> >git://brick.kernel.dk/data/git/linux-2.6-block.git fcache
+On Tue, May 30 2006, Mark Lord wrote:
+> Linus wrote:
+> >(Yes, tagged queueing makes it less of an issue, of course. I know,
 > 
-> Just cloned.
-> 
-> Any progress on this project Jens?
-> 
-> I'll try to apply the patch to mainline and post here some numbers.
+> My observations with (S)ATA tagged/native queuing, is that it doesn't make
+> nearly the difference under Linux that it does under other OSs.
+> Probably because our block layer is so good at ordering requests,
+> either from plugging or simply from clever disk scheduling.
 
-Well it's a git repo, get it and see :-)
-But yes, it's had various fixes and optimizations, it should apply to
-latest Linus kernel. There's also a consistency checker here:
+Hmm well, I have seen 30% performance increase for a random read work
+load with NCQ, I'd say that is pretty nice. And of course there's the
+whole write cache issue, with NCQ you _could_ get away with playing more
+safe and disabling write back caching.
 
-git://brick.kernel.dk/data/git/fcache.git
+NCQ helps us with something we can never fix in software - the
+rotational latency. Ordering is only a small part of the picture.
 
-that can check both fcache data and metadata.
+Plus I think that more recent drives have a better NCQ implementation,
+the first models I tried were pure and utter crap. Lets just say it
+didn't instill a lot of confidence in firmware engineers at various
+unnamed drive companies.
 
 -- 
 Jens Axboe

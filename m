@@ -1,75 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWEaLFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWEaLjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWEaLFV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 07:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWEaLFV
+	id S932323AbWEaLjn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 07:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWEaLjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 07:05:21 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:4483 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S964962AbWEaLFU (ORCPT
+	Wed, 31 May 2006 07:39:43 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:51984 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932323AbWEaLjm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 07:05:20 -0400
-Date: Wed, 31 May 2006 15:04:59 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: "Brian F. G. Bidulock" <bidulock@openss7.org>
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060531110459.GA20551@2ka.mipt.ru>
-References: <20060530235525.A30563@openss7.org> <20060531.001027.60486156.davem@davemloft.net> <20060531014540.A1319@openss7.org> <20060531.004953.91760903.davem@davemloft.net> <20060531020009.A1868@openss7.org> <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060531105814.GB7806@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 31 May 2006 15:05:02 +0400 (MSD)
+	Wed, 31 May 2006 07:39:42 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 31 May 2006 11:39:12.0009 (UTC) FILETIME=[D6384F90:01C684A6]
+Content-class: urn:content-classes:message
+Subject: Re: [patch 2.6.17-rc5 1/2] i386 memcpy: use as few moves as  possible for I/O
+Date: Wed, 31 May 2006 07:39:02 -0400
+Message-ID: <Pine.LNX.4.61.0605310732110.28667@chaos.analogic.com>
+In-Reply-To: <200605302103_MC3-1-BF0E-59B@compuserve.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.17-rc5 1/2] i386 memcpy: use as few moves as  possible for I/O
+Thread-Index: AcaEptZBZ8+wCUiIRpugrCHiZoXkFA==
+References: <200605302103_MC3-1-BF0E-59B@compuserve.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Chris Lesiak" <chris.lesiak@licor.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Linus Torvalds" <torvalds@osdl.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 02:58:18PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> On Wed, May 31, 2006 at 03:51:24AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
-> > Evgeniy,
-> > 
-> > On Wed, 31 May 2006, Evgeniy Polyakov wrote:
-> > > 2. Compared Jenkins hash with XOR hash used in TCP socket selection code.
-> > > http://tservice.net.ru/~s0mbre/blog/2006/05/14#2006_05_14
-> > 
-> > Two problems with the comparison:
-> > 
-> >   Port numbers can be collected into a 32 bit register in network
-> >   byte order directly from the TCP packet without taking two 16 bit
-> >   values and shifting and or'ing them.
-> 
-> They are.
-> 
-> u32 ports;
-> 
-> ports = lport;
-> ports <<= 16;
-> ports |= fport;
 
-Using network or host byte order does not affect hash distribution,
-that shifting was coded to simulate other types of mixing ports,
-which actually never showed different results.
+On Tue, 30 May 2006, Chuck Ebbert wrote:
 
-> >   Worse: he folded the jenkins algorith result with
-> > 
-> >    h ^= h >> 16;
-> >    h ^= h >> 8;
-> > 
-> >   Destroying the coverage of the function.
-> 
-> It was done to simulate socket code which uses the same folding.
-> Leaving 32bit space is just wrong, consider hash table size with that
-> index.
-> 
-> > I, for one, am not suprised that artifacts appeared in the comparison
-> > as a result of this destruction of the coverage of the hashing function.
-> 
-> It is comparison of the approach used in TCP hashing code, it is not full 
-> mathematical analysis. And in that case jenkins hash already not good. 
-> I'm sure it can be tuned, but it does require a lot of iterations, while
-> XOR one "just works".
+> Chris Lesiak reported that changes to i386's __memcpy() broke his device
+> because it can't handle byte moves and the new code uses them for
+> all trailing bytes when the length is not divisible by four.  The old
+> code tried to use a 16-bit move and/or a byte move as needed.
+>
+> H. Peter Anvin:
+> "There are only a few semantics that make sense: fixed 8, 16, 32, or 64
+> bits, plus "optimal"; the latter to be used for anything that doesn't
+> require a specific transfer size.  Logically, an unqualified
+> "memcpy_to/fromio" should be the optimal size (as few transfers as
+> possible)"
+>
+> So add back the old code as __minimal_memcpy and have IO transfers
+> use that.
+>
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+>
+> ---
+>
+> include/asm-i386/io.h     |    4 ++--
+> include/asm-i386/string.h |   21 +++++++++++++++++++++
+> 2 files changed, 23 insertions(+), 2 deletions(-)
+>
+> --- 2.6.17-rc5-32.orig/include/asm-i386/io.h
+> +++ 2.6.17-rc5-32/include/asm-i386/io.h
+> @@ -202,11 +202,11 @@ static inline void memset_io(volatile vo
+> }
+> static inline void memcpy_fromio(void *dst, const volatile void __iomem *src, int count)
+> {
+> -	__memcpy(dst, (void __force *) src, count);
+> +	__minimal_memcpy(dst, (void __force *) src, count);
+> }
+> static inline void memcpy_toio(volatile void __iomem *dst, const void *src, int count)
+> {
+> -	__memcpy((void __force *) dst, src, count);
+> +	__minimal_memcpy((void __force *) dst, src, count);
+> }
+>
+> /*
+> --- 2.6.17-rc5-32.orig/include/asm-i386/string.h
+> +++ 2.6.17-rc5-32/include/asm-i386/string.h
+> @@ -220,6 +220,28 @@ return (to);
+> }
+>
+> /*
+> + * Do memcpy with as few moves as possible (for transfers to/from IO space.)
+> + */
+> +static inline void * __minimal_memcpy(void * to, const void * from, size_t n)
+> +{
+> +int d0, d1, d2;
+> +__asm__ __volatile__(
+> +	"rep ; movsl\n\t"
+> +	"testb $2,%b4\n\t"
+> +	"jz 1f\n\t"
+> +	"movsw\n"
+> +	"1:\n\t"
+> +	"testb $1,%b4\n\t"
+> +	"jz 2f\n\t"
+> +	"movsb\n"
+> +	"2:"
+> +	: "=&c" (d0), "=&D" (d1), "=&S" (d2)
+> +	:"0" (n/4), "q" (n), "1" ((long) to), "2" ((long) from)
+> +	: "memory");
+> +return to;
+> +}
+> +
+> +/*
+>  * This looks ugly, but the compiler can optimize it totally,
+>  * as the count is constant.
+>  */
 
--- 
-	Evgeniy Polyakov
+> +	"rep ; movsl\n\t"
+^^^^^^^^^^^^^^^^^^^^^^^^
+Huh, you copyied stuff into three variables, then you needed to make
+memory accesses to those variables, and you claim "the compiler can
+optimize it totally". Sure. I got a bridge I'd like to sell you.
+
+Please, instead of guessing, why don't measure the exact number of
+CPU cycles with rdtsc?
+
+> --
+> Chuck
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.73 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

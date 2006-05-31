@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751612AbWEaDvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbWEaECO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751612AbWEaDvv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 23:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751614AbWEaDvv
+	id S1751643AbWEaECO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 00:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbWEaECN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 23:51:51 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:54986 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751611AbWEaDvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 23:51:50 -0400
-Date: Tue, 30 May 2006 21:51:47 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: cpufreq and kernel >2.6.15.6 is limited
-In-reply-to: <6in4s-44o-13@gated-at.bofh.it>
-To: Dave Jones <davej@redhat.com>, Eric Sandall <eric@sandall.us>,
-       linux-kernel@vger.kernel.org, Mattia Dongili <malattia@linux.it>
-Message-id: <447D12D3.9050306@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <6imLa-3G2-11@gated-at.bofh.it> <6in4s-44o-13@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Wed, 31 May 2006 00:02:13 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:55590 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751642AbWEaECN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 00:02:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ok9WuOR124gASdqZQ8er5KPsBuONqMFJY9S9SADuF5JcroR0F9Xt7QiV5i+9cEm6yjKxNHuoi1Umf/qNYdzFaqRualiCMW8oUWplW4YNUYMQBt+yJW7JgICOcEUuoGN4kHWmXwqMcIr/OK1ubF/ql//FsD0hIyAPxkOdrsAv898=
+Message-ID: <9e4733910605302102y491de627n7dabfbda0ed365b1@mail.gmail.com>
+Date: Wed, 31 May 2006 00:02:12 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Dave Airlie" <airlied@gmail.com>, "Pavel Machek" <pavel@ucw.cz>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200605302314.25957.dhazelton@enter.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com>
+	 <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com>
+	 <200605302314.25957.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Tue, May 30, 2006 at 05:25:26PM -0700, Eric Sandall wrote:
->  > -----BEGIN PGP SIGNED MESSAGE-----
->  > Hash: SHA1
->  > 
->  > It seems that any kernel on my Dell Inspiron 5100 after 2.6.15.6
->  > (including 2.6.17-rc5) 'breaks' my cpufreq in that up to and including
->  > 2.6.15.6 I can scale between 300MHz-2.4GHz, but after (starting with
->  > 2.6.16) I can only scale between 2.1GHz and 2.4GHz.
->  > 
->  > I've attached the files, sorted by kernel, I assume may be helpful. Let
->  > me know if you need any more.
-> 
-> It may have worked in the past, but the CPU has an errata which makes
-> it an unsafe operation to scale below 2GHz.
+On 5/30/06, D. Hazelton <dhazelton@enter.net> wrote:
+> On Tuesday 30 May 2006 23:27, Jon Smirl wrote:
+> > On 5/30/06, Dave Airlie <airlied@gmail.com> wrote:
+> > > Actually the suspend/resume has to be in userspace, X just re-posts
+> > > the video ROM and reloads the registers... so the repost on resume has
+> > > to happen... so some component needs to be in userspace..
+> >
+> > I'd like to see the simple video POST program get finished. All of the
+> > pieces are lying around. A key step missing is to getting klibc added
+> > to the kernel tree which is being worked on.
+>
+> True. But how long is it going to be before klibc is merged?
 
-There was some discussion about whether this was correct or not in this 
-thread:
+The merged tree is here:
+git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-2.6-klibc.git
 
-http://groups.google.ca/group/fa.linux.kernel/browse_thread/thread/d5b5905d7f1aa221/66c41ee3a26583b3
+I don't know the plans for when the final merge will happen.
 
-Did this ever get resolved? From my reading of the N60 erratum, 
-disabling the 12.5% duty cycle sounds like this should be enough, 
-disabling everything under 2GHz is not necessary..
+A standalone version of klibc is also available here:
+http://www.kernel.org/pub/linux/libs/klibc/
+Looks like version 1.3 is the latest
+
+The standalone version is perfectly fine for development. You only
+need to worry about the kernel tree version when it everything is
+finished. I've used klibc for several apps like this and it is a great
+tool. The binaries it produces are tiny.
+
+vbetool is a good way to practice resetting the cards if you do the
+mods to /sys/class/firmware. The other features like emu86 support can
+be added later.
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Jon Smirl
+jonsmirl@gmail.com

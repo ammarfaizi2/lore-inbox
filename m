@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWEaBXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWEaBdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWEaBXo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 21:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWEaBXo
+	id S1751511AbWEaBdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 21:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWEaBdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 21:23:44 -0400
-Received: from wx-out-0102.google.com ([66.249.82.193]:24334 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751511AbWEaBXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 21:23:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=afdAevy7b5xcUtHEbb7LKF4MNH4oHhG1AzKFI2b4U2GPs09xil1zT1FDt0q9z8e99kZbgdZS2JgQeiut29lB5x7vEC4EyAivnl+E4zj1x9kShFOrW0Z6jwY2sZSvORje3Ya65hEkAwdtm1MyalNO5a5LzxsDldRcqvfizVkaXcY=
-Message-ID: <447CF007.5070904@gmail.com>
-Date: Wed, 31 May 2006 09:23:19 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
+	Tue, 30 May 2006 21:33:09 -0400
+Received: from rtr.ca ([64.26.128.89]:6295 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751511AbWEaBdI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 21:33:08 -0400
+Message-ID: <447CF252.7010704@rtr.ca>
+Date: Tue, 30 May 2006 21:33:06 -0400
+From: Mark Lord <lkml@rtr.ca>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Pavel Machek <pavel@ucw.cz>, Dave Airlie <airlied@gmail.com>,
-       "D. Hazelton" <dhazelton@enter.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <200605280112.01639.dhazelton@enter.net>	 <21d7e9970605290336m1f80b08nebbd2a995be959cb@mail.gmail.com>	 <20060529124840.GD746@elf.ucw.cz>	 <21d7e9970605291623k3636f7hcc12028cad5e962b@mail.gmail.com>	 <20060530202401.GC16106@elf.ucw.cz>	 <9e4733910605301356k64dcd75fo38e45e1b7572817f@mail.gmail.com>	 <21d7e9970605301601t37f8d3ddwaf4a900ed8997fdf@mail.gmail.com>	 <9e4733910605301627t2f28db08vf58c78e2656b7047@mail.gmail.com>	 <20060530233826.GE16106@elf.ucw.cz> <447CDCB7.8080708@gmail.com> <9e4733910605301747x13e1271atf5aecf335eee61c5@mail.gmail.com>
-In-Reply-To: <9e4733910605301747x13e1271atf5aecf335eee61c5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com,
+       axboe@suse.de
+Subject: Re: [rfc][patch] remove racy sync_page?
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 5/30/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> > Actually, vbetool is the piece of puzzle we currently use to
->> > reinitialize graphics cards after resume. (suspend.sf.net).
->>
->>
->> I had a patch sometime before, vm86d.  It's a daemon in userspace that
->> accepts requests from the kernel which executes x86 instructions using
->> lrmi, then pushes the result back to the kernel.  I modified vesafb
->> so that it uses this daemon which makes vesafb acquire the capability
->> to do on the fly mode switching (similar in functionality with
->> vesafb-tng which uses a different method).
->>
->> I abandoned this patch, but it seems there's might be at least one user.
->>
->> spblinux (http://spblinux.sourceforge.net/)
-> 
-> This is very similar to what I am proposing. I would just spawn the
-> app off each time instead of using a daemon; it's not like you are
-> changing mode every few seconds. By spawning each time you can avoid
-> the problem of the kernel trying to figure out if the daemon has died.
+Linus wrote:
+> (Yes, tagged queueing makes it less of an issue, of course. I know,
 
-I was thinking of reviving this patch, because of problems with suspend/
-resume and mode setting. But if there is a plan to put an emulator as part
-of the kernel library, I'll hold off.
+My observations with (S)ATA tagged/native queuing, is that it doesn't make
+nearly the difference under Linux that it does under other OSs.
+Probably because our block layer is so good at ordering requests,
+either from plugging or simply from clever disk scheduling.
 
-I'm also thinking of using a different user-kernel interface.  The old
-patch creates a misc device which the daemon opens, but can the kernel
-connector do the job? I don't know anything about this.
+> I know. But I _think_ a lot of disks will start seeking for an incoming 
+> command the moment they see it, just to get the best latency, rather than 
+> wait a millisecond or two to see if they get another request. So even 
+> with tagged queuing, the elevator can help, _especially_ for the initial 
+> request).
 
-Tony
-
-PS: This user helper need not just do x86 calls, it might use OF or even
-X. (I believe the Xen people have something similar). A userspace
-framebuffer driver usable by the kernel console is definitely possible.
-
+Yup.  Agreed!

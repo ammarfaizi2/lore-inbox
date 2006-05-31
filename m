@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWEaQGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751639AbWEaQMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWEaQGN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 12:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWEaQGN
+	id S1751639AbWEaQMi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 12:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751668AbWEaQMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 12:06:13 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:10388 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1751625AbWEaQGM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 12:06:12 -0400
-Date: Wed, 31 May 2006 18:06:11 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org,
-       Kernel Netdev Mailing List <netdev@vger.kernel.org>
-Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE
-Message-ID: <20060531160611.GA25637@janus>
-References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447DAEC9.3050003@trash.net>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+	Wed, 31 May 2006 12:12:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10208 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751634AbWEaQMh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 12:12:37 -0400
+Date: Wed, 31 May 2006 09:12:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: linux-kernel@vger.kernel.org, hugh@veritas.com, axboe@suse.de
+Subject: Re: [rfc][patch] remove racy sync_page?
+In-Reply-To: <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0605310903310.24646@g5.osdl.org>
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org>
+ <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org>
+ <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
+ <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au>
+ <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au>
+ <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au>
+ <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <447DAEDE.5070305@yahoo.com.au>
+ <Pine.LNX.4.64.0605310809250.24646@g5.osdl.org> <447DB765.6030702@yahoo.com.au>
+ <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 04:57:13PM +0200, Patrick McHardy wrote:
-> Frank van Maarseveen wrote:
-> > I have two machines named "porvoo" and "espoo". The first one
-> > has netconsole configured to send kernel messages to UDP port 514
-> > (a.k.a. syslog) on the other machine.
-> > 
-> > Somewhere between 2.6.13.2 and 2.6.17-rc4 there is a regression causing
-> > the netconsole messages which originate from netfilter to be truncated
-> > right after the MAC addresses. For example, /var/log/messages on the
-> > sending machine says:
-> > 
-> > May 31 09:28:11 porvoo kernel: IN=eth0 OUT= MAC=00:12:3f:85:9f:92:00:04:9a:a0:1d:d1:08:00 SRC=192.168.100.30 DST=172.17.1.113 LEN=60 TOS=0x00 PREC=0x00 TTL=54 ID=51496 DF PROTO=TCP SPT=50868 DPT=22 WINDOW=5840 RES=0x00 SYN URGP=0 
-> > 
-> > but netconsole messages captured in /var/log/messages on the receiving
-> > machine:
-> > 
-> > May 31 09:28:11 porvoo IN=eth0 OUT= 
-> > May 31 09:28:11 porvoo MAC=
-> > May 31 09:28:11 porvoo 00:
-> > May 31 09:28:11 porvoo 12:
-> > May 31 09:28:11 porvoo 3f:
-> > May 31 09:28:11 porvoo 85:
-> > May 31 09:28:11 porvoo 9f:
-> > May 31 09:28:11 porvoo 92:
-> > May 31 09:28:11 porvoo 00:
-> > May 31 09:28:11 porvoo 04:
-> > May 31 09:28:11 porvoo 9a:
-> > May 31 09:28:11 porvoo a0:
-> > May 31 09:28:11 porvoo 1d:
-> > May 31 09:28:11 porvoo d1:
-> > May 31 09:28:11 porvoo 08:
-> > May 31 09:28:11 porvoo 00 
-> > May 31 09:49:06 espoo -- MARK --
-> > 
-> > I ran a tcpdump on the sending machine to verify(?) what goes out but in
-> > that case the 2.6.17-rc4 kernel starts to report "protocol 0000 is buggy":
 
-[...]
 
+On Wed, 31 May 2006, Linus Torvalds wrote:
 > 
-> 
-> The message means that there was recursion and netpoll fell back
-> to dev_queue_xmit This patch should fix the "protocol is buggy"
-> messages, netpoll didn't set skb->nh.raw. Please try if it also
-> makes the other problem go away.
+> In other words, we actually want to unplug at lock_page(), BUT ONLY IF IT 
+> NEEDS OT WAIT, which is by no means all of them. So it's more than just 
+> "add an unplug at lock_page()" it's literally "add an unplug at any 
+> lock-page that blocks".
 
-"protocol 0000 is buggy" is gone. The other problem is still there.
+Btw, don't get me wrong. In the read case, every time we do a lock_page(), 
+we might as well unplug unconditionally, because we effectively know we're 
+going to wait (we just checked that it's not up-to-date). Sure, there's a 
+race window, but we don't care - the window is very small, and in the end, 
+unplugging isn't a correctness issue as long as you do it at least as 
+often as required (ie unplugging too much is ok and at worst just makes 
+for bad performance - so a very unlikely race that causes _extra_ 
+unplugging is fine as long as it's unlikely. forgetting to unplug is bad).
 
--- 
-Frank
+In the write case, lock_page() may or may not need an unplug. In those 
+cases, it needs unplugging if it was locked before, but obviously not if 
+it wasn't.
+
+In the "random case" where we use the page lock not because we want to 
+start IO on it, but because we need to make sure that page->mapping 
+doesn't change, we don't really care about the IO, but we do need to 
+unplug just to make sure that the IO will complete. 
+
+And I suspect your objection to unplugging is not really about unplugging 
+itself. It's literally about the fact that we use the same page lock for 
+IO and for the ->mapping thing, isn't it?
+
+IOW, you don't actually dislike plugging itself, you dislike it due to the 
+effects of a totally unrelated locking issue, namely that we use the same 
+lock for two totally independent things. If the ->mapping thing were to 
+use a PG_map_lock that didn't affect plugging one way or the other, you 
+wouldn't have any issues with unplugging, would you?
+
+And I think _that_ is what really gets us to the problem. 
+
+			Linus

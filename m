@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751722AbWEaQmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751720AbWEaQrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751722AbWEaQmA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 12:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751724AbWEaQmA
+	id S1751720AbWEaQrH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 12:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbWEaQrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 12:42:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26090 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751720AbWEaQl7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 12:41:59 -0400
-Date: Wed, 31 May 2006 09:41:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [rfc][patch] remove racy sync_page?
-In-Reply-To: <447DC2CC.5060900@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0605310940090.24646@g5.osdl.org>
-References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org>
- <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org>
- <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org>
- <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au>
- <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au>
- <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au>
- <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <447DAEDE.5070305@yahoo.com.au>
- <Pine.LNX.4.64.0605310809250.24646@g5.osdl.org> <447DB765.6030702@yahoo.com.au>
- <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org> <447DC22C.5070503@yahoo.com.au>
- <447DC2CC.5060900@yahoo.com.au>
+	Wed, 31 May 2006 12:47:06 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:41413 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751720AbWEaQrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 12:47:05 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <447DC82A.3000501@s5r6.in-berlin.de>
+Date: Wed, 31 May 2006 18:45:30 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Wright <chrisw@sous-sol.org>
+CC: stable@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [stable] [PATCH 2.6.16.18 0/4] sbp2: workaround for buggy iPods
+References: <tkrat.b9bf60697156ef7b@s5r6.in-berlin.de> <20060530231917.GI18769@moss.sous-sol.org>
+In-Reply-To: <20060530231917.GI18769@moss.sous-sol.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.034) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wright wrote:
+> I'd feel better to let this bit diverge in -stable to have the two-line
+> patch rather than all 4 patches.
 
-
-On Thu, 1 Jun 2006, Nick Piggin wrote:
->
-> If this wasn't clear: I don't mean per-task plugs as in "the task
-> explicitly plugs and unplugs the block device"[*]; I mean really
-> per-task plugs.
-
-That would be insane. It would mean that you'd have to unplug whether you 
-wanted to or not. Ie you've now made "sys_readahead()" impossible to do 
-well, and doing read-ahead across multiple files.
-
-You're ignoring all the _reasons_ for plugging in the first place.
-
-		Linus
+I will see how far I can downsize it. (Will of course take a little more 
+than 2 lines.)
+-- 
+Stefan Richter
+-=====-=-==- -=-= =====
+http://arcgraph.de/sr/

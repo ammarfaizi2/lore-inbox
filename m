@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWEaFpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWEaFtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbWEaFpo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 01:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWEaFpn
+	id S932227AbWEaFtG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 01:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWEaFtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 01:45:43 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:48800 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932488AbWEaFpn (ORCPT
+	Wed, 31 May 2006 01:49:06 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:24714 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932227AbWEaFtF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 01:45:43 -0400
-Date: Wed, 31 May 2006 07:46:05 +0200
+	Wed, 31 May 2006 01:49:05 -0400
+Date: Wed, 31 May 2006 07:49:27 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, rdreier@cisco.com, tglx@linutronix.de,
-       mm-commits@vger.kernel.org
-Subject: Re: + genirq-msi-fixes.patch added to -mm tree
-Message-ID: <20060531054605.GA18707@elte.hu>
-References: <200605302342.k4UNgGYW002807@shell0.pdx.osdl.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: genirq handle helper
+Message-ID: <20060531054927.GA18703@elte.hu>
+References: <1149046728.766.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605302342.k4UNgGYW002807@shell0.pdx.osdl.net>
+In-Reply-To: <1149046728.766.17.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -33,19 +34,27 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* akpm@osdl.org <akpm@osdl.org> wrote:
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-> Am not confident about the i386 bits.
+> Hi Ingo, Thomas !
+> 
+> This simple pach makes the transition easier. By making 
+> generic_handle_irq() call the old __do_IRQ if no new-style handler 
+> exist for a given irq, the transition from old style to new style is 
+> made easier for me. That is, I can have some PICs use the new handler 
+> mecanism while old ones still get __do_IRQ without having the common 
+> powerpc code caring about the type of PIC (it just does 
+> generic_handle_irq()).
+> 
+> Might be useful to others as well, at least until everybody is ported 
+> over.
 
-> -		desc->handle_irq(irq, desc, regs);
-> +	{
-> +		if (!irq_desc[irq].handle_irq)
-> +			__do_IRQ(irq, regs);
-> +		else
-> +			generic_handle_irq(irq, regs);
-> +	}
+yeah, good idea - this will also make the MSI fix simpler.
 
-yeah, this is not enough - the handle_irq check needs to be done before 
-we do the 4KSTACKS thing. I'll cook up a patch.
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+Andrew, if you add Ben's patch, you can drop the 
+arch/x86_64/kernel/irq.c bits of genirq-msi-fixes.patch. [if they stay 
+they wont hurt, they'll only be redundant.]
 
 	Ingo

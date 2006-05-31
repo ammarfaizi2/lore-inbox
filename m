@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWEaBdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbWEaBhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751511AbWEaBdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 21:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWEaBdJ
+	id S1751519AbWEaBhG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 21:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbWEaBhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 21:33:09 -0400
-Received: from rtr.ca ([64.26.128.89]:6295 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751511AbWEaBdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 21:33:08 -0400
-Message-ID: <447CF252.7010704@rtr.ca>
-Date: Tue, 30 May 2006 21:33:06 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 30 May 2006 21:37:06 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:4587 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751519AbWEaBhE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 21:37:04 -0400
+Message-ID: <447CF32F.1050309@zytor.com>
+Date: Tue, 30 May 2006 18:36:47 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com,
-       axboe@suse.de
-Subject: Re: [rfc][patch] remove racy sync_page?
-References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Chris Lesiak <chris.lesiak@licor.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch 2.6.17-rc5 1/2] i386 memcpy: use as few moves as  possible
+ for I/O
+References: <200605302103_MC3-1-BF0E-59B@compuserve.com>
+In-Reply-To: <200605302103_MC3-1-BF0E-59B@compuserve.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus wrote:
-> (Yes, tagged queueing makes it less of an issue, of course. I know,
+One concern: this is not the standard return value for memcpy().  It either needs a 
+comment to that effect (stating it returns a pointer to the end of the area), or just make 
+it return void.
 
-My observations with (S)ATA tagged/native queuing, is that it doesn't make
-nearly the difference under Linux that it does under other OSs.
-Probably because our block layer is so good at ordering requests,
-either from plugging or simply from clever disk scheduling.
+Also, the formatting looks nonstandard.
 
-> I know. But I _think_ a lot of disks will start seeking for an incoming 
-> command the moment they see it, just to get the best latency, rather than 
-> wait a millisecond or two to see if they get another request. So even 
-> with tagged queuing, the elevator can help, _especially_ for the initial 
-> request).
+>  
+>  /*
+> + * Do memcpy with as few moves as possible (for transfers to/from IO space.)
+> + */
+> +static inline void * __minimal_memcpy(void * to, const void * from, size_t n)
+> +{
+> +int d0, d1, d2;
+> +__asm__ __volatile__(
+> +	"rep ; movsl\n\t"
+> +	"testb $2,%b4\n\t"
+> +	"jz 1f\n\t"
+> +	"movsw\n"
+> +	"1:\n\t"
+> +	"testb $1,%b4\n\t"
+> +	"jz 2f\n\t"
+> +	"movsb\n"
+> +	"2:"
+> +	: "=&c" (d0), "=&D" (d1), "=&S" (d2)
+> +	:"0" (n/4), "q" (n), "1" ((long) to), "2" ((long) from)
+> +	: "memory");
+> +return to;
+> +}
 
-Yup.  Agreed!
+
+	-hpa

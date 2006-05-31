@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbWEaVKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWEaVPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbWEaVKn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 17:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWEaVKm
+	id S965066AbWEaVPP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 17:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWEaVPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 17:10:42 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:738 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S965053AbWEaVKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 17:10:41 -0400
-Date: Wed, 31 May 2006 18:10:42 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb-serial ipaq kernel problem
-Message-ID: <20060531181042.23cab50f@doriath.conectiva>
-In-Reply-To: <20060530213635.GA28443@fks.be>
-References: <20060529141110.6d149e21@doriath.conectiva>
-	<20060529194334.GA32440@fks.be>
-	<20060529172410.63dffa72@doriath.conectiva>
-	<20060529204724.GA22250@fks.be>
-	<20060529193330.3c51f3ba@home.brethil>
-	<20060530082141.GA26517@fks.be>
-	<20060530113801.22c71afe@doriath.conectiva>
-	<20060530115329.30184aa0@doriath.conectiva>
-	<20060530174821.GA15969@fks.be>
-	<20060530175208.2c2dedaa@doriath.conectiva>
-	<20060530213635.GA28443@fks.be>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; i586-mandriva-linux-gnu)
+	Wed, 31 May 2006 17:15:15 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1000 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965066AbWEaVPN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 17:15:13 -0400
+Date: Wed, 31 May 2006 23:15:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Bligh <mbligh@google.com>, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: 2.6.17-rc5-mm1
+Message-ID: <20060531211530.GA2716@elte.hu>
+References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060531140823.580dbece.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 May 2006 23:36:35 +0200
-Frank Gevaerts <frank.gevaerts@fks.be> wrote:
 
-| On Tue, May 30, 2006 at 05:52:08PM -0300, Luiz Fernando N. Capitulino wrote:
-| > On Tue, 30 May 2006 19:48:21 +0200
-| > Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-| > 
-| > | On Tue, May 30, 2006 at 11:53:29AM -0300, Luiz Fernando N. Capitulino wrote:
-| > | > On Tue, 30 May 2006 11:38:01 -0300
-| > | > "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
-| > | > 
-| > | >  If it ran _before_ the timeout expires with no timeout error it does not
-| > | > depend. Then we can do the simpler solution: just kill the read urb in the
-| > | > ipaq_open's error path.
-| > | 
-| > | That seems to work.
-| > | I also found that both the return in ipaq_write_bulk_callback and the
-| > | flush_scheduled_work() in destroy_serial() are needed to get rid of the
-| > | usb_serial_disconnect() bug.
-| > 
-| >  Then did you hit it with my patch?
-| > 
-| >  I'm just worried with the fact that you're hitting it with every
-| > proposed fix. Maybe it's something else.
-| 
-| I'm hitting it with either of the proposed fixes, but not when both are
-| applied.
+* Andrew Morton <akpm@osdl.org> wrote:
 
- Is this still true? :)
+> > EIP is at check_deadlock+0x15/0xe0
 
--- 
-Luiz Fernando N. Capitulino
+> >   <c012b77b> check_deadlock+0xa5/0xe0  <c012b922> 
+> > debug_mutex_add_waiter+0x46/0x55
+> >   <c02d50de> __mutex_lock_slowpath+0x9e/0x1c0  <c0160061> 
+> > lookup_create+0x19/0x5b
+> >   <c016043a> sys_mkdirat+0x4c/0xc3  <c01604c0> sys_mkdir+0xf/0x13
+> >   <c02d6217> syscall_call+0x7/0xb
+> 
+> Looks like the lock validator came unstuck.  But there's so much other 
+> crap happening in there it's hard to tell.  Did you try it without all 
+> the lockdep stuff enabled?
+
+AFAICS this isnt the lock validator but the normal mutex debugging code 
+(CONFIG_DEBUG_MUTEXES). The log does not indicate that lockdep was 
+enabled.
+
+	Ingo

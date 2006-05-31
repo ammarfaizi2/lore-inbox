@@ -1,149 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWEaUix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWEaUiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWEaUix (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 16:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWEaUiw
+	id S1751628AbWEaUiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 16:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751647AbWEaUiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 16:38:52 -0400
-Received: from mail.visionpro.com ([63.91.95.13]:28021 "EHLO
-	chicken.machinevisionproducts.com") by vger.kernel.org with ESMTP
-	id S964936AbWEaUiv convert rfc822-to-8bit (ORCPT
+	Wed, 31 May 2006 16:38:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10179 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751628AbWEaUiX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 16:38:51 -0400
-Content-class: urn:content-classes:message
+	Wed, 31 May 2006 16:38:23 -0400
+Message-ID: <447DFEB1.8010008@redhat.com>
+Date: Wed, 31 May 2006 16:38:09 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: Sharing memory between kernel and user space.
-Date: Wed, 31 May 2006 13:38:50 -0700
-Message-ID: <14CFC56C96D8554AA0B8969DB825FEA0012B333E@chicken.machinevisionproducts.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RE: Sharing memory between kernel and user space.
-Thread-Index: AcaE8jl4FCRRTv8bTvykh4rgeYF0Yg==
-From: "Brian D. McGrew" <brian@visionpro.com>
-To: <linux-kernel@vger.kernel.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] memory mapped files not updating timestamps
+References: <446B3E5D.1030301@redhat.com> <447DD80C.2000408@redhat.com> <447DF0C8.7030507@cosmosbay.com>
+In-Reply-To: <447DF0C8.7030507@cosmosbay.com>
+Content-Type: multipart/mixed;
+ boundary="------------050009060108080607050003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a lot of good help in the last couple days, thank you to everyone
-who responded; I made major progress but I'm still having a hang up and
-a bit confused.
+This is a multi-part message in MIME format.
+--------------050009060108080607050003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-I my driver, I allocate this structure:
+Eric Dumazet wrote:
 
-typedef struct rtc_shared {
-    unsigned long       snap_addrs_loc;
-    time_t              ntimestamp;
-} RtcShared;
+> Peter Staubach a écrit :
+>
+>> --- linux-2.6.16.i686/mm/msync.c.org
+>> +++ linux-2.6.16.i686/mm/msync.c
+>> @@ -206,12 +206,16 @@ asmlinkage long sys_msync(unsigned long 
+>>          file = vma->vm_file;
+>>          start = vma->vm_end;
+>>          if ((flags & MS_ASYNC) && file && nr_pages_dirtied) {
+>> +            struct address_space *mapping = file->f_mapping;
+>> +
+>>              get_file(file);
+>>              up_read(&current->mm->mmap_sem);
+>> -            balance_dirty_pages_ratelimited_nr(file->f_mapping,
+>> +            balance_dirty_pages_ratelimited_nr(mapping,
+>>                              nr_pages_dirtied);
+>>              fput(file);
+>
+>
+> <here>, another thread can perform an munmap(), and the file can be 
+> totally dismantled.
+>
+>>              down_read(&current->mm->mmap_sem);
+>
+>
+> So referencing 'mapping' is *buggy* here.
+> I believe that you have to move 'fput(file);' *after* the folloging 
+> two lines.
+>
+>> +            if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
+>> +                inode_update_time(mapping->host);
+>>              vma = find_vma(current->mm, start);
+>>          } else if ((flags & MS_SYNC) && file &&
+>>                  (vma->vm_flags & VM_SHARED)) {
+>
+>
+>
+> Eric
 
-In the driver like this:
 
-static int
-alloc_rtc_usr_shared(RtcSoftDev *rtc_sp)
-{
-    unsigned long addr;
-    unsigned long bytes = PAGE_SIZE << get_order(RTC_COMMON_SIZE);
-    unsigned long sz;
+Yes, sorry, you mentioned that before and I meant to address that.  I almost
+reordered those operations originally because I think that it is cleaner
+when acquires and releases are done in the opposite order.  However, I was
+also trying to change as little as possible too.
 
-    rtc_sp->shared_host_mem =
-        __get_free_pages(GFP_KERNEL, get_order(RTC_COMMON_SIZE));
+Anyway, attached is an updated patch.
 
-    if (rtc_sp->shared_host_mem == NULL) {
-        debug_out(("alloc_rtc_usr_shared: out of memory.\n"));
-        return(0);
-    }
+    Thanx...
 
-    memset((void *)rtc_sp->shared_host_mem, 0, bytes);
+       ps
 
-    for (addr = rtc_sp->shared_host_mem, sz = bytes;
-        sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+Signed-off-by: Peter Staubach <staubach@redhat.com>
 
-            SetPageReserved(virt_to_page(addr));
-    }
+--------------050009060108080607050003
+Content-Type: text/plain;
+ name="mctime.devel"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mctime.devel"
 
-    return(0);
-}
+--- linux-2.6.16.x86_64/fs/inode.c.org
++++ linux-2.6.16.x86_64/fs/inode.c
+@@ -1211,8 +1211,8 @@ void touch_atime(struct vfsmount *mnt, s
+ EXPORT_SYMBOL(touch_atime);
+ 
+ /**
+- *	file_update_time	-	update mtime and ctime time
+- *	@file: file accessed
++ *	inode_update_time	-	update mtime and ctime time
++ *	@inode: file accessed
+  *
+  *	Update the mtime and ctime members of an inode and mark the inode
+  *	for writeback.  Note that this function is meant exclusively for
+@@ -1222,9 +1222,8 @@ EXPORT_SYMBOL(touch_atime);
+  *	timestamps are handled by the server.
+  */
+ 
+-void file_update_time(struct file *file)
++void inode_update_time(struct inode *inode)
+ {
+-	struct inode *inode = file->f_dentry->d_inode;
+ 	struct timespec now;
+ 	int sync_it = 0;
+ 
+@@ -1246,7 +1245,7 @@ void file_update_time(struct file *file)
+ 		mark_inode_dirty_sync(inode);
+ }
+ 
+-EXPORT_SYMBOL(file_update_time);
++EXPORT_SYMBOL(inode_update_time);
+ 
+ int inode_needs_sync(struct inode *inode)
+ {
+--- linux-2.6.16.x86_64/fs/fs-writeback.c.org
++++ linux-2.6.16.x86_64/fs/fs-writeback.c
+@@ -168,6 +168,9 @@ __sync_single_inode(struct inode *inode,
+ 
+ 	spin_unlock(&inode_lock);
+ 
++	if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
++		inode_update_time(inode);
++
+ 	ret = do_writepages(mapping, wbc);
+ 
+ 	/* Don't write the inode if only I_DIRTY_PAGES was set */
+--- linux-2.6.16.x86_64/fs/buffer.c.org
++++ linux-2.6.16.x86_64/fs/buffer.c
+@@ -347,6 +347,10 @@ long do_fsync(struct file *file, int dat
+ 	if (!ret)
+ 		ret = err;
+ 	current->flags &= ~PF_SYNCWRITE;
++
++	if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
++		inode_update_time(mapping->host);
++
+ out:
+ 	return ret;
+ }
+@@ -837,6 +841,7 @@ EXPORT_SYMBOL(mark_buffer_dirty_inode);
+ int __set_page_dirty_buffers(struct page *page)
+ {
+ 	struct address_space * const mapping = page->mapping;
++	int ret = 0;
+ 
+ 	spin_lock(&mapping->private_lock);
+ 	if (page_has_buffers(page)) {
+@@ -861,9 +866,13 @@ int __set_page_dirty_buffers(struct page
+ 		}
+ 		write_unlock_irq(&mapping->tree_lock);
+ 		__mark_inode_dirty(mapping->host, I_DIRTY_PAGES);
+-		return 1;
++		ret = 1;
+ 	}
+-	return 0;
++
++	if (page_mapped(page))
++		set_bit(AS_MCTIME, &mapping->flags);
++
++	return ret;
+ }
+ EXPORT_SYMBOL(__set_page_dirty_buffers);
+ 
+--- linux-2.6.16.x86_64/include/linux/fs.h.org
++++ linux-2.6.16.x86_64/include/linux/fs.h
+@@ -1778,7 +1778,12 @@ extern int buffer_migrate_page(struct pa
+ extern int inode_change_ok(struct inode *, struct iattr *);
+ extern int __must_check inode_setattr(struct inode *, struct iattr *);
+ 
+-extern void file_update_time(struct file *file);
++extern void inode_update_time(struct inode *);
++
++static inline void file_update_time(struct file *file)
++{
++	inode_update_time(file->f_dentry->d_inode);
++}
+ 
+ static inline ino_t parent_ino(struct dentry *dentry)
+ {
+--- linux-2.6.16.x86_64/include/linux/pagemap.h.org
++++ linux-2.6.16.x86_64/include/linux/pagemap.h
+@@ -16,8 +16,9 @@
+  * Bits in mapping->flags.  The lower __GFP_BITS_SHIFT bits are the page
+  * allocation mode flags.
+  */
+-#define	AS_EIO		(__GFP_BITS_SHIFT + 0)	/* IO error on async write */
++#define AS_EIO		(__GFP_BITS_SHIFT + 0)	/* IO error on async write */
+ #define AS_ENOSPC	(__GFP_BITS_SHIFT + 1)	/* ENOSPC on async write */
++#define AS_MCTIME	(__GFP_BITS_SHIFT + 2)	/* need m/ctime change */
+ 
+ static inline gfp_t mapping_gfp_mask(struct address_space * mapping)
+ {
+--- linux-2.6.16.x86_64/mm/page-writeback.c.org
++++ linux-2.6.16.x86_64/mm/page-writeback.c
+@@ -627,8 +627,10 @@ EXPORT_SYMBOL(write_one_page);
+  */
+ int __set_page_dirty_nobuffers(struct page *page)
+ {
++	struct address_space *mapping = page_mapping(page);
++	int ret = 0;
++
+ 	if (!TestSetPageDirty(page)) {
+-		struct address_space *mapping = page_mapping(page);
+ 		struct address_space *mapping2;
+ 
+ 		if (mapping) {
+@@ -648,9 +650,11 @@ int __set_page_dirty_nobuffers(struct pa
+ 							I_DIRTY_PAGES);
+ 			}
+ 		}
+-		return 1;
++		ret = 1;
+ 	}
+-	return 0;
++	if (page_mapped(page))
++		set_bit(AS_MCTIME, &mapping->flags);
++	return ret;
+ }
+ EXPORT_SYMBOL(__set_page_dirty_nobuffers);
+ 
+--- linux-2.6.16.x86_64/mm/msync.c.org
++++ linux-2.6.16.x86_64/mm/msync.c
+@@ -206,12 +206,16 @@ asmlinkage long sys_msync(unsigned long 
+ 		file = vma->vm_file;
+ 		start = vma->vm_end;
+ 		if ((flags & MS_ASYNC) && file && nr_pages_dirtied) {
++			struct address_space *mapping = file->f_mapping;
++
+ 			get_file(file);
+ 			up_read(&current->mm->mmap_sem);
+-			balance_dirty_pages_ratelimited_nr(file->f_mapping,
++			balance_dirty_pages_ratelimited_nr(mapping,
+ 							nr_pages_dirtied);
+-			fput(file);
+ 			down_read(&current->mm->mmap_sem);
++			if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
++				inode_update_time(mapping->host);
++			fput(file);
+ 			vma = find_vma(current->mm, start);
+ 		} else if ((flags & MS_SYNC) && file &&
+ 				(vma->vm_flags & VM_SHARED)) {
+--- linux-2.6.16.x86_64/mm/mmap.c.org
++++ linux-2.6.16.x86_64/mm/mmap.c
+@@ -203,6 +203,8 @@ void unlink_file_vma(struct vm_area_stru
+ 		spin_lock(&mapping->i_mmap_lock);
+ 		__remove_shared_vm_struct(vma, file, mapping);
+ 		spin_unlock(&mapping->i_mmap_lock);
++		if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
++			inode_update_time(mapping->host);
+ 	}
+ }
+ 
 
-And then in my driver mmap routine:
-
-int
-rtc_mmap(struct file *filep, struct vm_area_struct *vma)
-{
-    RtcSoftDev *rtc_sp = filep->private_data;
-
-    unsigned long start = vma->vm_start;
-    unsigned long size = vma->vm_end - vma->vm_start;
-    unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
-    unsigned long page = ((rtc_sp->iobase + offset) >> PAGE_SHIFT);
-
-    if (offset > __pa(high_memory) || (filep->f_flags & O_SYNC)) {
-        vma->vm_flags |= VM_IO;
-    }
-
-    vma->vm_flags |= VM_RESERVED;
-
-    if (offset == RTC_COMMON_VADDR) {
-        debug_out(("RTC_COMMON_VADDR: %x\n", offset));
-
-        // page = virt_to_phys((void*)((unsigned
-long)rtc_sp->shared_host_mem));
-        // page = page_to_pfn(virt_to_page(phys_to_virt(__pa(page))));
-        while (size > 0) {
-            debug_out(("START: %#lx, SIZE: %#lx, OFFSET: %#lx, PAGE:
-%#lx\n",
-                start, size, offset, page));
-
-            if (remap_pfn_range(vma,
-                start,
-                    page,
-                        PAGE_SIZE,
-                            PAGE_SHARED)) {
-                return(-EAGAIN);
-            }
-
-            start += PAGE_SIZE;
-            page += PAGE_SIZE;
-
-            if (size > PAGE_SIZE) {
-                size -= PAGE_SIZE;
-            } else {
-                size = 0;
-            }
-        }
-    }
-
-    else {
-        debug_out(("RTC_???_OFFSET --- WE'RE BROKEN --- %x\n", offset));
-    }
-
-    return(0);
-}
-
-Now the driver like that loads and attaches without blowing up.
-However, from userspace, when I open("/dev/mvp_rtc", O_RDWR) and then
-try and mmap it, when I read it back, I can read back rtc_shared but I
-can't read rtc_shared->snap_addrs_loc.
-
-My main hope is that someone will spot something I'm obviously doing
-wrong but if not, my next question is:
-
-Is the virtual address that I get back from the kernel in
-all_rtc_usr_shared going to be the same address that I read in
-userspace?  Because right now I'm getting back something like 0xc11a0000
-from the kernel and then I'm seeing something like 0xbf73000 in
-userspace.
-
-Thanks again for all the help and with a little more coaching I just
-might get this blasted thing working before I retire 99 years from now!
-
-:b!
-
-Brian D. McGrew { brian@visionpro.com || brian@doubledimension.com }
---
-> This is a test.  This is only a test!
-  Had this been an actual emergency, you would have been
-  told to cancel this test and seek professional assistance!
-
+--------------050009060108080607050003--

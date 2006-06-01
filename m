@@ -1,99 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWFAIkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWFAIpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWFAIkx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 04:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWFAIkx
+	id S1750777AbWFAIpl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 04:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWFAIpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 04:40:53 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:56391 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932066AbWFAIkx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 04:40:53 -0400
-Message-ID: <447EA800.101@de.ibm.com>
-Date: Thu, 01 Jun 2006 10:40:32 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Tim Bird <tim.bird@am.sony.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/6] statistics infrastructure - prerequisite: timestamp
-References: <1148055080.2974.15.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <4474CD38.5090206@am.sony.com>
-In-Reply-To: <4474CD38.5090206@am.sony.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 1 Jun 2006 04:45:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33426 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750777AbWFAIpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 04:45:40 -0400
+Subject: deadlock in epoll (found by lockdep)
+From: Arjan van de Ven <arjan@infradead.org>
+To: davidel@xmailserver.org, linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, mingo@elte.hu
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 10:45:37 +0200
+Message-Id: <1149151538.3115.29.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Bird wrote:
-> Martin Peschke wrote:
->> And I think that I have fixed a printed_len related miscalculation.
->> printed_len needs to be increased if no valid log level has been found
->> and a log level prefix has been added by printk(). Otherwise, printed_len
->> must not be increased. The old code did it the other way around (in the
->> timestamp case).
-> 
-> I'm not following your change here.  I can't find the problem you
-> mention in the original code.  And your fix appears to mess up the
-> printed_len.
+Hi,
 
-I am sorry for not responding sooner ... and I am sorry for introducing
-a bug here. I think you are right.
+in ep_poll() (fs/eventpoll.c) the code does
 
->> +		if (new_line) {
->> +			/* The log level token is first. */
->> +			int loglev_char;
->> +			if (p[0] == '<' && p[1] >='0' &&
->> +			    p[1] <= '7' && p[2] == '>') {
->> +				loglev_char = p[1];
->> +				p += 3;
->> +				printed_len -= 3;
-> Here you subtract from the printed_len to account for skipping
-> the submitted log level.
-> 
->> +			} else	{
->> +				loglev_char = default_message_loglevel + '0';
->> +			}
->> +			emit_log_char('<');
->> +			emit_log_char(loglev_char);
->> +			emit_log_char('>');
-> 
-> But here you don't re-count the chars for the log-level
-> you are adding back in.  There's a discrepancy here.
+       write_lock_irqsave(&ep->lock, flags);
 
-Correct. My print_len loses 3 in the 'got log level'-case due to a surplus
-substraction. It also loses 3 in the other case due to adding a log level
-substring that is not entered in the books.
+        res = 0;
+        if (list_empty(&ep->rdllist)) {
+                /*
+                 * We don't have any available event to return to the caller.
+                 * We need to sleep here, and we will be wake up by
+                 * ep_poll_callback() when events will become available.
+                 */
+                init_waitqueue_entry(&wait, current);
+                add_wait_queue(&ep->wq, &wait);
 
-This is how I would fix it:
-
-         printed_len = vscnprintf(printk_buf, sizeof(printk_buf), fmt, args);
-
-         ...
-
-         if (new_line) {
-                 /* The log level token is first. */
-                 int loglev_char;
-                 if (p[0] == '<' && p[1] >='0' &&
-                     p[1] <= '7' && p[2] == '>') {
-                         loglev_char = p[1];
-                         p += 3;
-                 } else  {
-                         loglev_char = default_message_loglevel + '0';
-                         print_len += 3;
-                 }
-                 emit_log_char('<');
-                 emit_log_char(loglev_char);
-                 emit_log_char('>');
+eg we first take ep->lock and then call add_wait_queue which takes 
+         spin_lock_irqsave(&q->lock, flags);
+for obvious reasons.
+this would mean that ep->lock would be the outer lock, and q->lock the
+inner lock.
 
 
-Could you confirm, please. I will send a patch to Andrew then.
+HOWEVER, __wake_up does this:
+void fastcall __wake_up(wait_queue_head_t *q, unsigned int mode,
+                        int nr_exclusive, void *key)
+{
+        unsigned long flags;
 
+        spin_lock_irqsave(&q->lock, flags);
+        __wake_up_common(q, mode, nr_exclusive, 0, key);
+        spin_unlock_irqrestore(&q->lock, flags);
+}
 
-Or, Andrew, do you prefer a replacement patch for my
-statistics-infrastructure-prerequisite-timestamp.patch
-that introduces this miscalculation. I could put
-statistics-infrastructure-make-printk_clock-a-generic-kernel-wide-nsec-resolution.patch
-into that one as well, so that all the timestamp related printk-changes are in
-one place.
+where __wake_up_common calls into ep_poll_callback, which in term does
+        write_lock_irqsave(&ep->lock, flags);
+as one of the first things.
+
+... which implies that q->lock is the outer lock, and ep->lock is the
+inner lock.... 
+
+can you explain which order is right, and if/why this is not an AB-BA
+deadlock??
+
+Greetings,
+   Arjan van de Ven
 

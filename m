@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWFAW6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWFBDBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWFAW6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWFAW6Y
+	id S1751166AbWFBDBm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 23:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWFBDBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:58:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54762 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750854AbWFAW6X (ORCPT
+	Thu, 1 Jun 2006 23:01:42 -0400
+Received: from smtp.enter.net ([216.193.128.24]:49168 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751166AbWFBDBl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:58:23 -0400
-Date: Thu, 1 Jun 2006 16:00:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: jonsmirl@gmail.com, dhazelton@enter.net, dlang@digitalinsight.com,
-       santiago@mail.cz, airlied@gmail.com, pavel@ucw.cz,
-       alan@lxorguk.ukuu.org.uk, mrmacman_g4@mac.com, abraham.manu@gmail.com,
-       linuxcbon@yahoo.fr, helge.hafting@aitel.hist.no,
-       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+	Thu, 1 Jun 2006 23:01:41 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
 Subject: Re: OpenGL-based framebuffer concepts
-Message-Id: <20060601160045.1638473a.akpm@osdl.org>
-In-Reply-To: <447F56A0.8030408@gmail.com>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	<9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-	<Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz>
-	<200606011603.57421.dhazelton@enter.net>
-	<9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
-	<447F56A0.8030408@gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Thu, 1 Jun 2006 23:01:31 +0000
+User-Agent: KMail/1.8.1
+Cc: "Dave Airlie" <airlied@gmail.com>, "Ondrej Zajicek" <santiago@mail.cz>,
+       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, adaplas@gmail.com
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200606012234.31566.dhazelton@enter.net> <9e4733910606011958k5906117cl9ca18ddbaf9c3cc5@mail.gmail.com>
+In-Reply-To: <9e4733910606011958k5906117cl9ca18ddbaf9c3cc5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606012301.32197.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Antonino A. Daplas" <adaplas@gmail.com> wrote:
+On Friday 02 June 2006 02:58, Jon Smirl wrote:
+> On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
+> > VT switch to a VT where X is running. X will still require a VT and
+> > assume it has good access to the graphics system. While currently it has
+> > no problems, when drmcon becomes a reality there will have to be a state
+> > switch between the consoles settings and the setting for the VT running
+> > X.
+> >
+> > > > 14) backwards compatible, an old X server should still run on a new
+> > > > kernel. I will allow for new options to be enabled at run-time so
+> > > > that this isn't possible, but just booting a kernel and starting X
+> > > > should work.
+> > >
+> > > I'm not sure we want to continue supporting every X server released in
+> > > the last 25 years. But we should definitely support any X server
+> > > released in a 2.6 based kernel distribution. What are reasonable
+> > > limits?
+> >
+> > This is not a supportable position, Jon. I haven't seen it myself, but
+> > I'm willing to bet there are still a few systems out there running X5 but
+> > have a recent kernel. Since X version prior to 6 are no longer in wide
+> > use, however, this is something that could be done with little damage to
+> > anyone.
+> >
+> > But it still breaks the spirit of Linus' directive to "break nothing"
 >
-> Console writes are done with the console semaphore held. printk will also
-> just write to the log buffer and defer the actual console printing
-> for later, by the next or current process that will grab the semaphore.
+> I don't know if break nothing applies to operating systems
+> masquerading as applications. "Break nothing" works both ways. Old X
+> servers are doing things like messing with the PCI bus that breaks new
+> kernels.
+>
+> Use some common sense here, who would update to a 2006 kernel and keep
+> running an X server from 1989? Pick a reasonable limit and say the
+> rest are unsupported. Why make a pile of work for yourself that no
+> sane person is ever going to make use of.
+>
+> Remember, an X server from 1989 only contains drivers for hardware
+> from 1989 and earlier. Can 2.6 Linux boot on a 1989 PC with an 8514
+> graphics card? Does it support running in 640K with an AboveBoard?
+> Does anyone even remember what an AboveBoard did?
 
-Always by the current process which holds console_sem.  Leaving the printing
-for the next process would be unacceptably too late for printk.
+Okay, okay. Point taken. And note that I did state that X versions prior to 6 
+(hell, AFAIK, prior to 6.5) aren't in any widespread use. And the Elks 
+version of Linux could run a 1989 system. Not that I think these changes will 
+make it into Elks, but...
 
-If printk sees that someone holds console_sem, printk will leave the data
-in the log buffer for the current holder of console_sem to print, prior to
-that caller releasing console_sem.  logbuf_log is used in tricky ways
-around console_sem to prevent races in this logic.
+DRH

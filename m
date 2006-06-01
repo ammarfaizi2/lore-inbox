@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965318AbWFAVby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965320AbWFAVeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965318AbWFAVby (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965320AbWFAVby
+	id S965320AbWFAVeA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965322AbWFAVeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:31:54 -0400
-Received: from wr-out-0506.google.com ([64.233.184.225]:61019 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965318AbWFAVbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:31:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=TLTIsm10r34DTaQONaiqpAIKplahq/dsoV26sMQnYxjWF15uIZOtQH454Lx83yALeydMo+RLhd2qlyT+vPEPEtPqzcpm4WvNI47IIIgXmNxP1omvbMsr9qCYJcNyoasax/QVxGzNflk9HhL3MxVV2nPdJ+eaCaGR5/yNEkj5bas=
-Message-ID: <447F5CB3.7000107@gmail.com>
-Date: Fri, 02 Jun 2006 05:31:31 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: "D. Hazelton" <dhazelton@enter.net>, David Lang <dlang@digitalinsight.com>,
-       Ondrej Zajicek <santiago@mail.cz>, Dave Airlie <airlied@gmail.com>,
-       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>	 <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz>	 <200606011603.57421.dhazelton@enter.net>	 <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>	 <447F56A0.8030408@gmail.com> <9e4733910606011423u75fa076hce22547c28c0a987@mail.gmail.com>
-In-Reply-To: <9e4733910606011423u75fa076hce22547c28c0a987@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 17:34:00 -0400
+Received: from ns2.suse.de ([195.135.220.15]:42416 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965320AbWFAVeA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 17:34:00 -0400
+Date: Thu, 1 Jun 2006 14:31:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Bernhard Kaindl <bk@suse.de>
+Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm2 -- PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#02) (try 'pci=assign-busses')
+Message-ID: <20060601213133.GC18948@kroah.com>
+References: <a44ae5cd0606010752n637c6411l805115f8170f0ebb@mail.gmail.com> <200606012045.29146.s0348365@sms.ed.ac.uk> <a44ae5cd0606011330w3158f00bwbe6119943bbc4e2@mail.gmail.com> <200606012155.16545.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606012155.16545.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 6/1/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> Jon Smirl wrote:
->> > On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
->> >
->>
->> Console writes are done with the console semaphore held. printk will also
->> just write to the log buffer and defer the actual console printing
->> for later, by the next or current process that will grab the semaphore.
+On Thu, Jun 01, 2006 at 09:55:16PM +0100, Alistair John Strachan wrote:
+> On Thursday 01 June 2006 21:30, Miles Lane wrote:
+> > Yes, my machine is a dv1240us HP laptop.  The machine appears to be
+> > working fine.  I haven't tested all the devices, but the ones I am
+> > using regularly are all happy campers.
 > 
-> That was my original position too. But Alan Cox has drilled it into me
-> that this is not acceptable for printks in interrupt context, they
-> need to print there and not be deferred.
+> It seems many HP and Compaq notebooks that this problem; I've got the same 
+> thing on my NC6000 and it works fine too. BIOS problem?
 > 
+> Andrew, I think this message should be silenced (or at least the note about 
+> LKML) if there's no evidence of breakage. For the last LKML 4-5 reporters, 
+> they reported no side-affects. At the very least, the message could be toned 
+> down somewhat.
 
-Just to clarify, it's not my position, that's how the current printk code
-works.
+Bernhard put that message in there for a good reason, let's let him
+decide if something needs to change or not.
 
-Tony
+thanks,
+
+greg k-h

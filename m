@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbWFACVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWFACrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965161AbWFACVU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 22:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751667AbWFACVT
+	id S964898AbWFACrM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 22:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751667AbWFACrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 22:21:19 -0400
-Received: from wx-out-0102.google.com ([66.249.82.203]:35277 "EHLO
+	Wed, 31 May 2006 22:47:12 -0400
+Received: from wx-out-0102.google.com ([66.249.82.199]:38582 "EHLO
 	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751500AbWFACVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 22:21:19 -0400
+	id S1751500AbWFACrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 22:47:10 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=KdRJgHJnNec7NJvQirNnqiPKgq8Xk5NLLD8Hst9gTVytG6EAF4BjSZps4UKrtTZFdAInvwFKiykV4W4TmVIIfEafzKA9LoZz7/ZN+hkAjAyiNE3OjF/xk/Xes+WeiHND4Ir9Flb7HQb8m9hsGj85hu9opGqK3ckfcjMWEkLR67M=
-Message-ID: <447E4F0C.1000202@gmail.com>
-Date: Thu, 01 Jun 2006 10:21:00 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references:x-google-sender-auth;
+        b=cUCl1PNgPLnQuQl6JvJcLI3+fG4rqoxPeqQvqg3AafGtmLD/fVg6V5IeoRK2U+g0l9Lwo6GQFoKrGBt/nJacrl/fGJHLfR+g1FARQ0J2HM13Owmq1riq5Iqh+maocxL/ZMv918wUF31nPmDcxcckvoonstJGDp58OLlkPWhNOWk=
+Message-ID: <986ed62e0605311947o1eb18b6qce3bb04c41625ffc@mail.gmail.com>
+Date: Wed, 31 May 2006 19:47:10 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm1-lockdep: a rather strange oops
+Cc: mingo@elte.hu, arjan@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060531181430.bfe25ad5.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Ondrej Zajicek <santiago@mail.cz>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <200605272245.22320.dhazelton@enter.net>	 <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>	 <200605280112.01639.dhazelton@enter.net>	 <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>	 <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com>	 <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>	 <20060530223513.GA32267@localhost.localdomain>	 <447CD367.5050606@gmail.com>	 <Pine.LNX.4.62.0605312033260.16745@pademelon.sonytel.be> <9e4733910605311257m19450bbai4c3ae6fdc7909a4@mail.gmail.com>
-In-Reply-To: <9e4733910605311257m19450bbai4c3ae6fdc7909a4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_34759_31474543.1149130030096"
+References: <986ed62e0605311747qb8f7a58ybde5d3a87de74309@mail.gmail.com>
+	 <20060531181430.bfe25ad5.akpm@osdl.org>
+X-Google-Sender-Auth: cda61509c477137c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 5/31/06, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->> On Wed, 31 May 2006, Antonino A. Daplas wrote:
->> > And it can be done.  The matrox driver in 2.4 can do just that.  For
->> 2.6,
->> > we have tileblitting which is a drawing method that can handle pure
->> text.
->> > None of the drivers use this, but vgacon can be trivially written as a
->> > framebuffer driver that uses tileblitting (instead of the default
->> bitblit).
->> >
->> > I believe that there was a vgafb driver before that does exactly
->> what you
->> > want.
->>
->> Indeed. Early 2.1.x had a vgafb and an fbcon-vga, before vgacon
->> existed in its
->> current form.
-> 
-> Moving back to a vgafb with text mode support in fbcon would be one
-> way to eliminate a few of the way too many graphics drivers. I don't
-> see any real downside side to doing this, does any one else see any
-> problems?
+------=_Part_34759_31474543.1149130030096
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-An optional vgafb driver is probably a good idea. It's downside
-is probably slower performance.
+On 5/31/06, Andrew Morton <akpm@osdl.org> wrote:
+> The original oops was a jump-to-null.  I had a few of those when getting
+> the latest git-libata-all tree working, due to missing
+> ata_port_operations.data_xfer vectors.  But it appears that both sata_sil.c
+> and sata_promise.c do have those filled in.
 
-I may start work on a userland fb driver that can support both
-graphics and text mode this weekend.
+Ah, but pata_pdc2027x.c doesn't. (Oh, by the way, neither does sata_sil24.c.)
 
-Tony
+I tried filling it in, with the following patch, but booting that gave
+me lots of weird output before the kernel finally failed to boot from
+the root device. "Lots" meaning, enough that I think I'll need a
+serial console to get anything meaningful. I didn't see any oopses;
+rather, it seemed like the driver was misbehaving. I don't know
+whether the fault is in my patch, or elsewhere in the pdc2027x driver.
+I don't have time tonight (or probably this week, for that matter) to
+look into this further.
+
+As a reminder (in case anyone else jumps into this thread in the
+future), 2.6.17-rc4-mm3 works perfectly...
+-- 
+-Barry K. Nathan <barryn@pobox.com>
+
+------=_Part_34759_31474543.1149130030096
+Content-Type: text/plain; name=fix-pata_pdc2027x.patch.txt; 
+	charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+X-Attachment-Id: f_enwibaj2
+Content-Disposition: attachment; filename="fix-pata_pdc2027x.patch.txt"
+
+
+------=_Part_34759_31474543.1149130030096--

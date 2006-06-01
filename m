@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWFATTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWFAT1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWFATTI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 15:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965280AbWFATTI
+	id S964939AbWFAT1x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 15:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965268AbWFAT1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 15:19:08 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:14791 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S964926AbWFATTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 15:19:07 -0400
-Date: Thu, 1 Jun 2006 21:18:40 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: Greg KH <gregkh@suse.de>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Pete Zaitcev <zaitcev@redhat.com>,
-       lcapitulino@mandriva.com.br, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] ipaq.c bugfixes
-Message-ID: <20060601191840.GB1757@fks.be>
-References: <20060529193330.3c51f3ba@home.brethil> <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com> <20060531213828.GA17711@fks.be> <20060531215523.GA13745@suse.de> <20060531224245.GB17711@fks.be> <20060531224624.GA17667@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060531224624.GA17667@suse.de>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.816,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+	Thu, 1 Jun 2006 15:27:53 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:36531 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S964939AbWFAT1w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 15:27:52 -0400
+Message-ID: <447F3FB8.2010003@vmware.com>
+Date: Thu, 01 Jun 2006 12:27:52 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Manfred Spraul <manfred@colorfullife.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Allow TSO to be disabled for forcedeth driver
+Content-Type: multipart/mixed;
+ boundary="------------050104020302050201080909"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 03:46:24PM -0700, Greg KH wrote:
-> On Thu, Jun 01, 2006 at 12:42:45AM +0200, Frank Gevaerts wrote:
-> > +
-> > +module_param(connect_retries, int, KP_RETRIES);
-> 
-> I really do not think that you want KP_RETRIES as a mode value in sysfs
-> :)
-> 
-> This is not how you pre-initialize a module parameter...
+This is a multi-part message in MIME format.
+--------------050104020302050201080909
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thanks. That should teach me not to try to fix kernel code without
-reading documentation. I fixed it here, but I won't resubmit yet because
-there are some 100% reproducible bugs left. 
+TSO can cause performance problems in certain environments, and being 
+able to turn it on or off is helpful for debugging network issues.  Most 
+other network drivers that support TSO allow it to be toggled, so add 
+this feature to forcedeth.  Tested by Harald Dunkel, who reported that 
+this fixed his network performance issue with VMware.
 
-Frank
 
-> 
-> thanks,
-> 
-> greg k-h
 
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+--------------050104020302050201080909
+Content-Type: text/plain;
+ name="forcedeth-tso-toggle"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="forcedeth-tso-toggle"
+
+Implement get / set tso for forcedeth driver.
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+
+Index: linux-2.6.17-rc/drivers/net/forcedeth.c
+===================================================================
+--- linux-2.6.17-rc.orig/drivers/net/forcedeth.c	2006-05-18 13:31:55.000000000 -0700
++++ linux-2.6.17-rc/drivers/net/forcedeth.c	2006-05-31 14:34:53.000000000 -0700
+@@ -2615,6 +2615,21 @@ static int nv_nway_reset(struct net_devi
+ 	return ret;
+ }
+ 
++static int nv_set_tso(struct net_device *dev, u32 value)
++{
++	struct fe_priv *np = netdev_priv(dev);
++	int ret;
++
++	spin_lock_irq(&np->lock);
++	if ((np->driver_data & DEV_HAS_CHECKSUM))
++		ret = ethtool_op_set_tso(dev, value);
++	else
++		ret = value ? -EOPNOTSUPP : 0;
++	spin_unlock_irq(&np->lock);
++
++	return ret;
++}
++
+ static struct ethtool_ops ops = {
+ 	.get_drvinfo = nv_get_drvinfo,
+ 	.get_link = ethtool_op_get_link,
+@@ -2626,6 +2641,8 @@ static struct ethtool_ops ops = {
+ 	.get_regs = nv_get_regs,
+ 	.nway_reset = nv_nway_reset,
+ 	.get_perm_addr = ethtool_op_get_perm_addr,
++	.get_tso = ethtool_op_get_tso,
++	.set_tso = nv_set_tso
+ };
+ 
+ static void nv_vlan_rx_register(struct net_device *dev, struct vlan_group *grp)
+
+--------------050104020302050201080909--

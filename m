@@ -1,99 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWFAV75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWFAWEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWFAV75 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWFAV75
+	id S1750807AbWFAWEh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 18:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWFAWEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:59:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23515 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750754AbWFAV74 (ORCPT
+	Thu, 1 Jun 2006 18:04:37 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34973 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750746AbWFAWEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:59:56 -0400
-Date: Thu, 1 Jun 2006 15:02:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: laurent.riffard@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1
-Message-Id: <20060601150250.3a66c489.akpm@osdl.org>
-In-Reply-To: <200606011741_MC3-1-C158-4568@compuserve.com>
-References: <200606011741_MC3-1-C158-4568@compuserve.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 1 Jun 2006 18:04:36 -0400
+Date: Fri, 2 Jun 2006 08:04:07 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Janos Haar <djani22@netcenter.hu>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen 64bit linux)
+Message-ID: <20060602080406.C530100@wobbly.melbourne.sgi.com>
+References: <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com> <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs> <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu> <1149038431.21827.20.camel@localhost.localdomain> <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs> <Pine.LNX.4.61.0605312353530.30170@yvahk01.tjqt.qr> <00d901c6854d$1fc49230$1800a8c0@dcccs> <Pine.LNX.4.61.0606011143410.3533@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.61.0606011143410.3533@yvahk01.tjqt.qr>; from jengelh@linux01.gwdg.de on Thu, Jun 01, 2006 at 11:44:46AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
->
-> In-Reply-To: <447DD4D3.3060205@free.fr>
+On Thu, Jun 01, 2006 at 11:44:46AM +0200, Jan Engelhardt wrote:
+> >> Reinit:
+> >>
+> >> quotaoff /mntpt
+> >> umount /mntpt
+> >> mount /mntpt
+> >
+> >Thanks! :-)
+> >
+> Too bad XFS does not reinit quota on these commands:
 > 
-> On Wed, 31 May 2006 19:39:31 +0200, Laurent Riffard wrote:
-> 
-> > pktcdvd: writer pktcdvd0 mapped to hdc
-> > BUG: unable to handle kernel NULL pointer dereference at virtual address 00000084
-> >  printing eip:
-> > c01118f1
-> > *pde = 00000000
-> > Oops: 0000 [#1]
-> > last sysfs file: /block/pktcdvd0/removable
-> > Modules linked in: pktcdvd lp parport_pc parport snd_pcm_oss snd_mixer_oss snd_ens1371 gameport snd_rawmidi snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd soundcore af_packet floppy ide_cd cdrom loop aes dm_crypt nl
-> > CPU:    0
-> > EIP:    0060:[<c01118f1>]    Not tainted VLI
-> > EFLAGS: 00010006   (2.6.17-rc5-mm1 #11) 
-> > EIP is at do_page_fault+0xb4/0x5bc
-> > eax: d6750084   ebx: d6750000   ecx: 0000007b   edx: 00000000
-> > esi: d6758000   edi: c011183d   ebp: d675007c   esp: d6750044
-> > ds: 007b   es: 007b   ss: 0068
-> > Process  (pid: 0, threadinfo=d674f000 task=d657c000)
-> > Stack: 00000000 d6750084 00000000 00000049 00000084 00000000 00001e2e 02001120 
-> >        00000027 00000022 00000055 d6750000 d6758000 c011183d d67500f0 c010340d 
-> >        d6750000 0000007b 00000000 d6758000 c011183d d67500f0 d67500f8 0000007b 
-> > Call Trace:
-> >  [<c010340d>] error_code+0x39/0x40
-> > Code: 00 00 c0 81 0f 84 12 02 00 00 e9 1c 05 00 00 8b 45 cc f7 40 30 00 02 02 00 74 06 e8 68 af 01 00 fb f7 43 14 ff ff ff ef 8b 55 d0 <8b> b2 84 00 00 00 0f 85 e5 01 00 00 85 f6 0f 84 dd 01 00 00 8d 
-> > EIP: [<c01118f1>] do_page_fault+0xb4/0x5bc SS:ESP 0068:d6750044
-> 
-> arch/i386/mm/fault.c::do_page_fault():
-> 
->   12:   f7 40 30 00 02 02 00      testl  $0x20200,0x30(%eax)
->   19:   74 06                     je     21 <_EIP+0x21>
->         if (regs->eflags & (X86_EFLAGS_IF|VM_MASK))
-> 
->   1b:   e8 68 af 01 00            call   1af88 <_EIP+0x1af88>
->   20:   fb                        sti
->                 local_irq_enable();
-> 
-> local_irq_enable() should only be doing an sti; your code has an extra
-> function call. Do you have any extra patches applied?
+> qutoaoff /mp
+> quotaon /mp
 
-This is all the lockdep stuff - it adds instrumentation to local_irq_foo().
+Hmm, remount would be saner if we wanted to take that approach...
 
->   21:   f7 43 14 ff ff ff ef      testl  $0xefffffff,0x14(%ebx)
-> if (in_atomic()...
-> 
->   28:   8b 55 d0                  mov    0xffffffd0(%ebp),%edx
-> Get tsk from local storage and put it in edx.
-> 
-> 00000000 <_EIP>:
->    0:   8b b2 84 00 00 00         mov    0x84(%edx),%esi   <=====
->         mm = tsk->mm;
-> 
-> tsk was zero here, implying that current was 0 when the page fault happened.
-> 
-> 
->    6:   0f 85 e5 01 00 00         jne    1f1 <_EIP+0x1f1>
->    c:   85 f6                     test   %esi,%esi
->    e:   0f 84 dd 01 00 00         je     1f1 <_EIP+0x1f1>
-> 
-> 
-> 
-> Andrew, should we add debug code to the fault handler to test for current == 0?
+> Yes, it would lock the filesystem for a moment, but that's better than 
+> trying to unmount it under someone having inodes open!
 
-`current == 0' implies a scrogged thread_info.  I'm not sure what debugging
-we could usefully add to the pagefault handler to detect that.  Apart from
-getting a good backtrace.  Which the x86_64 guys have broken.
+But its not just a moment, a quotacheck needs to scan every inode
+in the filesystem (on disk) to correctly account for all space/inode
+usage.  Its not something to be encouraging people to do frequently,
+and it would also be very difficult to correctly implement (while the
+filesystem is actively being modified I mean).
 
-Laurent, please disable CONFIG_STACK_UNWIND and try again - that way we
-should be able to see whereabouts the thread-info got corrupted.
+cheers.
 
+-- 
+Nathan

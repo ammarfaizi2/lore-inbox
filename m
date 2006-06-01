@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWFARgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbWFARrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWFARgV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWFARgU
+	id S965205AbWFARrE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 13:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965255AbWFARrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:36:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57992 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965255AbWFARgU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:36:20 -0400
-Date: Thu, 1 Jun 2006 10:40:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: michal.k.k.piotrowski@gmail.com, gregkh@suse.de, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2
-Message-Id: <20060601104018.b88a3173.akpm@osdl.org>
-In-Reply-To: <1149182861.3115.79.camel@laptopd505.fenrus.org>
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	<6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
-	<20060601102234.4f7a9404.akpm@osdl.org>
-	<1149182861.3115.79.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Jun 2006 13:47:04 -0400
+Received: from wr-out-0506.google.com ([64.233.184.237]:17508 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965205AbWFARrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 13:47:03 -0400
+Message-ID: <acdcfe7e0606011046y727c3e5aob478a408e29c7a0f@mail.gmail.com>
+Date: Thu, 1 Jun 2006 13:46:41 -0400
+From: "Robert Love" <rlove@rlove.org>
+To: "Amy Griffis" <amy.griffis@hp.com>
+Subject: Re: [PATCH] inotify: split kernel API from userspace support
+Cc: linux-kernel@vger.kernel.org, "John McCutchan" <john@johnmccutchan.com>,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20060601150702.GA2171@zk3.dec.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060601150702.GA2171@zk3.dec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Jun 2006 19:27:41 +0200
-Arjan van de Ven <arjan@linux.intel.com> wrote:
+On 6/1/06, Amy Griffis <amy.griffis@hp.com> wrote:
 
-> 
-> > > http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_2.jpg
-> > 
-> > So it's claiming that we're taking multiple i_mutexes.
-> > 
-> > I can't immediately see where we took the outermost i_mutex there.
-> 
-> inlining caused one level to be removed from the backtrace
-> one level is in fs_remove_file, the sub level is usbfs_unlink (called
-> from fs_remove_file)
+> The following series of patches introduces a kernel API for inotify,
+> making it possible for kernel modules to benefit from inotify's
+> mechanism for watching inodes.  With these patches, inotify will
+> maintain for each caller a list of watches (via an embedded struct
+> inotify_watch), where each inotify_watch is associated with a
+> corresponding struct inode.  The caller registers an event handler and
+> specifies for which filesystem events their event handler should be
+> called per inotify_watch.
 
-OK.
+Thank you for breaking the patch up.  Looks good to me.
 
-I'll duck this patch for now, pending a tested-n-changelogged one, please.
+Acked-by: Robert Love <rml@novell.com>
 
-> >   Nor is
-> > it immediately obvious why this is considered to be deadlockable?
-> 
-> what is missing is that we tell lockdep that there is a parent-child
-> relationship between those two i_mutexes, so that it knows that 1)
-> they're separate and 2) that the lock take order is parent->child
-> 
-> 
-> > (lockdep tells us that a mutex was taken at "mutex_lock+0x8/0xa", which is
-> > fairly useless.  We need to report who the caller of mutex_lock() was).
-> 
-> yeah this has been bugging me as well; either via a wrapper around
-> mutex_lock or via the gcc option to backwalk the stack (but that only
-> works with frame pointers enabled.. sigh)
-
-Actually, __builtin_return_address(0) works OK with -fomit-frame-pointer,
-and that's all we need here.
-
+        Robert Love

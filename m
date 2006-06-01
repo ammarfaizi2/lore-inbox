@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWFALx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbWFALxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWFALx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 07:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWFALx2
+	id S965231AbWFALxR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 07:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWFALxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 07:53:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:61038 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750858AbWFALx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 07:53:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rGDSaXWgdpGZo2CVaChW9kLgvYz6MtJYHy9QJmEljll7Q0qozL/Scu9whyqmGssVy3PYkD5Da1klGGmNN2vfI/ESnaOWdj7XH0oayOQIl3TNGL6R4uU9rQ6KmpV68myNL0ZCJSgrUIsv/AVAvKg/lzP5sY8eOhLAZ4u0BtHOk3w=
-Message-ID: <4423333a0606010451q25c1e6d5l8745b11d511c1481@mail.gmail.com>
-Date: Thu, 1 Jun 2006 13:51:51 +0200
-From: "Marko M" <marcus.magick@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "D. Hazelton" <dhazelton@enter.net>, "Dave Airlie" <airlied@gmail.com>,
-       "Jon Smirl" <jonsmirl@gmail.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0606011140110.3533@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 07:53:17 -0400
+Received: from penda.cc.fh-lippe.de ([193.16.112.79]:19597 "EHLO
+	penda.cc.fh-lippe.de") by vger.kernel.org with ESMTP
+	id S1750858AbWFALxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 07:53:17 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Thu, 1 Jun 2006 13:53:13 +0200
+From: Martin Hierling <martin.hierling@fh-luh.de>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.16.18 with general protection fault, perhaps nfsd
+Message-ID: <20060601115313.GB4561@cc.fh-luh.de>
+References: <20060531164707.GA19547@cc.fh-luh.de> <20060531204716.GL13682@fieldses.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200605282316.50916.dhazelton@enter.net>
-	 <Pine.LNX.4.61.0605312341240.30170@yvahk01.tjqt.qr>
-	 <200605312115.44907.dhazelton@enter.net>
-	 <Pine.LNX.4.61.0606011140110.3533@yvahk01.tjqt.qr>
+In-Reply-To: <20060531204716.GL13682@fieldses.org>
+X-URL: http://www.fh-luh.de/skim/netzwerk.html
+User-Agent: Mutt/1.5.11
+X-Skim-SendBy: pike.cc.fh-luh.de on Thu, 01 Jun 2006 13:53:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure it is. I mean, it uses only VESA (extended VGA) registers and
-doesn't know anything about present bliters, backend scalers or
-similar hw features, AFAIK.
+Hi Bruce, Hi List,
 
-I think DirectFB guy have right approach, only they do it from user
-space. fbdev should be capable of detecting present chip(s) and load
-appropriate (acceleration) module, which describes hardware more
-precisely.
+ On Wed, May 31, 2006 at 04:47:16PM -0400, J. Bruce Fields wrote:
+> On Wed, May 31, 2006 at 06:47:07PM +0200, Martin Hierling wrote:
+> > [4] Linux version 2.6.16.18-xen (root@defiant)
+> 
+> Is there a xen patch applied as well?
 
-If there is no specific (fbdev) driver module for your gfx then
-everything should work with generic (VESA) one, though it would be
-somewhat slower.
+sure. 3.0.2-2
 
-On 6/1/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> >> As long as I can continue to use 80x25 or any of the "pure text modes"
-> >> (vga=scan boot option says more) without loading any FB/DRM, I am satisfied
-> >
-> >Jan, I don't plan on forcing fbdev/DRM on anyone. My work is going to leave
-> >vgacon alone, and if my work at making DRM and FBdev cooperate goes as
-> >planned, those two will remain independant, though part of my work aims at
-> >having fbdev provide all 2D graphics acceleration for DRM while DRM handles
-> >the 3D stuff via the Mesa libraries or similar.
-> >
-> That sounds acceptable.
->
-> But current vesafb is slower, noticable with scrolling as in `ls -Rl /`.
-> Does it lack 2D acceleration?
->
->
-> Jan Engelhardt
-> --
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> What are your export options?  (Output of exportfs -v)  Also,
+> RPC-related CONFIG options would be interesting.  (grep SUNRPC .config)
+> Are you using gss/krb5?
+
+/export/packages
+                192.168.1.0/24(rw,wdelay,no_root_squash)
+/files/incoming
+                192.168.1.0/24(rw,async,wdelay,no_root_squash)
+/export/portage
+                192.168.1.0/24(rw,wdelay,no_root_squash)
+/export/overlay
+                192.168.1.0/24(rw,wdelay,no_root_squash)
+/files/netboot  192.168.1.0/24(rw,wdelay,no_root_squash)
+/mnt/tricorder  192.168.1.0/24(rw,wdelay,no_root_squash)
+/export/home    192.168.1.0/24(rw,async,wdelay,root_squash)
+/nfs/video      192.168.1.0/24(rw,async,wdelay,no_root_squash)
+
+
+# grep SUNRPC .config
+CONFIG_SUNRPC=m
+
+gss/krb5 = No.
+
+regards Martin
+
+-- 
+----------------------------------------------------------------
+  Ensign Pillsbury: He's bread Jim!
+----------------------------------------------------------------

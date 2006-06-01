@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWFAHqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWFAIJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWFAHqW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 03:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWFAHqW
+	id S1750749AbWFAIJh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 04:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWFAIJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 03:46:22 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:19214 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750764AbWFAHqW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 03:46:22 -0400
-Message-ID: <447E9ADA.90805@sw.ru>
-Date: Thu, 01 Jun 2006 11:44:26 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru> <447E26AC.7010102@bigpond.net.au>
-In-Reply-To: <447E26AC.7010102@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 04:09:36 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:12813 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750749AbWFAIJg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 04:09:36 -0400
+Date: Thu, 1 Jun 2006 18:09:13 +1000
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, pauldrynoff@gmail.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.17-rc5-mm1 - output of lock validator
+Message-ID: <20060601080913.GA26955@gondor.apana.org.au>
+References: <20060530195417.e870b305.pauldrynoff@gmail.com> <20060530132540.a2c98244.akpm@osdl.org> <20060531181926.51c4f4c5.pauldrynoff@gmail.com> <1149085739.3114.34.camel@laptopd505.fenrus.org> <20060531102128.eb0020ad.akpm@osdl.org> <447DFE29.6040508@linux.intel.com> <20060531142525.5a22f9f1.akpm@osdl.org> <447E097C.2020707@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+In-Reply-To: <447E097C.2020707@linux.intel.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Using a timer for releasing tasks from their sinbin sounds like a  bit
->>>> of an overhead. Given that there could be 10s of thousands of tasks.
->>>
->>>
->>>
->>> The more runnable tasks there are the less likely it is that any of 
->>> them is exceeding its hard cap due to normal competition for the 
->>> CPUs.  So I think that it's unlikely that there will ever be a very 
->>> large number of tasks in the sinbin at the same time.
->>
->> for containers this can be untrue...
-> 
-> 
-> Why will this be untrue for containers?
-if one container having 100 running tasks inside exceeded it's credit, 
-it should be delayed. i.e. 100 tasks should be placed in sinbin if I 
-understand your algo correctly. the second container having 100 tasks as 
-well will do the same.
 
-Kirill
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, May 31, 2006 at 09:24:12PM +0000, Arjan van de Ven wrote:
+> 
+> misrouted_irq() in kernel/irq/spurious.c
+> afaics that calls all handlers registered to the system regardless of what
+> irq number they are registered for.....
+> 
+> which breaks the disable_irq() locking trick... because your irq handler now
+> gets called anyway!
+
+This is a serious bug in misrouted_irq().  disable_irq() is a software
+state and must be repsected.
+
+[IRQ]: Check IRQ_DISABLED in misrouted_irq
+
+The misrouted interrupt function didn't check the IRQ_DISABLED flag
+before calling the handlers.  This is highly undesirable as handlers
+are usually disabled for a good reason.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="spurious-disabled-irq.patch"
+
+diff --git a/kernel/irq/spurious.c b/kernel/irq/spurious.c
+index 7df9abd..0540b72 100644
+--- a/kernel/irq/spurious.c
++++ b/kernel/irq/spurious.c
+@@ -31,6 +31,10 @@ static int misrouted_irq(int irq, struct
+ 			continue;
+ 		desc = &irq_desc[i];
+ 		spin_lock(&desc->lock);
++		if (desc->status & IRQ_DISABLED) {
++			spin_unlock(&desc->lock);
++			continue;
++		}
+ 		action = desc->action;
+ 		/* Already running on another processor */
+ 		if (desc->status & IRQ_INPROGRESS) {
+
+--nFreZHaLTZJo0R7j--

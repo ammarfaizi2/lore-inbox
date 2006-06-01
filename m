@@ -1,95 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWFAFQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWFAFT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbWFAFQB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 01:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWFAFOd
+	id S964882AbWFAFT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 01:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWFAFT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 01:14:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:17833 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964893AbWFAFO3 (ORCPT
+	Thu, 1 Jun 2006 01:19:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30085 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751640AbWFAFTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 01:14:29 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 1 Jun 2006 15:14:18 +1000
-Message-Id: <1060601051418.27661@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 010 of 10] md: Allow the write_mostly flag to be set via sysfs.
-References: <20060601150955.27444.patches@notabene>
+	Thu, 1 Jun 2006 01:19:55 -0400
+Date: Wed, 31 May 2006 22:24:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+Cc: James.Bottomley@SteelEye.com, torvalds@osdl.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] scsi bug fixes for 2.6.17-rc5
+Message-Id: <20060531222410.08dd6728.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0606010757400.4387@kai.makisara.local>
+References: <1149092818.22134.45.camel@mulgrave.il.steeleye.com>
+	<Pine.LNX.4.63.0606010757400.4387@kai.makisara.local>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 1 Jun 2006 08:05:49 +0300 (EEST)
+Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
 
-It appears in /sys/mdX/md/dev-YYY/state
-and can be set or cleared by writing 'writemostly' or '-writemostly'
-respectively.
+> On Wed, 31 May 2006, James Bottomley wrote:
+> 
+> > This is my current slew of small bug fixes which either fix serious
+> > bugs, or are completely safe for this -rc5 stage of the kernel.  I've
+> > added one more since I last sent you this pull request (the fix memory
+> > building non-aligned sg lists)
+> > 
+> > The patch is available from:
+> > 
+> > master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+> > 
+> > The short changelog is:
+> > 
+> > Bryan Holty:
+> >   o fix memory building non-aligned sg lists
+> > 
+> I looked at 
+> www.kernel.org/git/?p=linux/kernel/git/jejb/scsi-rc-fixes-2.6.git;.
+> 
+> This patch does the following change:
+> 
+> - int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> + int nr_pages = PAGE_ALIGN(bufflen + sgl[0].offset);
+> 
+> This seems to wrong: the new version is missing the right shift. For 
+> instance, offset=0 and bufflen=4096 results in 4096 and not 1!
+> 
+> (Using asm-x86_64, the new version translates to
+> ((bufflen + sgl[0].offset+PAGE_SIZE-1)&(~(PAGE_SIZE-1)))
+> )
+> 
+> According to the original patch by Brian, the change should probably have 
+> been to (or something equivalent):
+> 
+> +       int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> 
+> PAGE_SHIFT;
+> 
+> This was tested by several people. Did anyone test the version put into 
+> scsi-rc-fixes-2.6.git?
+> 
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+argh, that was me "improving" things.
 
-### Diffstat output
- ./Documentation/md.txt |    5 +++++
- ./drivers/md/md.c      |   12 ++++++++++++
- 2 files changed, 17 insertions(+)
+--- devel/drivers/scsi/scsi_lib.c~scsi-properly-count-the-number-of-pages-in-scsi_req_map_sg-fix	2006-05-31 22:22:12.000000000 -0700
++++ devel-akpm/drivers/scsi/scsi_lib.c	2006-05-31 22:22:34.000000000 -0700
+@@ -367,7 +367,7 @@ static int scsi_req_map_sg(struct reques
+ 			   int nsegs, unsigned bufflen, gfp_t gfp)
+ {
+ 	struct request_queue *q = rq->q;
+-	int nr_pages = PAGE_ALIGN(bufflen + sgl[0].offset);
++	int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	unsigned int data_len = 0, len, bytes, off;
+ 	struct page *page;
+ 	struct bio *bio = NULL;
+_
 
-diff ./Documentation/md.txt~current~ ./Documentation/md.txt
---- ./Documentation/md.txt~current~	2006-06-01 15:05:30.000000000 +1000
-+++ ./Documentation/md.txt	2006-06-01 15:05:30.000000000 +1000
-@@ -309,6 +309,9 @@ Each directory contains:
- 	      faulty   - device has been kicked from active use due to
-                          a detected fault
- 	      in_sync  - device is a fully in-sync member of the array
-+	      writemostly - device will only be subject to read
-+		         requests if there are no other options.
-+			 This applies only to raid1 arrays.
- 	      spare    - device is working, but not a full member.
- 			 This includes spares that are in the process
- 			 of being recoverred to
-@@ -316,6 +319,8 @@ Each directory contains:
- 	This can be written to.
- 	Writing "faulty"  simulates a failure on the device.
- 	Writing "remove" removes the device from the array.
-+	Writing "writemostly" sets the writemostly flag.
-+	Writing "-writemostly" clears the writemostly flag.
- 
-       errors
- 	An approximate count of read errors that have been detected on
-
-diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2006-06-01 15:05:30.000000000 +1000
-+++ ./drivers/md/md.c	2006-06-01 15:05:30.000000000 +1000
-@@ -1737,6 +1737,10 @@ state_show(mdk_rdev_t *rdev, char *page)
- 		len += sprintf(page+len, "%sin_sync",sep);
- 		sep = ",";
- 	}
-+	if (test_bit(WriteMostly, &rdev->flags)) {
-+		len += sprintf(page+len, "%swrite_mostly",sep);
-+		sep = ",";
-+	}
- 	if (!test_bit(Faulty, &rdev->flags) &&
- 	    !test_bit(In_sync, &rdev->flags)) {
- 		len += sprintf(page+len, "%sspare", sep);
-@@ -1751,6 +1755,8 @@ state_store(mdk_rdev_t *rdev, const char
- 	/* can write
- 	 *  faulty  - simulates and error
- 	 *  remove  - disconnects the device
-+	 *  writemostly - sets write_mostly
-+	 *  -writemostly - clears write_mostly
- 	 */
- 	int err = -EINVAL;
- 	if (cmd_match(buf, "faulty") && rdev->mddev->pers) {
-@@ -1766,6 +1772,12 @@ state_store(mdk_rdev_t *rdev, const char
- 			md_new_event(mddev);
- 			err = 0;
- 		}
-+	} else if (cmd_match(buf, "writemostly")) {
-+		set_bit(WriteMostly, &rdev->flags);
-+		err = 0;
-+	} else if (cmd_match(buf, "-writemostly")) {
-+		clear_bit(WriteMostly, &rdev->flags);
-+		err = 0;
- 	}
- 	return err ? err : len;
- }

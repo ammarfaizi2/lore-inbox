@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWFAPYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWFAPYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWFAPYA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 11:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWFAPYA
+	id S1030199AbWFAPYo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWFAPYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 11:24:00 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:54993 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030196AbWFAPX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 11:23:59 -0400
-Date: Thu, 1 Jun 2006 17:23:42 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "Martin J. Bligh" <mbligh@google.com>
-cc: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <447EFE86.7020501@google.com>
-Message-ID: <Pine.LNX.4.64.0606011659030.32445@scrub.home>
-References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org>
- <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org>
- <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org>
- <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com>
- <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com>
- <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home>
- <447EFE86.7020501@google.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Jun 2006 11:24:44 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:11399 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1030199AbWFAPYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:24:43 -0400
+Date: Thu, 1 Jun 2006 11:23:44 -0400
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
+       David Liontooth <liontooth@cogweb.net>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: USB devices fail unnecessarily on unpowered hubs
+Message-ID: <20060601152344.GB23746@csclub.uwaterloo.ca>
+References: <Pine.LNX.4.44L0.0606011050330.6784-100000@iolanthe.rowland.org> <Pine.LNX.4.61.0606011104140.1745@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0606011104140.1745@chaos.analogic.com>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jun 01, 2006 at 11:09:46AM -0400, linux-os (Dick Johnson) wrote:
+> Many, most, perhaps all such devices don't take more power when they
+> are "enabled". Everything is already running and sucking up maximum
+> current when you plug it in! If the motherboard didn't smoke when
+> the device was plugged in, you might just as well let the user use
+> it! Perhaps a ** WARNING ** message somewhere, but by golly, they
+> got it running or else you wouldn't be able to read its parameters.
 
-On Thu, 1 Jun 2006, Martin J. Bligh wrote:
+I imagine something like a harddisk might use more power while
+reading/writing than when it is just spinning.  It might even start
+powered down until sent some command that causes it to spin up.
 
-> That doesn't seem to cover what we talked about clearly at all ?
-> I suppose the _ALL stuff is meant to cover stuff with overhead,
-> but frankly, what Ingo did seemed much clearer to me.
+A scanner certainly uses more power with the scanner light on than with
+it off, and it starts out off until it is in use on most scanners.  Of
+course I have never seen a usb powered scanner, so it doesn't seem to
+matter.
 
-It just didn't make much sense, a config option only to configure the 
-default value of unseen values?
-If we have too many debug options, I don't mind to hide them behind an 
-advanced config option, but their default values should not differ between 
-their visible and hidden state, so that the user sees the real values when 
-he enables the advanced option.
-A config option which only configures the default values is much less 
-useful, in an already configured kernel it's completely useless to an user 
-who only wants to enable some runtime checks and unless he reads the help 
-text _carefully_, he might even think that he just enabled some runtime 
-checks. AFAIC such stuff is NACKed.
-
-bye, Roman
+Len Sorensen

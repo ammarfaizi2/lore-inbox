@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbWFAR0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWFAR16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965200AbWFAR0e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWFAR0d
+	id S964987AbWFAR16 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 13:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbWFAR15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:26:33 -0400
-Received: from pat.uio.no ([129.240.10.4]:55292 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965200AbWFAR0c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:26:32 -0400
-Subject: Re: Why must NFS access metadata in synchronous mode?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <4ae3c140606010927t308e7d6ag5a9fc112c859aa45@mail.gmail.com>
-References: <4ae3c140605312104m441ca006j784a93354456faf8@mail.gmail.com>
-	 <1149141341.13298.21.camel@lade.trondhjem.org>
-	 <4ae3c140606010927t308e7d6ag5a9fc112c859aa45@mail.gmail.com>
+	Thu, 1 Jun 2006 13:27:57 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:31378 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S964987AbWFAR14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 13:27:56 -0400
+Subject: Re: 2.6.17-rc5-mm2
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>, gregkh@suse.de,
+       mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20060601102234.4f7a9404.akpm@osdl.org>
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
+	 <20060601102234.4f7a9404.akpm@osdl.org>
 Content-Type: text/plain
-Date: Thu, 01 Jun 2006 13:26:18 -0400
-Message-Id: <1149182779.3549.25.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.938, required 12,
-	autolearn=disabled, AWL 1.06, UIO_MAIL_IS_INTERNAL -5.00)
+Date: Thu, 01 Jun 2006 19:27:41 +0200
+Message-Id: <1149182861.3115.79.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-01 at 12:27 -0400, Xin Zhao wrote:
-> Question 1: ...and how many NFS implementations have you seen based on
-> that paper?
-> I don't know. I only read the NFS implementations distributed with
-> Linux kernel. But some paper mentioned that the soft update mechanism
-> suggested in that paper has been adopted by FreeBSD.
 
-FreeBSD does not use soft updates for NFS afaik.
+> > http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_2.jpg
+> 
+> So it's claiming that we're taking multiple i_mutexes.
+> 
+> I can't immediately see where we took the outermost i_mutex there.
 
-> Question 2: NFS permissions are checked by the _server_, not the client.
-> That's true. But I was not saying that all metadata access must be
-> asynchronous. Even for permission checking, speculative execution
-> mechanism proposed in Ed Nightingale's "speculative execution ...."
-> paper published in SOSP 2005 can be used to avoid waiting. The basic
-> idea is that a NFS client speculatively assume permission checking
-> returns "OK" and set a checkpoint, then the client can go ahead to
-> send further requests. If the actual result turns out to be "OK", the
-> client can discard the checkpoint, otherwise, it rolls back to the
-> checking point. This can make waiting time overlap with the sending
-> time of subsequent requests.
+inlining caused one level to be removed from the backtrace
+one level is in fs_remove_file, the sub level is usbfs_unlink (called
+from fs_remove_file)
 
-...and how does that help the user that has been told the operation
-succeeded?
+>   Nor is
+> it immediately obvious why this is considered to be deadlockable?
 
-> Question 3: Cache consistency requirements are _much_ more stringent
-> for asynchronous operation.
-> I agree. But I am not sure how local file system like Ext3 handle this
-> problem. I don't think Ext3 must synchronously write metadata (I will
-> double check the ext3 code). If I remember correctly, when change
-> metadata, Ext3 just change it in memory and mark this page to be
-> dirty. The page will be flushed to disk afterward. If the server
-> exports an Ext3 code, it should be able to do the same thing. When a
-> client requests to change metadata, server writes to the mmaped
-> metadata page and then return to client instead of having to sync the
-> change to disk. With this mechanism, at least the client does not have
-> to wait for the disk flush time. Does it make sense? To prevent
-> interleave change on metadata before it is flushed to disk, the server
-> can even mark the metadata page to be read-only before it is flushed
-> to disk.
-
-'man 5 exports'. Read _carefully_ the entry on the "async" export
-option, and see the NFS FAQ, nfs mailing list archives, etc... why it is
-a bad idea.
+what is missing is that we tell lockdep that there is a parent-child
+relationship between those two i_mutexes, so that it knows that 1)
+they're separate and 2) that the lock take order is parent->child
 
 
-Cheers,
-  Trond
+> (lockdep tells us that a mutex was taken at "mutex_lock+0x8/0xa", which is
+> fairly useless.  We need to report who the caller of mutex_lock() was).
 
+yeah this has been bugging me as well; either via a wrapper around
+mutex_lock or via the gcc option to backwalk the stack (but that only
+works with frame pointers enabled.. sigh)

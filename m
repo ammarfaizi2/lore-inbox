@@ -1,73 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWFAWEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWFAWOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWFAWEO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWFAWEO
+	id S1750712AbWFAWOh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 18:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWFAWOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:04:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26844 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750746AbWFAWEM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:04:12 -0400
-Date: Thu, 1 Jun 2006 15:07:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
-Subject: Re: 2.6.17-rc5-mm1
-Message-Id: <20060601150713.5bf84161.akpm@osdl.org>
-In-Reply-To: <447DD4D3.3060205@free.fr>
-References: <20060530022925.8a67b613.akpm@osdl.org>
-	<447DD4D3.3060205@free.fr>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 1 Jun 2006 18:14:37 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:40375 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1750712AbWFAWOg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 18:14:36 -0400
+Message-ID: <01ed01c685c8$b46ec6f0$1800a8c0@dcccs>
+From: "Janos Haar" <djani22@netcenter.hu>
+To: "Nathan Scott" <nathans@sgi.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
+References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs> <20060527234350.GA13881@voodoo.jdc.home> <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com> <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs> <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu> <1149038431.21827.20.camel@localhost.localdomain> <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs> <20060602075826.B530100@wobbly.melbourne.sgi.com>
+Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen 64bit linux)
+Date: Fri, 2 Jun 2006 00:14:04 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Riffard <laurent.riffard@free.fr> wrote:
+---- Original Message ----- 
+From: "Nathan Scott" <nathans@sgi.com>
+To: "Janos Haar" <djani22@netcenter.hu>
+Cc: <linux-kernel@vger.kernel.org>; <linux-xfs@oss.sgi.com>
+Sent: Thursday, June 01, 2006 11:58 PM
+Subject: Re: XFS related hang (was Re: How to send a break? - dump from
+frozen 64bit linux)
+
+
+> On Wed, May 31, 2006 at 10:00:33AM +0200, Janos Haar wrote:
+> >
+> > Hey, i think i found something.
+> > My quota on my huge device is broken.
+> > (inferno   -- 18014398504855404       0       0
+18446744073709551519
+> > 0     0)
 >
-> Le 30.05.2006 11:29, Andrew Morton a écrit :
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
-> 
-> Hello, I've got this nice BUG:
-> 
-> pktcdvd: writer pktcdvd0 mapped to hdc
-> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000084
->  printing eip:
-> c01118f1
-> *pde = 00000000
-> Oops: 0000 [#1]
-> last sysfs file: /block/pktcdvd0/removable
-> Modules linked in: pktcdvd lp parport_pc parport snd_pcm_oss snd_mixer_oss snd_ens1371 gameport snd_rawmidi snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd soundcore af_packet floppy ide_cd cdrom loop aes dm_crypt nls_iso8859_1 nls_cp850 vfat fat reiser4 reiserfs via_agp agpgart video joydev ohci1394 usbhid ieee1394 uhci_hcd usbcore dm_mirror dm_mod via82cxxx
-> CPU:    0
-> EIP:    0060:[<c01118f1>]    Not tainted VLI
-> EFLAGS: 00010006   (2.6.17-rc5-mm1 #11) 
-> EIP is at do_page_fault+0xb4/0x5bc
-> eax: d6750084   ebx: d6750000   ecx: 0000007b   edx: 00000000
-> esi: d6758000   edi: c011183d   ebp: d675007c   esp: d6750044
-> ds: 007b   es: 007b   ss: 0068
-> Process  (pid: 0, threadinfo=d674f000 task=d657c000)
-> Stack: 00000000 d6750084 00000000 00000049 00000084 00000000 00001e2e 02001120 
->        00000027 00000022 00000055 d6750000 d6758000 c011183d d67500f0 c010340d 
->        d6750000 0000007b 00000000 d6758000 c011183d d67500f0 d67500f8 0000007b 
-> Call Trace:
->  [<c010340d>] error_code+0x39/0x40
-> Code: 00 00 c0 81 0f 84 12 02 00 00 e9 1c 05 00 00 8b 45 cc f7 40 30 00 02 02 00 74 06 e8 68 af 01 00 fb f7 43 14 ff ff ff ef 8b 55 d0 <8b> b2 84 00 00 00 0f 85 e5 01 00 00 85 f6 0f 84 dd 01 00 00 8d 
-> EIP: [<c01118f1>] do_page_fault+0xb4/0x5bc SS:ESP 0068:d6750044
->  <0>Kernel panic - not syncing: Fatal exception in interrupt
->  BUG: warning at kernel/panic.c:138/panic()
->  [<c0103810>] show_trace_log_lvl+0x4b/0xf4
->  [<c0103e11>] show_trace+0xd/0x10
->  [<c0103e58>] dump_stack+0x19/0x1b
->  [<c0116768>] panic+0x14d/0x161
->  [<c0103d0d>] die+0x231/0x266
->  [<c0111cc3>] do_page_fault+0x486/0x5bc
-> SysRq : Emergency Sync
+> Hmm, that is interesting.  I guess you don't know whether this
+> accounting problem happened before you rebooted or whether it
+> only just got this way (after journal recovery)?
 
-Jan, this stack trace looks wrong.  We have no information which tells us
-how we entered the pagefault handler.  Userspace hasn't started up yet, so
-we probably entered the fault handler from the kernel.  But that info has
-been lost.
+In my system, this huge device is difficult.
+I often need to reboot, and run xfs_repair, to make it clean. (nodes hangs,
+reboots, etc...)
+On the beginning, i use the xfs_repair without any options, but it requires
+to do a mount/umount the mtp before.
+The problem is, i often get an error message, (dump) during the journal
+recovery, and after i cannot run the xfs_repair from script, because it
+needs the log done by mount.
+Now is my default reboot option is xfs_repair -L, so i dont know, this
+happens before, or after, sorry.
 
+
+>
+> > I cant found a way to re-initialize it.
+> > But anyway, at this point i dont need it, trying to disable the quota
+usage.
+> > We will see....
+>
+> Jan's recipe was spot on, do that.
+
+The qouta stop solves the hangs problem.
+This is a bug?
+
+Cheers,
+Janos
+
+>
+> cheers.
+>
+> -- 
+> Nathan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

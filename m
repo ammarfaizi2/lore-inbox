@@ -1,125 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWFAPCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWFAPEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWFAPCD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 11:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWFAPCD
+	id S965074AbWFAPEd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWFAPEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 11:02:03 -0400
-Received: from stinky.trash.net ([213.144.137.162]:11249 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1751044AbWFAPCC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 11:02:02 -0400
-Message-ID: <447F0156.8020603@trash.net>
-Date: Thu, 01 Jun 2006 17:01:42 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lepton <ytht.net@gmail.com>
-CC: lkm <linux-kernel@vger.kernel.org>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: [PATCH] 2.6.16.19 Fix the bug of "return 0 instead of the error
- code in ipt_register_table"
-References: <20060601102449.GA8572@gsy2.lepton.home>
-In-Reply-To: <20060601102449.GA8572@gsy2.lepton.home>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------030705040603010200050504"
+	Thu, 1 Jun 2006 11:04:32 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:38660 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S965074AbWFAPEc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:04:32 -0400
+Date: Thu, 1 Jun 2006 17:03:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Mark Lord <lkml@rtr.ca>, Linus Torvalds <torvalds@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com
+Subject: Re: NCQ performance (was Re: [rfc][patch] remove racy sync_page?)
+Message-ID: <20060601150320.GO4400@suse.de>
+References: <20060601131921.GH4400@suse.de> <447F0023.8090206@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447F0023.8090206@argo.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030705040603010200050504
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-
-lepton wrote:
-> Hi,
+On Thu, Jun 01 2006, Avi Kivity wrote:
+> Jens Axboe wrote:
+> >
+> >Ok, I decided to rerun a simple random read work load (with fio), using
+> >depths 1 and 32. The test is simple - it does random reads all over the
+> >drive size with 4kb block sizes. The reads are O_DIRECT. The test
+> >pattern was set to repeatable, so it's going through the same workload.
+> >The test spans the first 32G of the drive and runtime is capped at 20
+> >seconds.
+> >
 > 
-> There is a bug in ipt_register_table() in
-> net/ipv4/netfilter/ip_tables.c:
+> Did you modify the iodepth given to the test program, or to the drive? 
+> If the former, then some of the performance increase came from the Linux 
+> elevator.
 > 
-> ipt_register_table() will return 0 instead of
-> the error code when xt_register_table() fails
-> 
-> Signed-off-by: Lepton Wu <ytht.net@gmail.com>
-> 
-> diff -prU 10 linux-2.6.16.19.oirg/net/ipv4/netfilter/ip_tables.c linux-2.6.16.19/net/ipv4/netfilter/ip_tables.c
-> --- linux-2.6.16.19.oirg/net/ipv4/netfilter/ip_tables.c	2006-05-31 08:31:44.000000000 +0800
-> +++ linux-2.6.16.19/net/ipv4/netfilter/ip_tables.c	2006-06-01 18:11:25.000000000 +0800
+> Ideally exactly the same test would be run with the just the drive 
+> parameters changed.
 
-Thanks. As usual this bug has been happily copy and pasted around,
-so I've added this patch instead.
+Just from the program. Since the software depth matched the software
+depth, I'd be surprised if it made much of a difference here.  I can
+rerun the same test tomorrow with the drive depth modified the and
+software depth fixed at 32. Then the io scheduler can at least help the
+drive without NCQ out somewhat.
 
+-- 
+Jens Axboe
 
---------------030705040603010200050504
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
-
-[NETFILTER]: x_tables: fix xt_register_table error propagation
-
-When xt_register_table fails the error is not properly propagated back.
-Based on patch by Lepton Wu <ytht.net@gmail.com>.
-
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-
----
-commit b010cc3184ce7cb65a9865ae52ec2ce6f3fe4c9d
-tree 9744395bcd9c7d976048ebd8afbabfc0a9b542a4
-parent 10263005af5814396b8263c1c2a4367d49548e13
-author Patrick McHardy <kaber@trash.net> Thu, 01 Jun 2006 16:59:12 +0200
-committer Patrick McHardy <kaber@trash.net> Thu, 01 Jun 2006 16:59:12 +0200
-
- net/ipv4/netfilter/arp_tables.c |    3 ++-
- net/ipv4/netfilter/ip_tables.c  |    3 ++-
- net/ipv6/netfilter/ip6_tables.c |    3 ++-
- 3 files changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index d0d1919..ad39bf6 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -1120,7 +1120,8 @@ int arpt_register_table(struct arpt_tabl
- 		return ret;
- 	}
- 
--	if (xt_register_table(table, &bootstrap, newinfo) != 0) {
-+	ret = xt_register_table(table, &bootstrap, newinfo);
-+	if (ret != 0) {
- 		xt_free_table_info(newinfo);
- 		return ret;
- 	}
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index cee3397..101ad98 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -2113,7 +2113,8 @@ int ipt_register_table(struct xt_table *
- 		return ret;
- 	}
- 
--	if (xt_register_table(table, &bootstrap, newinfo) != 0) {
-+	ret = xt_register_table(table, &bootstrap, newinfo);
-+	if (ret != 0) {
- 		xt_free_table_info(newinfo);
- 		return ret;
- 	}
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index 2e72f89..0b5bd55 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -1281,7 +1281,8 @@ int ip6t_register_table(struct xt_table 
- 		return ret;
- 	}
- 
--	if (xt_register_table(table, &bootstrap, newinfo) != 0) {
-+	ret = xt_register_table(table, &bootstrap, newinfo);
-+	if (ret != 0) {
- 		xt_free_table_info(newinfo);
- 		return ret;
- 	}
-
---------------030705040603010200050504--

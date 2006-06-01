@@ -1,37 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWFAIEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbWFAGXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWFAIEe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 04:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWFAIEe
+	id S965244AbWFAGXo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 02:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965247AbWFAGXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 04:04:34 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:40580 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1750780AbWFAIEd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 04:04:33 -0400
-Date: Thu, 01 Jun 2006 02:22:52 -0400
-From: "Dimpled F. Adoptions" <abi@kinki-kids.com>
-X-Mailer: The Bat! (v2.00.4) Personal
-X-Priority: 3
-Message-ID: <1284854683.20060601022252@kinki-kids.com>
-To: Linux <linux-kernel@vger.kernel.org>
-Subject: Friendly Reminder Regarding your SpySpotter Download
-MIME-Version: 1.0
-Content-Type: text/plain
+	Thu, 1 Jun 2006 02:23:44 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40348
+	"EHLO sunset.sfo1.dsl.speakeasy.net") by vger.kernel.org with ESMTP
+	id S965244AbWFAGXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 02:23:43 -0400
+Date: Wed, 31 May 2006 23:24:15 -0700 (PDT)
+Message-Id: <20060531.232415.38315104.davem@davemloft.net>
+To: bidulock@openss7.org
+Cc: johnpol@2ka.mipt.ru, draghuram@rocketmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Question about tcp hash function tcp_hashfn()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060601002221.B21730@openss7.org>
+References: <20060601061234.GB28087@2ka.mipt.ru>
+	<20060531.231839.10909081.davem@davemloft.net>
+	<20060601002221.B21730@openss7.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-RAV-Antivirus: This e-mail has been scanned for viruses on host: AVelizy-153-1-41-23.w81-249.abo.wanadoo.fr
-X-Antivirus: avast! (VPS 0622-2, 31/05/2006), Outbound message
-X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hel0!
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+Date: Thu, 1 Jun 2006 00:22:21 -0600
 
-On 2004-07-12 03:17:00.000 you purchased SystemSoap. As a SystemSoap user, 
-the improved SpySpotter 3.11 is available to you. 
-Did you know that when a PC is infected with spyware that every keystroke, 
-every website and every conversation could be recorded or monitored? 
-Try our newest version with improved features & updated spyware lists…
-Scan your computer and find out now! 
-http://gscan.org/update200606.html
+> I thought you said you were considering jenkins_3word(), not
+> jenkins_2word()?
 
+We could xor some of the inputs in order to use jenkins_2word().

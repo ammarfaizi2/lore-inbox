@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWFAPoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWFAPth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWFAPoA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 11:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWFAPn7
+	id S1030208AbWFAPth (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWFAPth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 11:43:59 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59601 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030206AbWFAPn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 11:43:59 -0400
-Date: Thu, 1 Jun 2006 17:43:51 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "Martin J. Bligh" <mbligh@google.com>
-cc: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <447F084C.9070201@google.com>
-Message-ID: <Pine.LNX.4.64.0606011742500.32445@scrub.home>
-References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org>
- <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org>
- <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org>
- <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com>
- <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com>
- <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home>
- <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home>
- <447F084C.9070201@google.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Jun 2006 11:49:37 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:8890 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1030208AbWFAPtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:49:36 -0400
+Subject: Re: 2.6.17-rc5-mm2
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
+       scjody@modernduck.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <447F0905.8020600@gmail.com>
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <447F0905.8020600@gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Jun 2006 17:49:05 +0200
+Message-Id: <1149176945.3115.70.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2006-06-01 at 17:34 +0159, Jiri Slaby wrote:
+> Andrew Morton napsal(a):
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
+> > 
+> Hello,
+> 
+> just another locking bug, I wonder if this wasn't discussed yet, but I can't
+> find it.
+> 
 
-On Thu, 1 Jun 2006, Martin J. Bligh wrote:
+this appears to be a genuine bug:
 
-> Did you read the discussion that lead up to it? I thought that quite
-> clearly described why such a thing was needed.
+> ============================
+> [ BUG: illegal lock usage! ]
+> ----------------------------
+> illegal {hardirq-on-W} -> {in-hardirq-R} usage.
+> events/0/8 [HC1[1]:SC0[0]:HE0:SE1] takes:
+>  (hl_irqs_lock){--+.}, at: [<f88e4e09>] highlevel_host_reset+0x15/0x63 [ieee1394]
+> {hardirq-on-W} state was registered at:
+>   [<c013e3af>] lockdep_acquire+0x59/0x6e
+>   [<c03a982c>] _write_lock+0x3e/0x4c
+>   [<f88e5772>] hpsb_register_highlevel+0xe1/0x123 [ieee1394]
 
-I did read it, what did I miss?
 
-bye, Roman
+hpsb_register_highlevel() does
+	        write_lock(&hl_irqs_lock);
+which is not irq safe
+yet
+
+> stack backtrace:
+>  [<c03a94a3>] _read_lock+0x3e/0x4c
+>  [<f88e4e09>] highlevel_host_reset+0x15/0x63 [ieee1394]
+
+the highlevel_host_reset function
+
+>  [<f88e27f3>] hpsb_selfid_complete+0x222/0x2fe [ieee1394]
+>  [<f895fe83>] ohci_irq_handler+0x705/0x9d2 [ohci1394]
+>  [<c014b30d>] handle_IRQ_event+0x31/0x65
+>  [<c014c52f>] handle_fasteoi_irq+0x6f/0xc8
+>  [<c0105b3a>] do_IRQ+0x61/0x87
+>  =======================
+
+calls read_lock() from irq context.
+
+this appears to be a genuine and real deadlock 
+

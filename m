@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWFAHVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWFAHZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWFAHVF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 03:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWFAHVF
+	id S1750757AbWFAHZK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 03:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWFAHZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 03:21:05 -0400
-Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:5791 "EHLO
-	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1750740AbWFAHVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 03:21:04 -0400
-Date: Thu, 1 Jun 2006 03:21:02 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Andrew Morton <akpm@osdl.org>
-cc: Tony Griffiths <tonyg@agile.tv>, linux-kernel@vger.kernel.org
-Subject: Re: Some socket syscalls fail to return an error on bad file-descriptor#
- argument
-In-Reply-To: <20060531214116.ef2d1c3e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0606010320140.12929@d.namei>
-References: <447E614F.3090905@agile.tv> <20060531214116.ef2d1c3e.akpm@osdl.org>
+	Thu, 1 Jun 2006 03:25:10 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:18090 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750757AbWFAHZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 03:25:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Fo4cmG93kzt2MUpBMYV9Z069n2dFGLTEeAoa65GcFpUn5c1u5JVbyJys0nsztvzGoAJfb8VZ4V62COdCaRfj3DUHOzQuMaFen3oBuYWFKO9oxn1zOIMxQKKGjVlWHkpTVqyo3RvLy/9R7kXcSiHI6UznMOxdDYqPFoW5M/xcZkc=
+Message-ID: <8bf247760606010025p38131240ia133cc3124f93bf7@mail.gmail.com>
+Date: Thu, 1 Jun 2006 00:25:08 -0700
+From: Ram <vshrirama@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: printk's - i dont want any limit howto?
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 May 2006, Andrew Morton wrote:
+Hi,
+  I have a driver full of printks. i am trying to understand the way
+the driver functions using printks
 
-> Confused.  That patch cannot make any difference to this function:
+  So, i have a situation where i want all the printk's to be printed
+come whatever.
 
-Yep, the code definitely looks correct in current LT git.
 
-> static struct socket *sockfd_lookup_light(int fd, int *err, int *fput_needed)
-> {
-> 	struct file *file;
-> 	struct socket *sock;
-> 
-> 	*err = -EBADF;
-> 	file = fget_light(fd, fput_needed);
-> 	if (file) {
-> 		sock = sock_from_file(file, err);
-> 		if (sock)
-> 			return sock;
-> 		fput_light(file, *fput_needed);
-> 	}
-> 	return NULL;
-> }
+   I dont want any rate limiting or anything else that prevents from
+my printks from appearing on the screen or dmesg.
+
+
+ Its really confusing when only one of your printks appear and some
+just dont appear even though you expect them to appear.
 
 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+  Is there any way to make all the printks to appear come what may?.
+If so, how do  i do it?.
+
+
+  Went through the printk.c am not sure setting the
+printk_ratelimit_jiffies = 0 and printk_ratelimit_burst= 1000 will do?
+
+  am not sure if printk_ratelimit_jiffies = 0 is valid.
+
+
+please advice.
+
+
+Regards,
+sriram

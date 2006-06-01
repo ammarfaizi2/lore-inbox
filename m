@@ -1,92 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWFAHKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWFAHL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWFAHKE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 03:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWFAHKD
+	id S1750741AbWFAHL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 03:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWFAHL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 03:10:03 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:32956 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750715AbWFAHKA (ORCPT
+	Thu, 1 Jun 2006 03:11:27 -0400
+Received: from gw.openss7.com ([142.179.199.224]:21652 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1750729AbWFAHL0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 03:10:00 -0400
-Date: Thu, 1 Jun 2006 09:10:18 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       linux-kernel@vger.kernel.org, apw@shadowen.org,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060601071018.GA21718@elte.hu>
-References: <447DEF47.6010908@google.com> <20060531140823.580dbece.akpm@osdl.org> <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org>
+	Thu, 1 Jun 2006 03:11:26 -0400
+Date: Thu, 1 Jun 2006 01:11:25 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060601011125.C22283@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <20060601001825.A21730@openss7.org> <20060601063012.GC28087@2ka.mipt.ru> <20060601004608.C21730@openss7.org> <20060601070136.GA754@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <447E0A49.4050105@mbligh.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060601070136.GA754@2ka.mipt.ru>; from johnpol@2ka.mipt.ru on Thu, Jun 01, 2006 at 11:01:36AM +0400
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Evgeniy,
 
-* Martin J. Bligh <mbligh@mbligh.org> wrote:
+On Thu, 01 Jun 2006, Evgeniy Polyakov wrote:
 
-> >>>EIP is at check_deadlock+0x15/0xe0
+> On Thu, Jun 01, 2006 at 12:46:08AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
+> > > Since pseudo-randomness affects both folded and not folded hash
+> > > distribution, it can not end up in different results.
+> > 
+> > Yes it would, so to rule out pseudo-random effects the pseudo-
+> > random number generator must be removed.
+> > 
+> > > 
+> > > You are right that having test with 2^48 values is really interesting,
+> > > but it will take ages on my test machine :)
+> > 
+> > Try a usable subset; no pseudo-random number generator.
+> 
+> I've run it for 2^30 - the same result: folded and not folded Jenkins
+> hash behave the same and still both results produce exactly the same
+> artifacts compared to XOR hash.
 
-i took your config and ran a few tests. Your kernel crashed here:
+But not without the pseudo-random number generation... ?
 
-BUG: unable to handle kernel paging request at virtual address 22222232
-CPU:    1
-EIP:    0060:[<c012b6eb>]    Not tainted VLI
-EFLAGS: 00010002   (2.6.17-rc5-mm1-autokern1 #1)
-EIP is at check_deadlock+0x15/0xe0
-eax: 22222222   ebx: 00000001   ecx: d4996000   edx: 00000001
-esi: d686f550   edi: 22222222   ebp: 22222222   esp: d5bdfec8
-ds: 007b   es: 007b   ss: 0068
-Process mkdir09 (pid: 18867, threadinfo=d5bdf000 task=d5c0e000)
-Stack: 00000000 d686f550 d3960568 22222222 c012b77b d3960568 d5bdf000 d5bdff00
-       d5c0e000 c012b922 d5bdff48 d3960568 00000246 c02d50de d5bdff00 d5bdff00
-       11111111 11111111 d5bdff00 ffffff9c d5bdff48 00000000 d5bdff48 ffffffef
+> 
+> Btw, XOR hash, as completely stateless, can be used to show how
+> Linux pseudo-random generator works for given subset - it's average of
+> distribution is very good.
 
-which is:
+But its distribution might auto-correlate with the Jenkins function.
+The only way to be sure is to remove the pseudo-random number generator.
 
-(gdb) list *0xc012a26e
-0xc012a26e is in check_deadlock (kernel/mutex-debug.c:98).
-93              struct task_struct *task;
-94
-95              if (!debug_locks)
-96                      return 0;
-97
-98              ti = lock->owner;
-99              if (!ti)
-100                     return 0;
-101
-102             task = ti->task;
-(gdb)
+Just try incrementing from, say, 10.0.0.0:10000 up, resetting port number
+to 10000 at 16000, and just incrementing the IP address when the port
+number wraps, instead of pseudo-random, through 2^30 loops for both.
+If the same artifacts emerge, I give in.
 
-i.e. "lock" was 0x22222222. I have not changed this particular deadlock 
-detection code for some time and it's been stable for many weeks. (the 
-changes in -mm1 were in another area of mutex-debug.c, and even those 
-mostly removed code and didnt add new logic)
+Can you show the same artifacts for jenkins_3word?
 
-the stack looks weird:
-
-Stack: 00000000 d686f550 d3960568 22222222 c012b77b d3960568 d5bdf000 d5bdff00
-       d5c0e000 c012b922 d5bdff48 d3960568 00000246 c02d50de d5bdff00 d5bdff00
-       11111111 11111111 d5bdff00 ffffff9c d5bdff48 00000000 d5bdff48 ffffffef
-
-where does the 0x11111111 and the 0x22222222 come from? It doesnt ring 
-any bells in terms of kernel-internal magic or poison values. My 
-impression is that there's some other badness going on (some sort of 
-memory corruption) and the mutex debugging code just got caught up in 
-the crossfire.
-
-	Ingo

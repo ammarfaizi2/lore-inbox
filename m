@@ -1,85 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWFAUGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030273AbWFAUKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWFAUGo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 16:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWFAUGo
+	id S1030273AbWFAUKz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 16:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWFAUKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 16:06:44 -0400
-Received: from xenotime.net ([66.160.160.81]:235 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030263AbWFAUGn (ORCPT
+	Thu, 1 Jun 2006 16:10:55 -0400
+Received: from mx1.suse.de ([195.135.220.2]:8582 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030273AbWFAUKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 16:06:43 -0400
-Date: Thu, 1 Jun 2006 13:09:23 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: input: fix comments and blank lines in new ff code
-Message-Id: <20060601130923.38f83fb6.rdunlap@xenotime.net>
-In-Reply-To: <447F47FD.2050705@gmail.com>
-References: <20060530105705.157014000@gmail.com>
-	<20060530110131.136225000@gmail.com>
-	<20060530222122.069da389.rdunlap@xenotime.net>
-	<447F3AE4.6010206@gmail.com>
-	<20060601125256.de2897f4.rdunlap@xenotime.net>
-	<447F47FD.2050705@gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Thu, 1 Jun 2006 16:10:54 -0400
+Date: Thu, 1 Jun 2006 22:10:50 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: [PATCH] cramfs corruption after BLKFLSBUF on loop device
+Message-ID: <20060601201050.GA32221@suse.de>
+References: <20060529214011.GA417@suse.de> <20060530182453.GA8701@suse.de> <20060601184938.GA31376@suse.de> <20060601121200.457c0335.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060601121200.457c0335.akpm@osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Jun 2006 23:03:09 +0300 Anssi Hannula wrote:
 
-> Randy.Dunlap wrote:
-> > On Thu, 01 Jun 2006 22:07:16 +0300 Anssi Hannula wrote:
-> > 
-> > 
-> >>Fix comments so that they conform to kernel-doc and add/remove some
-> >>blank lines.
-> >>
-> >>Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
-> > 
-> > 
-> > (attachments make review/comments more trying, so this is an
-> > abbreviated reply)
-> 
-> Sorry, I'll try to use some other client when I send the fixed patch.
-> 
-> >  /**
-> > - * Lock the mutex and check the device has not been deleted
-> > + * input_ff_safe_lock - lock the mutex and check for the ff_device struct
-> > + *
-> > + * Returns 0 if device still present, 1 otherwise.
-> >   */
-> >  static inline int input_ff_safe_lock(struct input_dev *dev)
-> >  {
-> > 
-> > Functions that are commented with kernel-doc need all of the parameters
-> > documented also, like:
-> > 
-> >  * @dev: the input_dev (or better description)
-> > 
-> > There were a few places where you had these and deleted them.  :(
-> > ~~~~~~~~~~~~~~
-> > 
-> > (repeat for several functions...)
-> > 
-> 
-> Ah, so if the comment is kernel-doc all parameters have to be always
-> documented...
+This script will cause cramfs decompression errors, on SMP at least:
 
-Right.
+#!/bin/bash                                                                                                                                                          
+while :;do blockdev --flushbufs /dev/loop0;done </dev/null &>/dev/null&
+while :;do ps faxs  </dev/null &>/dev/null&done </dev/null &>/dev/null&
+while :;do dmesg    </dev/null &>/dev/null&done </dev/null &>/dev/null&
+while :;do find /mounts/instsys -type f -print0|xargs -0 cat &>/dev/null;done
 
-> I guess I can just remove the double ** for static functions, as I'm not
-> sure it is necessary to document all the obvious parameters of those.
-> 
-> Or what do you think?
+(The used executables come from the symlinked /mounts/instsys directory)
 
-I think that kernel-doc is most important on non-static functions,
-so it would be OK to remove the ** for the static ones.
+...
+Error -3 while decompressing!
+c0000000009592a2(2649)->c0000000edf87000(4096)
+Error -3 while decompressing!
+c000000000959298(2520)->c0000000edbc7000(4096)
+Error -3 while decompressing!
+c000000000959c70(2489)->c0000000f1482000(4096) 
+Error -3 while decompressing!
+c00000000095a629(2355)->c0000000edaff000(4096)
+Error -3 while decompressing!
+...
+
+Its a long standing bug, introduced in 2.6.2.
+
+cramfs_read() clears parts of the src buffer because the page is not uptodate.
+invalidate_bdev() called from block_ioctl(BLKFLSBUF) will set ClearPageUptodate()
+after cramfs_read() got the page from read_cache_page()
+If PageUptodate() fails, read the page again before using it.
+
+evms_access does the BLKFLSBUF ioctl (lots of them) on the loop device. This will
+corrupt the SuSE installation image on SMP kernels, leading to random segfaults.
+
+Signed-off-by: Olaf Hering <olh@suse.de>
 
 ---
-~Randy
+ fs/cramfs/inode.c |   70 ++++++++++++++++++++++++------------------------------
+ 1 file changed, 32 insertions(+), 38 deletions(-)
+
+Index: linux-2.6.16.16-1.6/fs/cramfs/inode.c
+===================================================================
+--- linux-2.6.16.16-1.6.orig/fs/cramfs/inode.c
++++ linux-2.6.16.16-1.6/fs/cramfs/inode.c
+@@ -140,6 +140,25 @@ static unsigned buffer_blocknr[READ_BUFF
+ static struct super_block * buffer_dev[READ_BUFFERS];
+ static int next_buffer;
+ 
++/* return a page in PageUptodate state, BLKFLSBUF may have flushed the page */
++static struct page *cramfs_read_cache_page(struct address_space *m, unsigned int n)
++{
++	struct page *page;
++	int readagain = 5;
++retry:
++	page = read_cache_page(m, n, (filler_t *)m->a_ops->readpage, NULL);
++	if (IS_ERR(page))
++		return NULL;
++	lock_page(page);
++	if (PageUptodate(page))
++		return page;
++	unlock_page(page);
++	page_cache_release(page);
++	if (readagain--)
++		goto retry;
++	return NULL;
++}
++
+ /*
+  * Returns a pointer to a buffer containing at least LEN bytes of
+  * filesystem starting at byte offset OFFSET into the filesystem.
+@@ -147,8 +166,8 @@ static int next_buffer;
+ static void *cramfs_read(struct super_block *sb, unsigned int offset, unsigned int len)
+ {
+ 	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
+-	struct page *pages[BLKS_PER_BUF];
+-	unsigned i, blocknr, buffer, unread;
++	struct page *page;
++	unsigned i, blocknr, buffer;
+ 	unsigned long devsize;
+ 	char *data;
+ 
+@@ -174,48 +193,23 @@ static void *cramfs_read(struct super_bl
+ 
+ 	devsize = mapping->host->i_size >> PAGE_CACHE_SHIFT;
+ 
+-	/* Ok, read in BLKS_PER_BUF pages completely first. */
+-	unread = 0;
+-	for (i = 0; i < BLKS_PER_BUF; i++) {
+-		struct page *page = NULL;
+-
+-		if (blocknr + i < devsize) {
+-			page = read_cache_page(mapping, blocknr + i,
+-				(filler_t *)mapping->a_ops->readpage,
+-				NULL);
+-			/* synchronous error? */
+-			if (IS_ERR(page))
+-				page = NULL;
+-		}
+-		pages[i] = page;
+-	}
+-
+-	for (i = 0; i < BLKS_PER_BUF; i++) {
+-		struct page *page = pages[i];
+-		if (page) {
+-			wait_on_page_locked(page);
+-			if (!PageUptodate(page)) {
+-				/* asynchronous error */
+-				page_cache_release(page);
+-				pages[i] = NULL;
+-			}
+-		}
+-	}
+-
+ 	buffer = next_buffer;
+ 	next_buffer = NEXT_BUFFER(buffer);
+ 	buffer_blocknr[buffer] = blocknr;
+ 	buffer_dev[buffer] = sb;
+-
+ 	data = read_buffers[buffer];
++
+ 	for (i = 0; i < BLKS_PER_BUF; i++) {
+-		struct page *page = pages[i];
+-		if (page) {
+-			memcpy(data, kmap(page), PAGE_CACHE_SIZE);
+-			kunmap(page);
+-			page_cache_release(page);
+-		} else
+-			memset(data, 0, PAGE_CACHE_SIZE);
++		if (blocknr + i < devsize) {
++			page = cramfs_read_cache_page(mapping, blocknr + i);
++			if (page) {
++				memcpy(data, kmap_atomic(page, KM_USER0), PAGE_CACHE_SIZE);
++				kunmap(page);
++				unlock_page(page);
++				page_cache_release(page);
++			} else
++				memset(data, 0, PAGE_CACHE_SIZE);
++		}
+ 		data += PAGE_CACHE_SIZE;
+ 	}
+ 	return read_buffers[buffer] + offset;

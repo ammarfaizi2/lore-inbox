@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWFAPEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWFAPGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbWFAPEd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 11:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWFAPEc
+	id S965149AbWFAPGg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWFAPGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 11:04:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:38660 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S965074AbWFAPEc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 11:04:32 -0400
-Date: Thu, 1 Jun 2006 17:03:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Mark Lord <lkml@rtr.ca>, Linus Torvalds <torvalds@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com
-Subject: Re: NCQ performance (was Re: [rfc][patch] remove racy sync_page?)
-Message-ID: <20060601150320.GO4400@suse.de>
-References: <20060601131921.GH4400@suse.de> <447F0023.8090206@argo.co.il>
+	Thu, 1 Jun 2006 11:06:35 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:55955 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S965121AbWFAPGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:06:35 -0400
+Subject: Re: [GIT PATCH] scsi bug fixes for 2.6.17-rc5
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>, torvalds@osdl.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1149170964.3489.2.camel@mulgrave.il.steeleye.com>
+References: <1149092818.22134.45.camel@mulgrave.il.steeleye.com>
+	 <Pine.LNX.4.63.0606010757400.4387@kai.makisara.local>
+	 <20060531222410.08dd6728.akpm@osdl.org>
+	 <1149170964.3489.2.camel@mulgrave.il.steeleye.com>
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 10:06:24 -0500
+Message-Id: <1149174384.3489.8.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447F0023.8090206@argo.co.il>
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01 2006, Avi Kivity wrote:
-> Jens Axboe wrote:
-> >
-> >Ok, I decided to rerun a simple random read work load (with fio), using
-> >depths 1 and 32. The test is simple - it does random reads all over the
-> >drive size with 4kb block sizes. The reads are O_DIRECT. The test
-> >pattern was set to repeatable, so it's going through the same workload.
-> >The test spans the first 32G of the drive and runtime is capped at 20
-> >seconds.
-> >
-> 
-> Did you modify the iodepth given to the test program, or to the drive? 
-> If the former, then some of the performance increase came from the Linux 
-> elevator.
-> 
-> Ideally exactly the same test would be run with the just the drive 
-> parameters changed.
+On Thu, 2006-06-01 at 09:09 -0500, James Bottomley wrote:
+> I reversed this from the scsi-rc-fixes tree ... I'll reapply the correct
+> version.
 
-Just from the program. Since the software depth matched the software
-depth, I'd be surprised if it made much of a difference here.  I can
-rerun the same test tomorrow with the drive depth modified the and
-software depth fixed at 32. Then the io scheduler can at least help the
-drive without NCQ out somewhat.
+OK, it should be redone with the original correct version ... we're
+lucky Linus is being slow today ...
 
--- 
-Jens Axboe
+James
+
 

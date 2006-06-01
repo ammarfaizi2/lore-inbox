@@ -1,93 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWFAN2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWFANiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWFAN2G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 09:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWFAN2F
+	id S1750870AbWFANiX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 09:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWFANiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 09:28:05 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:26879 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S965109AbWFAN2E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 09:28:04 -0400
-Subject: Re: 2.6.17-rc5-mm2 link issues on s390
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, arjan@infradead.org
-In-Reply-To: <447EE5A4.7050201@fr.ibm.com>
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	 <447EE5A4.7050201@fr.ibm.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Thu, 01 Jun 2006 15:28:02 +0200
-Message-Id: <1149168482.5279.34.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 1 Jun 2006 09:38:23 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:54661 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1750842AbWFANiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 09:38:22 -0400
+Message-ID: <447EEDCB.1070002@grupopie.com>
+Date: Thu, 01 Jun 2006 14:38:19 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Ram <vshrirama@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: printk's - i dont want any limit howto?
+References: <8bf247760606010025p38131240ia133cc3124f93bf7@mail.gmail.com>
+In-Reply-To: <8bf247760606010025p38131240ia133cc3124f93bf7@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-01 at 15:03 +0200, Cedric Le Goater wrote:
-> here are small link issues on s390.
+Ram wrote:
+> Hi,
+
+Hi,
+
+>  I have a driver full of printks. i am trying to understand the way
+> the driver functions using printks
 > 
->   ...
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> init/built-in.o(.init.text+0x564): In function `start_kernel':
-> : undefined reference to `early_init_irq_lock_type'
-> lib/built-in.o(.text+0xaf6): In function `__iowrite64_copy':
-> : undefined reference to `__raw_writeq'
-> make: *** [.tmp_vmlinux1] Error 1
+>  So, i have a situation where i want all the printk's to be printed
+> come whatever.
 
-I will try.
+That is the normal behavior.
 
-> I think the early_init_irq_lock_type() undef is related to the
-> lock-validator patch. Shall I just :
->
-> --- 2.6.17-rc5-mm2.orig/init/main.c
-> +++ 2.6.17-rc5-mm2/init/main.c
-> @@ -473,7 +473,9 @@
+>   I dont want any rate limiting or anything else that prevents from
+> my printks from appearing on the screen or dmesg.
 > 
->         local_irq_disable();
->         early_boot_irqs_off();
-> +#ifdef CONFIG_GENERIC_HARDIRQS
->         early_init_irq_lock_type();
-> +#endif
+> Its really confusing when only one of your printks appear and some
+> just dont appear even though you expect them to appear.
 > 
+>  Is there any way to make all the printks to appear come what may?.
+> If so, how do  i do it?.
 > 
-> too easy ... the lock-validator should be ported to s390 I guess. What are
-> the steps to follow ?
-
-Can't comment on the port issues yet but we plan to add the s390 support
-to the lock-validator. It is just a cool debugging tool.
-
-> As for the `__iowrite64_copy', shall we :
+>  Went through the printk.c am not sure setting the
+> printk_ratelimit_jiffies = 0 and printk_ratelimit_burst= 1000 will do?
 > 
-> #define writeq(b,addr) (*(volatile unsigned long *) __io_virt(addr) = (b))
-> #define __raw_writeq writeq
+>  am not sure if printk_ratelimit_jiffies = 0 is valid.
 
-Seems reasonable. __io_wirt() is a nop, so you are simply writing to the
-specified address.
+These are just used by "printk_ratelimit()" in constructs such as:
 
-> For the moment, it boots but I'd like to make sure i'm in the right
-> direction before sending patches. However, the following one is safe and
-> fixes a very small compil issue on s390 in klibc.
+if (printk_ratelimit())
+         printk(KERN_INFO "some message that may appear very often");
 
-Patches that fix compile problems are always fine with me. If it turns
-out wrong for some obscure reason we can fix it up later.
+If you simply use printk, there should be no rate limiting.
+
+> please advice.
+
+I would say your printk's are not getting called at all or the log level 
+of the messages is not sufficient for them to appear on the console or 
+on the log. See Documentation/filesystems/proc.txt -> 
+proc/sys/kernel/printk and syslog(2) for more documentation on this.
+
+I hope this helps,
 
 -- 
-blue skies,
-  Martin.
+Paulo Marques - www.grupopie.com
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+Pointy-Haired Boss: I don't see anything that could stand in our way.
+            Dilbert: Sanity? Reality? The laws of physics?

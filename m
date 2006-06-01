@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWFAXno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWFAXn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWFAXno (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 19:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWFAXno
+	id S1750985AbWFAXn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 19:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWFAXn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 19:43:44 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:18343 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750983AbWFAXnn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 19:43:43 -0400
-Date: Fri, 2 Jun 2006 09:43:25 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Janos Haar <djani22@netcenter.hu>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen 64bit linux)
-Message-ID: <20060602094325.A531851@wobbly.melbourne.sgi.com>
-References: <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com> <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs> <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu> <1149038431.21827.20.camel@localhost.localdomain> <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs> <20060602075826.B530100@wobbly.melbourne.sgi.com> <01ed01c685c8$b46ec6f0$1800a8c0@dcccs>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01ed01c685c8$b46ec6f0$1800a8c0@dcccs>; from djani22@netcenter.hu on Fri, Jun 02, 2006 at 12:14:04AM +0200
+	Thu, 1 Jun 2006 19:43:58 -0400
+Received: from omta03sl.mx.bigpond.com ([144.140.92.155]:48371 "EHLO
+	omta03sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750985AbWFAXnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 19:43:46 -0400
+Message-ID: <447F7BAD.1060306@bigpond.net.au>
+Date: Fri, 02 Jun 2006 09:43:41 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: Kirill Korotaev <dev@sw.ru>, Balbir Singh <bsingharora@gmail.com>,
+       Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru> <447DBD44.5040602@in.ibm.com>
+In-Reply-To: <447DBD44.5040602@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 1 Jun 2006 23:43:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 12:14:04AM +0200, Janos Haar wrote:
-> ---- Original Message ----- 
-> > On Wed, May 31, 2006 at 10:00:33AM +0200, Janos Haar wrote:
-> > >
-> > > Hey, i think i found something.
-> > > My quota on my huge device is broken.
-> > > (inferno   -- 18014398504855404       0       0
-> 18446744073709551519
-> > > 0     0)
-> >
-> > Hmm, that is interesting.  I guess you don't know whether this
-> > accounting problem happened before you rebooted or whether it
-> > only just got this way (after journal recovery)?
+Balbir Singh wrote:
+> Kirill Korotaev wrote:
+>>>> Using a timer for releasing tasks from their sinbin sounds like a  bit
+>>>> of an overhead. Given that there could be 10s of thousands of tasks.
+>>>
+>>>
+>>>
+>>> The more runnable tasks there are the less likely it is that any of 
+>>> them is exceeding its hard cap due to normal competition for the 
+>>> CPUs.  So I think that it's unlikely that there will ever be a very 
+>>> large number of tasks in the sinbin at the same time.
+>>
+>> for containers this can be untrue... :( actually even for 1000 tasks 
+>> (I suppose this is the maximum in your case) it can slowdown 
+>> significantly as well.
 > 
-> In my system, this huge device is difficult.
+> Do you have any documented requirements for container resource management?
+> Is there a minimum list of features and nice to have features for 
+> containers
+> as far as resource management is concerned?
+> 
+> 
+>>
+>>>> Is it possible to use the scheduler_tick() function take a look at all
+>>>> deactivated tasks (as efficiently as possible) and activate them when
+>>>> its time to activate them or just fold the functionality by defining a
+>>>> time quantum after which everyone is worken up. This time quantum
+>>>> could be the same as the time over which limits are honoured.
+>>
+>> agree with it.
+> 
+> Thinking a bit more along these lines, it would probably break O(1). But 
+> I guess a good
+> algorithm can amortize the cost.
 
-Can you describe your hardware a bit more?  (and send xfs_info
-output too please).
-
-> I often need to reboot, and run xfs_repair, to make it clean. (nodes hangs,
-> reboots, etc...)
-
-Ehrm, hmm, that smells fishy... does this device have a write
-cache enabled by any chance?
-
-> Now is my default reboot option is xfs_repair -L, so i dont know, this
-> happens before, or after, sorry.
-
-Oh, thats bad, all bets are off then - you really cant go doing
-that routinely, thats an "in emergency only" big red button -
-it throws away the contents of the journal, and will pretty much
-guarantee filesystem corruption.
-
-But, it sounds alot like you may have a big hardware reliability
-issue there, which is going to make it difficult to distinguish
-any software problems.  However, if you find a way to reproduce
-that quota accounting problem (above), I'm all ears.
-
-cheers.
+It's also unlikely to be less overhead than using timers.  In fact, my 
+gut feeling is that you'd actually be doing something very similar to 
+how timers work only cruder.  I.e. reinventing the wheel.
 
 -- 
-Nathan
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

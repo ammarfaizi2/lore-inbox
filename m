@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWFAWao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWFAW2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWFAWao (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWFAWao
+	id S1750804AbWFAW2n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 18:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWFAW2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:30:44 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:56210 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750812AbWFAWao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:30:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QvdHj2urbOlMaNyZQbb6Xm4YKoWmplhEy2jCVEqZ7UNhBwHUcNbI/wCDVpS8Ca8LdvK9+xevJLBIZSiYCNniTNmTY3z9tO537WOQHsDBDt+usdx27C3GIniVZgK2JhfbrQejXX+1/x+50McI0VrQcYhcEzP5kwfs5XdheGjUfq4=
-Message-ID: <6bffcb0e0606011530u49648f3hb329b376423c1c22@mail.gmail.com>
-Date: Fri, 2 Jun 2006 00:30:43 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Arjan van de Ven" <arjan@linux.intel.com>
-Subject: Re: 2.6.17-rc5-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, "Greg KH" <gregkh@suse.de>,
-       "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0606011204t2ff23462o2a6d414c40b01bbc@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 1 Jun 2006 18:28:43 -0400
+Received: from xenotime.net ([66.160.160.81]:65421 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750804AbWFAW2m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 18:28:42 -0400
+Date: Thu, 1 Jun 2006 15:31:25 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: dtor_core@ameritech.net, linux-joystick@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: input: fix comments and blank lines in new ff code
+Message-Id: <20060601153125.b8f7672a.rdunlap@xenotime.net>
+In-Reply-To: <447F6725.9010806@gmail.com>
+References: <20060530105705.157014000@gmail.com>
+	<20060530110131.136225000@gmail.com>
+	<20060530222122.069da389.rdunlap@xenotime.net>
+	<447F3AE4.6010206@gmail.com>
+	<20060601125256.de2897f4.rdunlap@xenotime.net>
+	<447F47FD.2050705@gmail.com>
+	<20060601130923.38f83fb6.rdunlap@xenotime.net>
+	<20060601204716.GA6847@delta.onse.fi>
+	<20060601143356.f5b8d4f5.rdunlap@xenotime.net>
+	<447F6725.9010806@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	 <6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
-	 <1149182408.3115.75.camel@laptopd505.fenrus.org>
-	 <6bffcb0e0606011204t2ff23462o2a6d414c40b01bbc@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/06/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> Hi Arjan,
->
-> On 01/06/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
-> > On Thu, 2006-06-01 at 17:51 +0200, Michal Piotrowski wrote:
-> > > Hi,
-> > >
-> > > On 01/06/06, Andrew Morton <akpm@osdl.org> wrote:
-> > > >
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
-> > > >
-> > >
-> > > I don't know why, but first bug appears only when avahi-daemon is
-> > > started. Second look like a problem with my camera.
-> > > http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_1.jpg
-> > > http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_2.jpg
-> > >
-> > > Here is config http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/mm-config
-> >
-> >
-> > can you confirm this fixes it ?
-> >
->
-> Probably yes, I'm not 100% sure. I'll do some tests (do stupid things
-> with camera while reboot).
+On Fri, 02 Jun 2006 01:16:05 +0300 Anssi Hannula wrote:
 
-Problem fixed, thanks.
+> 
+> I've no problem with Thunderbird anymore as I configured it to use
+> gmail.com TLS SMTP server instead for emails where From is my gmail.com
+> address. However I can't send inline patches using Thunderbird, only
+> MIME attachments (they are in cleartext and have "Content-Disposition:
+> inline", however).
 
-Regards,
-Michal
+check out http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+I have also written a few emails about how to use thunderbird
+successfully, but I don't have links to them... :(
+
+
+> The patch was sent with another client to avoid using a MIME attachment,
+> but that client was configured for my ISP's SMTP server.
+> 
+> I don't really know if a MIME attachment or "wrong" From email address
+> is a bigger nuisance.
+
+For me, it's attachments.  Especially if you make the first line
+of your patch be the correct:
+From: your name <name@example.com>
+
+
+> > And I noticed one function name _input_ff_erase().
+> > That might be a namespace violation... anyone know the namespace
+> > rules?
+> 
+> Namespace violation? Never heard of that one.
+
+Kernel (usually?) uses names of the form xyz_abc or __xyz_abc,
+not (one underscore) _xyz_abc.  Has something to do with POSIX
+namespace, but I don't know more about it.
+
+---
+~Randy

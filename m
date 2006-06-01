@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWFAQzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWFAQ5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWFAQzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 12:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWFAQzE
+	id S1030243AbWFAQ5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 12:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWFAQ5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 12:55:04 -0400
-Received: from dvhart.com ([64.146.134.43]:1939 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1030237AbWFAQzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 12:55:02 -0400
-Message-ID: <447F1BE4.5040705@mbligh.org>
-Date: Thu, 01 Jun 2006 09:55:00 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 1 Jun 2006 12:57:41 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:3090 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030243AbWFAQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 12:57:41 -0400
+Date: Thu, 1 Jun 2006 12:57:40 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Andrew Morton <akpm@osdl.org>, David Liontooth <liontooth@cogweb.net>,
+       <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: USB devices fail unnecessarily on unpowered hubs
+In-Reply-To: <Pine.LNX.4.61.0606011104140.1745@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44L0.0606011252350.5730-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "Martin J. Bligh" <mbligh@google.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org> <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com> <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com> <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home> <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home> <447F084C.9070201@google.com> <Pine.LNX.4.64.0606011742500.32445@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0606011742500.32445@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 1 Jun 2006, Martin J. Bligh wrote:
-> 
-> 
->>Did you read the discussion that lead up to it? I thought that quite
->>clearly described why such a thing was needed.
-> 
-> 
-> I did read it, what did I miss?
+On Thu, 1 Jun 2006, linux-os (Dick Johnson) wrote:
 
-So the point is to enable the performance-affecting debug options by
-default, but provide one clear hook to turn them all off, with a name
-that's consistent over time, so we can do it in an automated fashion.
+> >> Yes, it sounds like we're being non-real-worldly here.  This change
+> >> apparently broke things.  Did it actually fix anything as well?
+> >
+> > Yes.  At least, I think so.  The change directly addresses a complaint
+> > filed here:
+> >
+> > http://marc.theaimsgroup.com/?l=linux-usb-users&m=112438431718562&w=2
 
-To me that means having clear name so people know which option to hook
-stuff under, and preferably not hiding stuff behind extra config options
-to make them harder to find. Maybe I've missed the point of what you
-were trying to do, but it seemed to not meet that.
+> Many, most, perhaps all such devices don't take more power when they
+> are "enabled". Everything is already running and sucking up maximum
+> current when you plug it in! If the motherboard didn't smoke when
+> the device was plugged in, you might just as well let the user use
+> it! Perhaps a ** WARNING ** message somewhere, but by golly, they
+> got it running or else you wouldn't be able to read its parameters.
 
-M.
+Looks like you didn't bother to read that complaint and the follow-up
+messages.  Robert Marquardt's device has two configurations, one using 100
+mA and the other using 500 mA.  Before my patch, Linux would always
+install the high-power config -- even if the device was behind a
+bus-powered hub.  According to Robert:
 
+	This can trigger the overcurrent protection of a bus powered 
+	hub which usually then switches off completely dragging down
+	three other innocent devices.
+
+	Please tell me that Linux kernel programmers are not that idiotic.
+
+I'll avoid speculations about which kernel programmers are or are not 
+idiotic...
+
+Alan Stern
 

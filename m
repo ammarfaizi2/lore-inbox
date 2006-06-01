@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWFAHZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWFAHaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWFAHZK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 03:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWFAHZK
+	id S1750761AbWFAHaS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 03:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWFAHaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 03:25:10 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:18090 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750757AbWFAHZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 03:25:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Fo4cmG93kzt2MUpBMYV9Z069n2dFGLTEeAoa65GcFpUn5c1u5JVbyJys0nsztvzGoAJfb8VZ4V62COdCaRfj3DUHOzQuMaFen3oBuYWFKO9oxn1zOIMxQKKGjVlWHkpTVqyo3RvLy/9R7kXcSiHI6UznMOxdDYqPFoW5M/xcZkc=
-Message-ID: <8bf247760606010025p38131240ia133cc3124f93bf7@mail.gmail.com>
-Date: Thu, 1 Jun 2006 00:25:08 -0700
-From: Ram <vshrirama@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: printk's - i dont want any limit howto?
+	Thu, 1 Jun 2006 03:30:18 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:57573 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1750761AbWFAHaR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 03:30:17 -0400
+Message-ID: <00d901c6854d$1fc49230$1800a8c0@dcccs>
+From: "Janos Haar" <djani22@netcenter.hu>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Cc: <nathans@sgi.com>, <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
+References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs> <20060527234350.GA13881@voodoo.jdc.home> <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com> <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs> <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu> <1149038431.21827.20.camel@localhost.localdomain> <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs> <Pine.LNX.4.61.0605312353530.30170@yvahk01.tjqt.qr>
+Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen 64bit linux)
+Date: Thu, 1 Jun 2006 09:29:26 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I have a driver full of printks. i am trying to understand the way
-the driver functions using printks
 
-  So, i have a situation where i want all the printk's to be printed
-come whatever.
-
-
-   I dont want any rate limiting or anything else that prevents from
-my printks from appearing on the screen or dmesg.
-
-
- Its really confusing when only one of your printks appear and some
-just dont appear even though you expect them to appear.
+----- Original Message ----- 
+From: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+To: "Janos Haar" <djani22@netcenter.hu>
+Cc: "Nathan Scott" <nathans@sgi.com>; <linux-kernel@vger.kernel.org>;
+<linux-xfs@oss.sgi.com>
+Sent: Wednesday, May 31, 2006 11:54 PM
+Subject: Re: XFS related hang (was Re: How to send a break? - dump from
+frozen 64bit linux)
 
 
+> >
+> >Hey, i think i found something.
+> >My quota on my huge device is broken.
+>
+> That should not be a problem. I ran into that "problem" too but had no
+> lockups back then (2.6.16-rc1).
 
-  Is there any way to make all the printks to appear come what may?.
-If so, how do  i do it?.
+ 09:21:36 up 23:05,  1 user,  load average: 13.45, 13.14, 13.11
+This looks like fixed with disable the quota usage.
+
+The system hangs more often, when i use a script what heavily uses chown and
+chgrp and chmod.
+Thats why i think, to disable the quota.
+At this point it looks like fixed.
 
 
-  Went through the printk.c am not sure setting the
-printk_ratelimit_jiffies = 0 and printk_ratelimit_burst= 1000 will do?
+>
+> >(inferno   -- 18014398504855404       0       0
+18446744073709551519
+> >0     0)
+> >I cant found a way to re-initialize it.
+>
+> Reinit:
+>
+> quotaoff /mntpt
+> umount /mntpt
+> mount /mntpt
 
-  am not sure if printk_ratelimit_jiffies = 0 is valid.
+Thanks! :-)
+
+Janos
 
 
-please advice.
+>
+> >But anyway, at this point i dont need it, trying to disable the quota
+usage.
+> >We will see....
+>
+>
+> Jan Engelhardt
+> -- 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
-Regards,
-sriram

@@ -1,66 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965299AbWFATIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965292AbWFATHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965299AbWFATIb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 15:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWFATIb
+	id S965292AbWFATHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 15:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWFATHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 15:08:31 -0400
-Received: from barracuda.s2io.com ([72.1.205.138]:57069 "EHLO
-	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
-	id S965297AbWFATIa convert rfc822-to-8bit (ORCPT
+	Thu, 1 Jun 2006 15:07:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10919 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965291AbWFATHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 15:08:30 -0400
-X-ASG-Debug-ID: 1149188908-14254-0-2
-X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
-X-ASG-Whitelist: Client
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Thu, 1 Jun 2006 15:07:54 -0400
+Date: Thu, 1 Jun 2006 12:12:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
+Message-Id: <20060601121200.457c0335.akpm@osdl.org>
+In-Reply-To: <20060601184938.GA31376@suse.de>
+References: <20060529214011.GA417@suse.de>
+	<20060530182453.GA8701@suse.de>
+	<20060601184938.GA31376@suse.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-ASG-Orig-Subj: RE: pci_enable_msix throws up error
-Subject: RE: pci_enable_msix throws up error
-Date: Thu, 1 Jun 2006 15:08:41 -0400
-Message-ID: <78C9135A3D2ECE4B8162EBDCE82CAD777C0648@nekter>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: pci_enable_msix throws up error
-Thread-Index: AcaFrssVqQDbXTogTHmQKfeELiVA+Q==
-From: "Ravinandan Arakali" <Ravinandan.Arakali@neterion.com>
-To: "Andi Kleen" <ak@suse.de>, "Ayaz Abdulla" <AAbdulla@nvidia.com>
-Cc: "Ravinandan Arakali" <Ravinandan.Arakali@neterion.com>,
-       <linux-kernel@vger.kernel.org>,
-       "Ananda. Raju" <ananda.raju@neterion.com>, <netdev@vger.kernel.org>,
-       "Leonid Grossman" <Leonid.Grossman@neterion.com>
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have submitted a proposed fix for the below issue.
-Will wait for comments.
+On Thu, 1 Jun 2006 20:49:38 +0200
+Olaf Hering <olh@suse.de> wrote:
 
-Ravi
-
------Original Message-----
-From: Andi Kleen [mailto:ak@suse.de]
-Sent: Friday, May 05, 2006 1:44 AM
-To: Ayaz Abdulla
-Cc: ravinandan.arakali@neterion.com; linux-kernel@vger.kernel.org;
-Ananda. Raju; netdev@vger.kernel.org; Leonid Grossman
-Subject: Re: pci_enable_msix throws up error
-
-
-On Friday 05 May 2006 07:14, Ayaz Abdulla wrote:
-> I noticed the same behaviour, i.e. can not use both MSI and MSIX without
-> rebooting.
 > 
-> I had sent a message to the maintainer of the MSI/MSIX source a few
-> months ago and got a response that they were working on fixing it. Not
-> sure what the progress is on it.
+> This script will cause cramfs decompression errors, on SMP at least:
+> 
+> #!/bin/bash                                                                                                                                                          
+> while :;do blockdev --flushbufs /dev/loop0;done </dev/null &>/dev/null&
+> while :;do ps faxs  </dev/null &>/dev/null&done </dev/null &>/dev/null&
+> while :;do dmesg    </dev/null &>/dev/null&done </dev/null &>/dev/null&
+> while :;do find /mounts/instsys -type f -print0|xargs -0 cat &>/dev/null;done
+> 
+> (The used executables come from the symlinked /mounts/instsys directory)
+> 
+> ...
+> Error -3 while decompressing!
+> c0000000009592a2(2649)->c0000000edf87000(4096)
+> Error -3 while decompressing!
+> c000000000959298(2520)->c0000000edbc7000(4096)
+> Error -3 while decompressing!
+> c000000000959c70(2489)->c0000000f1482000(4096) 
+> Error -3 while decompressing!
+> c00000000095a629(2355)->c0000000edaff000(4096)
+> Error -3 while decompressing!
+> ...
+> 
+> Its a long standing bug, introduced in 2.6.2.
+> 
+> cramfs_read() clears parts of the src buffer because the page is not uptodate.
+> invalidate_bdev() called from block_ioctl(BLKFLSBUF) will set ClearPageUptodate()
+> after cramfs_read() got the page from read_cache_page()
+> If PageUptodate() fails, read the page again before using it.
+> There is still a small window were the page may not be uptodate before copying
+> its contents away.
+> 
+> evms_access does the BLKFLSBUF ioctl (lots of them) on the loop device. This will
+> corrupt the SuSE installation image on SMP kernels, leading to random segfaults.
+> 
 
-The best way to make progress faster would be for someone like you
-who needs it to submit a patch to fix it then.
+OK, invalidate_inode_pages().
 
--Andi
+> +
+>  	for (i = 0; i < BLKS_PER_BUF; i++) {
+> -		struct page *page = pages[i];
+> -		if (page) {
+> -			memcpy(data, kmap(page), PAGE_CACHE_SIZE);
+> -			kunmap(page);
+> -			page_cache_release(page);
+> -		} else
+> -			memset(data, 0, PAGE_CACHE_SIZE);
+> +		if (blocknr + i < devsize) {
+> +			page = NULL;
+> +			for (readagain = 0; readagain < 5; readagain++) {
+> +				page = read_cache_page(mapping, blocknr + i,
+> +					(filler_t *)mapping->a_ops->readpage,
+> +					NULL);
+> +				/* synchronous error? */
+> +				if (IS_ERR(page)) {
+> +					page = NULL;
+> +					break;
+> +				}
+> +				wait_on_page_locked(page);
+> +				if (PageUptodate(page))
+> +					break;
+> +				/* asynchronous error */
+> +				/* maybe BLKFLSBUF flushed the page */
+> +				page_cache_release(page);
+> +				page = NULL;
+> +			}
+> +			if (page) {
+> +				memcpy(data, kmap(page), PAGE_CACHE_SIZE);
+> +				kunmap(page);
+> +				page_cache_release(page);
+> +			} else
+> +				memset(data, 0, PAGE_CACHE_SIZE);
+> +			if (readagain)
+> +				printk(KERN_DEBUG "cramfs_read got %s Uptodate page after %d attempt(s)\n",
+> +						page ? "an" : "no", readagain);
+> +		}
 
+This code absolutely needs a comment telling the poor reader what it's in
+there for.
+
+It's still racy.  Do the memcpy while the page is locked:
+
+
+retry:
+	read_cache_page()
+	lock_page()
+	if (!PageUptodate()) {
+		if (readagain-- != 0)
+			goto retry;
+		give_up();
+	}
+	memcpy();
+	unlock_page();
+
+Also, let's use kmap_atomic() while we're in there.
+
+Of course, this will all just fail less often than it presently does.  We'd
+be better off taking a lock if poss to keep the ioctl away.  I'd have
+thought that it'd be appropriate to take i_mutex while running
+invalidate_inode_pages().

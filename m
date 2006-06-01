@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWFAHL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWFAHVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWFAHL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 03:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWFAHL1
+	id S1750740AbWFAHVF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 03:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWFAHVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 03:11:27 -0400
-Received: from gw.openss7.com ([142.179.199.224]:21652 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1750729AbWFAHL0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 03:11:26 -0400
-Date: Thu, 1 Jun 2006 01:11:25 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060601011125.C22283@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <20060601001825.A21730@openss7.org> <20060601063012.GC28087@2ka.mipt.ru> <20060601004608.C21730@openss7.org> <20060601070136.GA754@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060601070136.GA754@2ka.mipt.ru>; from johnpol@2ka.mipt.ru on Thu, Jun 01, 2006 at 11:01:36AM +0400
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	Thu, 1 Jun 2006 03:21:05 -0400
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:5791 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750740AbWFAHVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 03:21:04 -0400
+Date: Thu, 1 Jun 2006 03:21:02 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Andrew Morton <akpm@osdl.org>
+cc: Tony Griffiths <tonyg@agile.tv>, linux-kernel@vger.kernel.org
+Subject: Re: Some socket syscalls fail to return an error on bad file-descriptor#
+ argument
+In-Reply-To: <20060531214116.ef2d1c3e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606010320140.12929@d.namei>
+References: <447E614F.3090905@agile.tv> <20060531214116.ef2d1c3e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy,
+On Wed, 31 May 2006, Andrew Morton wrote:
 
-On Thu, 01 Jun 2006, Evgeniy Polyakov wrote:
+> Confused.  That patch cannot make any difference to this function:
 
-> On Thu, Jun 01, 2006 at 12:46:08AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
-> > > Since pseudo-randomness affects both folded and not folded hash
-> > > distribution, it can not end up in different results.
-> > 
-> > Yes it would, so to rule out pseudo-random effects the pseudo-
-> > random number generator must be removed.
-> > 
-> > > 
-> > > You are right that having test with 2^48 values is really interesting,
-> > > but it will take ages on my test machine :)
-> > 
-> > Try a usable subset; no pseudo-random number generator.
+Yep, the code definitely looks correct in current LT git.
+
+> static struct socket *sockfd_lookup_light(int fd, int *err, int *fput_needed)
+> {
+> 	struct file *file;
+> 	struct socket *sock;
 > 
-> I've run it for 2^30 - the same result: folded and not folded Jenkins
-> hash behave the same and still both results produce exactly the same
-> artifacts compared to XOR hash.
+> 	*err = -EBADF;
+> 	file = fget_light(fd, fput_needed);
+> 	if (file) {
+> 		sock = sock_from_file(file, err);
+> 		if (sock)
+> 			return sock;
+> 		fput_light(file, *fput_needed);
+> 	}
+> 	return NULL;
+> }
 
-But not without the pseudo-random number generation... ?
 
-> 
-> Btw, XOR hash, as completely stateless, can be used to show how
-> Linux pseudo-random generator works for given subset - it's average of
-> distribution is very good.
 
-But its distribution might auto-correlate with the Jenkins function.
-The only way to be sure is to remove the pseudo-random number generator.
-
-Just try incrementing from, say, 10.0.0.0:10000 up, resetting port number
-to 10000 at 16000, and just incrementing the IP address when the port
-number wraps, instead of pseudo-random, through 2^30 loops for both.
-If the same artifacts emerge, I give in.
-
-Can you show the same artifacts for jenkins_3word?
-
+- James
+-- 
+James Morris
+<jmorris@namei.org>

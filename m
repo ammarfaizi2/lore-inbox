@@ -1,91 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965295AbWFAUry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWFAQtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965295AbWFAUry (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 16:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWFAUry
+	id S1030240AbWFAQtU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 12:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWFAQtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 16:47:54 -0400
-Received: from smtp.enter.net ([216.193.128.24]:14597 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S965295AbWFAUrx (ORCPT
+	Thu, 1 Jun 2006 12:49:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31722 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030240AbWFAQtT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 16:47:53 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Thu, 1 Jun 2006 16:47:42 +0000
-User-Agent: KMail/1.8.1
-Cc: "David Lang" <dlang@digitalinsight.com>,
-       "Ondrej Zajicek" <santiago@mail.cz>, "Dave Airlie" <airlied@gmail.com>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200606011603.57421.dhazelton@enter.net> <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
-In-Reply-To: <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 1 Jun 2006 12:49:19 -0400
+Date: Thu, 1 Jun 2006 09:53:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miles Lane" <miles.lane@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.17-rc5-mm2 -- PCI: Bus #03 (-#06) is hidden behind
+ transparent bridge #02 (-#02) (try 'pci=assign-busses')
+Message-Id: <20060601095335.c778bc98.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0606010752n637c6411l805115f8170f0ebb@mail.gmail.com>
+References: <a44ae5cd0606010752n637c6411l805115f8170f0ebb@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606011647.43427.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 June 2006 20:35, Jon Smirl wrote:
-> On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
-> > > > 5) The system needs to be robust. Daemons can be killed by the OOM
-> > > > mechanism, you don't want to lose your console in the middle of
-> > > > trying to fix a problem. This also means that you have to be able to
-> > > > display printk's from inside interrupt handles.
-> >
-> > Point of disagreement. Tons of userspace helpers isn't a good choice.
->
-> Where do you get 'tons'? There will probably be one for initial reset,
-> one for VESA based mode setting and a few more if there is device
-> specific code needed for a specific card.
->
-> Making console rely on a permanent daemon that is subject to getting
-> killed by the OOM mechanism is not a workable solution.
->
-> You also need to think about how cursors are handled. A non-root app
-> needs to be able to move the cursor. Actually moving the cursor
-> requires root. The in-kernel console system needs a cursor. It would
-> be much better if cursor control was implemented in the device
-> drivers.
+On Thu, 1 Jun 2006 10:52:26 -0400
+"Miles Lane" <miles.lane@gmail.com> wrote:
 
-Yes, the basic console will only require a few helpers. I get "tons" because 
-that's what it would take to provide all the acceleration features to 
-userspace. The daemon is *only* there to provide those acceleration features. 
-The kernel itself has it's own minimal interface to drmcon that lets it work 
-without userspace. The userspace side is for userspace. (Though the kernel 
-will only work in a specific set mode without the userspace helpers for 
-setting the mode)
+> ACPI: setting ELCR to 0200 (from 0c38)
+> PM: Adding info for No Bus:platform
+> NET: Registered protocol family 16
+> ACPI: bus type pci registered
+> PCI: PCI BIOS revision 2.10 entry at 0xfd9c2, last bus=2
+> Setting up standard PCI resources
+> ACPI: Subsystem revision 20060310
+> ACPI: Interpreter enabled
+> ACPI: Using PIC for interrupt routing
+> PM: Adding info for acpi:acpi
+> ACPI: PCI Root Bridge [PCI0] (0000:00)
+> PCI: Probing PCI hardware (bus 00)
+> PM: Adding info for No Bus:pci0000:00
+> Boot video device is 0000:00:02.0
+> PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
+> PCI quirk: region 1180-11bf claimed by ICH4 GPIO
+> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+> PCI: Transparent bridge - 0000:00:1e.0
+> PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#02)
+> (try 'pci=assign-busses')
+> Please report the result to linux-kernel to fix this permanently
 
-Cursor control will be entirely within the driver :)
+I guess you're supposed to try 'pci=assign-busses'.
 
-> > I don't know about doing a printk from inside interrupt context - the
-> > current architecture doesn't, IIRC, support printk from inside interrupt
-> > context for certain drivers for various reasons.
->
-> Printk works from inside interrupt handlers currently. This is an
-> absolute requirement for kernel debugging that can't be removed.
-> Because of this requirement there has to be a way for all drivers to
-> draw the console entirely inside the kernel. You can not make calls to
-> user space from inside interrupt handlers.
+Does the machine work OK without pci=assign-busses?
 
-Hrm... I was thinking that it didn't work for sending to net and serial 
-consoles because doing such might generate an interrupt.
+Does the machine work OK with pci=assign-busses?
 
-> > > > 6) Things like panics should be visible no matter what is running. No
-> > > > more silent deaths.
->
-> Panics can occur inside interrupt handlers. You can't queue up printks
-> in this context and they display them later, the kernel just died,
-> there is no later.
-
-Of course. It is one of my goals to keep those silent deaths from occuring. 
-AAMOF, that was one of my reasons for this project.
-
-DRH
+Greg, what are we supposed to be doing here?  Grab the PCI IDs and add a
+quirk somewhere?

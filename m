@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWFAIqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWFAJL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWFAIqr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 04:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWFAIqr
+	id S932112AbWFAJL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 05:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWFAJL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 04:46:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65209 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750806AbWFAIqq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 04:46:46 -0400
-Date: Thu, 1 Jun 2006 01:50:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: tim.bird@am.sony.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 3/6] statistics infrastructure - prerequisite: timestamp
-Message-Id: <20060601015059.56d5953f.akpm@osdl.org>
-In-Reply-To: <447EA800.101@de.ibm.com>
-References: <1148055080.2974.15.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-	<4474CD38.5090206@am.sony.com>
-	<447EA800.101@de.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 1 Jun 2006 05:11:26 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:33684 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1750817AbWFAJL0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 05:11:26 -0400
+Date: Thu, 1 Jun 2006 11:11:25 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org,
+       Kernel Netdev Mailing List <netdev@vger.kernel.org>
+Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE
+Message-ID: <20060601091124.GA31642@janus>
+References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net> <20060531160611.GA25637@janus> <447DC613.10102@trash.net> <20060531172936.GB25788@janus> <447DD66C.30605@trash.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447DD66C.30605@trash.net>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Jun 2006 10:40:32 +0200
-Martin Peschke <mp3@de.ibm.com> wrote:
+On Wed, May 31, 2006 at 07:46:20PM +0200, Patrick McHardy wrote:
 
-> Or, Andrew, do you prefer a replacement patch for my
-> statistics-infrastructure-prerequisite-timestamp.patch
-> that introduces this miscalculation. I could put
-> statistics-infrastructure-make-printk_clock-a-generic-kernel-wide-nsec-resolution.patch
-> into that one as well, so that all the timestamp related printk-changes are in
-> one place.
+[...]
 
-umm, finest-possible-granularity patches against rc5-mm2 would be preferred
-if poss.  I have scripts and tricks to do the topolgical patchsort so that
-things end up in a logical patch series.
+> > ip -s link doesn't show any
+> > dropped packets so far with any patch and I don't use traffic control
+> > that I'm aware of. But I'm not sure what to make of "tc" output, maybe
+> > because CONFIG_SHAPER is not set:
+> > 
+> > 	# tc -s -d qdisc show
+> > 	RTNETLINK answers: Invalid argument
+> > 	Dump terminated
+> 
+> Thats because you're missing CONFIG_NET_SCHED. Please enable it and
+> try the tc command again, without it we can't see whether the qdisc
+> (which is present even without CONFIG_NET_SCHED) just dropped the
+> packets.
 
+ok, now "tc -s -d qdisc show" says (after noticing missing netconsole
+packets):
+
+qdisc pfifo_fast 0: dev eth0 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+ Sent 155031 bytes 2067 pkt (dropped 0, overlimits 0 requeues 0) 
+ backlog 0b 0p requeues 0 
+
+-- 
+Frank

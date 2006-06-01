@@ -1,82 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWFARUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWFARWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbWFARUf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWFARUf
+	id S1030249AbWFARWd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 13:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWFARWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:20:35 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:16362 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S964948AbWFARUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:20:34 -0400
-Subject: Re: 2.6.17-rc5-mm2
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	 <6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
-Content-Type: text/plain
+	Thu, 1 Jun 2006 13:22:33 -0400
+Received: from rtr.ca ([64.26.128.89]:53941 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1030252AbWFARWc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 13:22:32 -0400
+Message-ID: <447F2257.4000404@rtr.ca>
+Date: Thu, 01 Jun 2006 13:22:31 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Grant Coady <gcoady.lk@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Query: No IDE DMA for IBM 365X with PIIX chipset?
+References: <j9bi729h2u4dcn9da7na3t1d8ckk477d9b@4ax.com> <1149169812.12932.20.camel@localhost>
+In-Reply-To: <1149169812.12932.20.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 01 Jun 2006 19:20:08 +0200
-Message-Id: <1149182408.3115.75.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-01 at 17:51 +0200, Michal Piotrowski wrote:
-> Hi,
+Alan Cox wrote:
+>>
+> 82371FB, whee thats prehistoric 8)
 > 
-> On 01/06/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
-> >
-> 
-> I don't know why, but first bug appears only when avahi-daemon is
-> started. Second look like a problem with my camera.
-> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_1.jpg
-> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_2.jpg
-> 
-> Here is config http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/mm-config
+> I don't actually have any support for the 371FB PIIX in either driver as
+> I've not been able to find a source for the data sheet to the chip. It
+> may work if added to the drivers/scsi/pata_oldpiix identifiers in the
+> 2.6.17rc5-mm kernel. Would be useful to know as I don't know anyone else
+> with that chip any more 8)
 
+That's the original Intel "triton" chipset.
+I have a spare printed Intel document for the chipset (Intel #290519-001)
+which I can mail you (Alan).  Email me privately with a postal address.
 
-can you confirm this fixes it ?
-
----
- drivers/usb/core/inode.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.17-rc5-mm1.5/drivers/usb/core/inode.c
-===================================================================
---- linux-2.6.17-rc5-mm1.5.orig/drivers/usb/core/inode.c
-+++ linux-2.6.17-rc5-mm1.5/drivers/usb/core/inode.c
-@@ -333,7 +333,7 @@ static int usbfs_empty (struct dentry *d
- static int usbfs_unlink (struct inode *dir, struct dentry *dentry)
- {
- 	struct inode *inode = dentry->d_inode;
--	mutex_lock(&inode->i_mutex);
-+	mutex_lock_nested(&inode->i_mutex, I_MUTEX_CHILD);
- 	dentry->d_inode->i_nlink--;
- 	dput(dentry);
- 	mutex_unlock(&inode->i_mutex);
-@@ -346,7 +346,7 @@ static int usbfs_rmdir(struct inode *dir
- 	int error = -ENOTEMPTY;
- 	struct inode * inode = dentry->d_inode;
- 
--	mutex_lock(&inode->i_mutex);
-+	mutex_lock_nested(&inode->i_mutex, I_MUTEX_CHILD);
- 	dentry_unhash(dentry);
- 	if (usbfs_empty(dentry)) {
- 		dentry->d_inode->i_nlink -= 2;
-@@ -528,7 +528,7 @@ static void fs_remove_file (struct dentr
- 	if (!parent || !parent->d_inode)
- 		return;
- 
--	mutex_lock(&parent->d_inode->i_mutex);
-+	mutex_lock_nested(&parent->d_inode->i_mutex, I_MUTEX_PARENT);
- 	if (usbfs_positive(dentry)) {
- 		if (dentry->d_inode) {
- 			if (S_ISDIR(dentry->d_inode->i_mode))
-
+Cheers

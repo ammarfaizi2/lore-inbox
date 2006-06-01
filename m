@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWFAREd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWFARIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWFAREd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965200AbWFAREd
+	id S964909AbWFARIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 13:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWFARIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:04:33 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:33393 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964908AbWFAREd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:04:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=QtCbASjC4Kn2xeDY/XwHHTitSE6R14T8TLSJyz1OwaHbJLZB7WwV7DZCOLlEh4glyr9Orc6b1yOL/mE2geTif40v8Ixb2cne7RjQtsP1l2XX5mz9LWwCPmt5WJU0qDOmzSOt12r6ZSjOP0DiYrfD5G3wYRMuSjKH9AZlfyCqLgc=
-Date: Thu, 1 Jun 2006 21:04:45 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Eric Sesterhenn <snakebyte@gmx.de>
-Cc: linux-kernel@vger.kernel.org, mm@caldera.de
-Subject: Re: [Patch] Check sound_alloc_mixerdev() failure in sound/oss/nm256_audio.c
-Message-ID: <20060601170445.GA7265@martell.zuzino.mipt.ru>
-References: <1149155608.9452.1.camel@alice>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149155608.9452.1.camel@alice>
-User-Agent: Mutt/1.5.11
+	Thu, 1 Jun 2006 13:08:09 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:7438 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964909AbWFARII
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 13:08:08 -0400
+Date: Thu, 1 Jun 2006 13:08:07 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: liontooth@cogweb.net, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: USB devices fail unnecessarily on unpowered hubs
+In-Reply-To: <20060601095913.06200806.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0606011302420.5730-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 11:53:28AM +0200, Eric Sesterhenn wrote:
-> When sound_alloc_mixerdev() fails it returns a
-> negative value, which the driver fails to check.
+On Thu, 1 Jun 2006, Andrew Morton wrote:
 
-That's true.
+> On Thu, 1 Jun 2006 10:58:43 -0400 (EDT)
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> 
+> > As an alternative, we could allow an "over-budget window" of say 10%.  
+> 
+> That, plus we should provide a suitable i-know-what-im-doing user override,
+> with the appropriate warnings, as well as a printk which directs users to
+> this option when we decided to disable their device.
 
-> --- linux-2.6.17-rc5/sound/oss/nm256_audio.c.orig
-> +++ linux-2.6.17-rc5/sound/oss/nm256_audio.c
-> @@ -974,7 +974,7 @@ nm256_install_mixer (struct nm256_info *
->  	return -1;
->  
->      mixer = sound_alloc_mixerdev();
-       ^^^^^
-> -    if (num_mixers >= MAX_MIXER_DEV) {
-> +    if ((num_mixers >= MAX_MIXER_DEV) || (num_mixers < 0)) {
-					     ^^^^^^^^^^
->  	printk ("NM256 mixer: Unable to alloc mixerdev\n");
->  	return -1;
->      }
+The user override already exists, as do the appropriate warnings.  Daniel 
+Drake just added a printk explaining why the device was not configured, 
+although it doesn't tell how to configure the device by hand.  Perhaps a 
+FAQ entry at www.linux-usb.org would be appropriate.
 
-But it is _still_ fails to check it.
+> The power supply spec is a conservative minimum, whereas the device spec is
+> a worst-case maximum.  One would expect a lot of devices will work OK when
+> run "out of spec".
+> 
+> (Goes away and pats all his 240V plugpacks which are happily working off 110V).
+
+They probably will.  The question is, how far out-of-spec should the 
+kernel allow by default?  200% is likely to be too far (your plugpacks 
+notwithstanding).
+
+Alan Stern
 

@@ -1,72 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWFAXOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWFAXRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750882AbWFAXOx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 19:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWFAXOx
+	id S1750893AbWFAXRp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 19:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWFAXRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 19:14:53 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:37207 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750821AbWFAXOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 19:14:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mLB9LmJoSknlK62Uv59IHnoFqbubaLrBZsXdFLyZrqbw4vG6tXVlDauXrYNZ0oRne8qbv4VtxWRFf6avDAO44fb5mZnpPntPl5SDIvvccRZ+2ufU7PHLj7EiXVWokzHjEETo6ytlqENsvGFxgqaE5xtkyvauWSiujA/WZ6XbD88=
-Message-ID: <21d7e9970606011614x5b4d3a3t9608971a714f8c77@mail.gmail.com>
-Date: Fri, 2 Jun 2006 09:14:41 +1000
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "D. Hazelton" <dhazelton@enter.net>,
-       "David Lang" <dlang@digitalinsight.com>,
-       "Ondrej Zajicek" <santiago@mail.cz>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 1 Jun 2006 19:17:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59264 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750883AbWFAXRn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 19:17:43 -0400
+Date: Thu, 1 Jun 2006 16:20:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: len.brown@intel.com, greg@kroah.com, linux-acpi@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+Subject: Re: [patch 1/3] acpi: dock driver v6
+Message-Id: <20060601162039.02fcd8e1.akpm@osdl.org>
+In-Reply-To: <1149203128.14279.17.camel@whizzy>
+References: <20060412221027.472109000@intel.com>
+	<1144880322.11215.44.camel@whizzy>
+	<20060412222735.38aa0f58.akpm@osdl.org>
+	<1145054985.29319.51.camel@whizzy>
+	<44410360.6090003@sgi.com>
+	<1145383396.10783.32.camel@whizzy>
+	<1146268318.25490.33.camel@whizzy>
+	<1147373152.15308.14.camel@whizzy>
+	<1149203128.14279.17.camel@whizzy>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-	 <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz>
-	 <200606011603.57421.dhazelton@enter.net>
-	 <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-\
-> Where do you get 'tons'? There will probably be one for initial reset,
-> one for VESA based mode setting and a few more if there is device
-> specific code needed for a specific card.
+Kristen Accardi <kristen.c.accardi@intel.com> wrote:
 >
-> Making console rely on a permanent daemon that is subject to getting
-> killed by the OOM mechanism is not a workable solution.
+> Changed from last version:
 
-Jon stop trying to hammer everyone by repeating ad-nauseum statements
-of little importance...
+It would be much preferred if you could issue patches against the previous
+version please (ie: the thing in -mm), instead of reissuing the patch each
+time.
 
-We can stop the OOM killer from killing the daemon if necessary.
-running device drivers in userspace would sort of require this, we can
-run the daemon from init and if it dies, have it respawn, it could put
-persistent info in a shared memory segment provided by the DRM, just
-because you can't think of any way around things, doesn't mean the
-rest of us can't..
+It tells us that you, the developer, have been testing the code which we
+intend to send upstream, rather than testing some possibly-divergent thing
+which lives on your hard-drive.
 
-The same things apples to a lot of your other "issues" a /dev/ with
-permissions is no more or less useful than a /tmp/.grphs_socket1 and 2
-with permissions, you insistence that everything be controlled via the
-kernel is another thing you've just failed to think about rather than
-hammer on about it *must* do this.
+And it makes it much easier to review the changes.  And it saves me from
+having to generate the incremental diff so _I_ can see what you've changed.
 
-I'm spending more time rebutting points you repeatedly make, please
-accept that there are other solutions, and everytime you post a list
-of things *YOU* believe *MUST* be done, remove the things we've shown
-are possible to be done other ways...
 
-Dave.
+And lo, when I did that:
+
+diff -puN drivers/acpi/dock.c~acpi-dock-driver-v6 drivers/acpi/dock.c
+--- 25/drivers/acpi/dock.c~acpi-dock-driver-v6	Thu Jun  1 16:12:31 2006
++++ 25-akpm/drivers/acpi/dock.c	Thu Jun  1 16:12:31 2006
+@@ -190,6 +190,9 @@ static int is_dock(acpi_handle handle)
+  */
+ int is_dock_device(acpi_handle handle)
+ {
++	if (!dock_station)
++		return 0;
++
+ 	if (is_dock(handle) || find_dock_dependent_device(dock_station, handle))
+ 		return 1;
+ 
+@@ -218,6 +221,66 @@ static int dock_present(struct dock_stat
+ 	return 0;
+ }
+ 
++
++
++/**
++ * dock_create_acpi_device - add new devices to acpi
++ * @handle - handle of the device to add
++ *
++ *  This function will create a new acpi_device for the given
++ *  handle if one does not exist already.  This should cause
++ *  acpi to scan for drivers for the given devices, and call
++ *  matching driver's add routine.
++ *
++ *  Returns a pointer to the acpi_device corresponding to the handle.
++ */
++static struct acpi_device * dock_create_acpi_device(acpi_handle handle)
++{
++	struct acpi_device *device = NULL;
++	struct acpi_device *parent_device;
++	acpi_handle parent;
++	int ret;
++
++	if (acpi_bus_get_device(handle, &device)) {
++		/*
++		 * no device created for this object,
++		 * so we should create one.
++		 */
++		acpi_get_parent(handle, &parent);
++		if (acpi_bus_get_device(parent, &parent_device))
++			parent_device = NULL;
++
++		ret = acpi_bus_add(&device, parent_device, handle,
++			ACPI_BUS_TYPE_DEVICE);
++		if (ret) {
++			pr_debug("error adding bus, %x\n",
++				-ret);
++			return NULL;
++		}
++	}
++	return device;
++}
++
++/**
++ * dock_remove_acpi_device - remove the acpi_device struct from acpi
++ * @handle - the handle of the device to remove
++ *
++ *  Tell acpi to remove the acpi_device.  This should cause any loaded
++ *  driver to have it's remove routine called.
++ */
++static void dock_remove_acpi_device(acpi_handle handle)
++{
++	struct acpi_device *device;
++	int ret;
++
++	if (acpi_bus_get_device(handle, &device)) {
++		ret = acpi_bus_trim(device, 1);
++		if (ret)
++			pr_debug("error removing bus, %x\n", -ret);
++	}
++}
++
++
+ /**
+  * hotplug_dock_devices - insert or remove devices on the dock station
+  * @ds: the dock station
+@@ -233,39 +296,37 @@ static void hotplug_dock_devices(struct 
+ 	struct dock_dependent_device *dd;
+ 
+ 	spin_lock(&ds->hp_lock);
++
++	/*
++	 * First call driver specific hotplug functions
++	 */
+ 	list_for_each_entry(dd, &ds->hotplug_devices, hotplug_list) {
+ 		if (dd->handler)
+ 			dd->handler(dd->handle, event, dd->context);
+ 	}
++
++	/*
++	 * Now make sure that an acpi_device is created for each
++	 * dependent device, or removed if this is an eject request.
++	 * This will cause acpi_drivers to be stopped/started if they
++	 * exist
++	 */
++	list_for_each_entry(dd, &ds->dependent_devices, list) {
++		if (event == ACPI_NOTIFY_EJECT_REQUEST)
++			dock_remove_acpi_device(dd->handle);
++		else
++			dock_create_acpi_device(dd->handle);
++	}
+ 	spin_unlock(&ds->hp_lock);
+ }
+ 
+-
+ static void dock_event(struct dock_station *ds, u32 event, int num)
+ {
+ 	struct acpi_device *device;
+-	struct acpi_device *parent_device;
+-	acpi_handle parent;
+-	int ret;
+ 
+-	if (acpi_bus_get_device(ds->handle, &device)) {
+-		/*
+-		 * no device created for this object,
+-		 * so we should create one.
+-		 */
+-		acpi_get_parent(ds->handle, &parent);
+-		if (acpi_bus_get_device(parent, &parent_device))
+-			parent_device = NULL;
+-
+-		ret = acpi_bus_add(&device, parent_device, ds->handle,
+-			ACPI_BUS_TYPE_DEVICE);
+-		if (ret) {
+-			pr_debug("error adding bus, %x\n",
+-				-ret_val);
+-			return;
+-		}
+-	}
+-	kobject_uevent(&device->kobj, num);
++	device = dock_create_acpi_device(ds->handle);
++	if (device)
++		kobject_uevent(&device->kobj, num);
+ }
+ 
+ /**
+@@ -674,5 +735,5 @@ static void __exit dock_exit(void)
+ 	dock_remove();
+ }
+ 
+-module_init(dock_init);
++postcore_initcall(dock_init);
+ module_exit(dock_exit);
+diff -puN drivers/acpi/scan.c~acpi-dock-driver-v6 drivers/acpi/scan.c
+--- 25/drivers/acpi/scan.c~acpi-dock-driver-v6	Thu Jun  1 16:12:31 2006
++++ 25-akpm/drivers/acpi/scan.c	Thu Jun  1 16:12:31 2006
+@@ -670,7 +670,7 @@ acpi_bus_get_ejd(acpi_handle handle, acp
+ 	if (ACPI_SUCCESS(status)) {
+ 		obj = buffer.pointer;
+ 		status = acpi_get_handle(NULL, obj->string.pointer, ejd);
+-		kfree(buffer.pointer);
++		acpi_os_free(buffer.pointer);
+ 	}
+ 	return status;
+ }
+_
+
+I see an acpi_os_free().   There ain't any such function.

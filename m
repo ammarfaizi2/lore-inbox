@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965317AbWFAV1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965318AbWFAVby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965317AbWFAV1T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965315AbWFAV1T
+	id S965318AbWFAVby (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965320AbWFAVby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:27:19 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:26989 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965317AbWFAV1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:27:18 -0400
+	Thu, 1 Jun 2006 17:31:54 -0400
+Received: from wr-out-0506.google.com ([64.233.184.225]:61019 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965318AbWFAVbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 17:31:53 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TERHwlz/0+o0dP6KcdBT70KKbEB23ypZd1hF7uzInLcmT8toNC5yvYrTh5OGDHn5ArAvwCqL1Ps9Y02w+lG0aINxF1cqFU8Iei7v5qjsrV/HF3UaceO+2MpTuPbtFdwHI0n+yPUzI5uaBHdc0/pSOg1T7hNGEirEwR57ZEGkuhI=
-Message-ID: <20f65d530606011427i2cf453f0rf84bc3c0814f6687@mail.gmail.com>
-Date: Fri, 2 Jun 2006 09:27:17 +1200
-From: "Keith Chew" <keith.chew@gmail.com>
-To: "Thiago Galesi" <thiagogalesi@gmail.com>
-Subject: Re: IO APIC IRQ assignment
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <82ecf08e0606010858u3a31c46bx6bb8c340580cb993@mail.gmail.com>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=TLTIsm10r34DTaQONaiqpAIKplahq/dsoV26sMQnYxjWF15uIZOtQH454Lx83yALeydMo+RLhd2qlyT+vPEPEtPqzcpm4WvNI47IIIgXmNxP1omvbMsr9qCYJcNyoasax/QVxGzNflk9HhL3MxVV2nPdJ+eaCaGR5/yNEkj5bas=
+Message-ID: <447F5CB3.7000107@gmail.com>
+Date: Fri, 02 Jun 2006 05:31:31 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: "D. Hazelton" <dhazelton@enter.net>, David Lang <dlang@digitalinsight.com>,
+       Ondrej Zajicek <santiago@mail.cz>, Dave Airlie <airlied@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>	 <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz>	 <200606011603.57421.dhazelton@enter.net>	 <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>	 <447F56A0.8030408@gmail.com> <9e4733910606011423u75fa076hce22547c28c0a987@mail.gmail.com>
+In-Reply-To: <9e4733910606011423u75fa076hce22547c28c0a987@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
-	 <20060530135017.GD5151@harddisk-recovery.com>
-	 <20f65d530605300705l60bfcca7k47a41c95bf42a0ef@mail.gmail.com>
-	 <Pine.LNX.4.61.0606010002200.30170@yvahk01.tjqt.qr>
-	 <20f65d530605311612n15820847sca559d0c443fc230@mail.gmail.com>
-	 <20060601094214.GA14431@harddisk-recovery.com>
-	 <20f65d530606010338h23dbd152u2670000ba6130fc6@mail.gmail.com>
-	 <20f65d530606010835h76356757k3d3714203d5e4c6@mail.gmail.com>
-	 <82ecf08e0606010858u3a31c46bx6bb8c340580cb993@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Thiago
+Jon Smirl wrote:
+> On 6/1/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+>> Jon Smirl wrote:
+>> > On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
+>> >
+>>
+>> Console writes are done with the console semaphore held. printk will also
+>> just write to the log buffer and defer the actual console printing
+>> for later, by the next or current process that will grab the semaphore.
+> 
+> That was my original position too. But Alan Cox has drilled it into me
+> that this is not acceptable for printks in interrupt context, they
+> need to print there and not be deferred.
+> 
 
-> On a side note, did you consider that, for that purpose, the system
-> you're using may be underpowered (that is, not enough CPU / Bus
-> speed)??
->
-> Depending on your system configuration, plus frequency and resolution
-> of frame acquisition, yes, it's not going to work.
->
+Just to clarify, it's not my position, that's how the current printk code
+works.
 
-I doubt that is the case. We are using a Pentium M 1.8GHz, and only
-capturing low resolution 3 fps from bttv. Wifi data transfer is only
-done in small chunks (we split the data in chunks at the application
-level, ie p2p file sharing concept). CPU usage is extremely low, ie
-less than 5%.
-
->
-> I've already encountered the PCI latency problem in a similar project
-> (using BTTVs, the image would be missing some lines) with not so
-> frequent captures and two BTTVs on the system)
->
-
-How did you solve your problem in that project?
-
-Regards
-Keith
+Tony

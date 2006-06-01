@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWFAJL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWFAJUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWFAJL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 05:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWFAJL0
+	id S932132AbWFAJUr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 05:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWFAJUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 05:11:26 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:33684 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1750817AbWFAJL0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 05:11:26 -0400
-Date: Thu, 1 Jun 2006 11:11:25 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org,
-       Kernel Netdev Mailing List <netdev@vger.kernel.org>
-Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE
-Message-ID: <20060601091124.GA31642@janus>
-References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net> <20060531160611.GA25637@janus> <447DC613.10102@trash.net> <20060531172936.GB25788@janus> <447DD66C.30605@trash.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447DD66C.30605@trash.net>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+	Thu, 1 Jun 2006 05:20:47 -0400
+Received: from weber.sscnet.ucla.edu ([128.97.42.3]:15502 "EHLO
+	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
+	id S932132AbWFAJUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 05:20:46 -0400
+Message-ID: <447EB0DC.4040203@cogweb.net>
+Date: Thu, 01 Jun 2006 02:18:20 -0700
+From: David Liontooth <liontooth@cogweb.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: USB devices fail unnecessarily on unpowered hubs
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 07:46:20PM +0200, Patrick McHardy wrote:
+Starting with 2.6.16, some USB devices fail unnecessarily on unpowered
+hubs. Alan Stern explains,
 
-[...]
+"The idea is that the kernel now keeps track of USB power budgets.  When a 
+bus-powered device requires more current than its upstream hub is capable 
+of providing, the kernel will not configure it.
 
-> > ip -s link doesn't show any
-> > dropped packets so far with any patch and I don't use traffic control
-> > that I'm aware of. But I'm not sure what to make of "tc" output, maybe
-> > because CONFIG_SHAPER is not set:
-> > 
-> > 	# tc -s -d qdisc show
-> > 	RTNETLINK answers: Invalid argument
-> > 	Dump terminated
-> 
-> Thats because you're missing CONFIG_NET_SCHED. Please enable it and
-> try the tc command again, without it we can't see whether the qdisc
-> (which is present even without CONFIG_NET_SCHED) just dropped the
-> packets.
+Computers' USB ports are capable of providing a full 500 mA, so devices
+plugged directly into the computer will work okay.  However unpowered hubs
+can provide only 100 mA to each port.  Some devices require (or claim they
+require) more current than that.  As a result, they don't get configured
+when plugged into an unpowered hub."
 
-ok, now "tc -s -d qdisc show" says (after noticing missing netconsole
-packets):
+http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg43480.html
 
-qdisc pfifo_fast 0: dev eth0 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
- Sent 155031 bytes 2067 pkt (dropped 0, overlimits 0 requeues 0) 
- backlog 0b 0p requeues 0 
+This is generating a lot of grief and appears to be unnecessarily
+strict. Common USB sticks with a MaxPower value just above 100mA, for
+instance, typically work fine on unpowered hubs supplying 100mA.
 
--- 
-Frank
+Is a more user-friendly solution possible? Could the shortfall
+information be passed to udev, which would allow rules to be written per
+device?
+
+David
+
+
+
+
+
+

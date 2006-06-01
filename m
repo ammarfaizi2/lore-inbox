@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWFAJmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWFAJna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWFAJmS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 05:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWFAJmS
+	id S932184AbWFAJna (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 05:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWFAJna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 05:42:18 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:4546 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750745AbWFAJmR (ORCPT
+	Thu, 1 Jun 2006 05:43:30 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:48535 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932184AbWFAJn3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 05:42:17 -0400
-Date: Thu, 1 Jun 2006 11:42:14 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Keith Chew <keith.chew@gmail.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: IO APIC IRQ assignment
-Message-ID: <20060601094214.GA14431@harddisk-recovery.com>
-References: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com> <20060530135017.GD5151@harddisk-recovery.com> <20f65d530605300705l60bfcca7k47a41c95bf42a0ef@mail.gmail.com> <Pine.LNX.4.61.0606010002200.30170@yvahk01.tjqt.qr> <20f65d530605311612n15820847sca559d0c443fc230@mail.gmail.com>
+	Thu, 1 Jun 2006 05:43:29 -0400
+Date: Thu, 1 Jun 2006 11:43:15 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "D. Hazelton" <dhazelton@enter.net>
+cc: Dave Airlie <airlied@gmail.com>, Jon Smirl <jonsmirl@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+In-Reply-To: <200605312115.44907.dhazelton@enter.net>
+Message-ID: <Pine.LNX.4.61.0606011140110.3533@yvahk01.tjqt.qr>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+ <200605282316.50916.dhazelton@enter.net> <Pine.LNX.4.61.0605312341240.30170@yvahk01.tjqt.qr>
+ <200605312115.44907.dhazelton@enter.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20f65d530605311612n15820847sca559d0c443fc230@mail.gmail.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 11:12:43AM +1200, Keith Chew wrote:
-> >>
-> >Plus
-> >CONFIG_X86_UP_APIC=y
-> >CONFIG_X86_UP_IOAPIC=y
-> >CONFIG_X86_LOCAL_APIC=y
-> >CONFIG_X86_IO_APIC=y
-> >
-> >but I guess you already have these.
-> >
-> 
-> Yes, I have these options enabled.
+>> As long as I can continue to use 80x25 or any of the "pure text modes"
+>> (vga=scan boot option says more) without loading any FB/DRM, I am satisfied
+>
+>Jan, I don't plan on forcing fbdev/DRM on anyone. My work is going to leave 
+>vgacon alone, and if my work at making DRM and FBdev cooperate goes as 
+>planned, those two will remain independant, though part of my work aims at 
+>having fbdev provide all 2D graphics acceleration for DRM while DRM handles 
+>the 3D stuff via the Mesa libraries or similar.
+>
+That sounds acceptable.
 
-Could you post a boot log?
+But current vesafb is slower, noticable with scrolling as in `ls -Rl /`.
+Does it lack 2D acceleration?
 
 
-Erik
-
+Jan Engelhardt
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

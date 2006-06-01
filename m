@@ -1,87 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWFAWOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWFAWPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWFAWOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWFAWOh
+	id S1750724AbWFAWPV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 18:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWFAWPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:14:37 -0400
-Received: from ns.dynamicweb.hu ([195.228.155.139]:40375 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1750712AbWFAWOg (ORCPT
+	Thu, 1 Jun 2006 18:15:20 -0400
+Received: from tornado.reub.net ([202.89.145.182]:36780 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1750724AbWFAWPS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:14:36 -0400
-Message-ID: <01ed01c685c8$b46ec6f0$1800a8c0@dcccs>
-From: "Janos Haar" <djani22@netcenter.hu>
-To: "Nathan Scott" <nathans@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
-References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs> <20060527234350.GA13881@voodoo.jdc.home> <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com> <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs> <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu> <1149038431.21827.20.camel@localhost.localdomain> <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs> <20060602075826.B530100@wobbly.melbourne.sgi.com>
-Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen 64bit linux)
-Date: Fri, 2 Jun 2006 00:14:04 +0200
+	Thu, 1 Jun 2006 18:15:18 -0400
+Message-ID: <447F66F0.2050402@reub.net>
+Date: Fri, 02 Jun 2006 10:15:12 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org, htejun@gmail.com,
+       jeff@garzik.org, jbeulich@novell.com
+Subject: Re: 2.6.17-rc5-mm2
+References: <20060601014806.e86b3cc0.akpm@osdl.org>	<447EB4AD.4060101@reub.net>	<20060601025632.6683041e.akpm@osdl.org>	<447EBD46.7010607@reub.net>	<20060601103315.GA1865@elte.hu>	<20060601105300.GA2985@elte.hu>	<20060601112551.GA5811@elte.hu>	<447ED6A2.5000107@reub.net> <20060601092247.8ccc2c49.akpm@osdl.org>
+In-Reply-To: <20060601092247.8ccc2c49.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----- Original Message ----- 
-From: "Nathan Scott" <nathans@sgi.com>
-To: "Janos Haar" <djani22@netcenter.hu>
-Cc: <linux-kernel@vger.kernel.org>; <linux-xfs@oss.sgi.com>
-Sent: Thursday, June 01, 2006 11:58 PM
-Subject: Re: XFS related hang (was Re: How to send a break? - dump from
-frozen 64bit linux)
+On 2/06/2006 4:22 a.m., Andrew Morton wrote:
+> On Thu, 01 Jun 2006 23:59:30 +1200
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> 
+>> Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+>>   [<0000000000000000>]
+> 
+> Seems that a fix got lost.  Please add this:
+> 
+> 
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> This is a fixed up and cleaned up replacement for genirq-msi-fixes.patch,
+> which should solve the i386 4KSTACKS problem.  I also added Ben's idea of
+> pushing the __do_IRQ() check into generic_handle_irq().
 
+Indeed, that fixes it and -rc5-mm2 is now up and running.
 
-> On Wed, May 31, 2006 at 10:00:33AM +0200, Janos Haar wrote:
-> >
-> > Hey, i think i found something.
-> > My quota on my huge device is broken.
-> > (inferno   -- 18014398504855404       0       0
-18446744073709551519
-> > 0     0)
->
-> Hmm, that is interesting.  I guess you don't know whether this
-> accounting problem happened before you rebooted or whether it
-> only just got this way (after journal recovery)?
-
-In my system, this huge device is difficult.
-I often need to reboot, and run xfs_repair, to make it clean. (nodes hangs,
-reboots, etc...)
-On the beginning, i use the xfs_repair without any options, but it requires
-to do a mount/umount the mtp before.
-The problem is, i often get an error message, (dump) during the journal
-recovery, and after i cannot run the xfs_repair from script, because it
-needs the log done by mount.
-Now is my default reboot option is xfs_repair -L, so i dont know, this
-happens before, or after, sorry.
-
-
->
-> > I cant found a way to re-initialize it.
-> > But anyway, at this point i dont need it, trying to disable the quota
-usage.
-> > We will see....
->
-> Jan's recipe was spot on, do that.
-
-The qouta stop solves the hangs problem.
-This is a bug?
-
-Cheers,
-Janos
-
->
-> cheers.
->
-> -- 
-> Nathan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks,
+Reuben
 

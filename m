@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWFAO3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWFAOoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWFAO3W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 10:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWFAO3V
+	id S1751003AbWFAOoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 10:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWFAOoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 10:29:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45536 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750992AbWFAO3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 10:29:21 -0400
-Subject: Re: PROBLEM: BAD RAM SIZE DETECTION ON DELL POWER EDGE SC420
-From: Arjan van de Ven <arjan@infradead.org>
-To: cyril canovas <cyril@egnx.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606011621.07881.cyril@egnx.com>
-References: <200606011621.07881.cyril@egnx.com>
-Content-Type: text/plain
-Date: Thu, 01 Jun 2006 16:29:19 +0200
-Message-Id: <1149172159.3115.64.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 1 Jun 2006 10:44:34 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:54029 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750951AbWFAOod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 10:44:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=n8A881ihX3HJ0jbeI2IZ5/YHmyDn0vPjFzGtD5s9TX0ClNYxTYDtBXXcBSjjtG/h2wy2zyfTa/xMgRa6Y82UOuLNXm2Yrj6rUbOSRFm2A/cUTWMXpNTK5fHVwAZ5WyHNC+B3O2Tn8PFCceFnOyCEa+adewgpuhH2/Ni6LlFdbC8=
+Date: Thu, 1 Jun 2006 16:42:41 +0200
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       yi.zhu@intel.com, jketreno@linux.intel.com
+Subject: [patch mm1-rc2] lock validator: netlink.c netlink_table_grab fix
+Message-ID: <20060601144241.GA952@slug>
+References: <20060529212109.GA2058@elte.hu> <20060530091415.GA13341@ens-lyon.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060530091415.GA13341@ens-lyon.fr>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 30, 2006 at 11:14:15AM +0200, Benoit Boissinot wrote:
+> On 5/29/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >We are pleased to announce the first release of the "lock dependency
+> >correctness validator" kernel debugging feature, which can be downloaded
+> >from:
+> >
+> >  http://redhat.com/~mingo/lockdep-patches/
+> >[snip]
+> 
+> I get this right after ipw2200 is loaded (it is quite verbose, I
+> probably shoudln't post everything...)
+> 
+This got rid of the oops for me, is it the right fix?
 
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 00000000d768cc00 (usable)
-
-and ...
->  BIOS-e820: 00000000d768cc00 - 00000000d768ec00 (ACPI NVS)
->  BIOS-e820: 00000000d768ec00 - 00000000d7690c00 (ACPI data)
->  BIOS-e820: 00000000d7690c00 - 00000000d8000000 (reserved)
->  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
->  BIOS-e820: 00000000fec00000 - 00000000fed00400 (reserved)
->  BIOS-e820: 00000000fed20000 - 00000000feda0000 (reserved)
->  BIOS-e820: 00000000fee00000 - 00000000fef00000 (reserved)
->  BIOS-e820: 00000000ffb00000 - 0000000100000000 (reserved)
-... this is where your memory is going. The bios seems to have reserved
-it in part for itself, and in part for PCI mmio space...
-(which is required to have pci at all). Some machines remap this
-quarter-to-half a gig (half on your machine) to above the 4Gb mark.
-Your machine does not.
-
-
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+--- /usr/src/linux/net/netlink/af_netlink.c	2006-05-24 14:58:38.000000000 +0200
++++ net/netlink/af_netlink.c	2006-06-01 16:36:51.000000000 +0200
+@@ -157,7 +157,7 @@ static void netlink_sock_destruct(struct
+ 
+ static void netlink_table_grab(void)
+ {
+-	write_lock_bh(&nl_table_lock);
++	write_lock_irq(&nl_table_lock);
+ 
+ 	if (atomic_read(&nl_table_users)) {
+ 		DECLARE_WAITQUEUE(wait, current);
+@@ -167,9 +167,9 @@ static void netlink_table_grab(void)
+ 			set_current_state(TASK_UNINTERRUPTIBLE);
+ 			if (atomic_read(&nl_table_users) == 0)
+ 				break;
+-			write_unlock_bh(&nl_table_lock);
++			write_unlock_irq(&nl_table_lock);
+ 			schedule();
+-			write_lock_bh(&nl_table_lock);
++			write_lock_irq(&nl_table_lock);
+ 		}
+ 
+ 		__set_current_state(TASK_RUNNING);
+@@ -179,7 +179,7 @@ static void netlink_table_grab(void)
+ 
+ static __inline__ void netlink_table_ungrab(void)
+ {
+-	write_unlock_bh(&nl_table_lock);
++	write_unlock_irq(&nl_table_lock);
+ 	wake_up(&nl_table_wait);
+ }
+ 
 

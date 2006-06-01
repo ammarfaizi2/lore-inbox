@@ -1,108 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbWFALGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbWFALZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965096AbWFALGv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 07:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWFALGv
+	id S965078AbWFALZp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 07:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbWFALZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 07:06:51 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:36328 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S965074AbWFALGu (ORCPT
+	Thu, 1 Jun 2006 07:25:45 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:60593 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965078AbWFALZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 07:06:50 -0400
-Date: Thu, 1 Jun 2006 15:06:26 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: "Brian F. G. Bidulock" <bidulock@openss7.org>
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060601110625.GA15069@2ka.mipt.ru>
-References: <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <20060601001825.A21730@openss7.org> <20060601063012.GC28087@2ka.mipt.ru> <20060601004608.C21730@openss7.org> <20060601070136.GA754@2ka.mipt.ru> <20060601011125.C22283@openss7.org> <20060601083805.GB754@2ka.mipt.ru> <20060601042457.B25584@openss7.org>
+	Thu, 1 Jun 2006 07:25:44 -0400
+Date: Thu, 1 Jun 2006 13:25:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Tejun Heo <htejun@gmail.com>, Jeff Garzik <jeff@garzik.org>,
+       Jan Beulich <jbeulich@novell.com>
+Subject: Re: 2.6.17-rc5-mm2
+Message-ID: <20060601112551.GA5811@elte.hu>
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EB4AD.4060101@reub.net> <20060601025632.6683041e.akpm@osdl.org> <447EBD46.7010607@reub.net> <20060601103315.GA1865@elte.hu> <20060601105300.GA2985@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060601042457.B25584@openss7.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 01 Jun 2006 15:06:28 +0400 (MSD)
+In-Reply-To: <20060601105300.GA2985@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 04:24:57AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
-> For purely random numbers you could amplify thermal noise off an
-> open transitor junction (the audiofile's white noise generator)
-> and feed it into an analog to digital converter.
 
-It is also possible to look into window and count how many times sun
-hides and shines... It is quite cloudy in Moscow though.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-As Acrypto asynchronous crypto layer author I can use different hardware
-crypto accelerators, but it is a topic for another discussion.
-
+> > * Reuben Farrelly <reuben-lkml@reub.net> wrote:
 > > 
-> > I've run it with following source ip/port selection algo:
-> > 	if (++sport == 0) {
-> > 		saddr++;
-> > 		sport++;
-> > 	}
+> > > >A .config would be useful too.
+> > > 
+> > > Now up at 
+> > > http://www.reub.net/files/kernel/configs/2.6.17-rc5-mm2-x86_64.confg
 > > 
-> > Starting IP was 1.1.1.1 and sport was 1.
-> > Destination IP and port are the same 192.168.0.1:80
-> > 
-> > Jenkins hash started to show different behaviour:
-> > it does not have previous artefacts, but instead it's dispersion is
-> > _much_ wider than in XOR case.
+> > hm, i cannot reproduce the stack backtrace secondary crash with your 
+> > config. Weird.
 > 
-> Aha!  But perhaps this is too easy a data set.  HTTP clients typically
-> dynamically allocate port numbers within a range and source address
-> are typically not less than a certain value.  That is why I suggested
-> something like:
+> ah, managed to reproduce it!
 > 
->        sport = 10000;
->        saddr = 0x0a000000;  /* 10.0.0.0 */
-> 
->        ...
-> 
->        if (++sport == 16000) {
-> 	       sport = 10000;
-> 	       saddr++;
->        }
-> 
-> If this shows artifacts worse than XOR then more realistic gaps in the
-> input values will cause artifacts.
+> Jan, the dwarf2 unwinder apparently fails if we call a NULL function. 
 
-Specially for you :)
-It does not have artifacts, but it's dispersion is wider than XOR one.
-_Much_ wider, which tends to creation of some specially crafted source
-distribution which ends up in totally broken fairness.
-As usual folded and not folded versions behave exactly the same.
+Reuben, the workaround would be to disable CONFIG_STACK_UNWIND.
 
-> > With following ip/port selection algo:
-> > 	if (++sport == 0) {
-> > 		//saddr++;
-> > 		sport += 123;
-> > 	}
-> > 
-> > I see yet another jenkins artefacts, but again different from previous
-> > two.
-> 
-> Adding primes.  Again, the arithmetic series of primes might auto-correlate
-> with the Jenkins function.  Or it plain might not like gaps.
->
-
-I want to confirm three things and one state:
-1. Jenkins hash has some unacceptible artefacts in some source
-address/port distributions, no matter if it has some law embedded or it
-is (pseudo)-random set. 
-
-If there are bugs, bugs exist.
-
-2. If it does not have artifacts it has unacceptible dispersion.
-
-3. It is 3 times slower than XOR one (28 seconds for XOR for 2^29
-iterations vs. 101 seconds jhash nonfolded and 109 jhash folded on my AMD64
-3500+ 2.2 Ghz desktop).
-
-4. I believe it can be tuned or has some gaps inside refactoring logic,
-which can be fixed, but as is it can not be used for fair hash creation.
-
--- 
-	Evgeniy Polyakov
+	Ingo

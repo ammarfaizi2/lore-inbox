@@ -1,91 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWFANDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWFANRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWFANDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 09:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWFANDo
+	id S964895AbWFANRV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 09:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWFANRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 09:03:44 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38108 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750916AbWFANDn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 09:03:43 -0400
-Message-ID: <447EE5A4.7050201@fr.ibm.com>
-Date: Thu, 01 Jun 2006 15:03:32 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, arjan@infradead.org
-Subject: Re: 2.6.17-rc5-mm2 link issues on s390
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-In-Reply-To: <20060601014806.e86b3cc0.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 09:17:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23557 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964895AbWFANRV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 09:17:21 -0400
+Date: Thu, 1 Jun 2006 15:19:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mason@suse.com,
+       andrea@suse.de, hugh@veritas.com
+Subject: NCQ performance (was Re: [rfc][patch] remove racy sync_page?)
+Message-ID: <20060601131921.GH4400@suse.de>
+References: <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447CF252.7010704@rtr.ca> <20060531061110.GB29535@suse.de> <447D923B.1080503@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447D923B.1080503@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, May 31 2006, Mark Lord wrote:
+> Jens Axboe wrote:
+> >
+> >NCQ helps us with something we can never fix in software - the
+> >rotational latency. Ordering is only a small part of the picture.
+> 
+> Yup.  And it also helps reduce the command-to-command latencies.
+> 
+> I'm all for it, and have implemented tagged queuing for a variety
+> of device drivers over the past five years (TCQ & NCQ).  In every
+> case people say.. wow, I expected more of a difference than that,
+> while still noting the end result was faster under Linux than MS$.
+> 
+> Of course with artificial benchmarks, and the right firmware in
+> the right drives, it's easier to create and see a difference.
+> But I'm talking more life-like loads than just a multi-threaded
+> random seek generator.
 
-here are small link issues on s390.
+Ok, I decided to rerun a simple random read work load (with fio), using
+depths 1 and 32. The test is simple - it does random reads all over the
+drive size with 4kb block sizes. The reads are O_DIRECT. The test
+pattern was set to repeatable, so it's going through the same workload.
+The test spans the first 32G of the drive and runtime is capped at 20
+seconds.
 
-  ...
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-init/built-in.o(.init.text+0x564): In function `start_kernel':
-: undefined reference to `early_init_irq_lock_type'
-lib/built-in.o(.text+0xaf6): In function `__iowrite64_copy':
-: undefined reference to `__raw_writeq'
-make: *** [.tmp_vmlinux1] Error 1
+Now of course this is truly an artificial work load, however it's still
+interesting from the POV of what NCQ can potentially do for you. If you
+want something specific run, let me know and I can quickly do so (eg
+write through cache random writes).
 
+sda:    Maxtor 7B300S0
+sdb:    Maxtor 7L320S0
+sdc:    SAMSUNG HD160JJ
+sdd:    HDS725050KLA360 (Hitachi 500GB drive)
 
-I think the early_init_irq_lock_type() undef is related to the
-lock-validator patch. Shall I just :
+drive           depth           KiB/sec         diff
+----------------------------------------------------
+sda              1              397
+sda             32              685             +72%
+sdb              1              397
+sdb             32              525             +32%
+sdc              1              372
+sdc             32              511             +37%
+sdd              1              489
+sdd             32              942             +92%
 
---- 2.6.17-rc5-mm2.orig/init/main.c
-+++ 2.6.17-rc5-mm2/init/main.c
-@@ -473,7 +473,9 @@
+fio file used, modify depth and device name, of course:
 
-        local_irq_disable();
-        early_boot_irqs_off();
-+#ifdef CONFIG_GENERIC_HARDIRQS
-        early_init_irq_lock_type();
-+#endif
+[/dev/sdd]
+size=32g
+ioengine=libaio
+iodepth=32
+rw=randread
+bs=4k
+timeout=20
+direct=1
 
-
-too easy ... the lock-validator should be ported to s390 I guess. What are
-the steps to follow ?
-
-As for the `__iowrite64_copy', shall we :
-
-#define writeq(b,addr) (*(volatile unsigned long *) __io_virt(addr) = (b))
-#define __raw_writeq writeq
-
-For the moment, it boots but I'd like to make sure i'm in the right
-direction before sending patches. However, the following one is safe and
-fixes a very small compil issue on s390 in klibc.
-
-thanks,
-
-C.
-
---
- usr/klibc/arch/s390/mmap.c |    1 +
- 1 files changed, 1 insertion(+)
-
-Index: 2.6.17-rc5-mm2/usr/klibc/arch/s390/mmap.c
-===================================================================
---- 2.6.17-rc5-mm2.orig/usr/klibc/arch/s390/mmap.c
-+++ 2.6.17-rc5-mm2/usr/klibc/arch/s390/mmap.c
-@@ -1,5 +1,6 @@
- #include <sys/types.h>
- #include <linux/unistd.h>
-+#include <errno.h>
-
- struct mmap_arg_struct {
-        unsigned long addr;
+-- 
+Jens Axboe
 

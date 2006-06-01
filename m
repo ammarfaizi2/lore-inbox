@@ -1,79 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWFAPcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWFAPgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWFAPcW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 11:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWFAPcW
+	id S1030204AbWFAPgV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWFAPgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 11:32:22 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:25269 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030198AbWFAPcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 11:32:21 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=Dtt6bB6d3p+vTGsSnDnE0nEpKab7J4SZ8mmg0JnyI5hlIgJPs7RYfQZcC6nNqhejJ
-	pejZx1IKT0Ed/QFBEJxoA==
-Message-ID: <447F084C.9070201@google.com>
-Date: Thu, 01 Jun 2006 08:31:24 -0700
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Thu, 1 Jun 2006 11:36:21 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:18498 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030204AbWFAPgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:36:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=uE9JEiohsTRMWxW5q5Fasq7bIM0sEOeDtAhLp1tqg5bZMGRPCY6Gaqk5nRA00aCvLUDR4Daj7uJihxVacX5nUvlfkk8ujfx4Rn54eSanuMPXmK5ShWzJTmAEOHyeEVR+8nj1KuN+eFfa65jjZvJKJyBN8bIAyOAh1P6ewtndBL0=
+Message-ID: <447F0905.8020600@gmail.com>
+Date: Thu, 01 Jun 2006 17:34:06 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org> <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com> <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com> <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home> <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0606011659030.32445@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       scjody@modernduck.com, bcollins@debian.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: 2.6.17-rc5-mm2
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+In-Reply-To: <20060601014806.e86b3cc0.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
+Andrew Morton napsal(a):
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
 > 
-> On Thu, 1 Jun 2006, Martin J. Bligh wrote:
-> 
-> 
->>That doesn't seem to cover what we talked about clearly at all ?
->>I suppose the _ALL stuff is meant to cover stuff with overhead,
->>but frankly, what Ingo did seemed much clearer to me.
-> 
-> 
-> It just didn't make much sense, a config option only to configure the 
-> default value of unseen values?
-> If we have too many debug options, I don't mind to hide them behind an 
-> advanced config option, but their default values should not differ between 
-> their visible and hidden state, so that the user sees the real values when 
-> he enables the advanced option.
-> A config option which only configures the default values is much less 
-> useful, in an already configured kernel it's completely useless to an user 
-> who only wants to enable some runtime checks and unless he reads the help 
-> text _carefully_, he might even think that he just enabled some runtime 
-> checks. 
+Hello,
 
-Did you read the discussion that lead up to it? I thought that quite
-clearly described why such a thing was needed.
+just another locking bug, I wonder if this wasn't discussed yet, but I can't
+find it.
 
-Config options need to clearly distinguish what they're for, or people
-will screw them up ... given:
+============================
+[ BUG: illegal lock usage! ]
+----------------------------
+illegal {hardirq-on-W} -> {in-hardirq-R} usage.
+events/0/8 [HC1[1]:SC0[0]:HE0:SE1] takes:
+ (hl_irqs_lock){--+.}, at: [<f88e4e09>] highlevel_host_reset+0x15/0x63 [ieee1394]
+{hardirq-on-W} state was registered at:
+  [<c013e3af>] lockdep_acquire+0x59/0x6e
+  [<c03a982c>] _write_lock+0x3e/0x4c
+  [<f88e5772>] hpsb_register_highlevel+0xe1/0x123 [ieee1394]
+  [<f88e5fd1>] init_csr+0x2f/0x46 [ieee1394]
+  [<f883a1a8>] 0xf883a1a8
+  [<c0144e9a>] sys_init_module+0x151/0x1c97
+  [<c03aa13b>] syscall_call+0x7/0xb
+irq event stamp: 380
+hardirqs last  enabled at (379): [<c03aa183>] restore_nocheck+0x12/0x15
+hardirqs last disabled at (380): [<c01038df>] common_interrupt+0x1b/0x2c
+softirqs last  enabled at (0): [<c011f8c1>] copy_process+0x577/0x157e
+softirqs last disabled at (0): [<00000000>] 0x0
 
-config DEBUG_RUNTIME_CHECKS
-	bool "Enable runtime debug checks"
+other info that might help us debug this:
+no locks held by events/0/8.
 
-config DEBUG_RUNTIME_CHECKS_ALL
-	bool "Enable all runtime debug checks"
-	depends on DEBUG_RUNTIME_CHECKS
+stack backtrace:
+ [<c0103f56>] show_trace+0x1b/0x1d
+ [<c0104694>] dump_stack+0x26/0x28
+ [<c013c1f4>] print_usage_bug+0x22a/0x234
+ [<c013cc24>] mark_lock+0x565/0x6b0
+ [<c013d748>] __lockdep_acquire+0x3b8/0xc3b
+ [<c013e3af>] lockdep_acquire+0x59/0x6e
+ [<c03a94a3>] _read_lock+0x3e/0x4c
+ [<f88e4e09>] highlevel_host_reset+0x15/0x63 [ieee1394]
+ [<f88e27f3>] hpsb_selfid_complete+0x222/0x2fe [ieee1394]
+ [<f895fe83>] ohci_irq_handler+0x705/0x9d2 [ohci1394]
+ [<c014b30d>] handle_IRQ_event+0x31/0x65
+ [<c014c52f>] handle_fasteoi_irq+0x6f/0xc8
+ [<c0105b3a>] do_IRQ+0x61/0x87
+ =======================
+ [<c01038e9>] common_interrupt+0x25/0x2c
+ [<f895bb65>] set_phy_reg+0x94/0x107 [ohci1394]
+ [<f895c488>] ohci_devctl+0x43a/0x651 [ohci1394]
+ [<f88e2034>] hpsb_reset_bus+0x34/0x38 [ieee1394]
+ [<f88e43bc>] delayed_reset_bus+0xa5/0xf3 [ieee1394]
+ [<c01333b7>] run_workqueue+0x7e/0xf5
+ [<c0133fd5>] worker_thread+0x130/0x14b
+ [<c0136f47>] kthread+0xc5/0xea
+ [<c0101005>] kernel_thread_helper+0x5/0xb
 
-... how is either the user meant to know under which of these to find
-things, or the coder introducing a new feature supposed to know where
-to put stuff? They're not very descriptive.
 
-Please can we have a more constructive discussion that "it's wrong,
-nack" ?
-
-M.
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

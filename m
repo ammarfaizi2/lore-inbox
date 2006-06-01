@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWFAVkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWFAVkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWFAVkT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWFAVkT
+	id S1751005AbWFAVkO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWFAVkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:40:19 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:54371 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750960AbWFAVkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:40:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ZnNlDRt3BcilNoYhXBrd4KNPhD+sxTuSni3Q515Mrs0VfAMCGw929zbiVTiteTpZEujgxlvvzsQUEeOKM/TSY7RrYidiL0hP3Tw/ac7NXkbV+DfDZTvsOBBl6gkGC4fCg7fElDuVNlftHiDDrzZ5JTKjumBAZC+RDwSc0ta0Cmo=
-Message-ID: <447F5EA7.7020300@gmail.com>
-Date: Fri, 02 Jun 2006 05:39:51 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: "D. Hazelton" <dhazelton@enter.net>, Dave Airlie <airlied@gmail.com>,
-       Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605282316.50916.dhazelton@enter.net> <Pine.LNX.4.61.0605312341240.30170@yvahk01.tjqt.qr> <200605312115.44907.dhazelton@enter.net> <Pine.LNX.4.61.0606011140110.3533@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0606011140110.3533@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 17:40:14 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:35203 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750821AbWFAVkL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 17:40:11 -0400
+Date: Thu, 1 Jun 2006 15:40:14 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Why must NFS access metadata in synchronous mode?
+Message-ID: <20060601214014.GI5964@schatzie.adilger.int>
+Mail-Followup-To: Xin Zhao <uszhaoxin@gmail.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-fsdevel@vger.kernel.org
+References: <4ae3c140605312104m441ca006j784a93354456faf8@mail.gmail.com> <1149141341.13298.21.camel@lade.trondhjem.org> <4ae3c140606010927t308e7d6ag5a9fc112c859aa45@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ae3c140606010927t308e7d6ag5a9fc112c859aa45@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>> As long as I can continue to use 80x25 or any of the "pure text modes"
->>> (vga=scan boot option says more) without loading any FB/DRM, I am satisfied
->> Jan, I don't plan on forcing fbdev/DRM on anyone. My work is going to leave 
->> vgacon alone, and if my work at making DRM and FBdev cooperate goes as 
->> planned, those two will remain independant, though part of my work aims at 
->> having fbdev provide all 2D graphics acceleration for DRM while DRM handles 
->> the 3D stuff via the Mesa libraries or similar.
->>
-> That sounds acceptable.
-> 
-> But current vesafb is slower, noticable with scrolling as in `ls -Rl /`.
-> Does it lack 2D acceleration?
+On Jun 01, 2006  12:27 -0400, Xin Zhao wrote:
+> > Question 3: Cache consistency requirements are _much_ more stringent
+> > for asynchronous operation.
+> I agree. But I am not sure how local file system like Ext3 handle this
+> problem. I don't think Ext3 must synchronously write metadata (I will
+> double check the ext3 code). If I remember correctly, when change
+> metadata, Ext3 just change it in memory and mark this page to be
+> dirty. The page will be flushed to disk afterward. If the server
+> exports an Ext3 code, it should be able to do the same thing. When a
+> client requests to change metadata, server writes to the mmaped
+> metadata page and then return to client instead of having to sync the
+> change to disk. With this mechanism, at least the client does not have
+> to wait for the disk flush time. Does it make sense? To prevent
+> interleave change on metadata before it is flushed to disk, the server
+> can even mark the metadata page to be read-only before it is flushed
+> to disk.
 
-No, vesafb does not support console acceleration.
+The difference between local filesystems and remote filesystems is that
+if asynchronous operations on a local filesystem are lost due to node
+failure, the application is also generally failed at the same time,
+so when the node restarts the application it gets the old state from disk.
+If applications care about on-disk consistency (say because the application
+is itself sharing state with a remote system, like sendmail) then it will
+fsync the file(s) before updating the remote state.
 
-If you use x86_32, adding video=vesafb:ypan,mtrr:3 in your boot option will
-help.  Also using the lowest color depth will also help.
+In the NFS case, a remote client keeps the "new" state, which is inconsistent
+with what the server has on disk (if server is running asynchronously) so
+there is no way to reconcile this.  In the case of Lustre the clients are
+stateful and keep a record of all operations they do (until the server later
+confirms that it is safe on disk).  In case of server failure the clients
+replay uncommitted operations to the server after a failure.  This allows
+the server filesystem to run asynchronously.
 
-Tony 
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

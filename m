@@ -1,76 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbWFAURJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWFAUTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbWFAURJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 16:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965290AbWFAURJ
+	id S1030276AbWFAUTU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 16:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWFAUTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 16:17:09 -0400
-Received: from ns2.suse.de ([195.135.220.15]:51110 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965121AbWFAURI (ORCPT
+	Thu, 1 Jun 2006 16:19:19 -0400
+Received: from gw.goop.org ([64.81.55.164]:29377 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S965295AbWFAUTS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 16:17:08 -0400
-From: Chris Mason <mason@suse.com>
-To: Olaf Hering <olh@suse.de>
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Date: Thu, 1 Jun 2006 16:17:01 -0400
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-References: <20060529214011.GA417@suse.de> <20060530182453.GA8701@suse.de> <20060601184938.GA31376@suse.de>
-In-Reply-To: <20060601184938.GA31376@suse.de>
+	Thu, 1 Jun 2006 16:19:18 -0400
+Message-ID: <447F4BC2.8060808@goop.org>
+Date: Thu, 01 Jun 2006 13:19:14 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Jens Axboe <axboe@suse.de>
+CC: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hannes Reinecke <hare@suse.de>, linux-ide@vger.kernel.org
+Subject: Re: State of resume for AHCI?
+References: <447F23C2.8030802@goop.org> <447F3250.5070101@rtr.ca> <20060601183904.GR4400@suse.de>
+In-Reply-To: <20060601183904.GR4400@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606011617.03166.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 June 2006 14:49, Olaf Hering wrote:
-> This script will cause cramfs decompression errors, on SMP at least:
->
-> #!/bin/bash
-> while :;do blockdev --flushbufs /dev/loop0;done </dev/null &>/dev/null&
-> while :;do ps faxs  </dev/null &>/dev/null&done </dev/null &>/dev/null&
-> while :;do dmesg    </dev/null &>/dev/null&done </dev/null &>/dev/null&
-> while :;do find /mounts/instsys -type f -print0|xargs -0 cat
-> &>/dev/null;done
+Jens Axboe wrote:
+> It's a lot more complicated than that, I'm afraid. ahci doesn't even
+> have the resume/suspend methods defined, plus it needs more work than
+> piix on resume.
+>   
+Hannes Reinecke's patch implements those functions, basically by 
+factoring out the shutdown and init code and calling them at 
+suspend/resume time as well.
 
-It looks as though:
+Is that correct/sufficient?  Or should something else be happening?
 
-* cramfs_readpage is synchronous
-* cramfs_readpage always returns an up to date page
-* cramfs data doesn't change
-* read_cache_page as called by cramfs will always return a page that was 
-up to date at one time, or an error.
-
-I think this will work (but have not tested it).  Another option is to create 
-a read_cache_page that pins the page via a page flag 
-that invalidate_mapping_pages will honor.
-
--chris
-
-diff -r a1a07af2d0cd fs/cramfs/inode.c
---- a/fs/cramfs/inode.c	Thu Jun 01 10:45:04 2006 -0400
-+++ b/fs/cramfs/inode.c	Thu Jun 01 15:04:39 2006 -0400
-@@ -190,18 +190,6 @@ static void *cramfs_read(struct super_bl
- 		pages[i] = page;
- 	}
- 
--	for (i = 0; i < BLKS_PER_BUF; i++) {
--		struct page *page = pages[i];
--		if (page) {
--			wait_on_page_locked(page);
--			if (!PageUptodate(page)) {
--				/* asynchronous error */
--				page_cache_release(page);
--				pages[i] = NULL;
--			}
--		}
--	}
--
- 	buffer = next_buffer;
- 	next_buffer = NEXT_BUFFER(buffer);
- 	buffer_blocknr[buffer] = blocknr;
-
+    J

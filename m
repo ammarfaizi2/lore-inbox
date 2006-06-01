@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965306AbWFAVHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965309AbWFAVKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965306AbWFAVHp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965308AbWFAVHp
+	id S965309AbWFAVKW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbWFAVKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:07:45 -0400
-Received: from dvhart.com ([64.146.134.43]:32659 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965306AbWFAVHo (ORCPT
+	Thu, 1 Jun 2006 17:10:22 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42157 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965310AbWFAVKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:07:44 -0400
-Message-ID: <447F571D.6000000@mbligh.org>
-Date: Thu, 01 Jun 2006 14:07:41 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "Martin J. Bligh" <mbligh@google.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org> <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com> <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com> <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home> <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home> <447F084C.9070201@google.com> <Pine.LNX.4.64.0606011742500.32445@scrub.home> <447F1BE4.5040705@mbligh.org> <Pine.LNX.4.64.0606012200260.32445@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0606012200260.32445@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 17:10:21 -0400
+Date: Thu, 1 Jun 2006 14:07:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>, Bernhard Kaindl <bk@suse.de>
+Cc: Miles Lane <miles.lane@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm2 -- PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#02) (try 'pci=assign-busses')
+Message-ID: <20060601210754.GA18548@kroah.com>
+References: <a44ae5cd0606010752n637c6411l805115f8170f0ebb@mail.gmail.com> <20060601095335.c778bc98.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060601095335.c778bc98.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, if you don't want to enable a number of options, it's still better 
-> to hide them completely. There are number of options by reorganizing the 
-> debug menu a little, it only depends if we're talking here are about a -mm 
-> only crutch or something which might be useful to more than a handful of 
-> people. A few extra config options are not really a problem as long as 
-> they are logically grouped together (instead of having to enable random 
-> options all over the place).
+On Thu, Jun 01, 2006 at 09:53:35AM -0700, Andrew Morton wrote:
+> On Thu, 1 Jun 2006 10:52:26 -0400
+> "Miles Lane" <miles.lane@gmail.com> wrote:
+> 
+> > ACPI: setting ELCR to 0200 (from 0c38)
+> > PM: Adding info for No Bus:platform
+> > NET: Registered protocol family 16
+> > ACPI: bus type pci registered
+> > PCI: PCI BIOS revision 2.10 entry at 0xfd9c2, last bus=2
+> > Setting up standard PCI resources
+> > ACPI: Subsystem revision 20060310
+> > ACPI: Interpreter enabled
+> > ACPI: Using PIC for interrupt routing
+> > PM: Adding info for acpi:acpi
+> > ACPI: PCI Root Bridge [PCI0] (0000:00)
+> > PCI: Probing PCI hardware (bus 00)
+> > PM: Adding info for No Bus:pci0000:00
+> > Boot video device is 0000:00:02.0
+> > PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
+> > PCI quirk: region 1180-11bf claimed by ICH4 GPIO
+> > PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+> > PCI: Transparent bridge - 0000:00:1e.0
+> > PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#02)
+> > (try 'pci=assign-busses')
+> > Please report the result to linux-kernel to fix this permanently
+> 
+> I guess you're supposed to try 'pci=assign-busses'.
+> 
+> Does the machine work OK without pci=assign-busses?
+> 
+> Does the machine work OK with pci=assign-busses?
+> 
+> Greg, what are we supposed to be doing here?  Grab the PCI IDs and add a
+> quirk somewhere?
 
-How is the user meant to know which of your config options a particular
-option is hidden under?
+Not quite sure.  Bernhard, this was caused by your patch.  Any thoughts
+as to what should be done?
 
-Same question for the developer as to where to put it?
+thanks,
 
-Seems there are two isses - whether the naming is meaningful or not,
-and whether you want to hide options under other options,or just flip
-defaults ... does that sound correct?
-
-M.
+greg k-h

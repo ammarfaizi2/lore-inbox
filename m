@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWFARSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWFARWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbWFARSe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWFARSe
+	id S1030251AbWFARWR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 13:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWFARWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:18:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49027 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964920AbWFARSe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:18:34 -0400
-Date: Thu, 1 Jun 2006 10:22:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: gregkh@suse.de, mingo@elte.hu, arjan@linux.intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2
-Message-Id: <20060601102234.4f7a9404.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	<6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Jun 2006 13:22:17 -0400
+Received: from naig.caltech.edu ([131.215.239.125]:35968 "EHLO
+	naig.caltech.edu") by vger.kernel.org with ESMTP id S1030251AbWFARWQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 13:22:16 -0400
+Message-ID: <064201c6859f$fd544350$0a01a8c0@miko8tzb5d2xxz>
+From: "Flora Fisher" <kathleenlsgwkk@yourdictionary.com>
+To: <mlist-linux-kernel@nntp-server.caltech.edu>
+Subject: Dont know how to get a lower rate? I do!
+Date: Thu, 1 Jun 2006 17:22:42 +0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+     format=flowed;
+     charset="iso-8859-1";
+     reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jun 2006 17:51:16 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+Life Should be Full of Luxuries....
 
-> Hi,
-> 
-> On 01/06/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
-> >
-> 
-> I don't know why, but first bug appears only when avahi-daemon is
-> started. Second look like a problem with my camera.
-> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_1.jpg
+http://newgunforsalejoke.com/
 
-For some reason the lockdep code expected that hardirqs would be enabled.
+Yet, only a handful of people can afford the finest products, the luxuries of the elite.
+But, here at "Luxury Replica" we are committed to bringing you the finest products, at prices incomparably lower.
+All of the top designer brands for Watches, Ties, Handbags and even Mont Blanc.
 
-> http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_2.jpg
+http://blessthathomepleasee.com/
 
-So it's claiming that we're taking multiple i_mutexes.
+The finest of products, at the lowest of prices, only a click away:
 
-I can't immediately see where we took the outermost i_mutex there.  Nor is
-it immediately obvious why this is considered to be deadlockable?
+http://newgunforsalejoke.com/
 
-(lockdep tells us that a mutex was taken at "mutex_lock+0x8/0xa", which is
-fairly useless.  We need to report who the caller of mutex_lock() was).
-
-> Here is config http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/mm-config
+Regards,
+Flora Fisher
 

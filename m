@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965301AbWFAVE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965303AbWFAVEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965301AbWFAVE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965303AbWFAVE2
+	id S965303AbWFAVEe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:04:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965304AbWFAVEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:04:28 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57555 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965301AbWFAVE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:04:27 -0400
-Date: Thu, 1 Jun 2006 23:04:04 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Martin Bligh <mbligh@mbligh.org>
-cc: "Martin J. Bligh" <mbligh@google.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <447F1BE4.5040705@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0606012200260.32445@scrub.home>
-References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org>
- <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org>
- <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org>
- <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com>
- <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com>
- <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home>
- <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home>
- <447F084C.9070201@google.com> <Pine.LNX.4.64.0606011742500.32445@scrub.home>
- <447F1BE4.5040705@mbligh.org>
+	Thu, 1 Jun 2006 17:04:34 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:35748 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965303AbWFAVEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 17:04:33 -0400
+Content-class: urn:content-classes:message
+From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: ANNOUNCE: Linux UWB and Wireless USB project
+Date: Thu, 1 Jun 2006 14:04:19 -0700
+User-Agent: KMail/1.9.1
+Cc: inaky.perez-gonzalez@intel.com
+Organization: Intel Corporation
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606011404.20251.inaky@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 1 Jun 2006, Martin Bligh wrote:
+Intel is pleased to announce the launch of a project to
+implement Linux kernel support for upcoming hardware that
+complies with the WiMedia Ultra Wide Band (UWB) and Wireless
+USB standards.
 
-> So the point is to enable the performance-affecting debug options by
-> default, but provide one clear hook to turn them all off, with a name
-> that's consistent over time, so we can do it in an automated fashion.
+UWB is a high-bandwidth, low-power, point-to-point radio
+technology using a wide spectrum (3.1-10.6HGz).  It is
+optimized for in-room use (480Mbps at 2 meters, 110Mbps at 10m).
+It serves as the transport layer for other protocols, such as
+Wireless USB (WUSB), IP (WiNET) and upcoming Bluetooth and 1394.
+UWB is uniquely qualified to meet the needs of high-speed WPAN
+applications.
 
-The latter is what Ingo's patch doesn't really do and the first should 
-stay in -mm. If we talk about an -mm only patch we can relax the rules a 
-little, my NACK was for mainline inclusion. The problem is that my request 
-for a -mm only patch and other changes has been met with utter ignorance 
-so far by Ingo.
+The project is currently hosted at http://linuxuwb.org, where you
+will find links to the current code, documentation, mailing list
+and (upcoming) bugzilla.
 
-> To me that means having clear name so people know which option to hook
-> stuff under, and preferably not hiding stuff behind extra config options
-> to make them harder to find. Maybe I've missed the point of what you
-> were trying to do, but it seemed to not meet that.
+All code is work in progress at this time, although the limited
+functionality currently implemented is fairly stable; it consists
+of a basic UWB stack with drivers for radio control, WiNET and a
+forthcoming partially implemented Wireless USB host controller.
+Please see the documentation for further information.
 
-Well, if you don't want to enable a number of options, it's still better 
-to hide them completely. There are number of options by reorganizing the 
-debug menu a little, it only depends if we're talking here are about a -mm 
-only crutch or something which might be useful to more than a handful of 
-people. A few extra config options are not really a problem as long as 
-they are logically grouped together (instead of having to enable random 
-options all over the place).
+You are welcome to contribute!
 
-bye, Roman
+-- Inaky

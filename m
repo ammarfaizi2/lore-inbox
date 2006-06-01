@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWFAL5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWFAJfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWFAL5S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 07:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWFAL5S
+	id S1750743AbWFAJfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 05:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWFAJfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 07:57:18 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:57534 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1030186AbWFAL5R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 07:57:17 -0400
-Message-ID: <447ED570.5020303@aitel.hist.no>
-Date: Thu, 01 Jun 2006 13:54:24 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Thu, 1 Jun 2006 05:35:20 -0400
+Received: from LNeuilly-152-21-64-8.w80-15.abo.wanadoo.fr ([80.15.165.8]:54984
+	"EHLO serveur2.macsoft-sa.com") by vger.kernel.org with ESMTP
+	id S1750743AbWFAJfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 05:35:19 -0400
+Message-ID: <447ED595.2040902@free.fr>
+Date: Thu, 01 Jun 2006 11:55:01 +0000
+From: "s.a." <sancelot@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060512
+X-Accept-Language: fr-fr, en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2 stack unwind compile failure
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-In-Reply-To: <20060601014806.e86b3cc0.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: io apic and shared irq questions
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.17-rc5-mm2 with the cfq hotfix:
+Hi,
 
-  CC      kernel/unwind.o
-kernel/unwind.c: In function ‘unwind_add_table’:
-kernel/unwind.c:189: error: dereferencing pointer to incomplete type
-kernel/unwind.c:190: error: dereferencing pointer to incomplete type
-kernel/unwind.c:190: error: dereferencing pointer to incomplete type
-kernel/unwind.c:191: error: dereferencing pointer to incomplete type
-kernel/unwind.c:191: error: dereferencing pointer to incomplete type
-make[1]: *** [kernel/unwind.o] Error 1
-make: *** [kernel] Error 2
+Regarding an embedded realtime system, I have got a communication board
+on pci bus .
+
+I would like it's interrupt not being shared (with usb) , because the
+component receives an it every 100us and is realtime determinist.
+I looked at how was routed IRQ's with the io apic , although it is able
+to use 24 irq's, linux always share my PCI boards IRQ with another
+component and do not use all the 24 irq's range capability of ioapic.
+
+Do you think it is possible to program the ioapic in order to have a
+better irq mapping and avoid this problem and use all the range of
+availbale vectors ?
+
+Best Regards
+Steph
 
 
-Now recompiling without "stack unwind support"
 
-Helge Hafting
+
+

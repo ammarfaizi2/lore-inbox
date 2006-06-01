@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965275AbWFATCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965278AbWFATER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965275AbWFATCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 15:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965278AbWFATCh
+	id S965278AbWFATER (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 15:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965288AbWFATER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 15:02:37 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:48456 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965275AbWFATCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 15:02:36 -0400
+	Thu, 1 Jun 2006 15:04:17 -0400
+Received: from wr-out-0506.google.com ([64.233.184.232]:21176 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965278AbWFATEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 15:04:16 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=KmVBKNJ4l7oOIMNdOZe5cJ+blFwzipcnO6DgfhkJDMrSPxJO0Sn+TIry+alaWJr7riZLAy/G0reJ2Ltz4rhGUp94RKMfAd8XNAt2X6nF9Pg/KOIIOnuMCsBsjLbInmedP5TRVuTDyDag9msIiOwshGo8f/BqO4X2ghngnLu2kJc=
-Message-ID: <447F39C6.6050203@gmail.com>
-Date: Thu, 01 Jun 2006 22:02:30 +0300
-From: Anssi Hannula <anssi.hannula@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pIRaFdjnK6COGCEyLMOzcKN7KEfbvQgVrBJtI7kEyj29InSExyFCRBqKyuJifjYsjS1lQaJ9oC4zbReL3zdNJAVc7O+8d4lTRCQ/PMzK/hvX2QmoNxajbvuau4v8VHCRYkKXrGbYq1uQOeDTZ+3ybZUaAwNJvRft7lTmm1dQuek=
+Message-ID: <6bffcb0e0606011204t2ff23462o2a6d414c40b01bbc@mail.gmail.com>
+Date: Thu, 1 Jun 2006 21:04:16 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Arjan van de Ven" <arjan@linux.intel.com>
+Subject: Re: 2.6.17-rc5-mm2
+Cc: "Andrew Morton" <akpm@osdl.org>, "Greg KH" <gregkh@suse.de>,
+       "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1149182408.3115.75.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: dtor_core@ameritech.net
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: input: return -ENOSYS for registering functions when ff is disabled
-References: <20060530105705.157014000@gmail.com>	<20060530110131.136225000@gmail.com> <20060530222122.069da389.rdunlap@xenotime.net>
-In-Reply-To: <20060530222122.069da389.rdunlap@xenotime.net>
-Content-Type: multipart/mixed;
- boundary="------------050305080604010805080108"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <6bffcb0e0606010851n75b49d83u9f43136b3108886c@mail.gmail.com>
+	 <1149182408.3115.75.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050305080604010805080108
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi Arjan,
 
-Return -ENOSYS instead of -EPERM for input_ff_allocate() and
-input_ff_register() when INPUT_FF_EFFECTS is disabled.
+On 01/06/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
+> On Thu, 2006-06-01 at 17:51 +0200, Michal Piotrowski wrote:
+> > Hi,
+> >
+> > On 01/06/06, Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
+> > >
+> >
+> > I don't know why, but first bug appears only when avahi-daemon is
+> > started. Second look like a problem with my camera.
+> > http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_1.jpg
+> > http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/bug_2.jpg
+> >
+> > Here is config http://www.stardust.webpages.pl/files/mm/2.6.17-rc5-mm2/mm-config
+>
+>
+> can you confirm this fixes it ?
+>
 
-Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+Probably yes, I'm not 100% sure. I'll do some tests (do stupid things
+with camera while reboot).
 
----
+Regards,
+Michal
 
---------------050305080604010805080108
-Content-Type: text/x-patch;
- name="ff-refactoring-new-interface-eperm-to-enosys.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ff-refactoring-new-interface-eperm-to-enosys.diff"
-
----
- include/linux/input.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.17-rc4-git12/include/linux/input.h
-===================================================================
---- linux-2.6.17-rc4-git12.orig/include/linux/input.h	2006-06-01 18:45:58.000000000 +0300
-+++ linux-2.6.17-rc4-git12/include/linux/input.h	2006-06-01 18:51:06.000000000 +0300
-@@ -1059,12 +1059,12 @@ int input_ff_event(struct input_dev *dev
- #else
- static inline int input_ff_allocate(struct input_dev *dev)
- {
--	return -EPERM;
-+	return -ENOSYS;
- }
- static inline int input_ff_register(struct input_dev *dev,
- 				    struct ff_driver *driver)
- {
--	return -EPERM;
-+	return -ENOSYS;
- }
- static inline int input_ff_upload(struct input_dev *dev,
- 				  struct ff_effect *effect, struct file *file)
-
---------------050305080604010805080108--
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

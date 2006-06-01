@@ -1,76 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWFABEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWFABME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbWFABEN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 21:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbWFABEN
+	id S965108AbWFABME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 21:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWFABMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 21:04:13 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:37783 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S965107AbWFABEM (ORCPT
+	Wed, 31 May 2006 21:12:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40882 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965108AbWFABMC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 21:04:12 -0400
-Message-ID: <349123849.25214@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 1 Jun 2006 09:04:34 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Adaptive read-ahead V12
-Message-ID: <20060601010434.GA5019@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <348628455.03454@ustc.edu.cn> <447DF9F6.3060302@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447DF9F6.3060302@tmr.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 31 May 2006 21:12:02 -0400
+Date: Wed, 31 May 2006 18:14:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: mingo@elte.hu, arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1-lockdep: a rather strange oops
+Message-Id: <20060531181430.bfe25ad5.akpm@osdl.org>
+In-Reply-To: <986ed62e0605311747qb8f7a58ybde5d3a87de74309@mail.gmail.com>
+References: <986ed62e0605311747qb8f7a58ybde5d3a87de74309@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 04:17:58PM -0400, Bill Davidsen wrote:
-> Wu Fengguang wrote:
-> >----- Forwarded message from Iozone <capps@iozone.org> -----
-> >
-> >Subject: Adaptive read-ahead V12
-> >From: Iozone <capps@iozone.org>
-> >To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-> >X-Mailer: Microsoft Outlook Express 6.00.2900.2670
-> >Date: Thu, 25 May 2006 11:44:37 -0500
-> >
-> >Wu Fengguang,
-> >
-> >       I see that Andrew M. is giving you some pushback.... 
-> >   His argument is that the application could do a better job
-> >   of scheduling its own read-ahead.  ( I've heard this one 
-> >   before)
-> >
-> >   My thoughts on this argument would be along the 
-> >   lines of:
-> >
-> >   Indeed the application might be able to do a better
-> >   job, however expecting, or demanding, the rewrite
-> >   of all applications to behave better might be an unreasonable
-> >   expectation. 
+On Wed, 31 May 2006 17:47:35 -0700
+"Barry K. Nathan" <barryn@pobox.com> wrote:
+
+> Unfortunately I haven't had a chance to set up a serial console on the
+> box in question, so here's a picture instead (it oopses almost
+> instantly during boot):
 > 
-> A reasonable expectation would be that the application would have a way 
-> to tell the kernel to ignore readahead for a given file, other than 
-> changing the behavior of the kernel as a whole for all processes on the 
-> machine. This smart application could then use aio or some other similar 
-> method to do preread itself.
+> http://static.flickr.com/46/157552842_ddb0c61d56_b_d.jpg
+> 
+> Since there have been multiple versions of
+> lockdep-combo-2.6.17-rc5-mm1.patch without any name changes, I'll
+> identify the version I used by noting that it is 25646 bytes long,
+> with md5sum ac96729e1586c1c82127c9fe796a2350. I compiled the kernel
+> with gcc 4.1.1.
+> 
+> I got essentially the same oops on 2.6.17-rc5-mm1 plus the 3 hotfixes,
+> with Debian sarge gcc 3.3.5-13. (Since -lockdep enabled KALLSYMS_ALL,
+> gcc 3.3.5 compiled a kernel that is too large to boot off a floppy. In
+> order to get the -lockdep kernel onto a floppy for booting, I had to
+> debloat it by moving to gcc 4.1.1.)
+> 
+> Oh, one other change I made to both kernels (but I've been doing this
+> since 2.6.14-mm or so with no problems until now -- it appears to be
+> needed in order for me to use the Promise PATA libata driver, or at
+> least, it was necessary the last time I checked):
+> --- include/linux/libata.h.old  2006-05-30 22:48:39.000000000 -0700
+> +++ include/linux/libata.h      2006-05-30 22:50:48.000000000 -0700
+> @@ -43,7 +43,7 @@
+>  #undef ATA_VERBOSE_DEBUG       /* yet more debugging output */
+>  #undef ATA_IRQ_TRAP            /* define to ack screaming irqs */
+>  #undef ATA_NDEBUG              /* define to disable quick runtime checks */
+> -#undef ATA_ENABLE_PATA         /* define to enable PATA support in some
+> +#define ATA_ENABLE_PATA                /* define to enable PATA
+> support in some                                 * low-level drivers */
+> 
+> (The above patch is probably mangled because I cut-and-pasted it, but
+> I'm really including it for human viewing...)
+> 
+> 2.6.17-rc4-mm[13] have been perfectly stable on this box.
+> 
+> I'm attaching my .config for 2.6.17-rc5-mm1-lockdep; hopefully GMail
+> will include it inline. I guess I'll go ahead and recompile with the
+> lockdep stuff disabled, and see if that still oopses. (I'll do that
+> recompile in another directory, so that if anyone needs the System.map
+> or anything like that, I can provide it.)
 
-Sure. The adaptive readahead works fine with user level readahead via
-the readahead() or posix_fadvise() syscall. I.e. if a program do
-necessary readahead() calls that can cover all the file pages
-requested by the following read() calls, it avoids triggering
-unnecessary kernel readaheads.
+We oopsed, probably in the sata code.  And then, very irritatingly, we
+oopsed again while trying to display the backtrace.
 
-> My personal opinion is that the kernel only does a good job reading 
-> ahead for sequential access, and since that's the common case only a 
-> means of preventing that effort need be provided.
+The original oops was a jump-to-null.  I had a few of those when getting
+the latest git-libata-all tree working, due to missing
+ata_port_operations.data_xfer vectors.  But it appears that both sata_sil.c
+and sata_promise.c do have those filled in.
 
-posix_fadvise(fd, ..., POSIX_FADV_RANDOM) can do the trick for a file.
-blockdev --setra 0 /dev/hda  does so for a device.
-
-Wu
+Perhaps what you could do is to perturb the flakey backtrace code in such a
+manner as to avoid the second oops - change the value of
+CONFIG_FRAME_POINTER, for example.

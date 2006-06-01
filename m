@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWFAVmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWFBMVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWFAVmD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWFAVmC
+	id S1751233AbWFBMVv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 08:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWFBMVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:42:02 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:33201 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750775AbWFAVmA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:42:00 -0400
-Date: Thu, 1 Jun 2006 23:41:58 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Message-ID: <20060601214158.GA438@suse.de>
-References: <20060529214011.GA417@suse.de> <20060530182453.GA8701@suse.de> <20060601184938.GA31376@suse.de> <20060601121200.457c0335.akpm@osdl.org> <20060601201050.GA32221@suse.de> <20060601142400.1352f903.akpm@osdl.org>
+	Fri, 2 Jun 2006 08:21:51 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42985 "EHLO
+	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751233AbWFBMVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 08:21:50 -0400
+Subject: Re: [aacraid] Is that a linux issue or flaky hardware?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: "Hack inc." <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060601181155.GA95280@dspnet.fr.eu.org>
+References: <20060601181155.GA95280@dspnet.fr.eu.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Jun 2006 22:44:36 +0100
+Message-Id: <1149198277.18267.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060601142400.1352f903.akpm@osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Jun 01, Andrew Morton wrote:
-
-> Olaf Hering <olh@suse.de> wrote:
-> >
-> > 
-> >  
-> > +/* return a page in PageUptodate state, BLKFLSBUF may have flushed the page */
-> > +static struct page *cramfs_read_cache_page(struct address_space *m, unsigned int n)
-> > +{
-> > +	struct page *page;
-> > +	int readagain = 5;
-> > +retry:
-> > +	page = read_cache_page(m, n, (filler_t *)m->a_ops->readpage, NULL);
-> > +	if (IS_ERR(page))
-> > +		return NULL;
-> > +	lock_page(page);
-> > +	if (PageUptodate(page))
-> > +		return page;
-> > +	unlock_page(page);
-> > +	page_cache_release(page);
-> > +	if (readagain--)
-> > +		goto retry;
-> > +	return NULL;
-> > +}
+On Iau, 2006-06-01 at 20:11 +0200, Olivier Galibert wrote:
+> I have a new dual-EMT64 server with an aacraid skyhawk (asr-2020s
+> pci-x zcr) in it and the drives supposedly in raid1.  The aacraid dies
+> shortly after I start using it, with both an up-to-date FC5 kernel and
+> a gentoo installcd 2006.0.
 > 
-> Better, but it's still awful, isn't it?  The things you were discussing
-> with Chris look more promising.  PG_Dirty would be a bit of a hack, but at
-> least it'd be a 100% reliable hack, whereas the above is a
-> whatever-the-previous-failure-rate-was-to-the-fifth hack.
+> Are there known issues with that hardware under linux, or is that an
+> hardware issue?
 
-Do you want it like that?
+Not that I am aware of with the reported hardware, and your system seems
+to have just croaked. Does the same occur if you boot with 2GB or less
+memory limit ?
 
-lock_page(page);
-if (PageUptodate(page)) {
-        SetPageDirty(page);
-        mb();
-        return page;
-}
+Also please cc the maintainer of the driver, he's rather good and
+usually responsive.
 
-and perhaps a ClearPageDirty() after memcpy.

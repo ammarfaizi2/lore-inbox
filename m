@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWFAQ5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWFAQzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWFAQ5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 12:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWFAQ5l
+	id S1030239AbWFAQzI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 12:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWFAQzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 12:57:41 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:3090 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030243AbWFAQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 12:57:41 -0400
-Date: Thu, 1 Jun 2006 12:57:40 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Andrew Morton <akpm@osdl.org>, David Liontooth <liontooth@cogweb.net>,
-       <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
+	Thu, 1 Jun 2006 12:55:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9708 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030239AbWFAQzG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 12:55:06 -0400
+Date: Thu, 1 Jun 2006 09:59:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: liontooth@cogweb.net, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
 Subject: Re: USB devices fail unnecessarily on unpowered hubs
-In-Reply-To: <Pine.LNX.4.61.0606011104140.1745@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44L0.0606011252350.5730-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20060601095913.06200806.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0606011050330.6784-100000@iolanthe.rowland.org>
+References: <20060601030140.172239b0.akpm@osdl.org>
+	<Pine.LNX.4.44L0.0606011050330.6784-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jun 2006, linux-os (Dick Johnson) wrote:
+On Thu, 1 Jun 2006 10:58:43 -0400 (EDT)
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-> >> Yes, it sounds like we're being non-real-worldly here.  This change
-> >> apparently broke things.  Did it actually fix anything as well?
-> >
-> > Yes.  At least, I think so.  The change directly addresses a complaint
-> > filed here:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-usb-users&m=112438431718562&w=2
+> As an alternative, we could allow an "over-budget window" of say 10%.  
 
-> Many, most, perhaps all such devices don't take more power when they
-> are "enabled". Everything is already running and sucking up maximum
-> current when you plug it in! If the motherboard didn't smoke when
-> the device was plugged in, you might just as well let the user use
-> it! Perhaps a ** WARNING ** message somewhere, but by golly, they
-> got it running or else you wouldn't be able to read its parameters.
+That, plus we should provide a suitable i-know-what-im-doing user override,
+with the appropriate warnings, as well as a printk which directs users to
+this option when we decided to disable their device.
 
-Looks like you didn't bother to read that complaint and the follow-up
-messages.  Robert Marquardt's device has two configurations, one using 100
-mA and the other using 500 mA.  Before my patch, Linux would always
-install the high-power config -- even if the device was behind a
-bus-powered hub.  According to Robert:
+> Configurations that exceed the power budget by less than that amount would
+> still be accepted.  I don't know whether this would be enough of a help,
+> however.  I've heard of devices that claim to require 200 mA, for
+> instance.  It just doesn't seem right to enable them when the upstream hub
+> can only provide 100 mA.
 
-	This can trigger the overcurrent protection of a bus powered 
-	hub which usually then switches off completely dragging down
-	three other innocent devices.
+The power supply spec is a conservative minimum, whereas the device spec is
+a worst-case maximum.  One would expect a lot of devices will work OK when
+run "out of spec".
 
-	Please tell me that Linux kernel programmers are not that idiotic.
-
-I'll avoid speculations about which kernel programmers are or are not 
-idiotic...
-
-Alan Stern
+(Goes away and pats all his 240V plugpacks which are happily working off 110V).
 

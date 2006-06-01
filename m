@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWFAUGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWFAUHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030266AbWFAUGL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 16:06:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWFAUGL
+	id S1030264AbWFAUHM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 16:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWFAUHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 16:06:11 -0400
-Received: from gw.openss7.com ([142.179.199.224]:37044 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1030263AbWFAUGJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 16:06:09 -0400
-Date: Thu, 1 Jun 2006 14:06:07 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Bob Picco <bob.picco@hp.com>
-Cc: hpa@zytor.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] klibc
-Message-ID: <20060601140607.A1688@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Bob Picco <bob.picco@hp.com>, hpa@zytor.com,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20060601194751.GD17809@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060601194751.GD17809@localhost>; from bob.picco@hp.com on Thu, Jun 01, 2006 at 03:47:51PM -0400
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	Thu, 1 Jun 2006 16:07:12 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:31237 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1030264AbWFAUHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 16:07:10 -0400
+Message-ID: <447F48ED.6090202@vmware.com>
+Date: Thu, 01 Jun 2006 13:07:09 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [PATCH] Allow TSO to be disabled for forcedeth driver
+References: <447F3FB8.2010003@vmware.com> <20060601125359.10ca1f2b.akpm@osdl.org>
+In-Reply-To: <20060601125359.10ca1f2b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Jun 2006, Bob Picco wrote:
->  
-> -#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__)
-> +#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__) && \
-> +	!defined(__powerpc64__)
+Andrew Morton wrote:
+> Zachary Amsden <zach@vmware.com> wrote:
+>   
+>> TSO can cause performance problems in certain environments, and being 
+>> able to turn it on or off is helpful for debugging network issues.  Most 
+>> other network drivers that support TSO allow it to be toggled, so add 
+>> this feature to forcedeth.  Tested by Harald Dunkel, who reported that 
+>> this fixed his network performance issue with VMware.
+>>
+>>     
+>
+> (This is regarding
+> http://www.vmware.com/community/thread.jspa?messageID=408893)
+>
+>
+> Why does TSO-with-forcedeth make vmware networking slow?
+>
+> Is it specific to the forcedeth driver?
+>   
 
-Why not just !defined(__LP64__) ?
+No.  TSO is not good for bridged virtual networking in general, since 
+even if the bridged networking module understood TSO, it would then have 
+to split up any large packets into smaller packets to pass on to the 
+guest virtual machine - or require that the guest virtual machine have 
+and understand how to use a TSO compatible network interface as well.  
+Both solutions are extremely problematic, and the easiest thing to do is 
+just disable TSO.  It makes sense for any protocol bridge device, 
+including some firewall configurations.
 
+Zach

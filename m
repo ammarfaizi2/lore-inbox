@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWFAWWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWFBCWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWFAWWa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWFAWWa
+	id S1751000AbWFBCWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 22:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWFBCWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:22:30 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35276 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750787AbWFAWW3 (ORCPT
+	Thu, 1 Jun 2006 22:22:16 -0400
+Received: from smtp.enter.net ([216.193.128.24]:24583 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751000AbWFBCWP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:22:29 -0400
-Date: Fri, 2 Jun 2006 00:21:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       "D. Hazelton" <dhazelton@enter.net>,
-       David Lang <dlang@digitalinsight.com>,
-       Ondrej Zajicek <santiago@mail.cz>, Dave Airlie <airlied@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
+	Thu, 1 Jun 2006 22:22:15 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
 Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060601222140.GB3054@elf.ucw.cz>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com> <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz> <200606011603.57421.dhazelton@enter.net> <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com> <447F56A0.8030408@gmail.com> <9e4733910606011423u75fa076hce22547c28c0a987@mail.gmail.com> <447F5CB3.7000107@gmail.com> <9e4733910606011448x32246dfcy2a2d448e238bdab3@mail.gmail.com>
+Date: Thu, 1 Jun 2006 22:22:05 +0000
+User-Agent: KMail/1.8.1
+Cc: "David Lang" <dlang@digitalinsight.com>,
+       "Ondrej Zajicek" <santiago@mail.cz>, "Dave Airlie" <airlied@gmail.com>,
+       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, adaplas@gmail.com
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200606011647.43427.dhazelton@enter.net> <9e4733910606011421o4334642bh11dd568b3399fcc2@mail.gmail.com>
+In-Reply-To: <9e4733910606011421o4334642bh11dd568b3399fcc2@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9e4733910606011448x32246dfcy2a2d448e238bdab3@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200606012222.06540.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 01-06-06 17:48:57, Jon Smirl wrote:
-> On 6/1/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> >Jon Smirl wrote:
-> >> On 6/1/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> >>> Jon Smirl wrote:
-> >>> > On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
-> >>> >
-> >>>
-> >>> Console writes are done with the console semaphore held. printk will 
-> >also
-> >>> just write to the log buffer and defer the actual console printing
-> >>> for later, by the next or current process that will grab the semaphore.
-> >>
-> >> That was my original position too. But Alan Cox has drilled it into me
-> >> that this is not acceptable for printks in interrupt context, they
-> >> need to print there and not be deferred.
-> >>
-> >
-> >Just to clarify, it's not my position, that's how the current printk code
-> >works.
-> 
-> I haven't looked at the code, but if there is just normal console
-> running and nothing like X is around, doesn't the console system
-> always have the semaphore? 
+> One solution to this split is to build the system management console
+> in-kernel using the existing fbdev code. A hot key can be used to
+> access it or it will appear automatically on a panic. The system
+> management console does not need acceleration, but it always has to
+> work and work in any context (like interrupt context). Working in any
+> context forces an implementation that is entirely contained in the
+> kernel.
 
-Not if foreground code is already printing something. Fortunately we
-do not spend most of time printing text; that's why printk from
-interrupt usually works.
+And what happens if that console data has been damaged by a wild pointer write 
+in kernel?
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+This does have a practicle use, and the console data for the "System Console" 
+is unlikely to get screwed with. I am just pointing out that there are 
+problems even with your suggestions. I had already planned on something 
+similar to this when I began working on a method to have the video drivers 
+able to be added and removed at runtime. What I was planning on was using 
+vgacon (for those systems that support it) as the system console and having 
+tthe system default back to that should *anything* go wrong in the kernel. 
+For the systems that don't support vgacon there is going to be a very minimal 
+fbcon that will serve the same purpose.
+
+Userspace helpers for modesetting and other simple tasks is no problem. When 
+it comes to handling the acceleration, the DRI part  of the DRM 
+infrastructure (the Userspace side of it, in other words) needs to be running 
+and available. This is why X has to load the module. Providing that to 
+userspace then become a concern, and the easiest way to do this is to have 
+the DRI portion loaded and running inside a userspace daemon, either pinned 
+into memory so that the OOM killer can't touch it, or running as a special 
+process under init that will *always* get restarted if it dies.
+
+Using a mass of userspace helpers, or requiring the applications to provide 
+and load their own userspace drivers for the DRM/DRI system is, IMHO, not an 
+option.
+
+DRH

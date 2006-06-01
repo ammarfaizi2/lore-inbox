@@ -1,32 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWFABnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751676AbWFABix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965167AbWFABnq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 21:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWFABnq
+	id S1751676AbWFABix (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 21:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751667AbWFABix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 21:43:46 -0400
-Received: from mga05.intel.com ([192.55.52.89]:14688 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S965275AbWFABnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 21:43:45 -0400
-X-IronPort-AV: i="4.05,195,1146466800"; 
-   d="scan'208"; a="45184937:sNHT1429727138"
-Date: Wed, 31 May 2006 18:40:46 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+	Wed, 31 May 2006 21:38:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47804 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751500AbWFABiw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 21:38:52 -0400
+Date: Wed, 31 May 2006 18:43:02 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
 Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060531184046.A30481@unix-os.sc.intel.com>
-References: <20060530022925.8a67b613.akpm@osdl.org> <20060531182507.aaf1f9fd.rdunlap@xenotime.net>
+Message-Id: <20060531184302.9e79f518.akpm@osdl.org>
+In-Reply-To: <20060531182507.aaf1f9fd.rdunlap@xenotime.net>
+References: <20060530022925.8a67b613.akpm@osdl.org>
+	<20060531182507.aaf1f9fd.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060531182507.aaf1f9fd.rdunlap@xenotime.net>; from rdunlap@xenotime.net on Wed, May 31, 2006 at 06:25:07PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 06:25:07PM -0700, Randy.Dunlap wrote:
+On Wed, 31 May 2006 18:25:07 -0700
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+
+> On Tue, 30 May 2006 02:29:25 -0700 Andrew Morton wrote:
+> 
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/
+> 
+> 
+> Some odd panic, reproducible.  .config attached.
+> Machine is Pentium-D with 2 GB RAM and SATA drives.
+> 
+
+There's nothing odd about a panic in that kernel.
+
+> [   33.232729] netconsole: device eth0 not up yet, forcing it
 > [   36.489028] Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP: 
 > [   36.500245]  [<0000000000000000>] stext+0x7feff0e8/0xe8
 > [   36.549518] PGD 0 
@@ -54,7 +68,40 @@ On Wed, May 31, 2006 at 06:25:07PM -0700, Randy.Dunlap wrote:
 > [   37.167285]  [<ffffffff80107d21>] mwait_idle+0x0/0x53
 > [   37.193322]  [<ffffffff80109708>] ret_from_intr+0x0/0xa
 > [   37.219723]  <EOI>
+> [   37.239638] 
+> [   37.239639] Code:  Bad RIP value.
+> [   37.280189] RIP  [<0000000000000000>] stext+0x7feff0e8/0xe8 RSP <ffffffff804f4f98>
+> [   37.310891] CR2: 0000000000000000
+> [   37.332934]  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+> [   37.362625]  BUG: warning at kernel/panic.c:138/panic()
+> [   37.388627] 
+> [   37.388629] Call Trace:
+> [   37.426958]  <IRQ> [<ffffffff8012a29b>] panic+0x1f9/0x21e
+> [   37.453041]  [<ffffffff801f7dd8>] __up_read+0xaa/0xb2
+> [   37.478499]  [<ffffffff80137d51>] blocking_notifier_call_chain+0x47/0x51
+> [   37.507365]  [<ffffffff8012ca06>] do_exit+0x8e/0x8e1
+> [   37.532615]  [<ffffffff803b03ce>] do_page_fault+0x77a/0x806
+> [   37.559092]  [<ffffffff801244b4>] move_tasks+0xf1/0x2a8
+> [   37.584878]  [<ffffffff803ae0a3>] _spin_unlock+0x9/0xb
+> [   37.610360]  [<ffffffff80109edd>] error_exit+0x0/0x84
+> [   37.635490]  [<ffffffff8010b711>] do_IRQ+0x4f/0x5e
+> [   37.659887]  [<ffffffff80107d21>] mwait_idle+0x0/0x53
+> [   37.684661]  [<ffffffff80109708>] ret_from_intr+0x0/0xa
+> [   37.709657]  <EOI>
 
-changes mentioned in this thread should help..
+OK, I think Martin said something about the machine going down early
+inside the CPU scheduler.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0605.3/1991.html
+Are you able to work out what file-n-line move_tasks+0xf1/0x2a8 is at?
+
+gdb vmlinux
+(gdb) l *0xffffffff801244b4
+
+Or, if CONFIG_DEBUG_INFO wasn't set:
+
+- Enable CONFIG_DEBUG_INFO
+- make vmlinux
+- gdb vmlinux
+(gdb) p move_tasks
+(gdb) l *(0x<address of move_tasks> + 0xf1)
+

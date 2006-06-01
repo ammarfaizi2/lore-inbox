@@ -1,103 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWFAWZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWFAW2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWFAWZc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWFAWZc
+	id S1750814AbWFAW2p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 18:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWFAW2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:25:32 -0400
-Received: from wx-out-0102.google.com ([66.249.82.195]:12110 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750751AbWFAWZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:25:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=q8TPw8L6aevZ38Rf2X57+HLQEF66d30VQz68G6zpodikaFaSWiHioJ9aBO/0x9iawWEvnRbwxVpGafcRRBxKci28UgEIMKrgEn2uFXgeCEGnLkjaMXyKpwcnFxrFESMdwXOEVzxPEQu5AcLCg5tKKUxoB2qgNGrn3rmY0KN8EB4=
-Message-ID: <986ed62e0606011525g7e742c78s5358255dded7be0e@mail.gmail.com>
-Date: Thu, 1 Jun 2006 15:25:31 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: 2.6.17-rc5-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490606011451m69e2f437uf3822e535f87d9ae@mail.gmail.com>
+	Thu, 1 Jun 2006 18:28:45 -0400
+Received: from mms1.broadcom.com ([216.31.210.17]:24836 "EHLO
+	mms1.broadcom.com") by vger.kernel.org with ESMTP id S1750814AbWFAW2n convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 18:28:43 -0400
+X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	 <9a8748490606011451m69e2f437uf3822e535f87d9ae@mail.gmail.com>
-X-Google-Sender-Auth: 36b263fa349d7f13
+Subject: RE: [openib-general] Re: [PATCH 1/2] iWARP Connection Manager.
+Date: Thu, 1 Jun 2006 15:28:24 -0700
+Message-ID: <54AD0F12E08D1541B826BE97C98F99F150D3E6@NT-SJCA-0751.brcm.ad.broadcom.com>
+Thread-Topic: [openib-general] Re: [PATCH 1/2] iWARP Connection Manager.
+Thread-Index: AcaFyVcoQ4m2/vFMThmXi2GP42LuUwAAQL6Q
+From: "Caitlin Bestler" <caitlinb@broadcom.com>
+To: "Tom Tucker" <tom@opengridcomputing.com>,
+       "Sean Hefty" <mshefty@ichips.intel.com>
+cc: "Steve Wise" <swise@opengridcomputing.com>, netdev@vger.kernel.org,
+       rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006060110; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413039303230392E34343746363735422E303033462D412D;
+ ENG=IBF; TS=20060601222830; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006060110_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 6861B5800HW24787619-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/1/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> Got a few build warnings with this one :
 
-On the topic of build warnings, I got these (it's still building, and
-some of the earlier build output has gone past screen's scrollback
-buffer, so this might not be everything):
+>> 
+>> There's a difference between trying to handle the user calling
+>> disconnect/destroy at the same time a call to accept/connect is
+>> active, versus the user calling disconnect/destroy after
+>> accept/connect have returned.  In the latter case, I think you're
+>> fine.  In the first case, this is allowing a user to call
+> destroy at the same time that they're calling accept/connect.
+>> Additionally, there's no guarantee that the F_CONNECT_WAIT flag has
+>> been set by accept/connect by the time disconnect/destroy tests it.
+> 
+> The problem is that we can't synchronously cancel an
+> outstanding connect request. Once we've asked the adapter to
+> connect, we can't tell him to stop, we have to wait for it to
+> fail. During the time period between when we ask to connect
+> and the adapter says yeah-or-nay, the user hits ctrl-C. This
+> is the case where disconnect and/or destroy gets called and
+> we have to block it waiting for the outstanding connect
+> request to complete.
+> 
+> One alternative to this approach is to do the kfree of the
+> cm_id in the deref logic. This was the original design and
+> leaves the object around to handle the completion of the
+> connect and still allows the app to clean up and go away
+> without all this waitin' around. When the adapter finally
+> finishes and releases it's reference, the object is kfree'd.
+> 
+> Hope this helps.
+> 
+Why couldn't you synchronously put the cm_id in a state of
+"pending delete" and do the actual delete when the RNIC
+provides a response to the request? There could even be
+an optional method to see if the device is capable of
+cancelling the request. I know it can't yank a SYN back
+from the wire, but it could refrain from retransmitting.
 
-drivers/scsi/libsrp.c: In function 'srp_cmd_perform':
-drivers/scsi/libsrp.c:434: warning: implicit declaration of function
-'scsi_host_get_command'
-drivers/scsi/libsrp.c:434: warning: assignment makes pointer from
-integer without a cast
-
-ipc/msg.c: In function 'sys_msgctl':
-ipc/msg.c:338: warning: 'setbuf.qbytes' may be used uninitialized in
-this function
-ipc/msg.c:338: warning: 'setbuf.uid' may be used uninitialized in this function
-ipc/msg.c:338: warning: 'setbuf.gid' may be used uninitialized in this function
-ipc/msg.c:338: warning: 'setbuf.mode' may be used uninitialized in this function
-
-ipc/sem.c: In function 'sys_semctl':
-ipc/sem.c:810: warning: 'setbuf.uid' may be used uninitialized in this function
-ipc/sem.c:810: warning: 'setbuf.gid' may be used uninitialized in this function
-ipc/sem.c:810: warning: 'setbuf.mode' may be used uninitialized in this function
-
-kernel/lockdep.c: In function 'static_obj':
-kernel/lockdep.c:1112: warning: unused variable 'i'
-
-fs/bio.c: In function 'bio_alloc_bioset':
-fs/bio.c:169: warning: 'idx' may be used uninitialized in this function
-
-fs/eventpoll.c: In function 'sys_epoll_create':
-fs/eventpoll.c:500: warning: 'fd' may be used uninitialized in this function
-
-fs/jfs/jfs_txnmgr.c: In function 'txCommit':
-fs/jfs/jfs_txnmgr.c:1922: warning: 'pxd.addr2' may be used
-uninitialized in this function
-fs/jfs/jfs_txnmgr.c:1922: warning: 'pxd.addr1' may be used
-uninitialized in this function
-fs/jfs/jfs_txnmgr.c:1922: warning: 'pxd.len' may be used uninitialized
-in this function
-
-fs/reiser4/plugin/file/cryptcompress.c: In function 'align_or_cut_overhead':
-fs/reiser4/plugin/file/cryptcompress.c:871: warning: 'oh' may be used
-uninitialized in this function
-
-fs/xfs/xfs_bmap.c: In function 'xfs_bmapi':
-fs/xfs/xfs_bmap.c:2498: warning: 'rtx' is used uninitialized in this function
-
-fs/xfs/xfs_dir.c: In function 'xfs_dir_removename':
-fs/xfs/xfs_dir.c:363: warning: 'totallen' may be used uninitialized in
-this function
-fs/xfs/xfs_dir.c:363: warning: 'count' may be used uninitialized in
-this function
-
-fs/xfs/xfs_inode.c: In function 'xfs_ifree':
-fs/xfs/xfs_inode.c:1960: warning: 'last_offset' may be used
-uninitialized in this function
-fs/xfs/xfs_inode.c:1958: warning: 'last_dip' may be used uninitialized
-in this function
-
-fs/xfs/xfs_log.c: In function 'xlog_write':
-fs/xfs/xfs_log.c:1749: warning: 'iclog' may be used uninitialized in
-this function
-
-fs/xfs/xfs_log_recover.c: In function 'xlog_find_tail':
-fs/xfs/xfs_log_recover.c:523: warning: 'first_blk' may be used
-uninitialized in this function
-
--- 
--Barry K. Nathan <barryn@pobox.com>

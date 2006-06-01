@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWFATyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWFAPzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbWFATyy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 15:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWFATyy
+	id S1030212AbWFAPzd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWFAPzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 15:54:54 -0400
-Received: from smtp.enter.net ([216.193.128.24]:22801 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1030254AbWFATyx (ORCPT
+	Thu, 1 Jun 2006 11:55:33 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:56337 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1030212AbWFAPzc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 15:54:53 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Marko M" <marcus.magick@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Thu, 1 Jun 2006 15:54:43 +0000
-User-Agent: KMail/1.8.1
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Dave Airlie" <airlied@gmail.com>, "Jon Smirl" <jonsmirl@gmail.com>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <Pine.LNX.4.61.0606011140110.3533@yvahk01.tjqt.qr> <4423333a0606010451q25c1e6d5l8745b11d511c1481@mail.gmail.com>
-In-Reply-To: <4423333a0606010451q25c1e6d5l8745b11d511c1481@mail.gmail.com>
+	Thu, 1 Jun 2006 11:55:32 -0400
+Message-ID: <447F0DF0.9070009@rainbow-software.org>
+Date: Thu, 01 Jun 2006 17:55:28 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Grant Coady <gcoady.lk@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Query: No IDE DMA for IBM 365X with PIIX chipset?
+References: <j9bi729h2u4dcn9da7na3t1d8ckk477d9b@4ax.com> <1149169812.12932.20.camel@localhost>
+In-Reply-To: <1149169812.12932.20.camel@localhost>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606011554.44474.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 June 2006 11:51, Marko M wrote:
-> Sure it is. I mean, it uses only VESA (extended VGA) registers and
-> doesn't know anything about present bliters, backend scalers or
-> similar hw features, AFAIK.
->
-> I think DirectFB guy have right approach, only they do it from user
-> space. fbdev should be capable of detecting present chip(s) and load
-> appropriate (acceleration) module, which describes hardware more
-> precisely.
->
-> If there is no specific (fbdev) driver module for your gfx then
-> everything should work with generic (VESA) one, though it would be
-> somewhat slower.
+Alan Cox wrote:
+> On Sul, 2006-05-28 at 15:29 +1000, Grant Coady wrote:
+>> PIIXa: chipset revision 2
+>> PIIXa: not 100% native mode: will probe irqs later
+>> PIIXa: neither IDE port enabled (BIOS)
+> 
+> It thinks the chip has not been activated, and then falls back to the
+> legacy driver. Could be incorrect enable checks or other problems.
+> 
+>> 00:01.0 ISA bridge: Intel Corporation 82371FB PIIX ISA [Triton I] (rev 02)
+>>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>>         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>>         Latency: 0
+>> 00: 86 80 2e 12 07 00 80 02 02 00 01 06 00 00 00 00
+>> 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>> 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>> 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 
+> 82371FB, whee thats prehistoric 8)
+> 
+> I don't actually have any support for the 371FB PIIX in either driver as
+> I've not been able to find a source for the data sheet to the chip. It
+> may work if added to the drivers/scsi/pata_oldpiix identifiers in the
+> 2.6.17rc5-mm kernel. Would be useful to know as I don't know anyone else
+> with that chip any more 8)
+> 
 
-(Ewww, top-posting!)
+Isn't that this one? 
+http://www.intel.com/design/chipsets/datashts/290550.htm
+Used in i430FX chipset. I have some boards with that and they always 
+worked fine. Haven't tried any recent kernels, though.
 
-Anyway, this method is what drmcon is going to do. For fbdev the plan is to 
-make it a very minimal driver under most circumstances, and capable of being 
-told to shut down so that the drmcon that I am working on can take over.
-
-Jon makes a good point about daemons being able to get killed by the OOM 
-killer. However, because drmcon is going to provide the full DRI capacity to 
-userspace, having tons of helpers that need to be launched for various tasks 
-isn't a good choice. Sure X could retain it's own DRI system and not require 
-the helpers or whatever, but what of an app written using Qt or GTK that runs 
-on the console rather than under X?
-
-Such an application would continuously be using the 2D acceleration features 
-(which will all be merged into DRM) - having to start the helpers for every 
-acceleration call would be stupid. By providing a daemon to do the work we 
-simplify things immensely.
-
-And in the case that the daemon is killed (for any reason) the console itself 
-should survive, since it doesn't need the daemon to run. What will die is the 
-application that depends on it... Yes, that isn't good, but it's better than 
-the whole system coming down. And since the OOM killer does provide an error 
-message that nominally hits the console, the user will know what occurred.
-
-DRH
+-- 
+Ondrej Zary

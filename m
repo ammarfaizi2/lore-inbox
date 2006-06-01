@@ -1,69 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWFAWAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWFAV75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWFAWAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWFAWAP
+	id S1750754AbWFAV75 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWFAV75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:00:15 -0400
-Received: from pih-relay04.plus.net ([212.159.14.131]:58596 "EHLO
-	pih-relay04.plus.net") by vger.kernel.org with ESMTP
-	id S1750762AbWFAWAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:00:13 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.17-rc5-mm2 -- PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#02) (try 'pci=assign-busses')
-Date: Thu, 1 Jun 2006 22:59:57 +0100
-User-Agent: KMail/1.9.1
-Cc: Bernhard Kaindl <bk@suse.de>, Miles Lane <miles.lane@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <a44ae5cd0606010752n637c6411l805115f8170f0ebb@mail.gmail.com> <200606012155.16545.s0348365@sms.ed.ac.uk> <20060601213133.GC18948@kroah.com>
-In-Reply-To: <20060601213133.GC18948@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 1 Jun 2006 17:59:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23515 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750754AbWFAV74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 17:59:56 -0400
+Date: Thu, 1 Jun 2006 15:02:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: laurent.riffard@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1
+Message-Id: <20060601150250.3a66c489.akpm@osdl.org>
+In-Reply-To: <200606011741_MC3-1-C158-4568@compuserve.com>
+References: <200606011741_MC3-1-C158-4568@compuserve.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606012259.57868.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 June 2006 22:31, Greg KH wrote:
-> On Thu, Jun 01, 2006 at 09:55:16PM +0100, Alistair John Strachan wrote:
-> > On Thursday 01 June 2006 21:30, Miles Lane wrote:
-> > > Yes, my machine is a dv1240us HP laptop.  The machine appears to be
-> > > working fine.  I haven't tested all the devices, but the ones I am
-> > > using regularly are all happy campers.
-> >
-> > It seems many HP and Compaq notebooks that this problem; I've got the
-> > same thing on my NC6000 and it works fine too. BIOS problem?
-> >
-> > Andrew, I think this message should be silenced (or at least the note
-> > about LKML) if there's no evidence of breakage. For the last LKML 4-5
-> > reporters, they reported no side-affects. At the very least, the message
-> > could be toned down somewhat.
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+> In-Reply-To: <447DD4D3.3060205@free.fr>
+> 
+> On Wed, 31 May 2006 19:39:31 +0200, Laurent Riffard wrote:
+> 
+> > pktcdvd: writer pktcdvd0 mapped to hdc
+> > BUG: unable to handle kernel NULL pointer dereference at virtual address 00000084
+> >  printing eip:
+> > c01118f1
+> > *pde = 00000000
+> > Oops: 0000 [#1]
+> > last sysfs file: /block/pktcdvd0/removable
+> > Modules linked in: pktcdvd lp parport_pc parport snd_pcm_oss snd_mixer_oss snd_ens1371 gameport snd_rawmidi snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd soundcore af_packet floppy ide_cd cdrom loop aes dm_crypt nl
+> > CPU:    0
+> > EIP:    0060:[<c01118f1>]    Not tainted VLI
+> > EFLAGS: 00010006   (2.6.17-rc5-mm1 #11) 
+> > EIP is at do_page_fault+0xb4/0x5bc
+> > eax: d6750084   ebx: d6750000   ecx: 0000007b   edx: 00000000
+> > esi: d6758000   edi: c011183d   ebp: d675007c   esp: d6750044
+> > ds: 007b   es: 007b   ss: 0068
+> > Process  (pid: 0, threadinfo=d674f000 task=d657c000)
+> > Stack: 00000000 d6750084 00000000 00000049 00000084 00000000 00001e2e 02001120 
+> >        00000027 00000022 00000055 d6750000 d6758000 c011183d d67500f0 c010340d 
+> >        d6750000 0000007b 00000000 d6758000 c011183d d67500f0 d67500f8 0000007b 
+> > Call Trace:
+> >  [<c010340d>] error_code+0x39/0x40
+> > Code: 00 00 c0 81 0f 84 12 02 00 00 e9 1c 05 00 00 8b 45 cc f7 40 30 00 02 02 00 74 06 e8 68 af 01 00 fb f7 43 14 ff ff ff ef 8b 55 d0 <8b> b2 84 00 00 00 0f 85 e5 01 00 00 85 f6 0f 84 dd 01 00 00 8d 
+> > EIP: [<c01118f1>] do_page_fault+0xb4/0x5bc SS:ESP 0068:d6750044
+> 
+> arch/i386/mm/fault.c::do_page_fault():
+> 
+>   12:   f7 40 30 00 02 02 00      testl  $0x20200,0x30(%eax)
+>   19:   74 06                     je     21 <_EIP+0x21>
+>         if (regs->eflags & (X86_EFLAGS_IF|VM_MASK))
+> 
+>   1b:   e8 68 af 01 00            call   1af88 <_EIP+0x1af88>
+>   20:   fb                        sti
+>                 local_irq_enable();
+> 
+> local_irq_enable() should only be doing an sti; your code has an extra
+> function call. Do you have any extra patches applied?
 
-I've just noticed I get this on my Athlon64/nForce4 desktop machine too!
+This is all the lockdep stuff - it adds instrumentation to local_irq_foo().
 
-[   26.985673] ACPI: PCI Root Bridge [PCI0] (0000:00)
-[   26.985675] PCI: Probing PCI hardware (bus 00)
-[   26.990495] PCI: Transparent bridge - 0000:00:09.0
-[   26.990528] PCI: Bus #02 (-#05) is hidden behind transparent bridge #01 
-(-#02) (try 'pci=assign-busses')
-[   26.990531] Please report the result to linux-kernel to fix this 
-permanently
-[   26.990716] Boot video device is 0000:06:00.
+>   21:   f7 43 14 ff ff ff ef      testl  $0xefffffff,0x14(%ebx)
+> if (in_atomic()...
+> 
+>   28:   8b 55 d0                  mov    0xffffffd0(%ebp),%edx
+> Get tsk from local storage and put it in edx.
+> 
+> 00000000 <_EIP>:
+>    0:   8b b2 84 00 00 00         mov    0x84(%edx),%esi   <=====
+>         mm = tsk->mm;
+> 
+> tsk was zero here, implying that current was 0 when the page fault happened.
+> 
+> 
+>    6:   0f 85 e5 01 00 00         jne    1f1 <_EIP+0x1f1>
+>    c:   85 f6                     test   %esi,%esi
+>    e:   0f 84 dd 01 00 00         je     1f1 <_EIP+0x1f1>
+> 
+> 
+> 
+> Andrew, should we add debug code to the fault handler to test for current == 0?
 
-This machine has PCI, PCIe, a heinous PCI-to-Cardbus adaptor with a 16bit 
-PCMCIA card in it! Still working fine.
+`current == 0' implies a scrogged thread_info.  I'm not sure what debugging
+we could usefully add to the pagefault handler to detect that.  Apart from
+getting a good backtrace.  Which the x86_64 guys have broken.
 
-> Bernhard put that message in there for a good reason, let's let him
-> decide if something needs to change or not.
+Laurent, please disable CONFIG_STACK_UNWIND and try again - that way we
+should be able to see whereabouts the thread-info got corrupted.
 
-Sure, of course. My bad.
-
--- 
-Cheers,
-Alistair.
-
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

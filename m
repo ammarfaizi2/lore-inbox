@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWFAEg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWFAFGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWFAEg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 00:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWFAEg7
+	id S1751780AbWFAFGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 01:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWFAFGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 00:36:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35560 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750901AbWFAEg6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 00:36:58 -0400
-Date: Wed, 31 May 2006 21:41:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tony Griffiths <tonyg@agile.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Some socket syscalls fail to return an error on bad
- file-descriptor# argument
-Message-Id: <20060531214116.ef2d1c3e.akpm@osdl.org>
-In-Reply-To: <447E614F.3090905@agile.tv>
-References: <447E614F.3090905@agile.tv>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 01:06:10 -0400
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:28597 "EHLO
+	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1751780AbWFAFGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 01:06:08 -0400
+Date: Thu, 1 Jun 2006 08:05:49 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] scsi bug fixes for 2.6.17-rc5
+In-Reply-To: <1149092818.22134.45.camel@mulgrave.il.steeleye.com>
+Message-ID: <Pine.LNX.4.63.0606010757400.4387@kai.makisara.local>
+References: <1149092818.22134.45.camel@mulgrave.il.steeleye.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Jun 2006 13:38:55 +1000
-Tony Griffiths <tonyg@agile.tv> wrote:
+On Wed, 31 May 2006, James Bottomley wrote:
 
-> diff -urpN ./net/socket.c.orig ./net/socket.c
-> --- ./net/socket.c.orig	2006-06-01 10:28:30.000000000 +1000
-> +++ ./net/socket.c	2006-06-01 10:34:09.000000000 +1000
-> @@ -496,6 +496,8 @@ static struct socket *sockfd_lookup_ligh
->  		if (sock)
->  			return sock;
->  		fput_light(file, *fput_needed);
-> +	} else {
-> +		*err = -EBADF;
->  	}
->  	return NULL;
->  }
+> This is my current slew of small bug fixes which either fix serious
+> bugs, or are completely safe for this -rc5 stage of the kernel.  I've
+> added one more since I last sent you this pull request (the fix memory
+> building non-aligned sg lists)
+> 
+> The patch is available from:
+> 
+> master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+> 
+> The short changelog is:
+> 
+> Bryan Holty:
+>   o fix memory building non-aligned sg lists
+> 
+I looked at 
+www.kernel.org/git/?p=linux/kernel/git/jejb/scsi-rc-fixes-2.6.git;.
 
-Confused.  That patch cannot make any difference to this function:
+This patch does the following change:
 
-static struct socket *sockfd_lookup_light(int fd, int *err, int *fput_needed)
-{
-	struct file *file;
-	struct socket *sock;
+- int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
++ int nr_pages = PAGE_ALIGN(bufflen + sgl[0].offset);
 
-	*err = -EBADF;
-	file = fget_light(fd, fput_needed);
-	if (file) {
-		sock = sock_from_file(file, err);
-		if (sock)
-			return sock;
-		fput_light(file, *fput_needed);
-	}
-	return NULL;
-}
+This seems to wrong: the new version is missing the right shift. For 
+instance, offset=0 and bufflen=4096 results in 4096 and not 1!
 
+(Using asm-x86_64, the new version translates to
+((bufflen + sgl[0].offset+PAGE_SIZE-1)&(~(PAGE_SIZE-1)))
+)
 
+According to the original patch by Brian, the change should probably have 
+been to (or something equivalent):
+
++       int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> 
+PAGE_SHIFT;
+
+This was tested by several people. Did anyone test the version put into 
+scsi-rc-fixes-2.6.git?
+
+-- 
+Kai

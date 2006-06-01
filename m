@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751707AbWFAEdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751751AbWFAE3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751707AbWFAEdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 00:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWFAEdM
+	id S1751751AbWFAE3b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 00:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWFAE3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 00:33:12 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:46795 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751707AbWFAEdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 00:33:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
-        b=DqxdrTD/vRz/cdyRkxSCsDK7q2OThWdgo8hDWIwUDj2eDJqGmaBSM1B98qzsuuYvS/FPWnfjNr6jsg3k2trTMpL6yE4gAhFP1O91rqyfGpyP0IBOsHkr4VF3kyJcvOLIojayytfCVk0xmBudEiseKx4IldI+lppPYAMtNxFAv3g=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Tony Griffiths'" <tonyg@agile.tv>, <linux-kernel@vger.kernel.org>
-Subject: RE: Some socket syscalls fail to return an error on bad file-descriptor# argument
-Date: Wed, 31 May 2006 21:33:00 -0700
-Message-ID: <003801c68534$7bfdc4e0$0200a8c0@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Thu, 1 Jun 2006 00:29:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34534 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750819AbWFAE3a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 00:29:30 -0400
+Date: Wed, 31 May 2006 21:33:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: mingo@elte.hu, arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1-lockdep: a rather strange oops
+Message-Id: <20060531213328.406e71fe.akpm@osdl.org>
+In-Reply-To: <986ed62e0605311947o1eb18b6qce3bb04c41625ffc@mail.gmail.com>
+References: <986ed62e0605311747qb8f7a58ybde5d3a87de74309@mail.gmail.com>
+	<20060531181430.bfe25ad5.akpm@osdl.org>
+	<986ed62e0605311947o1eb18b6qce3bb04c41625ffc@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <447E614F.3090905@agile.tv>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Thread-Index: AcaFLSUnCMgy7nFgSNmAB3ZE0joDcQABzchw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been fixed in 2.6.17. 
+On Wed, 31 May 2006 19:47:10 -0700
+"Barry K. Nathan" <barryn@pobox.com> wrote:
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Tony 
-> Griffiths
-> Sent: Wednesday, May 31, 2006 8:39 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: Some socket syscalls fail to return an error on bad 
-> file-descriptor# argument
+> On 5/31/06, Andrew Morton <akpm@osdl.org> wrote:
+> > The original oops was a jump-to-null.  I had a few of those when getting
+> > the latest git-libata-all tree working, due to missing
+> > ata_port_operations.data_xfer vectors.  But it appears that both sata_sil.c
+> > and sata_promise.c do have those filled in.
 > 
-> Description:
+> Ah, but pata_pdc2027x.c doesn't. (Oh, by the way, neither does sata_sil24.c.)
 > 
-> The sockfd_lookup_light() function does not set the return 
-> error status on a particular failure mode when the passed-in 
-> fd# is erroneous.
+> I tried filling it in, with the following patch, but booting that gave
+> me lots of weird output before the kernel finally failed to boot from
+> the root device. "Lots" meaning, enough that I think I'll need a
+> serial console to get anything meaningful. I didn't see any oopses;
+> rather, it seemed like the driver was misbehaving. I don't know
+> whether the fault is in my patch, or elsewhere in the pdc2027x driver.
+> I don't have time tonight (or probably this week, for that matter) to
+> look into this further.
 > 
-> Environment:
-> 
-> 2.6.16 kernel with the -mm2 patch-set applied.  Linux 2.6.17 
-> kernels are also affected.  Without the fix, a number of 
-> tests in LTP fail!  Any program calling one of the syscalls 
-> listed below with a bad fd# will not get an error return 
-> indicating that the syscall failed.
-> 
-> Fix:
-> 
-> The attached patch correctly sets *err = -EBADF if the 
-> attempt to map the fd# to a file pointer returns NULL.  The 
-> following syscalls are
-> affected-
-> 
-> bind()
-> listen()
-> accept()
-> connect()
-> getsockname()
-> getpeername()
-> setsockopt()
-> setsockopt()
-> shutdown()
-> sendmsg()
-> recvmsg()
-> 
-> 
-> 
-> 
+> As a reminder (in case anyone else jumps into this thread in the
+> future), 2.6.17-rc4-mm3 works perfectly...
 
+Right, thanks.  I'll drop the ata tree.  I have no idea what they were
+thinking of, checking in that stuff.

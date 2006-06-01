@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWFARYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbWFAR0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWFARYp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWFARYp
+	id S965200AbWFAR0e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 13:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWFAR0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:24:45 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:43785 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964934AbWFARYo convert rfc822-to-8bit (ORCPT
+	Thu, 1 Jun 2006 13:26:33 -0400
+Received: from pat.uio.no ([129.240.10.4]:55292 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965200AbWFAR0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:24:44 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 01 Jun 2006 17:24:41.0285 (UTC) FILETIME=[443E8F50:01C685A0]
-Content-class: urn:content-classes:message
-Subject: Re: USB devices fail unnecessarily on unpowered hubs
-Date: Thu, 1 Jun 2006 13:24:39 -0400
-Message-ID: <Pine.LNX.4.61.0606011320590.2085@chaos.analogic.com>
-In-Reply-To: <200606011753.38157.oliver@neukum.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: USB devices fail unnecessarily on unpowered hubs
-Thread-Index: AcaFoERKTw2RrMw7SR2y2fo2VluDMw==
-References: <Pine.LNX.4.44L0.0606011050330.6784-100000@iolanthe.rowland.org> <Pine.LNX.4.61.0606011104140.1745@chaos.analogic.com> <200606011753.38157.oliver@neukum.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Oliver Neukum" <oliver@neukum.org>
-Cc: "Alan Stern" <stern@rowland.harvard.edu>, "Andrew Morton" <akpm@osdl.org>,
-       "David Liontooth" <liontooth@cogweb.net>,
-       <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 1 Jun 2006 13:26:32 -0400
+Subject: Re: Why must NFS access metadata in synchronous mode?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <4ae3c140606010927t308e7d6ag5a9fc112c859aa45@mail.gmail.com>
+References: <4ae3c140605312104m441ca006j784a93354456faf8@mail.gmail.com>
+	 <1149141341.13298.21.camel@lade.trondhjem.org>
+	 <4ae3c140606010927t308e7d6ag5a9fc112c859aa45@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 13:26:18 -0400
+Message-Id: <1149182779.3549.25.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.938, required 12,
+	autolearn=disabled, AWL 1.06, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-06-01 at 12:27 -0400, Xin Zhao wrote:
+> Question 1: ...and how many NFS implementations have you seen based on
+> that paper?
+> I don't know. I only read the NFS implementations distributed with
+> Linux kernel. But some paper mentioned that the soft update mechanism
+> suggested in that paper has been adopted by FreeBSD.
 
-On Thu, 1 Jun 2006, Oliver Neukum wrote:
+FreeBSD does not use soft updates for NFS afaik.
 
-> Am Donnerstag, 1. Juni 2006 17:09 schrieb linux-os (Dick Johnson):
->> Many, most, perhaps all such devices don't take more power when they
->> are "enabled". Everything is already running and sucking up maximum
->> current when you plug it in! If the motherboard didn't smoke when
->
-> If they do, they are violating the spec. A device in the unconfigured (state 0)
-> state must not draw more than 100mA.
->
-> 	Regards
-> 		Oliver
->
+> Question 2: NFS permissions are checked by the _server_, not the client.
+> That's true. But I was not saying that all metadata access must be
+> asynchronous. Even for permission checking, speculative execution
+> mechanism proposed in Ed Nightingale's "speculative execution ...."
+> paper published in SOSP 2005 can be used to avoid waiting. The basic
+> idea is that a NFS client speculatively assume permission checking
+> returns "OK" and set a checkpoint, then the client can go ahead to
+> send further requests. If the actual result turns out to be "OK", the
+> client can discard the checkpoint, otherwise, it rolls back to the
+> checking point. This can make waiting time overlap with the sending
+> time of subsequent requests.
 
-Hmmm, the USB-IF recommends 100 mA per port, not requires.
+...and how does that help the user that has been told the operation
+succeeded?
+
+> Question 3: Cache consistency requirements are _much_ more stringent
+> for asynchronous operation.
+> I agree. But I am not sure how local file system like Ext3 handle this
+> problem. I don't think Ext3 must synchronously write metadata (I will
+> double check the ext3 code). If I remember correctly, when change
+> metadata, Ext3 just change it in memory and mark this page to be
+> dirty. The page will be flushed to disk afterward. If the server
+> exports an Ext3 code, it should be able to do the same thing. When a
+> client requests to change metadata, server writes to the mmaped
+> metadata page and then return to client instead of having to sync the
+> change to disk. With this mechanism, at least the client does not have
+> to wait for the disk flush time. Does it make sense? To prevent
+> interleave change on metadata before it is flushed to disk, the server
+> can even mark the metadata page to be read-only before it is flushed
+> to disk.
+
+'man 5 exports'. Read _carefully_ the entry on the "async" export
+option, and see the NFS FAQ, nfs mailing list archives, etc... why it is
+a bad idea.
 
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.73 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
+  Trond
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

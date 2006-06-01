@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbWFAR3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbWFARes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965236AbWFAR3d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbWFAR3d
+	id S965239AbWFARes (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 13:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965247AbWFARer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:29:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2951 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965236AbWFAR3c (ORCPT
+	Thu, 1 Jun 2006 13:34:47 -0400
+Received: from rtr.ca ([64.26.128.89]:34254 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S965239AbWFARer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:29:32 -0400
-Date: Thu, 1 Jun 2006 10:33:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: earny@net4u.de
-Cc: list-lkml@net4u.de, ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org,
-       rth@twiddle.net
-Subject: Re: ALPHA 2.6.17-rc5 AIC7###: does not boot
-Message-Id: <20060601103346.3e3544ab.akpm@osdl.org>
-In-Reply-To: <200606011911.36962.list-lkml@net4u.de>
-References: <200605301834.19795.list-lkml@net4u.de>
-	<20060531154648.53539006.akpm@osdl.org>
-	<20060601201619.A978@jurassic.park.msu.ru>
-	<200606011911.36962.list-lkml@net4u.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Jun 2006 13:34:47 -0400
+Message-ID: <447F2536.9030904@rtr.ca>
+Date: Thu, 01 Jun 2006 13:34:46 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Liontooth <liontooth@cogweb.net>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: USB devices fail unnecessarily on unpowered hubs
+References: <447EB0DC.4040203@cogweb.net> <20060601030140.172239b0.akpm@osdl.org>
+In-Reply-To: <20060601030140.172239b0.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jun 2006 19:11:36 +0200
-Ernst Herzberg <list-lkml@net4u.de> wrote:
+Andrew Morton wrote:
+> On Thu, 01 Jun 2006 02:18:20 -0700
+> ..
+>> This is generating a lot of grief and appears to be unnecessarily
+>> strict. Common USB sticks with a MaxPower value just above 100mA, for
+>> instance, typically work fine on unpowered hubs supplying 100mA.
+>>
+>> Is a more user-friendly solution possible? Could the shortfall
+>> information be passed to udev, which would allow rules to be written per
+>> device?
+..
+> Yes, it sounds like we're being non-real-worldly here.  This change
+> apparently broke things.  Did it actually fix anything as well?
 
-> > Ernst, please try this patch.
-> >
-> > Ivan.
-> >
-> 
-> Yesss Sir! The patch works.
+I think a far more sensible approach would be to just ensure that the
+total current draw for the (unpowered) hub and all connected devices,
+stays below the 500mA allowed.  So a 200mA device could coexist with
+a 100mA device on a hub which itself steals 100mA.
 
-Thanks, guys.
-
-Ivan, should I scoot that patch into 2.6.17 as-is?
+Cheers

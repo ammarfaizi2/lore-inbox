@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWFANpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWFAPjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWFANpw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 09:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWFANpw
+	id S1030205AbWFAPjh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWFAPjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 09:45:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:290 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750959AbWFANpv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 09:45:51 -0400
-Date: Thu, 1 Jun 2006 15:48:04 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patch] libata resume fix
-Message-ID: <20060601134802.GK4400@suse.de>
-References: <6hAdo-5CV-5@gated-at.bofh.it> <6hXD0-6Y9-1@gated-at.bofh.it> <6icsx-4vp-33@gated-at.bofh.it> <6ih8Y-3ba-15@gated-at.bofh.it> <6iH3h-2xw-59@gated-at.bofh.it> <447E5EAD.5070808@shaw.ca>
+	Thu, 1 Jun 2006 11:39:36 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:48529 "EHLO
+	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030205AbWFAPjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:39:36 -0400
+Subject: Re: Query: No IDE DMA for IBM 365X with PIIX chipset?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <j9bi729h2u4dcn9da7na3t1d8ckk477d9b@4ax.com>
+References: <j9bi729h2u4dcn9da7na3t1d8ckk477d9b@4ax.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Jun 2006 14:50:12 +0100
+Message-Id: <1149169812.12932.20.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <447E5EAD.5070808@shaw.ca>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31 2006, Robert Hancock wrote:
-> Bill Davidsen wrote:
-> >The trade-off is that if I have a 15k rpm SCSI drive, it would take a 
-> >lot of design changes to make it spin up quickly, and improve a function 
-> >which is usually done on a server once every MTBF when replacing the 
-> >failed unit.
-> >
-> >I think the majority of very large or very fast drives are in systems 
-> >which don't (deliberately) power cycles often, in rooms where heat is an 
-> >issue. And to spin up quickly take a larger power supply... 30 sec is 
-> >fine with most users.
-> >
-> >Couldn't find a spin-up time for the new Seagate 750GB drive, but the 
-> >seek sure is fast!
-> 
-> I wouldn't guess that even a 15K drive would take nearly that long. For 
-> boot time on servers it doesn't matter much though, disk spinup time is 
+On Sul, 2006-05-28 at 15:29 +1000, Grant Coady wrote:
+> PIIXa: chipset revision 2
+> PIIXa: not 100% native mode: will probe irqs later
+> PIIXa: neither IDE port enabled (BIOS)
 
-I do use a 15K rpm drive in my workstation (hello git!), and the spin up
-really isn't that bad. Less than 10 seconds for the actual spin up, I
-would say.
+It thinks the chip has not been activated, and then falls back to the
+legacy driver. Could be incorrect enable checks or other problems.
 
-> in the noise compared to the insane BIOS delays on most of them during 
-> bootup. Like on some servers (ahem.. IBM) which have about a 15 second 
-> delay on the main BIOS screen, 10 second delays on every network boot 
-> ROM, a 1 minute delay on the SCSI controller before it even starts 
-> scanning the bus, then another good 10 seconds before it starts booting. 
-> Gets annoying after a few reboots..
+> 00:01.0 ISA bridge: Intel Corporation 82371FB PIIX ISA [Triton I] (rev 02)
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 0
+> 00: 86 80 2e 12 07 00 80 02 02 00 01 06 00 00 00 00
+> 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Indeed, the BIOS bootup time on servers is typically anywhere from
-really bad to truly awful.
+82371FB, whee thats prehistoric 8)
 
--- 
-Jens Axboe
+I don't actually have any support for the 371FB PIIX in either driver as
+I've not been able to find a source for the data sheet to the chip. It
+may work if added to the drivers/scsi/pata_oldpiix identifiers in the
+2.6.17rc5-mm kernel. Would be useful to know as I don't know anyone else
+with that chip any more 8)
+
+Alan
 

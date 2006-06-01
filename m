@@ -1,139 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWFAIj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWFAIit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWFAIj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 04:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWFAIj2
+	id S1750796AbWFAIit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 04:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWFAIis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 04:39:28 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:36577 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750795AbWFAIj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 04:39:27 -0400
-Message-ID: <447EA694.8060407@in.ibm.com>
-Date: Thu, 01 Jun 2006 14:04:28 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@openvz.org>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
-       Rene Herman <rene.herman@keyaccess.nl>, Sam Vilain <sam@vilain.net>,
-       Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Srivatsa <vatsa@in.ibm.com>, ckrm-tech@lists.sourceforge.net
-Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru> <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>
-In-Reply-To: <447E9A1D.9040109@openvz.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 04:38:48 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:26552 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750790AbWFAIis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 04:38:48 -0400
+Date: Thu, 1 Jun 2006 12:38:05 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060601083805.GB754@2ka.mipt.ru>
+References: <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <20060601001825.A21730@openss7.org> <20060601063012.GC28087@2ka.mipt.ru> <20060601004608.C21730@openss7.org> <20060601070136.GA754@2ka.mipt.ru> <20060601011125.C22283@openss7.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060601011125.C22283@openss7.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 01 Jun 2006 12:38:07 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Kirill,
-
-Kirill Korotaev wrote:
->> Do you have any documented requirements for container resource 
->> management?
->> Is there a minimum list of features and nice to have features for 
->> containers
->> as far as resource management is concerned?
+On Thu, Jun 01, 2006 at 01:11:25AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
+> Evgeniy,
 > 
-> Sure! You can check OpenVZ project (http://openvz.org) for example of 
-> required resource management. BTW, I must agree with other people here 
-> who noticed that per-process resource management is really useless and 
-> hard to use :(
-
-I'll take a look at the references. I agree with you that it will be useful
-to have resource management for a group of tasks.
-
+> On Thu, 01 Jun 2006, Evgeniy Polyakov wrote:
 > 
-> Briefly about required resource management:
-> 1) CPU:
-> - fairness (i.e. prioritization of containers). For this we use SFQ like 
-> fair cpu scheduler with virtual cpus (runqueues). Linux-vserver uses 
-> tocken bucket algorithm. I can provide more details on this if you are 
-> interested.
-
-Yes, any information or pointers to them will be very useful.
-
-> - cpu limits (soft, hard). OpenVZ provides only hard cpu limits. For 
-> this we account the time in cycles. And after some credit is used do 
-> delay of container execution. We use cycles as our experiments show that 
-> statistical algorithms work poorly on some patterns :(
-> - cpu guarantees. I'm not sure any of solutions provide this yet.
-
-ckrm has a solution to provide cpu guarantees. 
-
-I think as far as CPU resource management is concerned (limits or guarantees),
-there are common problems to be solved, for example
-
-1. Tracking when a limit or a gaurantee is not met
-2. Taking a decision to cap the group
-3. Selecting the next task to execute (keeping O(1) in mind)
-
-For the existing resource controller in OpenVZ I would be
-interested in the information on the kinds of patterns it does not
-perform well on and the patterns it performs well on.
-
+> > On Thu, Jun 01, 2006 at 12:46:08AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
+> > > > Since pseudo-randomness affects both folded and not folded hash
+> > > > distribution, it can not end up in different results.
+> > > 
+> > > Yes it would, so to rule out pseudo-random effects the pseudo-
+> > > random number generator must be removed.
+> > > 
+> > > > 
+> > > > You are right that having test with 2^48 values is really interesting,
+> > > > but it will take ages on my test machine :)
+> > > 
+> > > Try a usable subset; no pseudo-random number generator.
+> > 
+> > I've run it for 2^30 - the same result: folded and not folded Jenkins
+> > hash behave the same and still both results produce exactly the same
+> > artifacts compared to XOR hash.
 > 
-> 2) disk:
-> - overall disk quota for container
-> - per-user/group quotas inside container
-> 
-> in OpenVZ we wrote a 2level disk quota which works on disk subtrees. 
-> vserver imho uses 1 partition per container approach.
-> 
-> - disk I/O bandwidth:
-> we started to use CFQv2, but it is quite poor in this regard. First, it 
-> doesn't prioritizes writes and async disk operations :( And even for 
-> sync reads we found some problems we work on now...
-> 
-> 3) memory and other resources.
-> - memory
-> - files
-> - signals and so on and so on.
-> For example, in OpenVZ we have user resource beancounters (original 
-> author is Alan Cox), which account the following set of parameters:
-> kernel memory (vmas, page tables, different structures etc.), dcache 
-> pinned size, different user pages (locked, physical, private, shared), 
-> number of files, sockets, ptys, signals, network buffers, netfilter 
-> rules etc.
-> 
-> 4. network bandwidth
-> traffic shaping is already ok here.
+> But not without the pseudo-random number generation... ?
 
-Traffic shaping is just for outgoing traffic right? How about incoming
-traffic (through the accept call)
+How can I obtain (2^30)*6 bytes of truly random bytes?
 
+> > Btw, XOR hash, as completely stateless, can be used to show how
+> > Linux pseudo-random generator works for given subset - it's average of
+> > distribution is very good.
 > 
-
-These are a great set of requirements. Thanks for putting them together.
-
-
->> Thinking a bit more along these lines, it would probably break O(1). 
->> But I guess a good
->> algorithm can amortize the cost.
+> But its distribution might auto-correlate with the Jenkins function.
+> The only way to be sure is to remove the pseudo-random number generator.
 > 
-> this is the price to pay. but it happens quite rarelly as was noticed 
-> already...
-> 
+> Just try incrementing from, say, 10.0.0.0:10000 up, resetting port number
+> to 10000 at 16000, and just incrementing the IP address when the port
+> number wraps, instead of pseudo-random, through 2^30 loops for both.
+> If the same artifacts emerge, I give in.
 
-Yes, agreed.
+I've run it with following source ip/port selection algo:
+	if (++sport == 0) {
+		saddr++;
+		sport++;
+	}
 
-> Kirill
-> 
+Starting IP was 1.1.1.1 and sport was 1.
+Destination IP and port are the same 192.168.0.1:80
 
+Jenkins hash started to show different behaviour:
+it does not have previous artefacts, but instead it's dispersion is
+_much_ wider than in XOR case.
+
+With following ip/port selection algo:
+	if (++sport == 0) {
+		//saddr++;
+		sport += 123;
+	}
+
+I see yet another jenkins artefacts, but again different from previous
+two.
+
+But each time both folded and not folded hashes behave exactly the same.
+
+> Can you show the same artifacts for jenkins_3word?
+
+What should be used as starting point there?
+If I use 0 it is the same as jhash_2words().
+If I use 123123 - artefacts are the same, just slighly shifted (I tested
+only the latest test above though).
+
+Looking into the code we can see that jhash_2words() is jhash_3words()
+with zero "C" value, so it will show the same nature.
 
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
-
-PS: I am also cc'ing ckrm-tech and srivatsa
+	Evgeniy Polyakov

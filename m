@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWFCUSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWFAEEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751789AbWFCUSE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 16:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWFCUSE
+	id S1751711AbWFAEEM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 00:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWFAEEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 16:18:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36108 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751789AbWFCUSC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 16:18:02 -0400
-Date: Wed, 31 May 2006 01:07:01 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Inaky Perez-Gonzalez <inaky@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       inaky.perez-gonzalez@intel.com
-Subject: Re: ANNOUNCE: Linux UWB and Wireless USB project
-Message-ID: <20060531010701.GB4073@ucw.cz>
-References: <200606011404.20251.inaky@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Jun 2006 00:04:12 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:50140 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751710AbWFAEEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 00:04:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=aOO8GeaSb009F24Gs5QhEudy3z0WeTMRJkiFNHlll4HWAtwixCENzdr84o3b6QQI3PJ/FYV0ZJ//txx2CdfGDfOVpGXtHTQi21uy0sY8O8QoYI6CPPjwKyWtqq9rSbf9shq2JyB89r+HErxKK1Q6uLec0uOyvaBFfQUGjKXlDXE=
+Message-ID: <4ae3c140605312104m441ca006j784a93354456faf8@mail.gmail.com>
+Date: Thu, 1 Jun 2006 00:04:11 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Why must NFS access metadata in synchronous mode?
+Cc: linux-fsdevel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200606011404.20251.inaky@linux.intel.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Until kernel 2.6.16, I think NFS still access metadata synchronously,
+which may impact performance significantly. Several years ago, paper
+"metadata update performance in file systems" already suggested using
+asynchronous mode in metadata access.
 
-> Intel is pleased to announce the launch of a project to
-> implement Linux kernel support for upcoming hardware that
-> complies with the WiMedia Ultra Wide Band (UWB) and Wireless
-> USB standards.
+I am curious why NFS does not adopt this suggestion? Can someone explain this?
 
-Does wireless usb also supply power as wired USB does? ;-)
+Thanks!
 
-> UWB is a high-bandwidth, low-power, point-to-point radio
-> technology using a wide spectrum (3.1-10.6HGz).  It is
-
-How much power is low power?
-
-> You are welcome to contribute!
-
-Is there any hardware available?
-							Pavel
-
--- 
-Thanks for all the (sleeping) penguins.
+Xin

@@ -1,135 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWFAVkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWFAVmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWFAVkx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWFAVkw
+	id S1750775AbWFAVmD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWFAVmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:40:52 -0400
-Received: from gw.goop.org ([64.81.55.164]:32723 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751055AbWFAVkv (ORCPT
+	Thu, 1 Jun 2006 17:42:02 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:33201 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750775AbWFAVmA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:40:51 -0400
-Message-ID: <447F5EDE.4010900@goop.org>
-Date: Thu, 01 Jun 2006 14:40:46 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Borislav Deianov <borislav@users.sourceforge.net>
-CC: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH REPOST] Support enable/disable of WAN module in ibm_acpi
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 17:42:00 -0400
+Date: Thu, 1 Jun 2006 23:41:58 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
+Message-ID: <20060601214158.GA438@suse.de>
+References: <20060529214011.GA417@suse.de> <20060530182453.GA8701@suse.de> <20060601184938.GA31376@suse.de> <20060601121200.457c0335.akpm@osdl.org> <20060601201050.GA32221@suse.de> <20060601142400.1352f903.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060601142400.1352f903.akpm@osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New Lenovo Thinkpads have an optional WAN module (a Sierra Wireless
-MC5720 EV-DO modem), which can be turned on and off much like the
-Bluetooth module.  This patch adds a "wan" entry to /proc/acpi/ibm,
-which is pretty much a cut'n'paste of the corresponding bluetooth code.
+ On Thu, Jun 01, Andrew Morton wrote:
 
-    J
+> Olaf Hering <olh@suse.de> wrote:
+> >
+> > 
+> >  
+> > +/* return a page in PageUptodate state, BLKFLSBUF may have flushed the page */
+> > +static struct page *cramfs_read_cache_page(struct address_space *m, unsigned int n)
+> > +{
+> > +	struct page *page;
+> > +	int readagain = 5;
+> > +retry:
+> > +	page = read_cache_page(m, n, (filler_t *)m->a_ops->readpage, NULL);
+> > +	if (IS_ERR(page))
+> > +		return NULL;
+> > +	lock_page(page);
+> > +	if (PageUptodate(page))
+> > +		return page;
+> > +	unlock_page(page);
+> > +	page_cache_release(page);
+> > +	if (readagain--)
+> > +		goto retry;
+> > +	return NULL;
+> > +}
+> 
+> Better, but it's still awful, isn't it?  The things you were discussing
+> with Chris look more promising.  PG_Dirty would be a bit of a hack, but at
+> least it'd be a 100% reliable hack, whereas the above is a
+> whatever-the-previous-failure-rate-was-to-the-fifth hack.
 
---
+Do you want it like that?
 
-Allow a WAN module to enabled/disabled on a Thinkpad X60.
+lock_page(page);
+if (PageUptodate(page)) {
+        SetPageDirty(page);
+        mb();
+        return page;
+}
 
-The WAN (Sierra Wireless EV-DO) module is very similar to the
-Bluetooth module.  It appears on the USB bus when enabled.  It can be
-controlled via hot key, or directly via ACPI.  This change enables
-direct control via ACPI.
-
-I have tested it on my Lenovo Thinkpad X60; I guess it will probably
-work on other Thinkpad models which come with this module installed.
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
-
-diff -r 401a0868b8be drivers/acpi/ibm_acpi.c
---- a/drivers/acpi/ibm_acpi.c	Mon May 29 06:35:52 2006 +0700
-+++ b/drivers/acpi/ibm_acpi.c	Mon May 29 01:36:12 2006 -0700
-@@ -567,6 +567,69 @@ static int bluetooth_write(char *buf)
- 	return 0;
- }
- 
-+static int wan_supported;
-+
-+static int wan_init(void)
-+{
-+	wan_supported = hkey_handle &&
-+	    acpi_evalf(hkey_handle, NULL, "GWAN", "qv");
-+
-+	return 0;
-+}
-+
-+static int wan_status(void)
-+{
-+	int status;
-+
-+	if (!wan_supported ||
-+	    !acpi_evalf(hkey_handle, &status, "GWAN", "d"))
-+		status = 0;
-+
-+	return status;
-+}
-+
-+static int wan_read(char *p)
-+{
-+	int len = 0;
-+	int status = wan_status();
-+
-+	if (!wan_supported)
-+		len += sprintf(p + len, "status:\t\tnot supported\n");
-+	else if (!(status & 1))
-+		len += sprintf(p + len, "status:\t\tnot installed\n");
-+	else {
-+		len += sprintf(p + len, "status:\t\t%s\n", enabled(status, 1));
-+		len += sprintf(p + len, "commands:\tenable, disable\n");
-+	}
-+
-+	return len;
-+}
-+
-+static int wan_write(char *buf)
-+{
-+	int status = wan_status();
-+	char *cmd;
-+	int do_cmd = 0;
-+
-+	if (!wan_supported)
-+		return -ENODEV;
-+
-+	while ((cmd = next_cmd(&buf))) {
-+		if (strlencmp(cmd, "enable") == 0) {
-+			status |= 2;
-+		} else if (strlencmp(cmd, "disable") == 0) {
-+			status &= ~2;
-+		} else
-+			return -EINVAL;
-+		do_cmd = 1;
-+	}
-+
-+	if (do_cmd && !acpi_evalf(hkey_handle, NULL, "SWAN", "vd", status))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
- static int video_supported;
- static int video_orig_autosw;
- 
-@@ -1561,6 +1624,13 @@ static struct ibm_struct ibms[] = {
- 	 .init = bluetooth_init,
- 	 .read = bluetooth_read,
- 	 .write = bluetooth_write,
-+	 },
-+	{
-+	 .name = "wan",
-+	 .init = wan_init,
-+	 .read = wan_read,
-+	 .write = wan_write,
-+	 .experimental = 1,
- 	 },
- 	{
- 	 .name = "video",
-
-
+and perhaps a ClearPageDirty() after memcpy.

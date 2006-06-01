@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWFAQtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWFAQzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWFAQtU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 12:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWFAQtT
+	id S1030237AbWFAQzF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 12:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWFAQzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 12:49:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31722 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030240AbWFAQtT (ORCPT
+	Thu, 1 Jun 2006 12:55:04 -0400
+Received: from dvhart.com ([64.146.134.43]:1939 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1030237AbWFAQzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 12:49:19 -0400
-Date: Thu, 1 Jun 2006 09:53:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.17-rc5-mm2 -- PCI: Bus #03 (-#06) is hidden behind
- transparent bridge #02 (-#02) (try 'pci=assign-busses')
-Message-Id: <20060601095335.c778bc98.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0606010752n637c6411l805115f8170f0ebb@mail.gmail.com>
-References: <a44ae5cd0606010752n637c6411l805115f8170f0ebb@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Jun 2006 12:55:02 -0400
+Message-ID: <447F1BE4.5040705@mbligh.org>
+Date: Thu, 01 Jun 2006 09:55:00 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: "Martin J. Bligh" <mbligh@google.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: 2.6.17-rc5-mm1
+References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org> <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com> <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com> <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home> <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home> <447F084C.9070201@google.com> <Pine.LNX.4.64.0606011742500.32445@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0606011742500.32445@scrub.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jun 2006 10:52:26 -0400
-"Miles Lane" <miles.lane@gmail.com> wrote:
+Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 1 Jun 2006, Martin J. Bligh wrote:
+> 
+> 
+>>Did you read the discussion that lead up to it? I thought that quite
+>>clearly described why such a thing was needed.
+> 
+> 
+> I did read it, what did I miss?
 
-> ACPI: setting ELCR to 0200 (from 0c38)
-> PM: Adding info for No Bus:platform
-> NET: Registered protocol family 16
-> ACPI: bus type pci registered
-> PCI: PCI BIOS revision 2.10 entry at 0xfd9c2, last bus=2
-> Setting up standard PCI resources
-> ACPI: Subsystem revision 20060310
-> ACPI: Interpreter enabled
-> ACPI: Using PIC for interrupt routing
-> PM: Adding info for acpi:acpi
-> ACPI: PCI Root Bridge [PCI0] (0000:00)
-> PCI: Probing PCI hardware (bus 00)
-> PM: Adding info for No Bus:pci0000:00
-> Boot video device is 0000:00:02.0
-> PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
-> PCI quirk: region 1180-11bf claimed by ICH4 GPIO
-> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-> PCI: Transparent bridge - 0000:00:1e.0
-> PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#02)
-> (try 'pci=assign-busses')
-> Please report the result to linux-kernel to fix this permanently
+So the point is to enable the performance-affecting debug options by
+default, but provide one clear hook to turn them all off, with a name
+that's consistent over time, so we can do it in an automated fashion.
 
-I guess you're supposed to try 'pci=assign-busses'.
+To me that means having clear name so people know which option to hook
+stuff under, and preferably not hiding stuff behind extra config options
+to make them harder to find. Maybe I've missed the point of what you
+were trying to do, but it seemed to not meet that.
 
-Does the machine work OK without pci=assign-busses?
+M.
 
-Does the machine work OK with pci=assign-busses?
 
-Greg, what are we supposed to be doing here?  Grab the PCI IDs and add a
-quirk somewhere?

@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWFAJ2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWFAJ2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWFAJ2x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 05:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWFAJ2w
+	id S1750834AbWFAJ2A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 05:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWFAJ2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 05:28:52 -0400
-Received: from smtp1.kolej.mff.cuni.cz ([195.113.24.4]:36365 "EHLO
-	smtp1.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750839AbWFAJ2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 05:28:52 -0400
-X-Envelope-From: zajio1am@artax.karlin.mff.cuni.cz
-Date: Thu, 1 Jun 2006 11:28:07 +0200
-From: Ondrej Zajicek <santiago@mail.cz>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: "D. Hazelton" <dhazelton@enter.net>, Dave Airlie <airlied@gmail.com>,
-       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060601092807.GA7111@localhost.localdomain>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605302314.25957.dhazelton@enter.net> <9e4733910605302116s5a47f5a3kf0f941980ff17e8@mail.gmail.com> <200605310026.01610.dhazelton@enter.net> <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com>
+	Thu, 1 Jun 2006 05:28:00 -0400
+Received: from mail.gmx.de ([213.165.64.20]:22416 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750782AbWFAJ17 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 05:27:59 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc5-mm2
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060601014806.e86b3cc0.akpm@osdl.org>
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 11:30:33 +0200
+Message-Id: <1149154233.12777.14.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com>
-X-Operating-System: Debian GNU/Linux 3.1 (Sarge)
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 31, 2006 at 12:39:19AM -0400, Jon Smirl wrote:
-> >Yes, but I have accepted that there is a certain direction and order the
-> >maintainers want things done in. For this reason I can't just leave DRM
-> >alone.
+On Thu, 2006-06-01 at 01:48 -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
 > 
-> fbdev (Antonino A. Daplas <adaplas@gmail.com>) and DRM (Dave Airlie
-> <airlied@gmail.com>) have two different maintainers. I have not seen
-> Tony comment on what he thinks of Dave's plans so I don't know what
-> his position is how driver merging can be acomplished.
+> 
+> - A cfq bug was fixed in mainline, so the git-cfq tree has been restored.
 
-Is there some document describing long-term direction or plans for this?
-(another than http://jonsmirl.googlepages.com/graphics.html)
-I googled for last Kernel Summit mentioned here but didn't found anything
-specific.
+I put the fix for slab corruption into mm1, and it did indeed cure that.
+However, if I add git-cfq.patch, my box still explodes.
 
--- 
-Elen sila lumenn' omentielvo
+	-Mike
 
-Ondrej 'SanTiago' Zajicek (email: santiago@mail.cz, jabber: santiago@njs.netlab.cz)
-OpenPGP encrypted e-mails preferred (KeyID 0x11DEADC3, wwwkeys.pgp.net)
-"To err is human -- to blame it on a computer is even more so."

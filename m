@@ -1,142 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWFAWZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWFAWZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWFAWZn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 18:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWFAWZn
+	id S1750751AbWFAWZc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 18:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWFAWZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 18:25:43 -0400
-Received: from smtp1.ensim.com ([65.164.64.254]:39468 "EHLO aero.ensim.com")
-	by vger.kernel.org with ESMTP id S1750801AbWFAWZm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 18:25:42 -0400
-From: Borislav Deianov <borislav@users.sourceforge.net>
-Date: Thu, 1 Jun 2006 15:25:15 -0700
-To: len.brown@intel.com, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH REPOST] Support enable/disable of WAN module in ibm_acpi
-Message-ID: <20060601222515.GC5790@aero.ensim.com>
-References: <447F5EDE.4010900@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Jun 2006 18:25:32 -0400
+Received: from wx-out-0102.google.com ([66.249.82.195]:12110 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750751AbWFAWZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 18:25:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=q8TPw8L6aevZ38Rf2X57+HLQEF66d30VQz68G6zpodikaFaSWiHioJ9aBO/0x9iawWEvnRbwxVpGafcRRBxKci28UgEIMKrgEn2uFXgeCEGnLkjaMXyKpwcnFxrFESMdwXOEVzxPEQu5AcLCg5tKKUxoB2qgNGrn3rmY0KN8EB4=
+Message-ID: <986ed62e0606011525g7e742c78s5358255dded7be0e@mail.gmail.com>
+Date: Thu, 1 Jun 2006 15:25:31 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Subject: Re: 2.6.17-rc5-mm2
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <9a8748490606011451m69e2f437uf3822e535f87d9ae@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <447F5EDE.4010900@goop.org>
-User-Agent: Mutt/1.4.2.1i
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <9a8748490606011451m69e2f437uf3822e535f87d9ae@mail.gmail.com>
+X-Google-Sender-Auth: 36b263fa349d7f13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 02:40:46PM -0700, Jeremy Fitzhardinge wrote:
-> New Lenovo Thinkpads have an optional WAN module (a Sierra Wireless
-> MC5720 EV-DO modem), which can be turned on and off much like the
-> Bluetooth module.  This patch adds a "wan" entry to /proc/acpi/ibm,
-> which is pretty much a cut'n'paste of the corresponding bluetooth code.
+On 6/1/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> Got a few build warnings with this one :
 
-I'm not able to test this myself, but it looks good. Len, please
-apply.
+On the topic of build warnings, I got these (it's still building, and
+some of the earlier build output has gone past screen's scrollback
+buffer, so this might not be everything):
 
-Thanks,
-Borislav
+drivers/scsi/libsrp.c: In function 'srp_cmd_perform':
+drivers/scsi/libsrp.c:434: warning: implicit declaration of function
+'scsi_host_get_command'
+drivers/scsi/libsrp.c:434: warning: assignment makes pointer from
+integer without a cast
 
---
+ipc/msg.c: In function 'sys_msgctl':
+ipc/msg.c:338: warning: 'setbuf.qbytes' may be used uninitialized in
+this function
+ipc/msg.c:338: warning: 'setbuf.uid' may be used uninitialized in this function
+ipc/msg.c:338: warning: 'setbuf.gid' may be used uninitialized in this function
+ipc/msg.c:338: warning: 'setbuf.mode' may be used uninitialized in this function
 
-Allow a WAN module to enabled/disabled on a Thinkpad X60.
+ipc/sem.c: In function 'sys_semctl':
+ipc/sem.c:810: warning: 'setbuf.uid' may be used uninitialized in this function
+ipc/sem.c:810: warning: 'setbuf.gid' may be used uninitialized in this function
+ipc/sem.c:810: warning: 'setbuf.mode' may be used uninitialized in this function
 
-The WAN (Sierra Wireless EV-DO) module is very similar to the
-Bluetooth module.  It appears on the USB bus when enabled.  It can be
-controlled via hot key, or directly via ACPI.  This change enables
-direct control via ACPI.
+kernel/lockdep.c: In function 'static_obj':
+kernel/lockdep.c:1112: warning: unused variable 'i'
 
-I have tested it on my Lenovo Thinkpad X60; I guess it will probably
-work on other Thinkpad models which come with this module installed.
+fs/bio.c: In function 'bio_alloc_bioset':
+fs/bio.c:169: warning: 'idx' may be used uninitialized in this function
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
+fs/eventpoll.c: In function 'sys_epoll_create':
+fs/eventpoll.c:500: warning: 'fd' may be used uninitialized in this function
 
-diff -r 401a0868b8be drivers/acpi/ibm_acpi.c
---- a/drivers/acpi/ibm_acpi.c	Mon May 29 06:35:52 2006 +0700
-+++ b/drivers/acpi/ibm_acpi.c	Mon May 29 01:36:12 2006 -0700
-@@ -567,6 +567,69 @@ static int bluetooth_write(char *buf)
-	return 0;
-}
+fs/jfs/jfs_txnmgr.c: In function 'txCommit':
+fs/jfs/jfs_txnmgr.c:1922: warning: 'pxd.addr2' may be used
+uninitialized in this function
+fs/jfs/jfs_txnmgr.c:1922: warning: 'pxd.addr1' may be used
+uninitialized in this function
+fs/jfs/jfs_txnmgr.c:1922: warning: 'pxd.len' may be used uninitialized
+in this function
 
-+static int wan_supported;
-+
-+static int wan_init(void)
-+{
-+	wan_supported = hkey_handle &&
-+	    acpi_evalf(hkey_handle, NULL, "GWAN", "qv");
-+
-+	return 0;
-+}
-+
-+static int wan_status(void)
-+{
-+	int status;
-+
-+	if (!wan_supported ||
-+	    !acpi_evalf(hkey_handle, &status, "GWAN", "d"))
-+		status = 0;
-+
-+	return status;
-+}
-+
-+static int wan_read(char *p)
-+{
-+	int len = 0;
-+	int status = wan_status();
-+
-+	if (!wan_supported)
-+		len += sprintf(p + len, "status:\t\tnot supported\n");
-+	else if (!(status & 1))
-+		len += sprintf(p + len, "status:\t\tnot installed\n");
-+	else {
-+		len += sprintf(p + len, "status:\t\t%s\n", enabled(status, 
-1));
-+		len += sprintf(p + len, "commands:\tenable, disable\n");
-+	}
-+
-+	return len;
-+}
-+
-+static int wan_write(char *buf)
-+{
-+	int status = wan_status();
-+	char *cmd;
-+	int do_cmd = 0;
-+
-+	if (!wan_supported)
-+		return -ENODEV;
-+
-+	while ((cmd = next_cmd(&buf))) {
-+		if (strlencmp(cmd, "enable") == 0) {
-+			status |= 2;
-+		} else if (strlencmp(cmd, "disable") == 0) {
-+			status &= ~2;
-+		} else
-+			return -EINVAL;
-+		do_cmd = 1;
-+	}
-+
-+	if (do_cmd && !acpi_evalf(hkey_handle, NULL, "SWAN", "vd", status))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-static int video_supported;
-static int video_orig_autosw;
+fs/reiser4/plugin/file/cryptcompress.c: In function 'align_or_cut_overhead':
+fs/reiser4/plugin/file/cryptcompress.c:871: warning: 'oh' may be used
+uninitialized in this function
 
-@@ -1561,6 +1624,13 @@ static struct ibm_struct ibms[] = {
-	 .init = bluetooth_init,
-	 .read = bluetooth_read,
-	 .write = bluetooth_write,
-+	 },
-+	{
-+	 .name = "wan",
-+	 .init = wan_init,
-+	 .read = wan_read,
-+	 .write = wan_write,
-+	 .experimental = 1,
-	 },
-	{
-	 .name = "video",
+fs/xfs/xfs_bmap.c: In function 'xfs_bmapi':
+fs/xfs/xfs_bmap.c:2498: warning: 'rtx' is used uninitialized in this function
 
+fs/xfs/xfs_dir.c: In function 'xfs_dir_removename':
+fs/xfs/xfs_dir.c:363: warning: 'totallen' may be used uninitialized in
+this function
+fs/xfs/xfs_dir.c:363: warning: 'count' may be used uninitialized in
+this function
+
+fs/xfs/xfs_inode.c: In function 'xfs_ifree':
+fs/xfs/xfs_inode.c:1960: warning: 'last_offset' may be used
+uninitialized in this function
+fs/xfs/xfs_inode.c:1958: warning: 'last_dip' may be used uninitialized
+in this function
+
+fs/xfs/xfs_log.c: In function 'xlog_write':
+fs/xfs/xfs_log.c:1749: warning: 'iclog' may be used uninitialized in
+this function
+
+fs/xfs/xfs_log_recover.c: In function 'xlog_find_tail':
+fs/xfs/xfs_log_recover.c:523: warning: 'first_blk' may be used
+uninitialized in this function
+
+-- 
+-Barry K. Nathan <barryn@pobox.com>

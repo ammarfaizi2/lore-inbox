@@ -1,216 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWFAXRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWFAXVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbWFAXRp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 19:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWFAXRp
+	id S1750915AbWFAXVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 19:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWFAXVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 19:17:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59264 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750883AbWFAXRn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 19:17:43 -0400
-Date: Thu, 1 Jun 2006 16:20:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: len.brown@intel.com, greg@kroah.com, linux-acpi@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       pavel@ucw.cz
-Subject: Re: [patch 1/3] acpi: dock driver v6
-Message-Id: <20060601162039.02fcd8e1.akpm@osdl.org>
-In-Reply-To: <1149203128.14279.17.camel@whizzy>
-References: <20060412221027.472109000@intel.com>
-	<1144880322.11215.44.camel@whizzy>
-	<20060412222735.38aa0f58.akpm@osdl.org>
-	<1145054985.29319.51.camel@whizzy>
-	<44410360.6090003@sgi.com>
-	<1145383396.10783.32.camel@whizzy>
-	<1146268318.25490.33.camel@whizzy>
-	<1147373152.15308.14.camel@whizzy>
-	<1149203128.14279.17.camel@whizzy>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Jun 2006 19:21:43 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:49877 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750907AbWFAXVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 19:21:42 -0400
+Message-ID: <447F7684.10405@bigpond.net.au>
+Date: Fri, 02 Jun 2006 09:21:40 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Kirill Korotaev <dev@sw.ru>
+CC: Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>, Ingo Molnar <mingo@elte.hu>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest> <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com> <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru> <447E26AC.7010102@bigpond.net.au> <447E9ADA.90805@sw.ru>
+In-Reply-To: <447E9ADA.90805@sw.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 1 Jun 2006 23:21:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristen Accardi <kristen.c.accardi@intel.com> wrote:
->
-> Changed from last version:
+Kirill Korotaev wrote:
+>>>>> Using a timer for releasing tasks from their sinbin sounds like a  bit
+>>>>> of an overhead. Given that there could be 10s of thousands of tasks.
+>>>>
+>>>>
+>>>>
+>>>> The more runnable tasks there are the less likely it is that any of 
+>>>> them is exceeding its hard cap due to normal competition for the 
+>>>> CPUs.  So I think that it's unlikely that there will ever be a very 
+>>>> large number of tasks in the sinbin at the same time.
+>>>
+>>> for containers this can be untrue...
+>>
+>>
+>> Why will this be untrue for containers?
+> if one container having 100 running tasks inside exceeded it's credit, 
+> it should be delayed. i.e. 100 tasks should be placed in sinbin if I 
+> understand your algo correctly. the second container having 100 tasks as 
+> well will do the same.
 
-It would be much preferred if you could issue patches against the previous
-version please (ie: the thing in -mm), instead of reissuing the patch each
-time.
+1. Caps are set on a per task basis not on a group basis.
+2. Sinbinning is the last resort and only used for hard caps.  The soft 
+capping mechanism is also applied to hard capped tasks and natural 
+competition also tends to reduce usage rates.
 
-It tells us that you, the developer, have been testing the code which we
-intend to send upstream, rather than testing some possibly-divergent thing
-which lives on your hard-drive.
+In general, sinbinning will only kick in on lightly loaded systems where 
+there is no competition for CPU resources.
 
-And it makes it much easier to review the changes.  And it saves me from
-having to generate the incremental diff so _I_ can see what you've changed.
+Further, there is a natural ceiling of 999 per CPU on the number tasks 
+that will ever be in the sinbin at the same time.  To achieve this 
+maximum some very unusual circumstances have to prevail:
 
+1. these 999 tasks must be the only runnable tasks on the system,
+2. they all must have a cap of 1/1000, and
+3. the distribution of CPU among them must be perfectly fair so that 
+they all have the expected average usage rate of 1/999.
 
-And lo, when I did that:
+If you add one more task to this mix the average usage would be 1/1000 
+and if they all had that none would be exceeding their cap and there 
+would be no sinbinning at all.  Of course, in reality, half would be 
+slightly above the average and half slightly below and about 500 would 
+be sinbinned.  But this reality check also applies to the 999 and 
+somewhat less than 999 would actually be sinbinned.
 
-diff -puN drivers/acpi/dock.c~acpi-dock-driver-v6 drivers/acpi/dock.c
---- 25/drivers/acpi/dock.c~acpi-dock-driver-v6	Thu Jun  1 16:12:31 2006
-+++ 25-akpm/drivers/acpi/dock.c	Thu Jun  1 16:12:31 2006
-@@ -190,6 +190,9 @@ static int is_dock(acpi_handle handle)
-  */
- int is_dock_device(acpi_handle handle)
- {
-+	if (!dock_station)
-+		return 0;
-+
- 	if (is_dock(handle) || find_dock_dependent_device(dock_station, handle))
- 		return 1;
- 
-@@ -218,6 +221,66 @@ static int dock_present(struct dock_stat
- 	return 0;
- }
- 
-+
-+
-+/**
-+ * dock_create_acpi_device - add new devices to acpi
-+ * @handle - handle of the device to add
-+ *
-+ *  This function will create a new acpi_device for the given
-+ *  handle if one does not exist already.  This should cause
-+ *  acpi to scan for drivers for the given devices, and call
-+ *  matching driver's add routine.
-+ *
-+ *  Returns a pointer to the acpi_device corresponding to the handle.
-+ */
-+static struct acpi_device * dock_create_acpi_device(acpi_handle handle)
-+{
-+	struct acpi_device *device = NULL;
-+	struct acpi_device *parent_device;
-+	acpi_handle parent;
-+	int ret;
-+
-+	if (acpi_bus_get_device(handle, &device)) {
-+		/*
-+		 * no device created for this object,
-+		 * so we should create one.
-+		 */
-+		acpi_get_parent(handle, &parent);
-+		if (acpi_bus_get_device(parent, &parent_device))
-+			parent_device = NULL;
-+
-+		ret = acpi_bus_add(&device, parent_device, handle,
-+			ACPI_BUS_TYPE_DEVICE);
-+		if (ret) {
-+			pr_debug("error adding bus, %x\n",
-+				-ret);
-+			return NULL;
-+		}
-+	}
-+	return device;
-+}
-+
-+/**
-+ * dock_remove_acpi_device - remove the acpi_device struct from acpi
-+ * @handle - the handle of the device to remove
-+ *
-+ *  Tell acpi to remove the acpi_device.  This should cause any loaded
-+ *  driver to have it's remove routine called.
-+ */
-+static void dock_remove_acpi_device(acpi_handle handle)
-+{
-+	struct acpi_device *device;
-+	int ret;
-+
-+	if (acpi_bus_get_device(handle, &device)) {
-+		ret = acpi_bus_trim(device, 1);
-+		if (ret)
-+			pr_debug("error removing bus, %x\n", -ret);
-+	}
-+}
-+
-+
- /**
-  * hotplug_dock_devices - insert or remove devices on the dock station
-  * @ds: the dock station
-@@ -233,39 +296,37 @@ static void hotplug_dock_devices(struct 
- 	struct dock_dependent_device *dd;
- 
- 	spin_lock(&ds->hp_lock);
-+
-+	/*
-+	 * First call driver specific hotplug functions
-+	 */
- 	list_for_each_entry(dd, &ds->hotplug_devices, hotplug_list) {
- 		if (dd->handler)
- 			dd->handler(dd->handle, event, dd->context);
- 	}
-+
-+	/*
-+	 * Now make sure that an acpi_device is created for each
-+	 * dependent device, or removed if this is an eject request.
-+	 * This will cause acpi_drivers to be stopped/started if they
-+	 * exist
-+	 */
-+	list_for_each_entry(dd, &ds->dependent_devices, list) {
-+		if (event == ACPI_NOTIFY_EJECT_REQUEST)
-+			dock_remove_acpi_device(dd->handle);
-+		else
-+			dock_create_acpi_device(dd->handle);
-+	}
- 	spin_unlock(&ds->hp_lock);
- }
- 
--
- static void dock_event(struct dock_station *ds, u32 event, int num)
- {
- 	struct acpi_device *device;
--	struct acpi_device *parent_device;
--	acpi_handle parent;
--	int ret;
- 
--	if (acpi_bus_get_device(ds->handle, &device)) {
--		/*
--		 * no device created for this object,
--		 * so we should create one.
--		 */
--		acpi_get_parent(ds->handle, &parent);
--		if (acpi_bus_get_device(parent, &parent_device))
--			parent_device = NULL;
--
--		ret = acpi_bus_add(&device, parent_device, ds->handle,
--			ACPI_BUS_TYPE_DEVICE);
--		if (ret) {
--			pr_debug("error adding bus, %x\n",
--				-ret_val);
--			return;
--		}
--	}
--	kobject_uevent(&device->kobj, num);
-+	device = dock_create_acpi_device(ds->handle);
-+	if (device)
-+		kobject_uevent(&device->kobj, num);
- }
- 
- /**
-@@ -674,5 +735,5 @@ static void __exit dock_exit(void)
- 	dock_remove();
- }
- 
--module_init(dock_init);
-+postcore_initcall(dock_init);
- module_exit(dock_exit);
-diff -puN drivers/acpi/scan.c~acpi-dock-driver-v6 drivers/acpi/scan.c
---- 25/drivers/acpi/scan.c~acpi-dock-driver-v6	Thu Jun  1 16:12:31 2006
-+++ 25-akpm/drivers/acpi/scan.c	Thu Jun  1 16:12:31 2006
-@@ -670,7 +670,7 @@ acpi_bus_get_ejd(acpi_handle handle, acp
- 	if (ACPI_SUCCESS(status)) {
- 		obj = buffer.pointer;
- 		status = acpi_get_handle(NULL, obj->string.pointer, ejd);
--		kfree(buffer.pointer);
-+		acpi_os_free(buffer.pointer);
- 	}
- 	return status;
- }
-_
+As the number of runnable tasks increases beyond 1000 then the number 
+that have a usage rate greater than their cap will decrease and quickly 
+reach zero.
 
-I see an acpi_os_free().   There ain't any such function.
+So the conclusion is that the maximum number of sinbinned tasks per CPU 
+is given by:
+
+min(1000 / min_cpu_rate_cap - 1, nr_running)
+
+As you can see, if a minimum cap cpu of 1 causes problems we can just 
+increase that minimum.
+
+And once again I ask what's so special about containers that changes this?
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

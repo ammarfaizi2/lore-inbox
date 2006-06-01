@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWFAPKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWFAPKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWFAPKM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 11:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWFAPKM
+	id S1030193AbWFAPKm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWFAPKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 11:10:12 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:17132 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1030192AbWFAPKI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 11:10:08 -0400
-Date: Thu, 1 Jun 2006 11:10:04 -0400
+	Thu, 1 Jun 2006 11:10:41 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:55764 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1030193AbWFAPKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:10:38 -0400
+Date: Thu, 1 Jun 2006 11:10:37 -0400
 From: Amy Griffis <amy.griffis@hp.com>
 To: linux-kernel@vger.kernel.org
 Cc: John McCutchan <john@johnmccutchan.com>, Robert Love <rlove@rlove.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 3/5] inotify: add interfaces to kernel API
-Message-ID: <20060601151004.GA2214@zk3.dec.com>
+Subject: [PATCH 4/5] inotify: allow watch removal from event handler
+Message-ID: <20060601151037.GB2214@zk3.dec.com>
 References: <20060601150702.GA2171@zk3.dec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,195 +27,121 @@ User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add inotify_init_watch() so caller can use inotify_watch refcounts
-before calling inotify_add_watch().
-
-Add inotify_find_watch() to find an existing watch for an (ih,inode)
-pair.  This is similar to inotify_find_update_watch(), but does not
-update the watch's mask if one is found.
-
-Add inotify_rm_watch() to remove a watch via the watch pointer instead
-of the watch descriptor.
+Allow callers to remove watches from their event handler via
+inotify_remove_watch_locked().  This functionality can be used to
+achieve IN_ONESHOT-like functionality for a subset of events in the
+mask.
 
 Signed-off-by: Amy Griffis <amy.griffis@hp.com>
 
 ---
 
- fs/inotify.c            |   64 +++++++++++++++++++++++++++++++++++++++++++----
- fs/inotify_user.c       |    1 +
- include/linux/inotify.h |   20 +++++++++++++++
- 3 files changed, 79 insertions(+), 6 deletions(-)
+ fs/inotify.c            |   23 ++++++++++++++---------
+ include/linux/inotify.h |    7 +++++++
+ 2 files changed, 21 insertions(+), 9 deletions(-)
 
-48dcb4a1afcdac08fd85b4bf6e7a5600afd33e94
+3c6aadc67eed3796ce0b3fdbf7b47ce1469a0123
 diff --git a/fs/inotify.c b/fs/inotify.c
-index f25c218..8477c4f 100644
+index 8477c4f..723836a 100644
 --- a/fs/inotify.c
 +++ b/fs/inotify.c
-@@ -468,6 +468,19 @@ struct inotify_handle *inotify_init(cons
- EXPORT_SYMBOL_GPL(inotify_init);
- 
- /**
-+ * inotify_init_watch - initialize an inotify watch
-+ * @watch: watch to initialize
-+ */
-+void inotify_init_watch(struct inotify_watch *watch)
-+{
-+	INIT_LIST_HEAD(&watch->h_list);
-+	INIT_LIST_HEAD(&watch->i_list);
-+	atomic_set(&watch->count, 0);
-+	get_inotify_watch(watch); /* initial get */
-+}
-+EXPORT_SYMBOL_GPL(inotify_init_watch);
-+
-+/**
-  * inotify_destroy - clean up and destroy an inotify instance
-  * @ih: inotify handle
-  */
-@@ -515,6 +528,37 @@ void inotify_destroy(struct inotify_hand
- EXPORT_SYMBOL_GPL(inotify_destroy);
- 
- /**
-+ * inotify_find_watch - find an existing watch for an (ih,inode) pair
-+ * @ih: inotify handle
-+ * @inode: inode to watch
-+ * @watchp: pointer to existing inotify_watch
-+ *
-+ * Caller must pin given inode (via nameidata).
-+ */
-+s32 inotify_find_watch(struct inotify_handle *ih, struct inode *inode,
-+		       struct inotify_watch **watchp)
-+{
-+	struct inotify_watch *old;
-+	int ret = -ENOENT;
-+
-+	mutex_lock(&inode->inotify_mutex);
-+	mutex_lock(&ih->mutex);
-+
-+	old = inode_find_handle(inode, ih);
-+	if (unlikely(old)) {
-+		get_inotify_watch(old); /* caller must put watch */
-+		*watchp = old;
-+		ret = old->wd;
-+	}
-+
-+	mutex_unlock(&ih->mutex);
-+	mutex_unlock(&inode->inotify_mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(inotify_find_watch);
-+
-+/**
-  * inotify_find_update_watch - find and update the mask of an existing watch
-  * @ih: inotify handle
-  * @inode: inode's watch to update
-@@ -593,10 +637,6 @@ s32 inotify_add_watch(struct inotify_han
- 		goto out;
- 	ret = watch->wd;
- 
--	atomic_set(&watch->count, 0);
--	INIT_LIST_HEAD(&watch->h_list);
--	INIT_LIST_HEAD(&watch->i_list);
--
- 	/* save a reference to handle and bump the count to make it official */
- 	get_inotify_handle(ih);
- 	watch->ih = ih;
-@@ -607,8 +647,6 @@ s32 inotify_add_watch(struct inotify_han
- 	 */
- 	watch->inode = igrab(inode);
- 
--	get_inotify_watch(watch); /* initial get */
--
- 	if (!inotify_inode_watched(inode))
- 		set_dentry_child_flags(inode, 1);
- 
-@@ -659,6 +697,20 @@ int inotify_rm_wd(struct inotify_handle 
+@@ -207,7 +207,7 @@ static struct inotify_watch *inode_find_
  }
- EXPORT_SYMBOL_GPL(inotify_rm_wd);
  
-+/**
-+ * inotify_rm_watch - remove a watch from an inotify instance
-+ * @ih: inotify handle
-+ * @watch: watch to remove
-+ *
-+ * Can sleep.
-+ */
-+int inotify_rm_watch(struct inotify_handle *ih,
-+		     struct inotify_watch *watch)
-+{
-+	return inotify_rm_wd(ih, watch->wd);
-+}
-+EXPORT_SYMBOL_GPL(inotify_rm_watch);
-+
  /*
-  * inotify_setup - core initialization function
+- * remove_watch_no_event - remove_watch() without the IN_IGNORED event.
++ * remove_watch_no_event - remove watch without the IN_IGNORED event.
+  *
+  * Callers must hold both inode->inotify_mutex and ih->mutex.
   */
-diff --git a/fs/inotify_user.c b/fs/inotify_user.c
-index 8b83c71..9e9931e 100644
---- a/fs/inotify_user.c
-+++ b/fs/inotify_user.c
-@@ -380,6 +380,7 @@ static int create_watch(struct inotify_d
+@@ -223,17 +223,22 @@ static void remove_watch_no_event(struct
+ 	idr_remove(&ih->idr, watch->wd);
+ }
  
- 	atomic_inc(&dev->user->inotify_watches);
+-/*
+- * remove_watch - Remove a watch from both the handle and the inode.  Sends
+- * the IN_IGNORED event signifying that the inode is no longer watched.
++/**
++ * inotify_remove_watch_locked - Remove a watch from both the handle and the
++ * inode.  Sends the IN_IGNORED event signifying that the inode is no longer
++ * watched.  May be invoked from a caller's event handler.
++ * @ih: inotify handle associated with watch
++ * @watch: watch to remove
+  *
+  * Callers must hold both inode->inotify_mutex and ih->mutex.
+  */
+-static void remove_watch(struct inotify_watch *watch, struct inotify_handle *ih)
++void inotify_remove_watch_locked(struct inotify_handle *ih,
++				 struct inotify_watch *watch)
+ {
+ 	remove_watch_no_event(watch, ih);
+ 	ih->in_ops->handle_event(watch, watch->wd, IN_IGNORED, 0, NULL, NULL);
+ }
++EXPORT_SYMBOL_GPL(inotify_remove_watch_locked);
  
-+	inotify_init_watch(&watch->wdata);
- 	ret = inotify_add_watch(dev->ih, &watch->wdata, inode, mask);
- 	if (ret < 0)
- 		free_inotify_user_watch(&watch->wdata);
+ /* Kernel API for producing events */
+ 
+@@ -378,7 +383,7 @@ void inotify_unmount_inodes(struct list_
+ 
+ 		need_iput_tmp = need_iput;
+ 		need_iput = NULL;
+-		/* In case the remove_watch() drops a reference. */
++		/* In case inotify_remove_watch_locked() drops a reference. */
+ 		if (inode != need_iput_tmp)
+ 			__iget(inode);
+ 		else
+@@ -411,7 +416,7 @@ void inotify_unmount_inodes(struct list_
+ 			mutex_lock(&ih->mutex);
+ 			ih->in_ops->handle_event(watch, watch->wd, IN_UNMOUNT, 0,
+ 						 NULL, NULL);
+-			remove_watch(watch, ih);
++			inotify_remove_watch_locked(ih, watch);
+ 			mutex_unlock(&ih->mutex);
+ 		}
+ 		mutex_unlock(&inode->inotify_mutex);
+@@ -434,7 +439,7 @@ void inotify_inode_is_dead(struct inode 
+ 	list_for_each_entry_safe(watch, next, &inode->inotify_watches, i_list) {
+ 		struct inotify_handle *ih = watch->ih;
+ 		mutex_lock(&ih->mutex);
+-		remove_watch(watch, ih);
++		inotify_remove_watch_locked(ih, watch);
+ 		mutex_unlock(&ih->mutex);
+ 	}
+ 	mutex_unlock(&inode->inotify_mutex);
+@@ -687,7 +692,7 @@ int inotify_rm_wd(struct inotify_handle 
+ 
+ 	/* make sure that we did not race */
+ 	if (likely(idr_find(&ih->idr, wd) == watch))
+-		remove_watch(watch, ih);
++		inotify_remove_watch_locked(ih, watch);
+ 
+ 	mutex_unlock(&ih->mutex);
+ 	mutex_unlock(&inode->inotify_mutex);
 diff --git a/include/linux/inotify.h b/include/linux/inotify.h
-index e7899e7..e7e7fb7 100644
+index e7e7fb7..d4f48c6 100644
 --- a/include/linux/inotify.h
 +++ b/include/linux/inotify.h
-@@ -112,11 +112,15 @@ extern u32 inotify_get_cookie(void);
- /* Kernel Consumer API */
- 
- extern struct inotify_handle *inotify_init(const struct inotify_operations *);
-+extern void inotify_init_watch(struct inotify_watch *);
- extern void inotify_destroy(struct inotify_handle *);
-+extern __s32 inotify_find_watch(struct inotify_handle *, struct inode *,
-+				struct inotify_watch **);
- extern __s32 inotify_find_update_watch(struct inotify_handle *, struct inode *,
- 				       u32);
- extern __s32 inotify_add_watch(struct inotify_handle *, struct inotify_watch *,
+@@ -122,6 +122,8 @@ extern __s32 inotify_add_watch(struct in
  			       struct inode *, __u32);
-+extern int inotify_rm_watch(struct inotify_handle *, struct inotify_watch *);
+ extern int inotify_rm_watch(struct inotify_handle *, struct inotify_watch *);
  extern int inotify_rm_wd(struct inotify_handle *, __u32);
++extern void inotify_remove_watch_locked(struct inotify_handle *,
++					struct inotify_watch *);
  extern void get_inotify_watch(struct inotify_watch *);
  extern void put_inotify_watch(struct inotify_watch *);
-@@ -163,10 +167,20 @@ static inline struct inotify_handle *ino
- 	return ERR_PTR(-EOPNOTSUPP);
- }
  
-+static inline void inotify_init_watch(struct inotify_watch *watch)
-+{
-+}
-+
- static inline void inotify_destroy(struct inotify_handle *ih)
- {
- }
- 
-+static inline __s32 inotify_find_watch(struct inotify_handle *ih, struct inode *inode,
-+				       struct inotify_watch **watchp)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline __s32 inotify_find_update_watch(struct inotify_handle *ih,
- 					      struct inode *inode, u32 mask)
- {
-@@ -180,6 +194,12 @@ static inline __s32 inotify_add_watch(st
+@@ -205,6 +207,11 @@ static inline int inotify_rm_wd(struct i
  	return -EOPNOTSUPP;
  }
  
-+static inline int inotify_rm_watch(struct inotify_handle *ih,
-+				   struct inotify_watch *watch)
++static inline void inotify_remove_watch_locked(struct inotify_handle *ih,
++					       struct inotify_watch *watch)
 +{
-+	return -EOPNOTSUPP;
 +}
 +
- static inline int inotify_rm_wd(struct inotify_handle *ih, __u32 wd)
+ static inline void get_inotify_watch(struct inotify_watch *watch)
  {
- 	return -EOPNOTSUPP;
+ }
 -- 
 1.3.0
 

@@ -1,115 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWFAP34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWFAPcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWFAP34 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 11:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWFAP34
+	id S1030198AbWFAPcW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWFAPcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 11:29:56 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:21020 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030200AbWFAP3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 11:29:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=ZUw0t9ngoAzYo36wT0FbZhcqH8T063U+w+zjWV7sL1QrMjIom2B/j2BG0iI1Lmxou7B5/ZwGNASDVT2Jkxua+ZAR+VsSQVA+T+dqwSWLGSUtHC8nEGAVrMTcCZ527QvlV7ukBH8YfzehvOMTqbAu8hgAXgf9jXbbgkf+97pa9Xc=
-Message-ID: <447F076F.9020209@gmail.com>
-Date: Thu, 01 Jun 2006 17:27:20 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 1 Jun 2006 11:32:22 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:25269 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1030198AbWFAPcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 11:32:21 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=Dtt6bB6d3p+vTGsSnDnE0nEpKab7J4SZ8mmg0JnyI5hlIgJPs7RYfQZcC6nNqhejJ
+	pejZx1IKT0Ed/QFBEJxoA==
+Message-ID: <447F084C.9070201@google.com>
+Date: Thu, 01 Jun 2006 08:31:24 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@linux.intel.com>
-CC: Takashi Iwai <tiwai@suse.de>, perex@suse.cz, James@superbug.demon.co.uk,
-       emu10k1-devel@lists.sourceforge.net, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: BUG: possible deadlock detected! (sound) [Was: 2.6.17-rc5-mm1]
-References: <20060530022925.8a67b613.akpm@osdl.org>	 <447C22CE.2060402@gmail.com>	 <1148987188.3636.52.camel@laptopd505.fenrus.org>	 <s5h3berd6ne.wl%tiwai@suse.de> <1148993947.3636.61.camel@laptopd505.fenrus.org>
-In-Reply-To: <1148993947.3636.61.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-2
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: 2.6.17-rc5-mm1
+References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org> <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org> <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org> <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com> <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com> <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home> <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0606011659030.32445@scrub.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 1 Jun 2006, Martin J. Bligh wrote:
+> 
+> 
+>>That doesn't seem to cover what we talked about clearly at all ?
+>>I suppose the _ALL stuff is meant to cover stuff with overhead,
+>>but frankly, what Ingo did seemed much clearer to me.
+> 
+> 
+> It just didn't make much sense, a config option only to configure the 
+> default value of unseen values?
+> If we have too many debug options, I don't mind to hide them behind an 
+> advanced config option, but their default values should not differ between 
+> their visible and hidden state, so that the user sees the real values when 
+> he enables the advanced option.
+> A config option which only configures the default values is much less 
+> useful, in an already configured kernel it's completely useless to an user 
+> who only wants to enable some runtime checks and unless he reads the help 
+> text _carefully_, he might even think that he just enabled some runtime 
+> checks. 
 
-Arjan van de Ven napsal(a):
-> On Tue, 2006-05-30 at 14:44 +0200, Takashi Iwai wrote:
->> This ops is a unique object assigned to a different "id" string.
->>
->> The first snd_seq_device_register_driver() called from emu10k1_synth.c
->> is the registration for the id "snd-synth-emu10k1".
->> Then in init_device(), the corresponding devices are initialized, and
->> one callback registers again another device for OSS sequencer with a
->> different id "snd-seq-oss" via snd_seq_device_new() inside the lock.
->> Now it hits the lock-detector but the lock should belong to a
->> different ops object in practice.
->>
->> This nested lock may happen only in two drivers, emu10k1-synth and
->> opl3, and only together with OSS emulation.  Since the OSS emulation
->> layer don't do active registration from itself, no deadlock should
->> happen (in theory -- I may oversee something :)
-> 
-> ok fair enough
-> 
-> Jiri, can you test the patch below? (I don't have this hardware)
-It's gone in 2.6.17-rc5-mm2.
-> 
-> The ops structure has complex locking rules, where not all ops are
-> equal, some are subordinate on others for some complex sound cards. This
-> requires for lockdep checking that each individual reg_mutex is
-> considered in separation for its locking rules.
-> 
-> Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-> 
-> ---
->  sound/core/seq/seq_device.c |    5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> Index: linux-2.6.17-rc4-mm3-lockdep/sound/core/seq/seq_device.c
-> ===================================================================
-> --- linux-2.6.17-rc4-mm3-lockdep.orig/sound/core/seq/seq_device.c
-> +++ linux-2.6.17-rc4-mm3-lockdep/sound/core/seq/seq_device.c
-> @@ -46,6 +46,7 @@
->  #include <linux/kmod.h>
->  #include <linux/slab.h>
->  #include <linux/mutex.h>
-> +#include <linux/lockdep.h>
->  
->  MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
->  MODULE_DESCRIPTION("ALSA sequencer device management");
-> @@ -73,6 +74,8 @@ struct ops_list {
->  	struct mutex reg_mutex;
->  
->  	struct list_head list;	/* next driver */
-> +
-> +	struct lockdep_type_key reg_mutex_key;
->  };
->  
->  
-> @@ -379,7 +382,7 @@ static struct ops_list * create_driver(c
->  
->  	/* set up driver entry */
->  	strlcpy(ops->id, id, sizeof(ops->id));
-> -	mutex_init(&ops->reg_mutex);
-> +	mutex_init_key(&ops->reg_mutex, id, &ops->reg_mutex_key);
->  	ops->driver = DRIVER_EMPTY;
->  	INIT_LIST_HEAD(&ops->dev_list);
->  	/* lock this instance */
-> 
-> 
+Did you read the discussion that lead up to it? I thought that quite
+clearly described why such a thing was needed.
 
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Config options need to clearly distinguish what they're for, or people
+will screw them up ... given:
 
-iD8DBQFEfwdvMsxVwznUen4RAohGAKCChQYCo4EPEG0CWDPcld15mZnWTwCeKU+2
-l26ws9ExkuBo1wlT5nJ+uWg=
-=vgxE
------END PGP SIGNATURE-----
+config DEBUG_RUNTIME_CHECKS
+	bool "Enable runtime debug checks"
+
+config DEBUG_RUNTIME_CHECKS_ALL
+	bool "Enable all runtime debug checks"
+	depends on DEBUG_RUNTIME_CHECKS
+
+... how is either the user meant to know under which of these to find
+things, or the coder introducing a new feature supposed to know where
+to put stuff? They're not very descriptive.
+
+Please can we have a more constructive discussion that "it's wrong,
+nack" ?
+
+M.

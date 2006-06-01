@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965294AbWFAUfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbWFAUfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965294AbWFAUfX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 16:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965295AbWFAUfX
+	id S1030282AbWFAUfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 16:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWFAUfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 16:35:23 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:38606 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965294AbWFAUfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 16:35:23 -0400
+	Thu, 1 Jun 2006 16:35:41 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:11955 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030282AbWFAUfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 16:35:40 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IytKTBgyXX0jiiwWRqx8wr3qIR+LugALaIb3lnUBx3D7kOO5WuVp8MVO4+ZO6CMdeH4t23FTG70NlOkhATkvMKq+Fwurb8y5J4bf+1H525iedWdWOX3CBtXRRRYoxtcFMMuey9kpbpHdIfmKKOBtWBCIqklgXYQ3EC4JvWF4/lQ=
-Message-ID: <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
-Date: Thu, 1 Jun 2006 16:35:12 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "D. Hazelton" <dhazelton@enter.net>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "David Lang" <dlang@digitalinsight.com>,
-       "Ondrej Zajicek" <santiago@mail.cz>, "Dave Airlie" <airlied@gmail.com>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <200606011603.57421.dhazelton@enter.net>
+        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
+        b=ChbaEc/5tB729dpduUMr14+Mr5zdk+XflY4CeqngoeDkGKmu/yF3Dm/6E+vhUUJ6La152d6CVj6fgy4y7Q6cfStnHLMGtJRlerXqBTfP505nTvZca1XzRchX6wYOmg/ak2oPP6lNi5cCA4Homi6yp8IvnimGmRXYQRaNUIekayo=
+Message-ID: <39e6f6c70606011335v21884d3md1147624b890be19@mail.gmail.com>
+Date: Thu, 1 Jun 2006 17:35:39 -0300
+From: "Arnaldo Carvalho de Melo" <acme@ghostprotocols.net>
+To: "James Simmons" <jsimmons@transvirtual.com>
+Subject: [PATCH][SKELETONFB]: Remove duplicate module init, exit, license lines
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-	 <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz>
-	 <200606011603.57421.dhazelton@enter.net>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_14889_15418076.1149194139316"
+X-Google-Sender-Auth: b32a2618fd9c9703
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
-> > > 5) The system needs to be robust. Daemons can be killed by the OOM
-> > > mechanism, you don't want to lose your console in the middle of trying
-> > > to fix a problem. This also means that you have to be able to display
-> > > printk's from inside interrupt handles.
->
-> Point of disagreement. Tons of userspace helpers isn't a good choice.
+------=_Part_14889_15418076.1149194139316
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Where do you get 'tons'? There will probably be one for initial reset,
-one for VESA based mode setting and a few more if there is device
-specific code needed for a specific card.
+Hi,
 
-Making console rely on a permanent daemon that is subject to getting
-killed by the OOM mechanism is not a workable solution.
+     Subject says t all,
 
-You also need to think about how cursors are handled. A non-root app
-needs to be able to move the cursor. Actually moving the cursor
-requires root. The in-kernel console system needs a cursor. It would
-be much better if cursor control was implemented in the device
-drivers.
+Signed-off-by: Arnaldo Carvalho de Melo <acme@mandriva.com>
 
-> I don't know about doing a printk from inside interrupt context - the current
-> architecture doesn't, IIRC, support printk from inside interrupt context for
-> certain drivers for various reasons.
+------=_Part_14889_15418076.1149194139316
+Content-Type: text/x-patch; name=skeletonfb.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_enxke9hm
+Content-Disposition: attachment; filename="skeletonfb.patch"
 
-Printk works from inside interrupt handlers currently. This is an
-absolute requirement for kernel debugging that can't be removed.
-Because of this requirement there has to be a way for all drivers to
-draw the console entirely inside the kernel. You can not make calls to
-user space from inside interrupt handlers.
-
-> > > 6) Things like panics should be visible no matter what is running. No
-> > > more silent deaths.
-
-Panics can occur inside interrupt handlers. You can't queue up printks
-in this context and they display them later, the kernel just died,
-there is no later.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlkZW8vc2tlbGV0b25mYi5jIGIvZHJpdmVycy92aWRlby9z
+a2VsZXRvbmZiLmMKaW5kZXggOWI3MDc3Ny4uNjdmNDI5ZSAxMDA2NDQKLS0tIGEvZHJpdmVycy92
+aWRlby9za2VsZXRvbmZiLmMKKysrIGIvZHJpdmVycy92aWRlby9za2VsZXRvbmZiLmMKQEAgLTkw
+NiwxMSArOTA2LDYgQEAgc3RhdGljIHZvaWQgX19leGl0IHh4eGZiX2V4aXQodm9pZCkKIH0KICNl
+bmRpZgogCi1NT0RVTEVfTElDRU5TRSgiR1BMIik7Ci1tb2R1bGVfaW5pdCh4eHhmYl9pbml0KTsK
+LW1vZHVsZV9leGl0KHh4eGZiX2V4aXQpOwotCi0KICAgICAvKgogICAgICAqICBTZXR1cAogICAg
+ICAqLwo=
+------=_Part_14889_15418076.1149194139316--

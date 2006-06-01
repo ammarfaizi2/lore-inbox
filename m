@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWFALma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965196AbWFALp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWFALma (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 07:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWFALma
+	id S965196AbWFALp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 07:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWFALp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 07:42:30 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:36605 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1750844AbWFALma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 07:42:30 -0400
-Message-ID: <447ED2A4.4030202@gentoo.org>
-Date: Thu, 01 Jun 2006 12:42:28 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060509)
+	Thu, 1 Jun 2006 07:45:28 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:41662 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750859AbWFALp1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 07:45:27 -0400
+Message-ID: <447ED2AB.30107@aitel.hist.no>
+Date: Thu, 01 Jun 2006 13:42:35 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-CC: David Liontooth <liontooth@cogweb.net>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: USB devices fail unnecessarily on unpowered hubs
-References: <447EB0DC.4040203@cogweb.net> <20060601030140.172239b0.akpm@osdl.org>
-In-Reply-To: <20060601030140.172239b0.akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm2 another compile error
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+In-Reply-To: <20060601014806.e86b3cc0.akpm@osdl.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> (added linux-usb cc)
-> 
-> Yes, it sounds like we're being non-real-worldly here.  This change
-> apparently broke things.  Did it actually fix anything as well?
+  CC      drivers/dma/ioatdma.o
+drivers/dma/ioatdma.c: In function ‘ioat_init_module’:
+drivers/dma/ioatdma.c:828: error: dereferencing pointer to incomplete type
+make[2]: *** [drivers/dma/ioatdma.o] Error 1
+make[1]: *** [drivers/dma] Error 2
+make: *** [drivers] Error 2
 
-Gentoo recieved several reports of this. It appears that certain vendors 
-are worse than others (Verbatim flash drives are a common culprit).
+Now recompiling without support for "DMA engines"
 
-Some users tested and found that Windows has the same behaviour - it 
-rejects these devices on unpowered hubs, and pops up a warning that not 
-enough power is available.
-
-I added a printk to point out when configurations are rejected due to 
-power issues, this has been merged into Greg's tree. It's far from 
-ideal, but better than silent failure...
-
-Daniel
+Helge Hafting

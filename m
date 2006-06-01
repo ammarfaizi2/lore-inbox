@@ -1,84 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751704AbWFADi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751706AbWFADkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751704AbWFADi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 May 2006 23:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751705AbWFADi7
+	id S1751706AbWFADkW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 May 2006 23:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWFADkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 May 2006 23:38:59 -0400
-Received: from [203.144.27.9] ([203.144.27.9]:59144 "EHLO surfers.oz.agile.tv")
-	by vger.kernel.org with ESMTP id S1751703AbWFADi7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 May 2006 23:38:59 -0400
-Message-ID: <447E614F.3090905@agile.tv>
-Date: Thu, 01 Jun 2006 13:38:55 +1000
-From: Tony Griffiths <tonyg@agile.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Some socket syscalls fail to return an error on bad file-descriptor#
- argument
-Content-Type: multipart/mixed;
- boundary="------------000100050907040200040009"
+	Wed, 31 May 2006 23:40:22 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:37036 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751705AbWFADkV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 May 2006 23:40:21 -0400
+Date: Thu, 1 Jun 2006 09:10:00 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: akpm@osdl.org, 76306.1226@compuserve.com, ak@muc.de, rohitseth@google.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: + i386-fix-get_segment_eip-with-vm86.patch added to -mm tree
+Message-ID: <20060601034000.GA4003@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <200605300302.k4U321t6026244@shell0.pdx.osdl.net> <447DF96E.4000602@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447DF96E.4000602@vmware.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000100050907040200040009
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, May 31, 2006 at 01:15:42PM -0700, Zachary Amsden wrote:
+> akpm@osdl.org wrote:
+> >The patch titled
+> >
+> >     i386: fix get_segment_eip() with vm86 segments
+> >
+> >has been added to the -mm tree.  Its filename is
+> >
+> >     i386-fix-get_segment_eip-with-vm86.patch
+> >
+> >See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+> >out what to do about this
+> >
+> >------------------------------------------------------
+> >Subject: i386: fix get_segment_eip() with vm86 segments
+> >From: Chuck Ebbert <76306.1226@compuserve.com>
+> >
+> >
+> >We need to check for vm86 mode first before looking at selector privilege
+> >bits.
+> >
+> >Segment limit is always base + 64k and only the low 16 bits of EIP are
+> >significant in vm86 mode.
+> >
+> >Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> >Cc: Andi Kleen <ak@muc.de>
+> >Cc: Zachary Amsden <zach@vmware.com>
+> >Cc: Rohit Seth <rohitseth@google.com>
+> >Signed-off-by: Andrew Morton <akpm@osdl.org>
+> >---
+> >
+> > arch/i386/mm/fault.c |   11 +++++++----
+> > 1 file changed, 7 insertions(+), 4 deletions(-)
+> >
+> >diff -puN arch/i386/mm/fault.c~i386-fix-get_segment_eip-with-vm86 
+> >arch/i386/mm/fault.c
+> >--- devel/arch/i386/mm/fault.c~i386-fix-get_segment_eip-with-vm86 
+> >2006-05-29 20:06:19.000000000 -0700
+> >+++ devel-akpm/arch/i386/mm/fault.c	2006-05-29 20:06:19.000000000 -0700
+> >@@ -77,12 +77,15 @@ static inline unsigned long get_segment_
+> > 	unsigned seg = regs->xcs & 0xffff;
+> > 	u32 seg_ar, seg_limit, base, *desc;
+> > 
+> >+	/* Unlikely, but must come before segment checks. */
+> >+	if (unlikely(regs->eflags & VM_MASK)) {
+> >+		base = seg << 4;
+> >+		*eip_limit = base + 0xffff;
+> >+		return base + (eip & 0xffff);
+> >+	}
+> >+
+> > 	/* The standard kernel/user address space limit. */
+> > 	*eip_limit = (seg & 3) ? USER_DS.seg : KERNEL_DS.seg;
+> >-
+> >-	/* Unlikely, but must come before segment checks. */
+> >-	if (unlikely((regs->eflags & VM_MASK) != 0))
+> >-		return eip + (seg << 4);
+> > 	
+> > 	/* By far the most common cases. */
+> > 	if (likely(seg == __USER_CS || seg == __KERNEL_CS))
+> >_
+> >
+> >Patches currently in -mm which might be from 76306.1226@compuserve.com are
+> >
+> >i386-let-usermode-execute-the-enter.patch
+> >i386-fix-get_segment_eip-with-vm86.patch
+> >
+> >  
+> 
+> This looks great.  While we're in the spirit let's fix kprobes v8086 
+> handling as well by filtering out int3s from v8086 mode.
 
-Description:
+> Never allow int3 traps from V8086 mode to enter the kprobes handler.
+> 
+> Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-The sockfd_lookup_light() function does not set the return error status 
-on a particular failure mode when the passed-in fd# is erroneous.
+Acked-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-Environment:
+> 
+> Index: linux-2.6.17-rc/arch/i386/kernel/kprobes.c
+> ===================================================================
+> --- linux-2.6.17-rc.orig/arch/i386/kernel/kprobes.c	2006-05-18 13:31:50.000000000 -0700
+> +++ linux-2.6.17-rc/arch/i386/kernel/kprobes.c	2006-05-31 13:09:26.000000000 -0700
+> @@ -607,7 +607,7 @@ int __kprobes kprobe_exceptions_notify(s
+>  	struct die_args *args = (struct die_args *)data;
+>  	int ret = NOTIFY_DONE;
+>  
+> -	if (args->regs && user_mode(args->regs))
+> +	if (args->regs && user_mode_vm(args->regs))
+>  		return ret;
+>  
+>  	switch (val) {
 
-2.6.16 kernel with the -mm2 patch-set applied.  Linux 2.6.17 kernels are 
-also affected.  Without the fix, a number of tests in LTP fail!  Any 
-program calling one of the syscalls listed below with a bad fd# will not 
-get an error return indicating that the syscall failed.
-
-Fix:
-
-The attached patch correctly sets *err = -EBADF if the attempt to map 
-the fd# to a file pointer returns NULL.  The following syscalls are 
-affected-
-
-bind()
-listen()
-accept()
-connect()
-getsockname()
-getpeername()
-setsockopt()
-setsockopt()
-shutdown()
-sendmsg()
-recvmsg()
-
-
-
-
---------------000100050907040200040009
-Content-Type: text/x-patch;
- name="atv-40018-socket-fix-2.6.16.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="atv-40018-socket-fix-2.6.16.patch"
-
-diff -urpN ./net/socket.c.orig ./net/socket.c
---- ./net/socket.c.orig	2006-06-01 10:28:30.000000000 +1000
-+++ ./net/socket.c	2006-06-01 10:34:09.000000000 +1000
-@@ -496,6 +496,8 @@ static struct socket *sockfd_lookup_ligh
- 		if (sock)
- 			return sock;
- 		fput_light(file, *fput_needed);
-+	} else {
-+		*err = -EBADF;
- 	}
- 	return NULL;
- }
-
---------------000100050907040200040009--

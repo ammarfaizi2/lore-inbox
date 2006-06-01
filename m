@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWFAVyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWFAV6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWFAVyz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWFAVyz
+	id S1750786AbWFAV6x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWFAV6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:54:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:474 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750703AbWFAVyz (ORCPT
+	Thu, 1 Jun 2006 17:58:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59036 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750739AbWFAV6v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:54:55 -0400
-Date: Thu, 1 Jun 2006 14:57:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Message-Id: <20060601145747.274df976.akpm@osdl.org>
-In-Reply-To: <20060601214158.GA438@suse.de>
-References: <20060529214011.GA417@suse.de>
-	<20060530182453.GA8701@suse.de>
-	<20060601184938.GA31376@suse.de>
-	<20060601121200.457c0335.akpm@osdl.org>
-	<20060601201050.GA32221@suse.de>
-	<20060601142400.1352f903.akpm@osdl.org>
-	<20060601214158.GA438@suse.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 1 Jun 2006 17:58:51 -0400
+Date: Fri, 2 Jun 2006 07:58:26 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Janos Haar <djani22@netcenter.hu>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: XFS related hang (was Re: How to send a break? - dump from frozen 64bit linux)
+Message-ID: <20060602075826.B530100@wobbly.melbourne.sgi.com>
+References: <01b701c6818d$4bcd37b0$1800a8c0@dcccs> <20060527234350.GA13881@voodoo.jdc.home> <004501c68225$00add170$1800a8c0@dcccs> <9a8748490605280917l73f5751cmf40674fc22726c43@mail.gmail.com> <01d801c6827c$fba04ca0$1800a8c0@dcccs> <01a801c683d2$e7a79c10$1800a8c0@dcccs> <200605301903.k4UJ3xQU008919@turing-police.cc.vt.edu> <1149038431.21827.20.camel@localhost.localdomain> <20060531143849.C478554@wobbly.melbourne.sgi.com> <00f501c68488$4d10c080$1800a8c0@dcccs>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00f501c68488$4d10c080$1800a8c0@dcccs>; from djani22@netcenter.hu on Wed, May 31, 2006 at 10:00:33AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> wrote:
->
->  On Thu, Jun 01, Andrew Morton wrote:
+On Wed, May 31, 2006 at 10:00:33AM +0200, Janos Haar wrote:
 > 
-> > Olaf Hering <olh@suse.de> wrote:
-> > >
-> > > 
-> > >  
-> > > +/* return a page in PageUptodate state, BLKFLSBUF may have flushed the page */
-> > > +static struct page *cramfs_read_cache_page(struct address_space *m, unsigned int n)
-> > > +{
-> > > +	struct page *page;
-> > > +	int readagain = 5;
-> > > +retry:
-> > > +	page = read_cache_page(m, n, (filler_t *)m->a_ops->readpage, NULL);
-> > > +	if (IS_ERR(page))
-> > > +		return NULL;
-> > > +	lock_page(page);
-> > > +	if (PageUptodate(page))
-> > > +		return page;
-> > > +	unlock_page(page);
-> > > +	page_cache_release(page);
-> > > +	if (readagain--)
-> > > +		goto retry;
-> > > +	return NULL;
-> > > +}
-> > 
-> > Better, but it's still awful, isn't it?  The things you were discussing
-> > with Chris look more promising.  PG_Dirty would be a bit of a hack, but at
-> > least it'd be a 100% reliable hack, whereas the above is a
-> > whatever-the-previous-failure-rate-was-to-the-fifth hack.
-> 
-> Do you want it like that?
-> 
-> lock_page(page);
-> if (PageUptodate(page)) {
->         SetPageDirty(page);
->         mb();
->         return page;
-> }
+> Hey, i think i found something.
+> My quota on my huge device is broken.
+> (inferno   -- 18014398504855404       0       0        18446744073709551519
+> 0     0)
 
-Not really ;)  It's hacky.  It'd be better to take a lock.
+Hmm, that is interesting.  I guess you don't know whether this
+accounting problem happened before you rebooted or whether it
+only just got this way (after journal recovery)?
 
-I expect it'd work though, as long as...
+> I cant found a way to re-initialize it.
+> But anyway, at this point i dont need it, trying to disable the quota usage.
+> We will see....
 
-> and perhaps a ClearPageDirty() after memcpy.
+Jan's recipe was spot on, do that.
 
-I assume this is a read-only filesystem?  I mean, if someone had really
-tried to dirty the page in the meanwhile via, say, munmap or msync which
-don't lock the page, we just lost their data.
+cheers.
 
+-- 
+Nathan

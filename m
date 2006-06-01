@@ -1,82 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWFARKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWFAPCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWFARKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 13:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWFARKZ
+	id S1751018AbWFAPCD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 11:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWFAPCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 13:10:25 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:162 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S964915AbWFARKY
+	Thu, 1 Jun 2006 11:02:03 -0400
+Received: from stinky.trash.net ([213.144.137.162]:11249 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1751044AbWFAPCC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 13:10:24 -0400
-Date: Thu, 1 Jun 2006 07:59:22 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Ondrej Zajicek <santiago@mail.cz>, "D. Hazelton" <dhazelton@enter.net>,
-       Dave Airlie <airlied@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-Subject: Re: OpenGL-based framebuffer concepts
-In-Reply-To: <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> 
- <200605302314.25957.dhazelton@enter.net>  <9e4733910605302116s5a47f5a3kf0f941980ff17e8@mail.gmail.com>
-  <200605310026.01610.dhazelton@enter.net>  <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com>
-  <20060601092807.GA7111@localhost.localdomain>
- <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
+	Thu, 1 Jun 2006 11:02:02 -0400
+Message-ID: <447F0156.8020603@trash.net>
+Date: Thu, 01 Jun 2006 17:01:42 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: lepton <ytht.net@gmail.com>
+CC: lkm <linux-kernel@vger.kernel.org>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: [PATCH] 2.6.16.19 Fix the bug of "return 0 instead of the error
+ code in ipt_register_table"
+References: <20060601102449.GA8572@gsy2.lepton.home>
+In-Reply-To: <20060601102449.GA8572@gsy2.lepton.home>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------030705040603010200050504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jun 2006, Jon Smirl wrote:
+This is a multi-part message in MIME format.
+--------------030705040603010200050504
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-> 1) The kernel subsystem should be agnostic of the display server. The
-> solution should not be X specific. Any display system should be able
-> to use it, SDL, Y Windows, Fresco, etc...
->
-> 2) State inside the hardware is maintained by a single driver. No
-> hooks for state swapping (ie, save your state, now I'll load mine,
-> ...).
->
-> 3) A non-root user can control their graphics device.
->
-> 4) Multiple independent users should work
->
-> 5) The system needs to be robust. Daemons can be killed by the OOM
-> mechanism, you don't want to lose your console in the middle of trying
-> to fix a problem. This also means that you have to be able to display
-> printk's from inside interrupt handles.
->
-> 6) Things like panics should be visible no matter what is running. No
-> more silent deaths.
->
-> 7) Obviously part of this is going to exist in user space since some
-> cards can only be controlled by VBIOS calls. Has anyone explored using
-> the in-kernel protected mode VESA hooks for this?
->
-> 8) The user space fbdev API has to be maintained for legacy apps. DRM
-> can be changed if needed since there is only a single user of it, but
-> there is no obvious need to change it.
->
-> 9) there needs to be a way to control the mode on each head, merged fb
-> should also work. Monitor hotplug should work. Video card hot plug
-> should work. These should all work for console and the display
-> servers.
->
-> 10) Console support for complex scripts should get consideration.
->
-> 11) VGA is x86 specific. Solutions have to work on all architectures.
-> That implies that the code needed to get a basic console up needs to
-> fit on initramfs. Use PPC machines as an example.
->
-> 12) If a driver system is loaded is has to inform the kernel of what
-> resources it is using.
->
+lepton wrote:
+> Hi,
+> 
+> There is a bug in ipt_register_table() in
+> net/ipv4/netfilter/ip_tables.c:
+> 
+> ipt_register_table() will return 0 instead of
+> the error code when xt_register_table() fails
+> 
+> Signed-off-by: Lepton Wu <ytht.net@gmail.com>
+> 
+> diff -prU 10 linux-2.6.16.19.oirg/net/ipv4/netfilter/ip_tables.c linux-2.6.16.19/net/ipv4/netfilter/ip_tables.c
+> --- linux-2.6.16.19.oirg/net/ipv4/netfilter/ip_tables.c	2006-05-31 08:31:44.000000000 +0800
+> +++ linux-2.6.16.19/net/ipv4/netfilter/ip_tables.c	2006-06-01 18:11:25.000000000 +0800
 
-13) for hardware that supports it a text mode should be supported
+Thanks. As usual this bug has been happily copy and pasted around,
+so I've added this patch instead.
 
-David Lang
+
+--------------030705040603010200050504
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
+
+[NETFILTER]: x_tables: fix xt_register_table error propagation
+
+When xt_register_table fails the error is not properly propagated back.
+Based on patch by Lepton Wu <ytht.net@gmail.com>.
+
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+
+---
+commit b010cc3184ce7cb65a9865ae52ec2ce6f3fe4c9d
+tree 9744395bcd9c7d976048ebd8afbabfc0a9b542a4
+parent 10263005af5814396b8263c1c2a4367d49548e13
+author Patrick McHardy <kaber@trash.net> Thu, 01 Jun 2006 16:59:12 +0200
+committer Patrick McHardy <kaber@trash.net> Thu, 01 Jun 2006 16:59:12 +0200
+
+ net/ipv4/netfilter/arp_tables.c |    3 ++-
+ net/ipv4/netfilter/ip_tables.c  |    3 ++-
+ net/ipv6/netfilter/ip6_tables.c |    3 ++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
+index d0d1919..ad39bf6 100644
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -1120,7 +1120,8 @@ int arpt_register_table(struct arpt_tabl
+ 		return ret;
+ 	}
+ 
+-	if (xt_register_table(table, &bootstrap, newinfo) != 0) {
++	ret = xt_register_table(table, &bootstrap, newinfo);
++	if (ret != 0) {
+ 		xt_free_table_info(newinfo);
+ 		return ret;
+ 	}
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index cee3397..101ad98 100644
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -2113,7 +2113,8 @@ int ipt_register_table(struct xt_table *
+ 		return ret;
+ 	}
+ 
+-	if (xt_register_table(table, &bootstrap, newinfo) != 0) {
++	ret = xt_register_table(table, &bootstrap, newinfo);
++	if (ret != 0) {
+ 		xt_free_table_info(newinfo);
+ 		return ret;
+ 	}
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index 2e72f89..0b5bd55 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1281,7 +1281,8 @@ int ip6t_register_table(struct xt_table 
+ 		return ret;
+ 	}
+ 
+-	if (xt_register_table(table, &bootstrap, newinfo) != 0) {
++	ret = xt_register_table(table, &bootstrap, newinfo);
++	if (ret != 0) {
+ 		xt_free_table_info(newinfo);
+ 		return ret;
+ 	}
+
+--------------030705040603010200050504--

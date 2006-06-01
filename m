@@ -1,69 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWFAQqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965295AbWFAUry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030236AbWFAQqF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 12:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWFAQqF
+	id S965295AbWFAUry (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 16:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWFAUry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 12:46:05 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:26249 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030236AbWFAQqE (ORCPT
+	Thu, 1 Jun 2006 16:47:54 -0400
+Received: from smtp.enter.net ([216.193.128.24]:14597 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S965295AbWFAUrx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 12:46:04 -0400
-Date: Thu, 1 Jun 2006 09:43:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>, David Liontooth <liontooth@cogweb.net>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: USB devices fail unnecessarily on unpowered hubs
-Message-ID: <20060601164327.GB29176@kroah.com>
-References: <20060601030140.172239b0.akpm@osdl.org> <Pine.LNX.4.44L0.0606011050330.6784-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Jun 2006 16:47:53 -0400
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Thu, 1 Jun 2006 16:47:42 +0000
+User-Agent: KMail/1.8.1
+Cc: "David Lang" <dlang@digitalinsight.com>,
+       "Ondrej Zajicek" <santiago@mail.cz>, "Dave Airlie" <airlied@gmail.com>,
+       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, adaplas@gmail.com
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200606011603.57421.dhazelton@enter.net> <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
+In-Reply-To: <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0606011050330.6784-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200606011647.43427.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 10:58:43AM -0400, Alan Stern wrote:
-> On Thu, 1 Jun 2006, Andrew Morton wrote:
-> 
-> > On Thu, 01 Jun 2006 02:18:20 -0700
-> > David Liontooth <liontooth@cogweb.net> wrote:
-> > 
-> > > Starting with 2.6.16, some USB devices fail unnecessarily on unpowered
-> > > hubs. Alan Stern explains,
-> > > 
-> > > "The idea is that the kernel now keeps track of USB power budgets.  When a 
-> > > bus-powered device requires more current than its upstream hub is capable 
-> > > of providing, the kernel will not configure it.
-> > > 
-> > > Computers' USB ports are capable of providing a full 500 mA, so devices
-> > > plugged directly into the computer will work okay.  However unpowered hubs
-> > > can provide only 100 mA to each port.  Some devices require (or claim they
-> > > require) more current than that.  As a result, they don't get configured
-> > > when plugged into an unpowered hub."
-> > > 
-> > > http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg43480.html
-> > > 
-> > > This is generating a lot of grief and appears to be unnecessarily
-> > > strict. Common USB sticks with a MaxPower value just above 100mA, for
-> > > instance, typically work fine on unpowered hubs supplying 100mA.
-> > > 
-> > > Is a more user-friendly solution possible? Could the shortfall
-> > > information be passed to udev, which would allow rules to be written per
-> > > device?
-> 
-> I'm not sure whether we create a udev event when a new USB device is
-> connected.
+On Thursday 01 June 2006 20:35, Jon Smirl wrote:
+> On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
+> > > > 5) The system needs to be robust. Daemons can be killed by the OOM
+> > > > mechanism, you don't want to lose your console in the middle of
+> > > > trying to fix a problem. This also means that you have to be able to
+> > > > display printk's from inside interrupt handles.
+> >
+> > Point of disagreement. Tons of userspace helpers isn't a good choice.
+>
+> Where do you get 'tons'? There will probably be one for initial reset,
+> one for VESA based mode setting and a few more if there is device
+> specific code needed for a specific card.
+>
+> Making console rely on a permanent daemon that is subject to getting
+> killed by the OOM mechanism is not a workable solution.
+>
+> You also need to think about how cursors are handled. A non-root app
+> needs to be able to move the cursor. Actually moving the cursor
+> requires root. The in-kernel console system needs a cursor. It would
+> be much better if cursor control was implemented in the device
+> drivers.
 
-Yes we do.  It's of the class "usb_device" and you can write a single
-udev rule to override the power test if you really want to.
+Yes, the basic console will only require a few helpers. I get "tons" because 
+that's what it would take to provide all the acceleration features to 
+userspace. The daemon is *only* there to provide those acceleration features. 
+The kernel itself has it's own minimal interface to drmcon that lets it work 
+without userspace. The userspace side is for userspace. (Though the kernel 
+will only work in a specific set mode without the userspace helpers for 
+setting the mode)
 
-Of course I don't recommend someone doing this, as it is violating the
-USB power rules, and it is a good thing that we are finally testing for
-them.
+Cursor control will be entirely within the driver :)
 
-thanks,
+> > I don't know about doing a printk from inside interrupt context - the
+> > current architecture doesn't, IIRC, support printk from inside interrupt
+> > context for certain drivers for various reasons.
+>
+> Printk works from inside interrupt handlers currently. This is an
+> absolute requirement for kernel debugging that can't be removed.
+> Because of this requirement there has to be a way for all drivers to
+> draw the console entirely inside the kernel. You can not make calls to
+> user space from inside interrupt handlers.
 
-greg k-h
+Hrm... I was thinking that it didn't work for sending to net and serial 
+consoles because doing such might generate an interrupt.
+
+> > > > 6) Things like panics should be visible no matter what is running. No
+> > > > more silent deaths.
+>
+> Panics can occur inside interrupt handlers. You can't queue up printks
+> in this context and they display them later, the kernel just died,
+> there is no later.
+
+Of course. It is one of my goals to keep those silent deaths from occuring. 
+AAMOF, that was one of my reasons for this project.
+
+DRH

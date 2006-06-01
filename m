@@ -1,88 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWFAFOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWFAFPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWFAFOu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 01:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWFAFOj
+	id S964889AbWFAFPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 01:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWFAFOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 01:14:39 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:15273 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964889AbWFAFOO (ORCPT
+	Thu, 1 Jun 2006 01:14:38 -0400
+Received: from ns.suse.de ([195.135.220.2]:27351 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964892AbWFAFOT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 01:14:14 -0400
+	Thu, 1 Jun 2006 01:14:19 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 1 Jun 2006 15:14:03 +1000
-Message-Id: <1060601051403.27625@suse.de>
+Date: Thu, 1 Jun 2006 15:14:08 +1000
+Message-Id: <1060601051408.27637@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 007 of 10] md: Allow rdev state to be set via sysfs.
+Subject: [PATCH 008 of 10] md: Allow raid 'layout' to be read and set via sysfs.
 References: <20060601150955.27444.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The md/dev-XXX/state file can now be written:
 
- "faulty" simulates an error on the device
- "remove" removes the device from the array (if it is not busy)
 
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./Documentation/md.txt |    3 +++
- ./drivers/md/md.c      |   26 +++++++++++++++++++++++++-
- 2 files changed, 28 insertions(+), 1 deletion(-)
+ ./Documentation/md.txt |    5 +++++
+ ./drivers/md/md.c      |   27 +++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
 
 diff ./Documentation/md.txt~current~ ./Documentation/md.txt
 --- ./Documentation/md.txt~current~	2006-06-01 15:05:29.000000000 +1000
-+++ ./Documentation/md.txt	2006-06-01 15:05:29.000000000 +1000
-@@ -302,6 +302,9 @@ Each directory contains:
- 			 This includes spares that are in the process
- 			 of being recoverred to
- 	This list make grow in future.
-+	This can be written to.
-+	Writing "faulty"  simulates a failure on the device.
-+	Writing "remove" removes the device from the array.
++++ ./Documentation/md.txt	2006-06-01 15:05:30.000000000 +1000
+@@ -200,6 +200,11 @@ All md devices contain:
+      This can be written only while the array is being assembled, not
+      after it is started.
  
-       errors
- 	An approximate count of read errors that have been detected on
++  layout
++     The "layout" for the array for the particular level.  This is
++     simply a number that is interpretted differently by different
++     levels.  It can be written while assembling an array.
++
+    new_dev
+      This file can be written but not read.  The value written should
+      be a block device number as major:minor.  e.g. 8:0
 
 diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2006-06-01 15:05:29.000000000 +1000
+--- ./drivers/md/md.c~current~	2006-06-01 15:05:30.000000000 +1000
 +++ ./drivers/md/md.c	2006-06-01 15:05:30.000000000 +1000
-@@ -1745,8 +1745,32 @@ state_show(mdk_rdev_t *rdev, char *page)
- 	return len+sprintf(page+len, "\n");
- }
+@@ -2155,6 +2155,32 @@ level_store(mddev_t *mddev, const char *
+ static struct md_sysfs_entry md_level =
+ __ATTR(level, 0644, level_show, level_store);
  
++
 +static ssize_t
-+state_store(mdk_rdev_t *rdev, const char *buf, size_t len)
++layout_show(mddev_t *mddev, char *page)
 +{
-+	/* can write
-+	 *  faulty  - simulates and error
-+	 *  remove  - disconnects the device
-+	 */
-+	int err = -EINVAL;
-+	if (cmd_match(buf, "faulty") && rdev->mddev->pers) {
-+		md_error(rdev->mddev, rdev);
-+		err = 0;
-+	} else if (cmd_match(buf, "remove")) {
-+		if (rdev->raid_disk >= 0)
-+			err = -EBUSY;
-+		else {
-+			mddev_t *mddev = rdev->mddev;
-+			kick_rdev_from_array(rdev);
-+			md_update_sb(mddev);
-+			md_new_event(mddev);
-+			err = 0;
-+		}
-+	}
-+	return err ? err : len;
++	/* just a number, not meaningful for all levels */
++	return sprintf(page, "%d\n", mddev->layout);
 +}
- static struct rdev_sysfs_entry
--rdev_state = __ATTR_RO(state);
-+rdev_state = __ATTR(state, 0644, state_show, state_store);
- 
++
++static ssize_t
++layout_store(mddev_t *mddev, const char *buf, size_t len)
++{
++	char *e;
++	unsigned long n = simple_strtoul(buf, &e, 10);
++	if (mddev->pers)
++		return -EBUSY;
++
++	if (!*buf || (*e && *e != '\n'))
++		return -EINVAL;
++
++	mddev->layout = n;
++	return len;
++}
++static struct md_sysfs_entry md_layout =
++__ATTR(layout, 0655, layout_show, layout_store);
++
++
  static ssize_t
- super_show(mdk_rdev_t *rdev, char *page)
+ raid_disks_show(mddev_t *mddev, char *page)
+ {
+@@ -2741,6 +2767,7 @@ __ATTR(suspend_hi, S_IRUGO|S_IWUSR, susp
+ 
+ static struct attribute *md_default_attrs[] = {
+ 	&md_level.attr,
++	&md_layout.attr,
+ 	&md_raid_disks.attr,
+ 	&md_chunk_size.attr,
+ 	&md_size.attr,

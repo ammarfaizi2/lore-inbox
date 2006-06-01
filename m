@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965310AbWFAVVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965317AbWFAV1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965310AbWFAVVN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 17:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965313AbWFAVVN
+	id S965317AbWFAV1T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 17:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965315AbWFAV1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 17:21:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:722 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965310AbWFAVVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 17:21:12 -0400
-Date: Thu, 1 Jun 2006 14:24:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Message-Id: <20060601142400.1352f903.akpm@osdl.org>
-In-Reply-To: <20060601201050.GA32221@suse.de>
-References: <20060529214011.GA417@suse.de>
-	<20060530182453.GA8701@suse.de>
-	<20060601184938.GA31376@suse.de>
-	<20060601121200.457c0335.akpm@osdl.org>
-	<20060601201050.GA32221@suse.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Jun 2006 17:27:19 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:26989 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965317AbWFAV1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 17:27:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TERHwlz/0+o0dP6KcdBT70KKbEB23ypZd1hF7uzInLcmT8toNC5yvYrTh5OGDHn5ArAvwCqL1Ps9Y02w+lG0aINxF1cqFU8Iei7v5qjsrV/HF3UaceO+2MpTuPbtFdwHI0n+yPUzI5uaBHdc0/pSOg1T7hNGEirEwR57ZEGkuhI=
+Message-ID: <20f65d530606011427i2cf453f0rf84bc3c0814f6687@mail.gmail.com>
+Date: Fri, 2 Jun 2006 09:27:17 +1200
+From: "Keith Chew" <keith.chew@gmail.com>
+To: "Thiago Galesi" <thiagogalesi@gmail.com>
+Subject: Re: IO APIC IRQ assignment
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <82ecf08e0606010858u3a31c46bx6bb8c340580cb993@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20f65d530605300521q1d56c3a3t84be3d92f1df0c14@mail.gmail.com>
+	 <20060530135017.GD5151@harddisk-recovery.com>
+	 <20f65d530605300705l60bfcca7k47a41c95bf42a0ef@mail.gmail.com>
+	 <Pine.LNX.4.61.0606010002200.30170@yvahk01.tjqt.qr>
+	 <20f65d530605311612n15820847sca559d0c443fc230@mail.gmail.com>
+	 <20060601094214.GA14431@harddisk-recovery.com>
+	 <20f65d530606010338h23dbd152u2670000ba6130fc6@mail.gmail.com>
+	 <20f65d530606010835h76356757k3d3714203d5e4c6@mail.gmail.com>
+	 <82ecf08e0606010858u3a31c46bx6bb8c340580cb993@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> wrote:
+Hi Thiago
+
+> On a side note, did you consider that, for that purpose, the system
+> you're using may be underpowered (that is, not enough CPU / Bus
+> speed)??
 >
-> 
->  
-> +/* return a page in PageUptodate state, BLKFLSBUF may have flushed the page */
-> +static struct page *cramfs_read_cache_page(struct address_space *m, unsigned int n)
-> +{
-> +	struct page *page;
-> +	int readagain = 5;
-> +retry:
-> +	page = read_cache_page(m, n, (filler_t *)m->a_ops->readpage, NULL);
-> +	if (IS_ERR(page))
-> +		return NULL;
-> +	lock_page(page);
-> +	if (PageUptodate(page))
-> +		return page;
-> +	unlock_page(page);
-> +	page_cache_release(page);
-> +	if (readagain--)
-> +		goto retry;
-> +	return NULL;
-> +}
+> Depending on your system configuration, plus frequency and resolution
+> of frame acquisition, yes, it's not going to work.
+>
 
-Better, but it's still awful, isn't it?  The things you were discussing
-with Chris look more promising.  PG_Dirty would be a bit of a hack, but at
-least it'd be a 100% reliable hack, whereas the above is a
-whatever-the-previous-failure-rate-was-to-the-fifth hack.
+I doubt that is the case. We are using a Pentium M 1.8GHz, and only
+capturing low resolution 3 fps from bttv. Wifi data transfer is only
+done in small chunks (we split the data in chunks at the application
+level, ie p2p file sharing concept). CPU usage is extremely low, ie
+less than 5%.
 
-> +			page = cramfs_read_cache_page(mapping, blocknr + i);
-> +			if (page) {
-> +				memcpy(data, kmap_atomic(page, KM_USER0), PAGE_CACHE_SIZE);
-> +				kunmap(page);
+>
+> I've already encountered the PCI latency problem in a similar project
+> (using BTTVs, the image would be missing some lines) with not so
+> frequent captures and two BTTVs on the system)
+>
 
-kunmap_atomic, please.
+How did you solve your problem in that project?
 
-> +				unlock_page(page);
-> +				page_cache_release(page);
-> +			} else
-> +				memset(data, 0, PAGE_CACHE_SIZE);
-> +		}
->  		data += PAGE_CACHE_SIZE;
->  	}
->  	return read_buffers[buffer] + offset;
+Regards
+Keith

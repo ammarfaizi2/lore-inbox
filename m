@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWFAKZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWFAKiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbWFAKZL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 06:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbWFAKZL
+	id S1750817AbWFAKiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 06:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWFAKiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 06:25:11 -0400
-Received: from gw.openss7.com ([142.179.199.224]:40857 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S965016AbWFAKZJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 06:25:09 -0400
-Date: Thu, 1 Jun 2006 04:24:57 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060601042457.B25584@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <20060601001825.A21730@openss7.org> <20060601063012.GC28087@2ka.mipt.ru> <20060601004608.C21730@openss7.org> <20060601070136.GA754@2ka.mipt.ru> <20060601011125.C22283@openss7.org> <20060601083805.GB754@2ka.mipt.ru>
+	Thu, 1 Jun 2006 06:38:14 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:32132 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1750817AbWFAKiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 06:38:13 -0400
+Date: Thu, 1 Jun 2006 03:31:11 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/11] 2.6.17-rc5 perfmon2 patch for review: modified i386 files
+Message-ID: <20060601103111.GA29421@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200605311352.k4VDqV88028437@frankl.hpl.hp.com> <Pine.LNX.4.64.0605311620150.17704@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060601083805.GB754@2ka.mipt.ru>; from johnpol@2ka.mipt.ru on Thu, Jun 01, 2006 at 12:38:05PM +0400
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+In-Reply-To: <Pine.LNX.4.64.0605311620150.17704@scrub.home>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy,
-
-On Thu, 01 Jun 2006, Evgeniy Polyakov wrote:
-
-For purely random numbers you could amplify thermal noise off an
-open transitor junction (the audiofile's white noise generator)
-and feed it into an analog to digital converter.
-
+On Wed, May 31, 2006 at 04:21:49PM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> I've run it with following source ip/port selection algo:
-> 	if (++sport == 0) {
-> 		saddr++;
-> 		sport++;
-> 	}
+> On Wed, 31 May 2006, Stephane Eranian wrote:
 > 
-> Starting IP was 1.1.1.1 and sport was 1.
-> Destination IP and port are the same 192.168.0.1:80
+> > diff -ur linux-2.6.17-rc5.orig/arch/i386/Kconfig linux-2.6.17-rc5/arch/i386/Kconfig
+> > --- linux-2.6.17-rc5.orig/arch/i386/Kconfig	2006-05-30 05:31:59.000000000 -0700
+> > +++ linux-2.6.17-rc5/arch/i386/Kconfig	2006-05-30 02:48:12.000000000 -0700
+> > @@ -763,6 +763,21 @@
+> >  	  /sys/devices/system/cpu.
+> >  
+> >  
+> > +menu "Hardware Performance Monitoring support"
+> > +
+> > +config PERFMON
+> > +  	bool "Perfmon2 performance monitoring interface"
+> > +	select X86_LOCAL_APIC
+> > +	default y
 > 
-> Jenkins hash started to show different behaviour:
-> it does not have previous artefacts, but instead it's dispersion is
-> _much_ wider than in XOR case.
-
-Aha!  But perhaps this is too easy a data set.  HTTP clients typically
-dynamically allocate port numbers within a range and source address
-are typically not less than a certain value.  That is why I suggested
-something like:
-
-       sport = 10000;
-       saddr = 0x0a000000;  /* 10.0.0.0 */
-
-       ...
-
-       if (++sport == 16000) {
-	       sport = 10000;
-	       saddr++;
-       }
-
-If this shows artifacts worse than XOR then more realistic gaps in the
-input values will cause artifacts.
-
+> Drop the defaults and I'm pretty sure you don't want to use select.
 > 
-> With following ip/port selection algo:
-> 	if (++sport == 0) {
-> 		//saddr++;
-> 		sport += 123;
-> 	}
-> 
-> I see yet another jenkins artefacts, but again different from previous
-> two.
+What's wrong with 'default y' ?
+Are you suggesting I use 'depends' instead of select?
 
-Adding primes.  Again, the arithmetic series of primes might auto-correlate
-with the Jenkins function.  Or it plain might not like gaps.
+Thanks.
 
-> 
-> But each time both folded and not folded hashes behave exactly the same.
-> 
-> > Can you show the same artifacts for jenkins_3word?
-> 
-> What should be used as starting point there?
-> If I use 0 it is the same as jhash_2words().
-> If I use 123123 - artefacts are the same, just slighly shifted (I tested
-> only the latest test above though).
-> 
-> Looking into the code we can see that jhash_2words() is jhash_3words()
-> with zero "C" value, so it will show the same nature.
-
-Skip that then.
+-- 
+-Stephane

@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWFAJfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWFALz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWFAJfU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 05:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWFAJfU
+	id S1030185AbWFALz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 07:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWFALzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 05:35:20 -0400
-Received: from LNeuilly-152-21-64-8.w80-15.abo.wanadoo.fr ([80.15.165.8]:54984
-	"EHLO serveur2.macsoft-sa.com") by vger.kernel.org with ESMTP
-	id S1750743AbWFAJfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 05:35:19 -0400
-Message-ID: <447ED595.2040902@free.fr>
-Date: Thu, 01 Jun 2006 11:55:01 +0000
-From: "s.a." <sancelot@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060512
-X-Accept-Language: fr-fr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: io apic and shared irq questions
+	Thu, 1 Jun 2006 07:55:25 -0400
+Received: from penda.cc.fh-lippe.de ([193.16.112.79]:27021 "EHLO
+	penda.cc.fh-lippe.de") by vger.kernel.org with ESMTP
+	id S1030185AbWFALzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 07:55:25 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Thu, 1 Jun 2006 13:55:23 +0200
+From: Martin Hierling <martin.hierling@fh-luh.de>
+To: Neil Brown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.16.18 with general protection fault, perhaps nfsd
+Message-ID: <20060601115523.GC4561@cc.fh-luh.de>
+References: <20060531164707.GA19547@cc.fh-luh.de> <17534.12716.972995.289153@cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <17534.12716.972995.289153@cse.unsw.edu.au>
+X-URL: http://www.fh-luh.de/skim/netzwerk.html
+User-Agent: Mutt/1.5.11
+X-Skim-SendBy: pike.cc.fh-luh.de on Thu, 01 Jun 2006 13:55:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Regarding an embedded realtime system, I have got a communication board
-on pci bus .
+> I recommend running memtest86 and replacing the bad memory.
 
-I would like it's interrupt not being shared (with usb) , because the
-component receives an it every 100us and is realtime determinist.
-I looked at how was routed IRQ's with the io apic , although it is able
-to use 24 irq's, linux always share my PCI boards IRQ with another
-component and do not use all the 24 irq's range capability of ioapic.
+will do this tonight, answer tomorrow.
 
-Do you think it is possible to program the ioapic in order to have a
-better irq mapping and avoid this problem and use all the range of
-availbale vectors ?
-
-Best Regards
-Steph
-
-
-
-
-
+regards Martin
+-- 
+----------------------------------------------------------------
+  Ensign Pillsbury: He's bread Jim!
+----------------------------------------------------------------

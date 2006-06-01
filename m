@@ -1,36 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbWFAGXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbWFAGa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965244AbWFAGXo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 02:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965247AbWFAGXo
+	id S965267AbWFAGa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 02:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbWFAGa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 02:23:44 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40348
-	"EHLO sunset.sfo1.dsl.speakeasy.net") by vger.kernel.org with ESMTP
-	id S965244AbWFAGXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 02:23:43 -0400
-Date: Wed, 31 May 2006 23:24:15 -0700 (PDT)
-Message-Id: <20060531.232415.38315104.davem@davemloft.net>
-To: bidulock@openss7.org
-Cc: johnpol@2ka.mipt.ru, draghuram@rocketmail.com,
+	Thu, 1 Jun 2006 02:30:58 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:44250 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S965267AbWFAGa5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 02:30:57 -0400
+Date: Thu, 1 Jun 2006 10:30:13 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
        linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: "Brian F. G. Bidulock" <bidulock@openss7.org>
 Subject: Re: Question about tcp hash function tcp_hashfn()
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060601002221.B21730@openss7.org>
-References: <20060601061234.GB28087@2ka.mipt.ru>
-	<20060531.231839.10909081.davem@davemloft.net>
-	<20060601002221.B21730@openss7.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Message-ID: <20060601063012.GC28087@2ka.mipt.ru>
+References: <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <20060601001825.A21730@openss7.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060601001825.A21730@openss7.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 01 Jun 2006 10:30:21 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-Date: Thu, 1 Jun 2006 00:22:21 -0600
+On Thu, Jun 01, 2006 at 12:18:25AM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
+> Evgeniy,
+> 
+> On Thu, 01 Jun 2006, Evgeniy Polyakov wrote:
+> > 	
+> > 	for (i=0; i<hash_size*iter_num; ++i) {
+> > 		saddr = num2ip(get_random_byte(), get_random_byte(), get_random_byte(), get_random_byte());
+> > 		sport = get_random_word();
+> 
+> You still have a problem: you cannot use a pseudo-random number
+> generator to generate the sample set as the pseudo-random number
+> generator function itself can interact with the hash.
+> 
+> Try iterating through all 2**48 values or at least a sizeable
+> representative subset.
 
-> I thought you said you were considering jenkins_3word(), not
-> jenkins_2word()?
+Since pseudo-randomness affects both folded and not folded hash
+distribution, it can not end up in different results.
 
-We could xor some of the inputs in order to use jenkins_2word().
+You are right that having test with 2^48 values is really interesting,
+but it will take ages on my test machine :)
+
+-- 
+	Evgeniy Polyakov

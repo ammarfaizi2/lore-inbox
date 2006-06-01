@@ -1,133 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWFASoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWFASss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965129AbWFASoD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 14:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWFASoC
+	id S965127AbWFASss (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 14:48:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWFASsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 14:44:02 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:33497 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965129AbWFASoA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 14:44:00 -0400
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: balbir@in.ibm.com, dev@openvz.org
-Cc: Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
-       Sam Vilain <sam@vilain.net>, ckrm-tech@lists.sourceforge.net,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
-In-Reply-To: <447EA694.8060407@in.ibm.com>
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
-	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>
-	 <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>
-	 <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>
-	 <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>
-	 <447EA694.8060407@in.ibm.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 01 Jun 2006 11:43:33 -0700
-Message-Id: <1149187413.13336.24.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Thu, 1 Jun 2006 14:48:47 -0400
+Received: from rtr.ca ([64.26.128.89]:36737 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S965127AbWFASsr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 14:48:47 -0400
+Message-ID: <447F368F.2080305@rtr.ca>
+Date: Thu, 01 Jun 2006 14:48:47 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: State of resume for AHCI?
+References: <447F23C2.8030802@goop.org> <447F3250.5070101@rtr.ca>
+In-Reply-To: <447F3250.5070101@rtr.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-01 at 14:04 +0530, Balbir Singh wrote:
-> Hi, Kirill,
-> 
-> Kirill Korotaev wrote:
-> >> Do you have any documented requirements for container resource 
-> >> management?
-> >> Is there a minimum list of features and nice to have features for 
-> >> containers
-> >> as far as resource management is concerned?
-> > 
-> > Sure! You can check OpenVZ project (http://openvz.org) for example of 
-> > required resource management. BTW, I must agree with other people here 
-> > who noticed that per-process resource management is really useless and 
-> > hard to use :(
-> 
+Mark Lord wrote:
+> The one-line "resume fix" (attached) *might* be all that you need.
+> This is in current Linus 2.6.17-rc*-git*
 
-I totally agree.
-> I'll take a look at the references. I agree with you that it will be useful
-> to have resource management for a group of tasks.
-> 
-> > 
-> > Briefly about required resource management:
-> > 1) CPU:
-> > - fairness (i.e. prioritization of containers). For this we use SFQ like 
-> > fair cpu scheduler with virtual cpus (runqueues). Linux-vserver uses 
-> > tocken bucket algorithm. I can provide more details on this if you are 
-> > interested.
-> 
-> Yes, any information or pointers to them will be very useful.
-> 
-> > - cpu limits (soft, hard). OpenVZ provides only hard cpu limits. For 
-> > this we account the time in cycles. And after some credit is used do 
-> > delay of container execution. We use cycles as our experiments show that 
-> > statistical algorithms work poorly on some patterns :(
-> > - cpu guarantees. I'm not sure any of solutions provide this yet.
-> 
-> ckrm has a solution to provide cpu guarantees. 
-> 
-> I think as far as CPU resource management is concerned (limits or guarantees),
-> there are common problems to be solved, for example
-> 
-> 1. Tracking when a limit or a gaurantee is not met
-> 2. Taking a decision to cap the group
-> 3. Selecting the next task to execute (keeping O(1) in mind)
-> 
-> For the existing resource controller in OpenVZ I would be
-> interested in the information on the kinds of patterns it does not
-> perform well on and the patterns it performs well on.
-> 
-> > 
-> > 2) disk:
-> > - overall disk quota for container
-> > - per-user/group quotas inside container
-> > 
-> > in OpenVZ we wrote a 2level disk quota which works on disk subtrees. 
-> > vserver imho uses 1 partition per container approach.
-> > 
-> > - disk I/O bandwidth:
-> > we started to use CFQv2, but it is quite poor in this regard. First, it 
-> > doesn't prioritizes writes and async disk operations :( And even for 
-> > sync reads we found some problems we work on now...
+Oh.. yes, you'll have to switch to the ata_piix driver for this to work.
+So long as your AHCI is an Intel one, that will probably work fine.
 
-CKRM (on e-series) had an implementation based on a modified CFQ
-scheduler. Shailabh is currently working on porting that controller to
-f-series.
-
-> > 
-> > 3) memory and other resources.
-> > - memory
-> > - files
-> > - signals and so on and so on.
-> > For example, in OpenVZ we have user resource beancounters (original 
-> > author is Alan Cox), which account the following set of parameters:
-> > kernel memory (vmas, page tables, different structures etc.), dcache 
-
-i started looking at UBC. They provide only max limits, not min
-guarantees, right ?
- 
-> > pinned size, different user pages (locked, physical, private, shared), 
-> > number of files, sockets, ptys, signals, network buffers, netfilter 
-> > rules etc.
-> > 
-<snip>
-> 
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Cheers

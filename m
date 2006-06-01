@@ -1,128 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWFAOXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWFAO3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWFAOXn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 10:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWFAOXn
+	id S1750998AbWFAO3W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 10:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWFAO3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 10:23:43 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:24637 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1750987AbWFAOXm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 10:23:42 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH 1/1] 2.6.17-rc5 patch for HPET operation on NVIDIA platforms
-Date: Thu, 1 Jun 2006 07:23:37 -0700
-Message-ID: <8E5ACAE05E6B9E44A2903C693A5D4E8A15D0E4D7@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/1] 2.6.17-rc5 patch for HPET operation on NVIDIA platforms
-Thread-Index: AcaFhvvbcfY4gY7GStKhuvbCGMGGfg==
-From: "Andy Currid" <ACurrid@nvidia.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 01 Jun 2006 14:23:38.0241 (UTC) FILETIME=[F95D9710:01C68586]
+	Thu, 1 Jun 2006 10:29:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45536 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750992AbWFAO3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 10:29:21 -0400
+Subject: Re: PROBLEM: BAD RAM SIZE DETECTION ON DELL POWER EDGE SC420
+From: Arjan van de Ven <arjan@infradead.org>
+To: cyril canovas <cyril@egnx.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606011621.07881.cyril@egnx.com>
+References: <200606011621.07881.cyril@egnx.com>
+Content-Type: text/plain
+Date: Thu, 01 Jun 2006 16:29:19 +0200
+Message-Id: <1149172159.3115.64.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+>  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+>  BIOS-e820: 0000000000100000 - 00000000d768cc00 (usable)
 
-This patch fixes a kernel panic during boot that occurs on NVIDIA
-platforms that have
-HPET enabled. When HPET is enabled, the standard timer IRQ is routed to
-IOAPIC pin 2
-and is advertised as such in the ACPI APIC table - but an earlier
-workaround in the
-kernel was ignoring this override. The fix is to honor timer IRQ
-overrides from ACPI
-when HPET is detected on an NVIDIA platform.
+and ...
+>  BIOS-e820: 00000000d768cc00 - 00000000d768ec00 (ACPI NVS)
+>  BIOS-e820: 00000000d768ec00 - 00000000d7690c00 (ACPI data)
+>  BIOS-e820: 00000000d7690c00 - 00000000d8000000 (reserved)
+>  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
+>  BIOS-e820: 00000000fec00000 - 00000000fed00400 (reserved)
+>  BIOS-e820: 00000000fed20000 - 00000000feda0000 (reserved)
+>  BIOS-e820: 00000000fee00000 - 00000000fef00000 (reserved)
+>  BIOS-e820: 00000000ffb00000 - 0000000100000000 (reserved)
+... this is where your memory is going. The bios seems to have reserved
+it in part for itself, and in part for PCI mmio space...
+(which is required to have pci at all). Some machines remap this
+quarter-to-half a gig (half on your machine) to above the 4Gb mark.
+Your machine does not.
 
-32-bit kernel patch:
 
-Signed-off-by: Andy Currid <acurrid@nvidia.com>
 
-diff -u linux-2.6.17-rc5-patch/arch/i386/kernel/acpi/earlyquirk.c
-linux-2.6.17-rc5/arch/i386/kernel/acpi/earlyquirk.c
---- linux-2.6.17-rc5/arch/i386/kernel/acpi/earlyquirk.c	2006-03-19
-22:53:29.000000000 -0700
-+++ linux-2.6.17-rc5-patch/arch/i386/kernel/acpi/earlyquirk.c
-2006-05-27 16:03:59.000000000 -0600
-@@ -9,13 +9,30 @@
- #include <asm/acpi.h>
- #include <asm/apic.h>
- 
-+#ifdef CONFIG_ACPI
-+
-+#include <linux/acpi.h>
-+
-+static int nvidia_hpet_detected __initdata;
-+
-+static int __init nvidia_hpet_check(unsigned long phys, unsigned long
-size)
-+{
-+	nvidia_hpet_detected = 1;
-+	return 0;
-+}
-+#endif
-+
- static int __init check_bridge(int vendor, int device)
- {
- #ifdef CONFIG_ACPI
--	/* According to Nvidia all timer overrides are bogus. Just
-ignore
--	   them all. */
-+	/* According to Nvidia all timer overrides are bogus unless HPET
-+	   is enabled. */
- 	if (vendor == PCI_VENDOR_ID_NVIDIA) {
--		acpi_skip_timer_override = 1;
-+		nvidia_hpet_detected = 0;
-+		acpi_table_parse(ACPI_HPET, nvidia_hpet_check);
-+		if (nvidia_hpet_detected == 0) {
-+			acpi_skip_timer_override = 1;
-+		}
- 	}
- #endif
- 	if (vendor == PCI_VENDOR_ID_ATI && timer_over_8254 == 1) {
-
-diff -u linux-2.6.17-rc5/arch/i386/kernel/setup.c
-linux-2.6.17-rc5-patch/arch/i386/kernel/acpi/setup.c
---- linux-2.6.17-rc5/arch/i386/kernel/setup.c	2006-05-27
-13:00:34.000000000 -0600
-+++ linux-2.6.17-rc5-patch/arch/i386/kernel/setup.c	2006-05-27
-15:38:38.000000000 -0600
-@@ -1547,15 +1547,18 @@
- 	if (efi_enabled)
- 		efi_map_memmap();
- 
--#ifdef CONFIG_X86_IO_APIC
--	check_acpi_pci();	/* Checks more than just ACPI actually
-*/
--#endif
--
- #ifdef CONFIG_ACPI
- 	/*
- 	 * Parse the ACPI tables for possible boot-time SMP
-configuration.
- 	 */
- 	acpi_boot_table_init();
-+#endif
-+
-+#ifdef CONFIG_X86_IO_APIC
-+	check_acpi_pci();	/* Checks more than just ACPI actually
-*/
-+#endif
-+
-+#ifdef CONFIG_ACPI
- 	acpi_boot_init();
- 
- #if defined(CONFIG_SMP) && defined(CONFIG_X86_PC)
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------

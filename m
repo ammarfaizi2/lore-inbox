@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWFAJnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWFAJtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbWFAJnN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 05:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWFAJnN
+	id S964892AbWFAJtN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 05:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWFAJtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 05:43:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:49245 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750842AbWFAJnM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 05:43:12 -0400
-Date: Thu, 1 Jun 2006 11:45:18 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2
-Message-ID: <20060601094518.GS29535@suse.de>
-References: <20060601014806.e86b3cc0.akpm@osdl.org> <1149154233.12777.14.camel@Homer.TheSimpsons.net>
+	Thu, 1 Jun 2006 05:49:13 -0400
+Received: from mga07.intel.com ([143.182.124.22]:17718 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S964834AbWFAJtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 05:49:12 -0400
+X-IronPort-AV: i="4.05,196,1146466800"; 
+   d="scan'208"; a="44430548:sNHT30283582"
+Date: Thu, 1 Jun 2006 02:46:11 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: "bibo,mao" <bibo.mao@intel.com>
+Cc: akpm@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, kaneshige.kenji@jp.fujitsu.com
+Subject: Re: [BUG](-mm)pci_disable_device function clear bars_enabled element
+Message-ID: <20060601024611.A32490@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <447E91CE.7010705@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1149154233.12777.14.camel@Homer.TheSimpsons.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <447E91CE.7010705@intel.com>; from bibo.mao@intel.com on Thu, Jun 01, 2006 at 03:05:50PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01 2006, Mike Galbraith wrote:
-> On Thu, 2006-06-01 at 01:48 -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/
-> > 
-> > 
-> > - A cfq bug was fixed in mainline, so the git-cfq tree has been restored.
-> 
-> I put the fix for slab corruption into mm1, and it did indeed cure that.
-> However, if I add git-cfq.patch, my box still explodes.
+On Thu, Jun 01, 2006 at 03:05:50PM +0800, bibo,mao wrote:
+> I found that in -mm tree, function pci_disable_device() 
+> clears bars_enabled variable, so that pci_release_regions 
+> can not release reserved PCI I/O and memory resource. Some
+> device driver programs in kernel tree call pci_release_regions
+> function after pci_disable_device(), that will cause some problem.
 
-Andrew, you probably want to leave out git-cfq for a few days as it'll
-throw rejects once Linus pulls the for-2.6.17 cfq urgent fixes. I'll
-fixup the branch and the apparently silly bug that crept in that branch
-and give you a ping about when to reenable it!
+It's coming from Kaneshige-san's patch:
+pci-legacy-i-o-port-free-driver-changes-to-generic-pci-code.patch
 
--- 
-Jens Axboe
+This patch assumes that pci_request_region() will always be called
+after pci_enable_device() and pci_release_region() will always
+be called before pci_disable_device(). We cannot make this
+assumption,since it's perfectly legal to disable a device
+first and then release it's regions. So, I think that patch
+needs to change.
 
+thanks,
+Rajesh

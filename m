@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWFBWdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWFBWlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932583AbWFBWdP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 18:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbWFBWdP
+	id S932179AbWFBWlt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 18:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbWFBWlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 18:33:15 -0400
-Received: from wx-out-0102.google.com ([66.249.82.207]:59259 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932583AbWFBWdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 18:33:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=AaAvV3Hmw7PAcWY+SeDXI3j7Oc/AGSWkMFswnhPRhBk8CDDfE3A7/NNp9rrbd7Y/EBnMpce9QuIdMClt3GclnQt5MryGSL8NZt4rd1Vlt9ZN/1wB8VKJAdHarSawvfmrJA9ggsq25OA96WzKG+PiufE3IpRuqgeaDfuZwW60Yqc=
-Message-ID: <986ed62e0606021533n4c8954eeifd71f97611a4c7f@mail.gmail.com>
-Date: Fri, 2 Jun 2006 15:33:12 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.17-rc5-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Arjan van de Ven" <arjan@infradead.org>
-In-Reply-To: <20060602205332.GA5022@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 2 Jun 2006 18:41:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62387 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932179AbWFBWlt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 18:41:49 -0400
+Date: Fri, 2 Jun 2006 15:41:21 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Greg KH <gregkh@suse.de>
+Cc: lcapitulino@mandriva.com.br, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com
+Subject: Re: [PATCH 8/11] usbserial: pl2303: Ports tty functions.
+Message-Id: <20060602154121.d3f19cbe.zaitcev@redhat.com>
+In-Reply-To: <20060602205014.GB31251@suse.de>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	<1149217398434-git-send-email-lcapitulino@mandriva.com.br>
+	<20060602205014.GB31251@suse.de>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	 <986ed62e0606011758w348080ebn6e8430ec9e5b2ed3@mail.gmail.com>
-	 <20060601183836.d318950e.akpm@osdl.org>
-	 <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com>
-	 <20060602142009.GA10236@elte.hu>
-	 <986ed62e0606021101t6701d095ycd29c91885aaeec9@mail.gmail.com>
-	 <20060602205332.GA5022@elte.hu>
-X-Google-Sender-Auth: 85ed718a2a70be4b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/2/06, Ingo Molnar <mingo@elte.hu> wrote:
-> does it get any better if you remove:
->
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/broken-out/lock-validator-floppyc-irq-release-fix.patch
->
-> ?
+On Fri, 2 Jun 2006 13:50:14 -0700, Greg KH <gregkh@suse.de> wrote:
+> On Fri, Jun 02, 2006 at 12:03:14AM -0300, Luiz Fernando N.Capitulino wrote:
 
-I won't be able to check until later today. With the tracing patch
-added (for figuring out the warning at boot time), my kernel is about
-50-60K too large to fit on a 1.6MB floppy. I first need to see if I
-can trim or modularize some fat from my kernel without affecting the
-reproducibility of these bugs... (If all else fails, I'll probably add
-a CD-RW drive to this box and boot kernels from that.)
--- 
--Barry K. Nathan <barryn@pobox.com>
+> >   2. The new pl2303's set_termios() can (still) sleep. Serial Core's
+> >      documentation says that that method must not sleep, but I couldn't find
+> >      where in the Serial Core code it's called in atomic context. So, is this
+> >      still true? Isn't the Serial Core's documentation out of date?
+> 
+> If this is true then we should just stop the port right now, as the USB
+> devices can not handle this.  They need to be able to sleep to
+> accomplish this functionality.
+> 
+> Russell, is this a requirement of the serial layer?  Why?
+
+Shouldn't it be all right to schedule the change at the moment of
+that call and have it happen later? Resisting a temptation to abuse
+keventd and schedule_work and using a tasklet may help with latency
+enough to make this tolerable.
+
+I'm sure that a generic mechanism to drive asynchronous usb_control_msg
+is going to be required as well for this project. The pl2303 is just
+lucky to avoid it.
+
+-- Pete

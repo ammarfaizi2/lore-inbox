@@ -1,67 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWFBVA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWFBTDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbWFBVA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 17:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbWFBVA2
+	id S1750841AbWFBTDr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWFBTDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 17:00:28 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:6301 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1030268AbWFBVA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 17:00:26 -0400
-Date: Fri, 2 Jun 2006 11:49:32 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Pavel Machek <pavel@ucw.cz>
-cc: Ondrej Zajicek <santiago@mail.cz>,
-       "Antonino A. Daplas" <adaplas@gmail.com>,
-       Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
-       "D. Hazelton" <dhazelton@enter.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-In-Reply-To: <20060602085832.GA25806@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.63.0606021146320.4686@qynat.qvtvafvgr.pbz>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> 
- <200605272245.22320.dhazelton@enter.net>  <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>
-  <200605280112.01639.dhazelton@enter.net>  <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
-  <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> 
- <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>  <447CBEC5.1080602@gmail.com>
- <20060602083604.GA2480@localhost.localdomain> <20060602085832.GA25806@elf.ucw.cz>
+	Fri, 2 Jun 2006 15:03:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:14568 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750841AbWFBTDr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:03:47 -0400
+Message-ID: <44808A52.9040100@in.ibm.com>
+Date: Sat, 03 Jun 2006 00:28:26 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, dev@openvz.org, Srivatsa <vatsa@in.ibm.com>,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Sam Vilain <sam@vilain.net>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Peter Williams <peterw@aurema.com>,
+       Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au>	<447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com>	<447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra>	<447F77A4.3000102@bigpond.net.au>	<1149213759.10377.7.camel@linuxchandra>	<447FAEB0.3060103@aurema.com> <447FF7BB.9000104@in.ibm.com> <44803D5D.20303@bigpond.net.au>
+In-Reply-To: <44803D5D.20303@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jun 2006, Pavel Machek wrote:
-
->> I just implemented text mode switch and tileblit ops into viafb
->> (http://davesdomain.org.uk/viafb/index.php) and it is about four
->> times faster than accelerated graphics mode and about eight times
->> faster than unaccelerated graphics mode (both measured using cat
->> largefile with ypan disabled). So textmode is meaningful
->> alternative.
+Peter Williams wrote:
+> Balbir Singh wrote:
+> 
+>>Peter Williams wrote:
+>><snip>
+>>
+>>>>>But you don't need something as complex as CKRM either.  This capping
+>>>>
+>>>>All CKRM^W Resource Groups does is to group unrelated/related tasks to a
+>>>>group and apply resource limits.
+>>>>
+>>>>
+>>>>>functionality coupled with (the lamented) PAGG patches (should have 
+>>>>>been called TAGG for "task aggregation" instead of PAGG for "process 
+>>>>>aggregation") would allow you to implement a kernel module that 
+>>>>>could apply caps to arbitrary groups of tasks.
+>>>>
+>>>>I do not follow how PAGG + this cap feature can be used to put cap of
+>>>>related/unrelated tasks. Can you provide little more explanation,
+>>>>please.
+>>>
+>>>
+>>>I would have thought it was fairly obvious.  PAGG supplies the task 
+>>>aggregation mechanism, these patches provide per task caps and all 
+>>>that's needed is the code that marries the two.
+>>>
+>>
+>>The problem is that with per-task caps, if I have a resource group A
+>>and I want to limit it to 10%, I need to limit each task in resource
+>>group A to 10% (which makes resource groups not so useful). Is my
+>>understanding correct?
+> 
+> 
+> Well the general idea is correct but your maths is wrong.  You'd have to 
+> give each of them a cap somewhere between 10% and 10% divided by the 
+> number of tasks in group A.  Exactly where in that range would vary 
+> depending on the CPU demand of each task and would need to be adjusted 
+> dynamically (unless they were very boring tasks whose demands were 
+> constant over time).
 >
-> I mean.... it is displaying text faster than refresh rate... so who
-> cares?
->
-> You can only *display* so much text a second (and then, user is only
-> able to see *much* less text) and both text mode and frame buffers are
-> way past that limits. so.... who cares?
 
-there are quite a few times when you have text output that you need to 
-scroll through, but you really don't need to read it as it goes by.
 
-for example, accidently cating a large file, running a program with overly 
-verbose debugging output, etc.
+Hmm.. I thought my math was reasonable (but there is always so much to learn)
+>From your formula, if I have 1 task in group A, I need to provide it with
+a cap of b/w 10 to 11%. For two tasks, I need to give them b/w 10 to 10.5%.
+If I have a hundred, it needs to be b/w 10% and 10.01%
+ 
+> 
+>>Is there a way to distribute the group limit
+>>across tasks in the resource group?
+> 
+> 
+> Not as part of this patch but it could be done from outside the 
+> scheduler either in the kernel or in user space.
+> 
+> 
+>>>>Also, i do not think it can provide guarantees to that group of tasks.
+>>>>can it ?
+>>>
+>>>
+>>>It could do that by manipulating nice which is already available in 
+>>>the kernel.
+>>>
+>>>I.e. these patches plus improved statistics (which are coming, I hope) 
+>>>together with the existing policy controls provide all that is 
+>>>necessary to do comprehensive CPU resource control.  If there is an 
+>>>efficient way to get the statistics out to user space (also coming, I 
+>>>hope) this control could be exercised from user space.
+>>
+>>Could you please provide me with a link to the new improved statistics.
+> 
+> 
+> No.  Read LKML and you'll know as much as I do.
+> 
+> 
+>>What do the new statistics contain - any heads up on them?
+> 
+> 
+> There're several contenders (including some from IBM) that periodically 
+> post patches to LKML.  That's where I'm aware of them from.  As I say, 
+> I'm hoping that they get together and come up with something generally 
+> useful (as opposed to just meeting each contenders needs). I may be 
+> being overly optimistic but you never know.
 
-yes, if you never make mistakes and know that these are problem cases 
-ahead of time you can redirect the output. but in the real world sysadmins 
-really do notice when they are on a console that is slower.
+Yes, thats the whole point of the discussion and everybody is free to
+participate.
 
-if reading speed was the limiting factor very few people would need 
-anything faster then a 9600 baud terminal.
 
-David Lang
+> 
+> Peter
+
+
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

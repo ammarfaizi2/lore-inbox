@@ -1,139 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWFBUac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWFBUlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWFBUac (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 16:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWFBUac
+	id S932565AbWFBUlM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 16:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFBUlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 16:30:32 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:15059 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932216AbWFBUab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 16:30:31 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Fri, 2 Jun 2006 22:28:48 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.17-rc5-mm2 18/18] sbp2: use __attribute__((packed)) for
- on-the-wire structures
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>,
-       Ben Collins <bcollins@ubuntu.com>
-In-Reply-To: <tkrat.df90273c07dd7503@s5r6.in-berlin.de>
-Message-ID: <tkrat.9d29f76876c2d347@s5r6.in-berlin.de>
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
- <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
- <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
- <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
- <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
- <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de>
- <tkrat.f35772c971022262@s5r6.in-berlin.de>
- <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de>
- <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de>
- <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de>
- <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de>
- <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de>
- <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de>
- <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de>
- <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de>
- <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de>
- <tkrat.96e1b392429fe277@s5r6.in-berlin.de>
- <tkrat.df90273c07dd7503@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (-0.731) AWL,BAYES_00
+	Fri, 2 Jun 2006 16:41:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29854 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932565AbWFBUlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 16:41:11 -0400
+Date: Fri, 2 Jun 2006 13:43:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <Trond.Myklebust@netapp.com>
+Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       mingo@elte.hu
+Subject: Re: lock_kernel called under spinlock in NFS
+Message-Id: <20060602134346.73019624.akpm@osdl.org>
+In-Reply-To: <1149280078.5621.63.camel@lade.trondhjem.org>
+References: <20060601195535.GA28188@tsunami.ccur.com>
+	<1149192820.3549.43.camel@lade.trondhjem.org>
+	<20060602202436.GA4783@tsunami.ccur.com>
+	<1149280078.5621.63.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems to have worked without the attribute during all the years
-just because sizes of all struct members are multiples of octlets.
+Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
+>
+> On Fri, 2006-06-02 at 16:24 -0400, Joe Korty wrote:
+> > On Thu, Jun 01, 2006 at 04:13:39PM -0400, Trond Myklebust wrote:
+> > > On Thu, 2006-06-01 at 15:55 -0400, Joe Korty wrote:
+> > >> Tree 5fdccf2354269702f71beb8e0a2942e4167fd992
+> > >> 
+> > >>         [PATCH] vfs: *at functions: core
+> > >> 
+> > >> introduced a bug where lock_kernel() can be called from
+> > >> under a spinlock.  To trigger the bug one must have
+> > >> CONFIG_PREEMPT_BKL=y and be using NFS heavily.  It is
+> > >> somewhat rare and, so far, haven't traced down the userland
+> > >> sequence that causes the fatal path to be taken.
+> > >> 
+> > >> The bug was caused by the insertion into do_path_lookup()
+> > >> of a call to file_permission().  do_path_lookup()
+> > >> read-locks current->fs->lock for most of its operation.
+> > >> file_permission() calls permission() which calls
+> > >> nfs_permission(), which has one path through it
+> > >> that uses lock_kernel().
+> > 
+> > > Nowhere should anyone be calling file_permission() under a spinlock.
+> > > 
+> > > Why would you need to read-protect current->fs in the case where you are
+> > > starting from a file? The correct thing to do there would appear to be
+> > > to read_protect only the cases where (*name=='/') and (dfd == AT_FDCWD).
+> > > 
+> > > Something like the attached patch...
+> > 
+> > 
+> > Hi Trond,
+> > I've been running with the patch for the last few hours, on an nfs-rooted
+> > system, and it has been working fine.  Any plans to submit this for 2.6.17?
+> 
+> It probably ought to be, given the nature of the sin. Andrew?
+> 
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+OK.
 
-Index: linux-2.6.17-rc5-mm2/drivers/ieee1394/sbp2.h
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/drivers/ieee1394/sbp2.h	2006-06-01 20:55:43.000000000 +0200
-+++ linux-2.6.17-rc5-mm2/drivers/ieee1394/sbp2.h	2006-06-01 20:55:49.000000000 +0200
-@@ -52,7 +52,7 @@ struct sbp2_command_orb {
- 	u32 data_descriptor_lo;
- 	u32 misc;
- 	u8 cdb[12];
--};
-+} __attribute__((packed));
- 
- #define SBP2_LOGIN_REQUEST		0x0
- #define SBP2_QUERY_LOGINS_REQUEST	0x1
-@@ -80,7 +80,7 @@ struct sbp2_login_orb {
- 	u32 passwd_resp_lengths;
- 	u32 status_fifo_hi;
- 	u32 status_fifo_lo;
--};
-+} __attribute__((packed));
- 
- #define RESPONSE_GET_LOGIN_ID(value)            (value & 0xffff)
- #define RESPONSE_GET_LENGTH(value)              ((value >> 16) & 0xffff)
-@@ -91,7 +91,7 @@ struct sbp2_login_response {
- 	u32 command_block_agent_hi;
- 	u32 command_block_agent_lo;
- 	u32 reconnect_hold;
--};
-+} __attribute__((packed));
- 
- #define ORB_SET_LOGIN_ID(value)                 (value & 0xffff)
- 
-@@ -106,7 +106,7 @@ struct sbp2_query_logins_orb {
- 	u32 reserved_resp_length;
- 	u32 status_fifo_hi;
- 	u32 status_fifo_lo;
--};
-+} __attribute__((packed));
- 
- #define RESPONSE_GET_MAX_LOGINS(value)          (value & 0xffff)
- #define RESPONSE_GET_ACTIVE_LOGINS(value)       ((RESPONSE_GET_LENGTH(value) - 4) / 12)
-@@ -116,7 +116,7 @@ struct sbp2_query_logins_response {
- 	u32 misc_IDs;
- 	u32 initiator_misc_hi;
- 	u32 initiator_misc_lo;
--};
-+} __attribute__((packed));
- 
- struct sbp2_reconnect_orb {
- 	u32 reserved1;
-@@ -127,7 +127,7 @@ struct sbp2_reconnect_orb {
- 	u32 reserved5;
- 	u32 status_fifo_hi;
- 	u32 status_fifo_lo;
--};
-+} __attribute__((packed));
- 
- struct sbp2_logout_orb {
- 	u32 reserved1;
-@@ -138,7 +138,7 @@ struct sbp2_logout_orb {
- 	u32 reserved5;
- 	u32 status_fifo_hi;
- 	u32 status_fifo_lo;
--};
-+} __attribute__((packed));
- 
- #define PAGE_TABLE_SET_SEGMENT_BASE_HI(value)   (value & 0xffff)
- #define PAGE_TABLE_SET_SEGMENT_LENGTH(value)    ((value & 0xffff) << 16)
-@@ -146,7 +146,7 @@ struct sbp2_logout_orb {
- struct sbp2_unrestricted_page_table {
- 	u32 length_segment_base_hi;
- 	u32 segment_base_lo;
--};
-+} __attribute__((packed));
- 
- #define RESP_STATUS_REQUEST_COMPLETE		0x0
- #define RESP_STATUS_TRANSPORT_FAILURE		0x1
-@@ -191,7 +191,7 @@ struct sbp2_status_block {
- 	u32 ORB_offset_hi_misc;
- 	u32 ORB_offset_lo;
- 	u8 command_set_dependent[24];
--};
-+} __attribute__((packed));
- 
- /*
-  * Miscellaneous SBP2 related config rom defines
+Just to confirm, this is final?
 
+
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+
+We're presently running lock_kernel() under fs_lock via nfs's ->permission
+handler.  That's a ranking bug and sometimes a sleep-in-spinlock bug.  This
+problem was introduced in the openat() patchset.
+
+We should not need to hold the current->fs->lock for a codepath that doesn't
+use current->fs.
+
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+Cc: Al Viro <viro@ftp.linux.org.uk>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ fs/namei.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+diff -puN fs/namei.c~fs-nameic-call-to-file_permission-under-a-spinlock-in-do_lookup_path fs/namei.c
+--- 25/fs/namei.c~fs-nameic-call-to-file_permission-under-a-spinlock-in-do_lookup_path	Fri Jun  2 13:39:52 2006
++++ 25-akpm/fs/namei.c	Fri Jun  2 13:39:52 2006
+@@ -1080,8 +1080,8 @@ static int fastcall do_path_lookup(int d
+ 	nd->flags = flags;
+ 	nd->depth = 0;
+ 
+-	read_lock(&current->fs->lock);
+ 	if (*name=='/') {
++		read_lock(&current->fs->lock);
+ 		if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
+ 			nd->mnt = mntget(current->fs->altrootmnt);
+ 			nd->dentry = dget(current->fs->altroot);
+@@ -1092,9 +1092,12 @@ static int fastcall do_path_lookup(int d
+ 		}
+ 		nd->mnt = mntget(current->fs->rootmnt);
+ 		nd->dentry = dget(current->fs->root);
++		read_unlock(&current->fs->lock);
+ 	} else if (dfd == AT_FDCWD) {
++		read_lock(&current->fs->lock);
+ 		nd->mnt = mntget(current->fs->pwdmnt);
+ 		nd->dentry = dget(current->fs->pwd);
++		read_unlock(&current->fs->lock);
+ 	} else {
+ 		struct dentry *dentry;
+ 
+@@ -1118,7 +1121,6 @@ static int fastcall do_path_lookup(int d
+ 
+ 		fput_light(file, fput_needed);
+ 	}
+-	read_unlock(&current->fs->lock);
+ 	current->total_link_count = 0;
+ 	retval = link_path_walk(name, nd);
+ out:
+_
 

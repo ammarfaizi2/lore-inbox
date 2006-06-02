@@ -1,81 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWFBTXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWFBTVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbWFBTXg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWFBTXf
+	id S1751451AbWFBTVk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWFBTVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:23:35 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:18877 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751454AbWFBTXf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:23:35 -0400
-From: Balbir Singh <balbir@in.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: Balbir Singh <balbir@in.ibm.com>
-Date: Sat, 03 Jun 2006 00:48:37 +0530
-Message-Id: <20060602191837.23235.58930.sendpatchset@localhost.localdomain>
-Subject: [PATCH -mm] Send statistics even if thread group leader exits
+	Fri, 2 Jun 2006 15:21:40 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:25500 "EHLO
+	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
+	id S1751443AbWFBTVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:21:39 -0400
+X-ASG-Debug-ID: 1149276098-16569-10-0
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+Date: Fri, 2 Jun 2006 15:21:37 -0400 (EDT)
+From: Ravinandan Arakali <Ravinandan.Arakali@neterion.com>
+To: linux-kernel@vger.kernel.org
+cc: netdev@vger.kernel.org, leonid.grossman@neterion.com,
+       ananda.raju@neterion.com, rapuru.sriram@neterion.com,
+       ravinandan.arakali@neterion.com
+X-ASG-Orig-Subj: [PATCH 2.6.16.18] MSI: Proposed fix for MSI/MSI-X load failure
+Subject: [PATCH 2.6.16.18] MSI: Proposed fix for MSI/MSI-X load failure
+Message-ID: <Pine.GSO.4.10.10606021518500.9289-100000@guinness>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.13979
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew,
+Hi,
+This patch suggests a fix for the MSI/MSI-X load failure.
 
-The following problem was found during the usage of the per-task delay
-accounting code.
+Please review the patch.
 
-When a thread group leader exits, the statistics of the remaining threads
-in the thread group are not sent on exit. delayacct_add_tsk() would
-fail for the thread group leader. This fix causes statistics collected for
-the pid to be sent out, even if collection of tgid statistics fail.
+Symptoms:
+When a driver is loaded with MSI followed by MSI-X, the load fails indicating 
+that the MSI vector is still active. And vice versa.
 
-Test Program Psuedocode
+Suspected rootcause:
+This happens inspite of driver calling free_irq() followed by 
+pci_disable_msi/pci_disable_msix. This appears to be a kernel bug 
+wherein the pci_disable_msi and pci_disable_msix calls do not 
+clear/unpopulate the msi_desc data structure that was populated 
+by pci_enable_msi/pci_enable_msix.
 
-1. Main program
-	creates two threads called t1 and t2
-	calls pthread_exit()
+Proposed fix:
+Free the MSI vector in pci_disable_msi and all allocated MSI-X vectors 
+in pci_disable_msix.
 
-2. t1
-	sleeps for a while
-	calls pthread_exit()
-3. t2
-	sleeps for a while
-	calls pthread_exit()
+Testing:
+The fix has been tested on IA64 platforms with Neterion's Xframe driver.
 
-Earlier no stats were being sent for t1 and t2.
-
-The pid statistics are being sent to user space after the fix.
-
-Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+Signed-off-by: Ravinandan Arakali <ravinandan.arakali@neterion.com>
 ---
 
- kernel/taskstats.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
-
-diff -puN kernel/taskstats.c~taskstats-thread-group-leader-exits-first-fix kernel/taskstats.c
---- linux-2.6.17-rc5/kernel/taskstats.c~taskstats-thread-group-leader-exits-first-fix	2006-06-02 18:12:44.000000000 +0530
-+++ linux-2.6.17-rc5-balbir/kernel/taskstats.c	2006-06-03 00:32:16.000000000 +0530
-@@ -277,8 +277,15 @@ void taskstats_exit_send(struct task_str
+diff -urpN old/drivers/pci/msi.c new/drivers/pci/msi.c
+--- old/drivers/pci/msi.c	2006-05-31 19:02:19.000000000 -0700
++++ new/drivers/pci/msi.c	2006-05-31 19:02:39.000000000 -0700
+@@ -779,6 +779,7 @@ void pci_disable_msi(struct pci_dev* dev
+ 		nr_released_vectors++;
+ 		default_vector = entry->msi_attrib.default_vector;
+ 		spin_unlock_irqrestore(&msi_lock, flags);
++		msi_free_vector(dev, dev->irq, 1);
+ 		/* Restore dev->irq to its default pin-assertion vector */
+ 		dev->irq = default_vector;
+ 		disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
+@@ -1046,6 +1047,7 @@ void pci_disable_msix(struct pci_dev* de
+ 
+ 		}
  	}
++	msi_remove_pci_irq_vectors(dev);
+ }
  
- 	rc = fill_tgid(tsk->pid, tsk, tgidstats);
--	if (rc < 0)
--		goto err_skb;
-+	/*
-+	 * If fill_tgid() failed then one probable reason could be that the
-+	 * thread group leader has exited. fill_tgid() will fail, send out
-+	 * the pid statistics collected earlier.
-+	 */
-+	if (rc < 0) {
-+		send_reply(rep_skb, 0, TASKSTATS_MSG_MULTICAST);
-+		goto ret;
-+	}
- 
- 	na = nla_nest_start(rep_skb, TASKSTATS_TYPE_AGGR_TGID);
- 	NLA_PUT_U32(rep_skb, TASKSTATS_TYPE_TGID, (u32)tsk->tgid);
-_
+ /**
 
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs

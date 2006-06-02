@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWFBTqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWFBTrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWFBTqj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWFBTqf
+	id S932546AbWFBTrP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWFBTrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:46:35 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:42115 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751470AbWFBTq1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:46:27 -0400
-Message-Id: <20060602194618.482948000@sous-sol.org>
-Date: Fri, 02 Jun 2006 12:46:18 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH 00/11] -stable review
+	Fri, 2 Jun 2006 15:47:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42127 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932541AbWFBTqn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:46:43 -0400
+Date: Fri, 2 Jun 2006 12:46:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
+Message-Id: <20060602124635.2d7a1d96.akpm@osdl.org>
+In-Reply-To: <20060602193702.GA9888@suse.de>
+References: <20060529214011.GA417@suse.de>
+	<20060530182453.GA8701@suse.de>
+	<20060601184938.GA31376@suse.de>
+	<20060601121200.457c0335.akpm@osdl.org>
+	<20060601201050.GA32221@suse.de>
+	<20060601142400.1352f903.akpm@osdl.org>
+	<20060601214158.GA438@suse.de>
+	<20060601145747.274df976.akpm@osdl.org>
+	<20060602084327.GA3964@suse.de>
+	<20060602021115.e42ad5dd.akpm@osdl.org>
+	<20060602193702.GA9888@suse.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the start of the stable review cycle for the 2.6.16.20 release.
-There are 11 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let us know.  If anyone is a maintainer of the proper subsystem, and
-wants to add a Signed-off-by: line to the patch, please respond with it.
+On Fri, 2 Jun 2006 21:37:02 +0200
+Olaf Hering <olh@suse.de> wrote:
 
-These patches are sent out with a number of different people on the
-Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
-to add your name to the list.  If you want to be off the reviewer list,
-also email us.
+> > I'd suggest you run SetPagePrivate() and SetPageChecked() on the locked
+> > page and implement a_ops.releasepage(), which will fail if PageChecked(),
+> > and will succeed otherwise:
+> 
+> No leak without tweaking PG_private.
 
-Responses should be made by Sun, June 4, 19:45 UTC.
-Anything received after that time, might be too late.
+Odd.  That would imply that PG_private is being left set somehow (it will
+make the page unreclaimable).  But I don't see it.
 
-thanks,
+Plus if we have lots of PagePrivate() pages floating about you should see
+your ->releasepage() being called.
 
-the -stable release team
---

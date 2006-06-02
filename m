@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWFBUsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWFBUvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWFBUsF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 16:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWFBUsF
+	id S964856AbWFBUvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 16:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWFBUvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 16:48:05 -0400
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:42384 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S964835AbWFBUsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 16:48:03 -0400
-Date: Fri, 02 Jun 2006 16:46:01 -0400
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [PATCH 2.6.17-rc5-mm2 17/18] sbp2: provide helptext for
-	CONFIG_IEEE1394_SBP2_PHYS_DMA and mark it experimental
-In-reply-to: <tkrat.df90273c07dd7503@s5r6.in-berlin.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Message-id: <1149281162.4533.304.camel@grayson>
-Organization: Ubuntu
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
- <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
- <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
- <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
- <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
- <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de>
- <tkrat.f35772c971022262@s5r6.in-berlin.de>
- <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de>
- <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de>
- <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de>
- <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de>
- <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de>
- <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de>
- <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de>
- <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de>
- <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de>
- <tkrat.96e1b392429fe277@s5r6.in-berlin.de>
- <tkrat.df90273c07dd7503@s5r6.in-berlin.de>
+	Fri, 2 Jun 2006 16:51:09 -0400
+Received: from cantor.suse.de ([195.135.220.2]:22664 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964856AbWFBUvI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 16:51:08 -0400
+Date: Fri, 2 Jun 2006 13:48:39 -0700
+From: Greg KH <gregkh@suse.de>
+To: "Luiz Fernando N.Capitulino" <lcapitulino@mandriva.com.br>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+Message-ID: <20060602204839.GA31251@suse.de>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-02 at 22:27 +0200, Stefan Richter wrote:
-> It appears I will not get it fixed overnight.
+On Fri, Jun 02, 2006 at 12:03:06AM -0300, Luiz Fernando N.Capitulino wrote:
+> 
+>  Hi folks.
+> 
+>  This patch series is my first attempt to port the USB-Serial layer to the
+> Serial Core API. Currently USB-Serial uses the TTY layer directly, duplicating
+> code and solutions from the Serial Core implementation.
+> 
+>  The final (ported) USB-Serial code is simpler and cleaner. Now I'd like to know
+> whether I'm doing it right or not.
+> 
+>  Note that this is a work in progress though. I've only ported the USB-Serial
+> core and one of its drivers, the pl2303 one.
+> 
+>  Most of my questions and design decisions are adressed in the patches, please
+> refer to them for details.
 
-> -	bool "Enable Phys DMA support for SBP2 (Debug)"
-> -	depends on IEEE1394 && IEEE1394_SBP2
-> +	bool "Enable replacement for physical DMA in SBP2"
-> +	depends on IEEE1394 && IEEE1394_SBP2 && EXPERIMENTAL
+Nice first cut at this.  But please try to also convert 2 other drivers
+at the same time to make sure that the model is right.  I'd suggest the
+io_edgeport and the funsoft drivers.  io_edgeport because it is very
+complex in that it doesn't share a single bulk in/out pair for every
+port, but multiplexes them all through one pipe.  And funsoft because we
+want to still be able to write usb-serial drivers that are this simple.
 
-Please add '&& !SPARC' to the depends line. Other architectures may
-apply, but I know for sure that this cannot be enabled on SPARC or
-SPARC64 since the module will be unloadable due to missing symbols
-(virt_to_bus, bus_to_virt).
+I agree with most of Pete's comments and like the general idea of moving
+the usb-serial core to be more like libata (provider of helper
+functions, not getting in the middle of everything).  I'll wait for your
+next cut to provide specific code comments.
 
--- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+thanks,
 
+greg k-h

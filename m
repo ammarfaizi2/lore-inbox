@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWFBXLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWFBXXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbWFBXLN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 19:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWFBXLN
+	id S1751039AbWFBXXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 19:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFBXXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 19:11:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52418 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030342AbWFBXLM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 19:11:12 -0400
-Date: Fri, 2 Jun 2006 16:13:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Linux Portal" <linportal@gmail.com>
-Cc: arjanv@redhat.com, mingo@redhat.com, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Kernel lock bug detected (kseriod)
-Message-Id: <20060602161354.687168de.akpm@osdl.org>
-In-Reply-To: <ceccffee0606020953q545d1f3aw211da426e5cfc768@mail.gmail.com>
-References: <ceccffee0606020953q545d1f3aw211da426e5cfc768@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Jun 2006 19:23:09 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:5084 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751039AbWFBXXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 19:23:07 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4480C7F4.907@s5r6.in-berlin.de>
+Date: Sat, 03 Jun 2006 01:21:24 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Ben Collins <bcollins@ubuntu.com>
+CC: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Jody McIntyre <scjody@modernduck.com>
+Subject: Re: [PATCH 2.6.17-rc5-mm2 17/18] sbp2: provide helptext	for	CONFIG_IEEE1394_SBP2_PHYS_DMA
+ and mark it experimental
+References: <tkrat.10011841414bfa88@s5r6.in-berlin.de> <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de> <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de> <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de> <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de> <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de> <tkrat.f35772c971022262@s5r6.in-berlin.de> <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de> <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de> <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de> <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de> <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de> <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de> <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de> <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de> <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de> <tkrat.96e1b392429fe277@s5r6.in-berlin.de> <tkrat.df90273c07dd7503@s5r6.in-berlin.de> <1149281162.4533.304.camel@grayson> <4480B45E.4060909@s5r6.in-berlin.de> <1149286809.4533.319.camel@grayson>
+In-Reply-To: <1149286809.4533.319.camel@grayson>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.882) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Linux Portal" <linportal@gmail.com> wrote:
->
-> Yes, it was observed on 2.6.17-rc5-mm2. Of specific stuff I have
-> synaptics driver compiled in (together with psmouse - bug was observed
-> on a laptop - during the boot sequence!). If you need more info about
-> the machine or its configuration, feel free to ask. For the time being
-> I'm sending just what the kernel lock validator left in my kernel
-> log. And keep up the good work, the lock validator is definitely some
-> fine piece of art!
-> 
-> 
-> Synaptics Touchpad, model: 1, fw: 5.9, id: 0x1b6eb1, caps: 0xa84793/0x100000
-> serio: Synaptics pass-through port at isa0060/serio4/input0
-> input: SynPS/2 Synaptics TouchPad as /class/input/input2
-> ====================================
-> [ BUG: possible deadlock detected! ]
-> ------------------------------------
-> kseriod/133 is trying to acquire lock:
->  (&ps2dev->cmd_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
-> 
-> but task is already holding lock:
->  (&ps2dev->cmd_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
-> 
-> which could potentially lead to deadlocks!
-> 
-> other info that might help us debug this:
-> 4 locks held by kseriod/133:
->  #0:  (serio_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
->  #1:  (&serio->drv_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
->  #2:  (psmouse_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
->  #3:  (&ps2dev->cmd_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
-> 
-> stack backtrace:
->  <78105572> show_trace+0x12/0x20  <78105599> dump_stack+0x19/0x20
->  <7813920e> __lockdep_acquire+0x54e/0xe00  <78139f2a> lockdep_acquire+0x7a/0xa0
->  <7846b3c9> __mutex_lock_slowpath+0x49/0x160  <7846b4e8> mutex_lock+0x8/0x10
->  <7834497b> ps2_command+0x3b/0x3c0  <7834ad22> psmouse_sliced_command+0x22/0x70
->  <7834f471> synaptics_pt_write+0x21/0x50  <78344736> ps2_sendbyte+0x46/0x120
->  <78344a29> ps2_command+0xe9/0x3c0  <7834ae8d> psmouse_probe+0x1d/0xa0
->  <7834c537> psmouse_connect+0x137/0x200  <78341649>
-> serio_connect_driver+0x29/0x50
->  <783419b6> serio_driver_probe+0x16/0x20  <782a8fb4>
-> driver_probe_device+0x44/0xd0
->  <782a9048> __device_attach+0x8/0x10  <782a8563> bus_for_each_drv+0x63/0x90
->  <782a90a6> device_attach+0x56/0x60  <782a868e> bus_attach_device+0x1e/0x40
->  <782a7763> device_add+0x113/0x180  <7834299d> serio_thread+0x1cd/0x2bb
->  <781322c6> kthread+0xc6/0xca  <78101005> kernel_thread_helper+0x5/0xb
-> 
+Ben Collins wrote:
+> Rather it be in the config. Plus your suggestion still makes it
+> unusable :)
 
-Thanks.
+Right. But only if ohci1394 is loaded with phys_dma=0 or a controller 
+without phys DMA is used. Only these conditions let sbp2 run into the 
+routine which currently uses bus_to_virt.
 
-So we're taking ps2->cmd_mutex and then we're recurring back into
-ps2_command() and then taking ps2->serio->cmd_mutex.
+Right now, sbp2 is unusable _on all platforms_ if these conditions apply 
+and if CONFIG_IEEE1394_SBP2_PHYS_DMA=N.
 
-I suspect that's all correct/natural/expected and needs another
-make-lockdep-shut-up patch.
+The previously sent "address range properties" patches would allow sbp2 
+to check for phys DMA at runtime. If phys DMA is off, sbp2 may either 
+proceed to use the old bus_to_virt mapping or say: "Sorry lad, I won't 
+connect unless you get this phys DMA thing going." (Until sbp2 learns 
+platform independent DMA mapping.) IOW we could get rid of the 
+CONFIG_IEEE1394_SBP2_PHYS_DMA switch immediately.
 
+But since the non-phys-DMA mode of sbp2 is currently prone to lock-ups, 
+runtime detection of non-phys-DMA is of lower priority to me.
+
+> I suggest instead doing '&& X86_32'. That should affect the least people
+> and keep it where it's known to work.
+
+Would '&& (X86_32 || PPC_32)' work too?
+-- 
+Stefan Richter
+-=====-=-==- -==- ---==
+http://arcgraph.de/sr/

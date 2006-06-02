@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWFBPik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWFBPg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWFBPik (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 11:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWFBPik
+	id S932336AbWFBPg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 11:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWFBPg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 11:38:40 -0400
-Received: from arachne.linuxlabs.com ([208.176.116.10]:64944 "EHLO
-	arachne.taloncorporation.com") by vger.kernel.org with ESMTP
-	id S932373AbWFBPij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 11:38:39 -0400
-Date: Fri, 2 Jun 2006 11:38:37 -0400 (EDT)
-From: Steven James <pyro@linuxlabs.com>
-X-X-Sender: pyro@localhost.localdomain
-To: Jeff Dike <jdike@addtoit.com>
-cc: Blaisorblade <blaisorblade@yahoo.it>,
-       user-mode-linux-devel@lists.sourceforge.net, discuss@x86-64.org,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [uml-devel] [discuss] [RFC] [PATCH] Double syscall exit traces
- on x86_64
-In-Reply-To: <20060602151335.GA4708@ccure.user-mode-linux.org>
-Message-ID: <Pine.LNX.4.63.0606021136440.26283@localhost.localdomain>
-References: <20060526032424.GA8283@ccure.user-mode-linux.org>
- <200605261236.26814.ak@suse.de> <20060526141345.GA4152@ccure.user-mode-linux.org>
- <200606012107.34676.blaisorblade@yahoo.it> <20060602151335.GA4708@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 2 Jun 2006 11:36:27 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42116 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932336AbWFBPg1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 11:36:27 -0400
+Subject: Re: 2.6.17-rc5-mm2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com>
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <986ed62e0606011758w348080ebn6e8430ec9e5b2ed3@mail.gmail.com>
+	 <20060601183836.d318950e.akpm@osdl.org>
+	 <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 02 Jun 2006 16:51:02 +0100
+Message-Id: <1149263463.11429.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jun 2006, Jeff Dike wrote:
+On Gwe, 2006-06-02 at 06:14 -0700, Barry K. Nathan wrote:
+> (Ingo, I got your e-mail too, and I will reply to it once I've
+> followed your instructions.)
+> 
+> On 6/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> > Damn, sorry.  LLC is completely borked.  You should emphatically set
+> > CONFIG_LLC=n.
+> 
+> Just one problem with that...
+> 
+> config ATALK
+>         tristate "Appletalk protocol support"
+>         select LLC
 
-> On Thu, Jun 01, 2006 at 09:07:33PM +0200, Blaisorblade wrote:
->> Sorry for the question, but has this been sent to -stable (since it's a
->> -stable regression, it should be)? To 2.6.17 -git?
->
-> It's in current git.
->
-> I'm having a hard time telling when the bug was introduced.  The git web
-> interface seems to be telling me that the double notification was around
-> since last year, which I don't believe, since I've run much more
-> recent x86_64 kernels.  If the bug existed before 2.6.16, then it's
-> fine -stable fodder.
+Strange. ATALK doesn't need 802.2LLC, merely SNAP.
 
-I know that the bug is NOT present in 2.6.15.7.
+Alan
 
->
->> And have you tested it (somebody should have, but it's not sure)?
->
-> Yes, it's been continuously and happily running UML since Andi sent me
-> his patch.
->
-> 				Jeff
->

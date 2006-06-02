@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWFBHMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWFBHJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWFBHMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 03:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWFBHMZ
+	id S1751243AbWFBHJP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWFBHJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 03:12:25 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:3780 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1751244AbWFBHMZ (ORCPT
+	Fri, 2 Jun 2006 03:09:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36993 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751243AbWFBHJO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 03:12:25 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] USB devices fail unnecessarily on unpowered hubs
-Date: Fri, 2 Jun 2006 09:12:37 +0200
-User-Agent: KMail/1.8
-Cc: David Liontooth <liontooth@cogweb.net>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+	Fri, 2 Jun 2006 03:09:14 -0400
+Date: Fri, 2 Jun 2006 00:13:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Jan Beulich" <jbeulich@novell.com>
+Cc: mingo@elte.hu, jeff@garzik.org, htejun@gmail.com, reuben-lkml@reub.net,
        linux-kernel@vger.kernel.org
-References: <20060601030140.172239b0.akpm@osdl.org> <20060601164327.GB29176@kroah.com> <447F8057.4000109@cogweb.net>
-In-Reply-To: <447F8057.4000109@cogweb.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: 2.6.17-rc5-mm2
+Message-Id: <20060602001309.e8bc0b75.akpm@osdl.org>
+In-Reply-To: <447FFCAC.76E4.0078.0@novell.com>
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	<447EB4AD.4060101@reub.net>
+	<20060601025632.6683041e.akpm@osdl.org>
+	<447EBD46.7010607@reub.net>
+	<20060601103315.GA1865@elte.hu>
+	<20060601105300.GA2985@elte.hu>
+	<447EF7A8.76E4.0078.0@novell.com>
+	<447FFCAC.76E4.0078.0@novell.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606020912.37832.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 2. Juni 2006 02:03 schrieb David Liontooth:
+On Fri, 02 Jun 2006 08:54:04 +0200
+"Jan Beulich" <jbeulich@novell.com> wrote:
 
-> The MaxPower value does not appear to be a reliable index of this. My
-> USB stick has a MaxPower value of 178mA and works flawlessly off an
-> unpowered hub. Unfortunately devices don't seem to tell us what their
+> >- Make the code robust and able to detect "unexpected" states at all
+> >  points through the process.  If at the end of the process we see that we
+> >  have encountered an unexpected state,
+> 
+> The problem is that the unwind is expected to end with an odd state (i.e. fail), at least until all possible root
+> points of execution (i.e. bottoms of call stacks) have a proper annotation forcing their parent program counter to zero
+> (which I don't expect to happen soon, if ever, because I think this is something difficult to prove). Thus the only
+> reasonable thing to do is to check whether the first level of unwinding failed.
+> 
 
-It works flawlessly on all hubs you tested, iff other ports are unused.
-Unfortunately it needs to work on all hubs, even if all ports are used.
+Are there other heuristics we can apply?  For example, we have a pretty
+good idea whereabouts the top of a kernel stack is.  If we don't end up
+close to that offset then we can assume that something went wrong?
 
-> udev could surely pick up on the MaxPower value and tolerate up to a
-> 100% underrun on USB flash drives. That would likely still 90% of the
-> pain right there, maybe all of it.
+> >  - emit a diagnostic so Jan can work out if there's a way to improve
+> >    the unwinder in this situation
+> 
+> >  - do a traditional backtrace as well.
+> 
+> This might be a config or boot option (and might be forced on for a short while), but I generally don't think this is
+> helpful, given that the entire point of the added logic is to remove (useless) information (even more that if you have
+> to rely on the screen alone, you have to live with its limited size, and pushing out an old-style stack trace after the
+> unwound one would likely make part or all of it as well as the register information disappear).
+> 
 
-udev can do all it wants if it is running with sufficient priviledge level.
-That doesn't change the need for a safe default. The system must run
-safely even if udev has gone south or is not installed.
- 
-> What are the reasons not to do this? What happens if a USB stick is
-> underpowered to one unit? Nothing? Slower transmission? Data loss? Flash
-> memory destruction? If it's just speed, it's a price well worth paying.
+Plus a config or boot option is too late.
 
-Data loss. Possibly even on other devices and not reproducible.
- 
-> This is a great opportunity for a small exercise in empathy, utilizing
-> that little long-neglected mirror neuron. Thousands of USB sticks
-> inexplicably go dead in people's familiar hubs on keyboards and desks;
-> Linux kernel coders dream sweet dreams of not violating USB power rules.
-> I appreciate Andrew's support for a real-worldly solution.
 
-Maybe we should generate a specific "over power budget" event.
-
-Sympathy is well and good, but partial here. Any option will screw one
-group. In this case we go with the standard.
-
-	Regards
-		Oliver

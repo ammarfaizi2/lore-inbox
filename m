@@ -1,69 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWFBNUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWFBNaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWFBNUl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWFBNUk
+	id S1751409AbWFBNaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 09:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFBNaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:20:40 -0400
-Received: from mailgw4.ericsson.se ([193.180.251.62]:9349 "EHLO
-	mailgw4.ericsson.se") by vger.kernel.org with ESMTP
-	id S1750755AbWFBNUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:20:40 -0400
-Message-ID: <44803B1F.8070302@ericsson.com>
-Date: Fri, 02 Jun 2006 15:20:31 +0200
-From: Preben Traerup <Preben.Trarup@ericsson.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Fri, 2 Jun 2006 09:30:09 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:8047 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751409AbWFBNaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 09:30:07 -0400
+Message-ID: <44803D5D.20303@bigpond.net.au>
+Date: Fri, 02 Jun 2006 23:30:05 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       Vivek Goyal <vgoyal@in.ibm.com>
-Subject: Re: [Fastboot] [RFC][PATCH] Add missing notifier before crashing
-References: <20060530183359.a8d5d736.akiyama.nobuyuk@jp.fujitsu.com>	<20060530145658.GC6536@in.ibm.com>	<20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com>	<20060531154322.GA8475@in.ibm.com>	<20060601213730.dc9f1ec4.akiyama.nobuyuk@jp.fujitsu.com>	<20060601151605.GA7380@in.ibm.com>	<20060602141301.cdecf0e1.akiyama.nobuyuk@jp.fujitsu.com>	<44800E1A.1080306@ericsson.com> <m1fyin6agv.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1fyin6agv.fsf@ebiederm.dsl.xmission.com>
+To: balbir@in.ibm.com
+CC: Peter Williams <peterw@aurema.com>, sekharan@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, dev@openvz.org,
+       Srivatsa <vatsa@in.ibm.com>, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au>	<447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com>	<447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra>	<447F77A4.3000102@bigpond.net.au>	<1149213759.10377.7.camel@linuxchandra> <447FAEB0.3060103@aurema.com> <447FF7BB.9000104@in.ibm.com>
+In-Reply-To: <447FF7BB.9000104@in.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jun 2006 13:20:38.0388 (UTC) FILETIME=[56CF8B40:01C68647]
-X-Brightmail-Tracker: AAAAAA==
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 2 Jun 2006 13:30:05 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+Balbir Singh wrote:
+> Peter Williams wrote:
+> <snip>
+> 
+>>>>
+>>>> But you don't need something as complex as CKRM either.  This capping
+>>>
+>>> All CKRM^W Resource Groups does is to group unrelated/related tasks to a
+>>> group and apply resource limits.
+>>>
+>>>>
+>>>> functionality coupled with (the lamented) PAGG patches (should have 
+>>>> been called TAGG for "task aggregation" instead of PAGG for "process 
+>>>> aggregation") would allow you to implement a kernel module that 
+>>>> could apply caps to arbitrary groups of tasks.
+>>>
+>>> I do not follow how PAGG + this cap feature can be used to put cap of
+>>> related/unrelated tasks. Can you provide little more explanation,
+>>> please.
+>>
+>>
+>> I would have thought it was fairly obvious.  PAGG supplies the task 
+>> aggregation mechanism, these patches provide per task caps and all 
+>> that's needed is the code that marries the two.
+>>
+> 
+> The problem is that with per-task caps, if I have a resource group A
+> and I want to limit it to 10%, I need to limit each task in resource
+> group A to 10% (which makes resource groups not so useful). Is my
+> understanding correct?
 
->
->You can put anything you want for crash_kexec to execute.
->
->If the problem is strictly limited to hardware failure and software
->can cope with that then don't panic the kernel and execute an orderly
->transition.
->
->If software cannot cope, and must panic the kernel it clearly cannot
->do something sensible.
->
->Eric
->
->  
->
+Well the general idea is correct but your maths is wrong.  You'd have to 
+give each of them a cap somewhere between 10% and 10% divided by the 
+number of tasks in group A.  Exactly where in that range would vary 
+depending on the CPU demand of each task and would need to be adjusted 
+dynamically (unless they were very boring tasks whose demands were 
+constant over time).
 
-Something like out of memory and oops-es are enough to deeme the system 
-must panic
-because it is simply not supposed to happen in a Telco server at any time.
+> Is there a way to distribute the group limit
+> across tasks in the resource group?
 
-kdump helps debugging these cases, but more importantly another server
-must take over the work, and this has and always will have highest priority.
+Not as part of this patch but it could be done from outside the 
+scheduler either in the kernel or in user space.
 
-I'm happy about what crash_kexec does today, but the timing issue makes 
-it unusable for
-notifications to external systems, if I need to wait until properly 
-running in next kernel.
+> 
+>>
+>>> Also, i do not think it can provide guarantees to that group of tasks.
+>>> can it ?
+>>
+>>
+>> It could do that by manipulating nice which is already available in 
+>> the kernel.
+>>
+>> I.e. these patches plus improved statistics (which are coming, I hope) 
+>> together with the existing policy controls provide all that is 
+>> necessary to do comprehensive CPU resource control.  If there is an 
+>> efficient way to get the statistics out to user space (also coming, I 
+>> hope) this control could be exercised from user space.
+> 
+> Could you please provide me with a link to the new improved statistics.
 
-That leaves me the choice of doing notification before executing 
-crash_kexec ?
-Since I'm apperantly not the only one left with this choice I rather 
-prefer a solution
-made in public, that is known to be "bad" in some (well known) 
-situations than
-each and everybody implements their own solution to the same problem.
+No.  Read LKML and you'll know as much as I do.
 
-./Preben
+> What do the new statistics contain - any heads up on them?
+
+There're several contenders (including some from IBM) that periodically 
+post patches to LKML.  That's where I'm aware of them from.  As I say, 
+I'm hoping that they get together and come up with something generally 
+useful (as opposed to just meeting each contenders needs). I may be 
+being overly optimistic but you never know.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

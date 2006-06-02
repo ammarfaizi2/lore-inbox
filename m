@@ -1,127 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWFBBdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWFBB2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWFBBdW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 21:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWFBBdW
+	id S1751075AbWFBB2x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 21:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWFBB2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 21:33:22 -0400
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:12453 "EHLO
-	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751080AbWFBBdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 21:33:21 -0400
-Date: Thu, 1 Jun 2006 21:28:21 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.16-rc5-mm2] i386 memcpy: optimal memcpy for IO
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200606012130_MC3-1-C15B-2A16@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Thu, 1 Jun 2006 21:28:53 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:18920 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S1751075AbWFBB2x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 21:28:53 -0400
+From: Pavel Roskin <proski@gnu.org>
+Subject: [PATCH] obj-dirs is calculated incorrectly if hostprogs-y is defined
+Date: Thu, 01 Jun 2006 21:28:50 -0400
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060602012850.19981.41444.stgit@dv.roinet.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: H. Peter Anvin <hpa@zytor.com>
+From: Pavel Roskin <proski@gnu.org>
 
-Optimal memcpy for moves to/from IO space.  Does as few moves as
-possible while keeping transfers optimally aligned.
+When Makefile.host is included, $(obj-dirs) is subjected to the
+addprefix operation for the second time.  Prefix only needs to be added
+to the newly added directories, but not to those that came from
+Makefile.lib.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+This causes the build system to create unneeded empty directories in the
+build tree when building in a separate directory.  For instance,
+lib/lib/zlib_inflate is created in the build tree.
 
+Signed-off-by: Pavel Roskin <proski@gnu.org>
 ---
 
-Andrew, remove i386-memcpy-use-as-few-moves-as.patch from -mm
-and replace it with this, please.
+ scripts/Makefile.host |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
 
- arch/i386/lib/memcpy.c |   57 +++++++++++++++++++++++++++++++++++++++++++++++++
- include/asm-i386/io.h  |   11 ++-------
- 2 files changed, 60 insertions(+), 8 deletions(-)
-
---- 2.6.17-rc5-32.orig/arch/i386/lib/memcpy.c
-+++ 2.6.17-rc5-32/arch/i386/lib/memcpy.c
-@@ -42,3 +42,60 @@ void *memmove(void *dest, const void *sr
- 	return dest;
- }
- EXPORT_SYMBOL(memmove);
-+
-+/*
-+ * The most general form of memory copy to/from I/O space, used for
-+ * devices which can handle arbitrary transactions with appropriate
-+ * handling of byte enables.  The goal is to produce the minimum
-+ * number of naturally aligned transactions on the bus.
-+ */
-+
-+#define build_memcpy_io(dst, src, count, align_reg)	\
-+({							\
-+unsigned long d0, d1, d2, d3;				\
-+asm volatile(						\
-+	"jecxz	1f\n\t"					\
-+							\
-+	"testl	$1, " align_reg "\n\t"			\
-+	"jz	2f\n\t"					\
-+	"movsb\n\t"					\
-+	"decl	%2\n"					\
-+"2:\n\t"						\
-+	"cmpl	$2, %2\n\t"				\
-+	"jb	3f\n\t"					\
-+	"testl	$2, " align_reg "\n\t"			\
-+	"jz	4f\n\t"					\
-+	"movsw\n\t"					\
-+	"decl	%2\n\t"					\
-+	"decl	%2\n"					\
-+"4:\n\t"						\
-+	"movl	%2, %3\n\t"				\
-+	"shrl	$2, %2\n\t"				\
-+	"jz	5f\n\t"					\
-+	"rep ; movsl\n"					\
-+"5:\n\t"						\
-+	"movl	%3, %2\n\t"				\
-+	"testb	$2, %b2\n\t"				\
-+	"jz	3f\n\t"					\
-+	"movsw\n"					\
-+"3:\n\t"						\
-+	"testb	$1, %b2\n\t"				\
-+	"jz	1f\n\t"					\
-+	"movsb\n"					\
-+"1:"							\
-+	: "=&D" (d0), "=&S" (d1), "=&c" (d2), "=&g" (d3)\
-+	: "0" (dst), "1" (src), "2" (count)		\
-+	: "memory");					\
-+})
-+
-+void memcpy_fromio(void *dst, const volatile void __iomem *src, int count)
-+{
-+	build_memcpy_io(dst, src, count, "%%esi");
-+}
-+EXPORT_SYMBOL(memcpy_fromio)
-+
-+void memcpy_toio(volatile void __iomem *dst, const void *src, int count)
-+{
-+	build_memcpy_io(dst, src, count, "%%edi");
-+}
-+EXPORT_SYMBOL(memcpy_toio)
---- 2.6.17-rc5-32.orig/include/asm-i386/io.h
-+++ 2.6.17-rc5-32/include/asm-i386/io.h
-@@ -200,14 +200,9 @@ static inline void memset_io(volatile vo
- {
- 	memset((void __force *) addr, val, count);
- }
--static inline void memcpy_fromio(void *dst, const volatile void __iomem *src, int count)
--{
--	__memcpy(dst, (void __force *) src, count);
--}
--static inline void memcpy_toio(volatile void __iomem *dst, const void *src, int count)
--{
--	__memcpy((void __force *) dst, src, count);
--}
-+
-+extern void memcpy_fromio(void *dst, const volatile void __iomem *src, int count);
-+extern void memcpy_toio(volatile void __iomem *dst, const void *src, int count);
+diff --git a/scripts/Makefile.host b/scripts/Makefile.host
+index 2d51970..2b066d1 100644
+--- a/scripts/Makefile.host
++++ b/scripts/Makefile.host
+@@ -33,8 +33,8 @@ # Note: Shared libraries consisting of C
+ __hostprogs := $(sort $(hostprogs-y)$(hostprogs-m))
  
- /*
-  * ISA space is 'always mapped' on a typical x86 system, no need to
--- 
-Chuck
+ # hostprogs-y := tools/build may have been specified. Retreive directory
+-obj-dirs += $(foreach f,$(__hostprogs), $(if $(dir $(f)),$(dir $(f))))
+-obj-dirs := $(strip $(sort $(filter-out ./,$(obj-dirs))))
++host-objdirs := $(foreach f,$(__hostprogs), $(if $(dir $(f)),$(dir $(f))))
++host-objdirs := $(strip $(sort $(filter-out ./,$(host-objdirs))))
+ 
+ 
+ # C code
+@@ -73,7 +73,9 @@ host-cxxmulti	:= $(addprefix $(obj)/,$(h
+ host-cxxobjs	:= $(addprefix $(obj)/,$(host-cxxobjs))
+ host-cshlib	:= $(addprefix $(obj)/,$(host-cshlib))
+ host-cshobjs	:= $(addprefix $(obj)/,$(host-cshobjs))
+-obj-dirs        := $(addprefix $(obj)/,$(obj-dirs))
++host-objdirs    := $(addprefix $(obj)/,$(host-objdirs))
++
++obj-dirs += $(host-objdirs)
+ 
+ #####
+ # Handle options to gcc. Support building with separate output directory
+

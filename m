@@ -1,81 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWFBTqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWFBHCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWFBTqI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWFBTqI
+	id S1751241AbWFBHCL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWFBHCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:46:08 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:23425 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1750863AbWFBTqG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:46:06 -0400
-Message-Id: <20060602194747.131106000@sous-sol.org>
-References: <20060602194618.482948000@sous-sol.org>
-Date: Fri, 02 Jun 2006 00:00:11 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 11/11] sbp2: backport read_capacity workaround for iPod
-Content-Disposition: inline; filename=sbp2-backport-read_capacity-workaround-for-ipod.patch
+	Fri, 2 Jun 2006 03:02:10 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:42719 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751231AbWFBHCJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 03:02:09 -0400
+Date: Fri, 2 Jun 2006 11:01:49 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: "Brian F. G. Bidulock" <bidulock@openss7.org>
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060602070149.GA12213@2ka.mipt.ru>
+References: <20060601060424.GA28087@2ka.mipt.ru> <20060601001825.A21730@openss7.org> <20060601063012.GC28087@2ka.mipt.ru> <20060601004608.C21730@openss7.org> <20060601070136.GA754@2ka.mipt.ru> <20060601011125.C22283@openss7.org> <20060601083805.GB754@2ka.mipt.ru> <20060601042457.B25584@openss7.org> <20060601110625.GA15069@2ka.mipt.ru> <20060601124010.C554@openss7.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060601124010.C554@openss7.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 02 Jun 2006 11:01:52 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+On Thu, Jun 01, 2006 at 12:40:10PM -0600, Brian F. G. Bidulock (bidulock@openss7.org) wrote:
+> So what are your thoughts about my sequence number approach (for
+> connected sockets)?
 
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Depending on how you are going to use it.
+Generic socket code does not have TCP sequence numbers since it must
+work with all supported protocols.
+Netchannels also do not know about internals of the packet by design,
+since all protocol processing is performed at the end peer.
 
-There is a firmware bug in several Apple iPods which prevents access to
-these iPods under certain conditions. The disk size reported by the iPod
-is one sector too big. Once access to the end of the disk is attempted,
-the iPod becomes inaccessible. This problem has been known for USB iPods
-for some time and has recently been discovered to exist with
-FireWire/USB combo iPods too.
+Sequence number can be wrapped in minutes in current networks and even
+faster tomorrow, that is why PAWS was created.
 
-This patch is derived from the fix in Linux 2.6.17, commit
-e9a1c52c7b19d10342226c12f170d7ab644427e2, to be applicable to 2.6.16.x
-without prerequisite patches. It hard-wires a workaround for three known
-affected model numbers (those of 4th generation iPod, iPod Photo, iPod
-mini).
+Your idea about reinserting the socket does not scale in 1Gbit
+environment, and definitely will not in 10Gbit.
 
-Note: This patch lacks Linux 2.6.17's ability to enable and disable the
-workaround via a module parameter.
+Probably it is possible to create second hash table for TCP sockets only
+and use that table first in protocol handler, but it requires some
+research to prove the idea.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
-
- drivers/ieee1394/sbp2.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
-
---- linux-2.6.16.19.orig/drivers/ieee1394/sbp2.c
-+++ linux-2.6.16.19/drivers/ieee1394/sbp2.c
-@@ -2491,9 +2491,20 @@ static int sbp2scsi_slave_alloc(struct s
- 
- static int sbp2scsi_slave_configure(struct scsi_device *sdev)
- {
-+	struct scsi_id_instance_data *scsi_id =
-+		(struct scsi_id_instance_data *)sdev->host->hostdata[0];
-+
- 	blk_queue_dma_alignment(sdev->request_queue, (512 - 1));
- 	sdev->use_10_for_rw = 1;
- 	sdev->use_10_for_ms = 1;
-+
-+	if ((scsi_id->sbp2_firmware_revision & 0xffff00) == 0x0a2700 &&
-+	    (scsi_id->ud->model_id == 0x000021 /* gen.4 iPod */ ||
-+	     scsi_id->ud->model_id == 0x000023 /* iPod mini  */ ||
-+	     scsi_id->ud->model_id == 0x00007e /* iPod Photo */ )) {
-+		SBP2_INFO("enabling iPod workaround: decrement disk capacity");
-+		sdev->fix_capacity = 1;
-+	}
- 	return 0;
- }
- 
-
---
+-- 
+	Evgeniy Polyakov

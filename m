@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWFBNpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWFBNwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWFBNpl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWFBNpl
+	id S932117AbWFBNwp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 09:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWFBNwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:45:41 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:38874 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932099AbWFBNpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:45:40 -0400
-Date: Fri, 2 Jun 2006 10:45:42 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
-Message-ID: <20060602104542.061a1842@doriath.conectiva>
-In-Reply-To: <1149242609.4695.0.camel@pmac.infradead.org>
-References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
-	<20060601234833.adf12249.zaitcev@redhat.com>
-	<1149242609.4695.0.camel@pmac.infradead.org>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jun 2006 09:52:45 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:19895 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932117AbWFBNwo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 09:52:44 -0400
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: "Abu M. Muttalib" <abum@aftek.com>, linux-kernel@vger.kernel.org,
+       k.oliver@t-online.de
+Subject: Re: __alloc_pages: 0-order allocation failed (Jes Sorensen)
+References: <20060602122016.GC2051@harddisk-recovery.com>
+	<BKEKJNIHLJDCFGDBOHGMAEKKCNAA.abum@aftek.com>
+	<20060602134009.GE2051@harddisk-recovery.nl>
+From: Jes Sorensen <jes@sgi.com>
+Date: 02 Jun 2006 09:52:42 -0400
+In-Reply-To: <20060602134009.GE2051@harddisk-recovery.nl>
+Message-ID: <yq03benu0k5.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 02 Jun 2006 11:03:29 +0100
-David Woodhouse <dwmw2@infradead.org> wrote:
+>>>>> "Erik" == Erik Mouw <erik@harddisk-recovery.com> writes:
 
-| On Thu, 2006-06-01 at 23:48 -0700, Pete Zaitcev wrote:
-| > 
-| > >  The tests I've done so far weren't anything serious: as the mobile supports a
-| > > AT command set, I have used the ones (with minicom) which transfers more data.
-| > > Of course that I also did module load/unload tests, tried to disconnect the
-| > > device while it's transfering data and so on.
-| > 
-| > Next, it would be nice to test if PPP works, and if getty and shell work
-| > (with getty driving the USB-to-serial adapter).
-| 
-| xmodem is a good test -- better than PPP because it stresses the
-| buffering in a way which PPP won't. Log into a remote system, try
-| sending and receiving files with xmodem.
+Erik> A: Because it messes up the order in which people normally read
+Erik> text.  Q: Why is top-posting such a bad thing?  A: Top-posting.
+Erik> Q: What is the most annoying thing in e-mail?
 
- Unfortunally my cables only connects devices to the computers
-(ie, I can't connect two computers).
+Erik> A: No.  Q: Should I leave quotations after my reply?
 
- Don't know if exists a Prolific USB <-> DB9, but if it does, would
-be good if someone could make the test. Seems easy to do.
+RFC 1855 pops to mind here :)
 
--- 
-Luiz Fernando N. Capitulino
+Jes
+

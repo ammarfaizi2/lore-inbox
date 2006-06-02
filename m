@@ -1,136 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWFBAHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWFBAUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbWFBAHc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 20:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWFBAHb
+	id S1750706AbWFBAUG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 20:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWFBAUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 20:07:31 -0400
-Received: from wx-out-0102.google.com ([66.249.82.196]:36047 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751047AbWFBAHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 20:07:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=Llxdfwe+J7ZQjiiQ3zNWPOfY120OMhvgPFje+lkEA9UTknRVu3j6qV3qm0IMzy6XGcjOkeO5wjNSVR5r3bnxcVtIWjOpKY8R1mPiHOQ6twSZ5PTlu9hUc1nK2zRRRHQAK/YLxzVqJOZ0nmb+m1ugW39eOwZ/i7Pon+v2iNLjd4o=
-Message-ID: <986ed62e0606011707m11f82b7i712452236ea06cfb@mail.gmail.com>
-Date: Thu, 1 Jun 2006 17:07:29 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-rc5-mm2
-Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       "James Bottomley" <James.Bottomley@steeleye.com>
-In-Reply-To: <20060601155250.7dbcc6ef.akpm@osdl.org>
+	Thu, 1 Jun 2006 20:20:05 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:47573 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750706AbWFBAUE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 20:20:04 -0400
+Date: Fri, 2 Jun 2006 02:19:47 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: "Martin J. Bligh" <mbligh@google.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: 2.6.17-rc5-mm1
+In-Reply-To: <447F571D.6000000@mbligh.org>
+Message-ID: <Pine.LNX.4.64.0606020104390.32445@scrub.home>
+References: <20060531211530.GA2716@elte.hu> <447E0A49.4050105@mbligh.org>
+ <20060531213340.GA3535@elte.hu> <447E0DEC.60203@mbligh.org>
+ <20060531215315.GB4059@elte.hu> <447E11B5.7030203@mbligh.org>
+ <20060531221242.GA5269@elte.hu> <447E16E6.7020804@google.com>
+ <20060531223243.GC5269@elte.hu> <447E1A7B.2000200@google.com>
+ <20060531225013.GA7125@elte.hu> <Pine.LNX.4.64.0606011222230.17704@scrub.home>
+ <447EFE86.7020501@google.com> <Pine.LNX.4.64.0606011659030.32445@scrub.home>
+ <447F084C.9070201@google.com> <Pine.LNX.4.64.0606011742500.32445@scrub.home>
+ <447F1BE4.5040705@mbligh.org> <Pine.LNX.4.64.0606012200260.32445@scrub.home>
+ <447F571D.6000000@mbligh.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	 <9a8748490606011451m69e2f437uf3822e535f87d9ae@mail.gmail.com>
-	 <986ed62e0606011532kdeba801l57c1867c54b2be87@mail.gmail.com>
-	 <20060601155250.7dbcc6ef.akpm@osdl.org>
-X-Google-Sender-Auth: 25f7a9136328085e
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/1/06, Andrew Morton <akpm@osdl.org> wrote:
-> Please send `grep SCSI .config'.
+Hi,
 
-Ok, here it is.
+On Thu, 1 Jun 2006, Martin J. Bligh wrote:
 
-# SCSI device support
-CONFIG_SCSI=y
-# CONFIG_SCSI_TGT is not set
-CONFIG_SCSI_PROC_FS=y
-# SCSI support type (disk, tape, CD-ROM)
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-# CONFIG_SCSI_MULTI_LUN is not set
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-# SCSI Transports
-CONFIG_SCSI_SPI_ATTRS=m
-CONFIG_SCSI_FC_ATTRS=y
-CONFIG_SCSI_ISCSI_ATTRS=m
-# CONFIG_SCSI_SAS_ATTRS is not set
-# CONFIG_SCSI_SAS_DOMAIN_ATTRS is not set
-# SCSI low-level drivers
-CONFIG_ISCSI_TCP=m
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_AIC94XX is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_ARCMSR is not set
-CONFIG_SCSI_SATA=y
-# CONFIG_SCSI_SATA_AHCI is not set
-# CONFIG_SCSI_PATA_ALI is not set
-# CONFIG_SCSI_PATA_AMD is not set
-# CONFIG_SCSI_SATA_SVW is not set
-# CONFIG_SCSI_PATA_TRIFLEX is not set
-# CONFIG_SCSI_PATA_MPIIX is not set
-# CONFIG_SCSI_PATA_OLDPIIX is not set
-# CONFIG_SCSI_ATA_PIIX is not set
-# CONFIG_SCSI_SATA_MV is not set
-# CONFIG_SCSI_PATA_NETCELL is not set
-# CONFIG_SCSI_SATA_NV is not set
-# CONFIG_SCSI_PATA_OPTI is not set
-# CONFIG_SCSI_PDC_ADMA is not set
-# CONFIG_SCSI_HPTIOP is not set
-# CONFIG_SCSI_SATA_QSTOR is not set
-CONFIG_SCSI_PATA_PDC2027X=y
-# CONFIG_SCSI_SATA_PROMISE is not set
-# CONFIG_SCSI_SATA_SX4 is not set
-CONFIG_SCSI_SATA_SIL=y
-# CONFIG_SCSI_SATA_SIL24 is not set
-# CONFIG_SCSI_PATA_SIL680 is not set
-# CONFIG_SCSI_PATA_SIS is not set
-# CONFIG_SCSI_SATA_SIS is not set
-# CONFIG_SCSI_SATA_ULI is not set
-# CONFIG_SCSI_PATA_VIA is not set
-# CONFIG_SCSI_SATA_VIA is not set
-# CONFIG_SCSI_SATA_VITESSE is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_STEX is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_QLA_FC is not set
-# CONFIG_SCSI_LPFC is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-CONFIG_SCSI_SRP=m
-# Old CD-ROM drivers (not SCSI, not IDE)
-# CONFIG_CD_NO_IDESCSI is not set
-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
+> > Well, if you don't want to enable a number of options, it's still better to
+> > hide them completely. There are number of options by reorganizing the debug
+> > menu a little, it only depends if we're talking here are about a -mm only
+> > crutch or something which might be useful to more than a handful of people.
+> > A few extra config options are not really a problem as long as they are
+> > logically grouped together (instead of having to enable random options all
+> > over the place).
+> 
+> How is the user meant to know which of your config options a particular
+> option is hidden under?
 
+I don't quite understand where you want to go with this question. What do 
+you consider an easy to find option? We have thousands of config options, 
+they have to be organized somehow, so they are always hidden somewhere.
+Currently the debug menu is more a random collection of options, with a 
+little organization it actually can make things easier to find, while 
+still allowing a simple menu for the occasional user and an advanced menu.
 
--- 
--Barry K. Nathan <barryn@pobox.com>
+> Seems there are two isses - whether the naming is meaningful or not,
+> and whether you want to hide options under other options,or just flip
+> defaults ... does that sound correct?
+
+With my suggestion I was more concentrating on the latter (the general 
+organisation of the menu options) than the actual wording.
+
+bye, Roman

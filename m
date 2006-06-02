@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWFBRh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWFBRou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWFBRh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 13:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWFBRh4
+	id S1751349AbWFBRou (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 13:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWFBRou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 13:37:56 -0400
-Received: from gw.openss7.com ([142.179.199.224]:54470 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1751348AbWFBRhy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 13:37:54 -0400
-Date: Fri, 2 Jun 2006 11:37:53 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
-       draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060602113753.A20836@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Florian Weimer <fw@deneb.enyo.de>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <87y7wgaze1.fsf@mid.deneb.enyo.de> <20060602074845.GA17798@2ka.mipt.ru> <87ac8v8o4i.fsf@mid.deneb.enyo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <87ac8v8o4i.fsf@mid.deneb.enyo.de>; from fw@deneb.enyo.de on Fri, Jun 02, 2006 at 07:26:53PM +0200
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	Fri, 2 Jun 2006 13:44:50 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:48740 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751349AbWFBRot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 13:44:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=OnFqIArigusOvzehViKfGGbQ+64Ki+ENg2+1R6BK4bOJlBj3jMlbf8nv5x3URAN/F0W2E8F5d0zx0y2fHub34zvClYoe3ELfKjprfaEw2244u4+htA57NbiFrYWmwDTurLn61cPMSn8AGpifzcPqM3E4EY8iNQaSsBV2AJ0p0lA=
+Message-ID: <4480790D.8070105@gmail.com>
+Date: Fri, 02 Jun 2006 20:44:45 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: [patch] input: fix function name in a comment
+References: <20060530105705.157014000@gmail.com>	<20060530110131.136225000@gmail.com>	<20060530222122.069da389.rdunlap@xenotime.net>	<447F3AE4.6010206@gmail.com>	<20060601125256.de2897f4.rdunlap@xenotime.net>	<447F47FD.2050705@gmail.com>	<20060601130923.38f83fb6.rdunlap@xenotime.net>	<20060601204716.GA6847@delta.onse.fi> <20060601143356.f5b8d4f5.rdunlap@xenotime.net>
+In-Reply-To: <20060601143356.f5b8d4f5.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian,
+Fix function name in a comment in drivers/usb/input/hid-pidff.c.
 
-On Fri, 02 Jun 2006, Florian Weimer wrote:
-> 
-> I see them now.  Hmm.  Is there a theoretical explanation for them?
+---
 
-Jenkins is an ad hoc function that is far from ideal.  As you know,
-the ideal hash changes 1/2 the bits in the output value for each one
-bit change in the input value(s).  Jenkins changes a few as 1/3 and
-performs less than ideal over even a small smaple of the input data
-set (Jenkins said he checked several billion of the trilions of
-changes).
+This is to be applied after my previous patch "input: fix comments and
+blank lines in new ff code" (Thu, 1 Jun 2006 23:47:16 +0300).
 
-It should not be suprising that a general purpose ad hoc function
-(Jenkins) performs poorer than a specific purpose ad hoc function
-(XOR), for the very specific input data sets that the later was chosen
-to cover.
+ drivers/usb/input/hid-pidff.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Theoretically, XOR can be improved upon, but Jenkins doesn't do it.
+Index: linux-2.6.17-rc4-git12/drivers/usb/input/hid-pidff.c
+===================================================================
+--- linux-2.6.17-rc4-git12.orig/drivers/usb/input/hid-pidff.c	2006-06-01 23:24:47.000000000 +0300
++++ linux-2.6.17-rc4-git12/drivers/usb/input/hid-pidff.c	2006-06-02 20:31:31.000000000 +0300
+@@ -926,7 +926,7 @@ static int pidff_reports_ok(struct input
+ }
+ 
+ /*
+- * pidff_find_logical_field - find a field with a specific logical usage
++ * pidff_find_special_field - find a field with a specific logical usage
+  * @report: the report from where to find
+  * @usage: the wanted usage
+  * @enforce_min: logical_minimum should be 1, otherwise return NULL
+
+

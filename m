@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWFBHtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWFBHtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWFBHtk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 03:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWFBHtk
+	id S1751279AbWFBHtE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWFBHtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 03:49:40 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:20390 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751280AbWFBHtj (ORCPT
+	Fri, 2 Jun 2006 03:49:04 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:9419
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751279AbWFBHtC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 03:49:39 -0400
-Date: Fri, 2 Jun 2006 11:48:46 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "Brian F. G. Bidulock" <bidulock@openss7.org>
-Subject: Re: Question about tcp hash function tcp_hashfn()
-Message-ID: <20060602074845.GA17798@2ka.mipt.ru>
-References: <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <87y7wgaze1.fsf@mid.deneb.enyo.de>
+	Fri, 2 Jun 2006 03:49:02 -0400
+Message-Id: <448009B8.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Fri, 02 Jun 2006 09:49:44 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Laurent Riffard" <laurent.riffard@free.fr>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-rc5-mm1
+References: <20060530022925.8a67b613.akpm@osdl.org> <447DD4D3.3060205@free.fr> <20060601150713.5bf84161.akpm@osdl.org>
+In-Reply-To: <20060601150713.5bf84161.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <87y7wgaze1.fsf@mid.deneb.enyo.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 02 Jun 2006 11:48:47 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 07:40:38AM +0200, Florian Weimer (fw@deneb.enyo.de) wrote:
-> * Evgeniy Polyakov:
-> 
-> > That is wrong. And I have a code and picture to show that, 
-> > and you dont - prove me wrong :)
-> 
-> Here we go:
-> 
-> static inline num2ip(__u8 a1, __u8 a2, __u8 a3, __u8 a4)
-> {
-> 	__u32 a = 0;
-> 
-> 	a |= a1;
-> 	a << 8;
-> 	a |= a2;
-> 	a << 8;
-> 	a |= a3;
-> 	a << 8;
-> 	a |= a4;
-> 
-> 	return a;
-> }
-> 
-> "gcc -Wall" was pretty illuminating. 8-P After fixing this and
-> switching to a better PRNG, I get something which looks pretty normal.
+>>> Andrew Morton <akpm@osdl.org> 02.06.06 00:07 >>>
+>Laurent Riffard <laurent.riffard@free.fr> wrote:
+>>
+>> Le 30.05.2006 11:29, Andrew Morton a écrit :
+>> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm1/ 
+>> 
+>> Hello, I've got this nice BUG:
+>> 
+>> pktcdvd: writer pktcdvd0 mapped to hdc
+>> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000084
+>>  printing eip:
+>> c01118f1
+>> *pde = 00000000
+>> Oops: 0000 [#1]
+>> last sysfs file: /block/pktcdvd0/removable
+>> Modules linked in: pktcdvd lp parport_pc parport snd_pcm_oss snd_mixer_oss snd_ens1371 gameport snd_rawmidi snd_seq_device
+>snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd soundcore af_packet floppy ide_cd cdrom loop aes dm_crypt
+>nls_iso8859_1 nls_cp850 vfat fat reiser4 reiserfs via_agp agpgart video joydev ohci1394 usbhid ieee1394 uhci_hcd usbcore dm_mirror
+>dm_mod via82cxxx
+>> CPU:    0
+>> EIP:    0060:[<c01118f1>]    Not tainted VLI
+>> EFLAGS: 00010006   (2.6.17-rc5-mm1 #11) 
+>> EIP is at do_page_fault+0xb4/0x5bc
+>> eax: d6750084   ebx: d6750000   ecx: 0000007b   edx: 00000000
+>> esi: d6758000   edi: c011183d   ebp: d675007c   esp: d6750044
+>> ds: 007b   es: 007b   ss: 0068
+>> Process  (pid: 0, threadinfo=d674f000 task=d657c000)
+>> Stack: 00000000 d6750084 00000000 00000049 00000084 00000000 00001e2e 02001120 
+>>        00000027 00000022 00000055 d6750000 d6758000 c011183d d67500f0 c010340d 
+>>        d6750000 0000007b 00000000 d6758000 c011183d d67500f0 d67500f8 0000007b 
+>> Call Trace:
+>>  [<c010340d>] error_code+0x39/0x40
+>> Code: 00 00 c0 81 0f 84 12 02 00 00 e9 1c 05 00 00 8b 45 cc f7 40 30 00 02 02 00 74 06 e8 68 af 01 00 fb f7 43 14 ff ff ff ef
+>8b 55 d0 <8b> b2 84 00 00 00 0f 85 e5 01 00 00 85 f6 0f 84 dd 01 00 00 8d 
+>> EIP: [<c01118f1>] do_page_fault+0xb4/0x5bc SS:ESP 0068:d6750044
+>>  <0>Kernel panic - not syncing: Fatal exception in interrupt
+>...
 
-:) thats true, but to be 100% honest I used different code to test for
-hash artifacts...
-That code was created to show that it is possible to _have_ artifacts,
-but not specially to _find_ them.
+>Jan, this stack trace looks wrong.  We have no information which tells us
+>how we entered the pagefault handler.  Userspace hasn't started up yet, so
+>we probably entered the fault handler from the kernel.  But that info has
+>been lost.
 
-But it still does not fix artifacts with for example const IP and random
-ports or const IP and linear port selection.
+I agree that the trace is incomplete, but I'm not certain (without seeing at least twice as much of the raw stack) whether the unwinder is to blame here. After all, looking at the registers, the stack was already overflowed at the point the (nested) exception was taken, so there is no way to know whether the stack contents can actually be relied upon.
 
-Values must be specially tuned to be used with Jenkins hash, for example
-linear port with const IP produce following hash buckets:
-100 24397
-200 12112
-300 3952
-400 975
-500 178
-600 40
-700 3
-800 1
+Jan
 
-i.e. one 800-entries bucket (!) while xor one always have only 100 of
-them (for 100*hash_size number of iterations).
 
-So, your prove does not valid :)
-
--- 
-	Evgeniy Polyakov

@@ -1,67 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWFBCeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWFBCfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWFBCeg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 22:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWFBCef
+	id S1751146AbWFBCfY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 22:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFBCfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 22:34:35 -0400
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:48547 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751144AbWFBCef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 22:34:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=sirTGgeJ54/q/QtOUf7SuLbIa3lCwppBj0ZokHXT/oEEr2/bu7GL1dH1Uhe8JPjWGKbz7V5MkQBn1By6CKO9syI8YDjbm7qNzwWUlMd0Mip02B49n6jtPLA4bBVHiwuMnle2Ytd2tEhhE54TuT3nZqgDj4WPJxBeByNigx/oX34=  ;
-Message-ID: <447FA3B3.7080407@yahoo.com.au>
-Date: Fri, 02 Jun 2006 12:34:27 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 1 Jun 2006 22:35:24 -0400
+Received: from mga02.intel.com ([134.134.136.20]:61494 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751146AbWFBCfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 22:35:22 -0400
+X-IronPort-AV: i="4.05,200,1146466800"; 
+   d="scan'208"; a="44684926:sNHT14947653"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Con Kolivas'" <kernel@kolivas.org>
+Cc: "'Chris Mason'" <mason@suse.com>, <linux-kernel@vger.kernel.org>,
+       "Ingo Molnar" <mingo@elte.hu>
+Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
+Date: Thu, 1 Jun 2006 19:35:21 -0700
+Message-ID: <000001c685ed$31cba1d0$d234030a@amr.corp.intel.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [rfc][patch] remove racy sync_page?
-References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au> <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <447DAEDE.5070305@yahoo.com.au> <Pine.LNX.4.64.0605310809250.24646@g5.osdl.org> <447DB765.6030702@yahoo.com.au> <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org> <447DC22C.5070503@yahoo.com.au> <447DC2CC.5060900@yahoo.com.au> <Pine.LNX.4.64.0605310940090.24646@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0605310940090.24646@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcaF6Cxi7ksx10CbQ7eJRLGZZRZ1zAAA9w3A
+In-Reply-To: <200606021159.06519.kernel@kolivas.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Con Kolivas wrote on Thursday, June 01, 2006 6:59 PM
+> On Friday 02 June 2006 09:57, Chen, Kenneth W wrote:
+> > Chris Mason wrote on Thursday, June 01, 2006 3:56 PM
+> >
+> > > Hello everyone,
+> > >
+> > > Recent benchmarks showed some performance regressions between 2.6.16 and
+> > > 2.6.5.  We tracked down one of the regressions to lock contention in
+> > > schedule heavy workloads (~70,000 context switches per second)
+> > >
+> > > kernel/sched.c:dependent_sleeper() was responsible for most of the lock
+> > > contention, hammering on the run queue locks.  The patch below is more of
+> > > a discussion point than a suggested fix (although it does reduce lock
+> > > contention significantly).  The dependent_sleeper code looks very
+> > > expensive to me, especially for using a spinlock to bounce control
+> > > between two different siblings in the same cpu.
+> >
+> > Yeah, this also sort of echo a recent discovery on one of our benchmarks
+> > that schedule() is red hot in the kernel.  I was just scratching my head
+> > not sure what's going on.  This dependent_sleeper could be the culprit
+> > considering it is called almost at every context switch.  I don't think
+> > we are hitting on lock contention, but by the large amount of code it
+> > executes.  It really needs to be cut down ....
 > 
-> On Thu, 1 Jun 2006, Nick Piggin wrote:
+> Thanks for the suggestion. How about something like this which takes your
+> idea and further expands on it. Compiled, boot and runtime tests ok.
 > 
->>If this wasn't clear: I don't mean per-task plugs as in "the task
->>explicitly plugs and unplugs the block device"[*]; I mean really
->>per-task plugs.
-> 
-> 
-> That would be insane. It would mean that you'd have to unplug whether you 
+>  /*
+> + * Try to lock all the siblings of a cpu that is already locked. As we're
+> + * only doing trylock the order is not important.
+> + */
+> +static int trylock_smt_siblings(cpumask_t sibling_map)
+> +{
+> +	cpumask_t locked_siblings;
+> +	int i;
+> +
+> +	cpus_clear(locked_siblings);
+> +	for_each_cpu_mask(i, sibling_map) {
+> +		if (!spin_trylock(&cpu_rq(i)->lock))
+> +			break;
+> +		cpu_set(i, locked_siblings);
+> +
+> +	}
+> +
+> +	/* Did we lock all the siblings? */
+> +	if (cpus_equal(sibling_map, locked_siblings))
+> +		return 1;
+> +
+> +	for_each_cpu_mask(i, locked_siblings)
+> +		spin_unlock(&cpu_rq(i)->lock);
+> +	return 0;
+> +}
 
-I don't think it is.
 
-> wanted to or not. Ie you've now made "sys_readahead()" impossible to do 
-> well, and doing read-ahead across multiple files.
+I like Chris's version of trylock_smt_siblings().  Why create all that
+local variables?  sibling_map is passed by value, so the whole thing is
+duplicated on the stack (I think it should be pass by pointer), then
+there is another locked_siblings mask declared followed by a bitmask
+compare. The big iron people who set CONFIG_NR_CPUS=1024 won't be
+amused because of all that bitmask copying.
 
-Now it is you who are ignoring what I've been saying. I've been saying
-that I don't think your sys_readahead examples have had much to do with
-plugging:
+Let me hack up something too, so we can compare notes etc.
 
-1. If there are no other requests to seek to, plugging doesn't matter;
-2. If there are other requests to seek to, the queue won't be plugged
-    or will soon become unplugged anyway. So the current system isn't
-    somehow going to do the right thing every time and be immune to
-    seeking.
-
-> 
-> You're ignoring all the _reasons_ for plugging in the first place.
-
-I'm not, but the current system of plugging isn't ideal. Anyway, there
-isn't any point going on about it, if I want to change anything I at
-least need to come back with numbers.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+- Ken

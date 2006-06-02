@@ -1,107 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWFBAHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWFBAHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWFBAHH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 20:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWFBAHG
+	id S1751050AbWFBAHc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 20:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWFBAHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 20:07:06 -0400
-Received: from weber.sscnet.ucla.edu ([128.97.42.3]:21702 "EHLO
-	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
-	id S1751045AbWFBAHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 20:07:05 -0400
-Message-ID: <447F8057.4000109@cogweb.net>
-Date: Thu, 01 Jun 2006 17:03:35 -0700
-From: David Liontooth <liontooth@cogweb.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
+	Thu, 1 Jun 2006 20:07:31 -0400
+Received: from wx-out-0102.google.com ([66.249.82.196]:36047 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751047AbWFBAHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 20:07:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Llxdfwe+J7ZQjiiQ3zNWPOfY120OMhvgPFje+lkEA9UTknRVu3j6qV3qm0IMzy6XGcjOkeO5wjNSVR5r3bnxcVtIWjOpKY8R1mPiHOQ6twSZ5PTlu9hUc1nK2zRRRHQAK/YLxzVqJOZ0nmb+m1ugW39eOwZ/i7Pon+v2iNLjd4o=
+Message-ID: <986ed62e0606011707m11f82b7i712452236ea06cfb@mail.gmail.com>
+Date: Thu, 1 Jun 2006 17:07:29 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm2
+Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
+       "James Bottomley" <James.Bottomley@steeleye.com>
+In-Reply-To: <20060601155250.7dbcc6ef.akpm@osdl.org>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: USB devices fail unnecessarily on unpowered
- hubs
-References: <20060601030140.172239b0.akpm@osdl.org> <Pine.LNX.4.44L0.0606011050330.6784-100000@iolanthe.rowland.org> <20060601164327.GB29176@kroah.com>
-In-Reply-To: <20060601164327.GB29176@kroah.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <9a8748490606011451m69e2f437uf3822e535f87d9ae@mail.gmail.com>
+	 <986ed62e0606011532kdeba801l57c1867c54b2be87@mail.gmail.com>
+	 <20060601155250.7dbcc6ef.akpm@osdl.org>
+X-Google-Sender-Auth: 25f7a9136328085e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Jun 01, 2006 at 10:58:43AM -0400, Alan Stern wrote:
->   
->> On Thu, 1 Jun 2006, Andrew Morton wrote:
->>
->>     
->>> On Thu, 01 Jun 2006 02:18:20 -0700
->>> David Liontooth <liontooth@cogweb.net> wrote:
->>>
->>>       
->>>> Starting with 2.6.16, some USB devices fail unnecessarily on unpowered
->>>> hubs. Alan Stern explains,
->>>>
->>>> "The idea is that the kernel now keeps track of USB power budgets.  When a 
->>>> bus-powered device requires more current than its upstream hub is capable 
->>>> of providing, the kernel will not configure it.
->>>>
->>>> Computers' USB ports are capable of providing a full 500 mA, so devices
->>>> plugged directly into the computer will work okay.  However unpowered hubs
->>>> can provide only 100 mA to each port.  Some devices require (or claim they
->>>> require) more current than that.  As a result, they don't get configured
->>>> when plugged into an unpowered hub."
->>>>
->>>> http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg43480.html
->>>>
->>>> This is generating a lot of grief and appears to be unnecessarily
->>>> strict. Common USB sticks with a MaxPower value just above 100mA, for
->>>> instance, typically work fine on unpowered hubs supplying 100mA.
->>>>
->>>> Is a more user-friendly solution possible? Could the shortfall
->>>> information be passed to udev, which would allow rules to be written per
->>>> device?
->>>>         
->> I'm not sure whether we create a udev event when a new USB device is
->> connected.
->>     
-> Yes we do.  It's of the class "usb_device" and you can write a single
-> udev rule to override the power test if you really want to.
->
-> Of course I don't recommend someone doing this, as it is violating the
-> USB power rules, and it is a good thing that we are finally testing for
-> them.
->   
-It's clearly a good thing to be testing for this. As Alan points out,
-100mA is the maximum permitted pre-configuration draw, so what a device
-draws when plugged in is not informative.
+On 6/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> Please send `grep SCSI .config'.
 
-However, obeying the USB power rules is not an end in itself -- the
-relevant question is the minimum power the device requires to operate
-correctly and without damage.
+Ok, here it is.
 
-The MaxPower value does not appear to be a reliable index of this. My
-USB stick has a MaxPower value of 178mA and works flawlessly off an
-unpowered hub. Unfortunately devices don't seem to tell us what their
-minimum power requirements are, so we need more flexibility in writing
-rules for this.
+# SCSI device support
+CONFIG_SCSI=y
+# CONFIG_SCSI_TGT is not set
+CONFIG_SCSI_PROC_FS=y
+# SCSI support type (disk, tape, CD-ROM)
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+# CONFIG_SCSI_MULTI_LUN is not set
+CONFIG_SCSI_CONSTANTS=y
+# CONFIG_SCSI_LOGGING is not set
+# SCSI Transports
+CONFIG_SCSI_SPI_ATTRS=m
+CONFIG_SCSI_FC_ATTRS=y
+CONFIG_SCSI_ISCSI_ATTRS=m
+# CONFIG_SCSI_SAS_ATTRS is not set
+# CONFIG_SCSI_SAS_DOMAIN_ATTRS is not set
+# SCSI low-level drivers
+CONFIG_ISCSI_TCP=m
+# CONFIG_SCSI_3W_9XXX is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AACRAID is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
+# CONFIG_SCSI_AIC94XX is not set
+# CONFIG_SCSI_DPT_I2O is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_ARCMSR is not set
+CONFIG_SCSI_SATA=y
+# CONFIG_SCSI_SATA_AHCI is not set
+# CONFIG_SCSI_PATA_ALI is not set
+# CONFIG_SCSI_PATA_AMD is not set
+# CONFIG_SCSI_SATA_SVW is not set
+# CONFIG_SCSI_PATA_TRIFLEX is not set
+# CONFIG_SCSI_PATA_MPIIX is not set
+# CONFIG_SCSI_PATA_OLDPIIX is not set
+# CONFIG_SCSI_ATA_PIIX is not set
+# CONFIG_SCSI_SATA_MV is not set
+# CONFIG_SCSI_PATA_NETCELL is not set
+# CONFIG_SCSI_SATA_NV is not set
+# CONFIG_SCSI_PATA_OPTI is not set
+# CONFIG_SCSI_PDC_ADMA is not set
+# CONFIG_SCSI_HPTIOP is not set
+# CONFIG_SCSI_SATA_QSTOR is not set
+CONFIG_SCSI_PATA_PDC2027X=y
+# CONFIG_SCSI_SATA_PROMISE is not set
+# CONFIG_SCSI_SATA_SX4 is not set
+CONFIG_SCSI_SATA_SIL=y
+# CONFIG_SCSI_SATA_SIL24 is not set
+# CONFIG_SCSI_PATA_SIL680 is not set
+# CONFIG_SCSI_PATA_SIS is not set
+# CONFIG_SCSI_SATA_SIS is not set
+# CONFIG_SCSI_SATA_ULI is not set
+# CONFIG_SCSI_PATA_VIA is not set
+# CONFIG_SCSI_SATA_VIA is not set
+# CONFIG_SCSI_SATA_VITESSE is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_STEX is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_IPR is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+# CONFIG_SCSI_QLA_FC is not set
+# CONFIG_SCSI_LPFC is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_DC395x is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+# CONFIG_SCSI_NSP32 is not set
+# CONFIG_SCSI_DEBUG is not set
+CONFIG_SCSI_SRP=m
+# Old CD-ROM drivers (not SCSI, not IDE)
+# CONFIG_CD_NO_IDESCSI is not set
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
 
-udev could surely pick up on the MaxPower value and tolerate up to a
-100% underrun on USB flash drives. That would likely still 90% of the
-pain right there, maybe all of it.
 
-What are the reasons not to do this? What happens if a USB stick is
-underpowered to one unit? Nothing? Slower transmission? Data loss? Flash
-memory destruction? If it's just speed, it's a price well worth paying.
-
-This is a great opportunity for a small exercise in empathy, utilizing
-that little long-neglected mirror neuron. Thousands of USB sticks
-inexplicably go dead in people's familiar hubs on keyboards and desks;
-Linux kernel coders dream sweet dreams of not violating USB power rules.
-I appreciate Andrew's support for a real-worldly solution.
-
-Dave
-
-
-
-
-
-
+-- 
+-Barry K. Nathan <barryn@pobox.com>

@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWFBAlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWFBA6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbWFBAlb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 20:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWFBAla
+	id S1750830AbWFBA6v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 20:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWFBA6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 20:41:30 -0400
-Received: from mga01.intel.com ([192.55.52.88]:40223 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750701AbWFBAl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 20:41:29 -0400
-X-IronPort-AV: i="4.05,199,1146466800"; 
-   d="scan'208"; a="45750108:sNHT22838172"
-Subject: Re: [patch 1/3] acpi: dock driver v6
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: len.brown@intel.com, greg@kroah.com, linux-acpi@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       pavel@ucw.cz
-In-Reply-To: <20060601162039.02fcd8e1.akpm@osdl.org>
-References: <20060412221027.472109000@intel.com>
-	 <1144880322.11215.44.camel@whizzy> <20060412222735.38aa0f58.akpm@osdl.org>
-	 <1145054985.29319.51.camel@whizzy> <44410360.6090003@sgi.com>
-	 <1145383396.10783.32.camel@whizzy> <1146268318.25490.33.camel@whizzy>
-	 <1147373152.15308.14.camel@whizzy> <1149203128.14279.17.camel@whizzy>
-	 <20060601162039.02fcd8e1.akpm@osdl.org>
-Content-Type: text/plain
+	Thu, 1 Jun 2006 20:58:50 -0400
+Received: from wx-out-0102.google.com ([66.249.82.198]:38221 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750830AbWFBA6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 20:58:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=bzfYZld55jITUEpCJOxjV9TP/DC0uhHvRgU9D6S+gHvYfFLw8deBkfohy/gJbai4hj1ihx1iUdBcj7y9WS47C92kZfZ3+BoFPemHXhwLn9DYimoOeTJwXt91YJ5rQHyWvydDuhF1MqUmP181p7MZrQHEIzzHHSOdlG2q3r5omoY=
+Message-ID: <986ed62e0606011758w348080ebn6e8430ec9e5b2ed3@mail.gmail.com>
+Date: Thu, 1 Jun 2006 17:58:48 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060601014806.e86b3cc0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 01 Jun 2006 17:53:17 -0700
-Message-Id: <1149209597.14279.27.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-X-OriginalArrivalTime: 02 Jun 2006 00:41:26.0118 (UTC) FILETIME=[478AC060:01C685DD]
+Content-Disposition: inline
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+X-Google-Sender-Auth: d1fed6314dda8556
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-01 at 16:20 -0700, Andrew Morton wrote:
-> Kristen Accardi <kristen.c.accardi@intel.com> wrote:
-> >
-> > Changed from last version:
-> 
-> It would be much preferred if you could issue patches against the previous
-> version please (ie: the thing in -mm), instead of reissuing the patch each
-> time.
-> 
+Ok, the kernel that I now have booting is 2.6.17-rc5-mm2 + my
+pata_pdc2027x patch + the 3 hotfixes that I saw when I started trying
+to build the kernel (i.e. without git-scsi-target-fixup but with the
+other 3 that are now present).
 
-Sorry, another maintainer I routinely post patches too always preferred
-me to just redo the whole patch so that he could just drop the old one.
-I'll change my procedure for this patch.  If you do have a set of
-guidelines for when to know whether to redo entire patches vs. patch
-your patch so to speak, it'd be educational for me to hear it - as it is
-I just get trained by the person I usually submit to and adopt his
-process, making things work really well for me submitting to him, but
-probably not so well for me when I submit to others.
+During boot of my Debian sarge system, this kernel always gives this
+warning at "Starting MTA:"
+http://static.flickr.com/47/158326090_35d0129147_b_d.jpg
 
-I also usually patch/test against 2.6-git - mainly because I imagined
-that this hopefully limits weird bugs to problems that I've actually
-introduced instead of someone elses bugs - which is why I didn't notice
-that acpi_os_free had been removed (although even if it hadn't I
-shouldn't be using it anyway - ugh.).  Thanks for fixing the mistake,
-looks like I should test against -mm and -git in the future.
+Then, a minute or two after boot, it usually (well over 50% of the
+time, but not quite 100%) gives this oops:
+http://static.flickr.com/51/158326091_6a7057834c_b_d.jpg
 
-Kristen
+If it doesn't fail with that oops, it usually tends to fail with other
+oopses (I have not managed to capture any of those, but they all seem
+to mention network-related stuff). Once, it just froze up without an
+oops. The oops I posted happens often enough that it's probably
+unjustifiably difficult to try reproducing the other oopses until this
+one is fixed or worked around.
+
+I plan to try 2.6.17-rc5-mm1 + mingo's latest lockdep patch for that
+kernel + a properly fixed-up pata_pdc2027x, to see whether that kernel
+fails the same way; I've built it but I won't have a chance to test it
+for another 3-6 hours.
+-- 
+-Barry K. Nathan <barryn@pobox.com>

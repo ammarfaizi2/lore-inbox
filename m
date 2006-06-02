@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWFBJHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWFBJRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWFBJHH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWFBJHH
+	id S1751351AbWFBJRd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 05:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWFBJRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:07:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4769 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751347AbWFBJHF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:07:05 -0400
-Date: Fri, 2 Jun 2006 02:11:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Message-Id: <20060602021115.e42ad5dd.akpm@osdl.org>
-In-Reply-To: <20060602084327.GA3964@suse.de>
-References: <20060529214011.GA417@suse.de>
-	<20060530182453.GA8701@suse.de>
-	<20060601184938.GA31376@suse.de>
-	<20060601121200.457c0335.akpm@osdl.org>
-	<20060601201050.GA32221@suse.de>
-	<20060601142400.1352f903.akpm@osdl.org>
-	<20060601214158.GA438@suse.de>
-	<20060601145747.274df976.akpm@osdl.org>
-	<20060602084327.GA3964@suse.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Jun 2006 05:17:33 -0400
+Received: from mga01.intel.com ([192.55.52.88]:23371 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751351AbWFBJRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 05:17:32 -0400
+X-IronPort-AV: i="4.05,202,1146466800"; 
+   d="scan'208"; a="45904251:sNHT24055864"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: "Con Kolivas" <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>,
+       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
+Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
+Date: Fri, 2 Jun 2006 02:17:32 -0700
+Message-ID: <000001c68625$614f59a0$0c4ce984@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcaGInBptJF7xR+mTtS/Qg4G8lEwOAAAVNsw
+In-Reply-To: <447FFD35.9020909@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jun 2006 10:43:27 +0200
-Olaf Hering <olh@suse.de> wrote:
-
->  On Thu, Jun 01, Andrew Morton wrote:
+Nick Piggin wrote on Friday, June 02, 2006 1:56 AM
+> Chen, Kenneth W wrote:
 > 
+> > Ha, you beat me by one minute. It did cross my mind to use try lock there as
+> > well, take a look at my version, I think I have a better inner loop.
 > 
-> > > Do you want it like that?
-> > > 
-> > > lock_page(page);
-> > > if (PageUptodate(page)) {
-> > >         SetPageDirty(page);
-> > >         mb();
-> > >         return page;
-> > > }
-> > 
-> > Not really ;)  It's hacky.  It'd be better to take a lock.
+> Actually you *have* to use trylocks I think, because the current runqueue
+> is already locked.
+
+You are absolutely correct.  I forgot about the lock ordering.
+
+
+> And why do we lock all siblings in the other case, for that matter? (not
+> that it makes much difference except on niagara today).
 > 
-> Which lock exactly?
+> Rolled up patch with everyone's changes attached.
 
-Ah, sorry, there isn't such a lock.  I was just carrying on.
+What about the part in dependent_sleeper() being so bully and actively
+resched other low priority sibling tasks?  I think it would be better
+to just let the tasks running on sibling CPU to finish its current time
+slice and then let the backoff logic to kick in.
 
-> I'm not sure how to proceed from here.
-
-I'd suggest you run SetPagePrivate() and SetPageChecked() on the locked
-page and implement a_ops.releasepage(), which will fail if PageChecked(),
-and will succeed otherwise:
-
-/*
- * cramfs_releasepage() will fail if cramfs_read() set PG_checked.  This
- * is so that invalidate_inode_pages() cannot zap the page while
- * cramfs_read() is trying to get at its contents.
- */
-cramfs_releasepage(...)
-{
-	if (PageChecked(page))
-		return 0;
-	return 1;
-}
-
-
-cramfs_read(...)
-{
-	lock_page(page);
-	SetPagePrivate(page);
-	SetPageChecked(page);
-	read_mapping_page(...);
-	lock_page(page);
-	if (page->mapping == NULL) {
-		/* truncate got there first */
-		unlock_page(page);
-		bale();
-	}
-	memcpy();
-	ClearPageChecked(page);
-	ClearPagePrivate(page);
-	unlock_page(page);
-}
-
-PG_checked is a filesystem-private flag.  It'll soon be renamed to
-PG_fs_misc.
-
+- Ken

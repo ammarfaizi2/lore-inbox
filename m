@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWFBDQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWFBDUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWFBDQX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 23:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWFBDQX
+	id S1751056AbWFBDUW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 23:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWFBDUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 23:16:23 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:53384 "EHLO
+	Thu, 1 Jun 2006 23:20:22 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:54041 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751186AbWFBDQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 23:16:22 -0400
+	id S1751056AbWFBDUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 23:20:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UzFwe3b4/s66YGI7LoKB0B60AczMAlZdcLqvHxk6fl82JbxEz8wEG96Ly6y7ELpgFE5wUJMJwPtzEHvIMKmlcTjrHcXOWqaeVwdFgsxbqLinEAwqKkSipqfpbSER+Z3o98d5yY5UBQ1KJKSTEpTWL8uroT8rSU3unMuVNku2I3o=
-Message-ID: <9e4733910606012016r2f8d4708hc092eb3dd9b925a2@mail.gmail.com>
-Date: Thu, 1 Jun 2006 23:16:12 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "D. Hazelton" <dhazelton@enter.net>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Dave Airlie" <airlied@gmail.com>, "Ondrej Zajicek" <santiago@mail.cz>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <200606012234.31566.dhazelton@enter.net>
+        b=KmS3+46etVU+HCwykYRpMbzDbjZGN6DfLTpLg/WcKVRDslufO4dgIbsFAodspMQmWByoiQWpMgBO0H6e1PiYLvy8hfBWwb31ebMjQaUOiisvZPh62rPu00jQFcapgc/Q0MIWshYEbfvKox3J0q7TEuae4r5GeUsVUPgcm+kMzSk=
+Message-ID: <20f65d530606012020w5341171dua53c2d1fa52156d8@mail.gmail.com>
+Date: Fri, 2 Jun 2006 15:20:21 +1200
+From: "Keith Chew" <keith.chew@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: IRQ sharing: BUG: spinlock lockup on CPU#0
+Cc: linux-kernel@vger.kernel.org, "Hugh Dickins" <hugh@veritas.com>
+In-Reply-To: <20060601195955.82141940.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com>
-	 <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
-	 <200606012234.31566.dhazelton@enter.net>
+References: <20f65d530606011829n2ee1d76fg9d2c7bbc02a6a0aa@mail.gmail.com>
+	 <20060601195955.82141940.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
-> VT switch to a VT where X is running. X will still require a VT and assume it
-> has good access to the graphics system. While currently it has no problems,
-> when drmcon becomes a reality there will have to be a state switch between
-> the consoles settings and the setting for the VT running X.
+Hi Andrew
 
-I forgot to include comments on VT's.
+Thank you very much for your reply.
 
-We need to reconsider how VT's are implemented. I would like to remove
-them from the kernel. Now don't get too excited, I also want to
-replace them with a system that would function the same for a normal
-user.
+> We've certianly screwed around with the mmapping of IO space and such
+> things in recent months, and iirc 2.6.14 was somewhat in the middle of it
+> all.
+>
+> Are you seeing the above problem on 2.6.16.x?
+>
 
-There is only one VT system in the kernel. Making it support more that
-one user requires a gigantic patch (18,000 lines). That patch has been
-floating around for years and has never been merged. I don't think it
-makes sense to extend the existing VT code even further to support
-multiuser.
+We used to see freezes more frequently (on both 2.6.16.18 and
+2.6.14.2) before setting these tweaks:
+- increase PCI latency of bttv device
+- disable overlay on bttv driver
+- enable HPET support for Character Devices
+- disable "load DRI" in xorg.conf
 
-My proposal would be to switch to the concept of splitting console as
-I described earlier. There would only be one in-kernel system
-management console and it wouldn't support VT's. The system management
-console is not meant for normal use.
+After the tweaks, all 10 PCs have been under stress test for 48 hours,
+and the first crash was on the 2.6.14.2. We will upgrade 3 more PCs to
+2.6.16.18 today, to increase the probability of crashing on that
+kernel.
 
-Normal consoles would be implemented via user space processes. These
-processes would provide the VT swap feature that people are used to.
-They would also be accelerated via DRM. Since they are user space apps
-it is easy to support multiuser by having multiple processes.
+Will keep you posted.
 
-Getting rid of the VT implementation inside of the kernel lets us move
-towards the single state in the hardware goal. The current in-kernel
-VT design forces the "save your state, now I'll load mine" behavior.
-That behavior is evil and it is the source of a lot of problems and it
-should be removed. VT's were a good idea on VGA cards with 14
-registers, now cards have 300 registers, a coprocessor, 512MB, etc.
-There is simply too much state to swap.
-
-In this model there would be no change at the normal user level,
-Ctrl-Atl-num at a normal user console will still get you another
-session. A hot key would display the system management console,
-another would make it disappear.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Regards
+Keith

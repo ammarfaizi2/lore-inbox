@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWFBGrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWFBGtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWFBGrx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 02:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWFBGrx
+	id S1751214AbWFBGtV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 02:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWFBGtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 02:47:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:11496 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751212AbWFBGrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 02:47:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KjvvQidFFJ+F9vCBnMMtACWaZ5lviDcr/Kzi2rB1rT0Q8j0uaOFExVTD/WrmHY7k6okBUBV+C0Zp2tJn6wHIZfycBXrjOyqBGUTCT3VjwRuCJZ3pUBrD9nduheK10hHG9yHNZG4J2YX3LVTFPVEZN91n3GVFuTbT9DxDFIspnIs=
-Message-ID: <4807377b0606012347o7e1ca193lda3c3654dbda3323@mail.gmail.com>
-Date: Thu, 1 Jun 2006 23:47:50 -0700
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [patch, -rc5-mm1] lock validator: special locking: net/ipv4/igmp.c #2
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "NetDEV list" <netdev@vger.kernel.org>
-In-Reply-To: <20060601063537.GA19931@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 2 Jun 2006 02:49:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52154 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751214AbWFBGtV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 02:49:21 -0400
+Date: Thu, 1 Jun 2006 23:48:33 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+Message-Id: <20060601234833.adf12249.zaitcev@redhat.com>
+In-Reply-To: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4807377b0605311704g44fe10f1oc54315276890071@mail.gmail.com>
-	 <20060601063537.GA19931@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/31/06, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
->
-> > well, when running e1000 through some code paths on FC4 +
-> > 2.6.17-rc5-mm1 + ingo's latest rollup patch, with this lockdep debug
-> > option enabled I got this:
-> >
-> > e1000: eth1: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
-> >
-> > ======================================
-> > [ BUG: bad unlock ordering detected! ]
-> > --------------------------------------
-> > mDNSResponder/2361 is trying to release lock (&in_dev->mc_list_lock) at:
-> > [<ffffffff81233f5a>] ip_mc_add_src+0x85/0x1f8
->
-> ok, could you try the patch below? (i also updated the rollup with this
-> fix)
->
->         Ingo
->
-> ---------------------
-> Subject: lock validator: special locking: net/ipv4/igmp.c #2
-> From: Ingo Molnar <mingo@elte.hu>
->
-> another case of non-nested unlocking igmp.c.
->
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
->  net/ipv4/igmp.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> Index: linux/net/ipv4/igmp.c
-> ===================================================================
-> --- linux.orig/net/ipv4/igmp.c
-> +++ linux/net/ipv4/igmp.c
-> @@ -1646,7 +1646,7 @@ static int ip_mc_add_src(struct in_devic
->                 return -ESRCH;
->         }
->         spin_lock_bh(&pmc->lock);
-> -       read_unlock(&in_dev->mc_list_lock);
-> +       read_unlock_non_nested(&in_dev->mc_list_lock);
->
->  #ifdef CONFIG_IP_MULTICAST
->         sf_markstate(pmc);
->
+On Fri, 02 Jun 2006 00:03:06 -0300, "Luiz Fernando N.Capitulino" <lcapitulino@mandriva.com.br> wrote:
 
-yep, this fixes it.
+This looks interesting, although I do not know if it buys us much.
+The code seems sane at first view. The private lock inside pl2303
+saves you from the most obvious races.
+
+>  The tests I've done so far weren't anything serious: as the mobile supports a
+> AT command set, I have used the ones (with minicom) which transfers more data.
+> Of course that I also did module load/unload tests, tried to disconnect the
+> device while it's transfering data and so on.
+
+Next, it would be nice to test if PPP works, and if getty and shell work
+(with getty driving the USB-to-serial adapter).
+
+> +static void serial_send_xchar(struct uart_port *port, char ch)
+> +{
+> +	USBSERIAL_PORT->serial->type->uart_ops->send_xchar(port, ch);
+>  }
+
+I think you just inherited a mistake in usb-serial design. It attempts
+to act as an adaptation layer (like, say, USB core itself) instead of
+a library like libata. Why can't the UART framework call pl2303?
+
+Also this meaningless obfuscation has to go:
+
+> +#define USBSERIAL_PORT ((struct usb_serial_port *)port)
+> +static void pl2303_start_tx(struct uart_port *port)
+> +{
+> +	struct usb_serial_port *usp = USBSERIAL_PORT;
+
+Greetings,
+-- Pete

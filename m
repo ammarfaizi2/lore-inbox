@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWFBJxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWFBKDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWFBJxO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWFBJxO
+	id S1751377AbWFBKDs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 06:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWFBKDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:53:14 -0400
-Received: from mga01.intel.com ([192.55.52.88]:65352 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751353AbWFBJxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:53:13 -0400
-X-IronPort-AV: i="4.05,203,1146466800"; 
-   d="scan'208"; a="45914296:sNHT14910945"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, <linux-kernel@vger.kernel.org>,
-       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
-Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 02:53:13 -0700
-Message-ID: <000001c6862a$5d7142d0$114ce984@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 2 Jun 2006 06:03:48 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:52664 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1751377AbWFBKDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 06:03:47 -0400
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
+       gregkh@suse.de, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20060601234833.adf12249.zaitcev@redhat.com>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	 <20060601234833.adf12249.zaitcev@redhat.com>
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 11:03:29 +0100
+Message-Id: <1149242609.4695.0.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaGJ8MiIoq7AuC9RJe6RplBzUvhOAAALliw
-In-Reply-To: <200606021934.27420.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Friday, June 02, 2006 2:34 AM
-> On Friday 02 June 2006 19:31, Chen, Kenneth W wrote:
-> > Con Kolivas wrote on Friday, June 02, 2006 2:25 AM
-> >
-> > > On Friday 02 June 2006 19:17, Chen, Kenneth W wrote:
-> > > > What about the part in dependent_sleeper() being so bully and actively
-> > > > resched other low priority sibling tasks?  I think it would be better
-> > > > to just let the tasks running on sibling CPU to finish its current time
-> > > > slice and then let the backoff logic to kick in.
-> > >
-> > > That would defeat the purpose of smt nice if the higher priority task
-> > > starts after the lower priority task is running on its sibling cpu.
-> >
-> > But only for the duration of lower priority tasks' time slice.  When lower
-> > priority tasks time slice is used up, a resched is force from
-> > scheduler_tick(), isn't it?  And at that time, it is delayed to run because
-> > of smt_nice.  You are saying user can't tolerate that short period of time
-> > that CPU resource is shared?  It's hard to believe.
+On Thu, 2006-06-01 at 23:48 -0700, Pete Zaitcev wrote:
 > 
-> nice -20 vs nice 0 is 800ms vs 100ms. That's a long time to me.
+> >  The tests I've done so far weren't anything serious: as the mobile supports a
+> > AT command set, I have used the ones (with minicom) which transfers more data.
+> > Of course that I also did module load/unload tests, tried to disconnect the
+> > device while it's transfering data and so on.
+> 
+> Next, it would be nice to test if PPP works, and if getty and shell work
+> (with getty driving the USB-to-serial adapter).
 
+xmodem is a good test -- better than PPP because it stresses the
+buffering in a way which PPP won't. Log into a remote system, try
+sending and receiving files with xmodem.
 
-Yeah, but that is the worst case though.  Average would probably be a lot
-lower than worst case.  Also, on smt it's not like the current logical cpu
-is getting blocked because of another task is running on its sibling CPU.
-The hardware still guarantees equal share of hardware resources for both
-logical CPUs.
-
-- Ken
+-- 
+dwmw2
 

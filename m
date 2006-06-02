@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWFBVXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbWFBWb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030293AbWFBVXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 17:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWFBVXj
+	id S932582AbWFBWb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 18:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbWFBWb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 17:23:39 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:32417 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030293AbWFBVXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 17:23:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:from:x-x-sender:to:cc:subject:message-id:references:mime-version:content-type;
-        b=qDAPfoaGMFFYSTiLDhJTkkeg6TMAhgFoSRSS7Az+MNyD/zUrnw9HB9kXfA9ZVIxJrgcclZQGL98tWWgO2xPjjS0d3ayZgM+BIUcrsOLCDutn310e63zLSv0SVyXsbAUacSEoo4h/HvC+vTHfNLH2SCpXPVE4wsY9HnB191sIkig=
-Date: Fri, 2 Jun 2006 23:23:52 +0100 (BST)
-From: Esben Nielsen <nielsen.esben@googlemail.com>
-X-X-Sender: simlo@localhost
-To: linux-kernel@vger.kernel.org
-cc: Ingo Molnar <mingo@elte.hu>
-Subject: [patch 5/5] [PREEMPT_RT] Changing interrupt handlers from running
- in thread to hardirq and back runtime.
-Message-ID: <Pine.LNX.4.64.0606022322230.9307@localhost>
-References: <20060602165336.147812000@localhost>
+	Fri, 2 Jun 2006 18:31:57 -0400
+Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:53637 "EHLO
+	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932582AbWFBWb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 18:31:57 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
+Date: Sat, 3 Jun 2006 08:31:40 +1000
+User-Agent: KMail/1.9.1
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
+References: <000401c68692$a90cbf90$df34030a@amr.corp.intel.com>
+In-Reply-To: <000401c68692$a90cbf90$df34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606030831.41117.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make lpptest more compliant with the request_irq() interface. I don't think
-the driver should set or remove flags on it's own!
+On Saturday 03 June 2006 08:19, Chen, Kenneth W wrote:
+> Con Kolivas wrote on Friday, June 02, 2006 3:15 PM
+>
+> > On Saturday 03 June 2006 06:53, Chen, Kenneth W wrote:
+> > > Con Kolivas wrote on Friday, June 02, 2006 3:13 AM
+> > >
+> > > > On Friday 02 June 2006 19:53, Chen, Kenneth W wrote:
+> > > > > Yeah, but that is the worst case though.  Average would probably be
+> > > > > a lot lower than worst case.  Also, on smt it's not like the
+> > > > > current logical cpu is getting blocked because of another task is
+> > > > > running on its sibling CPU. The hardware still guarantees equal
+> > > > > share of hardware resources for both logical CPUs.
+> > > >
+> > > > "Equal share of hardware resources" is exactly the problem; they
+> > > > shouldn't have equal share since they're sharing one physical cpu's
+> > > > resources. It's a relative breakage of the imposed nice support and I
+> > > > disagree with your conclusion.
+> > >
+> > > But you keep on missing the point that this only happens in the initial
+> > > stage of tasks competing for CPU resources.
+> > >
+> > > If this is broken, then current smt nice is equally broken with the
+> > > same reasoning: once the low priority task gets scheduled, there is
+> > > nothing to kick it off the CPU until its entire time slice get used up.
+> > >  They compete equally with a high priority task running on the sibling
+> > > CPU.
+> >
+> > There has to be some way of metering it out and in the absence of cpu
+> > based hardware priority support (like ppc64 has) the only useful thing we
+> > have to work with is timeslice. Yes sometimes the high priority task is
+> > at the start and sometimes at the end of the timeslice but overall it
+> > balances the proportions out reasonably fairly.
+>
+> Good!  Then why special case the initial stage?  Just let task run and it
+> will even out statistically.  Everyone is happy, less code, less special
+> case, same end result.
 
-Index: linux-2.6.16-rt23.spin_mutex/drivers/char/lpptest.c
-===================================================================
---- linux-2.6.16-rt23.spin_mutex.orig/drivers/char/lpptest.c
-+++ linux-2.6.16-rt23.spin_mutex/drivers/char/lpptest.c
-@@ -150,13 +150,13 @@ static int __init lpptest_init (void)
-  		return -EAGAIN;
-  	}
+Hang on I think I missed something there. What did you conclude I conceded 
+there? When I say "work with timeslice" I mean use percentage of timeslice 
+the way smt nice currently does.
 
--	if (request_irq (LPPTEST_IRQ, lpptest_irq, 0, "lpptest", dev_id)) {
--		printk (KERN_WARNING "lpptest: irq %d in use. Unload parport module!\n", LPPTEST_IRQ);
-+	if (request_irq (LPPTEST_IRQ, lpptest_irq, SA_NODELAY | SA_INTERRUPT,
-+			 "lpptest", dev_id)) {
-+		printk (KERN_WARNING "lpptest: irq %d in use. "
-+			"Unload parport module!\n", LPPTEST_IRQ);
-  		unregister_chrdev(LPPTEST_CHAR_MAJOR, LPPTEST_DEVICE_NAME);
-  		return -EAGAIN;
-  	}
--	irq_desc[LPPTEST_IRQ].status |= IRQ_NODELAY;
--	irq_desc[LPPTEST_IRQ].action->flags |= SA_NODELAY | SA_INTERRUPT;
-
-  	INIT_PORT();
-  	ENABLE_IRQ();
-
---
+-- 
+-ck

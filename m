@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWFBN5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWFBOCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWFBN5s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWFBN5s
+	id S1751421AbWFBOCO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 10:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWFBOCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:57:48 -0400
-Received: from es335.com ([67.65.19.105]:56380 "EHLO mail.es335.com")
-	by vger.kernel.org with ESMTP id S932106AbWFBN5r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:57:47 -0400
-Subject: RE: [openib-general] Re: [PATCH 1/2] iWARP Connection Manager.
-From: Steve Wise <swise@opengridcomputing.com>
-To: Caitlin Bestler <caitlinb@broadcom.com>
-Cc: Tom Tucker <tom@opengridcomputing.com>,
-       Sean Hefty <mshefty@ichips.intel.com>, netdev@vger.kernel.org,
-       rdreier@cisco.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <54AD0F12E08D1541B826BE97C98F99F150D3E6@NT-SJCA-0751.brcm.ad.broadcom.com>
-References: <54AD0F12E08D1541B826BE97C98F99F150D3E6@NT-SJCA-0751.brcm.ad.broadcom.com>
-Content-Type: text/plain
-Date: Fri, 02 Jun 2006 08:57:44 -0500
-Message-Id: <1149256664.791.3.camel@stevo-desktop>
+	Fri, 2 Jun 2006 10:02:14 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:12160 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1751152AbWFBOCN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 10:02:13 -0400
+Date: Fri, 2 Jun 2006 16:02:12 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org,
+       Kernel Netdev Mailing List <netdev@vger.kernel.org>
+Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE (2)
+Message-ID: <20060602140212.GA7881@janus>
+References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net> <20060531160611.GA25637@janus> <447DC613.10102@trash.net> <20060531172936.GB25788@janus> <447DD66C.30605@trash.net> <20060601091124.GA31642@janus> <447F2537.1080807@trash.net> <20060602123559.GA7505@janus>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060602123559.GA7505@janus>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > The problem is that we can't synchronously cancel an
-> > outstanding connect request. Once we've asked the adapter to
-> > connect, we can't tell him to stop, we have to wait for it to
-> > fail. During the time period between when we ask to connect
-> > and the adapter says yeah-or-nay, the user hits ctrl-C. This
-> > is the case where disconnect and/or destroy gets called and
-> > we have to block it waiting for the outstanding connect
-> > request to complete.
-> > 
-> > One alternative to this approach is to do the kfree of the
-> > cm_id in the deref logic. This was the original design and
-> > leaves the object around to handle the completion of the
-> > connect and still allows the app to clean up and go away
-> > without all this waitin' around. When the adapter finally
-> > finishes and releases it's reference, the object is kfree'd.
-> > 
-> > Hope this helps.
-> > 
-> Why couldn't you synchronously put the cm_id in a state of
-> "pending delete" and do the actual delete when the RNIC
-> provides a response to the request? 
+On Fri, Jun 02, 2006 at 02:35:59PM +0200, me wrote:
 
-This is Tom's "alternative" mentioned above.  The provider already keeps
-an explicit reference on the cm_id while it might possibly deliver an
-event on that cm_id.  So if you change deref to kfree the cm_id on its
-last deref (when the refcnt reaches 0), then you can avoid blocking
-during destroy...  
+[...]
 
-> There could even be
-> an optional method to see if the device is capable of
-> cancelling the request. I know it can't yank a SYN back
-> from the wire, but it could refrain from retransmitting.
+> This is a tcpdump done after rebooting "posio"
+> to 2.6.13.2 showing how it should have looked:
 
-I would suggest we don't add this optional method until we see an RNIC
-that supports canceling a connect request or accept synchronously...
+[snip]
 
-Steve.
+The 2.6.13.2 data is inconsistent. The bug appears to be present there at
+well after closer examination. So there must be another factor involved
+because I have at least one case logged where 2.6.13.2 did work (the
+"sirkka" log in my previous mail). Applying your patch on 2.6.13.2
+again removes the protocol is buggy messages (when doing a tcpdump)
+but the problem of the 10 missing packets persists.
 
+-- 
+Frank

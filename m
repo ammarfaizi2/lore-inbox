@@ -1,93 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWFBNe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWFBNje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbWFBNe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWFBNe0
+	id S932068AbWFBNje (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 09:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWFBNje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:34:26 -0400
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:36580 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751425AbWFBNeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:34:25 -0400
-Message-ID: <44803E5F.60806@bigpond.net.au>
-Date: Fri, 02 Jun 2006 23:34:23 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@openvz.org>
-CC: sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Srivatsa <vatsa@in.ibm.com>, ckrm-tech@lists.sourceforge.net,
-       balbir@in.ibm.com, Balbir Singh <bsingharora@gmail.com>,
-       Mike Galbraith <efault@gmx.de>, Sam Vilain <sam@vilain.net>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>		<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>		<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>		<44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>		<447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>		<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra> <447FD2E1.7060605@bigpond.net.au> <447FECFD.8000602@openvz.org>
-In-Reply-To: <447FECFD.8000602@openvz.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 2 Jun 2006 09:39:34 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:32978 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1751423AbWFBNjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 09:39:33 -0400
+Date: Fri, 2 Jun 2006 10:39:29 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+Message-ID: <20060602103929.0a89a920@doriath.conectiva>
+In-Reply-To: <20060601234833.adf12249.zaitcev@redhat.com>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	<20060601234833.adf12249.zaitcev@redhat.com>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 2 Jun 2006 13:34:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>>>> Sure! You can check OpenVZ project (http://openvz.org) for example 
->>>>> of required resource management. BTW, I must agree with other 
->>>>> people here who noticed that per-process resource management is 
->>>>> really useless and hard to use :(
->>>
->>>
->>> I totally agree.
->>
->>
->> "nice" seems to be doing quite nicely :-)
-> I'm sorry, but nice never looked "nice" to me.
-> Have you ever tried to "nice" apache server which spawns 500 
-> processes/threads on a loaded machine?
-> With nice you _can't_ impose limits or priority on the whole "apache".
-> The more apaches you have the more useless their priorites and nices are...
 
-Nevertheless "nice" is still useful.  I'd bet that just about every 
-Linux system has at least one task with non normal nice at any time.
+ Hi Pete,
 
-I think that these caps can be similarly useful.
+On Thu, 1 Jun 2006 23:48:33 -0700
+Pete Zaitcev <zaitcev@redhat.com> wrote:
 
-They can be also used as the basic mechanism to implement the kind of 
-thing you want from OUTSIDE of the scheduler.
+| On Fri, 02 Jun 2006 00:03:06 -0300, "Luiz Fernando N.Capitulino" <lcapitulino@mandriva.com.br> wrote:
+| 
+| This looks interesting, although I do not know if it buys us much.
 
-> 
->> To me this capping functionality is a similar functionality to that 
->> provided by "nice" and all that's needed to make it useful is a 
->> command (similar to "nice") that runs tasks with caps applied.  To 
->> that end I've written a small script (attached) that does this.  As 
->> this is something that a user might like to combine with "nice" the 
->> command has an option for setting "nice" as well as caps.
->>
->> Usage:
->>         withcap [options] command [arguments ...]
->>         withcap -h
->> Options:
->>         [-c <CPU rate soft cap>]
->>         [-C <CPU rate hard cap>]
->>         [-n <nice value>]
->>
->>         -c Set CPU usage rate soft cap
->>         -C Set CPU usage rate hard cap
->>         -n Set nice value
->>         -h Display this help
-> 
-> the same for this. you can't limit a _user_, only his processes.
-> Today I have 1 task and 20% limit is ok, tomorrow I have 10 tasks and 
-> this 20% limits changes nothing in the system.
+ Yeah, it will be a lot of work to port all the USB-Serial drivers to the
+new interface. We have to discuss if it really pays off.
 
-This still doesn't make it useless.
+ IMHO, yes, it does. Currently, USB-Serial is duplicating code and solutions
+from the Serial Core implementation. From the kernel POV, we're maintaining
+two interfaces to solve (almost) the same problem.
 
-Peter
+ Killing one of the interfaces would make people concetrate in only one
+of them.
+
+| The code seems sane at first view. The private lock inside pl2303
+| saves you from the most obvious races.
+
+ But I wonder why I couldn't just use the Serial Core's spinlock for
+that.
+
+| >  The tests I've done so far weren't anything serious: as the mobile supports a
+| > AT command set, I have used the ones (with minicom) which transfers more data.
+| > Of course that I also did module load/unload tests, tried to disconnect the
+| > device while it's transfering data and so on.
+| 
+| Next, it would be nice to test if PPP works, and if getty and shell work
+| (with getty driving the USB-to-serial adapter).
+
+ Hmmmm. I'll have to buy a new simcard for that (I can't use GPRS with the
+one I have), then it will have to wait some days.
+
+ Would be good to get some help here. :)
+
+| > +static void serial_send_xchar(struct uart_port *port, char ch)
+| > +{
+| > +	USBSERIAL_PORT->serial->type->uart_ops->send_xchar(port, ch);
+| >  }
+| 
+| I think you just inherited a mistake in usb-serial design. It attempts
+| to act as an adaptation layer (like, say, USB core itself) instead of
+| a library like libata. Why can't the UART framework call pl2303?
+
+ Good point.
+
+ In my first version of the port, I added additional code to handle
+the multi-port thing. When it worked, I realized that that code wasn't
+necessary: just registering each port with the Serial Core seems
+enough.
+
+ Then yes, I think we can do it.
+
+ Will think more about that and try a new version in the weekend.
+
+ Well, for some reason the patchset e-mails didn't reach LKML.
+That's strange, because our replies are going there.
+
+ Either, git-send-email has a bug or I did something wrong.
+
+ Anyways, I just uploaded the patchset to:
+
+http://distro2.conectiva.com.br/~lcapitulino/patches/usbserial/2.6.17-rc5/
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Luiz Fernando N. Capitulino

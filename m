@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFBKaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWFBK5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWFBKaj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 06:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWFBKaj
+	id S1751387AbWFBK5E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 06:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFBK5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 06:30:39 -0400
-Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:26073 "EHLO
-	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751386AbWFBKaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 06:30:39 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 20:30:11 +1000
-User-Agent: KMail/1.9.1
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
-References: <000201c6861f$6a2d4e20$0b4ce984@amr.corp.intel.com> <447FFD35.9020909@yahoo.com.au>
-In-Reply-To: <447FFD35.9020909@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 2 Jun 2006 06:57:04 -0400
+Received: from mga07.intel.com ([143.182.124.22]:35720 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751387AbWFBK5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 06:57:01 -0400
+X-IronPort-AV: i="4.05,203,1146466800"; 
+   d="scan'208"; a="45008256:sNHT1338842428"
+Subject: Re: pci_walk_bus race condition
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060601222402.f2d427b4.akpm@osdl.org>
+References: <1148625315.4377.518.camel@ymzhang-perf.sh.intel.com>
+	 <20060526135039.GA13280@kroah.com>
+	 <1148863271.4377.521.camel@ymzhang-perf.sh.intel.com>
+	 <1148889932.4377.537.camel@ymzhang-perf.sh.intel.com>
+	 <1149222942.8436.189.camel@ymzhang-perf.sh.intel.com>
+	 <20060601221141.d84bcf97.akpm@osdl.org>
+	 <20060601222402.f2d427b4.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1149245505.8436.222.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 02 Jun 2006 18:51:45 +0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606022030.11481.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 18:56, Nick Piggin wrote:
-> Chen, Kenneth W wrote:
-> > Ha, you beat me by one minute. It did cross my mind to use try lock there
-> > as well, take a look at my version, I think I have a better inner loop.
->
-> Actually you *have* to use trylocks I think, because the current runqueue
-> is already locked.
->
-> And why do we lock all siblings in the other case, for that matter? (not
-> that it makes much difference except on niagara today).
+On Fri, 2006-06-02 at 13:24, Andrew Morton wrote:
+> On Thu, 1 Jun 2006 22:11:41 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > On Fri, 02 Jun 2006 12:35:43 +0800
+> > "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
+> > 
+> > > pci_walk_bus has a race with pci_destroy_dev. When cb is called
+> > > in pci_walk_bus, pci_destroy_dev might unlink the dev pointed by next.
+> > > Later on in the next loop, pointer next becomes NULL and cause
+> > > kernel panic.
+> > > 
+> > > Below patch against 2.6.17-rc4 fixes it by changing pci_bus_lock (spin_lock)
+> > > to pci_bus_sem (rw_semaphore).
+> > 
+> > How does s/spinlock/rwsem/ fix a race??
+> 
+> oic.  "and hold the lock across the callback".
+Sorry for missing the statement.
 
-If we spinlock (and don't trylock as you're proposing) we'd have to do a 
-double rq lock for each sibling. I guess half the time double_rq_lock will 
-only be locking one runqueue... with 32 runqueues we either try to lock all 
-32 or lock 1.5 runqueues 32 times... ugh both are ugly.
+> 
+> Is the ranking of pci_bus_sem and dev->dev.sem correct+consistent?  It
+> looks OK.
+Yes, I think so. The write lock of pci_bus_sem and dev->dev.sem are used in
+different steps. Here we use read lock of pci_bus_sem + dev->dev.sem.
 
-> Rolled up patch with everyone's changes attached.
-
-I'm still not sure that only doing trylock is adequate, and 
-wake_sleeping_dependent is only called when a runqueue falls idle in 
-schedule, not when it's busy so its cost (in my mind) is far less than 
-dependent_sleeper.
-
--- 
--ck
+> 
+> It might be worth making a not that the callback function cannot call any
+> PCI layer function which takes pci_bus_sem - that'll casue a recursive
+> down_read(), which is a nasty source of rare deadlocks.
+Currently, only pci error recovery codes call it while cb are the error
+callback functions in the driver. They shouldn't try to apply for write lock of
+pci_walk_sem. Perhaps we could add more comments in function pci_walk_bus.

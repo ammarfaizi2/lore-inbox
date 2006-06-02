@@ -1,98 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWFBDKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWFBDQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWFBDKE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 23:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWFBDKE
+	id S1751186AbWFBDQX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 23:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWFBDQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 23:10:04 -0400
-Received: from mga02.intel.com ([134.134.136.20]:61019 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751170AbWFBDKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 23:10:02 -0400
-X-IronPort-AV: i="4.05,200,1146466800"; 
-   d="scan'208"; a="44695348:sNHT20321504"
-Subject: Re: [patch mm1-rc2] lock validator: netlink.c netlink_table_grab
-	fix
-From: Zhu Yi <yi.zhu@intel.com>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       jketreno@linux.intel.com
-In-Reply-To: <20060601144241.GA952@slug>
-References: <20060529212109.GA2058@elte.hu>
-	 <20060530091415.GA13341@ens-lyon.fr>  <20060601144241.GA952@slug>
-Content-Type: multipart/mixed; boundary="=-WiH4nIzNzZYamjzR48Md"
-Organization: Intel Corp.
-Date: Fri, 02 Jun 2006 11:10:10 +0800
-Message-Id: <1149217811.13745.127.camel@debian.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 1 Jun 2006 23:16:23 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:53384 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751186AbWFBDQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 23:16:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UzFwe3b4/s66YGI7LoKB0B60AczMAlZdcLqvHxk6fl82JbxEz8wEG96Ly6y7ELpgFE5wUJMJwPtzEHvIMKmlcTjrHcXOWqaeVwdFgsxbqLinEAwqKkSipqfpbSER+Z3o98d5yY5UBQ1KJKSTEpTWL8uroT8rSU3unMuVNku2I3o=
+Message-ID: <9e4733910606012016r2f8d4708hc092eb3dd9b925a2@mail.gmail.com>
+Date: Thu, 1 Jun 2006 23:16:12 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Dave Airlie" <airlied@gmail.com>, "Ondrej Zajicek" <santiago@mail.cz>,
+       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, adaplas@gmail.com
+In-Reply-To: <200606012234.31566.dhazelton@enter.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com>
+	 <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
+	 <200606012234.31566.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
+> VT switch to a VT where X is running. X will still require a VT and assume it
+> has good access to the graphics system. While currently it has no problems,
+> when drmcon becomes a reality there will have to be a state switch between
+> the consoles settings and the setting for the VT running X.
 
---=-WiH4nIzNzZYamjzR48Md
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I forgot to include comments on VT's.
 
-On Thu, 2006-06-01 at 16:42 +0200, Frederik Deweerdt wrote:
-> This got rid of the oops for me, is it the right fix?
+We need to reconsider how VT's are implemented. I would like to remove
+them from the kernel. Now don't get too excited, I also want to
+replace them with a system that would function the same for a normal
+user.
 
-I don't think netlink will contend with hardirqs. Can you test with this
-fix for ipw2200 driver?
+There is only one VT system in the kernel. Making it support more that
+one user requires a gigantic patch (18,000 lines). That patch has been
+floating around for years and has never been merged. I don't think it
+makes sense to extend the existing VT code even further to support
+multiuser.
 
-Thanks,
--yi
+My proposal would be to switch to the concept of splitting console as
+I described earlier. There would only be one in-kernel system
+management console and it wouldn't support VT's. The system management
+console is not meant for normal use.
 
---=-WiH4nIzNzZYamjzR48Md
-Content-Disposition: attachment; filename=ipw2200-lockdep-fix.patch
-Content-Type: text/x-patch; name=ipw2200-lockdep-fix.patch; charset=GB2312
-Content-Transfer-Encoding: 7bit
+Normal consoles would be implemented via user space processes. These
+processes would provide the VT swap feature that people are used to.
+They would also be accelerated via DRM. Since they are user space apps
+it is easy to support multiuser by having multiple processes.
 
-diff -urp a/drivers/net/wireless/ipw2200.c b/drivers/net/wireless/ipw2200.c
---- a/drivers/net/wireless/ipw2200.c	2006-04-01 09:47:24.000000000 +0800
-+++ b/drivers/net/wireless/ipw2200.c	2006-06-01 14:32:00.000000000 +0800
-@@ -11058,11 +11058,9 @@ static irqreturn_t ipw_isr(int irq, void
- 	if (!priv)
- 		return IRQ_NONE;
- 
--	spin_lock(&priv->lock);
--
- 	if (!(priv->status & STATUS_INT_ENABLED)) {
- 		/* Shared IRQ */
--		goto none;
-+		return IRQ_NONE;
- 	}
- 
- 	inta = ipw_read32(priv, IPW_INTA_RW);
-@@ -11071,12 +11069,12 @@ static irqreturn_t ipw_isr(int irq, void
- 	if (inta == 0xFFFFFFFF) {
- 		/* Hardware disappeared */
- 		IPW_WARNING("IRQ INTA == 0xFFFFFFFF\n");
--		goto none;
-+		return IRQ_NONE;
- 	}
- 
- 	if (!(inta & (IPW_INTA_MASK_ALL & inta_mask))) {
- 		/* Shared interrupt */
--		goto none;
-+		return IRQ_NONE;
- 	}
- 
- 	/* tell the device to stop sending interrupts */
-@@ -11091,12 +11089,7 @@ static irqreturn_t ipw_isr(int irq, void
- 
- 	tasklet_schedule(&priv->irq_tasklet);
- 
--	spin_unlock(&priv->lock);
--
- 	return IRQ_HANDLED;
--      none:
--	spin_unlock(&priv->lock);
--	return IRQ_NONE;
- }
- 
- static void ipw_rf_kill(void *adapter)
+Getting rid of the VT implementation inside of the kernel lets us move
+towards the single state in the hardware goal. The current in-kernel
+VT design forces the "save your state, now I'll load mine" behavior.
+That behavior is evil and it is the source of a lot of problems and it
+should be removed. VT's were a good idea on VGA cards with 14
+registers, now cards have 300 registers, a coprocessor, 512MB, etc.
+There is simply too much state to swap.
 
---=-WiH4nIzNzZYamjzR48Md--
+In this model there would be no change at the normal user level,
+Ctrl-Atl-num at a normal user console will still get you another
+session. A hot key would display the system management console,
+another would make it disappear.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

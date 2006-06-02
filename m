@@ -1,79 +1,317 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWFBLyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWFBLwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWFBLyA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 07:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWFBLyA
+	id S1751034AbWFBLwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 07:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWFBLwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 07:54:00 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45215 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750713AbWFBLx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 07:53:59 -0400
-To: Preben Traerup <Preben.Trarup@ericsson.com>
-Cc: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       Vivek Goyal <vgoyal@in.ibm.com>
-Subject: Re: [Fastboot] [RFC][PATCH] Add missing notifier before crashing
-References: <20060530183359.a8d5d736.akiyama.nobuyuk@jp.fujitsu.com>
-	<20060530145658.GC6536@in.ibm.com>
-	<20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com>
-	<20060531154322.GA8475@in.ibm.com>
-	<20060601213730.dc9f1ec4.akiyama.nobuyuk@jp.fujitsu.com>
-	<20060601151605.GA7380@in.ibm.com>
-	<20060602141301.cdecf0e1.akiyama.nobuyuk@jp.fujitsu.com>
-	<44800E1A.1080306@ericsson.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 02 Jun 2006 05:52:32 -0600
-In-Reply-To: <44800E1A.1080306@ericsson.com> (Preben Traerup's message of
- "Fri, 02 Jun 2006 12:08:26 +0200")
-Message-ID: <m1fyin6agv.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 Jun 2006 07:52:25 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:20521
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751034AbWFBLwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 07:52:24 -0400
+Message-Id: <448042C1.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Fri, 02 Jun 2006 13:53:05 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Andreas Kleen" <ak@suse.de>
+Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/2] fall back to old-style call trace if no unwinding
+	is possible
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Preben Traerup <Preben.Trarup@ericsson.com> writes:
+If no unwinding is possible at all for a certain exception instance,
+fall back to the old style call trace instead of not showing any trace
+at all.
 
-> Since I'm one of the people who very much would like best of both worlds,
-> I do belive Vivek Goyal's concern about the reliability of kdump must be
-> adressed properly.
->
-> I do belive the crash notifier should at least be a list of its own.
->   Attaching element to the list proves your are kdump aware - in theory
->
-> However:
->
-> Conceptually I do not like the princip of implementing crash notifier
-> as a list simply because for all (our) practical usage there will only
-> be one element attached to the list anyway.
->
-> And as I belive crash notifiers only will be used by a very limited
-> number of users, I suggested in another mail that a simple
->
-> if (function pointer)
->    call functon
->
-> approach to be used for this special case to keep things very simple.
+Also, allow setting the stack trace mode at the command line.
 
-I am completely against crash notifiers.  The code crash_kexec switches to
-is what is notified and it can do whatever it likes.  The premise is
-that the kernel does not work.  Therefore  we cannot safely notify
-kernel code.  We do the very minimal to get out of the kernel,
-and it is my opinion we still do to much.
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-The crash_kexec entry point is not about taking crash dumps.  It is
-about implementing policy when the kernel panics.  Generally the
-policy we want is a crash dump but the mechanism is general purpose
-and not limited to that.
+Index: 2.6.17-rc5-unwind-generic/arch/i386/kernel/traps.c
+===================================================================
+--- 2.6.17-rc5-unwind-generic.orig/arch/i386/kernel/traps.c	2006-06-02 13:21:20.000000000 +0200
++++ 2.6.17-rc5-unwind-generic/arch/i386/kernel/traps.c	2006-06-02 13:32:29.000000000 +0200
+@@ -93,6 +93,7 @@ asmlinkage void spurious_interrupt_bug(v
+ asmlinkage void machine_check(void);
+ 
+ static int kstack_depth_to_print = 24;
++static int call_trace = 1;
+ ATOMIC_NOTIFIER_HEAD(i386die_chain);
+ 
+ int register_die_notifier(struct notifier_block *nb)
+@@ -165,40 +166,47 @@ static inline unsigned long print_contex
+ 	return ebp;
+ }
+ 
+-static asmlinkage void show_trace_unwind(struct unwind_frame_info *info, void *log_lvl)
++static asmlinkage int show_trace_unwind(struct unwind_frame_info *info, void *log_lvl)
+ {
++	int n = 0;
+ 	int printed = 0; /* nr of entries already printed on current line */
+ 
+ 	while (unwind(info) == 0 && UNW_PC(info)) {
++		++n;
+ 		printed = print_addr_and_symbol(UNW_PC(info), log_lvl, printed);
+ 		if (arch_unw_user_mode(info))
+ 			break;
+ 	}
+ 	if (printed)
+ 		printk("\n");
++	return n;
+ }
+ 
+ static void show_trace_log_lvl(struct task_struct *task, struct pt_regs *regs,
+ 			       unsigned long *stack, char *log_lvl)
+ {
+ 	unsigned long ebp;
+-	struct unwind_frame_info info;
+ 
+ 	if (!task)
+ 		task = current;
+ 
+-	if (regs) {
+-		if (unwind_init_frame_info(&info, task, regs) == 0) {
+-			show_trace_unwind(&info, log_lvl);
+-			return;
++	if (call_trace >= 0) {
++		int unw_ret = 0;
++		struct unwind_frame_info info;
++
++		if (regs) {
++			if (unwind_init_frame_info(&info, task, regs) == 0)
++				unw_ret = show_trace_unwind(&info, log_lvl);
++		} else if (task == current)
++			unw_ret = unwind_init_running(&info, show_trace_unwind, log_lvl);
++		else {
++			if (unwind_init_blocked(&info, task) == 0)
++				unw_ret = show_trace_unwind(&info, log_lvl);
+ 		}
+-	} else if (task == current) {
+-		if (unwind_init_running(&info, show_trace_unwind, log_lvl) == 0)
+-			return;
+-	} else {
+-		if (unwind_init_blocked(&info, task) == 0) {
+-			show_trace_unwind(&info, log_lvl);
+-			return;
++		if (unw_ret > 0) {
++			if (call_trace > 0)
++				return;
++			printk("%sLegacy call trace:\n", log_lvl);
+ 		}
+ 	}
+ 
+@@ -1238,3 +1246,15 @@ static int __init kstack_setup(char *s)
+ 	return 1;
+ }
+ __setup("kstack=", kstack_setup);
++
++static int __init call_trace_setup(char *s)
++{
++	if (strcmp(s, "old") == 0)
++		call_trace = -1;
++	else if (strcmp(s, "both") == 0)
++		call_trace = 0;
++	else if (strcmp(s, "new") == 0)
++		call_trace = 1;
++	return 1;
++}
++__setup("call_trace=", call_trace_setup);
+Index: 2.6.17-rc5-unwind-generic/arch/x86_64/kernel/traps.c
+===================================================================
+--- 2.6.17-rc5-unwind-generic.orig/arch/x86_64/kernel/traps.c	2006-05-30 09:19:02.000000000 +0200
++++ 2.6.17-rc5-unwind-generic/arch/x86_64/kernel/traps.c	2006-06-02 13:36:12.000000000 +0200
+@@ -109,6 +109,7 @@ static inline void preempt_conditional_c
+ }
+ 
+ static int kstack_depth_to_print = 10;
++static int call_trace = 1;
+ 
+ #ifdef CONFIG_KALLSYMS
+ #include <linux/kallsyms.h> 
+@@ -192,11 +193,12 @@ static unsigned long *in_exception_stack
+ 	return NULL;
+ }
+ 
+-static void show_trace_unwind(struct unwind_frame_info *info, void *context)
++static int show_trace_unwind(struct unwind_frame_info *info, void *context)
+ {
+-	int i = 11;
++	int i = 11, n = 0;
+ 
+ 	while (unwind(info) == 0 && UNW_PC(info)) {
++		++n;
+ 		if (i > 50) {
+ 			printk("\n       ");
+ 			i = 7;
+@@ -207,6 +209,7 @@ static void show_trace_unwind(struct unw
+ 			break;
+ 	}
+ 	printk("\n");
++	return n;
+ }
+ 
+ /*
+@@ -220,27 +223,32 @@ void show_trace(struct task_struct *tsk,
+ {
+ 	const unsigned cpu = safe_smp_processor_id();
+ 	unsigned long *irqstack_end = (unsigned long *)cpu_pda(cpu)->irqstackptr;
+-	int i;
++	int i = 11;
+ 	unsigned used = 0;
+-	struct unwind_frame_info info;
+ 
+ 	printk("\nCall Trace:");
+ 
+ 	if (!tsk)
+ 		tsk = current;
+ 
+-	if (regs) {
+-		if (unwind_init_frame_info(&info, tsk, regs) == 0) {
+-			show_trace_unwind(&info, NULL);
+-			return;
+-		}
+-	} else if (tsk == current) {
+-		if (unwind_init_running(&info, show_trace_unwind, NULL) == 0)
+-			return;
+-	} else {
+-		if (unwind_init_blocked(&info, tsk) == 0) {
+-			show_trace_unwind(&info, NULL);
+-			return;
++	if (call_trace >= 0) {
++		int unw_ret = 0;
++		struct unwind_frame_info info;
++
++		if (regs) {
++			if (unwind_init_frame_info(&info, tsk, regs) == 0)
++				unw_ret = show_trace_unwind(&info, NULL);
++		} else if (tsk == current)
++			unw_ret = unwind_init_running(&info, show_trace_unwind, NULL);
++		else {
++			if (unwind_init_blocked(&info, tsk) == 0)
++				unw_ret = show_trace_unwind(&info, NULL);
++		}
++		if (unw_ret > 0) {
++			if (call_trace > 0)
++				return;
++			printk("Legacy call trace:");
++			i = 18;
+ 		}
+ 	}
+ 
+@@ -266,7 +274,7 @@ void show_trace(struct task_struct *tsk,
+ 		} \
+ 	} while (0)
+ 
+-	for(i = 11; ; ) {
++	for(; ; ) {
+ 		const char *id;
+ 		unsigned long *estack_end;
+ 		estack_end = in_exception_stack(cpu, (unsigned long)stack,
+@@ -1054,3 +1062,14 @@ static int __init kstack_setup(char *s)
+ }
+ __setup("kstack=", kstack_setup);
+ 
++static int __init call_trace_setup(char *s)
++{
++	if (strcmp(s, "old") == 0)
++		call_trace = -1;
++	else if (strcmp(s, "both") == 0)
++		call_trace = 0;
++	else if (strcmp(s, "new") == 0)
++		call_trace = 1;
++	return 1;
++}
++__setup("call_trace=", call_trace_setup);
+Index: 2.6.17-rc5-unwind-generic/include/asm-i386/unwind.h
+===================================================================
+--- 2.6.17-rc5-unwind-generic.orig/include/asm-i386/unwind.h	2006-06-02 13:21:20.000000000 +0200
++++ 2.6.17-rc5-unwind-generic/include/asm-i386/unwind.h	2006-06-02 13:23:30.000000000 +0200
+@@ -66,10 +66,10 @@ static inline void arch_unw_init_blocked
+ 	info->regs.xes = __USER_DS;
+ }
+ 
+-extern asmlinkage void arch_unwind_init_running(struct unwind_frame_info *,
+-                                                asmlinkage void (*callback)(struct unwind_frame_info *,
+-                                                                            void *arg),
+-                                                void *arg);
++extern asmlinkage int arch_unwind_init_running(struct unwind_frame_info *,
++                                               asmlinkage int (*callback)(struct unwind_frame_info *,
++                                                                          void *arg),
++                                               void *arg);
+ 
+ static inline int arch_unw_user_mode(const struct unwind_frame_info *info)
+ {
+Index: 2.6.17-rc5-unwind-generic/include/asm-x86_64/unwind.h
+===================================================================
+--- 2.6.17-rc5-unwind-generic.orig/include/asm-x86_64/unwind.h	2006-05-30 09:18:44.000000000 +0200
++++ 2.6.17-rc5-unwind-generic/include/asm-x86_64/unwind.h	2006-06-02 13:36:12.000000000 +0200
+@@ -75,10 +75,10 @@ static inline void arch_unw_init_blocked
+ 	info->regs.ss = __KERNEL_DS;
+ }
+ 
+-extern void arch_unwind_init_running(struct unwind_frame_info *,
+-                                     void (*callback)(struct unwind_frame_info *,
+-                                                      void *arg),
+-                                     void *arg);
++extern int arch_unwind_init_running(struct unwind_frame_info *,
++                                    int (*callback)(struct unwind_frame_info *,
++                                                    void *arg),
++                                    void *arg);
+ 
+ static inline int arch_unw_user_mode(const struct unwind_frame_info *info)
+ {
+Index: 2.6.17-rc5-unwind-generic/include/linux/unwind.h
+===================================================================
+--- 2.6.17-rc5-unwind-generic.orig/include/linux/unwind.h	2006-06-02 13:21:20.000000000 +0200
++++ 2.6.17-rc5-unwind-generic/include/linux/unwind.h	2006-06-02 13:23:30.000000000 +0200
+@@ -49,8 +49,8 @@ extern int unwind_init_blocked(struct un
+  * Prepare to unwind the currently running thread.
+  */
+ extern int unwind_init_running(struct unwind_frame_info *,
+-                               asmlinkage void (*callback)(struct unwind_frame_info *,
+-                                                           void *arg),
++                               asmlinkage int (*callback)(struct unwind_frame_info *,
++                                                          void *arg),
+                                void *arg);
+ 
+ /*
+@@ -97,8 +97,8 @@ static inline int unwind_init_blocked(st
+ }
+ 
+ static inline int unwind_init_running(struct unwind_frame_info *info,
+-                                      asmlinkage void (*cb)(struct unwind_frame_info *,
+-                                                            void *arg),
++                                      asmlinkage int (*cb)(struct unwind_frame_info *,
++                                                           void *arg),
+                                       void *arg)
+ {
+ 	return -ENOSYS;
+Index: 2.6.17-rc5-unwind-generic/kernel/unwind.c
+===================================================================
+--- 2.6.17-rc5-unwind-generic.orig/kernel/unwind.c	2006-06-02 13:21:20.000000000 +0200
++++ 2.6.17-rc5-unwind-generic/kernel/unwind.c	2006-06-02 13:23:30.000000000 +0200
+@@ -885,14 +885,13 @@ EXPORT_SYMBOL(unwind_init_blocked);
+  * Prepare to unwind the currently running thread.
+  */
+ int unwind_init_running(struct unwind_frame_info *info,
+-                        asmlinkage void (*callback)(struct unwind_frame_info *,
+-                                                    void *arg),
++                        asmlinkage int (*callback)(struct unwind_frame_info *,
++                                                   void *arg),
+                         void *arg)
+ {
+ 	info->task = current;
+-	arch_unwind_init_running(info, callback, arg);
+ 
+-	return 0;
++	return arch_unwind_init_running(info, callback, arg);
+ }
+ EXPORT_SYMBOL(unwind_init_running);
+ 
 
-You can put anything you want for crash_kexec to execute.
 
-If the problem is strictly limited to hardware failure and software
-can cope with that then don't panic the kernel and execute an orderly
-transition.
-
-If software cannot cope, and must panic the kernel it clearly cannot
-do something sensible.
-
-Eric

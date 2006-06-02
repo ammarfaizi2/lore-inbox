@@ -1,95 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWFBTvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWFBTsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWFBTvF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWFBTqe
+	id S932552AbWFBTsi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWFBTsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:46:34 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:27009 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751474AbWFBTqb
+	Fri, 2 Jun 2006 15:48:17 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:43393 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932513AbWFBTql
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:46:31 -0400
-Message-Id: <20060602194735.685911000@sous-sol.org>
+	Fri, 2 Jun 2006 15:46:41 -0400
+Message-Id: <20060602194738.888394000@sous-sol.org>
 References: <20060602194618.482948000@sous-sol.org>
-Date: Fri, 02 Jun 2006 00:00:03 -0700
+Date: Fri, 02 Jun 2006 00:00:04 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Paul Jackson <pj@sgi.com>,
-       David Chinner <dgc@sgi.com>, Simon.Derr@bull.net,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 03/11] Cpuset: might sleep checking zones allowed fix
-Content-Disposition: inline; filename=cpuset-might-sleep-checking-zones-allowed-fix.patch
+       Chris Wedgewood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, benh@kernel.crashing.org,
+       johannes@sipsolutions.net, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 04/11] PowerMac: force only suspend-to-disk to be valid
+Content-Disposition: inline; filename=powermac-force-only-suspend-to-disk-to-be-valid.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Paul Jackson <pj@sgi.com>
+From: Johannes Berg <johannes@sipsolutions.net>
 
-Fix an infrequently encountered 'sleeping function called
-from invalid context' in the cpuset hooks in __alloc_pages.
-Could sleep while interrupts disabled.
+For a very long time, echoing 'standby' or 'mem' into /sys/power/state has
+killed the machine on powerpc.  This patch fixes that.
 
-The routine cpuset_zone_allowed() is called by code in
-mm/page_alloc.c __alloc_pages() to determine if a zone is
-allowed in the current tasks cpuset.  This routine can sleep,
-for certain GFP_KERNEL allocations, if the zone is on a memory
-node not allowed in the current cpuset, but might be allowed
-in a parent cpuset.
+This patch adds the .valid callback to pm_ops on PowerMac so that only the
+suspend to disk state can be entered.  Note that just returning 0 would
+suffice since the upper layers don't pass PM_SUSPEND_DISK down, but we
+handle it there regardless just in case that changes.
 
-But we can't sleep in __alloc_pages() if in interrupt, nor
-if called for a GFP_ATOMIC request (__GFP_WAIT not set in
-gfp_flags).
-
-The rule was intended to be:
-  Don't call cpuset_zone_allowed() if you can't sleep, unless you
-  pass in the __GFP_HARDWALL flag set in gfp_flag, which disables
-  the code that might scan up ancestor cpusets and sleep.
-
-This rule was being violated due to a bogus change made (by myself,
-pj) to __alloc_pages() as part of the November 2005 effort to
-cleanup its logic.
-
-The bogus change can be seen at:
-  http://linux.derkeiler.com/Mailing-Lists/Kernel/2005-11/4691.html
-  [PATCH 01/05] mm fix __alloc_pages cpuset ALLOC_* flags
-
-This was first noticed on a tight memory system, in code that
-was disabling interrupts and doing allocation requests with
-__GFP_WAIT not set, which resulted in __might_sleep() writing
-complaints to the log "Debug: sleeping function called ...",
-when the code in cpuset_zone_allowed() tried to take the
-callback_sem cpuset semaphore.
-
-Special thanks to Dave Chinner, for figuring this out,
-and a tip of the hat to Nick Piggin who warned me of this
-back in Nov 2005, before I was ready to listen.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
+Cc: <stable@kernel.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
 
- mm/page_alloc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/powermac/setup.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- linux-2.6.16.19.orig/mm/page_alloc.c
-+++ linux-2.6.16.19/mm/page_alloc.c
-@@ -949,7 +949,8 @@ restart:
- 		alloc_flags |= ALLOC_HARDER;
- 	if (gfp_mask & __GFP_HIGH)
- 		alloc_flags |= ALLOC_HIGH;
--	alloc_flags |= ALLOC_CPUSET;
-+	if (wait)
-+		alloc_flags |= ALLOC_CPUSET;
+--- linux-2.6.16.19.orig/arch/powerpc/platforms/powermac/setup.c
++++ linux-2.6.16.19/arch/powerpc/platforms/powermac/setup.c
+@@ -456,11 +456,23 @@ static int pmac_pm_finish(suspend_state_
+ 	return 0;
+ }
  
- 	/*
- 	 * Go through the zonelist again. Let __GFP_HIGH and allocations
++static int pmac_pm_valid(suspend_state_t state)
++{
++	switch (state) {
++	case PM_SUSPEND_DISK:
++		return 1;
++	/* can't do any other states via generic mechanism yet */
++	default:
++		return 0;
++	}
++}
++
+ static struct pm_ops pmac_pm_ops = {
+ 	.pm_disk_mode	= PM_DISK_SHUTDOWN,
+ 	.prepare	= pmac_pm_prepare,
+ 	.enter		= pmac_pm_enter,
+ 	.finish		= pmac_pm_finish,
++	.valid		= pmac_pm_valid,
+ };
+ 
+ #endif /* CONFIG_SOFTWARE_SUSPEND */
 
 --

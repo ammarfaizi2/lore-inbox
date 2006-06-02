@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWFBTtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWFBTwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWFBTtd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWFBTtX
+	id S932551AbWFBTwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWFBTwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:49:23 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:42155 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932182AbWFBTtU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:49:20 -0400
-Date: Fri, 2 Jun 2006 21:49:47 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc5-mm2
-Message-ID: <20060602194947.GA1214@elte.hu>
-References: <20060601014806.e86b3cc0.akpm@osdl.org> <20060602120952.615cea39@localhost> <20060602111053.GA22306@elte.hu> <20060602111704.GA22841@elte.hu> <20060602133403.4eed2de7@localhost> <20060602141349.GA8974@elte.hu> <20060602164624.22ba617e@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060602164624.22ba617e@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 2 Jun 2006 15:52:16 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:43728 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932551AbWFBTwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:52:13 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Fri, 2 Jun 2006 21:50:31 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2.6.17-rc5-mm2 04/18] Semaphore to mutex conversion.
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Jody McIntyre <scjody@modernduck.com>,
+       Ben Collins <bcollins@ubuntu.com>
+In-Reply-To: <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
+Message-ID: <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
+References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
+ <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
+ <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
+ <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (-0.036) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Arjan van de Ven <arjan@infradead.org>
 
-* Paolo Ornati <ornati@fastwebnet.it> wrote:
+Semaphore to mutex conversion.
 
-> On Fri, 2 Jun 2006 16:13:49 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > please try my latest lockdep-combo patch:
-> > 
-> >   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm2.patch
-> > 
-> > ontop of vanilla -mm2. The combo patch includes all current -mm2 
-> > hotfixes plus all current lockdep fixes.
-> 
-> It gives me an Oops: "NULL pointer dereference at 
-> kmem_cache_alloc+0x23/0x7b" and than a panic (attemp to kill idle 
-> task).
+The conversion was generated via scripts, and the result was validated
+automatically via a script as well.
 
-ok, this was yet another slab.c early init assumption ...
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Cc: Ben Collins <bcollins@debian.org>
+Cc: Jody McIntyre <scjody@modernduck.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-could try the latest combo patch at:
+Index: linux-2.6.17-rc5-mm2/drivers/ieee1394/hosts.c
+===================================================================
+--- linux-2.6.17-rc5-mm2.orig/drivers/ieee1394/hosts.c	2006-06-01 20:55:05.000000000 +0200
++++ linux-2.6.17-rc5-mm2/drivers/ieee1394/hosts.c	2006-06-01 20:55:40.000000000 +0200
+@@ -19,6 +19,7 @@
+ #include <linux/pci.h>
+ #include <linux/timer.h>
+ #include <linux/jiffies.h>
++#include <linux/mutex.h>
+ 
+ #include "csr1212.h"
+ #include "ieee1394.h"
+@@ -105,7 +106,7 @@ static int alloc_hostnum_cb(struct hpsb_
+  * Return Value: a pointer to the &hpsb_host if succesful, %NULL if
+  * no memory was available.
+  */
+-static DECLARE_MUTEX(host_num_alloc);
++static DEFINE_MUTEX(host_num_alloc);
+ 
+ struct hpsb_host *hpsb_alloc_host(struct hpsb_host_driver *drv, size_t extra,
+ 				  struct device *dev)
+@@ -148,7 +149,7 @@ struct hpsb_host *hpsb_alloc_host(struct
+ 	h->topology_map = h->csr.topology_map + 3;
+ 	h->speed_map = (u8 *)(h->csr.speed_map + 2);
+ 
+-	down(&host_num_alloc);
++	mutex_lock(&host_num_alloc);
+ 
+ 	while (nodemgr_for_each_host(&hostnum, alloc_hostnum_cb))
+ 		hostnum++;
+@@ -167,7 +168,7 @@ struct hpsb_host *hpsb_alloc_host(struct
+ 	class_device_register(&h->class_dev);
+ 	get_device(&h->device);
+ 
+-	up(&host_num_alloc);
++	mutex_unlock(&host_num_alloc);
+ 
+ 	return h;
+ }
 
-  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm2.patch
 
-does this one finally boot for you?
-
-	Ingo

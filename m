@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWFBCjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWFBClq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWFBCjt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 22:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFBCjs
+	id S1751150AbWFBClq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 22:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWFBClp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 22:39:48 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:8113 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751041AbWFBCjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 22:39:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pwOE27r1rHkeGYodKCscr2Hn3qK23CVH2A/2Hqw+WCxhO2qS/nRnCeCJbIEU8LemA4qqACmm7bCTf/90abrEmgYJA+J96XFOeR5+J0AYcid72fq1LTnBj/qpMFkc64VzShDV9dA428CusIDbTgQMnCX+FI/hBBFDVW07zQTVs7c=  ;
-Message-ID: <447FA4E9.9040000@yahoo.com.au>
-Date: Fri, 02 Jun 2006 12:39:37 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [rfc][patch] remove racy sync_page?
-References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au> <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <447DAEDE.5070305@yahoo.com.au> <Pine.LNX.4.64.0605310809250.24646@g5.osdl.org> <447DB765.6030702@yahoo.com.au> <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org> <447DC22C.5070503@yahoo.com.au> <447DC2CC.5060900@yahoo.com.au> <Pine.LNX.4.64.0605310940090.24646@g5.osdl.org> <447FA3B3.7080407@yahoo.com.au>
-In-Reply-To: <447FA3B3.7080407@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jun 2006 22:41:45 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:30898 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751150AbWFBClp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 22:41:45 -0400
+Date: Thu, 01 Jun 2006 20:39:41 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [linux-usb-devel] Re: USB devices fail unnecessarily on unpowered
+ hubs
+In-reply-to: <6j5oR-7Sw-11@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: David Liontooth <liontooth@cogweb.net>
+Message-id: <447FA4ED.8070204@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <6iS8y-35Z-5@gated-at.bofh.it> <6iWP5-2gj-71@gated-at.bofh.it>
+ <6iYxg-53W-29@gated-at.bofh.it> <6j5oR-7Sw-11@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Linus Torvalds wrote:
+David Liontooth wrote:
+> It's clearly a good thing to be testing for this. As Alan points out,
+> 100mA is the maximum permitted pre-configuration draw, so what a device
+> draws when plugged in is not informative.
 > 
->>
->> On Thu, 1 Jun 2006, Nick Piggin wrote:
->>
->>> If this wasn't clear: I don't mean per-task plugs as in "the task
->>> explicitly plugs and unplugs the block device"[*]; I mean really
->>> per-task plugs.
->>
->>
->>
->> That would be insane. It would mean that you'd have to unplug whether you 
+> However, obeying the USB power rules is not an end in itself -- the
+> relevant question is the minimum power the device requires to operate
+> correctly and without damage.
 > 
-> 
-> I don't think it is.
-> 
->> wanted to or not. Ie you've now made "sys_readahead()" impossible to 
->> do well, and doing read-ahead across multiple files.
-> 
-> 
-> Now it is you who are ignoring what I've been saying. I've been saying
-> that I don't think your sys_readahead examples have had much to do with
-> plugging:
-> 
-> 1. If there are no other requests to seek to, plugging doesn't matter;
-> 2. If there are other requests to seek to, the queue won't be plugged
->    or will soon become unplugged anyway. So the current system isn't
->    somehow going to do the right thing every time and be immune to
->    seeking.
+> The MaxPower value does not appear to be a reliable index of this. My
+> USB stick has a MaxPower value of 178mA and works flawlessly off an
+> unpowered hub. Unfortunately devices don't seem to tell us what their
+> minimum power requirements are, so we need more flexibility in writing
+> rules for this.
 
-Lastly, an app can still issue multiple sys_readaheads and still get
-seek protection -- it isn't like disks have suddenly got faster than
-CPUs overnight.
+The fact it appears to work on an unpowered hub doesn't mean anything. 
+Why would the manufacturer specify it can consume 178 mA if it couldn't 
+consume that much under some conditions? Have you measured it? What 
+makes you think that the hub can supply that much power on all ports at 
+the same time despite not being specified to do so?
 
-as-iosched.c can handle the case where a request goes out to disk, and
-later a new one comes in nearby (deadline IIRC isn't good at this
-unfortunately, nor does it seek backwards)
+Trying to say "Well, it says it needs this much, but it probably doesn't 
+really NEED that much.." is an unreliable guessing game.
 
-OTOH, if you're using as-iosched.c, you explicitly get a good amount of
-seek protection anyway.
+> 
+> udev could surely pick up on the MaxPower value and tolerate up to a
+> 100% underrun on USB flash drives. That would likely still 90% of the
+> pain right there, maybe all of it.
+> 
+> What are the reasons not to do this? What happens if a USB stick is
+> underpowered to one unit? Nothing? Slower transmission? Data loss? Flash
+> memory destruction? If it's just speed, it's a price well worth paying.
+
+If the device can't get enough power, all kinds of bad stuff can happen. 
+  This is the reason why USB power budgeting is part of the standard in 
+the first place. The kernel has no business ignoring such restrictions, 
+not without a clearly-marked-as-dangerous user choice.
+
+> This is a great opportunity for a small exercise in empathy, utilizing
+> that little long-neglected mirror neuron. Thousands of USB sticks
+> inexplicably go dead in people's familiar hubs on keyboards and desks;
+> Linux kernel coders dream sweet dreams of not violating USB power rules.
+> I appreciate Andrew's support for a real-worldly solution.
+
+Keep in mind that Windows will not permit the USB device to work in such 
+configurations either. Windows always did the right thing here. Linux 
+did not do the right thing before, and now it does.
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

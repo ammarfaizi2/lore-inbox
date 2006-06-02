@@ -1,71 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWFBJGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWFBJHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWFBJGh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWFBJGh
+	id S1751347AbWFBJHH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 05:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWFBJHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:06:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6558 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751345AbWFBJGg (ORCPT
+	Fri, 2 Jun 2006 05:07:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4769 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751347AbWFBJHF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:06:36 -0400
-Date: Fri, 2 Jun 2006 11:05:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Dave Airlie <airlied@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
-       David Lang <dlang@digitalinsight.com>,
-       Ondrej Zajicek <santiago@mail.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060602090540.GD25806@elf.ucw.cz>
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com> <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz> <200606011603.57421.dhazelton@enter.net> <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com> <21d7e9970606011614x5b4d3a3t9608971a714f8c77@mail.gmail.com> <9e4733910606011638s587fff33lbfe46f6a2817245b@mail.gmail.com> <21d7e9970606011647l11a780d3h816fee2cc01e72a9@mail.gmail.com> <9e4733910606011745n7277ca57vf8d32dfed9da2c4e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9e4733910606011745n7277ca57vf8d32dfed9da2c4e@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 2 Jun 2006 05:07:05 -0400
+Date: Fri, 2 Jun 2006 02:11:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
+Message-Id: <20060602021115.e42ad5dd.akpm@osdl.org>
+In-Reply-To: <20060602084327.GA3964@suse.de>
+References: <20060529214011.GA417@suse.de>
+	<20060530182453.GA8701@suse.de>
+	<20060601184938.GA31376@suse.de>
+	<20060601121200.457c0335.akpm@osdl.org>
+	<20060601201050.GA32221@suse.de>
+	<20060601142400.1352f903.akpm@osdl.org>
+	<20060601214158.GA438@suse.de>
+	<20060601145747.274df976.akpm@osdl.org>
+	<20060602084327.GA3964@suse.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 01-06-06 20:45:20, Jon Smirl wrote:
-> On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
-> >We can stop the OOM killer from killing the daemon if necessary.
-> >running device drivers in userspace would sort of require this, we can
-> >run the daemon from init and if it dies, have it respawn, it could put
-> >persistent info in a shared memory segment provided by the DRM, just
-> >because you can't think of any way around things, doesn't mean the
-> >rest of us can't..
-> >
-> >a /dev/ with permissions is no more or less useful than a
-> >/tmp/.grphs_socket1 and 2
-> >with permissions,
+On Fri, 2 Jun 2006 10:43:27 +0200
+Olaf Hering <olh@suse.de> wrote:
+
+>  On Thu, Jun 01, Andrew Morton wrote:
 > 
-> /dev/devices have a standard system design in the kernel with h files
-> and ioctls. Why create a new communication protocol when a standard
-> one exists? How is a printk generated in the kernel going to find this
-> socket and get the printk message into it?
 > 
-> You have a panic in an interrupt handler. User space is messed up
-> because of wild pointer writes in the kernel. Your display process has
-> been swapped out. How are you going to display the panic message?
+> > > Do you want it like that?
+> > > 
+> > > lock_page(page);
+> > > if (PageUptodate(page)) {
+> > >         SetPageDirty(page);
+> > >         mb();
+> > >         return page;
+> > > }
+> > 
+> > Not really ;)  It's hacky.  It'd be better to take a lock.
+> 
+> Which lock exactly?
 
-Well, daemon vs. standalone binaries make no difference here.
+Ah, sorry, there isn't such a lock.  I was just carrying on.
 
-> How does a process protected from the OOM killer that is also pinned
-> into memory differ from just being part of the kernel? Is creating a
-> process like this and building a communication system worth it just to
-> get address space separation?
+> I'm not sure how to proceed from here.
 
-Yes, certainly it is worth it. And remember you'd have to protect your
-small helpers, too, OOM can happen there.
+I'd suggest you run SetPagePrivate() and SetPageChecked() on the locked
+page and implement a_ops.releasepage(), which will fail if PageChecked(),
+and will succeed otherwise:
 
-Daemon is the way to go, sorry.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+/*
+ * cramfs_releasepage() will fail if cramfs_read() set PG_checked.  This
+ * is so that invalidate_inode_pages() cannot zap the page while
+ * cramfs_read() is trying to get at its contents.
+ */
+cramfs_releasepage(...)
+{
+	if (PageChecked(page))
+		return 0;
+	return 1;
+}
+
+
+cramfs_read(...)
+{
+	lock_page(page);
+	SetPagePrivate(page);
+	SetPageChecked(page);
+	read_mapping_page(...);
+	lock_page(page);
+	if (page->mapping == NULL) {
+		/* truncate got there first */
+		unlock_page(page);
+		bale();
+	}
+	memcpy();
+	ClearPageChecked(page);
+	ClearPagePrivate(page);
+	unlock_page(page);
+}
+
+PG_checked is a filesystem-private flag.  It'll soon be renamed to
+PG_fs_misc.
+

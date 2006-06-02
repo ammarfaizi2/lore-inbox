@@ -1,102 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWFBHh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWFBHjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWFBHh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 03:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWFBHh7
+	id S1751269AbWFBHjt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWFBHjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 03:37:59 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:590 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751269AbWFBHh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 03:37:59 -0400
+	Fri, 2 Jun 2006 03:39:49 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:58424 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751269AbWFBHjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 03:39:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Mp3Bv1zk3pNcOhqQVjbqHWhyRrX/xnNiuUE5OXnLlA5nRZAyIlQeRlIvDrh1ewA0tbqgla3EzAHg6y5hIhEOa1GoYyhh3N1E8XIz/J2DEo86xyzIQI6CDXg7ZBB+leJieeEiBPckGBNknrpkJHOxa1YnEcKFsu6551MercWlxSU=
-Message-ID: <8bf247760606020037x7eedab52qa9c736bdba740cb8@mail.gmail.com>
-Date: Fri, 2 Jun 2006 00:37:58 -0700
-From: Ram <vshrirama@gmail.com>
-To: "Paulo Marques" <pmarques@grupopie.com>
-Subject: Re: printk's - i dont want any limit howto?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <447EEDCB.1070002@grupopie.com>
+        b=HAbKWvUjcTbnFmGKQ0q+PY7e18zP9xdsfH9ihO9yKxXAGaI3SdiXqCb/ajDljn8Rq0bUz2AyV9rR4ZSE4NCy7xpjYcb4qWb1RcgSkpyFaBbsmYw1MDdtX5EAzqUtJ+3vNLLNfsavbDNpvltxduipWxO8tdvGU8ZVIiPMHVYTS7g=
+Message-ID: <21d7e9970606020039s8d2d68fq69988b6b6488722b@mail.gmail.com>
+Date: Fri, 2 Jun 2006 17:39:44 +1000
+From: "Dave Airlie" <airlied@gmail.com>
+To: "Abu M. Muttalib" <abum@aftek.com>
+Subject: Re: Page Allocation Failure, Why?? Bug in kernel??
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       "Paulo Marques" <pmarques@grupopie.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <BKEKJNIHLJDCFGDBOHGMEEJNCNAA.abum@aftek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <8bf247760606010025p38131240ia133cc3124f93bf7@mail.gmail.com>
-	 <447EEDCB.1070002@grupopie.com>
+References: <9a8748490606020005n841abafjc7e05a5e2ab8a312@mail.gmail.com>
+	 <BKEKJNIHLJDCFGDBOHGMEEJNCNAA.abum@aftek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  Actually even though the printks are getting executed.
+Fragmentation.
 
-  ONLY some appear. I have given both KERN_ERR and KERN_DEBUG
+you have 32-pages scattered around the place, they are not in the one
+place, you are asking for 32-contiguous pages, you cannot get this as
+the memory is fragmented.
 
+you should really never try allocating that many contiguous pages.
 
-   Its not the log level problem. probably the buffer or something else.
-   am not sure on that.
+Dave.
 
-   i have given printk_ratelimit_burst= 1000 ; printk_ratelimit_jiffies = 0 ;
-
-
-   but it does not work.
-
-
-   Please Advice,
-
-
-   Regards,
-   sriram
-
-On 6/1/06, Paulo Marques <pmarques@grupopie.com> wrote:
-> Ram wrote:
-> > Hi,
->
+On 6/2/06, Abu M. Muttalib <abum@aftek.com> wrote:
 > Hi,
 >
-> >  I have a driver full of printks. i am trying to understand the way
-> > the driver functions using printks
+> I repeat my question, the required no of pages are available, as shown in
+> the dump produced by kernel, the request is not fulfilled. Its as follows:
+>
+> DMA: 106*4kB 11*8kB 5*16kB 3*32kB 2*64kB 1*128kB 0*256kB 0*512kB 0*1024kB =
+> 944kB
+>
+> Why this is so??
+>
+> ~Abu.
+>
+> -----Original Message-----
+> From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
+> Sent: Friday, June 02, 2006 12:36 PM
+> To: Abu M. Muttalib
+> Cc: Martin J. Bligh; Paulo Marques; linux-kernel@vger.kernel.org
+> Subject: Re: Page Allocation Failure, Why?? Bug in kernel??
+>
+>
+> On 02/06/06, Abu M. Muttalib <abum@aftek.com> wrote:
+> > Hi,
 > >
-> >  So, i have a situation where i want all the printk's to be printed
-> > come whatever.
->
-> That is the normal behavior.
->
-> >   I dont want any rate limiting or anything else that prevents from
-> > my printks from appearing on the screen or dmesg.
+> > That's precisely I want to say. The PAGES are available but they are not
+> > allocated to process. Why??
 > >
-> > Its really confusing when only one of your printks appear and some
-> > just dont appear even though you expect them to appear.
-> >
-> >  Is there any way to make all the printks to appear come what may?.
-> > If so, how do  i do it?.
-> >
-> >  Went through the printk.c am not sure setting the
-> > printk_ratelimit_jiffies = 0 and printk_ratelimit_burst= 1000 will do?
-> >
-> >  am not sure if printk_ratelimit_jiffies = 0 is valid.
->
-> These are just used by "printk_ratelimit()" in constructs such as:
->
-> if (printk_ratelimit())
->          printk(KERN_INFO "some message that may appear very often");
->
-> If you simply use printk, there should be no rate limiting.
->
-> > please advice.
->
-> I would say your printk's are not getting called at all or the log level
-> of the messages is not sufficient for them to appear on the console or
-> on the log. See Documentation/filesystems/proc.txt ->
-> proc/sys/kernel/printk and syslog(2) for more documentation on this.
->
-> I hope this helps,
+> There may be 32 pages available in total, but not 32 contiguous ones -
+> that's a *lot* of contiguous pages to ask for in kernel space - 128KB
+> (assuming a 4096 byte page size).
 >
 > --
-> Paulo Marques - www.grupopie.com
+> Jesper Juhl <jesper.juhl@gmail.com>
+> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+> Plain text mails only, please      http://www.expita.com/nomime.html
 >
-> Pointy-Haired Boss: I don't see anything that could stand in our way.
->             Dilbert: Sanity? Reality? The laws of physics?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >

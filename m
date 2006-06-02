@@ -1,141 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWFBCSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWFBCVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWFBCSS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 22:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWFBCSS
+	id S1751136AbWFBCVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 22:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWFBCVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 22:18:18 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:53099 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751098AbWFBCSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 22:18:18 -0400
+	Thu, 1 Jun 2006 22:21:43 -0400
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:19809 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751136AbWFBCVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 22:21:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CTco/SY5Ed3Le81S0bPwuLveF3aODoIk5Lg8aqRAZVwXavSN1wvwCrV3+ccwP9hHYPH4u/kGul8wR99A+wxkVkyyCis2eRxG3Zivie13odAIJNlP9S9QQTHDKtHP4WUXDIrkkAFhUTmklhGv6ZdAuYOQJyl9G9V1gD05opHy2GQ=
-Message-ID: <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
-Date: Thu, 1 Jun 2006 22:18:07 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Dave Airlie" <airlied@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Ondrej Zajicek" <santiago@mail.cz>, "D. Hazelton" <dhazelton@enter.net>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2gu4TPnRmMBz3ZCap5ij0VJR5GctPJ/JO7zaMbFN779XVj03mrfu7PJCOg5qGpdKCGHm9zPfPbuat9YnBXRnENYkWZihLCuFvWwLC7IUfESy+ysXVEbI57gmthc/oV4ouXstPiqkPK2Sb3Ff1o7fSWdVCqLc4u39IEWedoGdkLw=  ;
+Message-ID: <447FA0AE.9050002@yahoo.com.au>
+Date: Fri, 02 Jun 2006 12:21:34 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [rfc][patch] remove racy sync_page?
+References: <447AC011.8050708@yahoo.com.au> <20060529121556.349863b8.akpm@osdl.org> <447B8CE6.5000208@yahoo.com.au> <20060529183201.0e8173bc.akpm@osdl.org> <447BB3FD.1070707@yahoo.com.au> <Pine.LNX.4.64.0605292117310.5623@g5.osdl.org> <447BD31E.7000503@yahoo.com.au> <447BD63D.2080900@yahoo.com.au> <Pine.LNX.4.64.0605301041200.5623@g5.osdl.org> <447CE43A.6030700@yahoo.com.au> <Pine.LNX.4.64.0605301739030.24646@g5.osdl.org> <447D9A41.8040601@yahoo.com.au> <Pine.LNX.4.64.0605310740530.24646@g5.osdl.org> <447DAEDE.5070305@yahoo.com.au> <Pine.LNX.4.64.0605310809250.24646@g5.osdl.org> <447DB765.6030702@yahoo.com.au> <Pine.LNX.4.64.0605310840000.24646@g5.osdl.org> <447DC22C.5070503@yahoo.com.au> <Pine.LNX.4.64.0605310937170.24646@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0605310937170.24646@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200605302314.25957.dhazelton@enter.net>
-	 <9e4733910605302116s5a47f5a3kf0f941980ff17e8@mail.gmail.com>
-	 <200605310026.01610.dhazelton@enter.net>
-	 <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com>
-	 <20060601092807.GA7111@localhost.localdomain>
-	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-	 <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
-> > Without specifying a design here are a few requirements I would have:
-> >
-> > 1) The kernel subsystem should be agnostic of the display server. The
-> > solution should not be X specific. Any display system should be able
-> > to use it, SDL, Y Windows, Fresco, etc...
->
-> of course, but that doesn't mean it can't re-use X's code, they are
-> the best drivers we have. you forget everytime that the kernel fbdev
-> drivers aren't even close, I mean not by a long long way apart from
-> maybe radeon.
+Linus Torvalds wrote:
+> 
+> On Thu, 1 Jun 2006, Nick Piggin wrote:
+> 
+>>I keep telling you. Put the unplug after submission of IO. Not before
+>>waiting for IO.
+> 
+> 
+> And that's exactly where we have the lock_page().
 
-This requirement means that stuff like mode setting has to be broken
-out into an independent library. For example it would not be ok to say
-that Fresco has to install X to get mode setting. No comment was made
-on where the code comes from, you are reading in something that isn't
-in the requirement.. I am aware that X has the best mode setting code
-and it would be foolish to ignore it.
+In some cases.
 
-Both you and I both know what a pain it is to extract this type of
-code from X. Let's not repeat X's problems in this area. Let's make
-the new library standalone and easy to work with in any environment.
-No all encompassing typedef systems this time.
+> 
+> And you ignored the list of _requirements_ I had, so you just missed the 
+> other place you _have_ to have the unplug, namely in the "found a page 
+> that was not yet up-to-date" case (look for the other lock_page()). 
 
-> > 2) State inside the hardware is maintained by a single driver. No
-> > hooks for state swapping (ie, save your state, now I'll load mine,
-> > ...).
->
-> We still have to do state swapping, we just don't expose it,
-> suspend/resume places state swapping as a requirement.
+I know you have to unplug there. I didn't ignore anything. Where is
+the problem?
 
-I don't consider suspend/resume state swapping, it is state save and
-restore. The same state is loaded back in.
+> Because the person who started the IO might be off doing something else, 
+> and may not be unplugging now (or ever, in the case of readahead).
+> 
+> In other words, when you start arguing, at least read my emails. Your 
+> suggestion would have introduced a bug by not waiting on that other place.
 
-Other than suspend/resume why would the driver need to do state swapping?
-
-> > 9) there needs to be a way to control the mode on each head, merged fb
-> > should also work. Monitor hotplug should work. Video card hot plug
-> > should work. These should all work for console and the display
-> > servers.
->
-> Of course, have you got drivers for these written? this is mostly in
-> the realms of the driver developer, the modesetting API is going to
-> have to deal with all these concepts.
-
-This needs to be considered in the design stage. For example, if both
-heads are mapped through a single device node they can't be
-independently controlled by two different user IDs. We need to make
-sure we leave the path open to building this.
-
-
-> > 10) Console support for complex scripts should get consideration.
->
-> not really necessary.. nor should it be... fbset works, something like
-> it would be good enough..
-
-I meant support for Korean, Chinese, etc. You can't draw some of the
-complex scripts without using something like Pango. Do we want to
-build a system where people can use console in their native language?
-You can use these languages from xterm but not console today. I have
-no strong opinion on this point other that I believe it should be
-discussed and input from non-English speakers should be considered. No
-one on this list has a problem with this area since we all speak
-English.
-
-> 14) backwards compatible, an old X server should still run on a new
-> kernel. I will allow for new options to be enabled at run-time so that
-> this isn't possible, but just booting a kernel and starting X should
-> work.
-
-I'm not sure we want to continue supporting every X server released in
-the last 25 years. But we should definitely support any X server
-released in a 2.6 based kernel distribution. What are reasonable
-limits?
-
-> 15) re-use as much of the X drivers as possible, otherwise it will KGI.
-
-I would broaden this to use the best code where ever it is found. Of
-course X is a major source.
-
-> 16) secure - no direct IO or MMIO access, modesetting is slow anyways
-> having the kernel checking the mmio access won't make it much slower.
-
-This needs some expansion. Secure is good, but it's not clear what you
-are requiring with this point.
-
-For me security means reducing the privileged code to an absolute
-minimum and then inspecting it closely to make sure there are no
-holes. Everything that is passed in needs to be checked and regarded
-with suspicion. But you can go too far with the reduction, if you
-provide a generic IOCTL to poke an IO port with an arbitrary value you
-now have to verify that it is safe to pass in every possible value.
-Instead if the IOCTL implements a specific function that pokes the
-port with a single fixed value it is easier to say that it is secure.
+No. I'm saying the "person" who started IO _could_ be the one unplugging.
+Always.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

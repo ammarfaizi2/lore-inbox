@@ -1,141 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWFBIbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWFBIh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWFBIbY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 04:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWFBIbY
+	id S1751336AbWFBIh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 04:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWFBIh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 04:31:24 -0400
-Received: from mga01.intel.com ([192.55.52.88]:10893 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751323AbWFBIbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 04:31:23 -0400
-X-IronPort-AV: i="4.05,202,1146466800"; 
-   d="scan'208"; a="45890096:sNHT25014465"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>
-Cc: "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
-Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 01:31:23 -0700
-Message-ID: <000101c6861e$eeb46b20$0b4ce984@amr.corp.intel.com>
+	Fri, 2 Jun 2006 04:37:59 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:29131 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751336AbWFBIh6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 04:37:58 -0400
+Message-ID: <447FF7BB.9000104@in.ibm.com>
+Date: Fri, 02 Jun 2006 14:02:59 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Peter Williams <peterw@aurema.com>
+Cc: sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>, dev@openvz.org,
+       Srivatsa <vatsa@in.ibm.com>, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au>	<447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com>	<447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra>	<447F77A4.3000102@bigpond.net.au>	<1149213759.10377.7.camel@linuxchandra> <447FAEB0.3060103@aurema.com>
+In-Reply-To: <447FAEB0.3060103@aurema.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaF+GieWKnv9uneRk+Hdw+4ab8WGAAJbB3Q
-In-Reply-To: <200606021355.23671.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Thursday, June 01, 2006 8:55 PM
-> On Friday 02 June 2006 12:28, Con Kolivas wrote:
-> > Actually looking even further, we only introduced the extra lookup of the
-> > next task when we started unlocking the runqueue in schedule(). Since we
-> > can get by without locking this_rq in schedule with this approach we can
-> > simplify dependent_sleeper even further by doing the dependent sleeper
-> > check after we have discovered what next is in schedule and avoid looking
-> > it up twice. I'll hack something up to do that soon.
+Peter Williams wrote:
+<snip>
+
+>>>
+>>>But you don't need something as complex as CKRM either.  This capping
+>>
+>>All CKRM^W Resource Groups does is to group unrelated/related tasks to a
+>>group and apply resource limits. 
+>>
+>>
+>>> 
+>>>functionality coupled with (the lamented) PAGG patches (should have been 
+>>>called TAGG for "task aggregation" instead of PAGG for "process 
+>>>aggregation") would allow you to implement a kernel module that could 
+>>>apply caps to arbitrary groups of tasks.
+>>
+>>I do not follow how PAGG + this cap feature can be used to put cap of
+>>related/unrelated tasks. Can you provide little more explanation,
+>>please.
 > 
-> Something like this (sorry I couldn't help but keep hacking on it).
-> ---
-> It is not critical to functioning that dependent_sleeper() succeeds every
-> time. We can significantly reduce the locking overhead and contention of
-> dependent_sleeper by only doing trylock on the smt sibling runqueues. As
-> we're only doing trylock it means we do not need to observe the normal
-> locking order and we can get away without unlocking this_rq in schedule().
-> This provides us with an opportunity to simplify the code further.
+> 
+> I would have thought it was fairly obvious.  PAGG supplies the task 
+> aggregation mechanism, these patches provide per task caps and all 
+> that's needed is the code that marries the two.
+> 
+
+The problem is that with per-task caps, if I have a resource group A
+and I want to limit it to 10%, I need to limit each task in resource
+group A to 10% (which makes resource groups not so useful). Is my
+understanding correct? Is there a way to distribute the group limit
+across tasks in the resource group?
+
+> 
+>>Also, i do not think it can provide guarantees to that group of tasks.
+>>can it ?
+> 
+> 
+> It could do that by manipulating nice which is already available in the 
+> kernel.
+> 
+> I.e. these patches plus improved statistics (which are coming, I hope) 
+> together with the existing policy controls provide all that is necessary 
+> to do comprehensive CPU resource control.  If there is an efficient way 
+> to get the statistics out to user space (also coming, I hope) this 
+> control could be exercised from user space.
+
+Could you please provide me with a link to the new improved statistics.
+What do the new statistics contain - any heads up on them?
+
+> 
+> Peter
 
 
-The code in wake_sleeping_dependent() is also quite wacky: it unlocks
-current runqueue, then re-acquires ALL the sibling runqueue lock, only
-to call wakeup_busy_runqueue() against the smt sibling runqueue other
-than itself.  AFAICT, wakeup_busy_runqueue() does not require *ALL*
-sibling lock to be held.
+-- 
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
---- ./kernel/sched.c.orig	2006-06-02 01:57:28.000000000 -0700
-+++ ./kernel/sched.c	2006-06-02 02:19:37.000000000 -0700
-@@ -2712,44 +2712,32 @@ static inline void wakeup_busy_runqueue(
- 		resched_task(rq->idle);
- }
- 
--static void wake_sleeping_dependent(int this_cpu, runqueue_t *this_rq)
-+static void wake_sleeping_dependent(int this_cpu)
- {
- 	struct sched_domain *tmp, *sd = NULL;
--	cpumask_t sibling_map;
- 	int i;
- 
- 	for_each_domain(this_cpu, tmp)
--		if (tmp->flags & SD_SHARE_CPUPOWER)
-+		if (tmp->flags & SD_SHARE_CPUPOWER) {
- 			sd = tmp;
-+			break;
-+		}
- 
- 	if (!sd)
- 		return;
- 
--	/*
--	 * Unlock the current runqueue because we have to lock in
--	 * CPU order to avoid deadlocks. Caller knows that we might
--	 * unlock. We keep IRQs disabled.
--	 */
--	spin_unlock(&this_rq->lock);
--
--	sibling_map = sd->span;
--
--	for_each_cpu_mask(i, sibling_map)
--		spin_lock(&cpu_rq(i)->lock);
--	/*
--	 * We clear this CPU from the mask. This both simplifies the
--	 * inner loop and keps this_rq locked when we exit:
--	 */
--	cpu_clear(this_cpu, sibling_map);
-+	for_each_cpu_mask(i, sd->span) {
-+		runqueue_t *smt_rq;
- 
--	for_each_cpu_mask(i, sibling_map) {
--		runqueue_t *smt_rq = cpu_rq(i);
-+		if (i == this_cpu)
-+			continue;
- 
-+		smt_rq = cpu_rq(i);
-+		spin_lock(&smt_rq->lock);
- 		wakeup_busy_runqueue(smt_rq);
-+		spin_unlock(&smt_rq->lock);
- 	}
- 
--	for_each_cpu_mask(i, sibling_map)
--		spin_unlock(&cpu_rq(i)->lock);
- 	/*
- 	 * We exit with this_cpu's rq still held and IRQs
- 	 * still disabled:
-@@ -2857,7 +2845,7 @@ check_smt_task:
- 	return ret;
- }
- #else
--static inline void wake_sleeping_dependent(int this_cpu, runqueue_t *this_rq)
-+static inline void wake_sleeping_dependent(int this_cpu)
- {
- }
- 
-@@ -2988,14 +2976,8 @@ need_resched_nonpreemptible:
- 		if (!rq->nr_running) {
- 			next = rq->idle;
- 			rq->expired_timestamp = 0;
--			wake_sleeping_dependent(cpu, rq);
--			/*
--			 * wake_sleeping_dependent() might have released
--			 * the runqueue, so break out if we got new
--			 * tasks meanwhile:
--			 */
--			if (!rq->nr_running)
--				goto switch_tasks;
-+			wake_sleeping_dependent(cpu);
-+			goto switch_tasks;
- 		}
- 	}
- 
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

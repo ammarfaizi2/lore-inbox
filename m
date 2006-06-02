@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWFBKTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFBKaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWFBKTt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 06:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWFBKTt
+	id S1751386AbWFBKaj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 06:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWFBKaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 06:19:49 -0400
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:46263 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751303AbWFBKTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 06:19:48 -0400
+	Fri, 2 Jun 2006 06:30:39 -0400
+Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:26073 "EHLO
+	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751386AbWFBKaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 06:30:39 -0400
 From: Con Kolivas <kernel@kolivas.org>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
 Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 20:19:28 +1000
+Date: Fri, 2 Jun 2006 20:30:11 +1000
 User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
        "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
-References: <000101c685d7$1bc84390$d234030a@amr.corp.intel.com> <200606021817.46745.kernel@kolivas.org> <447FF6B8.1000700@yahoo.com.au>
-In-Reply-To: <447FF6B8.1000700@yahoo.com.au>
+References: <000201c6861f$6a2d4e20$0b4ce984@amr.corp.intel.com> <447FFD35.9020909@yahoo.com.au>
+In-Reply-To: <447FFD35.9020909@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606022019.29023.kernel@kolivas.org>
+Message-Id: <200606022030.11481.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 18:28, Nick Piggin wrote:
-> Con Kolivas wrote:
-> > On Friday 02 June 2006 17:53, Nick Piggin wrote:
-> >>This is a small micro-optimisation / cleanup we can do after
-> >>smtnice gets converted to use trylocks. Might result in a little
-> >>less cacheline footprint in some cases.
-> >
-> > It's only dependent_sleeper that is being converted in these patches. The
-> > wake_sleeping_dependent component still locks all runqueues and needs to
+On Friday 02 June 2006 18:56, Nick Piggin wrote:
+> Chen, Kenneth W wrote:
+> > Ha, you beat me by one minute. It did cross my mind to use try lock there
+> > as well, take a look at my version, I think I have a better inner loop.
 >
-> Oh I missed that.
+> Actually you *have* to use trylocks I think, because the current runqueue
+> is already locked.
 >
-> > succeed in order to ensure a task doesn't keep sleeping indefinitely.
-> > That
->
-> Let's make it use trylocks as well. wake_priority_sleeper should ensure
-> things don't sleep forever I think? We should be optimising for the most
-> common case, and in many workloads, the runqueue does go idle frequently.
+> And why do we lock all siblings in the other case, for that matter? (not
+> that it makes much difference except on niagara today).
 
-wake_priority_sleeper is only called per tick which can be 10ms at 100HZ. I 
-don't think that's fast enough. It could even be possible for a lower 
-priority task to always just miss the wakeup if it's (very) unlucky.
+If we spinlock (and don't trylock as you're proposing) we'd have to do a 
+double rq lock for each sibling. I guess half the time double_rq_lock will 
+only be locking one runqueue... with 32 runqueues we either try to lock all 
+32 or lock 1.5 runqueues 32 times... ugh both are ugly.
+
+> Rolled up patch with everyone's changes attached.
+
+I'm still not sure that only doing trylock is adequate, and 
+wake_sleeping_dependent is only called when a runqueue falls idle in 
+schedule, not when it's busy so its cost (in my mind) is far less than 
+dependent_sleeper.
 
 -- 
 -ck

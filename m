@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWFBHjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWFBHhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWFBHjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 03:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWFBHjJ
+	id S1751275AbWFBHhP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWFBHhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 03:39:09 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:24482 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751222AbWFBHjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 03:39:07 -0400
-Message-ID: <447FE9F8.4060004@sw.ru>
-Date: Fri, 02 Jun 2006 11:34:16 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: sekharan@us.ibm.com
-CC: balbir@in.ibm.com, dev@openvz.org, Andrew Morton <akpm@osdl.org>,
-       Srivatsa <vatsa@in.ibm.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Sam Vilain <sam@vilain.net>, Con Kolivas <kernel@kolivas.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>
-In-Reply-To: <1149187413.13336.24.camel@linuxchandra>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 2 Jun 2006 03:37:15 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:43464
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751275AbWFBHhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 03:37:14 -0400
+Message-Id: <448006F6.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Fri, 02 Jun 2006 09:37:58 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: <jeff@garzik.org>, <htejun@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
+       <reuben-lkml@reub.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-rc5-mm2
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EB4AD.4060101@reub.net> <20060601025632.6683041e.akpm@osdl.org> <447EBD46.7010607@reub.net> <20060601103315.GA1865@elte.hu> <20060601105300.GA2985@elte.hu> <447EF7A8.76E4.0078.0@novell.com> <447FFCAC.76E4.0078.
+In-Reply-To: <447FFCAC.76E4.0078.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>- disk I/O bandwidth:
->>>we started to use CFQv2, but it is quite poor in this regard. First, it 
->>>doesn't prioritizes writes and async disk operations :( And even for 
->>>sync reads we found some problems we work on now...
+>firstly, i'd suggest to use another magic value for 'bottom of call 
+>stacks' - it is way too common to jump or call a NULL pointer. Something 
+>like 0xfedcba9876543210 would be better.
 
-> CKRM (on e-series) had an implementation based on a modified CFQ
-> scheduler. Shailabh is currently working on porting that controller to
-> f-series.
-can you explain what was changed by CKRM there? Did you made it to 
-control ASYNC read/writes? I don't think so...
-Do you have any plots on what is concurrent bandwidth is depending on 
-weights? Because, our measurements show that CFQ is not ideal and 
-behaves poorly when prio 0,5,6,7 are used :/ Only 1,2,3,4 are really 
-linear-scalable...
+That's contrary to common use (outside of the kernel). I'm opposed to this. Detecting an initial bad EIP isn't a
+problem, and the old code can be used easily in that case.
 
->>>3) memory and other resources.
->>>- memory
->>>- files
->>>- signals and so on and so on.
->>>For example, in OpenVZ we have user resource beancounters (original 
->>>author is Alan Cox), which account the following set of parameters:
->>>kernel memory (vmas, page tables, different structures etc.), dcache 
-> i started looking at UBC. They provide only max limits, not min
-> guarantees, right ?
-they provide also vmpages guarantees and guarantees against OOM killer. 
-(vmguarpages and oomguarpages) i.e. if container consumes less than X 
-pages it won't be killed by OOM killer. Only if there no any other 
-container to select. I.e. we have 2-level OOM.
+>for the RIP/EIP to get corrupted is a common occurance. So is stack 
+>corruption. So the fallback mechanism shouldnt be a 'short while' 
+>side-thought, it must be part of the design.
 
-Kirill
+RIP/EIP corruption, as said above, can be easily handled. RSP/ESP corruption, as I understand it, isn't being handled
+in the old code, and so I can't see what improvements the new code could do here (given that instruction and stack
+pointers serve as the anchors for kicking off an unwind).
+
+>In all other cases (if we go outside of the stack page(s)) we _must_ 
+>fall back to the dump 'scan the stack pages for interesting entries' 
+>method, to get the information out! "Uh oh the unwind info somehow got 
+>corrupted, sorry" is not enough to debug a kernel bug.
+
+Again, you miss the point that the very last unwind operation must always be expected to move the stack pointer outside
+the stack boundaries, which would mean triggering the fallback path in all cases. With this, we could as well leave out
+the entire unwind code and keep everyone of us manually do the separation of good and bad entries in the trace shown.
+
+Jan

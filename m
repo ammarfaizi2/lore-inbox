@@ -1,75 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWFBRgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWFBRhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWFBRgV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 13:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWFBRgV
+	id S1751333AbWFBRhe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 13:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWFBRhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 13:36:21 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:55751 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750813AbWFBRgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 13:36:20 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Fri, 2 Jun 2006 19:34:30 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.16.19] sbp2: backport read_capacity workaround for iPod
-To: stable@kernel.org
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <447DC82A.3000501@s5r6.in-berlin.de>
-Message-ID: <tkrat.26f002591ab59cf8@s5r6.in-berlin.de>
-References: <tkrat.b9bf60697156ef7b@s5r6.in-berlin.de>
- <20060530231917.GI18769@moss.sous-sol.org>
- <447DC82A.3000501@s5r6.in-berlin.de>
+	Fri, 2 Jun 2006 13:37:34 -0400
+Received: from mail.linicks.net ([217.204.244.146]:29362 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1751333AbWFBRhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 13:37:33 -0400
+From: Nick Warne <nick@linicks.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] 2.6.16.18 scripts/kconfig/mconf.c
+Date: Fri, 2 Jun 2006 18:37:06 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200606010628.08966.nick@linicks.net> <Pine.LNX.4.64.0606021608110.17704@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0606021608110.17704@scrub.home>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.887) AWL,BAYES_50
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606021837.06428.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sbp2: backport read_capacity workaround for iPod
+On Friday 02 June 2006 15:17, Roman Zippel wrote:
+> Hi,
 
-There is a firmware bug in several Apple iPods which prevents access to
-these iPods under certain conditions. The disk size reported by the iPod
-is one sector too big. Once access to the end of the disk is attempted,
-the iPod becomes inaccessible. This problem has been known for USB iPods
-for some time and has recently been discovered to exist with
-FireWire/USB combo iPods too.
+> Only choice symbols currently have no name, but there are otherwise normal
+> symbols, so there is need to just return here. This should look more like:
+>
+> 	if (sym->name)
+> 		str_printf(r, "Symbol: %s", sym->name);
+> 	else if (sym_is_choice(sym))
+> 		str_printf(r, "Choice:");
+> 	else
+> 		str_printf(r, "Weird symbol:");
+> 	str_printf(r, "[=%s]\n", sym_get_string_value(sym));
+>
+> That looks a little misformated, anyway, this should just be:
+>
+> 	if (sym->name)
+> 		str_printf(&help, "CONFIG_%s:\n\n", sym->name);
+>
+> 	str_append(&help, sym->help ? _(sym->help) : nohelp_text);
+> 	str_append(&help, "\n");
+> 	get_symbol_str(&help, sym);
+> 	show_helptext(menu_get_prompt(menu), str_get(&help));
+> 	str_free(&help);
+>
+> bye, Roman
 
-This patch is derived from the fix in Linux 2.6.17, commit
-e9a1c52c7b19d10342226c12f170d7ab644427e2, to be applicable to 2.6.16.x
-without prerequisite patches. It hard-wires a workaround for three known
-affected model numbers (those of 4th generation iPod, iPod Photo, iPod
-mini).
+Hi Roman,
 
-Note: This patch lacks Linux 2.6.17's ability to enable and disable the
-workaround via a module parameter.
+I see, thanks - that works good, but one little thing - menu expanders now 
+produce a funny line at the end e.g. from 'Processor type and features -> 
+memory model' help, the last line:
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-Index: linux/drivers/ieee1394/sbp2.c
-===================================================================
---- linux.orig/drivers/ieee1394/sbp2.c	2006-06-02 18:37:13.000000000 +0200
-+++ linux/drivers/ieee1394/sbp2.c	2006-06-02 19:10:05.000000000 +0200
-@@ -2491,9 +2491,20 @@ static int sbp2scsi_slave_alloc(struct s
+  Choice:[=y]
+    Prompt: Memory model
+    Defined at mm/Kconfig:5
+    Depends on: SELECT_MEMORY_MODEL
+         -> Processor type and features
+       Selected by: SELECT_MEMORY_MODEL && m
+
+I don't know what '&& m' means and it isn't selected by anything; I think it 
+is bogus... so I have added a line to stop the 'selected by' being used if 
+the 'help' option is on a 'menu expander -->'
+
+Nick
+
+
+
+signed-off-by: Nick Warne <nick@linicks.net>
+
+
+--- linux-current/scripts/kconfig/mconf.cORIG	2006-05-30 18:58:59.000000000 
++0100
++++ linux-current/scripts/kconfig/mconf.c	2006-06-02 18:19:35.000000000 +0100
+@@ -402,8 +402,13 @@
+ 	bool hit;
+ 	struct property *prop;
  
- static int sbp2scsi_slave_configure(struct scsi_device *sdev)
- {
-+	struct scsi_id_instance_data *scsi_id =
-+		(struct scsi_id_instance_data *)sdev->host->hostdata[0];
+-	str_printf(r, "Symbol: %s [=%s]\n", sym->name,
+-	                               sym_get_string_value(sym));
++        if (sym->name)
++                str_printf(r, "Symbol: %s", sym->name);
++        else if (sym_is_choice(sym))
++                str_printf(r, "Choice:");
++        else
++                str_printf(r, "Weird symbol:");
++        str_printf(r, "[=%s]\n", sym_get_string_value(sym));
+ 	for_all_prompts(sym, prop)
+ 		get_prompt_str(r, prop);
+ 	hit = false;
+@@ -417,7 +422,7 @@
+ 	}
+ 	if (hit)
+ 		str_append(r, "\n");
+-	if (sym->rev_dep.expr) {
++	if (sym->rev_dep.expr && !sym_is_choice(sym)) {
+ 		str_append(r, "  Selected by: ");
+ 		expr_gstr_print(sym->rev_dep.expr, r);
+ 		str_append(r, "\n");
+@@ -849,19 +854,15 @@
+ 	struct gstr help = str_new();
+ 	struct symbol *sym = menu->sym;
+ 
+-	if (sym->help)
+-	{
+-		if (sym->name) {
+-			str_printf(&help, "CONFIG_%s:\n\n", sym->name);
+-			str_append(&help, _(sym->help));
+-			str_append(&help, "\n");
+-		}
+-	} else {
+-		str_append(&help, nohelp_text);
+-	}
+-	get_symbol_str(&help, sym);
+-	show_helptext(menu_get_prompt(menu), str_get(&help));
+-	str_free(&help);
++        if (sym->name)
++                str_printf(&help, "CONFIG_%s:\n\n", sym->name);
 +
- 	blk_queue_dma_alignment(sdev->request_queue, (512 - 1));
- 	sdev->use_10_for_rw = 1;
- 	sdev->use_10_for_ms = 1;
++        str_append(&help, sym->help ? _(sym->help) : nohelp_text);
++        str_append(&help, "\n");
++        get_symbol_str(&help, sym);
++        show_helptext(menu_get_prompt(menu), str_get(&help));
++        str_free(&help);
 +
-+	if ((scsi_id->sbp2_firmware_revision & 0xffff00) == 0x0a2700 &&
-+	    (scsi_id->ud->model_id == 0x000021 /* gen.4 iPod */ ||
-+	     scsi_id->ud->model_id == 0x000023 /* iPod mini  */ ||
-+	     scsi_id->ud->model_id == 0x00007e /* iPod Photo */ )) {
-+		SBP2_INFO("enabling iPod workaround: decrement disk capacity");
-+		sdev->fix_capacity = 1;
-+	}
- 	return 0;
  }
  
+ static void show_file(const char *filename, const char *title, int r, int c)
 
+
+
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

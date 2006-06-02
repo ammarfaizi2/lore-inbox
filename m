@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWFBUwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWFBUxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWFBUwm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 16:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWFBUwm
+	id S964884AbWFBUxX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 16:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWFBUxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 16:52:42 -0400
-Received: from mx2.suse.de ([195.135.220.15]:40678 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964890AbWFBUwl (ORCPT
+	Fri, 2 Jun 2006 16:53:23 -0400
+Received: from nevyn.them.org ([66.93.172.17]:63950 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S964884AbWFBUxW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 16:52:41 -0400
-Date: Fri, 2 Jun 2006 13:50:14 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Luiz Fernando N.Capitulino" <lcapitulino@mandriva.com.br>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH 8/11] usbserial: pl2303: Ports tty functions.
-Message-ID: <20060602205014.GB31251@suse.de>
-References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br> <1149217398434-git-send-email-lcapitulino@mandriva.com.br>
-Mime-Version: 1.0
+	Fri, 2 Jun 2006 16:53:22 -0400
+Date: Fri, 2 Jun 2006 16:53:01 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jan Beulich <jbeulich@novell.com>, jeff@garzik.org, htejun@gmail.com,
+       Andrew Morton <akpm@osdl.org>, reuben-lkml@reub.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm2
+Message-ID: <20060602205301.GA5928@nevyn.them.org>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Jan Beulich <jbeulich@novell.com>, jeff@garzik.org,
+	htejun@gmail.com, Andrew Morton <akpm@osdl.org>,
+	reuben-lkml@reub.net, linux-kernel@vger.kernel.org
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EB4AD.4060101@reub.net> <20060601025632.6683041e.akpm@osdl.org> <447EBD46.7010607@reub.net> <20060601103315.GA1865@elte.hu> <20060601105300.GA2985@elte.hu> <447EF7A8.76E4.0078.0@novell.com> <448006F6.76E4.0078.0@novell.com> <20060602075150.GA12212@elte.hu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1149217398434-git-send-email-lcapitulino@mandriva.com.br>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060602075150.GA12212@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 12:03:14AM -0300, Luiz Fernando N.Capitulino wrote:
->   2. The new pl2303's set_termios() can (still) sleep. Serial Core's
->      documentation says that that method must not sleep, but I couldn't find
->      where in the Serial Core code it's called in atomic context. So, is this
->      still true? Isn't the Serial Core's documentation out of date?
+On Fri, Jun 02, 2006 at 09:51:50AM +0200, Ingo Molnar wrote:
+> 
+> * Jan Beulich <jbeulich@novell.com> wrote:
+> 
+> > >firstly, i'd suggest to use another magic value for 'bottom of call 
+> > >stacks' - it is way too common to jump or call a NULL pointer. Something 
+> > >like 0xfedcba9876543210 would be better.
+> > 
+> > That's contrary to common use (outside of the kernel). I'm opposed to 
+> > this. Detecting an initial bad EIP isn't a problem, and the old code 
+> > can be used easily in that case.
+> 
+> but 0 is pretty much the worst choice for something that needs to be 
+> reliable - it's the most common type of machine word in existence, 
+> amongst all the 18446744073709551616 possibilities. And we need not care 
+> about userspace's prior choices, this code and data is totally under the 
+> kernel's control.
 
-If this is true then we should just stop the port right now, as the USB
-devices can not handle this.  They need to be able to sleep to
-accomplish this functionality.
+I've missed some context here, but assuming you're talking about DWARF
+and reliably marking the end of the backtrace, why not actually mark
+stack termination instead of futzing around with zeros?  GDB now
+detects the return address column in the unwind info being set to
+undefined and treats that as an end of stack.  Then you can treat any
+other zeros you encounter as problems.
 
-Russell, is this a requirement of the serial layer?  Why?
 
-thanks,
-
-greg k-h
+-- 
+Daniel Jacobowitz
+CodeSourcery

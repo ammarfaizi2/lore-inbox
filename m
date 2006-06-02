@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWFBSpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWFBVA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbWFBSpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 14:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWFBSpH
+	id S1030268AbWFBVA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 17:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbWFBVA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 14:45:07 -0400
-Received: from pat.uio.no ([129.240.10.4]:36481 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932179AbWFBSpF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 14:45:05 -0400
-Subject: Re: Why NFS enforce size limit on readdirplus
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <4ae3c140606012254i5fa92953rdd1ea229be9a02f9@mail.gmail.com>
-References: <4ae3c140606012254i5fa92953rdd1ea229be9a02f9@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 02 Jun 2006 14:44:55 -0400
-Message-Id: <1149273895.5621.27.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.713, required 12,
-	autolearn=disabled, AWL 1.29, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 2 Jun 2006 17:00:28 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:6301 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1030268AbWFBVA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 17:00:26 -0400
+Date: Fri, 2 Jun 2006 11:49:32 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: Ondrej Zajicek <santiago@mail.cz>,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+In-Reply-To: <20060602085832.GA25806@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.63.0606021146320.4686@qynat.qvtvafvgr.pbz>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> 
+ <200605272245.22320.dhazelton@enter.net>  <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>
+  <200605280112.01639.dhazelton@enter.net>  <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>
+  <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> 
+ <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>  <447CBEC5.1080602@gmail.com>
+ <20060602083604.GA2480@localhost.localdomain> <20060602085832.GA25806@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-02 at 01:54 -0400, Xin Zhao wrote:
-> Maybe this question is a little dumb.
-> 
-> I am wondering why in NFS readdirplus can be used only for directories
-> of size less than 8*PAGE_SIZE, otherwise, it will switch to use normal
-> readdir?
-> 
-> In nfs/inode.c, I noticed the following code:
-> 			    if (nfs_server_capable(inode, NFS_CAP_READDIRPLUS) &&
-> fattr->size <= NFS_LIMIT_READDIRPLUS)
-> 				    set_bit(NFS_INO_ADVISE_RDPLUS, &NFS_FLAGS(inode));
-> 
-> Can someone kindly explain the reason?
+On Fri, 2 Jun 2006, Pavel Machek wrote:
 
-Efficiency: READDIRPLUS requires a lookup for each entry. If there are
-too many entries, the whole thing gets really really slow...
+>> I just implemented text mode switch and tileblit ops into viafb
+>> (http://davesdomain.org.uk/viafb/index.php) and it is about four
+>> times faster than accelerated graphics mode and about eight times
+>> faster than unaccelerated graphics mode (both measured using cat
+>> largefile with ypan disabled). So textmode is meaningful
+>> alternative.
+>
+> I mean.... it is displaying text faster than refresh rate... so who
+> cares?
+>
+> You can only *display* so much text a second (and then, user is only
+> able to see *much* less text) and both text mode and frame buffers are
+> way past that limits. so.... who cares?
 
-Cheers,
-  Trond
+there are quite a few times when you have text output that you need to 
+scroll through, but you really don't need to read it as it goes by.
 
+for example, accidently cating a large file, running a program with overly 
+verbose debugging output, etc.
+
+yes, if you never make mistakes and know that these are problem cases 
+ahead of time you can redirect the output. but in the real world sysadmins 
+really do notice when they are on a console that is slower.
+
+if reading speed was the limiting factor very few people would need 
+anything faster then a 9600 baud terminal.
+
+David Lang

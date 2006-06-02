@@ -1,86 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWFBTwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWFBTuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWFBTwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWFBTwQ
+	id S932560AbWFBTuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWFBTuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:52:16 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:43728 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932551AbWFBTwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:52:13 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Fri, 2 Jun 2006 21:50:31 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.17-rc5-mm2 04/18] Semaphore to mutex conversion.
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>,
-       Ben Collins <bcollins@ubuntu.com>
-In-Reply-To: <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
-Message-ID: <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
- <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
- <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
- <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (-0.036) AWL,BAYES_40
+	Fri, 2 Jun 2006 15:50:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:11804 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932558AbWFBTt6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:49:58 -0400
+Date: Fri, 2 Jun 2006 21:50:46 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Mark Lord <liml@rtr.ca>,
+       Jeff Garzik <jeff@garzik.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 07/11] the latest consensus libata resume fix
+Message-ID: <20060602195046.GO4400@suse.de>
+References: <20060602194618.482948000@sous-sol.org> <20060602194742.420464000@sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060602194742.420464000@sous-sol.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arjan van de Ven <arjan@infradead.org>
+On Fri, Jun 02 2006, Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
+> 
+> From: Mark Lord <liml@rtr.ca>
+> 
+> Okay, just to sum things up.
+> 
+> This forces libata to wait for up to 2 seconds for BUSY|DRQ to clear
+> on resume before continuing.
+> 
+> [jgarzik adds...]  During testing we never saw DRQ asserted, but
+> nonetheless (a) this works and (b) testing for DRQ won't hurt.
+> 
+> Signed-off-by:  Mark Lord <liml@rtr.ca>
+> Acked-by: Jens Axboe <axboe@suse.de>
+> Signed-off-by: Jeff Garzik <jeff@garzik.org>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> ---
+> 
+>  drivers/scsi/libata-core.c |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> --- linux-2.6.16.19.orig/drivers/scsi/libata-core.c
+> +++ linux-2.6.16.19/drivers/scsi/libata-core.c
+> @@ -4293,6 +4293,7 @@ static int ata_start_drive(struct ata_po
+>  int ata_device_resume(struct ata_port *ap, struct ata_device *dev)
+>  {
+>  	if (ap->flags & ATA_FLAG_SUSPENDED) {
+> +		ata_busy_wait(ap, ATA_BUSY | ATA_DRQ, 200000);
+>  		ap->flags &= ~ATA_FLAG_SUSPENDED;
+>  		ata_set_mode(ap);
+>  	}
 
-Semaphore to mutex conversion.
+I'm not against the patch as such, but last I checked 2.6.16 actually
+worked ok. The timer fixes in 2.6.17-rc is what apparently got the
+resume breaking.
 
-The conversion was generated via scripts, and the result was validated
-automatically via a script as well.
+So unless there's a bug report on 2.6.16.x for this, then it's a little
+against the -stable rules to add it.
 
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Cc: Ben Collins <bcollins@debian.org>
-Cc: Jody McIntyre <scjody@modernduck.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-
-Index: linux-2.6.17-rc5-mm2/drivers/ieee1394/hosts.c
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/drivers/ieee1394/hosts.c	2006-06-01 20:55:05.000000000 +0200
-+++ linux-2.6.17-rc5-mm2/drivers/ieee1394/hosts.c	2006-06-01 20:55:40.000000000 +0200
-@@ -19,6 +19,7 @@
- #include <linux/pci.h>
- #include <linux/timer.h>
- #include <linux/jiffies.h>
-+#include <linux/mutex.h>
- 
- #include "csr1212.h"
- #include "ieee1394.h"
-@@ -105,7 +106,7 @@ static int alloc_hostnum_cb(struct hpsb_
-  * Return Value: a pointer to the &hpsb_host if succesful, %NULL if
-  * no memory was available.
-  */
--static DECLARE_MUTEX(host_num_alloc);
-+static DEFINE_MUTEX(host_num_alloc);
- 
- struct hpsb_host *hpsb_alloc_host(struct hpsb_host_driver *drv, size_t extra,
- 				  struct device *dev)
-@@ -148,7 +149,7 @@ struct hpsb_host *hpsb_alloc_host(struct
- 	h->topology_map = h->csr.topology_map + 3;
- 	h->speed_map = (u8 *)(h->csr.speed_map + 2);
- 
--	down(&host_num_alloc);
-+	mutex_lock(&host_num_alloc);
- 
- 	while (nodemgr_for_each_host(&hostnum, alloc_hostnum_cb))
- 		hostnum++;
-@@ -167,7 +168,7 @@ struct hpsb_host *hpsb_alloc_host(struct
- 	class_device_register(&h->class_dev);
- 	get_device(&h->device);
- 
--	up(&host_num_alloc);
-+	mutex_unlock(&host_num_alloc);
- 
- 	return h;
- }
-
+-- 
+Jens Axboe
 

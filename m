@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751513AbWFBWUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWFBVWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751513AbWFBWUn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 18:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWFBWUm
+	id S1030288AbWFBVWe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 17:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWFBVWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 18:20:42 -0400
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:26087 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1751513AbWFBWUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 18:20:42 -0400
-Date: Fri, 02 Jun 2006 18:20:08 -0400
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [PATCH 2.6.17-rc5-mm2 17/18] sbp2: provide helptext	for
-	CONFIG_IEEE1394_SBP2_PHYS_DMA and mark it experimental
-In-reply-to: <4480B45E.4060909@s5r6.in-berlin.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Message-id: <1149286809.4533.319.camel@grayson>
-Organization: Ubuntu
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
- <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
- <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
- <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
- <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
- <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de>
- <tkrat.f35772c971022262@s5r6.in-berlin.de>
- <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de>
- <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de>
- <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de>
- <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de>
- <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de>
- <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de>
- <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de>
- <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de>
- <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de>
- <tkrat.96e1b392429fe277@s5r6.in-berlin.de>
- <tkrat.df90273c07dd7503@s5r6.in-berlin.de> <1149281162.4533.304.camel@grayson>
- <4480B45E.4060909@s5r6.in-berlin.de>
+	Fri, 2 Jun 2006 17:22:34 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:32417 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030288AbWFBVWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 17:22:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:from:x-x-sender:to:cc:subject:message-id:mime-version:content-type;
+        b=pKvNyfJrBn6ffZRE/38+jqtSYKhIDPuVlwSawlPnnweUX7cSly+rdRqddTxvumPuTPUkv+TfAiPX0sC/QLFq74SsLet13woX+K5ll7d9kkCEDQKcEZ9i4wzOsNWUIl+kMVB5jnr2WFr28Yx3uVsUQ6S2ewLc8Kxu+tY5HMvf+Qw=
+Date: Fri, 2 Jun 2006 23:22:46 +0100 (BST)
+From: Esben Nielsen <nielsen.esben@googlemail.com>
+X-X-Sender: simlo@localhost
+To: linux-kernel@vger.kernel.org
+cc: Ingo Molnar <mingo@elte.hu>
+Subject: [patch 0/5] [PREEMPT_RT] Changing interrupt handlers from running
+ in thread to hardirq and back runtime.
+Message-ID: <Pine.LNX.4.64.0606022321170.9307@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-02 at 23:57 +0200, Stefan Richter wrote:
-> Ben Collins wrote:
-> > On Fri, 2006-06-02 at 22:27 +0200, Stefan Richter wrote:
-> >>It appears I will not get it fixed overnight.
-> > 
-> >>-	bool "Enable Phys DMA support for SBP2 (Debug)"
-> >>-	depends on IEEE1394 && IEEE1394_SBP2
-> >>+	bool "Enable replacement for physical DMA in SBP2"
-> >>+	depends on IEEE1394 && IEEE1394_SBP2 && EXPERIMENTAL
-> > 
-> > 
-> > Please add '&& !SPARC' to the depends line. Other architectures may
-> > apply, but I know for sure that this cannot be enabled on SPARC or
-> > SPARC64 since the module will be unloadable due to missing symbols
-> > (virt_to_bus, bus_to_virt).
-> 
-> Are there suggestions for more architectures? PPC64?
+--
+Hi,
 
-Rather it be in the config. Plus your suggestion still makes it
-unusable :)
+(I have sent these patches once, but I can't find them on LKML, so I assume 
+they were lost.)
 
-I suggest instead doing '&& X86_32'. That should affect the least people
-and keep it where it's known to work.
+  I have made a system such that drivers can be enhanced to easily run in
+both hard-irq context and threaded context under PREEMPT_RT (and also
+under !PREEMPT_RT, although that is trivial).
 
--- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+- Why:
+Because running hard irq handles threaded is a huge overhead and many of the
+interrupt handlers already are so small that running them in hard-IRQ context 
+doesn't make much different. By making them changeable runtime make it easy
+to do meassurements on latencies and performance.
+Furthermore, this system solves the bugs occuring when trying to share a 
+non-threaded (SA_NODELAY) and threaded (new SA_MUST_THREAD flag) irq handlers
+on the same irq. Unless one of them is willing to change context, installation
+of the last handler will simply fail.
 
+- How:
+The basic idea is to let them change their locks to raw_spin_lock from rt_mutex
+and back when the change of context is ordered.
+
+I have therefore made 5 patches.
+
+1) The "spin_mutex" (might need another name) which is a lock type which
+can safely be changed runtime from raw_spin_lock to rt_mutex and back.
+2) A set of changes to the irq system where a new callback to the driver is '
+added.
+3) Update to my ethernet driver (e100).
+4) Update to the my serial driver (8250).
+5) A patch which doesn't really belong here to lpptest where the
+request_irq() API wasn't used correctly.
+
+Esben

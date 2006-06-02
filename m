@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWFBEfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWFBAiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWFBEfx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 00:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWFBEfx
+	id S1750732AbWFBAiM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 20:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWFBAiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 00:35:53 -0400
-Received: from smtp.enter.net ([216.193.128.24]:41234 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751115AbWFBEfw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 00:35:52 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Fri, 2 Jun 2006 00:35:44 +0000
-User-Agent: KMail/1.8.1
-Cc: "Dave Airlie" <airlied@gmail.com>, "Ondrej Zajicek" <santiago@mail.cz>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <9e4733910606012027y2567c194yf02a96319fe33e63@mail.gmail.com> <9e4733910606012128h5bdc293dwfa3c58985bbceb07@mail.gmail.com>
-In-Reply-To: <9e4733910606012128h5bdc293dwfa3c58985bbceb07@mail.gmail.com>
+	Thu, 1 Jun 2006 20:38:12 -0400
+Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:9633 "EHLO
+	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750732AbWFBAiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 20:38:11 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: sekharan@us.ibm.com
+Subject: Re: sched: Add CPU rate hard caps
+Date: Fri, 2 Jun 2006 10:36:15 +1000
+User-Agent: KMail/1.9.1
+Cc: balbir@in.ibm.com, dev@openvz.org, Andrew Morton <akpm@osdl.org>,
+       Srivatsa <vatsa@in.ibm.com>, Sam Vilain <sam@vilain.net>,
+       ckrm-tech@lists.sourceforge.net, Balbir Singh <bsingharora@gmail.com>,
+       Mike Galbraith <efault@gmx.de>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>,
+       Jens Axboe <axboe@suse.de>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>
+In-Reply-To: <1149187413.13336.24.camel@linuxchandra>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606020035.44897.dhazelton@enter.net>
+Message-Id: <200606021036.17021.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 04:28, Jon Smirl wrote:
-> On 6/1/06, Jon Smirl <jonsmirl@gmail.com> wrote:
-> > On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
-> > > > > 15) re-use as much of the X drivers as possible, otherwise it will
-> > > > > KGI.
-> > > >
-> > > > I would broaden this to use the best code where ever it is found. Of
-> > > > course X is a major source.
-> > >
-> > > I'm not considering using knowledge from X drivers, I'm considering
-> > > using the X drivers, I don't personally care about things like X's
-> > > over use of typedefs and that sort of stuff, that is what I term
-> > > semantic, people who work on X drivers know X drivers, and writing the
-> > > drivers is the biggest part of any graphic systems.
-> >
-> > I have considered that option too. It is a good place for a quick
-> > start but it is not maintainable in the long run. The driver code has
-> > to be divorced from X and not require having the entire X system
-> > around to build a new driver.
-> >
-> > Have you checked the dependencies needed for loading X drivers?
-> > Modularization may have helped but loading an X driver used to
-> > effectively suck in the entire X server due to dependencies. Sucking
-> > in all of X is not fair to alternative windowing systems.
-> >
-> > I do agree that this is a workable starting point but it can't be the
-> > long term solution.
+On Friday 02 June 2006 04:43, Chandra Seetharaman wrote:
+> On Thu, 2006-06-01 at 14:04 +0530, Balbir Singh wrote:
+> > > - disk I/O bandwidth:
+> > > we started to use CFQv2, but it is quite poor in this regard. First, it
+> > > doesn't prioritizes writes and async disk operations :( And even for
+> > > sync reads we found some problems we work on now...
 >
-> I just checked the Xorg R7 drivers. The ones I checked are statically
-> linked to their X components so there are no big X dependencies. That
-> makes them usable as standalone drivers.
->
-> What do you think about wrapping them with EGL instead of using their
-> entry points directly? That would remove the temptation to use
-> acceleration code in the X drivers and encourage use of DRM instead.
->
-> Wrapping them with EGL was my plan for getting Xegl up last summer
-> when Nvidia wouldn't implement the API. Using the X driver was the
-> only solution available for Nvidia/ATI hardware.
->
-> This still needs to be classified as a temporary solution. Long term
-> the code needs to be extracted from X and converted to a standalone
-> build system. They could be turned in to real EGL drivers at that
-> point.
+> CKRM (on e-series) had an implementation based on a modified CFQ
+> scheduler. Shailabh is currently working on porting that controller to
+> f-series.
 
-Exactly. Using the X7 drivers would be a good starting point for the userspace 
-side of things. I've always planned on this. Moving away from using the X7 
-drivers towards ones built specific for the purpose is also in the plans I 
-have.
+I hope that the changes you have to improve CFQ were done in a way that is 
+suitable for mainline and you're planning to try and merge them there.
 
-DRH
+-- 
+-ck

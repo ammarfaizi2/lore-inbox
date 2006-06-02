@@ -1,68 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWFBXbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751540AbWFBXav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751546AbWFBXbp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 19:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWFBXbp
+	id S1751540AbWFBXav (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 19:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWFBXav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 19:31:45 -0400
-Received: from web51014.mail.yahoo.com ([206.190.39.79]:60774 "HELO
-	web51014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751546AbWFBXbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 19:31:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=pDp/EgXxZykLw5GdRYIkNoFktb6alpjWStiCnxgHS6outmXKrehFKRyVIdC1se7PW8MG9vRnVKR+hqJLXRrc3mS1ohvmFvbXGFd2okKzvq2lv1ctwY+6TnBedoOMrcoAN+zIW99KIy7tjRbBKXrkm2+MGAAHe9+2K3K5NdWG/Fc=  ;
-Message-ID: <20060602233144.15195.qmail@web51014.mail.yahoo.com>
-Date: Fri, 2 Jun 2006 16:31:44 -0700 (PDT)
-From: Matthew L Foster <mfoster167@yahoo.com>
-Subject: icmp or table->lock deadlock bug? (lockdep)
-To: linux-kernel@vger.kernel.org
-Cc: mfoster167@yahoo.com
-MIME-Version: 1.0
+	Fri, 2 Jun 2006 19:30:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38342 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751525AbWFBXau (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 19:30:50 -0400
+Date: Fri, 2 Jun 2006 16:33:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Tom Wirschell <lkml@wirschell.nl>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Oops when creating software RAID device (2.6.16.14).
+Message-Id: <20060602163350.04066047.akpm@osdl.org>
+In-Reply-To: <20060602233544.11d46664@localhost>
+References: <20060602233544.11d46664@localhost>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Wirschell <lkml@wirschell.nl> wrote:
+>
+> I'm trying to set up a Linux software RAID over 12 disks. As mdadm is
+> creating the array it appears that a drive is flaking out (if anybody
+> can provide a layman's explanation for what is being complained about,
+> I'd very much appreciate it). Now, since this is a RAID device I would
+> expect the md driver to simply discard this device, add the remainder
+> and leave me with a degraded array. No such luck, though.
+> 
+> Full log: http://www.wirschell.nl/boot.log
+> Relevant section with oops:
 
-Perhaps someone has hit this one already but in case not: 
+ata_pio_task() oopsed.  Added linux-ide to CC.
 
-====================================
-[ BUG: possible deadlock detected! ]
-------------------------------------
-kicker/2665 is trying to acquire lock:
- (&table->lock){-.-+}, at: [<c02b1384>] ipt_do_table+0x68/0x294
+ISTR others hitting this recently.
 
-but task is already holding lock:
- (&table->lock){-.-+}, at: [<c02b1384>] ipt_do_table+0x68/0x294
-
-which could potentially lead to deadlocks!
-
-other info that might help us debug this:
-2 locks held by kicker/2665:
- #0:  (&table->lock){-.-+}, at: [<c02b1384>] ipt_do_table+0x68/0x294
- #1:  (&sk->sk_lock.slock#3){-+..}, at: [<c029dab8>] icmp_send+0x100/0x332
-
-stack backtrace:
- <c01030b8> show_trace+0x16/0x19  <c0103586> dump_stack+0x1a/0x1f
- <c012a880> __lockdep_acquire+0x6c6/0x907  <c012addb> lockdep_acquire+0x4b/0x63
- <c02cdab1> _read_lock_bh+0x27/0x2f  <c02b1384> ipt_do_table+0x68/0x294
- <c02b1e37> ipt_hook+0x1b/0x20  <c0279606> nf_iterate+0x26/0x5a
- <c02798ab> nf_hook_slow+0x41/0xba  <c0282888> ip_push_pending_frames+0x2e2/0x3a9
- <c029d39d> icmp_push_reply+0xc2/0xcd  <c029dc8b> icmp_send+0x2d3/0x332
- <c02b371c> reject+0x49/0x551  <c02b155d> ipt_do_table+0x241/0x294
- <c02b162b> ipt_hook+0x1b/0x20  <c0279606> nf_iterate+0x26/0x5a
- <c02798ab> nf_hook_slow+0x41/0xba  <c0280482> ip_local_deliver+0x58/0x1e6
- <c02803fd> ip_rcv+0x3d5/0x402  <c026bc9b> netif_receive_skb+0x13d/0x1a4
- <c026d552> process_backlog+0x7c/0x112  <c026d35c> net_rx_action+0x5b/0xed
- <c01188ca> __do_softirq+0x45/0x9f  <c0104428> do_softirq+0x45/0xa4
- =======================
- <c0118954> irq_exit+0x30/0x3c  <c01044f7> do_IRQ+0x70/0x7d
- <c0102b45> common_interrupt+0x25/0x2c 
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+> ATA: abnormal status 0x58 on port 0xF88A211C
+> ata7: PIO error
+> ATA: abnormal status 0x58 on port 0xF88A211C
+> ata7: translated ATA stat/err 0x58/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+> ata7: status=0x58 { DriveReady SeekComplete DataRequest }
+> ATA: abnormal status 0x58 on port 0xF88A211C
+> ATA: abnormal status 0x58 on port 0xF88A211C
+> ATA: abnormal status 0x58 on port 0xF88A211C
+> ATA: abnormal status 0x58 on port 0xF88A211C
+> ata7: Entering mv_eng_timeout
+> mmio_base f8880000 ap dfe942a4 qc dfe94770 scsi_cmnd f7741080 &cmnd
+> f77410c4 ata7: status=0x50 { DriveReady SeekComplete }
+> ata7: error=0x01 { AddrMarkNotFound }
+> sdc: Current: sense key=0x0
+>     ASC=0x0 ASCQ=0x0
+> Assertion failed! qc !=
+> NULL,drivers/scsi/libata-core.c,ata_pio_poll,line=3017 Assertion
+> failed! qc != NULL,drivers/scsi/libata-core.c,ata_pio_block,line=3474
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 00000014 printing eip: c02e47b7
+> *pde = 00000000
+> Oops: 0000 [#1]
+> SMP
+> Modules linked in: raid5 md_mod xor e1000 intel_agp agpgart
+> CPU:    0
+> EIP:    0060:[<c02e47b7>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.16.14 #1)
+> EIP is at ata_pio_task+0xf2/0x6a1
+> eax: 00000053   ebx: 00000050   ecx: 00000010   edx: 00000050
+> esi: 00000002   edi: 00000000   ebp: 00000212   esp: c1a8df34
+> ds: 007b   es: 007b   ss: 0068
+> Process ata/0 (pid: 389, threadinfo=c1a8c000 task=dff1c580)
+> Stack: <0>00000000 dff1c6a8 dff1c580 c0424100 c1807560 c7562b80
+> 0098966b 00000000 dfe94850 dfe94850 dfe94854 dfd84c40 00000212 c0125ff4
+> dfe942a4 c02e46c5 dfe942a4 dfd84c4c dfd84c40 dfd84c54 c01260bb c012619b
+> 00000001 00000000 Call Trace:
+>  [<c0125ff4>] run_workqueue+0x78/0xb6
+>  [<c02e46c5>] ata_pio_task+0x0/0x6a1
+>  [<c01260bb>] worker_thread+0x0/0x111
+>  [<c012619b>] worker_thread+0xe0/0x111
+>  [<c01152a3>] default_wake_function+0x0/0x15
+>  [<c0128bcb>] kthread+0xa5/0xd2
+>  [<c0128b26>] kthread+0x0/0xd2
+>  [<c0100bf5>] kernel_thread_helper+0x5/0xb
+> Code: 56 e3 ff 83 c4 14 0f b6 d3 f6 c2 21 74 1a 83 8f 8c 00 00 00 02 8b
+> 54 24 38 c7 82 dc 05 00 00 07 00 00 00 e9 18 ff ff ff 8d 4f 10 <8a> 41
+> 04 83 e8 05 3c 02 0f 87 c0 01 00 00 80 e2 08 75 13 8b 4c <3>md: invalid
+> raid superblock magic on sdc2 md: sdc2 has invalid sb, not importing!
+> md: md_import_device returned -22
+> 
+> Interestingly enough, this problem is entirely reproducable, however so
+> far each time a different disk was being complained about. Is there
+> something I should know about the WD200JB drives?
+> 
+> Hardware this is happening on:
+>  Intel P4 3.0GHz CPU
+>  ASUS PSCH-L Mobo (E7210 + 6300ESB)
+>  Promise FastTrak S150 TX4 onboard, unused.
+>  SuperMicro AOC-SAT2-MV8 SATA controller card (Marvell 88SX6081 chip)
+>  2x Western Digital WD2000JB 200 GB PATA drives
+>  9x Western Digital WD2000JD 200 GB SATA drives
+> 
+> If anybody has any insights at so what I can or should do now to
+> resolve this issue, I'm all ears.
+> 
+> I'm not subscribed to LKML, so please CC me in any replies.
+> 
+> Thank you.
+> 
+> Kind regards,
+> 
+> Tom Wirschell
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

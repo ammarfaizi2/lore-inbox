@@ -1,82 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWFBNLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWFBNOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWFBNLO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWFBNLO
+	id S1750760AbWFBNOW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 09:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWFBNOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:11:14 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:32716 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S1751393AbWFBNLN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:11:13 -0400
-Date: Fri, 2 Jun 2006 15:10:34 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>,
-       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] ipaq.c bugfixes
-Message-ID: <20060602131034.GA28802@fks.be>
-References: <20060530082141.GA26517@fks.be> <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com> <20060531213828.GA17711@fks.be> <20060531215523.GA13745@suse.de> <20060531224245.GB17711@fks.be> <20060601191654.GA1757@fks.be> <20060602095935.65257a1b@doriath.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 Jun 2006 09:14:22 -0400
+Received: from wx-out-0102.google.com ([66.249.82.196]:26694 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750760AbWFBNOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 09:14:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=QxvdE87U5gangRFw+DiLhBacq+VWBf6coAcDSpjpWHmLBaM9msk12ZCPg+d9+cDVVcrtpaCWg+MyKAx12cSZvuW0tmJXwWX7sSwhqCLXMapeuYRgGHd0DeJM2Z+IhR+O7hts9CXWjTqPvZ4phjcYuf6nauz2qpup+ih9y3Mtx18=
+Message-ID: <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com>
+Date: Fri, 2 Jun 2006 06:14:21 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm2
+Cc: linux-kernel@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>,
+       "Arjan van de Ven" <arjan@infradead.org>
+In-Reply-To: <20060601183836.d318950e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060602095935.65257a1b@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.817,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.08,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <986ed62e0606011758w348080ebn6e8430ec9e5b2ed3@mail.gmail.com>
+	 <20060601183836.d318950e.akpm@osdl.org>
+X-Google-Sender-Auth: a741c6c6fd6cf53c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 09:59:35AM -0300, Luiz Fernando N. Capitulino wrote:
-> On Thu, 1 Jun 2006 21:16:54 +0200
-> Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> 
-> | When I changed te ipaq_open code to only submit the read urb after the
-> | control message succeeds, these disappear.
-> | 
-> | Whenever the usb_control_msg returns with ETIMEDOUT (-110), in both code
-> | variants, when the device is disconnected we get:
-> 
->  Did you mean that it happens even if you send the read urb after the
-> control message?
+(Ingo, I got your e-mail too, and I will reply to it once I've
+followed your instructions.)
 
-Yes.
+On 6/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> Damn, sorry.  LLC is completely borked.  You should emphatically set
+> CONFIG_LLC=n.
 
-> | This seems to be 100% reproducible. I noticed that serial_open (in
-> | usb-serial.c) sets port->tty = tty and tty->driver_data = port, but
-> | doesn't set them back to NULL if the type->open() fails. Is that correct
-> | ?
-> 
->  I don't think it would cause the problem you're getting. 'port' is
-> valid even if the driver's open() function fails.
+Just one problem with that...
 
-We are currently trying a version where these are both set to NULL on
-failure, and it does seem to help.
+config ATALK
+        tristate "Appletalk protocol support"
+        select LLC
 
-> | Also, we have discovered that the slow response of the ipaq on connect
-> | is actually largely caused by the control message retries, so we have
-> | added a sleep at the start of ipaq_open.
-> | 
-> | The current patch we are testing (not yet ready for inclusion, since
-> | it doesn't work correctly yet and it produces some output that is not
-> | useful in general) is :
-> 
->  Well, I'm afraid that every new patch leads to a new problem..
-> Maybe it's something else..
+This box runs netatalk for both file and print service, but I could
+temporarily disable it for testing... Ok, the kernel's up and running
+w/o CONFIG_LLC and CONFIG_ATALK now, and the warning still happened at
+boot time, but it has stayed up for over an hour without keeling over
+with a panic.
 
-I'm not sure it's a new problem every time. Some of the earlier bugs
-could have been the same as this one (the stack trace was the same)
-
-Frank
-
-> -- 
-> Luiz Fernando N. Capitulino
-
+It looks like netatalk was fixed at some point so that it can do AFP
+over TCP without the presence of a running atalkd, so unless I buy a
+really old used Mac, I shouldn't need CONFIG_ATALK for the file server
+anymore. Also, to make a *long* story short, I also should be able to
+get rid of the print server in a few weeks. I'll still need to
+occasionally boot back into a CONFIG_ATALK kernel to use the print
+server until then, but I should be able to run an ATALK-less kernel
+for days at a time (i.e. when the print server is not in use)...
 -- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+-Barry K. Nathan <barryn@pobox.com>

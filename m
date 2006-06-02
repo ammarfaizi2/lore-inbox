@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWFBK5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWFBLKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWFBK5E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 06:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFBK5E
+	id S1750717AbWFBLKm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 07:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWFBLKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 06:57:04 -0400
-Received: from mga07.intel.com ([143.182.124.22]:35720 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751387AbWFBK5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 06:57:01 -0400
-X-IronPort-AV: i="4.05,203,1146466800"; 
-   d="scan'208"; a="45008256:sNHT1338842428"
-Subject: Re: pci_walk_bus race condition
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060601222402.f2d427b4.akpm@osdl.org>
-References: <1148625315.4377.518.camel@ymzhang-perf.sh.intel.com>
-	 <20060526135039.GA13280@kroah.com>
-	 <1148863271.4377.521.camel@ymzhang-perf.sh.intel.com>
-	 <1148889932.4377.537.camel@ymzhang-perf.sh.intel.com>
-	 <1149222942.8436.189.camel@ymzhang-perf.sh.intel.com>
-	 <20060601221141.d84bcf97.akpm@osdl.org>
-	 <20060601222402.f2d427b4.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1149245505.8436.222.camel@ymzhang-perf.sh.intel.com>
+	Fri, 2 Jun 2006 07:10:41 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:61389 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750717AbWFBLKl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 07:10:41 -0400
+Date: Fri, 2 Jun 2006 13:10:53 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm2
+Message-ID: <20060602111053.GA22306@elte.hu>
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <20060602120952.615cea39@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Fri, 02 Jun 2006 18:51:45 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060602120952.615cea39@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5043]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-02 at 13:24, Andrew Morton wrote:
-> On Thu, 1 Jun 2006 22:11:41 -0700
+
+* Paolo Ornati <ornati@fastwebnet.it> wrote:
+
+> On Thu, 1 Jun 2006 01:48:06 -0700
 > Andrew Morton <akpm@osdl.org> wrote:
 > 
-> > On Fri, 02 Jun 2006 12:35:43 +0800
-> > "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
-> > 
-> > > pci_walk_bus has a race with pci_destroy_dev. When cb is called
-> > > in pci_walk_bus, pci_destroy_dev might unlink the dev pointed by next.
-> > > Later on in the next loop, pointer next becomes NULL and cause
-> > > kernel panic.
-> > > 
-> > > Below patch against 2.6.17-rc4 fixes it by changing pci_bus_lock (spin_lock)
-> > > to pci_bus_sem (rw_semaphore).
-> > 
-> > How does s/spinlock/rwsem/ fix a race??
+> > - Various lock-validator and genirq fixes have been added.  Should be
+> >   slightly less oopsy than 2.6.17-rc5-mm1.
 > 
-> oic.  "and hold the lock across the callback".
-Sorry for missing the statement.
+> Is it supposed to work on x86_64?
 
-> 
-> Is the ranking of pci_bus_sem and dev->dev.sem correct+consistent?  It
-> looks OK.
-Yes, I think so. The write lock of pci_bus_sem and dev->dev.sem are used in
-different steps. Here we use read lock of pci_bus_sem + dev->dev.sem.
+yeah, it's supposed to work.
 
-> 
-> It might be worth making a not that the callback function cannot call any
-> PCI layer function which takes pci_bus_sem - that'll casue a recursive
-> down_read(), which is a nasty source of rare deadlocks.
-Currently, only pci error recovery codes call it while cb are the error
-callback functions in the driver. They shouldn't try to apply for write lock of
-pci_walk_sem. Perhaps we could add more comments in function pci_walk_bus.
+> I've tried enabling something minimal (full config attached):
+
+please send me the real full config you used for the build - this one 
+has only the =y entries. (from which it's hard to reproduce your 
+original config)
+
+	Ingo

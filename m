@@ -1,168 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWFBAnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWFBAna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWFBAnN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 20:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWFBAnM
+	id S1751022AbWFBAna (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 20:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWFBAna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 20:43:12 -0400
-Received: from mga01.intel.com ([192.55.52.88]:570 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750791AbWFBAnL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 20:43:11 -0400
-X-IronPort-AV: i="4.05,199,1146466800"; 
-   d="scan'208"; a="45750526:sNHT5669524007"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 1 Jun 2006 20:43:30 -0400
+Received: from wx-out-0102.google.com ([66.249.82.205]:9250 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750997AbWFBAn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 20:43:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=GJqt8t/xgZkEOt+bOg+HvqLedYbbK0TlsOwr4bILQFVSUr9CvD7zBsncJzk0pi4QeUsvaRfKqMJySvJabOYMd9JrrAACRniPJsjt8kfqIg5mhwfd3hZI2ofT8xbiDcHf8kffEq+uEufHUbQb0HKWYwL1fL9VMZP+YsBJPIGH+Sk=
+Message-ID: <986ed62e0606011743g23278ad5gfa9f98b88a739d22@mail.gmail.com>
+Date: Thu, 1 Jun 2006 17:43:27 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm2
+Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
+       James.Bottomley@steeleye.com
+In-Reply-To: <20060601172816.78f8839b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH REPOST] Support enable/disable of WAN module in ibm_acpi
-Date: Thu, 1 Jun 2006 20:42:37 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB69D2519@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH REPOST] Support enable/disable of WAN module in ibm_acpi
-Thread-Index: AcaFyk9cxwtknImMSc+BulVBDgZd1gAExnUA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Borislav Deianov" <borislav@users.sourceforge.net>,
-       "Jeremy Fitzhardinge" <jeremy@goop.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 02 Jun 2006 00:42:38.0158 (UTC) FILETIME=[727B2EE0:01C685DD]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060601014806.e86b3cc0.akpm@osdl.org>
+	 <9a8748490606011451m69e2f437uf3822e535f87d9ae@mail.gmail.com>
+	 <986ed62e0606011532kdeba801l57c1867c54b2be87@mail.gmail.com>
+	 <20060601155250.7dbcc6ef.akpm@osdl.org>
+	 <986ed62e0606011707m11f82b7i712452236ea06cfb@mail.gmail.com>
+	 <20060601172816.78f8839b.akpm@osdl.org>
+X-Google-Sender-Auth: 9b52af94c897fd5e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied to acpi-test.
+On 6/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Thu, 1 Jun 2006 17:07:29 -0700
+> "Barry K. Nathan" <barryn@pobox.com> wrote:
+>
+> > On 6/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > Please send `grep SCSI .config'.
+> >
+> > Ok, here it is.
+> >
+> > # CONFIG_SCSI_TGT is not set
+> > CONFIG_SCSI_SRP=m
+>
+> yup, that's the problem, thanks.
 
-thanks,
--Len 
-
->-----Original Message-----
->From: Borislav Deianov [mailto:borislav@users.sf.net] 
->Sent: Thursday, June 01, 2006 6:25 PM
->To: Brown, Len; Jeremy Fitzhardinge
->Cc: linux-kernel@vger.kernel.org; linux-acpi@vger.kernel.org; 
->Andrew Morton
->Subject: Re: [PATCH REPOST] Support enable/disable of WAN 
->module in ibm_acpi
->
->On Thu, Jun 01, 2006 at 02:40:46PM -0700, Jeremy Fitzhardinge wrote:
->> New Lenovo Thinkpads have an optional WAN module (a Sierra Wireless
->> MC5720 EV-DO modem), which can be turned on and off much like the
->> Bluetooth module.  This patch adds a "wan" entry to /proc/acpi/ibm,
->> which is pretty much a cut'n'paste of the corresponding 
->bluetooth code.
->
->I'm not able to test this myself, but it looks good. Len, please
->apply.
->
->Thanks,
->Borislav
->
->--
->
->Allow a WAN module to enabled/disabled on a Thinkpad X60.
->
->The WAN (Sierra Wireless EV-DO) module is very similar to the
->Bluetooth module.  It appears on the USB bus when enabled.  It can be
->controlled via hot key, or directly via ACPI.  This change enables
->direct control via ACPI.
->
->I have tested it on my Lenovo Thinkpad X60; I guess it will probably
->work on other Thinkpad models which come with this module installed.
->
->Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
->
->diff -r 401a0868b8be drivers/acpi/ibm_acpi.c
->--- a/drivers/acpi/ibm_acpi.c	Mon May 29 06:35:52 2006 +0700
->+++ b/drivers/acpi/ibm_acpi.c	Mon May 29 01:36:12 2006 -0700
->@@ -567,6 +567,69 @@ static int bluetooth_write(char *buf)
->	return 0;
->}
->
->+static int wan_supported;
->+
->+static int wan_init(void)
->+{
->+	wan_supported = hkey_handle &&
->+	    acpi_evalf(hkey_handle, NULL, "GWAN", "qv");
->+
->+	return 0;
->+}
->+
->+static int wan_status(void)
->+{
->+	int status;
->+
->+	if (!wan_supported ||
->+	    !acpi_evalf(hkey_handle, &status, "GWAN", "d"))
->+		status = 0;
->+
->+	return status;
->+}
->+
->+static int wan_read(char *p)
->+{
->+	int len = 0;
->+	int status = wan_status();
->+
->+	if (!wan_supported)
->+		len += sprintf(p + len, "status:\t\tnot supported\n");
->+	else if (!(status & 1))
->+		len += sprintf(p + len, "status:\t\tnot installed\n");
->+	else {
->+		len += sprintf(p + len, "status:\t\t%s\n", 
->enabled(status, 
->1));
->+		len += sprintf(p + len, "commands:\tenable, disable\n");
->+	}
->+
->+	return len;
->+}
->+
->+static int wan_write(char *buf)
->+{
->+	int status = wan_status();
->+	char *cmd;
->+	int do_cmd = 0;
->+
->+	if (!wan_supported)
->+		return -ENODEV;
->+
->+	while ((cmd = next_cmd(&buf))) {
->+		if (strlencmp(cmd, "enable") == 0) {
->+			status |= 2;
->+		} else if (strlencmp(cmd, "disable") == 0) {
->+			status &= ~2;
->+		} else
->+			return -EINVAL;
->+		do_cmd = 1;
->+	}
->+
->+	if (do_cmd && !acpi_evalf(hkey_handle, NULL, "SWAN", 
->"vd", status))
->+		return -EIO;
->+
->+	return 0;
->+}
->+
->static int video_supported;
->static int video_orig_autosw;
->
->@@ -1561,6 +1624,13 @@ static struct ibm_struct ibms[] = {
->	 .init = bluetooth_init,
->	 .read = bluetooth_read,
->	 .write = bluetooth_write,
->+	 },
->+	{
->+	 .name = "wan",
->+	 .init = wan_init,
->+	 .read = wan_read,
->+	 .write = wan_write,
->+	 .experimental = 1,
->	 },
->	{
->	 .name = "video",
->
+Looking at the Kconfig help text, it looks to me like SCSI_SRP without
+SCSI_TGT makes no sense. I guess at some point I must have been
+thinking "I have no idea what SCSI RDMA Protocol is, so I'll build it
+as a module just to be safe" -- I somehow missed the word "target" in
+its Kconfig help text when I enabled it...
+-- 
+-Barry K. Nathan <barryn@pobox.com>

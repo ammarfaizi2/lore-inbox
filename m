@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWFBJZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWFBJ2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWFBJZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWFBJZZ
+	id S1751358AbWFBJ2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 05:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWFBJ2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:25:25 -0400
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:53391 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751357AbWFBJZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:25:24 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 19:25:05 +1000
-User-Agent: KMail/1.9.1
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
-References: <000001c68625$614f59a0$0c4ce984@amr.corp.intel.com>
-In-Reply-To: <000001c68625$614f59a0$0c4ce984@amr.corp.intel.com>
+	Fri, 2 Jun 2006 05:28:37 -0400
+Received: from lucidpixels.com ([66.45.37.187]:50058 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751358AbWFBJ2h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 05:28:37 -0400
+Date: Fri, 2 Jun 2006 05:28:35 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: Linux XFS Tuning & Linux I/O Scheduler
+Message-ID: <Pine.LNX.4.64.0606020527320.12421@p34>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606021925.06089.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 19:17, Chen, Kenneth W wrote:
-> What about the part in dependent_sleeper() being so bully and actively
-> resched other low priority sibling tasks?  I think it would be better
-> to just let the tasks running on sibling CPU to finish its current time
-> slice and then let the backoff logic to kick in.
+Hello all,
 
-That would defeat the purpose of smt nice if the higher priority task starts 
-after the lower priority task is running on its sibling cpu.
+So far I have been following:
 
--- 
--ck
+http://everything2.com/index.pl?node_id=1479435
+
+For tuning XFS; are there any other parameters or methods of 
+tuning/optimization that are available to the end user?
+
+Furthermore, I was wondering if anyone has tested 
+CFQ,Deadline,Anticipatory,noop with XFS which did they find the best?
+
+Thanks,
+
+Justin.
+
+

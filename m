@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWFBOsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWFBOor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWFBOsM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 10:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWFBOsM
+	id S932153AbWFBOor (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 10:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWFBOor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 10:48:12 -0400
-Received: from aa003msg.fastwebnet.it ([213.140.2.70]:45701 "EHLO
-	aa003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932159AbWFBOsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 10:48:11 -0400
-Date: Fri, 2 Jun 2006 16:46:24 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2
-Message-ID: <20060602164624.22ba617e@localhost>
-In-Reply-To: <20060602141349.GA8974@elte.hu>
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	<20060602120952.615cea39@localhost>
-	<20060602111053.GA22306@elte.hu>
-	<20060602111704.GA22841@elte.hu>
-	<20060602133403.4eed2de7@localhost>
-	<20060602141349.GA8974@elte.hu>
-X-Mailer: Sylpheed-Claws 2.3.0-rc3 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+	Fri, 2 Jun 2006 10:44:47 -0400
+Received: from mail.gmx.de ([213.165.64.20]:21651 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932153AbWFBOoq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 10:44:46 -0400
+X-Authenticated: #14349625
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+From: Mike Galbraith <efault@gmx.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: sekharan@us.ibm.com, balbir@in.ibm.com, dev@openvz.org,
+       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
+       Sam Vilain <sam@vilain.net>, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <bsingharora@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+In-Reply-To: <44803ABA.6050001@bigpond.net.au>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
+	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>
+	 <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>
+	 <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>
+	 <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>
+	 <447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>
+	 <447FD2E1.7060605@bigpond.net.au>
+	 <1149237992.9446.133.camel@Homer.TheSimpsons.net>
+	 <44803ABA.6050001@bigpond.net.au>
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 16:47:19 +0200
+Message-Id: <1149259639.8661.22.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jun 2006 16:13:49 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
-
-> please try my latest lockdep-combo patch:
+On Fri, 2006-06-02 at 23:18 +1000, Peter Williams wrote:
+> Mike Galbraith wrote:
+> > On Fri, 2006-06-02 at 15:55 +1000, Peter Williams wrote:
+> >> Chandra Seetharaman wrote:
+> >>> On Thu, 2006-06-01 at 14:04 +0530, Balbir Singh wrote:
+> >>>> Hi, Kirill,
+> >>>>
+> >>>> Kirill Korotaev wrote:
+> >>>>>> Do you have any documented requirements for container resource 
+> >>>>>> management?
+> >>>>>> Is there a minimum list of features and nice to have features for 
+> >>>>>> containers
+> >>>>>> as far as resource management is concerned?
+> >>>>> Sure! You can check OpenVZ project (http://openvz.org) for example of 
+> >>>>> required resource management. BTW, I must agree with other people here 
+> >>>>> who noticed that per-process resource management is really useless and 
+> >>>>> hard to use :(
+> >>> I totally agree.
+> >> "nice" seems to be doing quite nicely :-)
+> >>
+> >> To me this capping functionality is a similar functionality to that 
+> >> provided by "nice" and all that's needed to make it useful is a command 
+> >> (similar to "nice") that runs tasks with caps applied.
+> > 
+> > Similar in that they are both inherited.  Very dissimilar in that the
+> > effect of nice is not altered by fork whereas the effect of a cap is.
+> > 
+> > Consider make.  A cap on make itself isn't meaningful, and _any_ per
+> > task cap you put on it with the intent of managing the aggregate, is
+> > defeated by the argument -j.  Per task caps require omniscience to be
+> > effective in managing processes.  That's a pretty severe limitation.
 > 
->   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm2.patch
-> 
-> ontop of vanilla -mm2. The combo patch includes all current -mm2 
-> hotfixes plus all current lockdep fixes.
+> These caps aren't trying to control aggregates but with suitable 
+> software they can be used to control aggregates.
 
-It gives me an Oops: "NULL pointer dereference at
-kmem_cache_alloc+0x23/0x7b" and than a panic (attemp to kill idle task).
+How?  How would you deal with the make example with per task caps.
 
-I'll try to get a nice picture...
+	-Mike
 
--- 
-	Paolo Ornati
-	Linux 2.6.16-ck11 on x86_64

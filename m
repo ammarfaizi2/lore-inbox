@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWFBGx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbWFBTvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWFBGx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 02:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWFBGx2
+	id S932556AbWFBTvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWFBTqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 02:53:28 -0400
-Received: from www.osadl.org ([213.239.205.134]:30341 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751216AbWFBGx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 02:53:27 -0400
-Subject: Re: non-scalar ktime addition and subtraction broken
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, "Christopher S. Aker" <caker@theshore.net>,
-       user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <20060602030825.GA8006@ccure.user-mode-linux.org>
-References: <20060602030825.GA8006@ccure.user-mode-linux.org>
-Content-Type: text/plain
-Date: Fri, 02 Jun 2006 08:54:22 +0200
-Message-Id: <1149231262.20582.119.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jun 2006 15:46:38 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52097 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751466AbWFBTqX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:46:23 -0400
+Message-Id: <20060602194734.005294000@sous-sol.org>
+References: <20060602194618.482948000@sous-sol.org>
+Date: Fri, 02 Jun 2006 00:00:01 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Brent Casavant <bcasavan@sgi.com>, Pat Gefre <pfg@sgi.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 01/11] Altix: correct ioc4 port order
+Content-Disposition: inline; filename=altix-correct-ioc4-port-order.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-01 at 23:08 -0400, Jeff Dike wrote:
-> The use of 64-bit additions and subtractions on something which is
-> nominally a struct containing 32-bit second and nanosecond field is
-> broken when a negative time is involved.  When the structure is
-> treated as a 64-bit integer, the increment of the upper 32 bits that's
-> part of two's-complement subtraction is lost.  This leaves the end
-> result off by one second.
-> 
-> This manifested itself with sleeps inside UML lasting about 1 second
-> shorter than expected.
-> 
-> The patch below is more a problem statement than a real fix.  People
-> thought about performance, and I don't know what this does to that
-> work.
-> 
-> I'm not sure why the hrtimer.c part is needed - I had done that before
-> tracking down the ktime_add problem.  I see short sleeps without it,
-> so it is needed somehow.
-> 
-> The ktime_sub piece was done for completeness - UML compiles and boots
-> with no apparent ill effects, but it's otherwise untested.
-> 
-> As an aside, I fail to see how it can be correct for ktime_sub to add
-> NSEC_PER_SEC to something without compensating somewhere else for it.
-> 
-> Andrew - please don't drop this into -mm without an OK from Thomas or
-> someone else who's familiar with this code :-)
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-NAK. ktime_t is defined that ist must be normalized the same way as
-timespecs. The nsec part must be >= 0 and < NSEC_PER_SEC. Fix the part
-which is feeding non normalized values.
+From: Brent Casavant <bcasavan@sgi.com>
 
-	tglx
+Currently loading the ioc4 as a module will cause the ports to be numbered
+in reverse order.  This mod maintains the proper order of cards for port
+numbering.
 
+Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+Cc: Pat Gefre <pfg@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
+---
 
+ drivers/sn/ioc4.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+--- linux-2.6.16.19.orig/drivers/sn/ioc4.c
++++ linux-2.6.16.19/drivers/sn/ioc4.c
+@@ -313,7 +313,7 @@ ioc4_probe(struct pci_dev *pdev, const s
+ 	idd->idd_serial_data = NULL;
+ 	pci_set_drvdata(idd->idd_pdev, idd);
+ 	down_write(&ioc4_devices_rwsem);
+-	list_add(&idd->idd_list, &ioc4_devices);
++	list_add_tail(&idd->idd_list, &ioc4_devices);
+ 	up_write(&ioc4_devices_rwsem);
+ 
+ 	/* Add this IOC4 to all submodules */
+
+--

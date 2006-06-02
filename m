@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWFBPKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWFBPLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWFBPKn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 11:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWFBPKn
+	id S932168AbWFBPLg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 11:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWFBPLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 11:10:43 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:46763 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932166AbWFBPKm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 11:10:42 -0400
-Date: Fri, 2 Jun 2006 17:10:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2
-Message-ID: <20060602151059.GA24735@elte.hu>
-References: <20060601014806.e86b3cc0.akpm@osdl.org> <20060602120952.615cea39@localhost> <20060602111053.GA22306@elte.hu> <20060602111704.GA22841@elte.hu> <20060602133403.4eed2de7@localhost> <20060602141349.GA8974@elte.hu> <20060602164624.22ba617e@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060602164624.22ba617e@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5006]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 2 Jun 2006 11:11:36 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:20488 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932168AbWFBPLf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 11:11:35 -0400
+Date: Fri, 2 Jun 2006 11:11:33 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: David Liontooth <liontooth@cogweb.net>
+cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] USB devices fail unnecessarily on unpowered
+ hubs
+In-Reply-To: <447F8057.4000109@cogweb.net>
+Message-ID: <Pine.LNX.4.44L0.0606021109390.7076-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 1 Jun 2006, David Liontooth wrote:
 
-* Paolo Ornati <ornati@fastwebnet.it> wrote:
+> What are the reasons not to do this? What happens if a USB stick is
+> underpowered to one unit? Nothing? Slower transmission? Data loss? Flash
+> memory destruction? If it's just speed, it's a price well worth paying.
 
-> On Fri, 2 Jun 2006 16:13:49 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > please try my latest lockdep-combo patch:
-> > 
-> >   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm2.patch
-> > 
-> > ontop of vanilla -mm2. The combo patch includes all current -mm2 
-> > hotfixes plus all current lockdep fixes.
-> 
-> It gives me an Oops: "NULL pointer dereference at 
-> kmem_cache_alloc+0x23/0x7b" and than a panic (attemp to kill idle 
-> task).
+I do wish people would read the earlier messages in this thread before 
+posting.  Go back and look at this one:
 
-ok, i can reproduce that with your full config.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114918113822427&w=2
 
-	Ingo
+Trying to draw too much current from an unpowered hub can and does cause 
+data loss.
+
+Alan Stern
+

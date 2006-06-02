@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWFBXXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWFBXZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbWFBXXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 19:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFBXXJ
+	id S1751267AbWFBXZd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 19:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWFBXZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 19:23:09 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:5084 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751039AbWFBXXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 19:23:07 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4480C7F4.907@s5r6.in-berlin.de>
-Date: Sat, 03 Jun 2006 01:21:24 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Fri, 2 Jun 2006 19:25:33 -0400
+Received: from wx-out-0102.google.com ([66.249.82.199]:9751 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751267AbWFBXZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 19:25:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=dYjzn/fMmr5p/G8D0HGEfnPCD0iYJJJcXT6D9tqmMO1RoxvCtdRrD4DwKmNEdhOfoXAJi12mgbj7/GQU9O2AbleQT38diQY127f+SX2N4jnNitBnp2vlGwW3bwwYD4hLwCUQJkeM4xdAhKAS+6qG5wbjbZj1EwhMSyd8+J5XC+c=
+Message-ID: <4480C8D9.5080309@gmail.com>
+Date: Sat, 03 Jun 2006 07:25:13 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Ben Collins <bcollins@ubuntu.com>
-CC: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Subject: Re: [PATCH 2.6.17-rc5-mm2 17/18] sbp2: provide helptext	for	CONFIG_IEEE1394_SBP2_PHYS_DMA
- and mark it experimental
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de> <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de> <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de> <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de> <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de> <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de> <tkrat.f35772c971022262@s5r6.in-berlin.de> <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de> <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de> <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de> <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de> <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de> <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de> <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de> <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de> <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de> <tkrat.96e1b392429fe277@s5r6.in-berlin.de> <tkrat.df90273c07dd7503@s5r6.in-berlin.de> <1149281162.4533.304.camel@grayson> <4480B45E.4060909@s5r6.in-berlin.de> <1149286809.4533.319.camel@grayson>
-In-Reply-To: <1149286809.4533.319.camel@grayson>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: David Lang <dlang@digitalinsight.com>
+CC: Pavel Machek <pavel@ucw.cz>, Ondrej Zajicek <santiago@mail.cz>,
+       Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <200605272245.22320.dhazelton@enter.net>  <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com>  <200605280112.01639.dhazelton@enter.net>  <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com>  <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com>  <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz>  <447CBEC5.1080602@gmail.com> <20060602083604.GA2480@localhost.localdomain>  <20060602085832.GA25806@elf.ucw.cz>  <Pine.LNX.4.63.0606021146320.4686@qynat.qvtvafvgr.pbz> <20060602220104.GA6931@elf.ucw.cz> <Pine.LNX.4.63.0606021256470.4686@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.63.0606021256470.4686@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.882) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> Rather it be in the config. Plus your suggestion still makes it
-> unusable :)
+David Lang wrote:
+> On Sat, 3 Jun 2006, Pavel Machek wrote:
+>> I'm not talking about reading speed, I'm talking about displaying
+>> speed. Once you display more than refresh rate times screen
+>> size... you may as well cheat -- xterm-like. If xterm detects too much
+>> stuff is being displayed, it simply stops displaying it, only
+>> refreshing screen few times a second...
+> 
+> That would work, however AFAIK it's not implemented in any existing
+> framebuffer.
 
-Right. But only if ohci1394 is loaded with phys_dma=0 or a controller 
-without phys DMA is used. Only these conditions let sbp2 run into the 
-routine which currently uses bus_to_virt.
+Besides implementaton, the main concern with this is that you might miss
+a very important kernel message.  Though one can always use the scrollback
+buffer.
 
-Right now, sbp2 is unusable _on all platforms_ if these conditions apply 
-and if CONFIG_IEEE1394_SBP2_PHYS_DMA=N.
-
-The previously sent "address range properties" patches would allow sbp2 
-to check for phys DMA at runtime. If phys DMA is off, sbp2 may either 
-proceed to use the old bus_to_virt mapping or say: "Sorry lad, I won't 
-connect unless you get this phys DMA thing going." (Until sbp2 learns 
-platform independent DMA mapping.) IOW we could get rid of the 
-CONFIG_IEEE1394_SBP2_PHYS_DMA switch immediately.
-
-But since the non-phys-DMA mode of sbp2 is currently prone to lock-ups, 
-runtime detection of non-phys-DMA is of lower priority to me.
-
-> I suggest instead doing '&& X86_32'. That should affect the least people
-> and keep it where it's known to work.
-
-Would '&& (X86_32 || PPC_32)' work too?
--- 
-Stefan Richter
--=====-=-==- -==- ---==
-http://arcgraph.de/sr/
+Tony

@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWFBTVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWFBThG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWFBTVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWFBTVk
+	id S932321AbWFBThG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWFBThG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:21:40 -0400
-Received: from barracuda.s2io.com ([72.1.205.138]:25500 "EHLO
-	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
-	id S1751443AbWFBTVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:21:39 -0400
-X-ASG-Debug-ID: 1149276098-16569-10-0
-X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
-Date: Fri, 2 Jun 2006 15:21:37 -0400 (EDT)
-From: Ravinandan Arakali <Ravinandan.Arakali@neterion.com>
-To: linux-kernel@vger.kernel.org
-cc: netdev@vger.kernel.org, leonid.grossman@neterion.com,
-       ananda.raju@neterion.com, rapuru.sriram@neterion.com,
-       ravinandan.arakali@neterion.com
-X-ASG-Orig-Subj: [PATCH 2.6.16.18] MSI: Proposed fix for MSI/MSI-X load failure
-Subject: [PATCH 2.6.16.18] MSI: Proposed fix for MSI/MSI-X load failure
-Message-ID: <Pine.GSO.4.10.10606021518500.9289-100000@guinness>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.13979
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Fri, 2 Jun 2006 15:37:06 -0400
+Received: from ns2.suse.de ([195.135.220.15]:35035 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932321AbWFBThE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:37:04 -0400
+Date: Fri, 2 Jun 2006 21:37:02 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
+Message-ID: <20060602193702.GA9888@suse.de>
+References: <20060529214011.GA417@suse.de> <20060530182453.GA8701@suse.de> <20060601184938.GA31376@suse.de> <20060601121200.457c0335.akpm@osdl.org> <20060601201050.GA32221@suse.de> <20060601142400.1352f903.akpm@osdl.org> <20060601214158.GA438@suse.de> <20060601145747.274df976.akpm@osdl.org> <20060602084327.GA3964@suse.de> <20060602021115.e42ad5dd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060602021115.e42ad5dd.akpm@osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-This patch suggests a fix for the MSI/MSI-X load failure.
+ On Fri, Jun 02, Andrew Morton wrote:
 
-Please review the patch.
+> On Fri, 2 Jun 2006 10:43:27 +0200
+> Olaf Hering <olh@suse.de> wrote:
+> 
+> >  On Thu, Jun 01, Andrew Morton wrote:
+> > 
+> > 
+> > > > Do you want it like that?
+> > > > 
+> > > > lock_page(page);
+> > > > if (PageUptodate(page)) {
+> > > >         SetPageDirty(page);
+> > > >         mb();
+> > > >         return page;
+> > > > }
+> > > 
+> > > Not really ;)  It's hacky.  It'd be better to take a lock.
+> > 
+> > Which lock exactly?
+> 
+> Ah, sorry, there isn't such a lock.  I was just carrying on.
+> 
+> > I'm not sure how to proceed from here.
+> 
+> I'd suggest you run SetPagePrivate() and SetPageChecked() on the locked
+> page and implement a_ops.releasepage(), which will fail if PageChecked(),
+> and will succeed otherwise:
 
-Symptoms:
-When a driver is loaded with MSI followed by MSI-X, the load fails indicating 
-that the MSI vector is still active. And vice versa.
-
-Suspected rootcause:
-This happens inspite of driver calling free_irq() followed by 
-pci_disable_msi/pci_disable_msix. This appears to be a kernel bug 
-wherein the pci_disable_msi and pci_disable_msix calls do not 
-clear/unpopulate the msi_desc data structure that was populated 
-by pci_enable_msi/pci_enable_msix.
-
-Proposed fix:
-Free the MSI vector in pci_disable_msi and all allocated MSI-X vectors 
-in pci_disable_msix.
-
-Testing:
-The fix has been tested on IA64 platforms with Neterion's Xframe driver.
-
-Signed-off-by: Ravinandan Arakali <ravinandan.arakali@neterion.com>
----
-
-diff -urpN old/drivers/pci/msi.c new/drivers/pci/msi.c
---- old/drivers/pci/msi.c	2006-05-31 19:02:19.000000000 -0700
-+++ new/drivers/pci/msi.c	2006-05-31 19:02:39.000000000 -0700
-@@ -779,6 +779,7 @@ void pci_disable_msi(struct pci_dev* dev
- 		nr_released_vectors++;
- 		default_vector = entry->msi_attrib.default_vector;
- 		spin_unlock_irqrestore(&msi_lock, flags);
-+		msi_free_vector(dev, dev->irq, 1);
- 		/* Restore dev->irq to its default pin-assertion vector */
- 		dev->irq = default_vector;
- 		disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
-@@ -1046,6 +1047,7 @@ void pci_disable_msix(struct pci_dev* de
- 
- 		}
- 	}
-+	msi_remove_pci_irq_vectors(dev);
- }
- 
- /**
-
+No leak without tweaking PG_private.

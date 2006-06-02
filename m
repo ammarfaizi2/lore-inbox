@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWFBGtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWFBHBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWFBGtV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 02:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWFBGtV
+	id S1751238AbWFBHBI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWFBHBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 02:49:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52154 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751214AbWFBGtV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 02:49:21 -0400
-Date: Thu, 1 Jun 2006 23:48:33 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
-Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
-Message-Id: <20060601234833.adf12249.zaitcev@redhat.com>
-In-Reply-To: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
-References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
+	Fri, 2 Jun 2006 03:01:07 -0400
+Received: from mga01.intel.com ([192.55.52.88]:50723 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751231AbWFBHBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 03:01:06 -0400
+X-IronPort-AV: i="4.05,202,1146466800"; 
+   d="scan'208"; a="45861984:sNHT6863723825"
+Subject: Re: State of resume for AHCI?
+From: "zhao, forrest" <forrest.zhao@intel.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Jens Axboe <axboe@suse.de>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <447FDE2E.5010401@suse.de>
+References: <447F23C2.8030802@goop.org> <447F3250.5070101@rtr.ca>
+	 <20060601183904.GR4400@suse.de> <447F4BC2.8060808@goop.org>
+	 <20060602060323.GS4400@suse.de>
+	 <1149228204.13451.8.camel@forrest26.sh.intel.com>
+	 <20060602064148.GT4400@suse.de>  <447FDE2E.5010401@suse.de>
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 14:49:04 +0800
+Message-Id: <1149230944.13451.11.camel@forrest26.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Jun 2006 07:00:40.0077 (UTC) FILETIME=[41F55BD0:01C68612]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 02 Jun 2006 00:03:06 -0300, "Luiz Fernando N.Capitulino" <lcapitulino@mandriva.com.br> wrote:
+On Fri, 2006-06-02 at 08:43 +0200, Hannes Reinecke wrote:
+> Jens Axboe wrote:
+> > On Fri, Jun 02 2006, zhao, forrest wrote:
+> >> On Fri, 2006-06-02 at 08:03 +0200, Jens Axboe wrote:
+> >>> On Thu, Jun 01 2006, Jeremy Fitzhardinge wrote:
+> >>>> Jens Axboe wrote:
+> >>>>> It's a lot more complicated than that, I'm afraid. ahci doesn't even
+> >>>>> have the resume/suspend methods defined, plus it needs more work than
+> >>>>> piix on resume.
+> >>>>>  
+> >>>> Hannes Reinecke's patch implements those functions, basically by 
+> >>>> factoring out the shutdown and init code and calling them at 
+> >>>> suspend/resume time as well.
+> >>>>
+> >>>> Is that correct/sufficient?  Or should something else be happening?
+> >>> No that's it, I know for a fact that suspend/resume works perfectly with
+> >>> the 10.1 suse kernel. You can give that a shot, if you want.
+> >> You may mean the Hannes's patch for 10.1 SUSE kernel. Hannes's patch
+> >> posted in open source community(or in linux-ide mailing list) didn't
+> >> work.
+> > 
+> > I didn't say Hannes patch, I said I know that 10.1 works. And that is
+> > probably in large due to the patch that Hannes did, which implents
+> > resume/suspend and takes care of reinitializing the resources.
+> > 
+> Indeed. I didn't post the latest set of patches to the open-source
+> community as Jeff indicated he would only accept patches against
+> libata-dev. And as I didn't have time to port them yet I didn't feel the
+> need to do so.
+> 
+> Forrest, please drop me a mail if I can be of further assistance.
 
-This looks interesting, although I do not know if it buys us much.
-The code seems sane at first view. The private lock inside pl2303
-saves you from the most obvious races.
+I almost finished porting a patch from OpenSUSE, will send it out in an
+hour, please help review it :)
 
->  The tests I've done so far weren't anything serious: as the mobile supports a
-> AT command set, I have used the ones (with minicom) which transfers more data.
-> Of course that I also did module load/unload tests, tried to disconnect the
-> device while it's transfering data and so on.
-
-Next, it would be nice to test if PPP works, and if getty and shell work
-(with getty driving the USB-to-serial adapter).
-
-> +static void serial_send_xchar(struct uart_port *port, char ch)
-> +{
-> +	USBSERIAL_PORT->serial->type->uart_ops->send_xchar(port, ch);
->  }
-
-I think you just inherited a mistake in usb-serial design. It attempts
-to act as an adaptation layer (like, say, USB core itself) instead of
-a library like libata. Why can't the UART framework call pl2303?
-
-Also this meaningless obfuscation has to go:
-
-> +#define USBSERIAL_PORT ((struct usb_serial_port *)port)
-> +static void pl2303_start_tx(struct uart_port *port)
-> +{
-> +	struct usb_serial_port *usp = USBSERIAL_PORT;
-
-Greetings,
--- Pete
+Thanks,
+Forrest

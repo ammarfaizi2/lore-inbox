@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWFBJxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWFBJxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWFBJxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWFBJxJ
+	id S1751353AbWFBJxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 05:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWFBJxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:53:09 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:17397 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751283AbWFBJxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:53:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=G0E9YcGHgbpqbjsxAqnlL5Pv2VlfROKph22znCOfSpziCQvr1ItVGDdDB2P0NZkyWIpR6TTwx6PFNprvkcofICrQlrUcOT9G08Fhl3kz4Abx4EfPTMDdWOlVYi9hD9MRXPQVIlhHrLYoYqPKilA2MdyeDC7GMU/G8AQ843NYUt4=
-Date: Fri, 2 Jun 2006 09:53:03 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Zhu Yi <yi.zhu@intel.com>
-Cc: Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       jketreno@linux.intel.com
-Subject: Re: [patch mm1-rc2] lock validator: netlink.c netlink_table_grab fix
-Message-ID: <20060602095303.GA1115@slug>
-References: <20060529212109.GA2058@elte.hu> <20060530091415.GA13341@ens-lyon.fr> <20060601144241.GA952@slug> <1149217811.13745.127.camel@debian.sh.intel.com>
+	Fri, 2 Jun 2006 05:53:14 -0400
+Received: from mga01.intel.com ([192.55.52.88]:65352 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751353AbWFBJxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 05:53:13 -0400
+X-IronPort-AV: i="4.05,203,1146466800"; 
+   d="scan'208"; a="45914296:sNHT14910945"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Con Kolivas'" <kernel@kolivas.org>
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, <linux-kernel@vger.kernel.org>,
+       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
+Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
+Date: Fri, 2 Jun 2006 02:53:13 -0700
+Message-ID: <000001c6862a$5d7142d0$114ce984@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149217811.13745.127.camel@debian.sh.intel.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcaGJ8MiIoq7AuC9RJe6RplBzUvhOAAALliw
+In-Reply-To: <200606021934.27420.kernel@kolivas.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 11:10:10AM +0800, Zhu Yi wrote:
-> On Thu, 2006-06-01 at 16:42 +0200, Frederik Deweerdt wrote:
-> > This got rid of the oops for me, is it the right fix?
+Con Kolivas wrote on Friday, June 02, 2006 2:34 AM
+> On Friday 02 June 2006 19:31, Chen, Kenneth W wrote:
+> > Con Kolivas wrote on Friday, June 02, 2006 2:25 AM
+> >
+> > > On Friday 02 June 2006 19:17, Chen, Kenneth W wrote:
+> > > > What about the part in dependent_sleeper() being so bully and actively
+> > > > resched other low priority sibling tasks?  I think it would be better
+> > > > to just let the tasks running on sibling CPU to finish its current time
+> > > > slice and then let the backoff logic to kick in.
+> > >
+> > > That would defeat the purpose of smt nice if the higher priority task
+> > > starts after the lower priority task is running on its sibling cpu.
+> >
+> > But only for the duration of lower priority tasks' time slice.  When lower
+> > priority tasks time slice is used up, a resched is force from
+> > scheduler_tick(), isn't it?  And at that time, it is delayed to run because
+> > of smt_nice.  You are saying user can't tolerate that short period of time
+> > that CPU resource is shared?  It's hard to believe.
 > 
-> I don't think netlink will contend with hardirqs. Can you test with this
-> fix for ipw2200 driver?
-> 
-It does work, thanks. But doesn't this add a possibility of missing 
-some interrupts?
-	cpu0				cpu1
-        ====				====
-in isr				in tasklet
-
-				ipw_enable_interrupts
-				|->priv->status |= STATUS_INT_ENABLED;
-
-ipw_disable_interrupts
-|->priv->status &= ~STATUS_INT_ENABLED;
-|->ipw_write32(priv, IPW_INTA_MASK_R, ~IPW_INTA_MASK_ALL);
-
-				|->ipw_write32(priv, IPW_INTA_MASK_R, IPW_INTA_MASK_ALL);
-				/* This is possible due to priv->lock no longer being taken
-				   in isr */
-
-=>interrupt from ipw2200
-in new isr
-if (!(priv->status & STATUS_INT_ENABLED))
-	return IRQ_NONE; /* we wrongfully return here because priv->status
-                            does not reflect the register's value */
+> nice -20 vs nice 0 is 800ms vs 100ms. That's a long time to me.
 
 
-Not sure this is really important at all, just curious.
+Yeah, but that is the worst case though.  Average would probably be a lot
+lower than worst case.  Also, on smt it's not like the current logical cpu
+is getting blocked because of another task is running on its sibling CPU.
+The hardware still guarantees equal share of hardware resources for both
+logical CPUs.
 
-Thanks,
-Frederik
+- Ken
+

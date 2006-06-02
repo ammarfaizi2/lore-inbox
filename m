@@ -1,92 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWFBDIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWFBDKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWFBDIj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 23:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWFBDIj
+	id S1751170AbWFBDKE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 23:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWFBDKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 23:08:39 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:21916 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751169AbWFBDIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 23:08:38 -0400
-Date: Thu, 1 Jun 2006 23:08:25 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Cc: "Christopher S. Aker" <caker@theshore.net>,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: non-scalar ktime addition and subtraction broken
-Message-ID: <20060602030825.GA8006@ccure.user-mode-linux.org>
+	Thu, 1 Jun 2006 23:10:04 -0400
+Received: from mga02.intel.com ([134.134.136.20]:61019 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751170AbWFBDKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 23:10:02 -0400
+X-IronPort-AV: i="4.05,200,1146466800"; 
+   d="scan'208"; a="44695348:sNHT20321504"
+Subject: Re: [patch mm1-rc2] lock validator: netlink.c netlink_table_grab
+	fix
+From: Zhu Yi <yi.zhu@intel.com>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       jketreno@linux.intel.com
+In-Reply-To: <20060601144241.GA952@slug>
+References: <20060529212109.GA2058@elte.hu>
+	 <20060530091415.GA13341@ens-lyon.fr>  <20060601144241.GA952@slug>
+Content-Type: multipart/mixed; boundary="=-WiH4nIzNzZYamjzR48Md"
+Organization: Intel Corp.
+Date: Fri, 02 Jun 2006 11:10:10 +0800
+Message-Id: <1149217811.13745.127.camel@debian.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The use of 64-bit additions and subtractions on something which is
-nominally a struct containing 32-bit second and nanosecond field is
-broken when a negative time is involved.  When the structure is
-treated as a 64-bit integer, the increment of the upper 32 bits that's
-part of two's-complement subtraction is lost.  This leaves the end
-result off by one second.
 
-This manifested itself with sleeps inside UML lasting about 1 second
-shorter than expected.
+--=-WiH4nIzNzZYamjzR48Md
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The patch below is more a problem statement than a real fix.  People
-thought about performance, and I don't know what this does to that
-work.
+On Thu, 2006-06-01 at 16:42 +0200, Frederik Deweerdt wrote:
+> This got rid of the oops for me, is it the right fix?
 
-I'm not sure why the hrtimer.c part is needed - I had done that before
-tracking down the ktime_add problem.  I see short sleeps without it,
-so it is needed somehow.
+I don't think netlink will contend with hardirqs. Can you test with this
+fix for ipw2200 driver?
 
-The ktime_sub piece was done for completeness - UML compiles and boots
-with no apparent ill effects, but it's otherwise untested.
+Thanks,
+-yi
 
-As an aside, I fail to see how it can be correct for ktime_sub to add
-NSEC_PER_SEC to something without compensating somewhere else for it.
+--=-WiH4nIzNzZYamjzR48Md
+Content-Disposition: attachment; filename=ipw2200-lockdep-fix.patch
+Content-Type: text/x-patch; name=ipw2200-lockdep-fix.patch; charset=GB2312
+Content-Transfer-Encoding: 7bit
 
-Andrew - please don't drop this into -mm without an OK from Thomas or
-someone else who's familiar with this code :-)
-
-				Jeff
-
-Index: linux-2.6.17-mm/include/linux/ktime.h
-===================================================================
---- linux-2.6.17-mm.orig/include/linux/ktime.h	2006-06-01 22:15:44.000000000 -0400
-+++ linux-2.6.17-mm/include/linux/ktime.h	2006-06-01 23:00:32.000000000 -0400
-@@ -148,7 +148,8 @@ static inline ktime_t ktime_sub(const kt
- {
- 	ktime_t res;
+diff -urp a/drivers/net/wireless/ipw2200.c b/drivers/net/wireless/ipw2200.c
+--- a/drivers/net/wireless/ipw2200.c	2006-04-01 09:47:24.000000000 +0800
++++ b/drivers/net/wireless/ipw2200.c	2006-06-01 14:32:00.000000000 +0800
+@@ -11058,11 +11058,9 @@ static irqreturn_t ipw_isr(int irq, void
+ 	if (!priv)
+ 		return IRQ_NONE;
  
--	res.tv64 = lhs.tv64 - rhs.tv64;
-+	res.tv.sec = lhs.tv.sec - rhs.tv.sec;
-+	res.tv.nsec = lhs.tv.nsec - rhs.tv.nsec;
- 	if (res.tv.nsec < 0)
- 		res.tv.nsec += NSEC_PER_SEC;
+-	spin_lock(&priv->lock);
+-
+ 	if (!(priv->status & STATUS_INT_ENABLED)) {
+ 		/* Shared IRQ */
+-		goto none;
++		return IRQ_NONE;
+ 	}
  
-@@ -167,7 +168,8 @@ static inline ktime_t ktime_add(const kt
- {
- 	ktime_t res;
+ 	inta = ipw_read32(priv, IPW_INTA_RW);
+@@ -11071,12 +11069,12 @@ static irqreturn_t ipw_isr(int irq, void
+ 	if (inta == 0xFFFFFFFF) {
+ 		/* Hardware disappeared */
+ 		IPW_WARNING("IRQ INTA == 0xFFFFFFFF\n");
+-		goto none;
++		return IRQ_NONE;
+ 	}
  
--	res.tv64 = add1.tv64 + add2.tv64;
-+	res.tv.sec = add1.tv.sec + add2.tv.sec;
-+	res.tv.nsec = add1.tv.nsec + add2.tv.nsec;
- 	/*
- 	 * performance trick: the (u32) -NSEC gives 0x00000000Fxxxxxxx
- 	 * so we subtract NSEC_PER_SEC and add 1 to the upper 32 bit.
-Index: linux-2.6.17-mm/kernel/hrtimer.c
-===================================================================
---- linux-2.6.17-mm.orig/kernel/hrtimer.c	2006-06-01 22:15:44.000000000 -0400
-+++ linux-2.6.17-mm/kernel/hrtimer.c	2006-06-01 22:57:24.000000000 -0400
-@@ -627,7 +627,8 @@ static inline void run_hrtimer_queue(str
- 		int restart;
+ 	if (!(inta & (IPW_INTA_MASK_ALL & inta_mask))) {
+ 		/* Shared interrupt */
+-		goto none;
++		return IRQ_NONE;
+ 	}
  
- 		timer = rb_entry(node, struct hrtimer, node);
--		if (base->softirq_time.tv64 <= timer->expires.tv64)
-+		if(ktime_to_ns(base->softirq_time) <=
-+		   ktime_to_ns(timer->expires))
- 			break;
+ 	/* tell the device to stop sending interrupts */
+@@ -11091,12 +11089,7 @@ static irqreturn_t ipw_isr(int irq, void
  
- 		fn = timer->function;
+ 	tasklet_schedule(&priv->irq_tasklet);
+ 
+-	spin_unlock(&priv->lock);
+-
+ 	return IRQ_HANDLED;
+-      none:
+-	spin_unlock(&priv->lock);
+-	return IRQ_NONE;
+ }
+ 
+ static void ipw_rf_kill(void *adapter)
+
+--=-WiH4nIzNzZYamjzR48Md--

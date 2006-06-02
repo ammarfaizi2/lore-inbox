@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWFBThG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWFBTiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWFBThG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWFBThG
+	id S932405AbWFBTiK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWFBTiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:37:06 -0400
-Received: from ns2.suse.de ([195.135.220.15]:35035 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932321AbWFBThE (ORCPT
+	Fri, 2 Jun 2006 15:38:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30645 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932178AbWFBTiJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:37:04 -0400
-Date: Fri, 2 Jun 2006 21:37:02 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Message-ID: <20060602193702.GA9888@suse.de>
-References: <20060529214011.GA417@suse.de> <20060530182453.GA8701@suse.de> <20060601184938.GA31376@suse.de> <20060601121200.457c0335.akpm@osdl.org> <20060601201050.GA32221@suse.de> <20060601142400.1352f903.akpm@osdl.org> <20060601214158.GA438@suse.de> <20060601145747.274df976.akpm@osdl.org> <20060602084327.GA3964@suse.de> <20060602021115.e42ad5dd.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060602021115.e42ad5dd.akpm@osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Fri, 2 Jun 2006 15:38:09 -0400
+Message-ID: <4480938E.3060005@redhat.com>
+Date: Fri, 02 Jun 2006 14:37:50 -0500
+From: Clark Williams <williams@redhat.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: -rt x86_64 fix for latency tracing
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Jun 02, Andrew Morton wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Fri, 2 Jun 2006 10:43:27 +0200
-> Olaf Hering <olh@suse.de> wrote:
-> 
-> >  On Thu, Jun 01, Andrew Morton wrote:
-> > 
-> > 
-> > > > Do you want it like that?
-> > > > 
-> > > > lock_page(page);
-> > > > if (PageUptodate(page)) {
-> > > >         SetPageDirty(page);
-> > > >         mb();
-> > > >         return page;
-> > > > }
-> > > 
-> > > Not really ;)  It's hacky.  It'd be better to take a lock.
-> > 
-> > Which lock exactly?
-> 
-> Ah, sorry, there isn't such a lock.  I was just carrying on.
-> 
-> > I'm not sure how to proceed from here.
-> 
-> I'd suggest you run SetPagePrivate() and SetPageChecked() on the locked
-> page and implement a_ops.releasepage(), which will fail if PageChecked(),
-> and will succeed otherwise:
+Ingo/Steve,
 
-No leak without tweaking PG_private.
+The included patch fixes a bug that causes a segfault in the init
+thread when latency tracing is enabled on x86_64 kernels. Not sure if
+it's completely correct, but it gets me past my segfault and lets me
+complete booting.
+
+diff --git a/arch/x86_64/kernel/entry.S b/arch/x86_64/kernel/entry.S
+index 066497a..b124409 100644
+- --- a/arch/x86_64/kernel/entry.S
++++ b/arch/x86_64/kernel/entry.S
+@@ -1089,7 +1089,7 @@ ENTRY(mcount)
+ 
+        mov 0x0(%rbp),%rax
+        mov 0x8(%rbp),%rdi
+- -       mov 0x8(%rax),%rsi
++       mov 0x10(%rax),%rsi
+ 
+        call   __trace
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFEgJOOHyuj/+TTEp0RAhkEAKDWQu4cvGBvCQi1UyQcDalbR6SPZACglMRH
+rVy1tTWHbatDx37pXHAXs1s=
+=5Qi9
+-----END PGP SIGNATURE-----
+

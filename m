@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWFBQsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWFBQt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbWFBQsA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 12:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWFBQsA
+	id S932505AbWFBQt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 12:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWFBQt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 12:48:00 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:34308 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932498AbWFBQr7 (ORCPT
+	Fri, 2 Jun 2006 12:49:56 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:31702 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932505AbWFBQtz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 12:47:59 -0400
-Date: Fri, 2 Jun 2006 18:47:57 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, mark_salyzyn@adaptec.com
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: [aacraid] Is that a linux issue or flaky hardware?
-Message-ID: <20060602164757.GA27188@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, mark_salyzyn@adaptec.com,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-References: <20060601181155.GA95280@dspnet.fr.eu.org> <1149198277.18267.5.camel@localhost>
+	Fri, 2 Jun 2006 12:49:55 -0400
+Subject: Re: [PATCH] hugetlb: powerpc: Actively close unused htlb regions
+	on vma close
+From: Adam Litke <agl@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linuxppc-dev@ozlabs.org, linux-mm@kvack.org,
+       David Gibson <david@gibson.dropbear.id.au>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606021737310.26864@blonde.wat.veritas.com>
+References: <1149257287.9693.6.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0606021737310.26864@blonde.wat.veritas.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 02 Jun 2006 11:49:28 -0500
+Message-Id: <1149266969.9693.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149198277.18267.5.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 10:44:36PM +0100, Alan Cox wrote:
-> Not that I am aware of with the reported hardware, and your system seems
-> to have just croaked. Does the same occur if you boot with 2GB or less
-> memory limit ?
+On Fri, 2006-06-02 at 17:43 +0100, Hugh Dickins wrote:
+> On Fri, 2 Jun 2006, Adam Litke wrote:
+> > 
+> > On powerpc, each segment can contain pages of only one size.  When a
+> > hugetlb mapping is requested, a segment is located and marked for use
+> > with huge pages.  This is a uni-directional operation -- hugetlb
+> > segments are never marked for use again with normal pages.  For long
+> > running processes which make use of a combination of normal and hugetlb
+> > mappings, this behavior can unduly constrain the virtual address space.
+> > 
+> > The following patch introduces a architecture-specific vm_ops.close()
+> > hook.  For all architectures besides powerpc, this is a no-op.  On
+> > powerpc, the low and high segments are scanned to locate empty hugetlb
+> > segments which can be made available for normal mappings.  Comments?
+> 
+> Wouldn't hugetlb_free_pgd_range be a better place to do that kind of
+> thing, all within arch/powerpc, no need for arch_hugetlb_close_vma etc?
 
-Yes.  And firmware appears to be up-to-date.
+Hmm.  Interesting idea.  I'll take a look.
 
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 
-> Also please cc the maintainer of the driver, he's rather good and
-> usually responsive.
-
-That he is :-)  Definitively DOA hardware, thank you and thanks Mark.
-
-  OG.

@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWFBInd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWFBIoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWFBInd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 04:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWFBInd
+	id S1751231AbWFBIoL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 04:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWFBIoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 04:43:33 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:16006 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751228AbWFBInd (ORCPT
+	Fri, 2 Jun 2006 04:44:11 -0400
+Received: from mail.gmx.de ([213.165.64.20]:9109 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751231AbWFBIoJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 04:43:33 -0400
-Date: Fri, 2 Jun 2006 10:43:27 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Message-ID: <20060602084327.GA3964@suse.de>
-References: <20060529214011.GA417@suse.de> <20060530182453.GA8701@suse.de> <20060601184938.GA31376@suse.de> <20060601121200.457c0335.akpm@osdl.org> <20060601201050.GA32221@suse.de> <20060601142400.1352f903.akpm@osdl.org> <20060601214158.GA438@suse.de> <20060601145747.274df976.akpm@osdl.org>
+	Fri, 2 Jun 2006 04:44:09 -0400
+X-Authenticated: #14349625
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+From: Mike Galbraith <efault@gmx.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: sekharan@us.ibm.com, balbir@in.ibm.com, dev@openvz.org,
+       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
+       Sam Vilain <sam@vilain.net>, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <bsingharora@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+In-Reply-To: <447FD2E1.7060605@bigpond.net.au>
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
+	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>
+	 <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>
+	 <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>
+	 <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>
+	 <447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>
+	 <447FD2E1.7060605@bigpond.net.au>
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 10:46:32 +0200
+Message-Id: <1149237992.9446.133.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060601145747.274df976.akpm@osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Jun 01, Andrew Morton wrote:
-
-
-> > Do you want it like that?
+On Fri, 2006-06-02 at 15:55 +1000, Peter Williams wrote:
+> Chandra Seetharaman wrote:
+> > On Thu, 2006-06-01 at 14:04 +0530, Balbir Singh wrote:
+> >> Hi, Kirill,
+> >>
+> >> Kirill Korotaev wrote:
+> >>>> Do you have any documented requirements for container resource 
+> >>>> management?
+> >>>> Is there a minimum list of features and nice to have features for 
+> >>>> containers
+> >>>> as far as resource management is concerned?
+> >>> Sure! You can check OpenVZ project (http://openvz.org) for example of 
+> >>> required resource management. BTW, I must agree with other people here 
+> >>> who noticed that per-process resource management is really useless and 
+> >>> hard to use :(
 > > 
-> > lock_page(page);
-> > if (PageUptodate(page)) {
-> >         SetPageDirty(page);
-> >         mb();
-> >         return page;
-> > }
+> > I totally agree.
 > 
-> Not really ;)  It's hacky.  It'd be better to take a lock.
+> "nice" seems to be doing quite nicely :-)
+> 
+> To me this capping functionality is a similar functionality to that 
+> provided by "nice" and all that's needed to make it useful is a command 
+> (similar to "nice") that runs tasks with caps applied.
 
-Which lock exactly? I'm not sure how to proceed from here.
+Similar in that they are both inherited.  Very dissimilar in that the
+effect of nice is not altered by fork whereas the effect of a cap is.
+
+Consider make.  A cap on make itself isn't meaningful, and _any_ per
+task cap you put on it with the intent of managing the aggregate, is
+defeated by the argument -j.  Per task caps require omniscience to be
+effective in managing processes.  That's a pretty severe limitation.
+
+	-Mike
+

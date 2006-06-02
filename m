@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWFBTqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWFBTrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWFBTqi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWFBTqh
+	id S932550AbWFBTrE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWFBTqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:46:37 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:25473 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751468AbWFBTqX
+	Fri, 2 Jun 2006 15:46:43 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:26497 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751450AbWFBTqQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:46:23 -0400
-Message-Id: <20060602194743.769166000@sous-sol.org>
+	Fri, 2 Jun 2006 15:46:16 -0400
+Message-Id: <20060602194745.224132000@sous-sol.org>
 References: <20060602194618.482948000@sous-sol.org>
-Date: Fri, 02 Jun 2006 00:00:08 -0700
+Date: Fri, 02 Jun 2006 00:00:09 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,68 +19,67 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Zhu Yi <yi.zhu@intel.com>,
-       John W Linville <linville@tuxdriver.com>,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Vivek Goyal <vgoyal@in.ibm.com>, Andi Kleen <ak@suse.de>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 08/11] ipw2200: Filter unsupported channels out in ad-hoc mode
-Content-Disposition: inline; filename=ipw2200-Filter-unsupported-channels-out-in-ad-hoc-mode.patch
+Subject: [PATCH 09/11] x86_64: x86_64 add crashdump trigger points
+Content-Disposition: inline; filename=x86_64-add-crashdump-trigger-points.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Zhu Yi <yi.zhu@intel.com>
+From: Vivek Goyal <vgoyal@in.ibm.com>
 
-Currently iwlist ethX freq[uency]/channel lists all the channels the card
-supported for the current region, which includes some channels can only
-be used in infrastructure mode. This patch filters these channels out if
-the card is currently in ad-hoc mode.
+o Start booting into the capture kernel after an Oops if system is in a
+  unrecoverable state. System will boot into the capture kernel, if one is
+  pre-loaded by the user, and capture the kernel core dump.
 
-Signed-off-by: Zhu Yi <yi.zhu@intel.com>
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
+o One of the following conditions should be true to trigger the booting of
+  capture kernel.
+        - panic_on_oops is set.
+        - pid of current thread is 0
+        - pid of current thread is 1
+        - Oops happened inside interrupt context.
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
+ arch/x86_64/kernel/traps.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
- drivers/net/wireless/ipw2200.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
-
---- linux-2.6.16.19.orig/drivers/net/wireless/ipw2200.c
-+++ linux-2.6.16.19/drivers/net/wireless/ipw2200.c
-@@ -8391,20 +8391,28 @@ static int ipw_wx_get_range(struct net_d
+--- linux-2.6.16.19.orig/arch/x86_64/kernel/traps.c
++++ linux-2.6.16.19/arch/x86_64/kernel/traps.c
+@@ -30,6 +30,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/nmi.h>
+ #include <linux/kprobes.h>
++#include <linux/kexec.h>
  
- 	i = 0;
- 	if (priv->ieee->mode & (IEEE_B | IEEE_G)) {
--		for (j = 0; j < geo->bg_channels && i < IW_MAX_FREQUENCIES;
--		     i++, j++) {
-+		for (j = 0; j < geo->bg_channels && i < IW_MAX_FREQUENCIES; j++) {
-+			if ((priv->ieee->iw_mode == IW_MODE_ADHOC) &&
-+			    (geo->bg[j].flags & IEEE80211_CH_PASSIVE_ONLY))
-+				continue;
-+
- 			range->freq[i].i = geo->bg[j].channel;
- 			range->freq[i].m = geo->bg[j].freq * 100000;
- 			range->freq[i].e = 1;
-+			i++;
- 		}
- 	}
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -434,6 +435,8 @@ void __kprobes __die(const char * str, s
+ 	printk(KERN_ALERT "RIP ");
+ 	printk_address(regs->rip); 
+ 	printk(" RSP <%016lx>\n", regs->rsp); 
++	if (kexec_should_crash(current))
++		crash_kexec(regs);
+ }
  
- 	if (priv->ieee->mode & IEEE_A) {
--		for (j = 0; j < geo->a_channels && i < IW_MAX_FREQUENCIES;
--		     i++, j++) {
-+		for (j = 0; j < geo->a_channels && i < IW_MAX_FREQUENCIES; j++) {
-+			if ((priv->ieee->iw_mode == IW_MODE_ADHOC) &&
-+			    (geo->a[j].flags & IEEE80211_CH_PASSIVE_ONLY))
-+				continue;
-+
- 			range->freq[i].i = geo->a[j].channel;
- 			range->freq[i].m = geo->a[j].freq * 100000;
- 			range->freq[i].e = 1;
-+			i++;
- 		}
- 	}
- 
+ void die(const char * str, struct pt_regs * regs, long err)
+@@ -456,6 +459,8 @@ void __kprobes die_nmi(char *str, struct
+ 	 */
+ 	printk(str, safe_smp_processor_id());
+ 	show_registers(regs);
++	if (kexec_should_crash(current))
++		crash_kexec(regs);
+ 	if (panic_on_timeout || panic_on_oops)
+ 		panic("nmi watchdog");
+ 	printk("console shuts up ...\n");
 
 --

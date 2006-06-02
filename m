@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWFBJlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWFBJxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWFBJlp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWFBJlp
+	id S1751283AbWFBJxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 05:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWFBJxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:41:45 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:63620 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S1751370AbWFBJlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:41:45 -0400
-To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: Possible kernel memory leaks
-Reply-To: Catalin Marinas <catalin.marinas@gmail.com>
-References: <44797BEF.70206@gmail.com> <tnxk682wbk8.fsf@arm.com>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Fri, 02 Jun 2006 10:41:37 +0100
-In-Reply-To: <tnxk682wbk8.fsf@arm.com> (Catalin Marinas's message of "Wed,
- 31 May 2006 14:47:35 +0100")
-Message-ID: <tnx4pz3x5bi.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 2 Jun 2006 05:53:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:17397 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751283AbWFBJxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 05:53:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=G0E9YcGHgbpqbjsxAqnlL5Pv2VlfROKph22znCOfSpziCQvr1ItVGDdDB2P0NZkyWIpR6TTwx6PFNprvkcofICrQlrUcOT9G08Fhl3kz4Abx4EfPTMDdWOlVYi9hD9MRXPQVIlhHrLYoYqPKilA2MdyeDC7GMU/G8AQ843NYUt4=
+Date: Fri, 2 Jun 2006 09:53:03 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Zhu Yi <yi.zhu@intel.com>
+Cc: Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       jketreno@linux.intel.com
+Subject: Re: [patch mm1-rc2] lock validator: netlink.c netlink_table_grab fix
+Message-ID: <20060602095303.GA1115@slug>
+References: <20060529212109.GA2058@elte.hu> <20060530091415.GA13341@ens-lyon.fr> <20060601144241.GA952@slug> <1149217811.13745.127.camel@debian.sh.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 02 Jun 2006 09:41:38.0763 (UTC) FILETIME=[BEFBE1B0:01C68628]
+Content-Disposition: inline
+In-Reply-To: <1149217811.13745.127.camel@debian.sh.intel.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Catalin Marinas <catalin.marinas@arm.com> wrote:
-> Catalin Marinas <catalin.marinas@gmail.com> wrote:
->> There are some possible kernel memory leaks discovered by kmemleak.
-> [...]
->> - acpi_ev_execute_reg_method in drivers/acpi/events/evregion.c - I'm not
->> sure about this but kmemleak reports an orphan pointer on the following
->> allocation path:
->>   c0159372: <kmem_cache_alloc>
->>   c01ffa07: <acpi_os_acquire_object>
->>   c0215b3a: <acpi_ut_allocate_object_desc_dbg>
->>   c02159ce: <acpi_ut_create_internal_object_dbg>
->>   c0203784: <acpi_ev_execute_reg_method>
->>   c0203db4: <acpi_ev_reg_run>
->>   c020ed17: <acpi_ns_walk_namespace>
->>   c0203d6b: <acpi_ev_execute_reg_methods>
->> Is acpi_ut_remove_reference actually removing the params[0/1]?
->
-> After a quick check, the reference counts after the
-> acpi_ns_evaluate_by_handle() call in acpi_ev_execute_reg_method look
-> like this (they were both 1 before this call):
->
->   params[0]->common.reference_count = 1
->   params[1]->common.reference_count = 2
->
-> and therefore acpi_ut_remove_reference() doesn't free
-> params[1]. Kmemleak, however, cannot find the params[1] value while
-> scanning the memory and therefore reports it as a leak.
+On Fri, Jun 02, 2006 at 11:10:10AM +0800, Zhu Yi wrote:
+> On Thu, 2006-06-01 at 16:42 +0200, Frederik Deweerdt wrote:
+> > This got rid of the oops for me, is it the right fix?
+> 
+> I don't think netlink will contend with hardirqs. Can you test with this
+> fix for ipw2200 driver?
+> 
+It does work, thanks. But doesn't this add a possibility of missing 
+some interrupts?
+	cpu0				cpu1
+        ====				====
+in isr				in tasklet
 
-I'll keep investigating this as I think its a real object
-leak. Looking at why params[1] has a different reference_count from
-params[0], led me to the following backtrace on the ref count
-increment (that's getting really complicated):
+				ipw_enable_interrupts
+				|->priv->status |= STATUS_INT_ENABLED;
 
-  acpi_ut_add_reference
-  acpi_ds_method_data_get_value
-  acpi_ex_resolve_object_to_value
-  acpi_ex_resolve_to_value
-  acpi_ex_resolve_operands
-    (I have a suspicion that the above function should call
-     acpi_ut_remove_reference(obj_desc) on an error return path but it
-     actually doesn't and, therefore, the ref count remains
-     incremented. In this function, params[0] ref count is 3 but the
-     one for params[1] becomes 4)
-  acpi_ds_exec_end_op (called via walk_state->ascending_callback)
-  acpi_ps_parse_loop
-  acpi_ps_parse_aml
-  acpi_ps_execute_pass
-  acpi_ps_execute_method
-  acpi_ns_execute_control_method
-  acpi_ns_evaluate_by_handle
-  acpi_ev_execute_reg_method
+ipw_disable_interrupts
+|->priv->status &= ~STATUS_INT_ENABLED;
+|->ipw_write32(priv, IPW_INTA_MASK_R, ~IPW_INTA_MASK_ALL);
 
-Any suggestions/hints? I hope to get to the bottom of this in the next
-few days.
+				|->ipw_write32(priv, IPW_INTA_MASK_R, IPW_INTA_MASK_ALL);
+				/* This is possible due to priv->lock no longer being taken
+				   in isr */
 
-Thanks.
+=>interrupt from ipw2200
+in new isr
+if (!(priv->status & STATUS_INT_ENABLED))
+	return IRQ_NONE; /* we wrongfully return here because priv->status
+                            does not reflect the register's value */
 
--- 
-Catalin
+
+Not sure this is really important at all, just curious.
+
+Thanks,
+Frederik

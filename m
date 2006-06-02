@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWFBI2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWFBIbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWFBI2q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 04:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWFBI2q
+	id S1751323AbWFBIbY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 04:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWFBIbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 04:28:46 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:27306 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751322AbWFBI2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 04:28:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=03IL1cwYVunMHxOcxGiVbA540QIde2+cT37xYGJtV1eHqm4uxpIjIuod11aGM3OFbGIwGnH4lsFjyfCjKkexyIPM3brroSw5GtP3YBE/vo9D7HGIlKAffXUBLhSxPdj5Rov6O+ORH+voSVw3o7vAyaDbKysPAH7maK8WTSbr5EI=  ;
-Message-ID: <447FF6B8.1000700@yahoo.com.au>
-Date: Fri, 02 Jun 2006 18:28:40 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 2 Jun 2006 04:31:24 -0400
+Received: from mga01.intel.com ([192.55.52.88]:10893 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751323AbWFBIbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 04:31:23 -0400
+X-IronPort-AV: i="4.05,202,1146466800"; 
+   d="scan'208"; a="45890096:sNHT25014465"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Con Kolivas'" <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>
+Cc: "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
+Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
+Date: Fri, 2 Jun 2006 01:31:23 -0700
+Message-ID: <000101c6861e$eeb46b20$0b4ce984@amr.corp.intel.com>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-References: <000101c685d7$1bc84390$d234030a@amr.corp.intel.com> <200606021608.33928.kernel@kolivas.org> <447FEE6C.7000408@yahoo.com.au> <200606021817.46745.kernel@kolivas.org>
-In-Reply-To: <200606021817.46745.kernel@kolivas.org>
-Content-Type: multipart/mixed;
- boundary="------------070705050307050500050603"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcaF+GieWKnv9uneRk+Hdw+4ab8WGAAJbB3Q
+In-Reply-To: <200606021355.23671.kernel@kolivas.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070705050307050500050603
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Con Kolivas wrote:
-> On Friday 02 June 2006 17:53, Nick Piggin wrote:
+Con Kolivas wrote on Thursday, June 01, 2006 8:55 PM
+> On Friday 02 June 2006 12:28, Con Kolivas wrote:
+> > Actually looking even further, we only introduced the extra lookup of the
+> > next task when we started unlocking the runqueue in schedule(). Since we
+> > can get by without locking this_rq in schedule with this approach we can
+> > simplify dependent_sleeper even further by doing the dependent sleeper
+> > check after we have discovered what next is in schedule and avoid looking
+> > it up twice. I'll hack something up to do that soon.
 > 
->>This is a small micro-optimisation / cleanup we can do after
->>smtnice gets converted to use trylocks. Might result in a little
->>less cacheline footprint in some cases.
-> 
-> 
-> It's only dependent_sleeper that is being converted in these patches. The 
-> wake_sleeping_dependent component still locks all runqueues and needs to 
+> Something like this (sorry I couldn't help but keep hacking on it).
+> ---
+> It is not critical to functioning that dependent_sleeper() succeeds every
+> time. We can significantly reduce the locking overhead and contention of
+> dependent_sleeper by only doing trylock on the smt sibling runqueues. As
+> we're only doing trylock it means we do not need to observe the normal
+> locking order and we can get away without unlocking this_rq in schedule().
+> This provides us with an opportunity to simplify the code further.
 
-Oh I missed that.
 
-> succeed in order to ensure a task doesn't keep sleeping indefinitely. That 
+The code in wake_sleeping_dependent() is also quite wacky: it unlocks
+current runqueue, then re-acquires ALL the sibling runqueue lock, only
+to call wakeup_busy_runqueue() against the smt sibling runqueue other
+than itself.  AFAICT, wakeup_busy_runqueue() does not require *ALL*
+sibling lock to be held.
 
-Let's make it use trylocks as well. wake_priority_sleeper should ensure
-things don't sleep forever I think? We should be optimising for the most
-common case, and in many workloads, the runqueue does go idle frequently.
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-> one doesn't get called from schedule() so is far less expensive. This means I 
-> don't think we can change that cpu based locking order which I believe was 
-> introduce to prevent a deadlock (?DaveJ disovered it iirc).
-> 
-
-AntonB, I think.
-
--- 
-SUSE Labs, Novell Inc.
-
---------------070705050307050500050603
-Content-Type: text/plain;
- name="sntnice2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sntnice2.patch"
-
-Index: linux-2.6/kernel/sched.c
-===================================================================
---- linux-2.6.orig/kernel/sched.c	2006-06-02 18:23:18.000000000 +1000
-+++ linux-2.6/kernel/sched.c	2006-06-02 18:26:40.000000000 +1000
-@@ -2686,6 +2686,9 @@ static inline void wakeup_busy_runqueue(
+--- ./kernel/sched.c.orig	2006-06-02 01:57:28.000000000 -0700
++++ ./kernel/sched.c	2006-06-02 02:19:37.000000000 -0700
+@@ -2712,44 +2712,32 @@ static inline void wakeup_busy_runqueue(
  		resched_task(rq->idle);
  }
  
-+/*
-+ * Called with interrupts disabled and this_rq's runqueue locked.
-+ */
- static void wake_sleeping_dependent(int this_cpu, runqueue_t *this_rq)
+-static void wake_sleeping_dependent(int this_cpu, runqueue_t *this_rq)
++static void wake_sleeping_dependent(int this_cpu)
  {
  	struct sched_domain *tmp, *sd = NULL;
-@@ -2699,22 +2702,13 @@ static void wake_sleeping_dependent(int 
+-	cpumask_t sibling_map;
+ 	int i;
+ 
+ 	for_each_domain(this_cpu, tmp)
+-		if (tmp->flags & SD_SHARE_CPUPOWER)
++		if (tmp->flags & SD_SHARE_CPUPOWER) {
+ 			sd = tmp;
++			break;
++		}
+ 
  	if (!sd)
  		return;
  
@@ -96,7 +85,7 @@ Index: linux-2.6/kernel/sched.c
 -	 */
 -	spin_unlock(&this_rq->lock);
 -
- 	sibling_map = sd->span;
+-	sibling_map = sd->span;
 -
 -	for_each_cpu_mask(i, sibling_map)
 -		spin_lock(&cpu_rq(i)->lock);
@@ -104,30 +93,40 @@ Index: linux-2.6/kernel/sched.c
 -	 * We clear this CPU from the mask. This both simplifies the
 -	 * inner loop and keps this_rq locked when we exit:
 -	 */
- 	cpu_clear(this_cpu, sibling_map);
-+	for_each_cpu_mask(i, sibling_map) {
-+		if (unlikely(!spin_trylock(&cpu_rq(i)->lock)))
-+			cpu_clear(i, sibling_map);
-+	}
-+
+-	cpu_clear(this_cpu, sibling_map);
++	for_each_cpu_mask(i, sd->span) {
++		runqueue_t *smt_rq;
  
- 	for_each_cpu_mask(i, sibling_map) {
- 		runqueue_t *smt_rq = cpu_rq(i);
-@@ -2724,10 +2718,6 @@ static void wake_sleeping_dependent(int 
+-	for_each_cpu_mask(i, sibling_map) {
+-		runqueue_t *smt_rq = cpu_rq(i);
++		if (i == this_cpu)
++			continue;
  
- 	for_each_cpu_mask(i, sibling_map)
- 		spin_unlock(&cpu_rq(i)->lock);
--	/*
--	 * We exit with this_cpu's rq still held and IRQs
--	 * still disabled:
--	 */
++		smt_rq = cpu_rq(i);
++		spin_lock(&smt_rq->lock);
+ 		wakeup_busy_runqueue(smt_rq);
++		spin_unlock(&smt_rq->lock);
+ 	}
+ 
+-	for_each_cpu_mask(i, sibling_map)
+-		spin_unlock(&cpu_rq(i)->lock);
+ 	/*
+ 	 * We exit with this_cpu's rq still held and IRQs
+ 	 * still disabled:
+@@ -2857,7 +2845,7 @@ check_smt_task:
+ 	return ret;
+ }
+ #else
+-static inline void wake_sleeping_dependent(int this_cpu, runqueue_t *this_rq)
++static inline void wake_sleeping_dependent(int this_cpu)
+ {
  }
  
- /*
-@@ -2961,13 +2951,6 @@ need_resched_nonpreemptible:
+@@ -2988,14 +2976,8 @@ need_resched_nonpreemptible:
+ 		if (!rq->nr_running) {
  			next = rq->idle;
  			rq->expired_timestamp = 0;
- 			wake_sleeping_dependent(cpu, rq);
+-			wake_sleeping_dependent(cpu, rq);
 -			/*
 -			 * wake_sleeping_dependent() might have released
 -			 * the runqueue, so break out if we got new
@@ -135,9 +134,8 @@ Index: linux-2.6/kernel/sched.c
 -			 */
 -			if (!rq->nr_running)
 -				goto switch_tasks;
++			wake_sleeping_dependent(cpu);
++			goto switch_tasks;
  		}
  	}
  
-
---------------070705050307050500050603--
-Send instant messages to your online friends http://au.messenger.yahoo.com 

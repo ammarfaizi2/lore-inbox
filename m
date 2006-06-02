@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWFBJBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWFBJEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWFBJBf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWFBJBf
+	id S1751344AbWFBJEE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 05:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWFBJEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:01:35 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42145 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751343AbWFBJBe (ORCPT
+	Fri, 2 Jun 2006 05:04:04 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44449 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751344AbWFBJEC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:01:34 -0400
-Date: Fri, 2 Jun 2006 11:00:45 +0200
+	Fri, 2 Jun 2006 05:04:02 -0400
+Date: Fri, 2 Jun 2006 11:03:13 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Dave Airlie <airlied@gmail.com>, Ondrej Zajicek <santiago@mail.cz>,
-       "D. Hazelton" <dhazelton@enter.net>,
+Cc: "D. Hazelton" <dhazelton@enter.net>, David Lang <dlang@digitalinsight.com>,
+       Ondrej Zajicek <santiago@mail.cz>, Dave Airlie <airlied@gmail.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
        Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
        Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org, adaplas@gmail.com
 Subject: Re: OpenGL-based framebuffer concepts
-Message-ID: <20060602090045.GB25806@elf.ucw.cz>
-References: <200605302314.25957.dhazelton@enter.net> <9e4733910605302116s5a47f5a3kf0f941980ff17e8@mail.gmail.com> <200605310026.01610.dhazelton@enter.net> <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com> <20060601092807.GA7111@localhost.localdomain> <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com> <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com> <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com> <21d7e9970606011945i57e2cfd2la77459fc7273b6e7@mail.gmail.com> <9e4733910606012027y2567c194yf02a96319fe33e63@mail.gmail.com>
+Message-ID: <20060602090313.GC25806@elf.ucw.cz>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com> <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz> <200606011603.57421.dhazelton@enter.net> <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <9e4733910606012027y2567c194yf02a96319fe33e63@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >> > 15) re-use as much of the X drivers as possible, otherwise it will KGI.
-> >>
-> >> I would broaden this to use the best code where ever it is found. Of
-> >> course X is a major source.
+On Čt 01-06-06 16:35:12, Jon Smirl wrote:
+> On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
+> >> > 5) The system needs to be robust. Daemons can be killed by the OOM
+> >> > mechanism, you don't want to lose your console in the middle of trying
+> >> > to fix a problem. This also means that you have to be able to display
+> >> > printk's from inside interrupt handles.
 > >
-> >I'm not considering using knowledge from X drivers, I'm considering
-> >using the X drivers, I don't personally care about things like X's
-> >over use of typedefs and that sort of stuff, that is what I term
-> >semantic, people who work on X drivers know X drivers, and writing the
-> >drivers is the biggest part of any graphic systems.
+> >Point of disagreement. Tons of userspace helpers isn't a good choice.
 > 
-> I have considered that option too. It is a good place for a quick
-> start but it is not maintainable in the long run. The driver code has
-> to be divorced from X and not require having the entire X system
-> around to build a new driver.
+> Where do you get 'tons'? There will probably be one for initial reset,
+> one for VESA based mode setting and a few more if there is device
+> specific code needed for a specific card.
 > 
-> Have you checked the dependencies needed for loading X drivers?
-> Modularization may have helped but loading an X driver used to
-> effectively suck in the entire X server due to dependencies. Sucking
-> in all of X is not fair to alternative windowing systems.
+> Making console rely on a permanent daemon that is subject to getting
+> killed by the OOM mechanism is not a workable solution.
 
-Why not? For now we can have something that works, and alternative
-windowing systems can strip it down if they wish to.
-
-> I do agree that this is a workable starting point but it can't be the
-> long term solution.
-
-Long term, someone is definitely going to clean up that userspace
-code...
-
-									Pavel
+Well, you keep forgetting that temporary programs are _also_ subject
+to OOM, and that -- in case of problems -- exec() is less likely to
+work than most other things.
+								Pavel
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek

@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWFBHFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWFBHE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWFBHFo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 03:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWFBHFo
+	id S1751245AbWFBHE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWFBHE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 03:05:44 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:18746 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751239AbWFBHFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 03:05:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PYwwfFdlk8Yk+FKU+23WUa984YsVxHhNWwSCXWUug9/DxyhF2JEnCs2kjTeAB9be/A6zVoxuyuUSvTc/GK+h7l1WXINcG09OKrUj7XEnRWhpxwGwIRXHj2mnZEeaVtB9rcFPRVLhGzjiHRKQZZL3GP/7O59DcoN4nfbt0vnHeFg=
-Message-ID: <9a8748490606020005n841abafjc7e05a5e2ab8a312@mail.gmail.com>
-Date: Fri, 2 Jun 2006 09:05:41 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Abu M. Muttalib" <abum@aftek.com>
-Subject: Re: Page Allocation Failure, Why?? Bug in kernel??
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       "Paulo Marques" <pmarques@grupopie.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMGEJJCNAA.abum@aftek.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jun 2006 03:04:29 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40013 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751233AbWFBHE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 03:04:28 -0400
+Date: Fri, 2 Jun 2006 09:06:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "zhao, forrest" <forrest.zhao@intel.com>
+Cc: Hannes Reinecke <hare@suse.de>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Mark Lord <lkml@rtr.ca>, Jeff Garzik <jeff@garzik.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: State of resume for AHCI?
+Message-ID: <20060602070632.GX4400@suse.de>
+References: <447F23C2.8030802@goop.org> <447F3250.5070101@rtr.ca> <20060601183904.GR4400@suse.de> <447F4BC2.8060808@goop.org> <20060602060323.GS4400@suse.de> <1149228204.13451.8.camel@forrest26.sh.intel.com> <20060602064148.GT4400@suse.de> <447FDE2E.5010401@suse.de> <1149230944.13451.11.camel@forrest26.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <447F00C7.4060904@mbligh.org>
-	 <BKEKJNIHLJDCFGDBOHGMGEJJCNAA.abum@aftek.com>
+In-Reply-To: <1149230944.13451.11.camel@forrest26.sh.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/06/06, Abu M. Muttalib <abum@aftek.com> wrote:
-> Hi,
->
-> That's precisely I want to say. The PAGES are available but they are not
-> allocated to process. Why??
->
-There may be 32 pages available in total, but not 32 contiguous ones -
-that's a *lot* of contiguous pages to ask for in kernel space - 128KB
-(assuming a 4096 byte page size).
+On Fri, Jun 02 2006, zhao, forrest wrote:
+> On Fri, 2006-06-02 at 08:43 +0200, Hannes Reinecke wrote:
+> > Jens Axboe wrote:
+> > > On Fri, Jun 02 2006, zhao, forrest wrote:
+> > >> On Fri, 2006-06-02 at 08:03 +0200, Jens Axboe wrote:
+> > >>> On Thu, Jun 01 2006, Jeremy Fitzhardinge wrote:
+> > >>>> Jens Axboe wrote:
+> > >>>>> It's a lot more complicated than that, I'm afraid. ahci doesn't even
+> > >>>>> have the resume/suspend methods defined, plus it needs more work than
+> > >>>>> piix on resume.
+> > >>>>>  
+> > >>>> Hannes Reinecke's patch implements those functions, basically by 
+> > >>>> factoring out the shutdown and init code and calling them at 
+> > >>>> suspend/resume time as well.
+> > >>>>
+> > >>>> Is that correct/sufficient?  Or should something else be happening?
+> > >>> No that's it, I know for a fact that suspend/resume works perfectly with
+> > >>> the 10.1 suse kernel. You can give that a shot, if you want.
+> > >> You may mean the Hannes's patch for 10.1 SUSE kernel. Hannes's patch
+> > >> posted in open source community(or in linux-ide mailing list) didn't
+> > >> work.
+> > > 
+> > > I didn't say Hannes patch, I said I know that 10.1 works. And that is
+> > > probably in large due to the patch that Hannes did, which implents
+> > > resume/suspend and takes care of reinitializing the resources.
+> > > 
+> > Indeed. I didn't post the latest set of patches to the open-source
+> > community as Jeff indicated he would only accept patches against
+> > libata-dev. And as I didn't have time to port them yet I didn't feel the
+> > need to do so.
+> > 
+> > Forrest, please drop me a mail if I can be of further assistance.
+> 
+> I almost finished porting a patch from OpenSUSE, will send it out in an
+> hour, please help review it :)
+
+Wonderful! Please do test it as well :-)
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Jens Axboe
+

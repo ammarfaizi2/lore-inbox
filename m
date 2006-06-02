@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWFBGtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWFBGuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWFBGtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 02:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWFBGtZ
+	id S1751227AbWFBGuA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 02:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWFBGuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 02:49:25 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:38535 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1751221AbWFBGtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 02:49:24 -0400
-Subject: [Patch] Lockdep: add parent-child annotations to usbfs
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 02 Jun 2006 08:49:09 +0200
-Message-Id: <1149230949.3117.56.camel@laptopd505.fenrus.org>
+	Fri, 2 Jun 2006 02:50:00 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26436 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751223AbWFBGt6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 02:49:58 -0400
+Date: Fri, 2 Jun 2006 08:52:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Hannes Reinecke <hare@suse.de>
+Cc: "zhao, forrest" <forrest.zhao@intel.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Mark Lord <lkml@rtr.ca>,
+       Jeff Garzik <jeff@garzik.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: State of resume for AHCI?
+Message-ID: <20060602065206.GV4400@suse.de>
+References: <447F23C2.8030802@goop.org> <447F3250.5070101@rtr.ca> <20060601183904.GR4400@suse.de> <447F4BC2.8060808@goop.org> <20060602060323.GS4400@suse.de> <1149228204.13451.8.camel@forrest26.sh.intel.com> <20060602064148.GT4400@suse.de> <447FDE2E.5010401@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <447FDE2E.5010401@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jun 02 2006, Hannes Reinecke wrote:
+> Jens Axboe wrote:
+> > On Fri, Jun 02 2006, zhao, forrest wrote:
+> >> On Fri, 2006-06-02 at 08:03 +0200, Jens Axboe wrote:
+> >>> On Thu, Jun 01 2006, Jeremy Fitzhardinge wrote:
+> >>>> Jens Axboe wrote:
+> >>>>> It's a lot more complicated than that, I'm afraid. ahci doesn't even
+> >>>>> have the resume/suspend methods defined, plus it needs more work than
+> >>>>> piix on resume.
+> >>>>>  
+> >>>> Hannes Reinecke's patch implements those functions, basically by 
+> >>>> factoring out the shutdown and init code and calling them at 
+> >>>> suspend/resume time as well.
+> >>>>
+> >>>> Is that correct/sufficient?  Or should something else be happening?
+> >>> No that's it, I know for a fact that suspend/resume works perfectly with
+> >>> the 10.1 suse kernel. You can give that a shot, if you want.
+> >> You may mean the Hannes's patch for 10.1 SUSE kernel. Hannes's patch
+> >> posted in open source community(or in linux-ide mailing list) didn't
+> >> work.
+> > 
+> > I didn't say Hannes patch, I said I know that 10.1 works. And that is
+> > probably in large due to the patch that Hannes did, which implents
+> > resume/suspend and takes care of reinitializing the resources.
+> > 
+> Indeed. I didn't post the latest set of patches to the open-source
+> community as Jeff indicated he would only accept patches against
+> libata-dev. And as I didn't have time to port them yet I didn't feel the
+> need to do so.
 
-In usbfs's fs_remove_file() function, the aim is to remove a file or
-directory from usbfs. This is done by first taking the i_mutex of the
-parent directory of this file/dir via
-  mutex_lock(&parent->d_inode->i_mutex);
-and then to call either usbfs_rmdir() for a directory or usbfs_unlink() 
-for a file. Both these functions then take the i_mutex for the
-to-be-removed object themselves:
-  mutex_lock(&inode->i_mutex);
+Understandable, I hope you will have some time to push it for 2.6.18
+though.
 
-This is a classical parent->child locking order relationship that the
-VFS uses all over the place; the VFS locking rule is "you need to take
-the parent first". This patch annotates the usbfs code to make this
-explicit and thus informs the lockdep code that those two locks indeed
-have this relationship.
-
-The rules for unlink that we already use in the VFS for unlink are to
-use I_MUTEX_PARENT for the parent directory, and a normal mutex for the
-file itself; this patch follows that convention.
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
----
- drivers/usb/core/inode.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.17-rc5-mm1.5/drivers/usb/core/inode.c
-===================================================================
---- linux-2.6.17-rc5-mm1.5.orig/drivers/usb/core/inode.c
-+++ linux-2.6.17-rc5-mm1.5/drivers/usb/core/inode.c
-
-@@ -528,7 +528,7 @@ static void fs_remove_file (struct dentr
- 	if (!parent || !parent->d_inode)
- 		return;
- 
--	mutex_lock(&parent->d_inode->i_mutex);
-+	mutex_lock_nested(&parent->d_inode->i_mutex, I_MUTEX_PARENT);
- 	if (usbfs_positive(dentry)) {
- 		if (dentry->d_inode) {
- 			if (S_ISDIR(dentry->d_inode->i_mode))
+-- 
+Jens Axboe
 

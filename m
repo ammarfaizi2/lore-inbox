@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWFBV73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWFBWBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWFBV73 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 17:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWFBV72
+	id S1750738AbWFBWBz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 18:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWFBWBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 17:59:28 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:57559 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750792AbWFBV72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 17:59:28 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4480B45E.4060909@s5r6.in-berlin.de>
-Date: Fri, 02 Jun 2006 23:57:50 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Fri, 2 Jun 2006 18:01:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5509 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750738AbWFBWBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 18:01:54 -0400
+Date: Sat, 3 Jun 2006 00:01:04 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Ondrej Zajicek <santiago@mail.cz>,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+Message-ID: <20060602220104.GA6931@elf.ucw.cz>
+References: <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <447CBEC5.1080602@gmail.com> <20060602083604.GA2480@localhost.localdomain> <20060602085832.GA25806@elf.ucw.cz> <Pine.LNX.4.63.0606021146320.4686@qynat.qvtvafvgr.pbz>
 MIME-Version: 1.0
-To: Ben Collins <bcollins@ubuntu.com>, Olaf Hering <olh@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Subject: Re: [PATCH 2.6.17-rc5-mm2 17/18] sbp2: provide helptext for	CONFIG_IEEE1394_SBP2_PHYS_DMA
- and mark it experimental
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de> <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de> <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de> <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de> <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de> <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de> <tkrat.f35772c971022262@s5r6.in-berlin.de> <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de> <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de> <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de> <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de> <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de> <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de> <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de> <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de> <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de> <tkrat.96e1b392429fe277@s5r6.in-berlin.de> <tkrat.df90273c07dd7503@s5r6.in-berlin.de> <1149281162.4533.304.camel@grayson>
-In-Reply-To: <1149281162.4533.304.camel@grayson>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-0.733) AWL,BAYES_00
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0606021146320.4686@qynat.qvtvafvgr.pbz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> On Fri, 2006-06-02 at 22:27 +0200, Stefan Richter wrote:
->>It appears I will not get it fixed overnight.
-> 
->>-	bool "Enable Phys DMA support for SBP2 (Debug)"
->>-	depends on IEEE1394 && IEEE1394_SBP2
->>+	bool "Enable replacement for physical DMA in SBP2"
->>+	depends on IEEE1394 && IEEE1394_SBP2 && EXPERIMENTAL
-> 
-> 
-> Please add '&& !SPARC' to the depends line. Other architectures may
-> apply, but I know for sure that this cannot be enabled on SPARC or
-> SPARC64 since the module will be unloadable due to missing symbols
-> (virt_to_bus, bus_to_virt).
+Hi!
 
-Are there suggestions for more architectures? PPC64?
+> >>I just implemented text mode switch and tileblit ops into viafb
+> >>(http://davesdomain.org.uk/viafb/index.php) and it is about four
+> >>times faster than accelerated graphics mode and about eight times
+> >>faster than unaccelerated graphics mode (both measured using cat
+> >>largefile with ypan disabled). So textmode is meaningful
+> >>alternative.
+> >
+> >I mean.... it is displaying text faster than refresh rate... so who
+> >cares?
+> >
+> >You can only *display* so much text a second (and then, user is only
+> >able to see *much* less text) and both text mode and frame buffers are
+> >way past that limits. so.... who cares?
+> 
+> there are quite a few times when you have text output that you need to 
+> scroll through, but you really don't need to read it as it goes by.
+> 
+> for example, accidently cating a large file, running a program with overly 
+> verbose debugging output, etc.
+> 
+> yes, if you never make mistakes and know that these are problem cases 
+> ahead of time you can redirect the output. but in the real world sysadmins 
+> really do notice when they are on a console that is slower.
+> 
+> if reading speed was the limiting factor very few people would need 
+> anything faster then a 9600 baud terminal.
 
-Or maybe I should put something into sbp2 like
-#if defined(CONFIG_X86_32) || defined(CONFIG_PPC32)
-	a = bus_to_virt(b);
-#else
-	printk("this functionality will be brought to you RSN");
-#endif
-until I had time to implement a proper mapping.
+I'm not talking about reading speed, I'm talking about displaying
+speed. Once you display more than refresh rate times screen
+size... you may as well cheat -- xterm-like. If xterm detects too much
+stuff is being displayed, it simply stops displaying it, only
+refreshing screen few times a second...
+									Pavel
 -- 
-Stefan Richter
--=====-=-==- -==- ---=-
-http://arcgraph.de/sr/
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

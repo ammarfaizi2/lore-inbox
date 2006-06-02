@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWFBMSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWFBMUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWFBMSU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 08:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWFBMSU
+	id S1751284AbWFBMUV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 08:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWFBMUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 08:18:20 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:49208 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751282AbWFBMST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 08:18:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=UwBa1yfzxlQghiUx1qq9psmw9AOlBUbt7Bf3nNtaku/PcczO/P4javwV88ad1N2FPQj2h7Y5lpWLR3motclyj7AzMXSJiJmmFlfTJaov9U5/JZV3/zjUocKyvBPW0y7jR8l69XDIKbEECJ7zJknQYmQWugocsFVrvq5AYOjccY4=
-Message-ID: <44802C6C.6030606@gmail.com>
-Date: Fri, 02 Jun 2006 20:17:48 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Fri, 2 Jun 2006 08:20:21 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:62024 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751284AbWFBMUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 08:20:19 -0400
+Date: Fri, 2 Jun 2006 14:20:17 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: "Abu M. Muttalib" <abum@aftek.com>
+Cc: linux-kernel@vger.kernel.org, k.oliver@t-online.de, jes@sgi.com
+Subject: Re: __alloc_pages: 0-order allocation failed (Jes Sorensen)
+Message-ID: <20060602122016.GC2051@harddisk-recovery.com>
+References: <mailman.3.1149246001.8252.linux-kernel-daily-digest@lists.us.dell.com> <BKEKJNIHLJDCFGDBOHGMAEKICNAA.abum@aftek.com>
 MIME-Version: 1.0
-To: Ondrej Zajicek <santiago@mail.cz>
-CC: David Lang <dlang@digitalinsight.com>, Jon Smirl <jonsmirl@gmail.com>,
-       Dave Airlie <airlied@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
-       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <447CBEC5.1080602@gmail.com> <20060602083604.GA2480@localhost.localdomain>
-In-Reply-To: <20060602083604.GA2480@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BKEKJNIHLJDCFGDBOHGMAEKICNAA.abum@aftek.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ondrej Zajicek wrote:
-> On Wed, May 31, 2006 at 05:53:09AM +0800, Antonino A. Daplas wrote:
->> David Lang wrote:
->>> On Sun, 28 May 2006, Jon Smirl wrote:
->> So even a dumb driver such as vesafb that has to do on the fly
->> color conversions while pushing 64x more data to the bus can be
->> faster than vgacon.
+On Fri, Jun 02, 2006 at 05:44:38PM +0530, Abu M. Muttalib wrote:
+> I was running one application on a linux-2.4.19-rmk7-pxa1 box with 16 MB RAM
+> and 16 MB flash. It was all working fine.
 > 
-> I just implemented text mode switch and tileblit ops into viafb
-> (http://davesdomain.org.uk/viafb/index.php) and it is about four
-> times faster than accelerated graphics mode and about eight times
-> faster than unaccelerated graphics mode (both measured using cat
-> largefile with ypan disabled).
+> I am now trying to run the same application on a linux-2.6.13 box and
+> intermittently I get OOM-KILLER and killing of a required process. What has
+> changed between these two kernel version?
 
-Never said that framebuffer can ever be faster than text mode, the
-comparison was made against vgacon only. The reason why vgacon is
-slow is because the screen buffer of vgacon is the actual VGA RAM.
-So all operations (copies, fills, blits) are done in io memory.
-And access to graphics memory is always slow, especially reads.
+Most of the VM subsystem, why do you ask...?
 
-> So textmode is meaningful
-> alternative.
+Try to recreate the problem with a more recent 2.6 kernel and post a
+the kernel messages.
 
-This point was never questioned.
 
-Tony
- 
+Erik
 
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

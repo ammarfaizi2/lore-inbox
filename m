@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWFBMHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWFBMSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWFBMHp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 08:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWFBMHp
+	id S1751282AbWFBMSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 08:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWFBMSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 08:07:45 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:49552 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S1751230AbWFBMHp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 08:07:45 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.0.166):SA:0(-102.3/1.7):. Processed in 3.847128 secs Process 2300)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <k.oliver@t-online.de>, <jes@sgi.com>
-Subject: Re: __alloc_pages: 0-order allocation failed (Jes Sorensen)
-Date: Fri, 2 Jun 2006 17:44:38 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMAEKICNAA.abum@aftek.com>
+	Fri, 2 Jun 2006 08:18:20 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:49208 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751282AbWFBMST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 08:18:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=UwBa1yfzxlQghiUx1qq9psmw9AOlBUbt7Bf3nNtaku/PcczO/P4javwV88ad1N2FPQj2h7Y5lpWLR3motclyj7AzMXSJiJmmFlfTJaov9U5/JZV3/zjUocKyvBPW0y7jR8l69XDIKbEECJ7zJknQYmQWugocsFVrvq5AYOjccY4=
+Message-ID: <44802C6C.6030606@gmail.com>
+Date: Fri, 02 Jun 2006 20:17:48 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Ondrej Zajicek <santiago@mail.cz>
+CC: David Lang <dlang@digitalinsight.com>, Jon Smirl <jonsmirl@gmail.com>,
+       Dave Airlie <airlied@gmail.com>, "D. Hazelton" <dhazelton@enter.net>,
+       Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: OpenGL-based framebuffer concepts
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200605272245.22320.dhazelton@enter.net> <9e4733910605272027o7b59ea5n5d402dabdd7167cb@mail.gmail.com> <200605280112.01639.dhazelton@enter.net> <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <447CBEC5.1080602@gmail.com> <20060602083604.GA2480@localhost.localdomain>
+In-Reply-To: <20060602083604.GA2480@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <mailman.3.1149246001.8252.linux-kernel-daily-digest@lists.us.dell.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ondrej Zajicek wrote:
+> On Wed, May 31, 2006 at 05:53:09AM +0800, Antonino A. Daplas wrote:
+>> David Lang wrote:
+>>> On Sun, 28 May 2006, Jon Smirl wrote:
+>> So even a dumb driver such as vesafb that has to do on the fly
+>> color conversions while pushing 64x more data to the bus can be
+>> faster than vgacon.
+> 
+> I just implemented text mode switch and tileblit ops into viafb
+> (http://davesdomain.org.uk/viafb/index.php) and it is about four
+> times faster than accelerated graphics mode and about eight times
+> faster than unaccelerated graphics mode (both measured using cat
+> largefile with ypan disabled).
 
-I have somewhat related problem as mentioned in my previous mail.
+Never said that framebuffer can ever be faster than text mode, the
+comparison was made against vgacon only. The reason why vgacon is
+slow is because the screen buffer of vgacon is the actual VGA RAM.
+So all operations (copies, fills, blits) are done in io memory.
+And access to graphics memory is always slow, especially reads.
 
-I was running one application on a linux-2.4.19-rmk7-pxa1 box with 16 MB RAM
-and 16 MB flash. It was all working fine.
+> So textmode is meaningful
+> alternative.
 
-I am now trying to run the same application on a linux-2.6.13 box and
-intermittently I get OOM-KILLER and killing of a required process. What has
-changed between these two kernel version?
+This point was never questioned.
 
-Please help.
-
-Thanks and regards,
-Abu.
-
-Date: 01 Jun 2006 08:19:32 -0400
-From: Jes Sorensen <jes@sgi.com>
-Subject: Re: __alloc_pages: 0-order allocation failed
-To: Oliver K?nig <k.oliver@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <yq0d5dtt6ej.fsf@jaguar.mkp.net>
-Content-Type: text/plain; charset=latin-iso8859-15
-
->>>>> "Oliver" == Oliver K?nig <k.oliver@t-online.de> writes:
-
-Oliver> I run Debian 3.1 (Sarge) with Debian-Kernel 2.4.27-3-686-smp
-Oliver> on Dell Poweredge 2850 with the following setup/config:
-
-Oliver> Model: Dell Poweredge 2850 CPU: 2x3.0 GHz RAM: 2 GB SWAP: 1 GB
-Oliver> Raid 1 with Dell PowerEdge Expandable RAID controller 4 (SCSI)
-Oliver> Kernel: 2.4.27-3-686-smp (CONFIG_HIGHMEM4G=y) Web server:
-Oliver> apache2 SQL server: mysql4.1 MTA: exim4
-
-[snip]
-
-Oliver> The server is then so slow tom react that the only way to get
-Oliver> rid of the problem is to reset the server.
-
-Oliver> What can we do to fix the problem?
-
-0-order allocations means it cannot get even a single page of free
-memory. You also see in the log the the OOM is kicking in. In other
-words, totally out of memory.
-
-You have two options, add more swap or add more memory. At the same
-time it might be a good idea to try and monitor it to find out which
-tasks are chewing away that much memory.
-
-Cheers,
-Jes
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Tony
+ 
 

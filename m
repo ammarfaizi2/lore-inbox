@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWFBEee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWFBEfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbWFBEee (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 00:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWFBEee
+	id S1751115AbWFBEfx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 00:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWFBEfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 00:34:34 -0400
-Received: from smtp.enter.net ([216.193.128.24]:33298 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S1751111AbWFBEed (ORCPT
+	Fri, 2 Jun 2006 00:35:53 -0400
+Received: from smtp.enter.net ([216.193.128.24]:41234 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1751115AbWFBEfw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 00:34:33 -0400
+	Fri, 2 Jun 2006 00:35:52 -0400
 From: "D. Hazelton" <dhazelton@enter.net>
 To: "Jon Smirl" <jonsmirl@gmail.com>
 Subject: Re: OpenGL-based framebuffer concepts
-Date: Fri, 2 Jun 2006 00:34:23 +0000
+Date: Fri, 2 Jun 2006 00:35:44 +0000
 User-Agent: KMail/1.8.1
 Cc: "Dave Airlie" <airlied@gmail.com>, "Ondrej Zajicek" <santiago@mail.cz>,
        "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
@@ -21,64 +21,65 @@ Cc: "Dave Airlie" <airlied@gmail.com>, "Ondrej Zajicek" <santiago@mail.cz>,
        "linux cbon" <linuxcbon@yahoo.fr>,
        "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org, adaplas@gmail.com
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200606012234.31566.dhazelton@enter.net> <9e4733910606012016r2f8d4708hc092eb3dd9b925a2@mail.gmail.com>
-In-Reply-To: <9e4733910606012016r2f8d4708hc092eb3dd9b925a2@mail.gmail.com>
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <9e4733910606012027y2567c194yf02a96319fe33e63@mail.gmail.com> <9e4733910606012128h5bdc293dwfa3c58985bbceb07@mail.gmail.com>
+In-Reply-To: <9e4733910606012128h5bdc293dwfa3c58985bbceb07@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606020034.24324.dhazelton@enter.net>
+Message-Id: <200606020035.44897.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 03:16, Jon Smirl wrote:
-> On 6/1/06, D. Hazelton <dhazelton@enter.net> wrote:
-> > VT switch to a VT where X is running. X will still require a VT and
-> > assume it has good access to the graphics system. While currently it has
-> > no problems, when drmcon becomes a reality there will have to be a state
-> > switch between the consoles settings and the setting for the VT running
-> > X.
+On Friday 02 June 2006 04:28, Jon Smirl wrote:
+> On 6/1/06, Jon Smirl <jonsmirl@gmail.com> wrote:
+> > On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
+> > > > > 15) re-use as much of the X drivers as possible, otherwise it will
+> > > > > KGI.
+> > > >
+> > > > I would broaden this to use the best code where ever it is found. Of
+> > > > course X is a major source.
+> > >
+> > > I'm not considering using knowledge from X drivers, I'm considering
+> > > using the X drivers, I don't personally care about things like X's
+> > > over use of typedefs and that sort of stuff, that is what I term
+> > > semantic, people who work on X drivers know X drivers, and writing the
+> > > drivers is the biggest part of any graphic systems.
+> >
+> > I have considered that option too. It is a good place for a quick
+> > start but it is not maintainable in the long run. The driver code has
+> > to be divorced from X and not require having the entire X system
+> > around to build a new driver.
+> >
+> > Have you checked the dependencies needed for loading X drivers?
+> > Modularization may have helped but loading an X driver used to
+> > effectively suck in the entire X server due to dependencies. Sucking
+> > in all of X is not fair to alternative windowing systems.
+> >
+> > I do agree that this is a workable starting point but it can't be the
+> > long term solution.
 >
-> I forgot to include comments on VT's.
+> I just checked the Xorg R7 drivers. The ones I checked are statically
+> linked to their X components so there are no big X dependencies. That
+> makes them usable as standalone drivers.
 >
-> We need to reconsider how VT's are implemented. I would like to remove
-> them from the kernel. Now don't get too excited, I also want to
-> replace them with a system that would function the same for a normal
-> user.
+> What do you think about wrapping them with EGL instead of using their
+> entry points directly? That would remove the temptation to use
+> acceleration code in the X drivers and encourage use of DRM instead.
 >
-> There is only one VT system in the kernel. Making it support more that
-> one user requires a gigantic patch (18,000 lines). That patch has been
-> floating around for years and has never been merged. I don't think it
-> makes sense to extend the existing VT code even further to support
-> multiuser.
+> Wrapping them with EGL was my plan for getting Xegl up last summer
+> when Nvidia wouldn't implement the API. Using the X driver was the
+> only solution available for Nvidia/ATI hardware.
 >
-> My proposal would be to switch to the concept of splitting console as
-> I described earlier. There would only be one in-kernel system
-> management console and it wouldn't support VT's. The system management
-> console is not meant for normal use.
->
-> Normal consoles would be implemented via user space processes. These
-> processes would provide the VT swap feature that people are used to.
-> They would also be accelerated via DRM. Since they are user space apps
-> it is easy to support multiuser by having multiple processes.
->
-> Getting rid of the VT implementation inside of the kernel lets us move
-> towards the single state in the hardware goal. The current in-kernel
-> VT design forces the "save your state, now I'll load mine" behavior.
-> That behavior is evil and it is the source of a lot of problems and it
-> should be removed. VT's were a good idea on VGA cards with 14
-> registers, now cards have 300 registers, a coprocessor, 512MB, etc.
-> There is simply too much state to swap.
->
-> In this model there would be no change at the normal user level,
-> Ctrl-Atl-num at a normal user console will still get you another
-> session. A hot key would display the system management console,
-> another would make it disappear.
+> This still needs to be classified as a temporary solution. Long term
+> the code needs to be extracted from X and converted to a standalone
+> build system. They could be turned in to real EGL drivers at that
+> point.
 
-Okay, and have the kernel trap the hotkey and call out to a usermode helper? 
-Good idea, but I'm going to stick it way down on my TODO list, since it's 
-something that would better be implemented after the framework for drmcon is 
-in place.
+Exactly. Using the X7 drivers would be a good starting point for the userspace 
+side of things. I've always planned on this. Moving away from using the X7 
+drivers towards ones built specific for the purpose is also in the plans I 
+have.
 
 DRH

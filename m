@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbWFBVyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWFBV6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbWFBVyM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 17:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWFBVyM
+	id S1030329AbWFBV6b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 17:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWFBV6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 17:54:12 -0400
-Received: from mga03.intel.com ([143.182.124.21]:39303 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1030325AbWFBVyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 17:54:11 -0400
+	Fri, 2 Jun 2006 17:58:30 -0400
+Received: from mga05.intel.com ([192.55.52.89]:61542 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1030326AbWFBV6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 17:58:30 -0400
 X-IronPort-AV: i="4.05,205,1146466800"; 
-   d="scan'208"; a="45272948:sNHT30037973"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>, "'Chris Mason'" <mason@suse.com>,
-       "Ingo Molnar" <mingo@elte.hu>
-Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 14:54:11 -0700
-Message-ID: <000201c6868f$14ddbfc0$df34030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaGRtIDk32mHzBMTdqcqq5tQbqNEwAR8Mzg
-In-Reply-To: <200606022316.41139.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+   d="scan'208"; a="46210695:sNHT25280381"
+Date: Fri, 2 Jun 2006 14:55:13 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Ravinandan Arakali <Ravinandan.Arakali@neterion.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       leonid.grossman@neterion.com, ananda.raju@neterion.com,
+       rapuru.sriram@neterion.com
+Subject: Re: [PATCH 2.6.16.18] MSI: Proposed fix for MSI/MSI-X load failure
+Message-ID: <20060602145512.A13024@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <Pine.GSO.4.10.10606021518500.9289-100000@guinness>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.10.10606021518500.9289-100000@guinness>; from Ravinandan.Arakali@neterion.com on Fri, Jun 02, 2006 at 03:21:37PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Friday, June 02, 2006 6:17 AM
-> On Friday 02 June 2006 20:30, Con Kolivas wrote:
-> > On Friday 02 June 2006 18:56, Nick Piggin wrote:
-> > > And why do we lock all siblings in the other case, for that matter? (not
-> > > that it makes much difference except on niagara today).
-> >
-> > If we spinlock (and don't trylock as you're proposing) we'd have to do a
-> > double rq lock for each sibling. I guess half the time double_rq_lock will
-> > only be locking one runqueue... with 32 runqueues we either try to lock all
-> > 32 or lock 1.5 runqueues 32 times... ugh both are ugly.
+On Fri, Jun 02, 2006 at 03:21:37PM -0400, Ravinandan Arakali wrote:
 > 
-> Thinking some more on this it is also clear that the concept of per_cpu_gain  
-> for smt is basically wrong once we get beyond straight forward 2 thread 
-> hyperthreading. If we have more than 2 thread units per physical core, the 
-> per cpu gain per logical core will decrease the more threads are running on 
-> it. While it's always been obvious the gain per logical core is entirely 
-> dependant on the type of workload and wont be a simple 25% increase in cpu 
-> power, it is clear that even if we assume an "overall" increase in cpu for 
-> each logical core added, there will be some non linear function relating 
-> power increase to thread units used. :-|
+> Symptoms:
+> When a driver is loaded with MSI followed by MSI-X, the load fails indicating 
+> that the MSI vector is still active. And vice versa.
+> 
+> Suspected rootcause:
+> This happens inspite of driver calling free_irq() followed by 
+> pci_disable_msi/pci_disable_msix. This appears to be a kernel bug 
+> wherein the pci_disable_msi and pci_disable_msix calls do not 
+> clear/unpopulate the msi_desc data structure that was populated 
+> by pci_enable_msi/pci_enable_msix.
+> 
+The current MSI code actually does this deliberately, not by
+accident. It's got a lot of complex code to track devices and
+vectors and make sure an enable_msi -> disable -> enable sequence
+gives a driver the same vector. It also has policies about
+reserving vectors based on potential hotplug activity etc.
+Frankly, I've never understood the need for such policies, and
+am in the process of removing all of them.
 
+> Proposed fix:
+> Free the MSI vector in pci_disable_msi and all allocated MSI-X vectors 
+> in pci_disable_msix.
+> 
+This will break the existing MSI policies. Once you take that away,
+a whole lot of additional code and complexity can be removed too.
+That's what I'm working on right now, but such a change is likely
+too big for -stable.
 
-In the context of having more than 2 sibling CPUs in a domain, doesn't the
-current code also suffer from thunder hurd problem as well? When high
-priority task goes to sleep, it will wake up *all* sibling sleepers and
-then they will all fight for CPU resource, but potentially only one will win?
+So, I'm ok with this patch if it actually doesn't break MSI/MSI-X.
+Did you try to repeatedly load/unload an MSI capable driver with
+this patch? Did you repeatedly try to ifdown/ifup an Ethernet
+driver that uses MSI? I'm not in a position to test this today, but
+will try it out next week.
 
-
- 
+thanks,
+Rajesh

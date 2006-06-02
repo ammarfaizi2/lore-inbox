@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWFBPda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWFBPhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWFBPda (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 11:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWFBPda
+	id S932406AbWFBPhY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 11:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWFBPhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 11:33:30 -0400
-Received: from mx1.suse.de ([195.135.220.2]:4034 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932405AbWFBPd3 (ORCPT
+	Fri, 2 Jun 2006 11:37:24 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:50865 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932406AbWFBPhX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 11:33:29 -0400
-Date: Fri, 2 Jun 2006 17:33:26 +0200
-From: Jan Blunck <jblunck@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-       balbir@in.ibm.com
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
-Message-ID: <20060602153326.GI4377@hasse.suse.de>
-References: <20060601095125.773684000@hasse.suse.de> <20060601180659.56e69968.akpm@osdl.org> <20060602022339.GY7418631@melbourne.sgi.com> <20060601194912.8173705a.akpm@osdl.org>
+	Fri, 2 Jun 2006 11:37:23 -0400
+Date: Fri, 2 Jun 2006 11:37:17 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Preben Traerup <Preben.Trarup@ericsson.com>,
+       "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
+       fastboot@lists.osdl.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] [RFC][PATCH] Add missing notifier before crashing
+Message-ID: <20060602153717.GC29610@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060530145658.GC6536@in.ibm.com> <20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com> <20060531154322.GA8475@in.ibm.com> <20060601213730.dc9f1ec4.akiyama.nobuyuk@jp.fujitsu.com> <20060601151605.GA7380@in.ibm.com> <20060602141301.cdecf0e1.akiyama.nobuyuk@jp.fujitsu.com> <44800E1A.1080306@ericsson.com> <m1fyin6agv.fsf@ebiederm.dsl.xmission.com> <44803B1F.8070302@ericsson.com> <m13ben60tn.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060601194912.8173705a.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <m13ben60tn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, Andrew Morton wrote:
-
-> > Discussed in this thread:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-fsdevel&m=114890371801114&w=2
-> > 
-> > Short summary of the problem: due to SHRINK_BATCH resolution, a proportional
-> > reclaim based on "count" across all superblocks will not shrink anything on
-> > lists 2 orders of magnitude smaller than the longest list as tmp will evaluate
-> > as zero.  Hence to prevent small unused lists from never being reclaimed and
-> > pinning memory until >90% of the dentry cache has been reclaimed we need to
-> > turn them over slowly. However, if we turn them over too quickly, the dentry
-> > cache does no caching for small filesystems.
-> > 
-> > This is not a problem a single global unused list has...
+On Fri, Jun 02, 2006 at 09:20:52AM -0600, Eric W. Biederman wrote:
+> Preben Traerup <Preben.Trarup@ericsson.com> writes:
 > 
-> Reasonable.  Whatever we do needs to be fully communicated in the comment
-> text please.
+> > Something like out of memory and oops-es are enough to deeme the system must
+> > panic
+> > because it is simply not supposed to happen in a Telco server at any time.
+> 
+> That is clearly enough to deem that the system must take some sever action and
+> stop running.  You don't necessarily have to handle it through a kernel panic.
+> 
+> > kdump helps debugging these cases, but more importantly another server
+> > must take over the work, and this has and always will have highest priority.
+> >
+> > I'm happy about what crash_kexec does today, but the timing issue makes it
+> > unusable for
+> > notifications to external systems, if I need to wait until properly running in
+> > next kernel.
+> 
+> Nothing says you have to wait until properly running in the next kernel.
+> You can also write a dedicated piece of code that just pushes one packet
+> out the NIC.  Then you can start up a kernel for analysis purposes.
 > 
 
-Yes, you are right. As I expected that this isn't the final patch I was a
-little bit too lazy. Will do that for the next version.
+So basically the idea is that whatever one wants to do it should be done
+in the next kernel, even notifications. But this might require some data
+from the context of previous kernel, for example destination IP address etc.
+So the associated data either needs to be passed to new kernel or it shall
+have to be retrieved from permanent storage or something like that.
 
-> > > In particular, `jiffies' has near-to-zero correlation with the rate of
-> > > creation and reclaim of these objects, so it looks highly inappropriate
-> > > that it's in there.  If anything can be used to measure "time" in this code
-> > > it is the number of scanned entries, not jiffies.
-
-Ouch! Totally missed that. The measurement should be kind of round-based
-instead.
-
-> Don't do a divide?
-> 
-> 	sb->s_scan_count += count;
-> 	...	
-> 	tmp = sb->s_dentry_stat.nr_unused /
-> 		(global_dentry_stat.nr_unused / sb->s_scan_count + 1);
-> 	if (tmp) {
-> 		sb->s_scan_count -= <can't be bothered doing the arith ;)>;
-> 		prune_dcache_sb(sb, tmp);
-> 	}
-> 
-> That could go weird on us if there are sudden swings in
-> sb->s_dentry_stat.nr_unused or global_dentry_stat.nr_unused, but
-> appropriate boundary checking should fix that?
-
-  if (tmp) {
-     sb->s_scan_count -= count;
-     sb->s_scan_count -= sb->s_scan_count ? min(sb->s_scan_count, count/2) : 0;
-     prune_dcache_sb(sb, tmp);
-  }
-
-  if (!sb->s_dentry_stat.nr_unused)
-     sb->s_scan_count = 0;
-
-In a normal situations, s_scan_count should be zero (add count and subtract it
-again).
-s_scan_count is increasing when we don't prune anything from that
-superblock. If we finally reach the point where the s_scan_count is that high
-that we actually prune some dentries, we slowly (count/2) decrease the
-s_scan_count level again.
-If the superblock doesn't have any unused dentries we reset the s_scan_count to
-zero.
-
-So s_scan_count is some kind of badness counter. I hope that this will still
-be good enough for you, David.
-
-Jan
+Thanks
+Vivek

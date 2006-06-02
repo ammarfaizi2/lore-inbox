@@ -1,86 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWFBBxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWFBBuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbWFBBxe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 21:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWFBBxe
+	id S1750950AbWFBBuV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 21:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWFBBuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 21:53:34 -0400
-Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:43881 "HELO
-	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751079AbWFBBxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 21:53:34 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] USB devices fail unnecessarily on unpowered hubs
-Date: Thu, 1 Jun 2006 18:53:30 -0700
-User-Agent: KMail/1.7.1
-Cc: David Liontooth <liontooth@cogweb.net>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-kernel@vger.kernel.org
-References: <20060601030140.172239b0.akpm@osdl.org> <20060601164327.GB29176@kroah.com> <447F8057.4000109@cogweb.net>
-In-Reply-To: <447F8057.4000109@cogweb.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 1 Jun 2006 21:50:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1951 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750950AbWFBBuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 21:50:20 -0400
+Date: Thu, 1 Jun 2006 18:54:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marc Koschewski <marc@osknowledge.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: soft lockup detected on CPU#0!
+Message-Id: <20060601185435.b329b6d1.akpm@osdl.org>
+In-Reply-To: <20060602010223.GA9460@stiffy.osknowledge.org>
+References: <20060602010223.GA9460@stiffy.osknowledge.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606011853.31277.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 June 2006 5:03 pm, David Liontooth wrote:
+On Fri, 2 Jun 2006 03:02:24 +0200
+Marc Koschewski <marc@osknowledge.org> wrote:
+
+> here what I got when I connected my mobile phone via gnome-phone-manager and a
+> bluetooth PCMCIA adapter. The machine freezes when I connect and attached is
+> what dmesg says after I ejected the card. The card had /dev/ttyS3 assigned and I
+> used it as my setting in gnome-phone-manager.
 > 
-> However, obeying the USB power rules is not an end in itself -- the
-> relevant question is the minimum power the device requires to operate
-> correctly and without damage.
+> [4296372.670000] BUG: soft lockup detected on CPU#0!
+> [4296372.670000]  [<b0138e29>] softlockup_tick+0x7e/0xbb
+> [4296372.670000]  [<b0120cdc>] update_process_times+0x2a/0x60
+> [4296372.670000]  [<b01063ec>] timer_interrupt+0x3a/0xce
+> [4296372.670000]  [<b0138efd>] handle_IRQ_event+0x2e/0x5a
+> [4296372.670000]  [<b0138fb2>] __do_IRQ+0x89/0x127
+> [4296372.670000]  [<b0105099>] do_IRQ+0x6f/0x8b
+> [4296372.670000]  [<b0103816>] common_interrupt+0x1a/0x20
+> [4296372.670000]  [<f8e74986>] yenta_interrupt+0x11/0xb7 [yenta_socket]
+> [4296372.670000]  [<b0138efd>] handle_IRQ_event+0x2e/0x5a
+> [4296372.670000]  [<b0138fb2>] __do_IRQ+0x89/0x127
+> [4296372.670000]  [<b010507d>] do_IRQ+0x53/0x8b
+> [4296372.670000]  =======================
+> [4296372.670000]  [<f9434c29>] rm_isr_bh+0x61/0x68 [nvidia]
+> [4296372.670000]  [<b0103816>] common_interrupt+0x1a/0x20
+> [4296372.670000]  [<b011cfa3>] __do_softirq+0x37/0x92
+> [4296372.670000]  [<b0105104>] do_softirq+0x4f/0x5b
+> [4296372.670000]  =======================
+> [4296372.670000]  [<b011d0e2>] irq_exit+0x38/0x3a
+> [4296372.670000]  [<b0105084>] do_IRQ+0x5a/0x8b
+> [4296372.670000]  [<b0103816>] common_interrupt+0x1a/0x20
+> [4296372.670000]  [<b023ac57>] serial_out+0x29/0x5f
+> [4296372.670000]  [<b023cd08>] serial8250_startup+0x18e/0x4e8
+> [4296372.670000]  [<b0238b9e>] uart_startup+0x3c/0x177
+> [4296372.670000]  [<b0238dad>] uart_open+0xd4/0x4af
+> [4296372.670000]  [<b0225b42>] check_tty_count+0x45/0xbb
+> [4296372.670000]  [<b02c28a2>] __mutex_unlock_slowpath+0xd0/0x218
+> [4296372.670000]  [<b022865d>] tty_open+0x163/0x328
 
-We don't know the minimum, or much care about it since the minimum is
-generally not what gets drawn.
-
-We know the maximum, which is declared in the configuration descriptor.
-And we don't know how much of that maximum a given device uses at any
-given moment ... ergo, power budgeting assumes the worst case.
-
-
-> The MaxPower value does not appear to be a reliable index of this. My
-> USB stick has a MaxPower value of 178mA and works flawlessly off an
-> unpowered hub.
-
-So you're saying that four of those can work off the same hub?  Or
-just that one of them can draw two ports' worth of current, because
-of the fact that current-limiting is usually on the upstream link,
-not individual downstream ones?  (If indeed there is current limiting
-and/or overcurrent handling in that hub ...)  Try that experiment,
-and put four on one hub ... now write critical data to all of them
-at the same time.
-
-
-> What are the reasons not to do this? What happens if a USB stick is
-> underpowered to one unit? Nothing? Slower transmission? Data loss? Flash
-> memory destruction? If it's just speed, it's a price well worth paying.
-
-You mis-understand what's going on.  There's a power budget, and if
-it gets exceeded then "overcurrent" conditions can happen ... leading
-to errors, disconnection, data loss, and yes potentially even memory
-destruction; those are all device-specific failure modes, which are
-by definition out-of-spec.
-
-The reason to enforce the power budget is that devices guarantee they'll
-behave to spec if they can draw that much current.  And if they can't
-draw enough current, all those rude failure modes happen.  Devices
-enter brown-out modes if you're lucky, or maybe the hub will cleanly shut
-things down before much nastiness happens.  The budget is analagous
-to a circuit breaker; exceed it and things shut off, which is safer 
-than most alternatives.
-
-
-> This is a great opportunity for a small exercise in empathy, utilizing
-> that little long-neglected mirror neuron.
-
-Exactly.  Preventing random glitchey failure modes makes everyone's
-experience a lot better.  It's the same reason to fix driver races;
-they may not happen all that often, but when they do happen the
-result can be disastrous.
-
-- Dave
+It might be a hang in rm_isr_bh().  Does the same happen if the nvidia
+driver is not, and has never been loaded?
 

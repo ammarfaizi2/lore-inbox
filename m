@@ -1,103 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWFBER6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWFBESz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWFBER6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 00:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWFBER6
+	id S1751103AbWFBESz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 00:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWFBESy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 00:17:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11969 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751100AbWFBER5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 00:17:57 -0400
-Date: Fri, 2 Jun 2006 14:17:14 +1000
-From: David Chinner <dgc@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jblunck@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-       balbir@in.ibm.com
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
-Message-ID: <20060602041714.GZ7418631@melbourne.sgi.com>
-References: <20060601095125.773684000@hasse.suse.de> <20060601180659.56e69968.akpm@osdl.org> <20060602022339.GY7418631@melbourne.sgi.com> <20060601194912.8173705a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060601194912.8173705a.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 2 Jun 2006 00:18:54 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:30890 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751105AbWFBESx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 00:18:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=i1xCQEwaLGRz2gYZ+eVDhS0+LHPc6Cwlr0ymF0ZjN/ZdL2wvMfRq+gaYrCZV6yR3KyzO8POTHfxew2C0fKzN/ZtAe5gtZWx1uTtIcRWIAjwn6Aw8NkGSrw5OFiUZdUjcuzSVI22Nu5cuiIOozftqpiQ4+qiRd6rx0g1vd2hMx8c=  ;
+Message-ID: <447FBC28.8030401@yahoo.com.au>
+Date: Fri, 02 Jun 2006 14:18:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
+References: <000101c685d7$1bc84390$d234030a@amr.corp.intel.com> <200606021159.06519.kernel@kolivas.org> <200606021228.37910.kernel@kolivas.org> <200606021355.23671.kernel@kolivas.org>
+In-Reply-To: <200606021355.23671.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 07:49:12PM -0700, Andrew Morton wrote:
-> On Fri, 2 Jun 2006 12:23:39 +1000 David Chinner <dgc@sgi.com> wrote:
-> > On Thu, Jun 01, 2006 at 06:06:59PM -0700, Andrew Morton wrote:
-> > > Please, we'll need much much more description of what this is trying to
-> > > achieve, why it exists, analysis, testing results, etc, etc.  Coz my
-> > > immediate reaction is "wtf is that, and what will that do to my computer?".
-> > 
-> > Discussed in this thread:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-fsdevel&m=114890371801114&w=2
-> > 
-> > Short summary of the problem: due to SHRINK_BATCH resolution, a proportional
-> > reclaim based on "count" across all superblocks will not shrink anything on
-> > lists 2 orders of magnitude smaller than the longest list as tmp will evaluate
-> > as zero.  Hence to prevent small unused lists from never being reclaimed and
-> > pinning memory until >90% of the dentry cache has been reclaimed we need to
-> > turn them over slowly. However, if we turn them over too quickly, the dentry
-> > cache does no caching for small filesystems.
-> > 
-> > This is not a problem a single global unused list has...
+Con Kolivas wrote:
+> On Friday 02 June 2006 12:28, Con Kolivas wrote:
 > 
-> Reasonable.  Whatever we do needs to be fully communicated in the comment
-> text please.
-
-*nod*
-
-> > > In particular, `jiffies' has near-to-zero correlation with the rate of
-> > > creation and reclaim of these objects, so it looks highly inappropriate
-> > > that it's in there.  If anything can be used to measure "time" in this code
-> > > it is the number of scanned entries, not jiffies.
-> > 
-> > Sure, but SHRINK_BATCH resolution basically makes it impossible to reconcile
-> > lists of vastly different lengths. If the shrinker simply called us
-> > with the entire count it now hands us in batches, I doubt that this would be
-> > an issue.
-> > 
-> > In the mean time, we need some other method to ensure we do eventually free
-> > up these items on small lists. The above implements an idle timer used to
-> > determine when we start to turn over a small cache. Maybe if we wrap it in:
-> > 
-> > > +				if (!tmp && dentry_lru_idle(sb))
-> > > +					tmp = 1;
-> > 
-> > with a more appropriate comment it would make more sense?
-> > 
-> > Suggestions on other ways to resolve the problem are welcome....
+>>Actually looking even further, we only introduced the extra lookup of the
+>>next task when we started unlocking the runqueue in schedule(). Since we
+>>can get by without locking this_rq in schedule with this approach we can
+>>simplify dependent_sleeper even further by doing the dependent sleeper
+>>check after we have discovered what next is in schedule and avoid looking
+>>it up twice. I'll hack something up to do that soon.
 > 
-> Don't do a divide?
 > 
-> 	sb->s_scan_count += count;
-> 	...	
-> 	tmp = sb->s_dentry_stat.nr_unused /
-> 		(global_dentry_stat.nr_unused / sb->s_scan_count + 1);
-> 	if (tmp) {
-> 		sb->s_scan_count -= <can't be bothered doing the arith ;)>;
-> 		prune_dcache_sb(sb, tmp);
-> 	}
-> 
-> That could go weird on us if there are sudden swings in
-> sb->s_dentry_stat.nr_unused or global_dentry_stat.nr_unused, but
-> appropriate boundary checking should fix that?
+> Something like this (sorry I couldn't help but keep hacking on it).
 
-Hmm - I'll have to run some numbers through this what the curves
-look like and determine what we need to do on the decrement. The
-count accumulation does solve the resolution problem, though...
+Looking pretty good. Nice to acknowledge Chris's idea for
+trylocks in your changelog when you submit a final patch.
 
-Thanks, Andrew.
-
-Cheers,
-
-Dave.
 -- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

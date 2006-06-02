@@ -1,96 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWFBHvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWFBHxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWFBHvb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 03:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWFBHvb
+	id S1751296AbWFBHxV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 03:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWFBHxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 03:51:31 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:61370 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751281AbWFBHvb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 03:51:31 -0400
-Date: Fri, 2 Jun 2006 09:51:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: jeff@garzik.org, htejun@gmail.com, Andrew Morton <akpm@osdl.org>,
-       reuben-lkml@reub.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2
-Message-ID: <20060602075150.GA12212@elte.hu>
-References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EB4AD.4060101@reub.net> <20060601025632.6683041e.akpm@osdl.org> <447EBD46.7010607@reub.net> <20060601103315.GA1865@elte.hu> <20060601105300.GA2985@elte.hu> <447EF7A8.76E4.0078.0@novell.com> <448006F6.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448006F6.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5056]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 2 Jun 2006 03:53:21 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:24942 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751296AbWFBHxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 03:53:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
+  b=gUDH/LyMSGblImpSuLKNHu+hBZQnGi7jvx6QBzELjCQ5bw31YFS0W6KBiv5p3neN7V6EJRKVeFg0S0hLUHUq/H1U61T1e8FH1Q9RpvepkcN3iRJP1I1HDUs3DeQryAo3RPOx91qZXmAEEYT5Itrl9jCkX5bSqDQHKBSYgyFlB0M=  ;
+Message-ID: <447FEE6C.7000408@yahoo.com.au>
+Date: Fri, 02 Jun 2006 17:53:16 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
+References: <000101c685d7$1bc84390$d234030a@amr.corp.intel.com> <200606021355.23671.kernel@kolivas.org> <447FBC28.8030401@yahoo.com.au> <200606021608.33928.kernel@kolivas.org>
+In-Reply-To: <200606021608.33928.kernel@kolivas.org>
+Content-Type: multipart/mixed;
+ boundary="------------090300010002000708070108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090300010002000708070108
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Jan Beulich <jbeulich@novell.com> wrote:
+Con Kolivas wrote:
 
-> >firstly, i'd suggest to use another magic value for 'bottom of call 
-> >stacks' - it is way too common to jump or call a NULL pointer. Something 
-> >like 0xfedcba9876543210 would be better.
+>>Nice to acknowledge Chris's idea for 
+>>trylocks in your changelog when you submit a final patch.
 > 
-> That's contrary to common use (outside of the kernel). I'm opposed to 
-> this. Detecting an initial bad EIP isn't a problem, and the old code 
-> can be used easily in that case.
-
-but 0 is pretty much the worst choice for something that needs to be 
-reliable - it's the most common type of machine word in existence, 
-amongst all the 18446744073709551616 possibilities. And we need not care 
-about userspace's prior choices, this code and data is totally under the 
-kernel's control.
-
-> >for the RIP/EIP to get corrupted is a common occurance. So is stack 
-> >corruption. So the fallback mechanism shouldnt be a 'short while' 
-> >side-thought, it must be part of the design.
 > 
-> RIP/EIP corruption, as said above, can be easily handled. RSP/ESP 
-> corruption, as I understand it, isn't being handled in the old code, 
-> and so I can't see what improvements the new code could do here (given 
-> that instruction and stack pointers serve as the anchors for kicking 
-> off an unwind).
+> I absolutely would and I would ask for him to sign off on it as well, once we 
+> agreed on a final form.
 
-i'm not only talking about RSP/ESP corruption, but about stack 
-corruption. I.e. some area of the stack is corrupted. With the scanning 
-method we at least get some other entries out - while with the unwind 
-method we only say 'sorry'.
+No worries, I thought you would ;)
 
-anyway, i think that handling a bad initial RIP/EIP would be a good 
-first step and it should solve the problem at hand. (it will also serve 
-as a basis for whatever other heuristics we might want to apply later 
-on)
+This is a small micro-optimisation / cleanup we can do after
+smtnice gets converted to use trylocks. Might result in a little
+less cacheline footprint in some cases.
 
-> >In all other cases (if we go outside of the stack page(s)) we _must_ 
-> >fall back to the dump 'scan the stack pages for interesting entries' 
-> >method, to get the information out! "Uh oh the unwind info somehow got 
-> >corrupted, sorry" is not enough to debug a kernel bug.
-> 
-> Again, you miss the point that the very last unwind operation must 
-> always be expected to move the stack pointer outside the stack 
-> boundaries, which would mean triggering the fallback path in all 
-> cases. With this, we could as well leave out the entire unwind code 
-> and keep everyone of us manually do the separation of good and bad 
-> entries in the trace shown.
+-- 
+SUSE Labs, Novell Inc.
 
-no, i dont miss that point at all. What _you_ are missing is the obvious 
-solution: stacks on x86_64 are already linked to each other, via 
-fixed-position pointers at the end of the stackpages. So the unwinder 
-can easily check whether the 'next stack' as suggested by the link at 
-the end of the page is indeed the same as the unwind jumpout does. If 
-not => fallback.
+--------------090300010002000708070108
+Content-Type: text/plain;
+ name="sched-lock-opt.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched-lock-opt.patch"
 
-same for i386 - there too the stacks are linked via non-unwind data. The 
-unwinder can do a pretty good verification of the jumpout.
+Index: linux-2.6/kernel/sched.c
+===================================================================
+--- linux-2.6.orig/kernel/sched.c	2006-06-02 17:46:23.000000000 +1000
++++ linux-2.6/kernel/sched.c	2006-06-02 17:48:50.000000000 +1000
+@@ -239,7 +239,6 @@ struct runqueue {
+ 
+ 	task_t *migration_thread;
+ 	struct list_head migration_queue;
+-	int cpu;
+ #endif
+ 
+ #ifdef CONFIG_SCHEDSTATS
+@@ -1700,7 +1699,7 @@ static void double_rq_lock(runqueue_t *r
+ 		spin_lock(&rq1->lock);
+ 		__acquire(rq2->lock);	/* Fake it out ;) */
+ 	} else {
+-		if (rq1->cpu < rq2->cpu) {
++		if (rq1 < rq2) {
+ 			spin_lock(&rq1->lock);
+ 			spin_lock(&rq2->lock);
+ 		} else {
+@@ -1736,7 +1735,7 @@ static void double_lock_balance(runqueue
+ 	__acquires(this_rq->lock)
+ {
+ 	if (unlikely(!spin_trylock(&busiest->lock))) {
+-		if (busiest->cpu < this_rq->cpu) {
++		if (busiest < this_rq) {
+ 			spin_unlock(&this_rq->lock);
+ 			spin_lock(&busiest->lock);
+ 			spin_lock(&this_rq->lock);
+@@ -6104,7 +6103,6 @@ void __init sched_init(void)
+ 		rq->push_cpu = 0;
+ 		rq->migration_thread = NULL;
+ 		INIT_LIST_HEAD(&rq->migration_queue);
+-		rq->cpu = i;
+ #endif
+ 		atomic_set(&rq->nr_iowait, 0);
+ 
 
-	Ingo
+--------------090300010002000708070108--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

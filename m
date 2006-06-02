@@ -1,126 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWFBUlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWFBUsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932565AbWFBUlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 16:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFBUlM
+	id S964835AbWFBUsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 16:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWFBUsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 16:41:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29854 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932565AbWFBUlL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 16:41:11 -0400
-Date: Fri, 2 Jun 2006 13:43:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       mingo@elte.hu
-Subject: Re: lock_kernel called under spinlock in NFS
-Message-Id: <20060602134346.73019624.akpm@osdl.org>
-In-Reply-To: <1149280078.5621.63.camel@lade.trondhjem.org>
-References: <20060601195535.GA28188@tsunami.ccur.com>
-	<1149192820.3549.43.camel@lade.trondhjem.org>
-	<20060602202436.GA4783@tsunami.ccur.com>
-	<1149280078.5621.63.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jun 2006 16:48:05 -0400
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:42384 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S964835AbWFBUsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 16:48:03 -0400
+Date: Fri, 02 Jun 2006 16:46:01 -0400
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: [PATCH 2.6.17-rc5-mm2 17/18] sbp2: provide helptext for
+	CONFIG_IEEE1394_SBP2_PHYS_DMA and mark it experimental
+In-reply-to: <tkrat.df90273c07dd7503@s5r6.in-berlin.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net,
+       Jody McIntyre <scjody@modernduck.com>
+Message-id: <1149281162.4533.304.camel@grayson>
+Organization: Ubuntu
+MIME-version: 1.0
+X-Mailer: Evolution 2.6.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
+ <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
+ <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
+ <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
+ <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
+ <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de>
+ <tkrat.f35772c971022262@s5r6.in-berlin.de>
+ <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de>
+ <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de>
+ <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de>
+ <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de>
+ <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de>
+ <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de>
+ <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de>
+ <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de>
+ <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de>
+ <tkrat.96e1b392429fe277@s5r6.in-berlin.de>
+ <tkrat.df90273c07dd7503@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <Trond.Myklebust@netapp.com> wrote:
->
-> On Fri, 2006-06-02 at 16:24 -0400, Joe Korty wrote:
-> > On Thu, Jun 01, 2006 at 04:13:39PM -0400, Trond Myklebust wrote:
-> > > On Thu, 2006-06-01 at 15:55 -0400, Joe Korty wrote:
-> > >> Tree 5fdccf2354269702f71beb8e0a2942e4167fd992
-> > >> 
-> > >>         [PATCH] vfs: *at functions: core
-> > >> 
-> > >> introduced a bug where lock_kernel() can be called from
-> > >> under a spinlock.  To trigger the bug one must have
-> > >> CONFIG_PREEMPT_BKL=y and be using NFS heavily.  It is
-> > >> somewhat rare and, so far, haven't traced down the userland
-> > >> sequence that causes the fatal path to be taken.
-> > >> 
-> > >> The bug was caused by the insertion into do_path_lookup()
-> > >> of a call to file_permission().  do_path_lookup()
-> > >> read-locks current->fs->lock for most of its operation.
-> > >> file_permission() calls permission() which calls
-> > >> nfs_permission(), which has one path through it
-> > >> that uses lock_kernel().
-> > 
-> > > Nowhere should anyone be calling file_permission() under a spinlock.
-> > > 
-> > > Why would you need to read-protect current->fs in the case where you are
-> > > starting from a file? The correct thing to do there would appear to be
-> > > to read_protect only the cases where (*name=='/') and (dfd == AT_FDCWD).
-> > > 
-> > > Something like the attached patch...
-> > 
-> > 
-> > Hi Trond,
-> > I've been running with the patch for the last few hours, on an nfs-rooted
-> > system, and it has been working fine.  Any plans to submit this for 2.6.17?
-> 
-> It probably ought to be, given the nature of the sin. Andrew?
-> 
+On Fri, 2006-06-02 at 22:27 +0200, Stefan Richter wrote:
+> It appears I will not get it fixed overnight.
 
-OK.
+> -	bool "Enable Phys DMA support for SBP2 (Debug)"
+> -	depends on IEEE1394 && IEEE1394_SBP2
+> +	bool "Enable replacement for physical DMA in SBP2"
+> +	depends on IEEE1394 && IEEE1394_SBP2 && EXPERIMENTAL
 
-Just to confirm, this is final?
+Please add '&& !SPARC' to the depends line. Other architectures may
+apply, but I know for sure that this cannot be enabled on SPARC or
+SPARC64 since the module will be unloadable due to missing symbols
+(virt_to_bus, bus_to_virt).
 
-
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-
-We're presently running lock_kernel() under fs_lock via nfs's ->permission
-handler.  That's a ranking bug and sometimes a sleep-in-spinlock bug.  This
-problem was introduced in the openat() patchset.
-
-We should not need to hold the current->fs->lock for a codepath that doesn't
-use current->fs.
-
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- fs/namei.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-diff -puN fs/namei.c~fs-nameic-call-to-file_permission-under-a-spinlock-in-do_lookup_path fs/namei.c
---- 25/fs/namei.c~fs-nameic-call-to-file_permission-under-a-spinlock-in-do_lookup_path	Fri Jun  2 13:39:52 2006
-+++ 25-akpm/fs/namei.c	Fri Jun  2 13:39:52 2006
-@@ -1080,8 +1080,8 @@ static int fastcall do_path_lookup(int d
- 	nd->flags = flags;
- 	nd->depth = 0;
- 
--	read_lock(&current->fs->lock);
- 	if (*name=='/') {
-+		read_lock(&current->fs->lock);
- 		if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
- 			nd->mnt = mntget(current->fs->altrootmnt);
- 			nd->dentry = dget(current->fs->altroot);
-@@ -1092,9 +1092,12 @@ static int fastcall do_path_lookup(int d
- 		}
- 		nd->mnt = mntget(current->fs->rootmnt);
- 		nd->dentry = dget(current->fs->root);
-+		read_unlock(&current->fs->lock);
- 	} else if (dfd == AT_FDCWD) {
-+		read_lock(&current->fs->lock);
- 		nd->mnt = mntget(current->fs->pwdmnt);
- 		nd->dentry = dget(current->fs->pwd);
-+		read_unlock(&current->fs->lock);
- 	} else {
- 		struct dentry *dentry;
- 
-@@ -1118,7 +1121,6 @@ static int fastcall do_path_lookup(int d
- 
- 		fput_light(file, fput_needed);
- 	}
--	read_unlock(&current->fs->lock);
- 	current->total_link_count = 0;
- 	retval = link_path_walk(name, nd);
- out:
-_
+-- 
+Ubuntu     - http://www.ubuntu.com/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+SwissDisk  - http://www.swissdisk.com/
 

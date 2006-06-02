@@ -1,113 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWFBUTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWFBUTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964770AbWFBUTg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 16:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWFBUTg
+	id S932570AbWFBUTG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 16:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbWFBUTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 16:19:36 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:35026 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S964770AbWFBUTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 16:19:35 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Fri, 2 Jun 2006 22:17:48 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.17-rc5-mm2 12/18] ohci1394: set address range properties
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>,
-       Ben Collins <bcollins@ubuntu.com>
-In-Reply-To: <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de>
-Message-ID: <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de>
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
- <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
- <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
- <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
- <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
- <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de>
- <tkrat.f35772c971022262@s5r6.in-berlin.de>
- <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de>
- <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de>
- <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de>
- <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de>
- <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de>
+	Fri, 2 Jun 2006 16:19:06 -0400
+Received: from smtp.innovsys.com ([66.115.232.196]:6477 "EHLO
+	mail.innovsys.com") by vger.kernel.org with ESMTP id S932562AbWFBUTE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 16:19:04 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.886) AWL,BAYES_50
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C68681.CA18E5D6"
+Subject: [PATCH 2.6.16.16] sata_sil24: SII3124 sata driver endian problem
+Date: Fri, 2 Jun 2006 15:19:02 -0500
+Message-ID: <DCEAAC0833DD314AB0B58112AD99B93B0189DE08@ismail.innsys.innovsys.com>
+In-Reply-To: <DCEAAC0833DD314AB0B58112AD99B93B0189DDFF@ismail.innsys.innovsys.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.16.16] sata_sil24: SII3124 sata driver endian problem
+Thread-Index: AcaFv8xqQfnWQQbGTze2ic8xHnA91gAwHs7g
+From: "Rune Torgersen" <runet@innovsys.com>
+To: <jgarzik@pobox.com>
+Cc: <linuxppc-dev@ozlabs.org>, <linux-kernel@vger.kernel.org>,
+       <linux-ide@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch supplies the API extension introduced by patch
-"ieee1394: extend lowlevel API for address range properties"
-with proper addresses.
+This is a multi-part message in MIME format.
 
-Like in patch ''ohci1394, sbp2: fix "scsi_add_device failed"
-with PL-3507 based devices'', 1 TeraByte is chosen as physical
-upper bound.  This leaves a window for the middle address range.
-This choice is only relevant for adapters which actually have a
-programmable pysical upper bound register.  (Only ALi and
-Fujitsu adapters are known for this.  Most adapters have a fixed
-bound at 4 GB.)  The middle address range is suitable for posted
-writes.
+------_=_NextPart_001_01C68681.CA18E5D6
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-AFAICS, PCILynx does not support physical DMA nor posted writes,
-at least as programmed under Linux.  Therefore no equivalent
-change in the pcilynx driver is necessary.  There is also a an
-out-of-tree driver for GP2Lynx.  I assume this hardware does not
-support these OHCI features either.
+> -----Original Message-----
+> From: Rune Torgersen
+> Sent: Thursday, June 01, 2006 16:10
+> To: linuxppc-dev@ozlabs.org
+> Subject: SII3124-2
+>=20
+> Has anybody been successful in getting a SII3124-2 based SATA=20
+> controller
+> to work under PPC?
+>=20
+> I have a eval board that I tried on two different freescale boards (a
+> MPC8266ADS board and a MPC8560ADS board).
+> Kernel 2.6.16.16.
+>=20
+> Here is the relevant output from the kernel.
+>=20
+> ata1: SATA max UDMA/100 cmd 0xD1010000 ctl 0x0 bmdma 0x0 irq 115
+> ata2: SATA max UDMA/100 cmd 0xD1012000 ctl 0x0 bmdma 0x0 irq 115
+> ata3: SATA max UDMA/100 cmd 0xD1014000 ctl 0x0 bmdma 0x0 irq 115
+> ata4: SATA max UDMA/100 cmd 0xD1016000 ctl 0x0 bmdma 0x0 irq 115
+> ata1: SATA link down (SStatus 0)
+> scsi0 : sata_sil24
+> ata2: SATA link up 3.0 Gbps (SStatus 123)
+> sata_sil24 ata2: SRST failed, disabling port
+> scsi1 : sata_sil24
+> ata3: SATA link down (SStatus 0)
+> scsi2 : sata_sil24
+> ata4: SATA link down (SStatus 0)
+> scsi3 : sata_sil24
+>=20
+> I added debug output to see the content of the Command Error register.
+> It is set to 26 which according to the datasheet for the 3124-1 (I am
+> running a -2), is PLDCMDERRORMASTERABORT, "A PCI Master Abort occurred
+> while the SiI3124 was fetching a Port Request Block (PRB) from host
+> memory."
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+There is an endian issue in the sil24 driver.=20
+The follwing pathc seems to fix it for me. (it is also attached in case
+the mailer borks it for me)
 
-Index: linux-2.6.17-rc5-mm2/drivers/ieee1394/ohci1394.h
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/drivers/ieee1394/ohci1394.h	2006-06-01 20:55:04.000000000 +0200
-+++ linux-2.6.17-rc5-mm2/drivers/ieee1394/ohci1394.h	2006-06-01 20:55:45.000000000 +0200
-@@ -443,6 +443,16 @@ static inline u32 reg_read(const struct 
- 
- #define OHCI1394_TCODE_PHY               0xE
- 
-+/* Node offset map (phys DMA area, posted write area).
-+ * The value of OHCI1394_PHYS_UPPER_BOUND_PROGRAMMED may be modified but must
-+ * be lower than OHCI1394_MIDDLE_ADDRESS_SPACE.
-+ * OHCI1394_PHYS_UPPER_BOUND_FIXED and OHCI1394_MIDDLE_ADDRESS_SPACE are
-+ * constants given by the OHCI spec.
-+ */
-+#define OHCI1394_PHYS_UPPER_BOUND_FIXED		0x000100000000ULL /* 4 GB */
-+#define OHCI1394_PHYS_UPPER_BOUND_PROGRAMMED	0x010000000000ULL /* 1 TB */
-+#define OHCI1394_MIDDLE_ADDRESS_SPACE		0xffff00000000ULL
-+
- void ohci1394_init_iso_tasklet(struct ohci1394_iso_tasklet *tasklet,
- 			       int type,
- 			       void (*func)(unsigned long),
-Index: linux-2.6.17-rc5-mm2/drivers/ieee1394/ohci1394.c
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/drivers/ieee1394/ohci1394.c	2006-06-01 20:55:41.000000000 +0200
-+++ linux-2.6.17-rc5-mm2/drivers/ieee1394/ohci1394.c	2006-06-01 20:55:45.000000000 +0200
-@@ -553,7 +553,8 @@ static void ohci_initialize(struct ti_oh
- 	 * register content.
- 	 * To actually enable physical responses is the job of our interrupt
- 	 * handler which programs the physical request filter. */
--	reg_write(ohci, OHCI1394_PhyUpperBound, 0x01000000);
-+	reg_write(ohci, OHCI1394_PhyUpperBound,
-+		  OHCI1394_PHYS_UPPER_BOUND_PROGRAMMED >> 16);
- 
- 	DBGMSG("physUpperBoundOffset=%08x",
- 	       reg_read(ohci, OHCI1394_PhyUpperBound));
-@@ -3415,6 +3416,14 @@ static int __devinit ohci1394_pci_probe(
- 	host->csr.max_rec = (reg_read(ohci, OHCI1394_BusOptions) >> 12) & 0xf;
- 	host->csr.lnk_spd = reg_read(ohci, OHCI1394_BusOptions) & 0x7;
- 
-+	if (phys_dma) {
-+		host->low_addr_space =
-+			(u64) reg_read(ohci, OHCI1394_PhyUpperBound) << 16;
-+		if (!host->low_addr_space)
-+			host->low_addr_space = OHCI1394_PHYS_UPPER_BOUND_FIXED;
-+	}
-+	host->middle_addr_space = OHCI1394_MIDDLE_ADDRESS_SPACE;
-+
- 	/* Tell the highlevel this host is ready */
- 	if (hpsb_add_host(host))
- 		FAIL(-ENOMEM, "Failed to register host with highlevel");
+Signed-off-by: Rune Torgersen <runet@innovsys.com>
 
+Index: linux-innsys-2.6.16.16/drivers/scsi/sata_sil24.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-innsys-2.6.16.16/drivers/scsi/sata_sil24.c	(revision 101)
++++ linux-innsys-2.6.16.16/drivers/scsi/sata_sil24.c	(working copy)
+@@ -446,7 +446,7 @@
+ 	 */
+ 	msleep(10);
+=20
+-	prb->ctrl =3D PRB_CTRL_SRST;
++	prb->ctrl =3D cpu_to_le16(PRB_CTRL_SRST);
+ 	prb->fis[1] =3D 0; /* no PM yet */
+=20
+ 	writel((u32)paddr, port + PORT_CMD_ACTIVATE);
+@@ -537,9 +537,9 @@
+=20
+ 		if (qc->tf.protocol !=3D ATA_PROT_ATAPI_NODATA) {
+ 			if (qc->tf.flags & ATA_TFLAG_WRITE)
+-				prb->ctrl =3D PRB_CTRL_PACKET_WRITE;
++				prb->ctrl =3D
+cpu_to_le16(PRB_CTRL_PACKET_WRITE);
+ 			else
+-				prb->ctrl =3D PRB_CTRL_PACKET_READ;
++				prb->ctrl =3D
+cpu_to_le16(PRB_CTRL_PACKET_READ);
+ 		} else
+ 			prb->ctrl =3D 0;
+=20
 
+------_=_NextPart_001_01C68681.CA18E5D6
+Content-Type: application/octet-stream;
+	name="sil24_endian_patch"
+Content-Transfer-Encoding: base64
+Content-Description: sil24_endian_patch
+Content-Disposition: attachment;
+	filename="sil24_endian_patch"
+
+SW5kZXg6IGxpbnV4LWlubnN5cy0yLjYuMTYuMTYvZHJpdmVycy9zY3NpL3NhdGFfc2lsMjQuYwo9
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09Ci0tLSBsaW51eC1pbm5zeXMtMi42LjE2LjE2L2RyaXZlcnMvc2NzaS9zYXRhX3Np
+bDI0LmMJKHJldmlzaW9uIDEwMSkKKysrIGxpbnV4LWlubnN5cy0yLjYuMTYuMTYvZHJpdmVycy9z
+Y3NpL3NhdGFfc2lsMjQuYwkod29ya2luZyBjb3B5KQpAQCAtNDQ2LDcgKzQ0Niw3IEBACiAJICov
+CiAJbXNsZWVwKDEwKTsKIAotCXByYi0+Y3RybCA9IFBSQl9DVFJMX1NSU1Q7CisJcHJiLT5jdHJs
+ID0gY3B1X3RvX2xlMTYoUFJCX0NUUkxfU1JTVCk7CiAJcHJiLT5maXNbMV0gPSAwOyAvKiBubyBQ
+TSB5ZXQgKi8KIAogCXdyaXRlbCgodTMyKXBhZGRyLCBwb3J0ICsgUE9SVF9DTURfQUNUSVZBVEUp
+OwpAQCAtNTM3LDkgKzUzNyw5IEBACiAKIAkJaWYgKHFjLT50Zi5wcm90b2NvbCAhPSBBVEFfUFJP
+VF9BVEFQSV9OT0RBVEEpIHsKIAkJCWlmIChxYy0+dGYuZmxhZ3MgJiBBVEFfVEZMQUdfV1JJVEUp
+Ci0JCQkJcHJiLT5jdHJsID0gUFJCX0NUUkxfUEFDS0VUX1dSSVRFOworCQkJCXByYi0+Y3RybCA9
+IGNwdV90b19sZTE2KFBSQl9DVFJMX1BBQ0tFVF9XUklURSk7CiAJCQllbHNlCi0JCQkJcHJiLT5j
+dHJsID0gUFJCX0NUUkxfUEFDS0VUX1JFQUQ7CisJCQkJcHJiLT5jdHJsID0gY3B1X3RvX2xlMTYo
+UFJCX0NUUkxfUEFDS0VUX1JFQUQpOwogCQl9IGVsc2UKIAkJCXByYi0+Y3RybCA9IDA7CiAK
+
+------_=_NextPart_001_01C68681.CA18E5D6--

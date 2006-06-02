@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWFBO4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWFBO5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWFBO4g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 10:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWFBO4g
+	id S1750774AbWFBO5d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 10:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFBO5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 10:56:36 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:9628 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751310AbWFBO4f (ORCPT
+	Fri, 2 Jun 2006 10:57:33 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:6923 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1750774AbWFBO5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 10:56:35 -0400
-Date: Fri, 2 Jun 2006 10:56:26 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Preben Traerup <Preben.Trarup@ericsson.com>
-Cc: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [RFC][PATCH] Add missing notifier before crashing
-Message-ID: <20060602145626.GB29610@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060530183359.a8d5d736.akiyama.nobuyuk@jp.fujitsu.com> <20060530145658.GC6536@in.ibm.com> <20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com> <20060531154322.GA8475@in.ibm.com> <20060601213730.dc9f1ec4.akiyama.nobuyuk@jp.fujitsu.com> <20060601151605.GA7380@in.ibm.com> <20060602141301.cdecf0e1.akiyama.nobuyuk@jp.fujitsu.com> <44800E1A.1080306@ericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44800E1A.1080306@ericsson.com>
-User-Agent: Mutt/1.5.11
+	Fri, 2 Jun 2006 10:57:32 -0400
+Message-ID: <448051D6.808@rainbow-software.org>
+Date: Fri, 02 Jun 2006 16:57:26 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Mark Lord <lkml@rtr.ca>, Grant Coady <gcoady.lk@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Query: No IDE DMA for IBM 365X with PIIX chipset?
+References: <j9bi729h2u4dcn9da7na3t1d8ckk477d9b@4ax.com>	 <1149169812.12932.20.camel@localhost>  <447F2257.4000404@rtr.ca> <1149187933.12932.70.camel@localhost>
+In-Reply-To: <1149187933.12932.70.camel@localhost>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 12:08:26PM +0200, Preben Traerup wrote:
-> Akiyama, Nobuyuki wrote:
+Alan Cox wrote:
+> On Iau, 2006-06-01 at 13:22 -0400, Mark Lord wrote:
+>> That's the original Intel "triton" chipset.
+>> I have a spare printed Intel document for the chipset (Intel #290519-001)
+>> which I can mail you (Alan).  Email me privately with a postal address.
 > 
-> >
-> >I don't think all people will use kdump(but I recommend my customer
-> >to use kdump ;-).
-> >The aim of panic notifier and crash notifier is a little different,
-> >so I thought these notifier lists should be separated.
-> >The panic notifier was not expected of kdump after notifier return!
-> >I think the better way is to modify panic notifiers to fit with
-> >kdump and to move into crash notifier gradually if necessary.
-> >
-> > 
-> >
-> Since I'm one of the people who very much would like best of both worlds,
-> I do belive Vivek Goyal's concern about the reliability of kdump must be
-> adressed properly.
+>>From the other docs it appears 0x122E is the ISA bridge and this laptop
+> has 0x122E (PIIX bridge) and an 82437MX system controller, but no PIIX
+> IDE. That actually suggests its more like the "MPIIX" which has a PIO
+> only IDE controller existing (logically anyway) on the ISA side of the
+> system.
 > 
-> I do belive the crash notifier should at least be a list of its own.
->  Attaching element to the list proves your are kdump aware - in theory
+> That would explain the observed behaviour and fit with the pattern of
+> PCI identifiers. Now to hunt 82437 docs.
 > 
-> However:
-> 
-> Conceptually I do not like the princip of implementing crash notifier
-> as a list simply because for all (our) practical usage there will only
-> be one element attached to the list anyway.
-> 
-> And as I belive crash notifiers only will be used by a very limited
-> number of users, I suggested in another mail that a simple
-> 
-> if (function pointer)
->   call functon
-> 
-> approach to be used for this special case to keep things very simple.
+> (In the mean time try adding the 0x1235 id to the 2.6.17-mm kernel in
+> drivers/scsi/pata_mpiix and see if that works with the new libata layer
+> not drivers/ide).
 
-I think if we decide to implement something which allows other policies 
-to co-exist with crash_kexec() then it should be more generic then a
-single function pointer.
+Maybe http://stuff.mit.edu/afs/sipb/contrib/doc/specs/unfiled/i82437MX.pdf
 
-Thanks
-Vivek
+-- 
+Ondrej Zary

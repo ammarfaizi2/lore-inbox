@@ -1,97 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWFBVYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbWFBVZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbWFBVYH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 17:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWFBVXu
+	id S1030295AbWFBVZd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 17:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWFBVZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 17:23:50 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:35742 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030292AbWFBVXm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 17:23:42 -0400
-Message-ID: <4480AC58.9030904@watson.ibm.com>
-Date: Fri, 02 Jun 2006 17:23:36 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Fri, 2 Jun 2006 17:25:33 -0400
+Received: from smtp4.poczta.interia.pl ([80.48.65.10]:42427 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S1030295AbWFBVZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 17:25:32 -0400
+Message-ID: <4480ACC0.2020806@interia.pl>
+Date: Fri, 02 Jun 2006 23:25:20 +0200
+From: =?windows-1252?Q?Rafa=3F_Bilski?= <rafalbilski@interia.pl>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>, dev@openvz.org,
-       Srivatsa <vatsa@in.ibm.com>, ckrm-tech@lists.sourceforge.net,
-       balbir@in.ibm.com, Balbir Singh <bsingharora@gmail.com>,
-       Mike Galbraith <efault@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Rene Herman <rene.herman@keyaccess.nl>,
-       Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au>	<447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com>	<447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra> <447FE9F8.4060004@sw.ru>
-In-Reply-To: <447FE9F8.4060004@sw.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: PCI - Unnecessary high-level?
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
+X-EMID: 5290acc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
+Why pci_device->suspend() is called with pm_message_t?
+IMO this is low-level PCI driver specific function.
+All drivers are calling pci_choose_state(). If this function
+would be called with pci_power_t maybe would be more PCI aware
+code compatible. Maybe code below would be better? 
 
->>>>- disk I/O bandwidth:
->>>>we started to use CFQv2, but it is quite poor in this regard. First, it 
->>>>doesn't prioritizes writes and async disk operations :( And even for 
->>>>sync reads we found some problems we work on now...
->>>>        
->>>>
->
->  
->
->>CKRM (on e-series) had an implementation based on a modified CFQ
->>scheduler. Shailabh is currently working on porting that controller to
->>f-series.
->>    
->>
->can you explain what was changed by CKRM there? Did you made it to 
->control ASYNC read/writes? I don't think so...
->  
->
-In e-series, CFQ was modified to
-- maintain request queues per ckrm-class (now resource group) rather 
-than per-tgid
-- explicitly maintain I/O bandwidth of each request queue (in terms of 
-I/O issued by the I/O scheduler)
-- select the "next request queue to service" based on its I/O 
-bandwidth...if a queue exceeds its allocation (as calculated
-from the CKRM guarantee values), the queue gets skipped.
 
-So this did not use the CFQ priority scheme as such and only implemented 
-the "limit" part.
+--- linux-2.6.17-rc5/include/linux/pci.h.orig	2006-05-31 09:00:42.000000000 +0200
++++ linux-2.6.17-rc5/include/linux/pci.h	2006-06-02 22:41:11.000000000 +0200
+@@ -342,7 +342,7 @@ struct pci_driver {
+ 	const struct pci_device_id *id_table;	/* must be non-NULL for probe to be called */
+ 	int  (*probe)  (struct pci_dev *dev, const struct pci_device_id *id);	/* New device inserted */
+ 	void (*remove) (struct pci_dev *dev);	/* Device removed (NULL if not a hot-plug capable driver) */
+-	int  (*suspend) (struct pci_dev *dev, pm_message_t state);	/* Device suspended */
++	int  (*suspend) (struct pci_dev *dev, pci_power_t state);	/* Device suspended */
+ 	int  (*resume) (struct pci_dev *dev);	                /* Device woken up */
+ 	int  (*enable_wake) (struct pci_dev *dev, pci_power_t state, int enable);   /* Enable wake event */
+ 	void (*shutdown) (struct pci_dev *dev);
 
-The current plan is to exploit the CFQ prio levels and rely on CFQ doing 
-a good enough job in maintaining an adequate
-bandwidth differential between those prio levels.
-Again, each queue would maintain a count of its consumed bandwidth as 
-well as target bandwidth. While picking the next request
-from the queue, if its observed that the queue is above its "guarantee", 
-its priority will get reduced (it'll still supply a request) while
-a queue that is below its share will get bumped up....Control will be 
-much more gradual but the basic idea is to leverage CFQ's priority
-handling than supplant it (since we get anticipation in the form of 
-time-slicing for free).
 
-One concern is whether the time-slicing of CFQ plays well with queues 
-that aren't organized by tgid...I'm still looking into that.
+--- linux-2.6.17-rc5/drivers/pci/pci-driver.c.orig	2006-05-31 09:00:31.000000000 +0200
++++ linux-2.6.17-rc5/drivers/pci/pci-driver.c	2006-06-02 22:44:18.000000000 +0200
+@@ -272,7 +272,7 @@ static int pci_device_suspend(struct dev
+ 	int i = 0;
+ 
+ 	if (drv && drv->suspend) {
+-		i = drv->suspend(pci_dev, state);
++		i = drv->suspend( pci_dev, pci_choose_state(state) );
+ 		suspend_report_result(drv->suspend, i);
+ 	} else {
+ 		pci_save_state(pci_dev);
 
->Do you have any plots on what is concurrent bandwidth is depending on 
->weights? Because, our measurements show that CFQ is not ideal and 
->behaves poorly when prio 0,5,6,7 are used :/ Only 1,2,3,4 are really 
->linear-scalable...
->  
->
-Interesting. Whats the time-scale over which you expect I/O bandwidth 
-rates to get enforced ?
 
-Perhaps the iosched discussion should use  a different thread....
-
---Shailabh
-
+----------------------------------------------------------------------
+Poznaj Stefana! Zmien komunikator! >>> http://link.interia.pl/f1924
 

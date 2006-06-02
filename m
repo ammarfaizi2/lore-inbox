@@ -1,31 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWFBSp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWFBSpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWFBSp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 14:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWFBSp1
+	id S932528AbWFBSpH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 14:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWFBSpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 14:45:27 -0400
-Received: from main.gmane.org ([80.91.229.2]:33742 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932388AbWFBSpZ (ORCPT
+	Fri, 2 Jun 2006 14:45:07 -0400
+Received: from pat.uio.no ([129.240.10.4]:36481 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932179AbWFBSpF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 14:45:25 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Dean Albano <dean.albano@121media.com>
-Subject: Re: [RFC] How to implement wccp over gre tunnel ?
-Date: Fri, 2 Jun 2006 18:39:56 +0000 (UTC)
-Message-ID: <loom.20060602T203504-801@post.gmane.org>
-References: <20040624194039.GA19574@stingr.net> <Pine.LNX.4.44.0406250044080.25930-100000@filer.marasystems.com>
+	Fri, 2 Jun 2006 14:45:05 -0400
+Subject: Re: Why NFS enforce size limit on readdirplus
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <4ae3c140606012254i5fa92953rdd1ea229be9a02f9@mail.gmail.com>
+References: <4ae3c140606012254i5fa92953rdd1ea229be9a02f9@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 14:44:55 -0400
+Message-Id: <1149273895.5621.27.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 71.249.206.7 (Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en) AppleWebKit/418 (KHTML, like Gecko) Safari/417.9.3)
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.713, required 12,
+	autolearn=disabled, AWL 1.29, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 2.4.8 ip_gre patch listed above does not seem to be complete.
-Any idea where I can get the full driver?
+On Fri, 2006-06-02 at 01:54 -0400, Xin Zhao wrote:
+> Maybe this question is a little dumb.
+> 
+> I am wondering why in NFS readdirplus can be used only for directories
+> of size less than 8*PAGE_SIZE, otherwise, it will switch to use normal
+> readdir?
+> 
+> In nfs/inode.c, I noticed the following code:
+> 			    if (nfs_server_capable(inode, NFS_CAP_READDIRPLUS) &&
+> fattr->size <= NFS_LIMIT_READDIRPLUS)
+> 				    set_bit(NFS_INO_ADVISE_RDPLUS, &NFS_FLAGS(inode));
+> 
+> Can someone kindly explain the reason?
+
+Efficiency: READDIRPLUS requires a lookup for each entry. If there are
+too many entries, the whole thing gets really really slow...
+
+Cheers,
+  Trond
 

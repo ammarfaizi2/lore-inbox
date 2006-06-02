@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWFBOIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWFBOI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWFBOIa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 10:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWFBOIa
+	id S932145AbWFBOI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 10:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWFBOI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 10:08:30 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:33943 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932119AbWFBOI3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 10:08:29 -0400
-Date: Fri, 2 Jun 2006 16:08:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch, -rc5-mm2] lock validator: fix compiler warning
-Message-ID: <20060602140857.GA8718@elte.hu>
+	Fri, 2 Jun 2006 10:08:58 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3025 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932145AbWFBOI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 10:08:57 -0400
+Date: Fri, 2 Jun 2006 16:10:31 +0200
+From: Jan Kara <jack@suse.cz>
+To: akpm@osdl.org
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix for reallocated deleted buffers
+Message-ID: <20060602141031.GB5642@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="DBIVS5p969aUjpLe"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5125]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: lock validator: fix compiler warning
-From: Ingo Molnar <mingo@elte.hu>
 
-fix harmless lockdep.c warning on !SMP:
+--DBIVS5p969aUjpLe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- kernel/lockdep.c: In function 'static_obj':
- kernel/lockdep.c:1112: warning: unused variable 'i'
+  Hello Andrew,
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/lockdep.c |    2 ++
- 1 file changed, 2 insertions(+)
+  my original patch (jbd-fix-bug-in-journal_commit_transaction.patch in -mm)
+fixing assertion failure in journal_commit_transaction() on
+  J_ASSERT_JH(jh, jh->b_next_transaction == NULL);
 
-Index: linux/kernel/lockdep.c
-===================================================================
---- linux.orig/kernel/lockdep.c
-+++ linux/kernel/lockdep.c
-@@ -1109,7 +1109,9 @@ static int static_obj(void *obj)
- 	unsigned long start = (unsigned long) &_stext,
- 		      end   = (unsigned long) &_end,
- 		      addr  = (unsigned long) obj;
-+#ifdef CONFIG_SMP
- 	int i;
-+#endif
+had one flaw in it. The fix was to refile buffers that had
+b_next_transaction set as that was perfectly correct situation. But
+__journal_refile_buffer() places all the buffers on BJ_Metadata list.
+As we can refile also buffers that are not jbddirty() it sometimes
+happened that the buffer was never marked jbddirty() and an assertion
+in journal_write_metadata_buffer() failed when committing the next
+transaction.
+  Attached patch makes journal_refile_buffer() file buffer into
+BJ_Reserved list when it is not jbddirty(). IBM and one other guy seeing
+the problem are now testing the patch and it seems to do its job. Please
+put it into -mm tree for some more widespread testing. Thanks.
+
+								Honza
+
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+--DBIVS5p969aUjpLe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="jbd-2.6.16-3-refile_nodirty_fix.diff"
+
+Non-jbddirty buffers should be filed to BJ_Reserved and not BJ_Metadata list.
+It can actually happen that we refile such buffers during the commit phase
+when we reallocate in the running transaction blocks deleted in committing
+transaction (and that can happen if the committing transaction already wrote
+all the data and is just cleaning up BJ_Forget list).
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.16-2-realloc_freed_fix/fs/jbd/transaction.c linux-2.6.16-3-refile_nodirty_fix/fs/jbd/transaction.c
+--- linux-2.6.16-2-realloc_freed_fix/fs/jbd/transaction.c	2006-04-22 03:44:01.000000000 +0200
++++ linux-2.6.16-3-refile_nodirty_fix/fs/jbd/transaction.c	2006-05-25 01:58:14.000000000 +0200
+@@ -2041,7 +2041,8 @@ void __journal_refile_buffer(struct jour
+ 	__journal_temp_unlink_buffer(jh);
+ 	jh->b_transaction = jh->b_next_transaction;
+ 	jh->b_next_transaction = NULL;
+-	__journal_file_buffer(jh, jh->b_transaction, BJ_Metadata);
++	__journal_file_buffer(jh, jh->b_transaction,
++				was_dirty ? BJ_Metadata : BJ_Reserved);
+ 	J_ASSERT_JH(jh, jh->b_transaction->t_state == T_RUNNING);
  
- 	/*
- 	 * static variable?
+ 	if (was_dirty)
+
+--DBIVS5p969aUjpLe--

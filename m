@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWFBNwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWFBNyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWFBNwp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWFBNwp
+	id S932071AbWFBNyV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 09:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWFBNyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:52:45 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:19895 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932117AbWFBNwo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:52:44 -0400
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: "Abu M. Muttalib" <abum@aftek.com>, linux-kernel@vger.kernel.org,
-       k.oliver@t-online.de
-Subject: Re: __alloc_pages: 0-order allocation failed (Jes Sorensen)
-References: <20060602122016.GC2051@harddisk-recovery.com>
-	<BKEKJNIHLJDCFGDBOHGMAEKKCNAA.abum@aftek.com>
-	<20060602134009.GE2051@harddisk-recovery.nl>
-From: Jes Sorensen <jes@sgi.com>
-Date: 02 Jun 2006 09:52:42 -0400
-In-Reply-To: <20060602134009.GE2051@harddisk-recovery.nl>
-Message-ID: <yq03benu0k5.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 2 Jun 2006 09:54:21 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:11217 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S932071AbWFBNyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 09:54:21 -0400
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20060602104542.061a1842@doriath.conectiva>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	 <20060601234833.adf12249.zaitcev@redhat.com>
+	 <1149242609.4695.0.camel@pmac.infradead.org>
+	 <20060602104542.061a1842@doriath.conectiva>
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 14:54:06 +0100
+Message-Id: <1149256446.5053.40.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Erik" == Erik Mouw <erik@harddisk-recovery.com> writes:
+On Fri, 2006-06-02 at 10:45 -0300, Luiz Fernando N. Capitulino wrote:
+>  Unfortunally my cables only connects devices to the computers
+> (ie, I can't connect two computers).
+> 
+>  Don't know if exists a Prolific USB <-> DB9, but if it does, would
+> be good if someone could make the test. Seems easy to do. 
 
-Erik> A: Because it messes up the order in which people normally read
-Erik> text.  Q: Why is top-posting such a bad thing?  A: Top-posting.
-Erik> Q: What is the most annoying thing in e-mail?
+What manner of device does it connect? I'm sure I've seen GSM phones
+which seem to be something like pl2302 when you connect to them with
+USB... and with a phone, you can dial up to a remote system and use
+xmodem.
 
-Erik> A: No.  Q: Should I leave quotations after my reply?
+You also get to test the flow control, since if you're using a 9600 baud
+dialup connection and your 'serial' link is faster than that, it'll need
+to be throttled.
 
-RFC 1855 pops to mind here :)
-
-Jes
+-- 
+dwmw2
 

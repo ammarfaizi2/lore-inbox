@@ -1,142 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWFBRhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWFBRh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWFBRhe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 13:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWFBRhe
+	id S1751348AbWFBRh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 13:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWFBRh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 13:37:34 -0400
-Received: from mail.linicks.net ([217.204.244.146]:29362 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1751333AbWFBRhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 13:37:33 -0400
-From: Nick Warne <nick@linicks.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH] 2.6.16.18 scripts/kconfig/mconf.c
-Date: Fri, 2 Jun 2006 18:37:06 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200606010628.08966.nick@linicks.net> <Pine.LNX.4.64.0606021608110.17704@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0606021608110.17704@scrub.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jun 2006 13:37:56 -0400
+Received: from gw.openss7.com ([142.179.199.224]:54470 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1751348AbWFBRhy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 13:37:54 -0400
+Date: Fri, 2 Jun 2006 11:37:53 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
+       draghuram@rocketmail.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Question about tcp hash function tcp_hashfn()
+Message-ID: <20060602113753.A20836@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Florian Weimer <fw@deneb.enyo.de>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	David Miller <davem@davemloft.net>, draghuram@rocketmail.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20060531090301.GA26782@2ka.mipt.ru> <20060531035124.B3065@openss7.org> <20060531105814.GB7806@2ka.mipt.ru> <20060531.114127.14356069.davem@davemloft.net> <20060601060424.GA28087@2ka.mipt.ru> <87y7wgaze1.fsf@mid.deneb.enyo.de> <20060602074845.GA17798@2ka.mipt.ru> <87ac8v8o4i.fsf@mid.deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606021837.06428.nick@linicks.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <87ac8v8o4i.fsf@mid.deneb.enyo.de>; from fw@deneb.enyo.de on Fri, Jun 02, 2006 at 07:26:53PM +0200
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 15:17, Roman Zippel wrote:
-> Hi,
+Florian,
 
-> Only choice symbols currently have no name, but there are otherwise normal
-> symbols, so there is need to just return here. This should look more like:
->
-> 	if (sym->name)
-> 		str_printf(r, "Symbol: %s", sym->name);
-> 	else if (sym_is_choice(sym))
-> 		str_printf(r, "Choice:");
-> 	else
-> 		str_printf(r, "Weird symbol:");
-> 	str_printf(r, "[=%s]\n", sym_get_string_value(sym));
->
-> That looks a little misformated, anyway, this should just be:
->
-> 	if (sym->name)
-> 		str_printf(&help, "CONFIG_%s:\n\n", sym->name);
->
-> 	str_append(&help, sym->help ? _(sym->help) : nohelp_text);
-> 	str_append(&help, "\n");
-> 	get_symbol_str(&help, sym);
-> 	show_helptext(menu_get_prompt(menu), str_get(&help));
-> 	str_free(&help);
->
-> bye, Roman
+On Fri, 02 Jun 2006, Florian Weimer wrote:
+> 
+> I see them now.  Hmm.  Is there a theoretical explanation for them?
 
-Hi Roman,
+Jenkins is an ad hoc function that is far from ideal.  As you know,
+the ideal hash changes 1/2 the bits in the output value for each one
+bit change in the input value(s).  Jenkins changes a few as 1/3 and
+performs less than ideal over even a small smaple of the input data
+set (Jenkins said he checked several billion of the trilions of
+changes).
 
-I see, thanks - that works good, but one little thing - menu expanders now 
-produce a funny line at the end e.g. from 'Processor type and features -> 
-memory model' help, the last line:
+It should not be suprising that a general purpose ad hoc function
+(Jenkins) performs poorer than a specific purpose ad hoc function
+(XOR), for the very specific input data sets that the later was chosen
+to cover.
 
-  Choice:[=y]
-    Prompt: Memory model
-    Defined at mm/Kconfig:5
-    Depends on: SELECT_MEMORY_MODEL
-         -> Processor type and features
-       Selected by: SELECT_MEMORY_MODEL && m
-
-I don't know what '&& m' means and it isn't selected by anything; I think it 
-is bogus... so I have added a line to stop the 'selected by' being used if 
-the 'help' option is on a 'menu expander -->'
-
-Nick
-
-
-
-signed-off-by: Nick Warne <nick@linicks.net>
-
-
---- linux-current/scripts/kconfig/mconf.cORIG	2006-05-30 18:58:59.000000000 
-+0100
-+++ linux-current/scripts/kconfig/mconf.c	2006-06-02 18:19:35.000000000 +0100
-@@ -402,8 +402,13 @@
- 	bool hit;
- 	struct property *prop;
- 
--	str_printf(r, "Symbol: %s [=%s]\n", sym->name,
--	                               sym_get_string_value(sym));
-+        if (sym->name)
-+                str_printf(r, "Symbol: %s", sym->name);
-+        else if (sym_is_choice(sym))
-+                str_printf(r, "Choice:");
-+        else
-+                str_printf(r, "Weird symbol:");
-+        str_printf(r, "[=%s]\n", sym_get_string_value(sym));
- 	for_all_prompts(sym, prop)
- 		get_prompt_str(r, prop);
- 	hit = false;
-@@ -417,7 +422,7 @@
- 	}
- 	if (hit)
- 		str_append(r, "\n");
--	if (sym->rev_dep.expr) {
-+	if (sym->rev_dep.expr && !sym_is_choice(sym)) {
- 		str_append(r, "  Selected by: ");
- 		expr_gstr_print(sym->rev_dep.expr, r);
- 		str_append(r, "\n");
-@@ -849,19 +854,15 @@
- 	struct gstr help = str_new();
- 	struct symbol *sym = menu->sym;
- 
--	if (sym->help)
--	{
--		if (sym->name) {
--			str_printf(&help, "CONFIG_%s:\n\n", sym->name);
--			str_append(&help, _(sym->help));
--			str_append(&help, "\n");
--		}
--	} else {
--		str_append(&help, nohelp_text);
--	}
--	get_symbol_str(&help, sym);
--	show_helptext(menu_get_prompt(menu), str_get(&help));
--	str_free(&help);
-+        if (sym->name)
-+                str_printf(&help, "CONFIG_%s:\n\n", sym->name);
-+
-+        str_append(&help, sym->help ? _(sym->help) : nohelp_text);
-+        str_append(&help, "\n");
-+        get_symbol_str(&help, sym);
-+        show_helptext(menu_get_prompt(menu), str_get(&help));
-+        str_free(&help);
-+
- }
- 
- static void show_file(const char *filename, const char *title, int r, int c)
-
-
-
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
+Theoretically, XOR can be improved upon, but Jenkins doesn't do it.

@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWFBNRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWFBNSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWFBNRD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWFBNRD
+	id S1751412AbWFBNSx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 09:18:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWFBNSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:17:03 -0400
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:64719 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751398AbWFBNRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:17:02 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 23:16:39 +1000
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
-References: <000201c6861f$6a2d4e20$0b4ce984@amr.corp.intel.com> <447FFD35.9020909@yahoo.com.au> <200606022030.11481.kernel@kolivas.org>
-In-Reply-To: <200606022030.11481.kernel@kolivas.org>
+	Fri, 2 Jun 2006 09:18:53 -0400
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:54999 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751416AbWFBNSx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 09:18:53 -0400
+Message-ID: <44803ABA.6050001@bigpond.net.au>
+Date: Fri, 02 Jun 2006 23:18:50 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Mike Galbraith <efault@gmx.de>
+CC: sekharan@us.ibm.com, balbir@in.ibm.com, dev@openvz.org,
+       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
+       Sam Vilain <sam@vilain.net>, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <bsingharora@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	 <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	 <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>	 <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>	 <447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>	 <447FD2E1.7060605@bigpond.net.au> <1149237992.9446.133.camel@Homer.TheSimpsons.net>
+In-Reply-To: <1149237992.9446.133.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606022316.41139.kernel@kolivas.org>
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 2 Jun 2006 13:18:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 20:30, Con Kolivas wrote:
-> On Friday 02 June 2006 18:56, Nick Piggin wrote:
-> > And why do we lock all siblings in the other case, for that matter? (not
-> > that it makes much difference except on niagara today).
->
-> If we spinlock (and don't trylock as you're proposing) we'd have to do a
-> double rq lock for each sibling. I guess half the time double_rq_lock will
-> only be locking one runqueue... with 32 runqueues we either try to lock all
-> 32 or lock 1.5 runqueues 32 times... ugh both are ugly.
+Mike Galbraith wrote:
+> On Fri, 2006-06-02 at 15:55 +1000, Peter Williams wrote:
+>> Chandra Seetharaman wrote:
+>>> On Thu, 2006-06-01 at 14:04 +0530, Balbir Singh wrote:
+>>>> Hi, Kirill,
+>>>>
+>>>> Kirill Korotaev wrote:
+>>>>>> Do you have any documented requirements for container resource 
+>>>>>> management?
+>>>>>> Is there a minimum list of features and nice to have features for 
+>>>>>> containers
+>>>>>> as far as resource management is concerned?
+>>>>> Sure! You can check OpenVZ project (http://openvz.org) for example of 
+>>>>> required resource management. BTW, I must agree with other people here 
+>>>>> who noticed that per-process resource management is really useless and 
+>>>>> hard to use :(
+>>> I totally agree.
+>> "nice" seems to be doing quite nicely :-)
+>>
+>> To me this capping functionality is a similar functionality to that 
+>> provided by "nice" and all that's needed to make it useful is a command 
+>> (similar to "nice") that runs tasks with caps applied.
+> 
+> Similar in that they are both inherited.  Very dissimilar in that the
+> effect of nice is not altered by fork whereas the effect of a cap is.
+> 
+> Consider make.  A cap on make itself isn't meaningful, and _any_ per
+> task cap you put on it with the intent of managing the aggregate, is
+> defeated by the argument -j.  Per task caps require omniscience to be
+> effective in managing processes.  That's a pretty severe limitation.
 
-Thinking some more on this it is also clear that the concept of per_cpu_gain  
-for smt is basically wrong once we get beyond straight forward 2 thread 
-hyperthreading. If we have more than 2 thread units per physical core, the 
-per cpu gain per logical core will decrease the more threads are running on 
-it. While it's always been obvious the gain per logical core is entirely 
-dependant on the type of workload and wont be a simple 25% increase in cpu 
-power, it is clear that even if we assume an "overall" increase in cpu for 
-each logical core added, there will be some non linear function relating 
-power increase to thread units used. :-|
+These caps aren't trying to control aggregates but with suitable 
+software they can be used to control aggregates.
 
+Peter
 -- 
--ck
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

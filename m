@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWFBESz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWFBE23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWFBESz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 00:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWFBESy
+	id S1751105AbWFBE23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 00:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWFBE23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 00:18:54 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:30890 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751105AbWFBESx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 00:18:53 -0400
+	Fri, 2 Jun 2006 00:28:29 -0400
+Received: from nz-out-0102.google.com ([64.233.162.207]:44822 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751105AbWFBE23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 00:28:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=i1xCQEwaLGRz2gYZ+eVDhS0+LHPc6Cwlr0ymF0ZjN/ZdL2wvMfRq+gaYrCZV6yR3KyzO8POTHfxew2C0fKzN/ZtAe5gtZWx1uTtIcRWIAjwn6Aw8NkGSrw5OFiUZdUjcuzSVI22Nu5cuiIOozftqpiQ4+qiRd6rx0g1vd2hMx8c=  ;
-Message-ID: <447FBC28.8030401@yahoo.com.au>
-Date: Fri, 02 Jun 2006 14:18:48 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Mjy9mZ2NoHuJ4YeEJePc3f1s2HZDgvK0Gbtuepr7pikUoRGQYH2Vx4KUKN8MwS0O/VBWvc0/QyaGJWcYhLM08mauDdDgo+szULSUFixWSzEzipa5ijS0bJ1G+6Qarci1yyABAdKtSm+VZaQ6VWOiPXtSNXWPP0nfIOD7l2kNNlw=
+Message-ID: <9e4733910606012128h5bdc293dwfa3c58985bbceb07@mail.gmail.com>
+Date: Fri, 2 Jun 2006 00:28:18 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Dave Airlie" <airlied@gmail.com>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Ondrej Zajicek" <santiago@mail.cz>, "D. Hazelton" <dhazelton@enter.net>,
+       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, adaplas@gmail.com
+In-Reply-To: <9e4733910606012027y2567c194yf02a96319fe33e63@mail.gmail.com>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-References: <000101c685d7$1bc84390$d234030a@amr.corp.intel.com> <200606021159.06519.kernel@kolivas.org> <200606021228.37910.kernel@kolivas.org> <200606021355.23671.kernel@kolivas.org>
-In-Reply-To: <200606021355.23671.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <9e4733910605302116s5a47f5a3kf0f941980ff17e8@mail.gmail.com>
+	 <200605310026.01610.dhazelton@enter.net>
+	 <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com>
+	 <20060601092807.GA7111@localhost.localdomain>
+	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
+	 <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com>
+	 <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
+	 <21d7e9970606011945i57e2cfd2la77459fc7273b6e7@mail.gmail.com>
+	 <9e4733910606012027y2567c194yf02a96319fe33e63@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Friday 02 June 2006 12:28, Con Kolivas wrote:
-> 
->>Actually looking even further, we only introduced the extra lookup of the
->>next task when we started unlocking the runqueue in schedule(). Since we
->>can get by without locking this_rq in schedule with this approach we can
->>simplify dependent_sleeper even further by doing the dependent sleeper
->>check after we have discovered what next is in schedule and avoid looking
->>it up twice. I'll hack something up to do that soon.
-> 
-> 
-> Something like this (sorry I couldn't help but keep hacking on it).
+On 6/1/06, Jon Smirl <jonsmirl@gmail.com> wrote:
+> On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
+> > > > 15) re-use as much of the X drivers as possible, otherwise it will KGI.
+> > >
+> > > I would broaden this to use the best code where ever it is found. Of
+> > > course X is a major source.
+> >
+> > I'm not considering using knowledge from X drivers, I'm considering
+> > using the X drivers, I don't personally care about things like X's
+> > over use of typedefs and that sort of stuff, that is what I term
+> > semantic, people who work on X drivers know X drivers, and writing the
+> > drivers is the biggest part of any graphic systems.
+>
+> I have considered that option too. It is a good place for a quick
+> start but it is not maintainable in the long run. The driver code has
+> to be divorced from X and not require having the entire X system
+> around to build a new driver.
+>
+> Have you checked the dependencies needed for loading X drivers?
+> Modularization may have helped but loading an X driver used to
+> effectively suck in the entire X server due to dependencies. Sucking
+> in all of X is not fair to alternative windowing systems.
+>
+> I do agree that this is a workable starting point but it can't be the
+> long term solution.
 
-Looking pretty good. Nice to acknowledge Chris's idea for
-trylocks in your changelog when you submit a final patch.
+I just checked the Xorg R7 drivers. The ones I checked are statically
+linked to their X components so there are no big X dependencies. That
+makes them usable as standalone drivers.
+
+What do you think about wrapping them with EGL instead of using their
+entry points directly? That would remove the temptation to use
+acceleration code in the X drivers and encourage use of DRM instead.
+
+Wrapping them with EGL was my plan for getting Xegl up last summer
+when Nvidia wouldn't implement the API. Using the X driver was the
+only solution available for Nvidia/ATI hardware.
+
+This still needs to be classified as a temporary solution. Long term
+the code needs to be extracted from X and converted to a standalone
+build system. They could be turned in to real EGL drivers at that
+point.
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Jon Smirl
+jonsmirl@gmail.com

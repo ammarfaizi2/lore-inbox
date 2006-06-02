@@ -1,101 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWFBCqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWFBCpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWFBCqG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 22:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWFBCqG
+	id S1751161AbWFBCpF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 22:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWFBCpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 22:46:06 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:8169 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751162AbWFBCqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 22:46:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qZfynGmx45dni7LfYecktC/eLKFm6x13TW6CzkPoouJw8aj5v7xLtsysWu+sagQ7gtjSuRhs1JY92yAmIkK5XYdYrYqfD2StXvTrIZgA15cvBqKiBUzy8xVb+SbdxpUXXc7oqxAux/nEOrOs5cJ8pqe74gUc1E5bMjA1/ZxkCHA=
-Message-ID: <21d7e9970606011945i57e2cfd2la77459fc7273b6e7@mail.gmail.com>
-Date: Fri, 2 Jun 2006 12:45:54 +1000
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Ondrej Zajicek" <santiago@mail.cz>, "D. Hazelton" <dhazelton@enter.net>,
-       "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 1 Jun 2006 22:45:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45225 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751157AbWFBCpD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 22:45:03 -0400
+Date: Thu, 1 Jun 2006 19:49:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Chinner <dgc@sgi.com>
+Cc: jblunck@suse.de, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, dgc@sgi.com,
+       balbir@in.ibm.com
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
+ list (2nd version)
+Message-Id: <20060601194912.8173705a.akpm@osdl.org>
+In-Reply-To: <20060602022339.GY7418631@melbourne.sgi.com>
+References: <20060601095125.773684000@hasse.suse.de>
+	<20060601180659.56e69968.akpm@osdl.org>
+	<20060602022339.GY7418631@melbourne.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200605302314.25957.dhazelton@enter.net>
-	 <9e4733910605302116s5a47f5a3kf0f941980ff17e8@mail.gmail.com>
-	 <200605310026.01610.dhazelton@enter.net>
-	 <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com>
-	 <20060601092807.GA7111@localhost.localdomain>
-	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-	 <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com>
-	 <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > not really necessary.. nor should it be... fbset works, something like
-> > it would be good enough..
->
-> I meant support for Korean, Chinese, etc. You can't draw some of the
-> complex scripts without using something like Pango. Do we want to
-> build a system where people can use console in their native language?
-> You can use these languages from xterm but not console today. I have
-> no strong opinion on this point other that I believe it should be
-> discussed and input from non-English speakers should be considered. No
-> one on this list has a problem with this area since we all speak
-> English.
+On Fri, 2 Jun 2006 12:23:39 +1000
+David Chinner <dgc@sgi.com> wrote:
 
-Sorry misinterpreted, a userspace console would be possible now, if
-someone implements it we can use it, but I'm not sure a freetype
-accelrated console is necessary for us to do everything else.
+> On Thu, Jun 01, 2006 at 06:06:59PM -0700, Andrew Morton wrote:
+> > On Thu, 01 Jun 2006 11:51:25 +0200
+> > jblunck@suse.de wrote:
+> > 
+> > > This is an attempt to have per-superblock unused dentry lists.
+> > 
+> > Fairly significant clashes with
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/broken-out/fix-dcache-race-during-umount.patch 
+> > 
+> > I guess Neil's patch will go into the 2.6.18 tree, so you'd be best off
+> > working against that.
+> 
+> Though this patch series fixes the same problem in a much cleaner
+> way. It effectively obsoletes Neil's fix.
 
-> > 14) backwards compatible, an old X server should still run on a new
-> > kernel. I will allow for new options to be enabled at run-time so that
-> > this isn't possible, but just booting a kernel and starting X should
-> > work.
->
-> I'm not sure we want to continue supporting every X server released in
-> the last 25 years. But we should definitely support any X server
-> released in a 2.6 based kernel distribution. What are reasonable
-> limits?
+OK.
 
-Yes at least a 2.6 distro based X should always work, I'm sure 2.4 DRM
-doesn't work with new X in a lot of cases anyways as no-one tested it
-at the time and it just got broken...
+> > Also, you're making what appears to be a quite deep design change to a
+> > pretty important part of the memory reclaim code and all the info we have
+> > is this:
+> > 
+> > 
+> > +				/*
+> > +				 * Try to be fair to the unused lists:
+> > +				 *  sb_count/sb_unused ~ count/global_unused
+> > +				 *
+> > +				 * Additionally, if the age_limit of the
+> > +				 * superblock is expired shrink at least one
+> > +				 * dentry from the superblock
+> > +				 */
+> > +				tmp = sb->s_dentry_stat.nr_unused /
+> > +					((unused / count) + 1);
+> > +				if (!tmp && time_after(jiffies,
+> > +						       sb->s_dentry_unused_age))
+> > +					tmp = 1;
+> > 
+> > 
+> > Please, we'll need much much more description of what this is trying to
+> > achieve, why it exists, analysis, testing results, etc, etc.  Coz my
+> > immediate reaction is "wtf is that, and what will that do to my computer?".
+> 
+> Discussed in this thread:
+> 
+> http://marc.theaimsgroup.com/?l=linux-fsdevel&m=114890371801114&w=2
+> 
+> Short summary of the problem: due to SHRINK_BATCH resolution, a proportional
+> reclaim based on "count" across all superblocks will not shrink anything on
+> lists 2 orders of magnitude smaller than the longest list as tmp will evaluate
+> as zero.  Hence to prevent small unused lists from never being reclaimed and
+> pinning memory until >90% of the dentry cache has been reclaimed we need to
+> turn them over slowly. However, if we turn them over too quickly, the dentry
+> cache does no caching for small filesystems.
+> 
+> This is not a problem a single global unused list has...
 
-> > 15) re-use as much of the X drivers as possible, otherwise it will KGI.
->
-> I would broaden this to use the best code where ever it is found. Of
-> course X is a major source.
+Reasonable.  Whatever we do needs to be fully communicated in the comment
+text please.
 
-I'm not considering using knowledge from X drivers, I'm considering
-using the X drivers, I don't personally care about things like X's
-over use of typedefs and that sort of stuff, that is what I term
-semantic, people who work on X drivers know X drivers, and writing the
-drivers is the biggest part of any graphic systems.
+> > In particular, `jiffies' has near-to-zero correlation with the rate of
+> > creation and reclaim of these objects, so it looks highly inappropriate
+> > that it's in there.  If anything can be used to measure "time" in this code
+> > it is the number of scanned entries, not jiffies.
+> 
+> Sure, but SHRINK_BATCH resolution basically makes it impossible to reconcile
+> lists of vastly different lengths. If the shrinker simply called us
+> with the entire count it now hands us in batches, I doubt that this would be
+> an issue.
+> 
+> In the mean time, we need some other method to ensure we do eventually free
+> up these items on small lists. The above implements an idle timer used to
+> determine when we start to turn over a small cache. Maybe if we wrap it in:
+> 
+> > +				if (!tmp && dentry_lru_idle(sb))
+> > +					tmp = 1;
+> 
+> with a more appropriate comment it would make more sense?
+> 
+> Suggestions on other ways to resolve the problem are welcome....
 
-> > 16) secure - no direct IO or MMIO access, modesetting is slow anyways
-> > having the kernel checking the mmio access won't make it much slower.
->
-> This needs some expansion. Secure is good, but it's not clear what you
-> are requiring with this point.
+Don't do a divide?
 
-I'm talking the recent secure thread that came from OpenBSD, we should
-have no unchecked access to the I/O ports from userspace, even for
-root or special graphics processes, MMIO needs to be mapped R/O to
-userspace and accessed via either real DMA or pseudo-DMA mechanism in
-the kernel. I don't think putting modesetting into the kernel is
-sufficent to fix all needed uses for MMIO so I'd rather add a checking
-mechanism ala what the DRM does now.
+	sb->s_scan_count += count;
+	...	
+	tmp = sb->s_dentry_stat.nr_unused /
+		(global_dentry_stat.nr_unused / sb->s_scan_count + 1);
+	if (tmp) {
+		sb->s_scan_count -= <can't be bothered doing the arith ;)>;
+		prune_dcache_sb(sb, tmp);
+	}
 
-Dave.
+That could go weird on us if there are sudden swings in
+sb->s_dentry_stat.nr_unused or global_dentry_stat.nr_unused, but
+appropriate boundary checking should fix that?

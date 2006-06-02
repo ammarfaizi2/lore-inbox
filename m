@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWFBGJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWFBGR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWFBGJW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 02:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWFBGJW
+	id S1751201AbWFBGR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 02:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWFBGR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 02:09:22 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:22493 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751205AbWFBGJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 02:09:21 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 16:08:33 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Chris Mason'" <mason@suse.com>, Ingo Molnar <mingo@elte.hu>
-References: <000101c685d7$1bc84390$d234030a@amr.corp.intel.com> <200606021355.23671.kernel@kolivas.org> <447FBC28.8030401@yahoo.com.au>
-In-Reply-To: <447FBC28.8030401@yahoo.com.au>
+	Fri, 2 Jun 2006 02:17:58 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:38436 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751201AbWFBGR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 02:17:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WW7FmABMJagJNYBWJPM2S8oAviedGIuU+ujnU6y9x74LCiexuWN/oY7jq08abU96FUpHtfARB9zuYNLajF0BdHuLjCpT6FXa1Qbf7C0V7BezB7Ktuv19Vl2mKx2yWOtuZuAoDvOBXE1AJnOyUY9j1C2VplMb5z70waJ+vV2Cye8=
+Message-ID: <20f65d530606012317u7d49f476w4bfaa5b6cc08e94e@mail.gmail.com>
+Date: Fri, 2 Jun 2006 18:17:56 +1200
+From: "Keith Chew" <keith.chew@gmail.com>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>
+Subject: Re: IRQ sharing: BUG: spinlock lockup on CPU#0
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200606020137_MC3-1-C164-9068@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606021608.33928.kernel@kolivas.org>
+References: <200606020137_MC3-1-C164-9068@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 June 2006 14:18, Nick Piggin wrote:
-> Con Kolivas wrote:
-> > On Friday 02 June 2006 12:28, Con Kolivas wrote:
-> >>Actually looking even further, we only introduced the extra lookup of the
-> >>next task when we started unlocking the runqueue in schedule(). Since we
-> >>can get by without locking this_rq in schedule with this approach we can
-> >>simplify dependent_sleeper even further by doing the dependent sleeper
-> >>check after we have discovered what next is in schedule and avoid looking
-> >>it up twice. I'll hack something up to do that soon.
-> >
-> > Something like this (sorry I couldn't help but keep hacking on it).
+Hi Chuck
+
 >
-> Looking pretty good.
+> Your mailer is garbling long lines when it wraps them...
+>
 
-Thanks
+Oh dear, it looks like we forgot to set Line Wrapping in minicom, that
+was real silly. Will post another stack trace as soon as another feeze
+happens.
 
-> Nice to acknowledge Chris's idea for 
-> trylocks in your changelog when you submit a final patch.
-
-I absolutely would and I would ask for him to sign off on it as well, once we 
-agreed on a final form.
-
--- 
--ck
+Regards
+Keith

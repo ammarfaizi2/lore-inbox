@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWFBApc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWFBAlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbWFBApc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jun 2006 20:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWFBApc
+	id S1750799AbWFBAlb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jun 2006 20:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWFBAla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jun 2006 20:45:32 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:53895 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750997AbWFBApb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jun 2006 20:45:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WOROjKczMzoH4wn1p7sYUFwpFI5FB9qtF0YryNvCtCvZfZnE9sNQaHxSotLO257LhUoR1Sx1XGUmUeEFV6stYDCyzb7+oXoIBbCCfMz5QmIoRt7R2u6ViAbWQqtwfv9qUeKg5Jmxka8TR2HJQXVMFj8wKbl9k2E1qEar1w823W0=
-Message-ID: <9e4733910606011745n7277ca57vf8d32dfed9da2c4e@mail.gmail.com>
-Date: Thu, 1 Jun 2006 20:45:20 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Dave Airlie" <airlied@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "D. Hazelton" <dhazelton@enter.net>,
-       "David Lang" <dlang@digitalinsight.com>,
-       "Ondrej Zajicek" <santiago@mail.cz>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <21d7e9970606011647l11a780d3h816fee2cc01e72a9@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 1 Jun 2006 20:41:30 -0400
+Received: from mga01.intel.com ([192.55.52.88]:40223 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750701AbWFBAl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jun 2006 20:41:29 -0400
+X-IronPort-AV: i="4.05,199,1146466800"; 
+   d="scan'208"; a="45750108:sNHT22838172"
+Subject: Re: [patch 1/3] acpi: dock driver v6
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: len.brown@intel.com, greg@kroah.com, linux-acpi@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+In-Reply-To: <20060601162039.02fcd8e1.akpm@osdl.org>
+References: <20060412221027.472109000@intel.com>
+	 <1144880322.11215.44.camel@whizzy> <20060412222735.38aa0f58.akpm@osdl.org>
+	 <1145054985.29319.51.camel@whizzy> <44410360.6090003@sgi.com>
+	 <1145383396.10783.32.camel@whizzy> <1146268318.25490.33.camel@whizzy>
+	 <1147373152.15308.14.camel@whizzy> <1149203128.14279.17.camel@whizzy>
+	 <20060601162039.02fcd8e1.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-	 <Pine.LNX.4.63.0606010758380.3827@qynat.qvtvafvgr.pbz>
-	 <200606011603.57421.dhazelton@enter.net>
-	 <9e4733910606011335q5791997drc02d23f398a2acf5@mail.gmail.com>
-	 <21d7e9970606011614x5b4d3a3t9608971a714f8c77@mail.gmail.com>
-	 <9e4733910606011638s587fff33lbfe46f6a2817245b@mail.gmail.com>
-	 <21d7e9970606011647l11a780d3h816fee2cc01e72a9@mail.gmail.com>
+Date: Thu, 01 Jun 2006 17:53:17 -0700
+Message-Id: <1149209597.14279.27.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+X-OriginalArrivalTime: 02 Jun 2006 00:41:26.0118 (UTC) FILETIME=[478AC060:01C685DD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
-> We can stop the OOM killer from killing the daemon if necessary.
-> running device drivers in userspace would sort of require this, we can
-> run the daemon from init and if it dies, have it respawn, it could put
-> persistent info in a shared memory segment provided by the DRM, just
-> because you can't think of any way around things, doesn't mean the
-> rest of us can't..
->
-> a /dev/ with permissions is no more or less useful than a
-> /tmp/.grphs_socket1 and 2
-> with permissions,
+On Thu, 2006-06-01 at 16:20 -0700, Andrew Morton wrote:
+> Kristen Accardi <kristen.c.accardi@intel.com> wrote:
+> >
+> > Changed from last version:
+> 
+> It would be much preferred if you could issue patches against the previous
+> version please (ie: the thing in -mm), instead of reissuing the patch each
+> time.
+> 
 
-/dev/devices have a standard system design in the kernel with h files
-and ioctls. Why create a new communication protocol when a standard
-one exists? How is a printk generated in the kernel going to find this
-socket and get the printk message into it?
+Sorry, another maintainer I routinely post patches too always preferred
+me to just redo the whole patch so that he could just drop the old one.
+I'll change my procedure for this patch.  If you do have a set of
+guidelines for when to know whether to redo entire patches vs. patch
+your patch so to speak, it'd be educational for me to hear it - as it is
+I just get trained by the person I usually submit to and adopt his
+process, making things work really well for me submitting to him, but
+probably not so well for me when I submit to others.
 
-You have a panic in an interrupt handler. User space is messed up
-because of wild pointer writes in the kernel. Your display process has
-been swapped out. How are you going to display the panic message?
+I also usually patch/test against 2.6-git - mainly because I imagined
+that this hopefully limits weird bugs to problems that I've actually
+introduced instead of someone elses bugs - which is why I didn't notice
+that acpi_os_free had been removed (although even if it hadn't I
+shouldn't be using it anyway - ugh.).  Thanks for fixing the mistake,
+looks like I should test against -mm and -git in the future.
 
-How does a process protected from the OOM killer that is also pinned
-into memory differ from just being part of the kernel? Is creating a
-process like this and building a communication system worth it just to
-get address space separation?
-
-Why don't you write up a comprehensive design for your system and post
-it for all to read. It is difficult to piece together an overall
-picture from 100s of emails talking about specific features. To do
-this right  you have to address everything from fbdev to X to SDL to
-i8n. There were 13 design requirements posted earlier, can your system
-satisfy all of those?
-
-Any designs you propose have to be able to stand up to questioning
-like this. It is much better to deal with the problems as questions
-rather than to find them after the code is written.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Kristen

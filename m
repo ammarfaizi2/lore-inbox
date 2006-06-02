@@ -1,69 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWFBOQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWFBORN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWFBOQL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 10:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWFBOQL
+	id S932130AbWFBORN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 10:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWFBORN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 10:16:11 -0400
-Received: from stinky.trash.net ([213.144.137.162]:25333 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S932130AbWFBOQK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 10:16:10 -0400
-Message-ID: <44804828.2050909@trash.net>
-Date: Fri, 02 Jun 2006 16:16:08 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Fri, 2 Jun 2006 10:17:13 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:28379 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932130AbWFBORN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 10:17:13 -0400
+Date: Fri, 2 Jun 2006 16:17:02 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nick Warne <nick@linicks.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.16.18 scripts/kconfig/mconf.c
+In-Reply-To: <200606010628.08966.nick@linicks.net>
+Message-ID: <Pine.LNX.4.64.0606021608110.17704@scrub.home>
+References: <200606010628.08966.nick@linicks.net>
 MIME-Version: 1.0
-To: Frank van Maarseveen <frankvm@frankvm.com>
-CC: linux-kernel@vger.kernel.org,
-       Kernel Netdev Mailing List <netdev@vger.kernel.org>
-Subject: Re: 2.6.17-rc4: netfilter LOG messages truncated via NETCONSOLE (2)
-References: <20060531094626.GA23156@janus> <447DAEC9.3050003@trash.net> <20060531160611.GA25637@janus> <447DC613.10102@trash.net> <20060531172936.GB25788@janus> <447DD66C.30605@trash.net> <20060601091124.GA31642@janus> <447F2537.1080807@trash.net> <20060602123559.GA7505@janus> <20060602140212.GA7881@janus>
-In-Reply-To: <20060602140212.GA7881@janus>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------050300050505090900060408"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050300050505090900060408
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Frank van Maarseveen wrote:
-> The 2.6.13.2 data is inconsistent. The bug appears to be present there at
-> well after closer examination. So there must be another factor involved
-> because I have at least one case logged where 2.6.13.2 did work (the
-> "sirkka" log in my previous mail). Applying your patch on 2.6.13.2
-> again removes the protocol is buggy messages (when doing a tcpdump)
-> but the problem of the 10 missing packets persists.
+On Thu, 1 Jun 2006, Nick Warne wrote:
 
-Which network driver are you using? Does this patch show anything in
-the ringbuffer?
+> 
+> --- linux-current/scripts/kconfig/mconf.cORIG	2006-05-30 18:58:59.000000000 
+> +0100
+> +++ linux-current/scripts/kconfig/mconf.c	2006-05-30 19:10:29.000000000 +0100
+> @@ -402,6 +402,9 @@
+>  	bool hit;
+>  	struct property *prop;
+>  
+> +	if (!sym->name)
+> +		return;
+> +
+>  	str_printf(r, "Symbol: %s [=%s]\n", sym->name,
+>  	                               sym_get_string_value(sym));
+>  	for_all_prompts(sym, prop)
+
+Only choice symbols currently have no name, but there are otherwise normal 
+symbols, so there is need to just return here. This should look more like:
+
+	if (sym->name)
+		str_printf(r, "Symbol: %s", sym->name);
+	else if (sym_is_choice(sym))
+		str_printf(r, "Choice:");
+	else
+		str_printf(r, "Weird symbol:");
+	str_printf(r, "[=%s]\n", sym_get_string_value(sym));
 
 
---------------050300050505090900060408
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+> @@ -853,15 +856,17 @@
+>  	{
+>  		if (sym->name) {
+>  			str_printf(&help, "CONFIG_%s:\n\n", sym->name);
+> -			str_append(&help, _(sym->help));
+> -			str_append(&help, "\n");
+>  		}
+> -	} else {
+> -		str_append(&help, nohelp_text);
+> -	}
+> +	str_append(&help, _(sym->help));
+> +	str_append(&help, "\n");
+>  	get_symbol_str(&help, sym);
+>  	show_helptext(menu_get_prompt(menu), str_get(&help));
+>  	str_free(&help);
+> +	} else {
+> +		str_append(&help, nohelp_text);
+> +		show_helptext(menu_get_prompt(menu), str_get(&help));
+> +		str_free(&help);
+> +	}
+>  }
 
-diff --git a/net/core/netpoll.c b/net/core/netpoll.c
-index e8e05ce..2b12280 100644
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -302,6 +302,9 @@ static void netpoll_send_skb(struct netp
- 		netpoll_poll(np);
- 		udelay(50);
- 	} while (npinfo->tries > 0);
-+
-+	printk("failed to transmit\n");
-+	kfree_skb(skb);
- }
- 
- void netpoll_send_udp(struct netpoll *np, const char *msg, int len)
+That looks a little misformated, anyway, this should just be:
 
---------------050300050505090900060408--
+	if (sym->name)
+		str_printf(&help, "CONFIG_%s:\n\n", sym->name);
+
+	str_append(&help, sym->help ? _(sym->help) : nohelp_text);
+	str_append(&help, "\n");
+	get_symbol_str(&help, sym);
+	show_helptext(menu_get_prompt(menu), str_get(&help));
+	str_free(&help);
+
+bye, Roman

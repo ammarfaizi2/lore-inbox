@@ -1,130 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWFBJhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWFBJjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWFBJhA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 05:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWFBJhA
+	id S1751362AbWFBJjD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 05:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWFBJjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 05:37:00 -0400
-Received: from mga01.intel.com ([192.55.52.88]:19470 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751364AbWFBJg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 05:36:59 -0400
-X-IronPort-AV: i="4.05,203,1146466800"; 
-   d="scan'208"; a="45910025:sNHT20758850"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "Con Kolivas" <kernel@kolivas.org>, <linux-kernel@vger.kernel.org>,
-       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
-Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 02:36:54 -0700
-Message-ID: <000201c68628$16f64550$0c4ce984@amr.corp.intel.com>
+	Fri, 2 Jun 2006 05:39:03 -0400
+Received: from wr-out-0506.google.com ([64.233.184.237]:54189 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751368AbWFBJjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 05:39:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=phgwiTN2ViEAA9KcsC/4X2GFgpZZNt6CcliNgWPBNjRmGAfWjRv1k4MrX8JjFHamEu9bfc8RLhIZtYlpTQtjoyjdpgVf6D8cATSQ7RxGf11l0RXbui6+Ci87BgozpXaexXCkWaERVphaes+iGLrjjhZqR3mPa8QxY4bDlVs563M=
+Message-ID: <79a6fb1e0606020239i49c38effxc688c12f94d5da41@mail.gmail.com>
+Date: Fri, 2 Jun 2006 10:39:01 +0100
+From: fonseka@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: BUG: scheduling while atomic
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaGInBptJF7xR+mTtS/Qg4G8lEwOAABArSg
-In-Reply-To: <447FFD35.9020909@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote on Friday, June 02, 2006 1:56 AM
-> Chen, Kenneth W wrote:
-> 
-> > Ha, you beat me by one minute. It did cross my mind to use try lock there as
-> > well, take a look at my version, I think I have a better inner loop.
-> 
-> Actually you *have* to use trylocks I think, because the current runqueue
-> is already locked.
-> 
-> And why do we lock all siblings in the other case, for that matter? (not
-> that it makes much difference except on niagara today).
-> 
-> Rolled up patch with everyone's changes attached.
+hi there!
+
+recently I'm trying putting snmpd working on a old machine and ran into
+problems... everytime i try to spawn the snmpd process I got a kernel
+backtrace as follows, and the process never cames up:
 
 
-OK, it's down to nit-picking now:
+Jun  2 10:02:55 apophis scheduling while atomic: snmpd/0x00000001/26757
+Jun  2 10:02:55 apophis [<c035ea98>] schedule+0x5a8/0x6a0
+Jun  2 10:02:55 apophis [<c035f4b1>] schedule_timeout+0x51/0xa0
+Jun  2 10:02:55 apophis [<c0124a50>] process_timeout+0x0/0x10
+Jun  2 10:02:55 apophis [<c0124cb8>] msleep+0x28/0x40
+Jun  2 10:02:55 apophis [<c02867fc>] rhine_disable_linkmon+0x7c/0x140
+Jun  2 10:02:55 apophis [<c0286705>] rhine_enable_linkmon+0x45/0xc0
+Jun  2 10:02:55 apophis [<c02868ef>] mdio_read+0x2f/0xf0
+Jun  2 10:02:55 apophis [<c021c042>] copy_to_user+0x42/0x60
+Jun  2 10:02:55 apophis [<c028904d>] generic_mii_ioctl+0x11d/0x1c0
+Jun  2 10:02:55 apophis [<c02880e0>] netdev_ioctl+0x0/0x70
+Jun  2 10:02:55 apophis [<c0288127>] netdev_ioctl+0x47/0x70
+Jun  2 10:02:55 apophis [<c02de19c>] dev_ifsioc+0x13c/0x440
+Jun  2 10:02:55 apophis [<c02de6e4>] dev_ioctl+0x244/0x2b0
+Jun  2 10:02:55 apophis [<c02d2ab4>] sock_ioctl+0x114/0x250
+Jun  2 10:02:55 apophis [<c01743de>] do_ioctl+0x9e/0xb0
+Jun  2 10:02:55 apophis [<c0174595>] vfs_ioctl+0x65/0x200
+Jun  2 10:02:55 apophis [<c0174775>] sys_ioctl+0x45/0x70
+Jun  2 10:02:55 apophis [<c01030cb>] sysenter_past_esp+0x54/0x75
 
-Remove this_rq argument from wake_sleeping_dependent() since it is not
-used.  Nick, you had that in your earlier version, but it got lost in
-the woods.
+I've tried with 2.6.15 and 2.6.16 with no sucess
 
-I don't like cpumask being declared on the stack.  Here is my version
-to rid it out in wake_sleeping_dependent() and dependent_sleeper().
+using gcc 3.4.5
+binutils 2.16.1
+glibc 2.3.6
 
-- Ken
+if you need any more info please just ask me
 
+TIA
 
---- ./kernel/sched.c.orig	2006-06-02 03:20:40.000000000 -0700
-+++ ./kernel/sched.c	2006-06-02 03:20:59.000000000 -0700
-@@ -2714,10 +2714,9 @@ static inline void wakeup_busy_runqueue(
- /*
-  * Called with interrupts disabled and this_rq's runqueue locked.
-  */
--static void wake_sleeping_dependent(int this_cpu, runqueue_t *this_rq)
-+static void wake_sleeping_dependent(int this_cpu)
- {
- 	struct sched_domain *tmp, *sd = NULL;
--	cpumask_t sibling_map;
- 	int i;
- 
- 	for_each_domain(this_cpu, tmp)
-@@ -2728,10 +2727,11 @@ static void wake_sleeping_dependent(int 
- 	if (!sd)
- 		return;
- 
--	sibling_map = sd->span;
--	cpu_clear(this_cpu, sibling_map);
--	for_each_cpu_mask(i, sibling_map) {
-+	for_each_cpu_mask(i, sd->span) {
- 		runqueue_t *smt_rq = cpu_rq(i);
-+
-+		if (i == this_cpu)
-+			continue;
- 		if (unlikely(!spin_trylock(&smt_rq->lock)))
- 			continue;
- 
-@@ -2761,7 +2761,6 @@ static int dependent_sleeper(int this_cp
- 	struct task_struct *p)
- {
- 	struct sched_domain *tmp, *sd = NULL;
--	cpumask_t sibling_map;
- 	int ret = 0, i;
- 
- 	for_each_domain(this_cpu, tmp)
-@@ -2772,12 +2771,13 @@ static int dependent_sleeper(int this_cp
- 	if (!sd)
- 		return 0;
- 
--	sibling_map = sd->span;
--	cpu_clear(this_cpu, sibling_map);
--	for_each_cpu_mask(i, sibling_map) {
-+	for_each_cpu_mask(i, sd->span) {
- 		runqueue_t *smt_rq;
- 		task_t *smt_curr;
- 
-+		if (i == this_cpu)
-+			continue;
-+
- 		smt_rq = cpu_rq(i);
- 		if (unlikely(!spin_trylock(&smt_rq->lock)))
- 			continue;
-@@ -2842,7 +2842,7 @@ check_smt_task:
- 	return ret;
- }
- #else
--static inline void wake_sleeping_dependent(int this_cpu, runqueue_t *this_rq)
-+static inline void wake_sleeping_dependent(int this_cpu)
- {
- }
- 
-@@ -2973,7 +2973,7 @@ need_resched_nonpreemptible:
- 		if (!rq->nr_running) {
- 			next = rq->idle;
- 			rq->expired_timestamp = 0;
--			wake_sleeping_dependent(cpu, rq);
-+			wake_sleeping_dependent(cpu);
- 			goto switch_tasks;
- 		}
- 	}
+-- 
+Will work for bandwidth

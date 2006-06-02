@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWFBTrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWFBTtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbWFBTrP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 15:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWFBTrI
+	id S932555AbWFBTtW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 15:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWFBTsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 15:47:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42127 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932541AbWFBTqn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 15:46:43 -0400
-Date: Fri, 2 Jun 2006 12:46:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [PATCH] cramfs corruption after BLKFLSBUF on loop device
-Message-Id: <20060602124635.2d7a1d96.akpm@osdl.org>
-In-Reply-To: <20060602193702.GA9888@suse.de>
-References: <20060529214011.GA417@suse.de>
-	<20060530182453.GA8701@suse.de>
-	<20060601184938.GA31376@suse.de>
-	<20060601121200.457c0335.akpm@osdl.org>
-	<20060601201050.GA32221@suse.de>
-	<20060601142400.1352f903.akpm@osdl.org>
-	<20060601214158.GA438@suse.de>
-	<20060601145747.274df976.akpm@osdl.org>
-	<20060602084327.GA3964@suse.de>
-	<20060602021115.e42ad5dd.akpm@osdl.org>
-	<20060602193702.GA9888@suse.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jun 2006 15:48:38 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:31440 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932513AbWFBTsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 15:48:32 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Fri, 2 Jun 2006 21:46:59 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2.6.17-rc5-mm2 02/18] ohci1394.c: function calls without
+ effect
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Jody McIntyre <scjody@modernduck.com>,
+       Ben Collins <bcollins@ubuntu.com>
+In-Reply-To: <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
+Message-ID: <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
+References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
+ <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (-0.261) AWL,BAYES_20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jun 2006 21:37:02 +0200
-Olaf Hering <olh@suse.de> wrote:
+ohci1394: Remove superfluous call to free_dma_rcv_ctx,
+spotted by Adrian Bunk. Also remove some superfluous comments.
 
-> > I'd suggest you run SetPagePrivate() and SetPageChecked() on the locked
-> > page and implement a_ops.releasepage(), which will fail if PageChecked(),
-> > and will succeed otherwise:
-> 
-> No leak without tweaking PG_private.
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-Odd.  That would imply that PG_private is being left set somehow (it will
-make the page unreclaimable).  But I don't see it.
+Index: linux-2.6.17-rc5-mm2/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux-2.6.17-rc5-mm2.orig/drivers/ieee1394/ohci1394.c	2006-06-01 20:55:05.000000000 +0200
++++ linux-2.6.17-rc5-mm2/drivers/ieee1394/ohci1394.c	2006-06-01 20:55:39.000000000 +0200
+@@ -3463,24 +3463,13 @@ static void ohci1394_pci_remove(struct p
+ 	case OHCI_INIT_HAVE_TXRX_BUFFERS__MAYBE:
+ 		/* The ohci_soft_reset() stops all DMA contexts, so we
+ 		 * dont need to do this.  */
+-		/* Free AR dma */
+ 		free_dma_rcv_ctx(&ohci->ar_req_context);
+ 		free_dma_rcv_ctx(&ohci->ar_resp_context);
+-
+-		/* Free AT dma */
+ 		free_dma_trm_ctx(&ohci->at_req_context);
+ 		free_dma_trm_ctx(&ohci->at_resp_context);
+-
+-		/* Free IR dma */
+ 		free_dma_rcv_ctx(&ohci->ir_legacy_context);
+-
+-		/* Free IT dma */
+ 		free_dma_trm_ctx(&ohci->it_legacy_context);
+ 
+-		/* Free IR legacy dma */
+-		free_dma_rcv_ctx(&ohci->ir_legacy_context);
+-
+-
+ 	case OHCI_INIT_HAVE_SELFID_BUFFER:
+ 		pci_free_consistent(ohci->dev, OHCI1394_SI_DMA_BUF_SIZE,
+ 				    ohci->selfid_buf_cpu,
 
-Plus if we have lots of PagePrivate() pages floating about you should see
-your ->releasepage() being called.
 

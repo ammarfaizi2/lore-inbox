@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWFBN4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWFBN5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWFBN4E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 09:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWFBN4E
+	id S932124AbWFBN5s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 09:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWFBN5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 09:56:04 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63701 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932107AbWFBN4C (ORCPT
+	Fri, 2 Jun 2006 09:57:48 -0400
+Received: from es335.com ([67.65.19.105]:56380 "EHLO mail.es335.com")
+	by vger.kernel.org with ESMTP id S932106AbWFBN5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 09:56:02 -0400
-Date: Fri, 2 Jun 2006 15:56:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch, -rc5-mm2] lock validator: early_boot_irqs_[on|off]() build fix
-Message-ID: <20060602135630.GA6676@elte.hu>
+	Fri, 2 Jun 2006 09:57:47 -0400
+Subject: RE: [openib-general] Re: [PATCH 1/2] iWARP Connection Manager.
+From: Steve Wise <swise@opengridcomputing.com>
+To: Caitlin Bestler <caitlinb@broadcom.com>
+Cc: Tom Tucker <tom@opengridcomputing.com>,
+       Sean Hefty <mshefty@ichips.intel.com>, netdev@vger.kernel.org,
+       rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <54AD0F12E08D1541B826BE97C98F99F150D3E6@NT-SJCA-0751.brcm.ad.broadcom.com>
+References: <54AD0F12E08D1541B826BE97C98F99F150D3E6@NT-SJCA-0751.brcm.ad.broadcom.com>
+Content-Type: text/plain
+Date: Fri, 02 Jun 2006 08:57:44 -0500
+Message-Id: <1149256664.791.3.camel@stevo-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5168]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: lock validator: early_boot_irqs_[on|off]() build fix
-From: Ingo Molnar <mingo@elte.hu>
+> > 
+> > The problem is that we can't synchronously cancel an
+> > outstanding connect request. Once we've asked the adapter to
+> > connect, we can't tell him to stop, we have to wait for it to
+> > fail. During the time period between when we ask to connect
+> > and the adapter says yeah-or-nay, the user hits ctrl-C. This
+> > is the case where disconnect and/or destroy gets called and
+> > we have to block it waiting for the outstanding connect
+> > request to complete.
+> > 
+> > One alternative to this approach is to do the kfree of the
+> > cm_id in the deref logic. This was the original design and
+> > leaves the object around to handle the completion of the
+> > connect and still allows the app to clean up and go away
+> > without all this waitin' around. When the adapter finally
+> > finishes and releases it's reference, the object is kfree'd.
+> > 
+> > Hope this helps.
+> > 
+> Why couldn't you synchronously put the cm_id in a state of
+> "pending delete" and do the actual delete when the RNIC
+> provides a response to the request? 
 
-fix build bug if CONFIG_TRACE_IRQFLAGS is off: the existence of
-early_boot_irqs_[on|off]() depends on CONFIG_TRACE_IRQFLAGS,
-not on CONFIG_LOCKDEP.
+This is Tom's "alternative" mentioned above.  The provider already keeps
+an explicit reference on the cm_id while it might possibly deliver an
+event on that cm_id.  So if you change deref to kfree the cm_id on its
+last deref (when the refcnt reaches 0), then you can avoid blocking
+during destroy...  
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- include/linux/lockdep.h |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+> There could even be
+> an optional method to see if the device is capable of
+> cancelling the request. I know it can't yank a SYN back
+> from the wire, but it could refrain from retransmitting.
 
-Index: linux/include/linux/lockdep.h
-===================================================================
---- linux.orig/include/linux/lockdep.h
-+++ linux/include/linux/lockdep.h
-@@ -210,9 +210,6 @@ extern void lockdep_release(struct lockd
- 
- # define INIT_LOCKDEP				.lockdep_recursion = 0,
- 
--extern void early_boot_irqs_off(void);
--extern void early_boot_irqs_on(void);
--
- #else /* LOCKDEP */
- # define lockdep_init()				do { } while (0)
- # define lockdep_info()				do { } while (0)
-@@ -222,14 +219,20 @@ extern void early_boot_irqs_on(void);
- # define INIT_LOCKDEP
- # define lockdep_reset()		do { debug_locks = 1; } while (0)
- # define lockdep_free_key_range(start, size)	do { } while (0)
--# define early_boot_irqs_off()			do { } while (0)
--# define early_boot_irqs_on()			do { } while (0)
- /*
-  * The type key takes no space if lockdep is disabled:
-  */
- struct lockdep_type_key { };
- #endif /* !LOCKDEP */
- 
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+extern void early_boot_irqs_off(void);
-+extern void early_boot_irqs_on(void);
-+#else
-+# define early_boot_irqs_off()			do { } while (0)
-+# define early_boot_irqs_on()			do { } while (0)
-+#endif
-+
- /*
-  * For trivial one-depth nesting of a lock-type, the following
-  * global define can be used. (Subsystems with multiple levels
+I would suggest we don't add this optional method until we see an RNIC
+that supports canceling a connect request or accept synchronously...
+
+Steve.
+

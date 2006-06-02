@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWFBPhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWFBPik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWFBPhY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 11:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWFBPhY
+	id S932373AbWFBPik (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 11:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWFBPik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 11:37:24 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:50865 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932406AbWFBPhX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 11:37:23 -0400
-Date: Fri, 2 Jun 2006 11:37:17 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Preben Traerup <Preben.Trarup@ericsson.com>,
-       "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
-       fastboot@lists.osdl.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] [RFC][PATCH] Add missing notifier before crashing
-Message-ID: <20060602153717.GC29610@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060530145658.GC6536@in.ibm.com> <20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com> <20060531154322.GA8475@in.ibm.com> <20060601213730.dc9f1ec4.akiyama.nobuyuk@jp.fujitsu.com> <20060601151605.GA7380@in.ibm.com> <20060602141301.cdecf0e1.akiyama.nobuyuk@jp.fujitsu.com> <44800E1A.1080306@ericsson.com> <m1fyin6agv.fsf@ebiederm.dsl.xmission.com> <44803B1F.8070302@ericsson.com> <m13ben60tn.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m13ben60tn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+	Fri, 2 Jun 2006 11:38:40 -0400
+Received: from arachne.linuxlabs.com ([208.176.116.10]:64944 "EHLO
+	arachne.taloncorporation.com") by vger.kernel.org with ESMTP
+	id S932373AbWFBPij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 11:38:39 -0400
+Date: Fri, 2 Jun 2006 11:38:37 -0400 (EDT)
+From: Steven James <pyro@linuxlabs.com>
+X-X-Sender: pyro@localhost.localdomain
+To: Jeff Dike <jdike@addtoit.com>
+cc: Blaisorblade <blaisorblade@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net, discuss@x86-64.org,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [uml-devel] [discuss] [RFC] [PATCH] Double syscall exit traces
+ on x86_64
+In-Reply-To: <20060602151335.GA4708@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.63.0606021136440.26283@localhost.localdomain>
+References: <20060526032424.GA8283@ccure.user-mode-linux.org>
+ <200605261236.26814.ak@suse.de> <20060526141345.GA4152@ccure.user-mode-linux.org>
+ <200606012107.34676.blaisorblade@yahoo.it> <20060602151335.GA4708@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 09:20:52AM -0600, Eric W. Biederman wrote:
-> Preben Traerup <Preben.Trarup@ericsson.com> writes:
-> 
-> > Something like out of memory and oops-es are enough to deeme the system must
-> > panic
-> > because it is simply not supposed to happen in a Telco server at any time.
-> 
-> That is clearly enough to deem that the system must take some sever action and
-> stop running.  You don't necessarily have to handle it through a kernel panic.
-> 
-> > kdump helps debugging these cases, but more importantly another server
-> > must take over the work, and this has and always will have highest priority.
-> >
-> > I'm happy about what crash_kexec does today, but the timing issue makes it
-> > unusable for
-> > notifications to external systems, if I need to wait until properly running in
-> > next kernel.
-> 
-> Nothing says you have to wait until properly running in the next kernel.
-> You can also write a dedicated piece of code that just pushes one packet
-> out the NIC.  Then you can start up a kernel for analysis purposes.
-> 
+On Fri, 2 Jun 2006, Jeff Dike wrote:
 
-So basically the idea is that whatever one wants to do it should be done
-in the next kernel, even notifications. But this might require some data
-from the context of previous kernel, for example destination IP address etc.
-So the associated data either needs to be passed to new kernel or it shall
-have to be retrieved from permanent storage or something like that.
+> On Thu, Jun 01, 2006 at 09:07:33PM +0200, Blaisorblade wrote:
+>> Sorry for the question, but has this been sent to -stable (since it's a
+>> -stable regression, it should be)? To 2.6.17 -git?
+>
+> It's in current git.
+>
+> I'm having a hard time telling when the bug was introduced.  The git web
+> interface seems to be telling me that the double notification was around
+> since last year, which I don't believe, since I've run much more
+> recent x86_64 kernels.  If the bug existed before 2.6.16, then it's
+> fine -stable fodder.
 
-Thanks
-Vivek
+I know that the bug is NOT present in 2.6.15.7.
+
+>
+>> And have you tested it (somebody should have, but it's not sure)?
+>
+> Yes, it's been continuously and happily running UML since Andi sent me
+> his patch.
+>
+> 				Jeff
+>

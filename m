@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWFBORN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWFBOTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWFBORN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 10:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWFBORN
+	id S932150AbWFBOTs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 10:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWFBOTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 10:17:13 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:28379 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932130AbWFBORN (ORCPT
+	Fri, 2 Jun 2006 10:19:48 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:29164 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932150AbWFBOTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 10:17:13 -0400
-Date: Fri, 2 Jun 2006 16:17:02 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nick Warne <nick@linicks.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16.18 scripts/kconfig/mconf.c
-In-Reply-To: <200606010628.08966.nick@linicks.net>
-Message-ID: <Pine.LNX.4.64.0606021608110.17704@scrub.home>
-References: <200606010628.08966.nick@linicks.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Jun 2006 10:19:47 -0400
+Date: Fri, 2 Jun 2006 16:20:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.17-rc5-mm2
+Message-ID: <20060602142009.GA10236@elte.hu>
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <986ed62e0606011758w348080ebn6e8430ec9e5b2ed3@mail.gmail.com> <20060601183836.d318950e.akpm@osdl.org> <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 1 Jun 2006, Nick Warne wrote:
+* Barry K. Nathan <barryn@pobox.com> wrote:
 
-> 
-> --- linux-current/scripts/kconfig/mconf.cORIG	2006-05-30 18:58:59.000000000 
-> +0100
-> +++ linux-current/scripts/kconfig/mconf.c	2006-05-30 19:10:29.000000000 +0100
-> @@ -402,6 +402,9 @@
->  	bool hit;
->  	struct property *prop;
->  
-> +	if (!sym->name)
-> +		return;
-> +
->  	str_printf(r, "Symbol: %s [=%s]\n", sym->name,
->  	                               sym_get_string_value(sym));
->  	for_all_prompts(sym, prop)
+> (Ingo, I got your e-mail too, and I will reply to it once I've 
+> followed your instructions.)
 
-Only choice symbols currently have no name, but there are otherwise normal 
-symbols, so there is need to just return here. This should look more like:
+ok. I forgot to mention that it's probably a good idea to first apply 
+my lockdep-combo patch to -mm2:
 
-	if (sym->name)
-		str_printf(r, "Symbol: %s", sym->name);
-	else if (sym_is_choice(sym))
-		str_printf(r, "Choice:");
-	else
-		str_printf(r, "Weird symbol:");
-	str_printf(r, "[=%s]\n", sym_get_string_value(sym));
+  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm2.patch
 
+this includes all current -mm hotfixes and all lockdep fixes. (The 
+lockdep tracer patch will still apply cleanly ontop of the combo patch.)
 
-> @@ -853,15 +856,17 @@
->  	{
->  		if (sym->name) {
->  			str_printf(&help, "CONFIG_%s:\n\n", sym->name);
-> -			str_append(&help, _(sym->help));
-> -			str_append(&help, "\n");
->  		}
-> -	} else {
-> -		str_append(&help, nohelp_text);
-> -	}
-> +	str_append(&help, _(sym->help));
-> +	str_append(&help, "\n");
->  	get_symbol_str(&help, sym);
->  	show_helptext(menu_get_prompt(menu), str_get(&help));
->  	str_free(&help);
-> +	} else {
-> +		str_append(&help, nohelp_text);
-> +		show_helptext(menu_get_prompt(menu), str_get(&help));
-> +		str_free(&help);
-> +	}
->  }
-
-That looks a little misformated, anyway, this should just be:
-
-	if (sym->name)
-		str_printf(&help, "CONFIG_%s:\n\n", sym->name);
-
-	str_append(&help, sym->help ? _(sym->help) : nohelp_text);
-	str_append(&help, "\n");
-	get_symbol_str(&help, sym);
-	show_helptext(menu_get_prompt(menu), str_get(&help));
-	str_free(&help);
-
-bye, Roman
+	Ingo

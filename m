@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWFBGuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWFBGxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWFBGuA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 02:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWFBGuA
+	id S1751225AbWFBGxS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 02:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWFBGxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 02:50:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26436 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751223AbWFBGt6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 02:49:58 -0400
-Date: Fri, 2 Jun 2006 08:52:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Hannes Reinecke <hare@suse.de>
-Cc: "zhao, forrest" <forrest.zhao@intel.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Mark Lord <lkml@rtr.ca>,
-       Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: State of resume for AHCI?
-Message-ID: <20060602065206.GV4400@suse.de>
-References: <447F23C2.8030802@goop.org> <447F3250.5070101@rtr.ca> <20060601183904.GR4400@suse.de> <447F4BC2.8060808@goop.org> <20060602060323.GS4400@suse.de> <1149228204.13451.8.camel@forrest26.sh.intel.com> <20060602064148.GT4400@suse.de> <447FDE2E.5010401@suse.de>
+	Fri, 2 Jun 2006 02:53:18 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:7617
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751225AbWFBGxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 02:53:18 -0400
+Message-Id: <447FFCAC.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Fri, 02 Jun 2006 08:54:04 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <mingo@elte.hu>, <jeff@garzik.org>, <htejun@gmail.com>,
+       <reuben-lkml@reub.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17-rc5-mm2
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EB4AD.4060101@reub.net> <20060601025632.6683041e.akpm@osdl.org> <447EBD46.7010607@reub.net> <20060601103315.GA1865@elte.hu> <20060601105300.GA2985@elte.hu> <447EF7A8.76E4.0078.0@novell.com> <20060601091927.3141
+In-Reply-To: <20060601091927.3141
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <447FDE2E.5010401@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02 2006, Hannes Reinecke wrote:
-> Jens Axboe wrote:
-> > On Fri, Jun 02 2006, zhao, forrest wrote:
-> >> On Fri, 2006-06-02 at 08:03 +0200, Jens Axboe wrote:
-> >>> On Thu, Jun 01 2006, Jeremy Fitzhardinge wrote:
-> >>>> Jens Axboe wrote:
-> >>>>> It's a lot more complicated than that, I'm afraid. ahci doesn't even
-> >>>>> have the resume/suspend methods defined, plus it needs more work than
-> >>>>> piix on resume.
-> >>>>>  
-> >>>> Hannes Reinecke's patch implements those functions, basically by 
-> >>>> factoring out the shutdown and init code and calling them at 
-> >>>> suspend/resume time as well.
-> >>>>
-> >>>> Is that correct/sufficient?  Or should something else be happening?
-> >>> No that's it, I know for a fact that suspend/resume works perfectly with
-> >>> the 10.1 suse kernel. You can give that a shot, if you want.
-> >> You may mean the Hannes's patch for 10.1 SUSE kernel. Hannes's patch
-> >> posted in open source community(or in linux-ide mailing list) didn't
-> >> work.
-> > 
-> > I didn't say Hannes patch, I said I know that 10.1 works. And that is
-> > probably in large due to the patch that Hannes did, which implents
-> > resume/suspend and takes care of reinitializing the resources.
-> > 
-> Indeed. I didn't post the latest set of patches to the open-source
-> community as Jeff indicated he would only accept patches against
-> libata-dev. And as I didn't have time to port them yet I didn't feel the
-> need to do so.
+>- Make the code robust and able to detect "unexpected" states at all
+>  points through the process.  If at the end of the process we see that we
+>  have encountered an unexpected state,
 
-Understandable, I hope you will have some time to push it for 2.6.18
-though.
+The problem is that the unwind is expected to end with an odd state (i.e. fail), at least until all possible root
+points of execution (i.e. bottoms of call stacks) have a proper annotation forcing their parent program counter to zero
+(which I don't expect to happen soon, if ever, because I think this is something difficult to prove). Thus the only
+reasonable thing to do is to check whether the first level of unwinding failed.
 
--- 
-Jens Axboe
+>  - emit a diagnostic so Jan can work out if there's a way to improve
+>    the unwinder in this situation
 
+>  - do a traditional backtrace as well.
+
+This might be a config or boot option (and might be forced on for a short while), but I generally don't think this is
+helpful, given that the entire point of the added logic is to remove (useless) information (even more that if you have
+to rely on the screen alone, you have to live with its limited size, and pushing out an old-style stack trace after the
+unwound one would likely make part or all of it as well as the register information disappear).
+
+Jan

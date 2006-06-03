@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWFCXoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWFCXxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWFCXoY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 19:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWFCXoY
+	id S1750905AbWFCXxB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 19:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWFCXxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 19:44:24 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:37276 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1750714AbWFCXoY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 19:44:24 -0400
-Message-ID: <44821EAF.8010003@myri.com>
-Date: Sat, 03 Jun 2006 19:43:43 -0400
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-CC: Brice Goglin <brice@myri.com>, Andrew Morton <akpm@osdl.org>,
-       Shaohua Li <shaohua.li@intel.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, greg@kroah.com, tom.l.nguyen@intel.com,
-       rajesh.shah@intel.com
-Subject: Re: [RFC]disable msi mode in pci_disable_device
-References: <1148612307.32046.132.camel@sli10-desk.sh.intel.com> <20060526125440.0897aef5.akpm@osdl.org> <44776491.1080506@myri.com> <20060531210053.GE6364@austin.ibm.com>
-In-Reply-To: <20060531210053.GE6364@austin.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jun 2006 19:53:01 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:13651 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750899AbWFCXxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 19:53:00 -0400
+Date: Sat, 03 Jun 2006 17:52:46 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: memcpy_toio on i386 using byte writes even when n%2==0
+In-reply-to: <6inxv-4U2-17@gated-at.bofh.it>
+To: "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <448220CE.4030709@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <6ined-4gY-17@gated-at.bofh.it> <6ined-4gY-21@gated-at.bofh.it>
+ <6inee-4gY-23@gated-at.bofh.it> <6ined-4gY-15@gated-at.bofh.it>
+ <6inxv-4U2-17@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas wrote:
->> The aim is to be able to recover from a memory parity error in the NIC.
->> Such errors happen sometimes, especially when a cosmic ray comes by. To
->> recover, we restore the state that we saved at the end of the
->> initialization. As saving currently disables MSI, we currently have to
->> restore the state right after saving it at the end of the initialization
->> (see the end of
->> myri10ge_probe in http://lkml.org/lkml/2006/5/23/24).
->>     
->
-> My experience dealing with a similar thing suggests that its usually
-> easier to restore the state to where it was after a cold boot, but
-> before the device driver touched the h/w.  
->   
+H. Peter Anvin wrote:
+> For something that generates I/O transactions, it's imperative to
+> generate the smallest possible number of transactions.  Furthermore,
+> smaller than dword transactions aren't burstable, except at the
+> beginning and end of a burst.
 
-After a cold boot, some initialization is done by Linux before the
-driver even touches the device (for instance the BARs). I am not sure
-that restoring to the state before Linux initialized the device would be
-easier than what we currently do.
+Well, theoretically for writes they could be, if the memory region was 
+prefetchable and the PCI chipset supported byte merge. It certainly 
+isn't optimal however.
 
-Brice
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbWFCJLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWFCJMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932575AbWFCJLs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 05:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbWFCJLs
+	id S932157AbWFCJMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 05:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbWFCJMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 05:11:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43529 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932575AbWFCJLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 05:11:47 -0400
-Date: Sat, 3 Jun 2006 10:11:33 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Jones <davej@redhat.com>, Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bisects that are neither good nor bad
-Message-ID: <20060603091133.GA24271@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Dave Jones <davej@redhat.com>,
-	Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org
-References: <20060528140238.2c25a805.dickson@permanentmail.com> <20060528140854.34ddec2a.paul@permanentmail.com> <200605282324.13431.rjw@sisk.pl> <200605282324.13431.rjw@sisk.pl> <20060528213414.GC5741@redhat.com> <r6u079rrik.fsf@skye.ra.phy.cam.ac.uk> <20060529145255.GB32274@redhat.com> <20060530152926.GA4103@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060530152926.GA4103@ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Sat, 3 Jun 2006 05:12:42 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:33360 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932157AbWFCJMl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 05:12:41 -0400
+Message-ID: <44815283.7080306@tls.msk.ru>
+Date: Sat, 03 Jun 2006 13:12:35 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+CC: Chris Wright <chrisw@sous-sol.org>, Jody McIntyre <scjody@modernduck.com>,
+       Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: [stable] [PATCH] sbp2: fix check of return value of	hpsb_allocate_and_register_addrspace
+References: <tkrat.f195e45ae32b9c02@s5r6.in-berlin.de> <20060603013515.GV18769@moss.sous-sol.org> <44814A63.1080707@s5r6.in-berlin.de>
+In-Reply-To: <44814A63.1080707@s5r6.in-berlin.de>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 30, 2006 at 03:29:26PM +0000, Pavel Machek wrote:
-> >  > > I think I've seen the same problem on one of my (similar spec) laptops.
-> >  > > Serial console was useless. On resume, there's a short spew of garbage
-> >  > > (just like if the baud rate were misconfigured) over serial before it
-> >  > > locks up completely.
-> >  > 
-> >  > <http://bugzilla.kernel.org/show_bug.cgi?id=4270> discusses a similar
-> >  > problem on a couple of machines.  In my resume script (for a TP 600X),
-> >  > I have to restore the serial console with
-> >  > 
-> >  >   setserial -a /dev/ttyS0
-> >  > 
-> >  > Until that magic executes, garbage characters (like modem noise)
-> >  > appear across the serial console.
-> > 
-> > With the resume failure I'm seeing, we don't get back to userspace
-> > to run anything like this. It goes bang long before that.
-> > 
-> > The SATA fix Mark proposed also didn't improve the situation for me :-/
-> 
-> If setserial -a is needed.. it means that someone really needs to fix
-> suspend/resume support for serial... do it on working machine to
-> enable debugging of broken ones...
+Stefan Richter wrote:
+> Chris Wright wrote:
+>> * Stefan Richter (stefanr@s5r6.in-berlin.de) wrote:
+> ....
+>>> +++ linux-2.6.17-rc5/drivers/ieee1394/sbp2.c    2006-06-03
+>>> 01:54:23.000000000 +0200
+>>> @@ -845,7 +845,7 @@ static struct scsi_id_instance_data *sbp
+>>>             &sbp2_highlevel, ud->ne->host, &sbp2_ops,
+>>>             sizeof(struct sbp2_status_block), sizeof(quadlet_t),
+>>>             0x010000000000ULL, CSR1212_ALL_SPACE_END);
+>>> -    if (!scsi_id->status_fifo_addr) {
+>>> +    if (scsi_id->status_fifo_addr == ~0ULL) {
 
-I've explained why this occurs in bugzilla - but for the sake of
-repeating repeating repeating myself at great length, let's repeat
-it again here.
+Umm.  Can this ~0ULL constant be #define'd to something?
+It's way too simple to mis-read it as NULL (or ~NULL whatever).
 
-The serial layer does _not_ have access to the "current" termios
-settings due to the layering by the tty subsystem.  If the serial
-port being used by serial console has been opened once by the user,
-but is closed at the moment when a suspend/resume cycle occurs,
-the serial layer and lower level drivers do not have access to the
-baud rate.
+I mean.. I looked at this change for quite some time, trying to
+figure a difference (!x vs x==NULL), and thinking what's '-0'
+(~ turned out to be quite similar to - in the font my thunderbird
+uses).
 
-Hence, it is impossible for the serial layer to do a proper resume
-in this scenario.  Either always suspend with the console port open
-or never open the console port before suspend.  Alternatively, we
-need the tty layer to mature, so that there is some way for drivers
-to get the termios structures for the console from the upper layer.
-Or maybe we need the tty layer to be responsible for implementing
-suspend/resume support for tty devices.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+/mjt

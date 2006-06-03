@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWFCGXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWFCGbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWFCGXf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 02:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWFCGXf
+	id S932566AbWFCGbN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 02:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWFCGbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 02:23:35 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:17671 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932558AbWFCGXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 02:23:35 -0400
-Date: Sat, 3 Jun 2006 08:04:38 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan Van de Ven <arjan@infradead.org>
-Subject: Re: [patch] epoll use unlocked wqueue operations ...
-Message-ID: <20060603060438.GB30150@w.ods.org>
-References: <Pine.LNX.4.64.0606021600001.5402@alien.or.mcafeemobile.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jun 2006 02:31:13 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:2350 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932566AbWFCGbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 02:31:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Rhv8gWcRrny5RpPWZ7GeCgYhK8ptG34aCUQQ0eLoWASi1QPcNFK7ChomWhkCD3ohymdOkCw2GTROtGTw8qN7pQgKO0ydkFRoGOFFfFK/5JwRcCluK9MW2HNiHANakebM/6NKcdgGqrwgPDHQnzX/J95+YolmeeCZvhl/eNpalcY=
+Message-ID: <9e4733910606022331u40f1fd5dq6428e37f30ccf702@mail.gmail.com>
+Date: Sat, 3 Jun 2006 02:31:02 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Dave Airlie" <airlied@gmail.com>,
+       "Ondrej Zajicek" <santiago@mail.cz>, "Pavel Machek" <pavel@ucw.cz>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, adaplas@gmail.com
+In-Reply-To: <200606030209.34928.dhazelton@enter.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606021600001.5402@alien.or.mcafeemobile.com>
-User-Agent: Mutt/1.5.10i
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <200606030125.20907.dhazelton@enter.net>
+	 <9e4733910606022255r7fa7346bw661fb35f81668788@mail.gmail.com>
+	 <200606030209.34928.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Davide,
+On 6/2/06, D. Hazelton <dhazelton@enter.net> wrote:
+> Actually, Jon, Dave is thinking like I am in that the DRI drivers needs to be
+> loaded for use. Rather than forcing applications to include all that code the
+> userspace daemon can be configured to load the DRI driver and provides the
+> userspace interface to the system. Using a daemon for a simple task, like
+> modesetting, is idiotic - but using the daemon to provide userspace with full
+> access to acceleration (the Kernel drivers only provide the backend for the
+> acceleration. The userspace side actually provides the code that manages it
+> all) without needing to have to worry about loading and initializing the dri
+> drivers provides a method for anything from a scripting language to a full
+> compiled application easy access to the acceleration.
 
-On Fri, Jun 02, 2006 at 04:28:25PM -0700, Davide Libenzi wrote:
-> 
-> A few days ago Arjan signaled a lockdep red flag on epoll locks, and 
-> precisely between the epoll's device structure lock (->lock) and the wait 
-> queue head lock (->lock). Like I explained in another email, and directly 
-> to Arjan, this can't happen in reality because of the explicit check at 
-> eventpoll.c:592, that does not allow to drop an epoll fd inside the same 
-> epoll fd. Since lockdep is working on per-structure locks, it will never 
-> be able to know of policies enforced in other parts of the code. It was 
-> decided time ago of having the ability to drop epoll fds inside other 
-> epoll fds, that triggers a very trick wakeup operations (due to possibly 
-> reentrant callback-driven wakeups) handled by the ep_poll_safewake() 
-> function.
-> While looking again at the code though, I noticed that all the operations 
-> done on the epoll's main structure wait queue head (->wq) are already 
-> protected by the epoll lock (->lock), so that locked-style functions can 
-> be used to manipulate the ->wq member. This makes both a lock-acquire 
-> save, and lockdep happy.
-> Running totalmess on my dual opteron for a while did not reveal any 
-> problem so far:
-> 
-> http://www.xmailserver.org/totalmess.c
+You are confused about this. Nobody wants to change the way DRI and
+DRM work, it would take years of effort to change it. These are shared
+libraries, it doesn't matter how many people have them open, there is
+only one copy in memory.
 
-Shouldn't we notice a tiny performance boost by avoiding those useless
-locks, or do you consider they are not located in the fast path anyway ?
+Applications don't 'include' all of the DRI/DRM code they dynamically
+link to the OpenGL shared object library which in turns loads the
+correct DRI shared library. The correct DRM module should be loaded by
+the kernel at boot. You can write a 10 line OpenGL program that will
+make use of all of this, it is not hard to do. User space has always
+had access to hardware acceleration from these libraries.
 
-Regards,
-Willy
+We have not been discussing DIrect Rendering vs indirect (AIGLX). It
+will be up to the windowing system to chose which (or both) of those
+model to use. The lower layers are designed not to force that choice
+one way ot the other.
 
+Dave wants to load the existing X drivers into the daemon, not the DRI
+libraries. Other than using them for mode setting there isn't much use
+for them. I have asked him where he wants things like blanking, cmap,
+cursor and he hasn't said yet. Those functions are tiny, ~100 lines of
+code.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

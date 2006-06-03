@@ -1,82 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWFCIkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWFCIwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWFCIkO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 04:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWFCIkO
+	id S932228AbWFCIwB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 04:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWFCIwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 04:40:14 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:58758 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750941AbWFCIkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 04:40:12 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44814A63.1080707@s5r6.in-berlin.de>
-Date: Sat, 03 Jun 2006 10:37:55 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: Jody McIntyre <scjody@modernduck.com>, Ben Collins <bcollins@ubuntu.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       linux1394-devel@lists.sourceforge.net, stable@kernel.org
-Subject: Re: [stable] [PATCH] sbp2: fix check of return value of	hpsb_allocate_and_register_addrspace
-References: <tkrat.f195e45ae32b9c02@s5r6.in-berlin.de> <20060603013515.GV18769@moss.sous-sol.org>
-In-Reply-To: <20060603013515.GV18769@moss.sous-sol.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 3 Jun 2006 04:52:00 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:13462 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1750772AbWFCIwA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 04:52:00 -0400
+Subject: Re: [PATCH 07/11] the latest consensus libata resume fix
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Mark Lord <liml@rtr.ca>,
+       Jeff Garzik <jeff@garzik.org>, Greg Kroah-Hartman <gregkh@suse.de>
+In-Reply-To: <20060602195046.GO4400@suse.de>
+References: <20060602194618.482948000@sous-sol.org>
+	 <20060602194742.420464000@sous-sol.org>  <20060602195046.GO4400@suse.de>
+Content-Type: text/plain
+Date: Sat, 03 Jun 2006 10:49:35 +0200
+Message-Id: <1149324575.19311.11.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.882) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Stefan Richter (stefanr@s5r6.in-berlin.de) wrote:
-...
->>+++ linux-2.6.17-rc5/drivers/ieee1394/sbp2.c	2006-06-03 01:54:23.000000000 +0200
->>@@ -845,7 +845,7 @@ static struct scsi_id_instance_data *sbp
->> 			&sbp2_highlevel, ud->ne->host, &sbp2_ops,
->> 			sizeof(struct sbp2_status_block), sizeof(quadlet_t),
->> 			0x010000000000ULL, CSR1212_ALL_SPACE_END);
->>-	if (!scsi_id->status_fifo_addr) {
->>+	if (scsi_id->status_fifo_addr == ~0ULL) {
->> 		SBP2_ERR("failed to allocate status FIFO address range");
->> 		goto failed_alloc;
->> 	}
->>
-> 
-> 
-> Is that enough?
-> 
-> failed_alloc:
->         sbp2_remove_device(scsi_id);
-> 
-> sbp2_remove_device(scsi_id)
->   if (scsi_id->status_fifo_addr)
->     hpsb_unregister_addrspace()
-> 
-> Suppose status_fifo_addr won't match any as->start.
+Hi Jens,
 
-Thanks, here is another bug. An address space beginning at 0 won't be 
-de-registered. But this is not a big issue because 1. a configuration 
-where a FIFO address space starting from 0 is impractical anyway (can 
-occur if CONFIG_IEEE1394_SBP2_PHYS_DMA=N and physical DMA is unavailable 
-from the host adapter, which won't work at the moment) and 2. the 
-address space is a plenty resource (both as a bus address and with 
-respect to the backing data structures) and 3. would be unregistered if 
-the sbp2 module was unloaded. This is not critical for -stable.
+> > -stable review patch.  If anyone has any objections, please let us know.
+> > ------------------
+> > 
+> > From: Mark Lord <liml@rtr.ca>
+> > 
+> > Okay, just to sum things up.
+> > 
+> > This forces libata to wait for up to 2 seconds for BUSY|DRQ to clear
+> > on resume before continuing.
+> > 
+> > [jgarzik adds...]  During testing we never saw DRQ asserted, but
+> > nonetheless (a) this works and (b) testing for DRQ won't hurt.
+> > 
+> > Signed-off-by:  Mark Lord <liml@rtr.ca>
+> > Acked-by: Jens Axboe <axboe@suse.de>
+> > Signed-off-by: Jeff Garzik <jeff@garzik.org>
+> > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> > ---
+> > 
+> >  drivers/scsi/libata-core.c |    1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > --- linux-2.6.16.19.orig/drivers/scsi/libata-core.c
+> > +++ linux-2.6.16.19/drivers/scsi/libata-core.c
+> > @@ -4293,6 +4293,7 @@ static int ata_start_drive(struct ata_po
+> >  int ata_device_resume(struct ata_port *ap, struct ata_device *dev)
+> >  {
+> >  	if (ap->flags & ATA_FLAG_SUSPENDED) {
+> > +		ata_busy_wait(ap, ATA_BUSY | ATA_DRQ, 200000);
+> >  		ap->flags &= ~ATA_FLAG_SUSPENDED;
+> >  		ata_set_mode(ap);
+> >  	}
+> 
+> I'm not against the patch as such, but last I checked 2.6.16 actually
+> worked ok. The timer fixes in 2.6.17-rc is what apparently got the
+> resume breaking.
+> 
+> So unless there's a bug report on 2.6.16.x for this, then it's a little
+> against the -stable rules to add it.
 
-On the other hand, if hpsb_unregister_addrspace(HL_driver, host, 
-address) with address == ~0ULL (i.e. 
-hpsb_allocate_and_register_addrspace failed before), it would do nothing 
-but burn a few CPU cycles unsuccessfully searching for an address space 
-starting at ~0ULL. Valid address spaces start at an address lower than 
-CSR1212_ALL_SPACE_END == 1ULL << 48.
+I had problems with resume on my IBM X41 since I got it (something
+around 2.6.15) and only this patch made it work again.
 
-I will post a follow-up patch after breakfast, but it isn't relevant for 
--stable.
+Because of the SDHCI stuff I always used the latest kernel and thus I
+wasn't sure if there actually was a problem or not. So I tested a plain
+2.6.16 with and without this patch. The plain 2.6.16 doesn't resume on
+my IBM X41 laptop. If I apply this patch, the resume works perfect.
 
-Thanks,
--- 
-Stefan Richter
--=====-=-==- -==- ---==
-http://arcgraph.de/sr/
+Regards
+
+Marcel
+
+

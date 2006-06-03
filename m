@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751775AbWFCSkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWFCSpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751775AbWFCSkn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 14:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWFCSkn
+	id S1751768AbWFCSpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 14:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWFCSpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 14:40:43 -0400
-Received: from wr-out-0506.google.com ([64.233.184.235]:29065 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751775AbWFCSkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 14:40:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NmvCLOtbnEbFjDGFHB30nSxwE1baneN8vYUMGWLL4M/O/bOTD2fySG64SG/RYmLq6EWCi4ULP9vD8mzaKsNtNlgxWv3ph9LfVTms7PChHXU3h1JaOeUUaVPlu7sui6Yog576qnKfmZxDqp0vsLfCGanIYETNne6I6cHVZga8nJw=
-Message-ID: <f383264b0606031140l2051a2d7p6a9b2890a6063aef@mail.gmail.com>
-Date: Sat, 3 Jun 2006 11:40:41 -0700
-From: "Matt Reimer" <mattjreimer@gmail.com>
-To: "Pierre Ossman" <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-Subject: Re: 2GB MMC/SD cards
-In-Reply-To: <20060603141548.GA31182@flint.arm.linux.org.uk>
+	Sat, 3 Jun 2006 14:45:18 -0400
+Received: from ns1.suse.de ([195.135.220.2]:28584 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751768AbWFCSpQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 14:45:16 -0400
+From: Chris Mason <mason@suse.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [patch] fix smt nice lock contention and optimization
+Date: Sat, 3 Jun 2006 14:45:06 -0400
+User-Agent: KMail/1.9.3
+Cc: "'Andrew Morton'" <akpm@osdl.org>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Con Kolivas'" <kernel@kolivas.org>, "Ingo Molnar" <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+References: <000701c686e1$71f2f7f0$df34030a@amr.corp.intel.com>
+In-Reply-To: <000701c686e1$71f2f7f0$df34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <447AFE7A.3070401@drzeus.cx>
-	 <20060603141548.GA31182@flint.arm.linux.org.uk>
+Message-Id: <200606031445.08165.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/3/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> On Mon, May 29, 2006 at 04:00:26PM +0200, Pierre Ossman wrote:
-> > People have been reporting that their Palms, cameras and USB readers
-> > will not accept anything else.
->
-> I am not aware of any bug reports in this area, so I can't comment.  In
-> fact, I see very few reports of MMC problems at all, so I just assume
-> that it merely works.  Unless folk report bugs to me...
->
-> I don't know what to do about this since I don't have any cards and
-> I've not seen any bug reports to investigate what's going on.  So I'm
-> just going to say "the code as it stands is correct as to my best
-> knowledge, please provide details of it's failings."
+On Saturday 03 June 2006 03:43, Chen, Kenneth W wrote:
+> OK, final rolled up patch with everyone's changes. I fixed one bug
+> introduced by Con's earlier patch that there is an unpaired
+> spin_trylock/spin_unlock in the for loop of dependent_sleeper().
+> Chris, Con, Nick - please review and provide your signed-off-by line.
+> Andrew - please consider for -mm inclusion.  Thanks.
 
-I suspect that a lot of these readers are broken, assuming 512 byte blocks.
+Thanks for turning my half baked code into something nice.  acked-by from me 
+as well.
 
-Matt
+-chris

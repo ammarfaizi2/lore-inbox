@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWFCILX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWFCILS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbWFCILX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 04:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWFCILW
+	id S1030260AbWFCILS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 04:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWFCILS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 04:11:22 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:5067 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S1030261AbWFCILV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 04:11:21 -0400
-From: Catalin Marinas <catalin.marinas@arm.com>
-Reply-To: catalin.marinas@gmail.com
-Subject: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.4
-Date: Sat, 03 Jun 2006 09:10:54 +0100
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060603081054.31915.4038.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.9
-X-OriginalArrivalTime: 03 Jun 2006 08:11:17.0437 (UTC) FILETIME=[4A08EED0:01C686E5]
+	Sat, 3 Jun 2006 04:11:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25762 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030260AbWFCILQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 04:11:16 -0400
+Date: Sat, 3 Jun 2006 01:11:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: kenneth.w.chen@intel.com, nickpiggin@yahoo.com.au, mason@suse.com,
+       kernel@kolivas.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix smt nice lock contention and optimization
+Message-Id: <20060603011107.4c6de627.akpm@osdl.org>
+In-Reply-To: <20060603074920.GB20229@elte.hu>
+References: <000701c686e1$71f2f7f0$df34030a@amr.corp.intel.com>
+	<20060603074920.GB20229@elte.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a new version (0.4) of the kernel memory leak detector. See
-the Documentation/kmemleak.txt file for a more detailed
-description. The patches are downloadable from (the bundled patch or
-the full series):
+On Sat, 3 Jun 2006 09:49:20 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.17-rc5-kmemleak-0.4.bz2
-http://homepage.ntlworld.com/cmarinas/kmemleak/patches-kmemleak-0.4.tar.bz2
+> 
+> * Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+> 
+> > Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+> > ---
+> > 
+> >  sched.c |  168 ++++++++++++++++++----------------------------------------------
+> >  1 files changed, 48 insertions(+), 120 deletions(-)
+> 
+> looks really good now to me.
+> 
+>  Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> lets try it in -mm?
+> 
 
-What's new in this version:
+Yup.  I redid Ken's patch against mainline and them mangled
+lock-validator-special-locking-schedc.patch to suit.
 
-- full kernel modules support
-- kmemleak now depends on DEBUG_SLAB. The detection is improved by the
-  objects poisoning caused by this configuration option
-- freeing orphan pointers is no longer reported since these can be
-  false positives
-- replaced some _rcu list traversal loops with their normal or _safe
-  form
-
-To do:
-
-- better testing
-- test Ingo's suggestion on task stacks scanning
-- NUMA support
-- (support for ioremap)
-
--- 
-Catalin

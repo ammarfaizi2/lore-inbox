@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWFCRkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWFCRke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751744AbWFCRkb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 13:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751746AbWFCRkb
+	id S1751745AbWFCRke (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 13:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbWFCRke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 13:40:31 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:3532 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751744AbWFCRkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 13:40:31 -0400
-Subject: Re: [patch] cfq: ioprio inherit rt class
-From: Lee Revell <rlrevell@joe-job.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       ck list <ck@vds.kolivas.org>
-In-Reply-To: <200606031010.08794.kernel@kolivas.org>
-References: <200605271150.41924.kernel@kolivas.org>
-	 <20060602171215.GM4400@suse.de>  <200606031010.08794.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Sat, 03 Jun 2006 13:40:28 -0400
-Message-Id: <1149356428.28744.27.camel@mindpipe>
+	Sat, 3 Jun 2006 13:40:34 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:31107 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751745AbWFCRkd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 13:40:33 -0400
+Date: Sat, 3 Jun 2006 10:41:15 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Marcel Holtmann <marcel@holtmann.org>, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgewood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Mark Lord <liml@rtr.ca>,
+       Jeff Garzik <jeff@garzik.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 07/11] the latest consensus libata resume fix
+Message-ID: <20060603174115.GW18769@moss.sous-sol.org>
+References: <20060602194618.482948000@sous-sol.org> <20060602194742.420464000@sous-sol.org> <20060602195046.GO4400@suse.de> <1149324575.19311.11.camel@localhost> <20060603132215.GQ4400@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060603132215.GQ4400@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-03 at 10:10 +1000, Con Kolivas wrote:
-> On Saturday 03 June 2006 03:12, Jens Axboe wrote:
-> > Not sure. RT io needs to be considered carefully, but I guess so does RT
-> > CPU scheduling. For now I'd prefer to play it a little safer, and only
-> > inheric the priority value and not the class.
+* Jens Axboe (axboe@suse.de) wrote:
+> On Sat, Jun 03 2006, Marcel Holtmann wrote:
+> > I had problems with resume on my IBM X41 since I got it (something
+> > around 2.6.15) and only this patch made it work again.
+> > 
+> > Because of the SDHCI stuff I always used the latest kernel and thus I
+> > wasn't sure if there actually was a problem or not. So I tested a plain
+> > 2.6.16 with and without this patch. The plain 2.6.16 doesn't resume on
+> > my IBM X41 laptop. If I apply this patch, the resume works perfect.
 > 
-> The problem I envisioned with that was that realtime tasks, if they don't 
-> specify an io priority (as most current code doesn't), would basically get io 
-> priority 4 and have the same proportion as any nice 0 SCHED_NORMAL task 
-> whereas -nice tasks automatically are getting better io priority. How about 
-> givent them normal class but best priority so they are at least getting the 
-> same as nice -20?
-> 
+> Ok, no problem from my end then.
 
-Con,
-
-Have you seen RT threads trying to disk IO 'in the wild' or is this a
-theoretical concern?  I don't know of any such apps.
-
-Lee
-
+Thanks guys.
+-chris

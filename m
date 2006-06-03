@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWFCXYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWFCXoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWFCXYx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 19:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbWFCXYx
+	id S1750714AbWFCXoY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 19:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWFCXoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 19:24:53 -0400
-Received: from wr-out-0506.google.com ([64.233.184.239]:51262 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030362AbWFCXYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 19:24:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Av5FfcHpJ7x42aUIQJGIZo5M7GKzfIs8VYZ37A6wHCmVU+eATAEgrZaLkOd4djnc6Xt+xUXmclc6yl9b+BK4lzvMEWoWunoQQXMI6GRR+aYf9eDRGSm8fZAzpSGrjAe96Vv/KI9uoGXNCLVE2G0WVCax3OwsEgJ/BZVfp+yFUZ4=
-Message-ID: <44821B82.1040406@gmail.com>
-Date: Sat, 03 Jun 2006 19:30:10 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Sat, 3 Jun 2006 19:44:24 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:37276 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1750714AbWFCXoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 19:44:24 -0400
+Message-ID: <44821EAF.8010003@myri.com>
+Date: Sat, 03 Jun 2006 19:43:43 -0400
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: mark.fasheh@oracle.com, kurt.hackel@oracle.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] ocfs2: dereference before NULL check in ocfs2_direct_IO_get_blocks()
-References: <4481AC0F.6040805@gmail.com> <20060603191558.GA7268@martell.zuzino.mipt.ru>
-In-Reply-To: <20060603191558.GA7268@martell.zuzino.mipt.ru>
+To: Linas Vepstas <linas@austin.ibm.com>
+CC: Brice Goglin <brice@myri.com>, Andrew Morton <akpm@osdl.org>,
+       Shaohua Li <shaohua.li@intel.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, greg@kroah.com, tom.l.nguyen@intel.com,
+       rajesh.shah@intel.com
+Subject: Re: [RFC]disable msi mode in pci_disable_device
+References: <1148612307.32046.132.camel@sli10-desk.sh.intel.com> <20060526125440.0897aef5.akpm@osdl.org> <44776491.1080506@myri.com> <20060531210053.GE6364@austin.ibm.com>
+In-Reply-To: <20060531210053.GE6364@austin.ibm.com>
+X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> AFAICS, the patch is BS, as usual with this type of patches.
+Linas Vepstas wrote:
+>> The aim is to be able to recover from a memory parity error in the NIC.
+>> Such errors happen sometimes, especially when a cosmic ray comes by. To
+>> recover, we restore the state that we saved at the end of the
+>> initialization. As saving currently disables MSI, we currently have to
+>> restore the state right after saving it at the end of the initialization
+>> (see the end of
+>> myri10ge_probe in http://lkml.org/lkml/2006/5/23/24).
+>>     
+>
+> My experience dealing with a similar thing suggests that its usually
+> easier to restore the state to where it was after a cold boot, but
+> before the device driver touched the h/w.  
 >   
-You missed the full purpose: the patch makes a function consistent about
-its own assumptions (but leaves them in place since they're on the
-better-safe-than-sorry side). It addresses assumptions inconsistency
-(confusing for both human readers and static analysis tools) just as
-much as it addresses a possible bug. Regardless of whether "inode" &
-"bh_result" can be NULL, I don't think the following is OK (coding-wise):
 
-	unsigned long max_blocks = bh_result->b_size >> inode->i_blkbits;
+After a cold boot, some initialization is done by Linux before the
+driver even touches the device (for instance the BARs). I am not sure
+that restoring to the state before Linux initialized the device would be
+easier than what we currently do.
 
-	if (!inode || !bh_result) {
-		mlog(ML_ERROR, "inode or bh_result is null\n");
-		return -EIO;
-	}
-
-
-> Can "inode" and "bh_result" be NULL here? I bet they can't
-Great, then the NULL branch is dead code and we can fix consistency
-differently:
-
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
-
- fs/ocfs2/aops.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
-
-diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index 47152bf..370c241 100644
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -558,16 +558,9 @@ static int ocfs2_direct_IO_get_blocks(st
- 	u64 vbo_max; /* file offset, max_blocks from iblock */
- 	u64 p_blkno;
- 	int contig_blocks;
--	unsigned char blocksize_bits;
-+	unsigned char blocksize_bits = inode->i_sb->s_blocksize_bits;
- 	unsigned long max_blocks = bh_result->b_size >> inode->i_blkbits;
- 
--	if (!inode || !bh_result) {
--		mlog(ML_ERROR, "inode or bh_result is null\n");
--		return -EIO;
--	}
--
--	blocksize_bits = inode->i_sb->s_blocksize_bits;
--
- 	/* This function won't even be called if the request isn't all
- 	 * nicely aligned and of the right size, so there's no need
- 	 * for us to check any of that. */
-
+Brice
 

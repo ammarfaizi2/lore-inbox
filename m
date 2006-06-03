@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWFCWfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWFCW5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWFCWfS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 18:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWFCWfS
+	id S1751817AbWFCW5h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 18:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWFCW5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 18:35:18 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:6313 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751413AbWFCWfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 18:35:16 -0400
-Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
-	disable_irq()
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Alan Cox <alan@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060603215323.GA13077@devserv.devel.redhat.com>
-References: <20060531200236.GA31619@elte.hu>
-	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
-	 <20060531214139.GA8196@devserv.devel.redhat.com>
-	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
-	 <20060531214729.GA4059@elte.hu>
-	 <1149112582.3114.91.camel@laptopd505.fenrus.org>
-	 <1149345421.13993.81.camel@localhost.localdomain>
-	 <20060603215323.GA13077@devserv.devel.redhat.com>
-Content-Type: text/plain
-Date: Sat, 03 Jun 2006 18:34:50 -0400
-Message-Id: <1149374090.14408.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Sat, 3 Jun 2006 18:57:37 -0400
+Received: from smtpout08-04.prod.mesa1.secureserver.net ([64.202.165.12]:14211
+	"HELO smtpout08-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1751817AbWFCW5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 18:57:37 -0400
+Message-ID: <448213DF.4030506@seclark.us>
+Date: Sat, 03 Jun 2006 18:57:35 -0400
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: wine-devel-request@winehq.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Alsa sound vs OSS with wine and riven
+References: <4481E816.4090600@seclark.us> <1149367697.28744.45.camel@mindpipe>
+In-Reply-To: <1149367697.28744.45.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-03 at 17:53 -0400, Alan Cox wrote:
-> On Sat, Jun 03, 2006 at 10:37:01AM -0400, Steven Rostedt wrote:
-> > Couldn't it be possible to have the misrouted irq function mark the
-> > DISABLED_IRQ handlers as IRQ_PENDING?  Then have the enable_irq that
-> > actually enables the irq to call the handlers with interrupts disabled
-> > if the IRQ_PENDING is set?
-> 
-> We still have the ambiguity with disable_irq. Really we need to have
-> disable_irq_handler(irq, handler)
+Lee Revell wrote:
 
-Yeah, that does make sense, but I think the IRQ_PENDING idea works too.
-This way disable_irq_handler doesn't need to mask the interrupt even
-without the irqpoll and irqfixup.  Let the interrupt happen and just
-skip those handlers that that are disabled.  Then when the handler is
-re-enabled, then we can call the handler. Of course we would need a
-enable_irq_handler too.
+>On Sat, 2006-06-03 at 15:50 -0400, Stephen Clark wrote:
+>  
+>
+>>Hello,
+>>
+>>I have been working to get "Riven" the sequel to Myst to work with
+>>the 
+>>latest wine from cvs on the latest FC5. It works and the sound is
+>>almost perfect with 
+>>OSS, but is totally screwed up when I use ALSA, I don't know whether
+>>this is a WINE or Linux 
+>>issue, so I am cross posting to both lists.
+>>    
+>>
+>
+>Does it work with ALSA's OSS emulation?
+>
+>Lee
+>
+>
+>  
+>
+Actually looking at the .config file it looks like it is using OSS 
+emulation - not real OSS.
 
-This would make the vortex card's disable_irq not hurt all the other
-devices that share the irq with it.
+Steve
 
--- Steve
+-- 
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
 
 

@@ -1,74 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWFCWAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWFCWKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751637AbWFCWAr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 18:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWFCWAr
+	id S1751300AbWFCWKu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 18:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWFCWKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 18:00:47 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:43650 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751401AbWFCWAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 18:00:46 -0400
-Date: Sat, 3 Jun 2006 19:03:52 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Greg KH <gregkh@suse.de>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
-Message-ID: <20060603190352.5249c934@home.brethil>
-In-Reply-To: <20060602204839.GA31251@suse.de>
-References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
-	<20060602204839.GA31251@suse.de>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 3 Jun 2006 18:10:50 -0400
+Received: from mx2.netapp.com ([216.240.18.37]:61580 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1751300AbWFCWKt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 18:10:49 -0400
+X-IronPort-AV: i="4.05,206,1146466800"; 
+   d="scan'208"; a="384603582:sNHT19662080"
+Subject: Re: lock_kernel called under spinlock in NFS
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Andrew Morton <akpm@osdl.org>, joe.korty@ccur.com,
+       linux-kernel@vger.kernel.org, drepper@redhat.com, mingo@elte.hu,
+       stable@kernel.org
+In-Reply-To: <20060603223003.5665a426.vsu@altlinux.ru>
+References: <20060601195535.GA28188@tsunami.ccur.com>
+	 <1149192820.3549.43.camel@lade.trondhjem.org>
+	 <20060602202436.GA4783@tsunami.ccur.com>
+	 <1149280078.5621.63.camel@lade.trondhjem.org>
+	 <20060602134346.73019624.akpm@osdl.org>
+	 <20060603223003.5665a426.vsu@altlinux.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: Network Appliance Inc
+Date: Sat, 03 Jun 2006 18:10:42 -0400
+Message-Id: <1149372643.17419.5.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+X-OriginalArrivalTime: 03 Jun 2006 22:10:44.0064 (UTC) FILETIME=[8EE24E00:01C6875A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jun 2006 13:48:39 -0700
-Greg KH <gregkh@suse.de> wrote:
+On Sat, 2006-06-03 at 22:30 +0400, Sergey Vlasov wrote:
 
-| On Fri, Jun 02, 2006 at 12:03:06AM -0300, Luiz Fernando N.Capitulino wrote:
-| > 
-| >  Hi folks.
-| > 
-| >  This patch series is my first attempt to port the USB-Serial layer to the
-| > Serial Core API. Currently USB-Serial uses the TTY layer directly, duplicating
-| > code and solutions from the Serial Core implementation.
-| > 
-| >  The final (ported) USB-Serial code is simpler and cleaner. Now I'd like to know
-| > whether I'm doing it right or not.
-| > 
-| >  Note that this is a work in progress though. I've only ported the USB-Serial
-| > core and one of its drivers, the pl2303 one.
-| > 
-| >  Most of my questions and design decisions are adressed in the patches, please
-| > refer to them for details.
-| 
-| Nice first cut at this.  But please try to also convert 2 other drivers
-| at the same time to make sure that the model is right.  I'd suggest the
-| io_edgeport and the funsoft drivers.  io_edgeport because it is very
-| complex in that it doesn't share a single bulk in/out pair for every
-| port, but multiplexes them all through one pipe.  And funsoft because we
-| want to still be able to write usb-serial drivers that are this simple.
+> 2) The patch above is broken - it needs the fix below (or the fix should
+> be folded into the patch directly):
 
- I'd love to do that but, unfortunatally, USB-Serial cables are too
-expensive in Brazil (and I have no sure if I can find these ones in
-Curitiba).
+Duh... You're quite right. Sorry about missing that.
 
- The Prolific 2303 cables I have were lent by Mandriva.
+Cheers,
+  Trond
 
- Couldn't someone send these cables for me in Brazil? I can send they
-back when the port is finished.
-
-| I agree with most of Pete's comments and like the general idea of moving
-| the usb-serial core to be more like libata (provider of helper
-| functions, not getting in the middle of everything).  I'll wait for your
-| next cut to provide specific code comments.
-
- Hope to have something to show in the next days.
-
--- 
-Luiz Fernando N. Capitulino
+> --------------------------------------------------------------------
+> 
+> Fix do_path_lookup() failure path after locking changes
+> 
+> Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
+> ---
+>  fs/namei.c |   13 ++++++-------
+>  1 files changed, 6 insertions(+), 7 deletions(-)
+> 
+> diff --git a/fs/namei.c b/fs/namei.c
+> index a2f79d2..d6e2ee2 100644
+> --- a/fs/namei.c
+> +++ b/fs/namei.c
+> @@ -1104,17 +1104,17 @@ static int fastcall do_path_lookup(int d
+>  		file = fget_light(dfd, &fput_needed);
+>  		retval = -EBADF;
+>  		if (!file)
+> -			goto unlock_fail;
+> +			goto out_fail;
+>  
+>  		dentry = file->f_dentry;
+>  
+>  		retval = -ENOTDIR;
+>  		if (!S_ISDIR(dentry->d_inode->i_mode))
+> -			goto fput_unlock_fail;
+> +			goto fput_fail;
+>  
+>  		retval = file_permission(file, MAY_EXEC);
+>  		if (retval)
+> -			goto fput_unlock_fail;
+> +			goto fput_fail;
+>  
+>  		nd->mnt = mntget(file->f_vfsmnt);
+>  		nd->dentry = dget(dentry);
+> @@ -1129,13 +1129,12 @@ out:
+>  				nd->dentry->d_inode))
+>  		audit_inode(name, nd->dentry->d_inode, flags);
+>  	}
+> +out_fail:
+>  	return retval;
+>  
+> -fput_unlock_fail:
+> +fput_fail:
+>  	fput_light(file, fput_needed);
+> -unlock_fail:
+> -	read_unlock(&current->fs->lock);
+> -	return retval;
+> +	goto out_fail;
+>  }
+>  
+>  int fastcall path_lookup(const char *name, unsigned int flags,

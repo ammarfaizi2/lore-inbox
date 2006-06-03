@@ -1,81 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWFCIN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWFCIOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWFCIN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 04:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWFCILy
+	id S1030300AbWFCIOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 04:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWFCILu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 04:11:54 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:10955 "EHLO
+	Sat, 3 Jun 2006 04:11:50 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:12491 "EHLO
 	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S1030277AbWFCILd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 04:11:33 -0400
+	id S1030279AbWFCILh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 04:11:37 -0400
 From: Catalin Marinas <catalin.marinas@arm.com>
 Reply-To: catalin.marinas@gmail.com
-Subject: [PATCH 2.6.17-rc5 5/8] Add kmemleak support for i386
-Date: Sat, 03 Jun 2006 09:11:29 +0100
+Subject: [PATCH 2.6.17-rc5 6/8] Add kmemleak support for ARM
+Date: Sat, 03 Jun 2006 09:11:32 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060603081129.31915.23082.stgit@localhost.localdomain>
+Message-Id: <20060603081132.31915.44119.stgit@localhost.localdomain>
 In-Reply-To: <20060603081054.31915.4038.stgit@localhost.localdomain>
 References: <20060603081054.31915.4038.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.9
-X-OriginalArrivalTime: 03 Jun 2006 08:11:30.0061 (UTC) FILETIME=[518F33D0:01C686E5]
+X-OriginalArrivalTime: 03 Jun 2006 08:11:32.0561 (UTC) FILETIME=[530CAC10:01C686E5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
 This patch modifies the vmlinux.lds.S script and adds the backtrace support
-for i386 to be used with kmemleak.
+for ARM to be used with kmemleak.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- arch/i386/kernel/vmlinux.lds.S |    4 ++++
- include/asm-i386/processor.h   |   12 ++++++++++++
- 2 files changed, 16 insertions(+), 0 deletions(-)
+ arch/arm/kernel/vmlinux.lds.S |    7 +++++++
+ include/asm-arm/processor.h   |   12 ++++++++++++
+ 2 files changed, 19 insertions(+), 0 deletions(-)
 
-diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
-index 8831303..370480e 100644
---- a/arch/i386/kernel/vmlinux.lds.S
-+++ b/arch/i386/kernel/vmlinux.lds.S
-@@ -38,6 +38,7 @@ SECTIONS
-   RODATA
+diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
+index 2b254e8..c6f038c 100644
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -68,6 +68,11 @@ #endif
+ 		__per_cpu_start = .;
+ 			*(.data.percpu)
+ 		__per_cpu_end = .;
++#ifdef CONFIG_DEBUG_MEMLEAK
++		__memleak_offsets_start = .;
++			*(.init.memleak_offsets)
++		__memleak_offsets_end = .;
++#endif
+ #ifndef CONFIG_XIP_KERNEL
+ 		__init_begin = _stext;
+ 		*(.init.data)
+@@ -110,6 +115,7 @@ #endif
  
-   /* writeable */
-+  _sdata = .;			/* Start of data section */
-   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
- 	*(.data)
- 	CONSTRUCTORS
-@@ -140,6 +141,9 @@ SECTIONS
-   __per_cpu_start = .;
-   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
-   __per_cpu_end = .;
-+  __memleak_offsets_start = .;
-+  .init.memleak_offsets : AT(ADDR(.init.memleak_offsets) - LOAD_OFFSET) { *(.init.memleak_offsets) }
-+  __memleak_offsets_end = .;
-   . = ALIGN(4096);
-   __init_end = .;
-   /* freed after init ends here */
-diff --git a/include/asm-i386/processor.h b/include/asm-i386/processor.h
-index 805f0dc..9b6568a 100644
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -743,4 +743,16 @@ #else
- #define mcheck_init(c) do {} while(0)
+ 	.data : AT(__data_loc) {
+ 		__data_start = .;	/* address in memory */
++		_sdata = .;
+ 
+ 		/*
+ 		 * first, the init task union, aligned
+@@ -158,6 +164,7 @@ #endif
+ 		__bss_start = .;	/* BSS				*/
+ 		*(.bss)
+ 		*(COMMON)
++		__bss_stop = .;
+ 		_end = .;
+ 	}
+ 					/* Stabs debugging sections.	*/
+diff --git a/include/asm-arm/processor.h b/include/asm-arm/processor.h
+index 04f4d34..feaf017 100644
+--- a/include/asm-arm/processor.h
++++ b/include/asm-arm/processor.h
+@@ -121,6 +121,18 @@ #define spin_lock_prefetch(x) do { } whi
+ 
  #endif
  
 +#ifdef CONFIG_FRAME_POINTER
 +static inline unsigned long arch_call_address(void *frame)
 +{
-+	return *(unsigned long *) (frame + 4);
++	return *(unsigned long *) (frame - 4) - 4;
 +}
 +
 +static inline void *arch_prev_frame(void *frame)
 +{
-+	return *(void **) frame;
++	return *(void **) (frame - 12);
 +}
 +#endif
 +
- #endif /* __ASM_I386_PROCESSOR_H */
+ #endif
+ 
+ #endif /* __ASM_ARM_PROCESSOR_H */

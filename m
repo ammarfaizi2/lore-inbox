@@ -1,101 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbWFCAIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751622AbWFCAJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751613AbWFCAIk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 20:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWFCAIk
+	id S1751622AbWFCAJB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 20:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751631AbWFCAJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 20:08:40 -0400
-Received: from mga03.intel.com ([143.182.124.21]:41590 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751589AbWFCAIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 20:08:39 -0400
-X-IronPort-AV: i="4.05,205,1146466800"; 
-   d="scan'208"; a="45326191:sNHT45199021"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <kernel@kolivas.org>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, <linux-kernel@vger.kernel.org>,
-       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
-Subject: RE: [PATCH RFC] smt nice introduces significant lock contention
-Date: Fri, 2 Jun 2006 17:08:39 -0700
-Message-ID: <000601c686a1$de148060$df34030a@amr.corp.intel.com>
+	Fri, 2 Jun 2006 20:09:01 -0400
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:28132 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751609AbWFCAJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 20:09:00 -0400
+Message-ID: <4480D319.8040403@bigpond.net.au>
+Date: Sat, 03 Jun 2006 10:08:57 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Mike Galbraith <efault@gmx.de>
+CC: sekharan@us.ibm.com, balbir@in.ibm.com, dev@openvz.org,
+       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
+       Sam Vilain <sam@vilain.net>, ckrm-tech@lists.sourceforge.net,
+       Balbir Singh <bsingharora@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	 <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	 <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>	 <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>	 <447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>	 <447FD2E1.7060605@bigpond.net.au>	 <1149237992.9446.133.camel@Homer.TheSimpsons.net>	 <44803ABA.6050001@bigpond.net.au> <1149259639.8661.22.camel@Homer.TheSimpsons.net>
+In-Reply-To: <1149259639.8661.22.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaGoRhcB9coO7ciRnW2LOmLMV+ULwAAD1ng
-In-Reply-To: <200606031002.51199.kernel@kolivas.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 3 Jun 2006 00:08:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Friday, June 02, 2006 5:03 PM
-> On Saturday 03 June 2006 08:58, Chen, Kenneth W wrote:
-> > You haven't answered my question either.  What is the benefit of special
-> > casing the initial stage of cpu resource competition?  Is it quantitatively
-> > measurable?  If so, how much and with what workload?
+Mike Galbraith wrote:
+> On Fri, 2006-06-02 at 23:18 +1000, Peter Williams wrote:
+>> Mike Galbraith wrote:
+>>> On Fri, 2006-06-02 at 15:55 +1000, Peter Williams wrote:
+>>>> Chandra Seetharaman wrote:
+>>>>> On Thu, 2006-06-01 at 14:04 +0530, Balbir Singh wrote:
+>>>>>> Hi, Kirill,
+>>>>>>
+>>>>>> Kirill Korotaev wrote:
+>>>>>>>> Do you have any documented requirements for container resource 
+>>>>>>>> management?
+>>>>>>>> Is there a minimum list of features and nice to have features for 
+>>>>>>>> containers
+>>>>>>>> as far as resource management is concerned?
+>>>>>>> Sure! You can check OpenVZ project (http://openvz.org) for example of 
+>>>>>>> required resource management. BTW, I must agree with other people here 
+>>>>>>> who noticed that per-process resource management is really useless and 
+>>>>>>> hard to use :(
+>>>>> I totally agree.
+>>>> "nice" seems to be doing quite nicely :-)
+>>>>
+>>>> To me this capping functionality is a similar functionality to that 
+>>>> provided by "nice" and all that's needed to make it useful is a command 
+>>>> (similar to "nice") that runs tasks with caps applied.
+>>> Similar in that they are both inherited.  Very dissimilar in that the
+>>> effect of nice is not altered by fork whereas the effect of a cap is.
+>>>
+>>> Consider make.  A cap on make itself isn't meaningful, and _any_ per
+>>> task cap you put on it with the intent of managing the aggregate, is
+>>> defeated by the argument -j.  Per task caps require omniscience to be
+>>> effective in managing processes.  That's a pretty severe limitation.
+>> These caps aren't trying to control aggregates but with suitable 
+>> software they can be used to control aggregates.
 > 
-> Ah you mean what the whole point of smt nice is? Yes it's simple enough to do. 
-> Take the single hyperthreaded cpu with two cpu bound workloads. Let's say I 
-> run a cpu bound task nice 0 by itself and it completes in time X. If I boot 
-> it with hyperthread disabled and run a nice 0 and nice 19 task, the nice 0 
-> task gets 95% of the cpu and completes in time X*0.95. If I boot with 
-> hyperthread enabled and run the nice 0 and nice 19 tasks, the nice 0 task 
-> gets 100% of one sibling and the nice 19 task 100% of the other sibling. The 
-> nice 0 task completes in X*0.6. With the smt nice code added it completed in 
-> X*0.95. The ratios here are dependent on the workload but that was the 
-> average I could determine from comparing mprime workloads at differing nice 
-> and kernel compiles. There is no explicit way on the Intel smt cpus to tell 
-> it which sibling is running lower priority tasks (sprinkling mwaits around at 
-> regular intervals is not a realistic option for example).
+> How?  How would you deal with the make example with per task caps.
 
+I'd build a resource management tool that uses task statistics, nice and 
+caps to manage CPU resource allocation.  This could be a plug in kernel 
+module or a user space daemon.  It doesn't need to be in the scheduler.
 
-I know what smt nice is doing, and it is fine to have.  I'm simply proposing
-the following patch, on top of last roll up patch.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-
-diff -u ./kernel/sched.c ./kernel/sched.c
---- ./kernel/sched.c	2006-06-02 16:05:13.000000000 -0700
-+++ ./kernel/sched.c	2006-06-02 17:03:55.000000000 -0700
-@@ -2782,7 +2782,7 @@
- 
- 		/* Kernel threads do not participate in dependent sleeping */
- 		if (!p->mm || !smt_curr->mm || rt_task(p))
--			goto check_smt_task;
-+			continue;
- 
- 		/*
- 		 * If a user task with lower static priority than the
-@@ -2806,32 +2806,6 @@
- 				smt_slice(smt_curr, sd) > task_timeslice(p))
- 					ret = 1;
- 
--check_smt_task:
--		if ((!smt_curr->mm && smt_curr != smt_rq->idle) ||
--			rt_task(smt_curr))
--				continue;
--		if (!p->mm) {
--			wakeup_busy_runqueue(smt_rq);
--			continue;
--		}
--
--		/*
--		 * Reschedule a lower priority task on the SMT sibling for
--		 * it to be put to sleep, or wake it up if it has been put to
--		 * sleep for priority reasons to see if it should run now.
--		 */
--		if (rt_task(p)) {
--			if ((jiffies % DEF_TIMESLICE) >
--				(sd->per_cpu_gain * DEF_TIMESLICE / 100))
--					resched_task(smt_curr);
--		} else {
--			if (TASK_PREEMPTS_CURR(p, smt_rq) &&
--				smt_slice(p, sd) > task_timeslice(smt_curr))
--					resched_task(smt_curr);
--			else
--				wakeup_busy_runqueue(smt_rq);
--		}
--
- 		spin_unlock(&smt_rq->lock);
- 	}
- 	return ret;
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

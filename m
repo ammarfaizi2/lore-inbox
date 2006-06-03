@@ -1,82 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWFCGio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWFCCpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbWFCGio (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 02:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWFCGio
+	id S1751429AbWFCCpx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 22:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWFCCpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 02:38:44 -0400
-Received: from smtp.enter.net ([216.193.128.24]:15114 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S932316AbWFCGin (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 02:38:43 -0400
-From: "D. Hazelton" <dhazelton@enter.net>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Date: Sat, 3 Jun 2006 02:38:30 +0000
-User-Agent: KMail/1.8.1
-Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Dave Airlie" <airlied@gmail.com>,
-       "Ondrej Zajicek" <santiago@mail.cz>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <200606030209.34928.dhazelton@enter.net> <9e4733910606022331u40f1fd5dq6428e37f30ccf702@mail.gmail.com>
-In-Reply-To: <9e4733910606022331u40f1fd5dq6428e37f30ccf702@mail.gmail.com>
+	Fri, 2 Jun 2006 22:45:53 -0400
+Received: from rtr.ca ([64.26.128.89]:38024 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751078AbWFCCpw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 22:45:52 -0400
+From: Mark Lord <liml@rtr.ca>
+Organization: Real-Time Remedies Inc.
+To: Ask =?iso-8859-1?q?Bj=F8rn_Hansen?= <ask@develooper.com>
+Subject: Re: sata_mv with Adaptec AIC-8130/Marvell 88SX6041 ("Badness in __msleep")
+Date: Fri, 2 Jun 2006 22:45:49 -0400
+User-Agent: KMail/1.9.1
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <5D6C23F5-B03E-4C3D-8BC6-A009E51122D8@develooper.com> <447A614B.3050603@rtr.ca> <EA69B14D-2874-48EA-BF67-0A96DE690FA6@develooper.com>
+In-Reply-To: <EA69B14D-2874-48EA-BF67-0A96DE690FA6@develooper.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200606030238.32720.dhazelton@enter.net>
+Message-Id: <200606022245.49637.liml@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 June 2006 06:31, Jon Smirl wrote:
-> On 6/2/06, D. Hazelton <dhazelton@enter.net> wrote:
-> > Actually, Jon, Dave is thinking like I am in that the DRI drivers needs
-> > to be loaded for use. Rather than forcing applications to include all
-> > that code the userspace daemon can be configured to load the DRI driver
-> > and provides the userspace interface to the system. Using a daemon for a
-> > simple task, like modesetting, is idiotic - but using the daemon to
-> > provide userspace with full access to acceleration (the Kernel drivers
-> > only provide the backend for the acceleration. The userspace side
-> > actually provides the code that manages it all) without needing to have
-> > to worry about loading and initializing the dri drivers provides a method
-> > for anything from a scripting language to a full compiled application
-> > easy access to the acceleration.
->
-> You are confused about this. Nobody wants to change the way DRI and
-> DRM work, it would take years of effort to change it. These are shared
-> libraries, it doesn't matter how many people have them open, there is
-> only one copy in memory.
+On Friday 02 June 2006 21:42, Ask Bjørn Hansen wrote:
+> 
+> On May 28, 2006, at 19:49, Mark Lord wrote:
+> 
+> > The attached patch [0.7-backport] is an untested backport of the  
+> > latest sata_mv,
+> > which should be more reliable than what you've been using. [0.5]
+> 
+> It works most of the time (where the 0.5 didn't work most of the  
+> time), but I still see the "Badness in __msleep" occasionally (and it  
+> only detects one of the disks then).    However, the Adaptec BIOS is  
+> only seeing one of the disks sometimes, so maybe there's something  
+> wrong with the hardware.  The BIOS did detect both drives in the boot  
+> that gave the output below though.
 
-Exactly.
+Weird.  I cannot make sense of that traceback.  What CPU is this kernel built for?
 
-> Applications don't 'include' all of the DRI/DRM code they dynamically
-> link to the OpenGL shared object library which in turns loads the
-> correct DRI shared library. The correct DRM module should be loaded by
-> the kernel at boot. You can write a 10 line OpenGL program that will
-> make use of all of this, it is not hard to do. User space has always
-> had access to hardware acceleration from these libraries.
+And does this patch (below) make the "Badness" go away?
 
-Yes, but there are userspace *drivers* that have to be loaded for that code to 
-work properly. By providing the daemon no program needs to worry about 
-loading those drivers.
+Cheers
 
-> We have not been discussing DIrect Rendering vs indirect (AIGLX). It
-> will be up to the windowing system to chose which (or both) of those
-> model to use. The lower layers are designed not to force that choice
-> one way ot the other.
->
-> Dave wants to load the existing X drivers into the daemon, not the DRI
-> libraries. Other than using them for mode setting there isn't much use
-> for them. I have asked him where he wants things like blanking, cmap,
-> cursor and he hasn't said yet. Those functions are tiny, ~100 lines of
-> code.
-
-Stuff like that would probably be best left to small userspace helpers, or 
-potentially 1 userspace helper that figures out what to do based on what the 
-name is that's given to the link.
-
-DRH
+---
+--- linux/drivers/scsi/sata_mv.c.16-backport	2006-05-26 09:15:22.000000000 -0400
++++ linux/drivers/scsi/sata_mv.c	2006-06-02 22:39:07.000000000 -0400
+@@ -2022,7 +2022,7 @@
+ 
+ static void mv_phy_reset(struct ata_port *ap)
+ {
+-	__mv_phy_reset(ap, 1);
++	__mv_phy_reset(ap, 0);
+ }
+ 
+ /**

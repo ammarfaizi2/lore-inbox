@@ -1,93 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWFCFEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWFCFz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWFCFEt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 01:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWFCFEt
+	id S1751078AbWFCFz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 01:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWFCFz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 01:04:49 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:52431 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751407AbWFCFEs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 01:04:48 -0400
-Message-ID: <44811743.1050601@in.ibm.com>
-Date: Sat, 03 Jun 2006 10:29:47 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
+	Sat, 3 Jun 2006 01:55:57 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:63155 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751078AbWFCFz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 01:55:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aXjx4Hi9K/J6t+2wg8HETOqU+4ufQGCCFQcwsSvV2Iu3mcq+5cHiEmqnTcY5qFJr+l6C3VaWTWd5hgR3wpUv5e2JKuxMuuQyQ7eUAW9wOGqGDlRHg9u7jvaDMtGNLVwDMJkRTq+VJmQvQnZffdKR6HileBfrgQqVOab19Z47dFc=
+Message-ID: <9e4733910606022255r7fa7346bw661fb35f81668788@mail.gmail.com>
+Date: Sat, 3 Jun 2006 01:55:46 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "D. Hazelton" <dhazelton@enter.net>
+Subject: Re: OpenGL-based framebuffer concepts
+Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Dave Airlie" <airlied@gmail.com>,
+       "Ondrej Zajicek" <santiago@mail.cz>, "Pavel Machek" <pavel@ucw.cz>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Manu Abraham" <abraham.manu@gmail.com>,
+       "linux cbon" <linuxcbon@yahoo.fr>,
+       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, adaplas@gmail.com
+In-Reply-To: <200606030125.20907.dhazelton@enter.net>
 MIME-Version: 1.0
-To: Peter Williams <peterw@aurema.com>
-Cc: Andrew Morton <akpm@osdl.org>, dev@openvz.org, Srivatsa <vatsa@in.ibm.com>,
-       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au>	<447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com>	<447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra>	<447F77A4.3000102@bigpond.net.au>	<1149213759.10377.7.camel@linuxchandra>	<447FAEB0.3060103@aurema.com>	<447FF7BB.9000104@in.ibm.com> <44803D5D.20303@bigpond.net.au>	<44808A52.9040100@in.ibm.com> <4480CE89.8080000@aurema.com>
-In-Reply-To: <4480CE89.8080000@aurema.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
+	 <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
+	 <24BBD756-4658-48A7-AD4D-1D25124A946B@mac.com>
+	 <200606030125.20907.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
->>>>
->>>>The problem is that with per-task caps, if I have a resource group A
->>>>and I want to limit it to 10%, I need to limit each task in resource
->>>>group A to 10% (which makes resource groups not so useful). Is my
->>>>understanding correct?
->>>
->>>
->>>Well the general idea is correct but your maths is wrong.  You'd have 
->>>to give each of them a cap somewhere between 10% and 10% divided by 
->>>the number of tasks in group A.  Exactly where in that range would 
->>>vary depending on the CPU demand of each task and would need to be 
->>>adjusted dynamically (unless they were very boring tasks whose demands 
->>>were constant over time).
->>>
->>
->>
->>Hmm.. I thought my math was reasonable (but there is always so much to 
->>learn)
->> From your formula, if I have 1 task in group A, I need to provide it with
->>a cap of b/w 10 to 11%. For two tasks, I need to give them b/w 10 to 10.5%.
->>If I have a hundred, it needs to be b/w 10% and 10.01%
-> 
-> 
-> Now your arithmetic is failing you.  According to my formula:
-> 
-> 1. With one task in group A you give it 10% which is what you get when 
-> you divide 10% by one.
-> 
-> 2. With two tasks in group A you give them each somewhere between 5% 
-> (which is 10% divided by 2) and 10%.  If they are equally busy you give 
-> them each 5% and if they are not equally busy you give them you give 
-> them larger caps.
+On 6/2/06, D. Hazelton <dhazelton@enter.net> wrote:
+> The reason Jon is so hot on having direct access like that is he feels that
+> modesetting and a few other simple tasks should be handled by helpers and
+> acceleration itself should be handled by userspace libraries, without the drm
+> daemon at all.
 
-Yes, I understand. I misinterpreted what you said earlier. I see you
-clearly meant the range [cap_of_the_group/number_of_tasks, cap_of_the_group]
+Jon thinks all of the HW level acceleration should be handled in the
+DRM device drivers where it already exists. The acceleration code in
+fbdev and XAA/EXA needs to die. DRM is the only choice since it is
+possible to eliminate the other two and it is not possible to
+eliminate DRM. Dave is in agreement with this design.
 
-> 
-> Another, probably a better but more expensive, formula is to divide the 
-> 10% between them in proportion to their demand.  Being careful not to 
-> give any of them a zero cap, of course.  I.e. in the two task 10% case 
-> they each get 5% if they are equally busy but if one is twice as busy as 
-> the other it gets a 6.6% cap and the other gets 3.3% (approximately).
-> 
+I think you are mixing up my comments about DRI vs DRM. DRI is the
+user space acceleration code but it doesn't actually touch the
+hardware. DRM actually touches it. I have never wanted user space
+acceleration code for the low level hardware access.
 
-Yes, that makes a lot of sense
+Dave and I are only in disagreement on how to handle mode setting. In
+his model there is a mode setting daemon that has a socket interface.
+The libraries implementing xlib/OpenGL then talk to both this socket
+and to the DRM device.
 
-> Peter
+My desire is to have a single point of interface, DRM. Since mode
+setting is not done very often I would use call_userhelper from the
+DRM device driver to invoke it when necessary. To set a mode you IOCTL
+DRM, which then bounces to a transient user space app.
 
-Thanks for clarifying.
+Neither model forces mode setting exclusively into user space or the
+kernel, each driver can chose to put it where ever is more efficient.
+By initially reusing the existing X drivers it will probably all end
+up in user space but people may rewrite that over time.
+
+Two other things that probably have to go into user space are initial
+reset and attached device (monitors) discovery.
 
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Jon Smirl
+jonsmirl@gmail.com

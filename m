@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWFCACs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbWFCADO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751565AbWFCACs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 20:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751572AbWFCACs
+	id S1751575AbWFCADO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 20:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbWFCADO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 20:02:48 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:60637 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751557AbWFCACr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 20:02:47 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sat, 3 Jun 2006 02:00:33 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH] sbp2: fix check of return value of
- hpsb_allocate_and_register_addrspace
-To: Linus Torvalds <torvalds@osdl.org>, stable@kernel.org
-cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Jody McIntyre <scjody@modernduck.com>,
-       Ben Collins <bcollins@ubuntu.com>
-Message-ID: <tkrat.f195e45ae32b9c02@s5r6.in-berlin.de>
+	Fri, 2 Jun 2006 20:03:14 -0400
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:37560 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751572AbWFCADM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 20:03:12 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
+Date: Sat, 3 Jun 2006 10:02:50 +1000
+User-Agent: KMail/1.9.3
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
+References: <000501c68698$06378290$df34030a@amr.corp.intel.com>
+In-Reply-To: <000501c68698$06378290$df34030a@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (-0.266) AWL,BAYES_20
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606031002.51199.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I added a failure check in patch "sbp2: variable status FIFO address
-(fix login timeout)" --- alas for a wrong error value.  This is a bug
-since Linux 2.6.16.  Leads to NULL pointer dereference if the call
-failed, and bogus failure handling if call succeeded.
+On Saturday 03 June 2006 08:58, Chen, Kenneth W wrote:
+> You haven't answered my question either.  What is the benefit of special
+> casing the initial stage of cpu resource competition?  Is it quantitatively
+> measurable?  If so, how much and with what workload?
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-applies to 2.6.17-rc5
-applies to 2.6.16.x after patch ''ohci1394, sbp2: fix "scsi_add_device
-failed" with PL-3507 based devices''
+Ah you mean what the whole point of smt nice is? Yes it's simple enough to do. 
+Take the single hyperthreaded cpu with two cpu bound workloads. Let's say I 
+run a cpu bound task nice 0 by itself and it completes in time X. If I boot 
+it with hyperthread disabled and run a nice 0 and nice 19 task, the nice 0 
+task gets 95% of the cpu and completes in time X*0.95. If I boot with 
+hyperthread enabled and run the nice 0 and nice 19 tasks, the nice 0 task 
+gets 100% of one sibling and the nice 19 task 100% of the other sibling. The 
+nice 0 task completes in X*0.6. With the smt nice code added it completed in 
+X*0.95. The ratios here are dependent on the workload but that was the 
+average I could determine from comparing mprime workloads at differing nice 
+and kernel compiles. There is no explicit way on the Intel smt cpus to tell 
+it which sibling is running lower priority tasks (sprinkling mwaits around at 
+regular intervals is not a realistic option for example).
 
-Index: linux-2.6.17-rc5/drivers/ieee1394/sbp2.c
-===================================================================
---- linux-2.6.17-rc5.orig/drivers/ieee1394/sbp2.c	2006-06-03 01:52:54.000000000 +0200
-+++ linux-2.6.17-rc5/drivers/ieee1394/sbp2.c	2006-06-03 01:54:23.000000000 +0200
-@@ -845,7 +845,7 @@ static struct scsi_id_instance_data *sbp
- 			&sbp2_highlevel, ud->ne->host, &sbp2_ops,
- 			sizeof(struct sbp2_status_block), sizeof(quadlet_t),
- 			0x010000000000ULL, CSR1212_ALL_SPACE_END);
--	if (!scsi_id->status_fifo_addr) {
-+	if (scsi_id->status_fifo_addr == ~0ULL) {
- 		SBP2_ERR("failed to allocate status FIFO address range");
- 		goto failed_alloc;
- 	}
-
-
+-- 
+-ck

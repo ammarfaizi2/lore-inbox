@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWFCOYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWFCOZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751694AbWFCOYv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 10:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWFCOYv
+	id S1030305AbWFCOZA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 10:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWFCOY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 10:24:51 -0400
-Received: from mx2.mail.ru ([194.67.23.122]:38971 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S1751680AbWFCOYu (ORCPT
+	Sat, 3 Jun 2006 10:24:59 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:59501 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S1030286AbWFCOY5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 10:24:50 -0400
-Date: Sat, 3 Jun 2006 18:29:15 +0400
+	Sat, 3 Jun 2006 10:24:57 -0400
+Date: Sat, 3 Jun 2006 18:29:23 +0400
 From: Evgeniy Dushistov <dushistov@mail.ru>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH 2/5]: ufs: little directory lookup optimization
-Message-ID: <20060603142915.GA16285@rain.homenetwork>
+Subject: [PATCH 3/5]: ufs: i_blocks wrong count
+Message-ID: <20060603142923.GA16350@rain.homenetwork>
 Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Mime-Version: 1.0
@@ -24,88 +24,131 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch make little optimization of ufs_find_entry
-like "ext2" does. Save number of page and reuse it again in the
-next call.
+At now UFS code uses DQUOT_* mechanism, but it also
+update inode->i_blocks manually, this cause wrong 
+i_blocks value.
 
 Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
 
 ---
 
-Index: linux-2.6.17-rc5-mm1/include/linux/ufs_fs_i.h
+Index: linux-2.6.17-rc5-mm1/fs/ufs/balloc.c
 ===================================================================
---- linux-2.6.17-rc5-mm1.orig/include/linux/ufs_fs_i.h
-+++ linux-2.6.17-rc5-mm1/include/linux/ufs_fs_i.h
-@@ -27,6 +27,7 @@ struct ufs_inode_info {
- 	__u32	i_oeftflag;
- 	__u16	i_osync;
- 	__u32	i_lastfrag;
-+	__u32   i_dir_start_lookup;
- 	struct inode vfs_inode;
- };
+--- linux-2.6.17-rc5-mm1.orig/fs/ufs/balloc.c
++++ linux-2.6.17-rc5-mm1/fs/ufs/balloc.c
+@@ -395,7 +395,6 @@ unsigned ufs_new_fragments(struct inode 
+ 		if (result) {
+ 			*p = cpu_to_fs32(sb, result);
+ 			*err = 0;
+-			inode->i_blocks += count << uspi->s_nspfshift;
+ 			UFS_I(inode)->i_lastfrag = max_t(u32, UFS_I(inode)->i_lastfrag, fragment + count);
+ 		}
+ 		unlock_super(sb);
+@@ -409,7 +408,6 @@ unsigned ufs_new_fragments(struct inode 
+ 	result = ufs_add_fragments (inode, tmp, oldcount, newcount, err);
+ 	if (result) {
+ 		*err = 0;
+-		inode->i_blocks += count << uspi->s_nspfshift;
+ 		UFS_I(inode)->i_lastfrag = max_t(u32, UFS_I(inode)->i_lastfrag, fragment + count);
+ 		unlock_super(sb);
+ 		UFSD("EXIT, result %u\n", result);
+@@ -444,7 +442,6 @@ unsigned ufs_new_fragments(struct inode 
  
-Index: linux-2.6.17-rc5-mm1/fs/ufs/dir.c
+ 		*p = cpu_to_fs32(sb, result);
+ 		*err = 0;
+-		inode->i_blocks += count << uspi->s_nspfshift;
+ 		UFS_I(inode)->i_lastfrag = max_t(u32, UFS_I(inode)->i_lastfrag, fragment + count);
+ 		unlock_super(sb);
+ 		if (newcount < request)
+Index: linux-2.6.17-rc5-mm1/fs/ufs/truncate.c
 ===================================================================
---- linux-2.6.17-rc5-mm1.orig/fs/ufs/dir.c
-+++ linux-2.6.17-rc5-mm1/fs/ufs/dir.c
-@@ -252,6 +252,7 @@ struct ufs_dir_entry *ufs_find_entry(str
- 	unsigned long start, n;
- 	unsigned long npages = ufs_dir_pages(dir);
- 	struct page *page = NULL;
-+	struct ufs_inode_info *ui = UFS_I(dir);
- 	struct ufs_dir_entry *de;
+--- linux-2.6.17-rc5-mm1.orig/fs/ufs/truncate.c
++++ linux-2.6.17-rc5-mm1/fs/ufs/truncate.c
+@@ -112,9 +112,8 @@ static int ufs_trunc_direct (struct inod
+ 	frag1 = ufs_fragnum (frag1);
+ 	frag2 = ufs_fragnum (frag2);
  
- 	UFSD("ENTER, dir_ino %lu, name %s, namlen %u\n", dir->i_ino, name, namelen);
-@@ -262,8 +263,8 @@ struct ufs_dir_entry *ufs_find_entry(str
- 	/* OFFSET_CACHE */
- 	*res_page = NULL;
+-	inode->i_blocks -= (frag2-frag1) << uspi->s_nspfshift;
+-	mark_inode_dirty(inode);
+ 	ufs_free_fragments (inode, tmp + frag1, frag2 - frag1);
++	mark_inode_dirty(inode);
+ 	frag_to_free = tmp + frag1;
  
--	/* start = ei->i_dir_start_lookup; */
--	start = 0;
-+	start = ui->i_dir_start_lookup;
+ next1:
+@@ -128,8 +127,7 @@ next1:
+ 			continue;
+ 
+ 		*p = 0;
+-		inode->i_blocks -= uspi->s_nspb;
+-		mark_inode_dirty(inode);
 +
- 	if (start >= npages)
- 		start = 0;
- 	n = start;
-@@ -295,7 +296,7 @@ out:
- 
- found:
- 	*res_page = page;
--	/* ei->i_dir_start_lookup = n; */
-+	ui->i_dir_start_lookup = n;
- 	return de;
- }
- 
-Index: linux-2.6.17-rc5-mm1/fs/ufs/ialloc.c
-===================================================================
---- linux-2.6.17-rc5-mm1.orig/fs/ufs/ialloc.c
-+++ linux-2.6.17-rc5-mm1/fs/ufs/ialloc.c
-@@ -264,6 +264,7 @@ cg_found:
- 	ufsi->i_shadow = 0;
- 	ufsi->i_osync = 0;
- 	ufsi->i_oeftflag = 0;
-+	ufsi->i_dir_start_lookup = 0;
- 	memset(&ufsi->i_u1, 0, sizeof(ufsi->i_u1));
- 
- 	insert_inode_hash(inode);
-Index: linux-2.6.17-rc5-mm1/fs/ufs/inode.c
-===================================================================
---- linux-2.6.17-rc5-mm1.orig/fs/ufs/inode.c
-+++ linux-2.6.17-rc5-mm1/fs/ufs/inode.c
-@@ -628,12 +628,12 @@ void ufs_read_inode (struct inode * inod
- 	ufsi->i_shadow = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_shadow);
- 	ufsi->i_oeftflag = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_oeftflag);
- 	ufsi->i_lastfrag = (inode->i_size + uspi->s_fsize - 1) >> uspi->s_fshift;
-+	ufsi->i_dir_start_lookup = 0;
+ 		if (free_count == 0) {
+ 			frag_to_free = tmp;
+ 			free_count = uspi->s_fpb;
+@@ -140,6 +138,7 @@ next1:
+ 			frag_to_free = tmp;
+ 			free_count = uspi->s_fpb;
+ 		}
++		mark_inode_dirty(inode);
+ 	}
  	
- 	if (S_ISCHR(mode) || S_ISBLK(mode) || inode->i_blocks) {
- 		for (i = 0; i < (UFS_NDADDR + UFS_NINDIR); i++)
- 			ufsi->i_u1.i_data[i] = ufs_inode->ui_u2.ui_addr.ui_db[i];
--	}
--	else {
-+	} else {
- 		for (i = 0; i < (UFS_NDADDR + UFS_NINDIR) * 4; i++)
- 			ufsi->i_u1.i_symlink[i] = ufs_inode->ui_u2.ui_symlink[i];
+ 	if (free_count > 0)
+@@ -158,9 +157,9 @@ next1:
+ 	frag4 = ufs_fragnum (frag4);
+ 
+ 	*p = 0;
+-	inode->i_blocks -= frag4 << uspi->s_nspfshift;
+-	mark_inode_dirty(inode);
++
+ 	ufs_free_fragments (inode, tmp, frag4);
++	mark_inode_dirty(inode);
+  next3:
+ 
+ 	UFSD("EXIT\n");
+@@ -219,7 +218,7 @@ static int ufs_trunc_indirect (struct in
+ 			frag_to_free = tmp;
+ 			free_count = uspi->s_fpb;
+ 		}
+-		inode->i_blocks -= uspi->s_nspb;
++
+ 		mark_inode_dirty(inode);
+ 	}
+ 
+@@ -232,9 +231,9 @@ static int ufs_trunc_indirect (struct in
+ 	if (i >= uspi->s_apb) {
+ 		tmp = fs32_to_cpu(sb, *p);
+ 		*p = 0;
+-		inode->i_blocks -= uspi->s_nspb;
+-		mark_inode_dirty(inode);
++
+ 		ufs_free_blocks (inode, tmp, uspi->s_fpb);
++		mark_inode_dirty(inode);
+ 		ubh_bforget(ind_ubh);
+ 		ind_ubh = NULL;
+ 	}
+@@ -295,9 +294,9 @@ static int ufs_trunc_dindirect (struct i
+ 	if (i >= uspi->s_apb) {
+ 		tmp = fs32_to_cpu(sb, *p);
+ 		*p = 0;
+-		inode->i_blocks -= uspi->s_nspb;
++
++		ufs_free_blocks(inode, tmp, uspi->s_fpb);
+ 		mark_inode_dirty(inode);
+-		ufs_free_blocks (inode, tmp, uspi->s_fpb);
+ 		ubh_bforget(dind_bh);
+ 		dind_bh = NULL;
+ 	}
+@@ -355,9 +354,9 @@ static int ufs_trunc_tindirect (struct i
+ 	if (i >= uspi->s_apb) {
+ 		tmp = fs32_to_cpu(sb, *p);
+ 		*p = 0;
+-		inode->i_blocks -= uspi->s_nspb;
++
++		ufs_free_blocks(inode, tmp, uspi->s_fpb);
+ 		mark_inode_dirty(inode);
+-		ufs_free_blocks (inode, tmp, uspi->s_fpb);
+ 		ubh_bforget(tind_bh);
+ 		tind_bh = NULL;
  	}
 
 -- 

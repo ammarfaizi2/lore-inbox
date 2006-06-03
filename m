@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWFCWQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWFCW0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWFCWQH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 18:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWFCWQH
+	id S1751401AbWFCW0T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 18:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWFCW0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 18:16:07 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:17345 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751397AbWFCWQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 18:16:05 -0400
-Date: Sat, 3 Jun 2006 19:19:17 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Greg KH <gregkh@suse.de>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH 8/11] usbserial: pl2303: Ports tty functions.
-Message-ID: <20060603191917.29967d61@home.brethil>
-In-Reply-To: <20060602224435.GA26061@suse.de>
-References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
-	<1149217398434-git-send-email-lcapitulino@mandriva.com.br>
-	<20060602205014.GB31251@suse.de>
-	<20060602154121.d3f19cbe.zaitcev@redhat.com>
-	<20060602224435.GA26061@suse.de>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 3 Jun 2006 18:26:19 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:13733 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751401AbWFCW0S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 18:26:18 -0400
+Message-ID: <44820C7D.6080501@zytor.com>
+Date: Sat, 03 Jun 2006 15:26:05 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: maximilian attems <maks@sternwelten.at>
+CC: linux-kernel@vger.kernel.org, klibc list <klibc@zytor.com>
+Subject: Re: [PATCH] klibc
+References: <20060602081416.GA11358@nancy>
+In-Reply-To: <20060602081416.GA11358@nancy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jun 2006 15:44:35 -0700
-Greg KH <gregkh@suse.de> wrote:
+maximilian attems wrote:
+> On Thu, 01 June 2006, H. Peter Anvin wrote:
+>> Brian F. G. Bidulock wrote:
+>>> On Thu, 01 Jun 2006, Bob Picco wrote:
+>>>>  
+>>>> -#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__)
+>>>> +#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__) && \
+>>>> +	!defined(__powerpc64__)
+>>> Why not just !defined(__LP64__) ?
+>> _BITSIZE == 64 is really the right formula... if I remember correctly, there were some 
+>> 64-bit platforms (Alpha?) which didn't conform, though.  I will look at this later today.
+>>
+>> 	-hpa
+> 
+> indeed aboves line contains an mistake by an earlier patch of mine.
+> 
+> -#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__)
+> +#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__arch64__)
+> 
+> is atm needed to get statfs right on sparc.
+> 
 
-| On Fri, Jun 02, 2006 at 03:41:21PM -0700, Pete Zaitcev wrote:
-| > On Fri, 2 Jun 2006 13:50:14 -0700, Greg KH <gregkh@suse.de> wrote:
-| > > On Fri, Jun 02, 2006 at 12:03:14AM -0300, Luiz Fernando N.Capitulino wrote:
-| > 
-| > > >   2. The new pl2303's set_termios() can (still) sleep. Serial Core's
-| > > >      documentation says that that method must not sleep, but I couldn't find
-| > > >      where in the Serial Core code it's called in atomic context. So, is this
-| > > >      still true? Isn't the Serial Core's documentation out of date?
-| > > 
-| > > If this is true then we should just stop the port right now, as the USB
-| > > devices can not handle this.  They need to be able to sleep to
-| > > accomplish this functionality.
-| > > 
-| > > Russell, is this a requirement of the serial layer?  Why?
-| > 
-| > Shouldn't it be all right to schedule the change at the moment of
-| > that call and have it happen later? Resisting a temptation to abuse
-| > keventd and schedule_work and using a tasklet may help with latency
-| > enough to make this tolerable.
-| 
-| Some devices require more than one usb message to set all of the proper
-| termios bits in the device.  Creating a way to queue them up and fire
-| them off later, and handle errors if something happened in the middle,
-| after we told userspace the termios change succeeded, might get quite
-| messy :(
+__arch64__ is ugly; it doesn't say it's a sparc thing.  I have added 
+-D__sparc_v9__ to the sparc64 MCONFIG file, so I think that's fine.
 
- But set_termios() returns nothing, and look what termios
-man page says about tcsetattr() return value:
+Perhaps the right thing to do is to make this an archconfig.h configurable.
 
-"""
-Note that tcsetattr() returns success if any of the requested changes could
-be successfully carried out. Therefore, when making multiple changes it may be
-necessary to follow this call with a further call to tcgetattr() to check that
-all changes have been performed successfully.
-"""
-
- Also, why do they need to sleep? Did you note that my version of
-set_mctrl() is atomic?
-
--- 
-Luiz Fernando N. Capitulino
+	-hpa

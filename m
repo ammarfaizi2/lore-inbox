@@ -1,82 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWFCEDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWFCFEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWFCEDO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 00:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWFCEDO
+	id S1751407AbWFCFEt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 01:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWFCFEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 00:03:14 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:17390 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751131AbWFCEDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 00:03:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pS64jmmCdIZMEZIW7unf0EX2/aWLy6bvsPY+n0chYzyxHrH4U3T4bvUMI9H0IQfZ3PUVk0Sy1WCVW4LtWw6CiRBdRrQjy+l7QTxWGiAlAESJYn4xWbsM9pFa/d6aTDbxVdNZ8s7rugG/az20QPKCY9E/C9zRLHNZtibM76Agtgk=
-Message-ID: <9e4733910606022103i5587b327o8bc550d04fca0e9e@mail.gmail.com>
-Date: Sat, 3 Jun 2006 00:03:03 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Kyle Moffett" <mrmacman_g4@mac.com>
-Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Dave Airlie" <airlied@gmail.com>, "Ondrej Zajicek" <santiago@mail.cz>,
-       "D. Hazelton" <dhazelton@enter.net>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <24BBD756-4658-48A7-AD4D-1D25124A946B@mac.com>
+	Sat, 3 Jun 2006 01:04:49 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:52431 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751407AbWFCFEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 01:04:48 -0400
+Message-ID: <44811743.1050601@in.ibm.com>
+Date: Sat, 03 Jun 2006 10:29:47 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Peter Williams <peterw@aurema.com>
+Cc: Andrew Morton <akpm@osdl.org>, dev@openvz.org, Srivatsa <vatsa@in.ibm.com>,
+       sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au>	<447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com>	<447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra>	<447F77A4.3000102@bigpond.net.au>	<1149213759.10377.7.camel@linuxchandra>	<447FAEB0.3060103@aurema.com>	<447FF7BB.9000104@in.ibm.com> <44803D5D.20303@bigpond.net.au>	<44808A52.9040100@in.ibm.com> <4480CE89.8080000@aurema.com>
+In-Reply-To: <4480CE89.8080000@aurema.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200605302314.25957.dhazelton@enter.net>
-	 <9e4733910605302116s5a47f5a3kf0f941980ff17e8@mail.gmail.com>
-	 <200605310026.01610.dhazelton@enter.net>
-	 <9e4733910605302139t4f10766ap86f78e50ee62f102@mail.gmail.com>
-	 <20060601092807.GA7111@localhost.localdomain>
-	 <9e4733910606010959o4f11d7cfp2d280c6f2019cccf@mail.gmail.com>
-	 <21d7e9970606011815y226ebb86ob42ec0421072cf07@mail.gmail.com>
-	 <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com>
-	 <24BBD756-4658-48A7-AD4D-1D25124A946B@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/2/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> On Jun 1, 2006, at 22:18:07, Jon Smirl wrote:
-> > On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
-> >> of course, but that doesn't mean it can't re-use X's code, they
-> >> are the best drivers we have. you forget everytime that the kernel
-> >> fbdev drivers aren't even close, I mean not by a long long way
-> >> apart from maybe radeon.
-> >
-> > I am aware that X has the best mode setting code and it would be
-> > foolish to ignore it.
->
-> You're kidding, right?  I've never been able to get X to get the
-> modes right on my damn flatpanel.  Hell, it can't even match DDC
-> channels to VGA ports without hand-holding in the config file.  To
-> contrast, the fbdev layer gets it right every time on the whole
-> variety of hardware that I've got.  Likewise the only way that I've
-> ever gotten X to even set a vaguely functional mode on another card
-> is by loading the framebuffer module first and specifying Option
-> "UseFBDev" "true".  Anything else and the monitor goes off mode and
-> there's no getting it back.
+Peter Williams wrote:
+>>>>
+>>>>The problem is that with per-task caps, if I have a resource group A
+>>>>and I want to limit it to 10%, I need to limit each task in resource
+>>>>group A to 10% (which makes resource groups not so useful). Is my
+>>>>understanding correct?
+>>>
+>>>
+>>>Well the general idea is correct but your maths is wrong.  You'd have 
+>>>to give each of them a cap somewhere between 10% and 10% divided by 
+>>>the number of tasks in group A.  Exactly where in that range would 
+>>>vary depending on the CPU demand of each task and would need to be 
+>>>adjusted dynamically (unless they were very boring tasks whose demands 
+>>>were constant over time).
+>>>
+>>
+>>
+>>Hmm.. I thought my math was reasonable (but there is always so much to 
+>>learn)
+>> From your formula, if I have 1 task in group A, I need to provide it with
+>>a cap of b/w 10 to 11%. For two tasks, I need to give them b/w 10 to 10.5%.
+>>If I have a hundred, it needs to be b/w 10% and 10.01%
+> 
+> 
+> Now your arithmetic is failing you.  According to my formula:
+> 
+> 1. With one task in group A you give it 10% which is what you get when 
+> you divide 10% by one.
+> 
+> 2. With two tasks in group A you give them each somewhere between 5% 
+> (which is 10% divided by 2) and 10%.  If they are equally busy you give 
+> them each 5% and if they are not equally busy you give them you give 
+> them larger caps.
 
-I don't care where the mode setting code comes from. I don't care if
-it runs in the kernel or in user space. This argument has been going
-on for two years without resolution so I've started working on Mozilla
-instead of graphics while I wait for it to resolve.
+Yes, I understand. I misinterpreted what you said earlier. I see you
+clearly meant the range [cap_of_the_group/number_of_tasks, cap_of_the_group]
 
-For a while I didn't understand why 10K of code per adapter had to be
-such a controversial subject. Now I understand that this code is a
-lighting rod for the causes of microkernel vs monolithic and platform
-independence vs Linux specific.
+> 
+> Another, probably a better but more expensive, formula is to divide the 
+> 10% between them in proportion to their demand.  Being careful not to 
+> give any of them a zero cap, of course.  I.e. in the two task 10% case 
+> they each get 5% if they are equally busy but if one is twice as busy as 
+> the other it gets a 6.6% cap and the other gets 3.3% (approximately).
+> 
 
-I've posted my requirement for a design. I'll be happy with anything
-that satisfies those requirements and works.
+Yes, that makes a lot of sense
+
+> Peter
+
+Thanks for clarifying.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

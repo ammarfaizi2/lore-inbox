@@ -1,83 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWFCVoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWFCVxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWFCVoA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 17:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWFCVoA
+	id S1751293AbWFCVxu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 17:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWFCVxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 17:44:00 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:11930 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751410AbWFCVn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 17:43:58 -0400
-Subject: Re: Interrupts disabled for too long in printk
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: linux-kernel@vger.kernel.org, ltt-dev@shafik.org
-In-Reply-To: <20060603111934.GA14581@Krystal>
-References: <20060603111934.GA14581@Krystal>
-Content-Type: text/plain
-Date: Sat, 03 Jun 2006 17:43:48 -0400
-Message-Id: <1149371028.13993.171.camel@localhost.localdomain>
+	Sat, 3 Jun 2006 17:53:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45187 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751293AbWFCVxs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 17:53:48 -0400
+Date: Sat, 3 Jun 2006 17:53:23 -0400
+From: Alan Cox <alan@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c disable_irq()
+Message-ID: <20060603215323.GA13077@devserv.devel.redhat.com>
+References: <20060531200236.GA31619@elte.hu> <1149107500.3114.75.camel@laptopd505.fenrus.org> <20060531214139.GA8196@devserv.devel.redhat.com> <1149111838.3114.87.camel@laptopd505.fenrus.org> <20060531214729.GA4059@elte.hu> <1149112582.3114.91.camel@laptopd505.fenrus.org> <1149345421.13993.81.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149345421.13993.81.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-03 at 07:19 -0400, Mathieu Desnoyers wrote:
-> Hi,
-> 
-> I ran some experiments with my kernel tracer (LTTng : http://ltt.polymtl.ca)
-> that showed missing interrupts. I wrote a small paper to show how to use my
-> tracer to solve this kind of problem which I presented at the CE Linux Form
-> last April.
-> 
-> http://tree.celinuxforum.org/CelfPubWiki/ELC2006Presentations?action=AttachFile&do=get&target=celf2006-desnoyers.pdf
-> 
-> It shows that, when the serial console is activated, the following code disables
-> interrupts for up to 15ms. On a system configured with a 250HZ timer (each 4ms),
-> it means that 3 scheduler ticks are lost.
-> 
-> In the current git :
-> 
-> kernel/printk.c: release_console_sem()
-> 
->         for ( ; ; ) {
-> ----->          spin_lock_irqsave(&logbuf_lock, flags);
->                 wake_klogd |= log_start - log_end;
->                 if (con_start == log_end)
->                         break;                  /* Nothing to print */
->                 _con_start = con_start;
->                 _log_end = log_end;
->                 con_start = log_end;            /* Flush */
->                 spin_unlock(&logbuf_lock);
->                 call_console_drivers(_con_start, _log_end);
-> ----->          local_irq_restore(flags);
->         }
-> 
-> I guess interrupts are disabled for a good reason (to protect this spinlock for
-> being taken by a nested interrupt handler. One way I am thinking to fix this
-> problem would be to do a spin try lock and fail if it is already taken.
+On Sat, Jun 03, 2006 at 10:37:01AM -0400, Steven Rostedt wrote:
+> Couldn't it be possible to have the misrouted irq function mark the
+> DISABLED_IRQ handlers as IRQ_PENDING?  Then have the enable_irq that
+> actually enables the irq to call the handlers with interrupts disabled
+> if the IRQ_PENDING is set?
 
-So what's the problem?
-
-printk is more for debugging. If you don't like the latency then disable
-printks.  But turning the spin_lock_irqsave into a spin_lock means you
-need to do a trylock every time in printk.  Since printk can be called
-from interrupt handlers.  So what do you do when you fail? just return?
-So you just lost your printk that you needed, which could be of
-importance.
-
-Actually, the spin_lock is not your problem, since it is not held when
-the console drivers are being called. But...
-
-There may be console drivers that grab spin_locks without turning off
-interrupts, which mean that you can again deadlock if an interrupt that
-calls printk happens in one of those drivers.
-
-If latency is your worry, then try out Ingo Molnar's -rt patch
-http://people.redhat.com/mingo/realtime-preempt/
-It isn't affected by this problem.
-
--- Steve
-
+We still have the ambiguity with disable_irq. Really we need to have
+disable_irq_handler(irq, handler)

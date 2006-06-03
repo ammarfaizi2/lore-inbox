@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWFCIut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWFCIxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWFCIut (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 04:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWFCIut
+	id S932095AbWFCIxD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 04:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFCIxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 04:50:49 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:47305 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1750772AbWFCIus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 04:50:48 -0400
-Subject: [patch] Declare explicit, hardware based lock ranking in serio
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, arjanv@redhat.com, Linux Portal <linportal@gmail.com>
-In-Reply-To: <20060602161354.687168de.akpm@osdl.org>
-References: <ceccffee0606020953q545d1f3aw211da426e5cfc768@mail.gmail.com>
-	 <20060602161354.687168de.akpm@osdl.org>
-Content-Type: text/plain
+	Sat, 3 Jun 2006 04:53:03 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:6023 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932095AbWFCIxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 04:53:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1Ha6No2Y0Fmmi+1sPR+ONCwrfUnf50TOn5trzjOn/QcPjVz4Mkxk0h8QiZ1wZ/6AAaJ8jdLVi5/T++gMheJ3yrkeCyyFN0HNdTdbixSOoLh0fQ4oL7btOURK6FBCw+pLUmBG6zPVMM/tHrs1kNIveZvHegwbCoiq6Q60HVQIW0I=  ;
+Message-ID: <44814DE4.9020200@yahoo.com.au>
+Date: Sat, 03 Jun 2006 18:52:52 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: "'Andrew Morton'" <akpm@osdl.org>, "'Chris Mason'" <mason@suse.com>,
+       "'Con Kolivas'" <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix smt nice lock contention and optimization
+References: <000701c686e1$71f2f7f0$df34030a@amr.corp.intel.com>
+In-Reply-To: <000701c686e1$71f2f7f0$df34030a@amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sat, 03 Jun 2006 10:50:20 +0200
-Message-Id: <1149324621.3109.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chen, Kenneth W wrote:
+> OK, final rolled up patch with everyone's changes. I fixed one bug
+> introduced by Con's earlier patch that there is an unpaired
+> spin_trylock/spin_unlock in the for loop of dependent_sleeper().
+> Chris, Con, Nick - please review and provide your signed-off-by line.
+> Andrew - please consider for -mm inclusion.  Thanks.
 
-> Thanks.
-> 
-> So we're taking ps2->cmd_mutex and then we're recurring back into
-> ps2_command() and then taking ps2->serio->cmd_mutex.
-> 
-> I suspect that's all correct/natural/expected and needs another
-> make-lockdep-shut-up patch.
+Thanks Ken, you can add a Signed-off-by: Nick Piggin <npiggin@suse.de>
+for my part.
 
-
-The PS/2 code has a natural device order and there is a one level
-recursion in this device order in terms of the cmd_mutex; annotate 
-this explicit recursion as ok
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- drivers/input/serio/libps2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.17-rc5-mm2/drivers/input/serio/libps2.c
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/drivers/input/serio/libps2.c
-+++ linux-2.6.17-rc5-mm2/drivers/input/serio/libps2.c
-@@ -177,7 +177,7 @@ int ps2_command(struct ps2dev *ps2dev, u
- 		return -1;
- 	}
- 
--	mutex_lock(&ps2dev->cmd_mutex);
-+	mutex_lock_nested(&ps2dev->cmd_mutex, SINGLE_DEPTH_NESTING);
- 
- 	serio_pause_rx(ps2dev->serio);
- 	ps2dev->flags = command == PS2_CMD_GETID ? PS2_FLAG_WAITID : 0;
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

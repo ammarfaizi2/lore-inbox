@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbWFCADO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWFCAFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751575AbWFCADO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 20:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbWFCADO
+	id S1751587AbWFCAFv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 20:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWFCAFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 20:03:14 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:37560 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751572AbWFCADM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 20:03:12 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: Re: [PATCH RFC] smt nice introduces significant lock contention
-Date: Sat, 3 Jun 2006 10:02:50 +1000
-User-Agent: KMail/1.9.3
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       "'Chris Mason'" <mason@suse.com>, "Ingo Molnar" <mingo@elte.hu>
-References: <000501c68698$06378290$df34030a@amr.corp.intel.com>
-In-Reply-To: <000501c68698$06378290$df34030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jun 2006 20:05:51 -0400
+Received: from ns.suse.de ([195.135.220.2]:23710 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751581AbWFCAFu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 20:05:50 -0400
+Date: Fri, 2 Jun 2006 17:03:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Updated v3]: How to become a kernel driver maintainer
+Message-ID: <20060603000317.GA10037@kroah.com>
+References: <1136736455.24378.3.camel@grayson> <1136756756.1043.20.camel@grayson> <1136792769.2936.13.camel@laptopd505.fenrus.org> <1136813649.1043.30.camel@grayson> <1136842100.2936.34.camel@laptopd505.fenrus.org> <1141841013.24202.194.camel@grayson> <9a8748490603081105i3468fa84haac329d1e50faed4@mail.gmail.com> <1141845047.12175.7.camel@laptopd505.fenrus.org> <9a8748490603081127r1b830c5bg94f42e021e2a2d58@mail.gmail.com> <1149284317.4533.312.camel@grayson>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606031002.51199.kernel@kolivas.org>
+In-Reply-To: <1149284317.4533.312.camel@grayson>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 June 2006 08:58, Chen, Kenneth W wrote:
-> You haven't answered my question either.  What is the benefit of special
-> casing the initial stage of cpu resource competition?  Is it quantitatively
-> measurable?  If so, how much and with what workload?
+On Fri, Jun 02, 2006 at 05:38:36PM -0400, Ben Collins wrote:
+> The real work of maintainership begins after your code is in the tree.
+> This is where some maintainers fail, and is the reason the kernel
+> developers are so reluctant to allow new drivers into the main tree.
 
-Ah you mean what the whole point of smt nice is? Yes it's simple enough to do. 
-Take the single hyperthreaded cpu with two cpu bound workloads. Let's say I 
-run a cpu bound task nice 0 by itself and it completes in time X. If I boot 
-it with hyperthread disabled and run a nice 0 and nice 19 task, the nice 0 
-task gets 95% of the cpu and completes in time X*0.95. If I boot with 
-hyperthread enabled and run the nice 0 and nice 19 tasks, the nice 0 task 
-gets 100% of one sibling and the nice 19 task 100% of the other sibling. The 
-nice 0 task completes in X*0.6. With the smt nice code added it completed in 
-X*0.95. The ratios here are dependent on the workload but that was the 
-average I could determine from comparing mprime workloads at differing nice 
-and kernel compiles. There is no explicit way on the Intel smt cpus to tell 
-it which sibling is running lower priority tasks (sprinkling mwaits around at 
-regular intervals is not a realistic option for example).
+I don't think this is true.  On-going maintenance of a driver is quite
+minor over time, unless you are adding new support, or if there are bugs
+in your driver.  We will gladly accept any driver, as long as it follows
+the proper coding style rules and plays nice with the rest of the
+kernel.
 
--- 
--ck
+> The other side of the coin is keeping changes in the kernel synced to your
+> code. Often times, it is necessary to change a kernel API (driver model,
+> USB stack changes, networking subsystem change, etc). These sorts of
+> changes usually affect a large number of drivers. It is not feasible for
+> these changes to be individually submitted to the driver maintainers. So
+> instead, the changes are made together in the kernel tree. If your driver
+> is affected, you are expected to pick up these changes and merge them with
+> your temporary development copy.  Usually this job is made easier if you
+> use the same source control system that the kernel maintainers use
+> (currently, git), but this is not required. Using git, however, allows you
+> to merge more easily.
+
+Almost always, the person doing the API change fixes all in-kernel
+versions of the api change.  So the driver author/maintainer does not
+have to fix up anything.
+> 
+> There are times where changes to your driver may happen that are not the
+> API type of changes described above. A user of your driver may submit a
+> patch directly to Linus to fix an obvious bug in the code. Sometimes these
+> trivial and obvious patches will be accepted without feedback from the
+> driver maintainer. Don't take this personally. We're all in this together.
+> Just pick up the change and keep in sync with it. If you think the change
+> was incorrect, try to find the mailing list thread or log comments
+> regarding the change to see what was going on. Then email the patch author
+> about the change to start discussion.
+> 
+> 
+> How should I maintain my code after it's in the kernel tree?
+> ------------------------------------------------------------
+> 
+> The suggested, and certainly the easiest method, is to start a git tree
+> cloned from the primary kernel tree. In this way, you are able to
+> automatically track the kernel changes by pulling from Linus' tree. You
+> can read more about maintaining a kernel git tree at
+> http://linux.yyz.us/git-howto.html.
+
+I disagree, quilt is _much_ easier for maintaining patches against a
+common tree.  Combined with ketchup and it makes things dirt simple.
+
+Everything else looks good, very nice job.
+
+thanks,
+
+greg k-h

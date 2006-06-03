@@ -1,245 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWFCOZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbWFCOad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWFCOZa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 10:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030310AbWFCOZ3
+	id S1030292AbWFCOad (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 10:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbWFCOad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 10:25:29 -0400
-Received: from mx2.mail.ru ([194.67.23.122]:15676 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S1030307AbWFCOZO (ORCPT
+	Sat, 3 Jun 2006 10:30:33 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:25270 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030292AbWFCOad (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 10:25:14 -0400
-Date: Sat, 3 Jun 2006 18:29:39 +0400
-From: Evgeniy Dushistov <dushistov@mail.ru>
+	Sat, 3 Jun 2006 10:30:33 -0400
+Date: Sat, 3 Jun 2006 16:30:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH 5/5]: ufs: zero metadata
-Message-ID: <20060603142939.GA16468@rain.homenetwork>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       "Barry K. Nathan" <barryn@pobox.com>
+Subject: [patch, -rc5-mm2] lock validator: drivers/block/floppy.c fixes
+Message-ID: <20060603143055.GA2749@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At now if we allocate several "metadata" blocks
-(pointers to indirect blocks for example), we fill
-with zeroes only the first block. This cause some problems
-in "truncate" function. Also this patch remove some unused
-arguments from several functions and add comments.
+Subject: lock validator: drivers/block/floppy.c fixes
+From: Ingo Molnar <mingo@elte.hu>
 
-Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
+The lock validator triggered a number of bugs in the floppy driver, all 
+related to the floppy driver allocating and freeing irq and dma 
+resources from interrupt context. The initial solution was to use 
+schedule_work() to push this into process context, but this caused 
+further problems: for example the current floppy driver in -mm2 is 
+totally broken and all floppy commands time out with an error. (as 
+reported by Barry K. Nathan)
 
+This patch tries another solution: simply get rid of all that dynamic 
+IRQ and DMA allocation/freeing. I doubt it made much sense back in the 
+heydays of floppies (if two devices raced for DMA or IRQ resources then 
+we didnt handle those cases too gracefully anyway), and today it makes 
+near zero sense.
+
+So the new code does the simplest and most straightforward thing: 
+allocate IRQ and DMA resources at module init time, and free them at 
+module removal time. Dont try to release while the driver is 
+operational. This, besides making the floppy driver functional again has 
+an added bonus, floppy IRQ stats are finally persistent and visible in 
+/proc/interrupts:
+
+  6: 63 XT-PIC-level floppy
+
+Besides normal floppy IO i have also tested IO error handling, motor-off 
+timeouts, etc. - and everything seems to be working fine.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
+ drivers/block/floppy.c |   61 +------------------------------------------------
+ 1 file changed, 2 insertions(+), 59 deletions(-)
 
-Index: linux-2.6.17-rc5-mm1/fs/ufs/inode.c
+Index: linux/drivers/block/floppy.c
 ===================================================================
---- linux-2.6.17-rc5-mm1.orig/fs/ufs/inode.c
-+++ linux-2.6.17-rc5-mm1/fs/ufs/inode.c
-@@ -152,7 +152,7 @@ out:
- 	return ret;
- }
- 
--static void ufs_clear_block(struct inode *inode, struct buffer_head *bh)
-+static void ufs_clear_frag(struct inode *inode, struct buffer_head *bh)
- {
- 	lock_buffer(bh);
- 	memset(bh->b_data, 0, inode->i_sb->s_blocksize);
-@@ -163,27 +163,52 @@ static void ufs_clear_block(struct inode
- 		sync_dirty_buffer(bh);
- }
- 
--static struct buffer_head *ufs_inode_getfrag(struct inode *inode,
--					     unsigned int fragment, unsigned int new_fragment,
--					     unsigned int required, int *err, int metadata,
--					     long *phys, int *new, struct page *locked_page)
-+static struct buffer_head *
-+ufs_clear_frags(struct inode *inode, sector_t beg,
-+		unsigned int n)
-+{
-+	struct buffer_head *res, *bh;
-+	sector_t end = beg + n;
-+
-+	res = sb_getblk(inode->i_sb, beg);
-+	ufs_clear_frag(inode, res);
-+	for (++beg; beg < end; ++beg) {
-+		bh = sb_getblk(inode->i_sb, beg);
-+		ufs_clear_frag(inode, bh);
-+	}
-+	return res;
-+}
-+
-+/**
-+ * ufs_inode_getfrag() - allocate new fragment(s)
-+ * @inode - pointer to inode
-+ * @fragment - number of `fragment' which hold pointer
-+ *   to new allocated fragment(s)
-+ * @new_fragment - number of new allocated fragment(s)
-+ * @required - how many fragment(s) we require
-+ * @err - we set it if something wrong
-+ * @phys - pointer to where we save physical number of new allocated fragments,
-+ *   NULL if we allocate not data(indirect blocks for example).
-+ * @new - we set it if we allocate new block
-+ * @locked_page - for ufs_new_fragments()
-+ */
-+static struct buffer_head *
-+ufs_inode_getfrag(struct inode *inode, unsigned int fragment,
-+		  sector_t new_fragment, unsigned int required, int *err,
-+		  long *phys, int *new, struct page *locked_page)
- {
- 	struct ufs_inode_info *ufsi = UFS_I(inode);
--	struct super_block * sb;
--	struct ufs_sb_private_info * uspi;
-+	struct super_block *sb = inode->i_sb;
-+	struct ufs_sb_private_info *uspi = UFS_SB(sb)->s_uspi;
- 	struct buffer_head * result;
- 	unsigned block, blockoff, lastfrag, lastblock, lastblockoff;
- 	unsigned tmp, goal;
- 	__fs32 * p, * p2;
--	unsigned flags = 0;
- 
--	UFSD("ENTER, ino %lu, fragment %u, new_fragment %u, required %u\n",
--		inode->i_ino, fragment, new_fragment, required);
--
--	sb = inode->i_sb;
--	uspi = UFS_SB(sb)->s_uspi;
-+	UFSD("ENTER, ino %lu, fragment %u, new_fragment %llu, required %u, "
-+	     "metadata %d\n", inode->i_ino, fragment,
-+	     (unsigned long long)new_fragment, required, !phys);
- 
--	flags = UFS_SB(sb)->s_flags;
-         /* TODO : to be done for write support
-         if ( (flags & UFS_TYPE_MASK) == UFS_TYPE_UFS2)
-              goto ufs2;
-@@ -198,7 +223,7 @@ repeat:
- 	tmp = fs32_to_cpu(sb, *p);
- 	lastfrag = ufsi->i_lastfrag;
- 	if (tmp && fragment < lastfrag) {
--		if (metadata) {
-+		if (!phys) {
- 			result = sb_getblk(sb, uspi->s_sbbase + tmp + blockoff);
- 			if (tmp == fs32_to_cpu(sb, *p)) {
- 				UFSD("EXIT, result %u\n", tmp + blockoff);
-@@ -265,9 +290,8 @@ repeat:
- 		return NULL;
- 	}
- 
--	if (metadata) {
--		result = sb_getblk(inode->i_sb, tmp + blockoff);
--		ufs_clear_block(inode, result);
-+	if (!phys) {
-+		result = ufs_clear_frags(inode, tmp + blockoff, required);
- 	} else {
- 		*phys = tmp + blockoff;
- 		result = NULL;
-@@ -298,23 +322,35 @@ repeat2:
-      */
- }
- 
--static struct buffer_head *ufs_block_getfrag(struct inode *inode, struct buffer_head *bh,
--					     unsigned int fragment, unsigned int new_fragment,
--					     unsigned int blocksize, int * err, int metadata,
--					     long *phys, int *new, struct page *locked_page)
-+/**
-+ * ufs_inode_getblock() - allocate new block
-+ * @inode - pointer to inode
-+ * @bh - pointer to block which hold "pointer" to new allocated block
-+ * @fragment - number of `fragment' which hold pointer
-+ *   to new allocated block
-+ * @new_fragment - number of new allocated fragment
-+ *  (block will hold this fragment and also uspi->s_fpb-1)
-+ * @err - see ufs_inode_getfrag()
-+ * @phys - see ufs_inode_getfrag()
-+ * @new - see ufs_inode_getfrag()
-+ * @locked_page - see ufs_inode_getfrag()
-+ */
-+static struct buffer_head *
-+ufs_inode_getblock(struct inode *inode, struct buffer_head *bh,
-+		  unsigned int fragment, sector_t new_fragment, int *err,
-+		  long *phys, int *new, struct page *locked_page)
- {
--	struct super_block * sb;
--	struct ufs_sb_private_info * uspi;
-+	struct super_block *sb = inode->i_sb;
-+	struct ufs_sb_private_info *uspi = UFS_SB(sb)->s_uspi;
- 	struct buffer_head * result;
- 	unsigned tmp, goal, block, blockoff;
- 	__fs32 * p;
- 
--	sb = inode->i_sb;
--	uspi = UFS_SB(sb)->s_uspi;
- 	block = ufs_fragstoblks (fragment);
- 	blockoff = ufs_fragnum (fragment);
- 
--	UFSD("ENTER, ino %lu, fragment %u, new_fragment %u\n", inode->i_ino, fragment, new_fragment);
-+	UFSD("ENTER, ino %lu, fragment %u, new_fragment %llu, metadata %d\n",
-+	     inode->i_ino, fragment, (unsigned long long)new_fragment, !phys);
- 
- 	result = NULL;
- 	if (!bh)
-@@ -330,7 +366,7 @@ static struct buffer_head *ufs_block_get
- repeat:
- 	tmp = fs32_to_cpu(sb, *p);
- 	if (tmp) {
--		if (metadata) {
-+		if (!phys) {
- 			result = sb_getblk(sb, uspi->s_sbbase + tmp + blockoff);
- 			if (tmp == fs32_to_cpu(sb, *p))
- 				goto out;
-@@ -355,9 +391,8 @@ repeat:
- 	}		
- 
- 
--	if (metadata) {
--		result = sb_getblk(sb, tmp + blockoff);
--		ufs_clear_block(inode, result);
-+	if (!phys) {
-+		result = ufs_clear_frags(inode, tmp + blockoff, uspi->s_fpb);
- 	} else {
- 		*phys = tmp + blockoff;
- 		*new = 1;
-@@ -375,11 +410,12 @@ out:
- 	return result;
- }
+--- linux.orig/drivers/block/floppy.c
++++ linux/drivers/block/floppy.c
+@@ -251,18 +251,6 @@ static int irqdma_allocated;
+ #include <linux/cdrom.h>	/* for the compatibility eject ioctl */
+ #include <linux/completion.h>
  
 -/*
-- * This function gets the block which contains the fragment.
-+/**
-+ * ufs_getfrag_bloc() - `get_block_t' function, interface between UFS and
-+ * readpage, writepage and so on
-  */
+- * Interrupt freeing also means /proc VFS work - dont do it
+- * from interrupt context. We push this work into keventd:
+- */
+-static void fd_free_irq_fn(void *data)
+-{
+-	fd_free_irq();
+-}
+-
+-static DECLARE_WORK(fd_free_irq_work, fd_free_irq_fn, NULL);
+-
+-
+ static struct request *current_req;
+ static struct request_queue *floppy_queue;
+ static void do_fd_request(request_queue_t * q);
+@@ -573,21 +561,6 @@ static int floppy_grab_irq_and_dma(void)
+ static void floppy_release_irq_and_dma(void);
  
--int ufs_getfrag_block (struct inode *inode, sector_t fragment, struct buffer_head *bh_result, int create)
-+int ufs_getfrag_block(struct inode *inode, sector_t fragment, struct buffer_head *bh_result, int create)
- {
- 	struct super_block * sb = inode->i_sb;
- 	struct ufs_sb_private_info * uspi = UFS_SB(sb)->s_uspi;
-@@ -421,15 +457,15 @@ int ufs_getfrag_block (struct inode *ino
- 	 * it much more readable:
- 	 */
- #define GET_INODE_DATABLOCK(x) \
--	ufs_inode_getfrag(inode, x, fragment, 1, &err, 0, &phys, &new, bh_result->b_page)
-+	ufs_inode_getfrag(inode, x, fragment, 1, &err, &phys, &new, bh_result->b_page)
- #define GET_INODE_PTR(x) \
--	ufs_inode_getfrag(inode, x, fragment, uspi->s_fpb, &err, 1, NULL, NULL, bh_result->b_page)
-+	ufs_inode_getfrag(inode, x, fragment, uspi->s_fpb, &err, NULL, NULL, bh_result->b_page)
- #define GET_INDIRECT_DATABLOCK(x) \
--	ufs_block_getfrag(inode, bh, x, fragment, sb->s_blocksize,	\
--			  &err, 0, &phys, &new, bh_result->b_page);
-+	ufs_inode_getblock(inode, bh, x, fragment,	\
-+			  &err, &phys, &new, bh_result->b_page);
- #define GET_INDIRECT_PTR(x) \
--	ufs_block_getfrag(inode, bh, x, fragment, sb->s_blocksize,	\
--			  &err, 1, NULL, NULL, bh_result->b_page);
-+	ufs_inode_getblock(inode, bh, x, fragment,	\
-+			  &err, NULL, NULL, bh_result->b_page);
+ /*
+- * Interrupt, DMA and region freeing must not be done from IRQ
+- * context - e.g. irq-unregistration means /proc VFS work, region
+- * release takes an irq-unsafe lock, etc. So we push this work
+- * into keventd:
+- */
+-static void fd_release_fn(void *data)
+-{
+-	mutex_lock(&open_lock);
+-	floppy_release_irq_and_dma();
+-	mutex_unlock(&open_lock);
+-}
+-
+-static DECLARE_WORK(floppy_release_irq_and_dma_work, fd_release_fn, NULL);
+-
+-/*
+  * The "reset" variable should be tested whenever an interrupt is scheduled,
+  * after the commands have been sent. This is to ensure that the driver doesn't
+  * get wedged when the interrupt doesn't come because of a failed command.
+@@ -843,15 +816,6 @@ static int set_dor(int fdc, char mask, c
+ 			UDRS->select_date = jiffies;
+ 		}
+ 	}
+-	/*
+-	 *      We should propagate failures to grab the resources back
+-	 *      nicely from here. Actually we ought to rewrite the fd
+-	 *      driver some day too.
+-	 */
+-	if (newdor & FLOPPY_MOTOR_MASK)
+-		floppy_grab_irq_and_dma();
+-	if (olddor & FLOPPY_MOTOR_MASK)
+-		schedule_work(&floppy_release_irq_and_dma_work);
+ 	return olddor;
+ }
  
- 	if (ptr < UFS_NDIR_FRAGMENT) {
- 		bh = GET_INODE_DATABLOCK(ptr);
-
-
--- 
-/Evgeniy
-
+@@ -909,8 +873,6 @@ static int _lock_fdc(int drive, int inte
+ 		       line);
+ 		return -1;
+ 	}
+-	if (floppy_grab_irq_and_dma() == -1)
+-		return -EBUSY;
+ 
+ 	if (test_and_set_bit(0, &fdc_busy)) {
+ 		DECLARE_WAITQUEUE(wait, current);
+@@ -967,7 +929,6 @@ static inline void unlock_fdc(void)
+ 	if (elv_next_request(floppy_queue))
+ 		do_fd_request(floppy_queue);
+ 	spin_unlock_irqrestore(&floppy_lock, flags);
+-	schedule_work(&floppy_release_irq_and_dma_work);
+ 	wake_up(&fdc_wait);
+ }
+ 
+@@ -3714,8 +3675,8 @@ static int floppy_release(struct inode *
+ 	}
+ 	if (!UDRS->fd_ref)
+ 		opened_bdev[drive] = NULL;
+-	floppy_release_irq_and_dma();
+ 	mutex_unlock(&open_lock);
++
+ 	return 0;
+ }
+ 
+@@ -3746,9 +3707,6 @@ static int floppy_open(struct inode *ino
+ 	if (UDRS->fd_ref == -1 || (UDRS->fd_ref && (filp->f_flags & O_EXCL)))
+ 		goto out2;
+ 
+-	if (floppy_grab_irq_and_dma())
+-		goto out2;
+-
+ 	if (filp->f_flags & O_EXCL)
+ 		UDRS->fd_ref = -1;
+ 	else
+@@ -3825,7 +3783,6 @@ out:
+ 		UDRS->fd_ref--;
+ 	if (!UDRS->fd_ref)
+ 		opened_bdev[drive] = NULL;
+-	floppy_release_irq_and_dma();
+ out2:
+ 	mutex_unlock(&open_lock);
+ 	return res;
+@@ -3842,14 +3799,9 @@ static int check_floppy_change(struct ge
+ 		return 1;
+ 
+ 	if (time_after(jiffies, UDRS->last_checked + UDP->checkfreq)) {
+-		if (floppy_grab_irq_and_dma()) {
+-			return 1;
+-		}
+-
+ 		lock_fdc(drive, 0);
+ 		poll_drive(0, 0);
+ 		process_fd_request();
+-		floppy_release_irq_and_dma();
+ 	}
+ 
+ 	if (UTESTF(FD_DISK_CHANGED) ||
+@@ -4399,7 +4351,6 @@ static int __init floppy_init(void)
+ 	fdc = 0;
+ 	del_timer(&fd_timeout);
+ 	current_drive = 0;
+-	floppy_release_irq_and_dma();
+ 	initialising = 0;
+ 	if (have_no_fdc) {
+ 		DPRINT("no floppy controllers found\n");
+@@ -4559,7 +4510,7 @@ static void floppy_release_irq_and_dma(v
+ 	if (irqdma_allocated) {
+ 		fd_disable_dma();
+ 		fd_free_dma();
+-		schedule_work(&fd_free_irq_work);
++		fd_free_irq();
+ 		irqdma_allocated = 0;
+ 	}
+ 	set_dor(0, ~0, 8);
+@@ -4664,20 +4615,12 @@ void cleanup_module(void)
+ 	del_timer_sync(&fd_timer);
+ 	blk_cleanup_queue(floppy_queue);
+ 
+-	/*
+-	 * Wait for any asynchronous floppy_release_irq_and_dma()
+-	 * calls to finish first:
+-	 */
+-	flush_scheduled_work();
+-
+ 	if (usage_count)
+ 		floppy_release_irq_and_dma();
+ 
+ 	/* eject disk, if any */
+ 	fd_eject(0);
+ 
+-	flush_scheduled_work();		/* fd_free_irq() might be pending */
+-
+ 	wait_for_completion(&device_release);
+ }
+ 

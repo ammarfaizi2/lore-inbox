@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWFCH5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWFCILX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWFCH5M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 03:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751556AbWFCH5M
+	id S1030261AbWFCILX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 04:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWFCILW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 03:57:12 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:29873 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751317AbWFCH5K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 03:57:10 -0400
-Date: Sat, 3 Jun 2006 09:57:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Chris Mason'" <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix smt nice lock contention and optimization
-Message-ID: <20060603075734.GC20229@elte.hu>
-References: <000701c686e1$71f2f7f0$df34030a@amr.corp.intel.com> <200606031752.59532.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606031752.59532.kernel@kolivas.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5004]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sat, 3 Jun 2006 04:11:22 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:5067 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S1030261AbWFCILV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 04:11:21 -0400
+From: Catalin Marinas <catalin.marinas@arm.com>
+Reply-To: catalin.marinas@gmail.com
+Subject: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.4
+Date: Sat, 03 Jun 2006 09:10:54 +0100
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060603081054.31915.4038.stgit@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
+X-OriginalArrivalTime: 03 Jun 2006 08:11:17.0437 (UTC) FILETIME=[4A08EED0:01C686E5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a new version (0.4) of the kernel memory leak detector. See
+the Documentation/kmemleak.txt file for a more detailed
+description. The patches are downloadable from (the bundled patch or
+the full series):
 
-* Con Kolivas <kernel@kolivas.org> wrote:
+http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.17-rc5-kmemleak-0.4.bz2
+http://homepage.ntlworld.com/cmarinas/kmemleak/patches-kmemleak-0.4.tar.bz2
 
-> Could we make this neater with extra braces such as:
-> 
->  	for_each_domain(this_cpu, tmp) {
-> 		if (tmp->flags & SD_SHARE_CPUPOWER) {
->  			sd = tmp;
-> 			break;
-> 		}
-> 	}
-> 
-> and same for the other uses of for_each ? I know it's redundant but 
-> it's neater IMO when there are multiple lines of code below it.
+What's new in this version:
 
-yep, that's the preferred style when there are multiple lines below a 
-loop.
+- full kernel modules support
+- kmemleak now depends on DEBUG_SLAB. The detection is improved by the
+  objects poisoning caused by this configuration option
+- freeing orphan pointers is no longer reported since these can be
+  false positives
+- replaced some _rcu list traversal loops with their normal or _safe
+  form
 
-	Ingo
+To do:
+
+- better testing
+- test Ingo's suggestion on task stacks scanning
+- NUMA support
+- (support for ioremap)
+
+-- 
+Catalin

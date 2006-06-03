@@ -1,114 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWFCBmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWFCBwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbWFCBmE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 21:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWFCBmE
+	id S932574AbWFCBwG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 21:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWFCBwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 21:42:04 -0400
-Received: from x8.develooper.com ([216.52.237.208]:39900 "EHLO
-	x8.develooper.com") by vger.kernel.org with ESMTP id S932567AbWFCBmD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 21:42:03 -0400
-In-Reply-To: <447A614B.3050603@rtr.ca>
-References: <5D6C23F5-B03E-4C3D-8BC6-A009E51122D8@develooper.com> <447A614B.3050603@rtr.ca>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EA69B14D-2874-48EA-BF67-0A96DE690FA6@develooper.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+	Fri, 2 Jun 2006 21:52:06 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:15805 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932574AbWFCBwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 21:52:04 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Kernel lock bug detected (kseriod)
+Date: Fri, 2 Jun 2006 21:52:00 -0400
+User-Agent: KMail/1.9.1
+Cc: "Linux Portal" <linportal@gmail.com>, arjanv@redhat.com, mingo@redhat.com,
+       linux-kernel@vger.kernel.org
+References: <ceccffee0606020953q545d1f3aw211da426e5cfc768@mail.gmail.com> <20060602161354.687168de.akpm@osdl.org>
+In-Reply-To: <20060602161354.687168de.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-From: =?ISO-8859-1?Q?Ask_Bj=F8rn_Hansen?= <ask@develooper.com>
-Subject: Re: sata_mv with Adaptec AIC-8130/Marvell 88SX6041 ("Badness in __msleep")
-Date: Fri, 2 Jun 2006 18:42:08 -0700
-To: Mark Lord <liml@rtr.ca>
-X-Mailer: Apple Mail (2.750)
+Content-Disposition: inline
+Message-Id: <200606022152.01515.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 02 June 2006 19:13, Andrew Morton wrote:
+> "Linux Portal" <linportal@gmail.com> wrote:
+> >
+> > Yes, it was observed on 2.6.17-rc5-mm2. Of specific stuff I have
+> > synaptics driver compiled in (together with psmouse - bug was observed
+> > on a laptop - during the boot sequence!). If you need more info about
+> > the machine or its configuration, feel free to ask. For the time being
+> > I'm sending just what the kernel lock validator left in my kernel
+> > log. And keep up the good work, the lock validator is definitely some
+> > fine piece of art!
+> > 
+> > 
+> > Synaptics Touchpad, model: 1, fw: 5.9, id: 0x1b6eb1, caps: 0xa84793/0x100000
+> > serio: Synaptics pass-through port at isa0060/serio4/input0
+> > input: SynPS/2 Synaptics TouchPad as /class/input/input2
+> > ====================================
+> > [ BUG: possible deadlock detected! ]
+> > ------------------------------------
+> > kseriod/133 is trying to acquire lock:
+> >  (&ps2dev->cmd_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
+> > 
+> > but task is already holding lock:
+> >  (&ps2dev->cmd_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
+> > 
+> > which could potentially lead to deadlocks!
+> > 
+> > other info that might help us debug this:
+> > 4 locks held by kseriod/133:
+> >  #0:  (serio_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
+> >  #1:  (&serio->drv_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
+> >  #2:  (psmouse_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
+> >  #3:  (&ps2dev->cmd_mutex){--..}, at: [<7846b4e8>] mutex_lock+0x8/0x10
+> > 
+> > stack backtrace:
+> >  <78105572> show_trace+0x12/0x20  <78105599> dump_stack+0x19/0x20
+> >  <7813920e> __lockdep_acquire+0x54e/0xe00  <78139f2a> lockdep_acquire+0x7a/0xa0
+> >  <7846b3c9> __mutex_lock_slowpath+0x49/0x160  <7846b4e8> mutex_lock+0x8/0x10
+> >  <7834497b> ps2_command+0x3b/0x3c0  <7834ad22> psmouse_sliced_command+0x22/0x70
+> >  <7834f471> synaptics_pt_write+0x21/0x50  <78344736> ps2_sendbyte+0x46/0x120
+> >  <78344a29> ps2_command+0xe9/0x3c0  <7834ae8d> psmouse_probe+0x1d/0xa0
+> >  <7834c537> psmouse_connect+0x137/0x200  <78341649>
+> > serio_connect_driver+0x29/0x50
+> >  <783419b6> serio_driver_probe+0x16/0x20  <782a8fb4>
+> > driver_probe_device+0x44/0xd0
+> >  <782a9048> __device_attach+0x8/0x10  <782a8563> bus_for_each_drv+0x63/0x90
+> >  <782a90a6> device_attach+0x56/0x60  <782a868e> bus_attach_device+0x1e/0x40
+> >  <782a7763> device_add+0x113/0x180  <7834299d> serio_thread+0x1cd/0x2bb
+> >  <781322c6> kthread+0xc6/0xca  <78101005> kernel_thread_helper+0x5/0xb
+> > 
+> 
+> Thanks.
+> 
+> So we're taking ps2->cmd_mutex and then we're recurring back into
+> ps2_command() and then taking ps2->serio->cmd_mutex.
+>
 
-On May 28, 2006, at 19:49, Mark Lord wrote:
-
-> The attached patch [0.7-backport] is an untested backport of the  
-> latest sata_mv,
-> which should be more reliable than what you've been using. [0.5]
-
-It works most of the time (where the 0.5 didn't work most of the  
-time), but I still see the "Badness in __msleep" occasionally (and it  
-only detects one of the disks then).    However, the Adaptec BIOS is  
-only seeing one of the disks sometimes, so maybe there's something  
-wrong with the hardware.  The BIOS did detect both drives in the boot  
-that gave the output below though.
-
-  - ask
-
-libata version 1.20 loaded.
-sata_mv 0000:03:03.0: version 0.7-backport
-GSI 16 sharing vector 0xA9 and IRQ 16
-ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 42 (level, low) -> IRQ 16
-sata_mv 0000:03:03.0: Applying B2 workarounds to unknown rev
-sata_mv 0000:03:03.0: 32 slots 4 ports unknown mode IRQ via INTx
-ata1: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC200000A2120 bmdma 0x0 irq 16
-ata2: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC200000A4120 bmdma 0x0 irq 16
-ata3: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC200000A6120 bmdma 0x0 irq 16
-ata4: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC200000A8120 bmdma 0x0 irq 16
-Badness in __msleep at drivers/scsi/sata_mv.c:1922 (Not tainted)
-
-Call Trace: <IRQ> <ffffffff8805769a>{:sata_mv:__mv_phy_reset+276}
-        <ffffffff8805724d>{:sata_mv:mv_channel_reset+143}  
-<ffffffff88058e9d>{:sata_mv:mv_interrupt+570}
-        <ffffffff8015a0cc>{handle_IRQ_event+41} <ffffffff8015a199> 
-{__do_IRQ+156}
-        <ffffffff8010ce01>{do_IRQ+59} <ffffffff8010ad3e>{ret_from_intr 
-+0} <EOI>
-        <ffffffff80338ac3>{thread_return+0} <ffffffff8803e00f> 
-{:libata:ata_check_status+15}
-        <ffffffff88057880>{:sata_mv:__mv_phy_reset+762}  
-<ffffffff88058c63>{:sata_mv:mv_interrupt+0}
-        <ffffffff8015a55b>{request_irq+139} <ffffffff8804188b> 
-{:libata:ata_device_add+835}
-        <ffffffff802d068d>{pci_conf1_read+184} <ffffffff802d068d> 
-{pci_conf1_read+184}
-        <ffffffff88058c01>{:sata_mv:mv_init_one+1637}  
-<ffffffff8020c250>{pci_device_probe+256}
-        <ffffffff8026c979>{driver_probe_device+82} <ffffffff8026cad4> 
-{__driver_attach+142}
-        <ffffffff8026ca46>{__driver_attach+0} <ffffffff8026c378> 
-{bus_for_each_dev+67}
-        <ffffffff8026bfe7>{bus_add_driver+118} <ffffffff8020c496> 
-{__pci_register_driver+142}
-        <ffffffff80156e37>{stop_machine_run+58} <ffffffff8014d0c4> 
-{sys_init_module+278}
-        <ffffffff8010a7ba>{system_call+126}
-ata1: dev 0 cfg 49:2f00 82:746b 83:7f61 84:4023 85:7469 86:3c41  
-87:4023 88:407f
-ata1: dev 0 ATA-7, max UDMA/133, 781422768 sectors: LBA48
-ata1: dev 0 configured for UDMA/133
-scsi0 : sata_mv
-input: ImPS/2 Generic Wheel Mouse as /class/input/input1
-ata2: no device found (phy stat 00000000)
-scsi1 : sata_mv
-ata3: no device found (phy stat 00000000)
-scsi2 : sata_mv
-ata4: no device found (phy stat 00000000)
-scsi3 : sata_mv
-   Vendor: ATA       Model: WDC WD4000YR-01P  Rev: 01.0
-   Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 781422768 512-byte hdwr sectors (400088 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 781422768 512-byte hdwr sectors (400088 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-sda: sda1 sda2 sda3 < sda5 >
-sd 0:0:0:0: Attached scsi disk sda
-md: raid1 personality registered for level 1
-device-mapper: 4.5.0-ioctl (2005-10-04) initialised: dm-devel@redhat.com
-md: Autodetecting RAID arrays.
-
-
+Right, these are 2 different mutextes, one protects the child
+PS/2 device and the other protects parent PS/2 device accessed
+via pass-through port (synaptics_pt_write).
+ 
+> I suspect that's all correct/natural/expected and needs another
+> make-lockdep-shut-up patch.
+> 
+> 
 
 -- 
-http://www.askbjoernhansen.com/
-
-
+Dmitry

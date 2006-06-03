@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWFCVNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbWFCVRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbWFCVNj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 17:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWFCVNj
+	id S1030354AbWFCVRK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 17:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWFCVRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 17:13:39 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:51850 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030337AbWFCVNi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 17:13:38 -0400
-Message-ID: <4481FB80.40709@drzeus.cx>
-Date: Sat, 03 Jun 2006 23:13:36 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Sat, 3 Jun 2006 17:17:09 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:61779 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1030354AbWFCVRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 17:17:08 -0400
+Date: Sat, 3 Jun 2006 14:16:57 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Florin Malita <fmalita@gmail.com>, mark.fasheh@oracle.com,
+       kurt.hackel@oracle.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] ocfs2: dereference before NULL check in ocfs2_direct_IO_get_blocks()
+Message-ID: <20060603211657.GK2422@ca-server1.us.oracle.com>
+Mail-Followup-To: Alexey Dobriyan <adobriyan@gmail.com>,
+	Florin Malita <fmalita@gmail.com>, mark.fasheh@oracle.com,
+	kurt.hackel@oracle.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <4481AC0F.6040805@gmail.com> <20060603191558.GA7268@martell.zuzino.mipt.ru>
 MIME-Version: 1.0
-To: Matt Reimer <mattjreimer@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2GB MMC/SD cards
-References: <447AFE7A.3070401@drzeus.cx>	 <20060603141548.GA31182@flint.arm.linux.org.uk> <f383264b0606031140l2051a2d7p6a9b2890a6063aef@mail.gmail.com>
-In-Reply-To: <f383264b0606031140l2051a2d7p6a9b2890a6063aef@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060603191558.GA7268@martell.zuzino.mipt.ru>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Reimer wrote:
->
-> I suspect that a lot of these readers are broken, assuming 512 byte
-> blocks.
->
+On Sat, Jun 03, 2006 at 11:15:58PM +0400, Alexey Dobriyan wrote:
+> On Sat, Jun 03, 2006 at 11:34:39AM -0400, Florin Malita wrote:
+> > 'bh_result' & 'inode' are explicitly checked against NULL so they
+> > shouldn't be dereferenced prior to that.
+> >
+> > Coverity ID: 1273, 1274.
+> 
+> AFAICS, the patch is BS, as usual with this type of patches.
+> 
+> Can "inode" and "bh_result" be NULL here? I bet they can't.
 
-That's what I thought until I looked closer at the Sandisk specs. Until
-we can see what the official specs say, we won't really know what the
-correct behaviour is. The Nokia boys working on the 770 have a copy.
-Perhaps someone here knows how to get in touch with one of them that can
-have a look?
+	This is a common result of this sort of scan.  The scan merely
+provides good information, not a perfect patch.  There are two
+possibilities:
 
-Rgds
-Pierre
+	1) The scan is right, and the dereference is dangerous.  The
+	   patch is correct.
+	2) The dereference is not dangerous ("can't happen"), and the
+	   later check for NULL is spurious.  A correct patch would
+	   merely remove the check.
 
+	This is clearly a case of (2), but I bet that (1) is seen just
+as often.
+
+Joel
+
+-- 
+
+Life's Little Instruction Book #444
+
+	"Never underestimate the power of a kind word or deed."
+
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

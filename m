@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWFBXuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWFCACs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWFBXuD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 19:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWFBXuD
+	id S1751565AbWFCACs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 20:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751572AbWFCACs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 19:50:03 -0400
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:13601 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1751051AbWFBXuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 19:50:01 -0400
-Date: Fri, 02 Jun 2006 19:49:31 -0400
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [PATCH 2.6.17-rc5-mm2 17/18] sbp2: provide	helptext	for
-	CONFIG_IEEE1394_SBP2_PHYS_DMA and mark it experimental
-In-reply-to: <4480C7F4.907@s5r6.in-berlin.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Message-id: <1149292171.4533.330.camel@grayson>
-Organization: Ubuntu
-MIME-version: 1.0
-X-Mailer: Evolution 2.6.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <tkrat.10011841414bfa88@s5r6.in-berlin.de>
- <tkrat.31172d1c0b7ae8e8@s5r6.in-berlin.de>
- <tkrat.51c50df7e692bbfa@s5r6.in-berlin.de>
- <tkrat.f22d0694697e6d7a@s5r6.in-berlin.de>
- <tkrat.ecb0be3f1632e232@s5r6.in-berlin.de>
- <tkrat.687a0a2c67fa40c6@s5r6.in-berlin.de>
- <tkrat.f35772c971022262@s5r6.in-berlin.de>
- <tkrat.df7a29e56d67dd0a@s5r6.in-berlin.de>
- <tkrat.29d9bcd5406eb937@s5r6.in-berlin.de>
- <tkrat.9a30b61b3f17e5ac@s5r6.in-berlin.de>
- <tkrat.5222feb4e2593ac0@s5r6.in-berlin.de>
- <tkrat.5fcbbb70f827a5c2@s5r6.in-berlin.de>
- <tkrat.39c0a660f27b4e91@s5r6.in-berlin.de>
- <tkrat.4daedad8356d5ae7@s5r6.in-berlin.de>
- <tkrat.8f06b4d6dec62d08@s5r6.in-berlin.de>
- <tkrat.8a65694fd3ed4036@s5r6.in-berlin.de>
- <tkrat.96e1b392429fe277@s5r6.in-berlin.de>
- <tkrat.df90273c07dd7503@s5r6.in-berlin.de> <1149281162.4533.304.camel@grayson>
- <4480B45E.4060909@s5r6.in-berlin.de> <1149286809.4533.319.camel@grayson>
- <4480C7F4.907@s5r6.in-berlin.de>
+	Fri, 2 Jun 2006 20:02:48 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:60637 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751557AbWFCACr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jun 2006 20:02:47 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sat, 3 Jun 2006 02:00:33 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH] sbp2: fix check of return value of
+ hpsb_allocate_and_register_addrspace
+To: Linus Torvalds <torvalds@osdl.org>, stable@kernel.org
+cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Jody McIntyre <scjody@modernduck.com>,
+       Ben Collins <bcollins@ubuntu.com>
+Message-ID: <tkrat.f195e45ae32b9c02@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (-0.266) AWL,BAYES_20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-03 at 01:21 +0200, Stefan Richter wrote:
-> Ben Collins wrote:
-> > Rather it be in the config. Plus your suggestion still makes it
-> > unusable :)
-> 
-> Right. But only if ohci1394 is loaded with phys_dma=0 or a controller 
-> without phys DMA is used. Only these conditions let sbp2 run into the 
-> routine which currently uses bus_to_virt.
+I added a failure check in patch "sbp2: variable status FIFO address
+(fix login timeout)" --- alas for a wrong error value.  This is a bug
+since Linux 2.6.16.  Leads to NULL pointer dereference if the call
+failed, and bogus failure handling if call succeeded.
 
-Sure, that's not a problem. I just don't think we should make the option
-available on platforms where it cannot work at all. No need to add to
-the confusion.
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+applies to 2.6.17-rc5
+applies to 2.6.16.x after patch ''ohci1394, sbp2: fix "scsi_add_device
+failed" with PL-3507 based devices''
 
-> Would '&& (X86_32 || PPC_32)' work too?
+Index: linux-2.6.17-rc5/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux-2.6.17-rc5.orig/drivers/ieee1394/sbp2.c	2006-06-03 01:52:54.000000000 +0200
++++ linux-2.6.17-rc5/drivers/ieee1394/sbp2.c	2006-06-03 01:54:23.000000000 +0200
+@@ -845,7 +845,7 @@ static struct scsi_id_instance_data *sbp
+ 			&sbp2_highlevel, ud->ne->host, &sbp2_ops,
+ 			sizeof(struct sbp2_status_block), sizeof(quadlet_t),
+ 			0x010000000000ULL, CSR1212_ALL_SPACE_END);
+-	if (!scsi_id->status_fifo_addr) {
++	if (scsi_id->status_fifo_addr == ~0ULL) {
+ 		SBP2_ERR("failed to allocate status FIFO address range");
+ 		goto failed_alloc;
+ 	}
 
-Perfect.
-
--- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
 

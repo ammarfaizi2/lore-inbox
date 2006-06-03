@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWFCWKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWFCWQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWFCWKu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 18:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWFCWKu
+	id S1751397AbWFCWQH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 18:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWFCWQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 18:10:50 -0400
-Received: from mx2.netapp.com ([216.240.18.37]:61580 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1751300AbWFCWKt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 18:10:49 -0400
-X-IronPort-AV: i="4.05,206,1146466800"; 
-   d="scan'208"; a="384603582:sNHT19662080"
-Subject: Re: lock_kernel called under spinlock in NFS
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Andrew Morton <akpm@osdl.org>, joe.korty@ccur.com,
-       linux-kernel@vger.kernel.org, drepper@redhat.com, mingo@elte.hu,
-       stable@kernel.org
-In-Reply-To: <20060603223003.5665a426.vsu@altlinux.ru>
-References: <20060601195535.GA28188@tsunami.ccur.com>
-	 <1149192820.3549.43.camel@lade.trondhjem.org>
-	 <20060602202436.GA4783@tsunami.ccur.com>
-	 <1149280078.5621.63.camel@lade.trondhjem.org>
-	 <20060602134346.73019624.akpm@osdl.org>
-	 <20060603223003.5665a426.vsu@altlinux.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance Inc
-Date: Sat, 03 Jun 2006 18:10:42 -0400
-Message-Id: <1149372643.17419.5.camel@lade.trondhjem.org>
+	Sat, 3 Jun 2006 18:16:07 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:17345 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1751397AbWFCWQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 18:16:05 -0400
+Date: Sat, 3 Jun 2006 19:19:17 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Greg KH <gregkh@suse.de>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH 8/11] usbserial: pl2303: Ports tty functions.
+Message-ID: <20060603191917.29967d61@home.brethil>
+In-Reply-To: <20060602224435.GA26061@suse.de>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	<1149217398434-git-send-email-lcapitulino@mandriva.com.br>
+	<20060602205014.GB31251@suse.de>
+	<20060602154121.d3f19cbe.zaitcev@redhat.com>
+	<20060602224435.GA26061@suse.de>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-X-OriginalArrivalTime: 03 Jun 2006 22:10:44.0064 (UTC) FILETIME=[8EE24E00:01C6875A]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-03 at 22:30 +0400, Sergey Vlasov wrote:
+On Fri, 2 Jun 2006 15:44:35 -0700
+Greg KH <gregkh@suse.de> wrote:
 
-> 2) The patch above is broken - it needs the fix below (or the fix should
-> be folded into the patch directly):
+| On Fri, Jun 02, 2006 at 03:41:21PM -0700, Pete Zaitcev wrote:
+| > On Fri, 2 Jun 2006 13:50:14 -0700, Greg KH <gregkh@suse.de> wrote:
+| > > On Fri, Jun 02, 2006 at 12:03:14AM -0300, Luiz Fernando N.Capitulino wrote:
+| > 
+| > > >   2. The new pl2303's set_termios() can (still) sleep. Serial Core's
+| > > >      documentation says that that method must not sleep, but I couldn't find
+| > > >      where in the Serial Core code it's called in atomic context. So, is this
+| > > >      still true? Isn't the Serial Core's documentation out of date?
+| > > 
+| > > If this is true then we should just stop the port right now, as the USB
+| > > devices can not handle this.  They need to be able to sleep to
+| > > accomplish this functionality.
+| > > 
+| > > Russell, is this a requirement of the serial layer?  Why?
+| > 
+| > Shouldn't it be all right to schedule the change at the moment of
+| > that call and have it happen later? Resisting a temptation to abuse
+| > keventd and schedule_work and using a tasklet may help with latency
+| > enough to make this tolerable.
+| 
+| Some devices require more than one usb message to set all of the proper
+| termios bits in the device.  Creating a way to queue them up and fire
+| them off later, and handle errors if something happened in the middle,
+| after we told userspace the termios change succeeded, might get quite
+| messy :(
 
-Duh... You're quite right. Sorry about missing that.
+ But set_termios() returns nothing, and look what termios
+man page says about tcsetattr() return value:
 
-Cheers,
-  Trond
+"""
+Note that tcsetattr() returns success if any of the requested changes could
+be successfully carried out. Therefore, when making multiple changes it may be
+necessary to follow this call with a further call to tcgetattr() to check that
+all changes have been performed successfully.
+"""
 
-> --------------------------------------------------------------------
-> 
-> Fix do_path_lookup() failure path after locking changes
-> 
-> Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
-> ---
->  fs/namei.c |   13 ++++++-------
->  1 files changed, 6 insertions(+), 7 deletions(-)
-> 
-> diff --git a/fs/namei.c b/fs/namei.c
-> index a2f79d2..d6e2ee2 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -1104,17 +1104,17 @@ static int fastcall do_path_lookup(int d
->  		file = fget_light(dfd, &fput_needed);
->  		retval = -EBADF;
->  		if (!file)
-> -			goto unlock_fail;
-> +			goto out_fail;
->  
->  		dentry = file->f_dentry;
->  
->  		retval = -ENOTDIR;
->  		if (!S_ISDIR(dentry->d_inode->i_mode))
-> -			goto fput_unlock_fail;
-> +			goto fput_fail;
->  
->  		retval = file_permission(file, MAY_EXEC);
->  		if (retval)
-> -			goto fput_unlock_fail;
-> +			goto fput_fail;
->  
->  		nd->mnt = mntget(file->f_vfsmnt);
->  		nd->dentry = dget(dentry);
-> @@ -1129,13 +1129,12 @@ out:
->  				nd->dentry->d_inode))
->  		audit_inode(name, nd->dentry->d_inode, flags);
->  	}
-> +out_fail:
->  	return retval;
->  
-> -fput_unlock_fail:
-> +fput_fail:
->  	fput_light(file, fput_needed);
-> -unlock_fail:
-> -	read_unlock(&current->fs->lock);
-> -	return retval;
-> +	goto out_fail;
->  }
->  
->  int fastcall path_lookup(const char *name, unsigned int flags,
+ Also, why do they need to sleep? Did you note that my version of
+set_mctrl() is atomic?
+
+-- 
+Luiz Fernando N. Capitulino

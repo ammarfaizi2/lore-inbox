@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbWFCHFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbWFCHMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbWFCHFi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 03:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbWFCHFi
+	id S932594AbWFCHMi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 03:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWFCHMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 03:05:38 -0400
-Received: from wx-out-0102.google.com ([66.249.82.192]:63752 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932584AbWFCHFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 03:05:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=d2CnDxisV1alqNhoodxOxnCJmTxKIFuGUGlJxahSJDxM4w7QfpfH6brl5ZlviKvX09MzsfhNNnVp7Jb/9oRRg2Kp8eyY62Yl7wEdAY3Ujpjr2UBX+fkbNvtx3aIi3zp7WVcpluZ6R5Ws0/oZEHiDfkWFIiJQRqPqQjPmBo2LjII=
-Message-ID: <448134AD.7060502@gmail.com>
-Date: Sat, 03 Jun 2006 15:05:17 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: David Lang <dlang@digitalinsight.com>, Ondrej Zajicek <santiago@mail.cz>,
-       Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
-       "D. Hazelton" <dhazelton@enter.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OpenGL-based framebuffer concepts
-References: <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <447CBEC5.1080602@gmail.com> <20060602083604.GA2480@localhost.localdomain> <20060602085832.GA25806@elf.ucw.cz> <Pine.LNX.4.63.0606021146320.4686@qynat.qvtvafvgr.pbz> <20060602220104.GA6931@elf.ucw.cz> <Pine.LNX.4.63.0606021256470.4686@qynat.qvtvafvgr.pbz> <4480C8D9.5080309@gmail.com> <20060603063251.GF6931@elf.ucw.cz>
-In-Reply-To: <20060603063251.GF6931@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jun 2006 03:12:38 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:5098 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932594AbWFCHMh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 03:12:37 -0400
+Date: Sat, 3 Jun 2006 09:13:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.17-rc5-mm2
+Message-ID: <20060603071301.GB19257@elte.hu>
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <986ed62e0606011758w348080ebn6e8430ec9e5b2ed3@mail.gmail.com> <20060601183836.d318950e.akpm@osdl.org> <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com> <20060602142009.GA10236@elte.hu> <986ed62e0606021101t6701d095ycd29c91885aaeec9@mail.gmail.com> <20060602205332.GA5022@elte.hu> <986ed62e0606021533n4c8954eeifd71f97611a4c7f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <986ed62e0606021533n4c8954eeifd71f97611a4c7f@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On So 03-06-06 07:25:13, Antonino A. Daplas wrote:
->> David Lang wrote:
->>> On Sat, 3 Jun 2006, Pavel Machek wrote:
->>>> I'm not talking about reading speed, I'm talking about displaying
->>>> speed. Once you display more than refresh rate times screen
->>>> size... you may as well cheat -- xterm-like. If xterm detects too much
->>>> stuff is being displayed, it simply stops displaying it, only
->>>> refreshing screen few times a second...
->>> That would work, however AFAIK it's not implemented in any existing
->>> framebuffer.
->> Besides implementaton, the main concern with this is that you might miss
->> a very important kernel message.  Though one can always use the scrollback
->> buffer.
+
+* Barry K. Nathan <barryn@pobox.com> wrote:
+
+> On 6/2/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >does it get any better if you remove:
+> >
+> >http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm2/broken-out/lock-validator-floppyc-irq-release-fix.patch
+> >
+> >?
 > 
-> Well, you can only miss a message *you would not see anyway*.
+> I won't be able to check until later today. With the tracing patch 
+> added (for figuring out the warning at boot time), my kernel is about 
+> 50-60K too large to fit on a 1.6MB floppy. I first need to see if I 
+> can trim or modularize some fat from my kernel without affecting the 
+> reproducibility of these bugs... (If all else fails, I'll probably add 
+> a CD-RW drive to this box and boot kernels from that.)
 
-There are some things that one can see but not read, and still be
-recognizable even if your console is scrolling by.
+just disable FORCED_INLINING in the .config, turn on EMBEDDED and select 
+OPTIMIZE_FOR_SIZE, and that should give you 30-40% of kernel size 
+savings.
 
-An oops tracing, for one, is very unique and it's easy to pick them off
-from regular text, especially on a relatively slow console such as vesafb.
-We may even choose to colorize the output so they can stand out further.
-  
-> I guess
-> the main concern is that it tends to look ugly on the screen (and it
-> will not be quite easy code).
-> 
-> Anyway, no, I do not think it is needed. framebuffers are fast enough
-
-I agree, I don't think it's needed.
-
-Tony
+	Ingo

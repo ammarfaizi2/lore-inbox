@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWFCF7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWFCGXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751515AbWFCF7x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 01:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbWFCF7x
+	id S932558AbWFCGXf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 02:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWFCGXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 01:59:53 -0400
-Received: from mail.gmx.net ([213.165.64.20]:3553 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751195AbWFCF7w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 01:59:52 -0400
-X-Authenticated: #14349625
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-From: Mike Galbraith <efault@gmx.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: sekharan@us.ibm.com, balbir@in.ibm.com, dev@openvz.org,
-       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
-       Sam Vilain <sam@vilain.net>, ckrm-tech@lists.sourceforge.net,
-       Balbir Singh <bsingharora@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
-In-Reply-To: <4480D319.8040403@bigpond.net.au>
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>
-	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>
-	 <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>
-	 <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>
-	 <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>
-	 <447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>
-	 <447FD2E1.7060605@bigpond.net.au>
-	 <1149237992.9446.133.camel@Homer.TheSimpsons.net>
-	 <44803ABA.6050001@bigpond.net.au>
-	 <1149259639.8661.22.camel@Homer.TheSimpsons.net>
-	 <4480D319.8040403@bigpond.net.au>
-Content-Type: text/plain
-Date: Sat, 03 Jun 2006 08:02:12 +0200
-Message-Id: <1149314532.7513.40.camel@Homer.TheSimpsons.net>
+	Sat, 3 Jun 2006 02:23:35 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:17671 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932558AbWFCGXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 02:23:35 -0400
+Date: Sat, 3 Jun 2006 08:04:38 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan Van de Ven <arjan@infradead.org>
+Subject: Re: [patch] epoll use unlocked wqueue operations ...
+Message-ID: <20060603060438.GB30150@w.ods.org>
+References: <Pine.LNX.4.64.0606021600001.5402@alien.or.mcafeemobile.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606021600001.5402@alien.or.mcafeemobile.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-03 at 10:08 +1000, Peter Williams wrote:
-> Mike Galbraith wrote:
-> > How?  How would you deal with the make example with per task caps.
+Hi Davide,
+
+On Fri, Jun 02, 2006 at 04:28:25PM -0700, Davide Libenzi wrote:
 > 
-> I'd build a resource management tool that uses task statistics, nice and 
-> caps to manage CPU resource allocation.  This could be a plug in kernel 
-> module or a user space daemon.  It doesn't need to be in the scheduler.
+> A few days ago Arjan signaled a lockdep red flag on epoll locks, and 
+> precisely between the epoll's device structure lock (->lock) and the wait 
+> queue head lock (->lock). Like I explained in another email, and directly 
+> to Arjan, this can't happen in reality because of the explicit check at 
+> eventpoll.c:592, that does not allow to drop an epoll fd inside the same 
+> epoll fd. Since lockdep is working on per-structure locks, it will never 
+> be able to know of policies enforced in other parts of the code. It was 
+> decided time ago of having the ability to drop epoll fds inside other 
+> epoll fds, that triggers a very trick wakeup operations (due to possibly 
+> reentrant callback-driven wakeups) handled by the ep_poll_safewake() 
+> function.
+> While looking again at the code though, I noticed that all the operations 
+> done on the epoll's main structure wait queue head (->wq) are already 
+> protected by the epoll lock (->lock), so that locked-style functions can 
+> be used to manipulate the ->wq member. This makes both a lock-acquire 
+> save, and lockdep happy.
+> Running totalmess on my dual opteron for a while did not reveal any 
+> problem so far:
+> 
+> http://www.xmailserver.org/totalmess.c
 
-Ok, you _can_ gather statistics, and modify caps/nice on the fly... for
-long running tasks.  How long does a task have to exist before you have
-statistics for it so you can manage it?
+Shouldn't we notice a tiny performance boost by avoiding those useless
+locks, or do you consider they are not located in the fast path anyway ?
 
-Also, if you're going to need a separate resource manager to allocate,
-monitor and modify in realtime, why not go whole hog, and allocate and
-monitor instances of uml.  It'd be a heck of a lot easier. 
-
-	-Mike
+Regards,
+Willy
 

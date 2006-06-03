@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbWFCLD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWFCLHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932602AbWFCLD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 07:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWFCLD7
+	id S932605AbWFCLHM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 07:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWFCLHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 07:03:59 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:30695 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932602AbWFCLD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 07:03:59 -0400
-Message-ID: <44816C9B.9020708@bigpond.net.au>
-Date: Sat, 03 Jun 2006 21:03:55 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Sat, 3 Jun 2006 07:07:12 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:30351 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932605AbWFCLHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 07:07:11 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sat, 3 Jun 2006 13:05:12 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 1/2] sbp2: fix deregistration of status fifo address space
+To: linux1394-devel@lists.sourceforge.net
+cc: Andreas Schwab <schwab@suse.de>, scjody@modernduck.com,
+       bcollins@ubuntu.com, mjt@tls.msk.ru, linux-kernel@vger.kernel.org,
+       chrisw@sous-sol.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060603024305.dd0404d0.akpm@osdl.org>
+Message-ID: <tkrat.3b83a79240807095@s5r6.in-berlin.de>
+References: <tkrat.f195e45ae32b9c02@s5r6.in-berlin.de>
+ <20060603013515.GV18769@moss.sous-sol.org>
+ <44814A63.1080707@s5r6.in-berlin.de> <44815283.7080306@tls.msk.ru>
+ <jemzcu7fgw.fsf@sykes.suse.de> <20060603024305.dd0404d0.akpm@osdl.org>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: sekharan@us.ibm.com, balbir@in.ibm.com, dev@openvz.org,
-       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
-       Sam Vilain <sam@vilain.net>, ckrm-tech@lists.sourceforge.net,
-       Balbir Singh <bsingharora@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	 <20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	 <661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	 <44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>	 <447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>	 <447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>	 <447FD2E1.7060605@bigpond.net.au>	 <1149237992.9446.133.camel@Homer.TheSimpsons.net>	 <44803ABA.6050001@bigpond.net.au>	 <1149259639.8661.22.camel@Homer.TheSimpsons.net>	 <4480D319.8040403@bigpond.net.au> <1149314532.7513.40.camel@Homer.TheSimpsons.net>
-In-Reply-To: <1149314532.7513.40.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 3 Jun 2006 11:03:56 +0000
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (-0.364) AWL,BAYES_05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Sat, 2006-06-03 at 10:08 +1000, Peter Williams wrote:
->> Mike Galbraith wrote:
->>> How?  How would you deal with the make example with per task caps.
->> I'd build a resource management tool that uses task statistics, nice and 
->> caps to manage CPU resource allocation.  This could be a plug in kernel 
->> module or a user space daemon.  It doesn't need to be in the scheduler.
-> 
-> Ok, you _can_ gather statistics, and modify caps/nice on the fly... for
-> long running tasks.  How long does a task have to exist before you have
-> statistics for it so you can manage it?
+The proper designator of an invalid CSR address is ~(u64)0, not (u64)0.
+Use the correct value in initialization and deregistration.
+Also, scsi_id->sbp2_lun does not need to be initialized twice.
+(scsi_id was kzalloc'd.)
 
-If the stats package is up to scratch it will provide stats for tasks 
-that have exited so you will be able to charge their resource usage to 
-the higher level entity and still manage that entity's usage properly 
-via its other tasks.
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-> 
-> Also, if you're going to need a separate resource manager to allocate,
-> monitor and modify in realtime, why not go whole hog, and allocate and
-> monitor instances of uml.  It'd be a heck of a lot easier. 
+Index: linux/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux.orig/drivers/ieee1394/sbp2.c	2006-06-03 02:13:18.000000000 +0200
++++ linux/drivers/ieee1394/sbp2.c	2006-06-03 11:49:18.000000000 +0200
+@@ -794,12 +794,12 @@ static struct scsi_id_instance_data *sbp
+ 	scsi_id->ud = ud;
+ 	scsi_id->speed_code = IEEE1394_SPEED_100;
+ 	scsi_id->max_payload_size = sbp2_speedto_max_payload[IEEE1394_SPEED_100];
++	scsi_id->status_fifo_addr = ~0ULL;
+ 	atomic_set(&scsi_id->sbp2_login_complete, 0);
+ 	INIT_LIST_HEAD(&scsi_id->sbp2_command_orb_inuse);
+ 	INIT_LIST_HEAD(&scsi_id->sbp2_command_orb_completed);
+ 	INIT_LIST_HEAD(&scsi_id->scsi_list);
+ 	spin_lock_init(&scsi_id->sbp2_command_orb_lock);
+-	scsi_id->sbp2_lun = 0;
+ 
+ 	ud->device.driver_data = scsi_id;
+ 
+@@ -1090,7 +1090,7 @@ static void sbp2_remove_device(struct sc
+ 		SBP2_DMA_FREE("single query logins data");
+ 	}
+ 
+-	if (scsi_id->status_fifo_addr)
++	if (scsi_id->status_fifo_addr != ~0ULL)
+ 		hpsb_unregister_addrspace(&sbp2_highlevel, hi->host,
+ 			scsi_id->status_fifo_addr);
+ 
 
-Or Xen.  Or Vmware.  That would be one solution and brings other 
-functionality that may be desirable.  Of course, you can also do 
-resource control within those instances as well :-).
 
-"There's more than one way to skin a cat" as the old saying goes.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

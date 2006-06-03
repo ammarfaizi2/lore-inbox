@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWFCVKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbWFCVKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030336AbWFCVKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 17:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWFCVKY
+	id S1030361AbWFCVKr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 17:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWFCVKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 17:10:24 -0400
-Received: from wx-out-0102.google.com ([66.249.82.200]:4501 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030336AbWFCVKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 17:10:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=EjqC5iVEUTB4EKD8ZgtyxdogLp9UrQ4NWV5ba34i1Vj+X8BHrT13PQdt7fabY0F+kHdtEv5z4NZdKckur7y5dSCmxqMHewiWboVQhCfDlbhuZitFovvmiKM2MzSF3aWTLWtvGl3RDoknEODrirt10cg4bsPmNrUJXlZyHnCXZNs=
-Message-ID: <986ed62e0606031410h48efd8b7i3a89e1c7ba1cd778@mail.gmail.com>
-Date: Sat, 3 Jun 2006 14:10:22 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.17-rc5-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Arjan van de Ven" <arjan@infradead.org>
-In-Reply-To: <20060603144121.GA3701@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jun 2006 17:10:46 -0400
+Received: from mail.gmx.net ([213.165.64.20]:31629 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030361AbWFCVKq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 17:10:46 -0400
+X-Authenticated: #2308221
+Date: Sat, 3 Jun 2006 23:11:06 +0200
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Stephen Clark <Stephen.Clark@seclark.us>
+Cc: wine-devel-request@winehq.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Alsa sound vs OSS with wine and riven
+Message-ID: <20060603211106.GA4452@zeus.uziel.local>
+References: <4481E816.4090600@seclark.us>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
 Content-Disposition: inline
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
-	 <986ed62e0606011758w348080ebn6e8430ec9e5b2ed3@mail.gmail.com>
-	 <20060601183836.d318950e.akpm@osdl.org>
-	 <986ed62e0606020614j363bd71bn7d1fba23b78571f3@mail.gmail.com>
-	 <20060602142009.GA10236@elte.hu>
-	 <986ed62e0606021101t6701d095ycd29c91885aaeec9@mail.gmail.com>
-	 <20060602205332.GA5022@elte.hu>
-	 <986ed62e0606021533n4c8954eeifd71f97611a4c7f@mail.gmail.com>
-	 <20060603071301.GB19257@elte.hu> <20060603144121.GA3701@elte.hu>
-X-Google-Sender-Auth: ee6e5698ad54698d
+In-Reply-To: <4481E816.4090600@seclark.us>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/3/06, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Ingo Molnar <mingo@elte.hu> wrote:
->
-> > just disable FORCED_INLINING in the .config, turn on EMBEDDED and
-> > select OPTIMIZE_FOR_SIZE, and that should give you 30-40% of kernel
-> > size savings.
 
-I was already doing OPTIMIZE_FOR_SIZE. I didn't think of disabling
-FORCED_INLINING, thanks for reminding me of that. I managed to trim
-the kernel in other ways.
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-> also, the latest combo patch:
->
->   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm2.patch
->
-> should have the floppy bug(s) fixed.
+On Sat, Jun 03, 2006 at 03:50:46PM -0400, Stephen Clark wrote:
+> I have been working to get "Riven" the sequel to Myst to work with the
+> latest wine from cvs on the latest FC5. It works and the sound is
+> almost perfect with OSS, but is totally screwed up when I use ALSA, I
+> don't know whether this is a WINE or Linux issue, so I am cross
+> posting to both lists.
 
-I'll try that later today (and I'll also provide the
-/proc/latency_trace to help figure out the warning). In the meantime,
-I can confirm that the floppy drive started working again with
-lock-validator-floppyc-irq-release-fix.patch reverted.
+I had the same experience even with a little lower requirements wrt.
+CPU performance - music player daemon (mpd) tends to eat a lot more
+cycles when it is configured to use alsa style devices, but is pretty
+low-impact when it talks to the OSS emulation provided by the very same
+alsa drivers.
 
-BTW, the latency_trace is close to 130K. Should I send it to you by
-private mail instead of to the list? Or should I compress it and send
-it as an attachment?
+With wine and starcraft on my not-so-recent yet well maintained laptop
+the difference in results was ultimate.
 
-Andrew, I can also confirm that the LLC hotfix is allowing LLC (and
-AppleTalk) to work again.
--- 
--Barry K. Nathan <barryn@pobox.com>
+By the way, I still have to apply some scheduler tricks, makes me wonder
+about wine's development during the past few years. I used to play
+starcraft through wine on an ancient Pentium, and now a Mobile Pentium
+III is almost choking on it. I wonder what is going on...
+
+Kind regards,
+Chris
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iQIVAwUBRIH66l2m8MprmeOlAQL/5Q//ccLq0WMc8g19eaCSxKB9eEMojNhwULRn
+BqzWSHWpTWopMI3s2mVYGg+9hN54CIEga3Pkfgyn5PcL01ID/FGc6//Fh6QFNxZH
+dDcZc77TmRwL+Y1W6JHus07YoCOTqAqMFN4RND+Ke1Zt2Mc3A+2YrWWWR1EESpxp
+D+T8+KKhroXose8NMqT+wsEBgJgjNgiZR2sgVvWzEY/5KLoPhUJhg+RuDDM30nep
+mXEkfGpUsctgwYl4GpuXzazQKtHVg+Zr9rXzFtikZE/iVSOYThMqZOneDSh7q+KE
+zW6zGKrXPKcC8jNOxjDDfLyBwS62XSVAZ3NduMuqLQ5WuxL9xlP+yWDKNKapWf+w
+YBe02tbo28LkTpeTsoOdtLyU1Qd4+Mgu95yQ7p6IJb0T162/Md9D6W79uqfbJlr5
+B8OqWZi2Q8zUOqw+xpvnX/Kqzz/wpq+yTIx2nl9UYh70B2OzvKDIOxlpgdjPE/Mq
+EnhWn9VD2vGPsd5IbBeFQ7ZBC0QExQQckXQKJLuNZB8a/O22DJd11AYlkiM1esOr
+dynmx3O+Zuw7/KygLZmwLB1lTP90f7yMVPGhYbzJIWXx8O7UGk5HFcsQGJ6DVKk3
+/dTuQDEN0TrVCRFKKxRvX+mP5wfHfQ3lJnxYYpZ0YdRVJI0ewsvaeiNBF5ySHqBO
+onpXvb/IseU=
+=1sWa
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--
+

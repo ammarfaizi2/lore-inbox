@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbWFCLkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932621AbWFCL4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932611AbWFCLkA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 07:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWFCLkA
+	id S932621AbWFCL4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 07:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWFCL4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 07:40:00 -0400
-Received: from sc-outsmtp2.homechoice.co.uk ([81.1.65.36]:14352 "HELO
-	sc-outsmtp2.homechoice.co.uk") by vger.kernel.org with SMTP
-	id S932611AbWFCLj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 07:39:59 -0400
-Subject: Re: [linuxsh-dev] [PATCH] Add support for Yamaha AICA sound on
-	SEGA Dreamcast
-From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: alsa-devel@alsa-project.org, linux-sh <linuxsh-dev@lists.sourceforge.net>,
-       Paul Mundt <lethal@linux-sh.org>, Takashi Iwai <tiwai@suse.de>,
-       Lee Revell <rlrevell@joe-job.com>
-In-Reply-To: <1149201071.9032.13.camel@localhost.localdomain>
-References: <1149201071.9032.13.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 03 Jun 2006 12:39:48 +0100
-Message-Id: <1149334788.9065.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Sat, 3 Jun 2006 07:56:43 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:32437 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932621AbWFCL4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 07:56:42 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [patch] Declare explicit, hardware based lock ranking in serio
+Date: Sat, 3 Jun 2006 07:56:39 -0400
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, arjanv@redhat.com, Linux Portal <linportal@gmail.com>
+References: <ceccffee0606020953q545d1f3aw211da426e5cfc768@mail.gmail.com> <20060602161354.687168de.akpm@osdl.org> <1149324621.3109.16.camel@laptopd505.fenrus.org>
+In-Reply-To: <1149324621.3109.16.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606030756.39861.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-01 at 23:31 +0100, Adrian McMenamin wrote:
-> This adds sound for the Yamaha AICA "Super Intelligent Sound
-> Processor" (PCM) device on the SEGA Dreamcast
+On Saturday 03 June 2006 04:50, Arjan van de Ven wrote:
+> > Thanks.
+> > 
+> > So we're taking ps2->cmd_mutex and then we're recurring back into
+> > ps2_command() and then taking ps2->serio->cmd_mutex.
+> > 
+> > I suspect that's all correct/natural/expected and needs another
+> > make-lockdep-shut-up patch.
 > 
-> Signed off by Adrian McMenamin <adrian@mcmen.demon.co.uk>
 > 
-I've had no comments back on this - I am thinking of committing to the
-linux-sh cvs, though it really belongs in ALSA.
+> The PS/2 code has a natural device order and there is a one level
+> recursion in this device order in terms of the cmd_mutex; annotate 
+> this explicit recursion as ok
+> 
 
-Any reason why I shouldn't?
+It is not necessarily single depth - one could have 2 or more pass-through
+ports chained together, although currently in kernel we only have Synaptics
+pass-through. If we were ever to implement pass-through port for IBMs
+trackpoints then we'd have:
 
+	Synaptics<->pass-through<->TP<->pass-through<->some mouse
+
+-- 
+Dmitry

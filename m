@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWFCGbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbWFCGdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbWFCGbN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 02:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWFCGbN
+	id S932571AbWFCGdm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 02:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWFCGdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 02:31:13 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:2350 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932566AbWFCGbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 02:31:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Rhv8gWcRrny5RpPWZ7GeCgYhK8ptG34aCUQQ0eLoWASi1QPcNFK7ChomWhkCD3ohymdOkCw2GTROtGTw8qN7pQgKO0ydkFRoGOFFfFK/5JwRcCluK9MW2HNiHANakebM/6NKcdgGqrwgPDHQnzX/J95+YolmeeCZvhl/eNpalcY=
-Message-ID: <9e4733910606022331u40f1fd5dq6428e37f30ccf702@mail.gmail.com>
-Date: Sat, 3 Jun 2006 02:31:02 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "D. Hazelton" <dhazelton@enter.net>
+	Sat, 3 Jun 2006 02:33:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51656 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932571AbWFCGdm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 02:33:42 -0400
+Date: Sat, 3 Jun 2006 08:32:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: David Lang <dlang@digitalinsight.com>, Ondrej Zajicek <santiago@mail.cz>,
+       Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       "D. Hazelton" <dhazelton@enter.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
 Subject: Re: OpenGL-based framebuffer concepts
-Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, "Dave Airlie" <airlied@gmail.com>,
-       "Ondrej Zajicek" <santiago@mail.cz>, "Pavel Machek" <pavel@ucw.cz>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Manu Abraham" <abraham.manu@gmail.com>,
-       "linux cbon" <linuxcbon@yahoo.fr>,
-       "Helge Hafting" <helge.hafting@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, adaplas@gmail.com
-In-Reply-To: <200606030209.34928.dhazelton@enter.net>
+Message-ID: <20060603063251.GF6931@elf.ucw.cz>
+References: <21d7e9970605281613y3c44095bu116a84a66f5ba1d7@mail.gmail.com> <9e4733910605281759j2e7bebe1h6e3f2bf1bdc3fc50@mail.gmail.com> <Pine.LNX.4.63.0605301033330.4786@qynat.qvtvafvgr.pbz> <447CBEC5.1080602@gmail.com> <20060602083604.GA2480@localhost.localdomain> <20060602085832.GA25806@elf.ucw.cz> <Pine.LNX.4.63.0606021146320.4686@qynat.qvtvafvgr.pbz> <20060602220104.GA6931@elf.ucw.cz> <Pine.LNX.4.63.0606021256470.4686@qynat.qvtvafvgr.pbz> <4480C8D9.5080309@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com>
-	 <200606030125.20907.dhazelton@enter.net>
-	 <9e4733910606022255r7fa7346bw661fb35f81668788@mail.gmail.com>
-	 <200606030209.34928.dhazelton@enter.net>
+In-Reply-To: <4480C8D9.5080309@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/2/06, D. Hazelton <dhazelton@enter.net> wrote:
-> Actually, Jon, Dave is thinking like I am in that the DRI drivers needs to be
-> loaded for use. Rather than forcing applications to include all that code the
-> userspace daemon can be configured to load the DRI driver and provides the
-> userspace interface to the system. Using a daemon for a simple task, like
-> modesetting, is idiotic - but using the daemon to provide userspace with full
-> access to acceleration (the Kernel drivers only provide the backend for the
-> acceleration. The userspace side actually provides the code that manages it
-> all) without needing to have to worry about loading and initializing the dri
-> drivers provides a method for anything from a scripting language to a full
-> compiled application easy access to the acceleration.
+On So 03-06-06 07:25:13, Antonino A. Daplas wrote:
+> David Lang wrote:
+> > On Sat, 3 Jun 2006, Pavel Machek wrote:
+> >> I'm not talking about reading speed, I'm talking about displaying
+> >> speed. Once you display more than refresh rate times screen
+> >> size... you may as well cheat -- xterm-like. If xterm detects too much
+> >> stuff is being displayed, it simply stops displaying it, only
+> >> refreshing screen few times a second...
+> > 
+> > That would work, however AFAIK it's not implemented in any existing
+> > framebuffer.
+> 
+> Besides implementaton, the main concern with this is that you might miss
+> a very important kernel message.  Though one can always use the scrollback
+> buffer.
 
-You are confused about this. Nobody wants to change the way DRI and
-DRM work, it would take years of effort to change it. These are shared
-libraries, it doesn't matter how many people have them open, there is
-only one copy in memory.
+Well, you can only miss a message *you would not see anyway*. I guess
+the main concern is that it tends to look ugly on the screen (and it
+will not be quite easy code).
 
-Applications don't 'include' all of the DRI/DRM code they dynamically
-link to the OpenGL shared object library which in turns loads the
-correct DRI shared library. The correct DRM module should be loaded by
-the kernel at boot. You can write a 10 line OpenGL program that will
-make use of all of this, it is not hard to do. User space has always
-had access to hardware acceleration from these libraries.
-
-We have not been discussing DIrect Rendering vs indirect (AIGLX). It
-will be up to the windowing system to chose which (or both) of those
-model to use. The lower layers are designed not to force that choice
-one way ot the other.
-
-Dave wants to load the existing X drivers into the daemon, not the DRI
-libraries. Other than using them for mode setting there isn't much use
-for them. I have asked him where he wants things like blanking, cmap,
-cursor and he hasn't said yet. Those functions are tiny, ~100 lines of
-code.
-
+Anyway, no, I do not think it is needed. framebuffers are fast enough
+these days. When I used to have 300MHz toshiba laptop with UHCI
+bogging down the system, something like that would be handy... (2sec
+to do screen update in loaded-with-usb cases).
+								Pavel
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

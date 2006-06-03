@@ -1,81 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWFCAFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030347AbWFCAFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751587AbWFCAFv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jun 2006 20:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWFCAFv
+	id S1030347AbWFCAFd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jun 2006 20:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWFCAFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jun 2006 20:05:51 -0400
-Received: from ns.suse.de ([195.135.220.2]:23710 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751581AbWFCAFu (ORCPT
+	Fri, 2 Jun 2006 20:05:33 -0400
+Received: from alt.aurema.com ([203.217.18.57]:4407 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S1030347AbWFCAFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jun 2006 20:05:50 -0400
-Date: Fri, 2 Jun 2006 17:03:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Ben Collins <bcollins@ubuntu.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Updated v3]: How to become a kernel driver maintainer
-Message-ID: <20060603000317.GA10037@kroah.com>
-References: <1136736455.24378.3.camel@grayson> <1136756756.1043.20.camel@grayson> <1136792769.2936.13.camel@laptopd505.fenrus.org> <1136813649.1043.30.camel@grayson> <1136842100.2936.34.camel@laptopd505.fenrus.org> <1141841013.24202.194.camel@grayson> <9a8748490603081105i3468fa84haac329d1e50faed4@mail.gmail.com> <1141845047.12175.7.camel@laptopd505.fenrus.org> <9a8748490603081127r1b830c5bg94f42e021e2a2d58@mail.gmail.com> <1149284317.4533.312.camel@grayson>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149284317.4533.312.camel@grayson>
-User-Agent: Mutt/1.5.11
+	Fri, 2 Jun 2006 20:05:32 -0400
+Message-ID: <4480D210.6070205@aurema.com>
+Date: Sat, 03 Jun 2006 10:04:32 +1000
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: sekharan@us.ibm.com
+CC: Andrew Morton <akpm@osdl.org>, dev@openvz.org, Srivatsa <vatsa@in.ibm.com>,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>	<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>	<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>	<44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>	<447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>	<447EA694.8060407@in.ibm.com> <1149187413.13336.24.camel@linuxchandra>	<447F77A4.3000102@bigpond.net.au>	<1149213759.10377.7.camel@linuxchandra>	<447FAEB0.3060103@aurema.com> <1149275207.20050.16.camel@linuxchandra>
+In-Reply-To: <1149275207.20050.16.camel@linuxchandra>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 02, 2006 at 05:38:36PM -0400, Ben Collins wrote:
-> The real work of maintainership begins after your code is in the tree.
-> This is where some maintainers fail, and is the reason the kernel
-> developers are so reluctant to allow new drivers into the main tree.
-
-I don't think this is true.  On-going maintenance of a driver is quite
-minor over time, unless you are adding new support, or if there are bugs
-in your driver.  We will gladly accept any driver, as long as it follows
-the proper coding style rules and plays nice with the rest of the
-kernel.
-
-> The other side of the coin is keeping changes in the kernel synced to your
-> code. Often times, it is necessary to change a kernel API (driver model,
-> USB stack changes, networking subsystem change, etc). These sorts of
-> changes usually affect a large number of drivers. It is not feasible for
-> these changes to be individually submitted to the driver maintainers. So
-> instead, the changes are made together in the kernel tree. If your driver
-> is affected, you are expected to pick up these changes and merge them with
-> your temporary development copy.  Usually this job is made easier if you
-> use the same source control system that the kernel maintainers use
-> (currently, git), but this is not required. Using git, however, allows you
-> to merge more easily.
-
-Almost always, the person doing the API change fixes all in-kernel
-versions of the api change.  So the driver author/maintainer does not
-have to fix up anything.
+Chandra Seetharaman wrote:
+> On Fri, 2006-06-02 at 13:21 +1000, Peter Williams wrote:
+>> Chandra Seetharaman wrote:
+>>> On Fri, 2006-06-02 at 09:26 +1000, Peter Williams wrote:
+>>>> Chandra Seetharaman wrote:
+>>>>> On Thu, 2006-06-01 at 14:04 +0530, Balbir Singh wrote:
+>>>>>> Hi, Kirill,
+>>>>>>
+>>>>>> Kirill Korotaev wrote:
+>>>>>>>> Do you have any documented requirements for container resource 
+>>>>>>>> management?
+>>>>>>>> Is there a minimum list of features and nice to have features for 
+>>>>>>>> containers
+>>>>>>>> as far as resource management is concerned?
+>>>>>>> Sure! You can check OpenVZ project (http://openvz.org) for example of 
+>>>>>>> required resource management. BTW, I must agree with other people here 
+>>>>>>> who noticed that per-process resource management is really useless and 
+>>>>>>> hard to use :(
+>>>>> I totally agree.
+>>>>>> I'll take a look at the references. I agree with you that it will be useful
+>>>>>> to have resource management for a group of tasks.
+>>>> But you don't need something as complex as CKRM either.  This capping
+>>> All CKRM^W Resource Groups does is to group unrelated/related tasks to a
+>>> group and apply resource limits. 
+>>>
+>>>>  
+>>>> functionality coupled with (the lamented) PAGG patches (should have been 
+>>>> called TAGG for "task aggregation" instead of PAGG for "process 
+>>>> aggregation") would allow you to implement a kernel module that could 
+>>>> apply caps to arbitrary groups of tasks.
+>>> I do not follow how PAGG + this cap feature can be used to put cap of
+>>> related/unrelated tasks. Can you provide little more explanation,
+>>> please.
+>> I would have thought it was fairly obvious.  PAGG supplies the task 
+>> aggregation mechanism, these patches provide per task caps and all 
+>> that's needed is the code that marries the two.
 > 
-> There are times where changes to your driver may happen that are not the
-> API type of changes described above. A user of your driver may submit a
-> patch directly to Linus to fix an obvious bug in the code. Sometimes these
-> trivial and obvious patches will be accepted without feedback from the
-> driver maintainer. Don't take this personally. We're all in this together.
-> Just pick up the change and keep in sync with it. If you think the change
-> was incorrect, try to find the mailing list thread or log comments
-> regarding the change to see what was going on. Then email the patch author
-> about the change to start discussion.
+> May be obvious from your usage point of view. It wasn't for what i was
+> thinking as resource management.
+
+I was thinking of it from the resource management POV.
+
 > 
+> I thought there is some way the user can associate some amount of
+> resources (limits and guarantees) to a PAGG group and move the
+> corresponding tasks to that PAGG and that is all needed from user
+> space. 
+
+No.  PAGG just provides the infrastructure for grouping tasks together 
+and adding any extra per task data that you may require.  Of course, you 
+can provide your own per group data as well.  It's then up to the author 
+of the module utilizing PAGG to implement whatever group specific 
+functionality that they want.
+
 > 
-> How should I maintain my code after it's in the kernel tree?
-> ------------------------------------------------------------
+> In other words i thought there is some clever way to manage resources at
+> the PAGG level (without needing to tinker with the per task caps), which
+> wasn't obvious for me, and it is now clear that is not the case, and one
+> still have to keep tweaking the "per task" caps to get the result they
+> want. 
 > 
-> The suggested, and certainly the easiest method, is to start a git tree
-> cloned from the primary kernel tree. In this way, you are able to
-> automatically track the kernel changes by pulling from Linus' tree. You
-> can read more about maintaining a kernel git tree at
-> http://linux.yyz.us/git-howto.html.
+>>From your explanation, complex stuff need to happen in the user space to
+> manage resource for a group of tasks.
+> 
+> Knobs that are available to the user are
+>  - per task nice values
+>  - per task cap limits and
+>  - per task statistics, if and when they become available.
+> 
+> user level application has to constantly monitor the stats of _all_ the
+> tasks and constantly keep changing the knobs if they want to keep the
+> "group of tasks" within their guarantees and limits. As others pointed
+> already, this may still _not_ yield what one wants, if you have tasks
+> with disparate need for a resource.
 
-I disagree, quilt is _much_ easier for maintaining patches against a
-common tree.  Combined with ketchup and it makes things dirt simple.
+I think that it can especially now that load balancing takes "nice" into 
+account.  Without the smpnice patches it would have been difficult due 
+to the effects of "soft" affinity tending to undermine "nice"'s 
+functionality.
 
-Everything else looks good, very nice job.
+> 
+> I certainly do not see it as the result of a simple marriage between
+> PAGG and "per task caps".
 
-thanks,
+It's simple but there's a non trivial amount of work required.
 
-greg k-h
+I know from previous discussion with CKRM folks that you find the idea 
+of providing a number of small independent capabilities that enable more 
+complex capabilities to be built on top of them difficult to come to 
+terms with.  But that doesn't mean it won't work.  It has the advantage 
+of being less intrusive and causing less angst to those users who don't 
+want sophisticated resource control.
+
+Peter
+-- 
+Dr Peter Williams, Chief Scientist         <peterw@aurema.com>
+Aurema Pty Limited
+Level 2, 130 Elizabeth St, Sydney, NSW 2000, Australia
+Tel:+61 2 9698 2322  Fax:+61 2 9699 9174 http://www.aurema.com

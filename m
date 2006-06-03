@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWFCW0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWFCWfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWFCW0T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 18:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWFCW0T
+	id S1751413AbWFCWfS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 18:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWFCWfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 18:26:19 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:13733 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751401AbWFCW0S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 18:26:18 -0400
-Message-ID: <44820C7D.6080501@zytor.com>
-Date: Sat, 03 Jun 2006 15:26:05 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: maximilian attems <maks@sternwelten.at>
-CC: linux-kernel@vger.kernel.org, klibc list <klibc@zytor.com>
-Subject: Re: [PATCH] klibc
-References: <20060602081416.GA11358@nancy>
-In-Reply-To: <20060602081416.GA11358@nancy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 3 Jun 2006 18:35:18 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:6313 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751413AbWFCWfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 18:35:16 -0400
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
+	disable_irq()
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alan Cox <alan@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060603215323.GA13077@devserv.devel.redhat.com>
+References: <20060531200236.GA31619@elte.hu>
+	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
+	 <20060531214139.GA8196@devserv.devel.redhat.com>
+	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
+	 <20060531214729.GA4059@elte.hu>
+	 <1149112582.3114.91.camel@laptopd505.fenrus.org>
+	 <1149345421.13993.81.camel@localhost.localdomain>
+	 <20060603215323.GA13077@devserv.devel.redhat.com>
+Content-Type: text/plain
+Date: Sat, 03 Jun 2006 18:34:50 -0400
+Message-Id: <1149374090.14408.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maximilian attems wrote:
-> On Thu, 01 June 2006, H. Peter Anvin wrote:
->> Brian F. G. Bidulock wrote:
->>> On Thu, 01 Jun 2006, Bob Picco wrote:
->>>>  
->>>> -#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__)
->>>> +#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__) && \
->>>> +	!defined(__powerpc64__)
->>> Why not just !defined(__LP64__) ?
->> _BITSIZE == 64 is really the right formula... if I remember correctly, there were some 
->> 64-bit platforms (Alpha?) which didn't conform, though.  I will look at this later today.
->>
->> 	-hpa
+On Sat, 2006-06-03 at 17:53 -0400, Alan Cox wrote:
+> On Sat, Jun 03, 2006 at 10:37:01AM -0400, Steven Rostedt wrote:
+> > Couldn't it be possible to have the misrouted irq function mark the
+> > DISABLED_IRQ handlers as IRQ_PENDING?  Then have the enable_irq that
+> > actually enables the irq to call the handlers with interrupts disabled
+> > if the IRQ_PENDING is set?
 > 
-> indeed aboves line contains an mistake by an earlier patch of mine.
-> 
-> -#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__sparc_v9__)
-> +#if !defined(__x86_64__) && !defined(__ia64__) && !defined(__arch64__)
-> 
-> is atm needed to get statfs right on sparc.
-> 
+> We still have the ambiguity with disable_irq. Really we need to have
+> disable_irq_handler(irq, handler)
 
-__arch64__ is ugly; it doesn't say it's a sparc thing.  I have added 
--D__sparc_v9__ to the sparc64 MCONFIG file, so I think that's fine.
+Yeah, that does make sense, but I think the IRQ_PENDING idea works too.
+This way disable_irq_handler doesn't need to mask the interrupt even
+without the irqpoll and irqfixup.  Let the interrupt happen and just
+skip those handlers that that are disabled.  Then when the handler is
+re-enabled, then we can call the handler. Of course we would need a
+enable_irq_handler too.
 
-Perhaps the right thing to do is to make this an archconfig.h configurable.
+This would make the vortex card's disable_irq not hurt all the other
+devices that share the irq with it.
 
-	-hpa
+-- Steve
+
+

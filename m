@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932133AbWFDK2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932219AbWFDKav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWFDK2F (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 06:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWFDK2F
+	id S932219AbWFDKav (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 06:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWFDKav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 06:28:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56527 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932133AbWFDK2E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 06:28:04 -0400
-Date: Sun, 4 Jun 2006 03:27:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ryan Lortie <desrt@desrt.ca>
-Cc: linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org, bcollins@ubuntu.com,
-        Greg KH <greg@kroah.com>
-Subject: Re: pci_restore_state
-Message-Id: <20060604032746.a5b3e2dd.akpm@osdl.org>
-In-Reply-To: <1149416010.30767.14.camel@moonpix.desrt.ca>
-References: <1149416010.30767.14.camel@moonpix.desrt.ca>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 Jun 2006 06:30:51 -0400
+Received: from wr-out-0506.google.com ([64.233.184.233]:53152 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932219AbWFDKau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 06:30:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EOIs8DfipH3sSt0rntAuyqXoGhqJvlqu31ArYVcggYiFi4ZNf1SqSNeniHlJ6v6JQsoSXT5C+JQiWya7WiqGjAXxupfBiZ6Wl4fNnsxKhiB2UjYH0RHASMRWKi6+zgB4qH0Caks8Xu1hWvJqxo2YYfKHXEoOvHcNsgThgyG3YXE=
+Message-ID: <4d8e3fd30606040330i6174f866vfe1c2cd30543a9c0@mail.gmail.com>
+Date: Sun, 4 Jun 2006 12:30:50 +0200
+From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+Subject: Re: Linux kernel development
+Cc: linux-kernel@vger.kernel.org, "Kalin KOZHUHAROV" <kalin@thinrope.net>,
+        "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
+In-Reply-To: <4d8e3fd30606040300w6d939f4csfe96829d3e5481a9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <paolo.ciarrocchi@gmail.com>
+	 <4d8e3fd30606030636m44e3ce28k9d0fb6938947d4b2@mail.gmail.com>
+	 <200606031828.k53ISSgr012167@laptop11.inf.utfsm.cl>
+	 <4d8e3fd30606040300w6d939f4csfe96829d3e5481a9@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Jun 2006 06:13:30 -0400
-Ryan Lortie <desrt@desrt.ca> wrote:
+On 6/4/06, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> On 6/3/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+[...]
+>
+> Thank you for your valuable comments!!
 
-> Currently pci_restore_state() (drivers/pci/pci.c) restores the PCI state
-> by copying in the saved PCI configuration space, a dword at a time,
-> starting from 0 up to 15.
-> 
-> This causes a crash when my Macbook resumes from sleep (specifically,
-> when restoring the configuration space of the PCI bridge).
-> 
-> Reading the PCI specification, the register at dword 1 (ie: bytes 4-7)
-> is split half and half between status and command words.  The command
-> word effectively controls the way which the PCI device interacts with
-> the system.  If it is 0, the device is logically disconnected from the
-> bus (PCI Local Bus Specification Revision 2.2, 6.2.2 "Device
-> Control").  
-> 
-> When a device first powers up, the command register value is normally
-> zero (and is zero in my specific case).
-> 
-> The problem with the way that the PCI state is currently restored is
-> that the write to the command register logically reconnects the device
-> to the bus before the rest of the configuration space has been filled
-> in.
-> 
-> My Macbook crashes on resume.
-> 
-> If I reverse the for loop to start from 15 and count down to 0, then the
-> majority of the configuration space is filled in _before_ the command
-> word is modified.  No crash.
+BTW, I implemented a few changes according to your feedbacks.
+Committed and pushed out.
 
-We have a patch pending which will do that.
+Ciao,
 
-http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-03-pci/pci-reverse-pci-config-space-restore-order.patch
-
-The present plan will be to get this into 2.6.18.
+-- 
+Paolo
+http://paolociarrocchi.googlepages.com

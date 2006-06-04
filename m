@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932252AbWFDVME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932258AbWFDVVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWFDVME (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 17:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWFDVME
+	id S932258AbWFDVVs (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 17:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWFDVVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 17:12:04 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60291 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932252AbWFDVMC
+	Sun, 4 Jun 2006 17:21:48 -0400
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:13786 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S932258AbWFDVVr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 17:12:02 -0400
-Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
-	disable_irq()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
-        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <1149438131.29652.5.camel@localhost.localdomain>
-References: <20060531200236.GA31619@elte.hu>
-	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
-	 <20060531214139.GA8196@devserv.devel.redhat.com>
-	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
-	 <20060531214729.GA4059@elte.hu>
-	 <1149112582.3114.91.camel@laptopd505.fenrus.org>
-	 <1149345421.13993.81.camel@localhost.localdomain>
-	 <20060603215323.GA13077@devserv.devel.redhat.com>
-	 <1149374090.14408.4.camel@localhost.localdomain>
-	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
-	 <1149426961.27696.7.camel@localhost.localdomain>
-	 <1149437412.23209.3.camel@localhost.localdomain>
-	 <1149438131.29652.5.camel@localhost.localdomain>
-Content-Type: text/plain
+	Sun, 4 Jun 2006 17:21:47 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.18 hdrinstall (Re: 2.6.18 -mm merge plans)
+Date: Sun, 4 Jun 2006 23:20:09 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Sun, 04 Jun 2006 22:26:15 +0100
-Message-Id: <1149456375.23209.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Disposition: inline
+Message-Id: <200606042320.09341.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-06-04 am 12:22 -0400, ysgrifennodd Steven Rostedt:
-> But can't this machine still cause an interrupt storm if the interrupt
-> comes on a wrong line, and we don't call the handler for the interrupt
-> source because we are now honoring disable_irq?
+On Sunday, 4. June 2006 22:50, Andrew Morton wrote:
+> git-hdrcleanup.patch
+> git-hdrinstall.patch
+>
+>  This is Dave Woodhouse's work cleaning up the kernel headers and adding a
+>  `make headerinstall' target which automates the exporting of kernel
+>  headers as a userspace-usable package.
+>
+>  All I can say about this is that it doesn't appear to break anything and
+>  is ready to merge from that point of view.  It's not an area in which I
+>  have much interest or knowledge.
 
-Yes - that is why we can't honour disable_irq in this case but have to
-hope 8)
+I've played with it and rebuilt all of Ark Linux (around 5000 packages) with 
+glibc-kernheaders replaced with make headerinstall-ed headers, no problems at 
+all (except some stupid apps thinking BITS_PER_LONG is supposed to be 
+defined, but they were probably broken with the last couple of 
+glibc-kernheaders releases as well).
 
+So from a user's perspective, it's ready.

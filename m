@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750809AbWFDJUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751095AbWFDJZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWFDJUJ (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 05:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWFDJUJ
+	id S1751095AbWFDJZS (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 05:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWFDJZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 05:20:09 -0400
-Received: from main.gmane.org ([80.91.229.2]:2968 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750809AbWFDJUH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 05:20:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jakub Narebski <jnareb@gmail.com>
-Subject: Re: [ANNOUNCE qgit-1.3]
-Followup-To: gmane.comp.version-control.git
-Date: Sun, 04 Jun 2006 11:17:46 +0200
-Organization: At home
-Message-ID: <e5u8fk$ju6$1@sea.gmane.org>
-References: <e5bfff550606040155v14565312na26f8c866f0fc32d@mail.gmail.com>
+	Sun, 4 Jun 2006 05:25:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62404 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751095AbWFDJZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 05:25:17 -0400
+Subject: Re: [PATCH] readahead: initial method - expected read size - fix
+	fastcall
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Fengguang Wu <wfg@mail.ustc.edu.cn>, Valdis.Kletnieks@vt.edu,
+        diegocg@gmail.com, lista1@comhem.se, linux-kernel@vger.kernel.org
+In-Reply-To: <20060604020738.31f43cb0.akpm@osdl.org>
+References: <349406446.10828@ustc.edu.cn>
+	 <20060604020738.31f43cb0.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 04 Jun 2006 11:25:03 +0200
+Message-Id: <1149413103.3109.90.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 193.0.122.19
-User-Agent: KNode/0.7.7
-Cc: git@vger.kernel.org
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Costalba wrote:
-
-> This is qgit-1.3
-[...]
-> NEW IN THIS RELEASE
+On Sun, 2006-06-04 at 02:07 -0700, Andrew Morton wrote:
+> On Sun, 4 Jun 2006 15:34:15 +0800
+> Fengguang Wu <wfg@mail.ustc.edu.cn> wrote:
 > 
-> Main focus of this release is usability.
+> > Remove 'fastcall' directive for function readahead_close().
+> > 
+> > It has drawn concerns from Andrew Morton.
 > 
-> The big feature is the use of tabs instead of independent windows.
+> Well.  I think fastcall is ugly and vaguely silly.  Now if we has a
+> really_really_fastcall then I'd like to use that!
 > 
-> This change alone could be enough for a release. It's a big rewrite of UI
-> code to let browsing revisions and patches quicker and easier.
+> 
+> > Now I have some benchmarks
+> > on it, and proved it as a _false_ optimization.
+> 
+> Sorry, I don't believe this will be measurable (and with CONFIG_REGPARM
+> it'll be a no-op).
 
-Of course that is advantage _only_ if the tabs are independend, and one 
-(usually) doesn't need to view them simultaneously, e.g. side by side.
-
-Just my 3 eurocents ;-)
-
--- 
-Jakub Narebski
-Warsaw, Poland
+we should just make CONFIG_REGPARM be "it" always (and thus make it go
+away as config option) and then just remove all "fastcall" from the
+kernel...
 

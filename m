@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932102AbWFDGah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932131AbWFDGeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWFDGah (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 02:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWFDGah
+	id S932131AbWFDGeQ (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 02:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWFDGeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 02:30:37 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:27290
+	Sun, 4 Jun 2006 02:34:16 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26318
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932102AbWFDGag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 02:30:36 -0400
-Date: Sat, 03 Jun 2006 23:30:34 -0700 (PDT)
-Message-Id: <20060603.233034.59468148.davem@davemloft.net>
-To: hpa@zytor.com
-Cc: maks@sternwelten.at, linux-kernel@vger.kernel.org, klibc@zytor.com
-Subject: Re: [PATCH] klibc
+	id S932127AbWFDGeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 02:34:16 -0400
+Date: Sat, 03 Jun 2006 23:34:14 -0700 (PDT)
+Message-Id: <20060603.233414.41634830.davem@davemloft.net>
+To: nick@linicks.net, nick.warne@gmail.com
+Cc: kernel@mcmen.demon.co.uk, linux-kernel@vger.kernel.org,
+        postmaster@vger.kernel.org
+Subject: Re: Posting here
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <44820C7D.6080501@zytor.com>
-References: <20060602081416.GA11358@nancy>
-	<44820C7D.6080501@zytor.com>
+In-Reply-To: <7c3341450606031449s6f5f294bj46546515ac596abf@mail.gmail.com>
+References: <1149362553.13122.44.camel@localhost.localdomain>
+	<20060603123215.b719aba6.rdunlap@xenotime.net>
+	<7c3341450606031449s6f5f294bj46546515ac596abf@mail.gmail.com>
 X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -25,32 +27,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "H. Peter Anvin" <hpa@zytor.com>
-Date: Sat, 03 Jun 2006 15:26:05 -0700
+From: "Nick Warne" <nick.warne@gmail.com>
+Date: Sat, 3 Jun 2006 22:49:22 +0100
 
-> __arch64__ is ugly; it doesn't say it's a sparc thing.  I have added 
-> -D__sparc_v9__ to the sparc64 MCONFIG file, so I think that's fine.
+> I think once marked as 'spam' you are in blackhole, as I sent 5 times,
+> all with different wording etc. similar to yourself.
 > 
-> Perhaps the right thing to do is to make this an archconfig.h configurable.
+> Mine was caused by a patch containing the word 'Symbol'.  Heh.
+> Anyway, I copied this reply to postmaster of vger, they will sort.
 
-Please don't do this, I'll explain why.
+Please also see:
 
-Using __sparc_v9__ is incorrect, here is the lowdown on these defines:
+	http://vger.kernel.org/majordomo-info.html#taboo
 
-1) __sparc_v9__ means "-mcpu={ultrasparc*,niagara}" or "-mcpu=v9".
-   Although this is implied by "-m64" it can be used for 32-bit
-   code too.
+what most people get hit by are out spam blocking regular expressions:
 
-   __sparc_v9__ means "using v9 instructions" which does not
-   necessarily mean 64-bit
+	http://vger.kernel.org/majordomo-taboos.txt
 
-2) "__sparc__ && __arch64__" means 64-bit sparc
-
-People often get this wrong, and it certainly is confusing.
-
-Jakub Jelinek gives a good explanation on the gcc mailing
-list here:
-
-	http://gcc.gnu.org/ml/gcc/2002-12/msg00108.html
-
-Thanks.
+	

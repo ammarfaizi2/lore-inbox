@@ -1,56 +1,148 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932304AbWFDXEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932299AbWFDXJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWFDXEs (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 19:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWFDXEr
+	id S932299AbWFDXJP (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 19:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWFDXJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 19:04:47 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:11965 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932304AbWFDXEr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 19:04:47 -0400
-Message-ID: <448366FB.1070407@zytor.com>
-Date: Sun, 04 Jun 2006 16:04:27 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: klibc (was: 2.6.18 -mm merge plans)
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 4 Jun 2006 19:09:15 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:64936 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932299AbWFDXJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 19:09:15 -0400
+Date: Sun, 4 Jun 2006 20:12:23 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, rmk@arm.linux.org.uk,
+        gregkh@suse.de, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+Message-ID: <20060604201223.7cd37936@home.brethil>
+In-Reply-To: <20060602154723.54704081.zaitcev@redhat.com>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	<20060601234833.adf12249.zaitcev@redhat.com>
+	<1149242609.4695.0.camel@pmac.infradead.org>
+	<20060602154723.54704081.zaitcev@redhat.com>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> git-klibc.patch
-> 
->  Similar.  This all appears to work sufficiently well for a 2.6.18 merge. 
->  But it's been so long since klibc was a hot topic that I've forgotten who
->  wanted it, and what for.
-> 
->  Can whoever has an interest in this work please pipe up and let's get our
->  direction sorted out quickly.
-> 
+On Fri, 2 Jun 2006 15:47:23 -0700
+Pete Zaitcev <zaitcev@redhat.com> wrote:
 
-klibc (early userspace) in its current form is fundamentally a cleanup. 
-  What it does is unload code from the kernel which has no fundamental 
-reason to be kernel code (written during kernel rules, with all the 
-problems it entails.)  The initial code to have removed is the 
-root-mounting code, with all the various ugly mutations of that (ramdisk 
-loading, NFS root, initrd...)
+| On Fri, 02 Jun 2006 11:03:29 +0100, David Woodhouse <dwmw2@infradead.org> wrote:
+| > On Thu, 2006-06-01 at 23:48 -0700, Pete Zaitcev wrote:
+| > > 
+| > > >  The tests I've done so far weren't anything serious: as the mobile supports a
+| > > > AT command set, I have used the ones (with minicom) which transfers more data.
+| > > > Of course that I also did module load/unload tests, tried to disconnect the
+| > > > device while it's transfering data and so on.
+| > > 
+| > > Next, it would be nice to test if PPP works, and if getty and shell work
+| > > (with getty driving the USB-to-serial adapter).
+| > 
+| > xmodem is a good test -- better than PPP because it stresses the
+| > buffering in a way which PPP won't. Log into a remote system, try
+| > sending and receiving files with xmodem.
+| 
+| I understand. My intent was different, however. One of the bigger sticking
+| points for usb-serial was its interaction with line disciplines, which are
+| notorious for looping back and requesting writes from callbacks
+| (e.g. h_hdlc.c). They are also sensitive to drivers lying about the
+| amount of free space in their FIFOs. This is something you never test
+| when driving a serial port from an application, no matter how cleverly
+| written.
 
-The original idea was due Al Viro; obviously, the implementation is 
-mostly mine.
+ Okay, I've made some of the tests suggested by you.
 
-It is of course my hope that this will be used for more than just plain 
-initialization code, but that in itself is a significant step, and one 
-has to start somewhere.
+ I connected to my computer an USRobotics external modem (which uses the
+standard serial driver) and the cell phone I have available for the tests
+(which uses the pl2303 USB-Serial driver).
 
-Part of the reason it has taken as long is it has is just to try to make 
-it as drop-in as at all possible.
+  In all the tests the modem was configured to answer the calls, and the
+cell phone was configured to dial to the modem (my home's number).
 
-	-hpa
+  The reason for that setup is economic: my cell phone has some additional
+credits (read free minutes) which I can use w/o spending money.
+
+  Thus, we have something like this:
+
+            Phone call from the cell phone
+            /- <- - <- - - <- - - - <- - \
+            |        ------------        |
+            \-------o| computer |o-------/
+  modem (phone line) ------------ GSM cell phone (pl2303)
+
+   (I know, I know. I will never try to be an artist)
+
+1. xmodem transfer test
+
+ I transferred the following picture (48K):
+
+   http://www.cpu.eti.br/pics/monkeys.jpg
+
+ through minicom using the xmodem protocol with both USB-Serial versions: the
+current one and (my) Serial Core port.
+
+ Unfortunatally, I could only make one transfer for each USB-Serial version.
+
+ Results:
+
+   1.1 Current USB-Serial version
+
+      o Received picture:
+        http://www.cpu.eti.br/pics/usbserial-curr/monkeys.jpg
+
+      o Got two TIMEOUT errors
+
+      o md5 check didn't match
+
+      o minicom's summary:
+
+         20060604 12:20:19 Bytes Sent:  47488   BPS:161
+         20060604 12:20:30 Disconnected (0:05:37)
+
+  1.2 Serial Core USB-Serial version
+
+      o Received picture:
+        http://www.cpu.eti.br/pics/usbserial-sc/monkeys.jpg
+ 
+      o Got seven TIMEOUT errors
+
+      o md5 check didn't match
+
+      o minicom's summary:
+
+        20060604 12:08:34 Bytes Sent:  47488   BPS:113
+	20060604 12:08:48 Disconnected (0:07:44)
+
+ In both cases there is no visible problem in the picture and both md5 checks
+failed. The only significant difference is the speed.
+
+ However, note that this V0.0 of the port can be improved in many ways
+(take a look at the pl2303's start_tx() method, the do-while() loop
+isn't necessary, for example).
+
+2. Remote login
+
+ I've setup a remote serial console using mgetty. And, for both USB-Serial
+versions, I could log, execute some commands and edit a file.
+
+ I didn't notice any problem.
+
+3. Conclusion
+
+ IMHO, these tests can only be used to show that the USB-Serial Serial Core
+port is feasible.
+
+ Unfortunatally this is a very expensive test environment, and I can't use
+it for development. The best one would be to have a USB<->DB9 cable..
+
+PS: I didn't translate the picture message because I'm afraid I can't
+make it as funny as it's in pt_BR.
+
+-- 
+Luiz Fernando N. Capitulino

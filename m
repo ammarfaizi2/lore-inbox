@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751049AbWFDULG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751027AbWFDUSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWFDULG (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 16:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWFDULG
+	id S1751027AbWFDUSe (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 16:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWFDUSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 16:11:06 -0400
-Received: from mx2.suse.de ([195.135.220.15]:5608 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750764AbWFDULF (ORCPT
+	Sun, 4 Jun 2006 16:18:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31691 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751027AbWFDUSd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 16:11:05 -0400
-From: Andi Kleen <ak@suse.de>
-To: Joachim Fritschi <jfritschi@freenet.de>
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-Date: Sun, 4 Jun 2006 21:10:14 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        herbert@gondor.apana.org.au
-References: <200606041516.46920.jfritschi@freenet.de>
-In-Reply-To: <200606041516.46920.jfritschi@freenet.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 4 Jun 2006 16:18:33 -0400
+Date: Sun, 4 Jun 2006 13:18:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: [minor fix] radixtree: regulate tag get return value
+Message-Id: <20060604131824.e2d1c934.akpm@osdl.org>
+In-Reply-To: <349419864.11444@ustc.edu.cn>
+References: <349410738.29011@ustc.edu.cn>
+	<20060604021105.1ce7d727.akpm@osdl.org>
+	<349419864.11444@ustc.edu.cn>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606042110.15060.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 June 2006 15:16, Joachim Fritschi wrote:
-> This patch adds the twofish x86_64 assembler routine.
->
-> Changes since last version:
-> - The keysetup is now handled by the twofish_common.c (see patch 1 )
-> - The last round of the encrypt/decrypt routines where optimized saving 5
-> instructions.
->
-> Correctness was verified with the tcrypt module and automated test scripts.
+On Sun, 4 Jun 2006 19:17:54 +0800
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
 
-Do you have some benchmark numbers that show that it's actually worth
-it?
+> > test_bit() is (sadly) defined to return 0 or 1.  Did this really make a difference?
+> 
+> Interesting. I got the following gdb outputs. Note that tag_get()
+> returns -1 and root_tag_get() returns 1048576.
+> 
+> (gdb) n
+> 399             while (height > 0) {
+> (gdb) n
+> 402                     offset = (index >> shift) & RADIX_TREE_MAP_MASK;
+> (gdb)
+> 403                     if (!tag_get(slot, tag, offset))
+> (gdb)
+> 404                             tag_set(slot, tag, offset);
+> (gdb) p tag_get(slot, tag, offset)
+> $14 = 0
+> (gdb) n
+> 405                     slot = slot->slots[offset];
+> (gdb) p tag_get(slot, tag, offset)
+> $15 = -1
 
-> +/* Defining a few register aliases for better reading */
+You trust gdb more than I do ;)  It's doing a pretty tricky thing there.
 
-Maybe you can read it now better, but for everybody else it is extremly 
-confusing. It would be better if you just used the original register names.
-
--andi
+test_bit() returns (1 & (expr)) - it _has_ to return 0 or 1.

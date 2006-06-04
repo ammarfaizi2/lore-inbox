@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWFDBlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWFDCNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWFDBlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 21:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWFDBlm
+	id S1751355AbWFDCNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 22:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWFDCNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 21:41:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48102 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751259AbWFDBll (ORCPT
+	Sat, 3 Jun 2006 22:13:09 -0400
+Received: from www.nabble.com ([72.21.53.35]:31979 "EHLO talk.nabble.com")
+	by vger.kernel.org with ESMTP id S1751355AbWFDCNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 21:41:41 -0400
-Date: Sat, 3 Jun 2006 18:41:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, linux-ide@vger.kernel.org
-Subject: Re: [2.6.17-rc5-mm2+ahci resume] NULL pointer dereference in
- cfq_dispatch_requests
-Message-Id: <20060603184134.ee6dcc3b.akpm@osdl.org>
-In-Reply-To: <4482389F.6030403@goop.org>
-References: <4482389F.6030403@goop.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 3 Jun 2006 22:13:08 -0400
+Message-ID: <4699234.post@talk.nabble.com>
+Date: Sat, 3 Jun 2006 19:13:07 -0700 (PDT)
+From: "maksoud (sent by Nabble.com)" <lists@nabble.com>
+Reply-To: maksoud <maksoud78@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux and Wireless USB Adaptor
+In-Reply-To: <4479759C.8050104@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Nabble-Sender: lists@nabble.com
+X-Nabble-From: maksoud <maksoud78@yahoo.com>
+References: <44793F44.1040603@perkel.com> <4479759C.8050104@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 03 Jun 2006 18:34:23 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
->     BUG: unable to handle kernel NULL pointer dereference at virtual
->     address 00000054
-> 
-> in cfq_dispatch_requests+0x2c5/0x454.
-> 
-> I'm running 2.6.17-rc5-mm2 with Forrest Zhao's ahci resume patches of 
-> the other day.
-> 
-> The system was basically idle with very little IO going on.  It happens 
-> fairly regularly, but not triggered by any particular activity.  The 
-> system had not been through a suspend/resume cycle.
+Hi,
 
-There have been a number of CFQ fixes post-2.6.17-rc5-mm2.  Fingers
-crossed, please test -mm3.  Hopefully I'll have that out 4-6 hours hence.
+I had the same problem as Marc. I have AWLL3026. I followed the installation
+instructions in the web site  http://zd1211.ath.cx/ but the network is not
+working yet. I am connected wirelessly to a router that connects me to the
+internet and the internet is not working. That's how I knew that the network
+is not working. 
 
+Any suggestions are appreciated.
+Thanks,
+Mohamed Rabie
+--
+View this message in context: http://www.nabble.com/Linux-and-Wireless-USB-Adaptor-t1693753.html#a4699234
+Sent from the linux-kernel forum at Nabble.com.
 

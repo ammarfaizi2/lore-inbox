@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750742AbWFDQXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750729AbWFDQWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWFDQXh (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 12:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWFDQXh
+	id S1750729AbWFDQWZ (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 12:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWFDQWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 12:23:37 -0400
-Received: from wx-out-0102.google.com ([66.249.82.194]:46728 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750742AbWFDQXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 12:23:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KMMLPPdSZ4XzGYtqDeJJof1DuhE/KrnOvQJekU0+9bkeKlarhGcgCQWd0RuY/dqkMWDrXb+Dl2djgODJ0+rwbVMsBxSH+eCLL13/IxB1zPQ1pX8lzJyXqej8beZP+TLckJVZX03mAyDOFYjFJ5lHYF3oteJLZKGghqXKVipfYF4=
-Message-ID: <beee72200606040923h670cf61dn22a61518ef94013f@mail.gmail.com>
-Date: Sun, 4 Jun 2006 18:23:36 +0200
-From: "davor emard" <davoremard@gmail.com>
-To: "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
-Subject: Re: SMP HT + USB2.0 crash
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606041706.28073.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 4 Jun 2006 12:22:25 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:5821 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750729AbWFDQWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 12:22:24 -0400
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
+	disable_irq()
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
+        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1149437412.23209.3.camel@localhost.localdomain>
+References: <20060531200236.GA31619@elte.hu>
+	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
+	 <20060531214139.GA8196@devserv.devel.redhat.com>
+	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
+	 <20060531214729.GA4059@elte.hu>
+	 <1149112582.3114.91.camel@laptopd505.fenrus.org>
+	 <1149345421.13993.81.camel@localhost.localdomain>
+	 <20060603215323.GA13077@devserv.devel.redhat.com>
+	 <1149374090.14408.4.camel@localhost.localdomain>
+	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
+	 <1149426961.27696.7.camel@localhost.localdomain>
+	 <1149437412.23209.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 04 Jun 2006 12:22:11 -0400
+Message-Id: <1149438131.29652.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <beee72200606040322w2960e5f9j1716addc39949ccb@mail.gmail.com>
-	 <200606041706.28073.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please attach another log without NVIDIA ever having being loaded. This is a
-> technical forum, we need precise facts "nvidia has not been loaded", not
-> vague recollections "nvidia probably wasn't loaded some time before".
+On Sun, 2006-06-04 at 17:10 +0100, Alan Cox wrote:
+> Ar Sul, 2006-06-04 am 09:16 -0400, ysgrifennodd Steven Rostedt:
+> > But I'm not sure if I fully understand this misrouting irq.  Is it to
+> > fix broken machines that trigger interrupts on the wrong line?  Or is
+> 
+> It is solely to deal with machines where IRQs turn up on the wrong line,
+> generally meaning broken ACPI IRQ tables. It has to be enabled as a boot
+> option.
 
-that's not just a vague recollection: nvidia 7174 from debian's nvidia
-legacy source
-could not be even compiled and therefore also was certainly
-not loaded for 2.6.16.19. But for this special occasion I am going to
-reproduce this sucker on 2.6.16.19 once again with quite minimal
-stuff compiled in. I can even connect serial cable and get a laptop
-capture the bloody oops just to find out which kernel boot option is
-for serial console :(
+Thanks for the answer Alan.
 
-> Secondly, I highly recommend running memtest86 on your system for at least a
-> couple of passes. You can download an ISO from the homepage and boot it from
-> a CD. If this fails, you have faulty memory.
+But can't this machine still cause an interrupt storm if the interrupt
+comes on a wrong line, and we don't call the handler for the interrupt
+source because we are now honoring disable_irq?
 
-hmm I don't know why I didn't use memtest86. but I usually test memory on
-new machine linux, by continuously gzip-ing and ungzip-ing
-4GB file for 2 days and verify if the beginning
-and the end file  are the same memory, CPU and a bit of
-hardware handling them together should be good...
+-- Steve
+
+

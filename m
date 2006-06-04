@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932250AbWFDVA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932246AbWFDU6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWFDVA6 (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 17:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWFDVA6
+	id S932246AbWFDU6D (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 16:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWFDU6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 17:00:58 -0400
-Received: from mail.hosted.servetheworld.net ([83.143.81.74]:31720 "HELO
-	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
-	id S932248AbWFDVA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 17:00:58 -0400
-Message-ID: <44834A0F.3000502@osvik.no>
-Date: Sun, 04 Jun 2006 23:01:03 +0200
-From: Dag Arne Osvik <da@osvik.no>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060504)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Joachim Fritschi <jfritschi@freenet.de>, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-References: <200606041516.46920.jfritschi@freenet.de> <200606042110.15060.ak@suse.de>
-In-Reply-To: <200606042110.15060.ak@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 4 Jun 2006 16:58:03 -0400
+Received: from pool-72-66-198-190.ronkva.east.verizon.net ([72.66.198.190]:710
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932246AbWFDU6B (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 16:58:01 -0400
+Message-Id: <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, mingo@elte.hu, arjan@linux.intel.com,
+        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
+In-Reply-To: Your message of "Sun, 04 Jun 2006 13:33:26 PDT."
+             <20060604133326.f1b01cfc.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com>
+            <20060604133326.f1b01cfc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1149454606_2972P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sun, 04 Jun 2006 16:56:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Sunday 04 June 2006 15:16, Joachim Fritschi wrote:
->> This patch adds the twofish x86_64 assembler routine.
+--==_Exmh_1149454606_2972P
+Content-Type: text/plain; charset=us-ascii
 
->> +/* Defining a few register aliases for better reading */
-> 
-> Maybe you can read it now better, but for everybody else it is extremly 
-> confusing. It would be better if you just used the original register names.
+On Sun, 04 Jun 2006 13:33:26 PDT, Andrew Morton said:
 
-I'd agree if you said this code could benefit from further readability
-improvements.  But you're arguing against one.
+> Why does the locking validator complain about unlocking ordering?
 
-Too bad AMD kept the old register names when defining AMD64..
+Presumably, if the lock nesting *should* be "take A, take B, release B,
+release A", if it sees "Take A, Take B, release A" it means there's
+potentially a missing 'release B' that got forgotten (most likely an
+error case that does a 'return;' instead of a 'goto end_of_function_cleanup'
+like we usually code.
 
--- 
-  Dag Arne
+Having said that, I'm not sure it qualifies as a "BUG".  Certainly would
+qualify for a "SMELLS_FISHY" though.  But we don't have one of those handy,
+so maybe BUG is as good as it gets (given that the person who built the
+kernel *asked* to be nagged about locking funkyness)....
+
+--==_Exmh_1149454606_2972P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEg0kOcC3lWbTT17ARAoRGAJ97Yaem/CASOjsP0kQsqraG1adi4QCeLcD5
+g4Y8CyUR+9qsx0dvqskXDlA=
+=eT4f
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1149454606_2972P--

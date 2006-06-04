@@ -1,99 +1,63 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932207AbWFDKWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932133AbWFDK2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWFDKWX (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 06:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWFDKWX
+	id S932133AbWFDK2F (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 06:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWFDK2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 06:22:23 -0400
-Received: from wx-out-0102.google.com ([66.249.82.196]:50031 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932207AbWFDKWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 06:22:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=o8c3/mbmt+I8nHbthhA0mXKgcxnHsxFDw5TmT0jT9MGdk34L0XOWl810QzFw8zlqhLVyw5wx+xSSC8TouZwNFUwkA9TTsbSyeWvykFf3U+qXoPMi9DN7crtz82+/rPQSOZjyI/UpiLx1cU4d/Zr60lSZMcN8Ov57++qM7OcVz3A=
-Message-ID: <beee72200606040322w2960e5f9j1716addc39949ccb@mail.gmail.com>
-Date: Sun, 4 Jun 2006 12:22:22 +0200
-From: "davor emard" <davoremard@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SMP HT + USB2.0 crash
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_23507_33021185.1149416542230"
+	Sun, 4 Jun 2006 06:28:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56527 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932133AbWFDK2E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 06:28:04 -0400
+Date: Sun, 4 Jun 2006 03:27:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ryan Lortie <desrt@desrt.ca>
+Cc: linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org, bcollins@ubuntu.com,
+        Greg KH <greg@kroah.com>
+Subject: Re: pci_restore_state
+Message-Id: <20060604032746.a5b3e2dd.akpm@osdl.org>
+In-Reply-To: <1149416010.30767.14.camel@moonpix.desrt.ca>
+References: <1149416010.30767.14.camel@moonpix.desrt.ca>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_23507_33021185.1149416542230
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sun, 04 Jun 2006 06:13:30 -0400
+Ryan Lortie <desrt@desrt.ca> wrote:
 
-Usually SMP + EHCI crashes like this
+> Currently pci_restore_state() (drivers/pci/pci.c) restores the PCI state
+> by copying in the saved PCI configuration space, a dword at a time,
+> starting from 0 up to 15.
+> 
+> This causes a crash when my Macbook resumes from sleep (specifically,
+> when restoring the configuration space of the PCI bridge).
+> 
+> Reading the PCI specification, the register at dword 1 (ie: bytes 4-7)
+> is split half and half between status and command words.  The command
+> word effectively controls the way which the PCI device interacts with
+> the system.  If it is 0, the device is logically disconnected from the
+> bus (PCI Local Bus Specification Revision 2.2, 6.2.2 "Device
+> Control").  
+> 
+> When a device first powers up, the command register value is normally
+> zero (and is zero in my specific case).
+> 
+> The problem with the way that the PCI state is currently restored is
+> that the write to the command register logically reconnects the device
+> to the bus before the rest of the configuration space has been filled
+> in.
+> 
+> My Macbook crashes on resume.
+> 
+> If I reverse the for loop to start from 15 and count down to 0, then the
+> majority of the configuration space is filled in _before_ the command
+> word is modified.  No crash.
 
-------=_Part_23507_33021185.1149416542230
-Content-Type: text/plain; name="crash2.syslog"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="crash2.syslog"
-X-Attachment-Id: file0
+We have a patch pending which will do that.
 
-QXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6IFVuYWJsZSB0byBoYW5kbGUga2VybmVs
-IHBhZ2luZyByZXF1ZXN0IGF0IHZpcnR1YWwgYWRkcmVzcyAxMzU5MDI0YgpBcHIgMTMgMDA6NDk6
-MDAgbG9jYWxob3N0IGtlcm5lbDogIHByaW50aW5nIGVpcDoKQXByIDEzIDAwOjQ5OjAwIGxvY2Fs
-aG9zdCBrZXJuZWw6IGMwMTNjNjMzCkFwciAxMyAwMDo0OTowMCBsb2NhbGhvc3Qga2VybmVsOiAq
-cGRlID0gMDAwMDAwMDAKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6IE9vcHM6IDAw
-MDIgWyMxXQpBcHIgMTMgMDA6NDk6MDAgbG9jYWxob3N0IGtlcm5lbDogUFJFRU1QVCBTTVAgCkFw
-ciAxMyAwMDo0OTowMCBsb2NhbGhvc3Qga2VybmVsOiBNb2R1bGVzIGxpbmtlZCBpbjogcG9saWNl
-IHNjaF9pbmdyZXNzIGNsc191MzIgc2NoX3NmcSBzY2hfY2JxIHBwcG9lIHBwcG94IHJmY29tbSBs
-MmNhcCBscCB0aGVybWFsIGZhbiBidXR0b24gcHJvY2Vzc29yIGFjIGJhdHRlcnkgcHBwX2dlbmVy
-aWMgc2xoYyBkdjEzOTQgcmF3MTM5NCB3ODM2MjdlaGYgaHdtb24gaTJjX2lzYSB1aW5wdXQgbnZy
-YW0gaXJjb21tX3R0eSBpcmNvbW0gc3RpcjQyMDAgaXJkYSB2ZmF0IGZhdCBkYjkgc2FhNzEzNF9h
-bHNhIGVlcHJvbSBudmlkaWEgcGwyMzAzIHVzYnNlcmlhbCB1c2JoaWQgdXNibHAgZXRoMTM5NCBk
-dmJfdXNiX2E4MDAgZHZiX3VzYl9kaWJ1c2JfY29tbW9uIGRpYjMwMDBtYyBkaWIzMDAwX2NvbW1v
-biBkdmJfdXNiIGR2Yl9wbGwgaGNpX3VzYiBibHVldG9vdGggdHVuZXIgc25kX21wdTQwMSA4MjUw
-X3BucCBzbmRfbXB1NDAxX3VhcnQgODI1MCBzZXJpYWxfY29yZSBzbmRfcmF3bWlkaSBzbmRfaGRh
-X2ludGVsIHNhYTcxMzQgaXJfa2JkX2kyYyBpcl9jb21tb24gc2VyaW9fcmF3IHNuZF9zZXFfZGV2
-aWNlIHBjc3BrciBkdmJfdHRwY2kgbDY0NzgxIHNhYTcxNDZfdnYgdmlkZW9fYnVmIHNhYTcxNDYg
-djRsMV9jb21wYXQgdjRsMl9jb21tb24gdmlkZW9kZXYgdmVzMTgyMCBzdHYwMjk5IGR2Yl9jb3Jl
-IHRkYTgwODMgc3R2MDI5NyBzcDg4NzAgdmVzMXg5MyBzbmRfaGRhX2NvZGVjIHBhcnBvcnRfcGMg
-cGFycG9ydCBydGMgb2hjaTEzOTQgaWVlZTEzOTQgdHRwY2lfZWVwcm9tIGkyY19pODAxIHNuZF9w
-Y21fb3NzIHNuZF9taXhlcl9vc3Mgc25kX3BjbSBzbmRfdGltZXIgc25kIGVoY2lfaGNkIHNuZF9w
-YWdlX2FsbG9jIHVoY2lfaGNkIGlkZV9jZCBjZHJvbQpBcHIgMTMgMDA6NDk6MDAgbG9jYWxob3N0
-IGtlcm5lbDogQ1BVOiAgICAxCkFwciAxMyAwMDo0OTowMCBsb2NhbGhvc3Qga2VybmVsOiBFSVA6
-ICAgIDAwNjA6W2ZyZWVfYmxvY2srNTcvMTgzXSAgICBUYWludGVkOiBQICAgICAgVkxJCkFwciAx
-MyAwMDo0OTowMCBsb2NhbGhvc3Qga2VybmVsOiBFRkxBR1M6IDAwMjEwMDAyICAgKDIuNi4xNS43
-KSAKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6IEVJUCBpcyBhdCBmcmVlX2Jsb2Nr
-KzB4MzkvMHhiNwpBcHIgMTMgMDA6NDk6MDAgbG9jYWxob3N0IGtlcm5lbDogZWF4OiA4N2JlOTYy
-NCAgIGVieDogZGM2YjcwMDAgICBlY3g6IGRjNmI3NmY4ICAgZWR4OiAxMzU5MDI0NwpBcHIgMTMg
-MDA6NDk6MDAgbG9jYWxob3N0IGtlcm5lbDogZXNpOiBmNzkyYmZjMCAgIGVkaTogZjdmMjA4NDAg
-ICBlYnA6IDAwMDAwMDA4ICAgZXNwOiBmN2M4ZmYxNApBcHIgMTMgMDA6NDk6MDAgbG9jYWxob3N0
-IGtlcm5lbDogZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4CkFwciAxMyAwMDo0OTowMCBs
-b2NhbGhvc3Qga2VybmVsOiBQcm9jZXNzIGV2ZW50cy8xIChwaWQ6IDksIHRocmVhZGluZm89Zjdj
-OGMwMDAgdGFzaz1mN2M2NGEzMCkKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6IFN0
-YWNrOiBmN2ZiZTYxOCAwMDAwMDAxOCBmN2ZiZTYwMCAwMDAwMDAwMCBjMDEzY2U2OCBmN2YyMDg0
-MCBmN2ZiZTYxOCAwMDAwMDAxOCAKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6ICAg
-ICAgICAwMDAwMDAwMCBmN2YyMDg0MCBmNzkyYmY1MCBmNzkyYmZjMCBmN2YyMDg0MCAwMDAwMDAw
-MSBjMDEzY2VmYiBmN2YyMDg0MCAKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6ICAg
-ICAgICBmN2ZiZTYwMCAwMDAwMDAwMCAwMDAwMDAwMCBmNzkyYmZlOCBmN2YyMDg5OCBjMTcxMjEy
-MCBmN2MwODFjMCBjMTcxMjEyNCAKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6IENh
-bGwgVHJhY2U6CkFwciAxMyAwMDo0OTowMCBsb2NhbGhvc3Qga2VybmVsOiAgW2RyYWluX2FycmF5
-X2xvY2tlZCs5OC8xNDBdIGRyYWluX2FycmF5X2xvY2tlZCsweDYyLzB4OGMKQXByIDEzIDAwOjQ5
-OjAwIGxvY2FsaG9zdCBrZXJuZWw6ICBbY2FjaGVfcmVhcCsxMDUvMzcyXSBjYWNoZV9yZWFwKzB4
-NjkvMHgxNzQKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6ICBbd29ya2VyX3RocmVh
-ZCszNDIvNDUyXSB3b3JrZXJfdGhyZWFkKzB4MTU2LzB4MWM0CkFwciAxMyAwMDo0OTowMCBsb2Nh
-bGhvc3Qga2VybmVsOiAgW2NhY2hlX3JlYXArMC8zNzJdIGNhY2hlX3JlYXArMHgwLzB4MTc0CkFw
-ciAxMyAwMDo0OTowMCBsb2NhbGhvc3Qga2VybmVsOiAgW2RlZmF1bHRfd2FrZV9mdW5jdGlvbisw
-LzE4XSBkZWZhdWx0X3dha2VfZnVuY3Rpb24rMHgwLzB4MTIKQXByIDEzIDAwOjQ5OjAwIGxvY2Fs
-aG9zdCBrZXJuZWw6ICBbd29ya2VyX3RocmVhZCswLzQ1Ml0gd29ya2VyX3RocmVhZCsweDAvMHgx
-YzQKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6ICBba3RocmVhZCsxMTQvMTU5XSBr
-dGhyZWFkKzB4NzIvMHg5ZgpBcHIgMTMgMDA6NDk6MDAgbG9jYWxob3N0IGtlcm5lbDogIFtrdGhy
-ZWFkKzAvMTU5XSBrdGhyZWFkKzB4MC8weDlmCkFwciAxMyAwMDo0OTowMCBsb2NhbGhvc3Qga2Vy
-bmVsOiAgW2tlcm5lbF90aHJlYWRfaGVscGVyKzUvMTFdIGtlcm5lbF90aHJlYWRfaGVscGVyKzB4
-NS8weGIKQXByIDEzIDAwOjQ5OjAwIGxvY2FsaG9zdCBrZXJuZWw6IENvZGU6IDAwIDhiIDQ0IDI0
-IDE4IDhiIDBjIGE4IDhkIDgxIDAwIDAwIDAwIDQwIGMxIGU4IDBjIGMxIGUwIDA1IDhiIDE1IDEw
-IGUyIDRmIGMwIDhiIDVjIDEwIDFjIDhiIDQ0IDI0IDIwIDhiIDc0IDg3IDE4IDhiIDEzIDhiIDQz
-IDA0IDw4OT4gNDIgMDQgODkgMTAgYzcgMDMgMDAgMDEgMTAgMDAgYzcgNDMgMDQgMDAgMDIgMjAg
-MDAgMmIgNGIgMGMgCkFwciAxMyAwMDo0OTowMCBsb2NhbGhvc3Qga2VybmVsOiAgPDY+bm90ZTog
-ZXZlbnRzLzFbOV0gZXhpdGVkIHdpdGggcHJlZW1wdF9jb3VudCAxCkFwciAxMyAwMDo1MjoxMSBs
-b2NhbGhvc3Qgc3lzbG9nZCAxLjQuMSMxNzogcmVzdGFydC4KCg==
-------=_Part_23507_33021185.1149416542230--
+http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-03-pci/pci-reverse-pci-config-space-restore-order.patch
+
+The present plan will be to get this into 2.6.18.

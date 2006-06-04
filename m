@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932158AbWFDKMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932213AbWFDKTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWFDKMQ (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 06:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWFDKMQ
+	id S932213AbWFDKTD (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 06:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWFDKTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 06:12:16 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63979 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932158AbWFDKMP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 06:12:15 -0400
-Date: Sun, 4 Jun 2006 12:11:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch, -rc5-mm3] lock validator: fix ns83820.c irq-flags part 3
-Message-ID: <20060604101136.GA14693@elte.hu>
-References: <20060604083017.GA8241@elte.hu> <1149411525.3109.73.camel@laptopd505.fenrus.org> <986ed62e0606040253pfe9c300qf88029f88ae65039@mail.gmail.com> <1149415707.3109.96.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 4 Jun 2006 06:19:03 -0400
+Received: from wx-out-0102.google.com ([66.249.82.201]:12869 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932213AbWFDKTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 06:19:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=nE5rYMXa4bnpJzjRXVGNfAULAn6CsTcu2fXEYQPZlkiEw3qS4tAPEy4cGXFcS9xWpjuCiNhmZEgEeLiJabx2vXSVs8t2aWQo/iR1V9Z1aKoRTpDsDw0j/j8UI1dVJF4LNGwFe6uWVKcfgN9/Jj+4JSFBxWg74S/9NeFFrHsioFY=
+Message-ID: <beee72200606040319g2e933d52j598b68cec2565be0@mail.gmail.com>
+Date: Sun, 4 Jun 2006 12:19:01 +0200
+From: "davor emard" <davoremard@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SMP HT + USB2.0 crash
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1149415707.3109.96.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5069]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HI
 
-* Arjan van de Ven <arjan@linux.intel.com> wrote:
+I have an asus MB with intel 925XE chipset and hyperthreading capable CPU.
+Certain lockups with random oops occur all through kernel 2.6.16.19. Some of
+lockups are SMP only oopses (sorry but I didn't catch them exactly to a file),
+other are usually like this attached file
 
-> On Sun, 2006-06-04 at 02:53 -0700, Barry K. Nathan wrote:
-> > On 6/4/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
-> > > just the preempt the next email from Barry; while fixing this one I
-> > > looked at the usage of the locks more and found another patch needed...
-> > [snip]
-> > 
-> > Nice try, but it didn't work. ~_^
-> > 
-> > I was about to reply to the previous ns83820 patch with my dmesg, when
-> > I saw this one. I applied this patch too, and like the previous patch,
-> > it reports an instance of illegal lock usage. My dmesg follows.
-> > -- 
-> 
-> ok this is a real driver deadlock:
+As a general rule, if both
+1) SMP
+2) EHCI (usb 2.0)
 
-preexisting bug, right? So this fix should go into 2.6.16/17 too, 
-correct?
+Are enabled and USB2.0 devices are used frequently, then
+kernel lockup appear between few minutes and 1 day. It is very annoying
 
-	Ingo
+Disabling either SMP or the EHCI fixes the lockups. Probably some
+missing spin_lock or whatever in EHCI...
+
+Emard

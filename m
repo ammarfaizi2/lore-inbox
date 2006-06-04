@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751152AbWFDJcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751215AbWFDJeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWFDJcR (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 05:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWFDJcR
+	id S1751215AbWFDJeZ (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 05:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWFDJeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 05:32:17 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:28031 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751197AbWFDJcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 05:32:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J31FZYjVxt8kEk2sy7/KzuuW64ivYxyxZvEo7bSaKfS9WnySFDNln+5BvRs3evuvFXOIg5hjBfIqhu6PONTC/Jl68dK9XQ7UwDGOU/pdFHY1wbosnihHQqTWItc44r7Lr2qMzO4AEdjiOqVK5pfo7YB6Aty4AvAD3ozGkvNuo+o=
-Message-ID: <e5bfff550606040232yffdba0ax43b1b891dfdc5b5e@mail.gmail.com>
-Date: Sun, 4 Jun 2006 11:32:15 +0200
-From: "Marco Costalba" <mcostalba@gmail.com>
-To: "Jakub Narebski" <jnareb@gmail.com>
-Subject: Re: [ANNOUNCE qgit-1.3]
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <e5u8fk$ju6$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 4 Jun 2006 05:34:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2758 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751215AbWFDJeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 05:34:24 -0400
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
+	disable_irq()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Alan Cox <alan@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1149374090.14408.4.camel@localhost.localdomain>
+References: <20060531200236.GA31619@elte.hu>
+	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
+	 <20060531214139.GA8196@devserv.devel.redhat.com>
+	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
+	 <20060531214729.GA4059@elte.hu>
+	 <1149112582.3114.91.camel@laptopd505.fenrus.org>
+	 <1149345421.13993.81.camel@localhost.localdomain>
+	 <20060603215323.GA13077@devserv.devel.redhat.com>
+	 <1149374090.14408.4.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 04 Jun 2006 11:34:09 +0200
+Message-Id: <1149413649.3109.92.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <e5bfff550606040155v14565312na26f8c866f0fc32d@mail.gmail.com>
-	 <e5u8fk$ju6$1@sea.gmane.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/4/06, Jakub Narebski <jnareb@gmail.com> wrote:
-> Marco Costalba wrote:
->
-> > This is qgit-1.3
-> [...]
-> > NEW IN THIS RELEASE
-> >
-> > Main focus of this release is usability.
-> >
-> > The big feature is the use of tabs instead of independent windows.
-> >
-> > This change alone could be enough for a release. It's a big rewrite of UI
-> > code to let browsing revisions and patches quicker and easier.
->
-> Of course that is advantage _only_ if the tabs are independend, and one
-> (usually) doesn't need to view them simultaneously, e.g. side by side.
->
+On Sat, 2006-06-03 at 18:34 -0400, Steven Rostedt wrote:
+> On Sat, 2006-06-03 at 17:53 -0400, Alan Cox wrote:
+> > On Sat, Jun 03, 2006 at 10:37:01AM -0400, Steven Rostedt wrote:
+> > > Couldn't it be possible to have the misrouted irq function mark the
+> > > DISABLED_IRQ handlers as IRQ_PENDING?  Then have the enable_irq that
+> > > actually enables the irq to call the handlers with interrupts disabled
+> > > if the IRQ_PENDING is set?
+> > 
+> > We still have the ambiguity with disable_irq. Really we need to have
+> > disable_irq_handler(irq, handler)
+> 
+> Yeah, that does make sense, but I think the IRQ_PENDING idea works too.
+> This way disable_irq_handler doesn't need to mask the interrupt even
+> without the irqpoll and irqfixup.  Let the interrupt happen and just
+> skip those handlers that that are disabled.  Then when the handler is
+> re-enabled, then we can call the handler. Of course we would need a
+> enable_irq_handler too.
+> 
+> This would make the vortex card's disable_irq not hurt all the other
+> devices that share the irq with it.
+can't do that; if you get an irq anyway from the hardware you now have a
+screamer...... which is why vortex really needs to disable the irq at
+the hardware level.
 
-Actually they are.
-One for revisions list, one for patches and one for file content.
-File content tab is indipendent from previous two (of course it can be
-synced on request).
-
-> Just my 3 eurocents ;-)
-
-Well, at today exchange rate should be 'my 2.3 eurocents'  :-)
-
-
-      Marco

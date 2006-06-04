@@ -1,70 +1,92 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932152AbWFDKK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932198AbWFDKNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWFDKK0 (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 06:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWFDKKZ
+	id S932198AbWFDKNj (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 06:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWFDKNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 06:10:25 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:58083 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S932152AbWFDKKZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 06:10:25 -0400
-Message-ID: <4482B18F.1050606@dgreaves.com>
-Date: Sun, 04 Jun 2006 11:10:23 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc3: XFS internal error xlog_clear_stale_blocks(1)
-References: <4482AB6A.9010105@dgreaves.com>
-In-Reply-To: <4482AB6A.9010105@dgreaves.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jun 2006 06:13:39 -0400
+Received: from ns3.mountaincable.net ([24.215.0.13]:62375 "EHLO
+	ns3.mountaincable.net") by vger.kernel.org with ESMTP
+	id S932198AbWFDKNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 06:13:38 -0400
+Subject: pci_restore_state
+From: Ryan Lortie <desrt@desrt.ca>
+To: linux-kernel@vger.kernel.org
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Ben Collins <bcollins@ubuntu.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lGd9xKqbbEIOhU+JrQFt"
+Date: Sun, 04 Jun 2006 06:13:30 -0400
+Message-Id: <1149416010.30767.14.camel@moonpix.desrt.ca>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Greaves wrote:
-> Hi
->
-> vanilla 2.6.17-rc3
->
-> mounting onto an lvm2 ontop of raid5 on top of sata
->
-> Filesystem "dm-0": Disabling barriers, not supported by the underlying
-> device
-> XFS mounting filesystem dm-0
-> Filesystem "dm-0": XFS internal error xlog_clear_stale_blocks(1) at line
-> 1225 of file fs/xfs/xfs_log_recover.c.  Caller 0xb01fca2f
->  <b01fb8d9> xlog_find_tail+0xa39/0xeb0   <b01fca2f> xlog_recover+0x2f/0x2f0
->  <b01fca2f> xlog_recover+0x2f/0x2f0   <b01f5566> xfs_log_mount+0x256/0x650
->  <b01fec19> xfs_mountfs+0xd09/0x1260   <b021b199>
-> xfs_mountfs_check_barriers+0x39/0x120
->  <b0207cef> xfs_mount+0xa2f/0xbf0   <b021c130> xfs_fs_fill_super+0xa0/0x250
->  <b0237e8b> snprintf+0x2b/0x30   <b0198095> disk_name+0xd5/0xf0
->  <b016644f> sb_set_blocksize+0x1f/0x50   <b0165407> get_sb_bdev+0x117/0x155
->  <b021b6ff> xfs_fs_get_sb+0x2f/0x40   <b021c090> xfs_fs_fill_super+0x0/0x250
->  <b0164882> do_kern_mount+0x52/0xe0   <b017cd1d> do_mount+0x29d/0x770
->  <b016eb8e> do_path_lookup+0x10e/0x270   <b016c35a> getname+0xda/0x100
->  <b014219e> __alloc_pages+0x5e/0x2f0   <b01426e4> __get_free_pages+0x34/0x60
->  <b017b824> copy_mount_options+0x44/0x140   <b017d28d> sys_mount+0x9d/0xe0
->  <b010304b> syscall_call+0x7/0xb
-> XFS: failed to locate log tail
-> XFS: log mount/recovery failed: error 990
-> XFS: log mount failed
->
->
-> Anything else I can do?
-> (is it worth trying -rc5?)
->
-> I'm building 2.6.16.19 and I'll try that shortly...
->
-> David
->   
-So I tried 2.6.17-rc5 and the problem resolved itself.
 
-David
+--=-lGd9xKqbbEIOhU+JrQFt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Hello.
 
--- 
+Currently pci_restore_state() (drivers/pci/pci.c) restores the PCI state
+by copying in the saved PCI configuration space, a dword at a time,
+starting from 0 up to 15.
+
+This causes a crash when my Macbook resumes from sleep (specifically,
+when restoring the configuration space of the PCI bridge).
+
+Reading the PCI specification, the register at dword 1 (ie: bytes 4-7)
+is split half and half between status and command words.  The command
+word effectively controls the way which the PCI device interacts with
+the system.  If it is 0, the device is logically disconnected from the
+bus (PCI Local Bus Specification Revision 2.2, 6.2.2 "Device
+Control"). =20
+
+When a device first powers up, the command register value is normally
+zero (and is zero in my specific case).
+
+The problem with the way that the PCI state is currently restored is
+that the write to the command register logically reconnects the device
+to the bus before the rest of the configuration space has been filled
+in.
+
+My Macbook crashes on resume.
+
+If I reverse the for loop to start from 15 and count down to 0, then the
+majority of the configuration space is filled in _before_ the command
+word is modified.  No crash.
+
+About dword 0 -- this dword contains only the vendor and product ID
+codes which will always be set by the device (as far as I know) so it's
+not a problem to not have written these before restoring the value of
+the command register.  I'm not sure they even ever need to be written.
+
+I am essentially requesting that this piece of code be changed in the
+stock kernel as I changed it (described above).  It makes sleep work on
+my Macbook and may fix some others too (and/or make more reliable some
+which already work).
+
+Cheers
+
+--=-lGd9xKqbbEIOhU+JrQFt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iQG5AwUARIKySZ96IjKvqm/2AQIrIQ0cCqP6jIEGUUyBcgj9lL4l5RRfKQUqxatS
+a7xpeXQXeSNfrt9O4mm97LkHI/v0PynDWPaSLRZc48uY3gq7JRwz+PtfomrlXPBl
+ILQADoB2UhAqdEE/bVPTgcfxPaONXdXYP6Hyo/T3D44Go7Wbh/Nza9OuYKq7ltKA
+6D4wgiU1BnUhVUUBRzQBDb5CWjlKqt1Mrs42ipSLKfyQI4WaLG2M90+ho6mdtclP
+W6En3SJ84VyuueIbjO/bq+9fOCL1DNZly7NMv4KnkWBBdru85mMnwoKhf0OqE9AP
+2pWyxXXFuHerxtIiFIPvALLPz80Uv7t9eXz8ufXNRKBiCxDcfSqf3QAOuY9NWrgz
+Gc7mrc3HOhieAr0D0Y4VT9xj2p7sO1P0Ey3gAehQXlBaPOIE0BR7RikNeJJYj9Ee
+gmEGZ+YlBMi0ARtdxZNYRzSgE5SCb5mnZb87hwE3eJCdY5k6czvopiXNwx5j/LdF
+M9MLWTcmioAAzjEmapzIWJigmGVZsrE8395IjExVzfORTgZcTbNlqIMcPKRTb4Tb
+rFXPMgwQ9tkJS9Ks
+=lXgV
+-----END PGP SIGNATURE-----
+
+--=-lGd9xKqbbEIOhU+JrQFt--
 

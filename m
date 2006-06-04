@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWFDDmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWFDDtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWFDDmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 23:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWFDDlj
+	id S932092AbWFDDtf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 23:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWFDDtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 23:41:39 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:38366 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751494AbWFDDlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 23:41:37 -0400
+	Sat, 3 Jun 2006 23:49:35 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:3290 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932092AbWFDDte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 23:49:34 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=mBOdwkxW5a7tgWioDgUmWmYVnnJdRrM/NgKL1F82moO2dG/ki5blJ6THw6uGMW8cfJjgJL9Uw+RatlihHi0y+TvTDVZBrcBT7dDJVvDMnGoK3Rlqu0QnHtSSOZ8PqbIhn3JHHCN/syu/JldjFHHgMFEbCWvQKTEpH6QbZbmONqY=
-Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 2/5] ide: add cpu cache flushes after kmapping and modifying a page
-In-Reply-To: <1149392479501-git-send-email-htejun@gmail.com>
-X-Mailer: git-send-email
-Date: Sun, 4 Jun 2006 12:41:20 +0900
-Message-Id: <1149392480987-git-send-email-htejun@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Tejun Heo <htejun@gmail.com>
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=bAFCfQ1cvtM5QLtcvwxlfkn5V+i4Un2CzKLQMd8YdreLiBDDDFLqN3y34xwg3FgBopfbmnr5QdmaqcKR/Eb+PM1+Ku9yLfLucKuksk3ePdzH95COvk8uDutY9fKthgtGXxznG5PApXWKI2N/wUH/t35MBJ7n9U8SJBS14JxBuF0=
+Date: Sun, 4 Jun 2006 12:49:16 +0900
+From: Tejun Heo <htejun@gmail.com>
 To: Jens Axboe <axboe@suse.de>, James Bottomley <James.Bottomley@SteelEye.com>,
        Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
        james.steward@dynamicratings.com, jgarzik@pobox.com,
        mattjreimer@gmail.com, Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
        rmk@arm.linux.org.uk, lkml <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org, htejun@gmail.com
-Content-Transfer-Encoding: 7BIT
-From: Tejun Heo <htejun@gmail.com>
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/5] (REPOST) arm: implement flush_kernel_dcache_page()
+Message-ID: <20060604034916.GD8106@htj.dyndns.org>
+References: <1149392479501-git-send-email-htejun@gmail.com> <1149392479281-git-send-email-htejun@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149392479281-git-send-email-htejun@gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add calls to flush_kernel_dcache_page() after CPU has kmapped and
-modified a page.  This fixes PIO cache coherency bugs on architectures
-with aliased caches.
+Implement flush_kernel_dcache_page() for arm.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
 ---
 
- drivers/ide/ide-floppy.c   |    1 +
- drivers/ide/ide-taskfile.c |    2 ++
- 2 files changed, 3 insertions(+), 0 deletions(-)
+Sorry, the patch contained in the previous post was generated against
+the wrong base.  Please ignore it.
 
-861367f65bbbbc5c9f5d3a27aab91c587a3a9049
-diff --git a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
-index a53e3ce..5be22c2 100644
---- a/drivers/ide/ide-floppy.c
-+++ b/drivers/ide/ide-floppy.c
-@@ -618,6 +618,7 @@ static void idefloppy_input_buffers (ide
- 
- 			data = bvec_kmap_irq(bvec, &flags);
- 			drive->hwif->atapi_input_bytes(drive, data, count);
-+			flush_kernel_dcache_page(kmap_atomic_to_page(data));
- 			bvec_kunmap_irq(data, &flags);
- 
- 			bcount -= count;
-diff --git a/drivers/ide/ide-taskfile.c b/drivers/ide/ide-taskfile.c
-index 9233b81..c183c07 100644
---- a/drivers/ide/ide-taskfile.c
-+++ b/drivers/ide/ide-taskfile.c
-@@ -294,6 +294,8 @@ #endif
- 	else
- 		taskfile_input_data(drive, buf, SECTOR_WORDS);
- 
-+	if (!write)
-+		flush_kernel_dcache_page(kmap_atomic_to_page(buf));
- 	kunmap_atomic(buf, KM_BIO_SRC_IRQ);
- #ifdef CONFIG_HIGHMEM
- 	local_irq_restore(flags);
--- 
+ include/asm-arm/cacheflush.h |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+fad719d62838161fb0d6f306c6e060f8ef2ddfd0
+diff --git a/include/asm-arm/cacheflush.h b/include/asm-arm/cacheflush.h
+index 746be56..7ab6ec3 100644
+--- a/include/asm-arm/cacheflush.h
++++ b/include/asm-arm/cacheflush.h
+@@ -331,6 +331,12 @@ #define flush_dcache_mmap_lock(mapping)
+ #define flush_dcache_mmap_unlock(mapping) \
+        write_unlock_irq(&(mapping)->tree_lock)
+
++static inline void flush_kernel_dcache_page(struct page *page)
++{
++       __cpuc_flush_dcache_page(page_address(page));
++}
++#define ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
++
+ #define flush_icache_user_range(vma,page,addr,len) \
+        flush_dcache_page(page)
+
+--
 1.3.2
-
-

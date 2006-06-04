@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932279AbWFDWDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932289AbWFDWYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWFDWDQ (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 18:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWFDWDP
+	id S932289AbWFDWYN (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 18:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWFDWYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 18:03:15 -0400
-Received: from wx-out-0102.google.com ([66.249.82.207]:34770 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932279AbWFDWDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 18:03:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=XXFx+Vqe7Du362LE6JJi8S4DxUYpa602MWAj50rBHhhFugnIwB+yzbGI/W2JoCwYCbgG3cavYwP7NVUG7EIWVELxsC/TncbyVLAaiI71u2PW556TshFhvvinb8O3cA+AYXrqQFzWyTcyjmQ8bKzGqGBgMv8C1lzGuC+ll+DYlX8=
-Message-ID: <986ed62e0606041503v701f8882la4cbead47ae3982f@mail.gmail.com>
-Date: Sun, 4 Jun 2006 15:03:12 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
-Cc: Valdis.Kletnieks@vt.edu, "Andrew Morton" <akpm@osdl.org>,
-        arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-In-Reply-To: <20060604213432.GB5898@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jun 2006 18:24:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63753 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932289AbWFDWYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 18:24:13 -0400
+Date: Sun, 4 Jun 2006 23:23:48 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
+        James Bottomley <James.Bottomley@SteelEye.com>,
+        Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
+        james.steward@dynamicratings.com, jgarzik@pobox.com,
+        mattjreimer@gmail.com, Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+        lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug, take 2
+Message-ID: <20060604222347.GG4484@flint.arm.linux.org.uk>
+Mail-Followup-To: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
+	james.steward@dynamicratings.com, jgarzik@pobox.com,
+	mattjreimer@gmail.com,
+	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <1149392479501-git-send-email-htejun@gmail.com> <20060604204444.GF4484@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com>
-	 <20060604133326.f1b01cfc.akpm@osdl.org>
-	 <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu>
-	 <20060604213432.GB5898@elte.hu>
-X-Google-Sender-Auth: a2ee12d0ae2c8818
+In-Reply-To: <20060604204444.GF4484@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/4/06, Ingo Molnar <mingo@elte.hu> wrote:
-> nevertheless i'll turn that warning into a less scary message.
+On Sun, Jun 04, 2006 at 09:44:44PM +0100, Russell King wrote:
+> On Sun, Jun 04, 2006 at 12:41:19PM +0900, Tejun Heo wrote:
+> > Russell, can you please verify arm's flush_kernel_dcache_page()?
+> 
+> That should be fine from a theoretical standpoint
 
-This discussion seems to imply that I reported a false positive... is
-it *known* that I reported a false positive, or is it only a strong
-possibility?
+I'll add to this statement that the cache flushing on ARM is only
+ever required when the page ends up in userspace - if we're reading
+a page into the page cache to throw it out via NFS or sendfile then
+the cache flush is a complete waste of time.
 
-Assuming it's a false positive: Since this stops the tracer, it means
-that if an actual deadlock possibility is detected later [I'm assuming
-that detection of those doesn't get shut down by the bad-lock-ordering
-detection either], useful information could be missing from
-/proc/latency_trace, if I am not mistaken. Perhaps this could impede
-lockdep testing for people running reiser4 filesystems. I guess this
-is just a theoretical possibility at this point, but perhaps it's
-worth mentioning.
+Why is this?  Well, if the data has been written to the kernel mapping
+by the CPU, it may be contained in the cache lines corresponding to
+that mapping.  When that memory is passed to a network interface to
+send, the network interface either reads data from the kernel mapping
+via PIO (in which case it reads the data from the cache), or it
+performs DMA.  In the case of DMA, the DMA API handles the cache
+coherency issues with respect to dirty data in the kernel mapping.
+
+Moreover, there's the problem of read-ahead.  When data is read from
+a block device, more data than that which is required is usually read
+in case it's required a short time later.  If the data is not required,
+it is thrown away during an eviction cycle.  However, any cache flushing
+that you've performed for uses "other than kernel space" is then a waste
+of resources - the only time that such handling is needed is when the
+data is actually used for these other uses - which in the case of ARM
+means userspace.
+
+Given the above, I believe that the method being proposed will be
+_far_ too expensive, maybe to the point where (eg) disabling read-
+ahead _entirely_ on ARM makes the system overall more efficient.
+
+In this respect, I continue to believe that the way ARM (in principle)
+does flush_dcache_page() is what is required here - if the page has
+not been mapped into userspace, it merely marks the page as containing
+dirty cache lines, and the resulting cache maintainence will only
+happen when (and if) the page really does get mapped into userspace.
+
 -- 
--Barry K. Nathan <barryn@pobox.com>
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

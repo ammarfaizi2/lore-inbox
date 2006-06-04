@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932277AbWFDWBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932273AbWFDWBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWFDWBf (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 18:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWFDWBd
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S932273AbWFDWBd (ORCPT <rfc822;akpm@zip.com.au>);
 	Sun, 4 Jun 2006 18:01:33 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:13577 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932279AbWFDWBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 18:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWFDWA7
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 4 Jun 2006 18:00:59 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:17985 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932277AbWFDWAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 18:00:21 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.17-rc5 8/8] Simple testing for kmemleak
-Date: Sun, 04 Jun 2006 23:00:57 +0100
+Subject: [PATCH 2.6.17-rc5 3/8] Add the memory allocation/freeing hooks for kmemleak
+Date: Sun, 04 Jun 2006 23:00:17 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060604220057.16277.19657.stgit@localhost.localdomain>
+Message-Id: <20060604220017.16277.67285.stgit@localhost.localdomain>
 In-Reply-To: <20060604215636.16277.15454.stgit@localhost.localdomain>
 References: <20060604215636.16277.15454.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,132 +24,208 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-This patch only contains some very simple testing at the moment. Proper
-testing will be needed.
+This patch adds the callbacks to memleak_(alloc|free) functions from
+kmalloc/kfree, kmem_cache_(alloc|free), vmalloc/vfree etc.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- lib/Kconfig.debug |    9 ++++++
- mm/Makefile       |    1 +
- mm/memleak-test.c |   83 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 93 insertions(+), 0 deletions(-)
+ drivers/base/platform.c |    1 +
+ include/linux/slab.h    |    4 ++++
+ mm/page_alloc.c         |    2 ++
+ mm/slab.c               |   22 ++++++++++++++++++++--
+ mm/vmalloc.c            |   24 ++++++++++++++++++++++--
+ 5 files changed, 49 insertions(+), 4 deletions(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 7c3bca3..0a7c001 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -132,6 +132,15 @@ config DEBUG_MEMLEAK_SECONDARY_ALIASES
- 	  false negatives but it can slightly increase the number of false
- 	  positives.
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 83f5c59..ee5986a 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -166,6 +166,7 @@ struct platform_device *platform_device_
+ 	struct platform_object *pa;
  
-+config DEBUG_MEMLEAK_TEST
-+	tristate "Test the kernel memory leak detector"
-+	default n
-+	depends on DEBUG_MEMLEAK
-+	help
-+	  Say Y here to build the test harness for the kernel memory
-+	  leak detector. At the moment, this option enables a module
-+	  that explicitly leaks memory.
-+
- config DEBUG_PREEMPT
- 	bool "Debug preemptible kernel"
- 	depends on DEBUG_KERNEL && PREEMPT
-diff --git a/mm/Makefile b/mm/Makefile
-index d487d96..aef1bd8 100644
---- a/mm/Makefile
-+++ b/mm/Makefile
-@@ -24,3 +24,4 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
- obj-$(CONFIG_FS_XIP) += filemap_xip.o
- obj-$(CONFIG_MIGRATION) += migrate.o
- obj-$(CONFIG_DEBUG_MEMLEAK) += memleak.o
-+obj-$(CONFIG_DEBUG_MEMLEAK_TEST) += memleak-test.o
-diff --git a/mm/memleak-test.c b/mm/memleak-test.c
-new file mode 100644
-index 0000000..4061f99
---- /dev/null
-+++ b/mm/memleak-test.c
-@@ -0,0 +1,83 @@
-+/*
-+ * mm/memleak-test.c
-+ *
-+ * Copyright (C) 2006 ARM Limited
-+ * Written by Catalin Marinas <catalin.marinas@arm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include <linux/list.h>
-+
-+#include <linux/memleak.h>
-+
-+struct test_node {
-+	long header[25];
-+	struct list_head list;
-+	long footer[25];
-+};
-+
-+static LIST_HEAD(test_list);
-+
-+/* Some very simple testing. This function needs to be extended for
-+ * proper testing */
-+static int __init memleak_test_init(void)
-+{
-+	struct test_node *elem;
-+	int i;
-+
-+	printk(KERN_INFO "KMemLeak testing\n");
-+
-+	/* make some orphan pointers */
-+	kmalloc(32, GFP_KERNEL);
-+	kmalloc(32, GFP_KERNEL);
-+#ifndef CONFIG_MODULES
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
+ 	pa = kzalloc(sizeof(struct platform_object) + strlen(name), GFP_KERNEL);
++	memleak_resize(pa, sizeof(struct platform_object));
+ 	if (pa) {
+ 		strcpy(pa->name, name);
+ 		pa->pdev.name = pa->name;
+diff --git a/include/linux/slab.h b/include/linux/slab.h
+index 2d985d5..aa37216 100644
+--- a/include/linux/slab.h
++++ b/include/linux/slab.h
+@@ -89,6 +89,7 @@ #endif
+ 
+ static inline void *kmalloc(size_t size, gfp_t flags)
+ {
++#ifndef CONFIG_DEBUG_MEMLEAK
+ 	if (__builtin_constant_p(size)) {
+ 		int i = 0;
+ #define CACHE(x) \
+@@ -107,6 +108,7 @@ found:
+ 			malloc_sizes[i].cs_dmacachep :
+ 			malloc_sizes[i].cs_cachep, flags);
+ 	}
 +#endif
-+	vmalloc(64);
-+	vmalloc(64);
+ 	return __kmalloc(size, flags);
+ }
+ 
+@@ -114,6 +116,7 @@ extern void *__kzalloc(size_t, gfp_t);
+ 
+ static inline void *kzalloc(size_t size, gfp_t flags)
+ {
++#ifndef CONFIG_DEBUG_MEMLEAK
+ 	if (__builtin_constant_p(size)) {
+ 		int i = 0;
+ #define CACHE(x) \
+@@ -132,6 +135,7 @@ found:
+ 			malloc_sizes[i].cs_dmacachep :
+ 			malloc_sizes[i].cs_cachep, flags);
+ 	}
++#endif
+ 	return __kzalloc(size, flags);
+ }
+ 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 253a450..4a65aa9 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -2800,6 +2800,8 @@ void *__init alloc_large_system_hash(con
+ 	if (_hash_mask)
+ 		*_hash_mask = (1 << log2qty) - 1;
+ 
++	memleak_alloc(table, size, 1);
 +
-+	/* add elements to a list. They should only appear as orphan
-+	 * after the module is removed */
-+	for (i = 0; i < 10; i++) {
-+		elem = kmalloc(sizeof(*elem), GFP_KERNEL);
-+		if (!elem)
-+			return -ENOMEM;
-+		memset(elem, 0, sizeof(*elem));
-+		INIT_LIST_HEAD(&elem->list);
+ 	return table;
+ }
+ 
+diff --git a/mm/slab.c b/mm/slab.c
+index f1b644e..0d38f74 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -2878,6 +2878,7 @@ #endif
+ 		STATS_INC_ALLOCMISS(cachep);
+ 		objp = cache_alloc_refill(cachep, flags);
+ 	}
++	memleak_erase(ac->entry[ac->avail]);
+ 	return objp;
+ }
+ 
+@@ -3143,7 +3144,11 @@ #endif
+  */
+ void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+ {
+-	return __cache_alloc(cachep, flags, __builtin_return_address(0));
++	void *ptr = __cache_alloc(cachep, flags, __builtin_return_address(0));
 +
-+		list_add_tail(&elem->list, &test_list);
-+	}
++	memleak_alloc(ptr, cachep->obj_size, 1);
 +
-+	return 0;
-+}
-+module_init(memleak_test_init);
++	return ptr;
+ }
+ EXPORT_SYMBOL(kmem_cache_alloc);
+ 
+@@ -3158,6 +3163,9 @@ EXPORT_SYMBOL(kmem_cache_alloc);
+ void *kmem_cache_zalloc(struct kmem_cache *cache, gfp_t flags)
+ {
+ 	void *ret = __cache_alloc(cache, flags, __builtin_return_address(0));
 +
-+static void __exit memleak_test_exit(void)
-+{
-+	struct test_node *elem, *tmp;
++	memleak_alloc(ret, cache->obj_size, 1);
 +
-+	/* remove the list elements without actually freeing the memory */
-+	list_for_each_entry_safe(elem, tmp, &test_list, list)
-+		list_del(&elem->list);
-+}
-+module_exit(memleak_test_exit);
+ 	if (ret)
+ 		memset(ret, 0, obj_size(cache));
+ 	return ret;
+@@ -3279,6 +3287,7 @@ static __always_inline void *__do_kmallo
+ 					  void *caller)
+ {
+ 	struct kmem_cache *cachep;
++	void *ptr;
+ 
+ 	/* If you want to save a few bytes .text space: replace
+ 	 * __ with kmem_.
+@@ -3288,7 +3297,11 @@ static __always_inline void *__do_kmallo
+ 	cachep = __find_general_cachep(size, flags);
+ 	if (unlikely(cachep == NULL))
+ 		return NULL;
+-	return __cache_alloc(cachep, flags, caller);
++	ptr = __cache_alloc(cachep, flags, caller);
 +
-+MODULE_LICENSE("GPL");
++	memleak_alloc(ptr, size, 1);
++
++	return ptr;
+ }
+ 
+ 
+@@ -3372,6 +3385,9 @@ void kmem_cache_free(struct kmem_cache *
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
++
++	memleak_free(objp);
++
+ 	__cache_free(cachep, objp);
+ 	local_irq_restore(flags);
+ }
+@@ -3395,6 +3411,8 @@ void kfree(const void *objp)
+ 		return;
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
++	memleak_free(objp);
++
+ 	c = virt_to_cache(objp);
+ 	mutex_debug_check_no_locks_freed(objp, obj_size(c));
+ 	__cache_free(c, (void *)objp);
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index c0504f1..b7a9db3 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -349,6 +349,9 @@ void __vunmap(void *addr, int deallocate
+ void vfree(void *addr)
+ {
+ 	BUG_ON(in_interrupt());
++
++	memleak_free(addr);
++
+ 	__vunmap(addr, 1);
+ }
+ EXPORT_SYMBOL(vfree);
+@@ -447,7 +450,14 @@ fail:
+ 
+ void *__vmalloc_area(struct vm_struct *area, gfp_t gfp_mask, pgprot_t prot)
+ {
+-	return __vmalloc_area_node(area, gfp_mask, prot, -1);
++	void *addr = __vmalloc_area_node(area, gfp_mask, prot, -1);
++
++	/* this needs ref_count = 2 since vm_struct also contains a
++	   pointer to this address. The guard page is also subtracted
++	   from the size */
++	memleak_alloc(addr, area->size - PAGE_SIZE, 2);
++
++	return addr;
+ }
+ 
+ /**
+@@ -466,6 +476,10 @@ void *__vmalloc_node(unsigned long size,
+ 			int node)
+ {
+ 	struct vm_struct *area;
++	void *addr;
++#ifdef CONFIG_DEBUG_MEMLEAK
++	unsigned long real_size = size;
++#endif
+ 
+ 	size = PAGE_ALIGN(size);
+ 	if (!size || (size >> PAGE_SHIFT) > num_physpages)
+@@ -475,7 +489,13 @@ void *__vmalloc_node(unsigned long size,
+ 	if (!area)
+ 		return NULL;
+ 
+-	return __vmalloc_area_node(area, gfp_mask, prot, node);
++	addr = __vmalloc_area_node(area, gfp_mask, prot, node);
++
++	/* this needs ref_count = 2 since the vm_struct also contains
++	   a pointer to this address */
++	memleak_alloc(addr, real_size, 2);
++
++	return addr;
+ }
+ EXPORT_SYMBOL(__vmalloc_node);
+ 

@@ -1,68 +1,97 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932261AbWFDVfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932271AbWFDVuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWFDVfP (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 17:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWFDVfO
+	id S932271AbWFDVuI (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 17:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWFDVuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 17:35:14 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:44694 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932261AbWFDVfM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 17:35:12 -0400
-Date: Sun, 4 Jun 2006 23:34:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, "Barry K. Nathan" <barryn@pobox.com>,
-        arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
-Message-ID: <20060604213432.GB5898@elte.hu>
-References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com> <20060604133326.f1b01cfc.akpm@osdl.org> <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu>
+	Sun, 4 Jun 2006 17:50:06 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:50882 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932270AbWFDVuE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 17:50:04 -0400
+Subject: Re: [PATCH] jfs: possible deadlocks - continue
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: jfs-discussion@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060604154409.GA13899@rain.homenetwork>
+References: <20060604154409.GA13899@rain.homenetwork>
+Content-Type: text/plain
+Date: Sun, 04 Jun 2006 16:49:56 -0500
+Message-Id: <1149457796.10576.14.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5015]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-06-04 at 19:44 +0400, Evgeniy Dushistov wrote:
+> For some reasons my post about "possible deadlocks"
+> didn't appear in jfs-discussion@lists.sourceforge.net.
 
-* Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+Nothings showing up there.  I guess it's a sourceforge problem.
 
-> On Sun, 04 Jun 2006 13:33:26 PDT, Andrew Morton said:
+> >====================================
+> >[ BUG: possible deadlock detected! ]
+> >------------------------------------
+> >mount/5587 is trying to acquire lock:
+> > (&jfs_ip->commit_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
+> >
+> >but task is already holding lock:
+> > (&jfs_ip->commit_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
+> >
+> >which could potentially lead to deadlocks!
+> >
+> >other info that might help us debug this:
+> >2 locks held by mount/5587:
+> > #0:  (&inode->i_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
+> > #1:  (&jfs_ip->commit_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
+> >
+> >stack backtrace:
+> > [<c0103095>] show_trace+0x16/0x19
+> > [<c0103562>] dump_stack+0x1a/0x1f
+> > [<c012ddd7>] __lockdep_acquire+0x6c6/0x907
+> > [<c012e063>] lockdep_acquire+0x4b/0x63
+> > [<c02f6f0c>] __mutex_lock_slowpath+0xa4/0x21c
+> > [<c02f7096>] mutex_lock+0x12/0x15
+> > [<c01b99be>] jfs_create+0x90/0x2b8
+> > [<c0161016>] vfs_create+0x91/0xda
+> > [<c0163939>] open_namei+0x15a/0x5b0
+> > [<c015326c>] do_filp_open+0x22/0x39
+> > [<c01541a8>] do_sys_open+0x40/0xbc
+> > [<c015424d>] sys_open+0x13/0x15
+> > [<c02f875d>] sysenter_past_esp+0x56/0x8d
 > 
-> > Why does the locking validator complain about unlocking ordering?
+> I should add that this happened during boot, when root jfs
+> file system become from ro->rw
 > 
-> Presumably, if the lock nesting *should* be "take A, take B, release 
-> B, release A", if it sees "Take A, Take B, release A" it means there's 
-> potentially a missing 'release B' that got forgotten (most likely an 
-> error case that does a 'return;' instead of a 'goto 
-> end_of_function_cleanup' like we usually code.
+> I look at code, and see that
+> 1)locks wasn't release in the opposite order in which
+> they were taken
+
+Why does this matter?
+
+> 2)in jfs_rename we lock new_ip, and in "error path" we didn't unlock it
+
+Good catch!  This isn't related to the warning, but it's potentially
+worse.
+
+> 3)I see strange expression: "! !"
+
+I hadn't noticed this.  It was introduced when changing from semaphores
+to mutexes.
+
 > 
-> Having said that, I'm not sure it qualifies as a "BUG".  Certainly 
-> would qualify for a "SMELLS_FISHY" though.  But we don't have one of 
-> those handy, so maybe BUG is as good as it gets (given that the person 
-> who built the kernel *asked* to be nagged about locking funkyness)....
+> May be this worth to fix?
 
-yes. This warning caught a couple of bugs, and documented a couple of 
-'fishy' places. Sometimes it's code that is totally correct. I think 
-it's worth the extra iteration, there arent that many non-nested 
-unlocking places.
+2 & 3 for sure.  I don't see the need for fixing 1.
 
-straight nested unlocking is also best for performance and scalability: 
-the outmost lock should be released last, because that's what the 
-waiters are most likely to be blocking/spinning upon.
+I think the warning needs to be fixed by introducing mutex_lock_nested
+in some places.  I'll take a look at it.
 
-nevertheless i'll turn that warning into a less scary message.
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-	Ingo

@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWFDDlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWFDDm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWFDDlj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 23:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWFDDli
+	id S932128AbWFDDm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 23:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWFDDm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 23:41:38 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:43792 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751485AbWFDDlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 23:41:36 -0400
+	Sat, 3 Jun 2006 23:42:27 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:27857 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932092AbWFDDlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 23:41:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=dJJN0HaKvsmuKb0qozQqtiuTdAIaLTgnJ4XSY/PZCMsjaCqqjOhTSh9/N+Kip7ECPIOG+f3KuHUQpGOM6Fx5IsaRbKcWDyGD7PrcYrdUVMcsrYKfIXUiVMR3WaouX/Re5JY79PZA4u4gRMix7i5fryAVgV2cWeu8uwwRRIGLKSg=
-Subject: [PATCHSET] block: fix PIO cache coherency bug, take 2
-In-Reply-To: 
+        b=IRwXnrps7YZkT8NKhqq5e9tU0R9/FyjI3f2T1vxa4V+00Rt4a0nYSEWlvzw9233TM2d2z3eUHj3e4LGDPNXJ3Mbs1UGdJbbOZcfHRYKiz8MW6cK7c94XNhW09yOqd8eY7+Ml5Mi3iMw9eTR/EvsvVi6Jbvua4n74I+ulhosrSqc=
+Cc: Tejun Heo <htejun@gmail.com>
+Subject: [PATCH 5/5] md: add cpu cache flushes after kmapping and modifying a page
+In-Reply-To: <1149392479501-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
-Date: Sun, 4 Jun 2006 12:41:19 +0900
-Message-Id: <1149392479501-git-send-email-htejun@gmail.com>
+Date: Sun, 4 Jun 2006 12:41:20 +0900
+Message-Id: <11493924803060-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -32,49 +33,71 @@ From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, all.
+Add calls to flush_kernel_dcache_page() after CPU has kmapped and
+modified a page.  This fixes PIO cache coherency bugs on architectures
+with aliased caches.
 
-Here's another round of block PIO cache coherency fix patchset.  The
-previous try[1] was rejected because flush_dcache_page() was excessive
-and couldn't be called from irq context.  A new cachetlb interface has
-been introduced - flush_kernel_dcache_page(), which is only
-responsible for flushing the kernel mapping and safe to call from irq
-context.  The function is implemented only for parisc.  This patchset
-adds implementation for arm.
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-blk kmap wrappers have been dropped and calls to
-flush_kernel_dcache_page() have been directly added.  Because
-flush_kernel_dcache_page() hasn't been implemented on many
-architectures, converting to such wrappers breaks cache coherency for
-such architectures.  kmap should be updated after all archtectures
-with aliasing caches implement flush_kernel_dcache_page().
+---
 
-Russell, can you please verify arm's flush_kernel_dcache_page()?  I
-tried to implement flush_anon_page() too but didn't know what to do
-with anon_vma object.  It seems that a call to
-__cpuc_flush_user_range() should do the job but it requires
-vma->vm_flags to see whether it's an executable page.  To access vma
-from anon mapped page, page->mapping:anon_vma->lock should be grabbed
-and probably the first vma on the list can be used, which is kind of
-complex.  I think the options here are...
+ drivers/md/raid1.c     |    1 +
+ drivers/md/raid5.c     |    6 ++++--
+ drivers/md/raid6main.c |    6 ++++--
+ 3 files changed, 9 insertions(+), 4 deletions(-)
 
-* adding vma argument to flush_anon_page()
-* always flush for the worst vm_flags
-
-I have only compile tested.  Please verify this fixes the coherency
-problem on arm.
-
-Jens, if everyone is happy with this, can you push this patchset
-through blk tree?  As this change only adds calls to
-flush_kernel_dcache_page() which is currently implement only on parisc
-and arm, I think including this fix into 2.6.17 shouldn't cause too
-much trouble.
-
-Thanks.
-
---
-tejun
-
-[1] http://article.gmane.org/gmane.linux.kernel/367509
+716500bdf7de6acb87e36c8146d83dd3c429bc82
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 4070eff..30ca7cf 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -720,6 +720,7 @@ static struct page **alloc_behind_pages(
+ 			goto do_sync_io;
+ 		memcpy(kmap(pages[i]) + bvec->bv_offset,
+ 			kmap(bvec->bv_page) + bvec->bv_offset, bvec->bv_len);
++		flush_kernel_dcache_page(pages[i]);
+ 		kunmap(pages[i]);
+ 		kunmap(bvec->bv_page);
+ 	}
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 3184360..3adb64f 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -813,10 +813,12 @@ static void copy_data(int frombio, struc
+ 			
+ 		if (clen > 0) {
+ 			char *ba = __bio_kmap_atomic(bio, i, KM_USER0);
+-			if (frombio)
++			if (frombio) {
+ 				memcpy(pa+page_offset, ba+b_offset, clen);
+-			else
++			} else {
+ 				memcpy(ba+b_offset, pa+page_offset, clen);
++				flush_kernel_dcache_page(kmap_atomic_to_page(ba));
++			}
+ 			__bio_kunmap_atomic(ba, KM_USER0);
+ 		}
+ 		if (clen < len) /* hit end of page */
+diff --git a/drivers/md/raid6main.c b/drivers/md/raid6main.c
+index bc69355..b9700bd 100644
+--- a/drivers/md/raid6main.c
++++ b/drivers/md/raid6main.c
+@@ -727,10 +727,12 @@ static void copy_data(int frombio, struc
+ 
+ 		if (clen > 0) {
+ 			char *ba = __bio_kmap_atomic(bio, i, KM_USER0);
+-			if (frombio)
++			if (frombio) {
+ 				memcpy(pa+page_offset, ba+b_offset, clen);
+-			else
++			} else {
+ 				memcpy(ba+b_offset, pa+page_offset, clen);
++				flush_kernel_dcache_page(kmap_atomic_to_page(ba));
++			}
+ 			__bio_kunmap_atomic(ba, KM_USER0);
+ 		}
+ 		if (clen < len) /* hit end of page */
+-- 
+1.3.2
 
 

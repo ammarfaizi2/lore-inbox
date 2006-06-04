@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932319AbWFDXai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932315AbWFDX2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWFDXai (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 19:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFDXai
+	id S932315AbWFDX2v (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 19:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWFDX2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 19:30:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59547 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932303AbWFDXah (ORCPT
+	Sun, 4 Jun 2006 19:28:50 -0400
+Received: from smtp.ono.com ([62.42.230.12]:62639 "EHLO resmta04.ono.com")
+	by vger.kernel.org with ESMTP id S932318AbWFDX2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 19:30:37 -0400
-Date: Sun, 4 Jun 2006 16:24:53 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: dwmw2@infradead.org, rmk@arm.linux.org.uk, gregkh@suse.de,
-        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-        zaitcev@redhat.com
-Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
-Message-Id: <20060604162453.696f190b.zaitcev@redhat.com>
-In-Reply-To: <20060604201223.7cd37936@home.brethil>
-References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
-	<20060601234833.adf12249.zaitcev@redhat.com>
-	<1149242609.4695.0.camel@pmac.infradead.org>
-	<20060602154723.54704081.zaitcev@redhat.com>
-	<20060604201223.7cd37936@home.brethil>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
+	Sun, 4 Jun 2006 19:28:50 -0400
+Date: Mon, 5 Jun 2006 01:28:42 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm3
+Message-ID: <20060605012842.3d58095f@werewolf.auna.net>
+In-Reply-To: <20060603232004.68c4e1e3.akpm@osdl.org>
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.2.0cvs82 (GTK+ 2.9.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 20:12:23 -0300, "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
+On Sat, 3 Jun 2006 23:20:04 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
-> | I understand. My intent was different, however. One of the bigger sticking
-> | points for usb-serial was its interaction with line disciplines, which are
-> | notorious for looping back and requesting writes from callbacks
-> | (e.g. h_hdlc.c). They are also sensitive to drivers lying about the
-> | amount of free space in their FIFOs. This is something you never test
-> | when driving a serial port from an application, no matter how cleverly
-> | written.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/
+> 
+> - Lots of PCI and USB updates
+> 
+> - The various lock validator, stack backtracing and IRQ management problems
+>   are converging, but we're not quite there yet.
+> 
 
->   In all the tests the modem was configured to answer the calls, and the
-> cell phone was configured to dial to the modem (my home's number).
+I got this with -mm2, is it supposed to be cured in -mm3 ? I still have to
+try with mm3:
 
-This is exactly backwards, and so it tests different code paths.
-The line discipline is involved into driving a cooked mode port,
-e.g. the one where getty is.
+Jun  2 14:34:39 annwn kernel: Console: colour VGA+ 80x60
+Jun  2 14:34:39 annwn kernel: ------------------------
+Jun  2 14:34:39 annwn kernel: | Locking API testsuite:
+Jun  2 14:34:39 annwn kernel: ----------------------------------------------------------------------------
+Jun  2 14:34:39 annwn kernel:                                  | spin |wlock |rlock |mutex | wsem | rsem |
+Jun  2 14:34:39 annwn kernel:   --------------------------------------------------------------------------
+Jun  2 14:34:39 annwn kernel:                      A-A deadlock:failed|failed|failed|failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:                  A-B-B-A deadlock:failed|failed|  ok  |failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:              A-B-B-C-C-A deadlock:failed|failed|  ok  |failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:              A-B-C-A-B-C deadlock:failed|failed|  ok  |failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:          A-B-B-C-C-D-D-A deadlock:failed|failed|  ok  |failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:          A-B-C-D-B-D-D-A deadlock:failed|failed|  ok  |failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:          A-B-C-D-B-C-D-A deadlock:failed|failed|  ok  |failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:                     double unlock:failed|failed|failed|failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:                  bad unlock order:failed|failed|failed|failed|failed|failed|
+Jun  2 14:34:39 annwn kernel:   --------------------------------------------------------------------------
+Jun  2 14:34:39 annwn kernel:               recursive read-lock:             |  ok  |             |failed|
+Jun  2 14:34:39 annwn kernel:   --------------------------------------------------------------------------
+Jun  2 14:34:39 annwn kernel:      hard-irqs-on + irq-safe-A/12:failed|failed|  ok  |
+Jun  2 14:34:39 annwn kernel:      soft-irqs-on + irq-safe-A/12:failed|failed|  ok  |
+Jun  2 14:34:39 annwn kernel:      hard-irqs-on + irq-safe-A/21:failed|failed|  ok  |
+Jun  2 14:34:39 annwn kernel:      soft-irqs-on + irq-safe-A/21:failed|failed|  ok  |
+Jun  2 14:34:39 annwn kernel:        sirq-safe-A => hirqs-on/12:failed|failed|  ok  |
+Jun  2 14:34:39 annwn kernel:        sirq-safe-A => hirqs-on/21:failed|failed|  ok  |
+Jun  2 14:34:39 annwn kernel:          hard-safe-A + irqs-on/12:failed|failed|  ok  |
+Jun  2 14:34:39 annwn kernel:          soft-safe-A + irqs-on/12:failed|failed|  ok  |
 
-Running uploads and downloads with things like xmodem is a good
-test of hardware flow control, so someone will have to do it too.
+(all tests failed like this...)
 
->  Unfortunatally this is a very expensive test environment, and I can't use
-> it for development. The best one would be to have a USB<->DB9 cable..
+Jun  2 14:34:39 annwn kernel: --------------------------------------------------------
+Jun  2 14:34:39 annwn kernel: 141 out of 206 testcases failed, as expected. |
+Jun  2 14:34:39 annwn kernel: ----------------------------------------------------
 
-PL-2303 already has a DB-9, you actually you need a DB-9-to-DB-9
-Null Modem (cross-over) cable.
+Expected ? Uh ?
 
-Anyway, I do not expect pl2303 failing this test, mind. It's more
-of a problem for simpler devices.
-
--- Pete
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.16-jam18 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Mon

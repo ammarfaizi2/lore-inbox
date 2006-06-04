@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932270AbWFDVud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932266AbWFDVpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWFDVud (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 17:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWFDVuc
+	id S932266AbWFDVpa (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 17:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWFDVpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 17:50:32 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41916 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932270AbWFDVua (ORCPT
+	Sun, 4 Jun 2006 17:45:30 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:44010 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932266AbWFDVp3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 17:50:30 -0400
-Date: Sun, 4 Jun 2006 23:49:54 +0200
+	Sun, 4 Jun 2006 17:45:29 -0400
+Date: Sun, 4 Jun 2006 23:44:48 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Valdis.Kletnieks@vt.edu
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-        Andrew Morton <akpm@osdl.org>,
-        Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
-Subject: [patch, -rc5-mm3] lock validator: early_init_irq_lock_type() build fix
-Message-ID: <20060604214954.GA6950@elte.hu>
-References: <20060603232004.68c4e1e3.akpm@osdl.org> <986ed62e0606040238t712d7b01xde5f4a23da12fb1a@mail.gmail.com> <20060604024937.0fb57258.akpm@osdl.org> <6bffcb0e0606040308j28d9e89axa0136908c5530ae3@mail.gmail.com> <20060604104121.GA16117@elte.hu> <200606042038.k54KcZFm031888@turing-police.cc.vt.edu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
+        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c disable_irq()
+Message-ID: <20060604214448.GA6602@elte.hu>
+References: <1149112582.3114.91.camel@laptopd505.fenrus.org> <1149345421.13993.81.camel@localhost.localdomain> <20060603215323.GA13077@devserv.devel.redhat.com> <1149374090.14408.4.camel@localhost.localdomain> <1149413649.3109.92.camel@laptopd505.fenrus.org> <1149426961.27696.7.camel@localhost.localdomain> <1149437412.23209.3.camel@localhost.localdomain> <1149438131.29652.5.camel@localhost.localdomain> <1149456375.23209.13.camel@localhost.localdomain> <1149456532.29652.29.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606042038.k54KcZFm031888@turing-police.cc.vt.edu>
+In-Reply-To: <1149456532.29652.29.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -3.1
 X-ELTE-SpamLevel: 
@@ -30,50 +30,48 @@ X-ELTE-SpamVersion: ELTE 2.0
 X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
 	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
 	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
+	[score: 0.5004]
 	0.2 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> Just for grins, I tried building this, and got this error:
+> On Sun, 2006-06-04 at 22:26 +0100, Alan Cox wrote:
+> > Ar Sul, 2006-06-04 am 12:22 -0400, ysgrifennodd Steven Rostedt:
+> > > But can't this machine still cause an interrupt storm if the interrupt
+> > > comes on a wrong line, and we don't call the handler for the interrupt
+> > > source because we are now honoring disable_irq?
+> > 
+> > Yes - that is why we can't honour disable_irq in this case but have to
+> > hope 8)
+> > 
+> 
+> Hmm, maybe this can be solved with something like what the -rt patch 
+> does with threading interrupts and the interrupt mask.  I'm not 
+> suggesting threading interrupts.  But, if the misrouted irq comes 
+> across a disabled_irq, that it sets some flag, and doesn't unmask the 
+> interrupt when finished.  Have enable_irq see the flag and have it 
+> unmask the interrupt if it is safe to do so.
+> 
+> This all may be pretty hacky, but it's trying to fix code for hardware 
+> that is already hacky.  Note, that this would need to be compiled in 
+> as on option to actually implement any of this crap.
 
-the patch below should fix this.
+no ... lets not mix threaded IRQs in here. The model of executing an 
+interrupt handler has nothing to do with the irq flow itself. Whatever 
+can be done with a threaded handler can be done via atomic ISRs too.
+
+pretty much the only correct solution seems to be to go with Arjan's 
+suggestion and make the 'disabled' property per-action, instead of the 
+current per-desc thing. (obviously the physical act of masking an 
+interrupt line is fundamentally per-desc, but the act of running an 
+action "behind the back" of a masked line is still OK.) Unfortunately 
+this would also mean the manual conversion of 300+ places that use 
+disable_irq()/enable_irq() currently ... so it's no small work. (and the 
+hardest part of the work is to find a safe method to convert them 
+without introducing bugs)
 
 	Ingo
-
-----
-Subject: lock validator: early_init_irq_lock_type() build fix
-From: Ingo Molnar <mingo@elte.hu>
-
-fix build bug reported by Valdis Kletnieks: if the lock validator
-is disabled in the .config then kernel/irq/handle.c would not build.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- kernel/irq/handle.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
-Index: linux/kernel/irq/handle.c
-===================================================================
---- linux.orig/kernel/irq/handle.c
-+++ linux/kernel/irq/handle.c
-@@ -238,6 +238,8 @@ out:
- 	return 1;
- }
- 
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+
- /*
-  * lockdep: we want to handle all irq_desc locks as a single lock-type:
-  */
-@@ -250,3 +252,5 @@ void early_init_irq_lock_type(void)
- 	for (i = 0; i < NR_IRQS; i++)
- 		spin_lock_init_key(&irq_desc[i].lock, &irq_desc_lock_type);
- }
-+
-+#endif

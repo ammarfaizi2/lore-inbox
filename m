@@ -1,90 +1,70 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932100AbWFDKAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932152AbWFDKK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWFDKAL (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 06:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWFDKAK
+	id S932152AbWFDKK0 (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 06:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWFDKKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 06:00:10 -0400
-Received: from wr-out-0506.google.com ([64.233.184.225]:9104 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751390AbWFDKAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 06:00:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PDG9FhtslAEjTj+2ZAFG4hwq/f4QCu73u2uCaaTC2YYJAD61LQdu/JYFB8hjmbzISGg/LL3aWnHh6D9MNnVhuf5FR0DjHno9dJbq5WoJ2Jz2thi124CIYQR2eTAsu/Fb+4bdDfOIc4pr9LbgzXLeslag1VNAcPgFU/ueMIUQKCA=
-Message-ID: <4d8e3fd30606040300w6d939f4csfe96829d3e5481a9@mail.gmail.com>
-Date: Sun, 4 Jun 2006 12:00:08 +0200
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-Subject: Re: Linux kernel development
-Cc: linux-kernel@vger.kernel.org, "Kalin KOZHUHAROV" <kalin@thinrope.net>,
-        "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
-In-Reply-To: <200606031828.k53ISSgr012167@laptop11.inf.utfsm.cl>
+	Sun, 4 Jun 2006 06:10:25 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:58083 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S932152AbWFDKKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 06:10:25 -0400
+Message-ID: <4482B18F.1050606@dgreaves.com>
+Date: Sun, 04 Jun 2006 11:10:23 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc3: XFS internal error xlog_clear_stale_blocks(1)
+References: <4482AB6A.9010105@dgreaves.com>
+In-Reply-To: <4482AB6A.9010105@dgreaves.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <paolo.ciarrocchi@gmail.com>
-	 <4d8e3fd30606030636m44e3ce28k9d0fb6938947d4b2@mail.gmail.com>
-	 <200606031828.k53ISSgr012167@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/3/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> > On 11/15/05, Greg KH <greg@kroah.com> wrote:
-> > [...]
-> > > >       http://linux.tar.bz/articles/2.6-development_process
-> > >
-> > > Ah, a very nice summary.
-> > >
-> > > Paolo, can I use this document as a base for this section in the HOWTO
-> > > file (with proper attribution of course.)
-> >
-> > That article is now living in a git tree, it now contains only spell
-> > checks but I plan to work more on it in the next few days.
+David Greaves wrote:
+> Hi
 >
-> I'd break it up into logical pieces (i.e., chapters...)
+> vanilla 2.6.17-rc3
+>
+> mounting onto an lvm2 ontop of raid5 on top of sata
+>
+> Filesystem "dm-0": Disabling barriers, not supported by the underlying
+> device
+> XFS mounting filesystem dm-0
+> Filesystem "dm-0": XFS internal error xlog_clear_stale_blocks(1) at line
+> 1225 of file fs/xfs/xfs_log_recover.c.  Caller 0xb01fca2f
+>  <b01fb8d9> xlog_find_tail+0xa39/0xeb0   <b01fca2f> xlog_recover+0x2f/0x2f0
+>  <b01fca2f> xlog_recover+0x2f/0x2f0   <b01f5566> xfs_log_mount+0x256/0x650
+>  <b01fec19> xfs_mountfs+0xd09/0x1260   <b021b199>
+> xfs_mountfs_check_barriers+0x39/0x120
+>  <b0207cef> xfs_mount+0xa2f/0xbf0   <b021c130> xfs_fs_fill_super+0xa0/0x250
+>  <b0237e8b> snprintf+0x2b/0x30   <b0198095> disk_name+0xd5/0xf0
+>  <b016644f> sb_set_blocksize+0x1f/0x50   <b0165407> get_sb_bdev+0x117/0x155
+>  <b021b6ff> xfs_fs_get_sb+0x2f/0x40   <b021c090> xfs_fs_fill_super+0x0/0x250
+>  <b0164882> do_kern_mount+0x52/0xe0   <b017cd1d> do_mount+0x29d/0x770
+>  <b016eb8e> do_path_lookup+0x10e/0x270   <b016c35a> getname+0xda/0x100
+>  <b014219e> __alloc_pages+0x5e/0x2f0   <b01426e4> __get_free_pages+0x34/0x60
+>  <b017b824> copy_mount_options+0x44/0x140   <b017d28d> sys_mount+0x9d/0xe0
+>  <b010304b> syscall_call+0x7/0xb
+> XFS: failed to locate log tail
+> XFS: log mount/recovery failed: error 990
+> XFS: log mount failed
+>
+>
+> Anything else I can do?
+> (is it worth trying -rc5?)
+>
+> I'm building 2.6.16.19 and I'll try that shortly...
+>
+> David
+>   
+So I tried 2.6.17-rc5 and the problem resolved itself.
 
-Yup, already in my todo list.
+David
 
-> The lines are way too long for easy reading.
 
-Ok, I'll try to work on it.
-
-> There are several other tools to check kernel quality: sparse, the
-> lockcheck, ... And don't forget about the various debugging config options
-
-Mmmh... Right, but the goal of the document was mainly to document the
-process not the tools. However, that's a good comment.
-
-> There are required tools for serious kernel development, i.e. git and its
-> entournage. Link to them.
-
-Ok.
-
-> You mention that patches cook in -mm for a while, but you don't tell what
-> that is beforehand. In general, a high-level overview of the current
-> git-based development would be useful, and the various important git kernel
-> trees and the patch flow among them.
-
-Ok.
-
-> Don't be shy in mentioning the stuff under Documentation in your nearest
-> kernel source!
-
-Right.
-
-> Perhaps do an asccidoc format, to be able to create HTML?
-
-Sure, but I don't know how to do it.
-
-Patches are more then welcome :-)
-
-Thank you for your valuable comments!!
-
-Ciao,
 -- 
-Paolo
-http://paolociarrocchi.googlepages.com
+

@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932260AbWFDVdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932257AbWFDV3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWFDVdT (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 17:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWFDVdT
+	id S932257AbWFDV3P (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 17:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWFDV3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 17:33:19 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:9352 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S932260AbWFDVdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 17:33:18 -0400
-Subject: Re: header cleanup and install
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
+	Sun, 4 Jun 2006 17:29:15 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:130 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932257AbWFDV3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 17:29:14 -0400
+Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
+	disable_irq()
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
+        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1149456375.23209.13.camel@localhost.localdomain>
+References: <20060531200236.GA31619@elte.hu>
+	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
+	 <20060531214139.GA8196@devserv.devel.redhat.com>
+	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
+	 <20060531214729.GA4059@elte.hu>
+	 <1149112582.3114.91.camel@laptopd505.fenrus.org>
+	 <1149345421.13993.81.camel@localhost.localdomain>
+	 <20060603215323.GA13077@devserv.devel.redhat.com>
+	 <1149374090.14408.4.camel@localhost.localdomain>
+	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
+	 <1149426961.27696.7.camel@localhost.localdomain>
+	 <1149437412.23209.3.camel@localhost.localdomain>
+	 <1149438131.29652.5.camel@localhost.localdomain>
+	 <1149456375.23209.13.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Sun, 04 Jun 2006 22:33:13 +0100
-Message-Id: <1149456793.30024.21.camel@pmac.infradead.org>
+Date: Sun, 04 Jun 2006 17:28:52 -0400
+Message-Id: <1149456532.29652.29.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-04 at 13:50 -0700, Andrew Morton wrote:
-> git-hdrcleanup.patch
-> git-hdrinstall.patch
+On Sun, 2006-06-04 at 22:26 +0100, Alan Cox wrote:
+> Ar Sul, 2006-06-04 am 12:22 -0400, ysgrifennodd Steven Rostedt:
+> > But can't this machine still cause an interrupt storm if the interrupt
+> > comes on a wrong line, and we don't call the handler for the interrupt
+> > source because we are now honoring disable_irq?
 > 
->  This is Dave Woodhouse's work cleaning up the kernel headers and adding a
->  `make headerinstall' target which automates the exporting of kernel
->  headers as a userspace-usable package.
+> Yes - that is why we can't honour disable_irq in this case but have to
+> hope 8)
+> 
 
-More specifically:
+Hmm, maybe this can be solved with something like what the -rt patch
+does with threading interrupts and the interrupt mask.  I'm not
+suggesting threading interrupts.  But, if the misrouted irq comes across
+a disabled_irq, that it sets some flag, and doesn't unmask the interrupt
+when finished.  Have enable_irq see the flag and have it unmask the
+interrupt if it is safe to do so.
 
-git-hdrcleanup is simple and boring janitorial stuff in headers --
-nothing particularly new and exciting. Mostly it's just moving stuff
-that shouldn't be user-visible inside existing instances of #ifdef
-__KERNEL__ -- it doesn't even add many new ifdefs. A large chunk of it
-is just removing the superfluous #include <linux/config.h> from every
-file.
+This all may be pretty hacky, but it's trying to fix code for hardware
+that is already hacky.  Note, that this would need to be compiled in as
+on option to actually implement any of this crap.
 
-The only bit that's even vaguely interesting, if you're _desperate_ to
-find something exciting in it, is the fact that I hid the broken
-_syscallX macros from asm-*/unistd.h inside #ifdef __KERNEL__. They're
-broken for 64-bit syscall arguments on architectures like MIPS, they
-were even broken for PIC code on i386. Not only were they broken, but
-also the kernel headers are _not_ a library of random crap for userspace
-to use. Glibc doesn't use them, klibc doesn't use them, and dietlibc
-folks were working on not using them last time I checked.
+-- Steve
 
-
-git-hdrinstall is just the 'make headers_install' thing, based on an
-original implementation by Arnd Bergmann. It takes the set of headers
-which are at all suitable for userspace and exports them with unifdef.
-The idea is that distributions can have a _consistent_ set of headers to
-build stuff like glibc and system tools against, rather than the horrid
-mess we have now. Those files can also be diffed from one release to the
-next, and we have a decent chance of actually _seeing_ what changed,
-without all the noise. Having done that diff on my last few updates, it
-does actually seem to work like that in practice.
-
->  That being said, it's relatively costly to carry such extensive patches
->  in -mm for long periods, so I'd ask Linus and the distro people to work
->  out what we want to do here promptly, please. 
-
-The result of this is already shipping in Fedora rawhide, and it's a
-godsend. I haven't heard much from the relevant package maintainers in
-other distros recently, but they were generally in agreement last time I
-heard. There's not a lot of 'working out' to be done -- we just need
-Linus to take it.
-
-Btw, no mention of the rbtree shrinkage. I plan to send that Linuswards
-as soon as 2.6.17 is out too, OK? And the mtd tree too but that's just a
-normal maintainer tree so I _expected_ you to omit that.
-
--- 
-dwmw2
 

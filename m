@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932213AbWFDKTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932209AbWFDKRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWFDKTD (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 06:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWFDKTD
+	id S932209AbWFDKRS (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 06:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWFDKRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 06:19:03 -0400
-Received: from wx-out-0102.google.com ([66.249.82.201]:12869 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932213AbWFDKTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 06:19:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nE5rYMXa4bnpJzjRXVGNfAULAn6CsTcu2fXEYQPZlkiEw3qS4tAPEy4cGXFcS9xWpjuCiNhmZEgEeLiJabx2vXSVs8t2aWQo/iR1V9Z1aKoRTpDsDw0j/j8UI1dVJF4LNGwFe6uWVKcfgN9/Jj+4JSFBxWg74S/9NeFFrHsioFY=
-Message-ID: <beee72200606040319g2e933d52j598b68cec2565be0@mail.gmail.com>
-Date: Sun, 4 Jun 2006 12:19:01 +0200
-From: "davor emard" <davoremard@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SMP HT + USB2.0 crash
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 4 Jun 2006 06:17:18 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:1214 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S932209AbWFDKRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 06:17:17 -0400
+Subject: Re: [patch, -rc5-mm3] lock validator: fix ns83820.c irq-flags part
+	3
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060604101136.GA14693@elte.hu>
+References: <20060604083017.GA8241@elte.hu>
+	 <1149411525.3109.73.camel@laptopd505.fenrus.org>
+	 <986ed62e0606040253pfe9c300qf88029f88ae65039@mail.gmail.com>
+	 <1149415707.3109.96.camel@laptopd505.fenrus.org>
+	 <20060604101136.GA14693@elte.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Sun, 04 Jun 2006 12:16:53 +0200
+Message-Id: <1149416213.3109.98.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI
+On Sun, 2006-06-04 at 12:11 +0200, Ingo Molnar wrote:
+> * Arjan van de Ven <arjan@linux.intel.com> wrote:
+> 
+> > On Sun, 2006-06-04 at 02:53 -0700, Barry K. Nathan wrote:
+> > > On 6/4/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
+> > > > just the preempt the next email from Barry; while fixing this one I
+> > > > looked at the usage of the locks more and found another patch needed...
+> > > [snip]
+> > > 
+> > > Nice try, but it didn't work. ~_^
+> > > 
+> > > I was about to reply to the previous ns83820 patch with my dmesg, when
+> > > I saw this one. I applied this patch too, and like the previous patch,
+> > > it reports an instance of illegal lock usage. My dmesg follows.
+> > > -- 
+> > 
+> > ok this is a real driver deadlock:
+> 
+> preexisting bug, right? So this fix should go into 2.6.16/17 too, 
+> correct?
 
-I have an asus MB with intel 925XE chipset and hyperthreading capable CPU.
-Certain lockups with random oops occur all through kernel 2.6.16.19. Some of
-lockups are SMP only oopses (sorry but I didn't catch them exactly to a file),
-other are usually like this attached file
-
-As a general rule, if both
-1) SMP
-2) EHCI (usb 2.0)
-
-Are enabled and USB2.0 devices are used frequently, then
-kernel lockup appear between few minutes and 1 day. It is very annoying
-
-Disabling either SMP or the EHCI fixes the lockups. Probably some
-missing spin_lock or whatever in EHCI...
-
-Emard
+yes; this is real driver deadlock that has been there for quite some
+time

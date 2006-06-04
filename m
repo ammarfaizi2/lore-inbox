@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932215AbWFDJHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932214AbWFDJGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWFDJHt (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 05:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWFDJHt
+	id S932214AbWFDJGM (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 05:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWFDJGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 05:07:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8385 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932215AbWFDJHt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 05:07:49 -0400
-Date: Sun, 4 Jun 2006 02:07:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Fengguang Wu <wfg@mail.ustc.edu.cn>
-Cc: Valdis.Kletnieks@vt.edu, diegocg@gmail.com, lista1@comhem.se,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] readahead: initial method - expected read size - fix
- fastcall
-Message-Id: <20060604020738.31f43cb0.akpm@osdl.org>
-In-Reply-To: <349406446.10828@ustc.edu.cn>
-References: <349406446.10828@ustc.edu.cn>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 4 Jun 2006 05:06:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54711 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932214AbWFDJGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 05:06:11 -0400
+Subject: Re: [RFC] Per-architecture randomization
+From: Arjan van de Ven <arjan@infradead.org>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44825E42.5090902@comcast.net>
+References: <44825E42.5090902@comcast.net>
+Content-Type: text/plain
+Date: Sun, 04 Jun 2006 11:06:08 +0200
+Message-Id: <1149411968.3109.79.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 15:34:15 +0800
-Fengguang Wu <wfg@mail.ustc.edu.cn> wrote:
-
-> Remove 'fastcall' directive for function readahead_close().
+On Sun, 2006-06-04 at 00:14 -0400, John Richard Moser wrote:
+> Pavel Machek recommended per-architecture randomization defaults when I
+> poked a (very hackish) patch up here.  As follow-up, I have taken out
+> the command line parameter code and used the infrastructure I wrote to
+> implement per-architecture randomization settings.
 > 
-> It has drawn concerns from Andrew Morton.
+> Three #defines are needed per architecture, preferably in
+> include/asm-ARCH/processor.h or equivalent.  These defines are as follows:
+> 
+>  STACK_ALIGN -- Alignment of the stack, typically 16 (bytes).
+>     If not defined, stack randomization is carried out to page
+>     granularity
+>  ARCH_RANDOM_STACK_BITS -- Bits of entropy to apply to the stack.
+>     If not defined, stack randomization is disabled by defining this
+>     as 0.
+>  ARCH_RANDOM_MMAP_BITS -- Bits of entropy to apply to the mmap() base.
+>     If not defined, mmap() randomization is disabled by defining this
+>     as 0.
 
-Well.  I think fastcall is ugly and vaguely silly.  Now if we has a
-really_really_fastcall then I'd like to use that!
 
+eh....
 
-> Now I have some benchmarks
-> on it, and proved it as a _false_ optimization.
+I think you missed a few things..
+like
+1) This is per architecture already for the most part!
+   arch_align_stack() is obvious per architecture already
+   the mmap randomisation also happens in arch/<foo>/mm
+   and this is per arch by definition as well
+2) you missed that the mmap randomization is *ON TOP OF*
+   the stack randomization. So while you say "1Mb" in your
+   doc in practice it is 8Mb
 
-Sorry, I don't believe this will be measurable (and with CONFIG_REGPARM
-it'll be a no-op).
+Also your patch is still full of XXX's and "other noise"... 
+Also you probably should explain what the advantage is over the existing
+per architecture approach. Just stating "it's per architecture" (as you
+suggest) doesn't cut it since it is per architecture already for the
+most part.
 
-But I'm always glad to see a fastcall disappear ;)
+If all you want to do is turn 
+-       if (current->flags & PF_RANDOMIZE)
+-               random_variable = get_random_int() % (8*1024*1024);
+
+that 8 into a per architecture thing.. then your patch is awefully big
+and complex to just achieve that.
 

@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750777AbWFDRKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750796AbWFDRnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWFDRKY (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 13:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWFDRKY
+	id S1750796AbWFDRnD (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 13:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWFDRnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 13:10:24 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:25539 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750777AbWFDRKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 13:10:24 -0400
-Subject: Re: SMP HT + USB2.0 crash
-From: Lee Revell <rlrevell@joe-job.com>
-To: Olaf Hering <olh@suse.de>
-Cc: davor emard <davoremard@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20060604145420.GA26218@suse.de>
-References: <beee72200606040322w2960e5f9j1716addc39949ccb@mail.gmail.com>
-	 <200606042142.01879.kernel@kolivas.org>
-	 <beee72200606040729u4c660583g1b7e669b85db5bca@mail.gmail.com>
-	 <20060604145420.GA26218@suse.de>
-Content-Type: text/plain
-Date: Sun, 04 Jun 2006 13:10:21 -0400
-Message-Id: <1149441021.30785.10.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 4 Jun 2006 13:43:03 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:33754 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750796AbWFDRnC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 13:43:02 -0400
+Message-ID: <44831B8F.2060205@zytor.com>
+Date: Sun, 04 Jun 2006 10:42:39 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+CC: maks@sternwelten.at, linux-kernel@vger.kernel.org, klibc@zytor.com
+Subject: Re: [PATCH] klibc
+References: <20060602081416.GA11358@nancy>	<44820C7D.6080501@zytor.com> <20060603.233034.59468148.davem@davemloft.net>
+In-Reply-To: <20060603.233034.59468148.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-04 at 16:54 +0200, Olaf Hering wrote:
->  On Sun, Jun 04, davor emard wrote:
+David Miller wrote:
+>  
+>> __arch64__ is ugly; it doesn't say it's a sparc thing.  I have added 
+>> -D__sparc_v9__ to the sparc64 MCONFIG file, so I think that's fine.
+>>
+>> Perhaps the right thing to do is to make this an archconfig.h configurable.
 > 
-> > It happens on a production machine :(
+> Please don't do this, I'll explain why.
 > 
-> Either hire a professional sysadmin, or disable CONFIG_PREEMPT
+> Using __sparc_v9__ is incorrect, here is the lowdown on these defines:
+> 
+> 1) __sparc_v9__ means "-mcpu={ultrasparc*,niagara}" or "-mcpu=v9".
+>    Although this is implied by "-m64" it can be used for 32-bit
+>    code too.
+> 
+>    __sparc_v9__ means "using v9 instructions" which does not
+>    necessarily mean 64-bit
+> 
+> 2) "__sparc__ && __arch64__" means 64-bit sparc
+> 
+> People often get this wrong, and it certainly is confusing.
+> 
 
-Um, he said "production machine" not "web server".  There are lots of
-applications that require preemption.
+Okay, how about __sparc64__ then (via -D in the MCONFIG file.)
 
-Lee
+I did change this particular instance to be a archconfig variable, so it 
+doesn't exist (I try very much to avoid architecture-specific #ifdefs in 
+bulk code.)
+
+	-hpa
 

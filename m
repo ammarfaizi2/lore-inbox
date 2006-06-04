@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751095AbWFDJZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751152AbWFDJcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWFDJZS (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 05:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWFDJZS
+	id S1751152AbWFDJcR (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 05:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWFDJcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 05:25:18 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:62404 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751095AbWFDJZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 05:25:17 -0400
-Subject: Re: [PATCH] readahead: initial method - expected read size - fix
-	fastcall
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Fengguang Wu <wfg@mail.ustc.edu.cn>, Valdis.Kletnieks@vt.edu,
-        diegocg@gmail.com, lista1@comhem.se, linux-kernel@vger.kernel.org
-In-Reply-To: <20060604020738.31f43cb0.akpm@osdl.org>
-References: <349406446.10828@ustc.edu.cn>
-	 <20060604020738.31f43cb0.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 04 Jun 2006 11:25:03 +0200
-Message-Id: <1149413103.3109.90.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 4 Jun 2006 05:32:17 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:28031 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751197AbWFDJcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 05:32:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J31FZYjVxt8kEk2sy7/KzuuW64ivYxyxZvEo7bSaKfS9WnySFDNln+5BvRs3evuvFXOIg5hjBfIqhu6PONTC/Jl68dK9XQ7UwDGOU/pdFHY1wbosnihHQqTWItc44r7Lr2qMzO4AEdjiOqVK5pfo7YB6Aty4AvAD3ozGkvNuo+o=
+Message-ID: <e5bfff550606040232yffdba0ax43b1b891dfdc5b5e@mail.gmail.com>
+Date: Sun, 4 Jun 2006 11:32:15 +0200
+From: "Marco Costalba" <mcostalba@gmail.com>
+To: "Jakub Narebski" <jnareb@gmail.com>
+Subject: Re: [ANNOUNCE qgit-1.3]
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <e5u8fk$ju6$1@sea.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <e5bfff550606040155v14565312na26f8c866f0fc32d@mail.gmail.com>
+	 <e5u8fk$ju6$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-04 at 02:07 -0700, Andrew Morton wrote:
-> On Sun, 4 Jun 2006 15:34:15 +0800
-> Fengguang Wu <wfg@mail.ustc.edu.cn> wrote:
-> 
-> > Remove 'fastcall' directive for function readahead_close().
-> > 
-> > It has drawn concerns from Andrew Morton.
-> 
-> Well.  I think fastcall is ugly and vaguely silly.  Now if we has a
-> really_really_fastcall then I'd like to use that!
-> 
-> 
-> > Now I have some benchmarks
-> > on it, and proved it as a _false_ optimization.
-> 
-> Sorry, I don't believe this will be measurable (and with CONFIG_REGPARM
-> it'll be a no-op).
+On 6/4/06, Jakub Narebski <jnareb@gmail.com> wrote:
+> Marco Costalba wrote:
+>
+> > This is qgit-1.3
+> [...]
+> > NEW IN THIS RELEASE
+> >
+> > Main focus of this release is usability.
+> >
+> > The big feature is the use of tabs instead of independent windows.
+> >
+> > This change alone could be enough for a release. It's a big rewrite of UI
+> > code to let browsing revisions and patches quicker and easier.
+>
+> Of course that is advantage _only_ if the tabs are independend, and one
+> (usually) doesn't need to view them simultaneously, e.g. side by side.
+>
 
-we should just make CONFIG_REGPARM be "it" always (and thus make it go
-away as config option) and then just remove all "fastcall" from the
-kernel...
+Actually they are.
+One for revisions list, one for patches and one for file content.
+File content tab is indipendent from previous two (of course it can be
+synced on request).
 
+> Just my 3 eurocents ;-)
+
+Well, at today exchange rate should be 'my 2.3 eurocents'  :-)
+
+
+      Marco

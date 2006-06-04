@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751302AbWFDJoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750731AbWFDJqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWFDJoM (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 05:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWFDJoM
+	id S1750731AbWFDJqF (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 05:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWFDJqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 05:44:12 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:44767 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1751302AbWFDJoM (ORCPT
+	Sun, 4 Jun 2006 05:46:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:29060 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750731AbWFDJqE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 05:44:12 -0400
-Message-ID: <4482AB6A.9010105@dgreaves.com>
-Date: Sun, 04 Jun 2006 10:44:10 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: 2.6.17-rc3: XFS internal error xlog_clear_stale_blocks(1)
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jun 2006 05:46:04 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sitsofe Wheeler <sitsofe@yahoo.com>
+Subject: Re: skge killing off snd_via686 interrupts on Fedora Core 5
+Date: Sun, 04 Jun 2006 10:45:46 +0100
+Message-ID: <pan.2006.06.04.09.45.33.201398@yahoo.com>
+References: <pan.2006.05.27.14.43.20.450376@yahoo.com> <1149181417.12932.44.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpc3-cwma2-0-0-cust739.swan.cable.ntl.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+(This accidentally fell off list so I'm going to see if I bodge it back)
 
-vanilla 2.6.17-rc3
+On Sat, 03 Jun 2006 10:55:48 +0100, Alan Cox wrote:
+> Ar Sad, 2006-06-03 am 21:31 +0100, ysgrifennodd Sitsofe Wheeler:
+> > As mentioned in another reply the cards aren't onbord and are a PCI card
+> > upgrade.
+> 
+> Same slot as the card you upgraded from ?
 
-mounting onto an lvm2 ontop of raid5 on top of sata
+You've got me there. I have no idea - most of the machines had their
+network card removed before a clean upgrade from Fedora Core 4 to Fedora
+Core 5. I can go and swap an old card back on to the same slot though. On
+the one machine that had its card swapped after the upgrade it looks like
+ACPI allocated the old and new cards the same IRQ (16). Is there anything
+in particular that I'm looking for on the old card (e.g. would showing
+/proc/interrupts before and after help)? It might be worth noting that 
+IRQ 11 doesn't seem to be disabled when there is anything else going
+during the network transfer - e.g. if a video is being watched while the
+netperf is being carried out the IRQ isn't disabled. Seemingly the problem
+only shows when the card is hitting some sort of top speed...
 
-Filesystem "dm-0": Disabling barriers, not supported by the underlying
-device
-XFS mounting filesystem dm-0
-Filesystem "dm-0": XFS internal error xlog_clear_stale_blocks(1) at line
-1225 of file fs/xfs/xfs_log_recover.c.  Caller 0xb01fca2f
- <b01fb8d9> xlog_find_tail+0xa39/0xeb0   <b01fca2f> xlog_recover+0x2f/0x2f0
- <b01fca2f> xlog_recover+0x2f/0x2f0   <b01f5566> xfs_log_mount+0x256/0x650
- <b01fec19> xfs_mountfs+0xd09/0x1260   <b021b199>
-xfs_mountfs_check_barriers+0x39/0x120
- <b0207cef> xfs_mount+0xa2f/0xbf0   <b021c130> xfs_fs_fill_super+0xa0/0x250
- <b0237e8b> snprintf+0x2b/0x30   <b0198095> disk_name+0xd5/0xf0
- <b016644f> sb_set_blocksize+0x1f/0x50   <b0165407> get_sb_bdev+0x117/0x155
- <b021b6ff> xfs_fs_get_sb+0x2f/0x40   <b021c090> xfs_fs_fill_super+0x0/0x250
- <b0164882> do_kern_mount+0x52/0xe0   <b017cd1d> do_mount+0x29d/0x770
- <b016eb8e> do_path_lookup+0x10e/0x270   <b016c35a> getname+0xda/0x100
- <b014219e> __alloc_pages+0x5e/0x2f0   <b01426e4> __get_free_pages+0x34/0x60
- <b017b824> copy_mount_options+0x44/0x140   <b017d28d> sys_mount+0x9d/0xe0
- <b010304b> syscall_call+0x7/0xb
-XFS: failed to locate log tail
-XFS: log mount/recovery failed: error 990
-XFS: log mount failed
+[netperf showed that there was a performance hit to enabling irqpoll but
+there was less of a hit using noapic. Either option cured the problem
+and I added the netperf score to the mail]
 
-
-Anything else I can do?
-(is it worth trying -rc5?)
-
-I'm building 2.6.16.19 and I'll try that shortly...
-
-David
+> > irqpoll
+> >  87380  16384  16384    10.00      29.63
+> > noapic
+> >  87380  16384  16384    10.00      53.21
+> 
+> That does strongly suggest IRQ routing problems are involved, but it may
+> also be timing, hence the question about slots
 
 -- 
+Sitsofe | http://sucs.org/~sits/
+
 

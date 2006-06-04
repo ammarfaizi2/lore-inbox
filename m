@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWFDDm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWFDDlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWFDDm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jun 2006 23:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWFDDm1
+	id S932094AbWFDDlr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jun 2006 23:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWFDDlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jun 2006 23:42:27 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:27857 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932092AbWFDDlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jun 2006 23:41:45 -0400
+	Sat, 3 Jun 2006 23:41:46 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:38366 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751503AbWFDDli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jun 2006 23:41:38 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:cc:subject:in-reply-to:x-mailer:date:message-id:mime-version:content-type:reply-to:to:content-transfer-encoding:from;
-        b=IRwXnrps7YZkT8NKhqq5e9tU0R9/FyjI3f2T1vxa4V+00Rt4a0nYSEWlvzw9233TM2d2z3eUHj3e4LGDPNXJ3Mbs1UGdJbbOZcfHRYKiz8MW6cK7c94XNhW09yOqd8eY7+Ml5Mi3iMw9eTR/EvsvVi6Jbvua4n74I+ulhosrSqc=
+        b=EVxG+9OUYNfGIx5bjCpeTFtMxSL/nJqWJJY9gKQ2yQT9tCZrqvMcD7YOHbIUleokMxqL6qERBguw63/oW12wYXwtxrpDm6rsEp6DAG7NKQ/Lhm8yJHkspo/6cUrH9zA/g7JCzZ5GscHEfR28AtZF+6QJmhJ99kazhDiojHu8yk0=
 Cc: Tejun Heo <htejun@gmail.com>
-Subject: [PATCH 5/5] md: add cpu cache flushes after kmapping and modifying a page
+Subject: [PATCH 3/5] libata: add cpu cache flushes after kmapping and modifying a page
 In-Reply-To: <1149392479501-git-send-email-htejun@gmail.com>
 X-Mailer: git-send-email
 Date: Sun, 4 Jun 2006 12:41:20 +0900
-Message-Id: <11493924803060-git-send-email-htejun@gmail.com>
+Message-Id: <11493924801664-git-send-email-htejun@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Tejun Heo <htejun@gmail.com>
@@ -41,62 +41,53 @@ Signed-off-by: Tejun Heo <htejun@gmail.com>
 
 ---
 
- drivers/md/raid1.c     |    1 +
- drivers/md/raid5.c     |    6 ++++--
- drivers/md/raid6main.c |    6 ++++--
- 3 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/scsi/libata-core.c |    5 +++++
+ drivers/scsi/libata-scsi.c |    1 +
+ 2 files changed, 6 insertions(+), 0 deletions(-)
 
-716500bdf7de6acb87e36c8146d83dd3c429bc82
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 4070eff..30ca7cf 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -720,6 +720,7 @@ static struct page **alloc_behind_pages(
- 			goto do_sync_io;
- 		memcpy(kmap(pages[i]) + bvec->bv_offset,
- 			kmap(bvec->bv_page) + bvec->bv_offset, bvec->bv_len);
-+		flush_kernel_dcache_page(pages[i]);
- 		kunmap(pages[i]);
- 		kunmap(bvec->bv_page);
- 	}
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 3184360..3adb64f 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -813,10 +813,12 @@ static void copy_data(int frombio, struc
- 			
- 		if (clen > 0) {
- 			char *ba = __bio_kmap_atomic(bio, i, KM_USER0);
--			if (frombio)
-+			if (frombio) {
- 				memcpy(pa+page_offset, ba+b_offset, clen);
--			else
-+			} else {
- 				memcpy(ba+b_offset, pa+page_offset, clen);
-+				flush_kernel_dcache_page(kmap_atomic_to_page(ba));
-+			}
- 			__bio_kunmap_atomic(ba, KM_USER0);
+cc874e5080d87eff23a1576df11ddaaeae9575ec
+diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+index b046ffa..47eb263 100644
+--- a/drivers/scsi/libata-core.c
++++ b/drivers/scsi/libata-core.c
+@@ -2821,6 +2821,7 @@ static void ata_sg_clean(struct ata_queu
+ 			struct scatterlist *psg = &qc->pad_sgent;
+ 			void *addr = kmap_atomic(psg->page, KM_IRQ0);
+ 			memcpy(addr + psg->offset, pad_buf, qc->pad_len);
++			flush_kernel_dcache_page(kmap_atomic_to_page(addr));
+ 			kunmap_atomic(addr, KM_IRQ0);
  		}
- 		if (clen < len) /* hit end of page */
-diff --git a/drivers/md/raid6main.c b/drivers/md/raid6main.c
-index bc69355..b9700bd 100644
---- a/drivers/md/raid6main.c
-+++ b/drivers/md/raid6main.c
-@@ -727,10 +727,12 @@ static void copy_data(int frombio, struc
+ 	} else {
+@@ -3451,6 +3452,8 @@ static void ata_pio_sector(struct ata_qu
+ 	do_write = (qc->tf.flags & ATA_TFLAG_WRITE);
+ 	ata_data_xfer(ap, buf, ATA_SECT_SIZE, do_write);
  
- 		if (clen > 0) {
- 			char *ba = __bio_kmap_atomic(bio, i, KM_USER0);
--			if (frombio)
-+			if (frombio) {
- 				memcpy(pa+page_offset, ba+b_offset, clen);
--			else
-+			} else {
- 				memcpy(ba+b_offset, pa+page_offset, clen);
-+				flush_kernel_dcache_page(kmap_atomic_to_page(ba));
-+			}
- 			__bio_kunmap_atomic(ba, KM_USER0);
- 		}
- 		if (clen < len) /* hit end of page */
++	if (!do_write)
++		flush_kernel_dcache_page(page);
+ 	kunmap(page);
+ }
+ 
+@@ -3533,6 +3536,8 @@ next_sg:
+ 	/* do the actual data transfer */
+ 	ata_data_xfer(ap, buf, count, do_write);
+ 
++	if (!do_write)
++		flush_kernel_dcache_page(page);
+ 	kunmap(page);
+ 
+ 	if (bytes)
+diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
+index a0289ec..b65d7f5 100644
+--- a/drivers/scsi/libata-scsi.c
++++ b/drivers/scsi/libata-scsi.c
+@@ -1500,6 +1500,7 @@ static inline void ata_scsi_rbuf_put(str
+ 		struct scatterlist *sg;
+ 
+ 		sg = (struct scatterlist *) cmd->request_buffer;
++		flush_kernel_dcache_page(kmap_atomic_to_page(buf - sg->offset));
+ 		kunmap_atomic(buf - sg->offset, KM_USER0);
+ 	}
+ }
 -- 
 1.3.2
 

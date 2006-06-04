@@ -1,67 +1,200 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932169AbWFDUeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932201AbWFDUm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWFDUeE (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 16:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWFDUeD
+	id S932201AbWFDUm3 (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 16:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWFDUm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 16:34:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20429 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932169AbWFDUeB (ORCPT
+	Sun, 4 Jun 2006 16:42:29 -0400
+Received: from mail.kroah.org ([69.55.234.183]:229 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932201AbWFDUm2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 16:34:01 -0400
-Date: Sun, 4 Jun 2006 13:33:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: mingo@elte.hu, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
-Message-Id: <20060604133326.f1b01cfc.akpm@osdl.org>
-In-Reply-To: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com>
-References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 4 Jun 2006 16:42:28 -0400
+Date: Sun, 4 Jun 2006 13:42:10 -0700
+From: Greg KH <greg@kroah.com>
+To: Vitja Makarov <vitja.makarov@gmail.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ftdi_sio patch
+Message-ID: <20060604204210.GC23895@kroah.com>
+References: <1925ef8a0606041248i56b99f5s5fb93c6d92a6a9fc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1925ef8a0606041248i56b99f5s5fb93c6d92a6a9fc@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 05:04:29 -0700
-"Barry K. Nathan" <barryn@pobox.com> wrote:
+On Sun, Jun 04, 2006 at 11:48:54PM +0400, Vitja Makarov wrote:
+> Hi!
+> 
+> I've found that ftdi_sio driver have problems it could ran out of memory,
+> or lead kernel panic. The problem is in ftdi_write function, it
+> allocates new urb structure each time write() is called.
+> 
+> The following patch fixes this problems. Code is mostly based on pl2303 
+> code.
+> I moved buffer code into separate file serial-buf.h as it could be
+> userful for other drivers.
+> 
+> Signed-off-by: Vitja Makarov <vitja.makarov@gmail.com>
+> 
+> vitja.
+> 
+> diff -uprN orig/drivers/usb/serial/ftdi_sio.c 
+> new/drivers/usb/serial/ftdi_sio.c
+> --- orig/drivers/usb/serial/ftdi_sio.c	2006-03-28 01:05:57.000000000 +0400
+> +++ new/drivers/usb/serial/ftdi_sio.c	2006-05-28 23:58:50.000000000 +0400
+> @@ -260,6 +260,7 @@
+> #include <linux/serial.h>
+> #include "usb-serial.h"
+> #include "ftdi_sio.h"
+> +#include "serial-buf.h"
+> 
+> /*
+>  * Version Information
+> @@ -268,6 +269,8 @@
+> #define DRIVER_AUTHOR "Greg Kroah-Hartman <greg@kroah.com>, Bill
+> Ryder <bryder@sgi.com>, Kuba Ober <kuba@mareimbrium.org>"
+> #define DRIVER_DESC "USB FTDI Serial Converters Driver"
+> 
+> +#define MIN(a,b) ((a)>(b)?(b):(a))
 
-> [ 1637.890434]
-> [ 1637.890440] ======================================
-> [ 1637.890641] [ BUG: bad unlock ordering detected! ]
-> [ 1637.890741] --------------------------------------
-> [ 1637.890841] mv/935 is trying to release lock (&mgr->tmgr_lock) at:
-> [ 1637.890996]  [<e098e01b>] try_capture+0x306/0x9b1 [reiser4]
-> [ 1637.891255] but the next lock to release is:
-> [ 1637.891344]  (&atom->alock){--..}, at: [<e098dfe2>]
-> try_capture+0x2cd/0x9b1 [reiser4]
-> [ 1637.891667]
-> [ 1637.891670] other info that might help us debug this:
-> [ 1637.891854] 3 locks held by mv/935:
-> [ 1637.891951]  #0:  (&inode->i_mutex/1){--..}, at: [<c0160325>]
-> lock_rename+0xba/0xc1
-> [ 1637.892297]  #1:  (&mgr->tmgr_lock){--..}, at: [<e098deb5>]
-> try_capture+0x1a0/0x9b1 [reiser4]
-> [ 1637.892647]  #2:  (&txnh->hlock){--..}, at: [<e098debd>]
-> try_capture+0x1a8/0x9b1 [reiser4]
-> [ 1637.892994]
-> [ 1637.892996] stack backtrace:
-> [ 1637.893577]  [<c010311a>] show_trace_log_lvl+0x54/0xfd
-> [ 1637.893738]  [<c0103709>] show_trace+0xd/0x10
-> [ 1637.893893]  [<c0103750>] dump_stack+0x19/0x1b
-> [ 1637.894045]  [<c012d713>] lockdep_release+0x18b/0x350
-> [ 1637.894407]  [<c02880d9>] _spin_unlock+0x16/0x1f
-> [ 1637.894777]  [<e098e01b>] try_capture+0x306/0x9b1 [reiser4]
-> [ 1637.895048]  [<e0988a80>] longterm_lock_znode+0x2e3/0x3e3 [reiser4]
-> [ 1637.895254]  [<e0995790>] coord_by_handle+0x136/0xaf4 [reiser4]
-> [ 1637.895515]  [<e09962de>] object_lookup+0x8e/0x96 [reiser4]
-> [ 1637.895764]  [<e09a9ece>] find_entry+0xbb/0x200 [reiser4]
-> [ 1637.896134]  [<e099fab1>] rename_common+0x96b/0x9b6 [reiser4]
-> [ 1637.896440]  [<c0160e96>] vfs_rename+0x1dd/0x315
-> [ 1637.897098]  [<c0162b84>] sys_renameat+0x1bb/0x22a
-> [ 1637.897664]  [<c0162c05>] sys_rename+0x12/0x14
-> [ 1637.898220]  [<c0288283>] syscall_call+0x7/0xb
+Please us the built in kernel min() function.  This one is wrong...
 
-Why does the locking validator complain about unlocking ordering?
+> static int debug;
+> static __u16 vendor = FTDI_VID;
+> static __u16 product;
+> @@ -545,6 +548,11 @@ struct ftdi_private {
+> 
+> 	int force_baud;		/* if non-zero, force the baud rate to this 
+> 	value */
+> 	int force_rtscts;	/* if non-zero, force RTS-CTS to always be 
+> 	enabled */
+> +
+> +	spinlock_t lock;		   /* private lock */
+> +	
+> +	struct serial_buf *buf; /* write buffer */
+> +	int write_urb_in_use;   /* write urb in use indicator */
+> };
+> 
+> /* Used for TIOCMIWAIT */
+> @@ -562,6 +570,7 @@ static void ftdi_shutdown		(struct usb_s
+> static int  ftdi_open			(struct usb_serial_port *port, 
+> struct file *filp);
+> static void ftdi_close			(struct usb_serial_port *port, 
+> struct file *filp);
+> static int  ftdi_write			(struct usb_serial_port *port, const
+> unsigned char *buf, int count);
+> +static void ftdi_send                   (struct usb_serial_port *port);
+> static int  ftdi_write_room		(struct usb_serial_port *port);
+> static int  ftdi_chars_in_buffer	(struct usb_serial_port *port);
+> static void ftdi_write_bulk_callback	(struct urb *urb, struct pt_regs 
+> *regs);
+> @@ -1066,6 +1075,8 @@ static ssize_t store_event_char(struct d
+> 			     v, priv->interface,
+> 			     buf, 0, WDR_TIMEOUT);
+> 	
+> +	
+> +	
+
+Why add lines of whitespace?  Especially ones with trailing spaces :(
+
+> 	if (rv < 0) {
+> 		dbg("Unable to write event character: %i", rv);
+> 		return -EIO;
+> @@ -1138,6 +1149,7 @@ static int ftdi_sio_attach (struct usb_s
+> 	struct usb_serial_port *port = serial->port[0];
+> 	struct ftdi_private *priv;
+> 	struct ftdi_sio_quirk *quirk;
+> +	unsigned char *transfer_buffer;
+> 	
+> 	dbg("%s",__FUNCTION__);
+> 
+> @@ -1147,6 +1159,7 @@ static int ftdi_sio_attach (struct usb_s
+> 		return -ENOMEM;
+> 	}
+> 	memset(priv, 0, sizeof(*priv));
+> +	spin_lock_init(&priv->lock);
+> 
+> 	spin_lock_init(&priv->rx_lock);
+>         init_waitqueue_head(&priv->delta_msr_wait);
+> @@ -1167,14 +1180,22 @@ static int ftdi_sio_attach (struct usb_s
+> 	}
+> 
+> 	INIT_WORK(&priv->rx_work, ftdi_process_read, port);
+> +
+> +	/* Try to increase the size of write buffer */
+> +	transfer_buffer = (unsigned char *) kmalloc(SERIAL_BUF_SIZE, 
+> GFP_KERNEL);
+
+cast is not needed.
+
+> +
+> +	if (transfer_buffer) {
+> +                port->write_urb->transfer_buffer = transfer_buffer;
+> +                port->write_urb->transfer_buffer_length = SERIAL_BUF_SIZE;
+> +	}
+> 
+> 	/* Free port's existing write urb and transfer buffer. */
+> -	if (port->write_urb) {
+> -		usb_free_urb (port->write_urb);
+> -		port->write_urb = NULL;
+> +	priv->buf = serial_buf_alloc(SERIAL_BUF_SIZE);
+> +	if (priv->buf == NULL) {
+> +		kfree(port->bulk_in_buffer);
+> +		kfree(priv);
+> +		return -ENOMEM;
+> 	}
+> -	kfree(port->bulk_out_buffer);
+> -	port->bulk_out_buffer = NULL;
+> 
+> 	usb_set_serial_port_data(serial->port[0], priv);
+> 
+> @@ -1246,6 +1267,7 @@ static void ftdi_shutdown (struct usb_se
+> 	 */
+> 
+> 	if (priv) {
+> +		serial_buf_free(priv->buf);
+> 		usb_set_serial_port_data(port, NULL);
+> 		kfree(priv);
+> 	}
+> @@ -1345,128 +1367,137 @@ static void ftdi_close (struct usb_seria
+> 	/* shutdown our bulk read */
+> 	if (port->read_urb)
+> 		usb_kill_urb(port->read_urb);
+> +
+> +	/* shutdown our bulk write */
+> +	if (port->write_urb)	
+> +	    usb_kill_urb(port->write_urb);
+
+Trailing white space and improper indentation :(
+
+> +
+> } /* ftdi_close */
+> 
+> +static int ftdi_write(struct usb_serial_port *port, const unsigned
+> char *buf, int count)
+
+Patch is linewrapped :(
+
+> +{
+> +	struct ftdi_private *priv = usb_get_serial_port_data(port);
+> +	unsigned long flags;
+> +	
+
+Trailing whitespace added :(
+
+> +struct serial_buf {
+> +	unsigned int	buf_size;
+> +	char		*buf_buf;
+> +	char		*buf_get;
+> +	char		*buf_put;
+> +};
+
+
+We already have a circular buffer structure in the kernel.  Please use
+that one instead of creating your own again.
+
+thanks,
+
+greg k-h

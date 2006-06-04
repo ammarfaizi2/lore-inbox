@@ -1,98 +1,63 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932309AbWFDXPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932319AbWFDXai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWFDXPm (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 19:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWFDXPm
+	id S932319AbWFDXai (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 19:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFDXai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 19:15:42 -0400
-Received: from smtp.ono.com ([62.42.230.12]:36168 "EHLO resmta03.ono.com")
-	by vger.kernel.org with ESMTP id S932309AbWFDXPl (ORCPT
+	Sun, 4 Jun 2006 19:30:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59547 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932303AbWFDXah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 19:15:41 -0400
-Date: Mon, 5 Jun 2006 01:15:31 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm3
-Message-ID: <20060605011531.0bfe67db@werewolf.auna.net>
-In-Reply-To: <20060603232004.68c4e1e3.akpm@osdl.org>
-References: <20060603232004.68c4e1e3.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.2.0cvs79 (GTK+ 2.9.1; i686-pc-linux-gnu)
+	Sun, 4 Jun 2006 19:30:37 -0400
+Date: Sun, 4 Jun 2006 16:24:53 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: dwmw2@infradead.org, rmk@arm.linux.org.uk, gregkh@suse.de,
+        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        zaitcev@redhat.com
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+Message-Id: <20060604162453.696f190b.zaitcev@redhat.com>
+In-Reply-To: <20060604201223.7cd37936@home.brethil>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	<20060601234833.adf12249.zaitcev@redhat.com>
+	<1149242609.4695.0.camel@pmac.infradead.org>
+	<20060602154723.54704081.zaitcev@redhat.com>
+	<20060604201223.7cd37936@home.brethil>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Jun 2006 23:20:04 -0700, Andrew Morton <akpm@osdl.org> wrote:
+On Sun, 4 Jun 2006 20:12:23 -0300, "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/
-> 
-> - Lots of PCI and USB updates
-> 
-> - The various lock validator, stack backtracing and IRQ management problems
->   are converging, but we're not quite there yet.
-> 
+> | I understand. My intent was different, however. One of the bigger sticking
+> | points for usb-serial was its interaction with line disciplines, which are
+> | notorious for looping back and requesting writes from callbacks
+> | (e.g. h_hdlc.c). They are also sensitive to drivers lying about the
+> | amount of free space in their FIFOs. This is something you never test
+> | when driving a serial port from an application, no matter how cleverly
+> | written.
 
-Got this on boot. Looks like another locking bug in firewire:
+>   In all the tests the modem was configured to answer the calls, and the
+> cell phone was configured to dial to the modem (my home's number).
 
-ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 20 (level, low) -> IRQ 20
-ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[20]  MMIO=[ec024000-ec0247ff]  Max Packet=[2048]  IR/IT contexts=[4/8]
-stopped custom tracer.
+This is exactly backwards, and so it tests different code paths.
+The line discipline is involved into driving a cooked mode port,
+e.g. the one where getty is.
 
-============================
-[ BUG: illegal lock usage! ]
-----------------------------
-illegal {hardirq-on-W} -> {in-hardirq-R} usage.
-idle/0 [HC1[1]:SC1[0]:HE0:SE0] takes:
- (hl_irqs_lock){--+.}, at: [<f8835cb9>] highlevel_host_reset+0x11/0x5b [ieee1394]
-{hardirq-on-W} state was registered at:
-  [<c0133fe4>] lockdep_acquire+0x4d/0x63
-  [<c02f3421>] _write_lock+0x2e/0x3b
-  [<f88365ab>] hpsb_register_highlevel+0xac/0xea [ieee1394]
-  [<f8836d6a>] init_csr+0x28/0x3f [ieee1394]
-  [<f880617d>] 0xf880617d
-  [<c01398df>] sys_init_module+0x12a/0x1b7b
-  [<c02f3b2d>] sysenter_past_esp+0x56/0x8d
-irq event stamp: 258193
-hardirqs last  enabled at (258192): [<c011fab5>] __do_softirq+0x67/0xf7
-hardirqs last disabled at (258193): [<c0102eb7>] common_interrupt+0x1b/0x2c
-softirqs last  enabled at (258186): [<c011fb34>] __do_softirq+0xe6/0xf7
-softirqs last disabled at (258191): [<c0104cec>] do_softirq+0x5a/0xc9
+Running uploads and downloads with things like xmodem is a good
+test of hardware flow control, so someone will have to do it too.
 
-other info that might help us debug this:
-no locks held by idle/0.
+>  Unfortunatally this is a very expensive test environment, and I can't use
+> it for development. The best one would be to have a USB<->DB9 cable..
 
-stack backtrace:
- [<c01034ba>] show_trace+0x12/0x14
- [<c0103b8d>] dump_stack+0x19/0x1b
- [<c0132025>] print_usage_bug+0x20b/0x215
- [<c01329cc>] mark_lock+0x4fa/0x5b4
- [<c0133399>] __lockdep_acquire+0x310/0xbc0
- [<c0133fe4>] lockdep_acquire+0x4d/0x63
- [<c02f3153>] _read_lock+0x2e/0x3b
- [<f8835cb9>] highlevel_host_reset+0x11/0x5b [ieee1394]
- [<f8833867>] hpsb_selfid_complete+0x286/0x307 [ieee1394]
- [<f884ec30>] ohci_irq_handler+0x6c9/0x995 [ohci1394]
- [<c013d3a2>] handle_IRQ_event+0x2e/0x63
- [<c013e4c3>] handle_fasteoi_irq+0x6b/0xac
- [<c0104dc7>] do_IRQ+0x6c/0xa5
- =======================
- [<c0102ec1>] common_interrupt+0x25/0x2c
- [<c0104cec>] do_softirq+0x5a/0xc9
- =======================
- [<c011fb90>] irq_exit+0x4b/0x4d
- [<c0104dce>] do_IRQ+0x73/0xa5
- [<c0102ec1>] common_interrupt+0x25/0x2c
- [<c010164e>] cpu_idle+0x63/0x80
- [<c0100599>] rest_init+0x33/0x3a
- [<c03d97af>] start_kernel+0x339/0x3aa
- [<c0100210>] 0xc0100210
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00e018000063814f]
+PL-2303 already has a DB-9, you actually you need a DB-9-to-DB-9
+Null Modem (cross-over) cable.
 
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.16-jam18 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Mon
+Anyway, I do not expect pl2303 failing this test, mind. It's more
+of a problem for simpler devices.
+
+-- Pete

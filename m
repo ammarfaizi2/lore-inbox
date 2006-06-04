@@ -1,84 +1,67 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932183AbWFDUjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932169AbWFDUeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWFDUjZ (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 16:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWFDUjZ
+	id S932169AbWFDUeE (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 16:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWFDUeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 16:39:25 -0400
-Received: from pool-72-66-198-190.ronkva.east.verizon.net ([72.66.198.190]:57797
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932183AbWFDUjY (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 16:39:24 -0400
-Message-Id: <200606042038.k54KcZFm031888@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-        Andrew Morton <akpm@osdl.org>,
-        Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm3
-In-Reply-To: Your message of "Sun, 04 Jun 2006 12:41:21 +0200."
-             <20060604104121.GA16117@elte.hu>
-From: Valdis.Kletnieks@vt.edu
-References: <20060603232004.68c4e1e3.akpm@osdl.org> <986ed62e0606040238t712d7b01xde5f4a23da12fb1a@mail.gmail.com> <20060604024937.0fb57258.akpm@osdl.org> <6bffcb0e0606040308j28d9e89axa0136908c5530ae3@mail.gmail.com>
-            <20060604104121.GA16117@elte.hu>
+	Sun, 4 Jun 2006 16:34:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20429 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932169AbWFDUeB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 16:34:01 -0400
+Date: Sun, 4 Jun 2006 13:33:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: mingo@elte.hu, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
+Message-Id: <20060604133326.f1b01cfc.akpm@osdl.org>
+In-Reply-To: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com>
+References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1149453514_2972P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sun, 04 Jun 2006 16:38:35 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1149453514_2972P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <31870.1149453503.1@turing-police.cc.vt.edu>
+On Sun, 4 Jun 2006 05:04:29 -0700
+"Barry K. Nathan" <barryn@pobox.com> wrote:
 
-On Sun, 04 Jun 2006 12:41:21 +0200, Ingo Molnar said:
+> [ 1637.890434]
+> [ 1637.890440] ======================================
+> [ 1637.890641] [ BUG: bad unlock ordering detected! ]
+> [ 1637.890741] --------------------------------------
+> [ 1637.890841] mv/935 is trying to release lock (&mgr->tmgr_lock) at:
+> [ 1637.890996]  [<e098e01b>] try_capture+0x306/0x9b1 [reiser4]
+> [ 1637.891255] but the next lock to release is:
+> [ 1637.891344]  (&atom->alock){--..}, at: [<e098dfe2>]
+> try_capture+0x2cd/0x9b1 [reiser4]
+> [ 1637.891667]
+> [ 1637.891670] other info that might help us debug this:
+> [ 1637.891854] 3 locks held by mv/935:
+> [ 1637.891951]  #0:  (&inode->i_mutex/1){--..}, at: [<c0160325>]
+> lock_rename+0xba/0xc1
+> [ 1637.892297]  #1:  (&mgr->tmgr_lock){--..}, at: [<e098deb5>]
+> try_capture+0x1a0/0x9b1 [reiser4]
+> [ 1637.892647]  #2:  (&txnh->hlock){--..}, at: [<e098debd>]
+> try_capture+0x1a8/0x9b1 [reiser4]
+> [ 1637.892994]
+> [ 1637.892996] stack backtrace:
+> [ 1637.893577]  [<c010311a>] show_trace_log_lvl+0x54/0xfd
+> [ 1637.893738]  [<c0103709>] show_trace+0xd/0x10
+> [ 1637.893893]  [<c0103750>] dump_stack+0x19/0x1b
+> [ 1637.894045]  [<c012d713>] lockdep_release+0x18b/0x350
+> [ 1637.894407]  [<c02880d9>] _spin_unlock+0x16/0x1f
+> [ 1637.894777]  [<e098e01b>] try_capture+0x306/0x9b1 [reiser4]
+> [ 1637.895048]  [<e0988a80>] longterm_lock_znode+0x2e3/0x3e3 [reiser4]
+> [ 1637.895254]  [<e0995790>] coord_by_handle+0x136/0xaf4 [reiser4]
+> [ 1637.895515]  [<e09962de>] object_lookup+0x8e/0x96 [reiser4]
+> [ 1637.895764]  [<e09a9ece>] find_entry+0xbb/0x200 [reiser4]
+> [ 1637.896134]  [<e099fab1>] rename_common+0x96b/0x9b6 [reiser4]
+> [ 1637.896440]  [<c0160e96>] vfs_rename+0x1dd/0x315
+> [ 1637.897098]  [<c0162b84>] sys_renameat+0x1bb/0x22a
+> [ 1637.897664]  [<c0162c05>] sys_rename+0x12/0x14
+> [ 1637.898220]  [<c0288283>] syscall_call+0x7/0xb
 
-> could you please apply the following patches ontop of -mm3:
-> 
->   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc5-mm3.patch
->   http://redhat.com/~mingo/lockdep-patches/lockdep-tracer-2.6.17-rc5-mm3.patch
-
-Just for grins, I tried building this, and got this error:
-
-  CC      kernel/irq/handle.o
-kernel/irq/handle.c:246:35: error: macro "early_init_irq_lock_type" passed 1 arguments, but takes just 0
-kernel/irq/handle.c:247: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
-make[2]: *** [kernel/irq/handle.o] Error 1
-
-It won't build if you don't have CONFIG_TRACE_IRQFLAGS defined - and that
-is defined like this:
-
-config TRACE_IRQFLAGS
-        bool
-        default y
-        depends on TRACE_IRQFLAGS_SUPPORT
-        depends on PROVE_SPIN_LOCKING || PROVE_RW_LOCKING
-
-but my config has:
-% grep PROVE .config
-# CONFIG_PROVE_SPIN_LOCKING is not set
-# CONFIG_PROVE_RW_LOCKING is not set
-# CONFIG_PROVE_MUTEX_LOCKING is not set
-# CONFIG_PROVE_RWSEM_LOCKING is not set
-
-So using the defaults for the PROVE_* won't compile clean.  Yes, probably
-a stupid setting for anybody applying the patches, but.. ;)
-
-(I'm off to go build kernels without the patch, and with the PROVE_* set)..
-
-
---==_Exmh_1149453514_2972P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEg0TKcC3lWbTT17ARAqk9AJ9fm+O615nn3O/Wd1zFBYQqSISsqACfUJtX
-x6yNI6yVFMjsMF6WPA+A5Ko=
-=45Ms
------END PGP SIGNATURE-----
-
---==_Exmh_1149453514_2972P--
+Why does the locking validator complain about unlocking ordering?

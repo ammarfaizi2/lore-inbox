@@ -1,43 +1,133 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932202AbWFDIui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932196AbWFDIzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWFDIui (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 04:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWFDIui
+	id S932196AbWFDIzM (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 04:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWFDIzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 04:50:38 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:62404 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932202AbWFDIui (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 04:50:38 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-        "Barry K. Nathan" <barryn@pobox.com>,
-        Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch, -rc5-mm3] lock validator: fix ns83820.c irq-flags bug 
-In-reply-to: Your message of "Sun, 04 Jun 2006 10:30:17 +0200."
-             <20060604083017.GA8241@elte.hu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 04 Jun 2006 18:50:27 +1000
-Message-ID: <16537.1149411027@ocs3.ocs.com.au>
+	Sun, 4 Jun 2006 04:55:12 -0400
+Received: from wr-out-0506.google.com ([64.233.184.238]:60009 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932208AbWFDIzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 04:55:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=cEf37Ye5NBxAAhbnu+WYcuDVGhlRvuUfqlKQ27R7E3TY9fKvq5xlkUEjDkpDefY6woI2PNJjp/uQir/RF4GgTfbrT5IwV+XeMeqUTr2dsRprP1f76i6m7ZjGDtvAskZgcJ628c8JlRjfcmTDenqdW/J7CuVbe4A4rC4ALJdEfKY=
+Message-ID: <e5bfff550606040155v14565312na26f8c866f0fc32d@mail.gmail.com>
+Date: Sun, 4 Jun 2006 10:55:09 +0200
+From: "Marco Costalba" <mcostalba@gmail.com>
+To: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE qgit-1.3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar (on Sun, 4 Jun 2006 10:30:17 +0200) wrote:
->2) allowing the nesting of hardware interrupts only 'spreads out'
->the handling of the current ISR, causing extra cachemisses that would
->otherwise not happen. Furthermore, on architectures where ISRs share
->the kernel stacks, enabling interrupts in ISRs introduces a much
->higher kernel-stack-nesting and thus kernel-stack-overflow risk.
+This is qgit-1.3
 
-It is worse than you think.  A third party network driver enabled
-interrupts in its irq handler.  For reasons that are still not clear,
-that allowed recursive interrupts from the same device.  Unexpected I
-know, because the card's ISR should still have been masked, but the
-stack trace said otherwise.  When multiple packets arrived for the same
-driver it drove multiple levels of kernel functions to handle them and
-completely blew the kernel stack, even though it was using a separate
-IRQ stack.
+With qgit you will be able to browse revisions history, view patch content
+and changed files, graphically following different development branches.
 
+
+FEATURES
+
+ - View revisions, diffs, files history, files annotation, archive tree.
+
+ - Commit changes visually cherry picking modified files.
+
+ - Apply or format patch series from selected commits, drag and
+   drop commits between two instances of qgit.
+
+  - qgit implements a GUI for the most common StGIT commands like push/pop
+   and apply/format patches. You can also create new patches or refresh
+   current top one using the same semantics of git commit, i.e. cherry
+   picking single modified files.
+
+
+NEW IN THIS RELEASE
+
+Main focus of this release is usability.
+
+The big feature is the use of tabs instead of independent windows.
+
+This change alone could be enough for a release. It's a big rewrite of UI
+code to let browsing revisions and patches quicker and easier.
+
+An whole set of key and mouse bindings has been introduced to support tab
+navigation, see handbook (F1) for details.
+
+Also changes in annotation/file viewer and StGIT integration.
+
+Please note that you will need git 1.3.0 or newer.
+
+
+DOWNLOAD
+
+Tarball is
+http://prdownloads.sourceforge.net/qgit/qgit-1.3.tar.bz2?download
+
+Git archive is
+git://git.kernel.org/pub/scm/qgit/qgit.git
+
+See http://digilander.libero.it/mcostalba/ for detailed download information.
+
+
+INSTALLATION
+
+git 1.3.0 is required.
+
+To install from tarball:
+
+./configure
+make
+make install
+
+To install from git archive:
+
+autoreconf -i
+./configure
+make
+make install
+
+Or check the shipped README for detailed information.
+
+
+CHANGELOG
+
+from 1.3rc1 to 1.3
+- added another powerful key binding to switch pages: <Alt+wheel>
+- add refresh button to main toolbar
+- disable back and forward buttons when not in a git archive
+- patch viewer should not parse HTML
+- strip debug info when installing qgit
+- move 'Settings...' at the end of Edit menu
+- fix code range filtering in case of multi indipendent branches
+- actually support embedded Qt, make configuration code more robust
+(Pavel Roskin)
+- always select at first revision after opening a repository
+
+from 1.2 to 1.3rc1
+- convert UI to use tabs instead of independent windows
+- use key bindings to quickly change view
+- use 's' key to quickly hide/unhide secondary panes in current view
+- use a standard 'find text' (CTRL+F) dialog across views
+- add support for filter a given substring or regexp through patches content
+- highlight matched filter patterns in diff viewer
+- add up/down one revision key binding
+- double clicking on file list now shows the patch
+- improve file content loading time
+- add support for hide/unhide annotation in file viewer
+- fix 'format patch series' broken in multi revision case
+- fix search for StGIT patches only under current stg branch directory
+- fix don't be confused by out-of-date parent IDs of unapplied patches
+(Pavel Roskin)
+- fix show ref names in pop-up menu also for applied StGIT patches
+- fix unable to push and pop patches if "check working dir" is enabled
+- add support for finding Qt on SuSE-9.2 for x86_64 (Pavel Roskin)
+
+For a complete changelog see shipped ChangeLog file or git repository
+revision's history
+
+	Marco

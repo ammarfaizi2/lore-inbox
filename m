@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932113AbWFDJkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751302AbWFDJoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWFDJkG (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 05:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWFDJkG
+	id S1751302AbWFDJoM (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 05:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWFDJoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 05:40:06 -0400
-Received: from mx01.qsc.de ([213.148.129.14]:151 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S1751264AbWFDJkE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 05:40:04 -0400
-From: Rene Rebe <rene@exactcode.de>
-Organization: ExactCODE
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Add Apple MacBook product IDs to usbhid
-Date: Sun, 4 Jun 2006 11:39:09 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>
+	Sun, 4 Jun 2006 05:44:12 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:44767 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1751302AbWFDJoM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 05:44:12 -0400
+Message-ID: <4482AB6A.9010105@dgreaves.com>
+Date: Sun, 04 Jun 2006 10:44:10 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200606041139.09533.rene@exactcode.de>
+To: xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc3: XFS internal error xlog_clear_stale_blocks(1)
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi
 
-This adds the Apple MacBook product IDs for the Fn translation
-to the usbhid.
+vanilla 2.6.17-rc3
 
-Signed-off-by: René Rebe <rene@exactcode.de>
+mounting onto an lvm2 ontop of raid5 on top of sata
 
---- ./drivers/usb/input/hid-core.c.orig	2006-06-01 15:52:13.000000000 +0200
-+++ ./drivers/usb/input/hid-core.c	2006-06-01 15:54:09.000000000 +0200
-@@ -1602,6 +1602,9 @@
- 	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, 0x0215, HID_QUIRK_POWERBOOK_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, 0x0216, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x0217, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x0218, HID_QUIRK_POWERBOOK_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, 0x0219, HID_QUIRK_POWERBOOK_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_POWERBOOK_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_POWERBOOK_HAS_FN },
- 
+Filesystem "dm-0": Disabling barriers, not supported by the underlying
+device
+XFS mounting filesystem dm-0
+Filesystem "dm-0": XFS internal error xlog_clear_stale_blocks(1) at line
+1225 of file fs/xfs/xfs_log_recover.c.  Caller 0xb01fca2f
+ <b01fb8d9> xlog_find_tail+0xa39/0xeb0   <b01fca2f> xlog_recover+0x2f/0x2f0
+ <b01fca2f> xlog_recover+0x2f/0x2f0   <b01f5566> xfs_log_mount+0x256/0x650
+ <b01fec19> xfs_mountfs+0xd09/0x1260   <b021b199>
+xfs_mountfs_check_barriers+0x39/0x120
+ <b0207cef> xfs_mount+0xa2f/0xbf0   <b021c130> xfs_fs_fill_super+0xa0/0x250
+ <b0237e8b> snprintf+0x2b/0x30   <b0198095> disk_name+0xd5/0xf0
+ <b016644f> sb_set_blocksize+0x1f/0x50   <b0165407> get_sb_bdev+0x117/0x155
+ <b021b6ff> xfs_fs_get_sb+0x2f/0x40   <b021c090> xfs_fs_fill_super+0x0/0x250
+ <b0164882> do_kern_mount+0x52/0xe0   <b017cd1d> do_mount+0x29d/0x770
+ <b016eb8e> do_path_lookup+0x10e/0x270   <b016c35a> getname+0xda/0x100
+ <b014219e> __alloc_pages+0x5e/0x2f0   <b01426e4> __get_free_pages+0x34/0x60
+ <b017b824> copy_mount_options+0x44/0x140   <b017d28d> sys_mount+0x9d/0xe0
+ <b010304b> syscall_call+0x7/0xb
+XFS: failed to locate log tail
+XFS: log mount/recovery failed: error 990
+XFS: log mount failed
+
+
+Anything else I can do?
+(is it worth trying -rc5?)
+
+I'm building 2.6.16.19 and I'll try that shortly...
+
+David
 
 -- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-            http://exactcode.de | http://t2-project.org | http://rebe.name
-            +49 (0)30 / 255 897 45
+

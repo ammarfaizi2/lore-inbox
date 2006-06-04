@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932286AbWFDXBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932304AbWFDXEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWFDXBd (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 19:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWFDXBd
+	id S932304AbWFDXEs (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 19:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWFDXEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 19:01:33 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:62068 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932286AbWFDXBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 19:01:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=Kr0ccY0yhI219sfV66XLJjIUScmiVKeGotUK+KMPZNJUtGdlnK7lSNSxsPEiNZ0dwx6HhgDsmG0KnzOA0srBCyoYGki2gMZpWwH8nzZEgrIU2wKe0PhxbKVrGyHlKWzXeAHFjXMNAiMrSTZea4MOZJaBlhQIjbBQpmPyFGYAHuA=
-Date: Mon, 5 Jun 2006 01:01:24 +0200
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [trivial patch, rc5-mm3] fix typo in acpi pm info message
-Message-ID: <20060604230124.GA3168@slug>
-References: <20060603232004.68c4e1e3.akpm@osdl.org>
+	Sun, 4 Jun 2006 19:04:47 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:11965 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932304AbWFDXEr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 19:04:47 -0400
+Message-ID: <448366FB.1070407@zytor.com>
+Date: Sun, 04 Jun 2006 16:04:27 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060603232004.68c4e1e3.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: klibc (was: 2.6.18 -mm merge plans)
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> 
+> git-klibc.patch
+> 
+>  Similar.  This all appears to work sufficiently well for a 2.6.18 merge. 
+>  But it's been so long since klibc was a hot topic that I've forgotten who
+>  wanted it, and what for.
+> 
+>  Can whoever has an interest in this work please pipe up and let's get our
+>  direction sorted out quickly.
+> 
 
-There's a typo in an ACPI info message introduced by the following patch:
-http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/broken-out/acpi-identify-which-device-is-not-power-manageable.patch
+klibc (early userspace) in its current form is fundamentally a cleanup. 
+  What it does is unload code from the kernel which has no fundamental 
+reason to be kernel code (written during kernel rules, with all the 
+problems it entails.)  The initial code to have removed is the 
+root-mounting code, with all the various ugly mutations of that (ramdisk 
+loading, NFS root, initrd...)
 
-Here's the fix:
+The original idea was due Al Viro; obviously, the implementation is 
+mostly mine.
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+It is of course my hope that this will be used for more than just plain 
+initialization code, but that in itself is a significant step, and one 
+has to start somewhere.
 
---- drivers/acpi/bus.c_	2006-06-05 00:48:44.000000000 +0200
-+++ drivers/acpi/bus.c	2006-06-05 00:49:19.000000000 +0200
-@@ -188,7 +188,7 @@ int acpi_bus_set_power(acpi_handle handl
- 	/* Make sure this is a valid target state */
- 
- 	if (!device->flags.power_manageable) {
--		ACPI_INFO((AE_INFO, "Device `%s]is not power manageable",
-+		ACPI_INFO((AE_INFO, "Device [%s] is not power manageable",
- 				device->kobj.name));
- 		return -ENODEV;
- 	}
+Part of the reason it has taken as long is it has is just to try to make 
+it as drop-in as at all possible.
+
+	-hpa

@@ -1,50 +1,99 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750710AbWFDQLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750709AbWFDQK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWFDQLg (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 12:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWFDQLg
+	id S1750709AbWFDQK2 (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 12:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWFDQK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 12:11:36 -0400
-Received: from wx-out-0102.google.com ([66.249.82.200]:9338 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750710AbWFDQLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 12:11:36 -0400
+	Sun, 4 Jun 2006 12:10:28 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:63909 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750709AbWFDQK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 12:10:27 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FwEo6ZCsgCzz7nC33cb7UKPyhgGxt8hhceAsq1u7w1hx0L+CLB2ZkN5uw6lxV6m8tK3gqEc/BwDcFYMmwyYXerpoz+mIWN48VMH9/Zp22HSDHHCPv1WiVXjKVZ0BD5uvD/SBycabs7BA+0MwmfoaHRYfEloFsbsfZA40hBD3v38=
-Message-ID: <beee72200606040911w6cd035a9j5d1a647254e053d7@mail.gmail.com>
-Date: Sun, 4 Jun 2006 18:11:35 +0200
-From: "davor emard" <davoremard@gmail.com>
-To: "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
-Subject: Re: SMP HT + USB2.0 crash
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200606041706.28073.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=E+5/tkpknFoUny+t57vFHwC3SdVyHUvub/t2rpXEAt9eeIioXNi/oqf0UjgUwB7nzK9nxaQmN/nRFEqKs1bJuTlQb8S52GUA7RC8kdWBG7pIA2+gjxSNZcjAgj2nvzGLSUarzKWXOa8pUF62qg19O7m5eShT6pMgpeCki/BeYDE=
+Date: Sun, 4 Jun 2006 20:11:24 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rune Torgersen <runet@innovsys.com>, jgarzik@pobox.com,
+        linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+        linux-ide@vger.kernel.org, Tejun Heo <htejun@gmail.com>
+Subject: Re: [PATCH 2.6.16.16] sata_sil24: SII3124 sata driver endian problem
+Message-ID: <20060604161124.GA7587@martell.zuzino.mipt.ru>
+References: <DCEAAC0833DD314AB0B58112AD99B93B0189DDFF@ismail.innsys.innovsys.com> <DCEAAC0833DD314AB0B58112AD99B93B0189DE08@ismail.innsys.innovsys.com> <20060602163035.05ab7c71.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <beee72200606040322w2960e5f9j1716addc39949ccb@mail.gmail.com>
-	 <200606041706.28073.s0348365@sms.ed.ac.uk>
+In-Reply-To: <20060602163035.05ab7c71.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/4/06, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> On Sunday 04 June 2006 11:22, davor emard wrote:
-> > Usually SMP + EHCI crashes like this
->
-> Please attach another log without NVIDIA ever having being loaded. This is a
-> technical forum, we need precise facts "nvidia has not been loaded", not
-> vague recollections "nvidia probably wasn't loaded some time before".
->
-> Secondly, I highly recommend running memtest86 on your system for at least a
-> couple of passes. You can download an ISO from the homepage and boot it from
-> a CD. If this fails, you have faulty memory.
->
-> --
-> Cheers,
-> Alistair.
->
-> Third year Computer Science undergraduate.
-> 1F2 55 South Clerk Street, Edinburgh, UK.
->
+On Fri, Jun 02, 2006 at 04:30:35PM -0700, Andrew Morton wrote:
+> > There is an endian issue in the sil24 driver.
+> > The follwing pathc seems to fix it for me. (it is also attached in case
+> > the mailer borks it for me)
+> >
+> > Signed-off-by: Rune Torgersen <runet@innovsys.com>
+> >
+> > Index: linux-innsys-2.6.16.16/drivers/scsi/sata_sil24.c
+> > ===================================================================
+> > --- linux-innsys-2.6.16.16/drivers/scsi/sata_sil24.c	(revision 101)
+> > +++ linux-innsys-2.6.16.16/drivers/scsi/sata_sil24.c	(working copy)
+> > @@ -446,7 +446,7 @@
+> >  	 */
+> >  	msleep(10);
+> >
+> > -	prb->ctrl = PRB_CTRL_SRST;
+> > +	prb->ctrl = cpu_to_le16(PRB_CTRL_SRST);
+> >  	prb->fis[1] = 0; /* no PM yet */
+> >
+> >  	writel((u32)paddr, port + PORT_CMD_ACTIVATE);
+> > @@ -537,9 +537,9 @@
+> >
+> >  		if (qc->tf.protocol != ATA_PROT_ATAPI_NODATA) {
+> >  			if (qc->tf.flags & ATA_TFLAG_WRITE)
+> > -				prb->ctrl = PRB_CTRL_PACKET_WRITE;
+> > +				prb->ctrl =
+> > cpu_to_le16(PRB_CTRL_PACKET_WRITE);
+> >  			else
+> > -				prb->ctrl = PRB_CTRL_PACKET_READ;
+> > +				prb->ctrl =
+> > cpu_to_le16(PRB_CTRL_PACKET_READ);
+
+Are there some other fields that should be marked?
+
+[PATCH] sata_sil24: endian annotations
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ drivers/scsi/sata_sil24.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+--- a/drivers/scsi/sata_sil24.c
++++ b/drivers/scsi/sata_sil24.c
+@@ -37,7 +37,7 @@
+  * Port request block (PRB) 32 bytes
+  */
+ struct sil24_prb {
+-	u16	ctrl;
++	__le16	ctrl;
+ 	u16	prot;
+ 	u32	rx_cnt;
+ 	u8	fis[6 * 4];
+@@ -47,9 +47,9 @@ struct sil24_prb {
+  * Scatter gather entry (SGE) 16 bytes
+  */
+ struct sil24_sge {
+-	u64	addr;
+-	u32	cnt;
+-	u32	flags;
++	__le64	addr;
++	__le32	cnt;
++	__le32	flags;
+ };
+ 
+ /*
+

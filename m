@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932257AbWFDV3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932264AbWFDVlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWFDV3P (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 17:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWFDV3P
+	id S932264AbWFDVlE (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 17:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWFDVlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 17:29:15 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:130 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932257AbWFDV3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 17:29:14 -0400
-Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
-	disable_irq()
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
-        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <1149456375.23209.13.camel@localhost.localdomain>
-References: <20060531200236.GA31619@elte.hu>
-	 <1149107500.3114.75.camel@laptopd505.fenrus.org>
-	 <20060531214139.GA8196@devserv.devel.redhat.com>
-	 <1149111838.3114.87.camel@laptopd505.fenrus.org>
-	 <20060531214729.GA4059@elte.hu>
-	 <1149112582.3114.91.camel@laptopd505.fenrus.org>
-	 <1149345421.13993.81.camel@localhost.localdomain>
-	 <20060603215323.GA13077@devserv.devel.redhat.com>
-	 <1149374090.14408.4.camel@localhost.localdomain>
-	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
-	 <1149426961.27696.7.camel@localhost.localdomain>
-	 <1149437412.23209.3.camel@localhost.localdomain>
-	 <1149438131.29652.5.camel@localhost.localdomain>
-	 <1149456375.23209.13.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 04 Jun 2006 17:28:52 -0400
-Message-Id: <1149456532.29652.29.camel@localhost.localdomain>
+	Sun, 4 Jun 2006 17:41:04 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:49162 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932264AbWFDVlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 17:41:03 -0400
+Date: Sun, 4 Jun 2006 23:41:02 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: kbuild, kconfig and hrdinstall stuff
+Message-ID: <20060604214102.GA18392@mars.ravnborg.org>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-04 at 22:26 +0100, Alan Cox wrote:
-> Ar Sul, 2006-06-04 am 12:22 -0400, ysgrifennodd Steven Rostedt:
-> > But can't this machine still cause an interrupt storm if the interrupt
-> > comes on a wrong line, and we don't call the handler for the interrupt
-> > source because we are now honoring disable_irq?
+> git-hdrcleanup.patch
+> git-hdrinstall.patch
 > 
-> Yes - that is why we can't honour disable_irq in this case but have to
-> hope 8)
+>  This is Dave Woodhouse's work cleaning up the kernel headers and adding a
+>  `make headerinstall' target which automates the exporting of kernel
+>  headers as a userspace-usable package.
 > 
+>  All I can say about this is that it doesn't appear to break anything and
+>  is ready to merge from that point of view.  It's not an area in which I
+>  have much interest or knowledge.
 
-Hmm, maybe this can be solved with something like what the -rt patch
-does with threading interrupts and the interrupt mask.  I'm not
-suggesting threading interrupts.  But, if the misrouted irq comes across
-a disabled_irq, that it sets some flag, and doesn't unmask the interrupt
-when finished.  Have enable_irq see the flag and have it unmask the
-interrupt if it is safe to do so.
+Dave Woodhouse asked me to review the hdrinstall part and I will do so.
+At first glance only a fiw tid-bits needs fixing and then I like to
+include unifdef in the kernel. It is rather unusual to have installed
+(gentoo at least does not have it in Portage).
 
-This all may be pretty hacky, but it's trying to fix code for hardware
-that is already hacky.  Note, that this would need to be compiled in as
-on option to actually implement any of this crap.
+I just lacks a bit of time. Work and my newcomer (2 months old now)
+takes a bit of time at the moment.
 
--- Steve
+I you do not beat me hdrinstall will be part of kbuild-tree soon,
+whereas the hrdcleanup part will not.
+
+Following will be in kbuild-tree soon too.
+> add-dependency-on-kernelrelease-to-the-package-targets.patch
+> kconfig-improve-config-load-save-output.patch
+> kconfig-fix-config-dependencies.patch
+> kconfig-remove-symbol_yesmodno.patch
+> kconfig-allow-multiple-default-values-per-symbol.patch
+> kconfig-allow-loading-multiple-configurations.patch
+> kconfig-integrate-split-config-into-silentoldconfig.patch
+> kconfig-integrate-split-config-into-silentoldconfig-fix.patch
+> kconfig-move-kernelrelease.patch
+> kconfig-add-symbol-option-config-syntax.patch
+> kconfig-add-defconfig_list-module-option.patch
+> kconfig-add-search-option-for-xconfig.patch
+> kconfig-finer-customization-via-popup-menus.patch
+> kconfig-create-links-in-info-window.patch
+> kconfig-jump-to-linked-menu-prompt.patch
+> kconfig-warn-about-leading-whitespace-for-menu-prompts.patch
+> kconfig-remove-leading-whitespace-in-menu-prompts.patch
+> config-exit-if-no-beginning-filename.patch
+> make-kernelrelease-speedup.patch
+> kconfig-kconfig_overwriteconfig.patch
+Not this one >>> sane-menuconfig-colours.patch
+Randy Dunlap has a patch so it is configurable - but I like it
+selectable in menuconfig - something I have not yet done.
+
+> kbuild-export-type-enhancement-to-modpostc.patch
+> kbuild-export-type-enhancement-to-modpostc-fix.patch
+> kbuild-prevent-building-modules-that-wont-load.patch
+> kbuild-export-symbol-usage-report-generator.patch
+> kbuild-obj-dirs-is-calculated-incorrectly-if-hostprogs-y-is-defined.patch
+> fix-make-rpm-for-powerpc.patch
+If review is good => kbuild-tree.
+
+> powerpc-kbuild-warning-fix.patch
+I need to check up on this.
 
 
+> kernel-doc-drop-leading-space-in-sections.patch
+> kernel-doc-script-cleanups.patch
+I thought we had a kernel-doc maintainer these days?
+
+	Sam

@@ -1,151 +1,81 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750708AbWFEUxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750773AbWFEUyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWFEUxk (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWFEUxk
+	id S1750773AbWFEUyO (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWFEUyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:53:40 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:53462 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750708AbWFEUxj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:53:39 -0400
-Subject: Re: clocksource
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1149538810.9226.29.camel@localhost.localdomain>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <Pine.LNX.4.64.0606050141120.17704@scrub.home>
-	 <1149538810.9226.29.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 13:53:32 -0700
-Message-Id: <1149540812.11470.4.camel@localhost.localdomain>
+	Mon, 5 Jun 2006 16:54:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15843 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750776AbWFEUyM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:54:12 -0400
+Date: Mon, 5 Jun 2006 13:53:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, mingo@redhat.com
+Subject: Re: 2.6.17-rc5-mm3
+Message-Id: <20060605135354.81dc8449.akpm@osdl.org>
+In-Reply-To: <20060605204456.GF6143@redhat.com>
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+	<20060605194844.GA6143@redhat.com>
+	<20060605130626.3f2917a2.akpm@osdl.org>
+	<20060605200947.GC6143@redhat.com>
+	<20060605204456.GF6143@redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-05 at 13:20 -0700, john stultz wrote:
-> On Mon, 2006-06-05 at 01:50 +0200, Roman Zippel wrote:
-> > > time-let-user-request-precision-from-current_tick_length.patch
-> > 
-> > This is broken, as it simply throws away resolution depending on the 
-> > clock.
+On Mon, 5 Jun 2006 16:44:56 -0400
+Dave Jones <davej@redhat.com> wrote:
+
+> On Mon, Jun 05, 2006 at 04:09:47PM -0400, Dave Jones wrote:
 > 
-> So if the clock shift value is less then 12 (SHIFT_SCALE - 10), this is
-> true, and currently that's only the jiffies case.
+>  >  > Try reverting debug-shared-irqs.patch, or disable the sound driver?
+>  > Will turn off the sound driver, and see what happens.
 > 
-> Just to be clear, are you then suggesting that the accumulation in
-> update_wall_time should be done in a fixed shifted nanosecond unit
-> regardless of the clock shift value? Is SHIFT_SCALE-10, good enough in
-> your mind for this?
-> 
-> That seems not too difficult to do, and can be done w/ an incremental
-> patch. I'll try to crank that out today.
+> Win! It now boots.
 
-Just to quickly get some feedback on this. Currently untested (I'm
-working on that part now - Andrew, I'll send it to once it clears), but
-it builds.
+So does Windows 95.
 
-Roman: Your thoughts? Does it cover your concern?
+>   I blew it up really easy with a socket-fuzzer though.
+> (http://people.redhat.com/davej/sfuzz.c)
 
-thanks
--john
+But it kept running OK, yes?
 
+> [  874.865028] ======================================
+> [  874.943738] [ BUG: bad unlock ordering detected! ]
+> [  875.002919] --------------------------------------
+> [  875.062134] sfuzz/23915 is trying to release lock (&sctp_port_alloc_lock) at:
+> [  875.149619]  [<d128ed4e>] sctp_get_port_local+0xd0/0x285 [sctp]
+> [  875.222636] but the next lock to release is:
+> [  875.276019]  (&sctp_port_hashtable[i].lock){-...}, at: [<d128ed0e>] sctp_get_port_local+0x90/0x285 [sctp]
+> [  875.393031]
+> [  875.393032] other info that might help us debug this:
+> [  875.476583] 1 locks held by sfuzz/23915:
+> [  875.526247]  #0:  (&sctp_port_alloc_lock){-...}, at: [<d128ecd9>] sctp_get_port_local+0x5b/0x285 [sctp]
+> [  875.641621]
+> [  875.641623] stack backtrace:
+> [  875.699891]  [<c0104966>] show_trace_log_lvl+0x54/0xfd
+> [  875.764425]  [<c0104f1a>] show_trace+0xd/0x10
+> [  875.819622]  [<c010502f>] dump_stack+0x19/0x1b
+> [  875.875924]  [<c013b4af>] lockdep_release+0x150/0x2d1
+> [  875.939610]  [<c032341e>] _spin_unlock+0x16/0x20
+> [  875.998171]  [<d128ed4e>] sctp_get_port_local+0xd0/0x285 [sctp]
+> [  876.072345]  [<d128efd4>] sctp_do_bind+0x9a/0x158 [sctp]
+> [  876.139315]  [<d128f0ce>] sctp_autobind+0x3c/0x44 [sctp]
+> [  876.206310]  [<d129253d>] sctp_inet_listen+0xe9/0x139 [sctp]
+> [  876.277539]  [<c02c20af>] sys_listen+0x4a/0x65
+> [  876.334730]  [<c02c308d>] sys_socketcall+0x98/0x186
+> [  876.397175]  [<c03239cb>] syscall_call+0x7/0xb
 
-diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
-index 4bc9428..884980a 100644
---- a/include/linux/clocksource.h
-+++ b/include/linux/clocksource.h
-@@ -146,14 +146,17 @@ static inline s64 cyc2ns(struct clocksou
- 	return ret;
- }
- 
-+
-+#define CLOCKSOURCE_INTERVAL_SHIFT (SHIFT_SCALE - 10)
-+
- /**
-  * clocksource_calculate_interval - Calculates a clocksource interval struct
-  *
-  * @c:		Pointer to clocksource.
-  * @length_nsec: Desired interval length in nanoseconds.
-  *
-- * Calculates a fixed cycle/nsec interval for a given clocksource/adjustment
-- * pair and interval request.
-+ * Calculates a fixed cycle/nsec interval (in CLOCKSOURCE_INTERVAL_SHIFT units)
-+ * for a given clocksource/adjustment pair and interval request.
-  *
-  * Unless you're the timekeeping code, you should not be using this!
-  */
-@@ -164,7 +167,7 @@ static inline void clocksource_calculate
- 
- 	/* XXX - All of this could use a whole lot of optimization */
- 	tmp = length_nsec;
--	tmp <<= c->shift;
-+	tmp <<= CLOCKSOURCE_INTERVAL_SHIFT;
- 	tmp += c->mult/2;
- 	do_div(tmp, c->mult);
- 
-@@ -215,8 +218,8 @@ static inline int error_aproximation(u64
-  * @cycles_delta:	Current unacounted cycle delta
-  * @error:		Pointer to current error value
-  *
-- * Returns clock shifted nanosecond adjustment to be applied against
-- * the accumulated time value (ie: xtime).
-+ * Returns CLOCKSOURCE_INTERVAL_SHIFT shifted nanosecond adjustment to be
-+ * applied against the accumulated time value (ie: xtime).
-  *
-  * If the error value is large enough, this function calulates the
-  * (power of two) adjustment value, and adjusts the clock's mult and
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 0569d40..588bfcd 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -1029,8 +1029,8 @@ static void update_wall_time(void)
- 	s64 snsecs_per_sec;
- 	cycle_t now, offset;
- 
--	snsecs_per_sec = (s64)NSEC_PER_SEC << clock->shift;
--	remainder_snsecs += (s64)xtime.tv_nsec << clock->shift;
-+	snsecs_per_sec = (s64)NSEC_PER_SEC << CLOCKSOURCE_INTERVAL_SHIFT;
-+	remainder_snsecs += (s64)xtime.tv_nsec << CLOCKSOURCE_INTERVAL_SHIFT;
- 
- 	now = clocksource_read(clock);
- 	offset = (now - last_clock_cycle)&clock->mask;
-@@ -1039,8 +1039,11 @@ static void update_wall_time(void)
- 	 * case of lost or late ticks, it will accumulate correctly.
- 	 */
- 	while (offset > clock->interval_cycles) {
--		/* get the ntp interval in clock shifted nanoseconds */
--		s64 ntp_snsecs	= current_tick_length(clock->shift);
-+		/* get the ntp interval in CLOCKSOURCE_INTERVAL_SHIFT 
-+		 * shifted nanoseconds:
-+		 */
-+		s64 ntp_snsecs =
-+			current_tick_length(CLOCKSOURCE_INTERVAL_SHIFT);
- 
- 		/* accumulate one interval */
- 		remainder_snsecs += clock->interval_snsecs;
-@@ -1049,7 +1052,7 @@ static void update_wall_time(void)
- 
- 		/* interpolator bits */
- 		time_interpolator_update(clock->interval_snsecs
--						>> clock->shift);
-+						>> CLOCKSOURCE_INTERVAL_SHIFT);
- 		/* increment the NTP state machine */
- 		update_ntp_one_tick();
- 
-@@ -1066,8 +1069,8 @@ static void update_wall_time(void)
- 		}
- 	}
- 	/* store full nanoseconds into xtime */
--	xtime.tv_nsec = remainder_snsecs >> clock->shift;
--	remainder_snsecs -= (s64)xtime.tv_nsec << clock->shift;
-+	xtime.tv_nsec = remainder_snsecs >> CLOCKSOURCE_INTERVAL_SHIFT;
-+	remainder_snsecs -= (s64)xtime.tv_nsec << CLOCKSOURCE_INTERVAL_SHIFT;
- 
- 	/* check to see if there is a new clocksource to use */
- 	if (change_clocksource()) {
+This is a really really fussy "BUG", IMO.  So we undid the locks in an
+inappropriate order - big deal.
 
+But often these _are_ things which we should tune up, as an efficiency
+thing, so it is interesting to hear about them.  But calling it a "BUG" is
+a bit alarmist.
 
+Thanks for booting it.

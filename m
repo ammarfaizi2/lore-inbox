@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751100AbWFENSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751106AbWFENbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWFENSo (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 09:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWFENSn
+	id S1751106AbWFENbW (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 09:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWFENbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 09:18:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26038 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751089AbWFENSn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 09:18:43 -0400
-Date: Mon, 5 Jun 2006 15:17:52 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-        linux-ide@vger.kernel.org
-Subject: Re: [PATCH] swsusp: allow drivers to determine between write-resume and actual wakeup
-Message-ID: <20060605131752.GE2132@elf.ucw.cz>
-References: <20060605091131.GE8106@htj.dyndns.org> <20060605092342.GI5540@elf.ucw.cz> <44841AA0.4060404@gmail.com>
-MIME-Version: 1.0
+	Mon, 5 Jun 2006 09:31:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:16040 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751099AbWFENbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 09:31:21 -0400
+Date: Mon, 5 Jun 2006 14:31:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jeff@garzik.org>,
+        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: wireless (was Re: 2.6.18 -mm merge plans)
+Message-ID: <20060605133117.GA25243@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605010636.GB17361@havoc.gtf.org> <20060605085451.GA26766@infradead.org> <20060605132732.GA23350@tuxdriver.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44841AA0.4060404@gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060605132732.GA23350@tuxdriver.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 05-06-06 20:50:56, Tejun Heo wrote:
-> Pavel Machek wrote:
-> >If you want to know if you RESUME was after normal FREEZE or if it is
-> >after reboot, there's better patch floating around to do that.
-> 
-> Yeap, this is what I'm interested in.  Care to give me a pointer?
+On Mon, Jun 05, 2006 at 09:27:37AM -0400, John W. Linville wrote:
+> Actually, I was planning to merge the softmac-based version for 2.6.18.
+> It looks like I may want some of Andrew's patches on top (ia64, alpha, etc).
 
-David Brownell had a patch to do that. I forwarded you my reply to
-that mail...
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+duh, didn't know that wasn't in -mm.  we want the softmac version of course.
+

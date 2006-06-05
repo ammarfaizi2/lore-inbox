@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751034AbWFEMJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751036AbWFEMOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWFEMJx (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 08:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWFEMJx
+	id S1751036AbWFEMOL (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 08:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWFEMOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 08:09:53 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:9167 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751033AbWFEMJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 08:09:53 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44841E8B.7070608@s5r6.in-berlin.de>
-Date: Mon, 05 Jun 2006 14:07:39 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net
-CC: Arjan van de Ven <arjan@linux.intel.com>, Jiri Slaby <jirislaby@gmail.com>,
-        Ben Collins <bcollins@ubuntu.com>,
-        Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@osdl.org>,
-        =?ISO-8859-1?Q?=22J=2EA=2E_Magall=F3n=22?= <jamagallon@ono.com>
-Subject: Re: [PATCH 2.6.17-rc5-mm3] ieee1394: hl_irqs_lock is taken in hardware
- interrupt context
-References: <20060601014806.e86b3cc0.akpm@osdl.org> <447F0905.8020600@gmail.com> <1149176945.3115.70.camel@laptopd505.fenrus.org> <1149179744.4533.205.camel@grayson> <tkrat.02c63cb007e86f12@s5r6.in-berlin.de>
-In-Reply-To: <tkrat.02c63cb007e86f12@s5r6.in-berlin.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 Jun 2006 08:14:11 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:17106 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1750947AbWFEMOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 08:14:10 -0400
+Date: Mon, 5 Jun 2006 09:14:09 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: dwmw2@infradead.org, rmk@arm.linux.org.uk, gregkh@suse.de,
+        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        zaitcev@redhat.com
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+Message-ID: <20060605091409.15e69852@doriath.conectiva>
+In-Reply-To: <20060604162453.696f190b.zaitcev@redhat.com>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	<20060601234833.adf12249.zaitcev@redhat.com>
+	<1149242609.4695.0.camel@pmac.infradead.org>
+	<20060602154723.54704081.zaitcev@redhat.com>
+	<20060604201223.7cd37936@home.brethil>
+	<20060604162453.696f190b.zaitcev@redhat.com>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.17; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> ohci1394 and pcilynx call highlevel_host_reset from their hardware
-> interrupt handler (via hpsb_selfid_complete).
+On Sun, 4 Jun 2006 16:24:53 -0700
+Pete Zaitcev <zaitcev@redhat.com> wrote:
 
-By the way, the hl->host_reset() handlers should be audited WRT 
-possibilities to offload parts of them into tasklets, workqueues etc..
+| On Sun, 4 Jun 2006 20:12:23 -0300, "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
+| 
+| > | I understand. My intent was different, however. One of the bigger sticking
+| > | points for usb-serial was its interaction with line disciplines, which are
+| > | notorious for looping back and requesting writes from callbacks
+| > | (e.g. h_hdlc.c). They are also sensitive to drivers lying about the
+| > | amount of free space in their FIFOs. This is something you never test
+| > | when driving a serial port from an application, no matter how cleverly
+| > | written.
+| 
+| >   In all the tests the modem was configured to answer the calls, and the
+| > cell phone was configured to dial to the modem (my home's number).
+| 
+| This is exactly backwards, and so it tests different code paths.
+| The line discipline is involved into driving a cooked mode port,
+| e.g. the one where getty is.
 
-bad:
-	csr.c::host_reset() ->
-	http://bugzilla.kernel.org/show_bug.cgi?id=6070
+ I was going to try it last night and realized that my cell phone
+can't answer data calls. :((
 
-OK:
-	nodemgr.c::nodemgr_host_reset()
-	sbp2.c::sbp2_host_reset()
-
-looks OK to me:
-	dv1394.c::dv1394_host_reset()
-
-can't tell:
-	eth1394.c::ether1394_host_reset()
-	raw1394.c::host_reset()
 -- 
-Stefan Richter
--=====-=-==- -==- --=-=
-http://arcgraph.de/sr/
+Luiz Fernando N. Capitulino

@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751398AbWFEULL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751406AbWFEUNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWFEULL (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWFEULL
+	id S1751406AbWFEUNT (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWFEUNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:11:11 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:34572 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1751398AbWFEULK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:11:10 -0400
-Message-ID: <44848F45.1070205@shadowen.org>
-Date: Mon, 05 Jun 2006 21:08:37 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-        mbligh@google.com, linux-kernel@vger.kernel.org, ak@suse.de,
-        Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org> <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com> <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jun 2006 16:13:18 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:37333 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751406AbWFEUNR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:13:17 -0400
+Date: Mon, 5 Jun 2006 14:13:20 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Johann Lombardi <johann.lombardi@bull.net>
+Cc: sho@tnes.nec.co.jp, cmm@us.ibm.com, jitendra@linsyssoft.com,
+        ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE][12/24]ext3 enlarge blocksize
+Message-ID: <20060605201320.GL5964@schatzie.adilger.int>
+Mail-Followup-To: Johann Lombardi <johann.lombardi@bull.net>,
+	sho@tnes.nec.co.jp, cmm@us.ibm.com, jitendra@linsyssoft.com,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20060525214902sho@rifu.tnes.nec.co.jp> <20060526120032.GN5964@schatzie.adilger.int> <20060605131311.GB2606@chiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060605131311.GB2606@chiva>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Mon, 5 Jun 2006, Andy Whitcroft wrote:
+On Jun 05, 2006  15:13 +0200, Johann Lombardi wrote:
+> On Fri, May 26, 2006 at 06:00:32AM -0600, Andreas Dilger wrote:
+> > On May 25, 2006  21:49 +0900, sho@tnes.nec.co.jp wrote:
+> > > @@ -1463,11 +1463,17 @@ static int ext3_fill_super (struct super
+> > > +	if (blocksize > PAGE_SIZE) {
+> > > +		printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
+> > > +		       "blocksize %u larger than PAGE_SIZE %u on %s\n",
+> > > +		       blocksize, PAGE_SIZE, sb->s_id);
+> > > +		goto failed_mount;
+> > > +	}
+> > > +
+> > >  	if (blocksize < EXT3_MIN_BLOCK_SIZE ||
+> > > -	    blocksize > EXT3_MAX_BLOCK_SIZE) {
+> > > +	    blocksize > EXT3_EXTENDED_MAX_BLOCK_SIZE) {
+> > 
+> > We may as well just change EXT3_MAX_BLOCK_SIZE to be 65536, because no other
+> > code uses this value.  It is already 65536 in the e2fsprogs.
 > 
-> 
->>Adding 65528k swap on ./swapfile01.  Priority:-2 extents:116 across:360044k
->>Adding 65528k swap on ./swapfile01.  Priority:-3 extents:104 across:569492k
->>Adding 65528k swap on ./swapfile01.  Priority:-4 extents:172 across:520952k
->>Unable to find swap-space signature
->>Adding 32k swap on swapfile02.  Priority:-5 extents:2 across:60k
->>Adding 32k swap on swapfile03.  Priority:-6 extents:1 across:32k
->>Adding 32k swap on swapfile04.  Priority:-7 extents:1 across:32k
->>Adding 32k swap on swapfile05.  Priority:-8 extents:3 across:44k
->>Adding 32k swap on swapfile06.  Priority:-9 extents:1 across:32k
->>Adding 32k swap on swapfile07.  Priority:-10 extents:1 across:32k
->>Adding 32k swap on swapfile08.  Priority:-11 extents:1 across:32k
->>Adding 32k swap on swapfile09.  Priority:-12 extents:1 across:32k
->>Adding 32k swap on swapfile10.  Priority:-13 extents:1 across:32k
->>Adding 32k swap on swapfile11.  Priority:-14 extents:1 across:32k
->>Adding 32k swap on swapfile12.  Priority:-15 extents:1 across:32k
->>Adding 32k swap on swapfile13.  Priority:-16 extents:1 across:32k
->>Adding 32k swap on swapfile14.  Priority:-17 extents:1 across:32k
->>Adding 32k swap on swapfile15.  Priority:-18 extents:1 across:32k
->>Adding 32k swap on swapfile16.  Priority:-19 extents:1 across:32k
->>Adding 32k swap on swapfile17.  Priority:-20 extents:1 across:32k
->>Adding 32k swap on swapfile18.  Priority:-21 extents:1 across:32k
->>Adding 32k swap on swapfile19.  Priority:-22 extents:1 across:32k
->>Adding 32k swap on swapfile20.  Priority:-23 extents:1 across:32k
->>Adding 32k swap on swapfile21.  Priority:-24 extents:1 across:32k
->>Adding 32k swap on swapfile22.  Priority:-25 extents:1 across:32k
->>Adding 32k swap on swapfile23.  Priority:-26 extents:1 across:32k
->>Adding 32k swap on swapfile24.  Priority:-27 extents:1 across:32k
->>Adding 32k swap on swapfile25.  Priority:-28 extents:1 across:32k
->>Adding 32k swap on swapfile26.  Priority:-29 extents:1 across:32k
->>Adding 32k swap on swapfile27.  Priority:-30 extents:1 across:32k
->>Adding 32k swap on swapfile28.  Priority:-31 extents:1 across:32k
->>Adding 32k swap on swapfile29.  Priority:-32 extents:1 across:32k
->>Adding 32k swap on swapfile30.  Priority:-33 extents:1 across:32k
->>Adding 32k swap on swapfile31.  Priority:-34 extents:1 across:32k
->>Adding 32k swap on swapfile32.  Priority:-35 extents:1 across:32k
-> 
-> 
-> 
-> That should not work at all. It should bomb out at 30 swap files with page 
-> migration on.
+> AFAICS, ext3_dir_entry_2->rec_len will overflow with a 64kB blocksize.
+> Do you know how ext2 handles this?
 
-The implication here is that there can only be 32 entries in-toto ... it
-feels like we have at least 33/34 as the machine has swap by default ...
-more to look at!
+Hmm, good question, I hadn't considered this.  One option is to just limit
+rec_len to 32768 or less (16k, 8k, 4k?), and require that there be multiple
+such records in a directory block.  We could additionally require that the
+records don't span such a boundary, which would potentially make it easier
+to validate broken entries themselves, but would slightly hurt the case
+where there are many large filenames.
 
--apw
+I suppose the reason this wasn't hit during previous 64kB block testing is
+that this has always been tested in relation to IO performance and not with
+metadata, so the directories were probably all single-block dirs with a
+"." and ".." entry at the beginning and a 65512-byte rec_len for the rest.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

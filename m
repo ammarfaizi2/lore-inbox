@@ -1,107 +1,52 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750731AbWFEWoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750748AbWFEW5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWFEWoK (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 18:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWFEWoK
+	id S1750748AbWFEW5Y (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 18:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWFEW5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 18:44:10 -0400
-Received: from mail.hosted.servetheworld.net ([83.143.81.74]:47562 "HELO
-	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
-	id S1750723AbWFEWoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 18:44:08 -0400
-Message-ID: <4484B3BE.8050102@osvik.no>
-Date: Tue, 06 Jun 2006 00:44:14 +0200
-From: Dag Arne Osvik <da@osvik.no>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060504)
-MIME-Version: 1.0
-To: Dag Arne Osvik <da@osvik.no>
-CC: Joachim Fritschi <jfritschi@freenet.de>, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-References: <200606041516.46920.jfritschi@freenet.de> <200606042110.15060.ak@suse.de> <44834A0F.3000502@osvik.no> <200606051218.16125.jfritschi@freenet.de> <4484B001.3010503@osvik.no>
-In-Reply-To: <4484B001.3010503@osvik.no>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jun 2006 18:57:24 -0400
+Received: from hera.kernel.org ([140.211.167.34]:48096 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750748AbWFEW5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 18:57:23 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: squashfs size in statfs
+Date: Mon, 5 Jun 2006 15:57:13 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e62cs9$csl$1@terminus.zytor.com>
+References: <Pine.LNX.4.61.0606051243100.579@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1149548233 13206 127.0.0.1 (5 Jun 2006 22:57:13 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 5 Jun 2006 22:57:13 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dag Arne Osvik wrote:
-> Joachim Fritschi wrote:
->> On Sunday 04 June 2006 23:01, Dag Arne Osvik wrote:
->>> Andi Kleen wrote:
->>>> On Sunday 04 June 2006 15:16, Joachim Fritschi wrote:
->>>>> This patch adds the twofish x86_64 assembler routine.
->>>>>
->>>>> +/* Defining a few register aliases for better reading */
->>>> Maybe you can read it now better, but for everybody else it is extremly
->>>> confusing. It would be better if you just used the original register
->>>> names.
->>> I'd agree if you said this code could benefit from further readability
->>> improvements.  But you're arguing against one.
->>>
->>> Too bad AMD kept the old register names when defining AMD64..
->> I'd agree that the original register names would only complicate things. 
->>
->> Can you give me any hint what to improve or maybe provide a suggestion on how 
->> to improve the overall readabilty.
+Followup to:  <Pine.LNX.4.61.0606051243100.579@yvahk01.tjqt.qr>
+By author:    Jan Engelhardt <jengelh@linux01.gwdg.de>
+In newsgroup: linux.dev.kernel
+>
+> Hello list,
 > 
-> It looks better on second reading, but I have some comments:
 > 
-> Remove load_s - it's needless and (slightly) confusing
-> There are some cases of missing ## D
-> Why semicolon after closing parenthesis in macro definitions?
-> Try to align operands in columns
-> It would be nice to have some explanation of macro parameter names
+> # l /mnt
+> total 36293
+> drwxr-xr-x   2 root root       20 Jun  5 11:50 .
+> drwxr-xr-x  31 root root     4096 Jun  5  2006 ..
+> -rw-r--r--   1 root root 37158912 Jun  5 11:06 mem
+> # df
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> /dev/shm/sc.sqfs         26688     26688         0 100% /mnt
+> # l sc.sqfs
+> -rwx------  1 jengelh users 27279360 Jun  5 11:50 sc.sqfs
 > 
-> Btw, why do you keep zeroing tmp registers when you don't need to?
-> 32-bit ops zero the top half of the destination register.
-
-Sorry.. that zeroing was of course due to load_s only doing xor..
-
-> 
-> Here's an example of a modified macro (modulo linewrapping by my mail
-> client):
-> 
-> #define
-> encrypt_round(a,b,olda,oldb,newa,newb,ctx,round,tmp1,tmp2,key1,key2) \
->         load_round_key(key1,key2,ctx,round);\
->         movzx   a ## B,         newa ## D;\
->         movzx   a ## H,         newb ## D;\
->         ror     $16,            a    ## D;\
->         xor     s0(ctx,newa,4), tmp1 ## D;\
-          ^^^ change to mov
->         xor     s1(ctx,newb,4), tmp1 ## D;\
->         movzx   a ## B,         newa ## D;\
->         movzx   a ## H,         newb ## D;\
->         xor     s2(ctx,newa,4), tmp1 ## D;\
->         xor     s3(ctx,newb,4), tmp1 ## D;\
->         ror     $16,            a    ## D;\
->         movzx   b ## B,         newa ## D;\
->         movzx   b ## H,         newb ## D;\
->         ror     $16,            b    ## D;\
->         xor     s1(ctx,newa,4), tmp2 ## D;\
-          ^^^ change to mov
->         xor     s2(ctx,newb,4), tmp2 ## D;\
->         movzx   b ## B,         newa ## D;\
->         movzx   b ## H,         newb ## D;\
->         xor     s3(ctx,newa,4), tmp2 ## D;\
->         xor     s0(ctx,newb,4), tmp2 ## D;\
->         ror     $15,            b    ## D;\
->         add     tmp2 ## D,      tmp1 ## D;\
->         add     tmp1 ## D,      tmp2 ## D;\
->         add     tmp1 ## D,      key1 ## D;\
->         add     tmp2 ## D,      key2 ## D;\
->         mov     olda ## D,      newa ## D;\
->         mov     oldb ## D,      newb ## D;\
->         mov     a    ## D,      olda ## D;\
->         mov     b    ## D,      oldb ## D;\
->         xor     key1 ## D,      newa ## D;\
->         xor     key2 ## D,      newb ## D;\
->         ror     $1,             newa ## D
-> 
-> At least a little bit more readable, right?
+> I think statfs() should show the uncompressed size, no?
 > 
 
--- 
-  Dag Arne
+No.
+
+	-hpa

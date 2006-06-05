@@ -1,75 +1,123 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750726AbWFEUvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750701AbWFEU42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWFEUvc (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWFEUvc
+	id S1750701AbWFEU42 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWFEU42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:51:32 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:40008 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750726AbWFEUvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:51:31 -0400
+	Mon, 5 Jun 2006 16:56:28 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:47797 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750777AbWFEU41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:56:27 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JNIlE1D42ua+JamAcGGFVTUrPFhTmKCgo/RI676UsAWasoT2d4dvfb9CUnN0lcleENqXWfEK0aeqM0qKj69o+DLe0U7kBidKnLnRL0bqI6N3UrG6w5xKvNQgyBdvwKE3h9sE34cAEARenyMoguu+5pQdV8jkKP83BOtIPpQ7IZs=
-Message-ID: <4d8e3fd30606051351i5533b04vcbe9fe500201c3bb@mail.gmail.com>
-Date: Mon, 5 Jun 2006 22:51:29 +0200
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-Subject: Re: Linux kernel development
-Cc: linux-kernel@vger.kernel.org, "Kalin KOZHUHAROV" <kalin@thinrope.net>,
-        "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
-In-Reply-To: <200606051738.k55HcrC2025442@laptop11.inf.utfsm.cl>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=S1hhC7Rxd3TrcoK65jQcmwxS1XgunHuh7JVFe/VvW8vOKXEUGD2Omk/bvLie9L/jfNoBB3TW8VIn+1KWshAMA5eY3c3aYSXely+3xlWrWi1aLBh9zU5c2Ap5sIUF+bwpaplZOEII5TP2SjtG2h7ZC/AkYB7LItICDa06dvL9F8Y=
+Message-ID: <44849A7B.10307@gmail.com>
+Date: Mon, 05 Jun 2006 22:56:04 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
+        netdev@vger.kernel.org, stevel@mvista.com, source@mvista.com
+Subject: Re: [PATCH 3/3] pci: gt96100eth avoid pci_find_device
+References: <448491ab.7fb59b32.690f.01c1SMTPIN_ADDED@mx.gmail.com>
+In-Reply-To: <448491ab.7fb59b32.690f.01c1SMTPIN_ADDED@mx.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <paolo.ciarrocchi@gmail.com>
-	 <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com>
-	 <200606051738.k55HcrC2025442@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/5/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> > On 6/5/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
->
-> [...]
->
-> > > Could you add a README (including contact info, etc), and perhaps a TODO
-> > > (and a copy of SubmittingPatches, which I assume applies here too?) to the
-> > > project? A license for the text is required, AFAIU (GPLv2, or one of the
-> > > Creative Commons licenses perhaps?).
-> >
-> > Not and exepert in this area, I think I'll release it under GPL2.
->
-> Did you write all (most) of it? If not, you'd have to ask the original
-> author(s).
->
-> BTW, thinking it over in the shower today, if/when this is translated into
-> asciidoc(1) (or whatever), a "source code" license (like GPLv2) would be
-> appropiate IMHO. Besides, using the same license as what it describes is
-> sensible.
->
-> > What's the normal approach? Can I just add:
-> > #             This document is distribuited under
-> > #             GNU GENERAL PUBLIC LICENSE
-> > #                    Version 2, June 1991
-> > #               http://www.gnu.org/licenses/gpl.txt
-> >
-> > To the text?
->
-> The license text spells it out ;-)
->
-> I would add language to that effect to the README file, and bundle the
-> standard COPYING file with the package
+Jiri Slaby napsal(a):
+> gt96100eth avoid pci_find_device
+> 
+> Change pci_find_device to safer pci_get_device with support for more
+> bridges.
+> 
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> 
+> ---
+> commit fd863b81ac491faf783ff7f2dcf6032177c5ab7f
+> tree d7eb59f897505230023754f19ad7227eec39e676
+> parent 4b73c16f5411d97360d5f26f292ffddeb670ff75
+> author Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:20 +0159
+> committer Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:20 +0159
+> 
+>  drivers/net/gt96100eth.c |   23 ++++++++++++++++++-----
+>  1 files changed, 18 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/net/gt96100eth.c b/drivers/net/gt96100eth.c
+> index 2d24354..3066c86 100644
+> --- a/drivers/net/gt96100eth.c
+> +++ b/drivers/net/gt96100eth.c
+> @@ -600,6 +600,11 @@ disable_ether_irq(struct net_device *dev
+>  	GT96100ETH_WRITE(gp, GT96100_ETH_INT_MASK, 0);
+>  }
+>  
+> +static struct pci_device_id gt96100_ids[] = {
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, PCI_DEVICE_ID_MARVELL_GT96100) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, PCI_DEVICE_ID_MARVELL_GT96100A) },
+> +	{ 0 }
+> +};
+>  
+>  /*
+>   * Init GT96100 ethernet controller driver
+> @@ -607,16 +612,20 @@ disable_ether_irq(struct net_device *dev
+>  static int gt96100_init_module(void)
+>  {
+>  	struct pci_dev *pci;
+> +	struct pci_device_id *id;
+>  	int i, retval=0;
+>  	u32 cpuConfig;
+>  
+>  	/*
+>  	 * Stupid probe because this really isn't a PCI device
+>  	 */
+> -	if (!(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
+> -	                            PCI_DEVICE_ID_MARVELL_GT96100, NULL)) &&
+> -	    !(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
+> -		                    PCI_DEVICE_ID_MARVELL_GT96100A, NULL))) {
+> +	for (id = gt96100_ids; id->vendor; id++) {
+> +		pci = pci_get_device(id->vendor, id->device, NULL);
+> +		if (pci != NULL)
+> +			break;
+> +	}
+I wonder if this is even better:
+while ((pci = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pci)) != NULL)
+    if (pci_match_id(gt96100_ids, pci) != NULL)
+         break;
+What do you think?
+> +
+> +	if (!id->vendor) {
+>  		printk(KERN_ERR __FILE__ ": GT96100 not found!\n");
+>  		return -ENODEV;
+>  	}
+> @@ -625,12 +634,16 @@ static int gt96100_init_module(void)
+>  	if (cpuConfig & (1<<12)) {
+>  		printk(KERN_ERR __FILE__
+>  		       ": must be in Big Endian mode!\n");
+> -		return -ENODEV;
+> +		retval = -ENODEV;
+> +		goto err_pput;
+>  	}
+>  
+>  	for (i=0; i < NUM_INTERFACES; i++)
+>  		retval |= gt96100_probe1(pci, i);
+>  
+> +err_pput:
+> +	pci_dev_put(pci);
+> +
+>  	return retval;
+>  }
+>  
+> 
 
-Modified and pushed out, since part of the document is from inkernel
-documentation I choose GPL v2.
-
-Thanks!
 
 -- 
-Paolo
-http://paolociarrocchi.googlepages.com
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

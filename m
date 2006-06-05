@@ -1,53 +1,164 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751271AbWFESli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751284AbWFESw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWFESli (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 14:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWFESli
+	id S1751284AbWFESw7 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 14:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWFESw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 14:41:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52620 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751271AbWFESlh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 14:41:37 -0400
-Date: Mon, 5 Jun 2006 11:41:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm2 problem ?
-Message-Id: <20060605114132.2f777060.akpm@osdl.org>
-In-Reply-To: <1149525461.26170.22.camel@dyn9047017100.beaverton.ibm.com>
-References: <1149525461.26170.22.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Jun 2006 14:52:59 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:17083 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751284AbWFESw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 14:52:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=V5WStlqZcf7DGrTaVV8t17lDi1ZuPP0nIoEg7mEX2YArb01mBwOwU+KxfM39Ewb1+0fcPbFdHRQsDgT4tUaHafq4J5oZs1y9L7UuxgFrK9P2WoFn+r3Mk1ONLuKP3Pus+vvXVs/fM6U5FvOWsVVKljz6n+HVbKx2DRQ7F0vgvRc=
+Message-ID: <d120d5000606051152p2cf999bcv8d832e007ea02810@mail.gmail.com>
+Date: Mon, 5 Jun 2006 14:52:57 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Anssi Hannula" <anssi.hannula@gmail.com>
+Subject: Re: [patch 03/12] input: new force feedback interface
+Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+        "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20060530110131.136225000@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060530105705.157014000@gmail.com>
+	 <20060530110131.136225000@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 09:37:40 -0700
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+On 5/30/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+> Implement a new force feedback interface, in which all non-driver-specific
+> operations are separated to a common module. This includes handling effect
+> type validations, effect timers, locking, etc.
+>
 
-> Have you seen this on 2.6.17-rc5-mm2 before ? Could be due to my
-> patchset (fileop cleanups), but doesn't seem like it ..
-> 
-> Thanks,
-> Badari
-> 
-> Unable to handle kernel NULL pointer dereference at 0000000000000008
-> RIP:
->  [<ffffffff80448d5f>] skb_dequeue+0x2c/0x50
+Still looking at it, couple of random points for now...
 
-It could be the LLC bug.  That thing caused untold amounts of grief.
+>
+> The code should be built as part of the input module, but unfortunately that
+> would require renaming input.c, which we don't want to do. So instead we make
+> INPUT_FF_EFFECTS a bool so that it cannot be built as a module.
+>
 
---- devel/net/llc/llc_input.c~git-net-llc-fix	2006-06-02 11:55:38.000000000 -0700
-+++ devel-akpm/net/llc/llc_input.c	2006-06-02 11:55:38.000000000 -0700
-@@ -176,7 +176,6 @@ int llc_rcv(struct sk_buff *skb, struct 
-  		struct sk_buff *cskb = skb_clone(skb, GFP_ATOMIC);
-  		if (cskb)
-  			rcv(cskb, dev, pt, orig_dev);
--		rcv(skb, dev, pt, orig_dev);
- 	}
- 	dest = llc_pdu_type(skb);
- 	if (unlikely(!dest || !llc_type_handlers[dest - 1]))
-_
+I am not opposed to rename input.c, I wonder what pending changes
+besides David's header cleanup Andrew had in mind.
 
+> @@ -865,6 +865,9 @@ struct input_dev {
+>        unsigned long sndbit[NBITS(SND_MAX)];
+>        unsigned long ffbit[NBITS(FF_MAX)];
+>        unsigned long swbit[NBITS(SW_MAX)];
+> +
+> +       struct ff_device *ff;
+> +       struct mutex ff_lock;
+
+I believe that ff_lock should be part of ff_device and be only used to
+controll access when uploading/erasing effects. The teardown process
+should make sure that device inactive anyway only then remove
+ff_device from input_dev; by that time noone should be able to
+upload/erase effects. Therefore ff_lock is not needed to protect
+dev->ff.
+
+
+
+> ===================================================================
+> --- linux-2.6.17-rc4-git12.orig/drivers/input/input.c   2006-05-27 02:28:57.000000000 +0300
+> +++ linux-2.6.17-rc4-git12/drivers/input/input.c        2006-05-27 02:38:35.000000000 +0300
+> @@ -733,6 +733,17 @@ static void input_dev_release(struct cla
+>  {
+>        struct input_dev *dev = to_input_dev(class_dev);
+>
+> +       if (dev->ff) {
+> +               struct ff_device *ff = dev->ff;
+> +               clear_bit(EV_FF, dev->evbit);
+> +               mutex_lock(&dev->ff_lock);
+> +               del_timer_sync(&ff->timer);
+
+This is too late. We need to stop timer when device gets unregistered.
+Clearing FF bits is pointless here as device is about to disappear;
+locking is also not needed because we are guaranteed to be the last
+user of the device structure.
+
+I wonder if ff should be released right at unregister time...
+
+> +               dev->flush = NULL;
+> +               dev->ff = NULL;
+> +               mutex_unlock(&dev->ff_lock);
+> +               kfree(ff);
+> +       }
+> +
+>        kfree(dev);
+>        module_put(THIS_MODULE);
+>  }
+
+> +static inline int input_ff_safe_lock(struct input_dev *dev)
+> +{
+> +       mutex_lock(&dev->ff_lock);
+> +       if (dev->ff)
+> +               return 0;
+> +
+> +       mutex_unlock(&dev->ff_lock);
+> +       return 1;
+> +}
+
+This needs to go away. Users should check whether a device supports FF
+and if it is then it is device's responsibility to keep it there until
+untregister time. We don't expect FF capabilities to flip/flop on a
+live device.
+
+> +static void input_ff_calc_timer(struct ff_device *ff)
+> +{
+> +       int i;
+> +       int events = 0;
+> +       unsigned long next_time = 0;
+...
+> +
+> +               if (time_after(jiffies, event_time)) {
+> +                       event_time = jiffies;
+
+Should it be next_time = jiffies? We want to schedule thetimer ASAP, right?
+
+> +
+> +/**
+> + * abs() with -0x8000 => 0x7fff exception
+> + */
+> +static inline u16 input_ff_unsign(s16 value)
+> +{
+> +       if (value == -0x8000)
+> +               return 0x7fff;
+> +
+> +       return (value < 0 ? -value : value);
+> +}
+
+Why is it needed?
+
+> +
+> +/**
+> + * Safe sum
+> + * @a: Integer to sum
+> + * @b: Integer to sum
+> + * @limit: The sum limit
+> + *
+> + * If @a+@b is above @limit, return @limit
+> + */
+> +static int input_ff_safe_sum(int a, int b, int limit)
+> +{
+> +       int c;
+> +       if (!a)
+> +               return b;
+> +       c = a + b;
+> +       if (c > limit)
+> +               return limit;
+> +       return c;
+> +}
+
+As it was mentioned the result will not be limited if a == 0. Is it intended?
+
+PLease don;t start making any changes yet, I am still looking...
+
+-- 
+Dmitry

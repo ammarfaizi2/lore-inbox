@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751133AbWFEO7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751167AbWFEO4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWFEO7J (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 10:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWFEO7J
+	id S1751167AbWFEO4O (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 10:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWFEO4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 10:59:09 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:43650 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751133AbWFEO7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 10:59:08 -0400
-Subject: Re: Linux kernel development
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
-        Kalin KOZHUHAROV <kalin@thinrope.net>,
-        Jesper Juhl <jesper.juhl@gmail.com>, Greg KH <greg@kroah.com>
-In-Reply-To: <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com>
-References: <paolo.ciarrocchi@gmail.com>
-	 <4d8e3fd30606040330i6174f866vfe1c2cd30543a9c0@mail.gmail.com>
-	 <200606042305.k54N5G2b010906@laptop11.inf.utfsm.cl>
-	 <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 10:58:46 -0400
-Message-Id: <1149519526.16247.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Mon, 5 Jun 2006 10:56:14 -0400
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:25199 "HELO
+	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751167AbWFEO4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 10:56:13 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] USB devices fail unnecessarily on unpowered hubs
+Date: Mon, 5 Jun 2006 07:32:52 -0700
+User-Agent: KMail/1.7.1
+Cc: Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
+        David Liontooth <liontooth@cogweb.net>, linux-kernel@vger.kernel.org
+References: <447EB0DC.4040203@cogweb.net> <20060530200134.GB4074@ucw.cz> <200606031129.54580.oliver@neukum.org>
+In-Reply-To: <200606031129.54580.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606050732.53496.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-05 at 13:39 +0200, Paolo Ciarrocchi wrote:
+On Saturday 03 June 2006 2:29 am, Oliver Neukum wrote:
+> Am Dienstag, 30. Mai 2006 22:01 schrieb Pavel Machek:
 
-> > Could you add a README (including contact info, etc), and perhaps a TODO
-> > (and a copy of SubmittingPatches, which I assume applies here too?) to the
-> > project? A license for the text is required, AFAIU (GPLv2, or one of the
-> > Creative Commons licenses perhaps?).
+> > Actually I have exactly opposite problem: my computer (spitz) can't
+> > supply full 500mA on its root hub, and linux tries to power up
+> > 'hungry' devices, anyway, leading to very weird behaviour.
 > 
-> Not and exepert in this area, I think I'll release it under GPL2.
 > 
-> What's the normal approach? Can I just add:
-> #		This document is distribuited under
-> #		GNU GENERAL PUBLIC LICENSE
-> #		       Version 2, June 1991
-> #               http://www.gnu.org/licenses/gpl.txt
+> You could lower the obvious values in this code from drivers/usb/core/hub.c
 > 
-> To the text?
+> 	if (hdev == hdev->bus->root_hub) {
+> 		if (hdev->bus_mA == 0 || hdev->bus_mA >= 500)
+> 			hub->mA_per_port = 500;
+> 		else {
+> 			hub->mA_per_port = hdev->bus_mA;
+> 			hub->limited_power = 1;
+> 		}
 > 
-> > [Yup, tangle it up in red tape even before it gets off the ground ;-]
-> >
+> If that does the job we need to somehow inherit the power supply maximum from
+> PCI when we allocate the root hub's device structure.
 
-I released by writeup about the rt-mutex-design.txt (currently in -mm
-under Documentation) under the "GNU Free Documentation License, Version
-1.2".
+I don't think there is such a convention that's generic for PCI.  There might
+be ACPI-specific tables holding that value, but on embedded hardware the model
+is often that the arch/.../board-ZZZ.c file just "knows" things like how much
+power the regulator powering that port can provide, and arranges bus_mA to match.
+Just like it knows all sorts of other details about how that board works.
 
-If you want to read the license it is here:
-
-http://www.gnu.org/copyleft/fdl.html
-
--- Steve
-
-
+- Dave

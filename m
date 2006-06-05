@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751406AbWFEUNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751401AbWFEUME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWFEUNT (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWFEUNS
+	id S1751401AbWFEUME (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWFEUMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:13:18 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:37333 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751406AbWFEUNR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:13:17 -0400
-Date: Mon, 5 Jun 2006 14:13:20 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Johann Lombardi <johann.lombardi@bull.net>
-Cc: sho@tnes.nec.co.jp, cmm@us.ibm.com, jitendra@linsyssoft.com,
-        ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE][12/24]ext3 enlarge blocksize
-Message-ID: <20060605201320.GL5964@schatzie.adilger.int>
-Mail-Followup-To: Johann Lombardi <johann.lombardi@bull.net>,
-	sho@tnes.nec.co.jp, cmm@us.ibm.com, jitendra@linsyssoft.com,
-	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20060525214902sho@rifu.tnes.nec.co.jp> <20060526120032.GN5964@schatzie.adilger.int> <20060605131311.GB2606@chiva>
+	Mon, 5 Jun 2006 16:12:03 -0400
+Received: from xenotime.net ([66.160.160.81]:42463 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751401AbWFEUMB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:12:01 -0400
+Date: Mon, 5 Jun 2006 13:14:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Dave Jones <davej@redhat.com>
+Cc: mingo@elte.hu, mbligh@google.com, akpm@osdl.org, apw@shadowen.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm3
+Message-Id: <20060605131447.4f46bbaf.rdunlap@xenotime.net>
+In-Reply-To: <20060605200554.GB6143@redhat.com>
+References: <44845C27.3000006@google.com>
+	<20060605194422.GB14709@elte.hu>
+	<20060605130039.db1ac80c.rdunlap@xenotime.net>
+	<20060605200554.GB6143@redhat.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060605131311.GB2606@chiva>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 05, 2006  15:13 +0200, Johann Lombardi wrote:
-> On Fri, May 26, 2006 at 06:00:32AM -0600, Andreas Dilger wrote:
-> > On May 25, 2006  21:49 +0900, sho@tnes.nec.co.jp wrote:
-> > > @@ -1463,11 +1463,17 @@ static int ext3_fill_super (struct super
-> > > +	if (blocksize > PAGE_SIZE) {
-> > > +		printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
-> > > +		       "blocksize %u larger than PAGE_SIZE %u on %s\n",
-> > > +		       blocksize, PAGE_SIZE, sb->s_id);
-> > > +		goto failed_mount;
-> > > +	}
-> > > +
-> > >  	if (blocksize < EXT3_MIN_BLOCK_SIZE ||
-> > > -	    blocksize > EXT3_MAX_BLOCK_SIZE) {
-> > > +	    blocksize > EXT3_EXTENDED_MAX_BLOCK_SIZE) {
-> > 
-> > We may as well just change EXT3_MAX_BLOCK_SIZE to be 65536, because no other
-> > code uses this value.  It is already 65536 in the e2fsprogs.
+On Mon, 5 Jun 2006 16:05:54 -0400 Dave Jones wrote:
+
+> On Mon, Jun 05, 2006 at 01:00:39PM -0700, Randy.Dunlap wrote:
+>  > On Mon, 5 Jun 2006 21:44:22 +0200 Ingo Molnar wrote:
+>  > 
+>  > > 
+>  > > * Martin Bligh <mbligh@google.com> wrote:
+>  > > 
+>  > > > panic on NUMA-Q during LTP. Was fine in -mm2.
+>  > > > 
+>  > > > BUG: unable to handle kernel paging request at virtual address 22222232
+>  > > 
+>  > > > EIP is at check_deadlock+0x19/0xe1
+>  > > > eax: 00000001   ebx: e4453030   ecx: 00000000   edx: e4008000
+>  > > > esi: 22222222   edi: 00000001   ebp: 22222222   esp: e47ebec0
+>  > > 
+>  > > again these 0x22222222 entries on the stack. What on earth does this? 
+>  > > Andy got a similar crash on x86_64, with a 0x2222222222222222 entry ...
+>  > > 
+>  > > nothing of our magic values are 0x22 or 0x222222222.
+>  > 
+>  > kernel/mutex-debug.c:
+>  > void debug_mutex_free_waiter(struct mutex_waiter *waiter)
+>  > {
+>  > 	DEBUG_WARN_ON(!list_empty(&waiter->list));
+>  > 	memset(waiter, 0x22, sizeof(*waiter));
+>  > }
 > 
-> AFAICS, ext3_dir_entry_2->rec_len will overflow with a 64kB blocksize.
-> Do you know how ext2 handles this?
+> Documentation/magic-number.txt sounds so promising, but we scatter definitions
+> of numbers all over the place. (No mention of the slab poison values,
+> or similar numbers there for eg, and various pointers to _other_ lists
+> of magic numbers).
 
-Hmm, good question, I hadn't considered this.  One option is to just limit
-rec_len to 32768 or less (16k, 8k, 4k?), and require that there be multiple
-such records in a directory block.  We could additionally require that the
-records don't span such a boundary, which would potentially make it easier
-to validate broken entries themselves, but would slightly hurt the case
-where there are many large filenames.
+I have a few more that I can add to include/linux/poison.h, like this one
+above (only in -mm at present).
 
-I suppose the reason this wasn't hit during previous 64kB block testing is
-that this has always been tested in relation to IO performance and not with
-metadata, so the directories were probably all single-block dirs with a
-"." and ".." entry at the beginning and a 65512-byte rec_len for the rest.
+./include/linux/libata.h:#define ATA_TAG_POISON		0xfafbfcfdU
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+./arch/ppc/8260_io/fcc_enet.c:1918:	memset((char *)(&(immap->im_dprambase[(mem_addr+64)])), 0x88, 32);
+./drivers/usb/mon/mon_text.c:429:	memset(mem, 0xe5, sizeof(struct mon_event_text));
 
+./kernel/mutex-debug.c:384:	memset(waiter, 0x11, sizeof(*waiter));
+./kernel/mutex-debug.c:400:	memset(waiter, 0x22, sizeof(*waiter));
+
+./security/keys/key.c:985:			memset(&key->payload, 0xbd, sizeof(key->payload));
+
+./drivers/char/ftape/lowlevel/ftape-ctl.c:738:		memset(ft_buffer[i]->address, 0xAA, FT_BUFF_SIZE);
+
+./drivers/block/sx8.c:/* 0xf is just arbitrary, non-zero noise; this is sorta like poisoning */
+
+
+---
+~Randy

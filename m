@@ -1,81 +1,109 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932437AbWFEHKD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932438AbWFEHGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWFEHKD (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 03:10:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWFEHKD
+	id S932438AbWFEHGp (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 03:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWFEHGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 03:10:03 -0400
-Received: from gate.crashing.org ([63.228.1.57]:19925 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932437AbWFEHKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 03:10:01 -0400
-Subject: Re: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-        Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1149486009.8543.42.camel@localhost.localdomain>
-References: <1149486009.8543.42.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 17:08:29 +1000
-Message-Id: <1149491309.8543.54.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jun 2006 03:06:45 -0400
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:47017 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932438AbWFEHGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 03:06:44 -0400
+Date: Mon, 5 Jun 2006 00:06:41 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Johannes Goecke <goecke@upb.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
+        Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>
+Subject: [RFC PATCH] MSI-K8T-Neo2-Fir run only where needed
+Message-ID: <20060605070641.GA24295@tuatara.stupidest.org>
+References: <200604201600.k3KG0wwa002872@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604201600.k3KG0wwa002872@hera.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-05 at 15:40 +1000, Benjamin Herrenschmidt wrote:
-> In various places, architectures need to request interrupts early during
-> boot. Before slab is initialized typically. We used to have all sorts of
-> arch hacks to do so, which ended up being turned into something like:
+On Thu, Apr 20, 2006 at 04:00:58PM +0000, the git-commits list sent
+me:
 
- ..../.... (skip workaround based on bootmem)
+> Subject: Re: [PATCH] MSI-K8T-Neo2-Fir OnboardSound and additional Soundcard
 
-Hrm... I'm running into more problems with some of my powerpc irq
-cleanups related to slab not being initialized.
+> commit 7daa0c4f51897d5d956a62a2bac438e3b58d85dc
+> [PATCH] MSI-K8T-Neo2-Fir OnboardSound and additional Soundcard
 
-Why do we do it so late ? I don't see any reason. A bunch of stuff like
-init_IRQ(), time_init() etc...end up being called without a working slab
-(not even GFP_ATOMIC). Damn, even console_init().
+> On the MSI-K8T-NEO2 FIR ( Athlon-64, Socket 939 with VIA-K8T800- Chipset
+> and onboard Sound,...  ) the BIOS lets you choose "DISABLED" or "AUTO" for
+> the On-Board Sound Device.
 
-What are the fundamental reasons, if any, why we initialize the slab so
-late ? Would it be possible to have the slab fallback to bootmem or some
-crap like that early during boot (though that may be an issue for things
-trying to free blocks) ?
+[...]
 
-For example, in my big irq rework for powerpc, I need to clean up the
-virtual to physical irq mapping for which we are using a radix tree.
-Right now, we kludge around in the pseries code to use that radix tree
-late (that is to setup the cascaded interrupt from an arch_initcall),
-but that's becoming a bigger issue as I'm trying to push some of that
-stuff into a nice common remapping layer (we need that for cell too
-among others). That's just an example of a low level utility (radix
-trees) we can't use because it relies on the slab.
+> But how to ensure that the code is executed ONLY on excactly this kind of
+> boards (not any other with similar Chipset)?
 
-Another example is that things like init_IRQ(), time_init(),
-console_init() etc.. need to be able to do ioremap. How many hacks are
-archs cluttered with to be able to do ioremap before mem_init ? It
-varies from hacks in pte_alloc_kernel() to use bootmem, to the use of
-bolted hash entries on ppc64, etc....
+The patch doesn't as-is, which means it runs on a lot of hardware
+where it shoudln't.
 
-Maybe we should have a look at pushing some things later into the boot
-process that have no reason anymore to be done that early... And even if
-not, a consistent memory allocator is something that I would really
-consider as a very basic service that should be up before pretty much
-everything else. It's not like the slab was relying on hardware to be up
-or anything fancy... it doesn't even rely on vmalloc() to be available
-nor the MMU in any consistent state outside of having the linear mapping
-up (which I think all archs have at this point in time anyway).
+I'm a confused lost as to why this was acked/merged when:
 
-I'm sure there is a subtle sneaky dependency, I would suspect something
-to do with the scheduler and/or the cpumask/numa infos, whatever, but I
-think we should really consider solving that.
+> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, k8t_sound_hostbridge);
 
-Bootmem is a hack. It may be good enough for very-early-boot type
-allocations, but them, I mean really really early (and even then, heh,
-powerpc has it's own allocator that works even before bootmem is up). 
+clearly it will run for a wide-variety of hardware.  I think the quirk
+should probably also check DMI tables or similar to detect the
+board/BIOS version that it's intended for.  Certainly that would make
+this safer.
 
-Cheers,
-Ben.
+I don't have access to this hardware so how about something like this
+for now?
 
+---
+
+Be more selective when running the MSI-K8T-Neo2Fir soundcard PCI quirk
+so as not to run this on hardware where it's probably not needed.
+
+
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
+
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index d378478..daa17fa 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -878,27 +878,30 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_I
+  * when a PCI-Soundcard is added. The BIOS only gives Options
+  * "Disabled" and "AUTO". This Quirk Sets the corresponding
+  * Register-Value to enable the Soundcard.
++ *
++ * FIXME: Presently this quirk will run on anything that has an 8237
++ * which isn't correct, we need to check DMI tables or something in
++ * order to make sure it only runs on the MSI-K8T-Neo2Fir.  Because it
++ * runs everywhere at present we suppress the printk output in most
++ * irrelevant cases.
+  */
+ static void __init k8t_sound_hostbridge(struct pci_dev *dev)
+ {
+ 	unsigned char val;
+ 
+-	printk(KERN_INFO "PCI: Quirk-MSI-K8T Soundcard On\n");
+ 	pci_read_config_byte(dev, 0x50, &val);
+ 	if (val == 0x88 || val == 0xc8) {
++		/* Assume it's probably a MSI-K8T-Neo2Fir */
++		printk(KERN_INFO "PCI: MSI-K8T-Neo2Fir, attempting to turn soundcard ON\n");
+ 		pci_write_config_byte(dev, 0x50, val & (~0x40));
+ 
+ 		/* Verify the Change for Status output */
+ 		pci_read_config_byte(dev, 0x50, &val);
+ 		if (val & 0x40)
+-			printk(KERN_INFO "PCI: MSI-K8T soundcard still off\n");
++			printk(KERN_INFO "PCI: MSI-K8T-Neo2Fir, soundcard still off\n");
+ 		else
+-			printk(KERN_INFO "PCI: MSI-K8T soundcard on\n");
+-	} else {
+-		printk(KERN_INFO "PCI: Unexpected Value in PCI-Register: "
+-					"no Change!\n");
++			printk(KERN_INFO "PCI: MSI-K8T-Neo2Fir, soundcard on\n");
+ 	}
+-
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, k8t_sound_hostbridge);
+ 

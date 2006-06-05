@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751348AbWFET5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751016AbWFETws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWFET5y (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 15:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWFET5y
+	id S1751016AbWFETws (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 15:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWFETws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 15:57:54 -0400
-Received: from xenotime.net ([66.160.160.81]:14290 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751348AbWFET5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 15:57:54 -0400
-Date: Mon, 5 Jun 2006 13:00:39 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: mbligh@google.com, akpm@osdl.org, apw@shadowen.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm3
-Message-Id: <20060605130039.db1ac80c.rdunlap@xenotime.net>
-In-Reply-To: <20060605194422.GB14709@elte.hu>
-References: <44845C27.3000006@google.com>
-	<20060605194422.GB14709@elte.hu>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Jun 2006 15:52:48 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:9125 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1750733AbWFETwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 15:52:47 -0400
+Subject: Re: 2.6.17-rc5-mm3-lockdep - locking error in quotaon
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Jan Kara <jack@suse.cz>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20060605193552.GB24342@atrey.karlin.mff.cuni.cz>
+References: <200606051700.k55H015q004029@turing-police.cc.vt.edu>
+	 <1149528339.3111.114.camel@laptopd505.fenrus.org>
+	 <200606051920.k55JKQGx003031@turing-police.cc.vt.edu>
+	 <20060605193552.GB24342@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 05 Jun 2006 21:52:36 +0200
+Message-Id: <1149537156.3111.123.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jun 2006 21:44:22 +0200 Ingo Molnar wrote:
 
-> 
-> * Martin Bligh <mbligh@google.com> wrote:
-> 
-> > panic on NUMA-Q during LTP. Was fine in -mm2.
-> > 
-> > BUG: unable to handle kernel paging request at virtual address 22222232
-> 
-> > EIP is at check_deadlock+0x19/0xe1
-> > eax: 00000001   ebx: e4453030   ecx: 00000000   edx: e4008000
-> > esi: 22222222   edi: 00000001   ebp: 22222222   esp: e47ebec0
-> 
-> again these 0x22222222 entries on the stack. What on earth does this? 
-> Andy got a similar crash on x86_64, with a 0x2222222222222222 entry ...
-> 
-> nothing of our magic values are 0x22 or 0x222222222.
+> following confuses the code (and I agree that it's kind of ugly from
+> quota code to do that):
+>   i_mutex of inode containing quota file is acquired after all other
+> quota locks. i_mutex of all other inodes is acquired before quota locks.
+> Quota code makes sure (by resetting inode operations and setting special
+> flag on inode) that noone tries to enter quota code while holding
+> i_mutex on a quota file...
 
-kernel/mutex-debug.c:
-void debug_mutex_free_waiter(struct mutex_waiter *waiter)
-{
-	DEBUG_WARN_ON(!list_empty(&waiter->list));
-	memset(waiter, 0x22, sizeof(*waiter));
-}
+can you point this out in a bit more detail, eg where exactly is this
+happening? I think it is in this bit
+       /* As we bypass the pagecache we must now flush the inode so that
+         * we see all the changes from userspace... */
+        write_inode_now(inode, 1);
+        /* And now flush the block cache so that kernel sees the changes
+*/
+        invalidate_bdev(sb->s_bdev, 0);
+        mutex_lock(&inode->i_mutex);
+        mutex_lock(&dqopt->dqonoff_mutex);
+        if (sb_has_quota_enabled(sb, type)) {
+                error = -EBUSY;
+                goto out_lock;
 
----
-~Randy
+but that doesn't quite match your description...

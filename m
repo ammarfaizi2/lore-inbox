@@ -1,92 +1,104 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932410AbWFEE4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932408AbWFEFBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWFEE4G (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 00:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWFEE4G
+	id S932408AbWFEFBI (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 01:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWFEFBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 00:56:06 -0400
-Received: from mx1.mail.ru ([194.67.23.121]:64894 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S932407AbWFEE4F (ORCPT
+	Mon, 5 Jun 2006 01:01:08 -0400
+Received: from xenotime.net ([66.160.160.81]:46290 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932408AbWFEFBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 00:56:05 -0400
-Date: Mon, 5 Jun 2006 09:00:22 +0400
-From: Evgeniy Dushistov <dushistov@mail.ru>
-To: Dave Kleikamp <shaggy@austin.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Cc: jfs-discussion@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] jfs: possible deadlocks - continue
-Message-ID: <20060605050022.GA15176@rain.homenetwork>
-Mail-Followup-To: Dave Kleikamp <shaggy@austin.ibm.com>,
-	Ingo Molnar <mingo@elte.hu>, jfs-discussion@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20060604154409.GA13899@rain.homenetwork> <1149457796.10576.14.camel@kleikamp.austin.ibm.com>
+	Mon, 5 Jun 2006 01:01:06 -0400
+Date: Sun, 4 Jun 2006 22:03:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] sisusb: fix build (Re: 2.6.17-rc5-mm3: sisusbvga build
+ failure)
+Message-Id: <20060604220347.6f963375.rdunlap@xenotime.net>
+In-Reply-To: <986ed62e0606042140v78dc2c7cpb3cf7793954d2dce@mail.gmail.com>
+References: <986ed62e0606042140v78dc2c7cpb3cf7793954d2dce@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149457796.10576.14.camel@kleikamp.austin.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 04, 2006 at 04:49:56PM -0500, Dave Kleikamp wrote:
-> On Sun, 2006-06-04 at 19:44 +0400, Evgeniy Dushistov wrote:
-> > I should add that this happened during boot, when root jfs
-> > file system become from ro->rw
-> > 
-> > I look at code, and see that
-> > 1)locks wasn't release in the opposite order in which
-> > they were taken
-> 
-> Why does this matter?
-> 
-Like "3" it make code more understandable,
-reader of code don't have to think why
-code looks like:
-lock A, lock B unlock A, unlock B
-while a normal practice in kernel:
-lock A, lock B unlock B unlock A
-the goal of change just simplicity and clearness,
-and nothing more.
+On Sun, 4 Jun 2006 21:40:10 -0700 Barry K. Nathan wrote:
 
+>   CC [M]  drivers/usb/misc/sisusbvga/sisusb.o
+> In file included from drivers/usb/misc/sisusbvga/sisusb.c:57:
+> drivers/usb/misc/sisusbvga/sisusb_init.h:222: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:228: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:237: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:275: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:307: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:375: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:434: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:693: error: array type has
+> incomplete element type
+> drivers/usb/misc/sisusbvga/sisusb_init.h:813: warning: 'struct
+> SiS_Private' declared inside parameter list
+> drivers/usb/misc/sisusbvga/sisusb_init.h:813: warning: its scope is
+> only this definition or declaration, which is probably not what you
+> want
+> drivers/usb/misc/sisusbvga/sisusb_init.h:814: warning: 'struct
+> SiS_Private' declared inside parameter list
+> drivers/usb/misc/sisusbvga/sisusb_init.h:837: warning: 'struct
+> vc_data' declared inside parameter list
+> drivers/usb/misc/sisusbvga/sisusb.c:1339: error: static declaration of
+> 'sisusb_setidxreg' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:819: error: previous
+> declaration of 'sisusb_setidxreg' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1351: error: static declaration of
+> 'sisusb_getidxreg' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:821: error: previous
+> declaration of 'sisusb_getidxreg' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1364: error: static declaration of
+> 'sisusb_setidxregandor' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:823: error: previous
+> declaration of 'sisusb_setidxregandor' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1395: error: static declaration of
+> 'sisusb_setidxregor' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:825: error: previous
+> declaration of 'sisusb_setidxregor' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1404: error: static declaration of
+> 'sisusb_setidxregand' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:827: error: previous
+> declaration of 'sisusb_setidxregand' was here
+> make[4]: *** [drivers/usb/misc/sisusbvga/sisusb.o] Error 1
+> make[3]: *** [drivers/usb/misc/sisusbvga] Error 2
+> make[2]: *** [drivers/usb/misc] Error 2
+> make[1]: *** [drivers/usb] Error 2
+> make: *** [drivers] Error 2
 
-> I think the warning needs to be fixed by introducing mutex_lock_nested
-> in some places.  I'll take a look at it.
-> 
-To avoid incomprehension, previous patch just make code more
-understandable and unlock mutex on "error path", it doesn't fix
-this warning and I have no idea why it happend:
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-====================================
-[ BUG: possible deadlock detected! ]
-------------------------------------
-mount/5587 is trying to acquire lock:
- (&jfs_ip->commit_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
+Fix build errors caused by missing header file.
 
-but task is already holding lock:
- (&jfs_ip->commit_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/usb/misc/sisusbvga/sisusb.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-which could potentially lead to deadlocks!
-
-other info that might help us debug this:
-2 locks held by mount/5587:
- #0:  (&inode->i_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
- #1:  (&jfs_ip->commit_mutex){--..}, at: [<c02f7096>] mutex_lock+0x12/0x15
-
-stack backtrace:
- [<c0103095>] show_trace+0x16/0x19
- [<c0103562>] dump_stack+0x1a/0x1f
- [<c012ddd7>] __lockdep_acquire+0x6c6/0x907
- [<c012e063>] lockdep_acquire+0x4b/0x63
- [<c02f6f0c>] __mutex_lock_slowpath+0xa4/0x21c
- [<c02f7096>] mutex_lock+0x12/0x15
- [<c01b99be>] jfs_create+0x90/0x2b8
- [<c0161016>] vfs_create+0x91/0xda
- [<c0163939>] open_namei+0x15a/0x5b0
- [<c015326c>] do_filp_open+0x22/0x39
- [<c01541a8>] do_sys_open+0x40/0xbc
- [<c015424d>] sys_open+0x13/0x15
- [<c02f875d>] sysenter_past_esp+0x56/0x8d
-
--- 
-/Evgeniy
-
+--- linux-2617-rc5mm3.orig/drivers/usb/misc/sisusbvga/sisusb.h
++++ linux-2617-rc5mm3/drivers/usb/misc/sisusbvga/sisusb.h
+@@ -65,8 +65,8 @@
+ #ifdef INCL_SISUSB_CON
+ #include <linux/console.h>
+ #include <linux/vt_kern.h>
+-#include "sisusb_struct.h"
+ #endif
++#include "sisusb_struct.h"
+ 
+ /* USB related */
+ 

@@ -1,84 +1,46 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932338AbWFDX7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932337AbWFEAGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWFDX7h (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 19:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWFDX7h
+	id S932337AbWFEAGf (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 20:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWFEAGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 19:59:37 -0400
-Received: from xenotime.net ([66.160.160.81]:41632 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932338AbWFDX7g (ORCPT
+	Sun, 4 Jun 2006 20:06:35 -0400
+Received: from wx-out-0102.google.com ([66.249.82.204]:63023 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932337AbWFEAGf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 19:59:36 -0400
-Date: Sun, 4 Jun 2006 17:02:18 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: utsname/hostname
-Message-Id: <20060604170218.f45a5302.rdunlap@xenotime.net>
-In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jun 2006 20:06:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=YNK9foOTuw4trxbq2ssKXG3yAzMOe7hkGgr9gNq0XSfMGU+ghhNHDw2DldY1BS9WMpo6J3b0MrFTse+9/fKFi7RGH0WvPG0SpfEcB0wubVVZNsR+bWhUdgmbQh8mu9U13E00YRpqWtkLe+c5XdGtPO32fnwe+nDA4U6JDXHQj1s=
+Message-ID: <986ed62e0606041706o4cc950d1t843b52422f0ec523@mail.gmail.com>
+Date: Sun, 4 Jun 2006 17:06:34 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "=?ISO-8859-1?Q?J.A._Magall=F3n?=" <jamagallon@ono.com>
+Subject: Re: 2.6.17-rc5-mm3
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060605012842.3d58095f@werewolf.auna.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+	 <20060605012842.3d58095f@werewolf.auna.net>
+X-Google-Sender-Auth: 2e05560b97133c80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 13:50:11 -0700 Andrew Morton wrote:
+On 6/4/06, J.A. Magallón <jamagallon@ono.com> wrote:
+> Jun  2 14:34:39 annwn kernel: --------------------------------------------------------
+> Jun  2 14:34:39 annwn kernel: 141 out of 206 testcases failed, as expected. |
+> Jun  2 14:34:39 annwn kernel: ----------------------------------------------------
+>
+> Expected ? Uh ?
 
-> 
-> It's time to take a look at the -mm queue for 2.6.18.
-> 
-> 
-> When replying to this email pleeeeeeze rewrite the Subject: to something
-> appropriate so we do not all go mad.  Thanks.
-> 
-> 
-> proc-sysctl-add-_proc_do_string-helper.patch
-> namespaces-add-nsproxy.patch
-> namespaces-add-nsproxy-dont-include-compileh.patch
-> namespaces-incorporate-fs-namespace-into-nsproxy.patch
-> namespaces-utsname-introduce-temporary-helpers.patch
-> namespaces-utsname-switch-to-using-uts-namespaces.patch
-> namespaces-utsname-switch-to-using-uts-namespaces-alpha-fix.patch
-> namespaces-utsname-switch-to-using-uts-namespaces-cleanup.patch
-> namespaces-utsname-use-init_utsname-when-appropriate.patch
-> namespaces-utsname-use-init_utsname-when-appropriate-cifs-update.patch
-> namespaces-utsname-implement-utsname-namespaces.patch
-> namespaces-utsname-implement-utsname-namespaces-export.patch
-> namespaces-utsname-implement-utsname-namespaces-dont-include-compileh.patch
-> namespaces-utsname-sysctl-hack.patch
-> namespaces-utsname-sysctl-hack-cleanup.patch
-> namespaces-utsname-sysctl-hack-cleanup-2.patch
-> namespaces-utsname-sysctl-hack-cleanup-2-fix.patch
-> namespaces-utsname-remove-system_utsname.patch
-> namespaces-utsname-implement-clone_newuts-flag.patch
-> uts-copy-nsproxy-only-when-needed.patch
-> # needed if git-klibc isn't there:
-> #namespaces-utsname-switch-to-using-uts-namespaces-klibc-bit.patch
-> #namespaces-utsname-use-init_utsname-when-appropriate-klibc-bit.patch
-> #namespaces-utsname-switch-to-using-uts-namespaces-klibc-bit-2.patch
-> 
->  utsname virtualisation.  This doesn't seem very pointful as a standalone
->  thing.  That's a general problem with infrastructural work for a very
->  large new feature.
-> 
->  So probably I'll continue to babysit these patches, unless someone can
->  identify a decent reason why mainline needs this work.
+grep PROVE .config
 
-Not a strong argument for mainline, but I have a patch to make
-<hostname> larger (up to 255 bytes, per POSIX).
-  http://www.xenotime.net/linux/patches/hostname-2617-rc5b.patch
-
-I can either update my hostname patch against mm/utsname.. or not.
-But I don't really want to see some/any patch blocked due to a patch
-in -mm being borderline "pointful," so how do we deal with this?
-
->  I don't want to carry an ever-growing stream of OS-virtualisation
->  groundwork patches for ever and ever so if we're going to do this thing...
->  faster, please.
-
-
----
-~Randy
+Make sure all 4 of them are set to Y; if any of them are N, then test
+case failures would in fact be expected.
+-- 
+-Barry K. Nathan <barryn@pobox.com>

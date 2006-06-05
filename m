@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751051AbWFEMfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751066AbWFEMnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWFEMfw (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 08:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWFEMfw
+	id S1751066AbWFEMnv (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 08:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWFEMnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 08:35:52 -0400
-Received: from wr-out-0506.google.com ([64.233.184.231]:36077 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751051AbWFEMfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 08:35:52 -0400
+	Mon, 5 Jun 2006 08:43:50 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:2382 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751065AbWFEMns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 08:43:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=So1MswUaTDuC/VQysB4Zpt4srUEMBHXNF4SQnAqQjap1Sei3wbSJ2hffvi9XX9Av+1ytxNBumKTjltXBNsTbnwDL0mlOcoWd97W/Wf+KoIyv7vTFWqXsw+qc9m8tYJRaP2TBbQaC4BgG0ESdwyP9WNMWC/+lnflP3a29zS1Xl9g=
-Message-ID: <6bffcb0e0606050535l5773c29cpc1783f545636e05d@mail.gmail.com>
-Date: Mon, 5 Jun 2006 14:35:51 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [patch, -rc5-mm3] fix IDE deadlock in error reporting code
-Cc: "Andrew Morton" <akpm@osdl.org>,
-        "Arjan van de Ven" <arjan@linux.intel.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20060605122445.GA4769@elte.hu>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=kT1ynY+sWemsZ4fH2DPcDxfh9g78AUIFvEHMPlSDJ4FiZXyBsXebCUdgL4RhvSAOm54HpHngAm3kc+RatKoGrFmzL8xLVRShEOlcRFjJagYcsEl/g2Uge7vbkeIPgg8x/2wOWaPaERSbLUvy8vDVWs2JC/0IXgfz9JsjkZrlYhM=
+Message-ID: <448426FE.8090801@gmail.com>
+Date: Mon, 05 Jun 2006 21:43:42 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+        linux-ide@vger.kernel.org
+Subject: Re: [PATCH] swsusp: allow drivers to determine between write-resume
+ and actual wakeup
+References: <20060605091131.GE8106@htj.dyndns.org> <20060605092342.GI5540@elf.ucw.cz> <44841AA0.4060404@gmail.com>
+In-Reply-To: <44841AA0.4060404@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <986ed62e0606040238t712d7b01xde5f4a23da12fb1a@mail.gmail.com>
-	 <6bffcb0e0606040308j28d9e89axa0136908c5530ae3@mail.gmail.com>
-	 <20060604104121.GA16117@elte.hu>
-	 <6bffcb0e0606040407u4f56f7fdyf5ec479314afc082@mail.gmail.com>
-	 <20060604213803.GC5898@elte.hu>
-	 <6bffcb0e0606041535u10fdb7c2o9ac38d6fb80fd28d@mail.gmail.com>
-	 <20060605083016.GA31013@elte.hu> <20060605083530.GA31738@elte.hu>
-	 <6bffcb0e0606050433i1261d3e4sd0d958fb15208596@mail.gmail.com>
-	 <20060605122445.GA4769@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/06/06, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
->
-> > Hi,
-[snip]
-> > Probably fixed, thanks.
->
-> could you send a confirmation if/when you have tried this? I dont get
-> the same message (i have another IDE chipset).
+Tejun Heo wrote:
+> Pavel Machek wrote:
+>> If you want to know if you RESUME was after normal FREEZE or if it is
+>> after reboot, there's better patch floating around to do that.
+> 
+> Yeap, this is what I'm interested in.  Care to give me a pointer?
 
-I have tried to reproduce that bug, it seems that it's very hard to
-reproduce. After 20 reboots with your patch I haven't seen that.
+And, one more things.  As written in the first mail, for libata, it 
+would be nice to know if a device suspend is due to runtime PM event 
+(per-device) or system wide suspend.  What do you think about this?  If 
+you agree, what method do you recommend to determine that?
 
->
->         Ingo
->
-
-Regards,
-Michal
+Thanks a lot.
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+tejun

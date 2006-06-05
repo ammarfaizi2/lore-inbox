@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750815AbWFEPz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751212AbWFEQLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWFEPz4 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 11:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWFEPz4
+	id S1751212AbWFEQLN (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 12:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWFEQLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 11:55:56 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:64966 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750815AbWFEPzz (ORCPT
+	Mon, 5 Jun 2006 12:11:13 -0400
+Received: from mail.grok.org.za ([196.1.58.22]:20752 "EHLO mail.grok.org.za")
+	by vger.kernel.org with ESMTP id S1751212AbWFEQLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 11:55:55 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Subject: Re: 2.6.17-rc5-mm3: "BUG: scheduling while atomic" flood when resuming from disk
-Date: Mon, 5 Jun 2006 17:56:19 +0200
-User-Agent: KMail/1.9.3
-Cc: "Andrew Morton" <akpm@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
-        "Arjan van de Ven" <arjan@linux.intel.com>,
-        linux-kernel@vger.kernel.org
-References: <986ed62e0606042223l2381d877g4bc798ec64804d43@mail.gmail.com>
-In-Reply-To: <986ed62e0606042223l2381d877g4bc798ec64804d43@mail.gmail.com>
+	Mon, 5 Jun 2006 12:11:12 -0400
+Date: Mon, 5 Jun 2006 18:11:02 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: debugging "irq 7: nobody cared" in my module
+Message-ID: <20060605161102.GP32055@grok.co.za>
+References: <20060605125132.GN32055@grok.co.za>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606051756.19715.rjw@sisk.pl>
+In-Reply-To: <20060605125132.GN32055@grok.co.za>
+User-Agent: Mutt/1.5.11
+From: Thomas Andrews <tandrews@grok.co.za>
+X-Scanner: exiscan *1FnHfS-0006jj-GS*Wrrzb5uo7cE* (Grok)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 June 2006 07:23, Barry K. Nathan wrote:
-> Quoting myself from another recent e-mail:
-> 
-> > BTW, I also tried 2.6.17-rc5-mm3 (with no other patches) on another
-> > box of mine, running Ubuntu Dapper Drake. (It was installed with one
-> > of the flights but has been updated to the final release.) It got hit
-> > with a flood of scheduling-while-atomic BUGs when either suspending to
-> > disk or resuming, and eth0 didn't come back up automatically as usual
-> > -- I had to manually modprobe r8169 and then run
-> > "/etc/init.d/networking restart" to get to the outside world again. I
-> > might not be able to provide a more detailed report on this box for
-> > another day or two.
-> 
-> The messages definitely happen while resuming. My screen is blank
-> during suspend-to-disk so I have no way to know what's going on
-> then...
+On Mon, Jun 05, 2006 at 02:51:32PM +0200, Thomas Andrews wrote:
 
-Please try doing "echo 8 > /proc/sys/kernel/printk" before suspend.
+> What can cause "irq x: nobody cared" ? On exit from my IRQ handler, I am
+> checking to make sure that there are no residual/pending unhandled
+> events on exit. Here is part of my handler:
+> 
+> irqreturn_t scx200_acb_irq(int irq_no, void *dev_id, struct pt_regs *regs)
+> {
+>     struct scx200_acb_iface *iface = dev_id;
+>     unsigned long flags;
+>     spin_lock_irqsave(lock, flags);
+>     if (inb(ACBST)) {
+> //      tasklet_schedule(&iface->tasklet);
+>         scx200_acb_machine(iface, inb(ACBST));
+>         if (iface->state == state_idle)     /* Finished */
+>             wake_up_interruptible(&iface->acb_queue);
+>     } else {
+>         /* Should never get here */
+>         printk("causeless IRQ!\n");
+>         /* Reset the ACB to clear any pending IRQ */
+>         outb((inb(ACBCTL2) & 0xfe), ACBCTL2);
+>         outb((inb(ACBCTL2) | 0x01), ACBCTL2);
+>     }
+>     /* Check to see if some event was not handled */
+>     if (inb(ACBST) & 0xBC)
+>         printk("============== ACBST=%#x ===============\n",inb(ACBST));
+>     spin_unlock_irqrestore(lock, flags);
+>     return IRQ_RETVAL(0);
+> }
 
-Greetings,
-Rafael
+I've found the problem now. The last line is wrong - it should read:
+
+    return IRQ_RETVAL(IRQ_HANDLED);
+
+

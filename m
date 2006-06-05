@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751272AbWFESS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751275AbWFESbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWFESS3 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 14:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWFESS3
+	id S1751275AbWFESbN (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 14:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWFESbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 14:18:29 -0400
-Received: from mail.gmx.net ([213.165.64.20]:12941 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750744AbWFESS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 14:18:28 -0400
-X-Authenticated: #704063
-Subject: Re: [Patch] Check sound_alloc_mixerdev() failure in
-	sound/oss/nm256_audio.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, mm@caldera.de
-In-Reply-To: <20060601170445.GA7265@martell.zuzino.mipt.ru>
-References: <1149155608.9452.1.camel@alice>
-	 <20060601170445.GA7265@martell.zuzino.mipt.ru>
+	Mon, 5 Jun 2006 14:31:12 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55454 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751275AbWFESbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 14:31:12 -0400
+Subject: Re: [PATCH 9/9] PCI PM: generic suspend/resume fixes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adam Belay <abelay@novell.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+        linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <1149529685.7831.177.camel@localhost.localdomain>
+References: <1149497178.7831.163.camel@localhost.localdomain>
+	 <1149502891.30554.1.camel@localhost.localdomain>
+	 <1149529685.7831.177.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 05 Jun 2006 20:18:25 +0200
-Message-Id: <1149531505.15988.2.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Date: Mon, 05 Jun 2006 19:45:58 +0100
+Message-Id: <1149533158.30554.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Ar Llu, 2006-06-05 am 13:48 -0400, ysgrifennodd Adam Belay:
+> disabled before entering D3 (something that we fail to do before this
+> patchset), and the vast majority of devices would end up in this state
+> if we were using pci_set_power_state() in this function.
 
-> > -    if (num_mixers >= MAX_MIXER_DEV) {
-> > +    if ((num_mixers >= MAX_MIXER_DEV) || (num_mixers < 0)) {
-> 					     ^^^^^^^^^^
-> >  	printk ("NM256 mixer: Unable to alloc mixerdev\n");
-> >  	return -1;
-> >      }
-> 
-> But it is _still_ fails to check it.
+Only if that hardware supports D3 in the first place. That may be the
+thing that is critical. 
 
-*yuck* I hope you keep count on the numbers of beers i owe you
-by now. Here is an updated patch.
+> With that in mind, any thoughts on giving this a little time in -mm and
+> seeing how it fares?  If any problems come up, we could revert to a more
+> conservative approach.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+It was a question not an objection. If the spec says it is right then it
+has to be worth trying
 
---- linux-2.6.17-rc5/sound/oss/nm256_audio.c.orig	2006-06-05 20:15:18.000000000 +0200
-+++ linux-2.6.17-rc5/sound/oss/nm256_audio.c	2006-06-05 20:16:06.000000000 +0200
-@@ -974,7 +974,7 @@ nm256_install_mixer (struct nm256_info *
- 	return -1;
- 
-     mixer = sound_alloc_mixerdev();
--    if (num_mixers >= MAX_MIXER_DEV) {
-+    if ((num_mixers >= MAX_MIXER_DEV) || (mixer < 0)) {
- 	printk ("NM256 mixer: Unable to alloc mixerdev\n");
- 	return -1;
-     }
-
+Alan
 

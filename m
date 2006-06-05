@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750705AbWFEHbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750718AbWFEHhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWFEHbf (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 03:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWFEHbf
+	id S1750718AbWFEHhn (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 03:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWFEHhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 03:31:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64653 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750705AbWFEHbf (ORCPT
+	Mon, 5 Jun 2006 03:37:43 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:21136 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750718AbWFEHhm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 03:31:35 -0400
-Date: Mon, 5 Jun 2006 00:31:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, tglx@linutronix.de,
-        torvalds@osdl.org
-Subject: Re: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
-Message-Id: <20060605003127.fc1ea37a.akpm@osdl.org>
-In-Reply-To: <1149491309.8543.54.camel@localhost.localdomain>
-References: <1149486009.8543.42.camel@localhost.localdomain>
-	<1149491309.8543.54.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 5 Jun 2006 03:37:42 -0400
+Date: Mon, 5 Jun 2006 09:37:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+        arjan@linux.intel.com, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com, Hans Reiser <reiser@namesys.com>
+Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
+Message-ID: <20060605073701.GA28763@elte.hu>
+References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com> <20060604133326.f1b01cfc.akpm@osdl.org> <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu> <20060604213432.GB5898@elte.hu> <986ed62e0606041503v701f8882la4cbead47ae3982f@mail.gmail.com> <20060605065444.GA27445@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060605065444.GA27445@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 17:08:29 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-> On Mon, 2006-06-05 at 15:40 +1000, Benjamin Herrenschmidt wrote:
-> > In various places, architectures need to request interrupts early during
-> > boot. Before slab is initialized typically. We used to have all sorts of
-> > arch hacks to do so, which ended up being turned into something like:
-> 
->  ..../.... (skip workaround based on bootmem)
-> 
-> Hrm... I'm running into more problems with some of my powerpc irq
-> cleanups related to slab not being initialized.
-> 
-> Why do we do it so late ? I don't see any reason. A bunch of stuff like
-> init_IRQ(), time_init() etc...end up being called without a working slab
-> (not even GFP_ATOMIC). Damn, even console_init().
-> 
-> What are the fundamental reasons, if any, why we initialize the slab so
-> late ?
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-I suspect because it's been like that since for ever, and any time we touch
-anything in there, bad things happen.
+> +++ linux/fs/reiser4/txnmgr.h
+> @@ -613,7 +613,7 @@ static inline void spin_unlock_txnmgr(tx
+>  	LOCK_CNT_DEC(spin_locked_txnmgr);
+>  	LOCK_CNT_DEC(spin_locked);
+>  
+> -	spin_unlock(&(mgr->tmgr_lock));
+> +	spin_unlock_non_nested(&(mgr->tmgr_lock));
+>  }
+>  
+>  typedef enum {
 
-> ...
->
-> I'm sure there is a subtle sneaky dependency, I would suspect something
-> to do with the scheduler and/or the cpumask/numa infos, whatever, but I
-> think we should really consider solving that.
+Btw., this particular annotation also documents a locking/scalability 
+inefficiency. mgr->tmgr_lock is a "global" lock (per superblock it 
+seems), while atom->alock is a more "finegrained" lock.
 
-I don't immediately see anything in there which would prevent us from
-running these:
+Typical usage: tmgr_lock is used a 'master lock', it's taken, then 
+atom->alock is taken, and then ->tmgr_lock is released. Then code runs 
+under atom->alock, and atom->alock is released finally.
 
-	vfs_caches_init_early();
-	cpuset_init_early();
-	mem_init();
-	kmem_cache_init();
-	setup_per_cpu_pageset();
+The scalability problem with such 'master locks' is that they pretty 
+much control scalability, so the scalability advantage of the finer 
+grained lock is reduced (often eliminated). Since access to the finer 
+grained lock goes via the master lock, the master lock cacheline will 
+bounce from CPU to CPU.
 
-just after sort_main_extable().
+A much more scalable design is to get to the finer grained lock in some 
+read-mostly, lockless way, and then take it. This often necessiates the 
+utilization of RCU, but it's well worth it.
 
-But things will explode ;)
+There's other kernel code that has been annotated for similar reasons - 
+e.g. the netfilter code makes frequent use of master-locks.
 
-I suggest you run up a patch, test it on whatever machines you have, send
-it over and I'll do the same.  But please make sure it has a config option
-to restore the old sequence for now.  a) So people can work out that it was
-this patch which broke things and b) so it doesn't adversely affect testing
-of other things too much.
+All in one, it's a good idea to document such locking constructs via the 
+_non_nested() annotation. Often they can be eliminated altogether and 
+the code improves. It's not a maintainance problem either, because right 
+now there are only 42 such annotations, out of 46,000+ locking API uses 
+covered by the lock validator.
 
+	Ingo

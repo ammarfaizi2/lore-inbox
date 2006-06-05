@@ -1,110 +1,140 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932415AbWFEFl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932422AbWFEFm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWFEFl3 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 01:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWFEFl3
+	id S932422AbWFEFm1 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 01:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWFEFm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 01:41:29 -0400
-Received: from gate.crashing.org ([63.228.1.57]:50132 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932415AbWFEFl2 (ORCPT
+	Mon, 5 Jun 2006 01:42:26 -0400
+Received: from xenotime.net ([66.160.160.81]:15843 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932422AbWFEFm0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 01:41:28 -0400
-Subject: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 15:40:08 +1000
-Message-Id: <1149486009.8543.42.camel@localhost.localdomain>
+	Mon, 5 Jun 2006 01:42:26 -0400
+Date: Sun, 4 Jun 2006 22:45:12 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: barryn@pobox.com, linux-kernel@vger.kernel.org, bunk@stusta.de,
+        greg@kroah.com
+Subject: Re: [PATCH] sisusb: fix build (Re: 2.6.17-rc5-mm3: sisusbvga build
+ failure)
+Message-Id: <20060604224512.56a194ff.rdunlap@xenotime.net>
+In-Reply-To: <20060604221117.b9dfdcfc.akpm@osdl.org>
+References: <986ed62e0606042140v78dc2c7cpb3cf7793954d2dce@mail.gmail.com>
+	<20060604220347.6f963375.rdunlap@xenotime.net>
+	<20060604221117.b9dfdcfc.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In various places, architectures need to request interrupts early during
-boot. Before slab is initialized typically. We used to have all sorts of
-arch hacks to do so, which ended up being turned into something like:
+On Sun, 4 Jun 2006 22:11:17 -0700 Andrew Morton wrote:
 
-static struct irqaction xxx_irq = { xxx_irq_handler, 0, CPU_MASK_NONE,
-"xxx", NULL, NULL };
+> OK, but with that applied it still fails:
+> 
+> In file included from drivers/usb/misc/sisusbvga/sisusb.c:56:
+> drivers/usb/misc/sisusbvga/sisusb_init.h:837: warning: 'struct vc_data' declared inside parameter list
+> drivers/usb/misc/sisusbvga/sisusb_init.h:837: warning: its scope is only this definition or declaration, which is probably not what you want
+> drivers/usb/misc/sisusbvga/sisusb.c:1339: error: static declaration of 'sisusb_setidxreg' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:819: error: previous declaration of 'sisusb_setidxreg' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1351: error: static declaration of 'sisusb_getidxreg' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:821: error: previous declaration of 'sisusb_getidxreg' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1364: error: static declaration of 'sisusb_setidxregandor' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:823: error: previous declaration of 'sisusb_setidxregandor' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1395: error: static declaration of 'sisusb_setidxregor' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:825: error: previous declaration of 'sisusb_setidxregor' was here
+> drivers/usb/misc/sisusbvga/sisusb.c:1404: error: static declaration of 'sisusb_setidxregand' follows non-static declaration
+> drivers/usb/misc/sisusbvga/sisusb_init.h:827: error: previous declaration of 'sisusb_setidxregand' was here
+> make[1]: *** [drivers/usb/misc/sisusbvga/sisusb.o] Error 1
+> 
+> Culprit is gregkh-usb-usb-sisusbvga-possible-cleanups.patch
 
- .../...
+Adrian might have other methods here...
 
-setup_irq(&xxx_irq);
 
-(for example fpu_irq in i386's i8259.c)
 
-I quite dislike that and would like to propose that patch instead,
-adding an SA_BOOTMEM flag that can be used to request IRQs before slab
-is initialized. (Note that the register_* calls to the proc code aren't
-protected, they shouldn't be a problem as they test for the /proc/irq
-root node before doing anything and this can't have been created if slab
-doesn't work).
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Of course, an SA_BOOTMEM irqaction can't be freed. My proposed patch
-"disconnects" it completely and just skips the freeing step but we might
-want to refuse with a WARN_ON() attempts to free_irq() such an interrupt
-instead. Note that the existing practice using a static descriptor
-doesn't protect against such attempts at freeing.
+Fix build errors caused by agressive static attributes.
 
-Ben.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/usb/misc/sisusbvga/sisusb.c |   17 +----------------
+ drivers/usb/misc/sisusbvga/sisusb.h |    2 --
+ 2 files changed, 1 insertion(+), 18 deletions(-)
 
-Index: linux-work/include/linux/signal.h
-===================================================================
---- linux-work.orig/include/linux/signal.h	2006-05-30 13:03:41.000000000 +1000
-+++ linux-work/include/linux/signal.h	2006-06-05 15:14:16.000000000 +1000
-@@ -19,7 +19,7 @@
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
- #define SA_PROBEIRQ		0x08000000
--
-+#define SA_BOOTMEM		0x02000000
- /*
-  * As above, these correspond to the IORESOURCE_IRQ_* defines in
-  * linux/ioport.h to select the interrupt line behaviour.  When
-Index: linux-work/kernel/irq/manage.c
-===================================================================
---- linux-work.orig/kernel/irq/manage.c	2006-05-31 11:26:45.000000000 +1000
-+++ linux-work/kernel/irq/manage.c	2006-06-05 15:34:27.000000000 +1000
-@@ -12,6 +12,7 @@
- #include <linux/module.h>
- #include <linux/random.h>
- #include <linux/interrupt.h>
-+#include <linux/bootmem.h>
+--- linux-2617-rc5mm3.orig/drivers/usb/misc/sisusbvga/sisusb.h
++++ linux-2617-rc5mm3/drivers/usb/misc/sisusbvga/sisusb.h
+@@ -62,11 +62,9 @@
+ #define INCL_SISUSB_CON		1
+ #endif
  
- #include "internals.h"
+-#ifdef INCL_SISUSB_CON
+ #include <linux/console.h>
+ #include <linux/vt_kern.h>
+ #include "sisusb_struct.h"
+-#endif
  
-@@ -206,7 +207,7 @@ int setup_irq(unsigned int irq, struct i
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
-+	if ((new->flags & SA_SAMPLE_RANDOM) && !(new->flags & SA_BOOTMEM)) {
- 		/*
- 		 * This function might sleep, we want to call it first,
- 		 * outside of the atomic block.
-@@ -363,7 +364,8 @@ void free_irq(unsigned int irq, void *de
+ /* USB related */
  
- 			/* Make sure it's not being used on another CPU */
- 			synchronize_irq(irq);
--			kfree(action);
-+			if (!(action->flags & SA_BOOTMEM))
-+				kfree(action);
- 			return;
- 		}
- 		printk(KERN_ERR "Trying to free free IRQ%d\n", irq);
-@@ -424,7 +426,10 @@ int request_irq(unsigned int irq,
- 	if (!handler)
- 		return -EINVAL;
+--- linux-2617-rc5mm3.orig/drivers/usb/misc/sisusbvga/sisusb.c
++++ linux-2617-rc5mm3/drivers/usb/misc/sisusbvga/sisusb.c
+@@ -1331,9 +1331,6 @@ sisusb_getreg(struct sisusb_usb_data *si
+ }
+ #endif
  
--	action = kmalloc(sizeof(struct irqaction), GFP_ATOMIC);
-+	if (irqflags & SA_BOOTMEM)
-+		action = alloc_bootmem(sizeof(struct irqaction));
-+	else
-+		action = kmalloc(sizeof(struct irqaction), GFP_ATOMIC);
- 	if (!action)
- 		return -ENOMEM;
+-#ifndef INCL_SISUSB_CON
+-static
+-#endif
+ int
+ sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 data)
+ {
+@@ -1343,9 +1340,6 @@ sisusb_setidxreg(struct sisusb_usb_data 
+ 	return ret;
+ }
  
-
-
+-#ifndef INCL_SISUSB_CON
+-static
+-#endif
+ int
+ sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 *data)
+ {
+@@ -1355,9 +1349,6 @@ sisusb_getidxreg(struct sisusb_usb_data 
+ 	return ret;
+ }
+ 
+-#ifndef INCL_SISUSB_CON
+-static
+-#endif
+ int
+ sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,
+ 							u8 myand, u8 myor)
+@@ -1373,7 +1364,7 @@ sisusb_setidxregandor(struct sisusb_usb_
+ 	return ret;
+ }
+ 
+-static int
++int
+ sisusb_setidxregmask(struct sisusb_usb_data *sisusb, int port, u8 idx,
+ 							u8 data, u8 mask)
+ {
+@@ -1387,18 +1378,12 @@ sisusb_setidxregmask(struct sisusb_usb_d
+ 	return ret;
+ }
+ 
+-#ifndef INCL_SISUSB_CON
+-static
+-#endif
+ int
+ sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port, u8 index, u8 myor)
+ {
+ 	return(sisusb_setidxregandor(sisusb, port, index, 0xff, myor));
+ }
+ 
+-#ifndef INCL_SISUSB_CON
+-static
+-#endif
+ int
+ sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port, u8 idx, u8 myand)
+ {

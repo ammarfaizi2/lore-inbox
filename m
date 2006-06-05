@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750968AbWFELKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750977AbWFELPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750968AbWFELKU (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 07:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWFELKU
+	id S1750977AbWFELPX (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 07:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWFELPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 07:10:20 -0400
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:3776 "EHLO
-	out3.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750967AbWFELKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 07:10:20 -0400
-Message-Id: <1149505820.10626.263059761@webmail.messagingengine.com>
-X-Sasl-Enc: On9MDPPKPAO1evMAAbNY+lpTA03u6Se0y+Y6MmL1gMgW 1149505820
-From: "Ivan Novick" <ivan@0x4849.net>
-To: "Christoph Hellwig" <hch@infradead.org>, "Andrew Morton" <akpm@osdl.org>
-Cc: "Jeff Garzik" <jeff@garzik.org>, linux-kernel@vger.kernel.org
-Content-Disposition: inline
+	Mon, 5 Jun 2006 07:15:23 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:41861 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750975AbWFELPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 07:15:23 -0400
+Subject: Re: move zd1201 where it belongs
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jirka Lenost Benc <jbenc@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060605103952.GA1670@elf.ucw.cz>
+References: <20060605103952.GA1670@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 13:15:20 +0200
+Message-Id: <1149506120.3111.52.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MIME::Lite 5022  (F2.72; T1.15; A1.62; B3.04; Q3.03)
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-   <20060605013223.GD17361@havoc.gtf.org>
-   <20060604184711.0a328d18.akpm@osdl.org>
-   <20060605085918.GB26766@infradead.org>
-Subject: Re: merging new drivers (was Re: 2.6.18 -mm merge plans)
-In-Reply-To: <20060605085918.GB26766@infradead.org>
-Date: Mon, 05 Jun 2006 12:10:20 +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And especially in scsi land I'm absolutely against putting in more
-> substandard drivers.  The subsystem is still badly plagued from lots of old drivers
-> that aren't up to any standards, and we need to decrease the maintaince load
-> due to odd drivers not increase it even further.
+On Mon, 2006-06-05 at 12:39 +0200, Pavel Machek wrote:
+> zd1201 is wifi adapter, yet it is hiding in drivers/usb/net where
+> noone can find it. This moves Kconfig/Makefile to right place; you
+> still need to manually move .c and .h files.
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
+> index e0874cb..313cfad 100644
+> --- a/drivers/net/wireless/Kconfig
+> +++ b/drivers/net/wireless/Kconfig
+> @@ -503,6 +503,23 @@ config PRISM54
+>  	  say M here and read <file:Documentation/modules.txt>.  The module
+>  	  will be called prism54.ko.
+>  
+> +config USB_ZD1201
+> +	tristate "USB ZD1201 based Wireless device support"
+> +	depends on NET_RADIO
+> +	select FW_LOADER
 
-Is there a hit-list of old drivers that need work, in case someone is
-interested in helping?
+do you think it should at least depend in some form or another on
+CONFIG_USB ?
 
-Ivan

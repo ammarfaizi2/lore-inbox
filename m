@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751076AbWFEVwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751075AbWFEVwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751076AbWFEVwk (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 17:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWFEVwk
+	id S1751075AbWFEVwN (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 17:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWFEVwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 17:52:40 -0400
-Received: from wr-out-0506.google.com ([64.233.184.229]:42118 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751076AbWFEVwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 17:52:39 -0400
+	Mon, 5 Jun 2006 17:52:12 -0400
+Received: from wx-out-0102.google.com ([66.249.82.201]:35588 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751068AbWFEVwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 17:52:12 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CmVBU1rJpa7nT3YB+hSuP9+Jjp/sq6fkdm882wCWRygSZkQd1x9WY/v6EK2Uw7i/aZevRsyepd4EkHxxi8wiyF3sb1FPX9/BCL2kABk3jQsjOr9QiWSk1g5xUeT4nx0937OzTLsUzdPcLhrX4UnwzbI6L5/nj7a+VGIEDPIRNwY=
-Message-ID: <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
-Date: Mon, 5 Jun 2006 23:52:38 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.5
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060604215636.16277.15454.stgit@localhost.localdomain>
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=XPszmjAAiRTiyUxRPvt81anL5BBycSKLdZyGntO0ZyjrvHdNkn1fVccOBwJ96PAIJXQsTG6D7lJLKYB9KEl39C+KGaiD81ojiUGGKdVnnO8LFKoWwSuNN1bbqELSKBwKDFIgyexpbw5kWktXnG7maRn/JNZoQNZuxfKp8r+lN9k=
+Message-ID: <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com>
+Date: Mon, 5 Jun 2006 14:52:11 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm1
+Cc: "Laurent Riffard" <laurent.riffard@free.fr>, 76306.1226@compuserve.com,
+        linux-kernel@vger.kernel.org, jbeulich@novell.com,
+        "Ingo Molnar" <mingo@elte.hu>,
+        "Arjan van de Ven" <arjan@linux.intel.com>
+In-Reply-To: <20060605110046.2a7db23f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060604215636.16277.15454.stgit@localhost.localdomain>
+References: <200606042101_MC3-1-C19B-1CF4@compuserve.com>
+	 <20060604181002.57ca89df.akpm@osdl.org> <44840838.7030802@free.fr>
+	 <4484584D.4070108@free.fr> <20060605110046.2a7db23f.akpm@osdl.org>
+X-Google-Sender-Auth: 7befa9e90198e58f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/06/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> This is a new version (0.5) of the kernel memory leak detector. It is
-> mainly a bug-fix release after testing it with a wider range of kernel
-> modules. See the Documentation/kmemleak.txt file for a more detailed
-> description. The patches are downloadable from (the bundled patch or
-> the series):
->
-> http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.17-rc5-kmemleak-0.5.bz2
-> http://homepage.ntlworld.com/cmarinas/kmemleak/patches-kmemleak-0.5.tar.bz2
->
+On 6/5/06, Andrew Morton <akpm@osdl.org> wrote:
+> I guess we should force 8k stacks if the lockdep features are enabled.
 
-System hangs while starting udev.
+Also, Laurent is running "2.6.17-rc5-mm3-lockdep" (per his previous
+message), i.e., 2.6.17-rc5-mm3 with Ingo's lockdep-combo patch added.
+If you're wondering how I conclude the latter from the former, look at
+this hunk from the lockdep-combo patch:
 
-Here is config
-http://www.stardust.webpages.pl/files/kml/kml-config
+--- linux.orig/Makefile
++++ linux/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 17
+-EXTRAVERSION =-rc5-mm3
++EXTRAVERSION =-rc5-mm3-lockdep
+ NAME=Lordi Rules
 
-Here is "Kernel Bug : The Movie 2" ;)
-http://www.stardust.webpages.pl/files/crap/kbtm2.avi
+And from the same patch:
 
-$ gcc-3.4 --version
-gcc-3.4 (GCC) 3.4.6
+--- linux.orig/arch/i386/Makefile
++++ linux/arch/i386/Makefile
+@@ -38,6 +38,10 @@ CFLAGS += $(call cc-option,-mpreferred-s
+ include $(srctree)/arch/i386/Makefile.cpu
 
-Regards,
-Michal
+ cflags-$(CONFIG_REGPARM) += -mregparm=3
++#
++# Prevent tail-call optimizations, to get clearer backtraces:
++#
++cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
 
+ # temporary until string.h is fixed
+ cflags-y += -ffreestanding
+
+I would expect that to increase stack usage...
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+-Barry K. Nathan <barryn@pobox.com>

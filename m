@@ -1,106 +1,61 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751405AbWFEUMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751393AbWFEUJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWFEUMl (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWFEUMk
+	id S1751393AbWFEUJ6 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWFEUJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:12:40 -0400
-Received: from mail.gmx.de ([213.165.64.20]:31680 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751406AbWFEUMj (ORCPT
+	Mon, 5 Jun 2006 16:09:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29115 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751393AbWFEUJ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:12:39 -0400
-X-Authenticated: #704063
-Subject: [Patch] Zoran strncpy() cleanup
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: bdirks@pacbell.net
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 22:12:37 +0200
-Message-Id: <1149538357.16994.7.camel@alice>
+	Mon, 5 Jun 2006 16:09:57 -0400
+Date: Mon, 5 Jun 2006 16:09:47 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: Re: 2.6.17-rc5-mm3
+Message-ID: <20060605200947.GC6143@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>
+References: <20060603232004.68c4e1e3.akpm@osdl.org> <20060605194844.GA6143@redhat.com> <20060605130626.3f2917a2.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060605130626.3f2917a2.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Mon, Jun 05, 2006 at 01:06:26PM -0700, Andrew Morton wrote:
 
-this was spotted by coverity ( bug id #536 ). While
-it is not really a bug, i think we should clean it up.
-std->name can only hold 24 chars, not 32 as the strncpy() calls
-suggest. std->name can hold 32 chars, but since we use constant
-fixed-sized strings, which will always fit into these arrays, i changed
-the strncpy() calls to strcpy(). If you prefer strncpy(foo->name, "bar", sizeof(foo->name))
-please let me know and i redo the patch.
+ > > Then, the whole thing locked up after probing the parallel port.
+ > > I disabled it in the BIOS, and then it locked up probing the floppy drive..
+ > > http://www.codemonkey.org.uk/junk/DSC00348.JPG
+ > 
+ > That looks like the same thing?
+ > 
+ > > System is still alive, and responds to keyboard, but makes no forward progress.
+ > > 
+ > > (sysrq-B spewed a lockdep trace and then rebooted. I'll try and get
+ > > that hooked up to a serial console)
+ > > 
+ > > On a whim, I enabled the floppy drive in the BIOS, and rebooted.
+ > > That got me here. http://www.codemonkey.org.uk/junk/DSC00349.JPG
+ > > Same dead userspace.
+ > 
+ > So does that.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+The top half the screen is the same as the first pic yes, but the purpose
+of those latter two pics was to show that we're locking up (in aparently
+different places) shortly afterwards.
 
---- linux-2.6.17-rc5/drivers/media/video/zoran_driver.c.orig	2006-06-05 22:06:42.000000000 +0200
-+++ linux-2.6.17-rc5/drivers/media/video/zoran_driver.c	2006-06-05 22:08:50.000000000 +0200
-@@ -3566,16 +3566,16 @@ zoran_do_ioctl (struct inode *inode,
- 
- 		switch (ctrl->id) {
- 		case V4L2_CID_BRIGHTNESS:
--			strncpy(ctrl->name, "Brightness", 31);
-+			strcpy(ctrl->name, "Brightness");
- 			break;
- 		case V4L2_CID_CONTRAST:
--			strncpy(ctrl->name, "Contrast", 31);
-+			strcpy(ctrl->name, "Contrast");
- 			break;
- 		case V4L2_CID_SATURATION:
--			strncpy(ctrl->name, "Saturation", 31);
-+			strcpy(ctrl->name, "Saturation");
- 			break;
- 		case V4L2_CID_HUE:
--			strncpy(ctrl->name, "Hue", 31);
-+			strcpy(ctrl->name, "Hue");
- 			break;
- 		}
- 
-@@ -3693,7 +3693,7 @@ zoran_do_ioctl (struct inode *inode,
- 					&caps);
- 			if (caps.flags & VIDEO_DECODER_AUTO) {
- 				std->id = V4L2_STD_ALL;
--				strncpy(std->name, "Autodetect", 31);
-+				strcpy(std->name, "Autodetect");
- 				return 0;
- 			} else
- 				return -EINVAL;
-@@ -3701,21 +3701,21 @@ zoran_do_ioctl (struct inode *inode,
- 		switch (std->index) {
- 		case 0:
- 			std->id = V4L2_STD_PAL;
--			strncpy(std->name, "PAL", 31);
-+			strcpy(std->name, "PAL");
- 			std->frameperiod.numerator = 1;
- 			std->frameperiod.denominator = 25;
- 			std->framelines = zr->card.tvn[0]->Ht;
- 			break;
- 		case 1:
- 			std->id = V4L2_STD_NTSC;
--			strncpy(std->name, "NTSC", 31);
-+			strcpy(std->name, "NTSC");
- 			std->frameperiod.numerator = 1001;
- 			std->frameperiod.denominator = 30000;
- 			std->framelines = zr->card.tvn[1]->Ht;
- 			break;
- 		case 2:
- 			std->id = V4L2_STD_SECAM;
--			strncpy(std->name, "SECAM", 31);
-+			strcpy(std->name, "SECAM");
- 			std->frameperiod.numerator = 1;
- 			std->frameperiod.denominator = 25;
- 			std->framelines = zr->card.tvn[2]->Ht;
-@@ -3871,7 +3871,7 @@ zoran_do_ioctl (struct inode *inode,
- 		memset(outp, 0, sizeof(*outp));
- 		outp->index = 0;
- 		outp->type = V4L2_OUTPUT_TYPE_ANALOGVGAOVERLAY;
--		strncpy(outp->name, "Autodetect", 31);
-+		strcpy(outp->name, "Autodetect");
- 
- 		return 0;
- 	}
+ > Try reverting debug-shared-irqs.patch, or disable the sound driver?
 
+Will turn off the sound driver, and see what happens.
 
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

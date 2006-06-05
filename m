@@ -1,123 +1,118 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750701AbWFEU42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750700AbWFEUvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWFEU42 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWFEU42
+	id S1750700AbWFEUvO (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWFEUvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:56:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:47797 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750777AbWFEU41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:56:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=S1hhC7Rxd3TrcoK65jQcmwxS1XgunHuh7JVFe/VvW8vOKXEUGD2Omk/bvLie9L/jfNoBB3TW8VIn+1KWshAMA5eY3c3aYSXely+3xlWrWi1aLBh9zU5c2Ap5sIUF+bwpaplZOEII5TP2SjtG2h7ZC/AkYB7LItICDa06dvL9F8Y=
-Message-ID: <44849A7B.10307@gmail.com>
-Date: Mon, 05 Jun 2006 22:56:04 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Greg KH <gregkh@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
-        netdev@vger.kernel.org, stevel@mvista.com, source@mvista.com
-Subject: Re: [PATCH 3/3] pci: gt96100eth avoid pci_find_device
-References: <448491ab.7fb59b32.690f.01c1SMTPIN_ADDED@mx.gmail.com>
-In-Reply-To: <448491ab.7fb59b32.690f.01c1SMTPIN_ADDED@mx.gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-2
+	Mon, 5 Jun 2006 16:51:14 -0400
+Received: from xenotime.net ([66.160.160.81]:54421 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750700AbWFEUvN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:51:13 -0400
+Date: Mon, 5 Jun 2006 13:54:01 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: davej@redhat.com, mingo@elte.hu, mbligh@google.com, akpm@osdl.org,
+        apw@shadowen.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] poison: add & use more constants
+Message-Id: <20060605135401.f7941311.rdunlap@xenotime.net>
+In-Reply-To: <20060605131447.4f46bbaf.rdunlap@xenotime.net>
+References: <44845C27.3000006@google.com>
+	<20060605194422.GB14709@elte.hu>
+	<20060605130039.db1ac80c.rdunlap@xenotime.net>
+	<20060605200554.GB6143@redhat.com>
+	<20060605131447.4f46bbaf.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby napsal(a):
-> gt96100eth avoid pci_find_device
-> 
-> Change pci_find_device to safer pci_get_device with support for more
-> bridges.
-> 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-> 
-> ---
-> commit fd863b81ac491faf783ff7f2dcf6032177c5ab7f
-> tree d7eb59f897505230023754f19ad7227eec39e676
-> parent 4b73c16f5411d97360d5f26f292ffddeb670ff75
-> author Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:20 +0159
-> committer Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:20 +0159
-> 
->  drivers/net/gt96100eth.c |   23 ++++++++++++++++++-----
->  1 files changed, 18 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/net/gt96100eth.c b/drivers/net/gt96100eth.c
-> index 2d24354..3066c86 100644
-> --- a/drivers/net/gt96100eth.c
-> +++ b/drivers/net/gt96100eth.c
-> @@ -600,6 +600,11 @@ disable_ether_irq(struct net_device *dev
->  	GT96100ETH_WRITE(gp, GT96100_ETH_INT_MASK, 0);
->  }
->  
-> +static struct pci_device_id gt96100_ids[] = {
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, PCI_DEVICE_ID_MARVELL_GT96100) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, PCI_DEVICE_ID_MARVELL_GT96100A) },
-> +	{ 0 }
-> +};
->  
->  /*
->   * Init GT96100 ethernet controller driver
-> @@ -607,16 +612,20 @@ disable_ether_irq(struct net_device *dev
->  static int gt96100_init_module(void)
->  {
->  	struct pci_dev *pci;
-> +	struct pci_device_id *id;
->  	int i, retval=0;
->  	u32 cpuConfig;
->  
->  	/*
->  	 * Stupid probe because this really isn't a PCI device
->  	 */
-> -	if (!(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
-> -	                            PCI_DEVICE_ID_MARVELL_GT96100, NULL)) &&
-> -	    !(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
-> -		                    PCI_DEVICE_ID_MARVELL_GT96100A, NULL))) {
-> +	for (id = gt96100_ids; id->vendor; id++) {
-> +		pci = pci_get_device(id->vendor, id->device, NULL);
-> +		if (pci != NULL)
-> +			break;
-> +	}
-I wonder if this is even better:
-while ((pci = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pci)) != NULL)
-    if (pci_match_id(gt96100_ids, pci) != NULL)
-         break;
-What do you think?
-> +
-> +	if (!id->vendor) {
->  		printk(KERN_ERR __FILE__ ": GT96100 not found!\n");
->  		return -ENODEV;
->  	}
-> @@ -625,12 +634,16 @@ static int gt96100_init_module(void)
->  	if (cpuConfig & (1<<12)) {
->  		printk(KERN_ERR __FILE__
->  		       ": must be in Big Endian mode!\n");
-> -		return -ENODEV;
-> +		retval = -ENODEV;
-> +		goto err_pput;
->  	}
->  
->  	for (i=0; i < NUM_INTERFACES; i++)
->  		retval |= gt96100_probe1(pci, i);
->  
-> +err_pput:
-> +	pci_dev_put(pci);
-> +
->  	return retval;
->  }
->  
-> 
+From: Randy Dunlap <rdunlap@xenotime.net>
+
+Add more poison values to include/linux/poison.h.
+It's not clear to me whether some others should be added or not,
+so I haven't added any of these:
+
+./include/linux/libata.h:#define ATA_TAG_POISON		0xfafbfcfdU
+./arch/ppc/8260_io/fcc_enet.c:1918:	memset((char *)(&(immap->im_dprambase[(mem_addr+64)])), 0x88, 32);
+./drivers/usb/mon/mon_text.c:429:	memset(mem, 0xe5, sizeof(struct mon_event_text));
+./drivers/char/ftape/lowlevel/ftape-ctl.c:738:		memset(ft_buffer[i]->address, 0xAA, FT_BUFF_SIZE);
+./drivers/block/sx8.c:/* 0xf is just arbitrary, non-zero noise; this is sorta like poisoning */
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ include/linux/poison.h |    7 +++++++
+ kernel/mutex-debug.c   |    5 +++--
+ security/keys/key.c    |    3 ++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
+
+--- linux-2617-rc5mm3.orig/include/linux/poison.h
++++ linux-2617-rc5mm3/include/linux/poison.h
+@@ -45,6 +45,13 @@
+ /********** drivers/atm/ **********/
+ #define ATM_POISON_FREE		0x12
+ 
++/********** kernel/mutexes **********/
++#define MUTEX_DEBUG_INIT	0x11
++#define MUTEX_DEBUG_FREE	0x22
++
++/********** security/ **********/
++#define KEY_DESTROY		0xbd
++
+ /********** sound/oss/ **********/
+ #define OSS_POISON_FREE		0xAB
+ 
+--- linux-2617-rc5mm3.orig/kernel/mutex-debug.c
++++ linux-2617-rc5mm3/kernel/mutex-debug.c
+@@ -16,6 +16,7 @@
+ #include <linux/sched.h>
+ #include <linux/delay.h>
+ #include <linux/module.h>
++#include <linux/poison.h>
+ #include <linux/spinlock.h>
+ #include <linux/kallsyms.h>
+ #include <linux/interrupt.h>
+@@ -155,7 +156,7 @@ void debug_mutex_set_owner(struct mutex 
+ 
+ void debug_mutex_lock_common(struct mutex *lock, struct mutex_waiter *waiter)
+ {
+-	memset(waiter, 0x11, sizeof(*waiter));
++	memset(waiter, MUTEX_DEBUG_INIT, sizeof(*waiter));
+ 	waiter->magic = waiter;
+ 	INIT_LIST_HEAD(&waiter->list);
+ }
+@@ -171,7 +172,7 @@ void debug_mutex_wake_waiter(struct mute
+ void debug_mutex_free_waiter(struct mutex_waiter *waiter)
+ {
+ 	DEBUG_WARN_ON(!list_empty(&waiter->list));
+-	memset(waiter, 0x22, sizeof(*waiter));
++	memset(waiter, MUTEX_DEBUG_FREE, sizeof(*waiter));
+ }
+ 
+ void debug_mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+--- linux-2617-rc5mm3.orig/security/keys/key.c
++++ linux-2617-rc5mm3/security/keys/key.c
+@@ -11,6 +11,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/init.h>
++#include <linux/poison.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/security.h>
+@@ -986,7 +987,7 @@ void unregister_key_type(struct key_type
+ 		if (key->type == ktype) {
+ 			if (ktype->destroy)
+ 				ktype->destroy(key);
+-			memset(&key->payload, 0xbd, sizeof(key->payload));
++			memset(&key->payload, KEY_DESTROY, sizeof(key->payload));
+ 		}
+ 	}
+ 
 
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+
+---

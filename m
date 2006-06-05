@@ -1,97 +1,87 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751249AbWFESBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751254AbWFESHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWFESBn (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 14:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWFESBn
+	id S1751254AbWFESHP (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 14:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWFESHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 14:01:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6109 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751249AbWFESBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 14:01:43 -0400
-Date: Mon, 5 Jun 2006 11:00:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-        jbeulich@novell.com, Ingo Molnar <mingo@elte.hu>,
-        Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: 2.6.17-rc5-mm1
-Message-Id: <20060605110046.2a7db23f.akpm@osdl.org>
-In-Reply-To: <4484584D.4070108@free.fr>
-References: <200606042101_MC3-1-C19B-1CF4@compuserve.com>
-	<20060604181002.57ca89df.akpm@osdl.org>
-	<44840838.7030802@free.fr>
-	<4484584D.4070108@free.fr>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Jun 2006 14:07:15 -0400
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:429 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751254AbWFESHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 14:07:13 -0400
+From: David Brownell <david-b@pacbell.net>
+Subject: Fwd: [linux-pm] [patch/rft 2.6.17-rc5-git 0/6] PM_EVENT_PRETHAW
+Date: Mon, 5 Jun 2006 11:07:08 -0700
+User-Agent: KMail/1.7.1
+To: linux-usb-devel@lists.sourceforge.net,
+        Linux Kernel list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606051107.09213.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 18:14:05 +0200
-Laurent Riffard <laurent.riffard@free.fr> wrote:
+Summary message below; see everything at these URLs, if interested:
 
-> > 
-> > Random Oops (recursive dies) on early boot. I sometimes succeded on 
-> > booting but the system dies on "pktsetup test /dev/dvd". I can't get a full 
-> > trace since I don't have my second box here for some days. I tried to boot
-> > with vga=791, but system hangs with a blank screen.
-> 
-> Here is a bunch of message I got with 2.6.17-rc5-mm3-lockdep with 8K 
-> stack and CONFIG_DEBUG_STACK_USAGE=y. It happens when I start pktcdvd.
-> 
-> Does it give any hints ?
-> 
+[0] http://lists.osdl.org/pipermail/linux-pm/2006-June/002448.html
+[1] http://lists.osdl.org/pipermail/linux-pm/2006-June/002444.html
+[2] http://lists.osdl.org/pipermail/linux-pm/2006-June/002446.html
+[3] http://lists.osdl.org/pipermail/linux-pm/2006-June/002447.html
+[4] http://lists.osdl.org/pipermail/linux-pm/2006-June/002443.html
+[5] http://lists.osdl.org/pipermail/linux-pm/2006-June/002445.html
+[6] http://lists.osdl.org/pipermail/linux-pm/2006-June/002442.html
 
-It gives some hints.
+----------  Forwarded Message  ----------
 
-> 
-> cdrom: This disc doesn't have any tracks I recognize!
-> pktcdvd: writer pktcdvd0 mapped to hdc
-> ----------------------------->
-> | new stack fill maximum: vol_id/2233, 3696 bytes (out of 8136 bytes).
-> | Stack fill ratio: 45% - that's still OK, no need to report this.
-> ------------|
-> {   20} [<c013ba14>] debug_stackoverflow+0x80/0xae
-> {   28} [<c013cbb6>] __mcount+0x2a/0x97
-> {   20} [<c010e434>] mcount+0x14/0x18
-> {  304} [<c0238c28>] ide_do_drive_cmd+0x11/0x16c
-> {  100} [<e0e553aa>] cdrom_queue_packet_command+0x45/0xd8
-> {  204} [<e0e559e1>] cdrom_check_status+0x58/0x60
-> {   88} [<e0e55a57>] ide_cdrom_drive_status+0x2a/0x99
-> {  376} [<e0c8a84b>] cdrom_open+0x7b/0x7ef
-> {   32} [<e0e54756>] idecd_open+0x8a/0xbd
-> {  564} [<c016297c>] do_open+0x2db/0x3d4
-> {  568} [<c0162ad7>] blkdev_get+0x62/0x6a
-> {  564} [<e0ecb370>] pkt_open+0x92/0xbe2
-> {  564} [<c0162747>] do_open+0xa6/0x3d4
-> {   36} [<c0162c31>] blkdev_open+0x28/0x57
-> {   28} [<c0159c47>] __dentry_open+0xb8/0x192
-> {   32} [<c0159d9b>] nameidata_to_filp+0x25/0x3a
-> {   92} [<c0159de9>] do_filp_open+0x39/0x42
-> {   44} [<c015add2>] do_sys_open+0x45/0xc0
-> {   24} [<c015ae80>] sys_open+0x18/0x1a
-> {=3688} [<c02a87ba>] sysenter_past_esp+0x63/0xa1
-> <---------------------------
+Subject: [linux-pm] [patch/rft 2.6.17-rc5-git 0/6] PM_EVENT_PRETHAW
+Date: Monday 05 June 2006 9:36 am
+From: David Brownell <david-b@pacbell.net>
+To: linux-pm@lists.osdl.org
 
-Ingo, what does "vol_id/2233" mean?
+Following this message will be patches adding the new PRETHAW event,
+so that drivers can make sure that swsusp doesn't put hardware into
+bogus states before resuming.
 
-The first column is, I assume, stack usage by that function?
+As previously discussed, this is needed by drivers which examine the
+hardware state during resume() methods ... notably, USB controller
+drivers, which expect to see true suspend states in order to handle
+remote wakeup, but currently break with swsusp.  Only two states are
+valid in resume():  after hardware reset, or else the state that
+suspend() left it in.  PRETHAW allows drivers to force the former.
 
-blkdev_get() allocates 700 bytes of stack space.  Do you have any lockdep
-features enabled in config as well?  They will increase the size of the
-inode and dentry to a total of over 2 kbytes and we'll really start getting
-into trouble in blkdev_get().
+In sequence, the patches are:
 
-But I don't see why the above trace is (apparently) claiming that
-do_open(), ptk_open(), etc are using a lot of stack.
+ - prethaw-misc.patch ... fixes code that's currently broken/dubious
+   so that it won't care about the new message (and is thus more or
+   less mergeable regardless of the rest of these patches)
 
-I guess we should force 8k stacks if the lockdep features are enabled.
+ - prethaw-header.patch ... defines the new event and its message
 
-But x86_64 has no such option.  Problem.
+ - prethaw-fw.patch ... IDE and (dumb) PCI can handle it simplistically
 
-<wonders how on earth that on-stack inode+dentry got in there>
+ - prethaw-video.patch ... likewise, but this is per-driver not at the
+   framework level
 
-And lock-validator-special-locking-bdev.patch add two more copies of the
-same sin, while falsely claiming "Has no effect on non-lockdep kernels."
+ - prethaw-usb.patch ... fixing various "swsusp resume fails if the
+   HCD is statically linked" bugs
+
+ - prethaw-core.patch ... updating the pm core to issue PRETHAW
+   events, handling for which which the previous patches added.
+
+Yes, it might be worth splitting some of those driver patches out into
+patch-per-driver format.  Yes, I _did_ look at a couple hundred drivers
+(grr) to see what needed changing ... darn few drivers treat suspend() as
+anything other than PM_EVENT_SUSPEND.
+
+- Dave
+
+_______________________________________________
+linux-pm mailing list
+linux-pm@lists.osdl.org
+https://lists.osdl.org/mailman/listinfo/linux-pm
+
+
+-------------------------------------------------------

@@ -1,101 +1,60 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751139AbWFEPMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751188AbWFEP0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWFEPMX (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 11:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFEPMX
+	id S1751188AbWFEP0E (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 11:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWFEP0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 11:12:23 -0400
-Received: from ns.dynamicweb.hu ([195.228.155.139]:13529 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1751139AbWFEPMW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 11:12:22 -0400
-Message-ID: <02e001c688b2$695e9400$1800a8c0@dcccs>
-From: "Janos Haar" <djani22@netcenter.hu>
-To: "Janos Haar" <djani22@netcenter.hu>
-Cc: <linux-kernel@vger.kernel.org>
-References: <011c01c6888a$a0a881a0$1800a8c0@dcccs>
-Subject: Re: critical bug in sata driver ?
-Date: Mon, 5 Jun 2006 17:12:05 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+	Mon, 5 Jun 2006 11:26:04 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:61859 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751158AbWFEP0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 11:26:02 -0400
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug, take 2
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
+        Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
+        james.steward@dynamicratings.com, jgarzik@pobox.com,
+        mattjreimer@gmail.com, Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+        lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+In-Reply-To: <20060605144456.GA26666@flint.arm.linux.org.uk>
+References: <1149392479501-git-send-email-htejun@gmail.com>
+	 <20060604204444.GF4484@flint.arm.linux.org.uk>
+	 <20060604222347.GG4484@flint.arm.linux.org.uk>
+	 <1149517656.3489.15.camel@mulgrave.il.steeleye.com>
+	 <20060605144456.GA26666@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 10:24:44 -0500
+Message-Id: <1149521085.3489.24.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-06-05 at 15:44 +0100, Russell King wrote:
+> Hence I find your comment "There are two cases where devices kmap a
+> user page into kernel space and then proceed to read from or write to
+> it" to be misleading - at the exact point in time that the device
+> driver is manipulating the data in that page, it is not a user page.
 
------ Original Message ----- 
-From: "Janos Haar" <djani22@netcenter.hu>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, June 05, 2006 12:27 PM
-Subject: critical bug in sata driver ?
+zero copy doesn't quite follow that ownership model.  We don't really do
+anything to block user access to the page while I/O is underway (the
+only time we actually do this is the nopage stuff)  if the user wants do
+do something stupid like write to a page they've asked us to read data
+into, the resulting coherency cockup is their lookout, and which data
+actually ends up in the page undefined.  So, both the user and the
+kernel mappings exist on the page while it's undergoing kmap and
+modification.
 
+However, regardless of whether it's mapped into user space or not, even
+if it were later going to be mapped at a non-congruent user address, the
+kernel mappings have to be flushed to make the data written via them
+visible to the user (and, for a VIPT cache, they have to be flushed
+before the mapping is torn down otherwise we might not have the PTE to
+flush them via ...)
 
-> Hello, list,
->
-> I have a reproducible _software_ bug about sata. (libata?)
->
-> In my system i have 4 nodes, each has 12 hdd.
-> All hw are equal, and 110% tested, and really error free!
->
-> But 2 of my nodes, frequently reboots without and any error message on
-> remote syslog, and netconsole.
-> No oops, no nothing!
-> (loglevel 9)
->
-> Only in serial console can show some time a little clue:
->
-> "ata2: translated ATA stat/err 0x51/40 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata2: status=0x51 { DriveReady SeekComplete Error"
->
-> After this little partial message, the system immediately reboots!
->
-> Thats the all.
->
-> The smart log is clear in _all_ my 48 hdd.
-> Anyway the disk and cable in ata2 port is replaced, but this not helps.
->
-> The kernel 2.6.16.1, 2.6.17-rc3-git1. (now i trying the latest rc and
-git.)
-> (I cannot try the 2.6.16 > kernels, because my sata card are unsupported
-on
-> older versions.)
+James
 
-It happens with the 2.6.17-rc5-git11 too. :-(
-I gets more and more closer to can trigger this problem, and it looks like
-an read error on one of my disks.
-But without the error message, i cannot determine, wich are the tricky hdd.
-
->
-> The dmesg log is  here from my node #1:
-> http://download.netcenter.hu/bughunt/20060605/dmesg.txt
->
-> I have compile the kernel with these debug options:
-> [*] Magic SysRq key
-> [*] Kernel debugging
-> [*]   Collect scheduler statistics
-> [*]   Mutex debugging, deadlock detection
-> [*] Force gcc to inline functions marked 'inline'
-> [*] Check for stack overflows
-> (2) Stack backtraces per line
-> [*] Debug page memory allocations
-> [*] Write protect kernel read-only data structures
->
-> Can somebody find and fix it?
->
-> I can do almost anything to helping to debug!
->
->
-> Thanks,
-> Janos
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

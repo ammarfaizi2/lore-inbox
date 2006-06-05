@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751275AbWFESbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751274AbWFES31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWFESbN (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 14:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWFESbM
+	id S1751274AbWFES31 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 14:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWFES31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 14:31:12 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55454 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751275AbWFESbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 14:31:12 -0400
-Subject: Re: [PATCH 9/9] PCI PM: generic suspend/resume fixes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adam Belay <abelay@novell.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-        linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <1149529685.7831.177.camel@localhost.localdomain>
-References: <1149497178.7831.163.camel@localhost.localdomain>
-	 <1149502891.30554.1.camel@localhost.localdomain>
-	 <1149529685.7831.177.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 05 Jun 2006 19:45:58 +0100
-Message-Id: <1149533158.30554.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+	Mon, 5 Jun 2006 14:29:27 -0400
+Received: from cpe-71-64-120-181.neo.res.rr.com ([71.64.120.181]:12171 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S1751274AbWFES31
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 14:29:27 -0400
+Date: Mon, 5 Jun 2006 14:42:05 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ryan Lortie <desrt@desrt.ca>,
+        linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org, bcollins@ubuntu.com,
+        Greg KH <greg@kroah.com>
+Subject: Re: pci_restore_state
+Message-ID: <20060605184204.GA7534@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+	Ryan Lortie <desrt@desrt.ca>, linux-kernel@vger.kernel.org,
+	mjg59@srcf.ucam.org, bcollins@ubuntu.com, Greg KH <greg@kroah.com>
+References: <1149416010.30767.14.camel@moonpix.desrt.ca> <20060604032746.a5b3e2dd.akpm@osdl.org> <17538.49656.797376.483713@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17538.49656.797376.483713@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-06-05 am 13:48 -0400, ysgrifennodd Adam Belay:
-> disabled before entering D3 (something that we fail to do before this
-> patchset), and the vast majority of devices would end up in this state
-> if we were using pci_set_power_state() in this function.
+On Sun, Jun 04, 2006 at 09:20:24PM +1000, Paul Mackerras wrote:
+> Andrew Morton writes:
+> 
+> > On Sun, 04 Jun 2006 06:13:30 -0400
+> > Ryan Lortie <desrt@desrt.ca> wrote:
+> > > If I reverse the for loop to start from 15 and count down to 0, then the
+> > > majority of the configuration space is filled in _before_ the command
+> > > word is modified.  No crash.
+> > 
+> > We have a patch pending which will do that.
+> > 
+> > http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-03-pci/pci-reverse-pci-config-space-restore-order.patch
+> 
+> We really shouldn't be writing to the BIST register, at least...
+> 
+> Also, I don't quite see the point of writing to the read-only
+> registers such as vendor and device ID.
+> 
+> Paul.
 
-Only if that hardware supports D3 in the first place. That may be the
-thing that is critical. 
+Any comments on this patch as an alternative solution?
 
-> With that in mind, any thoughts on giving this a little time in -mm and
-> seeing how it fares?  If any problems come up, we could revert to a more
-> conservative approach.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114949711413176&w=2
 
-It was a question not an objection. If the spec says it is right then it
-has to be worth trying
-
-Alan
-
+Thanks,
+Adam

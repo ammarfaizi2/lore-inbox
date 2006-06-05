@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750718AbWFEHhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750703AbWFEHso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWFEHhn (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 03:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWFEHhn
+	id S1750703AbWFEHso (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 03:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWFEHso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 03:37:43 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:21136 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750718AbWFEHhm (ORCPT
+	Mon, 5 Jun 2006 03:48:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36241 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750703AbWFEHsn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 03:37:42 -0400
-Date: Mon, 5 Jun 2006 09:37:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-        arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com, Hans Reiser <reiser@namesys.com>
-Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
-Message-ID: <20060605073701.GA28763@elte.hu>
-References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com> <20060604133326.f1b01cfc.akpm@osdl.org> <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu> <20060604213432.GB5898@elte.hu> <986ed62e0606041503v701f8882la4cbead47ae3982f@mail.gmail.com> <20060605065444.GA27445@elte.hu>
+	Mon, 5 Jun 2006 03:48:43 -0400
+Date: Mon, 5 Jun 2006 00:48:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: jeremy@goop.org, linux-kernel@vger.kernel.org, dzickus@redhat.com,
+        ak@suse.de, Miles Lane <miles.lane@gmail.com>
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in
+ arch/i386/kernel/nmi.c:174
+Message-Id: <20060605004823.566b266c.akpm@osdl.org>
+In-Reply-To: <4483DF32.4090608@goop.org>
+References: <4480C102.3060400@goop.org>
+	<4483DF32.4090608@goop.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060605065444.GA27445@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 05 Jun 2006 00:37:22 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+> Jeremy Fitzhardinge wrote:
+> > I'm trying to get suspend/resume working properly on my Thinkpad X60.
+> > This is a dual-core machine, so its running in SMP mode.
+> >
+> > Now that I have a set of patches to make AHCI resume properly, I'm
+> > getting a crash on the second suspend.  I can't get an actual listing of
+> > the oops, but I have a set of screenshots if anyone needs more details.
+> >
+> > The gist is that there's a BUG_ON failing at arch/i386/kernel/nmi.c:174
+> > (BUG_ON(counter > NMI_MAX_COUNTER_BITS)), in release_evntsel_nmi.  The
+> > backtrace is:
+> >
+> >     release_evntsel_nmi
+> >     stop_apci_nmi_watchdog
+> >     on_each_cpu
+> >     disable_lapic_nmi_watchdog
+> >     lapic_nmi_suspend
+> >     sysdev_suspend
+> >     device_power_down
+> >     suspend_enter
+> >     enter_state
+> >     state_store
+> >     subsys_attr_store
+> >     sysfs_write_file
+> >     vfs_write
+> >     sys_write
+> >     sysenter_past_esp
+> 
+> This BUG_ON was introduced by the patch 
+> x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch.
+> 
 
-> +++ linux/fs/reiser4/txnmgr.h
-> @@ -613,7 +613,7 @@ static inline void spin_unlock_txnmgr(tx
->  	LOCK_CNT_DEC(spin_locked_txnmgr);
->  	LOCK_CNT_DEC(spin_locked);
->  
-> -	spin_unlock(&(mgr->tmgr_lock));
-> +	spin_unlock_non_nested(&(mgr->tmgr_lock));
->  }
->  
->  typedef enum {
+http://bugzilla.kernel.org/show_bug.cgi?id=6647 has details.
 
-Btw., this particular annotation also documents a locking/scalability 
-inefficiency. mgr->tmgr_lock is a "global" lock (per superblock it 
-seems), while atom->alock is a more "finegrained" lock.
+Do you think the suspend breakage is related to that patch?
 
-Typical usage: tmgr_lock is used a 'master lock', it's taken, then 
-atom->alock is taken, and then ->tmgr_lock is released. Then code runs 
-under atom->alock, and atom->alock is released finally.
+Miles also reports that every second suspend fails for him.  Miles, does
+'nmi_watchdog=0' make it better?
 
-The scalability problem with such 'master locks' is that they pretty 
-much control scalability, so the scalability advantage of the finer 
-grained lock is reduced (often eliminated). Since access to the finer 
-grained lock goes via the master lock, the master lock cacheline will 
-bounce from CPU to CPU.
-
-A much more scalable design is to get to the finer grained lock in some 
-read-mostly, lockless way, and then take it. This often necessiates the 
-utilization of RCU, but it's well worth it.
-
-There's other kernel code that has been annotated for similar reasons - 
-e.g. the netfilter code makes frequent use of master-locks.
-
-All in one, it's a good idea to document such locking constructs via the 
-_non_nested() annotation. Often they can be eliminated altogether and 
-the code improves. It's not a maintainance problem either, because right 
-now there are only 42 such annotations, out of 46,000+ locking API uses 
-covered by the lock validator.
-
-	Ingo

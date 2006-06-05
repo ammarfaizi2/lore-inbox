@@ -1,116 +1,49 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750741AbWFEXJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750775AbWFEXNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWFEXJR (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 19:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWFEXJR
+	id S1750775AbWFEXNR (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 19:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWFEXNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 19:09:17 -0400
-Received: from father.pmc-sierra.com ([216.241.224.13]:43467 "HELO
-	father.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
-	id S1750741AbWFEXJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 19:09:16 -0400
-Message-ID: <478F19F21671F04298A2116393EEC3D527421F@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-From: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: process starvation with 2.6 scheduler
-Date: Mon, 5 Jun 2006 16:09:01 -0700 
+	Mon, 5 Jun 2006 19:13:17 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25009 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750775AbWFEXNQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 19:13:16 -0400
+Date: Tue, 6 Jun 2006 01:12:33 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Inaky Perez-Gonzalez <inaky@linux.intel.com>, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux UWB and Wireless USB project
+Message-ID: <20060605231233.GJ3469@elf.ucw.cz>
+References: <F989B1573A3A644BAB3920FBECA4D25A063F1984@orsmsx407>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A063F1984@orsmsx407>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> >> UWB is a high-bandwidth, low-power, point-to-point radio
+> >> technology using a wide spectrum (3.1-10.6HGz).  It is
+> >
+> >How much power is low power?
+> 
+> For what I know (and I could be wrong) max is around -40dBm/MHz 
+> in the US. I am no expert in the nitty-gritty radio details, but 
+> I've been told that is 3000 times less emissions than a common 
+> cellphone, around .1 uW? [this is where my knowledge about radio
+> *really* fades].
 
------Original Message-----
-From: Kallol Biswas 
-Sent: Monday, June 05, 2006 4:05 PM
-To: 'linuxppc-dev@ozlabs.org'
-Subject: RE: process starvation with 2.6 scheduler
+Common cellphones are 2W, iirc; (so it would be ~1mW) but I was more
+interested in system power consumption. WIFI is too power intensive
+for a cellphone (mostly). Is this designed to go into cellphones?
+notebooks?
 
-Some more information:
-
-For the active process:
-            Last_ran 0x190458787
-            Timestamp: 0x190458787
-For the starved process:
-            Last_ran: 0x14dc18cfd
-            Timestamp: 0x14dc18cfd
-
------Original Message-----
-From: Kallol Biswas 
-Sent: Monday, June 05, 2006 3:09 PM
-To: 'linuxppc-dev@ozlabs.org'
-Subject: FW: process starvation with 2.6 scheduler
-
-
-
------Original Message-----
-From: Kallol Biswas 
-Sent: Monday, June 05, 2006 2:30 PM
-To: Kallol Biswas; linux-kernel@vger.kernel.org
-Subject: RE: process starvation with 2.6 scheduler
-
-I have checked the per processor run queue data structure (we have only one).
-
-The active process is the in the queue list 118 of the of array[0] and the
-starved process is the queue list 120 of the array[0]. The pointer, active points to array[0] and expired points to array[1].
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Kallol Biswas
-Sent: Monday, June 05, 2006 1:47 PM
-To: linux-kernel@vger.kernel.org
-Subject: process starvation with 2.6 scheduler
-
-
-From: Kallol Biswas 
-Sent: Monday, June 05, 2006 12:49 PM
-To: 'linux-kernel@vger.kernel.org'
-Subject: process starvation with 2.6 scheduler
-
-Hello,
-       We have a process starvation problem with our 2.6.11 kernel running on a ppc-440 based system.
-
-We have a storage SOC based on PPC-440. The SOC is emulated on a system emulator called Palladium. It is from Cadence. The system runs at 400KHz speed. It has three Ethernet ports; they are connected to outside lab network with a speed bridge.
-
-The netperf server netserver runs on the emulated system (2.6.11 kernel on Palladium). There are netperf linux clients running on a x86 box.
-
-If netperf request response (TCP_RR) traffic is run on all three ports; after sometime only one port remains active, the application (netperf client) on other two ports wait for a long time and eventually time out.
-
-The netserver code has been instrumented. For one of the starved netserver processes it has been found that the TCP_RR request from the netperf client on linux x86 box has been received by the server, it has issued send() call to send back reply but send() never returns.
-
-With an ICE connected to the Palladium (emulator) I have dumped the kernel data structures of the starved process and the active process. 
-
-
-For Active  Process:
-  Time_slice 84
-  Policy : SCHED_NORMAL
-  Dynamic priority: 118
-  Static priority: 120
-  Preempt_count: 0x20100
-  Thread_info->flags = 0
-  State = 0 (TASK_RUNNING)
-
-For Starved Process:
-  Time slice: 77
-  Policy: SCHED_NORMAL
-  Dynamic priority: 120
-  Static priority: 120
-  Preempt_count: 0x10000000 (PREEMPT_ACTIVE is set)
-  Thread_info->flags = 0 
-  State = 0 (TASK_RUNNING)
-
-
-
-CONFIG_PREEMPT is not set.
-The system has single CPU.
-
-
-Any help to debug the problem is welcome. 
-
-Kallol
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

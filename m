@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932372AbWFEBrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932389AbWFECgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbWFEBrQ (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 21:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWFEBrQ
+	id S932389AbWFECgp (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 22:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWFECgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 21:47:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20380 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932372AbWFEBrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 21:47:15 -0400
-Date: Sun, 4 Jun 2006 18:47:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: merging new drivers (was Re: 2.6.18 -mm merge plans)
-Message-Id: <20060604184711.0a328d18.akpm@osdl.org>
-In-Reply-To: <20060605013223.GD17361@havoc.gtf.org>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	<20060605013223.GD17361@havoc.gtf.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 Jun 2006 22:36:45 -0400
+Received: from naig.caltech.edu ([131.215.239.125]:58032 "EHLO
+	naig.caltech.edu") by vger.kernel.org with ESMTP id S932389AbWFECgo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 22:36:44 -0400
+Date: Sun, 4 Jun 2006 19:36:35 -0700 (PDT)
+Message-Id: <200606050236.k552aZlV009052@naig.caltech.edu>
+XMessage-Id: <50372335.02297@AlbauiRichmond@wikipedia.org> 
+From: "Clayton Lozano" <AlbauiRichmond@wikipedia.org>
+To: "Mlist-linux-kernel" <mlist-linux-kernel@nntp-server.caltech.edu>
+Subject: Re: Reply
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 21:32:23 -0400
-Jeff Garzik <jeff@garzik.org> wrote:
+Life Should be Full of Luxuries....
 
-> On Sun, Jun 04, 2006 at 01:50:11PM -0700, Andrew Morton wrote:
-> > areca-raid-linux-scsi-driver.patch
-> 
-> >   I'm going to start sending the Areca driver to James, too.  The vendor
-> >   has worked hard and the hardware is becoming more important - let's help
-> >   them get it in.
-> 
-> 
-> In general, I'm a bit disappointed at the time it takes new drivers to
-> reach the upstream kernel.  I grant that a lot of vendor drivers are
-> unreadable, unmergable shite...  but on the other side of the coin, I
-> see a lot of decent drivers get stalled simply because they aren't
-> perfect.
-> 
-> I would rather see a driver get "95% there" -- because once a driver is
-> merged into the upstream kernel, it has a lot more visibility, and will
-> inevitably receive the remaining changes and cleanups anyway.
-> 
+http://pleasegimmiepancakez.com/
 
-Yes, I agree.  As long as we reasonably think that a piece of code *will*
-become acceptable within a reasonable amount of time then going early is
-safe.
+Yet, only a handful of people can afford the finest products, the luxuries of the elite.
+But, here at "Luxury Replica" we are committed to bringing you the finest products, at prices incomparably lower.
+All of the top designer brands for Watches, Ties, Handbags and even Mont Blanc.
 
-A large part of that calculation is non-technical: do we believe that the
-originator will do the work to get things finished off.  Often, that's a
-pretty easy call to make.
+http://pleasegimmiepancakez.com/
+
+The finest of products, at the lowest of prices,:
+
+http://pleasegimmiepancakez.com/
+
+Regards,
+Eldon Lockhart

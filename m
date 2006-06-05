@@ -1,33 +1,56 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932442AbWFEHVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750717AbWFEHeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWFEHVs (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 03:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWFEHVs
+	id S1750717AbWFEHeq (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 03:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWFEHeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 03:21:48 -0400
-Received: from gw.goop.org ([64.81.55.164]:35491 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932442AbWFEHVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 03:21:48 -0400
-Message-ID: <4483DB86.2070908@goop.org>
-Date: Mon, 05 Jun 2006 00:21:42 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Mon, 5 Jun 2006 03:34:46 -0400
+Received: from wx-out-0102.google.com ([66.249.82.202]:3506 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750717AbWFEHeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 03:34:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=N6IbksWbu8Sy7B9znpnjtpnlKpcZioAmnWzZCy2Xxo0cmCk2TKijK9ViILaKkLhpkh5ce6KneSOwxNRzvWA2QrFHvKgzFhFAc46pYPr2ipj1owel4Goy35+vRdC+Qkjjk8psXwJrY0FgnButYa6feahRRqhpgcNH4ppMQ5218Qk=
+Message-ID: <a44ae5cd0606050034p288424cbs329575c16421a459@mail.gmail.com>
+Date: Mon, 5 Jun 2006 00:34:45 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-rc5-mm3 -- Various section mismatches in processor.o, wistron_btns.o and jffs2.o
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@redhat.com
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-References: <4480C102.3060400@goop.org> <200606041347.26853.rjw@sisk.pl>
-In-Reply-To: <200606041347.26853.rjw@sisk.pl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> Well, this looks like a tough one.  Could you please create a bugzilla entry
-> with all of the relevant information?
->   
-OK, http://bugzilla.kernel.org/show_bug.cgi?id=6647
+I know Andrew has said there are thousands of these warnings,
+but I wasn't clear whether that meant I should not report them.
+The ones shown below haven't been mentioned by others on
+LKML for recent MM kernel trees, afaics.
 
-    J
+WARNING: drivers/acpi/processor.o - Section mismatch: reference to
+.init.data: from .text between 'acpi_processor_power_init' (at offset
+0x142f) and 'acpi_processor_cst_has_changed'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch:
+reference to .init.text:dmi_matched from .data between 'dmi_ids' (at
+offset 0x120) and 'keymap_aopen_1559as'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch:
+reference to .init.text:dmi_matched from .data between 'dmi_ids' (at
+offset 0x14c) and 'keymap_aopen_1559as'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch:
+reference to .init.text:dmi_matched from .data between 'dmi_ids' (at
+offset 0x178) and 'keymap_aopen_1559as'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch:
+reference to .init.text:dmi_matched from .data between 'dmi_ids' (at
+offset 0x1a4) and 'keymap_aopen_1559as'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch:
+reference to .init.text:dmi_matched from .data between 'dmi_ids' (at
+offset 0x1d0) and 'keymap_aopen_1559as'
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch:
+reference to .init.text:dmi_matched from .data between 'dmi_ids' (at
+offset 0x1fc) and 'keymap_aopen_1559as'
+WARNING: fs/jffs2/jffs2.o - Section mismatch: reference to
+.exit.text:jffs2_zlib_exit from .text between 'jffs2_compressors_exit'
+(at offset 0x88) and 'jffs2_decompress'

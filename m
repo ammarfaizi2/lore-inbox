@@ -1,73 +1,106 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751387AbWFEUFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751405AbWFEUMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWFEUFf (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWFEUFf
+	id S1751405AbWFEUMl (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWFEUMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:05:35 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:23189 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751394AbWFEUFe (ORCPT
+	Mon, 5 Jun 2006 16:12:40 -0400
+Received: from mail.gmx.de ([213.165.64.20]:31680 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751406AbWFEUMj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:05:34 -0400
-Date: Mon, 5 Jun 2006 13:05:02 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andy Whitcroft <apw@shadowen.org>
-cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-        mbligh@google.com, linux-kernel@vger.kernel.org, ak@suse.de,
-        Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <44848DD2.7010506@shadowen.org>
-Message-ID: <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org>
- <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org>
- <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org>
- <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
- <44848DD2.7010506@shadowen.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jun 2006 16:12:39 -0400
+X-Authenticated: #704063
+Subject: [Patch] Zoran strncpy() cleanup
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: bdirks@pacbell.net
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 22:12:37 +0200
+Message-Id: <1149538357.16994.7.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jun 2006, Andy Whitcroft wrote:
+hi,
 
-> 
-> Adding 65528k swap on ./swapfile01.  Priority:-2 extents:116 across:360044k
-> Adding 65528k swap on ./swapfile01.  Priority:-3 extents:104 across:569492k
-> Adding 65528k swap on ./swapfile01.  Priority:-4 extents:172 across:520952k
-> Unable to find swap-space signature
-> Adding 32k swap on swapfile02.  Priority:-5 extents:2 across:60k
-> Adding 32k swap on swapfile03.  Priority:-6 extents:1 across:32k
-> Adding 32k swap on swapfile04.  Priority:-7 extents:1 across:32k
-> Adding 32k swap on swapfile05.  Priority:-8 extents:3 across:44k
-> Adding 32k swap on swapfile06.  Priority:-9 extents:1 across:32k
-> Adding 32k swap on swapfile07.  Priority:-10 extents:1 across:32k
-> Adding 32k swap on swapfile08.  Priority:-11 extents:1 across:32k
-> Adding 32k swap on swapfile09.  Priority:-12 extents:1 across:32k
-> Adding 32k swap on swapfile10.  Priority:-13 extents:1 across:32k
-> Adding 32k swap on swapfile11.  Priority:-14 extents:1 across:32k
-> Adding 32k swap on swapfile12.  Priority:-15 extents:1 across:32k
-> Adding 32k swap on swapfile13.  Priority:-16 extents:1 across:32k
-> Adding 32k swap on swapfile14.  Priority:-17 extents:1 across:32k
-> Adding 32k swap on swapfile15.  Priority:-18 extents:1 across:32k
-> Adding 32k swap on swapfile16.  Priority:-19 extents:1 across:32k
-> Adding 32k swap on swapfile17.  Priority:-20 extents:1 across:32k
-> Adding 32k swap on swapfile18.  Priority:-21 extents:1 across:32k
-> Adding 32k swap on swapfile19.  Priority:-22 extents:1 across:32k
-> Adding 32k swap on swapfile20.  Priority:-23 extents:1 across:32k
-> Adding 32k swap on swapfile21.  Priority:-24 extents:1 across:32k
-> Adding 32k swap on swapfile22.  Priority:-25 extents:1 across:32k
-> Adding 32k swap on swapfile23.  Priority:-26 extents:1 across:32k
-> Adding 32k swap on swapfile24.  Priority:-27 extents:1 across:32k
-> Adding 32k swap on swapfile25.  Priority:-28 extents:1 across:32k
-> Adding 32k swap on swapfile26.  Priority:-29 extents:1 across:32k
-> Adding 32k swap on swapfile27.  Priority:-30 extents:1 across:32k
-> Adding 32k swap on swapfile28.  Priority:-31 extents:1 across:32k
-> Adding 32k swap on swapfile29.  Priority:-32 extents:1 across:32k
-> Adding 32k swap on swapfile30.  Priority:-33 extents:1 across:32k
-> Adding 32k swap on swapfile31.  Priority:-34 extents:1 across:32k
-> Adding 32k swap on swapfile32.  Priority:-35 extents:1 across:32k
+this was spotted by coverity ( bug id #536 ). While
+it is not really a bug, i think we should clean it up.
+std->name can only hold 24 chars, not 32 as the strncpy() calls
+suggest. std->name can hold 32 chars, but since we use constant
+fixed-sized strings, which will always fit into these arrays, i changed
+the strncpy() calls to strcpy(). If you prefer strncpy(foo->name, "bar", sizeof(foo->name))
+please let me know and i redo the patch.
 
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-That should not work at all. It should bomb out at 30 swap files with page 
-migration on.
+--- linux-2.6.17-rc5/drivers/media/video/zoran_driver.c.orig	2006-06-05 22:06:42.000000000 +0200
++++ linux-2.6.17-rc5/drivers/media/video/zoran_driver.c	2006-06-05 22:08:50.000000000 +0200
+@@ -3566,16 +3566,16 @@ zoran_do_ioctl (struct inode *inode,
+ 
+ 		switch (ctrl->id) {
+ 		case V4L2_CID_BRIGHTNESS:
+-			strncpy(ctrl->name, "Brightness", 31);
++			strcpy(ctrl->name, "Brightness");
+ 			break;
+ 		case V4L2_CID_CONTRAST:
+-			strncpy(ctrl->name, "Contrast", 31);
++			strcpy(ctrl->name, "Contrast");
+ 			break;
+ 		case V4L2_CID_SATURATION:
+-			strncpy(ctrl->name, "Saturation", 31);
++			strcpy(ctrl->name, "Saturation");
+ 			break;
+ 		case V4L2_CID_HUE:
+-			strncpy(ctrl->name, "Hue", 31);
++			strcpy(ctrl->name, "Hue");
+ 			break;
+ 		}
+ 
+@@ -3693,7 +3693,7 @@ zoran_do_ioctl (struct inode *inode,
+ 					&caps);
+ 			if (caps.flags & VIDEO_DECODER_AUTO) {
+ 				std->id = V4L2_STD_ALL;
+-				strncpy(std->name, "Autodetect", 31);
++				strcpy(std->name, "Autodetect");
+ 				return 0;
+ 			} else
+ 				return -EINVAL;
+@@ -3701,21 +3701,21 @@ zoran_do_ioctl (struct inode *inode,
+ 		switch (std->index) {
+ 		case 0:
+ 			std->id = V4L2_STD_PAL;
+-			strncpy(std->name, "PAL", 31);
++			strcpy(std->name, "PAL");
+ 			std->frameperiod.numerator = 1;
+ 			std->frameperiod.denominator = 25;
+ 			std->framelines = zr->card.tvn[0]->Ht;
+ 			break;
+ 		case 1:
+ 			std->id = V4L2_STD_NTSC;
+-			strncpy(std->name, "NTSC", 31);
++			strcpy(std->name, "NTSC");
+ 			std->frameperiod.numerator = 1001;
+ 			std->frameperiod.denominator = 30000;
+ 			std->framelines = zr->card.tvn[1]->Ht;
+ 			break;
+ 		case 2:
+ 			std->id = V4L2_STD_SECAM;
+-			strncpy(std->name, "SECAM", 31);
++			strcpy(std->name, "SECAM");
+ 			std->frameperiod.numerator = 1;
+ 			std->frameperiod.denominator = 25;
+ 			std->framelines = zr->card.tvn[2]->Ht;
+@@ -3871,7 +3871,7 @@ zoran_do_ioctl (struct inode *inode,
+ 		memset(outp, 0, sizeof(*outp));
+ 		outp->index = 0;
+ 		outp->type = V4L2_OUTPUT_TYPE_ANALOGVGAOVERLAY;
+-		strncpy(outp->name, "Autodetect", 31);
++		strcpy(outp->name, "Autodetect");
+ 
+ 		return 0;
+ 	}
+
 

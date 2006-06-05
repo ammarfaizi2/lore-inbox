@@ -1,114 +1,96 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750735AbWFEUgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750761AbWFEUoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWFEUgP (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWFEUgP
+	id S1750761AbWFEUoq (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWFEUoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:36:15 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:34753
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750730AbWFEUgO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:36:14 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
-Date: Mon, 5 Jun 2006 22:35:28 +0200
-User-Agent: KMail/1.9.1
-References: <20060605201818.1239938CE036@bu3sch.de>
-In-Reply-To: <20060605201818.1239938CE036@bu3sch.de>
-Cc: Greg KH <gregkh@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
-        netdev@vger.kernel.org, mb@bu3sch.de, st3@riseup.net,
-        linville@tuxdriver.com
-MIME-Version: 1.0
+	Mon, 5 Jun 2006 16:44:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54749 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750761AbWFEUop (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:44:45 -0400
+Date: Mon, 5 Jun 2006 13:44:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: mbligh@google.com, apw@shadowen.org, mbligh@mbligh.org,
+        linux-kernel@vger.kernel.org, ak@suse.de, hugh@veritas.com,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: 2.6.17-rc5-mm1
+Message-Id: <20060605134425.0a539836.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
+References: <447DEF49.9070401@google.com>
+	<20060531140652.054e2e45.akpm@osdl.org>
+	<447E093B.7020107@mbligh.org>
+	<20060531144310.7aa0e0ff.akpm@osdl.org>
+	<447E104B.6040007@mbligh.org>
+	<447F1702.3090405@shadowen.org>
+	<44842C01.2050604@shadowen.org>
+	<Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
+	<44848DD2.7010506@shadowen.org>
+	<Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
+	<44848F45.1070205@shadowen.org>
+	<44849075.5070802@google.com>
+	<Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200606052235.28687.mb@bu3sch.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 June 2006 22:18, Jiri Slaby wrote:
-> bcm43xx avoid pci_find_device
-> 
-> Change pci_find_device to safer pci_get_device with support for more
-> devices.
+On Mon, 5 Jun 2006 13:27:11 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-I am wondering about the reference count.
->From docbook:
-
-256  * pci_get_device - begin or continue searching for a PCI device by vendor/device id
-257  * @vendor: PCI vendor id to match, or %PCI_ANY_ID to match all vendor ids
-258  * @device: PCI device id to match, or %PCI_ANY_ID to match all device ids
-259  * @from: Previous PCI device found in search, or %NULL for new search.
-260  *
-261  * Iterates through the list of known PCI devices.  If a PCI device is
-262  * found with a matching @vendor and @device, the reference count to the
-                                                      ^^^^^^^^^^^^^^^^^^^^^^
-263  * device is incremented and a pointer to its device structure is returned.
-       ^^^^^^^^^^^^^^^^^^^^^
-264  * Otherwise, %NULL is returned.  A new search is initiated by passing %NULL
-265  * to the @from argument.  Otherwise if @from is not %NULL, searches continue
-266  * from next device on the global list.  The reference count for @from is
-267  * always decremented if it is not %NULL.
-
-Who is going to decrement it, once the device is not used anymore.
-"not used anymore" is ifconfig down in the case of bcm43xx.
-You will call pci_get_device on each ifconfig up.
-
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 > 
-> ---
-> commit 4b73c16f5411d97360d5f26f292ffddeb670ff75
-> tree 6e43c8bd02498eb1ceec6bdc64277fa8408da9e2
-> parent d59f9ea8489749f59cd0c7333a4784cab964daa8
-> author Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:03 +0159
-> committer Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:03 +0159
+> > Either way, random panics are not the appropriate response ;-)
+> > 
+> > if it can't cope with that, why isn't it failing the request ???
 > 
->  drivers/net/wireless/bcm43xx/bcm43xx_main.c |   21 ++++++++++++++++-----
->  1 files changed, 16 insertions(+), 5 deletions(-)
+> There is a crappy test in swap_on(). It should check against MAX_SWAPFILES 
+> and not do this conversion back and forth. Some architectures may not 
+> check if we are beyond the boundaries of what a swap entry can take.
 > 
-> diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-> index 22b8fa6..d1a9975 100644
-> --- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-> +++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-> @@ -2133,6 +2133,13 @@ out:
->  	return err;
->  }
+> Why is this strange this in there? Are there architectures that support 
+> less than 32 swap devices?
+> 
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
+> Index: linux-2.6.17-rc5-mm2/mm/swapfile.c
+> ===================================================================
+> --- linux-2.6.17-rc5-mm2.orig/mm/swapfile.c	2006-06-01 10:03:07.127259731 -0700
+> +++ linux-2.6.17-rc5-mm2/mm/swapfile.c	2006-06-05 13:24:56.000823157 -0700
+> @@ -1384,6 +1384,9 @@ asmlinkage long sys_swapon(const char __
+>  	struct inode *inode = NULL;
+>  	int did_down = 0;
 >  
-> +#ifdef CONFIG_BCM947XX
-> +static struct pci_device_id bcm43xx_47xx_ids[] = {
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4324) },
-> +	{ 0 }
-> +};
-> +#endif
+> +	if (nr_swapfiles >= MAX_SWAPFILES)
+> +		return -E2BIG;
 > +
->  static int bcm43xx_initialize_irq(struct bcm43xx_private *bcm)
->  {
->  	int res;
-> @@ -2142,11 +2149,15 @@ static int bcm43xx_initialize_irq(struct
->  	bcm->irq = bcm->pci_dev->irq;
->  #ifdef CONFIG_BCM947XX
->  	if (bcm->pci_dev->bus->number == 0) {
-> -		struct pci_dev *d = NULL;
-> -		/* FIXME: we will probably need more device IDs here... */
-> -		d = pci_find_device(PCI_VENDOR_ID_BROADCOM, 0x4324, NULL);
-> -		if (d != NULL) {
-> -			bcm->irq = d->irq;
-> +		struct pci_dev *d;
-> +		struct pci_device_id *id;
-> +		for (id = bcm43xx_47xx_ids; id->vendor; id++) {
-> +			d = pci_get_device(id->vendor, id->device, NULL);
-> +			if (d != NULL) {
-> +				bcm->irq = d->irq;
-> +				pci_dev_put(d);
-> +				break;
-> +			}
->  		}
->  	}
->  #endif
-> 
+>  	if (!capable(CAP_SYS_ADMIN))
+>  		return -EPERM;
+>  	spin_lock(&swap_lock);
+> @@ -1392,22 +1395,6 @@ asmlinkage long sys_swapon(const char __
+>  		if (!(p->flags & SWP_USED))
+>  			break;
+>  	error = -EPERM;
+> -	/*
+> -	 * Test if adding another swap device is possible. There are
+> -	 * two limiting factors: 1) the number of bits for the swap
+> -	 * type swp_entry_t definition and 2) the number of bits for
+> -	 * the swap type in the swap ptes as defined by the different
+> -	 * architectures. To honor both limitations a swap entry
+> -	 * with swap offset 0 and swap type ~0UL is created, encoded
+> -	 * to a swap pte, decoded to a swp_entry_t again and finally
+> -	 * the swap type part is extracted. This will mask all bits
+> -	 * from the initial ~0UL that can't be encoded in either the
+> -	 * swp_entry_t or the architecture definition of a swap pte.
+> -	 */
+> -	if (type > swp_type(pte_to_swp_entry(swp_entry_to_pte(swp_entry(~0UL,0))))) {
+> -		spin_unlock(&swap_lock);
+> -		goto out;
+> -	}
+>  	if (type >= nr_swapfiles)
+>  		nr_swapfiles = type+1;
+>  	INIT_LIST_HEAD(&p->extent_list);
 
--- 
-Greetings Michael.
+Added writer-of-crappy-tests@de.ibm.com to cc.

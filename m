@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751126AbWFENov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751114AbWFENmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWFENov (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 09:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWFENov
+	id S1751114AbWFENmM (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 09:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWFENmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 09:44:51 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:61589 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751113AbWFENou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 09:44:50 -0400
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug, take 2
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
-        Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
-        james.steward@dynamicratings.com, jgarzik@pobox.com,
-        mattjreimer@gmail.com, Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-        lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-In-Reply-To: <20060604204444.GF4484@flint.arm.linux.org.uk>
-References: <1149392479501-git-send-email-htejun@gmail.com>
-	 <20060604204444.GF4484@flint.arm.linux.org.uk>
+	Mon, 5 Jun 2006 09:42:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27044 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751097AbWFENmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 09:42:11 -0400
+Subject: Re: wireless (was Re: 2.6.18 -mm merge plans)
+From: Arjan van de Ven <arjan@infradead.org>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jeff@garzik.org>,
+        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org
+In-Reply-To: <20060605132732.GA23350@tuxdriver.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	 <20060605010636.GB17361@havoc.gtf.org>
+	 <20060605085451.GA26766@infradead.org>
+	 <20060605132732.GA23350@tuxdriver.com>
 Content-Type: text/plain
-Date: Mon, 05 Jun 2006 08:43:52 -0500
-Message-Id: <1149515032.3489.4.camel@mulgrave.il.steeleye.com>
+Date: Mon, 05 Jun 2006 15:42:04 +0200
+Message-Id: <1149514924.3111.72.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-04 at 21:44 +0100, Russell King wrote:
-> > I tried to implement flush_anon_page() too but didn't know what to
-> do
-> > with anon_vma object.
+
+> Of course, I didn't know there were serious concerns about this
+> driver's origin.  I hope we aren't confusing this with the atheros
+> driver...?
 > 
-> I'm not sure what this is about...
+> > Please don't let this reverse engineering idiocy hinder wireless driver
+> > adoption, we're already falling far behind openbsd who are very successfull
+> > reverse engineering lots of wireless chipsets.
+> 
+> This bugbear does seem to keep visiting us.  It is a bit of a
+> minefield.
+> 
+> I'm inclined to think that Christoph and Arjan are right, that we
+> have been too cautious.  Of course, neither of these fine gentlemen
+> are known for their timidity... :-)
+> 
+> Does not the Signed-off-by: line on a patch submission give us some
+> level of "good faith" protection?
 
-This was for fuse on parisc.  It should have no bearing on the current
-IDE problem.  What it's trying to solve is the fact that
-flush_dcache_page() doesn't necessarily flush anonymous pages (because
-of the way the mappings list works).  However, in order to make an
-anonymous page in user space visible via the kernel address, we have to
-have it flushed (this is what fuse does to transfer data into pages).
-So this API was introduced into the right places to permit that to
-happen.   Most VIPT architectures are CAM based, so flush_dcache_page()
-actually sweeps up all the anon pages as well.  However, if the
-implementation (like parisc's) has to loop over page_mapping(page) then
-it will likely need to implement flush_anon_page() for fuse to work.
+I would suggest asking them an explicit "did you copy anything" and make
+sure their "we didn't copy" answer is in the description of the original
+patch submission.
+> 
+> I'm tempted to take contributors at their word, that they have produced
+> their own work and not copied from others.  What else do we need?
 
-James
-
+to a large degree that's all you can do. (of course you can look at the
+code for something that looks "obviously not from here" as well, and we
+all tend to do that anyway since such stuff tends to highly violate
+coding style anyway)
 

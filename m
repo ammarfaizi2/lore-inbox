@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750775AbWFEXNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750789AbWFEXNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWFEXNR (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 19:13:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWFEXNR
+	id S1750789AbWFEXNh (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 19:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFEXNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 19:13:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25009 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750775AbWFEXNQ (ORCPT
+	Mon, 5 Jun 2006 19:13:37 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:6818 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750789AbWFEXNg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 19:13:16 -0400
-Date: Tue, 6 Jun 2006 01:12:33 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Inaky Perez-Gonzalez <inaky@linux.intel.com>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux UWB and Wireless USB project
-Message-ID: <20060605231233.GJ3469@elf.ucw.cz>
-References: <F989B1573A3A644BAB3920FBECA4D25A063F1984@orsmsx407>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A063F1984@orsmsx407>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 5 Jun 2006 19:13:36 -0400
+Subject: Re: [patch-rt 1/2] Remove existing time code from ARM architecture
+From: john stultz <johnstul@us.ibm.com>
+To: dsaxena@plexity.net
+Cc: mingo@elte.hu, tglx@linutronix.de, dwalker@mvista.com,
+        james.perkins@windriver.com, linux-kernel@vger.kernel.org,
+        rmk@arm.linux.org.uk, khilman@mvista.com
+In-Reply-To: <20060605224438.054796000@localhost.localdomain>
+References: <20060605222956.608067000@localhost.localdomain>
+	 <20060605224438.054796000@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 16:13:32 -0700
+Message-Id: <1149549212.11470.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-06-05 at 15:29 -0700, dsaxena@plexity.net wrote:
+> plain text document attachment (arm-generic-timeofday.patch)
+> This patch removes do_gettimeofday(), do_setttimeofday() and associated
+> time functions from ARM so that it can use the generic time-of-day code.
+> Each sub-arch must explicitly enable CONFIG_IS_TICK_BASED if it does
+> not have continous timer source.
 
-> >> UWB is a high-bandwidth, low-power, point-to-point radio
-> >> technology using a wide spectrum (3.1-10.6HGz).  It is
-> >
-> >How much power is low power?
-> 
-> For what I know (and I could be wrong) max is around -40dBm/MHz 
-> in the US. I am no expert in the nitty-gritty radio details, but 
-> I've been told that is 3000 times less emissions than a common 
-> cellphone, around .1 uW? [this is where my knowledge about radio
-> *really* fades].
+It might be good to define CONFIG_IS_TICK_BASED for the other ARM arches
+so they continue to build after your changes. Otherwise it looks good to
+me.
 
-Common cellphones are 2W, iirc; (so it would be ~1mW) but I was more
-interested in system power consumption. WIFI is too power intensive
-for a cellphone (mostly). Is this designed to go into cellphones?
-notebooks?
+Another aside: CONFIG_IS_TICK_BASED also goes away w/ the Cx series. So
+there you will want to conditionally enable GENERIC_TIME if you have a
+clocksources defined and just wrap the old get/set_timeofday() w/ ifndef
+CONFIG_GENERIC_TIME until all the sub-arches have been converted. Don't
+worry too much, I'll lend a hand here when the time comes to update -rt,
+so it shouldn't be much of an issue.
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+thanks
+-john
+

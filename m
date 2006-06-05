@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751156AbWFEOsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751169AbWFEOrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWFEOsb (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 10:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWFEOsa
+	id S1751169AbWFEOrs (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 10:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWFEOrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 10:48:30 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:32739 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751156AbWFEOs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 10:48:29 -0400
-Subject: Re: [PATCH] Use ld's garbage collection feature
-From: David Woodhouse <dwmw2@infradead.org>
-To: Marcelo Tosatti <marcelo@kvack.org>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>
-In-Reply-To: <20060605143636.GB2878@dmt>
-References: <20060605003152.GA1364@dmt>
-	 <1149501822.30024.59.camel@pmac.infradead.org>  <20060605143636.GB2878@dmt>
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 15:48:25 +0100
-Message-Id: <1149518905.30024.142.camel@pmac.infradead.org>
+	Mon, 5 Jun 2006 10:47:48 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:46085 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751165AbWFEOrq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 10:47:46 -0400
+Date: Mon, 5 Jun 2006 10:47:26 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jirka Lenost Benc <jbenc@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+        pe1rxq@amsat.org
+Subject: Re: move zd1201 where it belongs
+Message-ID: <20060605144722.GA6068@tuxdriver.com>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Jirka Lenost Benc <jbenc@suse.cz>,
+	kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+	pe1rxq@amsat.org
+References: <20060605103952.GA1670@elf.ucw.cz> <1149506120.3111.52.camel@laptopd505.fenrus.org> <20060605113332.GB2132@elf.ucw.cz> <20060605141322.GB23350@tuxdriver.com> <20060605142912.GF2132@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060605142912.GF2132@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-05 at 11:36 -0300, Marcelo Tosatti wrote:
-> On Mon, Jun 05, 2006 at 11:03:42AM +0100, David Woodhouse wrote:
-> > On Sun, 2006-06-04 at 21:31 -0300, Marcelo Tosatti wrote:
-> > > +cflags-$(CONFIG_GCSECTIONS) += -ffunction-sections
-> > 
-> > Any reason you didn't also use -fdata-sections? 
+On Mon, Jun 05, 2006 at 04:29:12PM +0200, Pavel Machek wrote:
+
+> > Did you mean to only copy Jiri and LKML?
 > 
-> Not really - will try. 
+> Yes, because this should go in as a git patch (so it is move, not
+> create new file), and I was hoping for Jiri to generate proper
+> git-patch :-).
 
-Btw, I filed two gcc bugs for the (first) things which prevent us from
-building stuff like filesystems with something like 
-'gcc -fwhole-program --combine fs/jffs2/*.c'
+Ah, I see.  Well, I can handle this just fine.
 
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=27898
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=27899
+Thanks,
 
+John
 -- 
-dwmw2
-
+John W. Linville
+linville@tuxdriver.com

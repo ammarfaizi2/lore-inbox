@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750896AbWFEK1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750893AbWFEK1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbWFEK1u (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 06:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWFEK1t
+	id S1750893AbWFEK1g (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 06:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWFEK1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 06:27:49 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:30112 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750894AbWFEK1s (ORCPT
+	Mon, 5 Jun 2006 06:27:36 -0400
+Received: from ns.dynamicweb.hu ([195.228.155.139]:5802 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1750892AbWFEK1f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 06:27:48 -0400
-Date: Mon, 5 Jun 2006 12:27:46 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Ben Collins <bcollins@ubuntu.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Updated v3]: How to become a kernel driver maintainer
-In-Reply-To: <1149284317.4533.312.camel@grayson>
-Message-ID: <Pine.LNX.4.61.0606051218590.31612@yvahk01.tjqt.qr>
-References: <1136736455.24378.3.camel@grayson> <1136756756.1043.20.camel@grayson>
- <1136792769.2936.13.camel@laptopd505.fenrus.org> <1136813649.1043.30.camel@grayson>
- <1136842100.2936.34.camel@laptopd505.fenrus.org> <1141841013.24202.194.camel@grayson>
- <9a8748490603081105i3468fa84haac329d1e50faed4@mail.gmail.com>
- <1141845047.12175.7.camel@laptopd505.fenrus.org>
- <9a8748490603081127r1b830c5bg94f42e021e2a2d58@mail.gmail.com>
- <1149284317.4533.312.camel@grayson>
+	Mon, 5 Jun 2006 06:27:35 -0400
+Message-ID: <011c01c6888a$a0a881a0$1800a8c0@dcccs>
+From: "Janos Haar" <djani22@netcenter.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: critical bug in sata driver ?
+Date: Mon, 5 Jun 2006 12:27:15 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, list,
 
->With the large amount of hardware available for Linux, it's becoming
->
-I do not know about LK customs, but in school we were always forced to write
-truncations out ("it is" rather than "it's").
+I have a reproducible _software_ bug about sata. (libata?)
 
->Some even see it as giving up control of their code. This is simply not the
->case, and the end result is always beneficial to users and developers alike.
->
-Frankly, they have to give up their coding style. A common style
-throughout the kernel is reasonable, though. But in some aspects
-it really gets nitpicky (spaces vs tabs to name one).
+In my system i have 4 nodes, each has 12 hdd.
+All hw are equal, and 110% tested, and really error free!
 
->The code review process is there for two reasons. First, it ensures that
->only good code, that follows current API's and coding practices, gets into
+But 2 of my nodes, frequently reboots without and any error message on
+remote syslog, and netconsole.
+No oops, no nothing!
+(loglevel 9)
 
-Should read: "that follows current APIs"
+Only in serial console can show some time a little clue:
 
->locking issues as well as big-endian/little-endian and 64-bit portability.
+"ata2: translated ATA stat/err 0x51/40 to SCSI SK/ASC/ASCQ 0x3/11/04
+ata2: status=0x51 { DriveReady SeekComplete Error"
 
-Suggestion: "as well as endianness and ..."
+After this little partial message, the system immediately reboots!
+
+Thats the all.
+
+The smart log is clear in _all_ my 48 hdd.
+Anyway the disk and cable in ata2 port is replaced, but this not helps.
+
+The kernel 2.6.16.1, 2.6.17-rc3-git1. (now i trying the latest rc and git.)
+(I cannot try the 2.6.16 > kernels, because my sata card are unsupported on
+older versions.)
+
+The dmesg log is  here from my node #1:
+http://download.netcenter.hu/bughunt/20060605/dmesg.txt
+
+I have compile the kernel with these debug options:
+[*] Magic SysRq key
+[*] Kernel debugging
+[*]   Collect scheduler statistics
+[*]   Mutex debugging, deadlock detection
+[*] Force gcc to inline functions marked 'inline'
+[*] Check for stack overflows
+(2) Stack backtraces per line
+[*] Debug page memory allocations
+[*] Write protect kernel read-only data structures
+
+Can somebody find and fix it?
+
+I can do almost anything to helping to debug!
 
 
+Thanks,
+Janos
 
-Jan Engelhardt
--- 

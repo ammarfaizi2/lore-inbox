@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750723AbWFEIEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750725AbWFEINA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWFEIEt (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 04:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWFEIEt
+	id S1750725AbWFEINA (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 04:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWFEINA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 04:04:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:59570 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750723AbWFEIEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 04:04:48 -0400
-Subject: Re: 2.6.17-rc5-mm3
-From: Arjan van de Ven <arjan@infradead.org>
-To: "J.A." =?ISO-8859-1?Q?Magall=F3n?= <jamagallon@ono.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060605011531.0bfe67db@werewolf.auna.net>
-References: <20060603232004.68c4e1e3.akpm@osdl.org>
-	 <20060605011531.0bfe67db@werewolf.auna.net>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 05 Jun 2006 10:04:42 +0200
-Message-Id: <1149494682.3111.14.camel@laptopd505.fenrus.org>
+	Mon, 5 Jun 2006 04:13:00 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:51635 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750725AbWFEINA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 04:13:00 -0400
+Date: Mon, 5 Jun 2006 10:12:20 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+        arjan@linux.intel.com, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com, Hans Reiser <reiser@namesys.com>
+Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
+Message-ID: <20060605081220.GA30123@elte.hu>
+References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com> <20060604133326.f1b01cfc.akpm@osdl.org> <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu> <20060604213432.GB5898@elte.hu> <986ed62e0606041503v701f8882la4cbead47ae3982f@mail.gmail.com> <20060605065444.GA27445@elte.hu> <986ed62e0606050058v21b457a7tb4da4da62cb7e4e3@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <986ed62e0606050058v21b457a7tb4da4da62cb7e4e3@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5971]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-05 at 01:15 +0200, J.A. Magallón wrote:
-> On Sat, 3 Jun 2006 23:20:04 -0700, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/
-> > 
-> > - Lots of PCI and USB updates
-> > 
-> > - The various lock validator, stack backtracing and IRQ management problems
-> >   are converging, but we're not quite there yet.
-> > 
-> 
-> Got this on boot. Looks like another locking bug in firewire:
-> 
-> ACPI: PCI Interrupt 0000:03:03.0[A] -> GSI 20 (level, low) -> IRQ 20
-> ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[20]  MMIO=[ec024000-ec0247ff]  Max Packet=[2048]  IR/IT contexts=[4/8]
-> stopped custom tracer.
-> 
-> ============================
-> [ BUG: illegal lock usage! ]
-> ----------------------------
-> illegal {hardirq-on-W} -> {in-hardirq-R} usage.
-> idle/0 [HC1[1]:SC1[0]:HE0:SE0] takes:
->  (hl_irqs_lock){--+.}, at: [<f8835cb9>] highlevel_host_reset+0x11/0x5b [ieee1394]
 
-this one was reported a few days ago and acknowledged by the firewire
-people as real.. it seems they haven't sent Andrew a fix yet.
-If they don't do that today I'll send a provisional fix
+* Barry K. Nathan <barryn@pobox.com> wrote:
 
+> On 6/4/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >reporting the first one only is necessary, because the validator cannot
+> >trust a system's dependency info that it sees as incorrect. Deadlock
+> >possibilities are quite rare in a kernel that is "in balance". Right now
+> >we are not "in balance" yet, because the validator has only been added a
+> >couple of days ago. The flurry of initial fixes will die down quickly.
+> 
+> So, does that mean the plan is to annotate/tweak things in order to 
+> shut up *each and every* false positive in the kernel?
+
+yes. Note that for the many reasons i outlined before they are only 
+"half false positives" - i.e. they are potentially dangerous constructs 
+and they are potentially inefficient - hence we _want to_ document them 
+in the code, to increase the cleanliness of the kernel. A pure "false 
+positive" would be a totally valid and perfect locking construct being 
+flagged by the lock validator.
+
+nor do these warnings really hurt anyone. Lockdep prints info and then 
+shuts up - the system continues to work.
+
+> Anyway, I tried your patch and I got this:
+
+please try the addon patch below.
+
+	Ingo
+
+Index: linux/fs/reiser4/txnmgr.h
+===================================================================
+--- linux.orig/fs/reiser4/txnmgr.h
++++ linux/fs/reiser4/txnmgr.h
+@@ -567,7 +567,7 @@ static inline void spin_unlock_txnh(txn_
+ 	LOCK_CNT_DEC(spin_locked_txnh);
+ 	LOCK_CNT_DEC(spin_locked);
+ 
+-	spin_unlock(&(txnh->hlock));
++	spin_unlock_non_nested(&(txnh->hlock));
+ }
+ 
+ #define spin_ordering_pred_txnmgr(tmgr)		\

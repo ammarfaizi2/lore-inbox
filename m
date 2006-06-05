@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750728AbWFEUw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750726AbWFEUvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWFEUw6 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWFEUw6
+	id S1750726AbWFEUvc (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWFEUvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:52:58 -0400
-Received: from wr-out-0506.google.com ([64.233.184.238]:12618 "EHLO
+	Mon, 5 Jun 2006 16:51:32 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:40008 "EHLO
 	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750728AbWFEUw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:52:57 -0400
+	id S1750726AbWFEUvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:51:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VecZO20srVDrK6+c+LdVSOX2yP3t3wuafY9jkZFej5rzvrPidlsfIls7w361bWbaX/NUOAQXNdUA1edXP79eurG5E05oU++AJj7S3/6/8lIIFWJgGi4penyzjTik9yQKoJGWYoE6E4MjgTHs3cXaYcKZOFb2Bb9kpey2LOiKuiQ=
-Message-ID: <4d8e3fd30606051352u51f1cd68y78eaef5b99e6b1ab@mail.gmail.com>
-Date: Mon, 5 Jun 2006 22:52:56 +0200
+        b=JNIlE1D42ua+JamAcGGFVTUrPFhTmKCgo/RI676UsAWasoT2d4dvfb9CUnN0lcleENqXWfEK0aeqM0qKj69o+DLe0U7kBidKnLnRL0bqI6N3UrG6w5xKvNQgyBdvwKE3h9sE34cAEARenyMoguu+5pQdV8jkKP83BOtIPpQ7IZs=
+Message-ID: <4d8e3fd30606051351i5533b04vcbe9fe500201c3bb@mail.gmail.com>
+Date: Mon, 5 Jun 2006 22:51:29 +0200
 From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
 Subject: Re: Linux kernel development
-Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
-        "Kalin KOZHUHAROV" <kalin@thinrope.net>,
+Cc: linux-kernel@vger.kernel.org, "Kalin KOZHUHAROV" <kalin@thinrope.net>,
         "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
-In-Reply-To: <1149519526.16247.3.camel@localhost.localdomain>
+In-Reply-To: <200606051738.k55HcrC2025442@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 References: <paolo.ciarrocchi@gmail.com>
-	 <4d8e3fd30606040330i6174f866vfe1c2cd30543a9c0@mail.gmail.com>
-	 <200606042305.k54N5G2b010906@laptop11.inf.utfsm.cl>
 	 <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com>
-	 <1149519526.16247.3.camel@localhost.localdomain>
+	 <200606051738.k55HcrC2025442@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/5/06, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Mon, 2006-06-05 at 13:39 +0200, Paolo Ciarrocchi wrote:
+On 6/5/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> > On 6/5/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+>
+> [...]
 >
 > > > Could you add a README (including contact info, etc), and perhaps a TODO
 > > > (and a copy of SubmittingPatches, which I assume applies here too?) to the
@@ -43,7 +43,15 @@ On 6/5/06, Steven Rostedt <rostedt@goodmis.org> wrote:
 > > > Creative Commons licenses perhaps?).
 > >
 > > Not and exepert in this area, I think I'll release it under GPL2.
-> >
+>
+> Did you write all (most) of it? If not, you'd have to ask the original
+> author(s).
+>
+> BTW, thinking it over in the shower today, if/when this is translated into
+> asciidoc(1) (or whatever), a "source code" license (like GPLv2) would be
+> appropiate IMHO. Besides, using the same license as what it describes is
+> sensible.
+>
 > > What's the normal approach? Can I just add:
 > > #             This document is distribuited under
 > > #             GNU GENERAL PUBLIC LICENSE
@@ -51,26 +59,17 @@ On 6/5/06, Steven Rostedt <rostedt@goodmis.org> wrote:
 > > #               http://www.gnu.org/licenses/gpl.txt
 > >
 > > To the text?
-> >
-> > > [Yup, tangle it up in red tape even before it gets off the ground ;-]
-> > >
 >
-> I released by writeup about the rt-mutex-design.txt (currently in -mm
-> under Documentation) under the "GNU Free Documentation License, Version
-> 1.2".
+> The license text spells it out ;-)
 >
-> If you want to read the license it is here:
->
-> http://www.gnu.org/copyleft/fdl.html
+> I would add language to that effect to the README file, and bundle the
+> standard COPYING file with the package
 
-Thanks Steven,
-but a little part of the document is from inkernel documentation (and
-vice versa, /Documentation/HOWTO includes part of this document) so I
-stick with GPLv2.
+Modified and pushed out, since part of the document is from inkernel
+documentation I choose GPL v2.
 
-I just pushed out the changes.
+Thanks!
 
-Ciao,
 -- 
 Paolo
 http://paolociarrocchi.googlepages.com

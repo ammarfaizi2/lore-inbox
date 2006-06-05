@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751072AbWFEMsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751080AbWFEMvq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWFEMsl (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 08:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWFEMsl
+	id S1751080AbWFEMvq (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 08:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWFEMvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 08:48:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3302 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751072AbWFEMsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 08:48:40 -0400
-Subject: Re: wireless (was Re: 2.6.18 -mm merge plans)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linville@tuxdriver.com
-In-Reply-To: <20060605123304.GA6066@havoc.gtf.org>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <20060605010636.GB17361@havoc.gtf.org>
-	 <20060605085451.GA26766@infradead.org>
-	 <20060605123304.GA6066@havoc.gtf.org>
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 14:48:27 +0200
-Message-Id: <1149511707.3111.57.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 5 Jun 2006 08:51:46 -0400
+Received: from mail.grok.org.za ([196.1.58.22]:41231 "EHLO mail.grok.org.za")
+	by vger.kernel.org with ESMTP id S1751080AbWFEMvp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 08:51:45 -0400
+Date: Mon, 5 Jun 2006 14:51:32 +0200
+To: linux-kernel@vger.kernel.org
+Subject: debugging "irq 7: nobody cared" in my module
+Message-ID: <20060605125132.GN32055@grok.co.za>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+From: Thomas Andrews <tandrews@grok.co.za>
+X-Scanner: exiscan *1FnEYO-0005s3-A3*GmpPI7GSuCY* (Grok)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> 
-> It's a good thing I pay attention to this issue, too, Mr. Just Go Ahead
-> And Merge It.
+What can cause "irq x: nobody cared" ? On exit from my IRQ handler, I am
+checking to make sure that there are no residual/pending unhandled
+events on exit. Here is part of my handler:
 
-dude, name calling is way out of line here.
+irqreturn_t scx200_acb_irq(int irq_no, void *dev_id, struct pt_regs *regs)
+{
+    struct scx200_acb_iface *iface = dev_id;
+    unsigned long flags;
+    spin_lock_irqsave(lock, flags);
+    if (inb(ACBST)) {
+//      tasklet_schedule(&iface->tasklet);
+        scx200_acb_machine(iface, inb(ACBST));
+        if (iface->state == state_idle)     /* Finished */
+            wake_up_interruptible(&iface->acb_queue);
+    } else {
+        /* Should never get here */
+        printk("causeless IRQ!\n");
+        /* Reset the ACB to clear any pending IRQ */
+        outb((inb(ACBCTL2) & 0xfe), ACBCTL2);
+        outb((inb(ACBCTL2) | 0x01), ACBCTL2);
+    }
+    /* Check to see if some event was not handled */
+    if (inb(ACBST) & 0xBC)
+        printk("============== ACBST=%#x ===============\n",inb(ACBST));
+    spin_unlock_irqrestore(lock, flags);
+    return IRQ_RETVAL(0);
+}
 
-Why is it a good thing you are blocking this driver? Do you have ANY
-indication AT ALL that there is anything fishy about it?
-(and don't say "they didn't follow cleanroom procedure", because you
-know that cleanroom is not the only way to do reverse engineering
-properly).
+I've also had the problem when I move everything into a tasklet, and
+just have a very short IRQ handler.
 
-Paying attention to proper reverse engineering is good. Being
-overzealous is not.
-
-
+Many thanks,
+Thomas

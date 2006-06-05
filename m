@@ -1,110 +1,62 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751385AbWFEUD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751394AbWFEUFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWFEUD4 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWFEUD4
+	id S1751394AbWFEUFn (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWFEUFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:03:56 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:25100 "EHLO
+	Mon, 5 Jun 2006 16:05:43 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:29452 "EHLO
 	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1751385AbWFEUDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:03:55 -0400
-Message-ID: <44848DD2.7010506@shadowen.org>
-Date: Mon, 05 Jun 2006 21:02:26 +0100
+	id S1751394AbWFEUFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:05:41 -0400
+Message-ID: <44848E3C.1060308@shadowen.org>
+Date: Mon, 05 Jun 2006 21:04:12 +0100
 From: Andy Whitcroft <apw@shadowen.org>
 User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Christoph Lameter <clameter@sgi.com>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-        mbligh@google.com, linux-kernel@vger.kernel.org, ak@suse.de,
+CC: Martin Bligh <mbligh@google.com>, Arjan van de Ven <arjan@infradead.org>,
+        "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+        linux-kernel@vger.kernel.org, ak@suse.de,
         Hugh Dickins <hugh@veritas.com>
 Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org> <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
+References: <447DEF49.9070401@google.com>  <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org>  <20060531144310.7aa0e0ff.akpm@osdl.org> <447E104B.6040007@mbligh.org>  <447F1702.3090405@shadowen.org> <44842C01.2050604@shadowen.org>  <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com> <1149533399.3111.120.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0606051151150.18056@schroedinger.engr.sgi.com> <44848283.3000207@google.com> <Pine.LNX.4.64.0606051216290.18264@schroedinger.engr.sgi.com> <448486FB.8060007@google.com> <Pine.LNX.4.64.0606051234440.18361@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0606051234440.18361@schroedinger.engr.sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Christoph Lameter wrote:
-> On Mon, 5 Jun 2006, Andy Whitcroft wrote:
+> On Mon, 5 Jun 2006, Martin Bligh wrote:
 > 
 > 
->>Ok.  Did a split search on -mm2 for this.  With the full stack I was
->>still tripping up on the bad thread hand-off trigger above.  However,
->>when split searching I seemed to get somewhat different panics pretty
->>commonly in the allocator.  My split search led me to the start of the
->>swapless page migration patches:
+>>No, that is the config it starts with, sorry ... that was misleading.
+>>It then does makeoldconfig from there:
 >>
->>GOOD:page-migration-cleanup-pass-mapping-to-migration-functions.patch
->>GOOD:page-migration-cleanup-move-fallback-handling-into-special-function.patch
->>----:swapless-pm-add-r-w-migration-entries.patch
->>-BAD:swapless-pm-add-r-w-migration-entries-fix-2.patch
+>>http://test.kernel.org/abat/34624/build/dotconfig
 > 
 > 
+> Ok. So page migration is enabled.
 > 
-> So it happens with r-w-migration-entries but not without fix-2? Or does 
-> it require the fix-2 in order to happen? Without the fix page migration 
-> is broken.
 > 
+>>>Either what we see is due to code rearrangement or there is something wrong
+>>>with the fallback definitions in include/linux/swapops.h. 
+>>>The swapless-pm-add-r-w-migration-entries.patch also introduces Hugh's
+>>>reversal of the anon_vma list.
+>>
+>>OK, are those easily separable? Sounds like one good test would be to
+>>force CONFIG_MIGRATION to =n, right?
+> 
+> 
+> CONFIG_MIGRATION off will disable the page migration stuff and make swap 
+> types 30 / 31 usable as before. The reversal of the order for the anon_vma 
+> list will be preserved.
+> 
+> So yes it may lead us further. If the problem persists with 
+> CONFIG_MIGRATION=n then the anon_vma reversal may be an issue.
 
-I took the swapless-pm-add-r-w-migration-entries.patch and -fix-2.patch
-as a single patch and didn't test the ----'d level.  It worked anywhere
-I tested up to and including the last one marked GOOD above.  Anywhere
-below that was a mess.  Backing out those two patches (and a bunch of
-dependant ones) seemed to make the problems we get very different, and
-if Martin is right the same as problems we are seeing on other
-architectures.  So I am leaning to the feeling that this part of -mm is
-introducing a problem.
-
-> Does LTP include any page migration tests? Guess not? If not then this 
-> could be simply due to code rearrangement making the problem appear in a 
-> different way.
-> 
-> Which test did this?
-> 
-> Swap migration uses the two higest numbers of swap types (30 and 31). If 
-> those are generated by something then we could have trouble but I do not 
-> see how the patches could hurt otherwise.
-
-I uses an awful lot of very wierd swap things.    So possibly there is a
-tie in there?
+Ok.  Will test that when I get a minute.
 
 -apw
-
-Adding 65528k swap on ./swapfile01.  Priority:-2 extents:116 across:360044k
-Adding 65528k swap on ./swapfile01.  Priority:-3 extents:104 across:569492k
-Adding 65528k swap on ./swapfile01.  Priority:-4 extents:172 across:520952k
-Unable to find swap-space signature
-Adding 32k swap on swapfile02.  Priority:-5 extents:2 across:60k
-Adding 32k swap on swapfile03.  Priority:-6 extents:1 across:32k
-Adding 32k swap on swapfile04.  Priority:-7 extents:1 across:32k
-Adding 32k swap on swapfile05.  Priority:-8 extents:3 across:44k
-Adding 32k swap on swapfile06.  Priority:-9 extents:1 across:32k
-Adding 32k swap on swapfile07.  Priority:-10 extents:1 across:32k
-Adding 32k swap on swapfile08.  Priority:-11 extents:1 across:32k
-Adding 32k swap on swapfile09.  Priority:-12 extents:1 across:32k
-Adding 32k swap on swapfile10.  Priority:-13 extents:1 across:32k
-Adding 32k swap on swapfile11.  Priority:-14 extents:1 across:32k
-Adding 32k swap on swapfile12.  Priority:-15 extents:1 across:32k
-Adding 32k swap on swapfile13.  Priority:-16 extents:1 across:32k
-Adding 32k swap on swapfile14.  Priority:-17 extents:1 across:32k
-Adding 32k swap on swapfile15.  Priority:-18 extents:1 across:32k
-Adding 32k swap on swapfile16.  Priority:-19 extents:1 across:32k
-Adding 32k swap on swapfile17.  Priority:-20 extents:1 across:32k
-Adding 32k swap on swapfile18.  Priority:-21 extents:1 across:32k
-Adding 32k swap on swapfile19.  Priority:-22 extents:1 across:32k
-Adding 32k swap on swapfile20.  Priority:-23 extents:1 across:32k
-Adding 32k swap on swapfile21.  Priority:-24 extents:1 across:32k
-Adding 32k swap on swapfile22.  Priority:-25 extents:1 across:32k
-Adding 32k swap on swapfile23.  Priority:-26 extents:1 across:32k
-Adding 32k swap on swapfile24.  Priority:-27 extents:1 across:32k
-Adding 32k swap on swapfile25.  Priority:-28 extents:1 across:32k
-Adding 32k swap on swapfile26.  Priority:-29 extents:1 across:32k
-Adding 32k swap on swapfile27.  Priority:-30 extents:1 across:32k
-Adding 32k swap on swapfile28.  Priority:-31 extents:1 across:32k
-Adding 32k swap on swapfile29.  Priority:-32 extents:1 across:32k
-Adding 32k swap on swapfile30.  Priority:-33 extents:1 across:32k
-Adding 32k swap on swapfile31.  Priority:-34 extents:1 across:32k
-Adding 32k swap on swapfile32.  Priority:-35 extents:1 across:32k

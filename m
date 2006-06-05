@@ -1,84 +1,81 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751120AbWFEOC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751108AbWFEOKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWFEOC0 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 10:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWFEOC0
+	id S1751108AbWFEOKt (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 10:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWFEOKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 10:02:26 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:31250 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751115AbWFEOCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 10:02:25 -0400
-Date: Mon, 5 Jun 2006 16:02:26 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linville@tuxdriver.com
-Subject: Linux kernel and laws
-Message-ID: <20060605140226.GR3955@stusta.de>
-References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605010636.GB17361@havoc.gtf.org> <20060605085451.GA26766@infradead.org> <20060605123304.GA6066@havoc.gtf.org> <1149511707.3111.57.camel@laptopd505.fenrus.org> <20060605125235.GB6066@havoc.gtf.org>
-MIME-Version: 1.0
+	Mon, 5 Jun 2006 10:10:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58385 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751108AbWFEOKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 10:10:48 -0400
+Date: Mon, 5 Jun 2006 15:10:41 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+        Patrick Caulfield <pcaulfie@redhat.com>,
+        Steven Whitehouse <swhiteho@redhat.com>, davej@redhat.com,
+        David Teigland <teigland@redhat.com>
+Subject: Re: 2.6.18 -mm merge plans -- GFS
+Message-ID: <20060605141041.GD18976@flint.arm.linux.org.uk>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Patrick Caulfield <pcaulfie@redhat.com>,
+	Steven Whitehouse <swhiteho@redhat.com>, davej@redhat.com,
+	David Teigland <teigland@redhat.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <1149514730.30024.133.camel@pmac.infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060605125235.GB6066@havoc.gtf.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <1149514730.30024.133.camel@pmac.infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 05, 2006 at 08:52:35AM -0400, Jeff Garzik wrote:
->...
-> > Paying attention to proper reverse engineering is good. Being
-> > overzealous is not.
+On Mon, Jun 05, 2006 at 02:38:50PM +0100, David Woodhouse wrote:
+> You didn't mention GFS2 either -- is that ready to go upstream?
+> It contains this in its user<->kernel communication (whitespace sic)...
 > 
-> Being overzealous about merging drivers without first checking the legal
-> ramifications is a good way to torpedo Linux.
-> 
-> Far too many people have a careless "U.S.A. laws suck, merge it anyway"
-> attitude.
+> /* struct passed to the lock write */
+> struct dlm_lock_params {
+>        __u8 mode;
+>        __u16 flags;
+>        __u32 lkid;
+>        __u32 parent;
+>        __u8 namelen;
 
-Independent of this issue:
+Hmm.  This is going to be subject to random compiler padding.  It would
+be much better to have:
 
-An interesting question is how to handle legal issues properly.
+	__u8 mode;
+	__u8 namelen;
+	__u16 flags;
+	__u32 lkid;
+	__u32 parent;
 
-Where is the borderline for rejecting code due to legal issues?
-Might not be 100% correct according to laws in the USA.
-Might not be 100% correct according to laws in Germany.
-Might not be 100% correct according to laws in Finland.
-Might not be 100% correct according to laws in Norway.
-Might not be 100% correct according to laws in Brasil.
-Might not be 100% correct according to laws in Japan.
-Might not be 100% correct according to laws in India.
-Might not be 100% correct according to laws in Russia.
-Might not be 100% correct according to laws in China.
-Might not be 100% correct according to laws in Saudi Arabia.
-Might not be 100% correct according to laws in Iran.
+which should be less subject to compiler padding.
 
-For me living in Germany, none of these laws except for the German one 
-has any relevance.
+> struct dlm_write_request {
+>        __u32 version[3];
+>        __u8 cmd;
 
-I've never seen people on this list pointing to probable problems with 
-Chinese laws although these laws are relevant for four times as many 
-people as US laws.
+Ditto - though maybe following this by:
 
-If someone would state a submission to the kernel might have issues 
-according to Chinese laws, or Iranian laws, or Russian laws, would this 
-be enough for keeping code out of the kernel?
+	__u8 unused[3];
 
-This might sound like a theoretical question, but e.g. considering that 
-the kernel contains cryptography code it's a question that might have 
-wide practical implications.
+would be a sane solution.
 
-> 	Jeff
+> struct dlm_lock_result {
+>        __u32 length;
+>        void __user * user_astaddr;
+>        void __user * user_astparam;
+>        struct dlm_lksb __user * user_lksb;
+>        struct dlm_lksb lksb;
+>        __u8 bast_mode;
 
-cu
-Adrian
+Ditto.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

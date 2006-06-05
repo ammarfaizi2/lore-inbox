@@ -1,137 +1,73 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750980AbWFELbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750993AbWFELjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWFELbB (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 07:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWFELbB
+	id S1750993AbWFELjj (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 07:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWFELjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 07:31:01 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:10189 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750980AbWFELbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 07:31:00 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 5 Jun 2006 13:28:16 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.17-rc5-mm3] ieee1394: hl_irqs_lock is taken in hardware
- interrupt context
-To: linux1394-devel@lists.sourceforge.net
-cc: Arjan van de Ven <arjan@linux.intel.com>, Jiri Slaby <jirislaby@gmail.com>,
-        Ben Collins <bcollins@ubuntu.com>,
-        Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@osdl.org>,
-        =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@ono.com>
-In-Reply-To: <1149179744.4533.205.camel@grayson>
-Message-ID: <tkrat.02c63cb007e86f12@s5r6.in-berlin.de>
-References: <20060601014806.e86b3cc0.akpm@osdl.org>
- <447F0905.8020600@gmail.com>
- <1149176945.3115.70.camel@laptopd505.fenrus.org>
- <1149179744.4533.205.camel@grayson>
+	Mon, 5 Jun 2006 07:39:39 -0400
+Received: from wr-out-0506.google.com ([64.233.184.236]:6329 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750985AbWFELjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 07:39:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rLWhhTT3mnHyQLKDXe/nv8MWLrqnYEDCLo3x6bUKKB+588fKu5b6O5Pc2JtNZ8GdG9pHElaJ1XnhqnyYfL8dwTJ+lU7SggyvVOeb4Q/oP1DzCOUWHN09Dfk4plIx4riZV4AilRxKP6mzF+1t7uD/gLQSvBOZCM48LfR/RTJpwDM=
+Message-ID: <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com>
+Date: Mon, 5 Jun 2006 13:39:28 +0200
+From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+Subject: Re: Linux kernel development
+Cc: linux-kernel@vger.kernel.org, "Kalin KOZHUHAROV" <kalin@thinrope.net>,
+        "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
+In-Reply-To: <200606042305.k54N5G2b010906@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <paolo.ciarrocchi@gmail.com>
+	 <4d8e3fd30606040330i6174f866vfe1c2cd30543a9c0@mail.gmail.com>
+	 <200606042305.k54N5G2b010906@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ohci1394 and pcilynx call highlevel_host_reset from their hardware
-interrupt handler (via hpsb_selfid_complete).  Therefore all readers and
-writers of hl_irqs_lock have to disable interrupts.  Reported by Jiri
-Slaby and J. A. Magallon.
+On 6/5/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> > On 6/4/06, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> > > On 6/3/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> > [...]
+> > >
+> > > Thank you for your valuable comments!!
+> >
+> > BTW, I implemented a few changes according to your feedbacks.
+> > Committed and pushed out.
+>
+> Thanks!
+>
+> Could you add a README (including contact info, etc), and perhaps a TODO
+> (and a copy of SubmittingPatches, which I assume applies here too?) to the
+> project? A license for the text is required, AFAIU (GPLv2, or one of the
+> Creative Commons licenses perhaps?).
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
- drivers/ieee1394/highlevel.c |   27 +++++++++++++++++----------
- 1 files changed, 17 insertions(+), 10 deletions(-)
+Not and exepert in this area, I think I'll release it under GPL2.
 
-Index: linux/drivers/ieee1394/highlevel.c
-===================================================================
---- linux.orig/drivers/ieee1394/highlevel.c	2006-06-03 14:11:58.000000000 +0200
-+++ linux/drivers/ieee1394/highlevel.c	2006-06-05 11:42:07.000000000 +0200
-@@ -210,6 +210,8 @@ static int highlevel_for_each_host_reg(s
- 
- void hpsb_register_highlevel(struct hpsb_highlevel *hl)
- {
-+	unsigned long flags;
-+
-         INIT_LIST_HEAD(&hl->addr_list);
- 	INIT_LIST_HEAD(&hl->host_info_list);
- 
-@@ -219,9 +221,9 @@ void hpsb_register_highlevel(struct hpsb
-         list_add_tail(&hl->hl_list, &hl_drivers);
- 	up_write(&hl_drivers_sem);
- 
--	write_lock(&hl_irqs_lock);
-+	write_lock_irqsave(&hl_irqs_lock, flags);
- 	list_add_tail(&hl->irq_list, &hl_irqs);
--	write_unlock(&hl_irqs_lock);
-+	write_unlock_irqrestore(&hl_irqs_lock, flags);
- 
- 	if (hl->add_host)
- 		nodemgr_for_each_host(hl, highlevel_for_each_host_reg);
-@@ -282,9 +284,11 @@ static int highlevel_for_each_host_unreg
- 
- void hpsb_unregister_highlevel(struct hpsb_highlevel *hl)
- {
--	write_lock(&hl_irqs_lock);
-+	unsigned long flags;
-+
-+	write_lock_irqsave(&hl_irqs_lock, flags);
- 	list_del(&hl->irq_list);
--	write_unlock(&hl_irqs_lock);
-+	write_unlock_irqrestore(&hl_irqs_lock, flags);
- 
- 	down_write(&hl_drivers_sem);
-         list_del(&hl->hl_list);
-@@ -518,42 +522,45 @@ void highlevel_remove_host(struct hpsb_h
- 
- void highlevel_host_reset(struct hpsb_host *host)
- {
-+	unsigned long flags;
-         struct hpsb_highlevel *hl;
- 
--	read_lock(&hl_irqs_lock);
-+	read_lock_irqsave(&hl_irqs_lock, flags);
- 	list_for_each_entry(hl, &hl_irqs, irq_list) {
-                 if (hl->host_reset)
-                         hl->host_reset(host);
-         }
--	read_unlock(&hl_irqs_lock);
-+	read_unlock_irqrestore(&hl_irqs_lock, flags);
- }
- 
- void highlevel_iso_receive(struct hpsb_host *host, void *data, size_t length)
- {
-+	unsigned long flags;
-         struct hpsb_highlevel *hl;
-         int channel = (((quadlet_t *)data)[0] >> 8) & 0x3f;
- 
--        read_lock(&hl_irqs_lock);
-+        read_lock_irqsave(&hl_irqs_lock, flags);
- 	list_for_each_entry(hl, &hl_irqs, irq_list) {
-                 if (hl->iso_receive)
-                         hl->iso_receive(host, channel, data, length);
-         }
--        read_unlock(&hl_irqs_lock);
-+        read_unlock_irqrestore(&hl_irqs_lock, flags);
- }
- 
- void highlevel_fcp_request(struct hpsb_host *host, int nodeid, int direction,
- 			   void *data, size_t length)
- {
-+	unsigned long flags;
-         struct hpsb_highlevel *hl;
-         int cts = ((quadlet_t *)data)[0] >> 4;
- 
--        read_lock(&hl_irqs_lock);
-+        read_lock_irqsave(&hl_irqs_lock, flags);
- 	list_for_each_entry(hl, &hl_irqs, irq_list) {
-                 if (hl->fcp_request)
-                         hl->fcp_request(host, nodeid, direction, cts, data,
- 					length);
-         }
--        read_unlock(&hl_irqs_lock);
-+        read_unlock_irqrestore(&hl_irqs_lock, flags);
- }
- 
- int highlevel_read(struct hpsb_host *host, int nodeid, void *data,
+What's the normal approach? Can I just add:
+#		This document is distribuited under
+#		GNU GENERAL PUBLIC LICENSE
+#		       Version 2, June 1991
+#               http://www.gnu.org/licenses/gpl.txt
+
+To the text?
+
+> [Yup, tangle it up in red tape even before it gets off the ground ;-]
+> --
+> Dr. Horst H. von Brand                   User #22616 counter.li.org
+> Departamento de Informatica                     Fono: +56 32 654431
+> Universidad Tecnica Federico Santa Maria              +56 32 654239
+> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+>
 
 
+-- 
+Paolo
+http://paolociarrocchi.googlepages.com

@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750703AbWFEHso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750706AbWFEHtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWFEHso (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 03:48:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWFEHso
+	id S1750706AbWFEHtj (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 03:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWFEHtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 03:48:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36241 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750703AbWFEHsn (ORCPT
+	Mon, 5 Jun 2006 03:49:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:42453 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750706AbWFEHti (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 03:48:43 -0400
-Date: Mon, 5 Jun 2006 00:48:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: jeremy@goop.org, linux-kernel@vger.kernel.org, dzickus@redhat.com,
-        ak@suse.de, Miles Lane <miles.lane@gmail.com>
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in
- arch/i386/kernel/nmi.c:174
-Message-Id: <20060605004823.566b266c.akpm@osdl.org>
-In-Reply-To: <4483DF32.4090608@goop.org>
-References: <4480C102.3060400@goop.org>
-	<4483DF32.4090608@goop.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 5 Jun 2006 03:49:38 -0400
+Subject: Re: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, tglx@linutronix.de,
+        torvalds@osdl.org
+In-Reply-To: <20060605003127.fc1ea37a.akpm@osdl.org>
+References: <1149486009.8543.42.camel@localhost.localdomain>
+	 <1149491309.8543.54.camel@localhost.localdomain>
+	 <20060605003127.fc1ea37a.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 17:48:10 +1000
+Message-Id: <1149493691.8543.57.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 00:37:22 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> Jeremy Fitzhardinge wrote:
-> > I'm trying to get suspend/resume working properly on my Thinkpad X60.
-> > This is a dual-core machine, so its running in SMP mode.
-> >
-> > Now that I have a set of patches to make AHCI resume properly, I'm
-> > getting a crash on the second suspend.  I can't get an actual listing of
-> > the oops, but I have a set of screenshots if anyone needs more details.
-> >
-> > The gist is that there's a BUG_ON failing at arch/i386/kernel/nmi.c:174
-> > (BUG_ON(counter > NMI_MAX_COUNTER_BITS)), in release_evntsel_nmi.  The
-> > backtrace is:
-> >
-> >     release_evntsel_nmi
-> >     stop_apci_nmi_watchdog
-> >     on_each_cpu
-> >     disable_lapic_nmi_watchdog
-> >     lapic_nmi_suspend
-> >     sysdev_suspend
-> >     device_power_down
-> >     suspend_enter
-> >     enter_state
-> >     state_store
-> >     subsys_attr_store
-> >     sysfs_write_file
-> >     vfs_write
-> >     sys_write
-> >     sysenter_past_esp
+> I don't immediately see anything in there which would prevent us from
+> running these:
 > 
-> This BUG_ON was introduced by the patch 
-> x86_64-mm-add-performance-counter-reservation-framework-for-up-kernels.patch.
+> 	vfs_caches_init_early();
+> 	cpuset_init_early();
+> 	mem_init();
+> 	kmem_cache_init();
+> 	setup_per_cpu_pageset();
 > 
+> just after sort_main_extable().
+> 
+> But things will explode ;)
+> 
+> I suggest you run up a patch, test it on whatever machines you have, send
+> it over and I'll do the same.  But please make sure it has a config option
+> to restore the old sequence for now.  a) So people can work out that it was
+> this patch which broke things and b) so it doesn't adversely affect testing
+> of other things too much.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=6647 has details.
+Good ideas. I'll give these things a spin. One thing that may explode is
+that all that code is running with local_irq_disable() (since local irqs
+aren't enabled before init_IRQ()) and that means possible use of some
+types of semaphores may trigger warn-on's (or worse as I think some
+implementations of down_read() might even force-enable irqs).
 
-Do you think the suspend breakage is related to that patch?
+But there is no fundamental reasons to do so ... that's the trick :) If
+that happens, those semaphores are still ok as they should never get
+into contention that early.
 
-Miles also reports that every second suspend fails for him.  Miles, does
-'nmi_watchdog=0' make it better?
+Anyway, I'll give it a spin on ppc and maybe x86 if I can find a victim
+to test on here, and will send something.
+
+Cheers,
+Ben.
+
 

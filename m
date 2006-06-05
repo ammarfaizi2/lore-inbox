@@ -1,93 +1,154 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751248AbWFER6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751253AbWFER72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWFER6a (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 13:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWFER6a
+	id S1751253AbWFER72 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 13:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWFER71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 13:58:30 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:18305 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1751248AbWFER63
+	Mon, 5 Jun 2006 13:59:27 -0400
+Received: from wildsau.enemy.org ([193.170.194.34]:18332 "EHLO
+	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1751249AbWFER70
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 13:58:29 -0400
-Date: Mon, 5 Jun 2006 11:00:44 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Linux 2.6.16.20
-Message-ID: <20060605180044.GA29676@moss.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Mon, 5 Jun 2006 13:59:26 -0400
+From: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Message-Id: <200606051753.k55HrpRl010049@wildsau.enemy.org>
+Subject: Re: UDF: buggy? libdvdread vs. udf fs driver
+In-Reply-To: <200606051708.k55H84dC010037@wildsau.enemy.org>
+To: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Date: Mon, 5 Jun 2006 19:53:51 +0200 (MET DST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.20 kernel.
 
-The diffstat and short summary of the fixes are below.
+>     > UDFScanDir (1) Dir.Length=92 (2) FileName=VIDEO_TS
+>       UDFScanDir:595
+>       enter while: Dir.Length=92
+>       TagID=257 101
+>       filename=
+>       TagID=257 101
+>       filename=lost+found
+>     X UDFScanDir:638
+> 
+>     what? it still stops after "lost+found", which just has been removed?
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.19 and 2.6.16.20, as it is small enough to do so.
+okidok ... having seen this, I had the idea of modyfing mkudffs just
+to see what's going to happen.
 
-The updated 2.6.16.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+since "lost+found" is so persistent and remains allthough having been removed
+before, I changed "udftools-1.0.0b3/mkudffs/mkudffs.c" not to create
+"lost+found", but "VIDEO_TS" instead:
 
-thanks,
--chris
+   642          //desc = udf_mkdir(disc, pspace, "\x08" "lost+found", 11, offset+1, desc);
+   643          desc = udf_mkdir(disc, pspace, "\x08" "VIDEO_TS", 9, offset+1, desc);
 
---------
+good.
 
- Makefile                                |    2 +-
- arch/powerpc/platforms/powermac/setup.c |   12 ++++++++++++
- arch/x86_64/kernel/entry.S              |    7 +------
- arch/x86_64/kernel/traps.c              |    5 +++++
- drivers/ieee1394/ohci1394.c             |    2 +-
- drivers/ieee1394/sbp2.c                 |   22 +++++++++++++++++++---
- drivers/input/mouse/psmouse-base.c      |    4 +++-
- drivers/net/wireless/ipw2200.c          |   16 ++++++++++++----
- drivers/scsi/libata-core.c              |    1 +
- drivers/sn/ioc3.c                       |    2 +-
- drivers/sn/ioc4.c                       |    2 +-
- mm/page_alloc.c                         |    3 ++-
- 12 files changed, 59 insertions(+), 19 deletions(-)
+now:
+    bash-2.05# mkudffs --vid="The Entropy Movie" --udfrev=0x0102 --ad=short --noefe 24M
+    start=0, blocks=16, type=RESERVED 
+    start=16, blocks=3, type=VRS 
+    start=19, blocks=237, type=USPACE 
+    start=256, blocks=1, type=ANCHOR 
+    start=257, blocks=16, type=PVDS 
+    start=273, blocks=1, type=LVID 
+    start=274, blocks=11757, type=PSPACE 
+    start=12031, blocks=1, type=ANCHOR 
+    start=12032, blocks=239, type=USPACE 
+    start=12271, blocks=16, type=RVDS 
+    start=12287, blocks=1, type=ANCHOR 
+    bash-2.05# mount -o loop 24M /mnt
+    bash-2.05# find /mnt
+    /mnt
+    /mnt/VIDEO_TS
 
-Summary of changes from v2.6.16.19 to v2.6.16.20
-================================================
+good, that's what I wanted. now create dvd:
 
-Andi Kleen:
-      x86_64: Don't do syscall exit tracing twice
+    bash-2.05# dvdauthor -o /mnt -x foo.xml 
+    DVDAuthor::dvdauthor, version 0.6.11.
+    Build options: gnugetopt freetype
+    Send bugs to <dvdauthor-users@lists.sourceforge.net>
+    
+    INFO: dvdauthor creating VTS
+    STAT: Picking VTS 01
+    STAT: Processing foo.mpg...
+    ...
+    INFO: dvdauthor creating table of contents
+    INFO: Scanning /mnt/VIDEO_TS/VTS_01_0.IFO
 
-Brent Casavant:
-      Altix: correct ioc4 port order
+all files in place?
+    bash-2.05# find /mnt
+    /mnt
+    /mnt/VIDEO_TS
+    /mnt/VIDEO_TS/VTS_01_1.VOB
+    /mnt/VIDEO_TS/VTS_01_0.IFO
+    /mnt/VIDEO_TS/VTS_01_0.BUP
+    /mnt/VIDEO_TS/VIDEO_TS.IFO
+    /mnt/VIDEO_TS/VIDEO_TS.BUP
+    /mnt/AUDIO_TS
 
-Chris Wright:
-      Linux 2.6.16.20
+indeed.
 
-Dmitry Torokhov:
-      Input: psmouse - fix new device detection logic
+now for libdvdread:
+    bash-2.05# umount /mnt
+    bash-2.05# ogle 24M 
+    libdvdread: Using libdvdcss version 1.2.9 for DVD access
+    > UDFFindFile filename=/VIDEO_TS/VIDEO_TS.IFO
+      UDFFindFile:856
+    > UDFMapICB
+    > UDFFileEntry
+      ad->Length=0
+      L_EA=0 L_AD=8
+      before switch: ad->Length=0
+      flags=0000
+      flags=>UDFShortAD
+      after switch: ad->Length=88
+    < UDFFileEntry, ad->Length=88
+    < UDFMapICB:530, return 1(ok)
+      887: File.length=88 token=VIDEO_TS
+    > UDFScanDir (1) Dir.Length=88 (2) FileName=VIDEO_TS
+      UDFScanDir:595
+      enter while: Dir.Length=88
+      TagID=257 101
+      filename=
+      TagID=257 101
+      filename=VIDEO_TS
+      ^^^^^^^^^^^^^^^^^
 
-Johannes Berg:
-      PowerMac: force only suspend-to-disk to be valid
+libdvdread now finds VIDEO_TS, which it failed to before.
 
-Mark Lord:
-      the latest consensus libata resume fix
+but:
 
-Pat Gefre:
-      Altix: correct ioc3 port order
+    > UDFMapICB
+    > UDFFileEntry
+      ad->Length=0
+      L_EA=0 L_AD=8
+      before switch: ad->Length=0
+      flags=0000
+      flags=>UDFShortAD
+      after switch: ad->Length=40
+    < UDFFileEntry, ad->Length=40
+    < UDFMapICB:530, return 1(ok)
+      887: File.length=40 token=VIDEO_TS.IFO
+    > UDFScanDir (1) Dir.Length=40 (2) FileName=VIDEO_TS.IFO
+      UDFScanDir:595
+      enter while: Dir.Length=40
+      TagID=257 101
+      filename=
+    > UDFMapICB
+    < UDFMapICB:514, return 1(ok)
+    X UDFScanDir:638
 
-Paul Jackson:
-      Cpuset: might sleep checking zones allowed fix
+ ... it fails to find "VIDEO_TS.IFO", allthough:
 
-Stefan Richter:
-      ohci1394, sbp2: fix "scsi_add_device failed" with PL-3507 based devices
-      sbp2: backport read_capacity workaround for iPod
-      sbp2: fix check of return value of hpsb_allocate_and_register_addrspace
+    bash-2.05# mount -o loop 24M /mnt
+    bash-2.05# ls -l /mnt/VIDEO_TS/VIDEO_TS.IFO 
+    -rw-r--r--   1 root     root         6144 Jun  5 19:33 /mnt/VIDEO_TS/VIDEO_TS.IFO
 
-Vivek Goyal:
-      x86_64: x86_64 add crashdump trigger points
+... the udf-fs driver _does_ see that file.
 
-Zhu Yi:
-      ipw2200: Filter unsupported channels out in ad-hoc mode
-
+kind regards,
+h.rosmanith

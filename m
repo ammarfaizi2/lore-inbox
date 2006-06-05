@@ -1,44 +1,93 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750805AbWFEI5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750775AbWFEIh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWFEI5Q (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 04:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWFEI5P
+	id S1750775AbWFEIh6 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 04:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWFEIha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 04:57:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53666 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750805AbWFEI5P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 04:57:15 -0400
-Date: Mon, 5 Jun 2006 01:57:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, tglx@linutronix.de,
-        torvalds@osdl.org
-Subject: Re: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
-Message-Id: <20060605015702.115597cf.akpm@osdl.org>
-In-Reply-To: <1149497376.8543.65.camel@localhost.localdomain>
-References: <1149486009.8543.42.camel@localhost.localdomain>
-	<1149491309.8543.54.camel@localhost.localdomain>
-	<20060605003127.fc1ea37a.akpm@osdl.org>
-	<1149493691.8543.57.camel@localhost.localdomain>
-	<20060605012405.ac17f918.akpm@osdl.org>
-	<1149497376.8543.65.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 5 Jun 2006 04:37:30 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:31374 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1750786AbWFEIhH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 04:37:07 -0400
+Subject: [PATCH 9/9] PCI PM: generic suspend/resume fixes
+From: Adam Belay <abelay@novell.com>
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 04:46:18 -0400
+Message-Id: <1149497178.7831.163.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 18:49:36 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Some drivers never call pci_enable_device() or pci_enable_master() and
+instead assume the bios will have initialized the device.  As a
+workaround, this patch modifies the generic resume function to verify
+which device features need to be enabled by checking the previous state
+of the COMMAND register.  Also, pci_disable_device() is now called
+during generic suspend.
 
-> > And yes, the mutex code will (with debug enabled) unconditionally enable
-> > interrupts.  ppc64 tends to oops when this happens, in the timer handler
-> > (so it'll be intermittent...)
-> 
-> I tend to say that any code that hard-enables interrupts is looking for
-> trouble (mostly for that very reason of init stuff).
+Signed-off-by: Adam Belay <abelay@novell.com>
 
-Usually.  But it's 100% daft to be preserving local irq state in
-mutex_lock().
+---
+ pci-driver.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
+
+diff -urN a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	2006-05-30 21:41:14.000000000 -0400
++++ b/drivers/pci/pci-driver.c	2006-06-05 00:29:24.000000000 -0400
+@@ -265,6 +265,16 @@
+ 	return 0;
+ }
+ 
++/*
++ * Default suspend method for devices that have no driver provided suspend,
++ * or not even a driver at all.
++ */
++static void pci_default_suspend(struct pci_dev *pci_dev)
++{
++	pci_save_state(pci_dev);
++	pci_disable_device(pci_dev);
++}
++
+ static int pci_device_suspend(struct device * dev, pm_message_t state)
+ {
+ 	struct pci_dev * pci_dev = to_pci_dev(dev);
+@@ -274,13 +284,11 @@
+ 	if (drv && drv->suspend) {
+ 		i = drv->suspend(pci_dev, state);
+ 		suspend_report_result(drv->suspend, i);
+-	} else {
+-		pci_save_state(pci_dev);
+-	}
++	} else
++		pci_default_suspend(pci_dev);
+ 	return i;
+ }
+ 
+-
+ /*
+  * Default resume method for devices that have no driver provided resume,
+  * or not even a driver at all.
+@@ -288,14 +296,15 @@
+ static void pci_default_resume(struct pci_dev *pci_dev)
+ {
+ 	int retval;
++	u16 cmd = pci_dev->saved_config.command;
+ 
+ 	/* restore the PCI config space */
+ 	pci_restore_state(pci_dev);
+ 	/* if the device was enabled before suspend, reenable */
+-	if (pci_dev->is_enabled)
++	if (cmd & (PCI_COMMAND_IO | PCI_COMMAND_MEMORY))
+ 		retval = pci_enable_device(pci_dev);
+ 	/* if the device was busmaster before the suspend, make it busmaster again */
+-	if (pci_dev->is_busmaster)
++	if (cmd & PCI_COMMAND_MASTER)
+ 		pci_set_master(pci_dev);
+ }
+ 
+
+

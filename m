@@ -1,43 +1,93 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751245AbWFERwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751248AbWFER6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWFERwc (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 13:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWFERwb
+	id S1751248AbWFER6a (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 13:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWFER6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 13:52:31 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:7585 "EHLO pickle.fieldses.org")
-	by vger.kernel.org with ESMTP id S1751245AbWFERwb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 13:52:31 -0400
-Date: Mon, 5 Jun 2006 13:52:29 -0400
-To: Martin Hierling <martin.hierling@fh-luh.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.16.18 with general protection fault, perhaps nfsd
-Message-ID: <20060605175229.GL16064@fieldses.org>
-References: <20060531164707.GA19547@cc.fh-luh.de> <20060531204716.GL13682@fieldses.org> <20060601115313.GB4561@cc.fh-luh.de>
-MIME-Version: 1.0
+	Mon, 5 Jun 2006 13:58:30 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:18305 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1751248AbWFER63
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 13:58:29 -0400
+Date: Mon, 5 Jun 2006 11:00:44 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.16.20
+Message-ID: <20060605180044.GA29676@moss.sous-sol.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060601115313.GB4561@cc.fh-luh.de>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: "J. Bruce Fields" <bfields@fieldses.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 01, 2006 at 01:53:13PM +0200, Martin Hierling wrote:
-> Hi Bruce, Hi List,
-> 
->  On Wed, May 31, 2006 at 04:47:16PM -0400, J. Bruce Fields wrote:
-> > On Wed, May 31, 2006 at 06:47:07PM +0200, Martin Hierling wrote:
-> > > [4] Linux version 2.6.16.18-xen (root@defiant)
-> > 
-> > Is there a xen patch applied as well?
-> 
-> sure. 3.0.2-2
+We (the -stable team) are announcing the release of the 2.6.16.20 kernel.
 
-Well, this isn't a problem I can reproduce myself, and reading through
-the code I don't see how this could happen.  So, grasping at straws a
-bit, the only thing I can think to suspect is the xen patch.  I can't
-find any "3.0.2-2" patch anywhere, though; where can I find that code?
+The diffstat and short summary of the fixes are below.
 
---b.
+I'll also be replying to this message with a copy of the patch between
+2.6.16.19 and 2.6.16.20, as it is small enough to do so.
+
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+
+thanks,
+-chris
+
+--------
+
+ Makefile                                |    2 +-
+ arch/powerpc/platforms/powermac/setup.c |   12 ++++++++++++
+ arch/x86_64/kernel/entry.S              |    7 +------
+ arch/x86_64/kernel/traps.c              |    5 +++++
+ drivers/ieee1394/ohci1394.c             |    2 +-
+ drivers/ieee1394/sbp2.c                 |   22 +++++++++++++++++++---
+ drivers/input/mouse/psmouse-base.c      |    4 +++-
+ drivers/net/wireless/ipw2200.c          |   16 ++++++++++++----
+ drivers/scsi/libata-core.c              |    1 +
+ drivers/sn/ioc3.c                       |    2 +-
+ drivers/sn/ioc4.c                       |    2 +-
+ mm/page_alloc.c                         |    3 ++-
+ 12 files changed, 59 insertions(+), 19 deletions(-)
+
+Summary of changes from v2.6.16.19 to v2.6.16.20
+================================================
+
+Andi Kleen:
+      x86_64: Don't do syscall exit tracing twice
+
+Brent Casavant:
+      Altix: correct ioc4 port order
+
+Chris Wright:
+      Linux 2.6.16.20
+
+Dmitry Torokhov:
+      Input: psmouse - fix new device detection logic
+
+Johannes Berg:
+      PowerMac: force only suspend-to-disk to be valid
+
+Mark Lord:
+      the latest consensus libata resume fix
+
+Pat Gefre:
+      Altix: correct ioc3 port order
+
+Paul Jackson:
+      Cpuset: might sleep checking zones allowed fix
+
+Stefan Richter:
+      ohci1394, sbp2: fix "scsi_add_device failed" with PL-3507 based devices
+      sbp2: backport read_capacity workaround for iPod
+      sbp2: fix check of return value of hpsb_allocate_and_register_addrspace
+
+Vivek Goyal:
+      x86_64: x86_64 add crashdump trigger points
+
+Zhu Yi:
+      ipw2200: Filter unsupported channels out in ad-hoc mode
+

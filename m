@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750706AbWFEHtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750727AbWFEIBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWFEHtj (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 03:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWFEHtj
+	id S1750727AbWFEIBE (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 04:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWFEIBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 03:49:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:42453 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750706AbWFEHti (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 03:49:38 -0400
-Subject: Re: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, tglx@linutronix.de,
-        torvalds@osdl.org
-In-Reply-To: <20060605003127.fc1ea37a.akpm@osdl.org>
-References: <1149486009.8543.42.camel@localhost.localdomain>
-	 <1149491309.8543.54.camel@localhost.localdomain>
-	 <20060605003127.fc1ea37a.akpm@osdl.org>
+	Mon, 5 Jun 2006 04:01:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54718 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750727AbWFEIBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 04:01:02 -0400
+Subject: Re: [PATCH] readahead: initial method - expected read size - fix
+	fastcall
+From: Arjan van de Ven <arjan@infradead.org>
+To: Voluspa <lista1@comhem.se>
+Cc: wfg@mail.ustc.edu.cn, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
+        diegocg@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060605031720.0017ae5e.lista1@comhem.se>
+References: <349406446.10828@ustc.edu.cn>
+	 <20060604020738.31f43cb0.akpm@osdl.org>
+	 <1149413103.3109.90.camel@laptopd505.fenrus.org>
+	 <20060605031720.0017ae5e.lista1@comhem.se>
 Content-Type: text/plain
-Date: Mon, 05 Jun 2006 17:48:10 +1000
-Message-Id: <1149493691.8543.57.camel@localhost.localdomain>
+Date: Mon, 05 Jun 2006 10:00:49 +0200
+Message-Id: <1149494449.3111.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I don't immediately see anything in there which would prevent us from
-> running these:
+On Mon, 2006-06-05 at 03:17 +0200, Voluspa wrote:
+> On Sun, 04 Jun 2006 11:25:03 +0200 Arjan van de Ven wrote:
+> > On Sun, 2006-06-04 at 02:07 -0700, Andrew Morton wrote:
+> > > On Sun, 4 Jun 2006 15:34:15 +0800
+> > > Fengguang Wu wrote:
+> > > 
+> > > > Remove 'fastcall' directive for function readahead_close().
+> > > > 
+> > > > It has drawn concerns from Andrew Morton.
+> > > 
+> > > Well.  I think fastcall is ugly and vaguely silly.  Now if we has a
+> > > really_really_fastcall then I'd like to use that!
+> > > 
+> > > 
+> > > > Now I have some benchmarks
+> > > > on it, and proved it as a _false_ optimization.
+> > > 
+> > > Sorry, I don't believe this will be measurable (and with CONFIG_REGPARM
+> > > it'll be a no-op).
+> > 
+> > we should just make CONFIG_REGPARM be "it" always (and thus make it go
+> > away as config option) and then just remove all "fastcall" from the
+> > kernel...
 > 
-> 	vfs_caches_init_early();
-> 	cpuset_init_early();
-> 	mem_init();
-> 	kmem_cache_init();
-> 	setup_per_cpu_pageset();
-> 
-> just after sort_main_extable().
-> 
-> But things will explode ;)
-> 
-> I suggest you run up a patch, test it on whatever machines you have, send
-> it over and I'll do the same.  But please make sure it has a config option
-> to restore the old sequence for now.  a) So people can work out that it was
-> this patch which broke things and b) so it doesn't adversely affect testing
-> of other things too much.
+> Wu, I don't know anything about REGPARM, which my x86_64 config doesn't have,
 
-Good ideas. I'll give these things a spin. One thing that may explode is
-that all that code is running with local_irq_disable() (since local irqs
-aren't enabled before init_IRQ()) and that means possible use of some
-types of semaphores may trigger warn-on's (or worse as I think some
-implementations of down_read() might even force-enable irqs).
-
-But there is no fundamental reasons to do so ... that's the trick :) If
-that happens, those semaphores are still ok as they should never get
-into contention that early.
-
-Anyway, I'll give it a spin on ppc and maybe x86 if I can find a victim
-to test on here, and will send something.
-
-Cheers,
-Ben.
+because it doesn't need it since it's default for that architecture
 
 

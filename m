@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751265AbWFESSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751272AbWFESS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWFESSN (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 14:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWFESSN
+	id S1751272AbWFESS3 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 14:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWFESS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 14:18:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37082 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751271AbWFESSN (ORCPT
+	Mon, 5 Jun 2006 14:18:29 -0400
+Received: from mail.gmx.net ([213.165.64.20]:12941 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750744AbWFESS2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 14:18:13 -0400
-Date: Mon, 5 Jun 2006 14:18:01 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Laurent Riffard <laurent.riffard@free.fr>, 76306.1226@compuserve.com,
-        linux-kernel@vger.kernel.org, jbeulich@novell.com,
-        Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060605181801.GB30336@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Laurent Riffard <laurent.riffard@free.fr>,
-	76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-	jbeulich@novell.com, Ingo Molnar <mingo@elte.hu>,
-	Arjan van de Ven <arjan@linux.intel.com>
-References: <200606042101_MC3-1-C19B-1CF4@compuserve.com> <20060604181002.57ca89df.akpm@osdl.org> <44840838.7030802@free.fr> <4484584D.4070108@free.fr> <20060605110046.2a7db23f.akpm@osdl.org>
+	Mon, 5 Jun 2006 14:18:28 -0400
+X-Authenticated: #704063
+Subject: Re: [Patch] Check sound_alloc_mixerdev() failure in
+	sound/oss/nm256_audio.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, mm@caldera.de
+In-Reply-To: <20060601170445.GA7265@martell.zuzino.mipt.ru>
+References: <1149155608.9452.1.camel@alice>
+	 <20060601170445.GA7265@martell.zuzino.mipt.ru>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 20:18:25 +0200
+Message-Id: <1149531505.15988.2.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060605110046.2a7db23f.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 05, 2006 at 11:00:46AM -0700, Andrew Morton wrote:
+hi,
 
- > Ingo, what does "vol_id/2233" mean?
+> > -    if (num_mixers >= MAX_MIXER_DEV) {
+> > +    if ((num_mixers >= MAX_MIXER_DEV) || (num_mixers < 0)) {
+> 					     ^^^^^^^^^^
+> >  	printk ("NM256 mixer: Unable to alloc mixerdev\n");
+> >  	return -1;
+> >      }
+> 
+> But it is _still_ fails to check it.
 
-process name/pid ?
+*yuck* I hope you keep count on the numbers of beers i owe you
+by now. Here is an updated patch.
 
- > I guess we should force 8k stacks if the lockdep features are enabled.
- > 
- > But x86_64 has no such option.  Problem.
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-x86-64 always uses 8K stacks. (The increased sizeof(long) makes 4K
-really scary.
+--- linux-2.6.17-rc5/sound/oss/nm256_audio.c.orig	2006-06-05 20:15:18.000000000 +0200
++++ linux-2.6.17-rc5/sound/oss/nm256_audio.c	2006-06-05 20:16:06.000000000 +0200
+@@ -974,7 +974,7 @@ nm256_install_mixer (struct nm256_info *
+ 	return -1;
+ 
+     mixer = sound_alloc_mixerdev();
+-    if (num_mixers >= MAX_MIXER_DEV) {
++    if ((num_mixers >= MAX_MIXER_DEV) || (mixer < 0)) {
+ 	printk ("NM256 mixer: Unable to alloc mixerdev\n");
+ 	return -1;
+     }
 
-		Dave
 
--- 
-http://www.codemonkey.org.uk

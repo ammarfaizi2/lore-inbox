@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932395AbWFEDHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932398AbWFEDKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWFEDHu (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 23:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWFEDHt
+	id S932398AbWFEDKp (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 23:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWFEDKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 23:07:49 -0400
-Received: from xenotime.net ([66.160.160.81]:41960 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932395AbWFEDHt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 23:07:49 -0400
-Date: Sun, 4 Jun 2006 20:10:36 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: utsname/hostname
-Message-Id: <20060604201036.7470c043.rdunlap@xenotime.net>
-In-Reply-To: <20060604180618.02313245.akpm@osdl.org>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	<20060604170218.f45a5302.rdunlap@xenotime.net>
-	<20060604180618.02313245.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 Jun 2006 23:10:44 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:48527 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932398AbWFEDKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 23:10:44 -0400
+Date: Sun, 4 Jun 2006 23:07:33 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] i386: print stack size in oops messages
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200606042309_MC3-1-C19F-CFFE@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 18:06:18 -0700 Andrew Morton wrote:
+Always print stack size in oops messages.  By having this line
+in every message, ugly newline logic can be removed as well.
 
-> On Sun, 4 Jun 2006 17:02:18 -0700
-> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> 
-> > >  utsname virtualisation.  This doesn't seem very pointful as a standalone
-> > >  thing.  That's a general problem with infrastructural work for a very
-> > >  large new feature.
-> > > 
-> > >  So probably I'll continue to babysit these patches, unless someone can
-> > >  identify a decent reason why mainline needs this work.
-> > 
-> > Not a strong argument for mainline, but I have a patch to make
-> > <hostname> larger (up to 255 bytes, per POSIX).
-> >   http://www.xenotime.net/linux/patches/hostname-2617-rc5b.patch
-> 
-> My immediate reaction to that was to tell posix to go take a hike.  I mean,
-> sheesh.
-
-well thanks for finally replying then.
-That's my reaction to some other patches (in -mm) as well
-(not that it matters).
-
-> > I can either update my hostname patch against mm/utsname.. or not.
-> > But I don't really want to see some/any patch blocked due to a patch
-> > in -mm being borderline "pointful," so how do we deal with this?
-> 
-> Well first we need to work out if there's any vague reason why we need to
-> mucky up our kernel by implementing this dopey spec.  If there is such a
-> reason then I guess I drop all the ustname patches and ask that they be
-> redone.  They're a bit straggly and a refactoring/rechanngelogging wouldn't
-> hurt.
-
-Fixing the changelog is easy.  What refactoring do you mean?
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
 ---
-~Randy
+
+ arch/i386/kernel/traps.c |   14 +++-----------
+ 1 files changed, 3 insertions(+), 11 deletions(-)
+
+--- 2.6.17-rc5-32.orig/arch/i386/kernel/traps.c
++++ 2.6.17-rc5-32/arch/i386/kernel/traps.c
+@@ -362,30 +362,22 @@ void die(const char * str, struct pt_reg
+ 		local_save_flags(flags);
+ 
+ 	if (++die.lock_owner_depth < 3) {
+-		int nl = 0;
+ 		unsigned long esp;
+ 		unsigned short ss;
+ 
+ 		handle_BUG(regs);
+ 		printk(KERN_EMERG "%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
++		printk(KERN_EMERG "%dK_STACKS ", THREAD_SIZE / 1024);
+ #ifdef CONFIG_PREEMPT
+-		printk(KERN_EMERG "PREEMPT ");
+-		nl = 1;
++		printk("PREEMPT ");
+ #endif
+ #ifdef CONFIG_SMP
+-		if (!nl)
+-			printk(KERN_EMERG);
+ 		printk("SMP ");
+-		nl = 1;
+ #endif
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+-		if (!nl)
+-			printk(KERN_EMERG);
+ 		printk("DEBUG_PAGEALLOC");
+-		nl = 1;
+ #endif
+-		if (nl)
+-			printk("\n");
++		printk("\n");
+ 		if (notify_die(DIE_OOPS, str, regs, err,
+ 					current->thread.trap_no, SIGSEGV) !=
+ 				NOTIFY_STOP) {
+-- 
+Chuck

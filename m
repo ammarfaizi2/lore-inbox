@@ -1,107 +1,110 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932418AbWFEFa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932415AbWFEFl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWFEFa3 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 01:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWFEFa2
+	id S932415AbWFEFl3 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 01:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWFEFl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 01:30:28 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:7943 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932418AbWFEFa2 (ORCPT
+	Mon, 5 Jun 2006 01:41:29 -0400
+Received: from gate.crashing.org ([63.228.1.57]:50132 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932415AbWFEFl2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 01:30:28 -0400
-Message-ID: <4483C16D.80002@argo.co.il>
-Date: Mon, 05 Jun 2006 08:30:21 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Mark Lord <lkml@rtr.ca>, Linus Torvalds <torvalds@osdl.org>,
-        Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, mason@suse.com, andrea@suse.de, hugh@veritas.com
-Subject: Re: NCQ performance (was Re: [rfc][patch] remove racy sync_page?)
-References: <20060601180405.GP4400@suse.de>
-In-Reply-To: <20060601180405.GP4400@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 5 Jun 2006 01:41:28 -0400
+Subject: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 15:40:08 +1000
+Message-Id: <1149486009.8543.42.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jun 2006 05:30:26.0018 (UTC) FILETIME=[262AC420:01C68861]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
->
-> On Thu, Jun 01 2006, Jens Axboe wrote:
-> > On Thu, Jun 01 2006, Avi Kivity wrote:
-> > > Jens Axboe wrote:
-> > > >
-> > > >Ok, I decided to rerun a simple random read work load (with fio), 
-> using
-> > > >depths 1 and 32. The test is simple - it does random reads all 
-> over the
-> > > >drive size with 4kb block sizes. The reads are O_DIRECT. The test
-> > > >pattern was set to repeatable, so it's going through the same 
-> workload.
-> > > >The test spans the first 32G of the drive and runtime is capped 
-> at 20
-> > > >seconds.
-> > > >
-> > >
-> > > Did you modify the iodepth given to the test program, or to the 
-> drive?
-> > > If the former, then some of the performance increase came from the 
-> Linux
-> > > elevator.
-> > >
-> > > Ideally exactly the same test would be run with the just the drive
-> > > parameters changed.
-> >
-> > Just from the program. Since the software depth matched the software
-> > depth, I'd be surprised if it made much of a difference here.  I can
-> > rerun the same test tomorrow with the drive depth modified the and
-> > software depth fixed at 32. Then the io scheduler can at least help the
-> > drive without NCQ out somewhat.
->
-> Same test, but with iodepth=48 for both ncq depth 1 and ncq depth 31.
-> This gives the io scheduler something to work with for both cases.
->
-> sda:    Maxtor 7B300S0
-> sdb:    Maxtor 7L320S0
-> sdc:    SAMSUNG HD160JJ
-> sdd:    HDS725050KLA360 (Hitachi 500GB drive)
->
-> drive           depth           KiB/sec         diff    diff 1/1
-> ----------------------------------------------------------------
-> sda              1/1            397
-> sda              1              513             +29%
-> sda             31              673             +31+    +69%
->
-> sdb              1/1            397
-> sdb              1              535             +35%
-> sdb             31              741             +38%    +87%
->
-> sdc              1/1            372
-> sdc              1              449             +21%
-> sdc             31              507             +13%    +36%
->
-> sdd              1/1            489
-> sdd              1              650             +33%
-> sdd             31              941             +45%    +92%
->
-> Conclusions: the io scheduler helps, NCQ help - both combined helps a
-> lot. The Samsung firmware looks bad. Additional requests in io scheduler
-> when using NCQ doesn't help, except for the new firmware Maxtor.
-> Suspect. NCQ still helps a lot, > 30% for all drives except the Samsung
->
+In various places, architectures need to request interrupts early during
+boot. Before slab is initialized typically. We used to have all sorts of
+arch hacks to do so, which ended up being turned into something like:
 
-NCQ can reorder to prefer small seeks to rotational delays, which the io 
-scheduler can't due to lack of knowledge of the 2D geometry.  Your 
-measurements show that the larger drives benefit the most, as the fixed 
-seek range means these drives have to seek less.  Full range results 
-would probably be a lot worse.
+static struct irqaction xxx_irq = { xxx_irq_handler, 0, CPU_MASK_NONE,
+"xxx", NULL, NULL };
 
-It would probably be possible to measure the drive geometry by 
-experiment and teach the results to the io scheduler, and get the same 
-benefits as NCQ, but that experiment could run for a long time.
+ .../...
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+setup_irq(&xxx_irq);
+
+(for example fpu_irq in i386's i8259.c)
+
+I quite dislike that and would like to propose that patch instead,
+adding an SA_BOOTMEM flag that can be used to request IRQs before slab
+is initialized. (Note that the register_* calls to the proc code aren't
+protected, they shouldn't be a problem as they test for the /proc/irq
+root node before doing anything and this can't have been created if slab
+doesn't work).
+
+Of course, an SA_BOOTMEM irqaction can't be freed. My proposed patch
+"disconnects" it completely and just skips the freeing step but we might
+want to refuse with a WARN_ON() attempts to free_irq() such an interrupt
+instead. Note that the existing practice using a static descriptor
+doesn't protect against such attempts at freeing.
+
+Ben.
+
+Index: linux-work/include/linux/signal.h
+===================================================================
+--- linux-work.orig/include/linux/signal.h	2006-05-30 13:03:41.000000000 +1000
++++ linux-work/include/linux/signal.h	2006-06-05 15:14:16.000000000 +1000
+@@ -19,7 +19,7 @@
+ #define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
+ #define SA_PROBEIRQ		0x08000000
+-
++#define SA_BOOTMEM		0x02000000
+ /*
+  * As above, these correspond to the IORESOURCE_IRQ_* defines in
+  * linux/ioport.h to select the interrupt line behaviour.  When
+Index: linux-work/kernel/irq/manage.c
+===================================================================
+--- linux-work.orig/kernel/irq/manage.c	2006-05-31 11:26:45.000000000 +1000
++++ linux-work/kernel/irq/manage.c	2006-06-05 15:34:27.000000000 +1000
+@@ -12,6 +12,7 @@
+ #include <linux/module.h>
+ #include <linux/random.h>
+ #include <linux/interrupt.h>
++#include <linux/bootmem.h>
+ 
+ #include "internals.h"
+ 
+@@ -206,7 +207,7 @@ int setup_irq(unsigned int irq, struct i
+ 	 * so we have to be careful not to interfere with a
+ 	 * running system.
+ 	 */
+-	if (new->flags & SA_SAMPLE_RANDOM) {
++	if ((new->flags & SA_SAMPLE_RANDOM) && !(new->flags & SA_BOOTMEM)) {
+ 		/*
+ 		 * This function might sleep, we want to call it first,
+ 		 * outside of the atomic block.
+@@ -363,7 +364,8 @@ void free_irq(unsigned int irq, void *de
+ 
+ 			/* Make sure it's not being used on another CPU */
+ 			synchronize_irq(irq);
+-			kfree(action);
++			if (!(action->flags & SA_BOOTMEM))
++				kfree(action);
+ 			return;
+ 		}
+ 		printk(KERN_ERR "Trying to free free IRQ%d\n", irq);
+@@ -424,7 +426,10 @@ int request_irq(unsigned int irq,
+ 	if (!handler)
+ 		return -EINVAL;
+ 
+-	action = kmalloc(sizeof(struct irqaction), GFP_ATOMIC);
++	if (irqflags & SA_BOOTMEM)
++		action = alloc_bootmem(sizeof(struct irqaction));
++	else
++		action = kmalloc(sizeof(struct irqaction), GFP_ATOMIC);
+ 	if (!action)
+ 		return -ENOMEM;
+ 
+
 

@@ -1,117 +1,124 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932360AbWFEBFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932355AbWFEBEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWFEBFS (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Jun 2006 21:05:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWFEBFR
+	id S932355AbWFEBEv (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 4 Jun 2006 21:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWFEBEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jun 2006 21:05:17 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:62381 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932363AbWFEBFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jun 2006 21:05:14 -0400
-Subject: Re: [patch, -rc5-mm1] locking validator: special rule: 8390.c
-	disable_irq()
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
-        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060604214448.GA6602@elte.hu>
-References: <1149112582.3114.91.camel@laptopd505.fenrus.org>
-	 <1149345421.13993.81.camel@localhost.localdomain>
-	 <20060603215323.GA13077@devserv.devel.redhat.com>
-	 <1149374090.14408.4.camel@localhost.localdomain>
-	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
-	 <1149426961.27696.7.camel@localhost.localdomain>
-	 <1149437412.23209.3.camel@localhost.localdomain>
-	 <1149438131.29652.5.camel@localhost.localdomain>
-	 <1149456375.23209.13.camel@localhost.localdomain>
-	 <1149456532.29652.29.camel@localhost.localdomain>
-	 <20060604214448.GA6602@elte.hu>
-Content-Type: text/plain
-Date: Sun, 04 Jun 2006 21:04:34 -0400
-Message-Id: <1149469474.29652.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jun 2006 21:04:51 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:993 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932355AbWFEBEu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jun 2006 21:04:50 -0400
+Message-ID: <349469486.25534@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Mon, 5 Jun 2006 09:05:01 +0800
+From: Fengguang Wu <fengguang.wu@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Martin Peschke <mp3@de.ibm.com>
+Subject: statistics infrastructure
+Message-ID: <20060605010501.GA4931@mail.ustc.edu.cn>
+Mail-Followup-To: Fengguang Wu <fengguang.wu@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Martin Peschke <mp3@de.ibm.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-04 at 23:44 +0200, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > On Sun, 2006-06-04 at 22:26 +0100, Alan Cox wrote:
-> > > Ar Sul, 2006-06-04 am 12:22 -0400, ysgrifennodd Steven Rostedt:
-> > > > But can't this machine still cause an interrupt storm if the interrupt
-> > > > comes on a wrong line, and we don't call the handler for the interrupt
-> > > > source because we are now honoring disable_irq?
-> > > 
-> > > Yes - that is why we can't honour disable_irq in this case but have to
-> > > hope 8)
-> > > 
-> > 
-> > Hmm, maybe this can be solved with something like what the -rt patch 
-> > does with threading interrupts and the interrupt mask.  I'm not 
-> > suggesting threading interrupts.  But, if the misrouted irq comes 
-> > across a disabled_irq, that it sets some flag, and doesn't unmask the 
-> > interrupt when finished.  Have enable_irq see the flag and have it 
-> > unmask the interrupt if it is safe to do so.
-> > 
-> > This all may be pretty hacky, but it's trying to fix code for hardware 
-> > that is already hacky.  Note, that this would need to be compiled in 
-> > as on option to actually implement any of this crap.
-> 
-> no ... lets not mix threaded IRQs in here. The model of executing an 
-> interrupt handler has nothing to do with the irq flow itself. Whatever 
-> can be done with a threaded handler can be done via atomic ISRs too.
+On Sun, Jun 04, 2006 at 01:50:11PM -0700, Andrew Morton wrote:
+> statistics-infrastructure.patch
+ 
+>  Another tough one.  It offers generic intrastructure for non-task-related
+>  instrumentation and it would really be good if someone who has an interest
+>  in this for something other than the zfcp driver could stand up and say
+>  "this works for us".
 
-I wasn't suggesting threading the handler.  But to use the technique
-that threaded handlers use.  That is to postpone the unmasking of the
-interrupt until a later time. Sorry to not make that point clearer.
+I'm having a try of it. Looks good for my case, except some fixable
+issues/bugs. Here is a sample session for querying the readahead statistics:
 
-> 
-> pretty much the only correct solution seems to be to go with Arjan's 
-> suggestion and make the 'disabled' property per-action, instead of the 
-> current per-desc thing. (obviously the physical act of masking an 
-> interrupt line is fundamentally per-desc, but the act of running an 
-> action "behind the back" of a masked line is still OK.) Unfortunately 
-> this would also mean the manual conversion of 300+ places that use 
-> disable_irq()/enable_irq() currently ... so it's no small work. (and the 
-> hardest part of the work is to find a safe method to convert them 
-> without introducing bugs)
-
-I don't think that solves the problem.  Even if you disable at the
-handler level, and that handler happened to cause an interrupt that is
-level sensitive and needs the driver to disarm it, the problem returns.
-So if disable_irq_handler disabled the handler and the interrupt, but
-then this interrupt happened to come in on another line what happens?
-If you decide to skip this handler because it was labeled "don't touch
-me", we will again get the interrupt storm because as soon as you return
-from the interrupt handler from the misrouted irq, it will be triggered
-again!
-
-So what I'm suggesting, is that we flag the case that a handler (or the
-irq in general) is disabled when a misrouted irq is performed.  If the
-irq was not covered by an interrupt handler, and there was a skipped
-handler due to disable_irq, we then don't unmask the irq on return from
-the interrupt but instead flag it.  Now when the irq is reenabled, the
-flag is checked and if it wasn't handled already, we call the handler
-then.
-
-Actually this means that we really don't need the use of the
-disable_irq_handler. We keep all the code with the interrupt part, and
-we can do the accounting there.
-
-Understand where I'm getting at?  By skipping a handler you risk having
-an interrupt storm anyway.  But my idea is to have accounting to handle
-disabled_irqs and only unmask the irq if it was handled and we didn't
-skip any handlers due to disable_irq.  That way we can push the work
-into enable_irq and avoid modifying 300+ calls to disable_irq not to
-mention enable_irq as well.
-
-I'd do a patch to show what I mean, but you will have to wait a week and
-a half. I'll be traveling again, and wont be able to work on it until
-then (unless I can squeeze some time tomorrow ;)
-
--- Steve
-
+root ~# echo state=on > /debug/statistics/readahead/definition
+root ~# cat /debug/statistics/readahead/definition
+name=io_block state=on units=/ type=counter_inc data=[  108.272356] started=[  218.797000] stopped=[  201.533118]
+name=read_random state=on units=pages/requests type=utilisation data=[  108.272459] started=[  218.797004] stopped=[  201.533146]
+name=readahead-fadvise state=on units=pages/requests type=utilisation data=[  108.272472] started=[  218.797005] stopped=[  201.533149]
+name=readahead-stock state=on units=pages/requests type=utilisation data=[  108.272476] started=[  218.797005] stopped=[  201.533152]
+name=readaround-mmap state=on units=pages/requests type=utilisation data=[  108.272479] started=[  218.797006] stopped=[  201.533155]
+name=readahead-mmap state=on units=pages/requests type=utilisation data=[  108.272482] started=[  218.797006] stopped=[  201.533158]
+name=readahead-initial state=on units=pages/requests type=utilisation data=[  108.272485] started=[  218.797007] stopped=[  201.533161]
+name=readahead-state state=on units=pages/requests type=utilisation data=[  108.272488] started=[  218.797007] stopped=[  201.533164]
+name=readahead-context state=on units=pages/requests type=utilisation data=[  108.272491] started=[  218.797008] stopped=[  201.533166]
+name=readahead-contexta state=on units=pages/requests type=utilisation data=[  108.272494] started=[  218.797008] stopped=[  201.533169]
+name=readahead-backward state=on units=pages/requests type=utilisation data=[  108.272497] started=[  218.797009] stopped=[  201.533172]
+name=readahead-onthrash state=on units=pages/requests type=utilisation data=[  108.272500] started=[  218.797009] stopped=[  201.533175]
+name=readahead-onseek state=on units=pages/requests type=utilisation data=[  108.272503] started=[  218.797010] stopped=[  201.533178]
+name=rescue state=on units=pages/chunks type=utilisation data=[  108.272506] started=[  218.797011] stopped=[  201.533181]
+name=size_drop state=on units=from-pages/delta-pages type=counter_inc data=[  108.272509] started=[  218.797011] stopped=[  201.533184]
+root ~# cat /debug/statistics/readahead/data
+io_block 40
+read_random 0 0 0.000 0
+readahead-fadvise 0 0 0.000 0
+readahead-stock 0 0 0.000 0
+readaround-mmap 7 1 28.286 88
+readahead-mmap 0 0 0.000 0
+readahead-initial 2 5 5.000 5
+readahead-state 1331 256 256.010 269
+readahead-context 0 0 0.000 0
+readahead-contexta 0 0 0.000 0
+readahead-backward 0 0 0.000 0
+readahead-onthrash 0 0 0.000 0
+readahead-onseek 0 0 0.000 0
+rescue 0 0 0.000 0
+size_drop 13
+root ~#
+root ~# echo  name=readahead-initial type=histogram_lin entries=32 range_min=8 base_interval=8 > /debug/statistics/readahead/definition
+root ~# cat /debug/statistics/readahead/data
+io_block 53
+read_random 0 0 0.000 0
+readahead-fadvise 0 0 0.000 0
+readahead-stock 0 0 0.000 0
+readaround-mmap 7 1 28.286 88
+readahead-mmap 0 0 0.000 0
+readahead-initial <=8 0
+readahead-initial <=16 0
+readahead-initial <=24 0
+readahead-initial <=32 0
+readahead-initial <=40 0
+readahead-initial <=48 0
+readahead-initial <=56 0
+readahead-initial <=64 0
+readahead-initial <=72 0
+readahead-initial <=80 0
+readahead-initial <=88 0
+readahead-initial <=96 0
+readahead-initial <=104 0
+readahead-initial <=112 0
+readahead-initial <=120 0
+readahead-initial <=128 0
+readahead-initial <=136 0
+readahead-initial <=144 0
+readahead-initial <=152 0
+readahead-initial <=160 0
+readahead-initial <=168 0
+readahead-initial <=176 0
+readahead-initial <=184 0
+readahead-initial <=192 0
+readahead-initial <=200 0
+readahead-initial <=208 0
+readahead-initial <=216 0
+readahead-initial <=224 0
+readahead-initial <=232 0
+readahead-initial <=240 0
+readahead-initial <=248 0
+readahead-initial >248 0
+readahead-state 1331 256 256.010 269
+readahead-context 0 0 0.000 0
+readahead-contexta 0 0 0.000 0
+readahead-backward 0 0 0.000 0
+readahead-onthrash 0 0 0.000 0
+readahead-onseek 0 0 0.000 0
+rescue 0 0 0.000 0
+size_drop 13

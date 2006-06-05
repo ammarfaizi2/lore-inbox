@@ -1,129 +1,101 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750799AbWFEIuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750798AbWFEIu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbWFEIuO (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 04:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWFEIuO
+	id S1750798AbWFEIu7 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 04:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWFEIu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 04:50:14 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:21988 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750799AbWFEIuN (ORCPT
+	Mon, 5 Jun 2006 04:50:59 -0400
+Received: from gate.crashing.org ([63.228.1.57]:18390 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750798AbWFEIu6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 04:50:13 -0400
-Date: Mon, 5 Jun 2006 10:49:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
-Cc: arjan@linux.intel.com, linux-kernel@vger.kernel.org
-Subject: [patch, -rc5-mm3] fix irqpoll some more
-Message-ID: <20060605084938.GA31915@elte.hu>
-References: <200606050600.k5560GdU002338@shell0.pdx.osdl.net> <1149497459.23209.39.camel@localhost.localdomain>
+	Mon, 5 Jun 2006 04:50:58 -0400
+Subject: Re: [RFC][PATCH] request_irq(...,SA_BOOTMEM);
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, tglx@linutronix.de,
+        torvalds@osdl.org
+In-Reply-To: <20060605012405.ac17f918.akpm@osdl.org>
+References: <1149486009.8543.42.camel@localhost.localdomain>
+	 <1149491309.8543.54.camel@localhost.localdomain>
+	 <20060605003127.fc1ea37a.akpm@osdl.org>
+	 <1149493691.8543.57.camel@localhost.localdomain>
+	 <20060605012405.ac17f918.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 18:49:36 +1000
+Message-Id: <1149497376.8543.65.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149497459.23209.39.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> Ar Sul, 2006-06-04 am 23:00 -0700, ysgrifennodd akpm@osdl.org:
-> > irqpoll/irqfixup ignored IRQ_DISABLED but that could cause lockups.  So
-> > listen to desc->depth to correctly honor disable_irq().  Also, when an
-> > interrupt it screaming, set IRQ_DISABLED but do not touch ->depth.
-> > 
-> > Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> > Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+\
+> Yes, there are a few sleeping locks taken in
+> kmem_cache_init()->kmem_cache_init(), for example.
 > 
-> NAK
+> They would normally generate might_sleep() warnings, but __might_sleep()
+> suppresses that early in boot, for this very reason.
 > 
-> The moment you do this you as good as lose irqpoll support because the 
-> IRQ being disabled is unrelated to the IRQ delivery line when dealing 
-> with faults of this nature.
+> It's all a bit sleazy, "knowing" that these locks won't be contended, so
+> it's safe to do apparently-unsafe things.  We haven't even started the
+> other CPUs yet.
+> 
+> For something like kmem_cache_init() we could, I suppose, pass in a
+> dont-take-any-locks flag.  But for a fastpath thing (if there are any such
+> cases) that wouldn't be an option.
+> 
+> All very unpleasant.
 
-hm, agreed. I really sent it more as an RFC. The real fix is to do the 
-disable_irq_handler()/enable_irq_handler() thing. [which is also a much 
-nicer interface for more advanced MSI concepts]
+It is, but I think it's ok to assume that we won't contention that early
+during boot. I mean, irqs are disabled not because we are in an atomic
+section but bcs we just have never enabled them yet :) 
 
-> There is a saner fix - walk all the IRQs that are not disabled and 
-> only if that produces no claim (ie the box is about to die otherwise) 
-> then walk the disabled ones. Its a slow path at that point in error 
-> recovery so the performance isn't critical.
+> And yes, the mutex code will (with debug enabled) unconditionally enable
+> interrupts.  ppc64 tends to oops when this happens, in the timer handler
+> (so it'll be intermittent...)
 
-yeah. How about the patch below? [builds and boots on x86, but no real 
-irqpoll testing was done as i dont have such a problem-system.]
+I tend to say that any code that hard-enables interrupts is looking for
+trouble (mostly for that very reason of init stuff).
 
-	Ingo
+The thing is, to talk to the PIC, we need generally quite a bit of stuff
+up, like page tables for ioremap etc... and thus because of that, as I
+said, archs carry horrible hacks all over the place.
 
----------------
-Subject: fix irqpoll some more
-From: Ingo Molnar <mingo@elte.hu>
+We can't just local_irq_enable() and setup the PIC later because the PIC
+may have been left in a crap state by the BIOS (or whatever else we boot
+from like kexec/kdump).
 
-implement Alan's suggestion of irqpoll doing a second pass over
-disabled irq lines if we didnt manage to handle the screaming
-interrupt.
+Thus it's a matter of
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/irq/spurious.c |   24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ - making sure we have some sanity with irq enabling/disabling
+(basically not hard-enabling, always doing save/restore)
+ - making sure our very zealous runtime checks don't trigger on
+"interrupts have never been enabled yet" :)
 
-Index: linux/kernel/irq/spurious.c
-===================================================================
---- linux.orig/kernel/irq/spurious.c
-+++ linux/kernel/irq/spurious.c
-@@ -18,8 +18,9 @@ static int irqfixup __read_mostly;
-  */
- static int misrouted_irq(int irq, struct pt_regs *regs)
- {
--	int i, ok = 0, work = 0;
-+	int i, ok = 0, work = 0, first_pass = 1;
- 
-+repeat:
- 	for (i = 1; i < NR_IRQS; i++) {
- 		struct irq_desc *desc = irq_desc + i;
- 		struct irqaction *action;
-@@ -61,7 +62,7 @@ static int misrouted_irq(int irq, struct
- 		 * IRQ_DISABLED - which might have been set due to
- 		 * a screaming interrupt.
- 		 */
--		if (desc->depth) {
-+		if (first_pass && desc->depth) {
- 			spin_unlock(&desc->lock);
- 			continue;
- 		}
-@@ -90,6 +91,25 @@ static int misrouted_irq(int irq, struct
- 			desc->chip->end(i);
- 		spin_unlock(&desc->lock);
- 	}
-+	/*
-+	 * HACK:
-+	 *
-+	 * In the first pass we dont touch handlers that are behind
-+	 * a disabled IRQ line. In the second pass (having no other
-+	 * choice) we ignore the disabled state of IRQ lines. We've
-+	 * got a screaming interrupt, so we have the choice between
-+	 * a real lockup happening due to that screaming interrupt,
-+	 * against a theoretical locking that becomes possible if we
-+	 * ignore a disabled IRQ line.
-+	 *
-+	 * FIXME: proper disable_irq_handler() API would remove the
-+	 * need for this hack.
-+	 */
-+	if (!ok && first_pass) {
-+		first_pass = 0;
-+		goto repeat;
-+	}
-+
- 	/* So the caller can adjust the irq error counts */
- 	return ok;
- }
+I think the above is a small price to pay for all the added sanity of
+having an allocator earlier and removing all of the crap archs carry
+around to have ioremap working very early.
+
+Ok, not _all_ of it because archs took bad habits and setup_arch() tends
+to be full of stuff needing to tap the hardware as well, but heh, let's
+clean things one step at a time. Once we have done that, we can/should
+probably split setup_arch() (before allocator etc... setup) and
+init_arch() after. That way, all the code that need to atually probe
+hardware can be moved there (on ppc, that's also where we need to
+discover PCI bridges so we can get the legacy ISA stuff etc....) 
+
+I can already foresee vast amounts of cleanups in the ppc code (and
+getting rid of bootmem allocations in lots of places) with such
+things :)
+
+> But looking at
+> work-around-ppc64-bootup-bug-by-making-mutex-debugging-save-restore-irqs.patch
+> I realise I don't understand it.  We only go into the irq-enabling code in
+> the case of contention, and there cannot be contention in this case?
+
+I'll have a look, possibly not before tomorrow though.
+
+Ben.
+
+
+

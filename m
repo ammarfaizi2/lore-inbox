@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932423AbWFEFvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932426AbWFEGCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWFEFvs (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 01:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWFEFvs
+	id S932426AbWFEGCz (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 02:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWFEGCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 01:51:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34785 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932400AbWFEFvr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 01:51:47 -0400
-Date: Sun, 4 Jun 2006 22:51:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: mingo@elte.hu, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
-        linux-acpi@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
-Subject: Re: 2.6.17-rc5-mm3: "BUG: scheduling while atomic" flood when
- resuming from disk
-Message-Id: <20060604225140.cf87519f.akpm@osdl.org>
-In-Reply-To: <986ed62e0606042223l2381d877g4bc798ec64804d43@mail.gmail.com>
-References: <986ed62e0606042223l2381d877g4bc798ec64804d43@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 5 Jun 2006 02:02:54 -0400
+Received: from pool-72-66-198-190.ronkva.east.verizon.net ([72.66.198.190]:57029
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932426AbWFEGCy (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 02:02:54 -0400
+Message-Id: <200606050602.k5562Y4R006843@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm3
+In-Reply-To: Your message of "Mon, 05 Jun 2006 01:15:31 +0200."
+             <20060605011531.0bfe67db@werewolf.auna.net>
+From: Valdis.Kletnieks@vt.edu
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+            <20060605011531.0bfe67db@werewolf.auna.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1149487354_6408P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 05 Jun 2006 02:02:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 22:23:24 -0700
-"Barry K. Nathan" <barryn@pobox.com> wrote:
+--==_Exmh_1149487354_6408P
+Content-Type: text/plain; charset=us-ascii
 
-Please don't send word-wrapped emails.
+On Mon, 05 Jun 2006 01:15:31 +0200, "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" said:
+> On Sat, 3 Jun 2006 23:20:04 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/
 
-> [  355.081000] swsusp: Need to copy 59004 pages
-> [  355.081000] Intel machine check architecture supported.
-> [  355.081000] Intel machine check reporting enabled on CPU#0.
-> [  355.081000] swsusp: Restoring Highmem
-> [  487.081000] APIC error on CPU0: 00(00)
+> ============================
+> [ BUG: illegal lock usage! ]
+> ----------------------------
+> illegal {hardirq-on-W} -> {in-hardirq-R} usage.
+> idle/0 [HC1[1]:SC1[0]:HE0:SE0] takes:
+>  (hl_irqs_lock){--+.}, at: [<f8835cb9>] highlevel_host_reset+0x11/0x5b [ieee1394]
+> {hardirq-on-W} state was registered at:
+>   [<c0133fe4>] lockdep_acquire+0x4d/0x63
+>   [<c02f3421>] _write_lock+0x2e/0x3b
+>   [<f88365ab>] hpsb_register_highlevel+0xac/0xea [ieee1394]
+>   [<f8836d6a>] init_csr+0x28/0x3f [ieee1394]
+>   [<f880617d>] 0xf880617d
+>   [<c01398df>] sys_init_module+0x12a/0x1b7b
+>   [<c02f3b2d>] sysenter_past_esp+0x56/0x8d
 
-What's this?
+ACK.  I saw this same one too, while udevd was trying to get its act
+together in very early rc.sysinit....
 
-> [  487.203000] ACPI Exception (acpi_bus-0070): AE_NOT_FOUND, No
-> context for object [c174d620] [20060310]
 
-And this?
+--==_Exmh_1149487354_6408P
+Content-Type: application/pgp-signature
 
-> [  487.203000] PM: Writing back config space on device 0000:00:00.0 at
-> offset 1 (was 22300006, writing 32300006)
-> [  487.203000] PCI: Setting latency timer of device 0000:00:01.0 to 64
-> [  487.204000] PM: Writing back config space on device 0000:00:06.0 at
-> offset 1 (was 2100005, writing 2100000)
-> [  487.204000] BUG: scheduling while atomic: hibernate.sh/0x00000001/4681
-> [  487.204000]  [<c010465a>] show_trace_log_lvl+0x18a/0x190
-> [  487.205000]  [<c0105c3c>] show_trace+0x2c/0x30
-> [  487.205000]  [<c0105c6b>] dump_stack+0x2b/0x30
-> [  487.205000]  [<c033d4fa>] schedule+0x6fa/0xa30
-> [  487.205000]  [<c033e111>] schedule_timeout+0x51/0xc0
-> [  487.205000]  [<c033e19f>] schedule_timeout_uninterruptible+0x1f/0x30
-> [  487.206000]  [<c012aada>] msleep+0x2a/0x50
-> [  487.206000]  [<c022e55d>] pci_set_power_state+0x1bd/0x250
-> [  487.208000]  [<c022e617>] pci_enable_device_bars+0x27/0x80
-> [  487.209000]  [<c022e6a0>] pci_enable_device+0x30/0x40
-> [  487.211000]  [<e0a36ee0>] snd_cmipci_resume+0x30/0x110 [snd_cmipci]
-> [  487.211000]  [<c023045a>] pci_device_resume+0x2a/0x80
-> [  487.213000]  [<c02909a9>] resume_device+0x59/0xd0
-> [  487.215000]  [<c0290b5e>] dpm_resume+0x9e/0xb0
-> [  487.217000]  [<c0290b85>] device_resume+0x15/0x1f
-> [  487.219000]  [<c014d085>] pm_suspend_disk+0xb5/0x109
-> [  487.220000]  [<c014bcd5>] enter_state+0x145/0x190
-> [  487.220000]  [<c014bdb9>] state_store+0x99/0xb0
-> [  487.221000]  [<c01d1413>] subsys_attr_store+0x33/0x40
-> [  487.222000]  [<c01d1d14>] sysfs_write_file+0xa4/0xf0
-> [  487.223000]  [<c0182361>] vfs_write+0x101/0x1f0
-> [  487.224000]  [<c0182fec>] sys_write+0x4c/0x90
-> [  487.225000]  [<c0341a0a>] sysenter_past_esp+0x63/0xa1
-> [  487.225000]  [<b7f40410>] 0xb7f40410
-> [  487.227000] PCI: Enabling device 0000:00:06.0 (0000 -> 0001)
-> [  487.227000] ACPI: PCI Interrupt 0000:00:06.0[A] -> GSI 17 (level,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-The interesting thing is that we've done sleepy things like down() just
-prior to this.  Do you have CONFIG_PREEMPT and CONFIG_DEBUG_SPINLOCK_SLEEP
-enabled?  If not, please turn them on, see what happens.
+iD8DBQFEg8j6cC3lWbTT17ARAr3GAKDDbhBGbYsn9e03sDH7Kcy7Nxw1BQCg0Hm0
+M96Dd9hBCwqFf8/p3M30x8o=
+=uL6a
+-----END PGP SIGNATURE-----
 
-I don't see anything on that code path which would cause this.  Maybe I
-missed it.
-
+--==_Exmh_1149487354_6408P--

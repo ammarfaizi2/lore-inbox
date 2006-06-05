@@ -1,140 +1,86 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932422AbWFEFm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932423AbWFEFvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbWFEFm1 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 01:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWFEFm0
+	id S932423AbWFEFvs (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 01:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWFEFvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 01:42:26 -0400
-Received: from xenotime.net ([66.160.160.81]:15843 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932422AbWFEFm0 (ORCPT
+	Mon, 5 Jun 2006 01:51:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34785 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932400AbWFEFvr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 01:42:26 -0400
-Date: Sun, 4 Jun 2006 22:45:12 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: barryn@pobox.com, linux-kernel@vger.kernel.org, bunk@stusta.de,
-        greg@kroah.com
-Subject: Re: [PATCH] sisusb: fix build (Re: 2.6.17-rc5-mm3: sisusbvga build
- failure)
-Message-Id: <20060604224512.56a194ff.rdunlap@xenotime.net>
-In-Reply-To: <20060604221117.b9dfdcfc.akpm@osdl.org>
-References: <986ed62e0606042140v78dc2c7cpb3cf7793954d2dce@mail.gmail.com>
-	<20060604220347.6f963375.rdunlap@xenotime.net>
-	<20060604221117.b9dfdcfc.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 5 Jun 2006 01:51:47 -0400
+Date: Sun, 4 Jun 2006 22:51:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: mingo@elte.hu, arjan@linux.intel.com, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.17-rc5-mm3: "BUG: scheduling while atomic" flood when
+ resuming from disk
+Message-Id: <20060604225140.cf87519f.akpm@osdl.org>
+In-Reply-To: <986ed62e0606042223l2381d877g4bc798ec64804d43@mail.gmail.com>
+References: <986ed62e0606042223l2381d877g4bc798ec64804d43@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jun 2006 22:11:17 -0700 Andrew Morton wrote:
+On Sun, 4 Jun 2006 22:23:24 -0700
+"Barry K. Nathan" <barryn@pobox.com> wrote:
 
-> OK, but with that applied it still fails:
-> 
-> In file included from drivers/usb/misc/sisusbvga/sisusb.c:56:
-> drivers/usb/misc/sisusbvga/sisusb_init.h:837: warning: 'struct vc_data' declared inside parameter list
-> drivers/usb/misc/sisusbvga/sisusb_init.h:837: warning: its scope is only this definition or declaration, which is probably not what you want
-> drivers/usb/misc/sisusbvga/sisusb.c:1339: error: static declaration of 'sisusb_setidxreg' follows non-static declaration
-> drivers/usb/misc/sisusbvga/sisusb_init.h:819: error: previous declaration of 'sisusb_setidxreg' was here
-> drivers/usb/misc/sisusbvga/sisusb.c:1351: error: static declaration of 'sisusb_getidxreg' follows non-static declaration
-> drivers/usb/misc/sisusbvga/sisusb_init.h:821: error: previous declaration of 'sisusb_getidxreg' was here
-> drivers/usb/misc/sisusbvga/sisusb.c:1364: error: static declaration of 'sisusb_setidxregandor' follows non-static declaration
-> drivers/usb/misc/sisusbvga/sisusb_init.h:823: error: previous declaration of 'sisusb_setidxregandor' was here
-> drivers/usb/misc/sisusbvga/sisusb.c:1395: error: static declaration of 'sisusb_setidxregor' follows non-static declaration
-> drivers/usb/misc/sisusbvga/sisusb_init.h:825: error: previous declaration of 'sisusb_setidxregor' was here
-> drivers/usb/misc/sisusbvga/sisusb.c:1404: error: static declaration of 'sisusb_setidxregand' follows non-static declaration
-> drivers/usb/misc/sisusbvga/sisusb_init.h:827: error: previous declaration of 'sisusb_setidxregand' was here
-> make[1]: *** [drivers/usb/misc/sisusbvga/sisusb.o] Error 1
-> 
-> Culprit is gregkh-usb-usb-sisusbvga-possible-cleanups.patch
+Please don't send word-wrapped emails.
 
-Adrian might have other methods here...
+> [  355.081000] swsusp: Need to copy 59004 pages
+> [  355.081000] Intel machine check architecture supported.
+> [  355.081000] Intel machine check reporting enabled on CPU#0.
+> [  355.081000] swsusp: Restoring Highmem
+> [  487.081000] APIC error on CPU0: 00(00)
 
+What's this?
 
+> [  487.203000] ACPI Exception (acpi_bus-0070): AE_NOT_FOUND, No
+> context for object [c174d620] [20060310]
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+And this?
 
-Fix build errors caused by agressive static attributes.
+> [  487.203000] PM: Writing back config space on device 0000:00:00.0 at
+> offset 1 (was 22300006, writing 32300006)
+> [  487.203000] PCI: Setting latency timer of device 0000:00:01.0 to 64
+> [  487.204000] PM: Writing back config space on device 0000:00:06.0 at
+> offset 1 (was 2100005, writing 2100000)
+> [  487.204000] BUG: scheduling while atomic: hibernate.sh/0x00000001/4681
+> [  487.204000]  [<c010465a>] show_trace_log_lvl+0x18a/0x190
+> [  487.205000]  [<c0105c3c>] show_trace+0x2c/0x30
+> [  487.205000]  [<c0105c6b>] dump_stack+0x2b/0x30
+> [  487.205000]  [<c033d4fa>] schedule+0x6fa/0xa30
+> [  487.205000]  [<c033e111>] schedule_timeout+0x51/0xc0
+> [  487.205000]  [<c033e19f>] schedule_timeout_uninterruptible+0x1f/0x30
+> [  487.206000]  [<c012aada>] msleep+0x2a/0x50
+> [  487.206000]  [<c022e55d>] pci_set_power_state+0x1bd/0x250
+> [  487.208000]  [<c022e617>] pci_enable_device_bars+0x27/0x80
+> [  487.209000]  [<c022e6a0>] pci_enable_device+0x30/0x40
+> [  487.211000]  [<e0a36ee0>] snd_cmipci_resume+0x30/0x110 [snd_cmipci]
+> [  487.211000]  [<c023045a>] pci_device_resume+0x2a/0x80
+> [  487.213000]  [<c02909a9>] resume_device+0x59/0xd0
+> [  487.215000]  [<c0290b5e>] dpm_resume+0x9e/0xb0
+> [  487.217000]  [<c0290b85>] device_resume+0x15/0x1f
+> [  487.219000]  [<c014d085>] pm_suspend_disk+0xb5/0x109
+> [  487.220000]  [<c014bcd5>] enter_state+0x145/0x190
+> [  487.220000]  [<c014bdb9>] state_store+0x99/0xb0
+> [  487.221000]  [<c01d1413>] subsys_attr_store+0x33/0x40
+> [  487.222000]  [<c01d1d14>] sysfs_write_file+0xa4/0xf0
+> [  487.223000]  [<c0182361>] vfs_write+0x101/0x1f0
+> [  487.224000]  [<c0182fec>] sys_write+0x4c/0x90
+> [  487.225000]  [<c0341a0a>] sysenter_past_esp+0x63/0xa1
+> [  487.225000]  [<b7f40410>] 0xb7f40410
+> [  487.227000] PCI: Enabling device 0000:00:06.0 (0000 -> 0001)
+> [  487.227000] ACPI: PCI Interrupt 0000:00:06.0[A] -> GSI 17 (level,
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/usb/misc/sisusbvga/sisusb.c |   17 +----------------
- drivers/usb/misc/sisusbvga/sisusb.h |    2 --
- 2 files changed, 1 insertion(+), 18 deletions(-)
+The interesting thing is that we've done sleepy things like down() just
+prior to this.  Do you have CONFIG_PREEMPT and CONFIG_DEBUG_SPINLOCK_SLEEP
+enabled?  If not, please turn them on, see what happens.
 
---- linux-2617-rc5mm3.orig/drivers/usb/misc/sisusbvga/sisusb.h
-+++ linux-2617-rc5mm3/drivers/usb/misc/sisusbvga/sisusb.h
-@@ -62,11 +62,9 @@
- #define INCL_SISUSB_CON		1
- #endif
- 
--#ifdef INCL_SISUSB_CON
- #include <linux/console.h>
- #include <linux/vt_kern.h>
- #include "sisusb_struct.h"
--#endif
- 
- /* USB related */
- 
---- linux-2617-rc5mm3.orig/drivers/usb/misc/sisusbvga/sisusb.c
-+++ linux-2617-rc5mm3/drivers/usb/misc/sisusbvga/sisusb.c
-@@ -1331,9 +1331,6 @@ sisusb_getreg(struct sisusb_usb_data *si
- }
- #endif
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 data)
- {
-@@ -1343,9 +1340,6 @@ sisusb_setidxreg(struct sisusb_usb_data 
- 	return ret;
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 *data)
- {
-@@ -1355,9 +1349,6 @@ sisusb_getidxreg(struct sisusb_usb_data 
- 	return ret;
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,
- 							u8 myand, u8 myor)
-@@ -1373,7 +1364,7 @@ sisusb_setidxregandor(struct sisusb_usb_
- 	return ret;
- }
- 
--static int
-+int
- sisusb_setidxregmask(struct sisusb_usb_data *sisusb, int port, u8 idx,
- 							u8 data, u8 mask)
- {
-@@ -1387,18 +1378,12 @@ sisusb_setidxregmask(struct sisusb_usb_d
- 	return ret;
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port, u8 index, u8 myor)
- {
- 	return(sisusb_setidxregandor(sisusb, port, index, 0xff, myor));
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port, u8 idx, u8 myand)
- {
+I don't see anything on that code path which would cause this.  Maybe I
+missed it.
+

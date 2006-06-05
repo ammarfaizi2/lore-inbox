@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750754AbWFEUoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750780AbWFEUrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWFEUoA (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWFEUoA
+	id S1750780AbWFEUrF (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWFEUrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:44:00 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37272 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750754AbWFEUn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:43:59 -0400
-Date: Mon, 5 Jun 2006 13:43:47 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Martin Bligh <mbligh@google.com>, Andy Whitcroft <apw@shadowen.org>,
-        "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-        ak@suse.de, Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com>
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org>
- <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org>
- <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org>
- <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
- <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
- <44848F45.1070205@shadowen.org> <44849075.5070802@google.com>
- <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
+	Mon, 5 Jun 2006 16:47:05 -0400
+Received: from father.pmc-sierra.com ([216.241.224.13]:8371 "HELO
+	father.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
+	id S1750780AbWFEUrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:47:04 -0400
+Message-ID: <478F19F21671F04298A2116393EEC3D52741E7@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+From: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
+To: linux-kernel@vger.kernel.org
+Subject: process starvation with 2.6 scheduler
+Date: Mon, 5 Jun 2006 13:46:58 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigh the patch that I sent earlier will make swapon fail when adding more 
-entries if 32 entries have been defined before even if some of these are 
-later freed. Plus maybe we better leave the probing intact for arches that 
-support less than 32 swap devices and also return -EPERM like before. I 
-guess we need this one instead:
+
+From: Kallol Biswas 
+Sent: Monday, June 05, 2006 12:49 PM
+To: 'linux-kernel@vger.kernel.org'
+Subject: process starvation with 2.6 scheduler
+
+Hello,
+       We have a process starvation problem with our 2.6.11 kernel running on a ppc-440 based system.
+
+We have a storage SOC based on PPC-440. The SOC is emulated on a system emulator called Palladium. It is from Cadence. The system runs at 400KHz speed. It has three Ethernet ports; they are connected to outside lab network with a speed bridge.
+
+The netperf server netserver runs on the emulated system (2.6.11 kernel on Palladium). There are netperf linux clients running on a x86 box.
+
+If netperf request response (TCP_RR) traffic is run on all three ports; after sometime only one port remains active, the application (netperf client) on other two ports wait for a long time and eventually time out.
+
+The netserver code has been instrumented. For one of the starved netserver processes it has been found that the TCP_RR request from the netperf client on linux x86 box has been received by the server, it has issued send() call to send back reply but send() never returns.
+
+With an ICE connected to the Palladium (emulator) I have dumped the kernel data structures of the starved process and the active process. 
 
 
-Do proper boundary checking in sys_swapon().
+For Active  Process:
+  Time_slice 84
+  Policy : SCHED_NORMAL
+  Dynamic priority: 118
+  Static priority: 120
+  Preempt_count: 0x20100
+  Flags = 0
+  State = 0 (TASK_RUNNING)
 
-sys_swapon currently does not limit the number of swap devices. It may as
-a result overwrite memory following the swap_info array and get into 
-entanglements with page migration since it may usethe swap types reserved 
-for page migration.
+For Starved Process:
+  Time slice: 77
+  Policy: SCHED_NORMAL
+  Dynamic priority: 120
+  Static priority: 120
+  Preempt_count: 0x10000000 (PREEMPT_ACTIVE is set)
+  Flags = 0 
+  State = 0 (TASK_RUNNING)
 
-Fix this by limiting the number of swap devices in swapon to 
-MAX_SWAPFILES
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.17-rc5-mm2/mm/swapfile.c
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/mm/swapfile.c	2006-06-01 10:03:07.127259731 -0700
-+++ linux-2.6.17-rc5-mm2/mm/swapfile.c	2006-06-05 13:40:45.887291175 -0700
-@@ -1408,8 +1408,13 @@ asmlinkage long sys_swapon(const char __
- 		spin_unlock(&swap_lock);
- 		goto out;
- 	}
--	if (type >= nr_swapfiles)
-+	if (type >= nr_swapfiles) {
-+		if (nr_swapfiles >= MAX_SWAPFILES) {
-+			spin_unlock(&swap_lock);
-+			goto out;
-+		}
- 		nr_swapfiles = type+1;
-+	}
- 	INIT_LIST_HEAD(&p->extent_list);
- 	p->flags = SWP_USED;
- 	p->swap_file = NULL;
+CONFIG_PREEMPT is not set.
+The system has single CPU.
+
+
+Any help to debug the problem is welcome. 
+
+Kallol

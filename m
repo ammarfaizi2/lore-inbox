@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751169AbWFEOrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751133AbWFEO7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWFEOrs (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 10:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWFEOrs
+	id S1751133AbWFEO7J (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 10:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWFEO7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 10:47:48 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:46085 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751165AbWFEOrq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 10:47:46 -0400
-Date: Mon, 5 Jun 2006 10:47:26 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Arjan van de Ven <arjan@infradead.org>, Jirka Lenost Benc <jbenc@suse.cz>,
-        kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-        pe1rxq@amsat.org
-Subject: Re: move zd1201 where it belongs
-Message-ID: <20060605144722.GA6068@tuxdriver.com>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Jirka Lenost Benc <jbenc@suse.cz>,
-	kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-	pe1rxq@amsat.org
-References: <20060605103952.GA1670@elf.ucw.cz> <1149506120.3111.52.camel@laptopd505.fenrus.org> <20060605113332.GB2132@elf.ucw.cz> <20060605141322.GB23350@tuxdriver.com> <20060605142912.GF2132@elf.ucw.cz>
+	Mon, 5 Jun 2006 10:59:09 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:43650 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751133AbWFEO7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 10:59:08 -0400
+Subject: Re: Linux kernel development
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
+        Kalin KOZHUHAROV <kalin@thinrope.net>,
+        Jesper Juhl <jesper.juhl@gmail.com>, Greg KH <greg@kroah.com>
+In-Reply-To: <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com>
+References: <paolo.ciarrocchi@gmail.com>
+	 <4d8e3fd30606040330i6174f866vfe1c2cd30543a9c0@mail.gmail.com>
+	 <200606042305.k54N5G2b010906@laptop11.inf.utfsm.cl>
+	 <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 10:58:46 -0400
+Message-Id: <1149519526.16247.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060605142912.GF2132@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 05, 2006 at 04:29:12PM +0200, Pavel Machek wrote:
+On Mon, 2006-06-05 at 13:39 +0200, Paolo Ciarrocchi wrote:
 
-> > Did you mean to only copy Jiri and LKML?
+> > Could you add a README (including contact info, etc), and perhaps a TODO
+> > (and a copy of SubmittingPatches, which I assume applies here too?) to the
+> > project? A license for the text is required, AFAIU (GPLv2, or one of the
+> > Creative Commons licenses perhaps?).
 > 
-> Yes, because this should go in as a git patch (so it is move, not
-> create new file), and I was hoping for Jiri to generate proper
-> git-patch :-).
+> Not and exepert in this area, I think I'll release it under GPL2.
+> 
+> What's the normal approach? Can I just add:
+> #		This document is distribuited under
+> #		GNU GENERAL PUBLIC LICENSE
+> #		       Version 2, June 1991
+> #               http://www.gnu.org/licenses/gpl.txt
+> 
+> To the text?
+> 
+> > [Yup, tangle it up in red tape even before it gets off the ground ;-]
+> >
 
-Ah, I see.  Well, I can handle this just fine.
+I released by writeup about the rt-mutex-design.txt (currently in -mm
+under Documentation) under the "GNU Free Documentation License, Version
+1.2".
 
-Thanks,
+If you want to read the license it is here:
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+http://www.gnu.org/copyleft/fdl.html
+
+-- Steve
+
+

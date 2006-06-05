@@ -1,110 +1,89 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750854AbWFEKGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750861AbWFEKLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWFEKGy (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 06:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWFEKGy
+	id S1750861AbWFEKLZ (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 06:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWFEKLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 06:06:54 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:21727 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1750812AbWFEKGx (ORCPT
+	Mon, 5 Jun 2006 06:11:25 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:3537 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750861AbWFEKLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 06:06:53 -0400
-From: Joachim Fritschi <jfritschi@freenet.de>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-Date: Mon, 5 Jun 2006 12:06:49 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        herbert@gondor.apana.org.au
-References: <200606041516.46920.jfritschi@freenet.de> <200606042110.15060.ak@suse.de>
-In-Reply-To: <200606042110.15060.ak@suse.de>
+	Mon, 5 Jun 2006 06:11:24 -0400
+Date: Mon, 5 Jun 2006 12:11:18 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Brown, Len" <len.brown@intel.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: parport and irq question
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6993B13@hdsmsx411.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.61.0606051210580.31612@yvahk01.tjqt.qr>
+References: <CFF307C98FEABE47A452B27C06B85BB6993B13@hdsmsx411.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606051206.50085.jfritschi@freenet.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 June 2006 21:10, Andi Kleen wrote:
-> On Sunday 04 June 2006 15:16, Joachim Fritschi wrote:
-> > This patch adds the twofish x86_64 assembler routine.
-> >
-> > Changes since last version:
-> > - The keysetup is now handled by the twofish_common.c (see patch 1 )
-> > - The last round of the encrypt/decrypt routines where optimized saving 5
-> > instructions.
-> >
-> > Correctness was verified with the tcrypt module and automated test
-> > scripts.
+>> what irq am I supposed to hand to the irq= parameter 
 >
-> Do you have some benchmark numbers that show that it's actually worth
-> it?
-
-Here are the outputs from the tcrypt speedtests. They haven't changed much 
-since the last patch:
-
-http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-c-i586.txt
-http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-asm-i586.txt
-http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-c-x86_64.txt
-http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-asm-x86_64.txt
-
-Summary for cycles used for CBC encrypt decrypt (256bit / 8k blocks) assembler 
-vs. generic-c:
-
-i586 encrypt:   - 17%
-i568 decrypt:   -24%
-x86_64 encrypt: -22%
-x86_64 decrypt: -17%
-
-The numbers vary a bit with different blocksizes / keylength and per test.
-
-I also did some filesystem benchmarks (bonnie++) with various ciphers. Most 
-write tests maxed out my drives writing to disk.  But at least for the read 
-speed you can see some notable performance improvements:
-(Note: The x86 and x86_64 numbers are not comparable since the tests were done 
-on different machines)
-
-http://homepages.tu-darmstadt.de/~fritschi/twofish/output_20060531_160442_x86.html
-
-Summary:
-Sequential read speed improved between 25-32%
-Sequential write speed improved at least 15% but the disk maxed out
-Twofish 256 is a little bit faster than AES 128
-
-http://homepages.tu-darmstadt.de/~fritschi/twofish/output_20060601_113747_x86_64.html
-
-Summary:
-Sequential read speed improved 13%
-Seqential write speed maxed out the drives
-
-> > +/* Defining a few register aliases for better reading */
+>does "auto" work any better?
 >
-> Maybe you can read it now better, but for everybody else it is extremly
-> confusing. It would be better if you just used the original register names.
+Unfortunately no.
 
-The problem with the registers is that the original naming is really crappy in 
-the first place. The lower registers use the old x86 naming scheme plus some 
-extensions but the upper registers are totally different. Since i use a lot 
-of the lower / higher 8bit and 32 bit parts it would be virtually impossible 
-to write simple macros with this naming scheme because there would be no easy 
-way to switch from a (unknown) register to its 8bit subregister or the 32bit 
-in a macro. While there might be some way to do this, i have not found any 
-example in the kernel or any other source code.
-As an explanation i can only add that i looked at the aes assembler 
-implementation and used it as a example. I know refering to bad coding style 
-in the kernel is no excuse for more bad coding but it seems to me that it is 
-the only way to deal with the insane original register naming.
-Imho using the original names would only complicate the macros and complicate 
-understanding the algorithm itself. For the algorithm itself the the actual 
-registers are simply irrelevant . It calls no other functions or uses any 
-syscalls. It only uses them as storage. That way reffering to them in a 
-numbered order with a suffix for 8/16/32bit was an easy way to improve 
-readability and easier programming.
-There might be some way to further improve readability but i have not found 
-any other way. I'm open to suggestions :)
+This is the default output:
+    # modprobe parport_pc
+    [42949457.300000] pnp: Device 00:0a activated.
+    [42949457.300000] parport: PnPBIOS parport detected.
+    [42949457.300000] parport0: PC-style at 0x378 (0x778), irq 7, dma 3
+    [PCSPP,TRISTATE,COMPAT,ECP,DMA]
+    [42949457.390000] ACPI: PCI Interrupt 0000:00:0c.0[A] -> GSI 16
+    (level, low) -> IRQ 217
+    [42949457.390000] PCI parallel port detected: 9710:9805, I/O at
+    0xc800(0xc400)
+    [42949457.390000] parport1: PC-style at 0xc800 (0xc400) [PCSPP,TRISTATE]
+    [42949457.470000] PCI parallel port detected: 9710:9805, I/O at
+    0xc000(0xbc00)
+    [42949457.470000] parport2: PC-style at 0xc000 (0xbc00) [PCSPP,TRISTATE]
+Why don't parport1 and p2 get an IRQ and DMA (and therefore ECP/EPP and all the
+fun)?
 
-Regards,
+There is one side thing that seems wrong:
+    # modprobe parport_pc io=0x378
+    [42949610.790000] parport 0x378 (WARNING): CTR: wrote 0x0c, read 0xff
+    [42949610.790000] parport 0x378 (WARNING): DATA: wrote 0xaa, read 0xff
+    [42949610.790000] parport 0x378: You gave this address, but there is
+    probably no parallel port there!
+But the parport is there (see above). The kernel does not seem to active the
+pnp device.
 
-Joachim
+When specifying irq=auto,auto,auto, I also need to pass in io=. Automatic IRQ
+allocation seems to take place (note the delay in the timestamps), but no IRQ
+is assigned in the end:
+    # modprobe parport_pc irq=auto,auto,auto io=0x378,0xc800,0xc000
+    [42949815.890000] parport 0x378 (WARNING): CTR: wrote 0x0c, read 0xff
+    [42949815.890000] parport 0x378 (WARNING): DATA: wrote 0xaa, read 0xff
+    [42949815.890000] parport 0x378: You gave this address, but there is
+    probably no parallel port there!
+    [42949815.890000] parport0: PC-style at 0x378 [PCSPP,TRISTATE]
+    [42949815.970000] parport1: PC-style at 0xc800 [PCSPP,TRISTATE,EPP]
+    [42949816.050000] parport2: PC-style at 0xc000 (0xc400) [PCSPP,TRISTATE]
+Plus, the io_hi part has only been detected for parport2. It is wrong too, as
+0xc400 belongs to parport1 (see automatic detection above). Strange!
+
+And now for the only command that successfully allocates IRQs (and DMA),
+with the exception of 0x378...:
+    # modprobe parport_pc irq=3,5,7 io=0x378,0xc800,0xc000
+    io_hi=0x778,0xc400,0xbc00
+    [42950056.090000] parport 0x378 (WARNING): CTR: wrote 0x0c, read 0xff
+    [42950056.090000] parport 0x378 (WARNING): DATA: wrote 0xaa, read 0xff
+    [42950056.090000] parport 0x378: You gave this address, but there is
+    probably no parallel port there!
+    [42950056.090000] parport0: PC-style at 0x378, irq 3 [PCSPP,TRISTATE]
+    [42950056.170000] parport1: PC-style at 0xc800 (0xc400), irq 5, dma 5
+    [PCSPP,TRISTATE,COMPAT,ECP,DMA]
+    [42950056.250000] parport2: PC-style at 0xc000 (0xbc00), irq 7, dma 7
+    [PCSPP,TRISTATE,COMPAT,ECP,DMA]
+
+Hopefully, someone can clear this up.
+
+
+Jan Engelhardt
+-- 

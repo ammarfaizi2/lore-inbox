@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751412AbWFEURn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751408AbWFEUPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWFEURn (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWFEURn
+	id S1751408AbWFEUPu (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWFEUPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:17:43 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27797 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751412AbWFEURl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:17:41 -0400
-Date: Mon, 5 Jun 2006 13:16:10 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Martin Bligh <mbligh@google.com>
-cc: Andy Whitcroft <apw@shadowen.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
-        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-        ak@suse.de, Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <44849075.5070802@google.com>
-Message-ID: <Pine.LNX.4.64.0606051315350.18717@schroedinger.engr.sgi.com>
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org>
- <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org>
- <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org>
- <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
- <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
- <44848F45.1070205@shadowen.org> <44849075.5070802@google.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jun 2006 16:15:50 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14828 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751408AbWFEUPt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:15:49 -0400
+Date: Mon, 5 Jun 2006 22:15:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jan Kara <jack@suse.cz>
+Cc: Arjan van de Ven <arjan@linux.intel.com>, Valdis.Kletnieks@vt.edu,
+        linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc5-mm3-lockdep - locking error in quotaon
+Message-ID: <20060605201510.GA15907@elte.hu>
+References: <200606051700.k55H015q004029@turing-police.cc.vt.edu> <1149528339.3111.114.camel@laptopd505.fenrus.org> <200606051920.k55JKQGx003031@turing-police.cc.vt.edu> <20060605193552.GB24342@atrey.karlin.mff.cuni.cz> <1149537156.3111.123.camel@laptopd505.fenrus.org> <20060605200652.GC24342@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060605200652.GC24342@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5005]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jun 2006, Martin Bligh wrote:
 
-> > > > Adding 32k swap on swapfile31.  Priority:-34 extents:1 across:32k
-> > > > Adding 32k swap on swapfile32.  Priority:-35 extents:1 across:32k
-> > > 
-> > > That should not work at all. It should bomb out at 30 swap files with page
-> > > migration on.
-> > 
-> > The implication here is that there can only be 32 entries in-toto ... it
-> > feels like we have at least 33/34 as the machine has swap by default ...
-> > more to look at!
+* Jan Kara <jack@suse.cz> wrote:
+
+> > but that doesn't quite match your description...
+>   This piece of code is there just because we avoid page cache when
+> doing quota writes. That is a different story and should cause problems
+> with your lock checker.
+>   Standard way of running quota is:
+> - get i_mutex for data_inode
+> - write some data to data_inode
+>   - requires allocation -> calls DQUOT_ALLOC_SPACE
+>   - DQUOT_ALLOC_SPACE acquires some quota locks, decides it wants to
+>     write out quota structure (e.g. because we are journaling quota and
+>     must preserve quota integrity)
+>     - acquires dqio_sem, calls filesystem specific quota writing
+>       function - e.g. ext3_quota_write()
+>     - this function acquires i_mutex for quota file
 > 
-> Either way, random panics are not the appropriate response ;-)
+> I think this is the type of circle your checker has found.
 
-Seems that the check for too many swapfiles is busted somehow. It should 
-never go beyond 32 without page migration. Looking into it.
+the validator noticed a circular dependency (AB->BA, or AB->BC->CA, 
+etc.) - while the nesting above it would report as: "BUG: possible 
+deadlock detected!".
 
+	Ingo

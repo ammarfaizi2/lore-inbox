@@ -1,134 +1,107 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750718AbWFEWmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750731AbWFEWoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWFEWmU (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 18:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWFEWmT
+	id S1750731AbWFEWoK (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 18:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWFEWoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 18:42:19 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.192.81]:20900 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750718AbWFEWl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 18:41:57 -0400
-Message-Id: <20060605224438.617881000@localhost.localdomain>
-References: <20060605222956.608067000@localhost.localdomain>
-Date: Mon, 05 Jun 2006 15:29:58 -0700
-From: dsaxena@plexity.net
-To: mingo@elte.hu, tglx@linutronix.de, johnstul@us.ibm.com
-Cc: dwalker@mvista.com, james.perkins@windriver.com,
-        linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk, khilman@mvista.com,
-        Deepak Saxena <dsaxena@plexity.net>
-Subject: [patch-rt 2/2] Add clocksource driver for Versatile board
-Content-Disposition: inline; filename=arm-versatile-hrt.patch
+	Mon, 5 Jun 2006 18:44:10 -0400
+Received: from mail.hosted.servetheworld.net ([83.143.81.74]:47562 "HELO
+	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
+	id S1750723AbWFEWoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 18:44:08 -0400
+Message-ID: <4484B3BE.8050102@osvik.no>
+Date: Tue, 06 Jun 2006 00:44:14 +0200
+From: Dag Arne Osvik <da@osvik.no>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060504)
+MIME-Version: 1.0
+To: Dag Arne Osvik <da@osvik.no>
+CC: Joachim Fritschi <jfritschi@freenet.de>, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
+References: <200606041516.46920.jfritschi@freenet.de> <200606042110.15060.ak@suse.de> <44834A0F.3000502@osvik.no> <200606051218.16125.jfritschi@freenet.de> <4484B001.3010503@osvik.no>
+In-Reply-To: <4484B001.3010503@osvik.no>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dag Arne Osvik wrote:
+> Joachim Fritschi wrote:
+>> On Sunday 04 June 2006 23:01, Dag Arne Osvik wrote:
+>>> Andi Kleen wrote:
+>>>> On Sunday 04 June 2006 15:16, Joachim Fritschi wrote:
+>>>>> This patch adds the twofish x86_64 assembler routine.
+>>>>>
+>>>>> +/* Defining a few register aliases for better reading */
+>>>> Maybe you can read it now better, but for everybody else it is extremly
+>>>> confusing. It would be better if you just used the original register
+>>>> names.
+>>> I'd agree if you said this code could benefit from further readability
+>>> improvements.  But you're arguing against one.
+>>>
+>>> Too bad AMD kept the old register names when defining AMD64..
+>> I'd agree that the original register names would only complicate things. 
+>>
+>> Can you give me any hint what to improve or maybe provide a suggestion on how 
+>> to improve the overall readabilty.
+> 
+> It looks better on second reading, but I have some comments:
+> 
+> Remove load_s - it's needless and (slightly) confusing
+> There are some cases of missing ## D
+> Why semicolon after closing parenthesis in macro definitions?
+> Try to align operands in columns
+> It would be nice to have some explanation of macro parameter names
+> 
+> Btw, why do you keep zeroing tmp registers when you don't need to?
+> 32-bit ops zero the top half of the destination register.
 
-This patch adds a clocksource driver for the ARM versatile board,
-allowing it to use the generic time-of-day code.
+Sorry.. that zeroing was of course due to load_s only doing xor..
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+> 
+> Here's an example of a modified macro (modulo linewrapping by my mail
+> client):
+> 
+> #define
+> encrypt_round(a,b,olda,oldb,newa,newb,ctx,round,tmp1,tmp2,key1,key2) \
+>         load_round_key(key1,key2,ctx,round);\
+>         movzx   a ## B,         newa ## D;\
+>         movzx   a ## H,         newb ## D;\
+>         ror     $16,            a    ## D;\
+>         xor     s0(ctx,newa,4), tmp1 ## D;\
+          ^^^ change to mov
+>         xor     s1(ctx,newb,4), tmp1 ## D;\
+>         movzx   a ## B,         newa ## D;\
+>         movzx   a ## H,         newb ## D;\
+>         xor     s2(ctx,newa,4), tmp1 ## D;\
+>         xor     s3(ctx,newb,4), tmp1 ## D;\
+>         ror     $16,            a    ## D;\
+>         movzx   b ## B,         newa ## D;\
+>         movzx   b ## H,         newb ## D;\
+>         ror     $16,            b    ## D;\
+>         xor     s1(ctx,newa,4), tmp2 ## D;\
+          ^^^ change to mov
+>         xor     s2(ctx,newb,4), tmp2 ## D;\
+>         movzx   b ## B,         newa ## D;\
+>         movzx   b ## H,         newb ## D;\
+>         xor     s3(ctx,newa,4), tmp2 ## D;\
+>         xor     s0(ctx,newb,4), tmp2 ## D;\
+>         ror     $15,            b    ## D;\
+>         add     tmp2 ## D,      tmp1 ## D;\
+>         add     tmp1 ## D,      tmp2 ## D;\
+>         add     tmp1 ## D,      key1 ## D;\
+>         add     tmp2 ## D,      key2 ## D;\
+>         mov     olda ## D,      newa ## D;\
+>         mov     oldb ## D,      newb ## D;\
+>         mov     a    ## D,      olda ## D;\
+>         mov     b    ## D,      oldb ## D;\
+>         xor     key1 ## D,      newa ## D;\
+>         xor     key2 ## D,      newb ## D;\
+>         ror     $1,             newa ## D
+> 
+> At least a little bit more readable, right?
+> 
 
-
-Index: linux-2.6-rt/arch/arm/mach-versatile/core.c
-===================================================================
---- linux-2.6-rt.orig/arch/arm/mach-versatile/core.c
-+++ linux-2.6-rt/arch/arm/mach-versatile/core.c
-@@ -27,6 +27,7 @@
- #include <linux/interrupt.h>
- #include <linux/amba/bus.h>
- #include <linux/amba/clcd.h>
-+#include <linux/clockchips.h>
- 
- #include <asm/system.h>
- #include <asm/hardware.h>
-@@ -815,46 +816,6 @@ void __init versatile_init(void)
- #endif
- 
- /*
-- * Returns number of ms since last clock interrupt.  Note that interrupts
-- * will have been disabled by do_gettimeoffset()
-- */
--static unsigned long versatile_gettimeoffset(void)
--{
--	unsigned long ticks1, ticks2, status;
--
--	/*
--	 * Get the current number of ticks.  Note that there is a race
--	 * condition between us reading the timer and checking for
--	 * an interrupt.  We get around this by ensuring that the
--	 * counter has not reloaded between our two reads.
--	 */
--	ticks2 = readl(TIMER0_VA_BASE + TIMER_VALUE) & 0xffff;
--	do {
--		ticks1 = ticks2;
--		status = __raw_readl(VA_IC_BASE + VIC_RAW_STATUS);
--		ticks2 = readl(TIMER0_VA_BASE + TIMER_VALUE) & 0xffff;
--	} while (ticks2 > ticks1);
--
--	/*
--	 * Number of ticks since last interrupt.
--	 */
--	ticks1 = TIMER_RELOAD - ticks2;
--
--	/*
--	 * Interrupt pending?  If so, we've reloaded once already.
--	 *
--	 * FIXME: Need to check this is effectively timer 0 that expires
--	 */
--	if (status & IRQMASK_TIMERINT0_1)
--		ticks1 += TIMER_RELOAD;
--
--	/*
--	 * Convert the ticks to usecs
--	 */
--	return TICKS2USECS(ticks1);
--}
--
--/*
-  * IRQ handler for the timer
-  */
- static irqreturn_t versatile_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-@@ -917,5 +878,36 @@ static void __init versatile_timer_init(
- 
- struct sys_timer versatile_timer = {
- 	.init		= versatile_timer_init,
--	.offset		= versatile_gettimeoffset,
- };
-+
-+cycle_t versatile_get_cycles(void)
-+{
-+	return ~readl(TIMER3_VA_BASE + TIMER_VALUE);
-+}
-+
-+static struct clocksource clocksource_versatile = {
-+	.name 		= "timer3",
-+	.rating		= 200,
-+	.read		= versatile_get_cycles,
-+	.mask		= 0xFFFFFFFF,
-+	.shift 		= 10,
-+	.is_continuous 	= 1,
-+};
-+
-+static int __init versatile_clocksource_init(void)
-+{
-+	writel(0, TIMER3_VA_BASE + TIMER_CTRL);
-+	writel(0xffffffff, TIMER3_VA_BASE + TIMER_LOAD);
-+	writel(0xffffffff, TIMER3_VA_BASE + TIMER_VALUE);
-+	writel(TIMER_CTRL_32BIT | TIMER_CTRL_ENABLE | TIMER_CTRL_PERIODIC,
-+	       TIMER3_VA_BASE + TIMER_CTRL);
-+
-+	clocksource_versatile.mult =
-+		clocksource_khz2mult(1000, clocksource_versatile.shift);
-+	register_clocksource(&clocksource_versatile);
-+
-+	return 0;
-+}
-+
-+device_initcall(versatile_clocksource_init);
-+
-
---
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-In the end, they will not say, "those were dark times,"  they will ask
-"why were their poets silent?" - Bertold Brecht
+-- 
+  Dag Arne

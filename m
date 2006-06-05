@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751075AbWFEVwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751090AbWFEWBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbWFEVwN (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 17:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWFEVwM
+	id S1751090AbWFEWBU (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 18:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFEWBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 17:52:12 -0400
-Received: from wx-out-0102.google.com ([66.249.82.201]:35588 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751068AbWFEVwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 17:52:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=XPszmjAAiRTiyUxRPvt81anL5BBycSKLdZyGntO0ZyjrvHdNkn1fVccOBwJ96PAIJXQsTG6D7lJLKYB9KEl39C+KGaiD81ojiUGGKdVnnO8LFKoWwSuNN1bbqELSKBwKDFIgyexpbw5kWktXnG7maRn/JNZoQNZuxfKp8r+lN9k=
-Message-ID: <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com>
-Date: Mon, 5 Jun 2006 14:52:11 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-rc5-mm1
-Cc: "Laurent Riffard" <laurent.riffard@free.fr>, 76306.1226@compuserve.com,
-        linux-kernel@vger.kernel.org, jbeulich@novell.com,
-        "Ingo Molnar" <mingo@elte.hu>,
-        "Arjan van de Ven" <arjan@linux.intel.com>
-In-Reply-To: <20060605110046.2a7db23f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jun 2006 18:01:19 -0400
+Received: from quickstop.soohrt.org ([85.131.246.152]:386 "EHLO
+	quickstop.soohrt.org") by vger.kernel.org with ESMTP
+	id S1751090AbWFEWBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 18:01:19 -0400
+Date: Tue, 6 Jun 2006 00:01:17 +0200
+From: Horst Schirmeier <horst@schirmeier.com>
+To: Eric Sesterhenn <snakebyte@gmx.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, bdirks@pacbell.net
+Subject: Re: [Patch] Zoran strncpy() cleanup
+Message-ID: <20060605220117.GP7236@quickstop.soohrt.org>
+Mail-Followup-To: Eric Sesterhenn <snakebyte@gmx.de>,
+	LKML <linux-kernel@vger.kernel.org>, bdirks@pacbell.net
+References: <1149538357.16994.7.camel@alice> <20060605210230.GN7236@quickstop.soohrt.org> <1149542155.17537.3.camel@alice> <20060605213645.GO7236@quickstop.soohrt.org> <1149543974.17681.2.camel@alice>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200606042101_MC3-1-C19B-1CF4@compuserve.com>
-	 <20060604181002.57ca89df.akpm@osdl.org> <44840838.7030802@free.fr>
-	 <4484584D.4070108@free.fr> <20060605110046.2a7db23f.akpm@osdl.org>
-X-Google-Sender-Auth: 7befa9e90198e58f
+In-Reply-To: <1149543974.17681.2.camel@alice>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/5/06, Andrew Morton <akpm@osdl.org> wrote:
-> I guess we should force 8k stacks if the lockdep features are enabled.
+On Mon, 05 Jun 2006, Eric Sesterhenn wrote:
+> > Problem is, the strings are (possibly) still not zero-terminated:
+> > strncpy() only appends zeroes if src contents are short enough; if they
+> > are not, dest is only zero-terminated if dest[sizeof(dest)-1] was zero
+> > before.
+> > strlcpy() semantics promise more sanity; dest is always zero-terminated
+> > (if its size is >= 1), and the size parameter holds total dest size.
+> > (See lib/string.c for more details.)
+> 
+> In all cases there is a memset() which sets the entire structure to
+> zero. Since we never write to the last byte with the strncpy() it will
+> be null terminated. But if you think strlcpy() is safer for the future,
+> i can make you a third patch.
 
-Also, Laurent is running "2.6.17-rc5-mm3-lockdep" (per his previous
-message), i.e., 2.6.17-rc5-mm3 with Ingo's lockdep-combo patch added.
-If you're wondering how I conclude the latter from the former, look at
-this hunk from the lockdep-combo patch:
+I did not dig in the surrounding code that deeply, no doubt you're right
+about the zero termination issue.
 
---- linux.orig/Makefile
-+++ linux/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 17
--EXTRAVERSION =-rc5-mm3
-+EXTRAVERSION =-rc5-mm3-lockdep
- NAME=Lordi Rules
+I just _personally_ think strlcpy(dest, src, sizeof(*dest)); looks
+more sane than strncpy(dest, src, sizeof(*dest)-1);, and it additionally
+does not rely on dest being zero-terminated beforehand.
 
-And from the same patch:
+Kind regards,
+ Horst
 
---- linux.orig/arch/i386/Makefile
-+++ linux/arch/i386/Makefile
-@@ -38,6 +38,10 @@ CFLAGS += $(call cc-option,-mpreferred-s
- include $(srctree)/arch/i386/Makefile.cpu
-
- cflags-$(CONFIG_REGPARM) += -mregparm=3
-+#
-+# Prevent tail-call optimizations, to get clearer backtraces:
-+#
-+cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
-
- # temporary until string.h is fixed
- cflags-y += -ffreestanding
-
-I would expect that to increase stack usage...
 -- 
--Barry K. Nathan <barryn@pobox.com>
+PGP-Key 0xD40E0E7A

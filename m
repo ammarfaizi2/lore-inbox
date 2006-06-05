@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751132AbWFEOoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751159AbWFEOoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWFEOoH (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 10:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWFEOoH
+	id S1751159AbWFEOoP (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 10:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWFEOoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 10:44:07 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:53413 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751132AbWFEOoG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 10:44:06 -0400
-Date: Mon, 5 Jun 2006 09:43:29 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-        Kirill Korotaev <dev@openvz.org>, Dave Hansen <haveblue@us.ibm.com>,
-        Hubertus Franke <frankeh@us.ibm.com>,
-        Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: 2.6.18 -mm merge plans
-Message-ID: <20060605144328.GA12904@sergelap.austin.ibm.com>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
+	Mon, 5 Jun 2006 10:44:14 -0400
+Received: from styx.suse.cz ([82.119.242.94]:57312 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751159AbWFEOoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 10:44:13 -0400
+Date: Mon, 5 Jun 2006 16:44:11 +0200
+From: Jiri Benc <jbenc@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+        kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+        pe1rxq@amsat.org
+Subject: Re: move zd1201 where it belongs
+Message-ID: <20060605164411.42d8dc40@griffin.suse.cz>
+In-Reply-To: <20060605142912.GF2132@elf.ucw.cz>
+References: <20060605103952.GA1670@elf.ucw.cz>
+	<1149506120.3111.52.camel@laptopd505.fenrus.org>
+	<20060605113332.GB2132@elf.ucw.cz>
+	<20060605141322.GB23350@tuxdriver.com>
+	<20060605142912.GF2132@elf.ucw.cz>
+X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton (akpm@osdl.org):
-> proc-sysctl-add-_proc_do_string-helper.patch
-> namespaces-add-nsproxy.patch
-> namespaces-add-nsproxy-dont-include-compileh.patch
-> namespaces-incorporate-fs-namespace-into-nsproxy.patch
-> namespaces-utsname-introduce-temporary-helpers.patch
-> namespaces-utsname-switch-to-using-uts-namespaces.patch
-> namespaces-utsname-switch-to-using-uts-namespaces-alpha-fix.patch
-> namespaces-utsname-switch-to-using-uts-namespaces-cleanup.patch
-> namespaces-utsname-use-init_utsname-when-appropriate.patch
-> namespaces-utsname-use-init_utsname-when-appropriate-cifs-update.patch
-> namespaces-utsname-implement-utsname-namespaces.patch
-> namespaces-utsname-implement-utsname-namespaces-export.patch
-> namespaces-utsname-implement-utsname-namespaces-dont-include-compileh.patch
-> namespaces-utsname-sysctl-hack.patch
-> namespaces-utsname-sysctl-hack-cleanup.patch
-> namespaces-utsname-sysctl-hack-cleanup-2.patch
-> namespaces-utsname-sysctl-hack-cleanup-2-fix.patch
-> namespaces-utsname-remove-system_utsname.patch
-> namespaces-utsname-implement-clone_newuts-flag.patch
-> uts-copy-nsproxy-only-when-needed.patch
-> # needed if git-klibc isn't there:
-> #namespaces-utsname-switch-to-using-uts-namespaces-klibc-bit.patch
-> #namespaces-utsname-use-init_utsname-when-appropriate-klibc-bit.patch
-> #namespaces-utsname-switch-to-using-uts-namespaces-klibc-bit-2.patch
+On Mon, 5 Jun 2006 16:29:12 +0200, Pavel Machek wrote:
+> Yes, because this should go in as a git patch (so it is move, not
+> create new file), and I was hoping for Jiri to generate proper
+> git-patch :-).
+
+The proper person for this is maintainer of wireless or USB.
+
+> Here it is, still
 > 
->  utsname virtualisation.  This doesn't seem very pointful as a standalone
->  thing.  That's a general problem with infrastructural work for a very
->  large new feature.
-> 
->  So probably I'll continue to babysit these patches, unless someone can
->  identify a decent reason why mainline needs this work.
-> 
->  I don't want to carry an ever-growing stream of OS-virtualisation
->  groundwork patches for ever and ever so if we're going to do this thing...
->  faster, please.
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Eric, Kirill, Dave, Hubertus,
+In addition to this,
+mv drivers/usb/net/zd1201.[ch] drivers/net/wireless/
+needs to be invoked.
 
-In the spirit of 'faster, please', does someone care to port and
-resubmit a pidspace patch?
+I agree that the patch should be applied to remove confusion (not many
+people know about this driver, even among wireless developers).
 
-I'll do it if noone else wants to, just don't want to step on anyone's
-toes if you were already working on it.
+ Jiri
 
-thanks,
--serge
+-- 
+Jiri Benc
+SUSE Labs

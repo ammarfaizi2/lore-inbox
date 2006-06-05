@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750877AbWFEKST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750896AbWFEK1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWFEKST (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 06:18:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWFEKST
+	id S1750896AbWFEK1u (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 06:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWFEK1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 06:18:19 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:50579 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1750875AbWFEKSS (ORCPT
+	Mon, 5 Jun 2006 06:27:49 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:30112 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750894AbWFEK1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 06:18:18 -0400
-From: Joachim Fritschi <jfritschi@freenet.de>
-To: Dag Arne Osvik <da@osvik.no>
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-Date: Mon, 5 Jun 2006 12:18:15 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        herbert@gondor.apana.org.au
-References: <200606041516.46920.jfritschi@freenet.de> <200606042110.15060.ak@suse.de> <44834A0F.3000502@osvik.no>
-In-Reply-To: <44834A0F.3000502@osvik.no>
+	Mon, 5 Jun 2006 06:27:48 -0400
+Date: Mon, 5 Jun 2006 12:27:46 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Ben Collins <bcollins@ubuntu.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Updated v3]: How to become a kernel driver maintainer
+In-Reply-To: <1149284317.4533.312.camel@grayson>
+Message-ID: <Pine.LNX.4.61.0606051218590.31612@yvahk01.tjqt.qr>
+References: <1136736455.24378.3.camel@grayson> <1136756756.1043.20.camel@grayson>
+ <1136792769.2936.13.camel@laptopd505.fenrus.org> <1136813649.1043.30.camel@grayson>
+ <1136842100.2936.34.camel@laptopd505.fenrus.org> <1141841013.24202.194.camel@grayson>
+ <9a8748490603081105i3468fa84haac329d1e50faed4@mail.gmail.com>
+ <1141845047.12175.7.camel@laptopd505.fenrus.org>
+ <9a8748490603081127r1b830c5bg94f42e021e2a2d58@mail.gmail.com>
+ <1149284317.4533.312.camel@grayson>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606051218.16125.jfritschi@freenet.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 June 2006 23:01, Dag Arne Osvik wrote:
-> Andi Kleen wrote:
-> > On Sunday 04 June 2006 15:16, Joachim Fritschi wrote:
-> >> This patch adds the twofish x86_64 assembler routine.
-> >>
-> >> +/* Defining a few register aliases for better reading */
-> >
-> > Maybe you can read it now better, but for everybody else it is extremly
-> > confusing. It would be better if you just used the original register
-> > names.
+
+>With the large amount of hardware available for Linux, it's becoming
 >
-> I'd agree if you said this code could benefit from further readability
-> improvements.  But you're arguing against one.
+I do not know about LK customs, but in school we were always forced to write
+truncations out ("it is" rather than "it's").
+
+>Some even see it as giving up control of their code. This is simply not the
+>case, and the end result is always beneficial to users and developers alike.
 >
-> Too bad AMD kept the old register names when defining AMD64..
+Frankly, they have to give up their coding style. A common style
+throughout the kernel is reasonable, though. But in some aspects
+it really gets nitpicky (spaces vs tabs to name one).
 
-I'd agree that the original register names would only complicate things. 
+>The code review process is there for two reasons. First, it ensures that
+>only good code, that follows current API's and coding practices, gets into
 
-Can you give me any hint what to improve or maybe provide a suggestion on how 
-to improve the overall readabilty.
+Should read: "that follows current APIs"
 
-Thanks,
+>locking issues as well as big-endian/little-endian and 64-bit portability.
 
-Joachim
+Suggestion: "as well as endianness and ..."
 
+
+
+Jan Engelhardt
+-- 

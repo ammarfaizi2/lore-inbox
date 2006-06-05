@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751243AbWFERoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751240AbWFERjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWFERoQ (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 13:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWFERoP
+	id S1751240AbWFERjr (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 13:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWFERjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 13:44:15 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:11465 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1751243AbWFERoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 13:44:15 -0400
-Date: Mon, 5 Jun 2006 10:44:14 -0700 (PDT)
-From: dean gaudet <dean@arctic.org>
-To: Joachim Fritschi <jfritschi@freenet.de>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-In-Reply-To: <200606051206.50085.jfritschi@freenet.de>
-Message-ID: <Pine.LNX.4.64.0606051037540.6023@twinlark.arctic.org>
-References: <200606041516.46920.jfritschi@freenet.de> <200606042110.15060.ak@suse.de>
- <200606051206.50085.jfritschi@freenet.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jun 2006 13:39:47 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:13013 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751240AbWFERjr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 13:39:47 -0400
+Message-Id: <200606051738.k55HcrC2025442@laptop11.inf.utfsm.cl>
+To: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+cc: linux-kernel@vger.kernel.org, "Kalin KOZHUHAROV" <kalin@thinrope.net>,
+        "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
+Subject: Re: Linux kernel development 
+In-Reply-To: Message from "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com> 
+   of "Mon, 05 Jun 2006 13:39:28 +0200." <4d8e3fd30606050439j7e299655hf9967678e8739698@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 05 Jun 2006 13:38:53 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 05 Jun 2006 13:38:58 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jun 2006, Joachim Fritschi wrote:
+Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> On 6/5/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 
-> Here are the outputs from the tcrypt speedtests. They haven't changed much 
-> since the last patch:
+[...]
+
+> > Could you add a README (including contact info, etc), and perhaps a TODO
+> > (and a copy of SubmittingPatches, which I assume applies here too?) to the
+> > project? A license for the text is required, AFAIU (GPLv2, or one of the
+> > Creative Commons licenses perhaps?).
 > 
-> http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-c-i586.txt
-> http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-asm-i586.txt
-> http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-c-x86_64.txt
-> http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-asm-x86_64.txt
+> Not and exepert in this area, I think I'll release it under GPL2.
 
-when you quote anything related to cpu performance on an x86 processor 
-it's absolutely essential to indicate which cpu it is... basically 
-vendor_id, cpu family, and model from /proc/cpuinfo.  (for example the 
-entire p4 family has incredible model-to-model variation on things like 
-shifts and extensions.)
+Did you write all (most) of it? If not, you'd have to ask the original
+author(s).
 
+BTW, thinking it over in the shower today, if/when this is translated into
+asciidoc(1) (or whatever), a "source code" license (like GPLv2) would be
+appropiate IMHO. Besides, using the same license as what it describes is
+sensible.
 
-> > > +/* Defining a few register aliases for better reading */
-> >
-> > Maybe you can read it now better, but for everybody else it is extremly
-> > confusing. It would be better if you just used the original register names.
+> What's the normal approach? Can I just add:
+> #		This document is distribuited under
+> #		GNU GENERAL PUBLIC LICENSE
+> #		       Version 2, June 1991
+> #               http://www.gnu.org/licenses/gpl.txt
+> 
+> To the text?
 
-i'd change the comment to:
+The license text spells it out ;-)
 
-/* define a few register aliases to simplify macro substitution */
-
-because as you mention, it's totally impossible to write the macros 
-otherwise.  (i've used the same trick myself a bunch of times.)
-
--dean
+I would add language to that effect to the README file, and bundle the
+standard COPYING file with the package
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

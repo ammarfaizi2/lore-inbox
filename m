@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750794AbWFEIgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750809AbWFEI70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWFEIgu (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 04:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWFEIg3
+	id S1750809AbWFEI70 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 04:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWFEI70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 04:36:29 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:28302 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1750771AbWFEIgZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 04:36:25 -0400
-Subject: [PATCH 7/9] PCI PM: handle PMCSR more carefully
-From: Adam Belay <abelay@novell.com>
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Type: text/plain
-Date: Mon, 05 Jun 2006 04:46:13 -0400
-Message-Id: <1149497174.7831.161.camel@localhost.localdomain>
+	Mon, 5 Jun 2006 04:59:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24739 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750809AbWFEI7Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 04:59:25 -0400
+Date: Mon, 5 Jun 2006 01:59:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miles Lane" <miles.lane@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm3 -- ACPI errors (are these ones that are
+ significant?)
+Message-Id: <20060605015922.0defacbc.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0606050124h4c82f45aq27f68f9d07956642@mail.gmail.com>
+References: <a44ae5cd0606050124h4c82f45aq27f68f9d07956642@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes __pci_set_power_state() such that it only modifies
-the power state byte in PMCSR.   Otherwise a PME event might
-accidentally be cleared (when entering a state greater than D0), or
-PME_En might be cleared (when returning to D0) despite the device driver
-intending to leave it enabled in D0.
+On Mon, 5 Jun 2006 01:24:27 -0700
+"Miles Lane" <miles.lane@gmail.com> wrote:
 
-Signed-off-by: Adam Belay <abelay@novell.com>
+> During boot:
+> 
+> acpi_processor-0731 [00] processor_preregister_: Error while parsing
+> _PSD domain information. Assuming no coordination
+> 
+> During resume and after the "BUG: sleeping function called from
+> invalid context at include/asm/semaphore.h:99 in_atomic():0,
+> irqs_disabled():1" that I reported earlier:
+> 
+> PM: Finishing wakeup.
+>  acpi: resuming
+> ACPI: read EC, IB not empty
+> ACPI: read EC, OB not full
+> ACPI Exception (evregion-0412): AE_TIME, Returned by Handler for
+> [EmbeddedControl] [20060310]
+> ACPI Exception (dswexec-0459): AE_TIME, While resolving operands for
+> [Store] [20060310]
+> ACPI Error (psparse-0522): Method parse/execution failed
+> [\_TZ_.THRM._TMP] (Node c189ec44), AE_TIME
+> agpgart-intel 0000:00:00.0: resuming
 
----
- pm.c |   16 +---------------
- 1 file changed, 1 insertion(+), 15 deletions(-)
-
-diff -urN a/drivers/pci/pm.c b/drivers/pci/pm.c
---- a/drivers/pci/pm.c	2006-06-04 02:41:21.000000000 -0400
-+++ b/drivers/pci/pm.c	2006-06-04 03:39:20.000000000 -0400
-@@ -114,23 +114,9 @@
- static void __pci_set_power_state(struct pci_dev *dev, pci_power_t state)
- {
- 	struct pci_dev_pm *pm = dev->pm;
--	u16 pmcsr;
--
--	pci_read_config_word(dev, pm->pm_offset + PCI_PM_CTRL, &pmcsr);
--
--	/* If we're (effectively) in D3, force entire word to 0.
--	 * This doesn't affect PME_Status, disables PME_En, and
--	 * sets PowerState to 0.
--	 */
--	if (dev->current_state == PCI_D3) {
--		pmcsr = 0;
--	} else {
--		pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
--		pmcsr |= state;
--	}
- 
- 	/* enter specified state */
--	pci_write_config_word(dev, pm->pm_offset + PCI_PM_CTRL, pmcsr);
-+	pci_write_config_byte(dev, pm->pm_offset + PCI_PM_CTRL, state);
- 
- 	/* Mandatory power management transition delays */
- 	/* see PCI PM 1.1 5.6.1 table 18 */
-
-
+Please copy linux-acpi on acpi-related problems.

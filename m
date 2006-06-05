@@ -1,59 +1,113 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750965AbWFELHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750974AbWFELLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbWFELHP (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 07:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWFELHP
+	id S1750974AbWFELLV (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 07:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbWFELLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 07:07:15 -0400
-Received: from mailhost.netweaver.net ([213.160.118.140]:62138 "HELO
-	mailhost.netweaver.net") by vger.kernel.org with SMTP
-	id S1750965AbWFELHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 07:07:14 -0400
-Date: Mon, 05 Jun 2006 12:07:06 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB devices fail unnecessarily on unpowered hubs
-From: "Lee Dowling" <ledow@ledow.org.uk>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
+	Mon, 5 Jun 2006 07:11:21 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4073 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750972AbWFELLV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 07:11:21 -0400
+Date: Mon, 5 Jun 2006 12:39:52 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jirka Lenost Benc <jbenc@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: move zd1201 where it belongs
+Message-ID: <20060605103952.GA1670@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <op.tan6h41hl78ldg@p1000>
-User-Agent: Opera M2/8.54 (Linux, build 1745)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This, of course, doesn't deal with outside cases.
 
-It's common knowledge that a lot of equipment is running out of spec all  
-the time because of cheap components, bad BIOS's etc.  As an example, my  
-Asus L4500R laptop (with the latest ASUS BIOS) ALWAYS shows "over-current"  
-under Linux on all *internal* USB ports the second ANYTHING is plugged in  
-(and I have nearly 50 different USB devices of different types,  
-manufacturers and quality).
+zd1201 is wifi adapter, yet it is hiding in drivers/usb/net where
+noone can find it. This moves Kconfig/Makefile to right place; you
+still need to manually move .c and .h files.
 
-The suggestion to simply stop over-current ports from working would  
-immediately disable all USB ports, including any powered hubs that I plug  
-into them, I assume.  I can't update the BIOS any further to stop this and  
-if I could I doubt it would solve the problem (it looks like cheap  
-hardware to me).  Therefore, you've just removed all my perfectly  
-functional USB capability because the best BIOS I can use reports an  
-incorrect error (hey, what's new?).
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Windows XP, incidentally, runs flawlessly with all USB devices without  
-power warnings on this laptop.  This may well be fixable somewhere else,  
-it may even be a bug in the internal USB code for my laptop which may be  
-help in hunting such bugs down.  However, anything like this should be  
-optional and not with some convoluted command-line echo, but by as simple  
-binary switch accesible to userspace.  I know what I'm doing, if I choose  
-to ignore the error, that's my problem.  The fact is, if I don't ignore  
-this particular error, my laptop loses all USB functionality.  Taint my  
-kernel if you want (that's what the new userspace taint is for, is it  
-not?) but I need to use the USB ports that I've paid a lot of money to  
-have and that DO work perfectly if given a nudge.
+diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
+index e0874cb..313cfad 100644
+--- a/drivers/net/wireless/Kconfig
++++ b/drivers/net/wireless/Kconfig
+@@ -503,6 +503,23 @@ config PRISM54
+ 	  say M here and read <file:Documentation/modules.txt>.  The module
+ 	  will be called prism54.ko.
+ 
++config USB_ZD1201
++	tristate "USB ZD1201 based Wireless device support"
++	depends on NET_RADIO
++	select FW_LOADER
++	---help---
++	  Say Y if you want to use wireless LAN adapters based on the ZyDAS
++	  ZD1201 chip.
++
++	  This driver makes the adapter appear as a normal Ethernet interface,
++	  typically on wlan0.
++	  
++	  The zd1201 device requires external firmware to be loaded.
++	  This can be found at http://linux-lc100020.sourceforge.net/
++	  
++	  To compile this driver as a module, choose M here: the
++	  module will be called zd1201.
++
+ source "drivers/net/wireless/hostap/Kconfig"
+ source "drivers/net/wireless/bcm43xx/Kconfig"
+ 
+diff --git a/drivers/net/wireless/Makefile b/drivers/net/wireless/Makefile
+index c867798..512603d 100644
+--- a/drivers/net/wireless/Makefile
++++ b/drivers/net/wireless/Makefile
+@@ -40,3 +40,5 @@ obj-$(CONFIG_BCM43XX)		+= bcm43xx/
+ # 16-bit wireless PCMCIA client drivers
+ obj-$(CONFIG_PCMCIA_RAYCS)	+= ray_cs.o
+ obj-$(CONFIG_PCMCIA_WL3501)	+= wl3501_cs.o
++
++obj-$(CONFIG_USB_ZD1201)	+= zd1201.o
+diff --git a/drivers/usb/net/Kconfig b/drivers/usb/net/Kconfig
+index efd6ca7..0540596 100644
+--- a/drivers/usb/net/Kconfig
++++ b/drivers/usb/net/Kconfig
+@@ -301,21 +301,4 @@ config USB_NET_ZAURUS
+ 	  some cases CDC MDLM) protocol, not "g_ether".
+ 
+ 
+-config USB_ZD1201
+-	tristate "USB ZD1201 based Wireless device support"
+-	depends on NET_RADIO
+-	select FW_LOADER
+-	---help---
+-	  Say Y if you want to use wireless LAN adapters based on the ZyDAS
+-	  ZD1201 chip.
+-
+-	  This driver makes the adapter appear as a normal Ethernet interface,
+-	  typically on wlan0.
+-	  
+-	  The zd1201 device requires external firmware to be loaded.
+-	  This can be found at http://linux-lc100020.sourceforge.net/
+-	  
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called zd1201.
+-
+ endmenu
+diff --git a/drivers/usb/net/Makefile b/drivers/usb/net/Makefile
+index a21e6ea..160f19d 100644
+--- a/drivers/usb/net/Makefile
++++ b/drivers/usb/net/Makefile
+@@ -15,7 +15,6 @@ obj-$(CONFIG_USB_NET_RNDIS_HOST)	+= rndi
+ obj-$(CONFIG_USB_NET_CDC_SUBSET)	+= cdc_subset.o
+ obj-$(CONFIG_USB_NET_ZAURUS)	+= zaurus.o
+ obj-$(CONFIG_USB_USBNET)	+= usbnet.o
+-obj-$(CONFIG_USB_ZD1201)	+= zd1201.o
+ 
+ ifeq ($(CONFIG_USB_DEBUG),y)
+ EXTRA_CFLAGS += -DDEBUG
 
-Spec's are lovely and all, but we all know that if real hardware confirmed  
-to the spec's all the time that the Linux kernel would be about half it's  
-current size.
 
-Lee Dowling
-ICT Technician
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

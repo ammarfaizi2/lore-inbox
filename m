@@ -1,126 +1,59 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751038AbWFEVlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751076AbWFEVwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWFEVlA (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 17:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWFEVlA
+	id S1751076AbWFEVwk (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 17:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWFEVwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 17:41:00 -0400
-Received: from xenotime.net ([66.160.160.81]:17092 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751032AbWFEVk7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 17:40:59 -0400
-Date: Mon, 5 Jun 2006 14:43:43 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: akpm@osdl.org, barryn@pobox.com, linux-kernel@vger.kernel.org,
-        greg@kroah.com, thomas@winischhofer.net
-Subject: Re: [PATCH] sisusb: fix build (Re: 2.6.17-rc5-mm3: sisusbvga build
- failure)
-Message-Id: <20060605144343.201d6cfd.rdunlap@xenotime.net>
-In-Reply-To: <20060605210013.GS3955@stusta.de>
-References: <986ed62e0606042140v78dc2c7cpb3cf7793954d2dce@mail.gmail.com>
-	<20060604220347.6f963375.rdunlap@xenotime.net>
-	<20060604221117.b9dfdcfc.akpm@osdl.org>
-	<20060604224512.56a194ff.rdunlap@xenotime.net>
-	<20060605210013.GS3955@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Jun 2006 17:52:40 -0400
+Received: from wr-out-0506.google.com ([64.233.184.229]:42118 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751076AbWFEVwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 17:52:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CmVBU1rJpa7nT3YB+hSuP9+Jjp/sq6fkdm882wCWRygSZkQd1x9WY/v6EK2Uw7i/aZevRsyepd4EkHxxi8wiyF3sb1FPX9/BCL2kABk3jQsjOr9QiWSk1g5xUeT4nx0937OzTLsUzdPcLhrX4UnwzbI6L5/nj7a+VGIEDPIRNwY=
+Message-ID: <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
+Date: Mon, 5 Jun 2006 23:52:38 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.5
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060604215636.16277.15454.stgit@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060604215636.16277.15454.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jun 2006 23:00:14 +0200 Adrian Bunk wrote:
+On 04/06/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> This is a new version (0.5) of the kernel memory leak detector. It is
+> mainly a bug-fix release after testing it with a wider range of kernel
+> modules. See the Documentation/kmemleak.txt file for a more detailed
+> description. The patches are downloadable from (the bundled patch or
+> the series):
+>
+> http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.17-rc5-kmemleak-0.5.bz2
+> http://homepage.ntlworld.com/cmarinas/kmemleak/patches-kmemleak-0.5.tar.bz2
+>
 
-> Thanks for fixing this.
-> 
-> It looks good with the exception of:
-> 
-> > -static int
-> > +int
-> >  sisusb_setidxregmask(struct sisusb_usb_data *sisusb, int port, u8 idx,
-> >  							u8 data, u8 mask)
-> >  {
-> >...
-> 
-> This hunk doesn't seem to be required.
+System hangs while starting udev.
 
-Agreed, verified.  Andrew, this patch replaces the one from last night.
----
+Here is config
+http://www.stardust.webpages.pl/files/kml/kml-config
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Here is "Kernel Bug : The Movie 2" ;)
+http://www.stardust.webpages.pl/files/crap/kbtm2.avi
 
-Fix build errors caused by agressive static attributes.
+$ gcc-3.4 --version
+gcc-3.4 (GCC) 3.4.6
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/usb/misc/sisusbvga/sisusb.c |   15 ---------------
- drivers/usb/misc/sisusbvga/sisusb.h |    2 --
- 2 files changed, 17 deletions(-)
+Regards,
+Michal
 
---- linux-2617-rc5mm3.orig/drivers/usb/misc/sisusbvga/sisusb.h
-+++ linux-2617-rc5mm3/drivers/usb/misc/sisusbvga/sisusb.h
-@@ -62,11 +62,9 @@
- #define INCL_SISUSB_CON		1
- #endif
- 
--#ifdef INCL_SISUSB_CON
- #include <linux/console.h>
- #include <linux/vt_kern.h>
- #include "sisusb_struct.h"
--#endif
- 
- /* USB related */
- 
---- linux-2617-rc5mm3.orig/drivers/usb/misc/sisusbvga/sisusb.c
-+++ linux-2617-rc5mm3/drivers/usb/misc/sisusbvga/sisusb.c
-@@ -1331,9 +1331,6 @@ sisusb_getreg(struct sisusb_usb_data *si
- }
- #endif
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 data)
- {
-@@ -1343,9 +1340,6 @@ sisusb_setidxreg(struct sisusb_usb_data 
- 	return ret;
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 *data)
- {
-@@ -1355,9 +1349,6 @@ sisusb_getidxreg(struct sisusb_usb_data 
- 	return ret;
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,
- 							u8 myand, u8 myor)
-@@ -1387,18 +1378,12 @@ sisusb_setidxregmask(struct sisusb_usb_d
- 	return ret;
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port, u8 index, u8 myor)
- {
- 	return(sisusb_setidxregandor(sisusb, port, index, 0xff, myor));
- }
- 
--#ifndef INCL_SISUSB_CON
--static
--#endif
- int
- sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port, u8 idx, u8 myand)
- {
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

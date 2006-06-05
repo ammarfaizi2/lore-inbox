@@ -1,63 +1,82 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751420AbWFEU33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751416AbWFEU1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWFEU33 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWFEU33
+	id S1751416AbWFEU1y (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFEU1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:29:29 -0400
-Received: from mga01.intel.com ([192.55.52.88]:64290 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751420AbWFEU32 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:29:28 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 5 Jun 2006 16:27:54 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30614 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751416AbWFEU1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:27:53 -0400
+Date: Mon, 5 Jun 2006 13:27:11 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Martin Bligh <mbligh@google.com>
+cc: Andy Whitcroft <apw@shadowen.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
+        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+        ak@suse.de, Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.17-rc5-mm1
+In-Reply-To: <44849075.5070802@google.com>
+Message-ID: <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
+References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org>
+ <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org>
+ <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org>
+ <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
+ <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
+ <44848F45.1070205@shadowen.org> <44849075.5070802@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ANNOUNCE: Linux UWB and Wireless USB project
-Date: Mon, 5 Jun 2006 13:31:52 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A063F1984@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ANNOUNCE: Linux UWB and Wireless USB project
-Thread-Index: AcaHSuroMwJlR8jeRuiTS4Kkb/lFIAARqsMg
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>,
-        "Inaky Perez-Gonzalez" <inaky@linux.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 05 Jun 2006 20:29:01.0711 (UTC) FILETIME=[AE6CA1F0:01C688DE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Pavel Machek [mailto:pavel@ucw.cz]
->
->> Intel is pleased to announce the launch of a project to
->> implement Linux kernel support for upcoming hardware that
->> complies with the WiMedia Ultra Wide Band (UWB) and Wireless
->> USB standards.
->
->Does wireless usb also supply power as wired USB does? ;-)
 
-Hmmm...business idea :)
+> Either way, random panics are not the appropriate response ;-)
+> 
+> if it can't cope with that, why isn't it failing the request ???
 
->> UWB is a high-bandwidth, low-power, point-to-point radio
->> technology using a wide spectrum (3.1-10.6HGz).  It is
->
->How much power is low power?
+There is a crappy test in swap_on(). It should check against MAX_SWAPFILES 
+and not do this conversion back and forth. Some architectures may not 
+check if we are beyond the boundaries of what a swap entry can take.
 
-For what I know (and I could be wrong) max is around -40dBm/MHz 
-in the US. I am no expert in the nitty-gritty radio details, but 
-I've been told that is 3000 times less emissions than a common 
-cellphone, around .1 uW? [this is where my knowledge about radio
-*really* fades].
+Why is this strange this in there? Are there architectures that support 
+less than 32 swap devices?
 
->> You are welcome to contribute!
->
->Is there any hardware available?
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-I think some companies are starting to make PDKs available this
-summer, but YMMV.
-
--- Inaky
+Index: linux-2.6.17-rc5-mm2/mm/swapfile.c
+===================================================================
+--- linux-2.6.17-rc5-mm2.orig/mm/swapfile.c	2006-06-01 10:03:07.127259731 -0700
++++ linux-2.6.17-rc5-mm2/mm/swapfile.c	2006-06-05 13:24:56.000823157 -0700
+@@ -1384,6 +1384,9 @@ asmlinkage long sys_swapon(const char __
+ 	struct inode *inode = NULL;
+ 	int did_down = 0;
+ 
++	if (nr_swapfiles >= MAX_SWAPFILES)
++		return -E2BIG;
++
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 	spin_lock(&swap_lock);
+@@ -1392,22 +1395,6 @@ asmlinkage long sys_swapon(const char __
+ 		if (!(p->flags & SWP_USED))
+ 			break;
+ 	error = -EPERM;
+-	/*
+-	 * Test if adding another swap device is possible. There are
+-	 * two limiting factors: 1) the number of bits for the swap
+-	 * type swp_entry_t definition and 2) the number of bits for
+-	 * the swap type in the swap ptes as defined by the different
+-	 * architectures. To honor both limitations a swap entry
+-	 * with swap offset 0 and swap type ~0UL is created, encoded
+-	 * to a swap pte, decoded to a swp_entry_t again and finally
+-	 * the swap type part is extracted. This will mask all bits
+-	 * from the initial ~0UL that can't be encoded in either the
+-	 * swp_entry_t or the architecture definition of a swap pte.
+-	 */
+-	if (type > swp_type(pte_to_swp_entry(swp_entry_to_pte(swp_entry(~0UL,0))))) {
+-		spin_unlock(&swap_lock);
+-		goto out;
+-	}
+ 	if (type >= nr_swapfiles)
+ 		nr_swapfiles = type+1;
+ 	INIT_LIST_HEAD(&p->extent_list);

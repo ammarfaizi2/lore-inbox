@@ -1,118 +1,97 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750700AbWFEUvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750797AbWFEU4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWFEUvO (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWFEUvO
+	id S1750797AbWFEU4A (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWFEU4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:51:14 -0400
-Received: from xenotime.net ([66.160.160.81]:54421 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750700AbWFEUvN (ORCPT
+	Mon, 5 Jun 2006 16:56:00 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:50851 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750776AbWFEUz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:51:13 -0400
-Date: Mon, 5 Jun 2006 13:54:01 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: davej@redhat.com, mingo@elte.hu, mbligh@google.com, akpm@osdl.org,
-        apw@shadowen.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] poison: add & use more constants
-Message-Id: <20060605135401.f7941311.rdunlap@xenotime.net>
-In-Reply-To: <20060605131447.4f46bbaf.rdunlap@xenotime.net>
-References: <44845C27.3000006@google.com>
-	<20060605194422.GB14709@elte.hu>
-	<20060605130039.db1ac80c.rdunlap@xenotime.net>
-	<20060605200554.GB6143@redhat.com>
-	<20060605131447.4f46bbaf.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 5 Jun 2006 16:55:59 -0400
+Date: Mon, 5 Jun 2006 13:53:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Greg KH <gregkh@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
+        netdev@vger.kernel.org, mb@bu3sch.de, st3@riseup.net,
+        linville@tuxdriver.com
+Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
+Message-ID: <20060605205309.GA31061@kroah.com>
+References: <2005123213211@nnikde.cz> <20060605202007.B464FC7B73@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060605202007.B464FC7B73@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Mon, Jun 05, 2006 at 10:20:07PM +0200, Jiri Slaby wrote:
+> bcm43xx avoid pci_find_device
+> 
+> Change pci_find_device to safer pci_get_device with support for more
+> devices.
+> 
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> 
+> ---
+> commit 4b73c16f5411d97360d5f26f292ffddeb670ff75
+> tree 6e43c8bd02498eb1ceec6bdc64277fa8408da9e2
+> parent d59f9ea8489749f59cd0c7333a4784cab964daa8
+> author Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:03 +0159
+> committer Jiri Slaby <ku@bellona.localdomain> Mon, 05 Jun 2006 22:01:03 +0159
+> 
+>  drivers/net/wireless/bcm43xx/bcm43xx_main.c |   21 ++++++++++++++++-----
+>  1 files changed, 16 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> index 22b8fa6..d1a9975 100644
+> --- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> +++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+> @@ -2133,6 +2133,13 @@ out:
+>  	return err;
+>  }
+>  
+> +#ifdef CONFIG_BCM947XX
+> +static struct pci_device_id bcm43xx_47xx_ids[] = {
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4324) },
+> +	{ 0 }
+> +};
+> +#endif
+> +
+>  static int bcm43xx_initialize_irq(struct bcm43xx_private *bcm)
+>  {
+>  	int res;
+> @@ -2142,11 +2149,15 @@ static int bcm43xx_initialize_irq(struct
+>  	bcm->irq = bcm->pci_dev->irq;
+>  #ifdef CONFIG_BCM947XX
+>  	if (bcm->pci_dev->bus->number == 0) {
+> -		struct pci_dev *d = NULL;
+> -		/* FIXME: we will probably need more device IDs here... */
+> -		d = pci_find_device(PCI_VENDOR_ID_BROADCOM, 0x4324, NULL);
+> -		if (d != NULL) {
+> -			bcm->irq = d->irq;
+> +		struct pci_dev *d;
+> +		struct pci_device_id *id;
+> +		for (id = bcm43xx_47xx_ids; id->vendor; id++) {
+> +			d = pci_get_device(id->vendor, id->device, NULL);
+> +			if (d != NULL) {
+> +				bcm->irq = d->irq;
+> +				pci_dev_put(d);
+> +				break;
+> +			}
 
-Add more poison values to include/linux/poison.h.
-It's not clear to me whether some others should be added or not,
-so I haven't added any of these:
+This will not work if you have more than one of the same devices in the
+system.
 
-./include/linux/libata.h:#define ATA_TAG_POISON		0xfafbfcfdU
-./arch/ppc/8260_io/fcc_enet.c:1918:	memset((char *)(&(immap->im_dprambase[(mem_addr+64)])), 0x88, 32);
-./drivers/usb/mon/mon_text.c:429:	memset(mem, 0xe5, sizeof(struct mon_event_text));
-./drivers/char/ftape/lowlevel/ftape-ctl.c:738:		memset(ft_buffer[i]->address, 0xAA, FT_BUFF_SIZE);
-./drivers/block/sx8.c:/* 0xf is just arbitrary, non-zero noise; this is sorta like poisoning */
+Well, the original code will not either :(
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- include/linux/poison.h |    7 +++++++
- kernel/mutex-debug.c   |    5 +++--
- security/keys/key.c    |    3 ++-
- 3 files changed, 12 insertions(+), 3 deletions(-)
+Why not just use the proper pci interface?  Why poke around in another
+pci device to steal an irq, when that irq might not even be valid?
+(irqs are not valid until pci_enable_device() is called on them...)
 
---- linux-2617-rc5mm3.orig/include/linux/poison.h
-+++ linux-2617-rc5mm3/include/linux/poison.h
-@@ -45,6 +45,13 @@
- /********** drivers/atm/ **********/
- #define ATM_POISON_FREE		0x12
- 
-+/********** kernel/mutexes **********/
-+#define MUTEX_DEBUG_INIT	0x11
-+#define MUTEX_DEBUG_FREE	0x22
-+
-+/********** security/ **********/
-+#define KEY_DESTROY		0xbd
-+
- /********** sound/oss/ **********/
- #define OSS_POISON_FREE		0xAB
- 
---- linux-2617-rc5mm3.orig/kernel/mutex-debug.c
-+++ linux-2617-rc5mm3/kernel/mutex-debug.c
-@@ -16,6 +16,7 @@
- #include <linux/sched.h>
- #include <linux/delay.h>
- #include <linux/module.h>
-+#include <linux/poison.h>
- #include <linux/spinlock.h>
- #include <linux/kallsyms.h>
- #include <linux/interrupt.h>
-@@ -155,7 +156,7 @@ void debug_mutex_set_owner(struct mutex 
- 
- void debug_mutex_lock_common(struct mutex *lock, struct mutex_waiter *waiter)
- {
--	memset(waiter, 0x11, sizeof(*waiter));
-+	memset(waiter, MUTEX_DEBUG_INIT, sizeof(*waiter));
- 	waiter->magic = waiter;
- 	INIT_LIST_HEAD(&waiter->list);
- }
-@@ -171,7 +172,7 @@ void debug_mutex_wake_waiter(struct mute
- void debug_mutex_free_waiter(struct mutex_waiter *waiter)
- {
- 	DEBUG_WARN_ON(!list_empty(&waiter->list));
--	memset(waiter, 0x22, sizeof(*waiter));
-+	memset(waiter, MUTEX_DEBUG_FREE, sizeof(*waiter));
- }
- 
- void debug_mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
---- linux-2617-rc5mm3.orig/security/keys/key.c
-+++ linux-2617-rc5mm3/security/keys/key.c
-@@ -11,6 +11,7 @@
- 
- #include <linux/module.h>
- #include <linux/init.h>
-+#include <linux/poison.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/security.h>
-@@ -986,7 +987,7 @@ void unregister_key_type(struct key_type
- 		if (key->type == ktype) {
- 			if (ktype->destroy)
- 				ktype->destroy(key);
--			memset(&key->payload, 0xbd, sizeof(key->payload));
-+			memset(&key->payload, KEY_DESTROY, sizeof(key->payload));
- 		}
- 	}
- 
+thanks,
 
-
-
----
+greg k-h

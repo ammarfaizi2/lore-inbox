@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750951AbWFEQsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750715AbWFEQpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWFEQsP (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 12:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWFEQsP
+	id S1750715AbWFEQpm (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 12:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWFEQpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 12:48:15 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:6328
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750851AbWFEQsO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 12:48:14 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Thomas Andrews <tandrews@grok.co.za>
-Subject: Re: debugging "irq 7: nobody cared" in my module
-Date: Mon, 5 Jun 2006 18:47:59 +0200
-User-Agent: KMail/1.9.1
-References: <20060605125132.GN32055@grok.co.za> <20060605161102.GP32055@grok.co.za>
-In-Reply-To: <20060605161102.GP32055@grok.co.za>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 5 Jun 2006 12:45:42 -0400
+Received: from wx-out-0102.google.com ([66.249.82.193]:158 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750715AbWFEQpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 12:45:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=HpBBcACN/JgcDgcS0jS9k3kbwZsCJJdE1zvpcLrAdySFJ/RsDpqqzSZJcKInDFwmERxDhQNJuQosDVKeMG7BPRoS40a/R8RMsCxDhULTgafxYqrQiaMMW0Fu0SUFUa91udRyau1nXF1e6dO89XI3HXOclEvmX3tQzgz8fxHA4Sk=
+Message-ID: <986ed62e0606050945k45f35c9fm663d218504789a3a@mail.gmail.com>
+Date: Mon, 5 Jun 2006 09:45:40 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.17-rc5-mm3: "BUG: scheduling while atomic" flood when resuming from disk
+Cc: "Andrew Morton" <akpm@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
+        "Arjan van de Ven" <arjan@linux.intel.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200606051756.19715.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606051847.59462.mb@bu3sch.de>
+References: <986ed62e0606042223l2381d877g4bc798ec64804d43@mail.gmail.com>
+	 <200606051756.19715.rjw@sisk.pl>
+X-Google-Sender-Auth: cecda5a586a62520
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 June 2006 18:11, Thomas Andrews wrote:
-> On Mon, Jun 05, 2006 at 02:51:32PM +0200, Thomas Andrews wrote:
-> 
-> > What can cause "irq x: nobody cared" ? On exit from my IRQ handler, I am
-> > checking to make sure that there are no residual/pending unhandled
-> > events on exit. Here is part of my handler:
-> > 
-> > irqreturn_t scx200_acb_irq(int irq_no, void *dev_id, struct pt_regs *regs)
-> > {
-> >     struct scx200_acb_iface *iface = dev_id;
-> >     unsigned long flags;
-> >     spin_lock_irqsave(lock, flags);
-> >     if (inb(ACBST)) {
-> > //      tasklet_schedule(&iface->tasklet);
-> >         scx200_acb_machine(iface, inb(ACBST));
-> >         if (iface->state == state_idle)     /* Finished */
-> >             wake_up_interruptible(&iface->acb_queue);
-> >     } else {
-> >         /* Should never get here */
-> >         printk("causeless IRQ!\n");
-> >         /* Reset the ACB to clear any pending IRQ */
-> >         outb((inb(ACBCTL2) & 0xfe), ACBCTL2);
-> >         outb((inb(ACBCTL2) | 0x01), ACBCTL2);
-> >     }
-> >     /* Check to see if some event was not handled */
-> >     if (inb(ACBST) & 0xBC)
-> >         printk("============== ACBST=%#x ===============\n",inb(ACBST));
-> >     spin_unlock_irqrestore(lock, flags);
-> >     return IRQ_RETVAL(0);
-> > }
-> 
-> I've found the problem now. The last line is wrong - it should read:
-> 
->     return IRQ_RETVAL(IRQ_HANDLED);
+On 6/5/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> On Monday 05 June 2006 07:23, Barry K. Nathan wrote:
+[snip]
+> > The messages definitely happen while resuming. My screen is blank
+> > during suspend-to-disk so I have no way to know what's going on
+> > then...
+>
+> Please try doing "echo 8 > /proc/sys/kernel/printk" before suspend.
 
-No, either
-return IRQ_HANDLED;
-or
-return IRQ_RETVAL(boolean);
+Let me clarify that: During suspend, my monitor does not get any
+signal so it shuts itself off.
 
-You returned the boolean 0, which is "false".
-
+I should mention, I've never seen that happen during swsusp on any
+distribution other than Ubuntu... but that happens to be what I'm
+running on this box right now. :/
 -- 
-Greetings Michael.
+-Barry K. Nathan <barryn@pobox.com>

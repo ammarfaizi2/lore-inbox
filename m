@@ -1,82 +1,142 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751416AbWFEU1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751014AbWFEU0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWFEU1y (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 16:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFEU1y
+	id S1751014AbWFEU0p (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 16:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWFEU0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 16:27:54 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:30614 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751416AbWFEU1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 16:27:53 -0400
-Date: Mon, 5 Jun 2006 13:27:11 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Martin Bligh <mbligh@google.com>
-cc: Andy Whitcroft <apw@shadowen.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
-        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-        ak@suse.de, Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <44849075.5070802@google.com>
-Message-ID: <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org>
- <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org>
- <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org>
- <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
- <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
- <44848F45.1070205@shadowen.org> <44849075.5070802@google.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jun 2006 16:26:45 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:43484 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1751014AbWFEU0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 16:26:44 -0400
+Subject: Re: 2.6.17-rc5-mm3-lockdep - locking error in quotaon
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Jan Kara <jack@suse.cz>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20060605200652.GC24342@atrey.karlin.mff.cuni.cz>
+References: <200606051700.k55H015q004029@turing-police.cc.vt.edu>
+	 <1149528339.3111.114.camel@laptopd505.fenrus.org>
+	 <200606051920.k55JKQGx003031@turing-police.cc.vt.edu>
+	 <20060605193552.GB24342@atrey.karlin.mff.cuni.cz>
+	 <1149537156.3111.123.camel@laptopd505.fenrus.org>
+	 <20060605200652.GC24342@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 05 Jun 2006 22:26:23 +0200
+Message-Id: <1149539183.3111.126.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Either way, random panics are not the appropriate response ;-)
+>     - acquires dqio_sem, calls filesystem specific quota writing
+>       function - e.g. ext3_quota_write()
+>     - this function acquires i_mutex for quota file
 > 
-> if it can't cope with that, why isn't it failing the request ???
+> I think this is the type of circle your checker has found.
 
-There is a crappy test in swap_on(). It should check against MAX_SWAPFILES 
-and not do this conversion back and forth. Some architectures may not 
-check if we are beyond the boundaries of what a swap entry can take.
+ok since you know this doesn't deadlock the patch below (concept; akpm
+please don't apply yet) ought to describe this special locking situation
+to lockdep; I would really appreciate someone who does use quota to test
+this out and see if it works....
 
-Why is this strange this in there? Are there architectures that support 
-less than 32 swap devices?
+---
+ fs/dquot.c          |    2 +-
+ fs/ext2/super.c     |    2 +-
+ fs/ext3/super.c     |    2 +-
+ fs/reiserfs/super.c |    2 +-
+ fs/ufs/super.c      |    2 +-
+ include/linux/fs.h  |    7 ++++++-
+ 6 files changed, 11 insertions(+), 6 deletions(-)
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.17-rc5-mm2/mm/swapfile.c
+Index: linux-2.6.17-rc5-mm3/fs/dquot.c
 ===================================================================
---- linux-2.6.17-rc5-mm2.orig/mm/swapfile.c	2006-06-01 10:03:07.127259731 -0700
-+++ linux-2.6.17-rc5-mm2/mm/swapfile.c	2006-06-05 13:24:56.000823157 -0700
-@@ -1384,6 +1384,9 @@ asmlinkage long sys_swapon(const char __
- 	struct inode *inode = NULL;
- 	int did_down = 0;
+--- linux-2.6.17-rc5-mm3.orig/fs/dquot.c
++++ linux-2.6.17-rc5-mm3/fs/dquot.c
+@@ -1475,7 +1475,7 @@ static int vfs_quota_on_inode(struct ino
+ 		goto out_file_init;
+ 	}
+ 	mutex_unlock(&dqopt->dqio_mutex);
+-	mutex_unlock(&inode->i_mutex);
++	mutex_unlock_non_nested(&inode->i_mutex);
+ 	set_enable_flags(dqopt, type);
  
-+	if (nr_swapfiles >= MAX_SWAPFILES)
-+		return -E2BIG;
-+
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 	spin_lock(&swap_lock);
-@@ -1392,22 +1395,6 @@ asmlinkage long sys_swapon(const char __
- 		if (!(p->flags & SWP_USED))
- 			break;
- 	error = -EPERM;
--	/*
--	 * Test if adding another swap device is possible. There are
--	 * two limiting factors: 1) the number of bits for the swap
--	 * type swp_entry_t definition and 2) the number of bits for
--	 * the swap type in the swap ptes as defined by the different
--	 * architectures. To honor both limitations a swap entry
--	 * with swap offset 0 and swap type ~0UL is created, encoded
--	 * to a swap pte, decoded to a swp_entry_t again and finally
--	 * the swap type part is extracted. This will mask all bits
--	 * from the initial ~0UL that can't be encoded in either the
--	 * swp_entry_t or the architecture definition of a swap pte.
--	 */
--	if (type > swp_type(pte_to_swp_entry(swp_entry_to_pte(swp_entry(~0UL,0))))) {
--		spin_unlock(&swap_lock);
--		goto out;
--	}
- 	if (type >= nr_swapfiles)
- 		nr_swapfiles = type+1;
- 	INIT_LIST_HEAD(&p->extent_list);
+ 	add_dquot_ref(sb, type);
+Index: linux-2.6.17-rc5-mm3/fs/ext2/super.c
+===================================================================
+--- linux-2.6.17-rc5-mm3.orig/fs/ext2/super.c
++++ linux-2.6.17-rc5-mm3/fs/ext2/super.c
+@@ -1157,7 +1157,7 @@ static ssize_t ext2_quota_write(struct s
+ 	struct buffer_head tmp_bh;
+ 	struct buffer_head *bh;
+ 
+-	mutex_lock(&inode->i_mutex);
++	mutex_lock_nested(&inode->i_mutex, I_MUTEX_QUOTA);
+ 	while (towrite > 0) {
+ 		tocopy = sb->s_blocksize - offset < towrite ?
+ 				sb->s_blocksize - offset : towrite;
+Index: linux-2.6.17-rc5-mm3/fs/ext3/super.c
+===================================================================
+--- linux-2.6.17-rc5-mm3.orig/fs/ext3/super.c
++++ linux-2.6.17-rc5-mm3/fs/ext3/super.c
+@@ -2614,7 +2614,7 @@ static ssize_t ext3_quota_write(struct s
+ 	struct buffer_head *bh;
+ 	handle_t *handle = journal_current_handle();
+ 
+-	mutex_lock(&inode->i_mutex);
++	mutex_lock_nested(&inode->i_mutex, I_MUTEX_QUOTA);
+ 	while (towrite > 0) {
+ 		tocopy = sb->s_blocksize - offset < towrite ?
+ 				sb->s_blocksize - offset : towrite;
+Index: linux-2.6.17-rc5-mm3/fs/reiserfs/super.c
+===================================================================
+--- linux-2.6.17-rc5-mm3.orig/fs/reiserfs/super.c
++++ linux-2.6.17-rc5-mm3/fs/reiserfs/super.c
+@@ -2204,7 +2204,7 @@ static ssize_t reiserfs_quota_write(stru
+ 	size_t towrite = len;
+ 	struct buffer_head tmp_bh, *bh;
+ 
+-	mutex_lock(&inode->i_mutex);
++	mutex_lock_nested(&inode->i_mutex, I_MUTEX_QUOTA);
+ 	while (towrite > 0) {
+ 		tocopy = sb->s_blocksize - offset < towrite ?
+ 		    sb->s_blocksize - offset : towrite;
+Index: linux-2.6.17-rc5-mm3/fs/ufs/super.c
+===================================================================
+--- linux-2.6.17-rc5-mm3.orig/fs/ufs/super.c
++++ linux-2.6.17-rc5-mm3/fs/ufs/super.c
+@@ -1269,7 +1269,7 @@ static ssize_t ufs_quota_write(struct su
+ 	size_t towrite = len;
+ 	struct buffer_head *bh;
+ 
+-	mutex_lock(&inode->i_mutex);
++	mutex_lock_nested(&inode->i_mutex, I_MUTEX_QUOTA);
+ 	while (towrite > 0) {
+ 		tocopy = sb->s_blocksize - offset < towrite ?
+ 				sb->s_blocksize - offset : towrite;
+Index: linux-2.6.17-rc5-mm3/include/linux/fs.h
+===================================================================
+--- linux-2.6.17-rc5-mm3.orig/include/linux/fs.h
++++ linux-2.6.17-rc5-mm3/include/linux/fs.h
+@@ -563,12 +563,17 @@ struct inode {
+  * 0: the object of the current VFS operation
+  * 1: parent
+  * 2: child/target
++ * 3: quota file
++ *
++ * The locking order between these types is
++ * parent -> child -> normal -> quota
+  */
+ enum inode_i_mutex_lock_type
+ {
+ 	I_MUTEX_NORMAL,
+ 	I_MUTEX_PARENT,
+-	I_MUTEX_CHILD
++	I_MUTEX_CHILD,
++	I_MUTEX_QUOTA
+ };
+ 
+ /*
+

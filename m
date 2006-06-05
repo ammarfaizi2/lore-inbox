@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750746AbWFEIYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750748AbWFEIWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWFEIYa (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 04:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWFEIY3
+	id S1750748AbWFEIWs (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 04:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWFEIWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 04:24:29 -0400
-Received: from wx-out-0102.google.com ([66.249.82.198]:1637 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750751AbWFEIY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 04:24:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=e1seAL0RrES+i3GcLt7+UJqhe0Dz3UCIDn7DLwal8gAk4byZL1cmcsxuxCB01OCuGefJ6Z8ssxLwHjLBWJRYxJxxfJ9s+trV+SsTIkoDOJStfAx6rtJnpniQbTea6iz4w+VWJ2BlZBaYAk6iUIWgajHjbPSi8Msm8cvZny2XPm4=
-Message-ID: <a44ae5cd0606050124h4c82f45aq27f68f9d07956642@mail.gmail.com>
-Date: Mon, 5 Jun 2006 01:24:27 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-rc5-mm3 -- ACPI errors (are these ones that are significant?)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 5 Jun 2006 04:22:48 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:32461 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1750748AbWFEIWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 04:22:48 -0400
+Subject: Re: [PATCH] Use ld's garbage collection feature
+From: David Woodhouse <dwmw2@infradead.org>
+To: Marcelo Tosatti <marcelo@kvack.org>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>
+In-Reply-To: <20060605003152.GA1364@dmt>
+References: <20060605003152.GA1364@dmt>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 09:22:43 +0100
+Message-Id: <1149495763.30024.36.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During boot:
+On Sun, 2006-06-04 at 21:31 -0300, Marcelo Tosatti wrote:
+> - Do not discard symbols referenced by modules (via KEEP directive
+> from linker script). 
 
-acpi_processor-0731 [00] processor_preregister_: Error while parsing
-_PSD domain information. Assuming no coordination
+I think we should keep _all_ symbols which are exported, except perhaps
+if some _extra_ config option hidden behing CONFIG_EMBEDDED is set. It
+isn't acceptable to break the case of modules which you build only later
+or out-of-tree.
 
-During resume and after the "BUG: sleeping function called from
-invalid context at include/asm/semaphore.h:99 in_atomic():0,
-irqs_disabled():1" that I reported earlier:
+I also want to play with '-fwhole-program --combine'. There's currently
+a compiler bug with --combine getting on my tits, but if you #include
+the whole of fs/jffs2/*.c or fs/ext3/*.c from one file and build that
+with -fwhole-program, you also see a fair amount of benefit.
 
-PM: Finishing wakeup.
- acpi: resuming
-ACPI: read EC, IB not empty
-ACPI: read EC, OB not full
-ACPI Exception (evregion-0412): AE_TIME, Returned by Handler for
-[EmbeddedControl] [20060310]
-ACPI Exception (dswexec-0459): AE_TIME, While resolving operands for
-[Store] [20060310]
-ACPI Error (psparse-0522): Method parse/execution failed
-[\_TZ_.THRM._TMP] (Node c189ec44), AE_TIME
-agpgart-intel 0000:00:00.0: resuming
+That would also render a certain amount of the gc-sections improvements
+obsolete, although we can't use -fwhole-program in core code; only 'leaf
+object' like drivers and filesystems so I think gc-sections is still
+going to be a win.
+
+-- 
+dwmw2
+

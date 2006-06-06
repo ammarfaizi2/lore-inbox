@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWFFTaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWFFTeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWFFTaU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 15:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWFFTaT
+	id S1751001AbWFFTeA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 15:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWFFTeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 15:30:19 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:41707 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751001AbWFFTaS (ORCPT
+	Tue, 6 Jun 2006 15:34:00 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:49055 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751001AbWFFTd7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 15:30:18 -0400
-Date: Tue, 6 Jun 2006 21:29:44 +0200
+	Tue, 6 Jun 2006 15:33:59 -0400
+Date: Tue, 6 Jun 2006 21:33:25 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, mbligh@google.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, -rc5-mm3] better lock debugging: remove mutex deadlock checking code
-Message-ID: <20060606192944.GB15882@elte.hu>
-References: <44845C27.3000006@google.com> <20060605194422.GB14709@elte.hu> <20060605130039.db1ac80c.rdunlap@xenotime.net> <20060606085623.GA2932@elte.hu> <448569C9.9080401@shadowen.org> <4485B8C4.2070700@shadowen.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch, -rc5-mm3] lock validator: -V3
+Message-ID: <20060606193325.GA16010@elte.hu>
+References: <20060606154530.GA11063@elte.hu> <20060606091515.27db4746.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4485B8C4.2070700@shadowen.org>
+In-Reply-To: <20060606091515.27db4746.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -3.1
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
 	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5186]
-	0.0 AWL                    AWL: From: address is in the auto white-list
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andy Whitcroft <apw@shadowen.org> wrote:
+* Andrew Morton <akpm@osdl.org> wrote:
 
-> > I'll shove this one in for testing too.  Results on TKO as I have them.
+> On Tue, 6 Jun 2006 17:45:30 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> This is definatly clearing up a bunch of problems with the current 
-> -mm.
+> >  30 files changed, 545 insertions(+), 230 deletions(-)
+> 
+> This basically screws up the whole patch series.  It'll create a 
+> barrier over which it will be hard to move fixups against existing 
+> patches.
 
-great! Thanks for testing this out, this bug was the scariest pending 
-one.
+yes. Dont worry about it, i'll refactor the whole lock validator queue 
+once i've done the cleanups too.
+
+> ho-hum.  Let's make sure that future patches are extremely 
+> fine-grained and please try to identify whether they're applicable to 
+> -v2 or to -v3 and we'll see how it goes.
+
+there was just no other way to do this - this change is intrusive 
+independently of how finegrained the patches are.
 
 	Ingo

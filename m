@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWFFJSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWFFJfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWFFJSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 05:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWFFJSZ
+	id S932134AbWFFJfA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 05:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWFFJfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 05:18:25 -0400
-Received: from ns1.bluetone.cz ([212.158.128.13]:61647 "EHLO mail.bluetone.cz")
-	by vger.kernel.org with ESMTP id S932065AbWFFJSY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 05:18:24 -0400
-Message-ID: <4485486A.7060502@scssoft.com>
-Date: Tue, 06 Jun 2006 11:18:34 +0200
-From: Petr Sebor <petr@scssoft.com>
-Organization: SCS Software
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Tue, 6 Jun 2006 05:35:00 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:52937 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S932134AbWFFJe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 05:34:59 -0400
+Date: Tue, 6 Jun 2006 11:34:56 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: AMD64: 64 bit kernel 32 bit userland - some pending questions
+Message-ID: <20060606093456.GL4552@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Oops with 2.6.16.18 caused by tun?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000049
- printing eip:
-c01fa39e
-*pde = 00000000
-Oops: 0002 [#1]
-Modules linked in: tun
-CPU:    0
-EIP:    0060:[<c01fa39e>]    Not tainted VLI
-EFLAGS: 00210206   (2.6.16.18 #1)
-EIP is at cdrom_read_block+0xa1/0xba
-eax: dc720a60   ebx: dc720a60   ecx: 00000074   edx: dcdc1f48
-esi: 00000040   edi: 080e11d8   ebp: 080e11e0   esp: dcdc1ec4
-ds: 007b   es: 007b   ss: 0068
-Process tincd (pid: 1124, threadinfo=dcdc0000 task=dcd8e5b0)
-Stack: <0>c0207ec7 8f020002 3213cf55 00000000 00000000 dcdc1f7c 00000052 
-00000052
-       c020c278 00000052 00000052 00000052 00000000 c020c993 000000f0 
-dcdc1f7c
-       deb2ac34 00000000 dcdc1f7c 00000004 00000004 00000052 deb2ac34 
-00200286
-Call Trace:
- [<c0207ec7>] sys_sendto+0xf5/0x116
- [<c020c278>] memcpy_toiovec+0x25/0x47
- [<c020c993>] skb_copy_datagram_iovec+0x3b/0x19e
- [<e0930cff>] tun_chr_readv+0x305/0x30f [tun]
- [<c0208585>] sys_socketcall+0xeb/0x181
- [<c0102331>] syscall_call+0x7/0xb
-Code: 00 88 46 07 89 5e 10 74 16 81 fd 30 09 00 00 74 14 81 fd 20 09 00 
-00 75 12 c6 46 09 58 eb 10 c6 46 09 78 eb 0a c6 46 09 f8 eb 04 <c6> 46 
-09 10 8b 4c 24 0c 89 f2 8b 44 24 08 ff 51 3c 83 c4 14 5b
+Hello everyone,
+I would like to use an AMD64 Opteron System with a 64 bit Linux Kernel,
+but a 32 bit userland (Debian Sarge). I have a few questions about this:
 
-It is vanilla 2.6.16.18, i386
+        - Is it possible to give the userland 3Gbyte virtual address
+          space (default for 2.4 and 2.6). But give the Kernel a 64 bit
+          virtual address space so that I get more than 1 Gbyte physical
+          Memory into LOWMEM - say I want 8 Gbyte - without using HIGHMEM
+          at all? If this scenario is possible I would get cheap memory
+          access at the benefit of a well tested userland. I don't have
+          applications that need more than 2 Gbyte virtual address
+          space.
 
-Petr
+        - What is the easiest way to build a 64 bit kernel on a 32 bit
+          Debian sarge. Are there crosscompiler packages available? Are
+          there any guides on this?
 
+        - If the above scenario works out like I imagine it, does this
+          add some additional overhead I am not aware of when I switch
+          for example from 32 bit userland to 64 bit kernel space which
+          would override the performance gain I get from the huge LOWMEM
+          virtuall address space?
+
+        Thomas

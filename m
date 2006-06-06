@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751110AbWFFESO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932079AbWFFEVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWFFESO (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 6 Jun 2006 00:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWFFESO
+	id S932079AbWFFEVX (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 6 Jun 2006 00:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWFFEVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 00:18:14 -0400
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:46252 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751110AbWFFESN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 00:18:13 -0400
-Date: Tue, 6 Jun 2006 00:13:58 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: x86_64 system call entry points
-To: Martin Bisson <bissonm@discreet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606060017_MC3-1-C1B2-81E5@compuserve.com>
-MIME-Version: 1.0
+	Tue, 6 Jun 2006 00:21:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19617 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932079AbWFFEVW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 00:21:22 -0400
+Date: Mon, 5 Jun 2006 21:20:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+        alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] misroute-irq: Don't call desc->chip->end because of
+ edge interrupts
+Message-Id: <20060605212033.072bb47d.akpm@osdl.org>
+In-Reply-To: <1149564830.16247.11.camel@localhost.localdomain>
+References: <1149112582.3114.91.camel@laptopd505.fenrus.org>
+	<1149345421.13993.81.camel@localhost.localdomain>
+	<20060603215323.GA13077@devserv.devel.redhat.com>
+	<1149374090.14408.4.camel@localhost.localdomain>
+	<1149413649.3109.92.camel@laptopd505.fenrus.org>
+	<1149426961.27696.7.camel@localhost.localdomain>
+	<1149437412.23209.3.camel@localhost.localdomain>
+	<1149438131.29652.5.camel@localhost.localdomain>
+	<1149456375.23209.13.camel@localhost.localdomain>
+	<1149456532.29652.29.camel@localhost.localdomain>
+	<20060604214448.GA6602@elte.hu>
+	<1149564830.16247.11.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <44846210.4080602@discreet.com>
+On Mon, 05 Jun 2006 23:33:50 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-On Mon, 05 Jun 2006 12:55:44 -0400, Martin Bisson wrote:
-
-> - sysenter/32 bits, executed on a 32 bit machine: I get a segfault on 
-> the sysenter instruction.  I use the following code to enter the system 
-> call:
-> pid_t getpid32()
-> {
->     pid_t resultvar;
 > 
->     asm volatile (
->     "push    %%ebp\n\t"
->     "push    %%ecx\n\t"
->     "push    %%edx\n\t"
->     "mov     %%esp,%%ebp\n\t"
->     "sysenter\n\t"
->     ".space 20,0x90\n\t"
->     "pop     %%edx\n\t"
->     "pop     %%ecx\n\t"
->     "pop     %%ebp\n\t"
->     : "=a" (resultvar)   
->     : "0" (__NR_getpid)
->     : "memory");
+> Hit the following BUG with irqpoll.  The below patch fixes it.
 > 
->     return resultvar;
-> }
 
-sysenter always returns to a fixed address (in the vdso) no matter
-where you invoke it from.
+Call me a cynic, but
 
--- 
-Chuck
+> +		if (work && disc->chip && desc->chip->end)
 
+that doesn't look super-tested to me.

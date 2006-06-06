@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWFFQTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWFFQYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWFFQTh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 12:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWFFQTh
+	id S1751338AbWFFQYM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 12:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWFFQYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 12:19:37 -0400
-Received: from nz-out-0102.google.com ([64.233.162.198]:44170 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751331AbWFFQTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 12:19:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RgjgQuXzsiU67wK/u66crXxKmeXOypr/zj9wuNZeMi8MpYJKu02+F0sfrcWj5HVforURWUXDAz6vr3Qvjw2RN9rc4NthFEt8hMkHdOXplnLgD8kUmSr0IC6q0zNAndSkdfgWR5UrWsGybyh8BcjkEGHW9FNcxlQAQAzkxf9AOVw=
-Message-ID: <9e4733910606060919p2a137e07wd58b51a227f5aa5e@mail.gmail.com>
-Date: Tue, 6 Jun 2006 12:19:36 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: [PATCH 0/7] Detaching fbcon
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Linux Fbdev development list" 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910606060910m44cd4edfs8155c1fe031b37fe@mail.gmail.com>
+	Tue, 6 Jun 2006 12:24:11 -0400
+Received: from gw.goop.org ([64.81.55.164]:17342 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751338AbWFFQYK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 12:24:10 -0400
+Message-ID: <4485AC1F.9050001@goop.org>
+Date: Tue, 06 Jun 2006 09:23:59 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
+To: Shaohua Li <shaohua.li@intel.com>
+CC: Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dzickus@redhat.com, ak@suse.de
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in	arch/i386/kernel/nmi.c:174
+References: <4480C102.3060400@goop.org> <4483DF32.4090608@goop.org>	 <20060605004823.566b266c.akpm@osdl.org>	 <a44ae5cd0606050135w66c2abeu698394b4268e4790@mail.gmail.com> <1149576246.32046.166.camel@sli10-desk.sh.intel.com>
+In-Reply-To: <1149576246.32046.166.camel@sli10-desk.sh.intel.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44856223.9010606@gmail.com>
-	 <9e4733910606060910m44cd4edfs8155c1fe031b37fe@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/6/06, Jon Smirl <jonsmirl@gmail.com> wrote:
-> On 6/6/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> > Overall, this feature is a great help for developers working in the
-> > framebuffer or console layer.  There is not need to continually reboot the
-> > kernel for every small change. It is also useful for regular users who wants
-> > to choose between a graphical console or a text console without having to
-> > reboot.
->
-> Instead of the sysfs attribute, what about creating a new escape
-> sequence that you send to the console system to detach? Doing it that
-> way would make more sense from a stacking order. It just seems
-> backwards to me that you ask a lower layer to detach from the layer
-> above it. The escape sequence would also work for any console
-> implementation, not just fbcon.
->
-> If console detached this way and there was nothing to fallback to
-> (systems without VGAcon), it would know not to try and print anything
-> until something reattaches to it.
+Shaohua Li wrote:
+> Does below patch help? The nmi suspend/resume doesn't look good to me.
+> Only CPU0 uses the suspend/resume code path. Other CPUs run the CPU
+> hotplug code path.
+>   
+Unfortunately this just oopses immediately on the first suspend.  The 
+stack trace is unclear (and I'm just going from memory at the moment), 
+but it looked like it got an invalid op.  I'll try to get a clearer idea 
+of the crash later today.
 
-Another thought, controlling whether console is attached or not is an
-attribute of console, not of fbcon. It should be possible to have
-VGAcon, fbcon, serial etc loaded and then switch console between them.
-Does console need to get a sysfs entry showing what console providers
-have registered with it and then allow you to choose which one (or
-none) it is attached to?
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+    J

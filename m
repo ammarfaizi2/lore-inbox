@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWFFFhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWFFF6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWFFFhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 01:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWFFFhF
+	id S932117AbWFFF6q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 01:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWFFF6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 01:37:05 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:7122 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750868AbWFFFhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 01:37:03 -0400
-Date: Tue, 06 Jun 2006 14:36:14 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
-Cc: mbligh@google.com, akpm@osdl.org, apw@shadowen.org,
-       linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>
-In-Reply-To: <20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060605200727.374cbf05.akpm@osdl.org> <20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060606142347.2AF2.Y-GOTO@jp.fujitsu.com>
+	Tue, 6 Jun 2006 01:58:46 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:53462 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932117AbWFFF6p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 01:58:45 -0400
+From: Andi Kleen <ak@suse.de>
+To: David Miller <davem@davemloft.net>
+Subject: Re: 2.6.17-rc5-mm1
+Date: Tue, 6 Jun 2006 07:56:36 +0200
+User-Agent: KMail/1.9.3
+Cc: mbligh@mbligh.org, linux-kernel@vger.kernel.org
+References: <447E3846.1060302@shaw.ca> <p73ac8w0wju.fsf@verdi.suse.de> <20060605.213655.41876860.davem@davemloft.net>
+In-Reply-To: <20060605.213655.41876860.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Disposition: inline
+Message-Id: <200606060756.36193.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I looked back into 2.6.15, 2.6.16. 
-> It looks -mm's time of initialization of "total_memory" is not changed from them.
-> (yes, Andrew's fix looks sane.)
+On Tuesday 06 June 2006 06:36, David Miller wrote:
+> From: Andi Kleen <ak@suse.de>
+> Date: 02 Jun 2006 10:52:05 +0200
 > 
-> I'm intersted in the following texts in the log.
-> ==
-> Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 0kB
-> Node 0 DMA32: empty
-> Node 0 Normal: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 0kB
-> Node 0 HighMem: 1*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 0*256kB 0*512kB 1*1024kB 2*2048kB 3962*4096kB = 16233724kB
-> Node 1 DMA: empty
-> Node 1 DMA32: empty
-> Node 1 Normal: empty
-> Node 1 HighMem: 1*4kB 1*8kB 0*16kB 0*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 0*2048kB 4065*4096kB = 16651916kB
-> Node 2 DMA: empty
-> Node 2 DMA32: empty
-> Node 2 Normal: empty
-> Node 2 HighMem: 1*4kB 1*8kB 0*16kB 0*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 0*2048kB 4065*4096kB = 16651916kB
-> Node 3 DMA: empty
-> Node 3 DMA32: empty
-> Node 3 Normal: empty
-> Node 3 HighMem: 1*4kB 1*8kB 0*16kB 0*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 0*2048kB 3811*4096kB = 15611532kB
-> ==
-> Looks 64GB memory. but there are only HIGHMEM, no NORMAL, DMA. so, shrink_zone() worked.
+> > "Martin J. Bligh" <mbligh@mbligh.org> writes:
+> > > 
+> > > All sounds very sensible ... but not sure why -mm would hit it all the
+> > > time, and never mainline ...
+> > 
+> > You can use memeat.c to test the machine with other kernels.
+> > It tends to find such problems reliably. Let it run for some time
+> > 
+> > http://www.firstfloor.org/~andi/memeat.c
+> 
+> Wouldn't it be more useful for this program to use LowTotal instead of
+> LowFree?  It didn't grind my sparc64 machine much until I changed it
+> like that. :)
 
-Its log shows there are some memory in DMA and NORMAL just immediately
-before that.....
+The idea is that the memory that is already used is tested. And the machine should
+be still usable.
 
-> Active:2 inactive:15 dirty:0 writeback:0 unstable:0 free:16287272 slab:1823 mapped:0 pagetables:0
-> Node 0 DMA free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:16384kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-> Node 0 DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
-> Node 0 Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:385024kB pages_scanned:0 all_unreclaimable? no
-lowmem_reserve[]: 0 0 0 0
+If you want a generic memory eater you can use memhog from numactl.
 
-It looks like that something wasted all of DMA(16MB) and NORMAL(385MB)
-zone suddenly. Hmmm...
+It's mainly a quick test for machines that error out when they detect
+a 2 bit errors using ECC. And when run for longer it tends to stress
+other parts of the motherboard like VRMs.
 
-Bye.
+At least on Opterons with ECC memory it seems to detect most memory problems
+pretty reliably, that is why I suggested it to Martin.
 
--- 
-Yasunori Goto 
+-Andi
 
 
+> 
+> 

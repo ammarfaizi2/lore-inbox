@@ -1,108 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWFFLhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWFFLkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWFFLhI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 07:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWFFLhI
+	id S1751277AbWFFLkg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 07:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWFFLkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 07:37:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40804 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751261AbWFFLhH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 07:37:07 -0400
-Date: Tue, 6 Jun 2006 13:39:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm3 - crash in cfq_queue_empty() after iosched change
-Message-ID: <20060606113934.GI6693@suse.de>
-References: <200606051442.k55EghgI004703@turing-police.cc.vt.edu> <20060606071537.GP4400@suse.de> <20060606072348.GQ4400@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060606072348.GQ4400@suse.de>
+	Tue, 6 Jun 2006 07:40:36 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:10254 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751277AbWFFLkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 07:40:36 -0400
+Message-ID: <4485698A.4010406@shadowen.org>
+Date: Tue, 06 Jun 2006 12:39:54 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       ak@suse.de, Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.17-rc5-mm1
+References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org> <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com> <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com> <44848F45.1070205@shadowen.org> <44849075.5070802@google.com> <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 06 2006, Jens Axboe wrote:
-> On Tue, Jun 06 2006, Jens Axboe wrote:
-> > On Mon, Jun 05 2006, Valdis.Kletnieks@vt.edu wrote:
-> > > I've been hitting this about once every two weeks for a while now,
-> > > probably back to a 2.6.16-rc or so.  It always bites at the same time
-> > > while my laptop was at a point very late in bootup. I finally caught
-> > > one when I had pen, paper, *and* time to chase it a bit rather than
-> > > reboot.  Sorry for the very partial traceback, it's not a good CTS day
-> > > and I didn't have a digital camera handy.
-> > > 
-> > > BUG: Unable to handle kernel NULL pointer dereference at 0x0000005c
-> > > EIP at cfq_queue_empty+0x9/0x15
-> > > call trace:
-> > > 	elv_queue_empty+0x20/0x22
-> > > 	ide_do_request+0xa4/0x788
-> > > 	ide_intr+0x1ec/0x236
-> > > 	handle_IRQ_eent+0x27/0x52
-> > > 	handle_level_IRQ+0xb6
-> > > 	do_IRQ+0x5d/0x78
-> > > 	common_interrupt+0x1a/0x20
-> > > 
-> > > In my .config:
-> > > 
-> > > CONFIG_IOSCHED_NOOP=y
-> > > CONFIG_IOSCHED_AS=y
-> > > CONFIG_IOSCHED_DEADLINE=y
-> > > CONFIG_IOSCHED_CFQ=y
-> > > CONFIG_DEFAULT_IOSCHED="anticipatory"
-> > > 
-> > > This happened very soon (within a few milliseconds or two) after my /etc/rc.local did:
-> > > 
-> > > echo cfq >| /sys/block/hda/queue/scheduler
-> > > 
-> > > (The next executable statement in /etc/rc.local is this:
-> > > echo noop >| /sys/block/hdb/queue/scheduler  and 'last sysfs file' still
-> > > pointed at /dev/hda).
-> > > 
-> > > It *looks* like the problem is in elevator_switch() in block/elevator.c:
-> > > 
-> > >        while (q->rq.elvpriv) {
-> > >                 blk_remove_plug(q);
-> > >                 q->request_fn(q);
-> > >                 spin_unlock_irq(q->queue_lock);
-> > >                 msleep(10);
-> > >                 spin_lock_irq(q->queue_lock);
-> > >                 elv_drain_elevator(q);
-> > >         }
-> > > 
-> > > this--> spin_unlock_irq(q->queue_lock);
-> > > 
-> > >         /*
-> > >          * unregister old elevator data
-> > >          */
-> > >         elv_unregister_queue(q);
-> > >         old_elevator = q->elevator;
-> > > 
-> > >         /*
-> > >          * attach and start new elevator
-> > >          */
-> > >         if (elevator_attach(q, e))
-> > >                 goto fail;
-> > > 
-> > > should be down here someplace, after elevator_attach(), I suspect?
-> > > Looks like the disk popped an IRQ after we had installed the
-> > > iosched_cfq.ops[] but q->elevator->elevator_data hadn't been
-> > > initialized yet...
-> > > 
-> > > (I'd attach a patch, except I'm not positive I have the diagnosis
-> > > right?)
-> > 
-> > I think your analysis is pretty good, there's definitely a period there
-> > where we don't want the queueing invoked. Does this help?
+Christoph Lameter wrote:
+> Sigh the patch that I sent earlier will make swapon fail when adding more 
+> entries if 32 entries have been defined before even if some of these are 
+> later freed. Plus maybe we better leave the probing intact for arches that 
+> support less than 32 swap devices and also return -EPERM like before. I 
+> guess we need this one instead:
 > 
-> Tested here, switched 50 times between the various io schedulers while
-> the queue was fully loaded. JFYI.
+> 
+> Do proper boundary checking in sys_swapon().
+> 
+> sys_swapon currently does not limit the number of swap devices. It may as
+> a result overwrite memory following the swap_info array and get into 
+> entanglements with page migration since it may usethe swap types reserved 
+> for page migration.
+> 
+> Fix this by limiting the number of swap devices in swapon to 
+> MAX_SWAPFILES
+> 
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
+> Index: linux-2.6.17-rc5-mm2/mm/swapfile.c
+> ===================================================================
+> --- linux-2.6.17-rc5-mm2.orig/mm/swapfile.c	2006-06-01 10:03:07.127259731 -0700
+> +++ linux-2.6.17-rc5-mm2/mm/swapfile.c	2006-06-05 13:40:45.887291175 -0700
+> @@ -1408,8 +1408,13 @@ asmlinkage long sys_swapon(const char __
+>  		spin_unlock(&swap_lock);
+>  		goto out;
+>  	}
+> -	if (type >= nr_swapfiles)
+> +	if (type >= nr_swapfiles) {
+> +		if (nr_swapfiles >= MAX_SWAPFILES) {
+> +			spin_unlock(&swap_lock);
+> +			goto out;
+> +		}
+>  		nr_swapfiles = type+1;
+> +	}
+>  	INIT_LIST_HEAD(&p->extent_list);
+>  	p->flags = SWP_USED;
+>  	p->swap_file = NULL;
 
-It triggers non-atomic warnings though, due to spinlock -> mutex
-dependencies. This looks a little nasty to fix in a trivial enough way
-for 2.6.17. I'll ponder it a bit.
+I'll shove this one onto the machine causing all the trouble.
 
--- 
-Jens Axboe
-
+-apw

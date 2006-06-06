@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWFFKmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWFFKql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbWFFKmd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 06:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWFFKmd
+	id S1750800AbWFFKql (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 06:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWFFKql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 06:42:33 -0400
-Received: from ns2.suse.de ([195.135.220.15]:6279 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750980AbWFFKmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 06:42:32 -0400
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+	Tue, 6 Jun 2006 06:46:41 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:30126 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750800AbWFFKqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 06:46:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Uslnqr4iku4Om8qIfVMDo+XltgrVQU17Q8OSo9JaPABHCUnffToTdJdTgF7Cuddr0yL6A9OtdMHCV7uGV576yHy9IIvMBMy5EkLdSF+b8FgU3PepZL6qglFgqnpHe9NJcf/BLvRPTWFWCetAxYXZcg7dQAudV6P6suZDdRAhkkU=
+Message-ID: <b0943d9e0606060346sb42e00apbc194cee8db3986d@mail.gmail.com>
+Date: Tue, 6 Jun 2006 11:46:40 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD64: 64 bit kernel 32 bit userland - some pending questions
-References: <20060606093456.GL4552@cip.informatik.uni-erlangen.de>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Jun 2006 12:42:30 +0200
-In-Reply-To: <20060606093456.GL4552@cip.informatik.uni-erlangen.de>
-Message-ID: <p73lksazht5.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+In-Reply-To: <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060604215636.16277.15454.stgit@localhost.localdomain>
+	 <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Glanzmann <sithglan@stud.uni-erlangen.de> writes:
+On 05/06/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> System hangs while starting udev.
+>
+> Here is config
+> http://www.stardust.webpages.pl/files/kml/kml-config
 
-> Hello everyone,
-> I would like to use an AMD64 Opteron System with a 64 bit Linux Kernel,
-> but a 32 bit userland (Debian Sarge). I have a few questions about this:
+I managed to reproduce the problem - the kernel can deadlock on SMP if
+the module being loaded contains the .init.memleak_aliases section.
+I'll fix it and post another patch later today.
 
-The main caveat is that iptables and ipsec need 64bit executables
-to be set up. The rest should work.
+Thanks for testing.
 
-> 
->         - Is it possible to give the userland 3Gbyte virtual address
->           space (default for 2.4 and 2.6).
-
-The default is 4GB, but you can get 3GB by running it under linux32 --3gb
-
-> But give the Kernel a 64 bit
->           virtual address space so that I get more than 1 Gbyte physical
->           Memory into LOWMEM - say I want 8 Gbyte - without using HIGHMEM
-
-The 64bit kernel never uses highmem.
-
->         - What is the easiest way to build a 64 bit kernel on a 32 bit
->           Debian sarge. Are there crosscompiler packages available? Are
->           there any guides on this?
-
-If all fails you can get a cross compiler from crosstool.
-Then normal kernel compilation command with 
-
-make ... ARCH=x86_64 CROSS_COMPILE=x86_64-linux-
- 
-
--Andi
+-- 
+Catalin

@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWFFVn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWFFVpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWFFVn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 17:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWFFVn0
+	id S1751166AbWFFVpo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 17:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWFFVpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 17:43:26 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:1153
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751013AbWFFVnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 17:43:25 -0400
-Message-ID: <4485F6F2.4050701@microgate.com>
-Date: Tue, 06 Jun 2006 16:43:14 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Tue, 6 Jun 2006 17:45:44 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:49685 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751166AbWFFVpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 17:45:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Vf6AT/kvczu3sX1ftDovI2CVXUfx8iFR6mbiLYpG20pIlp1E8eP1AdBAmwa/53jylWlBnOIsjfB3X1l0Gsp7gZycuL4jawRE2C/peEBHdJMm/xnargvR0z8Qw14RT9TX7QQLJx2wHMoQpk6sXMCbEykJrY+HYfRlZ6mKYpveYlY=
+Message-ID: <3faf05680606061445r7da489d9tc265018bc7960779@mail.gmail.com>
+Date: Wed, 7 Jun 2006 03:15:43 +0530
+From: "vamsi krishna" <vamsi.krishnak@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Quick close of all the open files.
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Krzysztof Halasa <khc@pm.waw.pl>, davej@redhat.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] fix missing hdlc symbols for synclink drivers
-References: <20060603232004.68c4e1e3.akpm@osdl.org>	<20060605230248.GE3963@redhat.com>	<20060605184407.230bcf73.rdunlap@xenotime.net>	<1149622813.11929.3.camel@amdx2.microgate.com>	<m3u06yc9mr.fsf@defiant.localdomain>	<4485E723.4070201@microgate.com>	<m3lksac7op.fsf@defiant.localdomain> <20060606142022.b184d1c5.rdunlap@xenotime.net>
-In-Reply-To: <20060606142022.b184d1c5.rdunlap@xenotime.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Tue, 06 Jun 2006 23:09:42 +0200 Krzysztof Halasa wrote:
->>I.e., I would probably change:
->>
->>#ifdef CONFIG_HDLC_MODULE
->>#define CONFIG_HDLC 1
->>#endif
+Hello,
 
-These macros have already been replaced in the synclink drivers.
+I found that the following code is closing all the open files by the
+program, do you think its a bug in kernel code?
 
-> So SYNCLINK has different capabilities depending on whether
-> HDLC=m or HDLC=y ??
+------------
+fp = tmpfile();
+fp->_chain = stderr;
+fpclose(fp);
+fp = NULL;
+------------
 
-No, the current situation is generic HDLC support is
-an optional configuration for the synclink drivers.
-The build option of generic HDLC must match that
-of the synclink driver if that option is enabled.
+o Is there any other elegant way to close all the open files (rather
+than reading from /proc/<pid>/fd and calling close on each of the fd?)
 
-if synclink is 'y' with generic HDLC option enabled,
-then the generic HDLC module must be 'y'
+Looking forward to hear from you.
 
-if synclink is 'm' with generic HDLC option enabled,
-then generic HDLC can be 'y' or 'm'
-
-if synclink is 'y' or 'm' without the generic HDLC option,
-then it is not necessary to build/load the generic HDLC module
-
---
-
-The Kconfig addition of 'select WAN if SYNCLINK_XX_HDLC'
-enables the above behavior.
-
-I thought the Makefile change was to allow generic HDLC
-to build as a module. I'll need to look at that closer.
-
---
-Paul
+Thank you,
+Vamsi.

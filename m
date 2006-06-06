@@ -1,93 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWFFSDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWFFSFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWFFSDe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 14:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWFFSDe
+	id S1750819AbWFFSFG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 14:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWFFSFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 14:03:34 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:28042 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750738AbWFFSDe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 14:03:34 -0400
-Date: Tue, 6 Jun 2006 12:03:36 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: Question regarding ext3 extents+mballoc+delalloc
-Message-ID: <20060606180336.GS5964@schatzie.adilger.int>
-Mail-Followup-To: Holger Kiehl <Holger.Kiehl@dwd.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	ext2-devel@lists.sourceforge.net
-References: <Pine.LNX.4.61.0606061021330.31147@diagnostix.dwd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0606061021330.31147@diagnostix.dwd.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Tue, 6 Jun 2006 14:05:05 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:12179 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750819AbWFFSFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 14:05:03 -0400
+Date: Tue, 6 Jun 2006 11:04:43 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       mbligh@google.com, apw@shadowen.org, mbligh@mbligh.org,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: 2.6.17-rc5-mm1
+In-Reply-To: <1149614184.29059.47.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0606061039570.27969@schroedinger.engr.sgi.com>
+References: <447DEF49.9070401@google.com>  <20060531140652.054e2e45.akpm@osdl.org>
+ <447E093B.7020107@mbligh.org>  <20060531144310.7aa0e0ff.akpm@osdl.org>
+ <447E104B.6040007@mbligh.org>  <447F1702.3090405@shadowen.org>
+ <44842C01.2050604@shadowen.org>  <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
+  <44848DD2.7010506@shadowen.org>  <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
+  <44848F45.1070205@shadowen.org> <44849075.5070802@google.com> 
+ <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com> 
+ <20060605135812.30138205.akpm@osdl.org>  <Pine.LNX.4.64.0606060537460.6045@blonde.wat.veritas.com>
+  <Pine.LNX.4.64.0606060923250.27550@schroedinger.engr.sgi.com>
+ <1149614184.29059.47.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 06, 2006  10:23 +0000, Holger Kiehl wrote:
-> Looking at ways to increase write performance on my system using ext3
-> Andreas Dilger pointed me to delalloc+mballoc+extent patches. Downloaded
-> those from ftp://ftp.clusterfs.com/pub/people/alex/2.6.16.8 and run some
-> benchmark, here some results using bonnie++:
+On Tue, 6 Jun 2006, Martin Schwidefsky wrote:
 
-[note: this is WITH extents,mballoc,delalloc enabled]
+> swp_type(pte_to_swp_entry(swp_entry_to_pte(swp_entry(~0UL,0))))
+> evaluates to 31 for s390. The idea has been that the creation of a swap
+> entry with ~0UL as the type should mask off all bits that can not be
+> represented in a swap entry. Convert it back and you have the maximum
+> number of swap devices. That should be true for all architectures.
 
-> Version  1.03 ------Sequential Output------ --Sequential Input-  --Random-
->                -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-> Machine   Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-> 2.6.16.19  16G 59223  91 264155 45 111459 36  57313 99 317944 63  1478   7
->                58814  92 276803 47 110418 36  57105 99 317534 65  1525   5
->                58299  92 274523 48 110290 36  56723 99 318839 65  1502   4
-> 
-> And here the results when mounting without extents,mballoc,delalloc option:
-I was confused initially until I saw ^^^^^^^
+It evaluates to 31 it seems for all platforms. Could we replace this 
+expression with MAX_SWAPFILES? While we at it get rid of the "type" 
+variable because we are usually using pointers to swap_info.
 
-> Version  1.03 ------Sequential Output------ --Sequential Input-  --Random-
->                -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-> Machine   Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-> 2.6.16.19  16G 38621  98 194816 94  87776 49  37921 92 239128 54  1402   5
->                47000  99 194276 94  89232 49  38628 92 240539 55  1399   5
->                45873  98 178195 90  89726 50  38482 92 240490 55  1381   4
-> 
-> So using delalloc+mballoc+extent gives an approx. 30% increase in 
-> performance.
-
-Note also that there is a 50% reduction in CPU usage for writes (27% for
-rewrites).  This is important when you are trying to maximize IO from a
-single server.  I'm not sure why the read CPU usage increased, though it
-may just be a result of increased memcpy due to the higher read throughput
-(32% increase in read performance, 18% increase in CPU usage).
-
-> So the question is, why are these patches not included into the kernel?
-> I did some very extensive testing for several days and could not discover
-> any disadvantage using those patches. I must add that I did not test
-> crashes to see if data is lost. Are there any disadvantages using these
-> patches?
-
-One of the main reasons this isn't in the kernel yet is that the extents
-on-disk format is incompatible with the current ext3 on-disk format.
-That is OK for Lustre because the storage servers are essentially
-"appliances" that are used in well-controlled environments, but this
-isn't so good when random users get involved.  The patches couldn't be
-merged until there was some consensus reached about the extents on-disk
-format.
+Note that there is  still another similar check in there for an arch 
+specific test of the number of pages available per swap device.
 
 
-There is work currently underway with Red Hat, IBM, CFS, and Bull
-to merge the extents support into the kernel.org ext3 code and the
-official e2fsprogs, and this will likely also be in the upcoming RHEL5.
-Once this is done it will be possible to merge the mballoc and delalloc
-changes also.
+Index: linux-2.6.17-rc5-mm2/mm/swapfile.c
+===================================================================
+--- linux-2.6.17-rc5-mm2.orig/mm/swapfile.c	2006-06-01 10:03:07.127259731 -0700
++++ linux-2.6.17-rc5-mm2/mm/swapfile.c	2006-06-06 10:50:09.692165312 -0700
+@@ -1363,12 +1363,11 @@ __initcall(procswaps_init);
+  */
+ asmlinkage long sys_swapon(const char __user * specialfile, int swap_flags)
+ {
+-	struct swap_info_struct * p;
++	struct swap_info_struct *p,*q;
+ 	char *name = NULL;
+ 	struct block_device *bdev = NULL;
+ 	struct file *swap_file = NULL;
+ 	struct address_space *mapping;
+-	unsigned int type;
+ 	int i, prev;
+ 	int error;
+ 	static int least_priority;
+@@ -1387,29 +1386,19 @@ asmlinkage long sys_swapon(const char __
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 	spin_lock(&swap_lock);
+-	p = swap_info;
+-	for (type = 0 ; type < nr_swapfiles ; type++,p++)
++
++	for (p = swap_info; p < swap_info + nr_swapfiles; p++)
+ 		if (!(p->flags & SWP_USED))
+ 			break;
+ 	error = -EPERM;
+-	/*
+-	 * Test if adding another swap device is possible. There are
+-	 * two limiting factors: 1) the number of bits for the swap
+-	 * type swp_entry_t definition and 2) the number of bits for
+-	 * the swap type in the swap ptes as defined by the different
+-	 * architectures. To honor both limitations a swap entry
+-	 * with swap offset 0 and swap type ~0UL is created, encoded
+-	 * to a swap pte, decoded to a swp_entry_t again and finally
+-	 * the swap type part is extracted. This will mask all bits
+-	 * from the initial ~0UL that can't be encoded in either the
+-	 * swp_entry_t or the architecture definition of a swap pte.
+-	 */
+-	if (type > swp_type(pte_to_swp_entry(swp_entry_to_pte(swp_entry(~0UL,0))))) {
++
++	if (p == swap_info + MAX_SWAPFILES) {
+ 		spin_unlock(&swap_lock);
+ 		goto out;
+ 	}
+-	if (type >= nr_swapfiles)
+-		nr_swapfiles = type+1;
++	if (p >= swap_info + nr_swapfiles)
++		nr_swapfiles++;
++
+ 	INIT_LIST_HEAD(&p->extent_list);
+ 	p->flags = SWP_USED;
+ 	p->swap_file = NULL;
+@@ -1445,10 +1434,9 @@ asmlinkage long sys_swapon(const char __
+ 	inode = mapping->host;
+ 
+ 	error = -EBUSY;
+-	for (i = 0; i < nr_swapfiles; i++) {
+-		struct swap_info_struct *q = &swap_info[i];
++	for (q = swap_info; q < swap_info + nr_swapfiles; q++) {
+ 
+-		if (i == type || !q->swap_file)
++		if (q == p || !q->swap_file)
+ 			continue;
+ 		if (mapping == q->swap_file->f_mapping)
+ 			goto bad_swap;
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+
+
 

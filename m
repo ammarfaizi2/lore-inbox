@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932085AbWFFEhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932091AbWFFEy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWFFEhU (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 6 Jun 2006 00:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWFFEhU
+	id S932091AbWFFEy5 (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 6 Jun 2006 00:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWFFEy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 00:37:20 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8400
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932085AbWFFEhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 00:37:18 -0400
-Date: Mon, 05 Jun 2006 21:36:55 -0700 (PDT)
-Message-Id: <20060605.213655.41876860.davem@davemloft.net>
-To: ak@suse.de
-Cc: mbligh@mbligh.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm1
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <p73ac8w0wju.fsf@verdi.suse.de>
-References: <447E3846.1060302@shaw.ca>
-	<447E7CF5.8020401@mbligh.org>
-	<p73ac8w0wju.fsf@verdi.suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 6 Jun 2006 00:54:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61116 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932091AbWFFEy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 00:54:57 -0400
+Subject: Re: [patch] i386: print NUMA in oops messages
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
+        torvalds@osdl.org
+In-Reply-To: <20060605211855.d92dab53.akpm@osdl.org>
+References: <200606052303_MC3-1-C1B2-7E2C@compuserve.com>
+	 <20060605211855.d92dab53.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 06 Jun 2006 06:54:51 +0200
+Message-Id: <1149569691.3116.23.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: 02 Jun 2006 10:52:05 +0200
 
-> "Martin J. Bligh" <mbligh@mbligh.org> writes:
-> > 
-> > All sounds very sensible ... but not sure why -mm would hit it all the
-> > time, and never mainline ...
-> 
-> You can use memeat.c to test the machine with other kernels.
-> It tends to find such problems reliably. Let it run for some time
-> 
-> http://www.firstfloor.org/~andi/memeat.c
+> This is too cute for my taste.  Keep it simple.
 
-Wouldn't it be more useful for this program to use LowTotal instead of
-LowFree?  It didn't grind my sparc64 machine much until I changed it
-like that. :)
+why not just print the vermagic string then?
+(and if needed, we should add NUMA to that)
+
 

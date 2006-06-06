@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWFFNBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWFFNDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWFFNBs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 09:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWFFNBs
+	id S932145AbWFFNDV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 09:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWFFNDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 09:01:48 -0400
-Received: from pool-72-66-198-190.ronkva.east.verizon.net ([72.66.198.190]:5573
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932155AbWFFNBr (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 09:01:47 -0400
-Message-Id: <200606061301.k56D12mH004130@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, arjan@infradead.org, mingo@redhat.com,
-       linux-kernel@vger.kernel.org, stefanr@s5r6.in-berlin.de
-Subject: Re: 2.6.17-rc5-mm3-lockdep -
-In-Reply-To: Your message of "Tue, 06 Jun 2006 09:00:18 +0159."
-             <44852819.2080503@gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200606060250.k562oCrA004583@turing-police.cc.vt.edu>
-            <44852819.2080503@gmail.com>
+	Tue, 6 Jun 2006 09:03:21 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:45531 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932145AbWFFNDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 09:03:20 -0400
+Date: Tue, 6 Jun 2006 10:03:22 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Greg KH <gregkh@suse.de>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
+Message-ID: <20060606100322.459721cc@doriath.conectiva>
+In-Reply-To: <20060606072953.GC17682@suse.de>
+References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br>
+	<20060602204839.GA31251@suse.de>
+	<20060603190352.5249c934@home.brethil>
+	<20060606072953.GC17682@suse.de>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.9.1; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1149598862_3888P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Jun 2006 09:01:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1149598862_3888P
-Content-Type: text/plain; charset=us-ascii
 
-On Tue, 06 Jun 2006 09:00:18 +0159, Jiri Slaby said:
-> Valdis.Kletnieks@vt.edu napsal(a):
-> > It's living longer before it throws a complaint - we're making it out of
-> > rc.sysinit and into rc5.d ;)  This time we were in an 'id' command from this:
-> > 
-> > test `id -u` = 0  || exit 4
+(CC'ing Pete too).
 
-> > [  464.687000] illegal {in-hardirq-W} -> {hardirq-on-W} usage.
-> > [  464.687000] id/2700 [HC0[0]:SC0[1]:HE1:SE0] takes:
-> > [  464.687000]  (&list->lock){++..}, at: [<c0351a07>] unix_stream_connect+0x334/0x408
-> > [  464.687000] {in-hardirq-W} state was registered at:
-> > [  464.687000]   [<c012dd45>] lockdep_acquire+0x67/0x7f
-> > [  464.687000]   [<c0383f11>] _spin_lock_irqsave+0x30/0x3f
-> > [  464.687000]   [<c02fa93f>] skb_dequeue+0x18/0x49
-> > [  464.687000]   [<f086b7f1>] hpsb_bus_reset+0x5e/0xa2 [ieee1394]
-> > [  464.687000]   [<f0887007>] ohci_irq_handler+0x370/0x726 [ohci1394]
-> > [  464.687000]   [<c013f9a8>] handle_IRQ_event+0x1d/0x52
-> > [  464.687000]   [<c0140bc4>] handle_level_irq+0x97/0xe3
-> > [  464.687000]   [<c01045d0>] do_IRQ+0x8b/0xaf
-> > [  464.687000] irq event stamp: 2964
+On Tue, 6 Jun 2006 00:29:53 -0700
+Greg KH <gregkh@suse.de> wrote:
 
-> That one would be corrected now:
-> http://lkml.org/lkml/2006/6/5/100
+| On Sat, Jun 03, 2006 at 07:03:52PM -0300, Luiz Fernando N. Capitulino wrote:
+| > On Fri, 2 Jun 2006 13:48:39 -0700
+| > Greg KH <gregkh@suse.de> wrote:
+| > 
+| > | On Fri, Jun 02, 2006 at 12:03:06AM -0300, Luiz Fernando N.Capitulino wrote:
+| > | > 
+| > | >  Hi folks.
+| > | > 
+| > | >  This patch series is my first attempt to port the USB-Serial layer to the
+| > | > Serial Core API. Currently USB-Serial uses the TTY layer directly, duplicating
+| > | > code and solutions from the Serial Core implementation.
+| > | > 
+| > | >  The final (ported) USB-Serial code is simpler and cleaner. Now I'd like to know
+| > | > whether I'm doing it right or not.
+| > | > 
+| > | >  Note that this is a work in progress though. I've only ported the USB-Serial
+| > | > core and one of its drivers, the pl2303 one.
+| > | > 
+| > | >  Most of my questions and design decisions are adressed in the patches, please
+| > | > refer to them for details.
+| > | 
+| > | Nice first cut at this.  But please try to also convert 2 other drivers
+| > | at the same time to make sure that the model is right.  I'd suggest the
+| > | io_edgeport and the funsoft drivers.  io_edgeport because it is very
+| > | complex in that it doesn't share a single bulk in/out pair for every
+| > | port, but multiplexes them all through one pipe.  And funsoft because we
+| > | want to still be able to write usb-serial drivers that are this simple.
+| > 
+| >  I'd love to do that but, unfortunatally, USB-Serial cables are too
+| > expensive in Brazil (and I have no sure if I can find these ones in
+| > Curitiba).
+| 
+| No need to test fully, if it builds, I can test the io_edgeport driver,
+| and the funsoft one is pretty much a "nothing" driver.
 
-I'd agree, except I had already hit *that* one and applied Stefan's patches...
+ Okay.
 
---==_Exmh_1149598862_3888P
-Content-Type: application/pgp-signature
+ Mandriva just supplied an USB-Serial cable wich is handled by the
+ftdio_sio driver. I'll port this one first, because it will allow us
+to make the missing tests.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+ BTW, I'll also postpone the 'libata-like' design change, because
+it doesn't seem to as easy as it looked at first (note that that
+design change will not impact ported drivers too much, since most of
+its code are Serial Core's methods).
 
-iD8DBQFEhXyOcC3lWbTT17ARApJnAJ0faEIRylGWvQOg7rMPUJK/26Dj6wCeIQSs
-CCpELoKlhRwqAkjPBrfBWTc=
-=ZUDL
------END PGP SIGNATURE-----
-
---==_Exmh_1149598862_3888P--
+-- 
+Luiz Fernando N. Capitulino

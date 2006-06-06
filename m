@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWFFQ6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWFFRAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWFFQ6u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 12:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWFFQ6u
+	id S1750747AbWFFRAW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 13:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWFFRAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 12:58:50 -0400
-Received: from khc.piap.pl ([195.187.100.11]:30469 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1750737AbWFFQ6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 12:58:50 -0400
-To: Jean Delvare <khali@linux-fr.org>
-Cc: <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org
-Subject: [PATCH] I2C: i2c_bit_add_bus should initialize SDA and SCL lines
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 06 Jun 2006 18:58:46 +0200
-Message-ID: <m34pyyz0e1.fsf@defiant.localdomain>
+	Tue, 6 Jun 2006 13:00:21 -0400
+Received: from mx11.sac.fedex.com ([199.81.193.118]:62986 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP id S1750747AbWFFRAV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 13:00:21 -0400
+Date: Wed, 7 Jun 2006 01:03:22 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@indiana.corp.fedex.com
+To: Linus Torvalds <torvalds@osdl.org>, randy_d_dunlap@linux.intel.com
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.17-rc6
+In-Reply-To: <Pine.LNX.4.64.0606051807310.5498@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0606070053530.10051@indiana.corp.fedex.com>
+References: <Pine.LNX.4.64.0606051807310.5498@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 06/07/2006
+ 01:00:15 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 06/07/2006
+ 01:00:17 AM,
+	Serialize complete at 06/07/2006 01:00:17 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Another thing: I noticed the i2c_bit_add_bus doesn't set SDA and SCL
-lines to a known levels. If the hw driver set them to 1 all is fine
-and the first START condition is detected correctly. But if they're
-set differently (for example, if both are zero), the START will not
-work.
+On Mon, 5 Jun 2006, Linus Torvalds wrote:
 
-I'm not sure if the following patch isn't an overkill, though, and
-if the lack of initialization is a real problem which shows in
-practice and not only on my analyzer.
+> ... a SATA resume fix that is reported to fix resume on at least a 
+> couple of machines.
 
-In case you think it's needed:
+Thank you. This works on my IBM X60s with Centrino Duo. Pure vanilla 
+2.6.17-rc6, no other patches necessary.
 
-This patch makes i2c_bit_add_bus() initialize SDA and SCL lines
-as required by subsequent START condition.
+Works with ata-piix, but not ahci.
 
-Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
 
---- a/drivers/i2c/algos/i2c-algo-bit.c
-+++ b/drivers/i2c/algos/i2c-algo-bit.c
-@@ -544,6 +544,13 @@ int i2c_bit_add_bus(struct i2c_adapter *
- 	adap->timeout = 100;	/* default values, should	*/
- 	adap->retries = 3;	/* be replaced by defines	*/
- 
-+	setsda(bit_adap, 0);	/* may mean START if SCL = 1 */
-+	udelay(bit_adap->udelay);
-+	setscl(bit_adap, 1);	/* may clock a zero bit in */
-+	udelay(bit_adap->udelay);
-+	setsda(bit_adap, 1);	/* STOP */
-+	udelay(bit_adap->udelay);
-+
- 	i2c_add_adapter(adap);
- 	return 0;
- }
+Jeff.
+
+

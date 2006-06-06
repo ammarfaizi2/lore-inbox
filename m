@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWFFVlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWFFVn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWFFVlY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 17:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWFFVlY
+	id S1751013AbWFFVn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 17:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWFFVn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 17:41:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27319 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751157AbWFFVlY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 17:41:24 -0400
-Date: Tue, 6 Jun 2006 17:45:53 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Shaohua Li <shaohua.li@intel.com>, Miles Lane <miles.lane@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Message-ID: <20060606214553.GB11696@redhat.com>
-References: <4480C102.3060400@goop.org> <1149576246.32046.166.camel@sli10-desk.sh.intel.com> <20060606141755.GN2839@redhat.com> <200606061618.15415.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606061618.15415.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 6 Jun 2006 17:43:26 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:1153
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751013AbWFFVnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 17:43:25 -0400
+Message-ID: <4485F6F2.4050701@microgate.com>
+Date: Tue, 06 Jun 2006 16:43:14 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Krzysztof Halasa <khc@pm.waw.pl>, davej@redhat.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] fix missing hdlc symbols for synclink drivers
+References: <20060603232004.68c4e1e3.akpm@osdl.org>	<20060605230248.GE3963@redhat.com>	<20060605184407.230bcf73.rdunlap@xenotime.net>	<1149622813.11929.3.camel@amdx2.microgate.com>	<m3u06yc9mr.fsf@defiant.localdomain>	<4485E723.4070201@microgate.com>	<m3lksac7op.fsf@defiant.localdomain> <20060606142022.b184d1c5.rdunlap@xenotime.net>
+In-Reply-To: <20060606142022.b184d1c5.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 06, 2006 at 04:18:15PM +0200, Andi Kleen wrote:
-> 
-> > Because he is using a i386 machine, the nmi watchdog is disabled by
-> > default. 
-> 
-> I changed that - it's now on by default on i386 too.
-> 
-> -Andi
+Randy.Dunlap wrote:
+> On Tue, 06 Jun 2006 23:09:42 +0200 Krzysztof Halasa wrote:
+>>I.e., I would probably change:
+>>
+>>#ifdef CONFIG_HDLC_MODULE
+>>#define CONFIG_HDLC 1
+>>#endif
 
-I am trying to create a patch for this problem and it just dawned on me,
-how does one store the previous state in a suspend/resume path if the code
-hotplugs all the cpus first?  CPU0 is easy because an explicit
-suspend/resume path is called, but it seems to be called last after all
-the other cpus have been removed.  How do I save the state?
+These macros have already been replaced in the synclink drivers.
 
-Is there a recommened way of doing this?  Or can I assume that
-__cpu_disable/enable is only called by the suspend/resume subsystem?
+> So SYNCLINK has different capabilities depending on whether
+> HDLC=m or HDLC=y ??
 
-Thanks.
+No, the current situation is generic HDLC support is
+an optional configuration for the synclink drivers.
+The build option of generic HDLC must match that
+of the synclink driver if that option is enabled.
 
-Cheers,
-Don
+if synclink is 'y' with generic HDLC option enabled,
+then the generic HDLC module must be 'y'
 
+if synclink is 'm' with generic HDLC option enabled,
+then generic HDLC can be 'y' or 'm'
+
+if synclink is 'y' or 'm' without the generic HDLC option,
+then it is not necessary to build/load the generic HDLC module
+
+--
+
+The Kconfig addition of 'select WAN if SYNCLINK_XX_HDLC'
+enables the above behavior.
+
+I thought the Makefile change was to allow generic HDLC
+to build as a module. I'll need to look at that closer.
+
+--
+Paul

@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932081AbWFFEWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751110AbWFFESO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWFFEWN (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 6 Jun 2006 00:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWFFEWN
+	id S1751110AbWFFESO (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 6 Jun 2006 00:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWFFESO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 00:22:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38305 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932081AbWFFEWM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 00:22:12 -0400
-Date: Mon, 5 Jun 2006 21:18:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [patch] i386: print NUMA in oops messages
-Message-Id: <20060605211855.d92dab53.akpm@osdl.org>
-In-Reply-To: <200606052303_MC3-1-C1B2-7E2C@compuserve.com>
-References: <200606052303_MC3-1-C1B2-7E2C@compuserve.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 6 Jun 2006 00:18:14 -0400
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:46252 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751110AbWFFESN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 00:18:13 -0400
+Date: Tue, 6 Jun 2006 00:13:58 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: x86_64 system call entry points
+To: Martin Bisson <bissonm@discreet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200606060017_MC3-1-C1B2-81E5@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jun 2006 23:01:14 -0400
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
+In-Reply-To: <44846210.4080602@discreet.com>
 
-> +		printk(
->  #ifdef CONFIG_PREEMPT
-> -		printk("PREEMPT ");
-> +			"PREEMPT "
->  #endif
->  #ifdef CONFIG_SMP
-> -		printk("SMP ");
-> +			"SMP "
-> +#endif
-> +#ifdef CONFIG_NUMA
-> +			"NUMA "
->  #endif
->  #ifdef CONFIG_DEBUG_PAGEALLOC
-> -		printk("DEBUG_PAGEALLOC");
-> +			"DEBUG_PAGEALLOC"
->  #endif
-> -		printk("\n");
-> +			"\n");
-> +
+On Mon, 05 Jun 2006 12:55:44 -0400, Martin Bisson wrote:
 
-This is too cute for my taste.  Keep it simple.
+> - sysenter/32 bits, executed on a 32 bit machine: I get a segfault on 
+> the sysenter instruction.  I use the following code to enter the system 
+> call:
+> pid_t getpid32()
+> {
+>     pid_t resultvar;
+> 
+>     asm volatile (
+>     "push    %%ebp\n\t"
+>     "push    %%ecx\n\t"
+>     "push    %%edx\n\t"
+>     "mov     %%esp,%%ebp\n\t"
+>     "sysenter\n\t"
+>     ".space 20,0x90\n\t"
+>     "pop     %%edx\n\t"
+>     "pop     %%ecx\n\t"
+>     "pop     %%ebp\n\t"
+>     : "=a" (resultvar)   
+>     : "0" (__NR_getpid)
+>     : "memory");
+> 
+>     return resultvar;
+> }
 
-I suppose one could do something like
+sysenter always returns to a fixed address (in the vdso) no matter
+where you invoke it from.
 
-static const char config_string[] = ""
-#ifdef CONFIG_SMP
-	" SMP"
-#endif
-#ifdef CONFIG_NUMA
-	" NUMA"
-#endif
-;
+-- 
+Chuck
 
-if one really feels so motivated...

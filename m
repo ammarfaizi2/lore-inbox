@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWFFJfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWFFJck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWFFJfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 05:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWFFJfA
+	id S932097AbWFFJck (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 05:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWFFJck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 05:35:00 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:52937 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S932134AbWFFJe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 05:34:59 -0400
-Date: Tue, 6 Jun 2006 11:34:56 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: AMD64: 64 bit kernel 32 bit userland - some pending questions
-Message-ID: <20060606093456.GL4552@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	LKML <linux-kernel@vger.kernel.org>
+	Tue, 6 Jun 2006 05:32:40 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:65432 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932097AbWFFJcj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 05:32:39 -0400
+Message-ID: <44854ADB.4040006@sw.ru>
+Date: Tue, 06 Jun 2006 13:28:59 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, Sam Vilain <sam@vilain.net>,
+       Kirill Korotaev <dev@openvz.org>,
+       Peter Williams <pwil3058@bigpond.net.au>, sekharan@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
+       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <4484ABF9.50503@vilain.net> <44853BCA.4010009@sw.ru> <200606061913.35340.kernel@kolivas.org>
+In-Reply-To: <200606061913.35340.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
-I would like to use an AMD64 Opteron System with a 64 bit Linux Kernel,
-but a 32 bit userland (Debian Sarge). I have a few questions about this:
+>>>Yes but interactive admin processes will still get a large bonus
+>>>relative to the apache processes so you can still log in and kill the
+>>>apache storm off even with very large loads.
+>>
+>>And how do you plan to manage it: to log in every time when apache works
+>>too much and kill processes? The managabiliy of such solutions sucks..
+> 
+> What a strange discussion. I simply impose limits on processes and connections 
+> on my grossly underpowered server.
+this works when you are an administrator of a single linux machine. Now 
+imagine, you can run Virtual Environments (VE) each with it's own root 
+and users. You can't and don't want to control what and how people are 
+running. Sure, you limit the number of processes, but usually this won't 
+be less then 50-100 processes per VE, so a single VE can lead to 50 
+tasks in a running state and the total number of tasks in the system can 
+be as high as 10,000. People can run setiathome or any other sh$t which 
+consumes CPU, but the result is always the same - huge amount of running 
+tasks leads to overall slowdown. So this is the case when you want to 
+limits _users_ or VE, not _single_ tasks. I don't think you will succeed 
+in managing 10,000 tasks when 100 active users change the load on the 
+day basis.
 
-        - Is it possible to give the userland 3Gbyte virtual address
-          space (default for 2.4 and 2.6). But give the Kernel a 64 bit
-          virtual address space so that I get more than 1 Gbyte physical
-          Memory into LOWMEM - say I want 8 Gbyte - without using HIGHMEM
-          at all? If this scenario is possible I would get cheap memory
-          access at the benefit of a well tested userland. I don't have
-          applications that need more than 2 Gbyte virtual address
-          space.
+Hope, it become more clear.
 
-        - What is the easiest way to build a 64 bit kernel on a 32 bit
-          Debian sarge. Are there crosscompiler packages available? Are
-          there any guides on this?
-
-        - If the above scenario works out like I imagine it, does this
-          add some additional overhead I am not aware of when I switch
-          for example from 32 bit userland to 64 bit kernel space which
-          would override the performance gain I get from the huge LOWMEM
-          virtuall address space?
-
-        Thomas
+Thanks,
+Kirill

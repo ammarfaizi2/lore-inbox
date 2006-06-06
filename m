@@ -1,91 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWFFNfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWFFNpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWFFNfx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 09:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWFFNfx
+	id S932160AbWFFNpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 09:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWFFNpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 09:35:53 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:43151 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932167AbWFFNfw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 09:35:52 -0400
-Date: Tue, 6 Jun 2006 15:34:58 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de
-Subject: Re: 2.6.18 -mm pi-futex merge
-In-Reply-To: <1149597128.16247.40.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0606061530330.17704@scrub.home>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
- <1149597128.16247.40.camel@localhost.localdomain>
+	Tue, 6 Jun 2006 09:45:09 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:12753 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932160AbWFFNpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 09:45:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=o00RmFCPGVne2PjaSDC6JvibphAaq/mtpWLLw+SJqvCHW4R8FOoMDUQu2QWT4LxGg4qYlPghtYpHXZZ3TGBXvvIBgHBN9m1akv131Stp4yYFlHV/WCWwxqzaUhBnDhYtZJ0B9CxwEWrI2QjBLYl+7Wmc/0szzuCckyX1gw2I1zk=
+Message-ID: <448586EC.301@gmail.com>
+Date: Tue, 06 Jun 2006 15:44:53 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Valdis.Kletnieks@vt.edu
+CC: Andrew Morton <akpm@osdl.org>, arjan@infradead.org, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, stefanr@s5r6.in-berlin.de
+Subject: Re: 2.6.17-rc5-mm3-lockdep -
+References: <200606060250.k562oCrA004583@turing-police.cc.vt.edu>            <44852819.2080503@gmail.com> <200606061301.k56D12mH004130@turing-police.cc.vt.edu>
+In-Reply-To: <200606061301.k56D12mH004130@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 6 Jun 2006, Steven Rostedt wrote:
-
-> On Sun, 2006-06-04 at 13:50 -0700, Andrew Morton wrote:
+Valdis.Kletnieks@vt.edu napsal(a):
+> On Tue, 06 Jun 2006 09:00:18 +0159, Jiri Slaby said:
+>> Valdis.Kletnieks@vt.edu napsal(a):
+>>> It's living longer before it throws a complaint - we're making it out of
+>>> rc.sysinit and into rc5.d ;)  This time we were in an 'id' command from this:
+>>>
+>>> test `id -u` = 0  || exit 4
 > 
-> > pi-futex-futex-code-cleanups.patch
-> > pi-futex-robust-futex-docs-fix.patch
-> > pi-futex-introduce-debug_check_no_locks_freed.patch
-> > pi-futex-introduce-warn_on_smp.patch
-> > pi-futex-add-plist-implementation.patch
-> > pi-futex-scheduler-support-for-pi.patch
-> > pi-futex-rt-mutex-core.patch
-> > pi-futex-rt-mutex-docs.patch
-> > pi-futex-rt-mutex-docs-update.patch
-> > pi-futex-rt-mutex-debug.patch
-> > pi-futex-rt-mutex-tester.patch
-> > pi-futex-rt-mutex-futex-api.patch
-> > pi-futex-futex_lock_pi-futex_unlock_pi-support.patch
-> > #
-> > futex_requeue-optimization.patch
-> > 
-> >  Priority-inheriting futexes.  I don't have a clue how this code works,
-> >  but it sure has a lot of trylocks for something which allegedly works. 
-> >  Will merge.
+>>> [  464.687000] illegal {in-hardirq-W} -> {hardirq-on-W} usage.
+>>> [  464.687000] id/2700 [HC0[0]:SC0[1]:HE1:SE0] takes:
+>>> [  464.687000]  (&list->lock){++..}, at: [<c0351a07>] unix_stream_connect+0x334/0x408
+>>> [  464.687000] {in-hardirq-W} state was registered at:
+>>> [  464.687000]   [<c012dd45>] lockdep_acquire+0x67/0x7f
+>>> [  464.687000]   [<c0383f11>] _spin_lock_irqsave+0x30/0x3f
+>>> [  464.687000]   [<c02fa93f>] skb_dequeue+0x18/0x49
+>>> [  464.687000]   [<f086b7f1>] hpsb_bus_reset+0x5e/0xa2 [ieee1394]
+>>> [  464.687000]   [<f0887007>] ohci_irq_handler+0x370/0x726 [ohci1394]
+>>> [  464.687000]   [<c013f9a8>] handle_IRQ_event+0x1d/0x52
+>>> [  464.687000]   [<c0140bc4>] handle_level_irq+0x97/0xe3
+>>> [  464.687000]   [<c01045d0>] do_IRQ+0x8b/0xaf
+>>> [  464.687000] irq event stamp: 2964
+> 
+>> That one would be corrected now:
+>> http://lkml.org/lkml/2006/6/5/100
+> 
+> I'd agree, except I had already hit *that* one and applied Stefan's patches...
+Ok, stand corrected. Sorry for the noise.
 
-Please also include the patch below to fix defaults and dependencies. 
-Thomas, could you please also provide a little more verbose help text?
-BTW what's the correct spelling - RT Mutex, rt mutex or rt-mutex?
-
-bye, Roman
-
-
-[PATCH] fix rt-mutex defaults and dependencies
-
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-
----
-
- lib/Kconfig.debug |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-Index: linux-2.6-mm/lib/Kconfig.debug
-===================================================================
---- linux-2.6-mm.orig/lib/Kconfig.debug	2006-06-06 15:24:45.000000000 +0200
-+++ linux-2.6-mm/lib/Kconfig.debug	2006-06-06 15:25:30.000000000 +0200
-@@ -158,7 +158,6 @@ config DEBUG_MUTEX_DEADLOCKS
- 
- config DEBUG_RT_MUTEXES
- 	bool "RT Mutex debugging, deadlock detection"
--	default y
- 	depends on DEBUG_KERNEL && RT_MUTEXES
- 	help
- 	 This allows rt mutex semantics violations and rt mutex related
-@@ -171,8 +170,7 @@ config DEBUG_PI_LIST
- 
- config RT_MUTEX_TESTER
- 	bool "Built-in scriptable tester for rt-mutexes"
--	depends on RT_MUTEXES
--	default n
-+	depends on DEBUG_KERNEL && RT_MUTEXES
- 	help
- 	  This option enables a rt-mutex tester.
- 
+thanks,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

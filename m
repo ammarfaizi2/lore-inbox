@@ -1,103 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWFFHVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWFFH2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWFFHVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 03:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWFFHVQ
+	id S1750717AbWFFH2w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 03:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFFH2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 03:21:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48920 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932133AbWFFHVQ (ORCPT
+	Tue, 6 Jun 2006 03:28:52 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:1489 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750717AbWFFH2v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 03:21:16 -0400
-Date: Tue, 6 Jun 2006 09:23:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm3 - crash in cfq_queue_empty() after iosched change
-Message-ID: <20060606072348.GQ4400@suse.de>
-References: <200606051442.k55EghgI004703@turing-police.cc.vt.edu> <20060606071537.GP4400@suse.de>
+	Tue, 6 Jun 2006 03:28:51 -0400
+Date: Tue, 6 Jun 2006 09:26:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Laurent Riffard <laurent.riffard@free.fr>,
+       76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
+       jbeulich@novell.com, Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: 2.6.17-rc5-mm1
+Message-ID: <20060606072628.GA28752@elte.hu>
+References: <200606042101_MC3-1-C19B-1CF4@compuserve.com> <20060604181002.57ca89df.akpm@osdl.org> <44840838.7030802@free.fr> <4484584D.4070108@free.fr> <20060605110046.2a7db23f.akpm@osdl.org> <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060606071537.GP4400@suse.de>
+In-Reply-To: <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 06 2006, Jens Axboe wrote:
-> On Mon, Jun 05 2006, Valdis.Kletnieks@vt.edu wrote:
-> > I've been hitting this about once every two weeks for a while now,
-> > probably back to a 2.6.16-rc or so.  It always bites at the same time
-> > while my laptop was at a point very late in bootup. I finally caught
-> > one when I had pen, paper, *and* time to chase it a bit rather than
-> > reboot.  Sorry for the very partial traceback, it's not a good CTS day
-> > and I didn't have a digital camera handy.
-> > 
-> > BUG: Unable to handle kernel NULL pointer dereference at 0x0000005c
-> > EIP at cfq_queue_empty+0x9/0x15
-> > call trace:
-> > 	elv_queue_empty+0x20/0x22
-> > 	ide_do_request+0xa4/0x788
-> > 	ide_intr+0x1ec/0x236
-> > 	handle_IRQ_eent+0x27/0x52
-> > 	handle_level_IRQ+0xb6
-> > 	do_IRQ+0x5d/0x78
-> > 	common_interrupt+0x1a/0x20
-> > 
-> > In my .config:
-> > 
-> > CONFIG_IOSCHED_NOOP=y
-> > CONFIG_IOSCHED_AS=y
-> > CONFIG_IOSCHED_DEADLINE=y
-> > CONFIG_IOSCHED_CFQ=y
-> > CONFIG_DEFAULT_IOSCHED="anticipatory"
-> > 
-> > This happened very soon (within a few milliseconds or two) after my /etc/rc.local did:
-> > 
-> > echo cfq >| /sys/block/hda/queue/scheduler
-> > 
-> > (The next executable statement in /etc/rc.local is this:
-> > echo noop >| /sys/block/hdb/queue/scheduler  and 'last sysfs file' still
-> > pointed at /dev/hda).
-> > 
-> > It *looks* like the problem is in elevator_switch() in block/elevator.c:
-> > 
-> >        while (q->rq.elvpriv) {
-> >                 blk_remove_plug(q);
-> >                 q->request_fn(q);
-> >                 spin_unlock_irq(q->queue_lock);
-> >                 msleep(10);
-> >                 spin_lock_irq(q->queue_lock);
-> >                 elv_drain_elevator(q);
-> >         }
-> > 
-> > this--> spin_unlock_irq(q->queue_lock);
-> > 
-> >         /*
-> >          * unregister old elevator data
-> >          */
-> >         elv_unregister_queue(q);
-> >         old_elevator = q->elevator;
-> > 
-> >         /*
-> >          * attach and start new elevator
-> >          */
-> >         if (elevator_attach(q, e))
-> >                 goto fail;
-> > 
-> > should be down here someplace, after elevator_attach(), I suspect?
-> > Looks like the disk popped an IRQ after we had installed the
-> > iosched_cfq.ops[] but q->elevator->elevator_data hadn't been
-> > initialized yet...
-> > 
-> > (I'd attach a patch, except I'm not positive I have the diagnosis
-> > right?)
+
+* Barry K. Nathan <barryn@pobox.com> wrote:
+
+> On 6/5/06, Andrew Morton <akpm@osdl.org> wrote:
+> >I guess we should force 8k stacks if the lockdep features are enabled.
 > 
-> I think your analysis is pretty good, there's definitely a period there
-> where we don't want the queueing invoked. Does this help?
+> Also, Laurent is running "2.6.17-rc5-mm3-lockdep" (per his previous
+> message), i.e., 2.6.17-rc5-mm3 with Ingo's lockdep-combo patch added.
+> If you're wondering how I conclude the latter from the former, look at
+> this hunk from the lockdep-combo patch:
+> 
+> --- linux.orig/Makefile
+> +++ linux/Makefile
+> @@ -1,7 +1,7 @@
+> VERSION = 2
+> PATCHLEVEL = 6
+> SUBLEVEL = 17
+> -EXTRAVERSION =-rc5-mm3
+> +EXTRAVERSION =-rc5-mm3-lockdep
+> NAME=Lordi Rules
+> 
+> And from the same patch:
+> 
+> --- linux.orig/arch/i386/Makefile
+> +++ linux/arch/i386/Makefile
+> @@ -38,6 +38,10 @@ CFLAGS += $(call cc-option,-mpreferred-s
+> include $(srctree)/arch/i386/Makefile.cpu
+> 
+> cflags-$(CONFIG_REGPARM) += -mregparm=3
+> +#
+> +# Prevent tail-call optimizations, to get clearer backtraces:
+> +#
+> +cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
+> 
+> # temporary until string.h is fixed
+> cflags-y += -ffreestanding
+> 
+> I would expect that to increase stack usage...
 
-Tested here, switched 50 times between the various io schedulers while
-the queue was fully loaded. JFYI.
+yes, and -pg (the one that creates the mcount callbacks that drive the 
+lockdep tracer) increases the stack footprint too. But these items are 
+only in my combo patch and in the lockdep tracer, not in -mm.
 
--- 
-Jens Axboe
-
+	Ingo

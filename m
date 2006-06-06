@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWFFFhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWFFFhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWFFFhq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 01:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWFFFhp
+	id S1750868AbWFFFhF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 01:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWFFFhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 01:37:45 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:50051 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932095AbWFFFho (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 01:37:44 -0400
-Date: Tue, 6 Jun 2006 09:33:50 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jeff Garzik <jeff@garzik.org>, Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       linville@tuxdriver.com
-Subject: Re: Linux kernel and laws
-Message-ID: <20060606053350.GA5905@2ka.mipt.ru>
-References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605010636.GB17361@havoc.gtf.org> <20060605085451.GA26766@infradead.org> <20060605123304.GA6066@havoc.gtf.org> <1149511707.3111.57.camel@laptopd505.fenrus.org> <20060605125235.GB6066@havoc.gtf.org> <20060605140226.GR3955@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060605140226.GR3955@stusta.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 06 Jun 2006 09:33:51 +0400 (MSD)
+	Tue, 6 Jun 2006 01:37:05 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:7122 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750868AbWFFFhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 01:37:03 -0400
+Date: Tue, 06 Jun 2006 14:36:14 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
+Cc: mbligh@google.com, akpm@osdl.org, apw@shadowen.org,
+       linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>
+In-Reply-To: <20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060605200727.374cbf05.akpm@osdl.org> <20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060606142347.2AF2.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 05, 2006 at 04:02:26PM +0200, Adrian Bunk (bunk@stusta.de) wrote:
-> > Far too many people have a careless "U.S.A. laws suck, merge it anyway"
-> > attitude.
-> If someone would state a submission to the kernel might have issues 
-> according to Chinese laws, or Iranian laws, or Russian laws, would this 
-> be enough for keeping code out of the kernel?
 
-Btw, did kernel hackers consulted with Papua New Guinea or bloody
-Russian laws? It is possible that they have a law which forbids to write 
-open source code. So we should stop Linux kernel development and completely 
-remove it's sources from the Internet ASAP.
+> I looked back into 2.6.15, 2.6.16. 
+> It looks -mm's time of initialization of "total_memory" is not changed from them.
+> (yes, Andrew's fix looks sane.)
+> 
+> I'm intersted in the following texts in the log.
+> ==
+> Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 0kB
+> Node 0 DMA32: empty
+> Node 0 Normal: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 0kB
+> Node 0 HighMem: 1*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 0*256kB 0*512kB 1*1024kB 2*2048kB 3962*4096kB = 16233724kB
+> Node 1 DMA: empty
+> Node 1 DMA32: empty
+> Node 1 Normal: empty
+> Node 1 HighMem: 1*4kB 1*8kB 0*16kB 0*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 0*2048kB 4065*4096kB = 16651916kB
+> Node 2 DMA: empty
+> Node 2 DMA32: empty
+> Node 2 Normal: empty
+> Node 2 HighMem: 1*4kB 1*8kB 0*16kB 0*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 0*2048kB 4065*4096kB = 16651916kB
+> Node 3 DMA: empty
+> Node 3 DMA32: empty
+> Node 3 Normal: empty
+> Node 3 HighMem: 1*4kB 1*8kB 0*16kB 0*32kB 0*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 0*2048kB 3811*4096kB = 15611532kB
+> ==
+> Looks 64GB memory. but there are only HIGHMEM, no NORMAL, DMA. so, shrink_zone() worked.
 
-P.S. It is explicitly permitted to make reverse engineering in Russia.
+Its log shows there are some memory in DMA and NORMAL just immediately
+before that.....
+
+> Active:2 inactive:15 dirty:0 writeback:0 unstable:0 free:16287272 slab:1823 mapped:0 pagetables:0
+> Node 0 DMA free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:16384kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+> Node 0 DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+> Node 0 Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:385024kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+
+It looks like that something wasted all of DMA(16MB) and NORMAL(385MB)
+zone suddenly. Hmmm...
+
+Bye.
 
 -- 
-	Evgeniy Polyakov
+Yasunori Goto 
+
+

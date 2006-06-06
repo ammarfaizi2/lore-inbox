@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWFFHB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWFFHDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWFFHB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 03:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWFFHB6
+	id S932127AbWFFHDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 03:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWFFHDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 03:01:58 -0400
-Received: from mx2.suse.de ([195.135.220.15]:57308 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932123AbWFFHB6 (ORCPT
+	Tue, 6 Jun 2006 03:03:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:52231 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932127AbWFFHDH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 03:01:58 -0400
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jeff@garzik.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: merging new drivers (was Re: 2.6.18 -mm merge plans)
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	<20060605013223.GD17361@havoc.gtf.org>
-	<20060605065856.GA1313@electric-eye.fr.zoreil.com>
-	<1149503559.30554.10.camel@localhost.localdomain>
-	<1149503784.3111.48.camel@laptopd505.fenrus.org>
-	<20060606020245.GN29676@moss.sous-sol.org>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Jun 2006 09:01:48 +0200
-In-Reply-To: <20060606020245.GN29676@moss.sous-sol.org>
-Message-ID: <p73pshmzs0z.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 6 Jun 2006 03:03:07 -0400
+Date: Tue, 6 Jun 2006 09:05:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Robert Hancock <hancockr@shaw.ca>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patch] libata resume fix
+Message-ID: <20060606070539.GO4400@suse.de>
+References: <6hAdo-5CV-5@gated-at.bofh.it> <6hXD0-6Y9-1@gated-at.bofh.it> <6icsx-4vp-33@gated-at.bofh.it> <6ih8Y-3ba-15@gated-at.bofh.it> <6iH3h-2xw-59@gated-at.bofh.it> <447E5EAD.5070808@shaw.ca> <20060601134802.GK4400@suse.de> <4485269B.8060602@gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4485269B.8060602@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chrisw@sous-sol.org> writes:
-
-> * Arjan van de Ven (arjan@infradead.org) wrote:
-> > On Mon, 2006-06-05 at 11:32 +0100, Alan Cox wrote:
-> > > It isn't just drivers. Xen has the same problem.
-> > 
-> > Xen has many problems. This is not nearly their biggest ;)
+On Tue, Jun 06 2006, Tejun Heo wrote:
+> Hi, Jens.
 > 
-> What is the biggest, or even top 3 or 5?  I've a todo list of some
+> Jens Axboe wrote:
+> >On Wed, May 31 2006, Robert Hancock wrote:
+> >>Bill Davidsen wrote:
+> >>>The trade-off is that if I have a 15k rpm SCSI drive, it would take a 
+> >>>lot of design changes to make it spin up quickly, and improve a function 
+> >>>which is usually done on a server once every MTBF when replacing the 
+> >>>failed unit.
+> >>>
+> >>>I think the majority of very large or very fast drives are in systems 
+> >>>which don't (deliberately) power cycles often, in rooms where heat is an 
+> >>>issue. And to spin up quickly take a larger power supply... 30 sec is 
+> >>>fine with most users.
+> >>>
+> >>>Couldn't find a spin-up time for the new Seagate 750GB drive, but the 
+> >>>seek sure is fast!
+> >>I wouldn't guess that even a 15K drive would take nearly that long. For 
+> >>boot time on servers it doesn't matter much though, disk spinup time is 
+> >
+> >I do use a 15K rpm drive in my workstation (hello git!), and the spin up
+> >really isn't that bad. Less than 10 seconds for the actual spin up, I
+> >would say.
+> 
+> Can you measure spin up time for your 15k's?  Some controllers can't 
+> catch the first D2H FIS after POR and have to wait unconditionally for 
+> spin up for hotplug & resuming from suspend.  Currently 8 sec wait is 
+> used but it seems insufficient for your drives.  Failing to spinup in 
+> that 8 secs would probably result in timeout of the first reset attempt 
+> and retrial - which currently takes > 30 secs.
+> 
+> Spin-up time can be measured by first issuing STANDBY and then time how 
+> long IDLE IMMEDIATE takes, I think.
 
-I would say the biggest is that things haven't gotten submitted
-for so long and aren't not resubmitted quickly.
+The 15K RPM is a SCSI drive, I haven't seen any SATA 15K rpm drives yet.
+I have the same model in another box, I can measure spinup with
+START_STOP unit there. I will do so later today, when I fire it up, if
+you still want to know?
 
-e.g. Xen code needs a lot of arch/* cleanups in small patches that should
-be just submitted, fixed, resubmitted quickly.  Many of them
-could be already merged.
+-- 
+Jens Axboe
 
-For example Jan Beulich has been sending many of the cleanups he 
-needed for x86-64/i386 Xen immediately and at least for x86-64 
-I merged most of them. If the other things were submitted
-earlier a lot of it could be already merged too.
-
-Then Xen net/block/char etc. drivers should be submitted to the
-respective maintainers independently (they are useful even without the
-rest of Xen in HVM guests)
-
-> 140-odd entries which are being worked on.  It's slow and tedious,
-> but in progress. 
-
-What I would do is to concentrate on the small cleanup patches first
-and post them as soon as you fix them. I think a lot of them were
-actually ok without changes. Then bigger stuff piece by piece. You
-don't need to wait to fix everything first.
-
--Andi

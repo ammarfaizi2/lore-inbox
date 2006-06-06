@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWFFU7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWFFVAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWFFU7D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 16:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWFFU7B
+	id S1751098AbWFFVAi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 17:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWFFVAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 16:59:01 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:36552 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751090AbWFFU7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 16:59:00 -0400
-Date: Tue, 6 Jun 2006 22:58:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com, Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060606205801.GC17787@elte.hu>
-References: <200606042101_MC3-1-C19B-1CF4@compuserve.com> <20060604181002.57ca89df.akpm@osdl.org> <44840838.7030802@free.fr> <4484584D.4070108@free.fr> <20060605110046.2a7db23f.akpm@osdl.org> <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com> <20060606072628.GA28752@elte.hu> <4485E0D3.8080708@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Jun 2006 17:00:37 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:42709 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751098AbWFFVAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 17:00:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TJWeY4iNhUKk4bHOwZpEB+xYXDevKwND4qv5glVmGr6LxZcvYG0KJKzpMDdnchbdXlP84NFv0x3ZqUFXVrz1Uxxh3TWxhMe9enzlBRw05swXg+c1r4W7aTjpL6AFBQZk59V2cW38Ygx1PgyHazpqOMPZU+0+DBzGh/8wOrj3AxE=
+Message-ID: <9e4733910606061400i172d20a7qa9583b9b9245f6f9@mail.gmail.com>
+Date: Tue, 6 Jun 2006 17:00:36 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH 0/7] Detaching fbcon
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4485DB6C.704@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4485E0D3.8080708@free.fr>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <44856223.9010606@gmail.com>
+	 <9e4733910606060910m44cd4edfs8155c1fe031b37fe@mail.gmail.com>
+	 <9e4733910606060919p2a137e07wd58b51a227f5aa5e@mail.gmail.com>
+	 <4485DB6C.704@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/6/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> Jon Smirl wrote:
+> > On 6/6/06, Jon Smirl <jonsmirl@gmail.com> wrote:
+> >> On 6/6/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> >> > Overall, this feature is a great help for developers working in the
+> >> > framebuffer or console layer.  There is not need to continually
+> >> reboot the
+> >> > kernel for every small change. It is also useful for regular users
+> >> who wants
+> >> > to choose between a graphical console or a text console without
+> >> having to
+> >> > reboot.
+> >>
+> >> Instead of the sysfs attribute, what about creating a new escape
+> >> sequence that you send to the console system to detach? Doing it that
+> >> way would make more sense from a stacking order. It just seems
+> >> backwards to me that you ask a lower layer to detach from the layer
+> >> above it. The escape sequence would also work for any console
+> >> implementation, not just fbcon.
+> >>
+> >> If console detached this way and there was nothing to fallback to
+> >> (systems without VGAcon), it would know not to try and print anything
+> >> until something reattaches to it.
+> >
+> > Another thought, controlling whether console is attached or not is an
+> > attribute of console, not of fbcon.
+>
+> If the console attached fbcon, then I agree that console should decide
+> when to detach fbcon.  But that's not what happens, it's fbcon that
+> attaches itself.
+>
+> It's not that you're wrong, it's just how the current vt/console layer
+> works.  If someone do decide to add this feature to the vt/console layer,
+> then I'm more than willing to have fbcon support that as well.
 
-* Laurent Riffard <laurent.riffard@free.fr> wrote:
+This is just kind of twisted since console increments the fbcon ref
+count. Is /dev/console a real device, it that where the sysfs
+attribute should go?
 
-> Results:
-> - 2.6.17-rc4-mm3 with 4K stack works fine (this is the latest good 4K-kernel).
-> - 2.6.17-rc5-mm3 with 4K stack crashes, the stack seems to be corrupted.
+How is the stack maintained of what was previously bound to console?
+What if I unbind fbcon on a system that doesn't have VGAcon for a backup?
 
-that's vanilla mm3, or mm3 patched with extra lockdep patches? If it's 
-patched then you should try vanilla mm3 too.
-
-> - 2.6.17-rc5-mm3 with 8K stack works fine.
-> - 2.6.17-rc5-mm3-lockdep with 8k stack works fine, although it exhibits high 
-> stack usage while running pktsetup.
-
-is the log you sent the highest footprint that my DEBUG_STACKOVERFLOW 
-tracer detects?
-
-	Ingo
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,79 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWFFLXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWFFLZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWFFLXN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 07:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWFFLXN
+	id S1751273AbWFFLZX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 07:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWFFLZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 07:23:13 -0400
-Received: from wr-out-0506.google.com ([64.233.184.237]:51257 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751233AbWFFLXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 07:23:12 -0400
+	Tue, 6 Jun 2006 07:25:23 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:51324 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751257AbWFFLZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 07:25:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rgapKXUV2zODp8d6JkEp4I+omSPjLA+zX2d4ZpBII+7q+rE1eyPzmvU595M7pyCevm5Az2h6B9RdJSVZ9AlRTNfH4U22df2wAT2xXwcaXR7oG5uN1SQFC0Jq5pW1NdyW1y9msz3f8URuVCEx+Y6Kb/c88/W+6yFK3YRBNYbuvbY=
-Message-ID: <9a8748490606060423t102384f4m626b4366898ce9cd@mail.gmail.com>
-Date: Tue, 6 Jun 2006 13:23:12 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Heiko Gerstung" <heiko.gerstung@meinberg.de>
-Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44854F74.50406@meinberg.de>
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=nZ0rdcShnRwX+sHypwRg5z2E3ZpXHS8iURM+C7CRelPyLCMM9PV2B/YV+yfCAX84ScStYxwH2OveIV//J2aNOkh0XC0Z2zVNWg9g/6NTnQwT+jWrPTCSrrY9gNsp8nhoKDQbOi13BwQ6ICA7pK3s9elLaAqOVbwHPJSamnrqmF8=
+Message-ID: <448565BA.2070805@gmail.com>
+Date: Tue, 06 Jun 2006 14:23:38 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 03/12] input: new force feedback interface
+References: <20060530105705.157014000@gmail.com> <d120d5000606051152p2cf999bcv8d832e007ea02810@mail.gmail.com> <44849DE9.6060305@gmail.com> <200606052202.26019.dtor_core@ameritech.net>
+In-Reply-To: <200606052202.26019.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44854F74.50406@meinberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/06/06, Heiko Gerstung <heiko.gerstung@meinberg.de> wrote:
-> Hi!
->
-> Short Version (tm): I try to backport a USB driver (rtl8150.c) from
-> 2.6.15.x to 2.4.32 and have no idea how to substitue two functions:
-> in_atomic() and schedule_timeout_uninterruptible() ... I really would
-> appreciate any help, because I am no kernel hacker at all ...
->
-in_atomic() is used to test if the kernel is in a state where sleeping
-is allowed or not. The 2.4.x kernel is not preemptive and has quite
-coarse grained SMP support (the BKL "Big Kernel Lock"), it didin't
-need in_atomic() in the same way as 2.6.x does.
+Dmitry Torokhov wrote:
+> On Monday 05 June 2006 17:11, Anssi Hannula wrote:
+> 
+>>Dmitry Torokhov wrote:
+>>
+>>>On 5/30/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>>>
+>>>
+>>>>Implement a new force feedback interface, in which all
+>>>>non-driver-specific
+>>>>operations are separated to a common module. This includes handling
+>>>>effect
+>>>>type validations, effect timers, locking, etc.
+>>>>
+>>>
+>>>Still looking at it, couple of random points for now...
+>>>
+>>>
+>>>>The code should be built as part of the input module, but
+>>>>unfortunately that
+>>>>would require renaming input.c, which we don't want to do. So instead
+>>>>we make
+>>>>INPUT_FF_EFFECTS a bool so that it cannot be built as a module.
+>>>>
+>>>
+>>>I am not opposed to rename input.c, I wonder what pending changes
+>>>besides David's header cleanup Andrew had in mind.
+>>>
+>>>
+>>>>@@ -865,6 +865,9 @@ struct input_dev {
+>>>>       unsigned long sndbit[NBITS(SND_MAX)];
+>>>>       unsigned long ffbit[NBITS(FF_MAX)];
+>>>>       unsigned long swbit[NBITS(SW_MAX)];
+>>>>+
+>>>>+       struct ff_device *ff;
+>>>>+       struct mutex ff_lock;
+>>>
+>>>
+>>>I believe that ff_lock should be part of ff_device and be only used to
+>>>controll access when uploading/erasing effects. The teardown process
+>>>should make sure that device inactive anyway only then remove
+>>>ff_device from input_dev; by that time noone should be able to
+>>>upload/erase effects. Therefore ff_lock is not needed to protect
+>>>dev->ff.
+>>>
+>>
+>>Hmm, I remember testing this by putting a 10 second sleep into the end
+>>of input_ff_effect_upload() and dropping the ff_locking when
+>>unregistering device. Then while in that sleep I unplugged the device.
+>>The dev->ff was indeed removed while the input_ff_effect_upload() was
+>>still running.
+>>
+>>Maybe there was/is some bug in the input device unregistering process
+>>that doesn't account for ioctls.
+>>
+>>Anyway, I'll retest this issue soon.
+>>
+> 
+> 
+> And it will fail, locking is missing many parts of input core. Notice I
+> said _should_, not will ;) I was trying to paint how it should work when
+> we have proper locking and I don't want to use ff_lock to paper over
+> some bugs in the core.
+>  
 
-schedule_timeout_uninterruptible() is used to sleep on a wait-queue,
-which 2.4.x does not have.
+Ah, ok.
 
+>>>>===================================================================
+>>>>--- linux-2.6.17-rc4-git12.orig/drivers/input/input.c   2006-05-27
+>>>>02:28:57.000000000 +0300
+>>>>+++ linux-2.6.17-rc4-git12/drivers/input/input.c        2006-05-27
+>>>>02:38:35.000000000 +0300
+>>>>@@ -733,6 +733,17 @@ static void input_dev_release(struct cla
+>>>> {
+>>>>       struct input_dev *dev = to_input_dev(class_dev);
+>>>>
+>>>>+       if (dev->ff) {
+>>>>+               struct ff_device *ff = dev->ff;
+>>>>+               clear_bit(EV_FF, dev->evbit);
+>>>>+               mutex_lock(&dev->ff_lock);
+>>>>+               del_timer_sync(&ff->timer);
+>>>
+>>>
+>>>This is too late. We need to stop timer when device gets unregistered.
+>>
+>>And what if driver has called input_allocate_device(),
+>>input_ff_allocate(), input_ff_register(), but then decides to abort and
+>>calls input_dev_release()?   input_unregister_device() would not get
+>>called at all.
+>>
+> 
+> 
+> Right, but if device was never registered there is no device node so noone
+> could start the timer and deleting it is a noop. Hmm, I think even better
+> place would be to stop ff timer when device is closed (i.e. when last user
+> closes file handle).
+> 
 
-[snip]
->
-> Under 2.4.32 this driver crashes (kernel panic) when I try to enslave a
-> network interface handled by it, with a 2.6 kernel there is no such
-> problem. Unfortunately I cannot go ahead with a 2.6 kernel at the
-> moment, because it lacks a properly running PPS support.
->
-Wouldn't it make more sense to work on improving PPS (I assume you are
-refering to NTP "pulse per second" btw) support in 2.6.x rather than
-backporting an USB driver to 2.4.x ???
+Hmm... actually, they are stopped in flush(), and IIRC that is always
+called before deleting input_dev.
 
+> 
+>>>Clearing FF bits is pointless here as device is about to disappear;
+>>>locking is also not needed because we are guaranteed to be the last
+>>>user of the device structure.
+>>
+>>True, if that guarantee really exists.
+>>
+> Yes, this is guaranteed.
+> 
 
-[snip]
->
-> Now I would need help in finding a way to substitute the two missing
-> functions in a 2.4 kernel environment and I desperately hope that
-> someone sees my dilemma and can help me somehow...
->
-The book "Linux Device Drivers" third edition is available for free
-online and describes 2.6.x USB drivers in a fair bit of detail.
-Earlier editions of the book describe the 2.4.x kernel (don't know if
-those are available for free, but it should be possible to get them
-from a bookstore in any case).
+So, now you guarantee it, but it isn't really so? ;)
 
-Getting hold of the second & third editions of LDD and comparing the
-USB info from both should give you some idea of where to start...
-
+When we remove locking, timer_del, clear_bit, all that is left is
+kfree() and I guess that has to still be run in the input_dev_release().
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Anssi Hannula
+

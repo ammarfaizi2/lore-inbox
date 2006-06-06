@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWFFQJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWFFQKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWFFQJe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 12:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWFFQJe
+	id S1751045AbWFFQKm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 12:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWFFQKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 12:09:34 -0400
-Received: from moci.net4u.de ([217.7.64.195]:36821 "EHLO moci.net4u.de")
-	by vger.kernel.org with ESMTP id S1751038AbWFFQJd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 12:09:33 -0400
-From: Ernst Herzberg <list-lkml@net4u.de>
-Reply-To: earny@net4u.de
-Organization: Net4U
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.17-rc6 -- alpha-generic-hweight-build-fix.patch missing
-Date: Tue, 6 Jun 2006 18:09:25 +0200
-User-Agent: KMail/1.9.1
-Cc: Linus Torvalds <torvalds@osdl.org>
-References: <Pine.LNX.4.64.0606051807310.5498@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606051807310.5498@g5.osdl.org>
+	Tue, 6 Jun 2006 12:10:41 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:5173 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751045AbWFFQKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 12:10:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eN6ZzhzO1puMZjEzEoV64GuwuAosH3jE+UW4ofb+7GikeVfp0KCbpDDeDKqyVmhaDSx0OtJGT1dgrQwmX0dlgZZ3GrUYyTAet+UZpoDQ6qXNd6L9Dps1ek75bFn9Hy7IKKCTIqwcqFHjRD+Mu4KrLjOJUIu/CUvwlkY+bsTuk4k=
+Message-ID: <9e4733910606060910m44cd4edfs8155c1fe031b37fe@mail.gmail.com>
+Date: Tue, 6 Jun 2006 12:10:40 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH 0/7] Detaching fbcon
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+In-Reply-To: <44856223.9010606@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606061809.25944.list-lkml@net4u.de>
+References: <44856223.9010606@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/6/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> Overall, this feature is a great help for developers working in the
+> framebuffer or console layer.  There is not need to continually reboot the
+> kernel for every small change. It is also useful for regular users who wants
+> to choose between a graphical console or a text console without having to
+> reboot.
 
-Moin.
+Instead of the sysfs attribute, what about creating a new escape
+sequence that you send to the console system to detach? Doing it that
+way would make more sense from a stacking order. It just seems
+backwards to me that you ask a lower layer to detach from the layer
+above it. The escape sequence would also work for any console
+implementation, not just fbcon.
 
-Without alpha-generic-hweight-build-fix.patch 2.6.17-rc6 does not compile 
-on ALPHA DP264
+If console detached this way and there was nothing to fallback to
+(systems without VGAcon), it would know not to try and print anything
+until something reattaches to it.
 
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-lib/lib.a(bitmap.o): In function `__bitmap_weight':
-: undefined reference to `hweight64'
-lib/lib.a(bitmap.o): In function `__bitmap_weight':
-: undefined reference to `hweight64'
-lib/lib.a(bitmap.o): In function `__bitmap_weight':
-: undefined reference to `hweight64'
-lib/lib.a(bitmap.o): In function `__bitmap_weight':
-: undefined reference to `hweight64'
-drivers/built-in.o: In function `pcips2_interrupt':
-: undefined reference to `hweight8'
-drivers/built-in.o: In function `pcips2_interrupt':
-: undefined reference to `hweight8'
-net/built-in.o: In function `netlink_bind':
-: undefined reference to `hweight32'
-net/built-in.o: In function `netlink_bind':
-: undefined reference to `hweight32'
-net/built-in.o: In function `netlink_bind':
-: undefined reference to `hweight32'
-net/built-in.o: In function `netlink_bind':
-: undefined reference to `hweight32'
-make: *** [.tmp_vmlinux1] Error 1
-
-The good news: With this patch -rc6 boots and works.
-
-Thanks
-
-Earny
+-- 
+Jon Smirl
+jonsmirl@gmail.com

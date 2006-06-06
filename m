@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWFFLKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWFFLKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWFFLKT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 07:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWFFLKT
+	id S1751153AbWFFLKM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 07:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWFFLKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 07:10:19 -0400
+	Tue, 6 Jun 2006 07:10:11 -0400
 Received: from wx-out-0102.google.com ([66.249.82.198]:53140 "EHLO
 	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751209AbWFFLKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 07:10:17 -0400
+	id S1751153AbWFFLKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 07:10:09 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=LKgpa1YudZ9jGpmve+k8PBaGcPpKRC+2fK7+wRVdhCGHNuW09ql+OsNsv9mZALBFR44f99OSI79GCkAtxBRlRXmti4lwNnxYQG+k6RfHNukbTd3yGm2avbvrJe7aYZ9kBKCEHvrufj1PMd+rGCKLodOxcL9N831WVuQoEim9k1M=
-Message-ID: <44856223.9010606@gmail.com>
-Date: Tue, 06 Jun 2006 19:08:19 +0800
+        b=W0ALaAUyMhwfL+EiWn6MDTjJYbtc+wJmFYQbT03QSqM1z+asFVlwPvoPfDgXD25eqXnDt1HJGRQtNeFEXOVYWi105gU9PID2RI+MXArPfjLld8Q1HTZrfW3mWYJpVTF98EHisa3P2DBLZoiVFXtzRVZSaAeqxggwYZziOjBDIDY=
+Message-ID: <4485620C.20606@gmail.com>
+Date: Tue, 06 Jun 2006 19:07:56 +0800
 From: "Antonino A. Daplas" <adaplas@gmail.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
@@ -22,65 +22,99 @@ To: Andrew Morton <akpm@osdl.org>
 CC: Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/7] Detaching fbcon
+Subject: [PATCH 1/7] Detaching fbcon: Fix vgacon to allow retaking of the
+ console
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of the limitations of the framebuffer console system is its inablity to
-unload or detach itself from the console layer.  And once it loads, it also
-locks in framebuffer drivers preventing their unload. Although the con2fbmap
-utility does provide a means to unload individual drivers, it requires that at
-least one framebuffer driver is loaded for use by fbcon.
+In order for fbcon to detach itself from the console layer, vgacon, which is a
+boot console driver, must be fixed so it can retake the console multiple
+times, not just during init.  The following needs to be done:
 
-With this change, it is possible to detach fbcon from the console layer. If it
-is detached, it will reattach the boot console driver (which is permanently
-loaded) back to the console layer so the system can continue to work.  As a
-consequence, fbcon will also decrement its reference count of individual
-framebuffer drivers, allowing all of these drivers to be unloaded even if
-fbcon is still loaded.
+- remove __init from the vgacon_startup, this is called again by
+  take_over_console().
 
-Unless you use drivers that restores the display to text mode (rivafb and
-i810fb, for example), detaching fbcon does require assistance from userspace
-tools (ie, vbetools) for text mode to be restored completely.  Without the
-help of these tools, fbcon will leave the VGA console corrupted. The methods
-that can be used will be described in Documentation/fb/fbcon.txt.
+- vc->rows and vc->cols are set manually by vgacon during init. After init,
+  vc_resize() can be used
 
-Because the vt layer also increments the module reference count for each
-console driver, fbcon cannot be directly unloaded.  It must be detached first
-prior to unload.
+- make sure the scrollback_buffer is not reallocated
 
-Similarly, fbcon can be reattached to the console layer without having to
-reload the module.  A nice feature if fbcon is compiled statically.
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
 
-Attaching and detaching fbcon is done via sysfs attributes. A class device
-entry for fbcon is created in /sys/class/graphics. The two attributes that
-controls this feature are detach and attach. Two other attributes that are
-piggybacked under /sys/class/graphics/fb[n] that are fbcon-specific,
-'con_rotate' and 'con_rotate_all' are moved to fbcon.  They are renamed as
-'rotate' and 'rotate_all' respectively.
+ drivers/video/console/vgacon.c |   28 ++++++++++++++++++++++------
+ 1 files changed, 22 insertions(+), 6 deletions(-)
 
-Overall, this feature is a great help for developers working in the
-framebuffer or console layer.  There is not need to continually reboot the
-kernel for every small change. It is also useful for regular users who wants
-to choose between a graphical console or a text console without having to
-reboot.
-
-Example usage for x86:
-
-/* start in text mode */
-modprobe xxxfb
-modprobe fbcon
-/* graphical mode with fbcon using xxxfb */
-echo 1 > /sys/class/graphics/fbcon/detach
-/* back to text mode, will produce corrupt display unless vbetool is used */
-rmmod xxxfb
-modprobe yyyfb
-/* back to graphical mode with fbcon using yyyfb */
-
-Before trying out this feature, please read Documentation/fb/fbcon.txt.
-
+diff --git a/drivers/video/console/vgacon.c b/drivers/video/console/vgacon.c
+index a595382..01401cd 100644
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -114,6 +114,7 @@ static int 		vga_512_chars;
+ static int 		vga_video_font_height;
+ static int 		vga_scan_lines;
+ static unsigned int 	vga_rolled_over = 0;
++static int              vga_init_done;
+ 
+ static int __init no_scroll(char *str)
+ {
+@@ -190,7 +191,7 @@ static void vgacon_scrollback_init(int p
+ 	}
+ }
+ 
+-static void __init vgacon_scrollback_startup(void)
++static void vgacon_scrollback_startup(void)
+ {
+ 	vgacon_scrollback = alloc_bootmem(CONFIG_VGACON_SOFT_SCROLLBACK_SIZE
+ 					  * 1024);
+@@ -355,7 +356,7 @@ static int vgacon_scrolldelta(struct vc_
+ }
+ #endif /* CONFIG_VGACON_SOFT_SCROLLBACK */
+ 
+-static const char __init *vgacon_startup(void)
++static const char *vgacon_startup(void)
+ {
+ 	const char *display_desc = NULL;
+ 	u16 saved1, saved2;
+@@ -523,7 +524,12 @@ #endif
+ 
+ 	vgacon_xres = ORIG_VIDEO_COLS * VGA_FONTWIDTH;
+ 	vgacon_yres = vga_scan_lines;
+-	vgacon_scrollback_startup();
++
++	if (!vga_init_done) {
++		vgacon_scrollback_startup();
++		vga_init_done = 1;
++	}
++
+ 	return display_desc;
+ }
+ 
+@@ -531,10 +537,20 @@ static void vgacon_init(struct vc_data *
+ {
+ 	unsigned long p;
+ 
+-	/* We cannot be loaded as a module, therefore init is always 1 */
++	/*
++	 * We cannot be loaded as a module, therefore init is always 1,
++	 * but vgacon_init can be called more than once, and init will
++	 * not be 1.
++	 */
+ 	c->vc_can_do_color = vga_can_do_color;
+-	c->vc_cols = vga_video_num_columns;
+-	c->vc_rows = vga_video_num_lines;
++
++	/* set dimensions manually if init != 0 since vc_resize() will fail */
++	if (init) {
++		c->vc_cols = vga_video_num_columns;
++		c->vc_rows = vga_video_num_lines;
++	} else
++		vc_resize(c, vga_video_num_columns, vga_video_num_lines);
++
+ 	c->vc_scan_lines = vga_scan_lines;
+ 	c->vc_font.height = vga_video_font_height;
+ 	c->vc_complement_mask = 0x7700;
 
 
 

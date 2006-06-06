@@ -1,92 +1,95 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750779AbWFFDeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750810AbWFFDeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWFFDeS (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 23:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWFFDeS
+	id S1750810AbWFFDeV (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 23:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWFFDeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 23:34:18 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:35788 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1750779AbWFFDeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 23:34:18 -0400
-Message-ID: <349564851.10398@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Tue, 6 Jun 2006 11:34:36 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Bart Samwel <bart@samwel.tk>
-Cc: Voluspa <lista1@comhem.se>, linux-kernel@vger.kernel.org
-Subject: Re: Adaptive Readahead V14 - statistics question...
-Message-ID: <20060606033436.GB6071@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Bart Samwel <bart@samwel.tk>, Voluspa <lista1@comhem.se>,
-	linux-kernel@vger.kernel.org
-References: <20060530053631.57899084.lista1@comhem.se> <448493E9.9030203@samwel.tk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448493E9.9030203@samwel.tk>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 5 Jun 2006 23:34:21 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:40436 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750810AbWFFDeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 23:34:20 -0400
+Subject: [PATCH -mm] misroute-irq: Don't call desc->chip->end because of
+	edge interrupts
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
+        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060604214448.GA6602@elte.hu>
+References: <1149112582.3114.91.camel@laptopd505.fenrus.org>
+	 <1149345421.13993.81.camel@localhost.localdomain>
+	 <20060603215323.GA13077@devserv.devel.redhat.com>
+	 <1149374090.14408.4.camel@localhost.localdomain>
+	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
+	 <1149426961.27696.7.camel@localhost.localdomain>
+	 <1149437412.23209.3.camel@localhost.localdomain>
+	 <1149438131.29652.5.camel@localhost.localdomain>
+	 <1149456375.23209.13.camel@localhost.localdomain>
+	 <1149456532.29652.29.camel@localhost.localdomain>
+	 <20060604214448.GA6602@elte.hu>
+Content-Type: text/plain
+Date: Mon, 05 Jun 2006 23:33:50 -0400
+Message-Id: <1149564830.16247.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 05, 2006 at 10:28:25PM +0200, Bart Samwel wrote:
-> Hi Mats, Wu,
-> 
-> Hmmm, video at 1 Mb/s = 128 kB/s (just guessing a typical bitrate) 
-> equals 8 seconds between reads at 1 MB readahead, right? That's strange, 
-> you should be hearing those sounds normally as well then, as a typical 
-> Linux laptop setup accesses the disk less frequently than once every 8 
-> seconds. Anyway, _increasing_ the maximum readahead to some film-decent 
-> value will probably get rid of the clicking as well.
-> 
-> I guess the problem is getting this to work without disturbing other 
-> applications, i.e. without making slow-but-predictably-reading 
-> applications read ahead 10 MB as well. I've been struggling with this 
-> with laptop mode for quite some time: last time I checked, there didn't 
-> seem to be a good way to do video readahead without making all other 
-> reads read ahead too much as well... What I'd like to have is a setting 
-> that works based on _time_, so that I can say "read all you think will 
-> be needed in the next N seconds".
-> 
-> I could imagine having the maximum readahead being composed of two settings:
-> 
-> MAX_BYTES = maximum readahead in bytes
-> MAX_TIME = maximum readahead in *time* before the data is expected to be 
-> needed
-> 
-> For instance, if MAX_BYTES = 50MB and MAX_TIME=180 seconds, an 
-> application reading at 10 kB/s would get a max readahead of 180*10 = 
-> 1800kB, while an application reading at 100 kB/s would get a max 
-> readahead of 180*100 = 18000kB. As a use case, the first application 
-> would be xmms (128kbit MP3), while the second would be mplayer (800kbit 
-> video). In both cases, laptop mode would be able to spin down the disk 
-> for a full three minutes between spinups. Ideal for when you're trying 
-> to watch a video while on the road.
-> 
-> Wu, do the adaptive readahead patches have something like this, or could 
-> it be included? It would solve a _major_ problem for laptop mode.
 
-Yes, it has the capability you need.
+Hit the following BUG with irqpoll.  The below patch fixes it.
 
-And MAX_TIME is not necessary for this case.
-It does not try to estimate the time, but the relative speeds of all
-concurrent readers. It automatically arranges appropriate readahead
-sizes for all the concurrent readers, so that no readahead thrashing
-will happen, provided that the reading speeds do not fluctuate too
-much.
+hda: WDC WD2000BB-00GUA0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14<1>BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP
+last sysfs file:
+Modules linked in:
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted VLI
+EFLAGS: 00010002   (2.6.17-rc5-mm3 #23)
+EIP is at 0x0
+eax: c03f2540   ebx: c277dcc0   ecx: c03ea9c4   edx: 00000001
+esi: 0000000e   edi: c03ea9e4   ebp: c03f5f08   esp: c03f5ed8
+ds: 007b   es: 007b   ss: 0068
+Process idle (pid: 0, threadinfo=c03f4000 task=c036d540)
+Stack: c01488c5 0000000e c03f5f60 c277dcc0 00000000 00000001 c03ea9c4 c03ea9d0
+       c03ea9d4 c03ea2c0 00000000 c03ea2e4 c03f5f38 c014904d 00000000 c03ea2c0
+       00000001 c03f5f60 c03f5f60 00000000 c0370c00 c0148f30 00000000 c03f5f60
+Call Trace:
+ [<c0103db7>] show_stack_log_lvl+0xa7/0xf0
+ [<c0103fc0>] show_registers+0x1c0/0x260
+ [<c0104535>] die+0x135/0x2d0
+ [<c0114be2>] do_page_fault+0x6b2/0x79c
+ [<c01035f5>] error_code+0x39/0x40
+ [<c014904d>] handle_edge_irq+0x11d/0x150
+ [<c01055de>] do_IRQ+0x5e/0xb0
+ [<c010348d>] common_interrupt+0x25/0x2c
+ [<c010162d>] cpu_idle+0x4d/0xb0
+ [<c01002e5>] rest_init+0x45/0x50
+ [<c03fa81a>] start_kernel+0x32a/0x460
+ [<c0100210>] 0xc0100210
+Code:  Bad EIP value.
 
-However there are some cases not thrashing protected:
-        - normal mmapped reading(without POSIX_FADV_SEQUENTIAL hint);
-        - backward reading;
-        - fs stuffs(i.e. readahead for dirs);
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-With that in mind, you can safely set max readahead size to as large
-as 255M when watching videos by doing the following tricks:
 
-blockdev --setra 524280 /dev/hda[N]     # following opened file will use this aggressive size
-mplayer <your video file on hda[N]>     # open it
-blockdev --setra 2048 /dev/hda[N]       # revert to sane value
-# now continue watching video ...
+Index: linux-2.6.17-rc5-mm3/kernel/irq/spurious.c
+===================================================================
+--- linux-2.6.17-rc5-mm3.orig/kernel/irq/spurious.c	2006-06-05 17:26:15.000000000 -0400
++++ linux-2.6.17-rc5-mm3/kernel/irq/spurious.c	2006-06-05 19:47:58.000000000 -0400
+@@ -77,7 +77,7 @@ static int misrouted_irq(int irq, struct
+ 		 * If we did actual work for the real IRQ line we must let the
+ 		 * IRQ controller clean up too
+ 		 */
+-		if (work)
++		if (work && disc->chip && desc->chip->end)
+ 			desc->chip->end(i);
+ 		spin_unlock(&desc->lock);
+ 	}
 
-Cheers,
-Wu
+

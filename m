@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWFFJck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWFFJgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWFFJck (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 05:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWFFJck
+	id S932139AbWFFJgW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 05:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWFFJgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 05:32:40 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:65432 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932097AbWFFJcj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 05:32:39 -0400
-Message-ID: <44854ADB.4040006@sw.ru>
-Date: Tue, 06 Jun 2006 13:28:59 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Tue, 6 Jun 2006 05:36:22 -0400
+Received: from mailgw3.ericsson.se ([193.180.251.60]:6376 "EHLO
+	mailgw3.ericsson.se") by vger.kernel.org with ESMTP id S932139AbWFFJgV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 05:36:21 -0400
+Message-ID: <44854C8D.6040707@ericsson.com>
+Date: Tue, 06 Jun 2006 11:36:13 +0200
+From: Preben Traerup <Preben.Trarup@ericsson.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org, Sam Vilain <sam@vilain.net>,
-       Kirill Korotaev <dev@openvz.org>,
-       Peter Williams <pwil3058@bigpond.net.au>, sekharan@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <4484ABF9.50503@vilain.net> <44853BCA.4010009@sw.ru> <200606061913.35340.kernel@kolivas.org>
-In-Reply-To: <200606061913.35340.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       Vivek Goyal <vgoyal@in.ibm.com>
+Subject: Re: [Fastboot] [RFC][PATCH] Add missing notifier before crashing
+References: <20060530183359.a8d5d736.akiyama.nobuyuk@jp.fujitsu.com>	<20060530145658.GC6536@in.ibm.com>	<20060531182045.9db2fac9.akiyama.nobuyuk@jp.fujitsu.com>	<20060531154322.GA8475@in.ibm.com>	<20060601213730.dc9f1ec4.akiyama.nobuyuk@jp.fujitsu.com>	<20060601151605.GA7380@in.ibm.com>	<20060602141301.cdecf0e1.akiyama.nobuyuk@jp.fujitsu.com>	<44800E1A.1080306@ericsson.com>	<m1fyin6agv.fsf@ebiederm.dsl.xmission.com>	<44803B1F.8070302@ericsson.com> <m13ben60tn.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m13ben60tn.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Jun 2006 09:36:19.0648 (UTC) FILETIME=[AA6DCC00:01C6894C]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>Yes but interactive admin processes will still get a large bonus
->>>relative to the apache processes so you can still log in and kill the
->>>apache storm off even with very large loads.
+Eric W. Biederman wrote:
+
+>Preben Traerup <Preben.Trarup@ericsson.com> writes:
+>
+>  
+>
+>  
+>
+>>Since I'm apperantly not the only one left with this choice I rather prefer a
+>>solution
+>>made in public, that is known to be "bad" in some (well known) situations than
+>>each and everybody implements their own solution to the same problem.
+>>    
 >>
->>And how do you plan to manage it: to log in every time when apache works
->>too much and kill processes? The managabiliy of such solutions sucks..
-> 
-> What a strange discussion. I simply impose limits on processes and connections 
-> on my grossly underpowered server.
-this works when you are an administrator of a single linux machine. Now 
-imagine, you can run Virtual Environments (VE) each with it's own root 
-and users. You can't and don't want to control what and how people are 
-running. Sure, you limit the number of processes, but usually this won't 
-be less then 50-100 processes per VE, so a single VE can lead to 50 
-tasks in a running state and the total number of tasks in the system can 
-be as high as 10,000. People can run setiathome or any other sh$t which 
-consumes CPU, but the result is always the same - huge amount of running 
-tasks leads to overall slowdown. So this is the case when you want to 
-limits _users_ or VE, not _single_ tasks. I don't think you will succeed 
-in managing 10,000 tasks when 100 active users change the load on the 
-day basis.
+>
+>It is certainly worth discussing.
+>
+>Eric
+>
+>  
+>
+To handle the contradiction of adding crash notifier to kexec and 
+maintaining kexec reliability
+I suggest adding a flag to Kconfig
+ENABLE_CRASH_NOTIFIER
 
-Hope, it become more clear.
+This removes any code in the critical path for people not needing crash 
+notification.
 
-Thanks,
-Kirill
+Whatever could/should be implemented under this flag, see elsewhere in 
+this thread
+
+./Preben

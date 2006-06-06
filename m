@@ -1,142 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWFFVhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWFFVhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWFFVhK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 17:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWFFVhK
+	id S1750897AbWFFVhN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 17:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWFFVhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 17:37:10 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:16779 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750748AbWFFVhJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 17:37:09 -0400
-Message-ID: <4485F5E2.5040708@free.fr>
-Date: Tue, 06 Jun 2006 23:38:42 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Tue, 6 Jun 2006 17:37:13 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:14711 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750864AbWFFVhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 17:37:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=bfdBFBRXDWfLgVo0ghzxcPz7lN4D7iYUdqAWz3eoINm/cNvR7+nJK3cQNOWgZA/oO0EDgvtt6s8QnHLDy6eWr5un5yW5xY1ypx9IdWVPRxLUGixNkMtXCb0aYnPmq397A4Kzqh+Z1NZdqtn+XZFCVyELvfzDx5BJEuD+Md2BaNM=
+Message-ID: <4485F590.8000304@gmail.com>
+Date: Tue, 06 Jun 2006 23:36:57 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com, Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: 2.6.17-rc5-mm1
-References: <200606042101_MC3-1-C19B-1CF4@compuserve.com> <20060604181002.57ca89df.akpm@osdl.org> <44840838.7030802@free.fr> <4484584D.4070108@free.fr> <20060605110046.2a7db23f.akpm@osdl.org> <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com> <20060606072628.GA28752@elte.hu> <4485E0D3.8080708@free.fr> <20060606205801.GC17787@elte.hu>
-In-Reply-To: <20060606205801.GC17787@elte.hu>
+To: Mark Lord <lkml@rtr.ca>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb device problem
+References: <44859A9B.6080202@gmail.com> <4485A299.7070007@rtr.ca> <4485A855.1020602@gmail.com> <4485C446.2040203@rtr.ca> <4485C5D8.5070907@rtr.ca>
+In-Reply-To: <4485C5D8.5070907@rtr.ca>
 X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Le 06.06.2006 22:58, Ingo Molnar a écrit :
-> * Laurent Riffard <laurent.riffard@free.fr> wrote:
+Mark Lord napsal(a):
+> Mmm.. okay, a quick glance at the USB storage code revealed one instance:
 > 
->> Results:
->> - 2.6.17-rc4-mm3 with 4K stack works fine (this is the latest good 4K-kernel).
->> - 2.6.17-rc5-mm3 with 4K stack crashes, the stack seems to be corrupted.
+>        /* Did we transfer less than the minimum amount required? */
+>        if (srb->result == SAM_STAT_GOOD &&
+>                        srb->request_bufflen - srb->resid < srb->underflow)
+>                srb->result = (DID_ERROR << 16) | (SUGGEST_RETRY << 24);
 > 
-> that's vanilla mm3, or mm3 patched with extra lockdep patches? If it's 
-> patched then you should try vanilla mm3 too.
-
-It was vanilla mm3.
- 
->> - 2.6.17-rc5-mm3 with 8K stack works fine.
->> - 2.6.17-rc5-mm3-lockdep with 8k stack works fine, although it exhibits high 
->> stack usage while running pktsetup.
+>        return;
 > 
-> is the log you sent the highest footprint that my DEBUG_STACKOVERFLOW 
-> tracer detects?
+> So I suppose this *could* be the driver thinking it had a bad sector,
+> but it really looks like it's guessing.  The code also appears to be
+> instrumented for some kind of USB tracing.. If you can figure out how
+> to turn that on, then the trace will probably tell us what is really
+> going on there.
+> Look for a file called "usbmon.txt" in the Documentation/usb/ subdir
+> of your kernel source tree.  It describes how to do the tracing.
 
-No, I managed to trigger higher footprint while mounting a packet-formatted
-DVD. I didn't sent it because:
-- this operation (mounting a packet-formatted DVD) wasn't part of my crash scenario.
-- It wasn't a *vanilla* 2.6.17-rc5-mm3-lockdep as I started to hack driver/block/pktcdvd.c 
-to reduce stack usage (changing stack allocation to kmalloc in pkt_generic_packet() 
-and in pkt_get_max_speed()). 
+Did you want me to do something like this:
+http://www.fi.muni.cz/~xslaby/sklad/usbmon/?M=A
 
-FYI, here is the highest footprint I got: 
+usb2 means usb bus 2.
 
-Jun  5 21:27:12 antares kernel: ----------------------------->
-Jun  5 21:27:12 antares kernel: | new stack fill maximum: mount/26318, 5484 bytes (out of 8136 bytes).
-Jun  5 21:27:12 antares kernel: | Stack fill ratio: 67%% - that's still OK, no need to report this.
-Jun  5 21:27:12 antares kernel: ------------|
-Jun  5 21:27:12 antares kernel: {   20} [debug_stackoverflow+128/174] debug_stackoverflow+0x80/0xae
-Jun  5 21:27:12 antares kernel: {   20} [<c013ba14>] debug_stackoverflow+0x80/0xae
-Jun  5 21:27:12 antares kernel: {   28} [__mcount+42/151] __mcount+0x2a/0x97
-Jun  5 21:27:12 antares kernel: {   28} [<c013cbb6>] __mcount+0x2a/0x97
-Jun  5 21:27:12 antares kernel: {   20} [mcount+20/24] mcount+0x14/0x18
-Jun  5 21:27:12 antares kernel: {   20} [<c010e434>] mcount+0x14/0x18
-Jun  5 21:27:12 antares kernel: {   36} [__lockdep_acquire+14/2358] __lockdep_acquire+0xe/0x936
-Jun  5 21:27:12 antares kernel: {   36} [<c012f299>] __lockdep_acquire+0xe/0x936
-Jun  5 21:27:12 antares kernel: {   40} [lockdep_acquire+80/104] lockdep_acquire+0x50/0x68
-Jun  5 21:27:12 antares kernel: {   40} [<c012fc11>] lockdep_acquire+0x50/0x68
-Jun  5 21:27:12 antares kernel: {   36} [_spin_lock_irqsave+38/53] _spin_lock_irqsave+0x26/0x35
-Jun  5 21:27:12 antares kernel: {   36} [<c02a8572>] _spin_lock_irqsave+0x26/0x35
-Jun  5 21:27:12 antares kernel: {   20} [lock_timer_base+31/58] lock_timer_base+0x1f/0x3a
-Jun  5 21:27:12 antares kernel: {   20} [<c0120a70>] lock_timer_base+0x1f/0x3a
-Jun  5 21:27:12 antares kernel: {   36} [__mod_timer+41/156] __mod_timer+0x29/0x9c
-Jun  5 21:27:12 antares kernel: {   36} [<c0120b0c>] __mod_timer+0x29/0x9c
-Jun  5 21:27:12 antares kernel: {   24} [__ide_set_handler+92/101] __ide_set_handler+0x5c/0x65
-Jun  5 21:27:12 antares kernel: {   24} [<c0239a24>] __ide_set_handler+0x5c/0x65
-Jun  5 21:27:12 antares kernel: {   28} [ide_set_handler+38/58] ide_set_handler+0x26/0x3a
-Jun  5 21:27:12 antares kernel: {   28} [<c0239c09>] ide_set_handler+0x26/0x3a
-Jun  5 21:27:12 antares kernel: {   44} [<e0e579da>] cdrom_transfer_packet_command+0x75/0xcd
-Jun  5 21:27:12 antares kernel: {   20} [<e0e57ac6>] cdrom_do_pc_continuation+0x33/0x35
-Jun  5 21:27:12 antares kernel: {   44} [<e0e548bb>] cdrom_start_packet_command+0x132/0x13d
-Jun  5 21:27:12 antares kernel: {   60} [<e0e55294>] ide_do_rw_cdrom+0x404/0x449
-Jun  5 21:27:12 antares kernel: {   96} [ide_do_request+1335/1774] ide_do_request+0x537/0x6ee
-Jun  5 21:27:12 antares kernel: {   96} [<c0238a60>] ide_do_request+0x537/0x6ee
-Jun  5 21:27:12 antares kernel: {   16} [do_ide_request+30/35] do_ide_request+0x1e/0x23
-Jun  5 21:27:12 antares kernel: {   16} [<c02391cb>] do_ide_request+0x1e/0x23
-Jun  5 21:27:12 antares kernel: {   36} [elv_insert+102/322] elv_insert+0x66/0x142
-Jun  5 21:27:12 antares kernel: {   36} [<c01b64d5>] elv_insert+0x66/0x142
-Jun  5 21:27:12 antares kernel: {   32} [__elv_add_request+136/147] __elv_add_request+0x88/0x93
-Jun  5 21:27:12 antares kernel: {   32} [<c01b6639>] __elv_add_request+0x88/0x93
-Jun  5 21:27:12 antares kernel: {  320} [ide_do_drive_cmd+284/364] ide_do_drive_cmd+0x11c/0x16c
-Jun  5 21:27:12 antares kernel: {  320} [<c0238d33>] ide_do_drive_cmd+0x11c/0x16c
-Jun  5 21:27:12 antares kernel: {  100} [<e0e553aa>] cdrom_queue_packet_command+0x45/0xd8
-Jun  5 21:27:12 antares kernel: {  200} [<e0e554dc>] ide_cdrom_packet+0x9f/0xb9
-Jun  5 21:27:12 antares kernel: {   92} [<e0c87fca>] cdrom_get_track_info+0x56/0x9d
-Jun  5 21:27:12 antares kernel: {  116} [<e0c88069>] cdrom_get_last_written+0x58/0x110
-Jun  5 21:27:12 antares kernel: {   60} [<e0e55e08>] cdrom_read_toc+0x342/0x3a4
-Jun  5 21:27:12 antares kernel: {  292} [<e0e56b75>] ide_cdrom_audio_ioctl+0x14c/0x210
-Jun  5 21:27:12 antares kernel: {   56} [<e0c8743d>] cdrom_count_tracks+0x6b/0x142
-Jun  5 21:27:12 antares kernel: {  376} [<e0c8a96b>] cdrom_open+0x19b/0x7ef
-Jun  5 21:27:12 antares kernel: {   32} [<e0e54756>] idecd_open+0x8a/0xbd
-Jun  5 21:27:12 antares kernel: {  564} [do_open+731/980] do_open+0x2db/0x3d4
-Jun  5 21:27:12 antares kernel: {  564} [<c016297c>] do_open+0x2db/0x3d4
-Jun  5 21:27:12 antares kernel: {  568} [blkdev_get+98/106] blkdev_get+0x62/0x6a
-Jun  5 21:27:12 antares kernel: {  568} [<c0162ad7>] blkdev_get+0x62/0x6a
-Jun  5 21:27:12 antares kernel: {  356} [<e0e9f389>] pkt_open+0x92/0xc21
-Jun  5 21:27:12 antares kernel: {  564} [do_open+166/980] do_open+0xa6/0x3d4
-Jun  5 21:27:12 antares kernel: {  564} [<c0162747>] do_open+0xa6/0x3d4
-Jun  5 21:27:12 antares kernel: {  568} [blkdev_get+98/106] blkdev_get+0x62/0x6a
-Jun  5 21:27:12 antares kernel: {  568} [<c0162ad7>] blkdev_get+0x62/0x6a
-Jun  5 21:27:12 antares kernel: {   28} [open_bdev_excl+55/121] open_bdev_excl+0x37/0x79
-Jun  5 21:27:12 antares kernel: {   28} [<c0162f0f>] open_bdev_excl+0x37/0x79
-Jun  5 21:27:12 antares kernel: {   68} [get_sb_bdev+29/342] get_sb_bdev+0x1d/0x156
-Jun  5 21:27:12 antares kernel: {   68} [<c0161445>] get_sb_bdev+0x1d/0x156
-Jun  5 21:27:12 antares kernel: {   28} [<e0f33c1b>] udf_get_sb+0x1e/0x20
-Jun  5 21:27:12 antares kernel: {   36} [vfs_kern_mount+48/160] vfs_kern_mount+0x30/0xa0
-Jun  5 21:27:12 antares kernel: {   36} [<c01612be>] vfs_kern_mount+0x30/0xa0
-Jun  5 21:27:12 antares kernel: {   32} [do_kern_mount+45/65] do_kern_mount+0x2d/0x41
-Jun  5 21:27:12 antares kernel: {   32} [<c0161374>] do_kern_mount+0x2d/0x41
-Jun  5 21:27:12 antares kernel: {  336} [do_mount+1789/1887] do_mount+0x6fd/0x75f
-Jun  5 21:27:12 antares kernel: {  336} [<c0175978>] do_mount+0x6fd/0x75f
-Jun  5 21:27:12 antares kernel: {   48} [sys_mount+114/172] sys_mount+0x72/0xac
-Jun  5 21:27:12 antares kernel: {   48} [<c0175a4c>] sys_mount+0x72/0xac
-Jun  5 21:27:12 antares kernel: {=5476} [sysenter_past_esp+99/161] sysenter_past_esp+0x63/0xa1
-Jun  5 21:27:12 antares kernel: {=5476} [<c02a87ba>] sysenter_past_esp+0x63/0xa1
-Jun  5 21:27:12 antares kernel: <---------------------------
-Jun  5 21:27:12 antares kernel: 
-Jun  5 21:27:12 antares kernel: pktcdvd: Fixed packets, 32 blocks, Mode-2 disc
-Jun  5 21:27:12 antares kernel: pktcdvd: Max. media speed: 4
-Jun  5 21:27:12 antares kernel: pktcdvd: write speed 4x
-Jun  5 21:27:12 antares kernel: pktcdvd: 590528kB available on disc
-Jun  5 21:27:14 antares kernel: UDF-fs INFO UDF 0.9.8.1 (2004/29/09) Mounting volume 'flexbackup', timestamp 2006/03/17 15:29 (1078)
-Jun  5 21:40:45 antares kernel: pktcdvd: writer pktcdvd0 unmapped
+without "a"s commands was:
+
+[connect the device]
+mount /dev/sdb usb/ [filesystem is vfat]
+dd if=/dev/zero of=usb/zero1 bs=1k count=3
+[wait some time to let system syncing automagically]
+umount usb/
+[disconnect the device]
 
 
+
+with "a" there is only difference in dd command:
+...
+dd if=/dev/zero of=usb/zero2 bs=1k count=5
+...
+
+The first serie is without the error in the latter one appeared (some time after
+`dd', when system syncs):
+sd 6:0:0:0: SCSI error: return code = 0x10070000
+end_request: I/O error, dev sdb, sector 8223
+[same as before]
+
+
+
+I have i386 arch, so 4096 is PAGE_SIZE, when it syncs only one dirty page, it
+seems to be OK, otherwise it's not, if this helps in any way.
+
+thanks,
 -- 
-laurent
-
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

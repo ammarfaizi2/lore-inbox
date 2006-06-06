@@ -1,59 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWFFTeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWFFTkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbWFFTeA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 15:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWFFTeA
+	id S1751011AbWFFTkk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 15:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWFFTkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 15:34:00 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49055 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751001AbWFFTd7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 15:33:59 -0400
-Date: Tue, 6 Jun 2006 21:33:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch, -rc5-mm3] lock validator: -V3
-Message-ID: <20060606193325.GA16010@elte.hu>
-References: <20060606154530.GA11063@elte.hu> <20060606091515.27db4746.akpm@osdl.org>
+	Tue, 6 Jun 2006 15:40:40 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:58829
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1750982AbWFFTkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 15:40:39 -0400
+Subject: [PATCH] fix missing hdlc symbols for synclink drivers
+From: Paul Fulghum <paulkf@microgate.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Dave Jones <davej@redhat.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       zippel@linux-m68k.org
+In-Reply-To: <20060605184407.230bcf73.rdunlap@xenotime.net>
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+	 <20060605230248.GE3963@redhat.com>
+	 <20060605184407.230bcf73.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Tue, 06 Jun 2006 14:40:13 -0500
+Message-Id: <1149622813.11929.3.camel@amdx2.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060606091515.27db4746.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Randy:
 
-* Andrew Morton <akpm@osdl.org> wrote:
+This patch of yours is the only way I've found to
+fix the random config build errors and maintain
+the necessary flexibility of configuration for the
+synclink drivers. I added the synclink_cs config to
+the end of your patch.
 
-> On Tue, 6 Jun 2006 17:45:30 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> >  30 files changed, 545 insertions(+), 230 deletions(-)
-> 
-> This basically screws up the whole patch series.  It'll create a 
-> barrier over which it will be hard to move fixups against existing 
-> patches.
+--
 
-yes. Dont worry about it, i'll refactor the whole lock validator queue 
-once i've done the cleanups too.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-> ho-hum.  Let's make sure that future patches are extremely 
-> fine-grained and please try to identify whether they're applicable to 
-> -v2 or to -v3 and we'll see how it goes.
+Fix many missing hdlc_generic symbols when CONFIG_HDLC=m.
+When Selecting HDLC, also Select WAN.
+Fix Makefile to build for HDLC=y or HDLC=m.
 
-there was just no other way to do this - this change is intrusive 
-independently of how finegrained the patches are.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
-	Ingo
+
+--- linux-2.6.17-rc5-mm3/drivers/net/wan/Makefile	2006-06-06 14:03:59.000000000 -0500
++++ b/drivers/net/wan/Makefile	2006-06-06 14:08:53.000000000 -0500
+@@ -9,14 +9,18 @@ cyclomx-y                       := cycx_
+ cyclomx-$(CONFIG_CYCLOMX_X25)	+= cycx_x25.o
+ cyclomx-objs			:= $(cyclomx-y)  
+ 
+-hdlc-y				:= hdlc_generic.o
++hdlc-$(CONFIG_HDLC)		:= hdlc_generic.o
+ hdlc-$(CONFIG_HDLC_RAW)		+= hdlc_raw.o
+ hdlc-$(CONFIG_HDLC_RAW_ETH)	+= hdlc_raw_eth.o
+ hdlc-$(CONFIG_HDLC_CISCO)	+= hdlc_cisco.o
+ hdlc-$(CONFIG_HDLC_FR)		+= hdlc_fr.o
+ hdlc-$(CONFIG_HDLC_PPP)		+= hdlc_ppp.o
+ hdlc-$(CONFIG_HDLC_X25)		+= hdlc_x25.o
+-hdlc-objs			:= $(hdlc-y)
++ifeq ($(CONFIG_HDLC),y)
++  hdlc-objs			:= $(hdlc-y)
++else
++  hdlc-objs			:= $(hdlc-m)
++endif
+ 
+ pc300-y				:= pc300_drv.o
+ pc300-$(CONFIG_PC300_MLPPP)	+= pc300_tty.o
+--- linux-2.6.17-rc5-mm3/drivers/char/Kconfig	2006-06-06 14:03:58.000000000 -0500
++++ b/drivers/char/Kconfig	2006-06-06 14:08:53.000000000 -0500
+@@ -197,6 +197,7 @@ config ISI
+ config SYNCLINK
+ 	tristate "SyncLink PCI/ISA support"
+ 	depends on SERIAL_NONSTANDARD && PCI && ISA_DMA_API
++	select WAN if SYNCLINK_HDLC
+ 	select HDLC if SYNCLINK_HDLC
+ 	help
+ 	  Driver for SyncLink ISA and PCI synchronous serial adapters.
+@@ -214,6 +215,7 @@ config SYNCLINK_HDLC
+ config SYNCLINKMP
+ 	tristate "SyncLink Multiport support"
+ 	depends on SERIAL_NONSTANDARD && PCI
++	select WAN if SYNCLINKMP_HDLC
+ 	select HDLC if SYNCLINKMP_HDLC
+ 	help
+ 	  Driver for SyncLink Multiport (2 or 4 ports) PCI synchronous serial adapter.
+@@ -231,6 +233,7 @@ config SYNCLINKMP_HDLC
+ config SYNCLINK_GT
+ 	tristate "SyncLink GT/AC support"
+ 	depends on SERIAL_NONSTANDARD && PCI
++	select WAN if SYNCLINK_GT_HDLC
+ 	select HDLC if SYNCLINK_GT_HDLC
+ 	help
+ 	  Support for SyncLink GT and SyncLink AC families of
+--- linux-2.6.17-rc5-mm3/drivers/char/pcmcia/Kconfig	2006-06-06 14:03:58.000000000 -0500
++++ b/drivers/char/pcmcia/Kconfig	2006-06-06 14:09:25.000000000 -0500
+@@ -8,6 +8,7 @@ menu "PCMCIA character devices"
+ config SYNCLINK_CS
+ 	tristate "SyncLink PC Card support"
+ 	depends on PCMCIA
++	select WAN if SYNCLINK_CS_HDLC
+ 	select HDLC if SYNCLINK_CS_HDLC
+ 	help
+ 	  Driver for SyncLink PC Card synchronous serial adapter.
+
+

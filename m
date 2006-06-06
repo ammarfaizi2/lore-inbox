@@ -1,45 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWFFKql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWFFKq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWFFKql (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 06:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWFFKql
+	id S1750914AbWFFKq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 06:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWFFKq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 06:46:41 -0400
-Received: from nz-out-0102.google.com ([64.233.162.199]:30126 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750800AbWFFKqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 06:46:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Uslnqr4iku4Om8qIfVMDo+XltgrVQU17Q8OSo9JaPABHCUnffToTdJdTgF7Cuddr0yL6A9OtdMHCV7uGV576yHy9IIvMBMy5EkLdSF+b8FgU3PepZL6qglFgqnpHe9NJcf/BLvRPTWFWCetAxYXZcg7dQAudV6P6suZDdRAhkkU=
-Message-ID: <b0943d9e0606060346sb42e00apbc194cee8db3986d@mail.gmail.com>
-Date: Tue, 6 Jun 2006 11:46:40 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.5
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 6 Jun 2006 06:46:57 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:19195 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750914AbWFFKq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 06:46:56 -0400
+Subject: Re: [PATCH -mm] misroute-irq: Don't call desc->chip->end because
+	of edge interrupts
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060605212033.072bb47d.akpm@osdl.org>
+References: <1149112582.3114.91.camel@laptopd505.fenrus.org>
+	 <1149345421.13993.81.camel@localhost.localdomain>
+	 <20060603215323.GA13077@devserv.devel.redhat.com>
+	 <1149374090.14408.4.camel@localhost.localdomain>
+	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
+	 <1149426961.27696.7.camel@localhost.localdomain>
+	 <1149437412.23209.3.camel@localhost.localdomain>
+	 <1149438131.29652.5.camel@localhost.localdomain>
+	 <1149456375.23209.13.camel@localhost.localdomain>
+	 <1149456532.29652.29.camel@localhost.localdomain>
+	 <20060604214448.GA6602@elte.hu>
+	 <1149564830.16247.11.camel@localhost.localdomain>
+	 <20060605212033.072bb47d.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 06 Jun 2006 06:46:11 -0400
+Message-Id: <1149590771.16247.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060604215636.16277.15454.stgit@localhost.localdomain>
-	 <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/06/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> System hangs while starting udev.
->
-> Here is config
-> http://www.stardust.webpages.pl/files/kml/kml-config
+On Mon, 2006-06-05 at 21:20 -0700, Andrew Morton wrote:
+> On Mon, 05 Jun 2006 23:33:50 -0400
+> Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > 
+> > Hit the following BUG with irqpoll.  The below patch fixes it.
+> > 
+> 
+> Call me a cynic, but
+> 
+> > +		if (work && disc->chip && desc->chip->end)
+> 
+> that doesn't look super-tested to me.
 
-I managed to reproduce the problem - the kernel can deadlock on SMP if
-the module being loaded contains the .init.memleak_aliases section.
-I'll fix it and post another patch later today.
+No, it hasn't been refreshed! Damn quilt!
 
-Thanks for testing.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
--- 
-Catalin
+
+Index: linux-2.6.17-rc5-mm3/kernel/irq/spurious.c
+===================================================================
+--- linux-2.6.17-rc5-mm3.orig/kernel/irq/spurious.c	2006-06-05 17:26:15.000000000 -0400
++++ linux-2.6.17-rc5-mm3/kernel/irq/spurious.c	2006-06-06 06:43:43.000000000 -0400
+@@ -77,7 +77,7 @@ static int misrouted_irq(int irq, struct
+ 		 * If we did actual work for the real IRQ line we must let the
+ 		 * IRQ controller clean up too
+ 		 */
+-		if (work)
++		if (work && desc->chip && desc->chip->end)
+ 			desc->chip->end(i);
+ 		spin_unlock(&desc->lock);
+ 	}
+
+
+

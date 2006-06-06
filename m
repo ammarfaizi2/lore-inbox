@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWFFN0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWFFN3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWFFN0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 09:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWFFN0I
+	id S932150AbWFFN3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 09:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWFFN3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 09:26:08 -0400
-Received: from [207.35.253.199] ([207.35.253.199]:62143 "EHLO
-	smtp.discreet.com") by vger.kernel.org with ESMTP id S1751299AbWFFN0H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 09:26:07 -0400
-Message-ID: <4485825D.9000606@discreet.com>
-Date: Tue, 06 Jun 2006 09:25:49 -0400
-From: Martin Bisson <bissonm@discreet.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1 (X11/20050719)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: x86_64 system call entry points II
-References: <44846210.4080602@discreet.com> <p73verezw9t.fsf@verdi.suse.de>
-In-Reply-To: <p73verezw9t.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Jun 2006 09:29:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:50856 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932150AbWFFN3y convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 09:29:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=LFylhLCwOI3VJ+E7yfB9JSI72BOAfGqjoO+GSRgkb2A0j52RVX9yyzAn9vtH2Fod572RNYEY6LbgirpXxGATLkMRazCBxqG6WJq0YHWVWpn9olIGMyZCGVbghx9fRr1Grzz6AtPBTDymWz/xh2P51IIX5eXagSF6Pa/XESXdx1I=
+Date: Tue, 6 Jun 2006 15:29:07 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: be-news06@lina.inka.de (Bernd Eckenfels)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Update sysctl documentation
+Message-Id: <20060606152907.1eccaefb.diegocg@gmail.com>
+In-Reply-To: <E1FnSEw-0005MC-00@calista.eckenfels.net>
+References: <20060606035833.bee909af.diegocg@gmail.com>
+	<E1FnSEw-0005MC-00@calista.eckenfels.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+El Tue, 06 Jun 2006 05:28:22 +0200,
+be-news06@lina.inka.de (Bernd Eckenfels) escribió:
 
->Martin Bisson <bissonm@discreet.com> writes:
->  
->
->>- int $0x80/64 bits: All system calls return -1 (EINTR).  Is there
->>something wrong in the way I call it:
->>pid_t getpid64()
->>{
->>    pid_t resultvar;
->>
->>    asm volatile (
->>    "int $0x80\n\t"
->>    : "=a" (resultvar)     : "0" (__NR_getpid)
->>    : "memory");
->>
->>    return resultvar;
->>}
->>    
->>
->
->I tested it now. Since it ends up as a 32bit syscall you're not 
->actually calling 64bit getpid() - but 32bit mkdir(). That is because 32bit and 64bit
->have different syscall numbers. For me it returns -14, which is EFAULT.
->Expected for a random argument to mkdir()
->  
->
-It makes a lot of sense...
+> In the net case for example ipv4/conf/* is such a usefull cluster,
+> especially since there is this dynamic all/default/<iface> functionality.
 
-I think the bottom line for me is simply that I cannot enter system 
-calls any way I want with any kernel, among other things because the 
-kernel expects that we got into the system call using vsyscall stuff and 
-that the correct way to return to user space is also found in the 
-vsyscall page.
+Well, all the subdirectories under ipv4/conf/* have the same set of 
+files. The differences between each directory is documented in
+ipv4/conf/README
 
-Thanks for your input.
+> And I also think you should not create TODO single-line files, better
 
-Mart
+I'd rather get some feedback and document all of them, to be fair, i'll
+look into the source to guess what are they doing.
+
+> BTW: perhaps some markup would be nice so we can create the man pages out of
+> it? One thing I am impressed with in the BSD world is the existence of
+> up-to-date Kernel ABI man pages.
+
+Well, it'd be nice, but I'm afraid that it wouldn't be easy :) To
+start with, we'd also need to document everything under sysfs....

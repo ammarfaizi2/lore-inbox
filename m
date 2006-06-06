@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWFFXoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWFFXsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWFFXoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 19:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWFFXoV
+	id S1751371AbWFFXsv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 19:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWFFXsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 19:44:21 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:23255 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751365AbWFFXoT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 19:44:19 -0400
-Message-ID: <44861348.5030200@zytor.com>
-Date: Tue, 06 Jun 2006 16:44:08 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: linux-kernel@vger.kernel.org, iss_storagedev@hp.com,
-       Mike Miller <mike.miller@hp.com>
-Subject: Re: kinit problem with cciss root device
-References: <200606061640.48644.bjorn.helgaas@hp.com>
-In-Reply-To: <200606061640.48644.bjorn.helgaas@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 6 Jun 2006 19:48:51 -0400
+Received: from xenotime.net ([66.160.160.81]:1466 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751371AbWFFXsu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 19:48:50 -0400
+Date: Tue, 6 Jun 2006 16:51:37 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: paulkf@microgate.com, davej@redhat.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] fix missing hdlc symbols for synclink drivers
+Message-Id: <20060606165137.cd94675b.rdunlap@xenotime.net>
+In-Reply-To: <m3ejy1c0uw.fsf@defiant.localdomain>
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+	<20060605230248.GE3963@redhat.com>
+	<20060605184407.230bcf73.rdunlap@xenotime.net>
+	<1149622813.11929.3.camel@amdx2.microgate.com>
+	<m3u06yc9mr.fsf@defiant.localdomain>
+	<20060606134816.363cbeca.rdunlap@xenotime.net>
+	<20060606140822.c6f4ef37.rdunlap@xenotime.net>
+	<m3zmgpc3ba.fsf@defiant.localdomain>
+	<20060606160745.2f88ff9c.rdunlap@xenotime.net>
+	<m3ejy1c0uw.fsf@defiant.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
-> kinit converts "root=/dev/cciss/c0d0p1" to "cciss.c0d0", which
-> doesn't exist under /sys/block because register_disk() converts
-> "cciss/c0d0" to "cciss!c0d0" (note "!", not ".").
+On Wed, 07 Jun 2006 01:37:11 +0200 Krzysztof Halasa wrote:
+
+> "Randy.Dunlap" <rdunlap@xenotime.net> writes:
 > 
-> I don't know whether it's the *right* fix, but the patch below
-> makes things work.  It still doesn't make kinit exactly match
-> the register_disk() behavior because register_disk() only changes
-> the first "/" in the string.
+> > I'm on x86-64 if it matters.
+> > My .config is attached.
 > 
+> Ok, reproduced.
+> 
+> The problem is that CONFIG_WAN is not set, the make system doesn't
+> read drivers/net/wan/Makefile at all, and nothing in drivers/net/wan
+> is being built.
 
-That's still the right thing; obviously register_disk() will need to change if we ever 
-have deeper trees.
+Aha.  I commented about that early on in this thread
+and sent a patch to SELECT WAN.  However:
 
-Could you re-send that hunk as a proper patch with Signed-off-by: et al?
+> Just another argument against random SELECTs.
 
-Thanks,
+I agree with that and think that SYNCLINK should be using
+"depends" instead of "select".
 
-	-hpa
+Paul, can you repost the current patch, please?
+
+---
+~Randy

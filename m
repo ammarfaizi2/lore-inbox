@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWFFOlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWFFOng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWFFOlP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 10:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWFFOlP
+	id S932196AbWFFOng (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 10:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWFFOng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 10:41:15 -0400
-Received: from khc.piap.pl ([195.187.100.11]:16907 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932191AbWFFOlO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 10:41:14 -0400
-To: Jean Delvare <khali@linux-fr.org>
-Cc: <linux-kernel@vger.kernel.org>, lm-sensors@lm-sensors.org
-Subject: [PATCH] I2C: *write_block* doesn't modify the data - mark as const
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 06 Jun 2006 16:41:09 +0200
-Message-ID: <m364jez6re.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Tue, 6 Jun 2006 10:43:36 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:29928 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932196AbWFFOnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 10:43:35 -0400
+Date: Tue, 6 Jun 2006 10:43:34 -0400
+To: Heiko Gerstung <heiko.gerstung@meinberg.de>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
+Message-ID: <20060606144334.GA7859@csclub.uwaterloo.ca>
+References: <44854F74.50406@meinberg.de> <9a8748490606060423t102384f4m626b4366898ce9cd@mail.gmail.com> <448569CE.1020906@meinberg.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <448569CE.1020906@meinberg.de>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch marks i2c_smbus_write_block_data() and
-i2c_smbus_write_i2c_block_data() buffers as const.
+On Tue, Jun 06, 2006 at 01:41:02PM +0200, Heiko Gerstung wrote:
+> Yes, but unfortunately I have no chance to do this and therefore I rely
+> on others to do this. Well, the same applies to [me] and [kernel
+> drivers], but I hoped that it might be easier to try and backport one
+> driver instead of trying to improve other people's code (maybe that is
+> what OPC stands for :-)), especially when this code has a much larger
+> impact on several parts of the kernel.
 
-Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
+Which part of PPS doesn't work on 2.6 if you have the PPS-kit-light
+installed?  There is a version for 2.6.15 around, which applies to
+2.6.16 with minimal fixing.  Only problem I found so far with the code
+was that it breaks the serial console on my system, but that was easy to
+fix.  I still have to test it though since my serial port has the CD
+line stuck high at the moment until I can get the board fixed, so
+testing is a bit tricky.
 
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -916,6 +916,6 @@ s32 i2c_smbus_write_word_data(struct i2c
- }
- 
- s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
--			       u8 length, u8 *values)
-+			       u8 length, const u8 *values)
- {
- 	union i2c_smbus_data data;
-@@ -947,7 +947,7 @@ s32 i2c_smbus_read_i2c_block_data(struct
- }
- 
- s32 i2c_smbus_write_i2c_block_data(struct i2c_client *client, u8 command,
--				   u8 length, u8 *values)
-+				   u8 length, const u8 *values)
- {
- 	union i2c_smbus_data data;
- 
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -94,15 +94,14 @@ extern s32 i2c_smbus_write_byte_data(str
- extern s32 i2c_smbus_read_word_data(struct i2c_client * client, u8 command);
- extern s32 i2c_smbus_write_word_data(struct i2c_client * client,
-                                      u8 command, u16 value);
--extern s32 i2c_smbus_write_block_data(struct i2c_client * client,
--				      u8 command, u8 length,
--				      u8 *values);
-+extern s32 i2c_smbus_write_block_data(struct i2c_client * client, u8 command,
-+				      u8 length, const u8 *values);
- /* Returns the number of read bytes */
- extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
- 					 u8 command, u8 *values);
- extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client * client,
- 					  u8 command, u8 length,
--					  u8 *values);
-+					  const u8 *values);
- 
- /*
-  * A driver is capable of handling one or more physical devices present on
+I know I have run a gps receiver with PPS on the CD line under 2.6.8
+using PPS-kit-light, and it worked rather well.
+
+Len Sorensen

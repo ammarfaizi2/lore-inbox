@@ -1,79 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWFFR72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWFFSDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWFFR72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 13:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWFFR72
+	id S1750738AbWFFSDe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 14:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWFFSDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 13:59:28 -0400
-Received: from silver.veritas.com ([143.127.12.111]:49924 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750732AbWFFR71
+	Tue, 6 Jun 2006 14:03:34 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:28042 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750738AbWFFSDe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 13:59:27 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.05,214,1146466800"; 
-   d="scan'208"; a="38884843:sNHT22526764"
-Date: Tue, 6 Jun 2006 18:59:12 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Christoph Lameter <clameter@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, mbligh@google.com, apw@shadowen.org,
-       mbligh@mbligh.org, linux-kernel@vger.kernel.org, ak@suse.de,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: 2.6.17-rc5-mm1
-In-Reply-To: <Pine.LNX.4.64.0606061023080.27969@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0606061850001.30030@blonde.wat.veritas.com>
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org>
- <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org>
- <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org>
- <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
- <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
- <44848F45.1070205@shadowen.org> <44849075.5070802@google.com>
- <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com>
- <20060605135812.30138205.akpm@osdl.org> <Pine.LNX.4.64.0606060537460.6045@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0606060923250.27550@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0606061805380.28806@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0606061023080.27969@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Jun 2006 17:59:23.0046 (UTC) FILETIME=[F122D460:01C68992]
+	Tue, 6 Jun 2006 14:03:34 -0400
+Date: Tue, 6 Jun 2006 12:03:36 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: Question regarding ext3 extents+mballoc+delalloc
+Message-ID: <20060606180336.GS5964@schatzie.adilger.int>
+Mail-Followup-To: Holger Kiehl <Holger.Kiehl@dwd.de>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	ext2-devel@lists.sourceforge.net
+References: <Pine.LNX.4.61.0606061021330.31147@diagnostix.dwd.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0606061021330.31147@diagnostix.dwd.de>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jun 2006, Christoph Lameter wrote:
+On Jun 06, 2006  10:23 +0000, Holger Kiehl wrote:
+> Looking at ways to increase write performance on my system using ext3
+> Andreas Dilger pointed me to delalloc+mballoc+extent patches. Downloaded
+> those from ftp://ftp.clusterfs.com/pub/people/alex/2.6.16.8 and run some
+> benchmark, here some results using bonnie++:
+
+[note: this is WITH extents,mballoc,delalloc enabled]
+
+> Version  1.03 ------Sequential Output------ --Sequential Input-  --Random-
+>                -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+> Machine   Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+> 2.6.16.19  16G 59223  91 264155 45 111459 36  57313 99 317944 63  1478   7
+>                58814  92 276803 47 110418 36  57105 99 317534 65  1525   5
+>                58299  92 274523 48 110290 36  56723 99 318839 65  1502   4
 > 
-> Would it not be better for an arch to explicitly tell us how many swap 
-> devices are supported? Then we could make the swap_info array shorter and 
-> get rid of this cryptic test.
+> And here the results when mounting without extents,mballoc,delalloc option:
+I was confused initially until I saw ^^^^^^^
 
-If they differed at all, yes.
+> Version  1.03 ------Sequential Output------ --Sequential Input-  --Random-
+>                -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+> Machine   Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+> 2.6.16.19  16G 38621  98 194816 94  87776 49  37921 92 239128 54  1402   5
+>                47000  99 194276 94  89232 49  38628 92 240539 55  1399   5
+>                45873  98 178195 90  89726 50  38482 92 240490 55  1381   4
+> 
+> So using delalloc+mballoc+extent gives an approx. 30% increase in 
+> performance.
 
-> This test also creates a problem for the migration entries: It is really 
-> not clear until runtime how many swap devices are supported so we cannot 
-> take the last 2 for page migration. In order for page migration to work 
-> all NUMA arches that do not support 32 swap devices need to define 
-> CONFIG_MIGRATION=n. Seems that this is only s390?
+Note also that there is a 50% reduction in CPU usage for writes (27% for
+rewrites).  This is important when you are trying to maximize IO from a
+single server.  I'm not sure why the read CPU usage increased, though it
+may just be a result of increased memcpy due to the higher read throughput
+(32% increase in read performance, 18% increase in CPU usage).
 
-Even s390 is okay, isn't it?  MartinS's swp_type returns the highest
-type, 31, corresponding to 32 types, as on every other architecture.
-You and I and Martin Bligh would prefer this patch...
+> So the question is, why are these patches not included into the kernel?
+> I did some very extensive testing for several days and could not discover
+> any disadvantage using those patches. I must add that I did not test
+> crashes to see if data is lost. Are there any disadvantages using these
+> patches?
+
+One of the main reasons this isn't in the kernel yet is that the extents
+on-disk format is incompatible with the current ext3 on-disk format.
+That is OK for Lustre because the storage servers are essentially
+"appliances" that are used in well-controlled environments, but this
+isn't so good when random users get involved.  The patches couldn't be
+merged until there was some consensus reached about the extents on-disk
+format.
 
 
-Remove unnecessary obfuscation from sys_swapon's range check on swap
-type, which blew up causing memory corruption once swapless migration
-made MAX_SWAPFILES no longer 2 ^ MAX_SWAPFILES_SHIFT.
+There is work currently underway with Red Hat, IBM, CFS, and Bull
+to merge the extents support into the kernel.org ext3 code and the
+official e2fsprogs, and this will likely also be in the upcoming RHEL5.
+Once this is done it will be possible to merge the mballoc and delalloc
+changes also.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
---- 2.6.17-rc5-mm3/mm/swapfile.c	2006-06-04 11:52:47.000000000 +0100
-+++ linux/mm/swapfile.c	2006-06-06 18:53:40.000000000 +0100
-@@ -1404,7 +1404,7 @@ asmlinkage long sys_swapon(const char __
- 	 * from the initial ~0UL that can't be encoded in either the
- 	 * swp_entry_t or the architecture definition of a swap pte.
- 	 */
--	if (type > swp_type(pte_to_swp_entry(swp_entry_to_pte(swp_entry(~0UL,0))))) {
-+	if (type >= MAX_SWAPFILES) {
- 		spin_unlock(&swap_lock);
- 		goto out;
- 	}

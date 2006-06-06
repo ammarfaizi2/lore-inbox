@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWFFQdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWFFQdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWFFQdb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 12:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWFFQdb
+	id S1750715AbWFFQdR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 12:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWFFQdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 12:33:31 -0400
-Received: from mail.tmr.com ([64.65.253.246]:42138 "EHLO pixels.tmr.com")
-	by vger.kernel.org with ESMTP id S1750722AbWFFQda (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 12:33:30 -0400
-Message-ID: <4485AED0.9030004@tmr.com>
-Date: Tue, 06 Jun 2006 12:35:28 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
+	Tue, 6 Jun 2006 12:33:17 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:56714 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750715AbWFFQdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 12:33:17 -0400
+Date: Tue, 6 Jun 2006 09:32:24 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@osdl.org>, mbligh@google.com, apw@shadowen.org,
+       mbligh@mbligh.org, linux-kernel@vger.kernel.org, ak@suse.de,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: 2.6.17-rc5-mm1
+In-Reply-To: <Pine.LNX.4.64.0606060537460.6045@blonde.wat.veritas.com>
+Message-ID: <Pine.LNX.4.64.0606060923250.27550@schroedinger.engr.sgi.com>
+References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org>
+ <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org>
+ <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org>
+ <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com>
+ <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com>
+ <44848F45.1070205@shadowen.org> <44849075.5070802@google.com>
+ <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com>
+ <20060605135812.30138205.akpm@osdl.org> <Pine.LNX.4.64.0606060537460.6045@blonde.wat.veritas.com>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.17-rc6
-References: <Pine.LNX.4.64.0606051807310.5498@g5.osdl.org>	 <20060606120701.GP5132@hjernemadsen.org> <1149607627.30804.5.camel@localhost>
-In-Reply-To: <1149607627.30804.5.camel@localhost>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Tue, 2006-06-06 at 14:07 +0200, Klaus S. Madsen wrote:
->> Hi,
->>
->> We still experience the NFS client slow down reported by Jakob
->> Østergaard in http://lkml.org/lkml/2006/3/31/82, even with 2.6.17-rc6.
->>
->> Trond Myklebust have created a patch which we have verified solves this
->> problem for 2.6.16, 2.6.17-rc4 and 2.6.17-rc6. The patch is available
->> from http://lkml.org/lkml/2006/4/24/320, and as an attachment to
->> bugzilla bug 6557.
-> 
-> The patch is already queued up for inclusion in 2.6.18. I'm not planning
-> on submitting it for 2.6.17 since it is not a critical bug.
+On Tue, 6 Jun 2006, Hugh Dickins wrote:
 
-I guess that depends on how much it slows down and how much you depend 
-on the speed of NFS. I have all of my machines sharing some local 
-binaries and docs, but the files are typically small and the network is 
-gigE, so I doubt it will hurt me. On the other hand I do know people 
-running workstations with virtually everything NFS mounted, working with 
-large image files.
+> Christoph's patch looks like it will fix the corruption to me (though
+> I'd have thought the alternative below a little cleaner, keeping the
+> associated tests together and avoiding a second unlock: whatever).
 
-The initial bug report makes it look as if it's about two orders of 
-magnitude slower, but doesn't quantify the effect on more common 
-sequential access operations.
+Yup that looks cleaner.
 
-If this becomes an issue in 2.6.17, I hope it will show up in -stable 
-before 2.6.18, the current development cycle is a bit, um, protracted... 
-lately.
+> Whether it's correct depends on what Martin was trying to achieve
+> with his test.  I'm surprised to find a very ordinary
+> #define __swp_type(entry)	(((entry).val >> 2) & 0x1f)
+> in include/asm-s390/pgtable.h, and no architecture with a more
+> limiting mask.
 
--- 
-Bill Davidsen <davidsen@tmr.com>
-   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
-normal user and is setuid root, with the "vi" line edit mode selected,
-and the character set is "big5," an off-by-one errors occurs during
-wildcard (glob) expansion.
+Yes we need to hear from Martin.
+
+> Not really (though the clarity and reassurance of the additional
+> MAX_SWAPFILES test is good).  We went over it a year or two back,
+> and the macro contortions do involve MAX_SWAPFILES_SHIFT: which
+> up to and including 2.6.17 has enforced the MAX_SWAPFILES limit.
+
+It looks though as if the testers were able to define more than 32 swap 
+devices. So there is the danger of overwriting the memory 
+following the swap info if we do not fix this.
+
+Where are the macro contortions? No arch uses MAX_SWAPFILES_SHIFT for its 
+definitions and the only other significant use is in swapops.h to 
+determine the shift.
 

@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWFFWbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWFFWkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWFFWbA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 18:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWFFWbA
+	id S1750739AbWFFWkF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 18:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWFFWkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 18:31:00 -0400
-Received: from ns.suse.de ([195.135.220.2]:55216 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751250AbWFFWbA (ORCPT
+	Tue, 6 Jun 2006 18:40:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:11675 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750739AbWFFWkD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 18:31:00 -0400
-Date: Tue, 6 Jun 2006 15:28:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Ivan Novick <ivan@0x4849.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: #define pci_module_init pci_register_driver
-Message-ID: <20060606222820.GA28733@kroah.com>
-References: <1149587406.28634.263152113@webmail.messagingengine.com>
+	Tue, 6 Jun 2006 18:40:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: Quick close of all the open files.
+Date: Tue, 06 Jun 2006 23:39:22 +0100
+Message-ID: <yw1x8xo9hpt1.fsf@agrajag.inprovide.com>
+References: <3faf05680606061445r7da489d9tc265018bc7960779@mail.gmail.com> <200606062156.k56LuWFD001871@turing-police.cc.vt.edu> <3faf05680606061502q28501343yb3a91dbda3c423b6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1149587406.28634.263152113@webmail.messagingengine.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
+Cancel-Lock: sha1:crEIxCVpDuiinmnuDdUHfL5IaJg=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 06, 2006 at 10:50:06AM +0100, Ivan Novick wrote:
-> Hi,
-> 
-> It seems an effort was made to replace all pci_module_init calls with
-> pci_register_driver but in -mm it still seems to have pci_module_init
-> for many drivers.
+"vamsi krishna" <vamsi.krishnak@gmail.com> writes:
 
-Yeah, can't seem to stomp all them out :)
+>> For bonus points, how did you verify that all the open files were closed?
+>>
+> I checked as follows I did printf("lowest fd = %d",fileno(tmpfile()));
+> it prints 3
 
-> Does anyone know if this is still in the queue somewhere or if it was
-> cancelled?  Is pci_register_driver the preferred call to make?
+That is proof that at least stdout is still open, or you would not see
+the output.
 
-Yes, please call pci_register_driver() instead for all new code.
+-- 
+Måns Rullgård
+mru@inprovide.com
 
-thanks,
-
-greg k-h

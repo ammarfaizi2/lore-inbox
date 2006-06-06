@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWFFHcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWFFHhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWFFHcm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 03:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWFFHcm
+	id S1750822AbWFFHhN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 03:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWFFHhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 03:32:42 -0400
-Received: from mx1.suse.de ([195.135.220.2]:40083 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750822AbWFFHcl (ORCPT
+	Tue, 6 Jun 2006 03:37:13 -0400
+Received: from mail.dgt.com.pl ([195.117.141.2]:43013 "EHLO dgt.com.pl")
+	by vger.kernel.org with ESMTP id S1750822AbWFFHhL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 03:32:41 -0400
-Date: Tue, 6 Jun 2006 00:29:53 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH RFC 0/11] usbserial: Serial Core port.
-Message-ID: <20060606072953.GC17682@suse.de>
-References: <1149217397133-git-send-email-lcapitulino@mandriva.com.br> <20060602204839.GA31251@suse.de> <20060603190352.5249c934@home.brethil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060603190352.5249c934@home.brethil>
-User-Agent: Mutt/1.5.11
+	Tue, 6 Jun 2006 03:37:11 -0400
+Message-ID: <448530FC.4020107@dgt.com.pl>
+Date: Tue, 06 Jun 2006 09:38:36 +0200
+From: Wojciech Kromer <wojciech.kromer@dgt.com.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dual via-rhine on EPIA PD6000E
+References: <44843EFB.4030704@dgt.com.pl> <Pine.LNX.4.61.0606051629240.20741@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0606051629240.20741@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 03, 2006 at 07:03:52PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Fri, 2 Jun 2006 13:48:39 -0700
-> Greg KH <gregkh@suse.de> wrote:
-> 
-> | On Fri, Jun 02, 2006 at 12:03:06AM -0300, Luiz Fernando N.Capitulino wrote:
-> | > 
-> | >  Hi folks.
-> | > 
-> | >  This patch series is my first attempt to port the USB-Serial layer to the
-> | > Serial Core API. Currently USB-Serial uses the TTY layer directly, duplicating
-> | > code and solutions from the Serial Core implementation.
-> | > 
-> | >  The final (ported) USB-Serial code is simpler and cleaner. Now I'd like to know
-> | > whether I'm doing it right or not.
-> | > 
-> | >  Note that this is a work in progress though. I've only ported the USB-Serial
-> | > core and one of its drivers, the pl2303 one.
-> | > 
-> | >  Most of my questions and design decisions are adressed in the patches, please
-> | > refer to them for details.
-> | 
-> | Nice first cut at this.  But please try to also convert 2 other drivers
-> | at the same time to make sure that the model is right.  I'd suggest the
-> | io_edgeport and the funsoft drivers.  io_edgeport because it is very
-> | complex in that it doesn't share a single bulk in/out pair for every
-> | port, but multiplexes them all through one pipe.  And funsoft because we
-> | want to still be able to write usb-serial drivers that are this simple.
-> 
->  I'd love to do that but, unfortunatally, USB-Serial cables are too
-> expensive in Brazil (and I have no sure if I can find these ones in
-> Curitiba).
 
-No need to test fully, if it builds, I can test the io_edgeport driver,
-and the funsoft one is pretty much a "nothing" driver.
+> There is a difference between ioports and iomem.
+>
+>   
+Of course I know, but look at this:
 
-thanks,
+# cat /proc/ioports
+d000-d0ff : 0000:00:0f.0
+  d000-d0ff : via-rhine
+e400-e4ff : 0000:00:12.0
+  e400-e4ff : via-rhine
 
-greg k-h
+# cat /proc/iomem  
+de000000-de0000ff : 0000:00:0f.0
+  de000000-de0000ff : via-rhine
+de002000-de0020ff : 0000:00:12.0
+  de002000-de0020ff : via-rhine
+
+from ifoconfig:
+eth0: Interrupt:10 Base address: *0xe000*
+eth1: Interrupt:11 Base address: *0x4000* <<is it I/O or mem ???
+
+
+> "Not working" is vague. No packet transmission even though the link is 
+> active?
+>
+>   
+#mii-tool
+eth0: negotiated 100baseTx-FD flow-control, link ok
+eth1: negotiated 100baseTx-FD flow-control, link ok
+
+Huh! Now it started. But it's first time from four days. Before it i had 
+no frames received.
+
+
+

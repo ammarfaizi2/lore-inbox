@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWFFQqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWFFQ4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbWFFQqy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 12:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWFFQqy
+	id S1750746AbWFFQ4y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 12:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWFFQ4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 12:46:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14997 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750896AbWFFQqx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 12:46:53 -0400
-Date: Tue, 6 Jun 2006 12:51:27 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Shaohua Li <shaohua.li@intel.com>, Miles Lane <miles.lane@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in	arch/i386/kernel/nmi.c:174
-Message-ID: <20060606165127.GP2839@redhat.com>
-References: <4480C102.3060400@goop.org> <4483DF32.4090608@goop.org> <20060605004823.566b266c.akpm@osdl.org> <a44ae5cd0606050135w66c2abeu698394b4268e4790@mail.gmail.com> <1149576246.32046.166.camel@sli10-desk.sh.intel.com> <4485AC1F.9050001@goop.org>
+	Tue, 6 Jun 2006 12:56:54 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:43481 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1750746AbWFFQ4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 12:56:53 -0400
+Subject: Re: genirq
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20060606144242.GB29798@elte.hu>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	 <20060606144242.GB29798@elte.hu>
+Content-Type: text/plain
+Date: Tue, 06 Jun 2006 09:56:49 -0700
+Message-Id: <1149613010.15050.1.camel@c-67-180-134-207.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4485AC1F.9050001@goop.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 06, 2006 at 09:23:59AM -0700, Jeremy Fitzhardinge wrote:
-> Shaohua Li wrote:
-> >Does below patch help? The nmi suspend/resume doesn't look good to me.
-> >Only CPU0 uses the suspend/resume code path. Other CPUs run the CPU
-> >hotplug code path.
-> >  
-> Unfortunately this just oopses immediately on the first suspend.  The 
-> stack trace is unclear (and I'm just going from memory at the moment), 
-> but it looked like it got an invalid op.  I'll try to get a clearer idea 
-> of the crash later today.
-> 
->    J
+On Tue, 2006-06-06 at 16:42 +0200, Ingo Molnar wrote:
 
-No this makes sense.  The code right now just blindly tries to disable the
-watchdog without checking to see that it is already disabled.  The oops
-you are seeing is a result of that.  I'll have a patch to fix all that a
-little later.
+> there hasnt been any real problem since the MSI one. The core bits are 
+> rather stable. The patch-queue had positive input from the maintainers 
+> of the two architectures with the most complex IRQ hardware (arm and 
+> ppc*), and that's reassuring. But in any case, other architectures are 
+> not affected at all (sans brow paperbag build bugs and typos), their 
+> __do_IRQ() handling remains unchanged. So i'd like to see this in 
+> 2.6.18. (there a good deal of stuff we have ontop of genirq)
 
-Cheers,
-Don
+There was a problem reported by Kevin Hillman , the -v5 version was not
+functional on ARM omap boards .. Was that handled already in -v6?
+
+Daniel
 

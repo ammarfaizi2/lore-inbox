@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932079AbWFFEVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932085AbWFFEhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWFFEVX (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 6 Jun 2006 00:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWFFEVW
+	id S932085AbWFFEhU (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 6 Jun 2006 00:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWFFEhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 00:21:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19617 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932079AbWFFEVW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 00:21:22 -0400
-Date: Mon, 5 Jun 2006 21:20:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: mingo@elte.hu, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-        alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] misroute-irq: Don't call desc->chip->end because of
- edge interrupts
-Message-Id: <20060605212033.072bb47d.akpm@osdl.org>
-In-Reply-To: <1149564830.16247.11.camel@localhost.localdomain>
-References: <1149112582.3114.91.camel@laptopd505.fenrus.org>
-	<1149345421.13993.81.camel@localhost.localdomain>
-	<20060603215323.GA13077@devserv.devel.redhat.com>
-	<1149374090.14408.4.camel@localhost.localdomain>
-	<1149413649.3109.92.camel@laptopd505.fenrus.org>
-	<1149426961.27696.7.camel@localhost.localdomain>
-	<1149437412.23209.3.camel@localhost.localdomain>
-	<1149438131.29652.5.camel@localhost.localdomain>
-	<1149456375.23209.13.camel@localhost.localdomain>
-	<1149456532.29652.29.camel@localhost.localdomain>
-	<20060604214448.GA6602@elte.hu>
-	<1149564830.16247.11.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 6 Jun 2006 00:37:20 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8400
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932085AbWFFEhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 00:37:18 -0400
+Date: Mon, 05 Jun 2006 21:36:55 -0700 (PDT)
+Message-Id: <20060605.213655.41876860.davem@davemloft.net>
+To: ak@suse.de
+Cc: mbligh@mbligh.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc5-mm1
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <p73ac8w0wju.fsf@verdi.suse.de>
+References: <447E3846.1060302@shaw.ca>
+	<447E7CF5.8020401@mbligh.org>
+	<p73ac8w0wju.fsf@verdi.suse.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 23:33:50 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
+From: Andi Kleen <ak@suse.de>
+Date: 02 Jun 2006 10:52:05 +0200
 
+> "Martin J. Bligh" <mbligh@mbligh.org> writes:
+> > 
+> > All sounds very sensible ... but not sure why -mm would hit it all the
+> > time, and never mainline ...
 > 
-> Hit the following BUG with irqpoll.  The below patch fixes it.
+> You can use memeat.c to test the machine with other kernels.
+> It tends to find such problems reliably. Let it run for some time
 > 
+> http://www.firstfloor.org/~andi/memeat.c
 
-Call me a cynic, but
+Wouldn't it be more useful for this program to use LowTotal instead of
+LowFree?  It didn't grind my sparc64 machine much until I changed it
+like that. :)
 
-> +		if (work && disc->chip && desc->chip->end)
-
-that doesn't look super-tested to me.

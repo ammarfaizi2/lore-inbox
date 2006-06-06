@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWFFWaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWFFWbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWFFWaG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 18:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWFFWaG
+	id S1751250AbWFFWbA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 18:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWFFWbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 18:30:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2460 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751249AbWFFWaB (ORCPT
+	Tue, 6 Jun 2006 18:31:00 -0400
+Received: from ns.suse.de ([195.135.220.2]:55216 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751250AbWFFWbA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 18:30:01 -0400
-Date: Tue, 6 Jun 2006 15:29:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: laurent.riffard@free.fr, barryn@pobox.com, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org, jbeulich@novell.com,
-       arjan@linux.intel.com
-Subject: Re: 2.6.17-rc5-mm1
-Message-Id: <20060606152930.adc58fe4.akpm@osdl.org>
-In-Reply-To: <20060606220507.GA19882@elte.hu>
-References: <200606042101_MC3-1-C19B-1CF4@compuserve.com>
-	<20060604181002.57ca89df.akpm@osdl.org>
-	<44840838.7030802@free.fr>
-	<4484584D.4070108@free.fr>
-	<20060605110046.2a7db23f.akpm@osdl.org>
-	<986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com>
-	<20060606072628.GA28752@elte.hu>
-	<4485E0D3.8080708@free.fr>
-	<20060606205801.GC17787@elte.hu>
-	<4485F5E2.5040708@free.fr>
-	<20060606220507.GA19882@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 6 Jun 2006 18:31:00 -0400
+Date: Tue, 6 Jun 2006 15:28:20 -0700
+From: Greg KH <greg@kroah.com>
+To: Ivan Novick <ivan@0x4849.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: #define pci_module_init pci_register_driver
+Message-ID: <20060606222820.GA28733@kroah.com>
+References: <1149587406.28634.263152113@webmail.messagingengine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149587406.28634.263152113@webmail.messagingengine.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jun 2006 00:05:07 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
-
+On Tue, Jun 06, 2006 at 10:50:06AM +0100, Ivan Novick wrote:
+> Hi,
 > 
-> * Laurent Riffard <laurent.riffard@free.fr> wrote:
-> 
-> > >> Results:
-> > >> - 2.6.17-rc4-mm3 with 4K stack works fine (this is the latest good 4K-kernel).
-> > >> - 2.6.17-rc5-mm3 with 4K stack crashes, the stack seems to be corrupted.
-> > > 
-> > > that's vanilla mm3, or mm3 patched with extra lockdep patches? If it's 
-> > > patched then you should try vanilla mm3 too.
-> > 
-> > It was vanilla mm3.
-> 
-> ok, i'll check the stack impact of the block_dev.c changes tomorrow.
-> 
+> It seems an effort was made to replace all pci_module_init calls with
+> pci_register_driver but in -mm it still seems to have pci_module_init
+> for many drivers.
 
-Note that Laurent is also passing through ide_cdrom_packet(), which has a
-`struct request' on the stack.  The kernel does this in a lot of places,
-and at 168 bytes on x86, it'd really be best if we were to dynamically
-allocate these things.
+Yeah, can't seem to stomp all them out :)
 
-However there are no locks in the request struct, so lockdep hasn't
-worsened that part of the stack usage.
+> Does anyone know if this is still in the queue somewhere or if it was
+> cancelled?  Is pci_register_driver the preferred call to make?
 
-There could be lock-heavy automatically-allocated structs lurking all over
-the place - the least path of resistance here is to require 8k stacks for
-lockdep.
+Yes, please call pci_register_driver() instead for all new code.
 
+thanks,
+
+greg k-h

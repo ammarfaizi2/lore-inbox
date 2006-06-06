@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWFFXWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWFFXZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWFFXWg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 19:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWFFXWg
+	id S1751348AbWFFXZX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 19:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWFFXZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 19:22:36 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:61926
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751347AbWFFXWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 19:22:34 -0400
-Subject: Re: [PATCH] fix missing hdlc symbols for synclink drivers
-From: Paul Fulghum <paulkf@microgate.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, davej@redhat.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-In-Reply-To: <20060606160745.2f88ff9c.rdunlap@xenotime.net>
-References: <20060603232004.68c4e1e3.akpm@osdl.org>
-	 <20060605230248.GE3963@redhat.com>
-	 <20060605184407.230bcf73.rdunlap@xenotime.net>
-	 <1149622813.11929.3.camel@amdx2.microgate.com>
-	 <m3u06yc9mr.fsf@defiant.localdomain>
-	 <20060606134816.363cbeca.rdunlap@xenotime.net>
-	 <20060606140822.c6f4ef37.rdunlap@xenotime.net>
-	 <m3zmgpc3ba.fsf@defiant.localdomain>
-	 <20060606160745.2f88ff9c.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Tue, 06 Jun 2006 18:22:22 -0500
-Message-Id: <1149636142.2633.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+	Tue, 6 Jun 2006 19:25:23 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:27356 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751348AbWFFXZW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 19:25:22 -0400
+Message-ID: <44860ED7.10608@zytor.com>
+Date: Tue, 06 Jun 2006 16:25:11 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: linux-kernel@vger.kernel.org, iss_storagedev@hp.com,
+       Mike Miller <mike.miller@hp.com>
+Subject: Re: kinit problem with cciss root device
+References: <200606061640.48644.bjorn.helgaas@hp.com>
+In-Reply-To: <200606061640.48644.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-06 at 16:07 -0700, Randy.Dunlap wrote:
-> On Wed, 07 Jun 2006 00:44:09 +0200 Krzysztof Halasa wrote:
-> > Are you sure it's not a corrupted build tree or something like that?
-> > Can I have a look at the complete .config? Or some other bugzilla #?
+Bjorn Helgaas wrote:
 > 
-> I did a make mrproper and got the same results.
-> I'm on x86-64 if it matters.
-> My .config is attached.
+> So you might consider something like the "drain output" hunk below,
+> which allowed all the useful messages to get out.
+> 
 
-I just completed some builds including the setup you
-indicated (though not your exact .config, which I will try next).
-I'm also building x86-64.
+Hm.  That's rather ugly.  Anyone knows if TCFLSB works on /dev/console?
 
-Everything builds correctly using your patch, but
-without the Makefile portion, so we can drop that.
+> 
+> Index: work-mm8/usr/kinit/kinit.c
+> ===================================================================
+> --- work-mm8.orig/usr/kinit/kinit.c	2006-06-05 19:04:46.000000000 -0600
+> +++ work-mm8/usr/kinit/kinit.c	2006-06-06 14:19:59.000000000 -0600
+> @@ -317,5 +317,10 @@
+>  	if (mnt_sysfs)
+>  		umount2("/sys", 0);
+>  
+> +	/*
+> +	 * Allow time for messages to drain before kernel panics
+> +	 * because init is exiting.
+> +	 * */
+> +	sleep(10);
+>  	exit(ret);
+>  }
 
-It builds for
-
-CONFIG_HDLC=m
-CONFIG_SYNCLINK=m
-CONFIG_SYNCLINK_HDLC=y
-(all modules)
-
-and
-
-CONFIG_HDLC=m
-CONFIG_SYNCLINK=y
-CONFIG_SYNCLINK_HDLC=y
-(all built-in, hdlc promoted to 'y')
-
---
-Paul
-
-
+	-hpa

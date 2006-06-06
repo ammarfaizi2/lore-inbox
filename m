@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWFFUnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWFFUpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWFFUnD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 16:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWFFUnD
+	id S1750976AbWFFUpa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 16:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWFFUpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 16:43:03 -0400
-Received: from xenotime.net ([66.160.160.81]:37287 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750974AbWFFUnC (ORCPT
+	Tue, 6 Jun 2006 16:45:30 -0400
+Received: from xenotime.net ([66.160.160.81]:41129 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750976AbWFFUp3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 16:43:02 -0400
-Date: Tue, 6 Jun 2006 13:45:48 -0700
+	Tue, 6 Jun 2006 16:45:29 -0400
+Date: Tue, 6 Jun 2006 13:48:16 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: Krzysztof Halasa <khc@pm.waw.pl>
 Cc: paulkf@microgate.com, davej@redhat.com, akpm@osdl.org,
        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
 Subject: Re: [PATCH] fix missing hdlc symbols for synclink drivers
-Message-Id: <20060606134548.3087109c.rdunlap@xenotime.net>
+Message-Id: <20060606134816.363cbeca.rdunlap@xenotime.net>
 In-Reply-To: <m3u06yc9mr.fsf@defiant.localdomain>
 References: <20060603232004.68c4e1e3.akpm@osdl.org>
 	<20060605230248.GE3963@redhat.com>
@@ -70,8 +70,11 @@ On Tue, 06 Jun 2006 22:27:40 +0200 Krzysztof Halasa wrote:
 > enabling gHDLC should enable hw drivers - like with other drivers -
 > it would probably work).
 
-True, I didn't test every possible config. :)
-I'll test some other possibilities...
+Hi,
+I think that the main problem is that SYNCLINK wants to be able
+to use some functions from hdlc_generic.c when
+CONFIG_HDLC=m.  How do you handle that?
+
 
 ---
 ~Randy

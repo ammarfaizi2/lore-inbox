@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWFFJRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWFFJSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWFFJRG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 05:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWFFJRG
+	id S932065AbWFFJSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 05:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWFFJSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 05:17:06 -0400
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:39830 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750977AbWFFJRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 05:17:05 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
-Date: Tue, 6 Jun 2006 19:13:33 +1000
-User-Agent: KMail/1.9.3
-Cc: Kirill Korotaev <dev@sw.ru>, Sam Vilain <sam@vilain.net>,
-       Kirill Korotaev <dev@openvz.org>,
-       Peter Williams <pwil3058@bigpond.net.au>, sekharan@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Srivatsa <vatsa@in.ibm.com>,
-       ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
-References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest> <4484ABF9.50503@vilain.net> <44853BCA.4010009@sw.ru>
-In-Reply-To: <44853BCA.4010009@sw.ru>
+	Tue, 6 Jun 2006 05:18:25 -0400
+Received: from ns1.bluetone.cz ([212.158.128.13]:61647 "EHLO mail.bluetone.cz")
+	by vger.kernel.org with ESMTP id S932065AbWFFJSY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 05:18:24 -0400
+Message-ID: <4485486A.7060502@scssoft.com>
+Date: Tue, 06 Jun 2006 11:18:34 +0200
+From: Petr Sebor <petr@scssoft.com>
+Organization: SCS Software
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Oops with 2.6.16.18 caused by tun?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606061913.35340.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 June 2006 18:24, Kirill Korotaev wrote:
-> >>I'm sorry, but nice never looked "nice" to me.
-> >>Have you ever tried to "nice" apache server which spawns 500
-> >>processes/threads on a loaded machine?
-> >>With nice you _can't_ impose limits or priority on the whole "apache".
-> >>The more apaches you have the more useless their priorites and nices
-> >> are...
-> >
-> > Yes but interactive admin processes will still get a large bonus
-> > relative to the apache processes so you can still log in and kill the
-> > apache storm off even with very large loads.
->
-> And how do you plan to manage it: to log in every time when apache works
-> too much and kill processes? The managabiliy of such solutions sucks..
+Unable to handle kernel NULL pointer dereference at virtual address 00000049
+ printing eip:
+c01fa39e
+*pde = 00000000
+Oops: 0002 [#1]
+Modules linked in: tun
+CPU:    0
+EIP:    0060:[<c01fa39e>]    Not tainted VLI
+EFLAGS: 00210206   (2.6.16.18 #1)
+EIP is at cdrom_read_block+0xa1/0xba
+eax: dc720a60   ebx: dc720a60   ecx: 00000074   edx: dcdc1f48
+esi: 00000040   edi: 080e11d8   ebp: 080e11e0   esp: dcdc1ec4
+ds: 007b   es: 007b   ss: 0068
+Process tincd (pid: 1124, threadinfo=dcdc0000 task=dcd8e5b0)
+Stack: <0>c0207ec7 8f020002 3213cf55 00000000 00000000 dcdc1f7c 00000052 
+00000052
+       c020c278 00000052 00000052 00000052 00000000 c020c993 000000f0 
+dcdc1f7c
+       deb2ac34 00000000 dcdc1f7c 00000004 00000004 00000052 deb2ac34 
+00200286
+Call Trace:
+ [<c0207ec7>] sys_sendto+0xf5/0x116
+ [<c020c278>] memcpy_toiovec+0x25/0x47
+ [<c020c993>] skb_copy_datagram_iovec+0x3b/0x19e
+ [<e0930cff>] tun_chr_readv+0x305/0x30f [tun]
+ [<c0208585>] sys_socketcall+0xeb/0x181
+ [<c0102331>] syscall_call+0x7/0xb
+Code: 00 88 46 07 89 5e 10 74 16 81 fd 30 09 00 00 74 14 81 fd 20 09 00 
+00 75 12 c6 46 09 58 eb 10 c6 46 09 78 eb 0a c6 46 09 f8 eb 04 <c6> 46 
+09 10 8b 4c 24 0c 89 f2 8b 44 24 08 ff 51 3c 83 c4 14 5b
 
-What a strange discussion. I simply impose limits on processes and connections 
-on my grossly underpowered server.
+It is vanilla 2.6.16.18, i386
 
-/me shrugs
+Petr
 
--- 
--ck

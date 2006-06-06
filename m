@@ -1,79 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWFFMtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWFFMua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWFFMtl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 08:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWFFMtl
+	id S932078AbWFFMua (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 08:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWFFMua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 08:49:41 -0400
-Received: from mail.charite.de ([160.45.207.131]:4004 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1750711AbWFFMtk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 08:49:40 -0400
-Date: Tue, 6 Jun 2006 14:49:07 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Cc: Udo Wolter <Udo.Wolter@charite.de>
-Subject: Bug: EIP is at clear_inode+0x89/0x11a, 2.6.17-rc3-git9, SMP
-Message-ID: <20060606124907.GZ29326@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Udo Wolter <Udo.Wolter@charite.de>
+	Tue, 6 Jun 2006 08:50:30 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:11496 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S932078AbWFFMu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 08:50:29 -0400
+Message-ID: <4485798B.4030007@s5r6.in-berlin.de>
+Date: Tue, 06 Jun 2006 14:48:11 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       arjan@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: 2.6.17-rc5-mm3-lockdep -
+References: <200606060250.k562oCrA004583@turing-police.cc.vt.edu> <44852819.2080503@gmail.com>
+In-Reply-To: <44852819.2080503@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something killed the kswapd:
+Jiri Slaby wrote at lkml:
+> Valdis.Kletnieks@vt.edu napsal(a):
+>> It's living longer before it throws a complaint - we're making it out of
+>> rc.sysinit and into rc5.d ;)  This time we were in an 'id' command from this:
+>> 
+>> test `id -u` = 0  || exit 4
+>> 
+>> in either S11mcstrans or S18auditd.  Looks like the Firewire (which I
+>> don't actually use for anything) threw an IRQ at an inopportune time?
+>> 
+>> (Obviously I stress different code paths than Arjan or Ingo.  But if
+>> I did the same things they did, it wouldn't be interesting.. ;)
+>> 
+>> [  464.687000] (              id-2700 |#0): new 569737200 us user-latency.
+>> [  464.687000] stopped custom tracer.
+>> [  464.687000] 
+>> [  464.687000] ============================
+>> [  464.687000] [ BUG: illegal lock usage! ]
+>> [  464.687000] ----------------------------
+>> [  464.687000] illegal {in-hardirq-W} -> {hardirq-on-W} usage.
+>> [  464.687000] id/2700 [HC0[0]:SC0[1]:HE1:SE0] takes:
+>> [  464.687000]  (&list->lock){++..}, at: [<c0351a07>] unix_stream_connect+0x334/0x408
+>> [  464.687000] {in-hardirq-W} state was registered at:
+>> [  464.687000]   [<c012dd45>] lockdep_acquire+0x67/0x7f
+>> [  464.687000]   [<c0383f11>] _spin_lock_irqsave+0x30/0x3f
+>> [  464.687000]   [<c02fa93f>] skb_dequeue+0x18/0x49
+>> [  464.687000]   [<f086b7f1>] hpsb_bus_reset+0x5e/0xa2 [ieee1394]
+>> [  464.687000]   [<f0887007>] ohci_irq_handler+0x370/0x726 [ohci1394]
+>> [  464.687000]   [<c013f9a8>] handle_IRQ_event+0x1d/0x52
+>> [  464.687000]   [<c0140bc4>] handle_level_irq+0x97/0xe3
+>> [  464.687000]   [<c01045d0>] do_IRQ+0x8b/0xaf
+>> [  464.687000] irq event stamp: 2964
+>> [  464.687000] hardirqs last  enabled at (2963): [<c0384223>] _spin_unlock_irqrestore+0x3b/0x6d
+>> [  464.687000] hardirqs last disabled at (2962): [<c0383ef5>] _spin_lock_irqsave+0x14/0x3f
+>> [  464.687000] softirqs last  enabled at (2956): [<c0119da0>] __do_softirq+0x9d/0xa5
+>> [  464.687000] softirqs last disabled at (2964): [<c0383f6b>] _spin_lock_bh+0x10/0x3a
+>> [  464.687000] 
+>> [  464.687000] other info that might help us debug this:
+>> [  464.687000] 1 locks held by id/2700:
+>> [  464.687000]  #0:  (&u->lock){--..}, at: [<c03517bb>] unix_stream_connect+0xe8/0x408
+>> [  464.687000] 
+>> [  464.687000] stack backtrace:
+>> [  464.687000]  [<c01032d6>] show_trace_log_lvl+0x64/0x125
+>> [  464.687000]  [<c0103865>] show_trace+0x1b/0x20
+>> [  464.687000]  [<c010391c>] dump_stack+0x1f/0x24
+>> [  464.687000]  [<c012bfb1>] print_usage_bug+0x1a8/0x1b4
+>> [  464.687000]  [<c012c6c7>] mark_lock+0x2ba/0x4e5
+>> [  464.687000]  [<c012d2b8>] __lockdep_acquire+0x476/0xa91
+>> [  464.687000]  [<c012dd45>] lockdep_acquire+0x67/0x7f
+>> [  464.687000]  [<c0383f87>] _spin_lock_bh+0x2c/0x3a
+>> [  464.687000]  [<c0351a07>] unix_stream_connect+0x334/0x408
+>> [  464.687000]  [<c02f7236>] sys_connect+0x6e/0xa3
+>> [  464.687000]  [<c02f79da>] sys_socketcall+0x96/0x190
+>> [  464.687000]  [<c03845e2>] sysenter_past_esp+0x63/0xa1
+>> 
+> That one would be corrected now:
+> http://lkml.org/lkml/2006/6/5/100
 
-# uname -a
-Linux postamt.charite.de 2.6.17-rc3-git9 #1 SMP Thu May 4 16:23:26
-CEST 2006 i686 GNU/Linux
+Do you think so? Looks different to me: skb_dequeue is obviously called
+from ieee1394's packet handling. The patch from 2006/6/5 addresses
+ieee1394's management of protocol driver callbacks.
 
-from dmesg output
-
-BUG: unable to handle kernel NULL pointer dereference at virtual address 0000003c
- printing eip:
-c106bd20
-*pde = 00000000
-Oops: 0000 [#1]
-SMP 
-Modules linked in: tg3 dm_mod aic7xxx rtc
-CPU:    1
-EIP:    0060:[<c106bd20>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.17-rc3-git9 #1) 
-EIP is at clear_inode+0x89/0x11a
-eax: 00000000   ebx: c53652f8   ecx: db28edd0   edx: 00000000
-esi: c536546c   edi: 00000030   ebp: 00000080   esp: c2d1cef0
-ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 129, threadinfo=c2d1c000 task=c2d1a580)
-Stack: <0>f7994d28 c53652f8 f7994d28 c106c3d6 c53652f8 c39b6d94 c106b3f6 c39b6dbc 
-       c106a2b1 0004bfa0 c1327500 00000129 0001c207 c106a30c c10405f1 c181bb80 
-       c191e8c0 c14e24a0 00000159 00000000 00000100 000000d0 00000064 c1263180 
-Call Trace:
- <c106c3d6> generic_drop_inode+0x11f/0x140   <c106b3f6> iput+0x5d/0x69
- <c106a2b1> prune_dcache+0xf0/0x114   <c106a30c> shrink_dcache_memory+0x37/0x3d
- <c10405f1> shrink_slab+0x111/0x187   <c10418f9> balance_pgdat+0x20e/0x3bc
- <c1041b84> kswapd+0xdd/0x128   <c102bd74> autoremove_wake_function+0x0/0x37
- <c1041aa7> kswapd+0x0/0x128   <c1000dd5> kernel_thread_helper+0x5/0xb
-Code: 8b 72 04 85 f6 74 1d 31 d2 8b 8c 93 18 01 00 00 85 c9 75 71 83 c2 01 83 fa 02 74 08 eb eb 8b 83 b8 00 00 00 85 c0 74 0e 8b 40 20 <8b> 50 3c 85 d2 74 04 89 d8 ff d2 8b 83 2c 01 00 00 85 c0 74 07 
-EIP: [<c106bd20>] clear_inode+0x89/0x11a SS:ESP 0068:c2d1cef0
- 
-# mount
-/dev/cciss/c0d0p6 on / type ext3 (rw,errors=panic)
-proc on /proc type proc (rw)
-sysfs on /sys type sysfs (rw)
-tmpfs on /dev/shm type tmpfs (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/cciss/c0d0p5 on /boot type ext3 (rw)
-/dev/sda5 on /home type ext3 (rw,noatime,quota)
-
-# ps auxwww|grep kswap
-root     30024  0.0  0.0   1664   528 pts/3    S+   14:48   0:00 grep kswap
-
+(added Cc: linux1394-devel)
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Stefan Richter
+-=====-=-==- -==- ---=-
+http://arcgraph.de/sr/

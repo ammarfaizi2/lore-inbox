@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWFFH7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWFFIA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWFFH7F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 03:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWFFH7F
+	id S1751137AbWFFIA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 04:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWFFIA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 03:59:05 -0400
-Received: from mail.gmx.de ([213.165.64.20]:26586 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750778AbWFFH7E (ORCPT
+	Tue, 6 Jun 2006 04:00:58 -0400
+Received: from ns2.suse.de ([195.135.220.15]:29923 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751137AbWFFIA5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 03:59:04 -0400
-X-Authenticated: #14349625
-Subject: Re: process starvation with 2.6 scheduler
-From: Mike Galbraith <efault@gmx.de>
-To: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <478F19F21671F04298A2116393EEC3D52741DC@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-References: <478F19F21671F04298A2116393EEC3D52741DC@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-Content-Type: text/plain
-Date: Tue, 06 Jun 2006 10:01:58 +0200
-Message-Id: <1149580918.8455.85.camel@Homer.TheSimpsons.net>
+	Tue, 6 Jun 2006 04:00:57 -0400
+Date: Tue, 6 Jun 2006 00:58:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: akpm@osdl.org, Rajesh Shah <rajesh.shah@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       "bibo,mao" <bibo.mao@intel.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [BUG][PATCH 2.6.17-rc5-mm3] bugfix: PCI legacy I/O port free driver
+Message-ID: <20060606075812.GB19619@kroah.com>
+References: <447E91CE.7010705@intel.com> <20060601024611.A32490@unix-os.sc.intel.com> <20060601171559.GA16288@colo.lackof.org> <20060601113625.A4043@unix-os.sc.intel.com> <447FA920.9060509@jp.fujitsu.com> <4484263C.1030508@jp.fujitsu.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4484263C.1030508@jp.fujitsu.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please line wrap)
+On Mon, Jun 05, 2006 at 09:40:28PM +0900, Kenji Kaneshige wrote:
+> Hi Andrew, Greg,
+> 
+> Here is a patche to fix a bug that pci_request_regions() doesn't work
+> when it is called after pci_disable_device(), which was reported at:
+> 
+>     http://marc.theaimsgroup.com/?l=linux-kernel&m=114914585213991&w=2
+> 
+> This bug is introduced by the following "PCI legacy I/O port free
+> driver" patches currently in 2.6.17-rc5-mm3.
+> 
+>     o gregkh-pci-pci-legacy-i-o-port-free-driver-changes-to-generic-pci-code.patch
+>     o gregkh-pci-pci-legacy-i-o-port-free-driver-make-emulex-lpfc-driver-legacy-i-o-port-free.patch
+>     o gregkh-pci-pci-legacy-i-o-port-free-driver-make-intel-e1000-driver-legacy-i-o-port-free.patch
+>     o gregkh-pci-pci-legacy-i-o-port-free-driver-update-documentation-pci_txt.patch
+> 
+> This patch is against 2.6.17-rc5-mm3. Please see the header of the
+> patch about details.
+> 
+> If reposting the fixed version of PCI legacy I/O port free driver
+> patches against the latest Linus tree are preferred rather than this
+> patch, please let me know.
 
-On Mon, 2006-06-05 at 12:48 -0700, Kallol Biswas wrote:
-> Hello,
->        We have a process starvation problem with our 2.6.11 kernel running on a ppc-440 based system.
-> 
-> We have a storage SOC based on PPC-440. The SOC is emulated on a system emulator called Palladium. It is from Cadence. The system runs at 400KHz speed. It has three Ethernet ports; they are connected to outside lab network with a speed bridge.
-> 
-> The netperf server netserver runs on the emulated system (2.6.11 kernel on Palladium). There are netperf linux clients running on a x86 box.
-> 
-> If netperf request response (TCP_RR) traffic is run on all three ports; after sometime only one port remains active, the application (netperf client) on other two ports wait for a long time and eventually time out.
-> 
-> The netserver code has been instrumented. For one of the starved netserver processes it has been found that the TCP_RR request from the netperf client on linux x86 box has been received by the server, it has issued send() call to send back reply but send() never returns.
-> 
-> With an ICE connected to the Palladium (emulator) I have dumped the kernel data structures of the starved process and the active process. 
-> 
-> 
-> For Active  Process:
->   Time_slice 84
->   Policy : SCHED_NORMAL
->   Dynamic priority: 118
->   Static priority: 120
->   Preempt_count: 0x20100
->   Flags = 0
->   State = 0 (TASK_RUNNING)
-> 
-> For Starved Process:
->   Time slice: 77
->   Policy: SCHED_NORMAL
->   Dynamic priority: 120
->   Static priority: 120
->   Preempt_count: 0x10000000 (PREEMPT_ACTIVE is set)
->   Flags = 0 
->   State = 0 (TASK_RUNNING)
-> 
-> Any help to debug the problem is welcome. 
+I think a new set of patches would be the best, as that way when I apply
+them to Linus's tree, there is no point in the patch history that has a
+problem that people might hit.
 
-I'm having difficulty understanding.  Are you saying that the "starved"
-tasks are runnable, but receiving _zero_ cpu?  That's impossible with
-only one other SCHED_NORMAL task afaik, which makes me think you may
-mean they're not receiving cpu frequently enough to keep clients from
-timing out?  One task which has slept enough to acquire interactive
-status (as above) can hold others off the cpu for quite a while if it
-starts a burst of heavy cpu burning.  If your netperf clients are
-choking on this latency, running the servers at nice 19 should prevent
-the problem.
+So, care to just resend the above 4 patches with your fix included?  Is
+that easy to do?
 
-	-Mike
+thanks,
 
+greg k-h

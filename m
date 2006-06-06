@@ -1,69 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWFFSfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWFFSvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWFFSfv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 14:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWFFSfv
+	id S1750953AbWFFSvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 14:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWFFSvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 14:35:51 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:404 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S1750825AbWFFSfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 14:35:51 -0400
-Date: Tue, 6 Jun 2006 20:35:49 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild patch (20a468b51325b3636785a8ca0047ae514b39cbd5) breaks parallels-config
-Message-ID: <20060606183549.GB11300@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20060605164950.GB4552@cip.informatik.uni-erlangen.de> <20060605213111.GA15346@mars.ravnborg.org> <20060605222735.GG4552@cip.informatik.uni-erlangen.de> <20060606181437.GA17977@mars.ravnborg.org>
+	Tue, 6 Jun 2006 14:51:25 -0400
+Received: from father.pmc-sierra.com ([216.241.224.13]:56988 "HELO
+	father.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
+	id S1750952AbWFFSvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 14:51:25 -0400
+Message-ID: <478F19F21671F04298A2116393EEC3D52742CD@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+From: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
+To: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Mike Galbraith <efault@gmx.de>
+Subject: RE: process starvation with 2.6 scheduler
+Date: Tue, 6 Jun 2006 11:51:18 -0700 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060606181437.GA17977@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+More information:
+Turning on CONFIG_SCHEDSTAT I have got more information. Next I will try lowering the nice value of the servers.
 
-> First off - the below does not even remotely resemble a Kbuild file.
-> There are a shitload of deinitions not used by kbuild etc etc.
-> Parallels should ship a Kbuild file instead with the kernel specific
-> things included and be done with it.  This works for others and they
-> do not need to generate their Makefile using autotools.
+Starved Process:
+Sched_info->pcnt 33
+            Cpu_time 64
+            Run_delay 113
+            Last_arrival 0xffc4a89
 
-agreed.
+Active Process:
+Sched_info->pcnt 238
+             Cpu_time 2852
+             Run_delay 190
+             Last arrival 0xfffc4aa5
 
-> What your patch did was to remove a fundamental part of the build system
-> - and I'm suprised that you actually managed to build something.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Kallol Biswas
+Sent: Tuesday, June 06, 2006 10:56 AM
+To: Stephen Hemminger; linux-kernel@vger.kernel.org
+Cc: Mike Galbraith
+Subject: RE: process starvation with 2.6 scheduler
 
-my patch does not removes anything it just moves one line a few lines
-down (as it was before your commit 20a468b51325b...:
 
-        --- a/scripts/Makefile.build
-        +++ b/scripts/Makefile.build
-        @@ -10,12 +10,11 @@ __build:
-         # Read .config if it exist, otherwise ignore
-         -include .config
-         
-      | -include scripts/Kbuild.include
-      | -
-     /    # The filename Kbuild has precedence over Makefile
-    /    kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
-   |     include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
-   \     
-    `-> +include scripts/Kbuild.include
-         include scripts/Makefile.lib
-         
-         ifdef host-progs
+I have verified that the starved tasks are in the runqueue (prio_array_t 
+array[0], active points to array[0]), the timestamp and last_ran 
+indicate that they have not run for a while.
 
-> I suggest that you ask the Parallels people to create a clean solution
-> for the 2.6 kernel - seeking inspiration in Documentation/kbuild/*
-> and when this works tweak it minimally to support the 2.4 kernel.
+The network traffic is of request response type.
 
-I will.
+Client (on an external box)3 ports ---- 3 cables ----3 ports Emulated Host
+ 
+The netperf clients run on an external box, the emulated host (ppc440) runs 
+the servers. A client sends request to a server, the server returns the 
+reply, then the next request from the client goes to the server. There are 3
+clients and 3 servers, one client-server pair for each connection 
+(3 connections: 3 ports on external box  --3 connection 
+ -- 3 ports on emulated host).
 
-        Thomas
+Since traffic is of request/response in nature and the packets reach
+user space (to netserver) before turning around I do not think slow CPU is an issue.
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Stephen Hemminger
+Sent: Tuesday, June 06, 2006 9:56 AM
+To: linux-kernel@vger.kernel.org
+Subject: Re: process starvation with 2.6 scheduler
+
+On Tue, 06 Jun 2006 10:01:58 +0200
+Mike Galbraith <efault@gmx.de> wrote:
+
+> (please line wrap)
+> 
+> On Mon, 2006-06-05 at 12:48 -0700, Kallol Biswas wrote:
+> > Hello,
+> >        We have a process starvation problem with our 2.6.11 kernel running on a ppc-440 based system.
+> > 
+> > We have a storage SOC based on PPC-440. The SOC is emulated on a system emulator called Palladium. It is from Cadence. The system runs at 400KHz speed. It has three Ethernet ports; they are connected to outside lab network with a speed bridge.
+> > 
+> > The netperf server netserver runs on the emulated system (2.6.11 kernel on Palladium). There are netperf linux clients running on a x86 box.
+> > 
+> > If netperf request response (TCP_RR) traffic is run on all three ports; after sometime only one port remains active, the application (netperf client) on other two ports wait for a long time and eventually time out.
+> > 
+> > The netserver code has been instrumented. For one of the starved netserver processes it has been found that the TCP_RR request from the netperf client on linux x86 box has been received by the server, it has issued send() call to send back reply but send() never returns.
+> > 
+> > With an ICE connected to the Palladium (emulator) I have dumped the kernel data structures of the starved process and the active process. 
+> > 
+> > 
+> > For Active  Process:
+> >   Time_slice 84
+> >   Policy : SCHED_NORMAL
+> >   Dynamic priority: 118
+> >   Static priority: 120
+> >   Preempt_count: 0x20100
+> >   Flags = 0
+> >   State = 0 (TASK_RUNNING)
+> > 
+> > For Starved Process:
+> >   Time slice: 77
+> >   Policy: SCHED_NORMAL
+> >   Dynamic priority: 120
+> >   Static priority: 120
+> >   Preempt_count: 0x10000000 (PREEMPT_ACTIVE is set)
+> >   Flags = 0 
+> >   State = 0 (TASK_RUNNING)
+> > 
+> > Any help to debug the problem is welcome. 
+> 
+> I'm having difficulty understanding.  Are you saying that the "starved"
+> tasks are runnable, but receiving _zero_ cpu?  That's impossible with
+> only one other SCHED_NORMAL task afaik, which makes me think you may
+> mean they're not receiving cpu frequently enough to keep clients from
+> timing out?  One task which has slept enough to acquire interactive
+> status (as above) can hold others off the cpu for quite a while if it
+> starts a burst of heavy cpu burning.  If your netperf clients are
+> choking on this latency, running the servers at nice 19 should prevent
+> the problem.
+> 
+
+
+Is the processor getting consumed by network traffic in soft irq?
+If you are using non NAPI device driver, then it is easy to get soft irq
+overwhelmed with packets.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

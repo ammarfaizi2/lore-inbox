@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWFFIdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWFFIrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWFFIdi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 04:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWFFIdi
+	id S1751129AbWFFIrk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 04:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWFFIrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 04:33:38 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:47318 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751173AbWFFIdh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 04:33:37 -0400
-Date: Tue, 6 Jun 2006 10:33:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Jan Kara <jack@suse.cz>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc5-mm3-lockdep - locking error in quotaon
-Message-ID: <20060606083304.GA2773@elte.hu>
-References: <200606051700.k55H015q004029@turing-police.cc.vt.edu> <1149528339.3111.114.camel@laptopd505.fenrus.org> <200606051920.k55JKQGx003031@turing-police.cc.vt.edu> <20060605193552.GB24342@atrey.karlin.mff.cuni.cz> <1149537156.3111.123.camel@laptopd505.fenrus.org> <20060605200652.GC24342@atrey.karlin.mff.cuni.cz> <1149539183.3111.126.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Jun 2006 04:47:40 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:4207 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751129AbWFFIrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 04:47:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oagYAhsvW8DXPFWnlGYO8x6VKLRk6wtdAOeY12EshTY97FTOrrhEmuVlLFOnLsG1JaVR7S93WncFxcwMN6uYRs3xUQbsdVvafsxsNat6kUy4E590wEYrh1lDglt73LY1kIELwJS4xNzYBCUmyViGQaD3+jVFUKSZ+H4BTy6QPuY=
+Message-ID: <b0943d9e0606060147h5f7e3520pfe652c7cc2818df3@mail.gmail.com>
+Date: Tue, 6 Jun 2006 09:47:39 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.5
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1149539183.3111.126.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060604215636.16277.15454.stgit@localhost.localdomain>
+	 <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 05/06/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> System hangs while starting udev.
+>
+> Here is config
+> http://www.stardust.webpages.pl/files/kml/kml-config
+>
+> Here is "Kernel Bug : The Movie 2" ;)
+> http://www.stardust.webpages.pl/files/crap/kbtm2.avi
 
-* Arjan van de Ven <arjan@linux.intel.com> wrote:
+I mananged to play it but there isn't anything obvious. Are there any
+messages from kmemleak (it's pretty hard to read the screen in this
+movie)?
 
-> ok since you know this doesn't deadlock the patch below (concept; akpm 
-> please don't apply yet) ought to describe this special locking 
-> situation to lockdep; I would really appreciate someone who does use 
-> quota to test this out and see if it works....
+Could you try with SMP disabled? The locking mechanism in kmemleak
+should be OK but I might have missed something.
 
-looks good to me and doesnt produce messages on my system either.
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+-- 
+Catalin

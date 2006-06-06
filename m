@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWFFJuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWFFKHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWFFJuH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 05:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWFFJuG
+	id S932122AbWFFKHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 06:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWFFKHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 05:50:06 -0400
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:30091 "EHLO
-	out3.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932140AbWFFJuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 05:50:05 -0400
-Message-Id: <1149587406.28634.263152113@webmail.messagingengine.com>
-X-Sasl-Enc: IE4RAyXnCQs/IbUaCYl0tQQDz2eKwm3JCtfmQFXTO02e 1149587406
-From: "Ivan Novick" <ivan@0x4849.net>
-To: linux-kernel@vger.kernel.org
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
+	Tue, 6 Jun 2006 06:07:25 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:20880 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932122AbWFFKHY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 06:07:24 -0400
+Date: Tue, 6 Jun 2006 12:06:47 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Wojciech Kromer <wojciech.kromer@dgt.com.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dual via-rhine on EPIA PD6000E
+In-Reply-To: <448530FC.4020107@dgt.com.pl>
+Message-ID: <Pine.LNX.4.61.0606061204500.27998@yvahk01.tjqt.qr>
+References: <44843EFB.4030704@dgt.com.pl> <Pine.LNX.4.61.0606051629240.20741@yvahk01.tjqt.qr>
+ <448530FC.4020107@dgt.com.pl>
 MIME-Version: 1.0
-X-Mailer: MIME::Lite 5022  (F2.72; T1.15; A1.62; B3.04; Q3.03)
-Subject: #define pci_module_init pci_register_driver
-Date: Tue, 06 Jun 2006 10:50:06 +0100
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> There is a difference between ioports and iomem.
+>> 
+> Of course I know, but look at this:
+>
+> # cat /proc/ioports
+> d000-d0ff : 0000:00:0f.0
+> d000-d0ff : via-rhine
+> e400-e4ff : 0000:00:12.0
+> e400-e4ff : via-rhine
+>
+> # cat /proc/iomem  de000000-de0000ff : 0000:00:0f.0
+> de000000-de0000ff : via-rhine
+> de002000-de0020ff : 0000:00:12.0
+> de002000-de0020ff : via-rhine
+>
+> from ifoconfig:
+> eth0: Interrupt:10 Base address: *0xe000*
+> eth1: Interrupt:11 Base address: *0x4000* <<is it I/O or mem ???
 
-It seems an effort was made to replace all pci_module_init calls with
-pci_register_driver but in -mm it still seems to have pci_module_init
-for many drivers.
+ioport.
+ioports only go up to 0xffff, and iomem does not normally start below 
+0xffff.
 
-Does anyone know if this is still in the queue somewhere or if it was
-cancelled?  Is pci_register_driver the preferred call to make?
+0x4000 and 0xe000 look strange though (they don't match /proc/ioports).
 
-Thanks for any info,
 
-Ivan 
+Jan Engelhardt
+-- 

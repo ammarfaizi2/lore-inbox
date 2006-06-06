@@ -1,94 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWFFXRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWFFXRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751349AbWFFXRx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 19:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWFFXRw
+	id S1751345AbWFFXRd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 19:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWFFXRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 19:17:52 -0400
+	Tue, 6 Jun 2006 19:17:32 -0400
 Received: from wx-out-0102.google.com ([66.249.82.193]:3187 "EHLO
 	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751349AbWFFXRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 19:17:49 -0400
+	id S1751345AbWFFXRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 19:17:32 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ByYuX1d0xMDpwBw3mUMA9H9U9XMe/GsLbld40WLu+ptb0nK+egH+3RjbPD+3fOnbwo5SmTyGbPUgcMb7lXCa4A7XQgDD0kB0fY1O26FA3y1geR7bIhjw5V+MpRKQerH2hJcuAEw3qdjmXz9rj37s3YQht0kLlwAYfD+dIrNkUBI=
-Message-ID: <44860CFE.2060908@gmail.com>
-Date: Wed, 07 Jun 2006 07:17:18 +0800
+        b=YGG0hFcOLR0W5xKTE3GEaQ88OTRTVYhE7nkjEsXII+FB9dt/RkTU1xX08nv5aGUaLv9CXdBAOLB25k9Oo2YrqrL+jox4OA0ygFafW+qAnC4q/4R2pV3uBEDGMnwdgOz+X8RQpRcyq7TnmXvMaP3C+/XzYc9Gd2zpcMpAR2rJnuw=
+Message-ID: <44860CAC.90107@gmail.com>
+Date: Wed, 07 Jun 2006 07:15:56 +0800
 From: "Antonino A. Daplas" <adaplas@gmail.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
 To: Jon Smirl <jonsmirl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
+CC: Dave Airlie <airlied@gmail.com>, Andrew Morton <akpm@osdl.org>,
        Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH 0/7] Detaching fbcon
-References: <44856223.9010606@gmail.com>	 <9e4733910606060910m44cd4edfs8155c1fe031b37fe@mail.gmail.com>	 <9e4733910606060919p2a137e07wd58b51a227f5aa5e@mail.gmail.com>	 <4485DB6C.704@gmail.com> <9e4733910606061400i172d20a7qa9583b9b9245f6f9@mail.gmail.com>
-In-Reply-To: <9e4733910606061400i172d20a7qa9583b9b9245f6f9@mail.gmail.com>
+References: <44856223.9010606@gmail.com>	 <9e4733910606060910m44cd4edfs8155c1fe031b37fe@mail.gmail.com>	 <9e4733910606060919p2a137e07wd58b51a227f5aa5e@mail.gmail.com>	 <4485DB6C.704@gmail.com>	 <9e4733910606061400i172d20a7qa9583b9b9245f6f9@mail.gmail.com>	 <21d7e9970606061439m6e914bf8ya5567b672d5e14bb@mail.gmail.com> <9e4733910606061455l2ab3a217q431a90a6c3555813@mail.gmail.com>
+In-Reply-To: <9e4733910606061455l2ab3a217q431a90a6c3555813@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Jon Smirl wrote:
-> On 6/6/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> Jon Smirl wrote:
->> > On 6/6/06, Jon Smirl <jonsmirl@gmail.com> wrote:
->> >> On 6/6/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> >> > Overall, this feature is a great help for developers working in the
->> >> > framebuffer or console layer.  There is not need to continually
->> >> reboot the
->> >> > kernel for every small change. It is also useful for regular users
->> >> who wants
->> >> > to choose between a graphical console or a text console without
->> >> having to
->> >> > reboot.
->> >>
->> >> Instead of the sysfs attribute, what about creating a new escape
->> >> sequence that you send to the console system to detach? Doing it that
->> >> way would make more sense from a stacking order. It just seems
->> >> backwards to me that you ask a lower layer to detach from the layer
->> >> above it. The escape sequence would also work for any console
->> >> implementation, not just fbcon.
->> >>
->> >> If console detached this way and there was nothing to fallback to
->> >> (systems without VGAcon), it would know not to try and print anything
->> >> until something reattaches to it.
->> >
->> > Another thought, controlling whether console is attached or not is an
->> > attribute of console, not of fbcon.
+> On 6/6/06, Dave Airlie <airlied@gmail.com> wrote:
+>> > > >
+>> > How is the stack maintained of what was previously bound to console?
+>> > What if I unbind fbcon on a system that doesn't have VGAcon for a
+>> backup?
 >>
->> If the console attached fbcon, then I agree that console should decide
->> when to detach fbcon.  But that's not what happens, it's fbcon that
->> attaches itself.
->>
->> It's not that you're wrong, it's just how the current vt/console layer
->> works.  If someone do decide to add this feature to the vt/console layer,
->> then I'm more than willing to have fbcon support that as well.
+>> You could try actually reading the patches...
 > 
-> This is just kind of twisted since console increments the fbcon ref
-> count.
+> I was working on a patch for this but now I've lost interest.
 
-Oh, the console and vt layer is exactly that, twisted :-)
+How come? I never believed you're the type to lose interest so easily :-)
 
-> Is /dev/console a real device, it that where the sysfs
-> attribute should go?
+> 
+> Detach should be an attribute off from /dev/console. /dev/console is
+> using the standard device support and appears at
+> /sys/class/tty/console so /sys/class/tty/console/detach can be added
+> as an attribute. /sys/class/tty/console could have another attribute
+> which lists the available drivers. One solution would be for the
+> attribute to list the names of the available drivers that have
+> registered with console and then copy one of those names back to the
+> attribute to select where console is bound.
+> 
+> In my opinion attach/detach does not belong as an attribute on fbcon,
+> it is part of /dev/console. The fact that fbcon has to ask console to
+> unbind from it implies these attributes are in the wrong place.
 
-We have /sys/class/tty/console.
+Okay, you and Andrew persuaded me to change the location of the control.
+I did say that if someone makes the necessary change to the vt layer that
+it won't be a problem. The necessary infrastructure is already introduced
+by this patch to make it work like what you and Andrew want. 
 
- 
-> How is the stack maintained of what was previously bound to console?
-
-That's the problem, there is no stack.  Once a driver binds to a console,
-the previous driver is lost.
-
-> What if I unbind fbcon on a system that doesn't have VGAcon for a backup?
-
-All systems have a backup console, otherwise you're system won't boot.
-It's either vgacon or dummycon.
-
-Tony
 Tony
  
 

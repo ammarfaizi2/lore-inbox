@@ -1,75 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWFFKq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWFFKrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750914AbWFFKq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 06:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWFFKq5
+	id S1751034AbWFFKrm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 06:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFFKrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 06:46:57 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:19195 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750914AbWFFKq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 06:46:56 -0400
-Subject: Re: [PATCH -mm] misroute-irq: Don't call desc->chip->end because
-	of edge interrupts
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mingo@elte.hu, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-       alan@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060605212033.072bb47d.akpm@osdl.org>
-References: <1149112582.3114.91.camel@laptopd505.fenrus.org>
-	 <1149345421.13993.81.camel@localhost.localdomain>
-	 <20060603215323.GA13077@devserv.devel.redhat.com>
-	 <1149374090.14408.4.camel@localhost.localdomain>
-	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
-	 <1149426961.27696.7.camel@localhost.localdomain>
-	 <1149437412.23209.3.camel@localhost.localdomain>
-	 <1149438131.29652.5.camel@localhost.localdomain>
-	 <1149456375.23209.13.camel@localhost.localdomain>
-	 <1149456532.29652.29.camel@localhost.localdomain>
-	 <20060604214448.GA6602@elte.hu>
-	 <1149564830.16247.11.camel@localhost.localdomain>
-	 <20060605212033.072bb47d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 06 Jun 2006 06:46:11 -0400
-Message-Id: <1149590771.16247.30.camel@localhost.localdomain>
+	Tue, 6 Jun 2006 06:47:42 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:21702 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751034AbWFFKrl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 06:47:41 -0400
+Date: Tue, 6 Jun 2006 16:17:29 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       dev@openvz.org, ckrm-tech@lists.sourceforge.net, balbir@in.ibm.com,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>
+Subject: Re: [RFC 3/5] sched: Add CPU rate hard caps
+Message-ID: <20060606104728.GB4394@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <200606020003.51504.a1426z@gawab.com> <447F956B.3090402@bigpond.net.au> <1149247384.28649.691.camel@stark>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149247384.28649.691.camel@stark>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-05 at 21:20 -0700, Andrew Morton wrote:
-> On Mon, 05 Jun 2006 23:33:50 -0400
-> Steven Rostedt <rostedt@goodmis.org> wrote:
+On Fri, Jun 02, 2006 at 04:23:04AM -0700, Matt Helsley wrote:
+> There are two problems as I see it:
 > 
-> > 
-> > Hit the following BUG with irqpoll.  The below patch fixes it.
-> > 
+> 1) If X1 grows to use 35% then X2's usage can't grow back from 15% until
+> X1 relents. This is seems unpleasantly like cooperative scheduling
+> within group X because if we take this to its limit X2 gets 0% and X1
+> gets 50% -- effectively starving X2. What little I know about nice
+> suggests this wouldn't really happen. However I think may highlight one
+> case where fiddling with nice can't effectively control CPU usage.
+
+I would expect task Z to adjust the limits of X1, X2 again when it notices 
+that X2 is "hungry". Until Z gets around to do that, what situation you
+describe will be true. If Z is configured to run quite frequently (every
+5 seconds?) to monitor/adjust limits, then this starvation (of X2) may be
+avoided for longer periods?
+
+> 2) Suppose we add group Y with tasks Y1-YM, Y's CPU usage is limited to
+> 49%, each task of Y uses its limit of (M/49)% CPU, and the remaining 1%
+> is left for Z (i.e. the single CPU is being used heavily). Z must use
+> this 1% to read accounting information and adjust nice values as
+> described above. If X1 spawns X3 we're likely in trouble -- Z might not
+> get to run for a while but X3 has inheritted X1's nice value. If we
+> return to our initial assumption that X1 and X2 are each using their
+> limit of 25% then X3 will get limited to 25% too. The sum of Xi can now
+> exceed 50% until Z is scheduled next. This only gets worse if there is
+> an imbalance between X1 and X2 as described earlier. In that case group
+> X could use 100% CPU until Z is scheduled! It also probably gets worse
+> as load increases and the number of scheduling opportunities for Z
+> decrease.
 > 
-> Call me a cynic, but
 > 
-> > +		if (work && disc->chip && desc->chip->end)
+> 	I don't see how task Z could solve the second problem. As with UP, in
+> SMP I think it depends on when Z (or one Z fixed to each CPU) is
+> scheduled.
+
+Wouldn't it help if Z is made to run with nice -20 (or with RT prio maybe),
+so that when Z wants to run (every 5 or 10 seconds) it is run
+immediately? This is assuming that Z can do its job of adjusting limits
+for all tasks "quickly" (maybe 100-200 ms?).
+
 > 
-> that doesn't look super-tested to me.
+> 	I think these are simple scenarios that demonstrate the problem with
+> splitting resource management into accounting and control with userspace
+> in between.
+> 
+> Cheers,
+> 	-Matt Helsley
 
-No, it hasn't been refreshed! Damn quilt!
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-
-Index: linux-2.6.17-rc5-mm3/kernel/irq/spurious.c
-===================================================================
---- linux-2.6.17-rc5-mm3.orig/kernel/irq/spurious.c	2006-06-05 17:26:15.000000000 -0400
-+++ linux-2.6.17-rc5-mm3/kernel/irq/spurious.c	2006-06-06 06:43:43.000000000 -0400
-@@ -77,7 +77,7 @@ static int misrouted_irq(int irq, struct
- 		 * If we did actual work for the real IRQ line we must let the
- 		 * IRQ controller clean up too
- 		 */
--		if (work)
-+		if (work && desc->chip && desc->chip->end)
- 			desc->chip->end(i);
- 		spin_unlock(&desc->lock);
- 	}
-
-
-
+-- 
+Regards,
+vatsa

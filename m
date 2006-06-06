@@ -1,104 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWFFMpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWFFMtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWFFMpR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 08:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWFFMpR
+	id S1750711AbWFFMtl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 08:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWFFMtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 08:45:17 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:25227 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751244AbWFFMpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 08:45:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VH+hxOWSEsrlPaNUO+tPRLWjySJLdcMcSBOerGwAWDhGdLak+NHhBm4LQfjJpEraEBLVRcXZYcEzN12pXLzCb1x7md0kaOQUtXtEho7bJeNUCDcnqkh/z0UZGkjm7C+YqcAUrc219Hz6AObBhDvLXInhdafei3ktciZqhYnH0OA=
-Message-ID: <d120d5000606060545n5852360ex8993d8c6f6c922e4@mail.gmail.com>
-Date: Tue, 6 Jun 2006 08:45:14 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Anssi Hannula" <anssi.hannula@gmail.com>
-Subject: Re: [patch 03/12] input: new force feedback interface
-Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <448565BA.2070805@gmail.com>
+	Tue, 6 Jun 2006 08:49:41 -0400
+Received: from mail.charite.de ([160.45.207.131]:4004 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1750711AbWFFMtk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 08:49:40 -0400
+Date: Tue, 6 Jun 2006 14:49:07 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Cc: Udo Wolter <Udo.Wolter@charite.de>
+Subject: Bug: EIP is at clear_inode+0x89/0x11a, 2.6.17-rc3-git9, SMP
+Message-ID: <20060606124907.GZ29326@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Udo Wolter <Udo.Wolter@charite.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <20060530105705.157014000@gmail.com>
-	 <d120d5000606051152p2cf999bcv8d832e007ea02810@mail.gmail.com>
-	 <44849DE9.6060305@gmail.com>
-	 <200606052202.26019.dtor_core@ameritech.net>
-	 <448565BA.2070805@gmail.com>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/6/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
-> Dmitry Torokhov wrote:
-> > On Monday 05 June 2006 17:11, Anssi Hannula wrote:
-> >
-> >>Dmitry Torokhov wrote:
-> >>
-> >>>On 5/30/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
-> >>>>--- linux-2.6.17-rc4-git12.orig/drivers/input/input.c   2006-05-27
-> >>>>02:28:57.000000000 +0300
-> >>>>+++ linux-2.6.17-rc4-git12/drivers/input/input.c        2006-05-27
-> >>>>02:38:35.000000000 +0300
-> >>>>@@ -733,6 +733,17 @@ static void input_dev_release(struct cla
-> >>>> {
-> >>>>       struct input_dev *dev = to_input_dev(class_dev);
-> >>>>
-> >>>>+       if (dev->ff) {
-> >>>>+               struct ff_device *ff = dev->ff;
-> >>>>+               clear_bit(EV_FF, dev->evbit);
-> >>>>+               mutex_lock(&dev->ff_lock);
-> >>>>+               del_timer_sync(&ff->timer);
-> >>>
-> >>>
-> >>>This is too late. We need to stop timer when device gets unregistered.
-> >>
-> >>And what if driver has called input_allocate_device(),
-> >>input_ff_allocate(), input_ff_register(), but then decides to abort and
-> >>calls input_dev_release()?   input_unregister_device() would not get
-> >>called at all.
-> >>
-> >
-> >
-> > Right, but if device was never registered there is no device node so noone
-> > could start the timer and deleting it is a noop. Hmm, I think even better
-> > place would be to stop ff timer when device is closed (i.e. when last user
-> > closes file handle).
-> >
->
-> Hmm... actually, they are stopped in flush(), and IIRC that is always
-> called before deleting input_dev.
->
+Something killed the kswapd:
 
-flush is called when you close one file handle. If there are more than
-one process opened event device you only want to stop timer when they
-all closed ther handles, not when the first one did.
+# uname -a
+Linux postamt.charite.de 2.6.17-rc3-git9 #1 SMP Thu May 4 16:23:26
+CEST 2006 i686 GNU/Linux
 
-> >
-> >>>Clearing FF bits is pointless here as device is about to disappear;
-> >>>locking is also not needed because we are guaranteed to be the last
-> >>>user of the device structure.
-> >>
-> >>True, if that guarantee really exists.
-> >>
-> > Yes, this is guaranteed.
-> >
->
-> So, now you guarantee it, but it isn't really so? ;)
->
+from dmesg output
 
-Hmm, I thought I could guarantee it, but not yet ;)
+BUG: unable to handle kernel NULL pointer dereference at virtual address 0000003c
+ printing eip:
+c106bd20
+*pde = 00000000
+Oops: 0000 [#1]
+SMP 
+Modules linked in: tg3 dm_mod aic7xxx rtc
+CPU:    1
+EIP:    0060:[<c106bd20>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.17-rc3-git9 #1) 
+EIP is at clear_inode+0x89/0x11a
+eax: 00000000   ebx: c53652f8   ecx: db28edd0   edx: 00000000
+esi: c536546c   edi: 00000030   ebp: 00000080   esp: c2d1cef0
+ds: 007b   es: 007b   ss: 0068
+Process kswapd0 (pid: 129, threadinfo=c2d1c000 task=c2d1a580)
+Stack: <0>f7994d28 c53652f8 f7994d28 c106c3d6 c53652f8 c39b6d94 c106b3f6 c39b6dbc 
+       c106a2b1 0004bfa0 c1327500 00000129 0001c207 c106a30c c10405f1 c181bb80 
+       c191e8c0 c14e24a0 00000159 00000000 00000100 000000d0 00000064 c1263180 
+Call Trace:
+ <c106c3d6> generic_drop_inode+0x11f/0x140   <c106b3f6> iput+0x5d/0x69
+ <c106a2b1> prune_dcache+0xf0/0x114   <c106a30c> shrink_dcache_memory+0x37/0x3d
+ <c10405f1> shrink_slab+0x111/0x187   <c10418f9> balance_pgdat+0x20e/0x3bc
+ <c1041b84> kswapd+0xdd/0x128   <c102bd74> autoremove_wake_function+0x0/0x37
+ <c1041aa7> kswapd+0x0/0x128   <c1000dd5> kernel_thread_helper+0x5/0xb
+Code: 8b 72 04 85 f6 74 1d 31 d2 8b 8c 93 18 01 00 00 85 c9 75 71 83 c2 01 83 fa 02 74 08 eb eb 8b 83 b8 00 00 00 85 c0 74 0e 8b 40 20 <8b> 50 3c 85 d2 74 04 89 d8 ff d2 8b 83 2c 01 00 00 85 c0 74 07 
+EIP: [<c106bd20>] clear_inode+0x89/0x11a SS:ESP 0068:c2d1cef0
+ 
+# mount
+/dev/cciss/c0d0p6 on / type ext3 (rw,errors=panic)
+proc on /proc type proc (rw)
+sysfs on /sys type sysfs (rw)
+tmpfs on /dev/shm type tmpfs (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+/dev/cciss/c0d0p5 on /boot type ext3 (rw)
+/dev/sda5 on /home type ext3 (rw,noatime,quota)
 
-> When we remove locking, timer_del, clear_bit, all that is left is
-> kfree() and I guess that has to still be run in the input_dev_release().
->
-
-Yes.
+# ps auxwww|grep kswap
+root     30024  0.0  0.0   1664   528 pts/3    S+   14:48   0:00 grep kswap
 
 -- 
-Dmitry
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

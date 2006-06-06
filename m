@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWFFKtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWFFKuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWFFKtc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 06:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWFFKtc
+	id S1750815AbWFFKuz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 06:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWFFKuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 06:49:32 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:24275 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S1751150AbWFFKtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 06:49:32 -0400
-Date: Tue, 6 Jun 2006 12:49:30 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD64: 64 bit kernel 32 bit userland - some pending questions
-Message-ID: <20060606104930.GN4552@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <20060606093456.GL4552@cip.informatik.uni-erlangen.de> <p73lksazht5.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73lksazht5.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.11
+	Tue, 6 Jun 2006 06:50:54 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:22222 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750815AbWFFKuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 06:50:54 -0400
+Subject: Re: [PATCH -mm] misroute-irq: Don't call desc->chip->end because
+	of edge interrupts
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060606080156.GA427@elte.hu>
+References: <20060603215323.GA13077@devserv.devel.redhat.com>
+	 <1149374090.14408.4.camel@localhost.localdomain>
+	 <1149413649.3109.92.camel@laptopd505.fenrus.org>
+	 <1149426961.27696.7.camel@localhost.localdomain>
+	 <1149437412.23209.3.camel@localhost.localdomain>
+	 <1149438131.29652.5.camel@localhost.localdomain>
+	 <1149456375.23209.13.camel@localhost.localdomain>
+	 <1149456532.29652.29.camel@localhost.localdomain>
+	 <20060604214448.GA6602@elte.hu>
+	 <1149564830.16247.11.camel@localhost.localdomain>
+	 <20060606080156.GA427@elte.hu>
+Content-Type: text/plain
+Date: Tue, 06 Jun 2006 06:50:19 -0400
+Message-Id: <1149591019.16247.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andi,
+On Tue, 2006-06-06 at 10:01 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > Hit the following BUG with irqpoll.  The below patch fixes it.
+> 
+> > -		if (work)
+> > +		if (work && disc->chip && desc->chip->end)
+> >  			desc->chip->end(i);
+> 
+> typo - plus shouldnt this call ->eoi() as well if available?
+> 
 
-> The main caveat is that iptables and ipsec need 64bit executables to
-> be set up. The rest should work.
+I saw Andrews replay and said, WTF I already fixed that. But then
+noticed that it wasn't refreshed.
 
-I see. But that isn't a showstopper for me because I can compile
-iptables myself and the machines are protected through another firewall
-anyway.
+As for eio, could be.  This was part of my whole misroute thing which I
+didn't have time to get to deep in.  I'm leaving today, where I won't
+have any computers or Internet til next Wednesday or Thursday, so I'm
+not going to be able to work on this further till then.
 
-> The default is 4GB, but you can get 3GB by running it under linux32
-> --3gb
+-- Steve
 
-4 Gbyte is fine for me.
-
-> The 64bit kernel never uses highmem.
-
-I see, it wouldn't make any sense.
-
-> If all fails you can get a cross compiler from crosstool.
-> Then normal kernel compilation command with 
-
-> make ... ARCH=x86_64 CROSS_COMPILE=x86_64-linux-
-
-I see.
-
-Thanks a lot for your feedback,
-                                Thomas

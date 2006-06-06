@@ -1,105 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWFFSGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWFFSHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWFFSGK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 14:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWFFSGK
+	id S1750851AbWFFSHK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 14:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWFFSHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 14:06:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35284 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750844AbWFFSGI (ORCPT
+	Tue, 6 Jun 2006 14:07:10 -0400
+Received: from rtr.ca ([64.26.128.89]:8103 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750851AbWFFSHI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 14:06:08 -0400
-Message-ID: <4485C3FE.5070504@redhat.com>
-Date: Tue, 06 Jun 2006 14:05:50 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
+	Tue, 6 Jun 2006 14:07:08 -0400
+Message-ID: <4485C446.2040203@rtr.ca>
+Date: Tue, 06 Jun 2006 14:07:02 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, Neil Brown <neilb@suse.de>
-CC: NFS List <nfs@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] NFS server does not update mtime on setattr request
-Content-Type: multipart/mixed;
- boundary="------------090003010804040206090900"
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb device problem
+References: <44859A9B.6080202@gmail.com> <4485A299.7070007@rtr.ca> <4485A855.1020602@gmail.com>
+In-Reply-To: <4485A855.1020602@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090003010804040206090900
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Jiri Slaby wrote:
+> Mark Lord napsal(a):
+>> Jiri Slaby wrote:
+>>> Hello,
+>>>
+>>> I get this with 2.6.17-rc5-mm3 kernel:
+>> ..
+>>> usb-storage: device found at 10
+>>> usb-storage: waiting for device to settle before scanning
+>>>   Vendor:           Model:                   Rev:
+>>>   Type:   Direct-Access                      ANSI SCSI revision: 00
+>>> SCSI device sdb: 245920 512-byte hdwr sectors (126 MB)
+>> ..
+>>> now read and write and sync or umount, then:
+>>> ---
+>>> sd 10:0:0:0: SCSI error: return code = 0x10070000
+>>> end_request: I/O error, dev sdb, sector 1575
+>>> sd 10:0:0:0: SCSI error: return code = 0x10070000
+>>> end_request: I/O error, dev sdb, sector 1583
+>>> sd 10:0:0:0: SCSI error: return code = 0x10070000
+>>> end_request: I/O error, dev sdb, sector 1591
+>>> sd 10:0:0:0: SCSI error: return code = 0x10070000
+>>> end_request: I/O error, dev sdb, sector 1599
+>>> sd 10:0:0:0: SCSI error: return code = 0x10070000
+>>> end_request: I/O error, dev sdb, sector 1607
+>>> sd 10:0:0:0: SCSI error: return code = 0x10070000
+>>> end_request: I/O error, dev sdb, sector 1615
+>>> ... and so on. data are maybe there, but it takes so long to write a
+>>> meg file.
+>>> sometimes
+>> ..
+>>
+>> This *looks* like maybe the drive reported a sector read error,
+>> and the standard "fail the whole request one block at a time"
+>> error mechanism from sd.c has kicked in.
+> 
+> Do you mean something like seek error, i.e. error in hardware, or how to call
+> this? This is brand new minisd card, it is possible to be waster, but it's
+> rather something bad in the software (writing by the device itself is perfomed
+> and data are ok). The error occurs accurately every 8 sectors...
 
-Hi.
+The "every 8 sectors" corresponds to the Linux page size (32-bit) of 4KBytes,
+which is the basic block I/O unit in real life.
 
-Attached aer two patches to address two halves of a problem where NFS does
-not update the mtime when an existing file is opened with O_TRUNC.  The
-mtime does not get updated when the file is already zero length, although
-it should.
+The 0x1007000 is broken down as:
 
-On the NFS client side, there was an optimization added which attempted
-to avoid an over the wire call if the size of the file was not going to
-change.  This would be great, except for the side effect of the mtime
-on the file needing to change anyway.  The solution is just to issue the
-over the wire call anyway, which, as a side effect, updates the mtime and
-ctime fields.
+07 == "host byte"   = DID_ERROR = "internal error"
+10 == "driver byte" = SUGGEST_RETRY
 
-On the NFS server side, there was a change to the routine, inode_setattr(),
-which now relies upon the caller to set the ATTR_MTIME and ATTR_CTIME
-flags in ia_valid in addition to the ATTR_SIZE.  Previously, this routine
-would force these bits on if the size of the file was not changing.  Now,
-this routine relies upon the caller to specify all of the fields which need
-to be updated.
+So it could just be some kind of internal soft error within the device driver.
+The messages certainly lack end-user clarity, though.
 
-Comments?
+>> I have a patch to fix this behaviour (in sd.c), but it has not yet
+>> been decided whether to go upstream with it or not.
+> 
+> Could you post me a copy, please?
 
-    Thanx...
+Probably tomorrow.  I haven't ported it forward yet (from a much older kernel).
+But I don't think it will help here now, as these errors
+don't really look like bad media -- gotta look inside the usb-storage code to find out.
 
-       ps
+Cheers
 
-Signed-off-by: Peter Staubach <staubach@redhat.com>
-
---------------090003010804040206090900
-Content-Type: text/plain;
- name="nfs_client_mtime.devel"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nfs_client_mtime.devel"
-
---- linux-2.6.16.x86_64/fs/nfs/inode.c.org
-+++ linux-2.6.16.x86_64/fs/nfs/inode.c
-@@ -947,11 +947,6 @@ nfs_setattr(struct dentry *dentry, struc
- 
- 	nfs_inc_stats(inode, NFSIOS_VFSSETATTR);
- 
--	if (attr->ia_valid & ATTR_SIZE) {
--		if (!S_ISREG(inode->i_mode) || attr->ia_size == i_size_read(inode))
--			attr->ia_valid &= ~ATTR_SIZE;
--	}
--
- 	/* Optimization: if the end result is no change, don't RPC */
- 	attr->ia_valid &= NFS_VALID_ATTRS;
- 	if (attr->ia_valid == 0)
-
---------------090003010804040206090900
-Content-Type: text/plain;
- name="nfs_server_mtime.devel"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nfs_server_mtime.devel"
-
---- linux-2.6.16.x86_64/fs/nfsd/vfs.c.org
-+++ linux-2.6.16.x86_64/fs/nfsd/vfs.c
-@@ -327,6 +327,11 @@ nfsd_setattr(struct svc_rqst *rqstp, str
- 			goto out_nfserr;
- 		}
- 		DQUOT_INIT(inode);
-+		/*
-+		 * Make sure that the mtime changes even if the file
-+		 * size doesn't actually change.
-+		 */
-+		iap->ia_valid |= ATTR_MTIME | ATTR_CTIME;
- 	}
- 
- 	imode = inode->i_mode;
-
---------------090003010804040206090900--

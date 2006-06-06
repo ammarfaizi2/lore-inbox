@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWFFFaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWFFFhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWFFFaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 01:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWFFFaJ
+	id S932089AbWFFFhq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 01:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWFFFhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 01:30:09 -0400
-Received: from ns1.suse.de ([195.135.220.2]:54915 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750866AbWFFFaH (ORCPT
+	Tue, 6 Jun 2006 01:37:45 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:50051 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932095AbWFFFho (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 01:30:07 -0400
-To: Martin Bisson <bissonm@discreet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86_64 system call entry points II
-References: <44846210.4080602@discreet.com>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Jun 2006 07:30:06 +0200
-In-Reply-To: <44846210.4080602@discreet.com>
-Message-ID: <p73verezw9t.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Jun 2006 01:37:44 -0400
+Date: Tue, 6 Jun 2006 09:33:50 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jeff Garzik <jeff@garzik.org>, Arjan van de Ven <arjan@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linville@tuxdriver.com
+Subject: Re: Linux kernel and laws
+Message-ID: <20060606053350.GA5905@2ka.mipt.ru>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605010636.GB17361@havoc.gtf.org> <20060605085451.GA26766@infradead.org> <20060605123304.GA6066@havoc.gtf.org> <1149511707.3111.57.camel@laptopd505.fenrus.org> <20060605125235.GB6066@havoc.gtf.org> <20060605140226.GR3955@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060605140226.GR3955@stusta.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 06 Jun 2006 09:33:51 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bisson <bissonm@discreet.com> writes:
-> 
-> - int $0x80/64 bits: All system calls return -1 (EINTR).  Is there
-> something wrong in the way I call it:
-> pid_t getpid64()
-> {
->     pid_t resultvar;
-> 
->     asm volatile (
->     "int $0x80\n\t"
->     : "=a" (resultvar)     : "0" (__NR_getpid)
->     : "memory");
-> 
->     return resultvar;
-> }
+On Mon, Jun 05, 2006 at 04:02:26PM +0200, Adrian Bunk (bunk@stusta.de) wrote:
+> > Far too many people have a careless "U.S.A. laws suck, merge it anyway"
+> > attitude.
+> If someone would state a submission to the kernel might have issues 
+> according to Chinese laws, or Iranian laws, or Russian laws, would this 
+> be enough for keeping code out of the kernel?
 
-I tested it now. Since it ends up as a 32bit syscall you're not 
-actually calling 64bit getpid() - but 32bit mkdir(). That is because 32bit and 64bit
-have different syscall numbers. For me it returns -14, which is EFAULT.
-Expected for a random argument to mkdir()
+Btw, did kernel hackers consulted with Papua New Guinea or bloody
+Russian laws? It is possible that they have a law which forbids to write 
+open source code. So we should stop Linux kernel development and completely 
+remove it's sources from the Internet ASAP.
 
--Andi
+P.S. It is explicitly permitted to make reverse engineering in Russia.
+
+-- 
+	Evgeniy Polyakov

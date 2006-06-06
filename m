@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWFFTWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWFFTaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWFFTWw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 15:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWFFTWw
+	id S1751004AbWFFTaU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 15:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWFFTaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 15:22:52 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:10684 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750983AbWFFTWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 15:22:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=quqg3ARVfXCCgighMVW0THbexoojhaxQYxQRZQVkiOr8CdI51Z/ST12hfLt3DGCdp0yEfLsz0ZnKzVPMJLoQl1BSEZbb9/lR16DG4d8G3pWvQ8aGsWzf6LOqNoE7Xk3L4661EaFnkBKAJ5DfZ7sGALNNlvXAH/ZwgW3jhU4bQWs=
-Message-ID: <4d8e3fd30606061222l3567ed46td1c9c772ab57c056@mail.gmail.com>
-Date: Tue, 6 Jun 2006 21:22:50 +0200
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-Subject: Re: Linux kernel development
-Cc: linux-kernel@vger.kernel.org, "Kalin KOZHUHAROV" <kalin@thinrope.net>,
-       "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
-In-Reply-To: <200606031828.k53ISSgr012167@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Jun 2006 15:30:19 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:41707 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751001AbWFFTaS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 15:30:18 -0400
+Date: Tue, 6 Jun 2006 21:29:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, mbligh@google.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch, -rc5-mm3] better lock debugging: remove mutex deadlock checking code
+Message-ID: <20060606192944.GB15882@elte.hu>
+References: <44845C27.3000006@google.com> <20060605194422.GB14709@elte.hu> <20060605130039.db1ac80c.rdunlap@xenotime.net> <20060606085623.GA2932@elte.hu> <448569C9.9080401@shadowen.org> <4485B8C4.2070700@shadowen.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <paolo.ciarrocchi@gmail.com>
-	 <4d8e3fd30606030636m44e3ce28k9d0fb6938947d4b2@mail.gmail.com>
-	 <200606031828.k53ISSgr012167@laptop11.inf.utfsm.cl>
+In-Reply-To: <4485B8C4.2070700@shadowen.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5186]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/3/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-[...]
-> Perhaps do an asccidoc format, to be able to create HTML?
 
-Just pushed out a first html version done via asciidoc.
+* Andy Whitcroft <apw@shadowen.org> wrote:
 
-Ciao,
--- 
-Paolo
-http://paolociarrocchi.googlepages.com
+> > I'll shove this one in for testing too.  Results on TKO as I have them.
+> 
+> This is definatly clearing up a bunch of problems with the current 
+> -mm.
+
+great! Thanks for testing this out, this bug was the scariest pending 
+one.
+
+	Ingo

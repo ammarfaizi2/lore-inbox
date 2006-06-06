@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWFFOZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWFFOb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWFFOZM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 10:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWFFOZL
+	id S932190AbWFFOb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 10:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWFFOb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 10:25:11 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:15849 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932189AbWFFOZK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 10:25:10 -0400
-Date: Tue, 6 Jun 2006 15:25:02 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: [PATCH] Fix mempolicy.h build error
-Message-ID: <20060606142502.GA1881@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 6 Jun 2006 10:31:59 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43398 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932191AbWFFOb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 10:31:59 -0400
+Date: Tue, 6 Jun 2006 16:31:08 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Mark Lord <lkml@rtr.ca>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Inaky Perez-Gonzalez <inaky@linux.intel.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux UWB and Wireless USB project
+Message-ID: <20060606143108.GB6980@elf.ucw.cz>
+References: <F989B1573A3A644BAB3920FBECA4D25A063F1984@orsmsx407> <20060605231233.GJ3469@elf.ucw.cz> <44858B0F.7020704@rtr.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <44858B0F.7020704@rtr.ca>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<linux/mempolicy.h> uses struct mm_struct and relies on a definition or
-declaration somehow magically being dragged in which may result in a
-build:
+On �t 06-06-06 10:02:55, Mark Lord wrote:
+> Pavel Machek wrote:
+> >
+> >Common cellphones are 2W, iirc; (so it would be ~1mW) but I was more
+> >interested in system power consumption. WIFI is too power intensive
+> >for a cellphone (mostly). Is this designed to go into cellphones?
+> >notebooks?
+> 
+> Most mobile phones in North America typically max out at 0.5W,
+> and spent much of the time operating in the uW - mW txpower range.
+> 
+> I've forgotten the specs for GSM in Europe.
 
-[...]
-  CC      mm/mempolicy.o
-In file included from mm/mempolicy.c:69:
-include/linux/mempolicy.h:150: warning: ‘struct mm_struct’ declared inside parameter list
-include/linux/mempolicy.h:150: warning: its scope is only this definition or declaration, which is probably not what you want
-include/linux/mempolicy.h:175: warning: ‘struct mm_struct’ declared inside parameter list
-mm/mempolicy.c:622: error: conflicting types for ‘do_migrate_pages’
-include/linux/mempolicy.h:175: error: previous declaration of ‘do_migrate_pages’ was here
-mm/mempolicy.c:1661: error: conflicting types for ‘mpol_rebind_mm’
-include/linux/mempolicy.h:150: error: previous declaration of ‘mpol_rebind_mm’ was here
-make[1]: *** [mm/mempolicy.o] Error 1
-make: *** [mm] Error 2
-[ralf@denk linux-ip35]$
+2W max on 900MHz, and 1W max on 1800MHZ, IIRC. Yes, they can go down
+on good signal.
 
-Including <linux/sched.h> is a step into direction of include hell so
-fixed by adding a forward declaration of struct mm_struct instead.
+But power that goes out of the antena is not the only power
+spent... GSM phones have about 5hours theoretical talk time on ~3.6Wh
+battery. That means they eat around ~.5W in the best case.
 
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-
-diff --git a/include/linux/mempolicy.h b/include/linux/mempolicy.h
-index 6a7621b..f5fdca1 100644
---- a/include/linux/mempolicy.h
-+++ b/include/linux/mempolicy.h
-@@ -36,6 +36,7 @@ #include <linux/spinlock.h>
- #include <linux/nodemask.h>
- 
- struct vm_area_struct;
-+struct mm_struct;
- 
- #ifdef CONFIG_NUMA
- 
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

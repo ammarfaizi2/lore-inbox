@@ -1,61 +1,417 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWFFVvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWFFVyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWFFVvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 17:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWFFVvP
+	id S1751176AbWFFVyE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 17:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWFFVyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 17:51:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51087 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751169AbWFFVvO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 17:51:14 -0400
-Date: Tue, 6 Jun 2006 23:50:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] misroute-irq: Don't call desc->chip->end because of edge interrupts
-Message-ID: <20060606215034.GA19419@elte.hu>
-References: <1149426961.27696.7.camel@localhost.localdomain> <1149437412.23209.3.camel@localhost.localdomain> <1149438131.29652.5.camel@localhost.localdomain> <1149456375.23209.13.camel@localhost.localdomain> <1149456532.29652.29.camel@localhost.localdomain> <20060604214448.GA6602@elte.hu> <1149564830.16247.11.camel@localhost.localdomain> <20060606080156.GA427@elte.hu> <1149591019.16247.35.camel@localhost.localdomain> <20060606144823.1de58b9c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060606144823.1de58b9c.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 6 Jun 2006 17:54:03 -0400
+Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:19643 "EHLO
+	smtpq3.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1751176AbWFFVyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 17:54:01 -0400
+Message-ID: <4485F97A.6020205@keyaccess.nl>
+Date: Tue, 06 Jun 2006 23:54:02 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
+MIME-Version: 1.0
+To: Greg Kroah-Hartman <gregkh@suse.de>
+CC: Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       ALSA devel <alsa-devel@alsa-project.org>
+Subject: Driver model ISA bus
+Content-Type: multipart/mixed;
+ boundary="------------060406030600070800050503"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060406030600070800050503
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Hi Greg.
 
-> On Tue, 06 Jun 2006 06:50:19 -0400
-> Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > On Tue, 2006-06-06 at 10:01 +0200, Ingo Molnar wrote:
-> > > * Steven Rostedt <rostedt@goodmis.org> wrote:
-> > > 
-> > > > Hit the following BUG with irqpoll.  The below patch fixes it.
-> > > 
-> > > > -		if (work)
-> > > > +		if (work && disc->chip && desc->chip->end)
-> > > >  			desc->chip->end(i);
-> > > 
-> 
-> Why is this change necessary?  2.6.17-rc6 doesn't have it, and it 
-> doesn't oops.  So somebody changed something.  What?  Why?  Was it 
-> intentional?  Was it correct?
+The below was sent a month ago and I haven't heard anything back. Saw 
+you saying "it's getting there" about this thing on the kernelnewbies 
+list but where's there?
 
-that's due to the irqchips change on x86 and x86_64. So it's not 
-something in -rc6 or some other unknown effect.
+Signed-off-by: Rene Herman <rene.herman@keyaccess.nl>
 
-	Ingo
+===
+During the recent "isa drivers using platform devices" discussion it was
+pointed out that (ALSA) ISA drivers ran into the problem of not having
+the option to fail driver load (device registration rather) upon not
+finding their hardware due to a probe() error not being passed up
+through the driver model. In the course of that, I suggested a seperate
+ISA bus might be best; Russell King agreed and suggested this bus could
+use the .match() method for the actual device discovery.
+
+The attached does this. For this old non (generically) discoverable ISA
+hardware only the driver itself can do discovery so as a difference with
+the platform_bus, this isa_bus also distributes match() up to the driver.
+
+As another difference: these devices only exist in the driver model due
+to the driver creating them because it might want to drive them, meaning
+that all device creation has been made internal as well.
+
+The usage model this provides is nice, and has been acked from the ALSA
+side by Takashi Iwai and Jaroslav Kysela. The ALSA driver module_init's
+now (for oldisa-only drivers) become:
+
+static int __init alsa_card_foo_init(void)
+{
+	return isa_register_driver(&snd_foo_isa_driver, SNDRV_CARDS);
+}
+
+static void __exit alsa_card_foo_exit(void)
+{
+	isa_unregister_driver(&snd_foo_isa_driver);
+}
+
+Quite like the other bus models therefore. This removes a lot of
+duplicated init code from the ALSA ISA drivers.
+
+The passed in isa_driver struct is the regular driver struct embedding a
+struct device_driver, the normal probe/remove/shutdown/suspend/resume
+callbacks, and as indicated that .match callback.
+
+The "SNDRV_CARDS" you see being passed in is a "unsigned int ndev"
+parameter, indicating how many devices to create and call our methods with.
+
+The platform_driver callbacks are called with a platform_device param;
+the isa_driver callbacks are being called with a "struct device *dev,
+unsigned int id" pair directly -- with the device creation completely
+internal to the bus it's much cleaner to not leak isa_dev's by passing
+them in at all. The id is the only thing we ever want other then the
+struct device * anyways, and it makes for nicer code in the callbacks as
+well.
+
+With this additional .match() callback ISA drivers have all options. If
+ALSA would want to keep the old non-load behaviour, it could stick all
+of the old .probe in .match, which would only keep them registered after
+everything was found to be present and accounted for. If it wanted the
+behaviour of always loading as it inadvertently did for a bit after the
+changeover to platform devices, it could just not provide a .match() and
+do everything in .probe() as before.
+
+If it, as Takashi Iwai already suggested earlier as a way of following
+the model from saner buses more closely, wants to load when a later bind
+could conceivably succeed, it could use .match() for the prerequisites
+(such as checking the user wants the card enabled and that port/irq/dma
+values have been passed in) and .probe() for everything else. This is
+the nicest model.
+
+To the code...
+
+This exports only two functions; isa_{,un}register_driver().
+
+isa_register_driver() register's the struct device_driver, and then
+loops over the passed in ndev creating devices and registering them.
+This causes the bus match method to be called for them, which is:
+
+int isa_bus_match(struct device *dev, struct device_driver *driver)
+{
+          struct isa_driver *isa_driver = to_isa_driver(driver);
+
+          if (dev->platform_data == isa_driver) {
+                  if (!isa_driver->match ||
+                          isa_driver->match(dev, to_isa_dev(dev)->id))
+                          return 1;
+                  dev->platform_data = NULL;
+          }
+          return 0;
+}
+
+The first thing this does is check if this device is in fact one of this
+driver's devices by seeing if the device's platform_data pointer is set
+to this driver. Platform devices compare strings, but we don't need to
+do that with everything being internal, so isa_register_driver() abuses
+dev->platform_data as a isa_driver pointer which we can then check here.
+I believe platform_data is available for this, but if rather not, moving
+the isa_driver pointer to the private struct isa_dev is ofcourse fine as
+well.
+
+Then, if the the driver did not provide a .match, it matches. If it did,
+the driver match() method is called to determine a match.
+
+If it did _not_ match, dev->platform_data is reset to indicate this to
+isa_register_driver which can then unregister the device again.
+
+If during all this, there's any error, or no devices matched at all
+everything is backed out again and the error, or -ENODEV, is returned.
+
+isa_unregister_driver() just unregisters the matched devices and the
+driver itself.
+
+More global points/questions...
+
+- I'm introducing include/linux/isa.h. It was available but is ofcourse
+a somewhat generic name. Moving more isa stuff over to it in time is
+ofcourse fine, so can I have it please? :)
+
+- I'm using device_initcall() and added the isa.o (dependent on
+CONFIG_ISA) after the base driver model things in the Makefile. Will
+this do, or I really need to stick it in drivers/base/init.c, inside
+#ifdef CONFIG_ISA? It's working fine.
+
+Lastly -- I also looked, a bit, into integrating with PnP. "Old ISA"
+could be another pnp_protocol, but this does not seem to be a good
+match, largely due to the same reason platform_devices weren't -- the
+devices do not have a life of their own outside the driver, meaning the
+pnp_protocol {get,set}_resources callbacks would need to callback into
+driver -- which again means you first need to _have_ that driver. Even
+if there's clean way around that, you only end up inventing fake but
+valid-form PnP IDs and generally catering to the PnP layer without any
+practical advantages over this very simple isa_bus. The thing I also
+suggested earlier about the user echoing values into /sys to set up the
+hardware from userspace first is... well, cute, but a horrible idea from
+a user standpoint.
+
+Comments ofcourse appreciated. Hope it's okay. As said, the usage model
+is nice at least.
+===
+
+Rene.
+
+
+--------------060406030600070800050503
+Content-Type: text/plain;
+ name="isa_bus.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="isa_bus.diff"
+
+Index: local/drivers/base/isa.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ local/drivers/base/isa.c	2006-05-31 01:57:00.000000000 +0200
+@@ -0,0 +1,180 @@
++/*
++ * ISA bus.
++ */
++
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/isa.h>
++
++static struct device isa_bus = {
++	.bus_id		= "isa"
++};
++
++struct isa_dev {
++	struct device dev;
++	struct device *next;
++	unsigned int id;
++};
++
++#define to_isa_dev(x) container_of((x), struct isa_dev, dev)
++
++static int isa_bus_match(struct device *dev, struct device_driver *driver)
++{
++	struct isa_driver *isa_driver = to_isa_driver(driver);
++
++	if (dev->platform_data == isa_driver) {
++		if (!isa_driver->match ||
++			isa_driver->match(dev, to_isa_dev(dev)->id))
++			return 1;
++		dev->platform_data = NULL;
++	}
++	return 0;
++}
++
++static int isa_bus_probe(struct device *dev)
++{
++	struct isa_driver *isa_driver = dev->platform_data;
++
++	if (isa_driver->probe)
++		return isa_driver->probe(dev, to_isa_dev(dev)->id);
++
++	return 0;
++}
++
++static int isa_bus_remove(struct device *dev)
++{
++	struct isa_driver *isa_driver = dev->platform_data;
++
++	if (isa_driver->remove)
++		return isa_driver->remove(dev, to_isa_dev(dev)->id);
++
++	return 0;
++}
++
++static void isa_bus_shutdown(struct device *dev)
++{
++	struct isa_driver *isa_driver = dev->platform_data;
++
++	if (isa_driver->shutdown)
++		isa_driver->shutdown(dev, to_isa_dev(dev)->id);
++}
++
++static int isa_bus_suspend(struct device *dev, pm_message_t state)
++{
++	struct isa_driver *isa_driver = dev->platform_data;
++
++	if (isa_driver->suspend)
++		return isa_driver->suspend(dev, to_isa_dev(dev)->id, state);
++
++	return 0;
++}
++
++static int isa_bus_resume(struct device *dev)
++{
++	struct isa_driver *isa_driver = dev->platform_data;
++
++	if (isa_driver->resume)
++		return isa_driver->resume(dev, to_isa_dev(dev)->id);
++
++	return 0;
++}
++
++static struct bus_type isa_bus_type = {
++	.name		= "isa",
++	.match		= isa_bus_match,
++	.probe		= isa_bus_probe,
++	.remove		= isa_bus_remove,
++	.shutdown	= isa_bus_shutdown,
++	.suspend	= isa_bus_suspend,
++	.resume		= isa_bus_resume
++};
++
++static void isa_dev_release(struct device *dev)
++{
++	kfree(to_isa_dev(dev));
++}
++
++void isa_unregister_driver(struct isa_driver *isa_driver)
++{
++	struct device *dev = isa_driver->devices;
++
++	while (dev) {
++		struct device *tmp = to_isa_dev(dev)->next;
++		device_unregister(dev);
++		dev = tmp;
++	}
++	driver_unregister(&isa_driver->driver);
++}
++EXPORT_SYMBOL_GPL(isa_unregister_driver);
++
++int isa_register_driver(struct isa_driver *isa_driver, unsigned int ndev)
++{
++	int error;
++	unsigned int id;
++
++	isa_driver->driver.bus	= &isa_bus_type;
++	isa_driver->devices	= NULL;
++
++	error = driver_register(&isa_driver->driver);
++	if (error)
++		return error;
++
++	for (id = 0; id < ndev; id++) {
++		struct isa_dev *isa_dev;
++
++		isa_dev = kzalloc(sizeof *isa_dev, GFP_KERNEL);
++		if (!isa_dev) {
++			error = -ENOMEM;
++			break;
++		}
++
++		isa_dev->dev.parent	= &isa_bus;
++		isa_dev->dev.bus	= &isa_bus_type;
++
++		snprintf(isa_dev->dev.bus_id, BUS_ID_SIZE, "%s.%u",
++				isa_driver->driver.name, id);
++
++		isa_dev->dev.platform_data	= isa_driver;
++		isa_dev->dev.release		= isa_dev_release;
++		isa_dev->id			= id;
++
++		error = device_register(&isa_dev->dev);
++		if (error) {
++			put_device(&isa_dev->dev);
++			break;
++		}
++
++		if (isa_dev->dev.platform_data) {
++			isa_dev->next = isa_driver->devices;
++			isa_driver->devices = &isa_dev->dev;
++		} else
++			device_unregister(&isa_dev->dev);
++	}
++
++	if (!error && !isa_driver->devices)
++		error = -ENODEV;
++
++	if (error)
++		isa_unregister_driver(isa_driver);
++
++	return error;
++}
++EXPORT_SYMBOL_GPL(isa_register_driver);
++
++static int __init isa_bus_init(void)
++{
++	int error;
++
++	error = bus_register(&isa_bus_type);
++	if (!error) {
++		error = device_register(&isa_bus);
++		if (error)
++			bus_unregister(&isa_bus_type);
++	}
++	return error;
++}
++
++device_initcall(isa_bus_init);
+Index: local/include/linux/isa.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ local/include/linux/isa.h	2006-05-31 01:23:24.000000000 +0200
+@@ -0,0 +1,28 @@
++/*
++ * ISA bus.
++ */
++
++#ifndef __LINUX_ISA_H
++#define __LINUX_ISA_H
++
++#include <linux/device.h>
++#include <linux/kernel.h>
++
++struct isa_driver {
++	int (*match)(struct device *, unsigned int);
++	int (*probe)(struct device *, unsigned int);
++	int (*remove)(struct device *, unsigned int);
++	void (*shutdown)(struct device *, unsigned int);
++	int (*suspend)(struct device *, unsigned int, pm_message_t);
++	int (*resume)(struct device *, unsigned int);
++
++	struct device_driver driver;
++	struct device *devices;
++};
++
++#define to_isa_driver(x) container_of((x), struct isa_driver, driver)
++
++int isa_register_driver(struct isa_driver *, unsigned int);
++void isa_unregister_driver(struct isa_driver *);
++
++#endif /* __LINUX_ISA_H */
+Index: local/drivers/base/Makefile
+===================================================================
+--- local.orig/drivers/base/Makefile	2006-05-31 01:22:52.000000000 +0200
++++ local/drivers/base/Makefile	2006-05-31 01:23:24.000000000 +0200
+@@ -5,6 +5,7 @@ obj-y			:= core.o sys.o bus.o dd.o \
+ 			   cpu.o firmware.o init.o map.o dmapool.o \
+ 			   attribute_container.o transport_class.o
+ obj-y			+= power/
++obj-$(CONFIG_ISA)	+= isa.o
+ obj-$(CONFIG_FW_LOADER)	+= firmware_class.o
+ obj-$(CONFIG_NUMA)	+= node.o
+ obj-$(CONFIG_MEMORY_HOTPLUG) += memory.o
+
+--------------060406030600070800050503--

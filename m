@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWFFGxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWFFGvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWFFGxF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 02:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWFFGxF
+	id S1750725AbWFFGvv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 02:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWFFGvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 02:53:05 -0400
-Received: from ns.suse.de ([195.135.220.2]:28558 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750713AbWFFGxD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 02:53:03 -0400
-Date: Mon, 5 Jun 2006 23:50:16 -0700
-From: Greg KH <gregkh@suse.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Greg KH <greg@kroah.com>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
-       netdev@vger.kernel.org, mb@bu3sch.de, st3@riseup.net,
-       linville@tuxdriver.com
-Subject: Re: [PATCH 2/3] pci: bcm43xx avoid pci_find_device
-Message-ID: <20060606065016.GB16832@suse.de>
-References: <2005123213211@nnikde.cz> <20060605202007.B464FC7B73@atrey.karlin.mff.cuni.cz> <20060605205309.GA31061@kroah.com> <20060606011818.GA4135@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060606011818.GA4135@havoc.gtf.org>
-User-Agent: Mutt/1.5.11
+	Tue, 6 Jun 2006 02:51:51 -0400
+Received: from mail8.sea5.speakeasy.net ([69.17.117.10]:22447 "EHLO
+	mail8.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750725AbWFFGvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 02:51:50 -0400
+Date: Tue, 6 Jun 2006 02:51:48 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: linux-kernel@vger.kernel.org
+cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+       Greg KH <greg@kroah.com>
+Subject: HOWTO add privileged code to the kernel without breaking LSM/SELinux
+Message-ID: <Pine.LNX.4.64.0606060229240.10150@d.namei>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 05, 2006 at 09:18:18PM -0400, Jeff Garzik wrote:
-> On Mon, Jun 05, 2006 at 01:53:09PM -0700, Greg KH wrote:
-> > Why not just use the proper pci interface?  Why poke around in another
-> > pci device to steal an irq, when that irq might not even be valid?
-> > (irqs are not valid until pci_enable_device() is called on them...)
-> 
-> Answered this question the last time you asked.
-> 
-> Answer:  this is an embedded platform that needs such poking.  The
-> wireless device is _another_ device.
+If you add any new code to the kernel which exposes any kind of 
+privileged operation to userspace, then it probably needs an LSM hook and 
+subsequent changes to SELinux.
 
-Ugh, sorry, too many patches, too many different threads...  You are
-right...
+It would certainly be unreasonable to expect all kernel developers to know 
+how to do this, however, it is usually very simple to determine when a new 
+LSM would be needed as a first step.
 
-greg k-h
+The simple tests are: does the code you're adding perform any new DAC 
+checks involving any of the user or group ID fields of a task?  Did you 
+add a capable() call?  Does it call DAC helper functions?
+
+If so, it's possible that a corresponding MAC check needs to be added via 
+LSM; and I'd ask that you simply cc any or all of the LSM and/or SELinux 
+maintainers when posting such patches upstream for RFC or inclusion.  We 
+can work on the LSM and SELinux side of things if needed.
+
+This will not cover every case, but I think it will cover most of the ones 
+that are likely to come up in the future.  If in doubt, it won't hurt to ask.
+
+
+(CC'd GKH hoping something of this can go into his kernel hacking howto).
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

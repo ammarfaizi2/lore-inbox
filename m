@@ -1,22 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWFFXm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWFFXoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWFFXm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 19:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWFFXm5
+	id S1751068AbWFFXoB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 19:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWFFXoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 19:42:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6582 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751363AbWFFXm4 (ORCPT
+	Tue, 6 Jun 2006 19:44:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22198 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751068AbWFFXoA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 19:42:56 -0400
-Date: Tue, 6 Jun 2006 16:42:41 -0700
+	Tue, 6 Jun 2006 19:44:00 -0400
+Date: Tue, 6 Jun 2006 16:43:11 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Martin Bligh <mbligh@google.com>
-Cc: apw@shadowen.org, linux-kernel@vger.kernel.org
-Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
-Message-Id: <20060606164241.69d55238.akpm@osdl.org>
-In-Reply-To: <4484D174.7080902@google.com>
-References: <4484D174.7080902@google.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: davej@codemonkey.org.uk, tony.luck@intel.com, mel@csn.ul.ie, ak@suse.de,
+       bob.picco@hp.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 0/5] Sizing zones and holes in an architecture
+ independent manner V7
+Message-Id: <20060606164311.27d4af98.akpm@osdl.org>
+In-Reply-To: <20060606134710.21419.48239.sendpatchset@skynet.skynet.ie>
+References: <20060606134710.21419.48239.sendpatchset@skynet.skynet.ie>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,16 +27,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 17:51:00 -0700
-Martin Bligh <mbligh@google.com> wrote:
+On Tue,  6 Jun 2006 14:47:10 +0100 (IST)
+Mel Gorman <mel@csn.ul.ie> wrote:
 
-> http://test.kernel.org/abat/34264/debug/console.log
+> This is V7 of the patchset to size zones and memory holes in an
+> architecture-independent manner.
 
-What sort of machine is this, anyway?
+I hope this won't deprive me of my 4 kbyte highmem zone.
 
-> WARNING: Not an IBM x440/NUMAQ and CONFIG_NUMA enabled!
-
-And is it expected that ZONE_NORMAL only has 384MB?  That seems awfully low
-for a 64GB x86 machine.  Could be that we went oom because we chose to
-allocate really big hash tables, based on the total amount of memory?
+I won't merge these patches for rc6-mm1 - we already have a few problems in
+this area which I don't think anyone understands yet.
 

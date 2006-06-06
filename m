@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932091AbWFFEy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932084AbWFFFE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWFFEy5 (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 6 Jun 2006 00:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWFFEy5
+	id S932084AbWFFFE2 (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 6 Jun 2006 01:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWFFFE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 00:54:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61116 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932091AbWFFEy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 00:54:57 -0400
-Subject: Re: [patch] i386: print NUMA in oops messages
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-        torvalds@osdl.org
-In-Reply-To: <20060605211855.d92dab53.akpm@osdl.org>
-References: <200606052303_MC3-1-C1B2-7E2C@compuserve.com>
-	 <20060605211855.d92dab53.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 06 Jun 2006 06:54:51 +0200
-Message-Id: <1149569691.3116.23.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 6 Jun 2006 01:04:28 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:60067 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932084AbWFFFE2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 01:04:28 -0400
+Message-ID: <44850CC6.6040002@zytor.com>
+Date: Mon, 05 Jun 2006 22:04:06 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Felix Oxley <lkml@oxley.org>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [2.6.17-rc5-mm3] Fails to compile on PowerBook
+References: <2FFC6FA0-510F-421F-8D66-AD93EFED10C2@oxley.org>
+In-Reply-To: <2FFC6FA0-510F-421F-8D66-AD93EFED10C2@oxley.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felix Oxley wrote:
+> 2.6.17-rc5 is ok, but mm3 gives the following error:
 
-> This is too cute for my taste.  Keep it simple.
+Which distro?
 
-why not just print the vermagic string then?
-(and if needed, we should add NUMA to that)
+What does "ld -v" output?
 
+I have already received one bug report which seems to indicate that
+"ld -R" is broken on the version of binutils which is in the current 
+gentoo ppc.
+
+	-hpa
 

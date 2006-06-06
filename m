@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbWFFSaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWFFSfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750931AbWFFSaw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 14:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWFFSaw
+	id S1750825AbWFFSfv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 14:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWFFSfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 14:30:52 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:60782 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750951AbWFFSav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 14:30:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Fdd8rh+Z+wY9bicHZweiG79pa7tWPrc177ZJ41oC6RK/0zR4vJMsyavGtiu+HMg+9vHG5V0aJBNP3Wv8Uhr+a7iA06jcfsH00Pe6PgAY6eI43HlOCy9A/oOksQnglhJG3DvG+jQeToyJecMz/1N+4mNkpX5j6xXRPmAoAZ0TBrw=
-Message-ID: <29495f1d0606061130s5451db8r102c7e1e75981994@mail.gmail.com>
-Date: Tue, 6 Jun 2006 11:30:51 -0700
-From: "Nish Aravamudan" <nish.aravamudan@gmail.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
-Cc: "Heiko Gerstung" <heiko.gerstung@meinberg.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490606060423t102384f4m626b4366898ce9cd@mail.gmail.com>
+	Tue, 6 Jun 2006 14:35:51 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:404 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S1750825AbWFFSfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 14:35:51 -0400
+Date: Tue, 6 Jun 2006 20:35:49 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild patch (20a468b51325b3636785a8ca0047ae514b39cbd5) breaks parallels-config
+Message-ID: <20060606183549.GB11300@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20060605164950.GB4552@cip.informatik.uni-erlangen.de> <20060605213111.GA15346@mars.ravnborg.org> <20060605222735.GG4552@cip.informatik.uni-erlangen.de> <20060606181437.GA17977@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44854F74.50406@meinberg.de>
-	 <9a8748490606060423t102384f4m626b4366898ce9cd@mail.gmail.com>
+In-Reply-To: <20060606181437.GA17977@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/6/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 06/06/06, Heiko Gerstung <heiko.gerstung@meinberg.de> wrote:
-> > Hi!
-> >
-> > Short Version (tm): I try to backport a USB driver (rtl8150.c) from
-> > 2.6.15.x to 2.4.32 and have no idea how to substitue two functions:
-> > in_atomic() and schedule_timeout_uninterruptible() ... I really would
-> > appreciate any help, because I am no kernel hacker at all ...
-> >
-> in_atomic() is used to test if the kernel is in a state where sleeping
-> is allowed or not. The 2.4.x kernel is not preemptive and has quite
-> coarse grained SMP support (the BKL "Big Kernel Lock"), it didin't
-> need in_atomic() in the same way as 2.6.x does.
->
-> schedule_timeout_uninterruptible() is used to sleep on a wait-queue,
-> which 2.4.x does not have.
+Hello,
 
-schedule_timeout_uninterruptible(timeout_value) is just a wrapper for
+> First off - the below does not even remotely resemble a Kbuild file.
+> There are a shitload of deinitions not used by kbuild etc etc.
+> Parallels should ship a Kbuild file instead with the kernel specific
+> things included and be done with it.  This works for others and they
+> do not need to generate their Makefile using autotools.
 
-set_current_state(TASK_UNINTERRUPTIBLE);
-schedule_timeout(timeout_value);
+agreed.
 
-Maybe you were thinking of sleep_on*()?
+> What your patch did was to remove a fundamental part of the build system
+> - and I'm suprised that you actually managed to build something.
 
-Thanks,
-Nish
+my patch does not removes anything it just moves one line a few lines
+down (as it was before your commit 20a468b51325b...:
+
+        --- a/scripts/Makefile.build
+        +++ b/scripts/Makefile.build
+        @@ -10,12 +10,11 @@ __build:
+         # Read .config if it exist, otherwise ignore
+         -include .config
+         
+      | -include scripts/Kbuild.include
+      | -
+     /    # The filename Kbuild has precedence over Makefile
+    /    kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+   |     include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
+   \     
+    `-> +include scripts/Kbuild.include
+         include scripts/Makefile.lib
+         
+         ifdef host-progs
+
+> I suggest that you ask the Parallels people to create a clean solution
+> for the 2.6 kernel - seeking inspiration in Documentation/kbuild/*
+> and when this works tweak it minimally to support the 2.4 kernel.
+
+I will.
+
+        Thomas

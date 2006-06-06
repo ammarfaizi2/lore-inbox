@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWFFIZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWFFI3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWFFIZz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 04:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWFFIZz
+	id S932142AbWFFI3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 04:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWFFI3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 04:25:55 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:7771 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751171AbWFFIZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 04:25:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Skn80WfSkkD3WV2s9GKjvdGKudaEcMaqsrZL6ud943SMQikE0eOiYBzsrDUtZMUZDuWYvWOLxUgIOVSrvDjpYTAFRQ9Uo2Jo6GDy/GmqQMvJQ7wXVhq6FUi0syyknW2rwrETFPgX7nzN8d1CEAQUOyPEaRL4FOEzkt9xDfYSFws=
-Message-ID: <b0943d9e0606060125o2516ef77w525c7a9aee660b4@mail.gmail.com>
-Date: Tue, 6 Jun 2006 09:25:53 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 2.6.17-rc5 0/8] Kernel memory leak detector 0.5
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
+	Tue, 6 Jun 2006 04:29:24 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:7803 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751177AbWFFI3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 04:29:24 -0400
+Message-ID: <44853BCA.4010009@sw.ru>
+Date: Tue, 06 Jun 2006 12:24:42 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Sam Vilain <sam@vilain.net>
+CC: Kirill Korotaev <dev@openvz.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Srivatsa <vatsa@in.ibm.com>, ckrm-tech@lists.sourceforge.net,
+       balbir@in.ibm.com, Balbir Singh <bsingharora@gmail.com>,
+       Mike Galbraith <efault@gmx.de>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [ckrm-tech] [RFC 3/5] sched: Add CPU rate hard caps
+References: <20060526042021.2886.4957.sendpatchset@heathwren.pw.nest>		<20060526042051.2886.70594.sendpatchset@heathwren.pw.nest>		<661de9470605262348s52401792x213f7143d16bada3@mail.gmail.com>		<44781167.6060700@bigpond.net.au> <447D95DE.1080903@sw.ru>		<447DBD44.5040602@in.ibm.com> <447E9A1D.9040109@openvz.org>		<447EA694.8060407@in.ibm.com>	<1149187413.13336.24.camel@linuxchandra> <447FD2E1.7060605@bigpond.net.au> <447FECFD.8000602@openvz.org> <4484ABF9.50503@vilain.net>
+In-Reply-To: <4484ABF9.50503@vilain.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060604215636.16277.15454.stgit@localhost.localdomain>
-	 <6bffcb0e0606051452p26f20c8r57f2c782de691210@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/06/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> System hangs while starting udev.
->
-> Here is config
-> http://www.stardust.webpages.pl/files/kml/kml-config
->
-> Here is "Kernel Bug : The Movie 2" ;)
-> http://www.stardust.webpages.pl/files/crap/kbtm2.avi
+>>I'm sorry, but nice never looked "nice" to me.
+>>Have you ever tried to "nice" apache server which spawns 500 
+>>processes/threads on a loaded machine?
+>>With nice you _can't_ impose limits or priority on the whole "apache".
+>>The more apaches you have the more useless their priorites and nices are...
+>> 
+>>
+> 
+> 
+> Yes but interactive admin processes will still get a large bonus
+> relative to the apache processes so you can still log in and kill the
+> apache storm off even with very large loads.
 
-Could you put some screenshots instead? I can't play this file (tried
-totem, realplayer, windows media player).
+And how do you plan to manage it: to log in every time when apache works 
+too much and kill processes? The managabiliy of such solutions sucks..
 
-Thanks.
+Kirill
 
--- 
-Catalin

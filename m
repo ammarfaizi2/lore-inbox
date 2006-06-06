@@ -1,73 +1,128 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751206AbWFFCBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751210AbWFFCC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWFFCBJ (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 5 Jun 2006 22:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWFFCBJ
+	id S1751210AbWFFCC3 (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 5 Jun 2006 22:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWFFCC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jun 2006 22:01:09 -0400
-Received: from xenotime.net ([66.160.160.81]:19412 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751206AbWFFCBI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jun 2006 22:01:08 -0400
-Date: Mon, 5 Jun 2006 19:03:55 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-        zippel@linux-m68k.org
-Subject: Re: 2.6.17-rc5-mm3
-Message-Id: <20060605190355.c1be6d75.rdunlap@xenotime.net>
-In-Reply-To: <4484E06B.9020609@microgate.com>
-References: <20060603232004.68c4e1e3.akpm@osdl.org>
-	<20060605230248.GE3963@redhat.com>
-	<20060605184407.230bcf73.rdunlap@xenotime.net>
-	<4484E06B.9020609@microgate.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Jun 2006 22:02:28 -0400
+Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:30106 "HELO
+	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751210AbWFFCC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jun 2006 22:02:28 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: [patch 03/12] input: new force feedback interface
+Date: Mon, 5 Jun 2006 22:02:25 -0400
+User-Agent: KMail/1.9.1
+Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@osdl.org>
+References: <20060530105705.157014000@gmail.com> <d120d5000606051152p2cf999bcv8d832e007ea02810@mail.gmail.com> <44849DE9.6060305@gmail.com>
+In-Reply-To: <44849DE9.6060305@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606052202.26019.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jun 2006 20:54:51 -0500 Paul Fulghum wrote:
-
-> Randy.Dunlap wrote:
-> > Those Kconfig + Makefiles are quite ugly to me.  I would rather see
-> > SYNCLINK depend on HDLC rather than using some tricks to SELECT HDLC.
-> > And then it selects HDLC (and HDLC depends on WAN), but (in my case)
-> > WAN was not enabled, and doing "SELECT HDLC" did not enable WAN.
+On Monday 05 June 2006 17:11, Anssi Hannula wrote:
+> Dmitry Torokhov wrote:
+> > On 5/30/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
 > > 
-> > Adding SELECT WAN and changing the hdlc (wan) Makefile to use
-> > obj-m or obj-y (it was ONLY obj-y for hdlc) fixes^W makes it build
-> > with no missing symbols.  However, I'll also see about a fix
-> > that uses "depends on HDLC" instead of "selects HDLC".
-> 
-> Generic HDLC support in the synclink drivers is optional.
-> Should the generic HDLC code be enabled even if it is not used?
-> 
-> Some of our customers would scream if we started forcing
-> them to compile and load unused code.
-
-OK, I'll try to allow for that.
-
-> > Fix many missing hdlc_generic symbols when CONFIG_HDLC=m.
-> > When Selecting HDLC, also Select WAN.
-> > Fix Makefile to build for HDLC=y or HDLC=m.
+> >> Implement a new force feedback interface, in which all
+> >> non-driver-specific
+> >> operations are separated to a common module. This includes handling
+> >> effect
+> >> type validations, effect timers, locking, etc.
+> >>
 > > 
-> > +	select WAN if SYNCLINK_HDLC
+> > Still looking at it, couple of random points for now...
+> > 
+> >>
+> >> The code should be built as part of the input module, but
+> >> unfortunately that
+> >> would require renaming input.c, which we don't want to do. So instead
+> >> we make
+> >> INPUT_FF_EFFECTS a bool so that it cannot be built as a module.
+> >>
+> > 
+> > I am not opposed to rename input.c, I wonder what pending changes
+> > besides David's header cleanup Andrew had in mind.
+> >
+> >> @@ -865,6 +865,9 @@ struct input_dev {
+> >>        unsigned long sndbit[NBITS(SND_MAX)];
+> >>        unsigned long ffbit[NBITS(FF_MAX)];
+> >>        unsigned long swbit[NBITS(SW_MAX)];
+> >> +
+> >> +       struct ff_device *ff;
+> >> +       struct mutex ff_lock;
+> > 
+> > 
+> > I believe that ff_lock should be part of ff_device and be only used to
+> > controll access when uploading/erasing effects. The teardown process
+> > should make sure that device inactive anyway only then remove
+> > ff_device from input_dev; by that time noone should be able to
+> > upload/erase effects. Therefore ff_lock is not needed to protect
+> > dev->ff.
+> > 
 > 
-> If this is the accepted approach, then synclink_cs should be added also.
-> (drivers/char/pcmcia)
+> Hmm, I remember testing this by putting a 10 second sleep into the end
+> of input_ff_effect_upload() and dropping the ff_locking when
+> unregistering device. Then while in that sleep I unplugged the device.
+> The dev->ff was indeed removed while the input_ff_effect_upload() was
+> still running.
+> 
+> Maybe there was/is some bug in the input device unregistering process
+> that doesn't account for ioctls.
+> 
+> Anyway, I'll retest this issue soon.
+>
 
-It's not the desired approach AFAIK, but it may be the only
-reasonable one.  I'm still testing alternatives, but you are welcome
-to take over and fix it.  :)
+And it will fail, locking is missing many parts of input core. Notice I
+said _should_, not will ;) I was trying to paint how it should work when
+we have proper locking and I don't want to use ff_lock to paper over
+some bugs in the core.
+ 
+> > 
+> >> ===================================================================
+> >> --- linux-2.6.17-rc4-git12.orig/drivers/input/input.c   2006-05-27
+> >> 02:28:57.000000000 +0300
+> >> +++ linux-2.6.17-rc4-git12/drivers/input/input.c        2006-05-27
+> >> 02:38:35.000000000 +0300
+> >> @@ -733,6 +733,17 @@ static void input_dev_release(struct cla
+> >>  {
+> >>        struct input_dev *dev = to_input_dev(class_dev);
+> >>
+> >> +       if (dev->ff) {
+> >> +               struct ff_device *ff = dev->ff;
+> >> +               clear_bit(EV_FF, dev->evbit);
+> >> +               mutex_lock(&dev->ff_lock);
+> >> +               del_timer_sync(&ff->timer);
+> > 
+> > 
+> > This is too late. We need to stop timer when device gets unregistered.
+> 
+> And what if driver has called input_allocate_device(),
+> input_ff_allocate(), input_ff_register(), but then decides to abort and
+> calls input_dev_release()?   input_unregister_device() would not get
+> called at all.
+> 
 
-> What about select WAN if HDLC instead?
-> Or does kbuild not propogate the reverse dependency?
-> (SYNCLINK_HDLC selects HDLC, HDLC selects WAN)
+Right, but if device was never registered there is no device node so noone
+could start the timer and deleting it is a noop. Hmm, I think even better
+place would be to stop ff timer when device is closed (i.e. when last user
+closes file handle).
 
-OK.
+> > Clearing FF bits is pointless here as device is about to disappear;
+> > locking is also not needed because we are guaranteed to be the last
+> > user of the device structure.
+> 
+> True, if that guarantee really exists.
+>
 
----
-~Randy
+Yes, this is guaranteed.
+
+-- 
+Dmitry

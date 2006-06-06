@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWFFIDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWFFIKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWFFIDf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 04:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWFFIDf
+	id S932135AbWFFIKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 04:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWFFIKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 04:03:35 -0400
-Received: from smtp.ono.com ([62.42.230.12]:7468 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S1751148AbWFFIDe (ORCPT
+	Tue, 6 Jun 2006 04:10:07 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:20205 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932135AbWFFIKG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 04:03:34 -0400
-Date: Tue, 6 Jun 2006 10:03:03 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-rc5-mm3
-Message-ID: <20060606100303.4c9e89da@werewolf.auna.net>
-In-Reply-To: <20060603232004.68c4e1e3.akpm@osdl.org>
-References: <20060603232004.68c4e1e3.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.2.1cvs2 (GTK+ 2.9.2; i686-pc-linux-gnu)
+	Tue, 6 Jun 2006 04:10:06 -0400
+Date: Tue, 6 Jun 2006 10:09:32 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@ono.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [patch, -rc5-mm3] lock validator: add local_irq_enable_in_hardirq() to ide-floppy.c
+Message-ID: <20060606080932.GB28752@elte.hu>
+References: <20060603232004.68c4e1e3.akpm@osdl.org> <20060606100303.4c9e89da@werewolf.auna.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060606100303.4c9e89da@werewolf.auna.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5019]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Jun 2006 23:20:04 -0700, Andrew Morton <akpm@osdl.org> wrote:
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc5/2.6.17-rc5-mm3/
-> 
-> - Lots of PCI and USB updates
-> 
-> - The various lock validator, stack backtracing and IRQ management problems
->   are converging, but we're not quite there yet.
-> 
+* J.A. Magallón <jamagallon@ono.com> wrote:
 
-One more, could not find it already reported (if yes, sorry for the noise).
-It is not in lockdep-combo as 20060606.
+> One more, could not find it already reported (if yes, sorry for the 
+> noise). It is not in lockdep-combo as 20060606.
 
-ide-floppy driver 0.99.newide
-stopped custom tracer.
-BUG: warning at kernel/lockdep.c:1856/trace_hardirqs_on()
- [<c01034ba>] show_trace+0x12/0x14
- [<c0103b8d>] dump_stack+0x19/0x1b
- [<c0133c56>] trace_hardirqs_on+0x14d/0x152
- [<f88bcaa9>] idefloppy_pc_intr+0x192/0x6ca [ide_floppy]
- [<f89402e2>] ide_intr+0x74/0x1c7 [ide_core]
- [<c013d212>] handle_IRQ_event+0x2e/0x63
- [<c013e451>] handle_edge_irq+0xad/0x132
- [<c0104dc7>] do_IRQ+0x6c/0xa5
- =======================
- [<c0102ec1>] common_interrupt+0x25/0x2c
- [<c0103029>] error_code+0x39/0x40
-hdb: No disk in drive
-hdb: 244736kB, 239/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
-hdb: No disk in drive
+indeed i missed that. The patch below should fix it.
 
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.16-jam19 (gcc 4.1.1 20060518 (prerelease)) #1 SMP PREEMPT Tue
+------------------
+Subject: lock validator: add local_irq_enable_in_hardirq() to ide-floppy.c
+From: Ingo Molnar <mingo@elte.hu>
+
+ide-floppy.c enables hardirqs in IRQ context. (build-tested)
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+---
+ drivers/ide/ide-floppy.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux/drivers/ide/ide-floppy.c
+===================================================================
+--- linux.orig/drivers/ide/ide-floppy.c
++++ linux/drivers/ide/ide-floppy.c
+@@ -839,7 +839,7 @@ static ide_startstop_t idefloppy_pc_intr
+ 			"transferred\n", pc->actually_transferred);
+ 		clear_bit(PC_DMA_IN_PROGRESS, &pc->flags);
+ 
+-		local_irq_enable();
++		local_irq_enable_in_hardirq();
+ 
+ 		if (status.b.check || test_bit(PC_DMA_ERROR, &pc->flags)) {
+ 			/* Error detected */

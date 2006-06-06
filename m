@@ -1,105 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWFFHAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWFFHB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWFFHAc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 03:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWFFHAc
+	id S932123AbWFFHB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 03:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWFFHB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 03:00:32 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:18510 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932121AbWFFHAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 03:00:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=GkBuUcN2/DcU3ZkKgKqmuEnZLiJI+PNhhyZpBI23tLYiLhShn/bOobwK2CmZnSoqu2KUW+PIfwnDidTRhSNVFYn+2E5/ys5vuOsfbxtvCl8FzPnheNVL4NqAofnRUByWxMR4mNDyGBNedZYe3EMCAjz8UMIAgCg8TvHARvvphR8=
-Message-ID: <44852819.2080503@gmail.com>
-Date: Tue, 06 Jun 2006 09:00:18 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 6 Jun 2006 03:01:58 -0400
+Received: from mx2.suse.de ([195.135.220.15]:57308 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932123AbWFFHB6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 03:01:58 -0400
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jeff@garzik.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: merging new drivers (was Re: 2.6.18 -mm merge plans)
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	<20060605013223.GD17361@havoc.gtf.org>
+	<20060605065856.GA1313@electric-eye.fr.zoreil.com>
+	<1149503559.30554.10.camel@localhost.localdomain>
+	<1149503784.3111.48.camel@laptopd505.fenrus.org>
+	<20060606020245.GN29676@moss.sous-sol.org>
+From: Andi Kleen <ak@suse.de>
+Date: 06 Jun 2006 09:01:48 +0200
+In-Reply-To: <20060606020245.GN29676@moss.sous-sol.org>
+Message-ID: <p73pshmzs0z.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Andrew Morton <akpm@osdl.org>, arjan@infradead.org, mingo@redhat.com,
-       linux-kernel@vger.kernel.org, stefanr@s5r6.in-berlin.de
-Subject: Re: 2.6.17-rc5-mm3-lockdep -
-References: <200606060250.k562oCrA004583@turing-police.cc.vt.edu>
-In-Reply-To: <200606060250.k562oCrA004583@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Chris Wright <chrisw@sous-sol.org> writes:
 
-Valdis.Kletnieks@vt.edu napsal(a):
-> It's living longer before it throws a complaint - we're making it out of
-> rc.sysinit and into rc5.d ;)  This time we were in an 'id' command from this:
+> * Arjan van de Ven (arjan@infradead.org) wrote:
+> > On Mon, 2006-06-05 at 11:32 +0100, Alan Cox wrote:
+> > > It isn't just drivers. Xen has the same problem.
+> > 
+> > Xen has many problems. This is not nearly their biggest ;)
 > 
-> test `id -u` = 0  || exit 4
-> 
-> in either S11mcstrans or S18auditd.  Looks like the Firewire (which I
-> don't actually use for anything) threw an IRQ at an inopportune time?
-> 
-> (Obviously I stress different code paths than Arjan or Ingo.  But if
-> I did the same things they did, it wouldn't be interesting.. ;)
-> 
-> [  464.687000] (              id-2700 |#0): new 569737200 us user-latency.
-> [  464.687000] stopped custom tracer.
-> [  464.687000] 
-> [  464.687000] ============================
-> [  464.687000] [ BUG: illegal lock usage! ]
-> [  464.687000] ----------------------------
-> [  464.687000] illegal {in-hardirq-W} -> {hardirq-on-W} usage.
-> [  464.687000] id/2700 [HC0[0]:SC0[1]:HE1:SE0] takes:
-> [  464.687000]  (&list->lock){++..}, at: [<c0351a07>] unix_stream_connect+0x334/0x408
-> [  464.687000] {in-hardirq-W} state was registered at:
-> [  464.687000]   [<c012dd45>] lockdep_acquire+0x67/0x7f
-> [  464.687000]   [<c0383f11>] _spin_lock_irqsave+0x30/0x3f
-> [  464.687000]   [<c02fa93f>] skb_dequeue+0x18/0x49
-> [  464.687000]   [<f086b7f1>] hpsb_bus_reset+0x5e/0xa2 [ieee1394]
-> [  464.687000]   [<f0887007>] ohci_irq_handler+0x370/0x726 [ohci1394]
-> [  464.687000]   [<c013f9a8>] handle_IRQ_event+0x1d/0x52
-> [  464.687000]   [<c0140bc4>] handle_level_irq+0x97/0xe3
-> [  464.687000]   [<c01045d0>] do_IRQ+0x8b/0xaf
-> [  464.687000] irq event stamp: 2964
-> [  464.687000] hardirqs last  enabled at (2963): [<c0384223>] _spin_unlock_irqrestore+0x3b/0x6d
-> [  464.687000] hardirqs last disabled at (2962): [<c0383ef5>] _spin_lock_irqsave+0x14/0x3f
-> [  464.687000] softirqs last  enabled at (2956): [<c0119da0>] __do_softirq+0x9d/0xa5
-> [  464.687000] softirqs last disabled at (2964): [<c0383f6b>] _spin_lock_bh+0x10/0x3a
-> [  464.687000] 
-> [  464.687000] other info that might help us debug this:
-> [  464.687000] 1 locks held by id/2700:
-> [  464.687000]  #0:  (&u->lock){--..}, at: [<c03517bb>] unix_stream_connect+0xe8/0x408
-> [  464.687000] 
-> [  464.687000] stack backtrace:
-> [  464.687000]  [<c01032d6>] show_trace_log_lvl+0x64/0x125
-> [  464.687000]  [<c0103865>] show_trace+0x1b/0x20
-> [  464.687000]  [<c010391c>] dump_stack+0x1f/0x24
-> [  464.687000]  [<c012bfb1>] print_usage_bug+0x1a8/0x1b4
-> [  464.687000]  [<c012c6c7>] mark_lock+0x2ba/0x4e5
-> [  464.687000]  [<c012d2b8>] __lockdep_acquire+0x476/0xa91
-> [  464.687000]  [<c012dd45>] lockdep_acquire+0x67/0x7f
-> [  464.687000]  [<c0383f87>] _spin_lock_bh+0x2c/0x3a
-> [  464.687000]  [<c0351a07>] unix_stream_connect+0x334/0x408
-> [  464.687000]  [<c02f7236>] sys_connect+0x6e/0xa3
-> [  464.687000]  [<c02f79da>] sys_socketcall+0x96/0x190
-> [  464.687000]  [<c03845e2>] sysenter_past_esp+0x63/0xa1
-> 
-That one would be corrected now:
-http://lkml.org/lkml/2006/6/5/100
+> What is the biggest, or even top 3 or 5?  I've a todo list of some
 
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+I would say the biggest is that things haven't gotten submitted
+for so long and aren't not resubmitted quickly.
 
-iD8DBQFEhSgZMsxVwznUen4RAqfjAKC8lvknOP66TEqb1oD7y9RaoAaW1gCfWk/m
-4GLhay/GeS/wij5E6V9LUOg=
-=uN9Z
------END PGP SIGNATURE-----
+e.g. Xen code needs a lot of arch/* cleanups in small patches that should
+be just submitted, fixed, resubmitted quickly.  Many of them
+could be already merged.
+
+For example Jan Beulich has been sending many of the cleanups he 
+needed for x86-64/i386 Xen immediately and at least for x86-64 
+I merged most of them. If the other things were submitted
+earlier a lot of it could be already merged too.
+
+Then Xen net/block/char etc. drivers should be submitted to the
+respective maintainers independently (they are useful even without the
+rest of Xen in HVM guests)
+
+> 140-odd entries which are being worked on.  It's slow and tedious,
+> but in progress. 
+
+What I would do is to concentrate on the small cleanup patches first
+and post them as soon as you fix them. I think a lot of them were
+actually ok without changes. Then bigger stuff piece by piece. You
+don't need to wait to fix everything first.
+
+-Andi

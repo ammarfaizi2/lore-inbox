@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWFFWFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWFFWLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWFFWFs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 18:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWFFWFs
+	id S1751207AbWFFWLW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 18:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWFFWLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 18:05:48 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:57307 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751201AbWFFWFr (ORCPT
+	Tue, 6 Jun 2006 18:11:22 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:55241 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751207AbWFFWLV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 18:05:47 -0400
-Date: Wed, 7 Jun 2006 00:05:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com, Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: 2.6.17-rc5-mm1
-Message-ID: <20060606220507.GA19882@elte.hu>
-References: <200606042101_MC3-1-C19B-1CF4@compuserve.com> <20060604181002.57ca89df.akpm@osdl.org> <44840838.7030802@free.fr> <4484584D.4070108@free.fr> <20060605110046.2a7db23f.akpm@osdl.org> <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com> <20060606072628.GA28752@elte.hu> <4485E0D3.8080708@free.fr> <20060606205801.GC17787@elte.hu> <4485F5E2.5040708@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4485F5E2.5040708@free.fr>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 6 Jun 2006 18:11:21 -0400
+Message-Id: <200606062210.k56M9u7f008189@laptop11.inf.utfsm.cl>
+To: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
+       "Kalin KOZHUHAROV" <kalin@thinrope.net>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>, "Greg KH" <greg@kroah.com>
+Subject: Re: Linux kernel development 
+In-Reply-To: Message from "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com> 
+   of "Tue, 06 Jun 2006 21:22:50 +0200." <4d8e3fd30606061222l3567ed46td1c9c772ab57c056@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Tue, 06 Jun 2006 18:09:56 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 06 Jun 2006 18:10:35 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> On 6/3/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> > Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> [...]
+> > Perhaps do an asccidoc format, to be able to create HTML?
 
-* Laurent Riffard <laurent.riffard@free.fr> wrote:
+> Just pushed out a first html version done via asciidoc.
 
-> >> Results:
-> >> - 2.6.17-rc4-mm3 with 4K stack works fine (this is the latest good 4K-kernel).
-> >> - 2.6.17-rc5-mm3 with 4K stack crashes, the stack seems to be corrupted.
-> > 
-> > that's vanilla mm3, or mm3 patched with extra lockdep patches? If it's 
-> > patched then you should try vanilla mm3 too.
-> 
-> It was vanilla mm3.
+Awesome.
 
-ok, i'll check the stack impact of the block_dev.c changes tomorrow.
-
-	Ingo
+But don't push out generated files, better add a Makefile to (re)generate
+them.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

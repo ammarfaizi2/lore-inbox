@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWFGS47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWFGTQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWFGS47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 14:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWFGS46
+	id S932380AbWFGTQe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 15:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWFGTQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 14:56:58 -0400
-Received: from www.osadl.org ([213.239.205.134]:25302 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932353AbWFGS46 (ORCPT
+	Wed, 7 Jun 2006 15:16:34 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:13288 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S932268AbWFGTQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 14:56:58 -0400
-Subject: Re: [patchset] Generic IRQ Subsystem: -V5
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1149700829.5257.16.camel@localhost.localdomain>
-References: <20060517001310.GA12877@elte.hu>
-	 <20060517221536.GA13444@elte.hu> <20060519145225.GA12703@elte.hu>
-	 <20060607165456.GC13165@flint.arm.linux.org.uk>
-	 <1149700829.5257.16.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 07 Jun 2006 20:57:30 +0200
-Message-Id: <1149706650.5257.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 7 Jun 2006 15:16:33 -0400
+From: Joachim Fritschi <jfritschi@freenet.de>
+To: Dag Arne Osvik <da@osvik.no>
+Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
+Date: Wed, 7 Jun 2006 21:16:30 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       herbert@gondor.apana.org.au
+References: <200606041516.46920.jfritschi@freenet.de> <200606051218.16125.jfritschi@freenet.de> <4484B001.3010503@osvik.no>
+In-Reply-To: <4484B001.3010503@osvik.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606072116.30313.jfritschi@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-07 at 19:20 +0200, Thomas Gleixner wrote: 
-> > Is there an updated series?  This doesn't apply to -rc6 - it seems
-> > that maybe the ia64 folk merged some of the changes.
+On Tuesday 06 June 2006 00:28, Dag Arne Osvik wrote:
+> Joachim Fritschi wrote:
+> > Can you give me any hint what to improve or maybe provide a suggestion on how 
+> > to improve the overall readabilty.
 > 
-> We did the latest changes against -mm. I can respin it against
-> 2.6.16-rc6.
+> It looks better on second reading, but I have some comments:
+> 
+> Remove load_s - it's needless and (slightly) confusing
+Done
+> There are some cases of missing ## D
+Oops, fixed.
+> Why semicolon after closing parenthesis in macro definitions?
+Braindamage on my part.
+> Try to align operands in columns
+Done
+> It would be nice to have some explanation of macro parameter names
+Done for the non trivial stuff
+> Btw, why do you keep zeroing tmp registers when you don't need to?
+> 32-bit ops zero the top half of the destination register.
+Again braindamage :). Fixed it according to your suggestions.
 
-http://www.tglx.de/projects/armirq/2.6.17-rc6/patch-2.6.17-rc6-armirq1.patches.tar.bz2
-http://www.tglx.de/projects/armirq/2.6.17-rc6/patch-2.6.17-rc6-armirq1.patch
+Thanks for the comments. Will post a new patches in a few minutes.
 
-	tglx
-
+-Joachim
 

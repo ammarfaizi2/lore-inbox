@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWFGOVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWFGOXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWFGOVM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 10:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWFGOVM
+	id S932221AbWFGOXE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 10:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWFGOXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 10:21:12 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:938 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S932088AbWFGOVM (ORCPT
+	Wed, 7 Jun 2006 10:23:03 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50144 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932221AbWFGOXC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 10:21:12 -0400
-Subject: Re: pci_map_single() on IA64
-From: Alex Williamson <alex.williamson@hp.com>
-To: Adhiraj <adhiraj@linsyssoft.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1149671049.3499.27.camel@triumph>
-References: <1149671049.3499.27.camel@triumph>
-Content-Type: text/plain
-Organization: OSLO R&D
-Date: Wed, 07 Jun 2006 08:21:08 -0600
-Message-Id: <1149690068.5528.15.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jun 2006 10:23:02 -0400
+Date: Wed, 7 Jun 2006 16:22:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: jvbest@qv3pluto.leidenuniv.nl, 100.30936@germany.net,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: NI5010 network driver -- MAINTAINERS entry
+Message-ID: <20060607142213.GA3618@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-07 at 14:34 +0530, Adhiraj wrote:
-> Hi all,
-> 
-> How is it possible that on an IA64 machine, the address returned by
-> pci_map_single() is above 4G (32 bits) when I have only 2G of physical
-> memory?
-> 
-> The DMA mask is set to 64 bits (using pci_set_dma_mask()). When I change
-> it to 32 bit DMA mask, the problem goes away.
-> 
-> This problem does not appear on i388/x86_64 machines.
 
-   What is the physical layout of that 2GB of memory?  You can't count
-on memory being contiguous, especially on IA64 systems.  If the address
-you get back is within the DMA mask of the device, then the DMA mapping
-is valid.  You can run 'grep "System RAM" /proc/iomem' to get some idea
-of the physical memory address map.  Thanks,
+...is quite inconsistent with rest of file:
 
-	Alex
+NI5010 NETWORK DRIVER
+P:      Jan-Pascal van Best and Andreas Mohr
+M:      Jan-Pascal van Best <jvbest@qv3pluto.leidenuniv.nl>
+M:      Andreas Mohr <100.30936@germany.net>
+L:      netdev@vger.kernel.org
+S:      Maintained
 
+probably should be
+
+NI5010 NETWORK DRIVER
+P:      Jan-Pascal van Best
+M:      jvbest@qv3pluto.leidenuniv.nl
+P:	Andreas Mohr
+M:      100.30936@germany.net
+L:      netdev@vger.kernel.org
+S:      Maintained
+
+...yes, "new" mail address format makes sense, but I guess whole file
+should be converted.
+								Pavel
 -- 
-Alex Williamson                             HP Open Source & Linux Org.
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

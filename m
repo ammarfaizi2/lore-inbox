@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWFGXwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWFGXzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWFGXwt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 19:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWFGXwt
+	id S932467AbWFGXzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 19:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWFGXzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 19:52:49 -0400
-Received: from khc.piap.pl ([195.187.100.11]:20752 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932464AbWFGXws (ORCPT
+	Wed, 7 Jun 2006 19:55:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32419 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932467AbWFGXzi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 19:52:48 -0400
-To: Andy Green <andy@warmcat.com>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: Black box flight recorder for Linux
-References: <44379AB8.6050808@superbug.co.uk>
-	<m3psjqeeor.fsf@defiant.localdomain> <443A4927.5040801@warmcat.com>
-	<m3zmgqxjs8.fsf@defiant.localdomain>
-	<20060607100349.a990e054.khali@linux-fr.org>
-	<4486A7FC.2090904@warmcat.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 08 Jun 2006 01:52:42 +0200
-In-Reply-To: <4486A7FC.2090904@warmcat.com> (Andy Green's message of "Wed, 07 Jun 2006 11:18:36 +0100")
-Message-ID: <m3irncr0ad.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jun 2006 19:55:38 -0400
+Date: Wed, 7 Jun 2006 16:55:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: 2.6.17-rc6-mm1
+Message-Id: <20060607165521.f4aa1898.akpm@osdl.org>
+In-Reply-To: <44875DC0.2000406@mbligh.org>
+References: <20060607104724.c5d3d730.akpm@osdl.org>
+	<44875DC0.2000406@mbligh.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 07 Jun 2006 16:14:08 -0700
+Martin Bligh <mbligh@mbligh.org> wrote:
 
-Andy Green <andy@warmcat.com> writes:
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+> 
+> 
+> 
+> Build failures on everything but x86_64 (possibly different distro
+> or something)
+> 
+>    GEN     usr/klibc/syscalls/SYSCALLS.i
+> /usr/local/autobench/var/tmp/build/usr/klibc/SYSCALLS.def:30:26: missing 
+> terminating ' character
+> make[3]: *** [usr/klibc/syscalls/SYSCALLS.i] Error 1
+> make[2]: *** [usr/klibc/syscalls] Error 2
+> make[1]: *** [_usr_klibc] Error 2
+> make: *** [usr] Error 2
+> 06/07/06-18:23:44 Build the kernel. Failed rc = 2
+> 06/07/06-18:23:44 build: kernel build Failed rc = 1
+> 06/07/06-18:23:44 command complete: (2) rc=126
+> Failed and terminated the run
+>   Fatal error, aborting autorun
 
-> A whole other way forward is to consider to replace the EEPROM from
-> the original proposal (which does provide its own advantages such as
-> simplicity, I accept) with something else that ends up on another
-> PC. In this concept some logic presents a fake I2C peripheral to the
-> DDC interface at an I2C address of our choosing.  This logic acts as a
-> bidirectional "UART" type of thing, allowing transfer of data in both
-> directions between the Linux box being debugged and another PC.
+dammit, I fixed that and then didn't manage to include the fix in the rollup.
 
-Right. I think one could use something like ATMEL 89F2051 (20-pin 8051
-non-SMD clones with flash and hardware UART) or something similar.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/broken-out/klibc-ia64-fix.patch
 
-Client I2C is difficult in Linux (using general purpose I/O port) but
-with a dedicated CPU it's not a problem (not sure about 400 kHz access).
-
-> http://warmcat.com/milksop/filtror.html
-
-Well, that's a bit more complicated. I'm not going to try that on
-an experimental PCB :-)
-
-> However this would be much simpler, not even needing RAM.  It can hook
-> to the second PC by the same I2C method, parallel printer port, RS232
-> or USB depending on the level of complexity of the design.
->
-> I guess the link will feel quite like a 9600 or 19200 baud serial port
-> in terms of throughput.
-
-Depends on I2C. With something like 400 kHz it should be faster,
-probably like 115200.
-
-> Maybe this effort is considered too esoteric, but it seems to me to be
-> a reason to keep the DDC access drivers standalone, the
-> hardware-specific framebuffer drivers can call through to them and we
-> can use them in a clean way.  I realize this is a bit of a late
-> objection and that there was not previously much point to keeping them
-> as separate things in the world.
-
-Actually we have:
-- the Xserver "hardware access" issue
-- DRI/DRM
-- now the I2C bus driver
-- frame buffer
-
-To avoid conflicts we really need them managed by a single driver.
-Probably the GGI (KGI?) should be revisited?
-
-Long-term project, unfortunatelly, but I think we'll have to do that
-eventually.
-
-The I2C, graphics subsystem and DRI/DRM could be sub-modules, with
-the master module only keeping track of hardware access, mode
-settings etc.
--- 
-Krzysztof Halasa

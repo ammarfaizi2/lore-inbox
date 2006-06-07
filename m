@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWFGLrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWFGMDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWFGLrw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 07:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWFGLrw
+	id S932222AbWFGMDL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 08:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWFGMDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 07:47:52 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:5829 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1750853AbWFGLrw (ORCPT
+	Wed, 7 Jun 2006 08:03:11 -0400
+Received: from www.osadl.org ([213.239.205.134]:1745 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932222AbWFGMDK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 07:47:52 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-       "Brendan Trotter" <btrotter@gmail.com>
-Subject: Re: NMI problems with Dell SMP Xeons 
-In-reply-to: Your message of "Wed, 07 Jun 2006 10:01:40 +0200."
-             <200606071001.40933.ak@suse.de> 
+	Wed, 7 Jun 2006 08:03:10 -0400
+Subject: Re: genirq: fasteoi change for retrigger
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060607083304.GA31202@elte.hu>
+References: <1149660616.27572.138.camel@localhost.localdomain>
+	 <20060607083304.GA31202@elte.hu>
+Content-Type: text/plain
+Date: Wed, 07 Jun 2006 10:40:06 +0200
+Message-Id: <1149669606.11983.70.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 07 Jun 2006 21:47:40 +1000
-Message-ID: <6799.1149680860@ocs3.ocs.com.au>
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen (on Wed, 7 Jun 2006 10:01:40 +0200) wrote:
->
->>
->> Two ways:
->>
->> (1) Boot with a kernel with CONFIG_ACPI=n, so the OS only finds 2 cpus
->>     in the MPT instead of the 4 listed by ACPI.
->>
->> (2) The kernel has ACPI=y, but is booted with maxcpus=2.
->>
->> In both cases, send_IPI_allbutself() with IPI 2 or an NMI will result
->> in a hard reset.
->
->Sounds both like a "Don't do that when it hurts" . I know some people
->have religious issues with ACPI, but it's simple a fact that many
->modern boxes don't work correctly in obvious or subtle ways without it. 
+On Wed, 2006-06-07 at 10:33 +0200, Ingo Molnar wrote:
+> * Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > Hi Ingo, Thomas.
+> > 
+> > Would you be ok with a small change to the fasteoi handler that
+> > 
+> >  - If the interrupt happens while disabled, rather than just doing goto
+> > out, also mark it pending
+> >  - In the normal handling code path, clear pending.
+> > 
+> > That would allow some sort of soft-disable to work with fasteoi.
+> > 
+> > My issue here is on Cell. I have a very strange interrupt controller 
+> > that can't mask interrupts.
+> 
+> sure, it looks reasonable to me. Thomas?
 
-Building a kernel without ACPI is silly nowadays.  But even with ACPI,
-booting with a restricted maxcpus and sending IPI 2 or NMI as broadcast
-will kill these boxes.  maxcpus is a valid option.
+No objections.
+
+	tglx
+
 

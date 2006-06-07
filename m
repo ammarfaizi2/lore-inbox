@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWFGWlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWFGWmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWFGWlK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 18:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWFGWlK
+	id S932453AbWFGWmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 18:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWFGWmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 18:41:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13967 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932452AbWFGWlI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 18:41:08 -0400
-Date: Wed, 7 Jun 2006 15:40:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. =?ISO-8859-1?B?TWFnYWxs824i?= <jamagallon@ono.com>"@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc6-mm1
-Message-Id: <20060607154054.cf4f2512.akpm@osdl.org>
-In-Reply-To: <20060608003153.36f59e6a@werewolf.auna.net>
-References: <20060607104724.c5d3d730.akpm@osdl.org>
-	<20060608003153.36f59e6a@werewolf.auna.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 7 Jun 2006 18:42:21 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:40861 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932453AbWFGWmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 18:42:20 -0400
+Date: Thu, 8 Jun 2006 00:42:09 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: klibc - another libc?
+In-Reply-To: <e67fok$h25$1@terminus.zytor.com>
+Message-ID: <Pine.LNX.4.64.0606080036250.17704@scrub.home>
+References: <44869397.4000907@tls.msk.ru> <e67fok$h25$1@terminus.zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Jun 2006 00:31:53 +0200
-"J.A. Magallón" <jamagallon@ono.com> wrote:
+Hi,
 
-> WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x3c)
-> WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x40)
-> WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x44)
+On Wed, 7 Jun 2006, H. Peter Anvin wrote:
 
-Yes, that's a false positive - doing locking from within an __init section.
-We need to shut that up somehow.
+> To be able to *require* it, which means it can't significantly bloat
+> the total size of the kernel image.  klibc binaries are *extremely*
+> small.  Static kinit is only a few tens of kilobytes, a lot of which
+> is zlib.
 
+Every project starts small and has the annoying tendency to grow.
+That still doesn't answer, why it has to be distributed with the kernel, 
+just install the thing somewhere under /lib and Kbuild can link to it. The 
+point is that it contains nothing kernel specific and doesn't has to be 
+rebult with every new kernel.
+
+bye, Roman

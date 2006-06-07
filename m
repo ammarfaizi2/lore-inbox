@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWFGVNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWFGVPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWFGVNG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 17:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWFGVNE
+	id S932421AbWFGVPb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 17:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWFGVPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 17:13:04 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:42120 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932420AbWFGVNC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 17:13:02 -0400
-Date: Wed, 7 Jun 2006 16:11:19 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Subject: [PATCH] utsname: remove unused exit_utsname()
-Message-ID: <20060607211119.GC30604@sergelap.austin.ibm.com>
+	Wed, 7 Jun 2006 17:15:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38049 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932421AbWFGVPa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 17:15:30 -0400
+Date: Wed, 7 Jun 2006 23:14:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       Deepak Saxena <dsaxena@plexity.net>
+Subject: 2.6.17-rc6-rt1
+Message-ID: <20060607211455.GA6132@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5002]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The exit_utsname() inline function hasn't been in use since we switched
-to using nsproxies.  Remove it's definition.  Thanks to Cedric for
-noticing.
+i have released the 2.6.17-rc6-rt1 tree, which can be downloaded from 
+the usual place:
 
-(This patch is on 2.6.17-rc5-mm3)
+   http://redhat.com/~mingo/realtime-preempt/
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+the biggest change was the port to 2.6.17-rc6, and the moving to John's 
+latest and greatest GTOD queue. Most of the porting was done by Thomas 
+Gleixner (thanks Thomas!). We also picked up the freshest genirq queue 
+from -mm and the freshest PI-futex patchset. There are also lots of ARM 
+fixups and enhancements from Deepak Saxena and Daniel Walker.
 
----
+if we accidentally dropped some fix in the process then please complain. 
+x86 and x86_64 build and boot, but some initial rough edges are to be 
+expected. Deepak, your ARM-GTOD patches are included but not tested yet.
 
- include/linux/utsname.h |   12 ------------
- 1 files changed, 0 insertions(+), 12 deletions(-)
+to build a 2.6.17-rc6-rt1 tree, the following patches should be applied:
 
-fa0b64ea95feed3a62a94f807aba6c94f7f70d4b
-diff --git a/include/linux/utsname.h b/include/linux/utsname.h
-index 0d500fe..bffb379 100644
---- a/include/linux/utsname.h
-+++ b/include/linux/utsname.h
-@@ -56,15 +56,6 @@ static inline void put_uts_ns(struct uts
- {
- 	kref_put(&ns->kref, free_uts_ns);
- }
--
--static inline void exit_utsname(struct task_struct *p)
--{
--	struct uts_namespace *uts_ns = p->nsproxy->uts_ns;
--	if (uts_ns) {
--		put_uts_ns(uts_ns);
--	}
--}
--
- #else
- static inline int unshare_utsname(unsigned long unshare_flags,
- 			struct uts_namespace **new_uts)
-@@ -78,9 +69,6 @@ static inline int copy_utsname(int flags
- static inline void put_uts_ns(struct uts_namespace *ns)
- {
- }
--static inline void exit_utsname(struct task_struct *p)
--{
--}
- #endif
- 
- static inline struct new_utsname *utsname(void)
--- 
-1.1.6
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.17-rc6.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.17-rc6-rt1
+
+	Ingo

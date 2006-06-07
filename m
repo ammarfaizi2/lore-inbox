@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWFGRmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWFGRmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWFGRmc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 13:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWFGRmb
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 13:42:31 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:47549 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932369AbWFGRmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932090AbWFGRmF (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 7 Jun 2006 13:42:05 -0400
-From: Balbir Singh <balbir@in.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: Balbir Singh <balbir@in.ibm.com>
-Date: Wed, 07 Jun 2006 23:06:36 +0530
-Message-Id: <20060607173636.31231.39254.sendpatchset@localhost.localdomain>
-Subject: [PATCH -mm] Fix return value of delayacct_add_tsk()
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWFGRmE
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 7 Jun 2006 13:42:04 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:51350 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932090AbWFGRmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 13:42:02 -0400
+Date: Wed, 7 Jun 2006 10:41:55 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Xin Zhao <uszhaoxin@gmail.com>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Linux SLAB allocator issue
+In-Reply-To: <4ae3c140606070837t23182496s42edb3a754169d43@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0606071030040.831@schroedinger.engr.sgi.com>
+References: <4ae3c140606061358j140eec9fl45e22f8a9e673215@mail.gmail.com> 
+ <84144f020606070516m4bccdecdr998941ee74744a83@mail.gmail.com>
+ <4ae3c140606070837t23182496s42edb3a754169d43@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew,
+On Wed, 7 Jun 2006, Xin Zhao wrote:
 
-This patch is to be applied on top of 
-per-task-delay-accounting-taskstats-interface-fix-2.patch
+> Then, I used kmem_cache_alloc() to allocate 128 objects. So it should
+> occupy 12 full slabs and 1 partial slab. Right?
 
-Currently fill_tgid() fails if any thread in a thread_group has a missing
-delays structure. This behaviour is incorrect in the case when a thread group
-leader exits before any of the other threads in the group. The leader continues
-to be examined but has a null tsk->delays struct. The correct behaviour is to
-skip threads with a null delays struct and continue accumulating delay
-accounting statistics for the other threads.
+There may be additional objects in the various caches. If this is a UP 
+system then some will certainly be in the per cpu cache.
 
-The patch also adds an explicit check for delay accounting being on since
-presence or absence of tsk->delays struct is no longer an equivalent check.
+You can push these back into the free lists by draining the array cache.
 
+If you allocate objects on a slab that is fresh (no objects in it) then 
+only full slabs will be used. The remaining objects will end up on the per 
+cpu lists where they can be consumed without more work on the full/partial 
+arrays.
 
-Signed-off-by: Balbir Singh <balbir@in.ibm.com>
-Signed-off-by: Shailabh Nagar <nagar@us.ibm.com>
-
----
-
- include/linux/delayacct.h |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
-diff -puN include/linux/delayacct.h~per-task-delay-accounting-taskstats-interface-fix-3 include/linux/delayacct.h
---- linux-2.6.17-rc5/include/linux/delayacct.h~per-task-delay-accounting-taskstats-interface-fix-3	2006-06-07 22:57:12.000000000 +0530
-+++ linux-2.6.17-rc5-balbir/include/linux/delayacct.h	2006-06-07 22:57:39.000000000 +0530
-@@ -80,8 +80,10 @@ static inline void delayacct_blkio_end(v
- static inline int delayacct_add_tsk(struct taskstats *d,
- 					struct task_struct *tsk)
- {
--	if (!tsk->delays)
-+	if (likely(!delayacct_on))
- 		return -EINVAL;
-+	if (!tsk->delays)
-+		return 0;
- 	return __delayacct_add_tsk(d, tsk);
- }
- 
-_
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs

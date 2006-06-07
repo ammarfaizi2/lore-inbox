@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWFGXpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWFGXwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWFGXpg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 19:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWFGXpg
+	id S932464AbWFGXwt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 19:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWFGXwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 19:45:36 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12759 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932466AbWFGXpg (ORCPT
+	Wed, 7 Jun 2006 19:52:49 -0400
+Received: from khc.piap.pl ([195.187.100.11]:20752 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932464AbWFGXws (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 19:45:36 -0400
-Message-ID: <44876510.1050808@engr.sgi.com>
-Date: Wed, 07 Jun 2006 16:45:20 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en
+	Wed, 7 Jun 2006 19:52:48 -0400
+To: Andy Green <andy@warmcat.com>
+Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org
+Subject: Re: Black box flight recorder for Linux
+References: <44379AB8.6050808@superbug.co.uk>
+	<m3psjqeeor.fsf@defiant.localdomain> <443A4927.5040801@warmcat.com>
+	<m3zmgqxjs8.fsf@defiant.localdomain>
+	<20060607100349.a990e054.khali@linux-fr.org>
+	<4486A7FC.2090904@warmcat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 08 Jun 2006 01:52:42 +0200
+In-Reply-To: <4486A7FC.2090904@warmcat.com> (Andy Green's message of "Wed, 07 Jun 2006 11:18:36 +0100")
+Message-ID: <m3irncr0ad.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: Balbir Singh <balbir@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, csturtiv@sgi.com,
-       jamal <hadi@cyberus.ca>
-Subject: Re: taskstats interface for accounting
-References: <44863376.5020701@sgi.com> <44864030.6010906@watson.ibm.com>
-In-Reply-To: <44864030.6010906@watson.ibm.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Jay Lan wrote:
->
->> Hi Balbir and Shailabh,
->>
->> I finally have time to think about implementation details of CSA over
->> taskstats interface. I took another look at the taskstats interface
->> proposal and was a little bit nervous.
->>
->> Do you remember i suggested to use #ifdef to cut down traffic and i
->> was told a generic netlink header would serve the purpose?
->> What i see now at Documentation/accounting/taskstats.txt saying
->> NETLINK_GENERIC family is used for unicast query/reply mode. The
->> NETLINK_GENERIC family provides great flexsibility on what to
->> receive. However, CSA only uses the multicast mode to receive from
->> kernel
->> whenever tasks are existing. I guess i would need to read the netlink
->> documentation more carefully to see whether my understanding is
->> correct.
->
-> I don't think there's a problem here. The netlink socket opened for
-> listening to
-> taskstat data sent on task exit can be done in multicast mode....the
-> example code in the
-> Documentation does that.
->
->>
->> Another thing i overlooked when i did the review was that taskstats
->> interface is designed to provide _BOTH_ per task _AND_ per thread
->> accounting data EVERY TIME a task exists. A thread is an aggregate
->> of (per-pid) tasks. Since this type of aggregation is not used in
->> CSA, half of data traffic would be useless. Can we add a way to
->> configure to not send per-thread data to the socket?
->
-> I don't see why not. We could extend the command set to set tgid
-> sending on/off.
+Hi,
 
-This would be great!
+Andy Green <andy@warmcat.com> writes:
 
-But, we can have a number of applications listening on the socket. We
-surely do not want applications to send conflicting commands to the kernel.
-Maybe we can make it a /etc/sysconfig option.
+> A whole other way forward is to consider to replace the EEPROM from
+> the original proposal (which does provide its own advantages such as
+> simplicity, I accept) with something else that ends up on another
+> PC. In this concept some logic presents a fake I2C peripheral to the
+> DDC interface at an I2C address of our choosing.  This logic acts as a
+> bidirectional "UART" type of thing, allowing transfer of data in both
+> directions between the Linux box being debugged and another PC.
 
-Regards,
- - jay
+Right. I think one could use something like ATMEL 89F2051 (20-pin 8051
+non-SMD clones with flash and hardware UART) or something similar.
 
->
-> Regards,
-> Shailabh
->
->> Regards,
->> jay
->
->
+Client I2C is difficult in Linux (using general purpose I/O port) but
+with a dedicated CPU it's not a problem (not sure about 400 kHz access).
 
+> http://warmcat.com/milksop/filtror.html
+
+Well, that's a bit more complicated. I'm not going to try that on
+an experimental PCB :-)
+
+> However this would be much simpler, not even needing RAM.  It can hook
+> to the second PC by the same I2C method, parallel printer port, RS232
+> or USB depending on the level of complexity of the design.
+>
+> I guess the link will feel quite like a 9600 or 19200 baud serial port
+> in terms of throughput.
+
+Depends on I2C. With something like 400 kHz it should be faster,
+probably like 115200.
+
+> Maybe this effort is considered too esoteric, but it seems to me to be
+> a reason to keep the DDC access drivers standalone, the
+> hardware-specific framebuffer drivers can call through to them and we
+> can use them in a clean way.  I realize this is a bit of a late
+> objection and that there was not previously much point to keeping them
+> as separate things in the world.
+
+Actually we have:
+- the Xserver "hardware access" issue
+- DRI/DRM
+- now the I2C bus driver
+- frame buffer
+
+To avoid conflicts we really need them managed by a single driver.
+Probably the GGI (KGI?) should be revisited?
+
+Long-term project, unfortunatelly, but I think we'll have to do that
+eventually.
+
+The I2C, graphics subsystem and DRI/DRM could be sub-modules, with
+the master module only keeping track of hardware access, mode
+settings etc.
+-- 
+Krzysztof Halasa

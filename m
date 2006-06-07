@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWFGSzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWFGS47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWFGSzO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 14:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWFGSzN
+	id S932353AbWFGS47 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 14:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWFGS46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 14:55:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:3567 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932353AbWFGSzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 14:55:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=eeQherdLcxEKQ6u1QXtPEhg2mdHh3HnButlX4yM9uRBSniXg/rrWrTz3JnyFvEqjDxrViaZfzfrHOMS0iKqsw3wX80Do6M2odsZG1dT+BgRiiBfy+AikJHRueYkwGmVvwmRU4iTWMONo33KP1INbIp+GMR7oLpqZKkxkdrJ0c9w=
-Date: Wed, 7 Jun 2006 20:53:16 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, netdev@vger.kernel.org, linux-xfs@oss.sgi.com,
-       ecki@lina.inka.de, lkml@rtr.ca
-Subject: Updated sysctl documentation take #2
-Message-Id: <20060607205316.bbb3c379.diegocg@gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i486-pc-linux-gnu)
+	Wed, 7 Jun 2006 14:56:58 -0400
+Received: from www.osadl.org ([213.239.205.134]:25302 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932353AbWFGS46 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 14:56:58 -0400
+Subject: Re: [patchset] Generic IRQ Subsystem: -V5
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1149700829.5257.16.camel@localhost.localdomain>
+References: <20060517001310.GA12877@elte.hu>
+	 <20060517221536.GA13444@elte.hu> <20060519145225.GA12703@elte.hu>
+	 <20060607165456.GC13165@flint.arm.linux.org.uk>
+	 <1149700829.5257.16.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 07 Jun 2006 20:57:30 +0200
+Message-Id: <1149706650.5257.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since people didn't like the "many small files" approach, I've moved
-it to directories containing index.txt files:
+On Wed, 2006-06-07 at 19:20 +0200, Thomas Gleixner wrote: 
+> > Is there an updated series?  This doesn't apply to -rc6 - it seems
+> > that maybe the ia64 folk merged some of the changes.
+> 
+> We did the latest changes against -mm. I can respin it against
+> 2.6.16-rc6.
 
-Documentation/sysctl/vm/index.txt
-Documentation/sysctl/net/core/index.txt
-Documentation/sysctl/net/unix/index.txt
-Documentation/sysctl/net/ipv4/index.txt
-Documentation/sysctl/net/ipv4/conf/index.txt
-Documentation/sysctl/net/ipv4/route/index.txt
-Documentation/sysctl/net/ipv4/neigh/index.txt
+http://www.tglx.de/projects/armirq/2.6.17-rc6/patch-2.6.17-rc6-armirq1.patches.tar.bz2
+http://www.tglx.de/projects/armirq/2.6.17-rc6/patch-2.6.17-rc6-armirq1.patch
 
-and so on.
+	tglx
 
-As previously, this moves all sysctl documentation (including
-XFS and network) to Documentation/sysctl/*. The patch is
-against linus tree and weights more than 200K in size
-and is place at: http://www.terra.es/personal/diegocg/sysctl-docs
 
-Comments?

@@ -1,54 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWFGAG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWFGAJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWFGAG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFGAG5
+	id S1751389AbWFGAJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWFGAJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:06:57 -0400
-Received: from gw.goop.org ([64.81.55.164]:22685 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751384AbWFGAG5 (ORCPT
+	Tue, 6 Jun 2006 20:09:23 -0400
+Received: from xenotime.net ([66.160.160.81]:964 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751389AbWFGAJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:06:57 -0400
-Message-ID: <44861899.1040506@goop.org>
-Date: Tue, 06 Jun 2006 17:06:49 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-CC: Andrew Morton <akpm@osdl.org>, Don Zickus <dzickus@redhat.com>, ak@suse.de,
-       shaohua.li@intel.com, miles.lane@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-References: <4480C102.3060400@goop.org> <20060606230504.GC11696@redhat.com> <20060606162201.f0f9f308.akpm@osdl.org> <200606070938.34927.ncunningham@linuxmail.org>
-In-Reply-To: <200606070938.34927.ncunningham@linuxmail.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 6 Jun 2006 20:09:22 -0400
+Date: Tue, 6 Jun 2006 17:12:09 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: khc@pm.waw.pl, davej@redhat.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] fix missing hdlc symbols for synclink drivers
+Message-Id: <20060606171209.2b21dbb4.rdunlap@xenotime.net>
+In-Reply-To: <1149638211.2633.21.camel@localhost.localdomain>
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+	<20060605230248.GE3963@redhat.com>
+	<20060605184407.230bcf73.rdunlap@xenotime.net>
+	<1149622813.11929.3.camel@amdx2.microgate.com>
+	<m3u06yc9mr.fsf@defiant.localdomain>
+	<20060606134816.363cbeca.rdunlap@xenotime.net>
+	<20060606140822.c6f4ef37.rdunlap@xenotime.net>
+	<m3zmgpc3ba.fsf@defiant.localdomain>
+	<20060606160745.2f88ff9c.rdunlap@xenotime.net>
+	<m3ejy1c0uw.fsf@defiant.localdomain>
+	<1149638211.2633.21.camel@localhost.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> * Driver suspend and resume calls should only handle cpu0, and should not 
-> touch other processors. The same semantics regarding hardware state and 
-> values of variables apply here.
->   
-Isn't the trouble that in this case, the devices themselves are the 
-CPUs, and so the CPUs themselves need to operate on their own state?
+On Tue, 06 Jun 2006 18:56:51 -0500 Paul Fulghum wrote:
 
-Or perhaps, to look at it another way, suspend/resume is just a special 
-case of:
+> On Wed, 2006-06-07 at 01:37 +0200, Krzysztof Halasa wrote:
+> > "Randy.Dunlap" <rdunlap@xenotime.net> writes:
+> > 
+> > > I'm on x86-64 if it matters.
+> > > My .config is attached.
+> > 
+> > Ok, reproduced.
+> > 
+> > The problem is that CONFIG_WAN is not set, the make system doesn't
+> > read drivers/net/wan/Makefile at all, and nothing in drivers/net/wan
+> > is being built.
+> > 
+> > Just another argument against random SELECTs.
+> 
+> OK, I thought he was building with the latest patch (attached here),
+> which adds the 'select WAN' reverse dependency.
+> I tested his .config with the patch (minus the Makefile portion) and
+> it builds just fine.
 
-   1. unplug cpus 1-N
-   2. [something]
-   3. re-plug cpus 1-N
+No, I wasn't using any patches...
 
-where [something] in this case is "suspend cpu0". 
+> There is nothing random about these select statements.
+> They are chosen specifically to fix the dependencies.
+> You may feel they are ugly, but 'select' is the only tool
+> I know of that fixes these errors without losing flexibility.
 
-But the problem is that there's nothing which keeps track of whether the 
-re-plugged cpus 1-N are the "same" as the unplugged 1-N, and so nothing 
-can apply the same per-cpu settings to them.  In the suspend/resume case 
-they clearly are, but in the general remove/add case, do you really want 
-the new CPU to get the same state as the old one just because it ends up 
-with the same logical CPU number?  Perhaps, but what if it doesn't even 
-have the same capabilities?  (Do we support heterogeneous CPUs anyway?)
+They are random in the sense that HDLC depends on WAN but only
+HDLC was being selected.  In theory I would have expected
+config (software) to automatically enable higher-level config
+symbols in this case (select HDLC to cause select WAN),
+but that doesn't happen, so we got some "random" config
+which isn't supported (or even valid) ("random" being "invalid"
+in this case).
 
-    J
+
+> --- linux-2.6.17-rc5-mm3/drivers/char/Kconfig	2006-06-06 14:03:58.000000000 -0500
+> +++ b/drivers/char/Kconfig	2006-06-06 14:08:53.000000000 -0500
+> @@ -197,6 +197,7 @@ config ISI
+>  config SYNCLINK
+>  	tristate "SyncLink PCI/ISA support"
+>  	depends on SERIAL_NONSTANDARD && PCI && ISA_DMA_API
+> +	select WAN if SYNCLINK_HDLC
+>  	select HDLC if SYNCLINK_HDLC
+>  	help
+>  	  Driver for SyncLink ISA and PCI synchronous serial adapters.
+> @@ -214,6 +215,7 @@ config SYNCLINK_HDLC
+>  config SYNCLINKMP
+>  	tristate "SyncLink Multiport support"
+>  	depends on SERIAL_NONSTANDARD && PCI
+> +	select WAN if SYNCLINKMP_HDLC
+>  	select HDLC if SYNCLINKMP_HDLC
+>  	help
+>  	  Driver for SyncLink Multiport (2 or 4 ports) PCI synchronous serial adapter.
+> @@ -231,6 +233,7 @@ config SYNCLINKMP_HDLC
+>  config SYNCLINK_GT
+>  	tristate "SyncLink GT/AC support"
+>  	depends on SERIAL_NONSTANDARD && PCI
+> +	select WAN if SYNCLINK_GT_HDLC
+>  	select HDLC if SYNCLINK_GT_HDLC
+>  	help
+>  	  Support for SyncLink GT and SyncLink AC families of
+> --- linux-2.6.17-rc5-mm3/drivers/char/pcmcia/Kconfig	2006-06-06 14:03:58.000000000 -0500
+> +++ b/drivers/char/pcmcia/Kconfig	2006-06-06 14:09:25.000000000 -0500
+> @@ -8,6 +8,7 @@ menu "PCMCIA character devices"
+>  config SYNCLINK_CS
+>  	tristate "SyncLink PC Card support"
+>  	depends on PCMCIA
+> +	select WAN if SYNCLINK_CS_HDLC
+>  	select HDLC if SYNCLINK_CS_HDLC
+>  	help
+>  	  Driver for SyncLink PC Card synchronous serial adapter.
+
+
+---
+~Randy

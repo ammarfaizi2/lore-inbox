@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWFGAEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWFGAG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751379AbWFGAEI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWFGAEH
+	id S1751384AbWFGAG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFGAG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:04:07 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:54190 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751379AbWFGAEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:04:06 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Don Zickus <dzickus@redhat.com>
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Date: Wed, 7 Jun 2006 10:05:07 +1000
-User-Agent: KMail/1.9.1
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       shaohua.li@intel.com, miles.lane@gmail.com, jeremy@goop.org,
-       linux-kernel@vger.kernel.org
-References: <4480C102.3060400@goop.org> <200606070134.29292.ak@suse.de> <20060606235551.GE11696@redhat.com>
-In-Reply-To: <20060606235551.GE11696@redhat.com>
+	Tue, 6 Jun 2006 20:06:57 -0400
+Received: from gw.goop.org ([64.81.55.164]:22685 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751384AbWFGAG5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 20:06:57 -0400
+Message-ID: <44861899.1040506@goop.org>
+Date: Tue, 06 Jun 2006 17:06:49 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1351953.GF2kMTQxrU";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+CC: Andrew Morton <akpm@osdl.org>, Don Zickus <dzickus@redhat.com>, ak@suse.de,
+       shaohua.li@intel.com, miles.lane@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
+References: <4480C102.3060400@goop.org> <20060606230504.GC11696@redhat.com> <20060606162201.f0f9f308.akpm@osdl.org> <200606070938.34927.ncunningham@linuxmail.org>
+In-Reply-To: <200606070938.34927.ncunningham@linuxmail.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606071005.14307.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1351953.GF2kMTQxrU
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Nigel Cunningham wrote:
+> * Driver suspend and resume calls should only handle cpu0, and should not 
+> touch other processors. The same semantics regarding hardware state and 
+> values of variables apply here.
+>   
+Isn't the trouble that in this case, the devices themselves are the 
+CPUs, and so the CPUs themselves need to operate on their own state?
 
-Hi.
+Or perhaps, to look at it another way, suspend/resume is just a special 
+case of:
 
-On Wednesday 07 June 2006 09:55, Don Zickus wrote:
-> > > So my question is/was what is the proper way to handle processor level
-> > > subsystems during the suspend/resume path on an SMP system.  I really
-> > > don't understand the hotplug path nor the suspend/resume path very
-> > > well.
-> >
-> > Make it work properly for CPU hotplug for individual CPU and then in
-> > suspend you take care of "global" state and the last CPU.
->
-> So the assumption is treat all the cpus the same either all on or all off,
-> no mixed mode (some cpus on, some cpus off).  I guess I was trying to hard
-> to work on the per-cpu level.
+   1. unplug cpus 1-N
+   2. [something]
+   3. re-plug cpus 1-N
 
-This sounds wrong to me. Shouldn't the the effect of hotunplugging a cpu be=
- to=20
-put the driver in a state equivalent to if that cpu simply didn't exist?=20
-Unplugging shouldn't assume we're going to subsequently have either a drive=
-r=20
-suspend, or a replug.
+where [something] in this case is "suspend cpu0". 
 
-Regards,
+But the problem is that there's nothing which keeps track of whether the 
+re-plugged cpus 1-N are the "same" as the unplugged 1-N, and so nothing 
+can apply the same per-cpu settings to them.  In the suspend/resume case 
+they clearly are, but in the general remove/add case, do you really want 
+the new CPU to get the same state as the old one just because it ends up 
+with the same logical CPU number?  Perhaps, but what if it doesn't even 
+have the same capabilities?  (Do we support heterogeneous CPUs anyway?)
 
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
-
---nextPart1351953.GF2kMTQxrU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD4DBQBEhhg6N0y+n1M3mo0RAsGbAJihEMizEx5yPvqAF5Xx/348fBi2AJ4kpV+n
-Has1GC20VsaLvMXxZs5Lyw==
-=eV0X
------END PGP SIGNATURE-----
-
---nextPart1351953.GF2kMTQxrU--
+    J

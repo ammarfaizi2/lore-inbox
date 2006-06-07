@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWFGD31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWFGDiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWFGD31 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 23:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWFGD31
+	id S1750790AbWFGDiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 23:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWFGDiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 23:29:27 -0400
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:55666 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750781AbWFGD30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 23:29:26 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-pm@lists.osdl.org
-Subject: Re: [linux-pm] [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Date: Tue, 6 Jun 2006 20:29:22 -0700
-User-Agent: KMail/1.7.1
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Don Zickus <dzickus@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       jeremy@goop.org, miles.lane@gmail.com, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-References: <4480C102.3060400@goop.org> <20060607004217.GF11696@redhat.com> <200606071050.24916.ncunningham@linuxmail.org>
-In-Reply-To: <200606071050.24916.ncunningham@linuxmail.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606062029.24123.david-b@pacbell.net>
+	Tue, 6 Jun 2006 23:38:16 -0400
+Received: from hera.kernel.org ([140.211.167.34]:9192 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750790AbWFGDiQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 23:38:16 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: klibc (was: 2.6.18 -mm merge plans)
+Date: Tue, 6 Jun 2006 20:37:56 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e65hmk$ljv$1@terminus.zytor.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <448366FB.1070407@zytor.com> <20060606152041.GA5427@ucw.cz> <200606062256.55472.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1149651476 22144 127.0.0.1 (7 Jun 2006 03:37:56 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 7 Jun 2006 03:37:56 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 June 2006 5:50 pm, Nigel Cunningham wrote:
+Followup to:  <200606062256.55472.rjw@sisk.pl>
+By author:    "Rafael J. Wysocki" <rjw@sisk.pl>
+In newsgroup: linux.dev.kernel
+> > 
+> > It allows me to unify swsusp & uswsusp into one in future, for
+> > example, reducing code duplication.
+> 
+> [cough] How distant is the future you're referring to?
+> 
 
-> Suspend: It's going to be put into a low (possibly no-) power state. It's 
-> going to come back, and when it does, you want to be able to put it back in 
-> the state it's in prior to this call.
+Shouldn't be far, since most of the code is already written.
 
-Not exactly.  Suspended devices can in general can resume() into a RESET
-state in which case software reinit is appropriate ... or they can come back
-in the state that the suspend() left them in, modulo changes that may come
-from hot-unplugging hardware connected to that device.  (Which may be a
-wakeup event, depending on system configuration.)
+One major advantage of klibc is that it allows most of the
+initialization code to both be re-used as standalone programs as well
+as be tested in normal userspace.  The former lets distributions
+stitch it together any way they want, and the latter should reduce
+bugs (especially since it's combined with what is a decent-sized
+subset of the POSIX programming model, as opposed to the much more
+difficult kernel programming model.)
 
-CPU suspend might have additional rules (just like for any pm-smart class
-of drivers), but those are the generic rules.  Not that I think many
-platforms treat CPUs quite the same as other hardware!  :)
-
-I don't think the PM events -- suspend()/resume() -- should ever be
-entangled with hotplug events.  The former apply to devices which are
-known; the latter are how they become known (or get forgotten).
-
-
-> Every suspend or freeze must be followed by a resume.
-
-Freeze is an optional nuance; it's basically OK to treat every suspend() as
-an "enter low power mode" suspend request, regardless of the event signified
-by its parameter.  The canonical/main example of when it might _not_ do that
-is avoiding disk drive spindown on freeze durin swsusp.
-
-It's a bit problematic just now to handle hot-unplug during suspend(), so
-the best advice just now is to make sure that if that's physically possible
-(like ejecting a PCMCIA/Cardbus adapter) then driver resume() checks whether
-the device is present, just like it checks for power-lost/reset.
-
-- Dave
+	-hpa
 

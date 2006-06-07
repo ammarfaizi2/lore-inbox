@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWFGRHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWFGRRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWFGRHn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 13:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWFGRHn
+	id S932350AbWFGRRU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 13:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWFGRRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 13:07:43 -0400
-Received: from gw.goop.org ([64.81.55.164]:1493 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932345AbWFGRHn (ORCPT
+	Wed, 7 Jun 2006 13:17:20 -0400
+Received: from pat.uio.no ([129.240.10.4]:48543 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932350AbWFGRRU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 13:07:43 -0400
-Message-ID: <448707DA.9090801@goop.org>
-Date: Wed, 07 Jun 2006 10:07:38 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Don Zickus <dzickus@redhat.com>
-CC: Shaohua Li <shaohua.li@intel.com>, Miles Lane <miles.lane@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in	arch/i386/kernel/nmi.c:174
-References: <4480C102.3060400@goop.org> <4483DF32.4090608@goop.org> <20060605004823.566b266c.akpm@osdl.org> <a44ae5cd0606050135w66c2abeu698394b4268e4790@mail.gmail.com> <1149576246.32046.166.camel@sli10-desk.sh.intel.com> <4485AC1F.9050001@goop.org> <20060607024938.GG11696@redhat.com>
-In-Reply-To: <20060607024938.GG11696@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 7 Jun 2006 13:17:20 -0400
+Subject: Re: [NFS] [PATCH] NFS server does not update mtime on
+	setattr	request
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Staubach <staubach@redhat.com>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, Neil Brown <neilb@suse.de>,
+       NFS List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4486F479.90406@redhat.com>
+References: <4485C3FE.5070504@redhat.com>
+	 <1149658707.27298.10.camel@localhost> <4486E662.5080900@redhat.com>
+	 <20060607151754.GB23954@fieldses.org>  <4486F020.3030707@redhat.com>
+	 <1149694742.26188.6.camel@localhost>  <4486F479.90406@redhat.com>
+Content-Type: text/plain
+Date: Wed, 07 Jun 2006 13:17:03 -0400
+Message-Id: <1149700624.26188.15.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.54, required 12,
+	autolearn=disabled, AWL 1.46, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don Zickus wrote:
-> Makes the start/stop paths of nmi watchdog more robust to handle the
-> suspend/resume cases more gracefully.
->   
-This solves the original symptom, but I'm seeing something else now.  
-After the second resume, there's a noticable pause after it brings cpu 1 
-online.  After the third resume it's a longer pause, and after the 4th 
-it just hangs there.  The system is up enough to respond to sysreq, but 
-nothing in usermode seems to be actually running.  I'll try and get a 
-better understanding of what I'm seeing later today.
+On Wed, 2006-06-07 at 11:44 -0400, Peter Staubach wrote:
 
-    J
+> I am curious about how this would break truncate?
+
+According to SuSv43, truncate should result in changes to
+mtime/ctime/suid/sgid if and only if the file size changes. The
+combination of disabling the client caching and always setting
+mtime/ctime on the server will therefore clearly break truncate.
+
+Cheers,
+  Trond
+

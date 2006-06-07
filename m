@@ -1,99 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWFGF3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWFGFgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWFGF3x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 01:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWFGF3x
+	id S1750929AbWFGFgc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 01:36:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWFGFgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 01:29:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16321 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750910AbWFGF3x (ORCPT
+	Wed, 7 Jun 2006 01:36:32 -0400
+Received: from ozlabs.org ([203.10.76.45]:32722 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750924AbWFGFgc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 01:29:53 -0400
-Date: Tue, 6 Jun 2006 22:29:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, paulus@samba.org
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-Message-Id: <20060606222942.43ed6437.akpm@osdl.org>
-In-Reply-To: <1149656647.27572.128.camel@localhost.localdomain>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	<1149652378.27572.109.camel@localhost.localdomain>
-	<20060606212930.364b43fa.akpm@osdl.org>
-	<1149656647.27572.128.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 7 Jun 2006 01:36:32 -0400
+Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, y-goto@jp.fujitsu.com,
+       mbligh@google.com, apw@shadowen.org, linux-kernel@vger.kernel.org,
+       76306.1226@compuserve.com, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>, Gerd Hoffmann <kraxel@suse.de>,
+       Zachary Amsden <zach@vmware.com>
+In-Reply-To: <20060606215813.9bfe07af.akpm@osdl.org>
+References: <20060605200727.374cbf05.akpm@osdl.org>
+	 <20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
+	 <20060606142347.2AF2.Y-GOTO@jp.fujitsu.com>
+	 <20060606002758.631118da.akpm@osdl.org>
+	 <20060607094355.b77ed883.kamezawa.hiroyu@jp.fujitsu.com>
+	 <20060606215813.9bfe07af.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 07 Jun 2006 15:36:25 +1000
+Message-Id: <1149658586.5183.217.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jun 2006 15:04:07 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-
-> > Either whack the PIC in setup_arch() or reorganise start_kernel() in some
-> > appropriate manner.
+On Tue, 2006-06-06 at 21:58 -0700, Andrew Morton wrote:
+> On Wed, 7 Jun 2006 09:43:55 +0900
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 > 
-> Neither would be satisfactory. Whacking the PIC means accessing
-> hardware, which for a lot of architectures means having page tables up,
-> some kind of ioremap, etc... Hence the bunch of workarounds done by
-> various archs like having their PTE allocation function do horrors like
-> if (mem_init_done) kmalloc() else alloc_bootmem().
-
-Why on earth does the PIC come up pulling an interrupt when it hasn't been
-spoken to yet?
-
-> It would make so much more sense to have the init code do something
-> like:
+> > On Tue, 6 Jun 2006 00:27:58 -0700
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > 
+> > > I tried sparsemem on my little x86 box here.  Boots OK, after fixing up the
+> > > kswapd_init() patch (below).
+> > > 
+> > > I'm wondering why I have 4k of highmem:
+> > > 
+> > 
+> > Could you show /proc/iomem of your 4k HIGHMEM box ?
+> > Does 4k HIGHMEM exist only when SPARSEMEM is selected ?
 > 
->  setup_arch();
->  init_basic_kernel_services(); <--- that's the blob you spotted with mem
-> init, slab init, ...
->  init_arch(); <--- new arch hook
+> Turns out that my 4 kbyte highmem zone (at least, as reported in
+> /proc/meminfo) is due to
 > 
-> and later on, as part of the various inits, you get init_IRQ() and so
-> on...
-> 
-> In my example, init_arch() would be where the arch code moves the bits
-> currently in setup_arch() that do things like ioremap system devices and
-> do things that may want to use the slab etc... thus leaving setup_arch()
-> to very basic initialisations.
-> 
-> Not being able to do all of those because we have this
-> hyper-optimized-mutex-blah thing that hard enables interrupt all over
-> the place seems like a stupid thing to me. In fact, as you mentioned, it
-> only affects a debug code path which thus could perfectly take the
-> performance hit.
+> vdso-randomize-the-i386-vdso-by-moving-it-into-a-vma.patch
 
-Nonsense.  mutex_lock() can sleep.  Sleeping will enable interrupts. 
-Therefore, hence, ergo ipso facto mutex_lock() can enable interrupts. QED,
-that's it.
+Thanks for this report, Andrew!
 
-But now, because some broken piece of hardware is coming out of
-reset/firmware asserting an interrupt we need to change the rules to be
-"mutex_lock() must preserve local interrupts if the lock is uncontended". 
-Ditto down(), down_read() and down_write().
+	Yes, MAXMEM is reduced by one page in the patch, taking into account
+that kernel memory tops out at __FIXADDR_TOP, not 0xFFFFFFFF.  AFAICT
+this is in fact a bugfix, which becomes more important when
+__FIXADDR_TOP can be moved to create a larger memory hole (as for
+hypervisors).
 
-And why does this bizarre restriction upon the implementation of our
-locking primtives exist?  Because of your broken PIC and because of our
-inability to sort out the early boot code.  And because the early boot code
-has this implicit knowledge that the locks will be uncontended, else we're
-toast.
+	You now have 1 page more memory available in your system.  Use it
+wisely.
 
-We're doing mutex_lock(), down(), down_read() and down_write() with local
-interrupts disabled, which is a bug.  We have explicit code in there to
-*disable* our runtime debugging checks because we know about this bug but
-don't know how to fix it.
+I'm sure Gerd will slap me if I'm wrong on this.  Here's the patch
+fragment:
 
-I call that sucky.
+-#define MAXMEM                 (-__PAGE_OFFSET-__VMALLOC_RESERVE)
++#define MAXMEM                 (__FIXADDR_TOP-__PAGE_OFFSET-__VMALLOC_RESERVE)
 
-> > But I'll be merging
-> > work-around-ppc64-bootup-bug-by-making-mutex-debugging-save-restore-irqs.patch
-> > so we'll just continue to suck I guess.
-> 
-> How so ? Can you tell me how making the mutex debug code path do
-> something sane makes it 'suck' ? Don't argue about the couple of cycles
-> benefit, as you mentionned yourself, it's a debug code path.
-> 
-
-Would you prefer "wildly idiotic"?
+Cheers,
+Rusty.
+-- 
+ ccontrol: http://ccontrol.ozlabs.org
 

@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWFGXzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWFGX4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWFGXzj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 19:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWFGXzj
+	id S932468AbWFGX4o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 19:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWFGX4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 19:55:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32419 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932467AbWFGXzi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 19:55:38 -0400
-Date: Wed, 7 Jun 2006 16:55:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: 2.6.17-rc6-mm1
-Message-Id: <20060607165521.f4aa1898.akpm@osdl.org>
-In-Reply-To: <44875DC0.2000406@mbligh.org>
-References: <20060607104724.c5d3d730.akpm@osdl.org>
-	<44875DC0.2000406@mbligh.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jun 2006 19:56:44 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:60123 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932468AbWFGX4n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 19:56:43 -0400
+Date: Thu, 8 Jun 2006 01:56:31 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, netdev@vger.kernel.org,
+       linux-xfs@oss.sgi.com, ecki@lina.inka.de, lkml@rtr.ca
+Message-ID: <20060607235631.GA10688@linuxtv.org>
+References: <20060607205316.bbb3c379.diegocg@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060607205316.bbb3c379.diegocg@gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060403
+X-SA-Exim-Connect-IP: 84.189.224.177
+Subject: Re: Updated sysctl documentation take #2
+X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jun 2006 16:14:08 -0700
-Martin Bligh <mbligh@mbligh.org> wrote:
-
-> Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+On Wed, Jun 07, 2006, Diego Calleja wrote:
+> Since people didn't like the "many small files" approach, I've moved
+> it to directories containing index.txt files:
 > 
-> 
-> 
-> Build failures on everything but x86_64 (possibly different distro
-> or something)
-> 
->    GEN     usr/klibc/syscalls/SYSCALLS.i
-> /usr/local/autobench/var/tmp/build/usr/klibc/SYSCALLS.def:30:26: missing 
-> terminating ' character
-> make[3]: *** [usr/klibc/syscalls/SYSCALLS.i] Error 1
-> make[2]: *** [usr/klibc/syscalls] Error 2
-> make[1]: *** [_usr_klibc] Error 2
-> make: *** [usr] Error 2
-> 06/07/06-18:23:44 Build the kernel. Failed rc = 2
-> 06/07/06-18:23:44 build: kernel build Failed rc = 1
-> 06/07/06-18:23:44 command complete: (2) rc=126
-> Failed and terminated the run
->   Fatal error, aborting autorun
+> Documentation/sysctl/vm/index.txt
+> Documentation/sysctl/net/core/index.txt
 
-dammit, I fixed that and then didn't manage to include the fix in the rollup.
+Why not just
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/broken-out/klibc-ia64-fix.patch
+Documentation/sysctl/vm.txt
+Documentation/sysctl/net/core.txt
 
+etc.?
+
+
+Johannes

@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWFGRpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWFGRqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWFGRpy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 13:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWFGRpy
+	id S1750883AbWFGRqr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 13:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWFGRqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 13:45:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53940 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750761AbWFGRpx (ORCPT
+	Wed, 7 Jun 2006 13:46:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37045 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750877AbWFGRqq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 13:45:53 -0400
-Date: Wed, 7 Jun 2006 13:50:18 -0400
-From: Don Zickus <dzickus@redhat.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Shaohua Li <shaohua.li@intel.com>, Miles Lane <miles.lane@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in	arch/i386/kernel/nmi.c:174
-Message-ID: <20060607175018.GU2839@redhat.com>
-References: <4480C102.3060400@goop.org> <4483DF32.4090608@goop.org> <20060605004823.566b266c.akpm@osdl.org> <a44ae5cd0606050135w66c2abeu698394b4268e4790@mail.gmail.com> <1149576246.32046.166.camel@sli10-desk.sh.intel.com> <4485AC1F.9050001@goop.org> <20060607024938.GG11696@redhat.com> <448707DA.9090801@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448707DA.9090801@goop.org>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 7 Jun 2006 13:46:46 -0400
+Message-ID: <44870FCC.4060300@redhat.com>
+Date: Wed, 07 Jun 2006 13:41:32 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: "J. Bruce Fields" <bfields@fieldses.org>, Neil Brown <neilb@suse.de>,
+       NFS List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] [PATCH] NFS server does not update mtime on	setattr	request
+References: <4485C3FE.5070504@redhat.com>	 <1149658707.27298.10.camel@localhost> <4486E662.5080900@redhat.com>	 <20060607151754.GB23954@fieldses.org>  <4486F020.3030707@redhat.com>	 <1149694742.26188.6.camel@localhost>  <4486F479.90406@redhat.com> <1149700624.26188.15.camel@localhost>
+In-Reply-To: <1149700624.26188.15.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 07, 2006 at 10:07:38AM -0700, Jeremy Fitzhardinge wrote:
-> Don Zickus wrote:
-> >Makes the start/stop paths of nmi watchdog more robust to handle the
-> >suspend/resume cases more gracefully.
-> >  
-> This solves the original symptom, but I'm seeing something else now.  
-> After the second resume, there's a noticable pause after it brings cpu 1 
-> online.  After the third resume it's a longer pause, and after the 4th 
-> it just hangs there.  The system is up enough to respond to sysreq, but 
-> nothing in usermode seems to be actually running.  I'll try and get a 
-> better understanding of what I'm seeing later today.
-> 
->    J
+Trond Myklebust wrote:
 
-Can you do me a quick favor and 'cat /proc/interrupts |grep NMI' before
-each of your suspends.  I want to double check a piece of code.  Your
-bugzilla postings showed your system starting with no nmi watchdog running
-but after the resume the watchdog started running on cpu1.  I am hoping I
-fixed that issue too.
+>On Wed, 2006-06-07 at 11:44 -0400, Peter Staubach wrote:
+>
+>  
+>
+>>I am curious about how this would break truncate?
+>>    
+>>
+>
+>According to SuSv43, truncate should result in changes to
+>mtime/ctime/suid/sgid if and only if the file size changes. The
+>combination of disabling the client caching and always setting
+>mtime/ctime on the server will therefore clearly break truncate.
+>
 
-Thanks.
+Okay, I see that.
 
-Cheers,
-Don
+Someone should probably alert the Solaris folks that they might have a 
+bug in
+their NFS clients.  I suspect that they are only sending over the size 
+element
+in some of the over the wire SETATTR calls when they really should be 
+sending
+the size and mtime elements.  This might head off a potential customer issue
+where they blaim Linux instead of Solaris.
 
+    Thanx...
+
+       ps

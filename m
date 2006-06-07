@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWFGTba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWFGTdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWFGTba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 15:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWFGTba
+	id S932372AbWFGTdS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 15:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWFGTdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 15:31:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54797 "EHLO
+	Wed, 7 Jun 2006 15:33:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56589 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932204AbWFGTba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 15:31:30 -0400
-Date: Wed, 7 Jun 2006 20:31:21 +0100
+	id S932372AbWFGTdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 15:33:17 -0400
+Date: Wed, 7 Jun 2006 20:33:11 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Andrew Victor <andrew@sanpeople.com>
 Cc: linux-kernel@vger.kernel.org, alessandro.zummo@towertech.it, akpm@osdl.org
-Subject: Re: [PATCH] RTC: Ensure that time being passed to set_alarm() is valid.
-Message-ID: <20060607193121.GG13165@flint.arm.linux.org.uk>
+Subject: Re: [PATCH[ RTC: Add rtc_year_days() to calculate tm_yday
+Message-ID: <20060607193311.GH13165@flint.arm.linux.org.uk>
 Mail-Followup-To: Andrew Victor <andrew@sanpeople.com>,
 	linux-kernel@vger.kernel.org, alessandro.zummo@towertech.it,
 	akpm@osdl.org
-References: <1149704455.20386.90.camel@fuzzie.sanpeople.com>
+References: <1149704768.20154.95.camel@fuzzie.sanpeople.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1149704455.20386.90.camel@fuzzie.sanpeople.com>
+In-Reply-To: <1149704768.20154.95.camel@fuzzie.sanpeople.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 07, 2006 at 08:20:55PM +0200, Andrew Victor wrote:
-> RTC: Ensure that the time being passed to set_alarm() is valid.
+On Wed, Jun 07, 2006 at 08:26:09PM +0200, Andrew Victor wrote:
+> RTC: Add exported function rtc_year_days() to calculate the tm_yday
+> value.
 
-NAK.  rtc_valid_tm checks that the time/date is valid (eg, month is
-within range).  Alarms can have a "don't care" state for each part -
-for example, setting month to 0xff means "alarm every month".
+Is there a good reason for this?  I ask the question because the x86
+/dev/rtc driver says:
 
-See the API exposed by /dev/rtc on x86 by virtue of being the
-MC146818 register set.
+         * Only the values that we read from the RTC are set. We leave
+         * tm_wday, tm_yday and tm_isdst untouched. Note that while the
+         * RTC has RTC_DAY_OF_WEEK, we should usually ignore it, as it is
+         * only updated by the RTC when initially set to a non-zero value.
+
+So it seems the established modus operandi for RTC interfaces is "don't
+trust wday, yday and isdst".
 
 -- 
 Russell King

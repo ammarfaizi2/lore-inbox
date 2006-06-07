@@ -1,66 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWFGIE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWFGIGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWFGIE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 04:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWFGIE1
+	id S1751121AbWFGIGi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 04:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWFGIGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 04:04:27 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:61788 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751116AbWFGIE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 04:04:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WsxAk/vbH8O/rtUJYLB92sW6d/q5+ZP4OFfKZiTpXc6gLIO06meD8JmHVtGLmXfK3Fpg9HonA7SIaTc4llsABzc2wCoaRlRCtONrhA78tNqC/ugQq1WTlQ8FJvD8PSuPiVVv+5WksSwNiIa/XSsO6/eoEj4Mw38yyjks3xApNWA=
-Message-ID: <9a8748490606070104i2401e82cm6b4f1170bf543f00@mail.gmail.com>
-Date: Wed, 7 Jun 2006 10:04:24 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Nish Aravamudan" <nish.aravamudan@gmail.com>
-Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
-Cc: "Heiko Gerstung" <heiko.gerstung@meinberg.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <29495f1d0606061130s5451db8r102c7e1e75981994@mail.gmail.com>
+	Wed, 7 Jun 2006 04:06:38 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:60116 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751121AbWFGIGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 04:06:37 -0400
+Message-ID: <448688B2.2030206@jp.fujitsu.com>
+Date: Wed, 07 Jun 2006 17:05:06 +0900
+From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@openvz.org>, Srivatsa <vatsa@in.ibm.com>,
+       CKRM <ckrm-tech@lists.sourceforge.net>,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: [ckrm-tech] [RFC 0/4] sched: Add CPU rate caps (improved)
+References: <20060606023708.2801.24804.sendpatchset@heathwren.pw.nest>
+In-Reply-To: <20060606023708.2801.24804.sendpatchset@heathwren.pw.nest>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44854F74.50406@meinberg.de>
-	 <9a8748490606060423t102384f4m626b4366898ce9cd@mail.gmail.com>
-	 <29495f1d0606061130s5451db8r102c7e1e75981994@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/06/06, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
-> On 6/6/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > On 06/06/06, Heiko Gerstung <heiko.gerstung@meinberg.de> wrote:
-> > > Hi!
-> > >
-> > > Short Version (tm): I try to backport a USB driver (rtl8150.c) from
-> > > 2.6.15.x to 2.4.32 and have no idea how to substitue two functions:
-> > > in_atomic() and schedule_timeout_uninterruptible() ... I really would
-> > > appreciate any help, because I am no kernel hacker at all ...
-> > >
-> > in_atomic() is used to test if the kernel is in a state where sleeping
-> > is allowed or not. The 2.4.x kernel is not preemptive and has quite
-> > coarse grained SMP support (the BKL "Big Kernel Lock"), it didin't
-> > need in_atomic() in the same way as 2.6.x does.
-> >
-> > schedule_timeout_uninterruptible() is used to sleep on a wait-queue,
-> > which 2.4.x does not have.
->
-> schedule_timeout_uninterruptible(timeout_value) is just a wrapper for
->
-> set_current_state(TASK_UNINTERRUPTIBLE);
-> schedule_timeout(timeout_value);
->
-> Maybe you were thinking of sleep_on*()?
->
+Peter Williams wrote:
 
-Yeah, you are right, that was what I was thinking of. My bad.
-Thank you for the correction.
+> 4. Overhead Measurements.  To measure the implications for overhead
+> introduced by these patches kernbench was used on a dual 500Mhz
+> Centrino SMP system.  Runs were done for a kernel without these
+> patches applied, one with the patches applied but no caps being used
+> and one with the patches applied and running kernbench with a soft cap
+> of zero (which would be inherited by all its children).
+> 
+> Average Optimal -j 8 Load Run:
+> 
+>                   Vanilla          Patch Applied    Soft Cap 0%
+> 
+> Elapsed Time      1056.1   (1.92)  1048.2   (0.62)  1064.1   (1.59)
+> User Time         1908.1   (1.09)  1895.2   (1.30)  1926.6   (1.39)
+> System Time        181.7   (0.60)   177.5   (0.74)   173.8   (1.07)
+> Percent CPU        197.6   (0.55)   197.0   (0)      197.0   (0)
+> Context Switches 49253.6 (136.31) 48881.4  (92.03) 92490.8 (163.71)
+> Sleeps           28038.8 (228.11) 28136.0 (250.65) 25769.4 (280.40)
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I tried to run kernbench with hard cap, and then it spent a very
+long time on "Cleaning souce tree..." phase. Because this phase
+is not CPU hog, my expectation is that it act as without cap.
+
+That can be reproduced by just running "make clean" on top of a
+kernel source tree with hard cap.
+
+% /usr/bin/time make clean
+1.62user 0.29system 0:01.90elapsed 101%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+68539minor)pagefaults 0swaps
+
+   # Without cap, it returns almost immediately
+
+% ~/withcap.sh  -C 900 /usr/bin/time make clean
+1.61user 0.29system 1:26.17elapsed 2%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+68537minor)pagefaults 0swaps
+
+   # With 90% hard cap, it takes about 1.5 minutes.
+
+% ~/withcap.sh  -C 100 /usr/bin/time make clean
+1.64user 0.34system 3:31.48elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+68538minor)pagefaults 0swaps
+
+   # It became worse with 10% hard cap.
+
+% ~/withcap.sh  -c 900 /usr/bin/time make clean
+1.63user 0.28system 0:01.89elapsed 100%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+68537minor)pagefaults 0swaps
+
+   # It doesn't happen with soft cap.
+
+Thanks,
+MAEDA Naoaki
+

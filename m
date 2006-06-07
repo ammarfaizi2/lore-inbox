@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWFGIAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWFGIBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWFGIAH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 04:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWFGIAH
+	id S1751118AbWFGIBq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 04:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWFGIBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 04:00:07 -0400
-Received: from main.gmane.org ([80.91.229.2]:22433 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750875AbWFGIAG (ORCPT
+	Wed, 7 Jun 2006 04:01:46 -0400
+Received: from mx1.suse.de ([195.135.220.2]:64640 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751118AbWFGIBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 04:00:06 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: Quick close of all the open files.
-Date: Wed, 07 Jun 2006 08:57:24 +0100
-Message-ID: <yw1xverdflej.fsf@agrajag.inprovide.com>
-References: <3faf05680606061445r7da489d9tc265018bc7960779@mail.gmail.com> <200606062156.k56LuWFD001871@turing-police.cc.vt.edu> <3faf05680606061502q28501343yb3a91dbda3c423b6@mail.gmail.com> <200606070033.k570X6Bu007481@turing-police.cc.vt.edu> <3faf05680606061822g25c242ddq58efdb762ca33252@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
-Cancel-Lock: sha1:nPEevioKWJlG4dIcovACzEae0Mo=
+	Wed, 7 Jun 2006 04:01:46 -0400
+From: Andi Kleen <ak@suse.de>
+To: Keith Owens <kaos@sgi.com>
+Subject: Re: NMI problems with Dell SMP Xeons
+Date: Wed, 7 Jun 2006 10:01:40 +0200
+User-Agent: KMail/1.9.1
+Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+       "Brendan Trotter" <btrotter@gmail.com>
+References: <8446.1149666227@kao2.melbourne.sgi.com>
+In-Reply-To: <8446.1149666227@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606071001.40933.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"vamsi krishna" <vamsi.krishnak@gmail.com> writes:
 
->> > >
->> > I checked as follows I did printf("lowest fd = %d",fileno(tmpfile()));
->> > it prints 3
->>
->> Which proves that file descriptor 3 was closed, so tmpfile() was able to
->> open it.  This certainly implies that fd 0, 1, 2 (connected to stdin,
->> stdout, and stderr streams of stdio) are still open, contrary to your
->> statement that *all* of them are closed.
 >
-> I know 0,1,2 are open (I opened it) no need to tell it specifically,
-> HOW DO YOU THINK I CAN PRINT SOME THING WITHOUT OPENING THIS
-> FILES(stdout,stderr)?
+> Two ways:
+>
+> (1) Boot with a kernel with CONFIG_ACPI=n, so the OS only finds 2 cpus
+>     in the MPT instead of the 4 listed by ACPI.
+>
+> (2) The kernel has ACPI=y, but is booted with maxcpus=2.
+>
+> In both cases, send_IPI_allbutself() with IPI 2 or an NMI will result
+> in a hard reset.
 
-That still says nothing about file descriptors 4 and up.
+Sounds both like a "Don't do that when it hurts" . I know some people
+have religious issues with ACPI, but it's simple a fact that many
+modern boxes don't work correctly in obvious or subtle ways without it. 
 
--- 
-Måns Rullgård
-mru@inprovide.com
-
+-Andi

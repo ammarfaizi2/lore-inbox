@@ -1,60 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWFGAKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWFGAMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWFGAKT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWFGAKT
+	id S1751394AbWFGAMq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWFGAMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:10:19 -0400
-Received: from ns.suse.de ([195.135.220.2]:62908 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751393AbWFGAKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:10:17 -0400
-From: Andi Kleen <ak@suse.de>
-To: Don Zickus <dzickus@redhat.com>
+	Tue, 6 Jun 2006 20:12:46 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:46511 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751394AbWFGAMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 20:12:45 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Date: Wed, 7 Jun 2006 02:04:11 +0200
+Date: Wed, 7 Jun 2006 10:13:49 +1000
 User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, shaohua.li@intel.com, miles.lane@gmail.com,
-       jeremy@goop.org, linux-kernel@vger.kernel.org
-References: <4480C102.3060400@goop.org> <200606070134.29292.ak@suse.de> <20060606235551.GE11696@redhat.com>
-In-Reply-To: <20060606235551.GE11696@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Don Zickus <dzickus@redhat.com>, ak@suse.de,
+       shaohua.li@intel.com, miles.lane@gmail.com,
+       linux-kernel@vger.kernel.org
+References: <4480C102.3060400@goop.org> <200606070938.34927.ncunningham@linuxmail.org> <44861899.1040506@goop.org>
+In-Reply-To: <44861899.1040506@goop.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart6354209.OMtpVjPVgC";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606070204.11909.ak@suse.de>
+Message-Id: <200606071013.53490.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 June 2006 01:55, Don Zickus wrote:
-> > > So my question is/was what is the proper way to handle processor level
-> > > subsystems during the suspend/resume path on an SMP system.  I really
-> > > don't understand the hotplug path nor the suspend/resume path very
-> > > well.
-> >
-> > Make it work properly for CPU hotplug for individual CPU and then in
-> > suspend you take care of "global" state and the last CPU.
+--nextPart6354209.OMtpVjPVgC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi.
+
+On Wednesday 07 June 2006 10:06, Jeremy Fitzhardinge wrote:
+> Nigel Cunningham wrote:
+> > * Driver suspend and resume calls should only handle cpu0, and should n=
+ot
+> > touch other processors. The same semantics regarding hardware state and
+> > values of variables apply here.
 >
-> So the assumption is treat all the cpus the same either all on or all off,
-> no mixed mode (some cpus on, some cpus off).  I guess I was trying to hard
-> to work on the per-cpu level.
-
-No, mixed should work of course.
-
+> Isn't the trouble that in this case, the devices themselves are the
+> CPUs, and so the CPUs themselves need to operate on their own state?
 >
-> > > I didn't want to register a hotplug handler because a hotplug event is
-> > > really different than a suspend event (I want to _save_ info during a
-> > > suspend event).  The documentation I was reading seemed to suggest that
-> > > hotplug/suspend/smp was a work-in-progress.
-> >
-> > You need to disable the nmi watchdog on CPU hotunplug too,
-> > it's no good to keep the NMI running.
+> Or perhaps, to look at it another way, suspend/resume is just a special
+> case of:
 >
-> Don't you want to make sure those CPUs are actually sleeping.  :^D
+>    1. unplug cpus 1-N
+>    2. [something]
+>    3. re-plug cpus 1-N
+>
+> where [something] in this case is "suspend cpu0".
+>
+> But the problem is that there's nothing which keeps track of whether the
+> re-plugged cpus 1-N are the "same" as the unplugged 1-N, and so nothing
+> can apply the same per-cpu settings to them.  In the suspend/resume case
+> they clearly are, but in the general remove/add case, do you really want
 
-That is what i meant - they can't sleep if the NMI keeps running.
-Ok it would run only for a short time for local APIC, but longer
-for io apic
+It's probably safter to say "In the suspend/resume case, they may well be."=
+=20
+It's not inconceivable that a system could be suspended, a faulty cpu=20
+replaced with another, and the system resumed. Hotplugging ought to handle=
+=20
+that nicely.
 
--Andi
+> the new CPU to get the same state as the old one just because it ends up
+> with the same logical CPU number?  Perhaps, but what if it doesn't even
+> have the same capabilities?  (Do we support heterogeneous CPUs anyway?)
+
+Indeed. I'm also not sure that there's necessarily a guarantee that cpus wi=
+ll=20
+be hotplugged in the same order. Perhaps those with more knowledge can=20
+clarify there.
+
+Regards,
+
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart6354209.OMtpVjPVgC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEhhpBN0y+n1M3mo0RAkr3AKCihwppF3OaGXotxShoSGuZ5uBVdgCgxQ4N
+QPe/CZ+RVf+1BQEu6CkpgZY=
+=Rb/v
+-----END PGP SIGNATURE-----
+
+--nextPart6354209.OMtpVjPVgC--

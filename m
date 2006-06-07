@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWFGAMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWFGASX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbWFGAMq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWFGAMq
+	id S1751396AbWFGASX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWFGASX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:12:46 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:46511 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751394AbWFGAMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:12:45 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Date: Wed, 7 Jun 2006 10:13:49 +1000
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Don Zickus <dzickus@redhat.com>, ak@suse.de,
-       shaohua.li@intel.com, miles.lane@gmail.com,
-       linux-kernel@vger.kernel.org
-References: <4480C102.3060400@goop.org> <200606070938.34927.ncunningham@linuxmail.org> <44861899.1040506@goop.org>
-In-Reply-To: <44861899.1040506@goop.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6354209.OMtpVjPVgC";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606071013.53490.ncunningham@linuxmail.org>
+	Tue, 6 Jun 2006 20:18:23 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:47428 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751396AbWFGASW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 20:18:22 -0400
+Date: Tue, 06 Jun 2006 18:16:46 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
+In-reply-to: <6kHVe-3Hs-45@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>
+Message-id: <44861AEE.3020109@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <6kGwd-1tt-23@gated-at.bofh.it> <6kHVe-3Hs-45@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6354209.OMtpVjPVgC
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Jesper Juhl wrote:
+> On 06/06/06, Heiko Gerstung <heiko.gerstung@meinberg.de> wrote:
+>> Hi!
+>>
+>> Short Version (tm): I try to backport a USB driver (rtl8150.c) from
+>> 2.6.15.x to 2.4.32 and have no idea how to substitue two functions:
+>> in_atomic() and schedule_timeout_uninterruptible() ... I really would
+>> appreciate any help, because I am no kernel hacker at all ...
+>>
+> in_atomic() is used to test if the kernel is in a state where sleeping
+> is allowed or not. The 2.4.x kernel is not preemptive and has quite
+> coarse grained SMP support (the BKL "Big Kernel Lock"), it didin't
+> need in_atomic() in the same way as 2.6.x does.
 
-Hi.
+There's little difference in the need for it, 2.4 just doesn't have it. 
+I don't see a call to that function in that driver's code though?
 
-On Wednesday 07 June 2006 10:06, Jeremy Fitzhardinge wrote:
-> Nigel Cunningham wrote:
-> > * Driver suspend and resume calls should only handle cpu0, and should n=
-ot
-> > touch other processors. The same semantics regarding hardware state and
-> > values of variables apply here.
->
-> Isn't the trouble that in this case, the devices themselves are the
-> CPUs, and so the CPUs themselves need to operate on their own state?
->
-> Or perhaps, to look at it another way, suspend/resume is just a special
-> case of:
->
->    1. unplug cpus 1-N
->    2. [something]
->    3. re-plug cpus 1-N
->
-> where [something] in this case is "suspend cpu0".
->
-> But the problem is that there's nothing which keeps track of whether the
-> re-plugged cpus 1-N are the "same" as the unplugged 1-N, and so nothing
-> can apply the same per-cpu settings to them.  In the suspend/resume case
-> they clearly are, but in the general remove/add case, do you really want
+> 
+> schedule_timeout_uninterruptible() is used to sleep on a wait-queue,
+> which 2.4.x does not have.
 
-It's probably safter to say "In the suspend/resume case, they may well be."=
-=20
-It's not inconceivable that a system could be suspended, a faulty cpu=20
-replaced with another, and the system resumed. Hotplugging ought to handle=
-=20
-that nicely.
+Huh? 2.4 did have wait queues, but that call has nothing to do with 
+them. You should be able to replace it with:
 
-> the new CPU to get the same state as the old one just because it ends up
-> with the same logical CPU number?  Perhaps, but what if it doesn't even
-> have the same capabilities?  (Do we support heterogeneous CPUs anyway?)
+set_current_state( TASK_UNINTERRUPTIBLE );
+schedule_timeout( timeout );
 
-Indeed. I'm also not sure that there's necessarily a guarantee that cpus wi=
-ll=20
-be hotplugged in the same order. Perhaps those with more knowledge can=20
-clarify there.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Regards,
-
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
-
---nextPart6354209.OMtpVjPVgC
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEhhpBN0y+n1M3mo0RAkr3AKCihwppF3OaGXotxShoSGuZ5uBVdgCgxQ4N
-QPe/CZ+RVf+1BQEu6CkpgZY=
-=Rb/v
------END PGP SIGNATURE-----
-
---nextPart6354209.OMtpVjPVgC--

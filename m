@@ -1,93 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWFGAas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWFGAb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWFGAas (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWFGAar
+	id S1751405AbWFGAb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWFGAb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:30:47 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:64434 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751404AbWFGAar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:30:47 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Date: Wed, 7 Jun 2006 10:31:50 +1000
-User-Agent: KMail/1.9.1
-Cc: jeremy@goop.org, dzickus@redhat.com, ak@suse.de, shaohua.li@intel.com,
-       miles.lane@gmail.com, linux-kernel@vger.kernel.org
-References: <4480C102.3060400@goop.org> <200606071013.53490.ncunningham@linuxmail.org> <20060606172410.b901950e.akpm@osdl.org>
-In-Reply-To: <20060606172410.b901950e.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1182940.MILoeL8yEn";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 6 Jun 2006 20:31:28 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:22972
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751405AbWFGAb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 20:31:27 -0400
+Subject: Re: [PATCH] fix missing hdlc symbols for synclink drivers
+From: Paul Fulghum <paulkf@microgate.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: khc@pm.waw.pl, davej@redhat.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+In-Reply-To: <20060606171209.2b21dbb4.rdunlap@xenotime.net>
+References: <20060603232004.68c4e1e3.akpm@osdl.org>
+	 <20060605230248.GE3963@redhat.com>
+	 <20060605184407.230bcf73.rdunlap@xenotime.net>
+	 <1149622813.11929.3.camel@amdx2.microgate.com>
+	 <m3u06yc9mr.fsf@defiant.localdomain>
+	 <20060606134816.363cbeca.rdunlap@xenotime.net>
+	 <20060606140822.c6f4ef37.rdunlap@xenotime.net>
+	 <m3zmgpc3ba.fsf@defiant.localdomain>
+	 <20060606160745.2f88ff9c.rdunlap@xenotime.net>
+	 <m3ejy1c0uw.fsf@defiant.localdomain>
+	 <1149638211.2633.21.camel@localhost.localdomain>
+	 <20060606171209.2b21dbb4.rdunlap@xenotime.net>
+Content-Type: text/plain
+Date: Tue, 06 Jun 2006 19:31:12 -0500
+Message-Id: <1149640272.2633.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606071031.55292.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1182940.MILoeL8yEn
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 2006-06-06 at 17:12 -0700, Randy.Dunlap wrote:
+> They are random in the sense that HDLC depends on WAN but only
+> HDLC was being selected.  In theory I would have expected
+> config (software) to automatically enable higher-level config
+> symbols in this case (select HDLC to cause select WAN),
+> but that doesn't happen
 
-Hi.
+I absolutely agree, that is the way I thought it would work
+as all the information to build correctly is contained in the
+Kconfig files.
 
-On Wednesday 07 June 2006 10:24, you wrote:
-> On Wed, 7 Jun 2006 10:13:49 +1000
->
-> Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> > > the new CPU to get the same state as the old one just because it ends
-> > > up with the same logical CPU number?  Perhaps, but what if it doesn't
-> > > even have the same capabilities?  (Do we support heterogeneous CPUs
-> > > anyway?)
-> >
-> > Indeed. I'm also not sure that there's necessarily a guarantee that cpus
-> > will be hotplugged in the same order. Perhaps those with more knowledge
-> > can clarify there.
->
-> It all depends on what we mean by "per-cpu state".  If we were to remember
-> that "CPU 7 needs 0x1234 in register 44" then that would be wrong.  But
-> remembering some high-level functional thing like "CPU 7 needs to run the
-> NMI watchdog" is fine.  The CPU bringup code can work out whether that is
-> possible, and how to do it.
+But, as you say, kbuild does not work that way.
+Changing kbuild to do that would take more time than
+I can commit, so I don't have any room to complain about it.
 
-Does that imply that there's no danger of cpus being hotplugged in a differ=
-ent=20
-order (so that cpu7 becomes cpu5, for example)?
+> , so we got some "random" config
+> which isn't supported (or even valid) ("random" being "invalid"
+> in this case).
 
-I guess I'm missing an understanding of why one cpu would need a different=
-=20
-configuration to the rest. If it's related to the cpu number, then it=20
-shouldn't matter if a different cpu gets the number, should it? If it's=20
-related to the node that the cpu is on, perhaps the hotplugging code for th=
-e=20
-driver should be checking for the reason ("Am I on the node with the... ?")=
-=20
-rather than the cpu number?
+Yes, the config is random, but the select statements are
+specifically chosen to work with the existing kbuild.
+Bottom line is the existing kbuild does not seem to
+propagate reverse dependencies, so you have to explicitly
+add them all with the select facility. Ugly, but not random.
 
-Regards,
+In the end, it is your original patch (select WAN minus the Makefile
+changes) that makes it work.
 
-Nigel
+BTW: Thanks for spending your time on this (Randy and Krzysztof),
+the exchange has been educational and useful.
 
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
+--
+Paul
 
---nextPart1182940.MILoeL8yEn
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBEhh57N0y+n1M3mo0RAl9gAKDfvDTtvlUNjggRPBsuxdKzrX2v9QCbB2AB
-5HYeWrXJL1ZVFizhPGxfIK8=
-=f6Fd
------END PGP SIGNATURE-----
-
---nextPart1182940.MILoeL8yEn--

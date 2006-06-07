@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWFGUHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWFGUIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWFGUHM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 16:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWFGUHD
+	id S1751269AbWFGUIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 16:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWFGUIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 16:07:03 -0400
-Received: from rrcs-24-227-247-179.sw.biz.rr.com ([24.227.247.179]:24491 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id S1751281AbWFGUGu
+	Wed, 7 Jun 2006 16:08:04 -0400
+Received: from rrcs-24-227-247-179.sw.biz.rr.com ([24.227.247.179]:26795 "EHLO
+	linux.local") by vger.kernel.org with ESMTP id S1751269AbWFGUG4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 16:06:50 -0400
+	Wed, 7 Jun 2006 16:06:56 -0400
 From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH v2 1/7] AMSO1100 Low Level Driver.
-Date: Wed, 07 Jun 2006 15:06:49 -0500
+Subject: [PATCH v2 3/7] AMSO1100 OpenFabrics Provider.
+Date: Wed, 07 Jun 2006 15:06:53 -0500
 To: rdreier@cisco.com, mshefty@ichips.intel.com
 Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
        openib-general@openib.org
-Message-Id: <20060607200648.9259.69698.stgit@stevo-desktop>
+Message-Id: <20060607200653.9259.31696.stgit@stevo-desktop>
 In-Reply-To: <20060607200646.9259.24588.stgit@stevo-desktop>
 References: <20060607200646.9259.24588.stgit@stevo-desktop>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,42 +25,996 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is the core of the driver and includes the hardware probe, low-level
-device interfaces and native Ethernet support.
-
 Review Changes:
 
-- sizeof -> sizeof()
+sizeof -> sizeof()
 
-- dprintk() -> pr_debug()
+dprintk() -> pr_debug()
 
-- removed useless asserts
+assert() -> BUG_ON()
 
-- assert() -> BUG_ON()
-
-- C2_DEBUG -> DEBUG
-
-- removed debug netevent code
-
-- removed arp request squelch code from intr handler, replacing it
-  with setting arp_ignore when the c2 netdev is brought up.
-
-- removed c2_set_mac_addr().
+C2_DEBUG -> DEBUG
 ---
 
- drivers/infiniband/hw/amso1100/c2.c      | 1255 ++++++++++++++++++++++++++++++
- drivers/infiniband/hw/amso1100/c2.h      |  555 +++++++++++++
- drivers/infiniband/hw/amso1100/c2_ae.c   |  359 +++++++++
- drivers/infiniband/hw/amso1100/c2_intr.c |  209 +++++
- drivers/infiniband/hw/amso1100/c2_rnic.c |  631 +++++++++++++++
- 5 files changed, 3009 insertions(+), 0 deletions(-)
+ drivers/infiniband/hw/amso1100/c2_cm.c       |  452 ++++++++++++
+ drivers/infiniband/hw/amso1100/c2_cq.c       |  423 +++++++++++
+ drivers/infiniband/hw/amso1100/c2_pd.c       |   71 ++
+ drivers/infiniband/hw/amso1100/c2_provider.c |  867 +++++++++++++++++++++++
+ drivers/infiniband/hw/amso1100/c2_provider.h |  182 +++++
+ drivers/infiniband/hw/amso1100/c2_qp.c       |  975 ++++++++++++++++++++++++++
+ drivers/infiniband/hw/amso1100/c2_user.h     |   82 ++
+ 7 files changed, 3052 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/amso1100/c2.c b/drivers/infiniband/hw/amso1100/c2.c
+diff --git a/drivers/infiniband/hw/amso1100/c2_cm.c b/drivers/infiniband/hw/amso1100/c2_cm.c
 new file mode 100644
-index 0000000..4fdbd80
+index 0000000..018d11f
 --- /dev/null
-+++ b/drivers/infiniband/hw/amso1100/c2.c
-@@ -0,0 +1,1255 @@
++++ b/drivers/infiniband/hw/amso1100/c2_cm.c
+@@ -0,0 +1,452 @@
++/*
++ * Copyright (c) 2005 Ammasso, Inc.  All rights reserved.
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ */
++#include "c2.h"
++#include "c2_wr.h"
++#include "c2_vq.h"
++#include <rdma/iw_cm.h>
++
++int c2_llp_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *iw_param)
++{
++	struct c2_dev *c2dev = to_c2dev(cm_id->device);
++	struct ib_qp *ibqp;
++	struct c2_qp *qp;
++	struct c2wr_qp_connect_req *wr;	/* variable size needs a malloc. */
++	struct c2_vq_req *vq_req;
++	int err;
++
++	ibqp = c2_get_qp(cm_id->device, iw_param->qpn);
++	if (!ibqp)
++		return -EINVAL;
++	qp = to_c2qp(ibqp);
++
++	/* Associate QP <--> CM_ID */
++	cm_id->provider_data = qp;
++	cm_id->add_ref(cm_id);
++	qp->cm_id = cm_id;
++
++	/*
++	 * only support the max private_data length
++	 */
++	if (iw_param->private_data_len > C2_MAX_PRIVATE_DATA_SIZE) {
++		err = -EINVAL;
++		goto bail0;
++	}
++	/* 
++	 * Set the rdma read limits 
++	 */
++	err = c2_qp_set_read_limits(c2dev, qp, iw_param->ord, iw_param->ird);
++	if (err)
++		goto bail0;
++
++	/*
++	 * Create and send a WR_QP_CONNECT...
++	 */
++	wr = kmalloc(c2dev->req_vq.msg_size, GFP_KERNEL);
++	if (!wr) {
++		err = -ENOMEM;
++		goto bail0;
++	}
++
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req) {
++		err = -ENOMEM;
++		goto bail1;
++	}
++
++	c2_wr_set_id(wr, CCWR_QP_CONNECT);
++	wr->hdr.context = 0;
++	wr->rnic_handle = c2dev->adapter_handle;
++	wr->qp_handle = qp->adapter_handle;
++
++	wr->remote_addr = cm_id->remote_addr.sin_addr.s_addr;
++	wr->remote_port = cm_id->remote_addr.sin_port;
++
++	/*
++	 * Move any private data from the callers's buf into 
++	 * the WR.
++	 */
++	if (iw_param->private_data) {
++		wr->private_data_length = 
++			cpu_to_be32(iw_param->private_data_len);
++		memcpy(&wr->private_data[0], iw_param->private_data,
++		       iw_param->private_data_len);
++	} else
++		wr->private_data_length = 0;
++
++	/*
++	 * Send WR to adapter.  NOTE: There is no synch reply from 
++	 * the adapter.
++	 */
++	err = vq_send_wr(c2dev, (union c2wr *) wr);
++	vq_req_free(c2dev, vq_req);
++
++ bail1:
++	kfree(wr);
++ bail0:
++	if (err) {
++		/* 
++		 * If we fail, release reference on QP and
++		 * disassociate QP from CM_ID  
++		 */
++		cm_id->provider_data = NULL;
++		qp->cm_id = NULL;
++		cm_id->rem_ref(cm_id);
++	}
++	return err;
++}
++
++int c2_llp_service_create(struct iw_cm_id *cm_id, int backlog)
++{
++	struct c2_dev *c2dev;
++	struct c2wr_ep_listen_create_req wr;
++	struct c2wr_ep_listen_create_rep *reply;
++	struct c2_vq_req *vq_req;
++	int err;
++
++	c2dev = to_c2dev(cm_id->device);
++	if (c2dev == NULL)
++		return -EINVAL;
++
++	/*
++	 * Allocate verbs request.
++	 */
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req)
++		return -ENOMEM;
++
++	/* 
++	 * Build the WR
++	 */
++	c2_wr_set_id(&wr, CCWR_EP_LISTEN_CREATE);
++	wr.hdr.context = (u64) (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.local_addr = cm_id->local_addr.sin_addr.s_addr;
++	wr.local_port = cm_id->local_addr.sin_port;
++	wr.backlog = cpu_to_be32(backlog);
++	wr.user_context = (u64) (unsigned long) cm_id;
++
++	/*
++	 * Reference the request struct.  Dereferenced in the int handler.
++	 */
++	vq_req_get(c2dev, vq_req);
++
++	/*
++	 * Send WR to adapter
++	 */
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail0;
++	}
++
++	/*
++	 * Wait for reply from adapter
++	 */
++	err = vq_wait_for_reply(c2dev, vq_req);
++	if (err)
++		goto bail0;
++
++	/*
++	 * Process reply 
++	 */
++	reply =
++	    (struct c2wr_ep_listen_create_rep *) (unsigned long) vq_req->reply_msg;
++	if (!reply) {
++		err = -ENOMEM;
++		goto bail1;
++	}
++
++	if ((err = c2_errno(reply)) != 0)
++		goto bail1;
++
++	/* 
++	 * Keep the adapter handle. Used in subsequent destroy 
++	 */
++	cm_id->provider_data = (void*)(unsigned long) reply->ep_handle;
++
++	/*
++	 * free vq stuff
++	 */
++	vq_repbuf_free(c2dev, reply);
++	vq_req_free(c2dev, vq_req);
++
++	return 0;
++
++ bail1:
++	vq_repbuf_free(c2dev, reply);
++ bail0:
++	vq_req_free(c2dev, vq_req);
++	return err;
++}
++
++
++int c2_llp_service_destroy(struct iw_cm_id *cm_id)
++{
++
++	struct c2_dev *c2dev;
++	struct c2wr_ep_listen_destroy_req wr;
++	struct c2wr_ep_listen_destroy_rep *reply;
++	struct c2_vq_req *vq_req;
++	int err;
++
++	c2dev = to_c2dev(cm_id->device);
++	if (c2dev == NULL)
++		return -EINVAL;
++
++	/*
++	 * Allocate verbs request.
++	 */
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req)
++		return -ENOMEM;
++
++	/* 
++	 * Build the WR
++	 */
++	c2_wr_set_id(&wr, CCWR_EP_LISTEN_DESTROY);
++	wr.hdr.context = (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.ep_handle = (u32)(unsigned long)cm_id->provider_data;
++
++	/*
++	 * reference the request struct.  dereferenced in the int handler.
++	 */
++	vq_req_get(c2dev, vq_req);
++
++	/*
++	 * Send WR to adapter
++	 */
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail0;
++	}
++
++	/*
++	 * Wait for reply from adapter
++	 */
++	err = vq_wait_for_reply(c2dev, vq_req);
++	if (err)
++		goto bail0;
++
++	/*
++	 * Process reply 
++	 */
++	reply=(struct c2wr_ep_listen_destroy_rep *)(unsigned long)vq_req->reply_msg;
++	if (!reply) {
++		err = -ENOMEM;
++		goto bail0;
++	}
++	if ((err = c2_errno(reply)) != 0)
++		goto bail1;
++
++ bail1:
++	vq_repbuf_free(c2dev, reply);
++ bail0:
++	vq_req_free(c2dev, vq_req);
++	return err;
++}
++
++int c2_llp_accept(struct iw_cm_id *cm_id, struct iw_cm_conn_param *iw_param)
++{
++	struct c2_dev *c2dev = to_c2dev(cm_id->device);
++	struct c2_qp *qp;
++	struct ib_qp *ibqp;
++	struct c2wr_cr_accept_req *wr;	/* variable length WR */
++	struct c2_vq_req *vq_req;
++	struct c2wr_cr_accept_rep *reply;	/* VQ Reply msg ptr. */
++	int err;
++
++	ibqp = c2_get_qp(cm_id->device, iw_param->qpn);
++	if (!ibqp)
++		return -EINVAL;
++	qp = to_c2qp(ibqp);
++
++	/* Set the RDMA read limits */
++	err = c2_qp_set_read_limits(c2dev, qp, iw_param->ord, iw_param->ird);
++	if (err)
++		goto bail0;
++
++	/* Allocate verbs request. */
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req) {
++		err = -ENOMEM;
++		goto bail1;
++	}
++	vq_req->qp = qp;
++	vq_req->cm_id = cm_id;
++	vq_req->event = IW_CM_EVENT_ESTABLISHED;
++
++	wr = kmalloc(c2dev->req_vq.msg_size, GFP_KERNEL);
++	if (!wr) {
++		err = -ENOMEM;
++		goto bail2;
++	}
++
++	/* Build the WR */
++	c2_wr_set_id(wr, CCWR_CR_ACCEPT);
++	wr->hdr.context = (unsigned long) vq_req;
++	wr->rnic_handle = c2dev->adapter_handle;
++	wr->ep_handle = (u32) (unsigned long) cm_id->provider_data;
++	wr->qp_handle = qp->adapter_handle;
++
++	/* Replace the cr_handle with the QP after accept */
++	cm_id->provider_data = qp;
++	cm_id->add_ref(cm_id);
++	qp->cm_id = cm_id;
++
++	cm_id->provider_data = qp;
++
++	/* Validate private_data length */
++	if (iw_param->private_data_len > C2_MAX_PRIVATE_DATA_SIZE) {
++		err = -EINVAL;
++		goto bail2;
++	}
++
++	if (iw_param->private_data) {
++		wr->private_data_length = cpu_to_be32(iw_param->private_data_len);
++		memcpy(&wr->private_data[0], 
++		       iw_param->private_data, iw_param->private_data_len);
++	} else 
++		wr->private_data_length = 0;
++
++	/* Reference the request struct.  Dereferenced in the int handler. */
++	vq_req_get(c2dev, vq_req);
++
++	/* Send WR to adapter */
++	err = vq_send_wr(c2dev, (union c2wr *) wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail2;
++	}
++
++	/* Wait for reply from adapter */
++	err = vq_wait_for_reply(c2dev, vq_req);
++	if (err)
++		goto bail2;
++
++	/* Check that reply is present */
++	reply = (struct c2wr_cr_accept_rep *) (unsigned long) vq_req->reply_msg;
++	if (!reply) {
++		err = -ENOMEM;
++		goto bail2;
++	}
++
++	err = c2_errno(reply);
++	vq_repbuf_free(c2dev, reply);
++
++	if (!err)
++		c2_set_qp_state(qp, C2_QP_STATE_RTS);
++ bail2:
++	kfree(wr);
++ bail1:
++	vq_req_free(c2dev, vq_req);
++ bail0:
++	if (err) {
++		/* 
++		 * If we fail, release reference on QP and
++		 * disassociate QP from CM_ID  
++		 */
++		cm_id->provider_data = NULL;
++		qp->cm_id = NULL;
++		cm_id->rem_ref(cm_id);
++	}
++	return err;
++}
++
++int c2_llp_reject(struct iw_cm_id *cm_id, const void *pdata, u8 pdata_len)
++{
++	struct c2_dev *c2dev;
++	struct c2wr_cr_reject_req wr;
++	struct c2_vq_req *vq_req;
++	struct c2wr_cr_reject_rep *reply;
++	int err;
++
++	c2dev = to_c2dev(cm_id->device);
++
++	/*
++	 * Allocate verbs request.
++	 */
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req)
++		return -ENOMEM;
++
++	/* 
++	 * Build the WR
++	 */
++	c2_wr_set_id(&wr, CCWR_CR_REJECT);
++	wr.hdr.context = (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.ep_handle = (u32) (unsigned long) cm_id->provider_data;
++
++	/*
++	 * reference the request struct.  dereferenced in the int handler.
++	 */
++	vq_req_get(c2dev, vq_req);
++
++	/*
++	 * Send WR to adapter
++	 */
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail0;
++	}
++
++	/*
++	 * Wait for reply from adapter
++	 */
++	err = vq_wait_for_reply(c2dev, vq_req);
++	if (err)
++		goto bail0;
++
++	/*
++	 * Process reply 
++	 */
++	reply = (struct c2wr_cr_reject_rep *) (unsigned long) 
++		vq_req->reply_msg;
++	if (!reply) {
++		err = -ENOMEM;
++		goto bail0;
++	}
++	err = c2_errno(reply);
++	/*
++	 * free vq stuff
++	 */
++	vq_repbuf_free(c2dev, reply);
++
++ bail0:
++	vq_req_free(c2dev, vq_req);
++	return err;
++}
+diff --git a/drivers/infiniband/hw/amso1100/c2_cq.c b/drivers/infiniband/hw/amso1100/c2_cq.c
+new file mode 100644
+index 0000000..71128ff
+--- /dev/null
++++ b/drivers/infiniband/hw/amso1100/c2_cq.c
+@@ -0,0 +1,423 @@
++/*
++ * Copyright (c) 2004, 2005 Topspin Communications.  All rights reserved.
++ * Copyright (c) 2005 Sun Microsystems, Inc. All rights reserved.
++ * Copyright (c) 2005 Cisco Systems, Inc. All rights reserved.
++ * Copyright (c) 2005 Mellanox Technologies. All rights reserved.
++ * Copyright (c) 2004 Voltaire, Inc. All rights reserved.
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ */
++#include "c2.h"
++#include "c2_vq.h"
++#include "c2_status.h"
++
++#define C2_CQ_MSG_SIZE ((sizeof(struct c2wr_ce) + 32-1) & ~(32-1))
++
++struct c2_cq *c2_cq_get(struct c2_dev *c2dev, int cqn)
++{
++	struct c2_cq *cq;
++	unsigned long flags;
++
++	spin_lock_irqsave(&c2dev->lock, flags);
++	cq = c2dev->qptr_array[cqn];
++	if (!cq) {
++		spin_unlock_irqrestore(&c2dev->lock, flags);
++		return NULL;
++	}
++	atomic_inc(&cq->refcount);
++	spin_unlock_irqrestore(&c2dev->lock, flags);
++	return cq;
++}
++
++void c2_cq_put(struct c2_cq *cq)
++{
++	if (atomic_dec_and_test(&cq->refcount))
++		wake_up(&cq->wait);
++}
++
++void c2_cq_event(struct c2_dev *c2dev, u32 mq_index)
++{
++	struct c2_cq *cq;
++
++	cq = c2_cq_get(c2dev, mq_index);
++	if (!cq) {
++		printk("discarding events on destroyed CQN=%d\n", mq_index);
++		return;
++	}
++
++	(*cq->ibcq.comp_handler) (&cq->ibcq, cq->ibcq.cq_context);
++	c2_cq_put(cq);
++}
++
++void c2_cq_clean(struct c2_dev *c2dev, struct c2_qp *qp, u32 mq_index)
++{
++	struct c2_cq *cq;
++	struct c2_mq *q;
++
++	cq = c2_cq_get(c2dev, mq_index);
++	if (!cq)
++		return;
++
++	spin_lock_irq(&cq->lock);
++	q = &cq->mq;
++	if (q && !c2_mq_empty(q)) {
++		u16 priv = q->priv;
++		struct c2wr_ce *msg;
++
++		while (priv != be16_to_cpu(*q->shared)) {
++			msg = (struct c2wr_ce *) 
++				(q->msg_pool.host + priv * q->msg_size);
++			if (msg->qp_user_context == (u64) (unsigned long) qp) {
++				msg->qp_user_context = (u64) 0;
++			}
++			priv = (priv + 1) % q->q_size;
++		}
++	}
++	spin_unlock_irq(&cq->lock);
++	c2_cq_put(cq);
++}
++
++static inline enum ib_wc_status c2_cqe_status_to_openib(u8 status)
++{
++	switch (status) {
++	case C2_OK:
++		return IB_WC_SUCCESS;
++	case CCERR_FLUSHED:
++		return IB_WC_WR_FLUSH_ERR;
++	case CCERR_BASE_AND_BOUNDS_VIOLATION:
++		return IB_WC_LOC_PROT_ERR;
++	case CCERR_ACCESS_VIOLATION:
++		return IB_WC_LOC_ACCESS_ERR;
++	case CCERR_TOTAL_LENGTH_TOO_BIG:
++		return IB_WC_LOC_LEN_ERR;
++	case CCERR_INVALID_WINDOW:
++		return IB_WC_MW_BIND_ERR;
++	default:
++		return IB_WC_GENERAL_ERR;
++	}
++}
++
++
++static inline int c2_poll_one(struct c2_dev *c2dev,
++			      struct c2_cq *cq, struct ib_wc *entry)
++{
++	struct c2wr_ce *ce;
++	struct c2_qp *qp;
++	int is_recv = 0;
++
++	ce = (struct c2wr_ce *) c2_mq_consume(&cq->mq);
++	if (!ce) {
++		return -EAGAIN;
++	}
++
++	/*
++	 * if the qp returned is null then this qp has already 
++	 * been freed and we are unable process the completion.  
++	 * try pulling the next message
++	 */
++	while ((qp =
++		(struct c2_qp *) (unsigned long) ce->qp_user_context) == NULL) {
++		c2_mq_free(&cq->mq);
++		ce = (struct c2wr_ce *) c2_mq_consume(&cq->mq);
++		if (!ce)
++			return -EAGAIN;
++	}
++
++	entry->status = c2_cqe_status_to_openib(c2_wr_get_result(ce));
++	entry->wr_id = ce->hdr.context;
++	entry->qp_num = ce->handle;
++	entry->wc_flags = 0;
++	entry->slid = 0;
++	entry->sl = 0;
++	entry->src_qp = 0;
++	entry->dlid_path_bits = 0;
++	entry->pkey_index = 0;
++
++	switch (c2_wr_get_id(ce)) {
++	case C2_WR_TYPE_SEND:
++		entry->opcode = IB_WC_SEND;
++		break;
++	case C2_WR_TYPE_RDMA_WRITE:
++		entry->opcode = IB_WC_RDMA_WRITE;
++		break;
++	case C2_WR_TYPE_RDMA_READ:
++		entry->opcode = IB_WC_RDMA_READ;
++		break;
++	case C2_WR_TYPE_BIND_MW:
++		entry->opcode = IB_WC_BIND_MW;
++		break;
++	case C2_WR_TYPE_RECV:
++		entry->byte_len = be32_to_cpu(ce->bytes_rcvd);
++		entry->opcode = IB_WC_RECV;
++		is_recv = 1;
++		break;
++	default:
++		break;
++	}
++
++	/* consume the WQEs */
++	if (is_recv)
++		c2_mq_lconsume(&qp->rq_mq, 1);
++	else
++		c2_mq_lconsume(&qp->sq_mq,
++			       be32_to_cpu(c2_wr_get_wqe_count(ce)) + 1);
++
++	/* free the message */
++	c2_mq_free(&cq->mq);
++
++	return 0;
++}
++
++int c2_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *entry)
++{
++	struct c2_dev *c2dev = to_c2dev(ibcq->device);
++	struct c2_cq *cq = to_c2cq(ibcq);
++	unsigned long flags;
++	int npolled, err;
++
++	spin_lock_irqsave(&cq->lock, flags);
++
++	for (npolled = 0; npolled < num_entries; ++npolled) {
++
++		err = c2_poll_one(c2dev, cq, entry + npolled);
++		if (err)
++			break;
++	}
++
++	spin_unlock_irqrestore(&cq->lock, flags);
++
++	return npolled;
++}
++
++int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++{
++	struct c2_mq_shared __iomem *shared;
++	struct c2_cq *cq;
++
++	cq = to_c2cq(ibcq);
++	shared = cq->mq.peer;
++
++	if (notify == IB_CQ_NEXT_COMP)
++		writeb(C2_CQ_NOTIFICATION_TYPE_NEXT, &shared->notification_type);
++	else if (notify == IB_CQ_SOLICITED)
++		writeb(C2_CQ_NOTIFICATION_TYPE_NEXT_SE, &shared->notification_type);
++	else
++		return -EINVAL;
++
++	writeb(CQ_WAIT_FOR_DMA | CQ_ARMED, &shared->armed);
++
++	/*
++	 * Now read back shared->armed to make the PCI
++	 * write synchronous.  This is necessary for
++	 * correct cq notification semantics.
++	 */
++	readb(&shared->armed);
++
++	return 0;
++}
++
++static void c2_free_cq_buf(struct c2_mq *mq)
++{
++	free_pages((unsigned long) mq->msg_pool.host, 
++		   get_order(mq->q_size * mq->msg_size));
++}
++
++static int c2_alloc_cq_buf(struct c2_mq *mq, int q_size, int msg_size)
++{
++	unsigned long pool_start;
++
++	pool_start = __get_free_pages(GFP_KERNEL, 
++				      get_order(q_size * msg_size));
++	if (!pool_start)
++		return -ENOMEM;
++
++	c2_mq_rep_init(mq, 
++		       0,		/* index (currently unknown) */
++		       q_size, 
++		       msg_size, 
++		       (u8 *) pool_start, 
++		       NULL,	/* peer (currently unknown) */
++		       C2_MQ_HOST_TARGET);
++
++	return 0;
++}
++
++int c2_init_cq(struct c2_dev *c2dev, int entries,
++	       struct c2_ucontext *ctx, struct c2_cq *cq)
++{
++	struct c2wr_cq_create_req wr;
++	struct c2wr_cq_create_rep *reply;
++	unsigned long peer_pa;
++	struct c2_vq_req *vq_req;
++	int err;
++
++	might_sleep();
++
++	cq->ibcq.cqe = entries - 1;
++	cq->is_kernel = !ctx;
++
++	/* Allocate a shared pointer */
++	cq->mq.shared = c2_alloc_mqsp(c2dev->kern_mqsp_pool);
++	if (!cq->mq.shared)
++		return -ENOMEM;
++
++	/* Allocate pages for the message pool */
++	err = c2_alloc_cq_buf(&cq->mq, entries + 1, C2_CQ_MSG_SIZE);
++	if (err)
++		goto bail0;
++
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req) {
++		err = -ENOMEM;
++		goto bail1;
++	}
++
++	memset(&wr, 0, sizeof(wr));
++	c2_wr_set_id(&wr, CCWR_CQ_CREATE);
++	wr.hdr.context = (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.msg_size = cpu_to_be32(cq->mq.msg_size);
++	wr.depth = cpu_to_be32(cq->mq.q_size);
++	wr.shared_ht = cpu_to_be64(__pa(cq->mq.shared));
++	wr.msg_pool = cpu_to_be64(__pa(cq->mq.msg_pool.host));
++	wr.user_context = (u64) (unsigned long) (cq);
++
++	vq_req_get(c2dev, vq_req);
++
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail2;
++	}
++
++	err = vq_wait_for_reply(c2dev, vq_req);
++	if (err)
++		goto bail2;
++
++	reply = (struct c2wr_cq_create_rep *) (unsigned long) (vq_req->reply_msg);
++	if (!reply) {
++		err = -ENOMEM;
++		goto bail2;
++	}
++
++	if ((err = c2_errno(reply)) != 0)
++		goto bail3;
++
++	cq->adapter_handle = reply->cq_handle;
++	cq->mq.index = be32_to_cpu(reply->mq_index);
++
++	peer_pa = c2dev->pa + be32_to_cpu(reply->adapter_shared);
++	cq->mq.peer = ioremap_nocache(peer_pa, PAGE_SIZE);
++	if (!cq->mq.peer) {
++		err = -ENOMEM;
++		goto bail3;
++	}
++
++	vq_repbuf_free(c2dev, reply);
++	vq_req_free(c2dev, vq_req);
++
++	spin_lock_init(&cq->lock);
++	atomic_set(&cq->refcount, 1);
++	init_waitqueue_head(&cq->wait);
++
++	/* 
++	 * Use the MQ index allocated by the adapter to
++	 * store the CQ in the qptr_array
++	 */
++	cq->cqn = cq->mq.index;
++	c2dev->qptr_array[cq->cqn] = cq;
++
++	return 0;
++
++      bail3:
++	vq_repbuf_free(c2dev, reply);
++      bail2:
++	vq_req_free(c2dev, vq_req);
++      bail1:
++	c2_free_cq_buf(&cq->mq);
++      bail0:
++	c2_free_mqsp(cq->mq.shared);
++
++	return err;
++}
++
++void c2_free_cq(struct c2_dev *c2dev, struct c2_cq *cq)
++{
++	int err;
++	struct c2_vq_req *vq_req;
++	struct c2wr_cq_destroy_req wr;
++	struct c2wr_cq_destroy_rep *reply;
++
++	might_sleep();
++
++	/* Clear CQ from the qptr array */
++	spin_lock_irq(&c2dev->lock);
++	c2dev->qptr_array[cq->mq.index] = NULL;
++	atomic_dec(&cq->refcount);
++	spin_unlock_irq(&c2dev->lock);
++
++	wait_event(cq->wait, !atomic_read(&cq->refcount));
++
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req) {
++		goto bail0;
++	}
++
++	memset(&wr, 0, sizeof(wr));
++	c2_wr_set_id(&wr, CCWR_CQ_DESTROY);
++	wr.hdr.context = (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.cq_handle = cq->adapter_handle;
++
++	vq_req_get(c2dev, vq_req);
++
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail1;
++	}
++
++	err = vq_wait_for_reply(c2dev, vq_req);
++	if (err)
++		goto bail1;
++
++	reply = (struct c2wr_cq_destroy_rep *) (unsigned long) (vq_req->reply_msg);
++
++	vq_repbuf_free(c2dev, reply);
++      bail1:
++	vq_req_free(c2dev, vq_req);
++      bail0:
++	if (cq->is_kernel) {
++		c2_free_cq_buf(&cq->mq);
++	}
++
++	return;
++}
+diff --git a/drivers/infiniband/hw/amso1100/c2_pd.c b/drivers/infiniband/hw/amso1100/c2_pd.c
+new file mode 100644
+index 0000000..27459b8
+--- /dev/null
++++ b/drivers/infiniband/hw/amso1100/c2_pd.c
+@@ -0,0 +1,71 @@
++/*
++ * Copyright (c) 2004 Topspin Communications.  All rights reserved.
++ * Copyright (c) 2005 Cisco Systems.  All rights reserved.
++ * Copyright (c) 2005 Mellanox Technologies. All rights reserved.
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#include <linux/init.h>
++#include <linux/errno.h>
++
++#include "c2.h"
++#include "c2_provider.h"
++
++int c2_pd_alloc(struct c2_dev *dev, int privileged, struct c2_pd *pd)
++{
++	int err = 0;
++
++	might_sleep();
++
++	atomic_set(&pd->sqp_count, 0);
++	pd->pd_id = c2_alloc(&dev->pd_table.alloc);
++	if (pd->pd_id == -1)
++		return -ENOMEM;
++
++	return err;
++}
++
++void c2_pd_free(struct c2_dev *dev, struct c2_pd *pd)
++{
++	might_sleep();
++	c2_free(&dev->pd_table.alloc, pd->pd_id);
++}
++
++int __devinit c2_init_pd_table(struct c2_dev *dev)
++{
++	return c2_alloc_init(&dev->pd_table.alloc, dev->props.max_pd, 0);
++}
++
++void __devexit c2_cleanup_pd_table(struct c2_dev *dev)
++{
++	/* XXX check if any PDs are still allocated? */
++	c2_alloc_cleanup(&dev->pd_table.alloc);
++}
+diff --git a/drivers/infiniband/hw/amso1100/c2_provider.c b/drivers/infiniband/hw/amso1100/c2_provider.c
+new file mode 100644
+index 0000000..eaf786e
+--- /dev/null
++++ b/drivers/infiniband/hw/amso1100/c2_provider.c
+@@ -0,0 +1,867 @@
 +/*
 + * Copyright (c) 2005 Ammasso, Inc. All rights reserved.
 + * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
@@ -92,7 +1046,9 @@ index 0000000..4fdbd80
 + * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
++ *
 + */
++
 +#include <linux/module.h>
 +#include <linux/moduleparam.h>
 +#include <linux/pci.h>
@@ -109,817 +1065,642 @@ index 0000000..4fdbd80
 +#include <linux/tcp.h>
 +#include <linux/init.h>
 +#include <linux/dma-mapping.h>
++#include <linux/if_arp.h>
 +
 +#include <asm/io.h>
 +#include <asm/irq.h>
 +#include <asm/byteorder.h>
 +
 +#include <rdma/ib_smi.h>
++#include <rdma/ib_user_verbs.h>
 +#include "c2.h"
 +#include "c2_provider.h"
++#include "c2_user.h"
 +
-+MODULE_AUTHOR("Tom Tucker <tom@opengridcomputing.com>");
-+MODULE_DESCRIPTION("Ammasso AMSO1100 Low-level iWARP Driver");
-+MODULE_LICENSE("Dual BSD/GPL");
-+MODULE_VERSION(DRV_VERSION);
++static int c2_query_device(struct ib_device *ibdev,
++			   struct ib_device_attr *props)
++{
++	struct c2_dev *c2dev = to_c2dev(ibdev);
 +
-+static const u32 default_msg = NETIF_MSG_DRV | NETIF_MSG_PROBE | NETIF_MSG_LINK
-+    | NETIF_MSG_IFUP | NETIF_MSG_IFDOWN;
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
 +
-+static int debug = -1;		/* defaults above */
-+module_param(debug, int, 0);
-+MODULE_PARM_DESC(debug, "Debug level (0=none,...,16=all)");
++	*props = c2dev->props;
++	return 0;
++}
 +
-+static int c2_up(struct net_device *netdev);
-+static int c2_down(struct net_device *netdev);
-+static int c2_xmit_frame(struct sk_buff *skb, struct net_device *netdev);
-+static void c2_tx_interrupt(struct net_device *netdev);
-+static void c2_rx_interrupt(struct net_device *netdev);
-+static irqreturn_t c2_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+static void c2_tx_timeout(struct net_device *netdev);
-+static int c2_change_mtu(struct net_device *netdev, int new_mtu);
-+static void c2_reset(struct c2_port *c2_port);
-+static struct net_device_stats *c2_get_stats(struct net_device *netdev);
++static int c2_query_port(struct ib_device *ibdev,
++			 u8 port, struct ib_port_attr *props)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
 +
-+static struct pci_device_id c2_pci_table[] = {
-+	{0x18b8, 0xb001, PCI_ANY_ID, PCI_ANY_ID},
-+	{0}
++	props->max_mtu = IB_MTU_4096;
++	props->lid = 0;
++	props->lmc = 0;
++	props->sm_lid = 0;
++	props->sm_sl = 0;
++	props->state = IB_PORT_ACTIVE;
++	props->phys_state = 0;
++	props->port_cap_flags =
++	    IB_PORT_CM_SUP |
++	    IB_PORT_REINIT_SUP |
++	    IB_PORT_VENDOR_CLASS_SUP | IB_PORT_BOOT_MGMT_SUP;
++	props->gid_tbl_len = 1;
++	props->pkey_tbl_len = 1;
++	props->qkey_viol_cntr = 0;
++	props->active_width = 1;
++	props->active_speed = 1;
++
++	return 0;
++}
++
++static int c2_modify_port(struct ib_device *ibdev,
++			  u8 port, int port_modify_mask,
++			  struct ib_port_modify *props)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return 0;
++}
++
++static int c2_query_pkey(struct ib_device *ibdev,
++			 u8 port, u16 index, u16 * pkey)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	*pkey = 0;
++	return 0;
++}
++
++static int c2_query_gid(struct ib_device *ibdev, u8 port,
++			int index, union ib_gid *gid)
++{
++	struct c2_dev *c2dev = to_c2dev(ibdev);
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	memset(&(gid->raw[0]), 0, sizeof(gid->raw));
++	memcpy(&(gid->raw[0]), c2dev->pseudo_netdev->dev_addr, 6);
++
++	return 0;
++}
++
++/* Allocate the user context data structure. This keeps track
++ * of all objects associated with a particular user-mode client.
++ */
++static struct ib_ucontext *c2_alloc_ucontext(struct ib_device *ibdev,
++					     struct ib_udata *udata)
++{
++	struct c2_ucontext *context;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	context = kmalloc(sizeof(*context), GFP_KERNEL);
++	if (!context)
++		return ERR_PTR(-ENOMEM);
++
++	return &context->ibucontext;
++}
++
++static int c2_dealloc_ucontext(struct ib_ucontext *context)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	kfree(context);
++	return 0;
++}
++
++static int c2_mmap_uar(struct ib_ucontext *context, struct vm_area_struct *vma)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return -ENOSYS;
++}
++
++static struct ib_pd *c2_alloc_pd(struct ib_device *ibdev,
++				 struct ib_ucontext *context,
++				 struct ib_udata *udata)
++{
++	struct c2_pd *pd;
++	int err;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++
++	pd = kmalloc(sizeof(*pd), GFP_KERNEL);
++	if (!pd)
++		return ERR_PTR(-ENOMEM);
++
++	err = c2_pd_alloc(to_c2dev(ibdev), !context, pd);
++	if (err) {
++		kfree(pd);
++		return ERR_PTR(err);
++	}
++
++	if (context) {
++		if (ib_copy_to_udata(udata, &pd->pd_id, sizeof(__u32))) {
++			c2_pd_free(to_c2dev(ibdev), pd);
++			kfree(pd);
++			return ERR_PTR(-EFAULT);
++		}
++	}
++
++	return &pd->ibpd;
++}
++
++static int c2_dealloc_pd(struct ib_pd *pd)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	c2_pd_free(to_c2dev(pd->device), to_c2pd(pd));
++	kfree(pd);
++
++	return 0;
++}
++
++static struct ib_ah *c2_ah_create(struct ib_pd *pd, struct ib_ah_attr *ah_attr)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return ERR_PTR(-ENOSYS);
++}
++
++static int c2_ah_destroy(struct ib_ah *ah)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return -ENOSYS;
++}
++
++static void c2_add_ref(struct ib_qp *ibqp)
++{
++	struct c2_qp *qp;
++	BUG_ON(!ibqp);
++	qp = to_c2qp(ibqp);
++	atomic_inc(&qp->refcount);
++}
++
++static void c2_rem_ref(struct ib_qp *ibqp)
++{
++	struct c2_qp *qp;
++	BUG_ON(!ibqp);
++	qp = to_c2qp(ibqp);
++	if (atomic_dec_and_test(&qp->refcount))
++		wake_up(&qp->wait);
++}
++
++struct ib_qp *c2_get_qp(struct ib_device *device, int qpn)
++{
++	struct c2_dev* c2dev = to_c2dev(device);
++	struct c2_qp *qp;
++
++	qp = c2dev->qp_table.map[qpn];
++	pr_debug("%s Returning QP=%p for QPN=%d, device=%p, refcount=%d\n",
++		__FUNCTION__, qp, qpn, device,
++		(qp?atomic_read(&qp->refcount):0));
++
++	return (qp?&qp->ibqp:NULL);
++}
++
++static struct ib_qp *c2_create_qp(struct ib_pd *pd,
++				  struct ib_qp_init_attr *init_attr,
++				  struct ib_udata *udata)
++{
++	struct c2_qp *qp;
++	int err;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++
++	switch (init_attr->qp_type) {
++	case IB_QPT_RC:
++		qp = kzalloc(sizeof(*qp), GFP_KERNEL);
++		if (!qp) {
++			pr_debug("%s: Unable to allocate QP\n", __FUNCTION__);
++			return ERR_PTR(-ENOMEM);
++		}
++		spin_lock_init(&qp->lock);
++		if (pd->uobject) {
++			/* XXX userspace specific */
++		}
++
++		err = c2_alloc_qp(to_c2dev(pd->device),
++				  to_c2pd(pd), init_attr, qp);
++		
++		if (err && pd->uobject) {
++			/* XXX userspace specific */
++		}
++
++		break;
++	default:
++		pr_debug("%s: Invalid QP type: %d\n", __FUNCTION__,
++			init_attr->qp_type);
++		return ERR_PTR(-EINVAL);
++		break;
++	}
++
++	if (err) {
++		kfree(qp);
++		return ERR_PTR(err);
++	}
++
++	return &qp->ibqp;
++}
++
++static int c2_destroy_qp(struct ib_qp *ib_qp)
++{
++	struct c2_qp *qp = to_c2qp(ib_qp);
++
++	pr_debug("%s:%u qp=%p,qp->state=%d\n", 
++		__FUNCTION__, __LINE__,ib_qp,qp->state);
++	c2_free_qp(to_c2dev(ib_qp->device), qp);
++	kfree(qp);
++	return 0;
++}
++
++static struct ib_cq *c2_create_cq(struct ib_device *ibdev, int entries,
++				  struct ib_ucontext *context,
++				  struct ib_udata *udata)
++{
++	struct c2_cq *cq;
++	int err;
++
++	cq = kmalloc(sizeof(*cq), GFP_KERNEL);
++	if (!cq) {
++		pr_debug("%s: Unable to allocate CQ\n", __FUNCTION__);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	err = c2_init_cq(to_c2dev(ibdev), entries, NULL, cq);
++	if (err) {
++		pr_debug("%s: error initializing CQ\n", __FUNCTION__);
++		kfree(cq);
++		return ERR_PTR(err);
++	}
++
++	return &cq->ibcq;
++}
++
++static int c2_destroy_cq(struct ib_cq *ib_cq)
++{
++	struct c2_cq *cq = to_c2cq(ib_cq);
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++
++	c2_free_cq(to_c2dev(ib_cq->device), cq);
++	kfree(cq);
++
++	return 0;
++}
++
++static inline u32 c2_convert_access(int acc)
++{
++	return (acc & IB_ACCESS_REMOTE_WRITE ? C2_ACF_REMOTE_WRITE : 0) |
++	    (acc & IB_ACCESS_REMOTE_READ ? C2_ACF_REMOTE_READ : 0) |
++	    (acc & IB_ACCESS_LOCAL_WRITE ? C2_ACF_LOCAL_WRITE : 0) |
++	    C2_ACF_LOCAL_READ | C2_ACF_WINDOW_BIND;
++}
++
++static struct ib_mr *c2_reg_phys_mr(struct ib_pd *ib_pd,
++				    struct ib_phys_buf *buffer_list,
++				    int num_phys_buf, int acc, u64 * iova_start)
++{
++	struct c2_mr *mr;
++	u64 *page_list;
++	u32 total_len;
++	int err, i, j, k, page_shift, pbl_depth;
++
++	pbl_depth = 0;
++	total_len = 0;
++
++	page_shift = PAGE_SHIFT;
++	/*
++	 * If there is only 1 buffer we assume this could
++	 * be a map of all phy mem...use a 32k page_shift.
++	 */
++	if (num_phys_buf == 1)
++		page_shift += 3;	/* XXX */
++
++	for (i = 0; i < num_phys_buf; i++) {
++
++		if (buffer_list[i].addr & ~PAGE_MASK) {
++			pr_debug("Unaligned Memory Buffer: 0x%x\n",
++				(unsigned int) buffer_list[i].addr);
++			return ERR_PTR(-EINVAL);
++		}
++
++		if (!buffer_list[i].size) {
++			pr_debug("Invalid Buffer Size\n");
++			return ERR_PTR(-EINVAL);
++		}
++
++		total_len += buffer_list[i].size;
++		pbl_depth += ALIGN(buffer_list[i].size, 
++				   (1 << page_shift)) >> page_shift;
++	}
++
++	page_list = vmalloc(sizeof(u64) * pbl_depth);
++	if (!page_list) {
++		pr_debug("couldn't vmalloc page_list of size %zd\n",
++			(sizeof(u64) * pbl_depth));
++		return ERR_PTR(-ENOMEM);
++	}
++
++	for (i = 0, j = 0; i < num_phys_buf; i++) {
++
++		int naddrs;
++
++ 		naddrs = ALIGN(buffer_list[i].size, 
++			       (1 << page_shift)) >> page_shift;
++		for (k = 0; k < naddrs; k++)
++			page_list[j++] = (buffer_list[i].addr + 
++						     (k << page_shift));
++	}
++
++	mr = kmalloc(sizeof(*mr), GFP_KERNEL);
++	if (!mr)
++		return ERR_PTR(-ENOMEM);
++
++	mr->pd = to_c2pd(ib_pd);
++	pr_debug("%s - page shift %d, pbl_depth %d, total_len %u, "
++		"*iova_start %llx, first pa %llx, last pa %llx\n",
++		__FUNCTION__, page_shift, pbl_depth, total_len, 
++		*iova_start, page_list[0], page_list[pbl_depth-1]);
++  	err = c2_nsmr_register_phys_kern(to_c2dev(ib_pd->device), page_list,
++ 					 (1 << page_shift), pbl_depth, 
++					 total_len, 0, iova_start, 
++					 c2_convert_access(acc), mr);
++	vfree(page_list);
++	if (err) {
++		kfree(mr);
++		return ERR_PTR(err);
++	}
++
++	return &mr->ibmr;
++}
++
++static struct ib_mr *c2_get_dma_mr(struct ib_pd *pd, int acc)
++{
++	struct ib_phys_buf bl;
++	u64 kva = 0;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++
++	/* AMSO1100 limit */
++	bl.size = 0xffffffff;
++	bl.addr = 0;
++	return c2_reg_phys_mr(pd, &bl, 1, acc, &kva);
++}
++
++static struct ib_mr *c2_reg_user_mr(struct ib_pd *pd, struct ib_umem *region,
++				    int acc, struct ib_udata *udata)
++{
++	u64 *pages;
++	u64 kva = 0;
++	int shift, n, len;
++	int i, j, k;
++	int err = 0;
++	struct ib_umem_chunk *chunk;
++	struct c2_pd *c2pd = to_c2pd(pd);
++	struct c2_mr *c2mr;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	shift = ffs(region->page_size) - 1;
++
++	c2mr = kmalloc(sizeof(*c2mr), GFP_KERNEL);
++	if (!c2mr)
++		return ERR_PTR(-ENOMEM);
++	c2mr->pd = c2pd;
++
++	n = 0;
++	list_for_each_entry(chunk, &region->chunk_list, list)
++		n += chunk->nents;
++
++	pages = kmalloc(n * sizeof(u64), GFP_KERNEL);
++	if (!pages) {
++		err = -ENOMEM;
++		goto err;
++	}
++
++	i = 0;
++	list_for_each_entry(chunk, &region->chunk_list, list) {
++		for (j = 0; j < chunk->nmap; ++j) {
++			len = sg_dma_len(&chunk->page_list[j]) >> shift;
++			for (k = 0; k < len; ++k) {
++				pages[i++] = 
++					sg_dma_address(&chunk->page_list[j]) +
++					(region->page_size * k);
++			}
++		}
++	}
++
++	kva = (u64)region->virt_base;
++  	err = c2_nsmr_register_phys_kern(to_c2dev(pd->device), 
++					 pages,
++ 					 region->page_size,
++					 i, 
++					 region->length, 
++					 region->offset,
++					 &kva,
++					 c2_convert_access(acc), 
++					 c2mr);
++	kfree(pages);
++	if (err) {
++		kfree(c2mr);
++		return ERR_PTR(err);
++	}
++	return &c2mr->ibmr;
++
++err:
++	kfree(c2mr);
++	return ERR_PTR(err);
++}
++
++static int c2_dereg_mr(struct ib_mr *ib_mr)
++{
++	struct c2_mr *mr = to_c2mr(ib_mr);
++	int err;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++
++	err = c2_stag_dealloc(to_c2dev(ib_mr->device), ib_mr->lkey);
++	if (err)
++		pr_debug("c2_stag_dealloc failed: %d\n", err);
++	else
++		kfree(mr);
++
++	return err;
++}
++
++static ssize_t show_rev(struct class_device *cdev, char *buf)
++{
++	struct c2_dev *dev = container_of(cdev, struct c2_dev, ibdev.class_dev);
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return sprintf(buf, "%x\n", dev->props.hw_ver);
++}
++
++static ssize_t show_fw_ver(struct class_device *cdev, char *buf)
++{
++	struct c2_dev *dev = container_of(cdev, struct c2_dev, ibdev.class_dev);
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return sprintf(buf, "%x.%x.%x\n",
++		       (int) (dev->props.fw_ver >> 32),
++		       (int) (dev->props.fw_ver >> 16) & 0xffff,
++		       (int) (dev->props.fw_ver & 0xffff));
++}
++
++static ssize_t show_hca(struct class_device *cdev, char *buf)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return sprintf(buf, "AMSO1100\n");
++}
++
++static ssize_t show_board(struct class_device *cdev, char *buf)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return sprintf(buf, "%.*s\n", 32, "AMSO1100 Board ID");
++}
++
++static CLASS_DEVICE_ATTR(hw_rev, S_IRUGO, show_rev, NULL);
++static CLASS_DEVICE_ATTR(fw_ver, S_IRUGO, show_fw_ver, NULL);
++static CLASS_DEVICE_ATTR(hca_type, S_IRUGO, show_hca, NULL);
++static CLASS_DEVICE_ATTR(board_id, S_IRUGO, show_board, NULL);
++
++static struct class_device_attribute *c2_class_attributes[] = {
++	&class_device_attr_hw_rev,
++	&class_device_attr_fw_ver,
++	&class_device_attr_hca_type,
++	&class_device_attr_board_id
 +};
 +
-+MODULE_DEVICE_TABLE(pci, c2_pci_table);
-+
-+static void c2_print_macaddr(struct net_device *netdev)
++static int c2_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
++			int attr_mask)
 +{
-+	pr_debug("%s: MAC %02X:%02X:%02X:%02X:%02X:%02X, "
-+		"IRQ %u\n", netdev->name,
-+		netdev->dev_addr[0], netdev->dev_addr[1], netdev->dev_addr[2],
-+		netdev->dev_addr[3], netdev->dev_addr[4], netdev->dev_addr[5],
-+		netdev->irq);
++	int err;
++
++	err =
++	    c2_qp_modify(to_c2dev(ibqp->device), to_c2qp(ibqp), attr,
++			 attr_mask);
++
++	return err;
 +}
 +
-+static void c2_set_rxbufsize(struct c2_port *c2_port)
++static int c2_multicast_attach(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
 +{
-+	struct net_device *netdev = c2_port->netdev;
-+
-+	if (netdev->mtu > RX_BUF_SIZE)
-+		c2_port->rx_buf_size =
-+		    netdev->mtu + ETH_HLEN + sizeof(struct c2_rxp_hdr) +
-+		    NET_IP_ALIGN;
-+	else
-+		c2_port->rx_buf_size = sizeof(struct c2_rxp_hdr) + RX_BUF_SIZE;
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return -ENOSYS;
 +}
 +
-+/*
-+ * Allocate TX ring elements and chain them together.
-+ * One-to-one association of adapter descriptors with ring elements.
-+ */
-+static int c2_tx_ring_alloc(struct c2_ring *tx_ring, void *vaddr,
-+			    dma_addr_t base, void __iomem * mmio_txp_ring)
++static int c2_multicast_detach(struct ib_qp *ibqp, union ib_gid *gid, u16 lid)
 +{
-+	struct c2_tx_desc *tx_desc;
-+	struct c2_txp_desc __iomem *txp_desc;
-+	struct c2_element *elem;
-+	int i;
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return -ENOSYS;
++}
 +
-+	tx_ring->start = kmalloc(sizeof(*elem) * tx_ring->count, GFP_KERNEL);
-+	if (!tx_ring->start)
-+		return -ENOMEM;
++static int c2_process_mad(struct ib_device *ibdev,
++			  int mad_flags,
++			  u8 port_num,
++			  struct ib_wc *in_wc,
++			  struct ib_grh *in_grh,
++			  struct ib_mad *in_mad, struct ib_mad *out_mad)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	return -ENOSYS;
++}
 +
-+	elem = tx_ring->start;
-+	tx_desc = vaddr;
-+	txp_desc = mmio_txp_ring;
-+	for (i = 0; i < tx_ring->count; i++, elem++, tx_desc++, txp_desc++) {
-+		tx_desc->len = 0;
-+		tx_desc->status = 0;
++static int c2_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *iw_param)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
 +
-+		/* Set TXP_HTXD_UNINIT */
-+		__raw_writeq(cpu_to_be64(0x1122334455667788ULL),
-+			     (void __iomem *) txp_desc + C2_TXP_ADDR);
-+		__raw_writew(0, (void __iomem *) txp_desc + C2_TXP_LEN);
-+		__raw_writew(cpu_to_be16(TXP_HTXD_UNINIT),
-+			     (void __iomem *) txp_desc + C2_TXP_FLAGS);
++	/* Request a connection */
++	return c2_llp_connect(cm_id, iw_param);
++}
 +
-+		elem->skb = NULL;
-+		elem->ht_desc = tx_desc;
-+		elem->hw_desc = txp_desc;
++static int c2_accept(struct iw_cm_id *cm_id, struct iw_cm_conn_param *iw_param)
++{
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
 +
-+		if (i == tx_ring->count - 1) {
-+			elem->next = tx_ring->start;
-+			tx_desc->next_offset = base;
-+		} else {
-+			elem->next = elem + 1;
-+			tx_desc->next_offset =
-+			    base + (i + 1) * sizeof(*tx_desc);
-+		}
++	/* Accept the new connection */
++	return c2_llp_accept(cm_id, iw_param);
++}
++
++static int c2_reject(struct iw_cm_id *cm_id, const void *pdata, u8 pdata_len)
++{
++	int err;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++
++	err = c2_llp_reject(cm_id, pdata, pdata_len);
++	return err;
++}
++
++static int c2_service_create(struct iw_cm_id *cm_id, int backlog)
++{
++	int err;
++
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	err = c2_llp_service_create(cm_id, backlog);
++	pr_debug("%s:%u err=%d\n", 
++		__FUNCTION__, __LINE__,
++		err);
++	return err;
++}
++
++static int c2_service_destroy(struct iw_cm_id *cm_id)
++{
++	int err;
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++
++	err = c2_llp_service_destroy(cm_id);
++
++	return err;
++}
++
++static int c2_pseudo_up(struct net_device *netdev)
++{
++	struct in_device *ind;
++	struct c2_dev *c2dev = netdev->priv;
++
++	ind = in_dev_get(netdev);
++	if (!ind)
++		return 0;
++
++	pr_debug("adding...\n");
++	for_ifa(ind) {
++#ifdef DEBUG
++		u8 *ip = (u8 *) & ifa->ifa_address;
++
++		pr_debug("%s: %d.%d.%d.%d\n",
++		       ifa->ifa_label, ip[0], ip[1], ip[2], ip[3]);
++#endif
++		c2_add_addr(c2dev, ifa->ifa_address, ifa->ifa_mask);
 +	}
-+
-+	tx_ring->to_use = tx_ring->to_clean = tx_ring->start;
++	endfor_ifa(ind);
++	in_dev_put(ind);
 +
 +	return 0;
 +}
 +
-+/*
-+ * Allocate RX ring elements and chain them together.
-+ * One-to-one association of adapter descriptors with ring elements.
-+ */
-+static int c2_rx_ring_alloc(struct c2_ring *rx_ring, void *vaddr,
-+			    dma_addr_t base, void __iomem * mmio_rxp_ring)
++static int c2_pseudo_down(struct net_device *netdev)
 +{
-+	struct c2_rx_desc *rx_desc;
-+	struct c2_rxp_desc __iomem *rxp_desc;
-+	struct c2_element *elem;
-+	int i;
++	struct in_device *ind;
++	struct c2_dev *c2dev = netdev->priv;
 +
-+	rx_ring->start = kmalloc(sizeof(*elem) * rx_ring->count, GFP_KERNEL);
-+	if (!rx_ring->start)
-+		return -ENOMEM;
++	ind = in_dev_get(netdev);
++	if (!ind)
++		return 0;
 +
-+	elem = rx_ring->start;
-+	rx_desc = vaddr;
-+	rxp_desc = mmio_rxp_ring;
-+	for (i = 0; i < rx_ring->count; i++, elem++, rx_desc++, rxp_desc++) {
-+		rx_desc->len = 0;
-+		rx_desc->status = 0;
++	pr_debug("deleting...\n");
++	for_ifa(ind) {
++#ifdef DEBUG
++		u8 *ip = (u8 *) & ifa->ifa_address;
 +
-+		/* Set RXP_HRXD_UNINIT */
-+		__raw_writew(cpu_to_be16(RXP_HRXD_OK),
-+		       (void __iomem *) rxp_desc + C2_RXP_STATUS);
-+		__raw_writew(0, (void __iomem *) rxp_desc + C2_RXP_COUNT);
-+		__raw_writew(0, (void __iomem *) rxp_desc + C2_RXP_LEN);
-+		__raw_writeq(cpu_to_be64(0x99aabbccddeeffULL),
-+			     (void __iomem *) rxp_desc + C2_RXP_ADDR);
-+		__raw_writew(cpu_to_be16(RXP_HRXD_UNINIT),
-+			     (void __iomem *) rxp_desc + C2_RXP_FLAGS);
-+
-+		elem->skb = NULL;
-+		elem->ht_desc = rx_desc;
-+		elem->hw_desc = rxp_desc;
-+
-+		if (i == rx_ring->count - 1) {
-+			elem->next = rx_ring->start;
-+			rx_desc->next_offset = base;
-+		} else {
-+			elem->next = elem + 1;
-+			rx_desc->next_offset =
-+			    base + (i + 1) * sizeof(*rx_desc);
-+		}
++		pr_debug("%s: %d.%d.%d.%d\n",
++		       ifa->ifa_label, ip[0], ip[1], ip[2], ip[3]);
++#endif
++		c2_del_addr(c2dev, ifa->ifa_address, ifa->ifa_mask);
 +	}
-+
-+	rx_ring->to_use = rx_ring->to_clean = rx_ring->start;
++	endfor_ifa(ind);
++	in_dev_put(ind);
 +
 +	return 0;
 +}
 +
-+/* Setup buffer for receiving */
-+static inline int c2_rx_alloc(struct c2_port *c2_port, struct c2_element *elem)
++static int c2_pseudo_xmit_frame(struct sk_buff *skb, struct net_device *netdev)
 +{
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+	struct c2_rx_desc *rx_desc = elem->ht_desc;
-+	struct sk_buff *skb;
-+	dma_addr_t mapaddr;
-+	u32 maplen;
-+	struct c2_rxp_hdr *rxp_hdr;
-+
-+	skb = dev_alloc_skb(c2_port->rx_buf_size);
-+	if (unlikely(!skb)) {
-+		pr_debug("%s: out of memory for receive\n",
-+			c2_port->netdev->name);
-+		return -ENOMEM;
-+	}
-+
-+	/* Zero out the rxp hdr in the sk_buff */
-+	memset(skb->data, 0, sizeof(*rxp_hdr));
-+
-+	skb->dev = c2_port->netdev;
-+
-+	maplen = c2_port->rx_buf_size;
-+	mapaddr =
-+	    pci_map_single(c2dev->pcidev, skb->data, maplen,
-+			   PCI_DMA_FROMDEVICE);
-+
-+	/* Set the sk_buff RXP_header to RXP_HRXD_READY */
-+	rxp_hdr = (struct c2_rxp_hdr *) skb->data;
-+	rxp_hdr->flags = RXP_HRXD_READY;
-+
-+	__raw_writew(0, elem->hw_desc + C2_RXP_STATUS);
-+	__raw_writew(cpu_to_be16((u16) maplen - sizeof(*rxp_hdr)),
-+		     elem->hw_desc + C2_RXP_LEN);
-+	__raw_writeq(cpu_to_be64(mapaddr), elem->hw_desc + C2_RXP_ADDR);
-+	__raw_writew(cpu_to_be16(RXP_HRXD_READY), elem->hw_desc + C2_RXP_FLAGS);
-+
-+	elem->skb = skb;
-+	elem->mapaddr = mapaddr;
-+	elem->maplen = maplen;
-+	rx_desc->len = maplen;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Allocate buffers for the Rx ring
-+ * For receive:  rx_ring.to_clean is next received frame
-+ */
-+static int c2_rx_fill(struct c2_port *c2_port)
-+{
-+	struct c2_ring *rx_ring = &c2_port->rx_ring;
-+	struct c2_element *elem;
-+	int ret = 0;
-+
-+	elem = rx_ring->start;
-+	do {
-+		if (c2_rx_alloc(c2_port, elem)) {
-+			ret = 1;
-+			break;
-+		}
-+	} while ((elem = elem->next) != rx_ring->start);
-+
-+	rx_ring->to_clean = rx_ring->start;
-+	return ret;
-+}
-+
-+/* Free all buffers in RX ring, assumes receiver stopped */
-+static void c2_rx_clean(struct c2_port *c2_port)
-+{
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+	struct c2_ring *rx_ring = &c2_port->rx_ring;
-+	struct c2_element *elem;
-+	struct c2_rx_desc *rx_desc;
-+
-+	elem = rx_ring->start;
-+	do {
-+		rx_desc = elem->ht_desc;
-+		rx_desc->len = 0;
-+
-+		__raw_writew(0, elem->hw_desc + C2_RXP_STATUS);
-+		__raw_writew(0, elem->hw_desc + C2_RXP_COUNT);
-+		__raw_writew(0, elem->hw_desc + C2_RXP_LEN);
-+		__raw_writeq(cpu_to_be64(0x99aabbccddeeffULL),
-+			     elem->hw_desc + C2_RXP_ADDR);
-+		__raw_writew(cpu_to_be16(RXP_HRXD_UNINIT),
-+			     elem->hw_desc + C2_RXP_FLAGS);
-+
-+		if (elem->skb) {
-+			pci_unmap_single(c2dev->pcidev, elem->mapaddr,
-+					 elem->maplen, PCI_DMA_FROMDEVICE);
-+			dev_kfree_skb(elem->skb);
-+			elem->skb = NULL;
-+		}
-+	} while ((elem = elem->next) != rx_ring->start);
-+}
-+
-+static inline int c2_tx_free(struct c2_dev *c2dev, struct c2_element *elem)
-+{
-+	struct c2_tx_desc *tx_desc = elem->ht_desc;
-+
-+	tx_desc->len = 0;
-+
-+	pci_unmap_single(c2dev->pcidev, elem->mapaddr, elem->maplen,
-+			 PCI_DMA_TODEVICE);
-+
-+	if (elem->skb) {
-+		dev_kfree_skb_any(elem->skb);
-+		elem->skb = NULL;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Free all buffers in TX ring, assumes transmitter stopped */
-+static void c2_tx_clean(struct c2_port *c2_port)
-+{
-+	struct c2_ring *tx_ring = &c2_port->tx_ring;
-+	struct c2_element *elem;
-+	struct c2_txp_desc txp_htxd;
-+	int retry;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&c2_port->tx_lock, flags);
-+
-+	elem = tx_ring->start;
-+
-+	do {
-+		retry = 0;
-+		do {
-+			txp_htxd.flags =
-+			    readw(elem->hw_desc + C2_TXP_FLAGS);
-+
-+			if (txp_htxd.flags == TXP_HTXD_READY) {
-+				retry = 1;
-+				__raw_writew(0,
-+					     elem->hw_desc + C2_TXP_LEN);
-+				__raw_writeq(0,
-+					     elem->hw_desc + C2_TXP_ADDR);
-+				__raw_writew(cpu_to_be16(TXP_HTXD_DONE),
-+					     elem->hw_desc + C2_TXP_FLAGS);
-+				c2_port->netstats.tx_dropped++;
-+				break;
-+			} else {
-+				__raw_writew(0,
-+					     elem->hw_desc + C2_TXP_LEN);
-+				__raw_writeq(cpu_to_be64(0x1122334455667788ULL),
-+					     elem->hw_desc + C2_TXP_ADDR);
-+				__raw_writew(cpu_to_be16(TXP_HTXD_UNINIT),
-+					     elem->hw_desc + C2_TXP_FLAGS);
-+			}
-+
-+			c2_tx_free(c2_port->c2dev, elem);
-+
-+		} while ((elem = elem->next) != tx_ring->start);
-+	} while (retry);
-+
-+	c2_port->tx_avail = c2_port->tx_ring.count - 1;
-+	c2_port->c2dev->cur_tx = tx_ring->to_use - tx_ring->start;
-+
-+	if (c2_port->tx_avail > MAX_SKB_FRAGS + 1)
-+		netif_wake_queue(c2_port->netdev);
-+
-+	spin_unlock_irqrestore(&c2_port->tx_lock, flags);
-+}
-+
-+/*
-+ * Process transmit descriptors marked 'DONE' by the firmware,
-+ * freeing up their unneeded sk_buffs.
-+ */
-+static void c2_tx_interrupt(struct net_device *netdev)
-+{
-+	struct c2_port *c2_port = netdev_priv(netdev);
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+	struct c2_ring *tx_ring = &c2_port->tx_ring;
-+	struct c2_element *elem;
-+	struct c2_txp_desc txp_htxd;
-+
-+	spin_lock(&c2_port->tx_lock);
-+
-+	for (elem = tx_ring->to_clean; elem != tx_ring->to_use;
-+	     elem = elem->next) {
-+		txp_htxd.flags =
-+		    be16_to_cpu(readw(elem->hw_desc + C2_TXP_FLAGS));
-+
-+		if (txp_htxd.flags != TXP_HTXD_DONE)
-+			break;
-+
-+		if (netif_msg_tx_done(c2_port)) {
-+			/* PCI reads are expensive in fast path */
-+			txp_htxd.len =
-+			    be16_to_cpu(readw(elem->hw_desc + C2_TXP_LEN));
-+			pr_debug("%s: tx done slot %3Zu status 0x%x len "
-+				"%5u bytes\n",
-+				netdev->name, elem - tx_ring->start,
-+				txp_htxd.flags, txp_htxd.len);
-+		}
-+
-+		c2_tx_free(c2dev, elem);
-+		++(c2_port->tx_avail);
-+	}
-+
-+	tx_ring->to_clean = elem;
-+
-+	if (netif_queue_stopped(netdev)
-+	    && c2_port->tx_avail > MAX_SKB_FRAGS + 1)
-+		netif_wake_queue(netdev);
-+
-+	spin_unlock(&c2_port->tx_lock);
-+}
-+
-+static void c2_rx_error(struct c2_port *c2_port, struct c2_element *elem)
-+{
-+	struct c2_rx_desc *rx_desc = elem->ht_desc;
-+	struct c2_rxp_hdr *rxp_hdr = (struct c2_rxp_hdr *) elem->skb->data;
-+
-+	if (rxp_hdr->status != RXP_HRXD_OK ||
-+	    rxp_hdr->len > (rx_desc->len - sizeof(*rxp_hdr))) {
-+		pr_debug("BAD RXP_HRXD\n");
-+		pr_debug("  rx_desc : %p\n", rx_desc);
-+		pr_debug("    index : %Zu\n",
-+			elem - c2_port->rx_ring.start);
-+		pr_debug("    len   : %u\n", rx_desc->len);
-+		pr_debug("  rxp_hdr : %p [PA %p]\n", rxp_hdr,
-+			(void *) __pa((unsigned long) rxp_hdr));
-+		pr_debug("    flags : 0x%x\n", rxp_hdr->flags);
-+		pr_debug("    status: 0x%x\n", rxp_hdr->status);
-+		pr_debug("    len   : %u\n", rxp_hdr->len);
-+		pr_debug("    rsvd  : 0x%x\n", rxp_hdr->rsvd);
-+	}
-+
-+	/* Setup the skb for reuse since we're dropping this pkt */
-+	elem->skb->tail = elem->skb->data = elem->skb->head;
-+
-+	/* Zero out the rxp hdr in the sk_buff */
-+	memset(elem->skb->data, 0, sizeof(*rxp_hdr));
-+
-+	/* Write the descriptor to the adapter's rx ring */
-+	__raw_writew(0, elem->hw_desc + C2_RXP_STATUS);
-+	__raw_writew(0, elem->hw_desc + C2_RXP_COUNT);
-+	__raw_writew(cpu_to_be16((u16) elem->maplen - sizeof(*rxp_hdr)),
-+		     elem->hw_desc + C2_RXP_LEN);
-+	__raw_writeq(cpu_to_be64(elem->mapaddr), elem->hw_desc + C2_RXP_ADDR);
-+	__raw_writew(cpu_to_be16(RXP_HRXD_READY), elem->hw_desc + C2_RXP_FLAGS);
-+
-+	pr_debug("packet dropped\n");
-+	c2_port->netstats.rx_dropped++;
-+}
-+
-+static void c2_rx_interrupt(struct net_device *netdev)
-+{
-+	struct c2_port *c2_port = netdev_priv(netdev);
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+	struct c2_ring *rx_ring = &c2_port->rx_ring;
-+	struct c2_element *elem;
-+	struct c2_rx_desc *rx_desc;
-+	struct c2_rxp_hdr *rxp_hdr;
-+	struct sk_buff *skb;
-+	dma_addr_t mapaddr;
-+	u32 maplen, buflen;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&c2dev->lock, flags);
-+
-+	/* Begin where we left off */
-+	rx_ring->to_clean = rx_ring->start + c2dev->cur_rx;
-+
-+	for (elem = rx_ring->to_clean; elem->next != rx_ring->to_clean;
-+	     elem = elem->next) {
-+		rx_desc = elem->ht_desc;
-+		mapaddr = elem->mapaddr;
-+		maplen = elem->maplen;
-+		skb = elem->skb;
-+		rxp_hdr = (struct c2_rxp_hdr *) skb->data;
-+
-+		if (rxp_hdr->flags != RXP_HRXD_DONE)
-+			break;
-+		buflen = rxp_hdr->len;
-+
-+		/* Sanity check the RXP header */
-+		if (rxp_hdr->status != RXP_HRXD_OK ||
-+		    buflen > (rx_desc->len - sizeof(*rxp_hdr))) {
-+			c2_rx_error(c2_port, elem);
-+			continue;
-+		}
-+
-+		/* 
-+		 * Allocate and map a new skb for replenishing the host 
-+		 * RX desc 
-+		 */
-+		if (c2_rx_alloc(c2_port, elem)) {
-+			c2_rx_error(c2_port, elem);
-+			continue;
-+		}
-+
-+		/* Unmap the old skb */
-+		pci_unmap_single(c2dev->pcidev, mapaddr, maplen,
-+				 PCI_DMA_FROMDEVICE);
-+
-+		prefetch(skb->data);
-+
-+		/*
-+		 * Skip past the leading 8 bytes comprising of the 
-+		 * "struct c2_rxp_hdr", prepended by the adapter 
-+		 * to the usual Ethernet header ("struct ethhdr"), 
-+		 * to the start of the raw Ethernet packet.
-+		 * 
-+		 * Fix up the various fields in the sk_buff before 
-+		 * passing it up to netif_rx(). The transfer size 
-+		 * (in bytes) specified by the adapter len field of 
-+		 * the "struct rxp_hdr_t" does NOT include the 
-+		 * "sizeof(struct c2_rxp_hdr)".
-+		 */
-+		skb->data += sizeof(*rxp_hdr);
-+		skb->tail = skb->data + buflen;
-+		skb->len = buflen;
-+		skb->dev = netdev;
-+		skb->protocol = eth_type_trans(skb, netdev);
-+
-+		netif_rx(skb);
-+
-+		netdev->last_rx = jiffies;
-+		c2_port->netstats.rx_packets++;
-+		c2_port->netstats.rx_bytes += buflen;
-+	}
-+
-+	/* Save where we left off */
-+	rx_ring->to_clean = elem;
-+	c2dev->cur_rx = elem - rx_ring->start;
-+	C2_SET_CUR_RX(c2dev, c2dev->cur_rx);
-+
-+	spin_unlock_irqrestore(&c2dev->lock, flags);
-+}
-+
-+/*
-+ * Handle netisr0 TX & RX interrupts.
-+ */
-+static irqreturn_t c2_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	unsigned int netisr0, dmaisr;
-+	int handled = 0;
-+	struct c2_dev *c2dev = (struct c2_dev *) dev_id;
-+
-+	/* Process CCILNET interrupts */
-+	netisr0 = readl(c2dev->regs + C2_NISR0);
-+	if (netisr0) {
-+
-+		/*
-+		 * There is an issue with the firmware that always
-+		 * provides the status of RX for both TX & RX 
-+		 * interrupts.  So process both queues here.
-+		 */
-+		c2_rx_interrupt(c2dev->netdev);
-+		c2_tx_interrupt(c2dev->netdev);
-+
-+		/* Clear the interrupt */
-+		writel(netisr0, c2dev->regs + C2_NISR0);
-+		handled++;
-+	}
-+
-+	/* Process RNIC interrupts */
-+	dmaisr = readl(c2dev->regs + C2_DISR);
-+	if (dmaisr) {
-+		writel(dmaisr, c2dev->regs + C2_DISR);
-+		c2_rnic_interrupt(c2dev);
-+		handled++;
-+	}
-+
-+	if (handled) {
-+		return IRQ_HANDLED;
-+	} else {
-+		return IRQ_NONE;
-+	}
-+}
-+
-+static int c2_up(struct net_device *netdev)
-+{
-+	struct c2_port *c2_port = netdev_priv(netdev);
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+	struct c2_element *elem;
-+	struct c2_rxp_hdr *rxp_hdr;
-+	struct in_device *in_dev;
-+	size_t rx_size, tx_size;
-+	int ret, i;
-+	unsigned int netimr0;
-+
-+	if (netif_msg_ifup(c2_port))
-+		pr_debug("%s: enabling interface\n", netdev->name);
-+
-+	/* Set the Rx buffer size based on MTU */
-+	c2_set_rxbufsize(c2_port);
-+
-+	/* Allocate DMA'able memory for Tx/Rx host descriptor rings */
-+	rx_size = c2_port->rx_ring.count * sizeof(struct c2_rx_desc);
-+	tx_size = c2_port->tx_ring.count * sizeof(struct c2_tx_desc);
-+
-+	c2_port->mem_size = tx_size + rx_size;
-+	c2_port->mem = pci_alloc_consistent(c2dev->pcidev, c2_port->mem_size,
-+					    &c2_port->dma);
-+	if (c2_port->mem == NULL) {
-+		pr_debug("Unable to allocate memory for "
-+			"host descriptor rings\n");
-+		return -ENOMEM;
-+	}
-+
-+	memset(c2_port->mem, 0, c2_port->mem_size);
-+
-+	/* Create the Rx host descriptor ring */
-+	if ((ret =
-+	     c2_rx_ring_alloc(&c2_port->rx_ring, c2_port->mem, c2_port->dma,
-+			      c2dev->mmio_rxp_ring))) {
-+		pr_debug("Unable to create RX ring\n");
-+		goto bail0;
-+	}
-+
-+	/* Allocate Rx buffers for the host descriptor ring */
-+	if (c2_rx_fill(c2_port)) {
-+		pr_debug("Unable to fill RX ring\n");
-+		goto bail1;
-+	}
-+
-+	/* Create the Tx host descriptor ring */
-+	if ((ret = c2_tx_ring_alloc(&c2_port->tx_ring, c2_port->mem + rx_size,
-+				    c2_port->dma + rx_size,
-+				    c2dev->mmio_txp_ring))) {
-+		pr_debug("Unable to create TX ring\n");
-+		goto bail1;
-+	}
-+
-+	/* Set the TX pointer to where we left off */
-+	c2_port->tx_avail = c2_port->tx_ring.count - 1;
-+	c2_port->tx_ring.to_use = c2_port->tx_ring.to_clean =
-+	    c2_port->tx_ring.start + c2dev->cur_tx;
-+
-+	/* missing: Initialize MAC */
-+
-+	BUG_ON(c2_port->tx_ring.to_use != c2_port->tx_ring.to_clean);
-+
-+	/* Reset the adapter, ensures the driver is in sync with the RXP */
-+	c2_reset(c2_port);
-+
-+	/* Reset the READY bit in the sk_buff RXP headers & adapter HRXDQ */
-+	for (i = 0, elem = c2_port->rx_ring.start; i < c2_port->rx_ring.count;
-+	     i++, elem++) {
-+		rxp_hdr = (struct c2_rxp_hdr *) elem->skb->data;
-+		rxp_hdr->flags = 0;
-+		__raw_writew(cpu_to_be16(RXP_HRXD_READY),
-+			     elem->hw_desc + C2_RXP_FLAGS);
-+	}
-+
-+	/* Enable network packets */
-+	netif_start_queue(netdev);
-+
-+	/* Enable IRQ */
-+	writel(0, c2dev->regs + C2_IDIS);
-+	netimr0 = readl(c2dev->regs + C2_NIMR0);
-+	netimr0 &= ~(C2_PCI_HTX_INT | C2_PCI_HRX_INT);
-+	writel(netimr0, c2dev->regs + C2_NIMR0);
-+
-+	/* Tell the stack to ignore arp requests for ipaddrs bound to 
-+	 * other interfaces.  This is needed to prevent the host stack
-+	 * from responding to arp requests to the ipaddr bound on the
-+	 * rdma interface.
-+	 */
-+	in_dev = in_dev_get(netdev);
-+	in_dev->cnf.arp_ignore = 1;
-+	in_dev_put(in_dev);
-+
-+	return 0;
-+
-+      bail1:
-+	c2_rx_clean(c2_port);
-+	kfree(c2_port->rx_ring.start);
-+
-+      bail0:
-+	pci_free_consistent(c2dev->pcidev, c2_port->mem_size, c2_port->mem,
-+			    c2_port->dma);
-+
-+	return ret;
-+}
-+
-+static int c2_down(struct net_device *netdev)
-+{
-+	struct c2_port *c2_port = netdev_priv(netdev);
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+
-+	if (netif_msg_ifdown(c2_port))
-+		pr_debug("%s: disabling interface\n",
-+			netdev->name);
-+
-+	/* Wait for all the queued packets to get sent */
-+	c2_tx_interrupt(netdev);
-+
-+	/* Disable network packets */
-+	netif_stop_queue(netdev);
-+
-+	/* Disable IRQs by clearing the interrupt mask */
-+	writel(1, c2dev->regs + C2_IDIS);
-+	writel(0, c2dev->regs + C2_NIMR0);
-+
-+	/* missing: Stop transmitter */
-+
-+	/* missing: Stop receiver */
-+
-+	/* Reset the adapter, ensures the driver is in sync with the RXP */
-+	c2_reset(c2_port);
-+
-+	/* missing: Turn off LEDs here */
-+
-+	/* Free all buffers in the host descriptor rings */
-+	c2_tx_clean(c2_port);
-+	c2_rx_clean(c2_port);
-+
-+	/* Free the host descriptor rings */
-+	kfree(c2_port->rx_ring.start);
-+	kfree(c2_port->tx_ring.start);
-+	pci_free_consistent(c2dev->pcidev, c2_port->mem_size, c2_port->mem,
-+			    c2_port->dma);
-+
-+	return 0;
-+}
-+
-+static void c2_reset(struct c2_port *c2_port)
-+{
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+	unsigned int cur_rx = c2dev->cur_rx;
-+
-+	/* Tell the hardware to quiesce */
-+	C2_SET_CUR_RX(c2dev, cur_rx | C2_PCI_HRX_QUI);
-+
-+	/*
-+	 * The hardware will reset the C2_PCI_HRX_QUI bit once
-+	 * the RXP is quiesced.  Wait 2 seconds for this.
-+	 */
-+	ssleep(2);
-+
-+	cur_rx = C2_GET_CUR_RX(c2dev);
-+
-+	if (cur_rx & C2_PCI_HRX_QUI)
-+		pr_debug("c2_reset: failed to quiesce the hardware!\n");
-+
-+	cur_rx &= ~C2_PCI_HRX_QUI;
-+
-+	c2dev->cur_rx = cur_rx;
-+
-+	pr_debug("Current RX: %u\n", c2dev->cur_rx);
-+}
-+
-+static int c2_xmit_frame(struct sk_buff *skb, struct net_device *netdev)
-+{
-+	struct c2_port *c2_port = netdev_priv(netdev);
-+	struct c2_dev *c2dev = c2_port->c2dev;
-+	struct c2_ring *tx_ring = &c2_port->tx_ring;
-+	struct c2_element *elem;
-+	dma_addr_t mapaddr;
-+	u32 maplen;
-+	unsigned long flags;
-+	unsigned int i;
-+
-+	spin_lock_irqsave(&c2_port->tx_lock, flags);
-+
-+	if (unlikely(c2_port->tx_avail < (skb_shinfo(skb)->nr_frags + 1))) {
-+		netif_stop_queue(netdev);
-+		spin_unlock_irqrestore(&c2_port->tx_lock, flags);
-+
-+		pr_debug("%s: Tx ring full when queue awake!\n",
-+			netdev->name);
-+		return NETDEV_TX_BUSY;
-+	}
-+
-+	maplen = skb_headlen(skb);
-+	mapaddr =
-+	    pci_map_single(c2dev->pcidev, skb->data, maplen, PCI_DMA_TODEVICE);
-+
-+	elem = tx_ring->to_use;
-+	elem->skb = skb;
-+	elem->mapaddr = mapaddr;
-+	elem->maplen = maplen;
-+
-+	/* Tell HW to xmit */
-+	__raw_writeq(cpu_to_be64(mapaddr), elem->hw_desc + C2_TXP_ADDR);
-+	__raw_writew(cpu_to_be16(maplen), elem->hw_desc + C2_TXP_LEN);
-+	__raw_writew(cpu_to_be16(TXP_HTXD_READY), elem->hw_desc + C2_TXP_FLAGS);
-+
-+	c2_port->netstats.tx_packets++;
-+	c2_port->netstats.tx_bytes += maplen;
-+
-+	/* Loop thru additional data fragments and queue them */
-+	if (skb_shinfo(skb)->nr_frags) {
-+		for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
-+			skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
-+			maplen = frag->size;
-+			mapaddr =
-+			    pci_map_page(c2dev->pcidev, frag->page,
-+					 frag->page_offset, maplen,
-+					 PCI_DMA_TODEVICE);
-+
-+			elem = elem->next;
-+			elem->skb = NULL;
-+			elem->mapaddr = mapaddr;
-+			elem->maplen = maplen;
-+
-+			/* Tell HW to xmit */
-+			__raw_writeq(cpu_to_be64(mapaddr),
-+				     elem->hw_desc + C2_TXP_ADDR);
-+			__raw_writew(cpu_to_be16(maplen),
-+				     elem->hw_desc + C2_TXP_LEN);
-+			__raw_writew(cpu_to_be16(TXP_HTXD_READY),
-+				     elem->hw_desc + C2_TXP_FLAGS);
-+
-+			c2_port->netstats.tx_packets++;
-+			c2_port->netstats.tx_bytes += maplen;
-+		}
-+	}
-+
-+	tx_ring->to_use = elem->next;
-+	c2_port->tx_avail -= (skb_shinfo(skb)->nr_frags + 1);
-+
-+	if (c2_port->tx_avail <= MAX_SKB_FRAGS + 1) {
-+		netif_stop_queue(netdev);
-+		if (netif_msg_tx_queued(c2_port))
-+			pr_debug("%s: transmit queue full\n",
-+				netdev->name);
-+	}
-+
-+	spin_unlock_irqrestore(&c2_port->tx_lock, flags);
-+
-+	netdev->trans_start = jiffies;
-+
++	kfree_skb(skb);
 +	return NETDEV_TX_OK;
 +}
 +
-+static struct net_device_stats *c2_get_stats(struct net_device *netdev)
-+{
-+	struct c2_port *c2_port = netdev_priv(netdev);
-+
-+	return &c2_port->netstats;
-+}
-+
-+static void c2_tx_timeout(struct net_device *netdev)
-+{
-+	struct c2_port *c2_port = netdev_priv(netdev);
-+
-+	if (netif_msg_timer(c2_port))
-+		pr_debug("%s: tx timeout\n", netdev->name);
-+
-+	c2_tx_clean(c2_port);
-+}
-+
-+static int c2_change_mtu(struct net_device *netdev, int new_mtu)
++static int c2_pseudo_change_mtu(struct net_device *netdev, int new_mtu)
 +{
 +	int ret = 0;
 +
@@ -928,400 +1709,185 @@ index 0000000..4fdbd80
 +
 +	netdev->mtu = new_mtu;
 +
-+	if (netif_running(netdev)) {
-+		c2_down(netdev);
-+
-+		c2_up(netdev);
-+	}
-+
++	/* XXX tell rnic about new rmda interface mtu */
 +	return ret;
 +}
 +
-+/* Initialize network device */
-+static struct net_device *c2_devinit(struct c2_dev *c2dev,
-+				     void __iomem * mmio_addr)
++static void setup(struct net_device *netdev)
 +{
-+	struct c2_port *c2_port = NULL;
-+	struct net_device *netdev = alloc_etherdev(sizeof(*c2_port));
-+
-+	if (!netdev) {
-+		pr_debug("c2_port etherdev alloc failed");
-+		return NULL;
-+	}
-+
 +	SET_MODULE_OWNER(netdev);
-+	SET_NETDEV_DEV(netdev, &c2dev->pcidev->dev);
-+
-+	netdev->open = c2_up;
-+	netdev->stop = c2_down;
-+	netdev->hard_start_xmit = c2_xmit_frame;
-+	netdev->get_stats = c2_get_stats;
-+	netdev->tx_timeout = c2_tx_timeout;
-+	netdev->change_mtu = c2_change_mtu;
-+	netdev->watchdog_timeo = C2_TX_TIMEOUT;
-+	netdev->irq = c2dev->pcidev->irq;
-+
-+	c2_port = netdev_priv(netdev);
-+	c2_port->netdev = netdev;
-+	c2_port->c2dev = c2dev;
-+	c2_port->msg_enable = netif_msg_init(debug, default_msg);
-+	c2_port->tx_ring.count = C2_NUM_TX_DESC;
-+	c2_port->rx_ring.count = C2_NUM_RX_DESC;
-+
-+	spin_lock_init(&c2_port->tx_lock);
-+
-+	/* Copy our 48-bit ethernet hardware address */
-+	memcpy_fromio(netdev->dev_addr, mmio_addr + C2_REGS_ENADDR, 6);
-+
-+	/* Validate the MAC address */
-+	if (!is_valid_ether_addr(netdev->dev_addr)) {
-+		pr_debug("Invalid MAC Address\n");
-+		c2_print_macaddr(netdev);
-+		free_netdev(netdev);
-+		return NULL;
-+	}
-+
-+	c2dev->netdev = netdev;
-+
-+	return netdev;
++	netdev->open = c2_pseudo_up;
++	netdev->stop = c2_pseudo_down;
++	netdev->hard_start_xmit = c2_pseudo_xmit_frame;
++	netdev->get_stats = NULL;
++	netdev->tx_timeout = NULL;
++	netdev->set_mac_address = NULL;
++	netdev->change_mtu = c2_pseudo_change_mtu;
++	netdev->watchdog_timeo = 0;
++	netdev->type = ARPHRD_ETHER;
++	netdev->mtu = 1500;
++	netdev->hard_header_len = ETH_HLEN;
++	netdev->addr_len = ETH_ALEN;
++	netdev->tx_queue_len = 0;
++	netdev->flags |= IFF_NOARP;
++	return;
 +}
 +
-+static int __devinit c2_probe(struct pci_dev *pcidev,
-+			      const struct pci_device_id *ent)
++static struct net_device *c2_pseudo_netdev_init(struct c2_dev *c2dev)
 +{
-+	int ret = 0, i;
-+	unsigned long reg0_start, reg0_flags, reg0_len;
-+	unsigned long reg2_start, reg2_flags, reg2_len;
-+	unsigned long reg4_start, reg4_flags, reg4_len;
-+	unsigned kva_map_size;
-+	struct net_device *netdev = NULL;
-+	struct c2_dev *c2dev = NULL;
-+	void __iomem *mmio_regs = NULL;
++	char name[IFNAMSIZ];
++	struct net_device *netdev;
 +
-+	printk(KERN_INFO PFX "AMSO1100 Gigabit Ethernet driver v%s loaded\n",
-+		DRV_VERSION);
-+
-+	/* Enable PCI device */
-+	ret = pci_enable_device(pcidev);
-+	if (ret) {
-+		printk(KERN_ERR PFX "%s: Unable to enable PCI device\n",
-+			pci_name(pcidev));
-+		goto bail0;
++	/* change ethxxx to iwxxx */
++	strcpy(name, "iw");
++	strcat(name, &c2dev->netdev->name[3]);
++	netdev = alloc_netdev(sizeof(*netdev), name, setup);
++	if (!netdev) {
++		printk(KERN_ERR PFX "%s -  etherdev alloc failed",
++			__FUNCTION__);
++		return NULL;
 +	}
 +
-+	reg0_start = pci_resource_start(pcidev, BAR_0);
-+	reg0_len = pci_resource_len(pcidev, BAR_0);
-+	reg0_flags = pci_resource_flags(pcidev, BAR_0);
++	netdev->priv = c2dev;
 +
-+	reg2_start = pci_resource_start(pcidev, BAR_2);
-+	reg2_len = pci_resource_len(pcidev, BAR_2);
-+	reg2_flags = pci_resource_flags(pcidev, BAR_2);
++	SET_NETDEV_DEV(netdev, &c2dev->pcidev->dev);
 +
-+	reg4_start = pci_resource_start(pcidev, BAR_4);
-+	reg4_len = pci_resource_len(pcidev, BAR_4);
-+	reg4_flags = pci_resource_flags(pcidev, BAR_4);
++	memcpy_fromio(netdev->dev_addr, c2dev->kva + C2_REGS_RDMA_ENADDR, 6);
 +
-+	pr_debug("BAR0 size = 0x%lX bytes\n", reg0_len);
-+	pr_debug("BAR2 size = 0x%lX bytes\n", reg2_len);
-+	pr_debug("BAR4 size = 0x%lX bytes\n", reg4_len);
-+
-+	/* Make sure PCI base addr are MMIO */
-+	if (!(reg0_flags & IORESOURCE_MEM) ||
-+	    !(reg2_flags & IORESOURCE_MEM) || !(reg4_flags & IORESOURCE_MEM)) {
-+		printk(KERN_ERR PFX "PCI regions not an MMIO resource\n");
-+		ret = -ENODEV;
-+		goto bail1;
-+	}
-+
-+	/* Check for weird/broken PCI region reporting */
-+	if ((reg0_len < C2_REG0_SIZE) ||
-+	    (reg2_len < C2_REG2_SIZE) || (reg4_len < C2_REG4_SIZE)) {
-+		printk(KERN_ERR PFX "Invalid PCI region sizes\n");
-+		ret = -ENODEV;
-+		goto bail1;
-+	}
-+
-+	/* Reserve PCI I/O and memory resources */
-+	ret = pci_request_regions(pcidev, DRV_NAME);
-+	if (ret) {
-+		printk(KERN_ERR PFX "%s: Unable to request regions\n",
-+			pci_name(pcidev));
-+		goto bail1;
-+	}
-+
-+	if ((sizeof(dma_addr_t) > 4)) {
-+		ret = pci_set_dma_mask(pcidev, DMA_64BIT_MASK);
-+		if (ret < 0) {
-+			printk(KERN_ERR PFX "64b DMA configuration failed\n");
-+			goto bail2;
-+		}
-+	} else {
-+		ret = pci_set_dma_mask(pcidev, DMA_32BIT_MASK);
-+		if (ret < 0) {
-+			printk(KERN_ERR PFX "32b DMA configuration failed\n");
-+			goto bail2;
-+		}
-+	}
-+
-+	/* Enables bus-mastering on the device */
-+	pci_set_master(pcidev);
-+
-+	/* Remap the adapter PCI registers in BAR4 */
-+	mmio_regs = ioremap_nocache(reg4_start + C2_PCI_REGS_OFFSET,
-+				    sizeof(struct c2_adapter_pci_regs));
-+	if (mmio_regs == 0UL) {
-+		printk(KERN_ERR PFX
-+			"Unable to remap adapter PCI registers in BAR4\n");
-+		ret = -EIO;
-+		goto bail2;
-+	}
-+
-+	/* Validate PCI regs magic */
-+	for (i = 0; i < sizeof(c2_magic); i++) {
-+		if (c2_magic[i] != readb(mmio_regs + C2_REGS_MAGIC + i)) {
-+			printk(KERN_ERR PFX "Downlevel Firmware boot loader "
-+				"[%d/%Zd: got 0x%x, exp 0x%x]. Use the cc_flash "
-+			       "utility to update your boot loader\n",
-+				i + 1, sizeof(c2_magic),
-+				readb(mmio_regs + C2_REGS_MAGIC + i),
-+				c2_magic[i]);
-+			printk(KERN_ERR PFX "Adapter not claimed\n");
-+			iounmap(mmio_regs);
-+			ret = -EIO;
-+			goto bail2;
-+		}
-+	}
-+
-+	/* Validate the adapter version */
-+	if (be32_to_cpu(readl(mmio_regs + C2_REGS_VERS)) != C2_VERSION) {
-+		printk(KERN_ERR PFX "Version mismatch "
-+			"[fw=%u, c2=%u], Adapter not claimed\n",
-+			be32_to_cpu(readl(mmio_regs + C2_REGS_VERS)),
-+			C2_VERSION);
-+		ret = -EINVAL;
-+		iounmap(mmio_regs);
-+		goto bail2;
-+	}
-+
-+	/* Validate the adapter IVN */
-+	if (be32_to_cpu(readl(mmio_regs + C2_REGS_IVN)) != C2_IVN) {
-+		printk(KERN_ERR PFX "Downlevel FIrmware level. You should be using "
-+		       "the OpenIB device support kit. "
-+		       "[fw=0x%x, c2=0x%x], Adapter not claimed\n",
-+			be32_to_cpu(readl(mmio_regs + C2_REGS_IVN)),
-+			C2_IVN);
-+		ret = -EINVAL;
-+		iounmap(mmio_regs);
-+		goto bail2;
-+	}
-+
-+	/* Allocate hardware structure */
-+	c2dev = (struct c2_dev *) ib_alloc_device(sizeof(*c2dev));
-+	if (!c2dev) {
-+		printk(KERN_ERR PFX "%s: Unable to alloc hardware struct\n",
-+			pci_name(pcidev));
-+		ret = -ENOMEM;
-+		iounmap(mmio_regs);
-+		goto bail2;
-+	}
-+
-+	memset(c2dev, 0, sizeof(*c2dev));
-+	spin_lock_init(&c2dev->lock);
-+	c2dev->pcidev = pcidev;
-+	c2dev->cur_tx = 0;
-+
-+	/* Get the last RX index */
-+	c2dev->cur_rx =
-+	    (be32_to_cpu(readl(mmio_regs + C2_REGS_HRX_CUR)) -
-+	     0xffffc000) / sizeof(struct c2_rxp_desc);
-+
-+	/* Request an interrupt line for the driver */
-+	ret = request_irq(pcidev->irq, c2_interrupt, SA_SHIRQ, DRV_NAME, c2dev);
-+	if (ret) {
-+		printk(KERN_ERR PFX "%s: requested IRQ %u is busy\n",
-+			pci_name(pcidev), pcidev->irq);
-+		iounmap(mmio_regs);
-+		goto bail3;
-+	}
-+
-+	/* Set driver specific data */
-+	pci_set_drvdata(pcidev, c2dev);
-+
-+	/* Initialize network device */
-+	if ((netdev = c2_devinit(c2dev, mmio_regs)) == NULL) {
-+		iounmap(mmio_regs);
-+		goto bail4;
-+	}
-+
-+	/* Save off the actual size prior to unmapping mmio_regs */
-+	kva_map_size = be32_to_cpu(readl(mmio_regs + C2_REGS_PCI_WINSIZE));
-+
-+	/* Unmap the adapter PCI registers in BAR4 */
-+	iounmap(mmio_regs);
-+
-+	/* Register network device */
-+	ret = register_netdev(netdev);
-+	if (ret) {
-+		printk(KERN_ERR PFX "Unable to register netdev, ret = %d\n",
-+			ret);
-+		goto bail5;
-+	}
++	/* Print out the MAC address */
++	pr_debug("%s: MAC %02X:%02X:%02X:%02X:%02X:%02X\n",
++		netdev->name,
++		netdev->dev_addr[0], netdev->dev_addr[1], netdev->dev_addr[2],
++		netdev->dev_addr[3], netdev->dev_addr[4], netdev->dev_addr[5]);
 +
 +	/* Disable network packets */
 +	netif_stop_queue(netdev);
++	return netdev;
++}
 +
-+	/* Remap the adapter HRXDQ PA space to kernel VA space */
-+	c2dev->mmio_rxp_ring = ioremap_nocache(reg4_start + C2_RXP_HRXDQ_OFFSET,
-+					       C2_RXP_HRXDQ_SIZE);
-+	if (c2dev->mmio_rxp_ring == 0UL) {
-+		printk(KERN_ERR PFX "Unable to remap MMIO HRXDQ region\n");
-+		ret = -EIO;
-+		goto bail6;
++int c2_register_device(struct c2_dev *dev)
++{
++	int ret;
++	int i;
++
++	/* Register pseudo network device */
++	dev->pseudo_netdev = c2_pseudo_netdev_init(dev);
++	if (dev->pseudo_netdev) {
++		ret = register_netdev(dev->pseudo_netdev);
++		if (ret) {
++			printk(KERN_ERR PFX
++				"Unable to register netdev, ret = %d\n", ret);
++			free_netdev(dev->pseudo_netdev);
++			return ret;
++		}
 +	}
 +
-+	/* Remap the adapter HTXDQ PA space to kernel VA space */
-+	c2dev->mmio_txp_ring = ioremap_nocache(reg4_start + C2_TXP_HTXDQ_OFFSET,
-+					       C2_TXP_HTXDQ_SIZE);
-+	if (c2dev->mmio_txp_ring == 0UL) {
-+		printk(KERN_ERR PFX "Unable to remap MMIO HTXDQ region\n");
-+		ret = -EIO;
-+		goto bail7;
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	strlcpy(dev->ibdev.name, "amso%d", IB_DEVICE_NAME_MAX);
++	dev->ibdev.owner = THIS_MODULE;
++	dev->ibdev.uverbs_cmd_mask =
++	    (1ull << IB_USER_VERBS_CMD_GET_CONTEXT) |
++	    (1ull << IB_USER_VERBS_CMD_QUERY_DEVICE) |
++	    (1ull << IB_USER_VERBS_CMD_QUERY_PORT) |
++	    (1ull << IB_USER_VERBS_CMD_ALLOC_PD) |
++	    (1ull << IB_USER_VERBS_CMD_DEALLOC_PD) |
++	    (1ull << IB_USER_VERBS_CMD_REG_MR) |
++	    (1ull << IB_USER_VERBS_CMD_DEREG_MR) |
++	    (1ull << IB_USER_VERBS_CMD_CREATE_COMP_CHANNEL) |
++	    (1ull << IB_USER_VERBS_CMD_CREATE_CQ) |
++	    (1ull << IB_USER_VERBS_CMD_DESTROY_CQ) |
++	    (1ull << IB_USER_VERBS_CMD_REQ_NOTIFY_CQ) |
++	    (1ull << IB_USER_VERBS_CMD_CREATE_QP) |
++	    (1ull << IB_USER_VERBS_CMD_MODIFY_QP) |
++	    (1ull << IB_USER_VERBS_CMD_POLL_CQ) |
++	    (1ull << IB_USER_VERBS_CMD_DESTROY_QP) |
++	    (1ull << IB_USER_VERBS_CMD_POST_SEND) |
++	    (1ull << IB_USER_VERBS_CMD_POST_RECV);
++
++	dev->ibdev.node_type = RDMA_NODE_RNIC;
++	memset(&dev->ibdev.node_guid, 0, sizeof(dev->ibdev.node_guid));
++	memcpy(&dev->ibdev.node_guid, dev->pseudo_netdev->dev_addr, 6);
++	dev->ibdev.phys_port_cnt = 1;
++	dev->ibdev.dma_device = &dev->pcidev->dev;
++	dev->ibdev.class_dev.dev = &dev->pcidev->dev;
++	dev->ibdev.query_device = c2_query_device;
++	dev->ibdev.query_port = c2_query_port;
++	dev->ibdev.modify_port = c2_modify_port;
++	dev->ibdev.query_pkey = c2_query_pkey;
++	dev->ibdev.query_gid = c2_query_gid;
++	dev->ibdev.alloc_ucontext = c2_alloc_ucontext;
++	dev->ibdev.dealloc_ucontext = c2_dealloc_ucontext;
++	dev->ibdev.mmap = c2_mmap_uar;
++	dev->ibdev.alloc_pd = c2_alloc_pd;
++	dev->ibdev.dealloc_pd = c2_dealloc_pd;
++	dev->ibdev.create_ah = c2_ah_create;
++	dev->ibdev.destroy_ah = c2_ah_destroy;
++	dev->ibdev.create_qp = c2_create_qp;
++	dev->ibdev.modify_qp = c2_modify_qp;
++	dev->ibdev.destroy_qp = c2_destroy_qp;
++	dev->ibdev.create_cq = c2_create_cq;
++	dev->ibdev.destroy_cq = c2_destroy_cq;
++	dev->ibdev.poll_cq = c2_poll_cq;
++	dev->ibdev.get_dma_mr = c2_get_dma_mr;
++	dev->ibdev.reg_phys_mr = c2_reg_phys_mr;
++	dev->ibdev.reg_user_mr = c2_reg_user_mr;
++	dev->ibdev.dereg_mr = c2_dereg_mr;
++
++	dev->ibdev.alloc_fmr = NULL;
++	dev->ibdev.unmap_fmr = NULL;
++	dev->ibdev.dealloc_fmr = NULL;
++	dev->ibdev.map_phys_fmr = NULL;
++
++	dev->ibdev.attach_mcast = c2_multicast_attach;
++	dev->ibdev.detach_mcast = c2_multicast_detach;
++	dev->ibdev.process_mad = c2_process_mad;
++
++	dev->ibdev.req_notify_cq = c2_arm_cq;
++	dev->ibdev.post_send = c2_post_send;
++	dev->ibdev.post_recv = c2_post_receive;
++
++	dev->ibdev.iwcm = kmalloc(sizeof(*dev->ibdev.iwcm), GFP_KERNEL);
++	dev->ibdev.iwcm->add_ref = c2_add_ref;
++	dev->ibdev.iwcm->rem_ref = c2_rem_ref;
++	dev->ibdev.iwcm->get_qp = c2_get_qp;
++	dev->ibdev.iwcm->connect = c2_connect;
++	dev->ibdev.iwcm->accept = c2_accept;
++	dev->ibdev.iwcm->reject = c2_reject;
++	dev->ibdev.iwcm->create_listen = c2_service_create;
++	dev->ibdev.iwcm->destroy_listen = c2_service_destroy;
++
++	ret = ib_register_device(&dev->ibdev);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < ARRAY_SIZE(c2_class_attributes); ++i) {
++		ret = class_device_create_file(&dev->ibdev.class_dev,
++					       c2_class_attributes[i]);
++		if (ret) {
++			unregister_netdev(dev->pseudo_netdev);
++			free_netdev(dev->pseudo_netdev);
++			ib_unregister_device(&dev->ibdev);
++			return ret;
++		}
 +	}
 +
-+	/* Save off the current RX index in the last 4 bytes of the TXP Ring */
-+	C2_SET_CUR_RX(c2dev, c2dev->cur_rx);
-+
-+	/* Remap the PCI registers in adapter BAR0 to kernel VA space */
-+	c2dev->regs = ioremap_nocache(reg0_start, reg0_len);
-+	if (c2dev->regs == 0UL) {
-+		printk(KERN_ERR PFX "Unable to remap BAR0\n");
-+		ret = -EIO;
-+		goto bail8;
-+	}
-+
-+	/* Remap the PCI registers in adapter BAR4 to kernel VA space */
-+	c2dev->pa = reg4_start + C2_PCI_REGS_OFFSET;
-+	c2dev->kva = ioremap_nocache(reg4_start + C2_PCI_REGS_OFFSET, 
-+				     kva_map_size);
-+	if (c2dev->kva == 0UL) {
-+		printk(KERN_ERR PFX "Unable to remap BAR4\n");
-+		ret = -EIO;
-+		goto bail9;
-+	}
-+
-+	/* Print out the MAC address */
-+	c2_print_macaddr(netdev);
-+
-+	ret = c2_rnic_init(c2dev);
-+	if (ret) {
-+		printk(KERN_ERR PFX "c2_rnic_init failed: %d\n", ret);
-+		goto bail10;
-+	}
-+
-+	c2_register_device(c2dev);
-+
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
 +	return 0;
-+
-+ bail10:
-+	iounmap(c2dev->kva);
-+
-+ bail9:
-+	iounmap(c2dev->regs);
-+
-+ bail8:
-+	iounmap(c2dev->mmio_txp_ring);
-+
-+ bail7:
-+	iounmap(c2dev->mmio_rxp_ring);
-+
-+ bail6:
-+	unregister_netdev(netdev);
-+
-+ bail5:
-+	free_netdev(netdev);
-+
-+ bail4:
-+	free_irq(pcidev->irq, c2dev);
-+
-+ bail3:
-+	ib_dealloc_device(&c2dev->ibdev);
-+
-+ bail2:
-+	pci_release_regions(pcidev);
-+
-+ bail1:
-+	pci_disable_device(pcidev);
-+
-+ bail0:
-+	return ret;
 +}
 +
-+static void __devexit c2_remove(struct pci_dev *pcidev)
++void c2_unregister_device(struct c2_dev *dev)
 +{
-+	struct c2_dev *c2dev = pci_get_drvdata(pcidev);
-+	struct net_device *netdev = c2dev->netdev;
-+
-+	/* Unregister with OpenIB */
-+	c2_unregister_device(c2dev);
-+
-+	/* Clean up the RNIC resources */
-+	c2_rnic_term(c2dev);
-+
-+	/* Remove network device from the kernel */
-+	unregister_netdev(netdev);
-+
-+	/* Free network device */
-+	free_netdev(netdev);
-+
-+	/* Free the interrupt line */
-+	free_irq(pcidev->irq, c2dev);
-+
-+	/* missing: Turn LEDs off here */
-+
-+	/* Unmap adapter PA space */
-+	iounmap(c2dev->kva);
-+	iounmap(c2dev->regs);
-+	iounmap(c2dev->mmio_txp_ring);
-+	iounmap(c2dev->mmio_rxp_ring);
-+
-+	/* Free the hardware structure */
-+	ib_dealloc_device(&c2dev->ibdev);
-+
-+	/* Release reserved PCI I/O and memory resources */
-+	pci_release_regions(pcidev);
-+
-+	/* Disable PCI device */
-+	pci_disable_device(pcidev);
-+
-+	/* Clear driver specific data */
-+	pci_set_drvdata(pcidev, NULL);
++	pr_debug("%s:%u\n", __FUNCTION__, __LINE__);
++	unregister_netdev(dev->pseudo_netdev);
++	free_netdev(dev->pseudo_netdev);
++	ib_unregister_device(&dev->ibdev);
 +}
-+
-+static struct pci_driver c2_pci_driver = {
-+	.name = DRV_NAME,
-+	.id_table = c2_pci_table,
-+	.probe = c2_probe,
-+	.remove = __devexit_p(c2_remove),
-+};
-+
-+static int __init c2_init_module(void)
-+{
-+	return pci_module_init(&c2_pci_driver);
-+}
-+
-+static void __exit c2_exit_module(void)
-+{
-+	pci_unregister_driver(&c2_pci_driver);
-+}
-+
-+module_init(c2_init_module);
-+module_exit(c2_exit_module);
-diff --git a/drivers/infiniband/hw/amso1100/c2.h b/drivers/infiniband/hw/amso1100/c2.h
+diff --git a/drivers/infiniband/hw/amso1100/c2_provider.h b/drivers/infiniband/hw/amso1100/c2_provider.h
 new file mode 100644
-index 0000000..3251e8f
+index 0000000..05c4ab6
 --- /dev/null
-+++ b/drivers/infiniband/hw/amso1100/c2.h
-@@ -0,0 +1,555 @@
++++ b/drivers/infiniband/hw/amso1100/c2_provider.h
+@@ -0,0 +1,182 @@
 +/*
 + * Copyright (c) 2005 Ammasso, Inc. All rights reserved.
 + * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
@@ -1353,1744 +1919,1223 @@ index 0000000..3251e8f
 + * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
-+ */
-+
-+#ifndef __C2_H
-+#define __C2_H
-+
-+#include <linux/netdevice.h>
-+#include <linux/spinlock.h>
-+#include <linux/kernel.h>
-+#include <linux/pci.h>
-+#include <linux/dma-mapping.h>
-+#include <asm/semaphore.h>
-+
-+#include "c2_provider.h"
-+#include "c2_mq.h"
-+#include "c2_status.h"
-+
-+#define DRV_NAME     "c2"
-+#define DRV_VERSION  "1.1"
-+#define PFX          DRV_NAME ": "
-+
-+#define BAR_0                0
-+#define BAR_2                2
-+#define BAR_4                4
-+
-+#define RX_BUF_SIZE         (1536 + 8)
-+#define ETH_JUMBO_MTU        9000
-+#define C2_MAGIC            "CEPHEUS"
-+#define C2_VERSION           4
-+#define C2_IVN              (18 & 0x7fffffff)
-+
-+#define C2_REG0_SIZE        (16 * 1024)
-+#define C2_REG2_SIZE        (2 * 1024 * 1024)
-+#define C2_REG4_SIZE        (256 * 1024 * 1024)
-+#define C2_NUM_TX_DESC       341
-+#define C2_NUM_RX_DESC       256
-+#define C2_PCI_REGS_OFFSET  (0x10000)
-+#define C2_RXP_HRXDQ_OFFSET (((C2_REG4_SIZE)/2))
-+#define C2_RXP_HRXDQ_SIZE   (4096)
-+#define C2_TXP_HTXDQ_OFFSET (((C2_REG4_SIZE)/2) + C2_RXP_HRXDQ_SIZE)
-+#define C2_TXP_HTXDQ_SIZE   (4096)
-+#define C2_TX_TIMEOUT	    (6*HZ)
-+
-+/* CEPHEUS */
-+static const u8 c2_magic[] = {
-+	0x43, 0x45, 0x50, 0x48, 0x45, 0x55, 0x53
-+};
-+
-+enum adapter_pci_regs {
-+	C2_REGS_MAGIC = 0x0000,
-+	C2_REGS_VERS = 0x0008,
-+	C2_REGS_IVN = 0x000C,
-+	C2_REGS_PCI_WINSIZE = 0x0010,
-+	C2_REGS_Q0_QSIZE = 0x0014,
-+	C2_REGS_Q0_MSGSIZE = 0x0018,
-+	C2_REGS_Q0_POOLSTART = 0x001C,
-+	C2_REGS_Q0_SHARED = 0x0020,
-+	C2_REGS_Q1_QSIZE = 0x0024,
-+	C2_REGS_Q1_MSGSIZE = 0x0028,
-+	C2_REGS_Q1_SHARED = 0x0030,
-+	C2_REGS_Q2_QSIZE = 0x0034,
-+	C2_REGS_Q2_MSGSIZE = 0x0038,
-+	C2_REGS_Q2_SHARED = 0x0040,
-+	C2_REGS_ENADDR = 0x004C,
-+	C2_REGS_RDMA_ENADDR = 0x0054,
-+	C2_REGS_HRX_CUR = 0x006C,
-+};
-+
-+struct c2_adapter_pci_regs {
-+	char reg_magic[8];
-+	u32 version;
-+	u32 ivn;
-+	u32 pci_window_size;
-+	u32 q0_q_size;
-+	u32 q0_msg_size;
-+	u32 q0_pool_start;
-+	u32 q0_shared;
-+	u32 q1_q_size;
-+	u32 q1_msg_size;
-+	u32 q1_pool_start;
-+	u32 q1_shared;
-+	u32 q2_q_size;
-+	u32 q2_msg_size;
-+	u32 q2_pool_start;
-+	u32 q2_shared;
-+	u32 log_start;
-+	u32 log_size;
-+	u8 host_enaddr[8];
-+	u8 rdma_enaddr[8];
-+	u32 crash_entry;
-+	u32 crash_ready[2];
-+	u32 fw_txd_cur;
-+	u32 fw_hrxd_cur;
-+	u32 fw_rxd_cur;
-+};
-+
-+enum pci_regs {
-+	C2_HISR = 0x0000,
-+	C2_DISR = 0x0004,
-+	C2_HIMR = 0x0008,
-+	C2_DIMR = 0x000C,
-+	C2_NISR0 = 0x0010,
-+	C2_NISR1 = 0x0014,
-+	C2_NIMR0 = 0x0018,
-+	C2_NIMR1 = 0x001C,
-+	C2_IDIS = 0x0020,
-+};
-+
-+enum {
-+	C2_PCI_HRX_INT = 1 << 8,
-+	C2_PCI_HTX_INT = 1 << 17,
-+	C2_PCI_HRX_QUI = 1 << 31,
-+};
-+
-+/*
-+ * Cepheus registers in BAR0.
-+ */
-+struct c2_pci_regs {
-+	u32 hostisr;
-+	u32 dmaisr;
-+	u32 hostimr;
-+	u32 dmaimr;
-+	u32 netisr0;
-+	u32 netisr1;
-+	u32 netimr0;
-+	u32 netimr1;
-+	u32 int_disable;
-+};
-+
-+/* TXP flags */
-+enum c2_txp_flags {
-+	TXP_HTXD_DONE = 0,
-+	TXP_HTXD_READY = 1 << 0,
-+	TXP_HTXD_UNINIT = 1 << 1,
-+};
-+
-+/* RXP flags */
-+enum c2_rxp_flags {
-+	RXP_HRXD_UNINIT = 0,
-+	RXP_HRXD_READY = 1 << 0,
-+	RXP_HRXD_DONE = 1 << 1,
-+};
-+
-+/* RXP status */
-+enum c2_rxp_status {
-+	RXP_HRXD_ZERO = 0,
-+	RXP_HRXD_OK = 1 << 0,
-+	RXP_HRXD_BUF_OV = 1 << 1,
-+};
-+
-+/* TXP descriptor fields */
-+enum txp_desc {
-+	C2_TXP_FLAGS = 0x0000,
-+	C2_TXP_LEN = 0x0002,
-+	C2_TXP_ADDR = 0x0004,
-+};
-+
-+/* RXP descriptor fields */
-+enum rxp_desc {
-+	C2_RXP_FLAGS = 0x0000,
-+	C2_RXP_STATUS = 0x0002,
-+	C2_RXP_COUNT = 0x0004,
-+	C2_RXP_LEN = 0x0006,
-+	C2_RXP_ADDR = 0x0008,
-+};
-+
-+struct c2_txp_desc {
-+	u16 flags;
-+	u16 len;
-+	u64 addr;
-+} __attribute__ ((packed));
-+
-+struct c2_rxp_desc {
-+	u16 flags;
-+	u16 status;
-+	u16 count;
-+	u16 len;
-+	u64 addr;
-+} __attribute__ ((packed));
-+
-+struct c2_rxp_hdr {
-+	u16 flags;
-+	u16 status;
-+	u16 len;
-+	u16 rsvd;
-+} __attribute__ ((packed));
-+
-+struct c2_tx_desc {
-+	u32 len;
-+	u32 status;
-+	dma_addr_t next_offset;
-+};
-+
-+struct c2_rx_desc {
-+	u32 len;
-+	u32 status;
-+	dma_addr_t next_offset;
-+};
-+
-+struct c2_alloc {
-+	u32 last;
-+	u32 max;
-+	spinlock_t lock;
-+	unsigned long *table;
-+};
-+
-+struct c2_array {
-+	struct {
-+		void **page;
-+		int used;
-+	} *page_list;
-+};
-+
-+/*
-+ * The MQ shared pointer pool is organized as a linked list of
-+ * chunks. Each chunk contains a linked list of free shared pointers
-+ * that can be allocated to a given user mode client.
 + *
 + */
-+struct sp_chunk {
-+	struct sp_chunk *next;
-+	gfp_t gfp_mask;
-+	u16 head;
-+	u16 shared_ptr[0];
++
++#ifndef C2_PROVIDER_H
++#define C2_PROVIDER_H
++#include <linux/inetdevice.h>
++
++#include <rdma/ib_verbs.h>
++#include <rdma/ib_pack.h>
++
++#include "c2_mq.h"
++#include <rdma/iw_cm.h>
++
++#define C2_MPT_FLAG_ATOMIC        (1 << 14)
++#define C2_MPT_FLAG_REMOTE_WRITE  (1 << 13)
++#define C2_MPT_FLAG_REMOTE_READ   (1 << 12)
++#define C2_MPT_FLAG_LOCAL_WRITE   (1 << 11)
++#define C2_MPT_FLAG_LOCAL_READ    (1 << 10)
++
++struct c2_buf_list {
++	void *buf;
++	 DECLARE_PCI_UNMAP_ADDR(mapping)
 +};
 +
-+struct c2_pd_table {
-+	struct c2_alloc alloc;
-+	struct c2_array pd;
++
++/* The user context keeps track of objects allocated for a
++ * particular user-mode client. */
++struct c2_ucontext {
++	struct ib_ucontext ibucontext;
 +};
 +
-+struct c2_qp_table {
-+	struct c2_alloc alloc;
++struct c2_mtt;
++
++/* All objects associated with a PD are kept in the 
++ * associated user context if present. 
++ */
++struct c2_pd {
++	struct ib_pd ibpd;
++	u32 pd_id;
++	atomic_t sqp_count;
++};
++
++struct c2_mr {
++	struct ib_mr ibmr;
++	struct c2_pd *pd;
++};
++
++struct c2_av;
++
++enum c2_ah_type {
++	C2_AH_ON_HCA,
++	C2_AH_PCI_POOL,
++	C2_AH_KMALLOC
++};
++
++struct c2_ah {
++	struct ib_ah ibah;
++};
++
++struct c2_cq {
++	struct ib_cq ibcq;
 +	spinlock_t lock;
-+	struct c2_array qp;
-+	struct c2_qp** map;
-+};
++	atomic_t refcount;
++	int cqn;
++	int is_kernel;
++	wait_queue_head_t wait;
 +
-+struct c2_element {
-+	struct c2_element *next;
-+	void *ht_desc;		/* host     descriptor */
-+	void __iomem *hw_desc;	/* hardware descriptor */
-+	struct sk_buff *skb;
-+	dma_addr_t mapaddr;
-+	u32 maplen;
-+};
-+
-+struct c2_ring {
-+	struct c2_element *to_clean;
-+	struct c2_element *to_use;
-+	struct c2_element *start;
-+	unsigned long count;
-+};
-+
-+struct c2_dev {
-+	struct ib_device ibdev;
-+	void __iomem *regs;
-+	void __iomem *mmio_txp_ring; /* remapped adapter memory for hw rings */
-+	void __iomem *mmio_rxp_ring;
-+	spinlock_t lock;
-+	struct pci_dev *pcidev;
-+	struct net_device *netdev;
-+	struct net_device *pseudo_netdev;
-+	unsigned int cur_tx;
-+	unsigned int cur_rx;
 +	u32 adapter_handle;
-+	int device_cap_flags;
-+	void __iomem *kva;	/* KVA device memory */
-+	unsigned long pa;	/* PA device memory */
-+	void **qptr_array;
-+
-+	kmem_cache_t *host_msg_cache;
-+
-+	struct list_head cca_link;		/* adapter list */
-+	struct list_head eh_wakeup_list;	/* event wakeup list */
-+	wait_queue_head_t req_vq_wo;
-+
-+	/* Cached RNIC properties */
-+	struct ib_device_attr props;
-+
-+	struct c2_pd_table pd_table;
-+	struct c2_qp_table qp_table;
-+	int ports;		/* num of GigE ports */
-+	int devnum;
-+	spinlock_t vqlock;	/* sync vbs req MQ */
-+
-+	/* Verbs Queues */
-+	struct c2_mq req_vq;	/* Verbs Request MQ */
-+	struct c2_mq rep_vq;	/* Verbs Reply MQ */
-+	struct c2_mq aeq;	/* Async Events MQ */
-+
-+	/* Kernel client MQs */
-+	struct sp_chunk *kern_mqsp_pool;
-+
-+	/* Device updates these values when posting messages to a host
-+	 * target queue */
-+	u16 req_vq_shared;
-+	u16 rep_vq_shared;
-+	u16 aeq_shared;
-+	u16 irq_claimed;
-+
-+	/*
-+	 * Shared host target pages for user-accessible MQs.
-+	 */
-+	int hthead;		/* index of first free entry */
-+	void *htpages;		/* kernel vaddr */
-+	int htlen;		/* length of htpages memory */
-+	void *htuva;		/* user mapped vaddr */
-+	spinlock_t htlock;	/* serialize allocation */
-+
-+	u64 adapter_hint_uva;	/* access to the activity FIFO */
-+
-+	//	spinlock_t aeq_lock;
-+	//	spinlock_t rnic_lock;
-+
-+	u16 hint_count;
-+	u16 hints_read;
-+
-+	int init;		/* TRUE if it's ready */
-+	char ae_cache_name[16];
-+	char vq_cache_name[16];
++	struct c2_mq mq;
 +};
 +
-+struct c2_port {
-+	u32 msg_enable;
-+	struct c2_dev *c2dev;
-+	struct net_device *netdev;
++struct c2_wq {
++	spinlock_t lock;
++};
++struct iw_cm_id;
++struct c2_qp {
++	struct ib_qp ibqp;
++	struct iw_cm_id *cm_id;
++	spinlock_t lock;
++	atomic_t refcount;
++	wait_queue_head_t wait;
++	int qpn;
 +
-+	spinlock_t tx_lock;
-+	u32 tx_avail;
-+	struct c2_ring tx_ring;
-+	struct c2_ring rx_ring;
++	u32 adapter_handle;
++	u32 send_sgl_depth;
++	u32 recv_sgl_depth;
++	u32 rdma_write_sgl_depth;
++	u8 state;
 +
-+	void *mem;		/* PCI memory for host rings */
-+	dma_addr_t dma;
-+	unsigned long mem_size;
-+
-+	u32 rx_buf_size;
-+
-+	struct net_device_stats netstats;
++	struct c2_mq sq_mq;
++	struct c2_mq rq_mq;
 +};
 +
-+/*
-+ * Activity FIFO registers in BAR0.
-+ */
-+#define PCI_BAR0_HOST_HINT	0x100
-+#define PCI_BAR0_ADAPTER_HINT	0x2000
++struct c2_cr_query_attrs {
++	u32 local_addr;
++	u32 remote_addr;
++	u16 local_port;
++	u16 remote_port;
++};
 +
-+/*
-+ * Ammasso PCI vendor id and Cepheus PCI device id.
-+ */
-+#define CQ_ARMED 	0x01
-+#define CQ_WAIT_FOR_DMA	0x80
++static inline struct c2_pd *to_c2pd(struct ib_pd *ibpd)
++{
++	return container_of(ibpd, struct c2_pd, ibpd);
++}
 +
++static inline struct c2_ucontext *to_c2ucontext(struct ib_ucontext *ibucontext)
++{
++	return container_of(ibucontext, struct c2_ucontext, ibucontext);
++}
++
++static inline struct c2_mr *to_c2mr(struct ib_mr *ibmr)
++{
++	return container_of(ibmr, struct c2_mr, ibmr);
++}
++
++
++static inline struct c2_ah *to_c2ah(struct ib_ah *ibah)
++{
++	return container_of(ibah, struct c2_ah, ibah);
++}
++
++static inline struct c2_cq *to_c2cq(struct ib_cq *ibcq)
++{
++	return container_of(ibcq, struct c2_cq, ibcq);
++}
++
++static inline struct c2_qp *to_c2qp(struct ib_qp *ibqp)
++{
++	return container_of(ibqp, struct c2_qp, ibqp);
++}
++
++static inline int is_rnic_addr(struct net_device *netdev, u32 addr)
++{
++	struct in_device *ind;
++	int ret = 0;
++
++	ind = in_dev_get(netdev);
++	if (!ind)
++		return 0;
++
++	for_ifa(ind) {
++		if (ifa->ifa_address == addr) {
++			ret = 1;
++			break;
++		}
++	}
++	endfor_ifa(ind);
++	in_dev_put(ind);
++	return ret;
++}
++#endif				/* C2_PROVIDER_H */
+diff --git a/drivers/infiniband/hw/amso1100/c2_qp.c b/drivers/infiniband/hw/amso1100/c2_qp.c
+new file mode 100644
+index 0000000..6071cf0
+--- /dev/null
++++ b/drivers/infiniband/hw/amso1100/c2_qp.c
+@@ -0,0 +1,975 @@
 +/*
-+ * The format of a hint is as follows:
-+ * Lower 16 bits are the count of hints for the queue.
-+ * Next 15 bits are the qp_index
-+ * Upper most bit depends on who reads it:
-+ *    If read by producer, then it means Full (1) or Not-Full (0)
-+ *    If read by consumer, then it means Empty (1) or Not-Empty (0)
++ * Copyright (c) 2004 Topspin Communications.  All rights reserved.
++ * Copyright (c) 2005 Cisco Systems. All rights reserved.
++ * Copyright (c) 2005 Mellanox Technologies. All rights reserved.
++ * Copyright (c) 2004 Voltaire, Inc. All rights reserved. 
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
 + */
++
++#include "c2.h"
++#include "c2_vq.h"
++#include "c2_status.h"
++
++#define C2_MAX_ORD_PER_QP 128
++#define C2_MAX_IRD_PER_QP 128
++
 +#define C2_HINT_MAKE(q_index, hint_count) (((q_index) << 16) | hint_count)
 +#define C2_HINT_GET_INDEX(hint) (((hint) & 0x7FFF0000) >> 16)
 +#define C2_HINT_GET_COUNT(hint) ((hint) & 0x0000FFFF)
 +
++#define NO_SUPPORT -1
++static const u8 c2_opcode[] = {
++	[IB_WR_SEND] = C2_WR_TYPE_SEND,
++	[IB_WR_SEND_WITH_IMM] = NO_SUPPORT,
++	[IB_WR_RDMA_WRITE] = C2_WR_TYPE_RDMA_WRITE,
++	[IB_WR_RDMA_WRITE_WITH_IMM] = NO_SUPPORT,
++	[IB_WR_RDMA_READ] = C2_WR_TYPE_RDMA_READ,
++	[IB_WR_ATOMIC_CMP_AND_SWP] = NO_SUPPORT,
++	[IB_WR_ATOMIC_FETCH_AND_ADD] = NO_SUPPORT,
++};
 +
-+/*
-+ * The following defines the offset in SDRAM for the c2_adapter_pci_regs_t
-+ * struct. 
-+ */
-+#define C2_ADAPTER_PCI_REGS_OFFSET 0x10000
-+
-+#ifndef readq
-+static inline u64 readq(const void __iomem * addr)
++static int to_c2_state(enum ib_qp_state ib_state)
 +{
-+	u64 ret = readl(addr + 4);
-+	ret <<= 32;
-+	ret |= readl(addr);
-+
-+	return ret;
-+}
-+#endif
-+
-+#ifndef __raw_writeq
-+static inline void __raw_writeq(u64 val, void __iomem * addr)
-+{
-+	__raw_writel((u32) (val), addr);
-+	__raw_writel((u32) (val >> 32), (addr + 4));
-+}
-+#endif
-+
-+#define C2_SET_CUR_RX(c2dev, cur_rx) \
-+	__raw_writel(cpu_to_be32(cur_rx), c2dev->mmio_txp_ring + 4092)
-+
-+#define C2_GET_CUR_RX(c2dev) \
-+	be32_to_cpu(readl(c2dev->mmio_txp_ring + 4092))
-+
-+static inline struct c2_dev *to_c2dev(struct ib_device *ibdev)
-+{
-+	return container_of(ibdev, struct c2_dev, ibdev);
-+}
-+
-+static inline int c2_errno(void *reply)
-+{
-+	switch (c2_wr_get_result(reply)) {
-+	case C2_OK:
-+		return 0;
-+	case CCERR_NO_BUFS:
-+	case CCERR_INSUFFICIENT_RESOURCES:
-+	case CCERR_ZERO_RDMA_READ_RESOURCES:
-+		return -ENOMEM;
-+	case CCERR_MR_IN_USE:
-+	case CCERR_QP_IN_USE:
-+		return -EBUSY;
-+	case CCERR_ADDR_IN_USE:
-+		return -EADDRINUSE;
-+	case CCERR_ADDR_NOT_AVAIL:
-+		return -EADDRNOTAVAIL;
-+	case CCERR_CONN_RESET:
-+		return -ECONNRESET;
-+	case CCERR_NOT_IMPLEMENTED:
-+	case CCERR_INVALID_WQE:
-+		return -ENOSYS;
-+	case CCERR_QP_NOT_PRIVILEGED:
-+		return -EPERM;
-+	case CCERR_STACK_ERROR:
-+		return -EPROTO;
-+	case CCERR_ACCESS_VIOLATION:
-+	case CCERR_BASE_AND_BOUNDS_VIOLATION:
-+		return -EFAULT;
-+	case CCERR_STAG_STATE_NOT_INVALID:
-+	case CCERR_INVALID_ADDRESS:
-+	case CCERR_INVALID_CQ:
-+	case CCERR_INVALID_EP:
-+	case CCERR_INVALID_MODIFIER:
-+	case CCERR_INVALID_MTU:
-+	case CCERR_INVALID_PD_ID:
-+	case CCERR_INVALID_QP:
-+	case CCERR_INVALID_RNIC:
-+	case CCERR_INVALID_STAG:
-+		return -EINVAL;
++	switch (ib_state) {
++	case IB_QPS_RESET:
++		return C2_QP_STATE_IDLE;
++	case IB_QPS_RTS:
++		return C2_QP_STATE_RTS;
++	case IB_QPS_SQD:
++		return C2_QP_STATE_CLOSING;
++	case IB_QPS_SQE:
++		return C2_QP_STATE_CLOSING;
++	case IB_QPS_ERR:
++		return C2_QP_STATE_ERROR;
 +	default:
-+		return -EAGAIN;
++		return -1;
 +	}
 +}
 +
-+/* Device */
-+extern int c2_register_device(struct c2_dev *c2dev);
-+extern void c2_unregister_device(struct c2_dev *c2dev);
-+extern int c2_rnic_init(struct c2_dev *c2dev);
-+extern void c2_rnic_term(struct c2_dev *c2dev);
-+extern void c2_rnic_interrupt(struct c2_dev *c2dev);
-+extern int c2_rnic_query(struct c2_dev *c2dev, struct ib_device_attr *props);
-+extern int c2_del_addr(struct c2_dev *c2dev, u32 inaddr, u32 inmask);
-+extern int c2_add_addr(struct c2_dev *c2dev, u32 inaddr, u32 inmask);
-+
-+/* QPs */
-+extern int c2_alloc_qp(struct c2_dev *c2dev, struct c2_pd *pd,
-+		       struct ib_qp_init_attr *qp_attrs, struct c2_qp *qp);
-+extern void c2_free_qp(struct c2_dev *c2dev, struct c2_qp *qp);
-+extern struct ib_qp *c2_get_qp(struct ib_device *device, int qpn);
-+extern int c2_qp_modify(struct c2_dev *c2dev, struct c2_qp *qp,
-+			struct ib_qp_attr *attr, int attr_mask);
-+extern int c2_qp_set_read_limits(struct c2_dev *c2dev, struct c2_qp *qp, 
-+				 int ord, int ird);
-+extern int c2_post_send(struct ib_qp *ibqp, struct ib_send_wr *ib_wr,
-+			struct ib_send_wr **bad_wr);
-+extern int c2_post_receive(struct ib_qp *ibqp, struct ib_recv_wr *ib_wr,
-+			   struct ib_recv_wr **bad_wr);
-+extern int __devinit c2_init_qp_table(struct c2_dev *c2dev);
-+extern void __devexit c2_cleanup_qp_table(struct c2_dev *c2dev);
-+extern void c2_set_qp_state(struct c2_qp *, int);
-+
-+/* PDs */
-+extern int c2_pd_alloc(struct c2_dev *c2dev, int privileged, struct c2_pd *pd);
-+extern void c2_pd_free(struct c2_dev *c2dev, struct c2_pd *pd);
-+extern int __devinit c2_init_pd_table(struct c2_dev *c2dev);
-+extern void __devexit c2_cleanup_pd_table(struct c2_dev *c2dev);
-+
-+/* CQs */
-+extern int c2_init_cq(struct c2_dev *c2dev, int entries,
-+		      struct c2_ucontext *ctx, struct c2_cq *cq);
-+extern void c2_free_cq(struct c2_dev *c2dev, struct c2_cq *cq);
-+extern void c2_cq_event(struct c2_dev *c2dev, u32 mq_index);
-+extern void c2_cq_clean(struct c2_dev *c2dev, struct c2_qp *qp, u32 mq_index);
-+extern int c2_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *entry);
-+extern int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify);
-+
-+/* CM */
-+extern int c2_llp_connect(struct iw_cm_id *cm_id, 
-+			  struct iw_cm_conn_param *iw_param);
-+extern int c2_llp_accept(struct iw_cm_id *cm_id, 
-+			 struct iw_cm_conn_param *iw_param);
-+extern int c2_llp_reject(struct iw_cm_id *cm_id, const void *pdata,
-+			 u8 pdata_len);
-+extern int c2_llp_service_create(struct iw_cm_id *cm_id, int backlog);
-+extern int c2_llp_service_destroy(struct iw_cm_id *cm_id);
-+
-+/* MM */
-+extern int c2_nsmr_register_phys_kern(struct c2_dev *c2dev, u64 *addr_list,
-+ 				      int page_size, int pbl_depth, u32 length, 
-+ 				      u32 off, u64 *va, enum c2_acf acf, 
-+				      struct c2_mr *mr);
-+extern int c2_stag_dealloc(struct c2_dev *c2dev, u32 stag_index);
-+
-+/* AE */
-+extern void c2_ae_event(struct c2_dev *c2dev, u32 mq_index);
-+
-+/* Allocators */
-+extern u32 c2_alloc(struct c2_alloc *alloc);
-+extern void c2_free(struct c2_alloc *alloc, u32 obj);
-+extern int c2_alloc_init(struct c2_alloc *alloc, u32 num, u32 reserved);
-+extern void c2_alloc_cleanup(struct c2_alloc *alloc);
-+extern int c2_init_mqsp_pool(gfp_t gfp_mask, struct sp_chunk **root);
-+extern void c2_free_mqsp_pool(struct sp_chunk *root);
-+extern u16 *c2_alloc_mqsp(struct sp_chunk *head);
-+extern void c2_free_mqsp(u16 * mqsp);
-+extern void c2_array_cleanup(struct c2_array *array, int nent);
-+extern int c2_array_init(struct c2_array *array, int nent);
-+extern void c2_array_clear(struct c2_array *array, int index);
-+extern int c2_array_set(struct c2_array *array, int index, void *value);
-+extern void *c2_array_get(struct c2_array *array, int index);
-+
-+#endif
-diff --git a/drivers/infiniband/hw/amso1100/c2_ae.c b/drivers/infiniband/hw/amso1100/c2_ae.c
-new file mode 100644
-index 0000000..c979ef6
---- /dev/null
-+++ b/drivers/infiniband/hw/amso1100/c2_ae.c
-@@ -0,0 +1,359 @@
-+/*
-+ * Copyright (c) 2005 Ammasso, Inc. All rights reserved.
-+ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include "c2.h"
-+#include <rdma/iw_cm.h>
-+#include "c2_status.h"
-+#include "c2_ae.h"
-+
-+static int c2_convert_cm_status(u32 c2_status)
++int to_ib_state(enum c2_qp_state c2_state)
 +{
-+	switch (c2_status) {
-+	case C2_CONN_STATUS_SUCCESS:
-+		return 0;
-+	case C2_CONN_STATUS_REJECTED:
-+		return -ENETRESET;
-+	case C2_CONN_STATUS_REFUSED:
-+		return -ECONNREFUSED;
-+	case C2_CONN_STATUS_TIMEDOUT:
-+		return -ETIMEDOUT;
-+	case C2_CONN_STATUS_NETUNREACH:
-+		return -ENETUNREACH;
-+	case C2_CONN_STATUS_HOSTUNREACH:
-+		return -EHOSTUNREACH;
-+	case C2_CONN_STATUS_INVALID_RNIC:
-+		return -EINVAL;
-+	case C2_CONN_STATUS_INVALID_QP:
-+		return -EINVAL;
-+	case C2_CONN_STATUS_INVALID_QP_STATE:
-+		return -EINVAL;
-+	case C2_CONN_STATUS_ADDR_NOT_AVAIL:
-+		return -EADDRNOTAVAIL;
-+	default:
-+		printk(KERN_ERR PFX
-+		       "%s - Unable to convert CM status: %d\n",
-+		       __FUNCTION__, c2_status);
-+		return -EIO;
-+	}
-+}
-+
-+#ifdef DEBUG
-+static const char* to_event_str(int event)
-+{
-+	static const char* event_str[] = {
-+		"CCAE_REMOTE_SHUTDOWN",
-+		"CCAE_ACTIVE_CONNECT_RESULTS",
-+		"CCAE_CONNECTION_REQUEST",
-+		"CCAE_LLP_CLOSE_COMPLETE",
-+		"CCAE_TERMINATE_MESSAGE_RECEIVED",
-+		"CCAE_LLP_CONNECTION_RESET",
-+		"CCAE_LLP_CONNECTION_LOST",
-+		"CCAE_LLP_SEGMENT_SIZE_INVALID",
-+		"CCAE_LLP_INVALID_CRC",
-+		"CCAE_LLP_BAD_FPDU",
-+		"CCAE_INVALID_DDP_VERSION",
-+		"CCAE_INVALID_RDMA_VERSION",
-+		"CCAE_UNEXPECTED_OPCODE",
-+		"CCAE_INVALID_DDP_QUEUE_NUMBER",
-+		"CCAE_RDMA_READ_NOT_ENABLED",
-+		"CCAE_RDMA_WRITE_NOT_ENABLED",
-+		"CCAE_RDMA_READ_TOO_SMALL",
-+		"CCAE_NO_L_BIT",
-+		"CCAE_TAGGED_INVALID_STAG",
-+		"CCAE_TAGGED_BASE_BOUNDS_VIOLATION",
-+		"CCAE_TAGGED_ACCESS_RIGHTS_VIOLATION",
-+		"CCAE_TAGGED_INVALID_PD",
-+		"CCAE_WRAP_ERROR",
-+		"CCAE_BAD_CLOSE",
-+		"CCAE_BAD_LLP_CLOSE",
-+		"CCAE_INVALID_MSN_RANGE",
-+		"CCAE_INVALID_MSN_GAP",
-+		"CCAE_IRRQ_OVERFLOW",
-+		"CCAE_IRRQ_MSN_GAP",
-+		"CCAE_IRRQ_MSN_RANGE",
-+		"CCAE_IRRQ_INVALID_STAG",
-+		"CCAE_IRRQ_BASE_BOUNDS_VIOLATION",
-+		"CCAE_IRRQ_ACCESS_RIGHTS_VIOLATION",
-+		"CCAE_IRRQ_INVALID_PD",
-+		"CCAE_IRRQ_WRAP_ERROR",
-+		"CCAE_CQ_SQ_COMPLETION_OVERFLOW",
-+		"CCAE_CQ_RQ_COMPLETION_ERROR",
-+		"CCAE_QP_SRQ_WQE_ERROR",
-+		"CCAE_QP_LOCAL_CATASTROPHIC_ERROR",
-+		"CCAE_CQ_OVERFLOW",
-+		"CCAE_CQ_OPERATION_ERROR",
-+		"CCAE_SRQ_LIMIT_REACHED",
-+		"CCAE_QP_RQ_LIMIT_REACHED",
-+		"CCAE_SRQ_CATASTROPHIC_ERROR",
-+		"CCAE_RNIC_CATASTROPHIC_ERROR"
-+	};
-+
-+	if (event < CCAE_REMOTE_SHUTDOWN || 
-+	    event > CCAE_RNIC_CATASTROPHIC_ERROR)
-+		return "<invalid event>";
-+
-+	event -= CCAE_REMOTE_SHUTDOWN;
-+	return event_str[event];
-+}
-+
-+const char *to_qp_state_str(int state)
-+{
-+	switch (state) {
++	switch (c2_state) {
 +	case C2_QP_STATE_IDLE:
-+		return "C2_QP_STATE_IDLE";
++		return IB_QPS_RESET;
 +	case C2_QP_STATE_CONNECTING:
-+		return "C2_QP_STATE_CONNECTING";
++		return IB_QPS_RTR;
 +	case C2_QP_STATE_RTS:
-+		return "C2_QP_STATE_RTS";
++		return IB_QPS_RTS;
 +	case C2_QP_STATE_CLOSING:
-+		return "C2_QP_STATE_CLOSING";
-+	case C2_QP_STATE_TERMINATE:
-+		return "C2_QP_STATE_TERMINATE";
++		return IB_QPS_SQD;
 +	case C2_QP_STATE_ERROR:
-+		return "C2_QP_STATE_ERROR";
++		return IB_QPS_ERR;
++	case C2_QP_STATE_TERMINATE:
++		return IB_QPS_SQE;
 +	default:
-+		return "<invalid QP state>";
++		return -1;
++	}
++}
++
++const char *to_ib_state_str(int ib_state)
++{
++	static const char *state_str[] = {
++		"IB_QPS_RESET",
++		"IB_QPS_INIT",
++		"IB_QPS_RTR",
++		"IB_QPS_RTS",
++		"IB_QPS_SQD",
++		"IB_QPS_SQE",
++		"IB_QPS_ERR"
 +	};
-+}
-+#endif
++	if (ib_state < IB_QPS_RESET ||
++	    ib_state > IB_QPS_ERR)
++		return "<invalid IB QP state>";
 +
-+void c2_ae_event(struct c2_dev *c2dev, u32 mq_index)
-+{
-+	struct c2_mq *mq = c2dev->qptr_array[mq_index];
-+	union c2wr *wr;
-+	void *resource_user_context;
-+	struct iw_cm_event cm_event;
-+	struct ib_event ib_event;
-+	enum c2_resource_indicator resource_indicator;
-+	enum c2_event_id event_id;
-+	unsigned long flags;
-+	u8 *pdata = NULL;
-+	int status;
-+
-+	/*
-+	 * retreive the message
-+	 */
-+	wr = c2_mq_consume(mq);
-+	if (!wr)
-+		return;
-+
-+	memset(&ib_event, 0, sizeof(ib_event));
-+	memset(&cm_event, 0, sizeof(cm_event));
-+
-+	event_id = c2_wr_get_id(wr);
-+	resource_indicator = be32_to_cpu(wr->ae.ae_generic.resource_type);
-+	resource_user_context =
-+	    (void *) (unsigned long) wr->ae.ae_generic.user_context;
-+
-+	status = cm_event.status = c2_convert_cm_status(c2_wr_get_result(wr));
-+
-+	pr_debug("event received c2_dev=%p, event_id=%d, "
-+		"resource_indicator=%d, user_context=%p, status = %d\n",
-+		c2dev, event_id, resource_indicator, resource_user_context, 
-+		status);
-+
-+	switch (resource_indicator) {
-+	case C2_RES_IND_QP:{
-+
-+		struct c2_qp *qp = (struct c2_qp *)resource_user_context;
-+		struct iw_cm_id *cm_id = qp->cm_id;
-+		struct c2wr_ae_active_connect_results *res;
-+
-+		if (!cm_id) {
-+			pr_debug("event received, but cm_id is <nul>, qp=%p!\n",
-+				qp);
-+			goto ignore_it;
-+		}
-+		pr_debug("%s: event = %s, user_context=%llx, "
-+			"resource_type=%x, "
-+			"resource=%x, qp_state=%s\n",
-+			__FUNCTION__,
-+			to_event_str(event_id),
-+			be64_to_cpu(wr->ae.ae_generic.user_context),
-+			be32_to_cpu(wr->ae.ae_generic.resource_type),
-+			be32_to_cpu(wr->ae.ae_generic.resource),
-+			to_qp_state_str(be32_to_cpu(wr->ae.ae_generic.qp_state)));
-+			
-+		c2_set_qp_state(qp, be32_to_cpu(wr->ae.ae_generic.qp_state));
-+
-+		switch (event_id) {
-+		case CCAE_ACTIVE_CONNECT_RESULTS:
-+			res = &wr->ae.ae_active_connect_results;
-+			cm_event.event = IW_CM_EVENT_CONNECT_REPLY;
-+			cm_event.local_addr.sin_addr.s_addr = res->laddr;
-+			cm_event.remote_addr.sin_addr.s_addr = res->raddr;
-+			cm_event.local_addr.sin_port = res->lport;
-+			cm_event.remote_addr.sin_port =	res->rport;
-+			if (status == 0) {
-+				cm_event.private_data_len = 
-+					be32_to_cpu(res->private_data_length);
-+			} else {
-+				spin_lock_irqsave(&qp->lock, flags);
-+				if (qp->cm_id) {
-+					qp->cm_id->rem_ref(qp->cm_id);
-+					qp->cm_id = NULL;
-+				}
-+				spin_unlock_irqrestore(&qp->lock, flags);
-+				cm_event.private_data_len = 0;
-+				cm_event.private_data = NULL;
-+			}
-+			if (cm_event.private_data_len) {
-+				/* copy private data */
-+				pdata =
-+				    kmalloc(cm_event.private_data_len,
-+					    GFP_ATOMIC);
-+				if (!pdata) {
-+					/* Ignore the request, maybe the 
-+					 * remote peer will retry */
-+					pr_debug ("Ignored connect request -- "
-+						 "no memory for pdata"
-+						 "private_data_len=%d\n",
-+						 cm_event.private_data_len);
-+					goto ignore_it;
-+				}
-+
-+				memcpy(pdata, res->private_data,
-+				       cm_event.private_data_len);
-+
-+				cm_event.private_data = pdata;
-+			}
-+			if (cm_id->event_handler)
-+				cm_id->event_handler(cm_id, &cm_event);
-+			break;
-+		case CCAE_TERMINATE_MESSAGE_RECEIVED:
-+		case CCAE_CQ_SQ_COMPLETION_OVERFLOW:
-+			ib_event.device = &c2dev->ibdev;
-+			ib_event.element.qp = &qp->ibqp;
-+			ib_event.event = IB_EVENT_QP_REQ_ERR;
-+
-+			if (qp->ibqp.event_handler)
-+				qp->ibqp.event_handler(&ib_event,
-+						       qp->ibqp.
-+						       qp_context);
-+			break;
-+		case CCAE_BAD_CLOSE:
-+		case CCAE_LLP_CLOSE_COMPLETE:
-+		case CCAE_LLP_CONNECTION_RESET:
-+		case CCAE_LLP_CONNECTION_LOST:
-+			BUG_ON(cm_id->event_handler==(void*)0x6b6b6b6b);
-+
-+			spin_lock_irqsave(&qp->lock, flags);
-+			if (qp->cm_id) {
-+				qp->cm_id->rem_ref(qp->cm_id);
-+				qp->cm_id = NULL;
-+			}
-+			spin_unlock_irqrestore(&qp->lock, flags);
-+			cm_event.event = IW_CM_EVENT_CLOSE;
-+			cm_event.status = 0;
-+			if (cm_id->event_handler)
-+				cm_id->event_handler(cm_id, &cm_event);
-+			break;
-+		default:
-+			BUG_ON(1);
-+			pr_debug("%s:%d Unexpected event_id=%d on QP=%p, "
-+				"CM_ID=%p\n",
-+				__FUNCTION__, __LINE__,
-+				event_id, qp, cm_id);
-+			break;
-+		}
-+		break;
-+	}
-+
-+	case C2_RES_IND_EP:{
-+
-+		struct c2wr_ae_connection_request *req = 
-+			&wr->ae.ae_connection_request;
-+		struct iw_cm_id *cm_id = 
-+			(struct iw_cm_id *)resource_user_context;
-+
-+		pr_debug("C2_RES_IND_EP event_id=%d\n", event_id);
-+		if (event_id != CCAE_CONNECTION_REQUEST) {
-+			pr_debug("%s: Invalid event_id: %d\n",
-+				__FUNCTION__, event_id);
-+			break;
-+		}
-+		cm_event.event = IW_CM_EVENT_CONNECT_REQUEST;
-+		cm_event.provider_data = (void*)(unsigned long)req->cr_handle;
-+		cm_event.local_addr.sin_addr.s_addr = req->laddr;
-+		cm_event.remote_addr.sin_addr.s_addr = req->raddr;
-+		cm_event.local_addr.sin_port = req->lport;
-+		cm_event.remote_addr.sin_port = req->rport;
-+		cm_event.private_data_len = 
-+			be32_to_cpu(req->private_data_length);
-+
-+		if (cm_event.private_data_len) {
-+			pdata =
-+			    kmalloc(cm_event.private_data_len,
-+				    GFP_ATOMIC);
-+			if (!pdata) {
-+				/* Ignore the request, maybe the remote peer 
-+				 * will retry */
-+				pr_debug ("Ignored connect request -- "
-+					 "no memory for pdata"
-+					 "private_data_len=%d\n",
-+					 cm_event.private_data_len);
-+				goto ignore_it;
-+			}
-+			memcpy(pdata,
-+			       req->private_data, 
-+			       cm_event.private_data_len);
-+
-+			cm_event.private_data = pdata;
-+		}
-+		if (cm_id->event_handler)
-+			cm_id->event_handler(cm_id, &cm_event);
-+		break;
-+	}
-+
-+	case C2_RES_IND_CQ:{
-+		struct c2_cq *cq =
-+		    (struct c2_cq *) resource_user_context;
-+
-+		pr_debug("IB_EVENT_CQ_ERR\n");
-+		ib_event.device = &c2dev->ibdev;
-+		ib_event.element.cq = &cq->ibcq;
-+		ib_event.event = IB_EVENT_CQ_ERR;
-+
-+		if (cq->ibcq.event_handler)
-+			cq->ibcq.event_handler(&ib_event,
-+					       cq->ibcq.cq_context);
-+	}
-+
-+	default:
-+		printk("Bad resource indicator = %d\n",
-+		       resource_indicator);
-+		break;
-+	}
-+
-+ ignore_it:
-+	c2_mq_free(mq);
-+}
-diff --git a/drivers/infiniband/hw/amso1100/c2_intr.c b/drivers/infiniband/hw/amso1100/c2_intr.c
-new file mode 100644
-index 0000000..75bb18c
---- /dev/null
-+++ b/drivers/infiniband/hw/amso1100/c2_intr.c
-@@ -0,0 +1,209 @@
-+/*
-+ * Copyright (c) 2005 Ammasso, Inc. All rights reserved.
-+ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include "c2.h"
-+#include <rdma/iw_cm.h>
-+#include "c2_vq.h"
-+
-+static void handle_mq(struct c2_dev *c2dev, u32 index);
-+static void handle_vq(struct c2_dev *c2dev, u32 mq_index);
-+
-+/*
-+ * Handle RNIC interrupts
-+ */
-+void c2_rnic_interrupt(struct c2_dev *c2dev)
-+{
-+	unsigned int mq_index;
-+
-+	while (c2dev->hints_read != be16_to_cpu(c2dev->hint_count)) {
-+		mq_index = readl(c2dev->regs + PCI_BAR0_HOST_HINT);
-+		if (mq_index & 0x80000000) {
-+			break;
-+		}
-+
-+		c2dev->hints_read++;
-+		handle_mq(c2dev, mq_index);
-+	}
-+
++	ib_state -= IB_QPS_RESET;
++	return state_str[ib_state];
 +}
 +
-+/*
-+ * Top level MQ handler 
-+ */
-+static void handle_mq(struct c2_dev *c2dev, u32 mq_index)
++void c2_set_qp_state(struct c2_qp *qp, int c2_state)
 +{
-+	if (c2dev->qptr_array[mq_index] == NULL) {
-+		pr_debug(KERN_INFO "handle_mq: stray activity for mq_index=%d\n",
-+			mq_index);
-+		return;
-+	}
++	int new_state = to_ib_state(c2_state);
 +
-+	switch (mq_index) {
-+	case (0):
-+		/*
-+		 * An index of 0 in the activity queue
-+		 * indicates the req vq now has messages
-+		 * available...
-+		 *
-+		 * Wake up any waiters waiting on req VQ 
-+		 * message availability.  
-+		 */
-+		wake_up(&c2dev->req_vq_wo);
-+		break;
-+	case (1):
-+		handle_vq(c2dev, mq_index);
-+		break;
-+	case (2):
-+		/* We have to purge the VQ in case there are pending
-+		 * accept reply requests that would result in the
-+		 * generation of an ESTABLISHED event. If we don't
-+		 * generate these first, a CLOSE event could end up
-+		 * being delivered before the ESTABLISHED event.
-+		 */
-+		handle_vq(c2dev, 1);
-+
-+		c2_ae_event(c2dev, mq_index);
-+		break;
-+	default:
-+		/* There is no event synchronization between CQ events
-+		 * and AE or CM events. In fact, CQE could be
-+		 * delivered for all of the I/O up to and including the
-+		 * FLUSH for a peer disconenct prior to the ESTABLISHED
-+		 * event being delivered to the app. The reason for this
-+		 * is that CM events are delivered on a thread, while AE
-+		 * and CM events are delivered on interrupt context. 
-+		 */
-+		c2_cq_event(c2dev, mq_index);
-+		break;
-+	}
-+
-+	return;
++	pr_debug("%s: qp[%p] state modify %s --> %s\n", 
++	       __FUNCTION__,
++		qp, 
++		to_ib_state_str(qp->state), 
++		to_ib_state_str(new_state));
++	qp->state = new_state;
 +}
 +
-+/*
-+ * Handles verbs WR replies.
-+ */
-+static void handle_vq(struct c2_dev *c2dev, u32 mq_index)
++#define C2_QP_NO_ATTR_CHANGE 0xFFFFFFFF
++
++int c2_qp_modify(struct c2_dev *c2dev, struct c2_qp *qp,
++		 struct ib_qp_attr *attr, int attr_mask)
 +{
-+	void *adapter_msg, *reply_msg;
-+	struct c2wr_hdr *host_msg;
-+	struct c2wr_hdr tmp;
-+	struct c2_mq *reply_vq;
-+	struct c2_vq_req *req;
-+	struct iw_cm_event cm_event;
-+	int err;
-+
-+	reply_vq = (struct c2_mq *) c2dev->qptr_array[mq_index];
-+
-+	/*
-+	 * get next msg from mq_index into adapter_msg.
-+	 * don't free it yet.
-+	 */
-+	adapter_msg = c2_mq_consume(reply_vq);
-+	if (adapter_msg == NULL) {
-+		return;
-+	}
-+
-+	host_msg = vq_repbuf_alloc(c2dev);
-+
-+	/*
-+	 * If we can't get a host buffer, then we'll still 
-+	 * wakeup the waiter, we just won't give him the msg.
-+	 * It is assumed the waiter will deal with this...
-+	 */
-+	if (!host_msg) {
-+		pr_debug("handle_vq: no repbufs!\n");
-+
-+		/*      
-+		 * just copy the WR header into a local variable.
-+		 * this allows us to still demux on the context
-+		 */
-+		host_msg = &tmp;
-+		memcpy(host_msg, adapter_msg, sizeof(tmp));
-+		reply_msg = NULL;
-+	} else {
-+		memcpy(host_msg, adapter_msg, reply_vq->msg_size);
-+		reply_msg = host_msg;
-+	}
-+
-+	/*
-+	 * consume the msg from the MQ
-+	 */
-+	c2_mq_free(reply_vq);
-+
-+	/*
-+	 * wakeup the waiter.
-+	 */
-+	req = (struct c2_vq_req *) (unsigned long) host_msg->context;
-+	if (req == NULL) {
-+		/*
-+		 * We should never get here, as the adapter should
-+		 * never send us a reply that we're not expecting.
-+		 */
-+		vq_repbuf_free(c2dev, host_msg);
-+		pr_debug("handle_vq: UNEXPECTEDLY got NULL req\n");
-+		return;
-+	}
-+
-+	err = c2_errno(reply_msg);
-+	if (!err) switch (req->event) {
-+	case IW_CM_EVENT_ESTABLISHED:
-+		c2_set_qp_state(req->qp,
-+				C2_QP_STATE_RTS);
-+	case IW_CM_EVENT_CLOSE:
-+
-+		/* 
-+		 * Move the QP to RTS if this is 
-+		 * the established event 
-+		 */
-+		cm_event.event = req->event;
-+		cm_event.status = 0;
-+		cm_event.local_addr = req->cm_id->local_addr;
-+		cm_event.remote_addr = req->cm_id->remote_addr;
-+		cm_event.private_data = NULL;
-+		cm_event.private_data_len = 0;
-+		req->cm_id->event_handler(req->cm_id, &cm_event);
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	req->reply_msg = (u64) (unsigned long) (reply_msg);
-+	atomic_set(&req->reply_ready, 1);
-+	wake_up(&req->wait_object);
-+
-+	/*
-+	 * If the request was cancelled, then this put will
-+	 * free the vq_req memory...and reply_msg!!!
-+	 */
-+	vq_req_put(c2dev, req);
-+}
-diff --git a/drivers/infiniband/hw/amso1100/c2_rnic.c b/drivers/infiniband/hw/amso1100/c2_rnic.c
-new file mode 100644
-index 0000000..49645a9
---- /dev/null
-+++ b/drivers/infiniband/hw/amso1100/c2_rnic.c
-@@ -0,0 +1,631 @@
-+/*
-+ * Copyright (c) 2005 Ammasso, Inc. All rights reserved.
-+ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ */
-+
-+
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/pci.h>
-+#include <linux/netdevice.h>
-+#include <linux/etherdevice.h>
-+#include <linux/delay.h>
-+#include <linux/ethtool.h>
-+#include <linux/mii.h>
-+#include <linux/if_vlan.h>
-+#include <linux/crc32.h>
-+#include <linux/in.h>
-+#include <linux/ip.h>
-+#include <linux/tcp.h>
-+#include <linux/init.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/mm.h>
-+#include <linux/inet.h>
-+
-+#include <linux/route.h>
-+
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+#include <asm/byteorder.h>
-+#include <rdma/ib_smi.h>
-+#include "c2.h"
-+#include "c2_vq.h"
-+
-+/* Device capabilities */
-+#define C2_MIN_PAGESIZE  1024
-+
-+#define C2_MAX_MRS       32768
-+#define C2_MAX_QPS       16000
-+#define C2_MAX_WQE_SZ    256
-+#define C2_MAX_QP_WR     ((128*1024)/C2_MAX_WQE_SZ)
-+#define C2_MAX_SGES      4
-+#define C2_MAX_SGE_RD    1
-+#define C2_MAX_CQS       32768
-+#define C2_MAX_CQES      4096
-+#define C2_MAX_PDS       16384
-+
-+/*
-+ * Send the adapter INIT message to the amso1100
-+ */
-+static int c2_adapter_init(struct c2_dev *c2dev)
-+{
-+	struct c2wr_init_req wr;
-+	int err;
-+
-+	memset(&wr, 0, sizeof(wr));
-+	c2_wr_set_id(&wr, CCWR_INIT);
-+	wr.hdr.context = 0;
-+	wr.hint_count = cpu_to_be64(__pa(&c2dev->hint_count));
-+	wr.q0_host_shared = cpu_to_be64(__pa(c2dev->req_vq.shared));
-+	wr.q1_host_shared = cpu_to_be64(__pa(c2dev->rep_vq.shared));
-+	wr.q1_host_msg_pool = cpu_to_be64(__pa(c2dev->rep_vq.msg_pool.host));
-+	wr.q2_host_shared = cpu_to_be64(__pa(c2dev->aeq.shared));
-+	wr.q2_host_msg_pool = cpu_to_be64(__pa(c2dev->aeq.msg_pool.host));
-+
-+	/* Post the init message */
-+	err = vq_send_wr(c2dev, (union c2wr *) & wr);
-+
-+	return err;
-+}
-+
-+/*
-+ * Send the adapter TERM message to the amso1100
-+ */
-+static void c2_adapter_term(struct c2_dev *c2dev)
-+{
-+	struct c2wr_init_req wr;
-+
-+	memset(&wr, 0, sizeof(wr));
-+	c2_wr_set_id(&wr, CCWR_TERM);
-+	wr.hdr.context = 0;
-+
-+	/* Post the init message */
-+	vq_send_wr(c2dev, (union c2wr *) & wr);
-+	c2dev->init = 0;
-+
-+	return;
-+}
-+
-+/*
-+ * Query the adapter
-+ */
-+int c2_rnic_query(struct c2_dev *c2dev,
-+		  struct ib_device_attr *props)
-+{
++	struct c2wr_qp_modify_req wr;
++	struct c2wr_qp_modify_rep *reply;
 +	struct c2_vq_req *vq_req;
-+	struct c2wr_rnic_query_req wr;
-+	struct c2wr_rnic_query_rep *reply;
++	unsigned long flags;
++	u8 next_state;
 +	int err;
++
++	pr_debug("%s:%d qp=%p, %s --> %s\n", 
++		__FUNCTION__, __LINE__,
++		qp, 
++		to_ib_state_str(qp->state), 
++		to_ib_state_str(attr->qp_state));
 +
 +	vq_req = vq_req_alloc(c2dev);
 +	if (!vq_req)
 +		return -ENOMEM;
 +
-+	c2_wr_set_id(&wr, CCWR_RNIC_QUERY);
++	c2_wr_set_id(&wr, CCWR_QP_MODIFY);
 +	wr.hdr.context = (unsigned long) vq_req;
 +	wr.rnic_handle = c2dev->adapter_handle;
++	wr.qp_handle = qp->adapter_handle;
++	wr.ord = cpu_to_be32(C2_QP_NO_ATTR_CHANGE);
++	wr.ird = cpu_to_be32(C2_QP_NO_ATTR_CHANGE);
++	wr.sq_depth = cpu_to_be32(C2_QP_NO_ATTR_CHANGE);
++	wr.rq_depth = cpu_to_be32(C2_QP_NO_ATTR_CHANGE);
 +
++	if (attr_mask & IB_QP_STATE) {
++		/* Ensure the state is valid */
++		if (attr->qp_state < 0 || attr->qp_state > IB_QPS_ERR)
++			return -EINVAL;
++
++		wr.next_qp_state = cpu_to_be32(to_c2_state(attr->qp_state));
++
++		if (attr->qp_state == IB_QPS_ERR) {
++			spin_lock_irqsave(&qp->lock, flags);
++			if (qp->cm_id && qp->state == IB_QPS_RTS) {
++				pr_debug("Generating CLOSE event for QP-->ERR, "
++					"qp=%p, cm_id=%p\n",qp,qp->cm_id);
++				/* Generate an CLOSE event */
++				vq_req->cm_id = qp->cm_id;
++				vq_req->event = IW_CM_EVENT_CLOSE;
++			}
++			spin_unlock_irqrestore(&qp->lock, flags);
++		}
++		next_state =  attr->qp_state;
++
++	} else if (attr_mask & IB_QP_CUR_STATE) {
++
++		if (attr->cur_qp_state != IB_QPS_RTR &&
++		    attr->cur_qp_state != IB_QPS_RTS &&
++		    attr->cur_qp_state != IB_QPS_SQD &&
++		    attr->cur_qp_state != IB_QPS_SQE)
++			return -EINVAL;
++		else
++			wr.next_qp_state =
++			    cpu_to_be32(to_c2_state(attr->cur_qp_state));
++
++		next_state = attr->cur_qp_state;
++
++	} else {
++		err = 0;
++		goto bail0;
++	}
++
++	/* reference the request struct */
 +	vq_req_get(c2dev, vq_req);
 +
-+	err = vq_send_wr(c2dev, (union c2wr *) &wr);
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
 +	if (err) {
 +		vq_req_put(c2dev, vq_req);
-+		goto bail1;
++		goto bail0;
 +	}
 +
 +	err = vq_wait_for_reply(c2dev, vq_req);
 +	if (err)
-+		goto bail1;
++		goto bail0;
 +
-+	reply =
-+	    (struct c2wr_rnic_query_rep *) (unsigned long) (vq_req->reply_msg);
-+	if (!reply)
++	reply = (struct c2wr_qp_modify_rep *) (unsigned long) vq_req->reply_msg;
++	if (!reply) {
 +		err = -ENOMEM;
++		goto bail0;
++	}
 +
 +	err = c2_errno(reply);
++	if (!err) 
++		qp->state = next_state;
++#ifdef DEBUG
++	else
++		pr_debug("%s: c2_errno=%d\n", __FUNCTION__, err);
++#endif
++	/*
++	 * If we're going to error and generating the event here, then 
++	 * we need to remove the reference because there will be no
++	 * close event generated by the adapter 
++	*/
++	spin_lock_irqsave(&qp->lock, flags);
++	if (vq_req->event==IW_CM_EVENT_CLOSE && qp->cm_id) {
++		qp->cm_id->rem_ref(qp->cm_id);
++		qp->cm_id = NULL;
++	}
++	spin_unlock_irqrestore(&qp->lock, flags);
++
++	vq_repbuf_free(c2dev, reply);
++      bail0:
++	vq_req_free(c2dev, vq_req);
++
++	pr_debug("%s:%d qp=%p, cur_state=%s\n", 
++		__FUNCTION__, __LINE__,
++		qp, 
++		to_ib_state_str(qp->state));
++	return err;
++}
++
++int c2_qp_set_read_limits(struct c2_dev *c2dev, struct c2_qp *qp, 
++			  int ord, int ird)
++{
++	struct c2wr_qp_modify_req wr;
++	struct c2wr_qp_modify_rep *reply;
++	struct c2_vq_req *vq_req;
++	int err;
++
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req)
++		return -ENOMEM;
++
++	c2_wr_set_id(&wr, CCWR_QP_MODIFY);
++	wr.hdr.context = (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.qp_handle = qp->adapter_handle;
++	wr.ord = cpu_to_be32(ord);
++	wr.ird = cpu_to_be32(ird);
++	wr.sq_depth = cpu_to_be32(C2_QP_NO_ATTR_CHANGE);
++	wr.rq_depth = cpu_to_be32(C2_QP_NO_ATTR_CHANGE);
++	wr.next_qp_state = cpu_to_be32(C2_QP_NO_ATTR_CHANGE);
++
++	/* reference the request struct */
++	vq_req_get(c2dev, vq_req);
++
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail0;
++	}
++
++	err = vq_wait_for_reply(c2dev, vq_req);
 +	if (err)
++		goto bail0;
++
++	reply = (struct c2wr_qp_modify_rep *) (unsigned long) 
++		vq_req->reply_msg;
++	if (!reply) {
++		err = -ENOMEM;
++		goto bail0;
++	}
++
++	err = c2_errno(reply);
++	vq_repbuf_free(c2dev, reply);
++      bail0:
++	vq_req_free(c2dev, vq_req);
++	return err;
++}
++
++static int destroy_qp(struct c2_dev *c2dev, struct c2_qp *qp)
++{
++	struct c2_vq_req *vq_req;
++	struct c2wr_qp_destroy_req wr;
++	struct c2wr_qp_destroy_rep *reply;
++	unsigned long flags;
++	int err;
++
++	/*
++	 * Allocate a verb request message
++	 */
++	vq_req = vq_req_alloc(c2dev);
++	if (!vq_req) {
++		return -ENOMEM;
++	}
++
++	/* 
++	 * Initialize the WR 
++	 */
++	c2_wr_set_id(&wr, CCWR_QP_DESTROY);
++	wr.hdr.context = (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.qp_handle = qp->adapter_handle;
++
++	/*
++	 * reference the request struct.  dereferenced in the int handler.
++	 */
++	vq_req_get(c2dev, vq_req);
++
++	spin_lock_irqsave(&qp->lock, flags);
++	if (qp->cm_id && qp->state == IB_QPS_RTS) {
++		pr_debug("destroy_qp: generating CLOSE event for QP-->ERR, "
++			"qp=%p, cm_id=%p\n",qp,qp->cm_id);
++		/* Generate an CLOSE event */
++		vq_req->qp = qp;
++		vq_req->cm_id = qp->cm_id;
++		vq_req->event = IW_CM_EVENT_CLOSE;
++	}
++	spin_unlock_irqrestore(&qp->lock, flags);
++
++	/*
++	 * Send WR to adapter
++	 */
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
++	if (err) {
++		vq_req_put(c2dev, vq_req);
++		goto bail0;
++	}
++
++	/*
++	 * Wait for reply from adapter
++	 */
++	err = vq_wait_for_reply(c2dev, vq_req);
++	if (err) {
++		goto bail0;
++	}
++
++	/*
++	 * Process reply
++	 */
++	reply = (struct c2wr_qp_destroy_rep *) (unsigned long) (vq_req->reply_msg);
++	if (!reply) {
++		err = -ENOMEM;
++		goto bail0;
++	}
++
++	spin_lock_irqsave(&qp->lock, flags);
++	if (qp->cm_id) {
++		qp->cm_id->rem_ref(qp->cm_id);
++		qp->cm_id = NULL;
++	}
++	spin_unlock_irqrestore(&qp->lock, flags);
++
++	vq_repbuf_free(c2dev, reply);
++      bail0:
++	vq_req_free(c2dev, vq_req);
++	return err;
++}
++
++int c2_alloc_qp(struct c2_dev *c2dev,
++		struct c2_pd *pd,
++		struct ib_qp_init_attr *qp_attrs, struct c2_qp *qp)
++{
++	struct c2wr_qp_create_req wr;
++	struct c2wr_qp_create_rep *reply;
++	struct c2_vq_req *vq_req;
++	struct c2_cq *send_cq = to_c2cq(qp_attrs->send_cq);
++	struct c2_cq *recv_cq = to_c2cq(qp_attrs->recv_cq);
++	unsigned long peer_pa;
++	u32 q_size, msg_size, mmap_size;
++	void __iomem *mmap;
++	int err;
++
++	qp->qpn = c2_alloc(&c2dev->qp_table.alloc);
++	if (qp->qpn == -1)
++		return -ENOMEM;
++
++	qp->ibqp.qp_num = qp->qpn;
++	qp->ibqp.qp_type = IB_QPT_RC;
++
++	/* Allocate the SQ and RQ shared pointers */
++	qp->sq_mq.shared = c2_alloc_mqsp(c2dev->kern_mqsp_pool);
++	if (!qp->sq_mq.shared) {
++		err = -ENOMEM;
++		goto bail0;
++	}
++
++	qp->rq_mq.shared = c2_alloc_mqsp(c2dev->kern_mqsp_pool);
++	if (!qp->rq_mq.shared) {
++		err = -ENOMEM;
++		goto bail1;
++	}
++
++	/* Allocate the verbs request */
++	vq_req = vq_req_alloc(c2dev);
++	if (vq_req == NULL) {
++		err = -ENOMEM;
 +		goto bail2;
-+
-+	props->fw_ver = 
-+		((u64)be32_to_cpu(reply->fw_ver_major) << 32) |
-+		((be32_to_cpu(reply->fw_ver_minor) && 0xFFFF) << 16) |
-+		(be32_to_cpu(reply->fw_ver_patch) && 0xFFFF);
-+	memcpy(&props->sys_image_guid, c2dev->netdev->dev_addr, 6);
-+	props->max_mr_size         = 0xFFFFFFFF;
-+	props->page_size_cap       = ~(C2_MIN_PAGESIZE-1);
-+	props->vendor_id           = be32_to_cpu(reply->vendor_id);
-+	props->vendor_part_id      = be32_to_cpu(reply->part_number);
-+	props->hw_ver              = be32_to_cpu(reply->hw_version);
-+	props->max_qp              = be32_to_cpu(reply->max_qps);
-+	props->max_qp_wr           = be32_to_cpu(reply->max_qp_depth);
-+	props->device_cap_flags    = c2dev->device_cap_flags;
-+	props->max_sge             = C2_MAX_SGES;
-+	props->max_sge_rd          = C2_MAX_SGE_RD;
-+	props->max_cq              = be32_to_cpu(reply->max_cqs);
-+	props->max_cqe             = be32_to_cpu(reply->max_cq_depth);
-+	props->max_mr              = be32_to_cpu(reply->max_mrs);
-+	props->max_pd              = be32_to_cpu(reply->max_pds);
-+	props->max_qp_rd_atom      = be32_to_cpu(reply->max_qp_ird);
-+	props->max_ee_rd_atom      = 0;
-+	props->max_res_rd_atom     = be32_to_cpu(reply->max_global_ird);
-+	props->max_qp_init_rd_atom = be32_to_cpu(reply->max_qp_ord);
-+	props->max_ee_init_rd_atom = 0;
-+	props->atomic_cap          = IB_ATOMIC_NONE;
-+	props->max_ee              = 0;
-+	props->max_rdd             = 0;
-+	props->max_mw              = be32_to_cpu(reply->max_mws);
-+	props->max_raw_ipv6_qp     = 0;
-+	props->max_raw_ethy_qp     = 0;
-+	props->max_mcast_grp       = 0;
-+	props->max_mcast_qp_attach = 0;
-+	props->max_total_mcast_qp_attach = 0;
-+	props->max_ah              = 0;
-+	props->max_fmr             = 0;
-+	props->max_map_per_fmr     = 0;
-+	props->max_srq             = 0;
-+	props->max_srq_wr          = 0;
-+	props->max_srq_sge         = 0;
-+	props->max_pkeys           = 0;
-+	props->local_ca_ack_delay  = 0;
-+
-+ bail2:
-+	vq_repbuf_free(c2dev, reply);
-+
-+ bail1:
-+	vq_req_free(c2dev, vq_req);
-+	return err;
-+}
-+
-+/*
-+ * Add an IP address to the RNIC interface
-+ */
-+int c2_add_addr(struct c2_dev *c2dev, u32 inaddr, u32 inmask)
-+{
-+	struct c2_vq_req *vq_req;
-+	struct c2wr_rnic_setconfig_req *wr;
-+	struct c2wr_rnic_setconfig_rep *reply;
-+	struct c2_netaddr netaddr;
-+	int err, len;
-+
-+	vq_req = vq_req_alloc(c2dev);
-+	if (!vq_req)
-+		return -ENOMEM;
-+
-+	len = sizeof(struct c2_netaddr);
-+	wr = kmalloc(c2dev->req_vq.msg_size, GFP_KERNEL);
-+	if (!wr) {
-+		err = -ENOMEM;
-+		goto bail0;
 +	}
 +
-+	c2_wr_set_id(wr, CCWR_RNIC_SETCONFIG);
-+	wr->hdr.context = (unsigned long) vq_req;
-+	wr->rnic_handle = c2dev->adapter_handle;
-+	wr->option = cpu_to_be32(C2_CFG_ADD_ADDR);
-+
-+	netaddr.ip_addr = inaddr;
-+	netaddr.netmask = inmask;
-+	netaddr.mtu = 0;
-+
-+	memcpy(wr->data, &netaddr, len);
-+
-+	vq_req_get(c2dev, vq_req);
-+
-+	err = vq_send_wr(c2dev, (union c2wr *) wr);
-+	if (err) {
-+		vq_req_put(c2dev, vq_req);
-+		goto bail1;
-+	}
-+
-+	err = vq_wait_for_reply(c2dev, vq_req);
-+	if (err)
-+		goto bail1;
-+
-+	reply =
-+	    (struct c2wr_rnic_setconfig_rep *) (unsigned long) (vq_req->reply_msg);
-+	if (!reply) {
-+		err = -ENOMEM;
-+		goto bail1;
-+	}
-+
-+	err = c2_errno(reply);
-+	vq_repbuf_free(c2dev, reply);
-+
-+      bail1:
-+	kfree(wr);
-+      bail0:
-+	vq_req_free(c2dev, vq_req);
-+	return err;
-+}
-+
-+/*
-+ * Delete an IP address from the RNIC interface
-+ */
-+int c2_del_addr(struct c2_dev *c2dev, u32 inaddr, u32 inmask)
-+{
-+	struct c2_vq_req *vq_req;
-+	struct c2wr_rnic_setconfig_req *wr;
-+	struct c2wr_rnic_setconfig_rep *reply;
-+	struct c2_netaddr netaddr;
-+	int err, len;
-+
-+	vq_req = vq_req_alloc(c2dev);
-+	if (!vq_req)
-+		return -ENOMEM;
-+
-+	len = sizeof(struct c2_netaddr);
-+	wr = kmalloc(c2dev->req_vq.msg_size, GFP_KERNEL);
-+	if (!wr) {
-+		err = -ENOMEM;
-+		goto bail0;
-+	}
-+
-+	c2_wr_set_id(wr, CCWR_RNIC_SETCONFIG);
-+	wr->hdr.context = (unsigned long) vq_req;
-+	wr->rnic_handle = c2dev->adapter_handle;
-+	wr->option = cpu_to_be32(C2_CFG_DEL_ADDR);
-+
-+	netaddr.ip_addr = inaddr;
-+	netaddr.netmask = inmask;
-+	netaddr.mtu = 0;
-+
-+	memcpy(wr->data, &netaddr, len);
-+
-+	vq_req_get(c2dev, vq_req);
-+
-+	err = vq_send_wr(c2dev, (union c2wr *) wr);
-+	if (err) {
-+		vq_req_put(c2dev, vq_req);
-+		goto bail1;
-+	}
-+
-+	err = vq_wait_for_reply(c2dev, vq_req);
-+	if (err)
-+		goto bail1;
-+
-+	reply =
-+	    (struct c2wr_rnic_setconfig_rep *) (unsigned long) (vq_req->reply_msg);
-+	if (!reply) {
-+		err = -ENOMEM;
-+		goto bail1;
-+	}
-+
-+	err = c2_errno(reply);
-+	vq_repbuf_free(c2dev, reply);
-+
-+      bail1:
-+	kfree(wr);
-+      bail0:
-+	vq_req_free(c2dev, vq_req);
-+	return err;
-+}
-+
-+/*
-+ * Open a single RNIC instance to use with all
-+ * low level openib calls
-+ */
-+static int c2_rnic_open(struct c2_dev *c2dev)
-+{
-+	struct c2_vq_req *vq_req;
-+	union c2wr wr;
-+	struct c2wr_rnic_open_rep *reply;
-+	int err;
-+
-+	vq_req = vq_req_alloc(c2dev);
-+	if (vq_req == NULL) {
-+		return -ENOMEM;
-+	}
-+
++	/* Initialize the work request */
 +	memset(&wr, 0, sizeof(wr));
-+	c2_wr_set_id(&wr, CCWR_RNIC_OPEN);
-+	wr.rnic_open.req.hdr.context = (unsigned long) (vq_req);
-+	wr.rnic_open.req.flags = cpu_to_be16(RNIC_PRIV_MODE);
-+	wr.rnic_open.req.port_num = cpu_to_be16(0);
-+	wr.rnic_open.req.user_context = (unsigned long) c2dev;
++	c2_wr_set_id(&wr, CCWR_QP_CREATE);
++	wr.hdr.context = (unsigned long) vq_req;
++	wr.rnic_handle = c2dev->adapter_handle;
++	wr.sq_cq_handle = send_cq->adapter_handle;
++	wr.rq_cq_handle = recv_cq->adapter_handle;
++	wr.sq_depth = cpu_to_be32(qp_attrs->cap.max_send_wr + 1);
++	wr.rq_depth = cpu_to_be32(qp_attrs->cap.max_recv_wr + 1);
++	wr.srq_handle = 0;
++	wr.flags = cpu_to_be32(QP_RDMA_READ | QP_RDMA_WRITE | QP_MW_BIND |
++			       QP_ZERO_STAG | QP_RDMA_READ_RESPONSE);
++	wr.send_sgl_depth = cpu_to_be32(qp_attrs->cap.max_send_sge);
++	wr.recv_sgl_depth = cpu_to_be32(qp_attrs->cap.max_recv_sge);
++	wr.rdma_write_sgl_depth = cpu_to_be32(qp_attrs->cap.max_send_sge);
++	// XXX no write depth?
++	wr.shared_sq_ht = cpu_to_be64(__pa(qp->sq_mq.shared));
++	wr.shared_rq_ht = cpu_to_be64(__pa(qp->rq_mq.shared));
++	wr.ord = cpu_to_be32(C2_MAX_ORD_PER_QP);
++	wr.ird = cpu_to_be32(C2_MAX_IRD_PER_QP);
++	wr.pd_id = pd->pd_id;
++	wr.user_context = (unsigned long) qp;
 +
 +	vq_req_get(c2dev, vq_req);
 +
-+	err = vq_send_wr(c2dev, &wr);
++	/* Send the WR to the adapter */
++	err = vq_send_wr(c2dev, (union c2wr *) & wr);
 +	if (err) {
 +		vq_req_put(c2dev, vq_req);
-+		goto bail0;
++		goto bail3;
 +	}
 +
++	/* Wait for the verb reply  */
 +	err = vq_wait_for_reply(c2dev, vq_req);
 +	if (err) {
-+		goto bail0;
++		goto bail3;
 +	}
 +
-+	reply = (struct c2wr_rnic_open_rep *) (unsigned long) (vq_req->reply_msg);
++	/* Process the reply */
++	reply = (struct c2wr_qp_create_rep *) (unsigned long) (vq_req->reply_msg);
 +	if (!reply) {
 +		err = -ENOMEM;
-+		goto bail0;
++		goto bail3;
 +	}
 +
-+	if ((err = c2_errno(reply)) != 0) {
-+		goto bail1;
++	if ((err = c2_wr_get_result(reply)) != 0) {
++		goto bail4;
 +	}
 +
-+	c2dev->adapter_handle = reply->rnic_handle;
++	/* Fill in the kernel QP struct */
++	atomic_set(&qp->refcount, 1);
++	qp->adapter_handle = reply->qp_handle;
++	qp->state = IB_QPS_RESET;
++	qp->send_sgl_depth = qp_attrs->cap.max_send_sge;
++	qp->rdma_write_sgl_depth = qp_attrs->cap.max_send_sge;
++	qp->recv_sgl_depth = qp_attrs->cap.max_recv_sge;
 +
-+      bail1:
-+	vq_repbuf_free(c2dev, reply);
-+      bail0:
-+	vq_req_free(c2dev, vq_req);
-+	return err;
-+}
-+
-+/*
-+ * Close the RNIC instance
-+ */
-+static int c2_rnic_close(struct c2_dev *c2dev)
-+{
-+	struct c2_vq_req *vq_req;
-+	union c2wr wr;
-+	struct c2wr_rnic_close_rep *reply;
-+	int err;
-+
-+	vq_req = vq_req_alloc(c2dev);
-+	if (vq_req == NULL) {
-+		return -ENOMEM;
-+	}
-+
-+	memset(&wr, 0, sizeof(wr));
-+	c2_wr_set_id(&wr, CCWR_RNIC_CLOSE);
-+	wr.rnic_close.req.hdr.context = (unsigned long) vq_req;
-+	wr.rnic_close.req.rnic_handle = c2dev->adapter_handle;
-+
-+	vq_req_get(c2dev, vq_req);
-+
-+	err = vq_send_wr(c2dev, &wr);
-+	if (err) {
-+		vq_req_put(c2dev, vq_req);
-+		goto bail0;
-+	}
-+
-+	err = vq_wait_for_reply(c2dev, vq_req);
-+	if (err) {
-+		goto bail0;
-+	}
-+
-+	reply = (struct c2wr_rnic_close_rep *) (unsigned long) (vq_req->reply_msg);
-+	if (!reply) {
++	/* Initialize the SQ MQ */
++	q_size = be32_to_cpu(reply->sq_depth);
++	msg_size = be32_to_cpu(reply->sq_msg_size);
++	peer_pa = c2dev->pa + be32_to_cpu(reply->sq_mq_start);
++	mmap_size = PAGE_ALIGN(sizeof(struct c2_mq_shared) + msg_size * q_size);
++	mmap = ioremap_nocache(peer_pa, mmap_size);
++	if (!mmap) {
 +		err = -ENOMEM;
-+		goto bail0;
++		goto bail5;
 +	}
 +
-+	if ((err = c2_errno(reply)) != 0) {
-+		goto bail1;
-+	}
-+
-+	c2dev->adapter_handle = 0;
-+
-+      bail1:
-+	vq_repbuf_free(c2dev, reply);
-+      bail0:
-+	vq_req_free(c2dev, vq_req);
-+	return err;
-+}
-+
-+/*
-+ * Called by c2_probe to initialize the RNIC. This principally
-+ * involves initalizing the various limits and resouce pools that
-+ * comprise the RNIC instance.
-+ */
-+int c2_rnic_init(struct c2_dev *c2dev)
-+{
-+	int err;
-+	u32 qsize, msgsize;
-+	void *q1_pages;
-+	void *q2_pages;
-+	void __iomem *mmio_regs;
-+
-+	/* Device capabilities */
-+	c2dev->device_cap_flags =
-+	    (IB_DEVICE_RESIZE_MAX_WR |
-+	     IB_DEVICE_CURR_QP_STATE_MOD |
-+	     IB_DEVICE_SYS_IMAGE_GUID |
-+	     IB_DEVICE_ZERO_STAG |
-+	     IB_DEVICE_SEND_W_INV | IB_DEVICE_MEM_WINDOW);
-+
-+	/* Allocate the qptr_array */
-+	c2dev->qptr_array = vmalloc(C2_MAX_CQS * sizeof(void *));
-+	if (!c2dev->qptr_array) {
-+		return -ENOMEM;
-+	}
-+
-+	/* Inialize the qptr_array */
-+	memset(c2dev->qptr_array, 0, C2_MAX_CQS * sizeof(void *));
-+	c2dev->qptr_array[0] = (void *) &c2dev->req_vq;
-+	c2dev->qptr_array[1] = (void *) &c2dev->rep_vq;
-+	c2dev->qptr_array[2] = (void *) &c2dev->aeq;
-+
-+	/* Initialize data structures */
-+	init_waitqueue_head(&c2dev->req_vq_wo);
-+	spin_lock_init(&c2dev->vqlock);
-+	spin_lock_init(&c2dev->lock);
-+
-+	/* Allocate MQ shared pointer pool for kernel clients. User
-+	 * mode client pools are hung off the user context
-+	 */
-+	err = c2_init_mqsp_pool(GFP_KERNEL, &c2dev->kern_mqsp_pool);
-+	if (err) {
-+		goto bail0;
-+	}
-+
-+	/* Allocate shared pointers for Q0, Q1, and Q2 from
-+	 * the shared pointer pool.
-+	 */
-+	c2dev->req_vq.shared = c2_alloc_mqsp(c2dev->kern_mqsp_pool);
-+	c2dev->rep_vq.shared = c2_alloc_mqsp(c2dev->kern_mqsp_pool);
-+	c2dev->aeq.shared = c2_alloc_mqsp(c2dev->kern_mqsp_pool);
-+	if (!c2dev->req_vq.shared ||
-+	    !c2dev->rep_vq.shared || !c2dev->aeq.shared) {
-+		err = -ENOMEM;
-+		goto bail1;
-+	}
-+
-+	mmio_regs = c2dev->kva;
-+	/* Initialize the Verbs Request Queue */
-+	c2_mq_req_init(&c2dev->req_vq, 0,
-+		       be32_to_cpu(readl(mmio_regs + C2_REGS_Q0_QSIZE)),
-+		       be32_to_cpu(readl(mmio_regs + C2_REGS_Q0_MSGSIZE)),
-+		       mmio_regs +
-+		       be32_to_cpu(readl(mmio_regs + C2_REGS_Q0_POOLSTART)),
-+		       mmio_regs +
-+		       be32_to_cpu(readl(mmio_regs + C2_REGS_Q0_SHARED)),
++	c2_mq_req_init(&qp->sq_mq, 
++		       be32_to_cpu(reply->sq_mq_index), 
++		       q_size, 
++		       msg_size, 
++		       mmap + sizeof(struct c2_mq_shared),	/* pool start */
++		       mmap,				/* peer */
 +		       C2_MQ_ADAPTER_TARGET);
 +
-+	/* Initialize the Verbs Reply Queue */
-+	qsize = be32_to_cpu(readl(mmio_regs + C2_REGS_Q1_QSIZE));
-+	msgsize = be32_to_cpu(readl(mmio_regs + C2_REGS_Q1_MSGSIZE));
-+	q1_pages = kmalloc(qsize * msgsize, GFP_KERNEL);
-+	if (!q1_pages) {
++	/* Initialize the RQ mq */
++	q_size = be32_to_cpu(reply->rq_depth);
++	msg_size = be32_to_cpu(reply->rq_msg_size);
++	peer_pa = c2dev->pa + be32_to_cpu(reply->rq_mq_start);
++	mmap_size = PAGE_ALIGN(sizeof(struct c2_mq_shared) + msg_size * q_size);
++	mmap = ioremap_nocache(peer_pa, mmap_size);
++	if (!mmap) {
 +		err = -ENOMEM;
-+		goto bail1;
-+	}
-+	c2_mq_rep_init(&c2dev->rep_vq,
-+		   1,
-+		   qsize,
-+		   msgsize,
-+		   q1_pages,
-+		   mmio_regs +
-+		   be32_to_cpu(readl(mmio_regs + C2_REGS_Q1_SHARED)),
-+		   C2_MQ_HOST_TARGET);
-+
-+	/* Initialize the Asynchronus Event Queue */
-+	qsize = be32_to_cpu(readl(mmio_regs + C2_REGS_Q2_QSIZE));
-+	msgsize = be32_to_cpu(readl(mmio_regs + C2_REGS_Q2_MSGSIZE));
-+	q2_pages = kmalloc(qsize * msgsize, GFP_KERNEL);
-+	if (!q2_pages) {
-+		err = -ENOMEM;
-+		goto bail2;
-+	}
-+	c2_mq_rep_init(&c2dev->aeq,
-+		       2,
-+		       qsize,
-+		       msgsize,
-+		       q2_pages,
-+		       mmio_regs +
-+		       be32_to_cpu(readl(mmio_regs + C2_REGS_Q2_SHARED)),
-+		       C2_MQ_HOST_TARGET);
-+
-+	/* Initialize the verbs request allocator */
-+	err = vq_init(c2dev);
-+	if (err)
-+		goto bail3;
-+
-+	/* Enable interrupts on the adapter */
-+	writel(0, c2dev->regs + C2_IDIS);
-+
-+	/* create the WR init message */
-+	err = c2_adapter_init(c2dev);
-+	if (err)
-+		goto bail4;
-+	c2dev->init++;
-+
-+	/* open an adapter instance */
-+	err = c2_rnic_open(c2dev);
-+	if (err)
-+		goto bail4;
-+
-+	/* Initialize cached the adapter limits */
-+	if (c2_rnic_query(c2dev, &c2dev->props))
-+		goto bail4;
-+
-+	/* Initialize the PD pool */
-+	err = c2_init_pd_table(c2dev);
-+	if (err)
-+		goto bail5;
-+
-+	/* Initialize the QP pool */
-+	err = c2_init_qp_table(c2dev);
-+	if (err)
 +		goto bail6;
++	}
++
++	c2_mq_req_init(&qp->rq_mq, 
++		       be32_to_cpu(reply->rq_mq_index), 
++		       q_size, 
++		       msg_size, 
++		       mmap + sizeof(struct c2_mq_shared),	/* pool start */
++		       mmap,				/* peer */
++		       C2_MQ_ADAPTER_TARGET);
++
++	vq_repbuf_free(c2dev, reply);
++	vq_req_free(c2dev, vq_req);
++
++	spin_lock_irq(&c2dev->qp_table.lock);
++	c2_array_set(&c2dev->qp_table.qp, qp->qpn & (c2dev->props.max_qp - 1), qp);
++	c2dev->qp_table.map[qp->qpn] = qp;
++	spin_unlock_irq(&c2dev->qp_table.lock);
++
 +	return 0;
 +
 +      bail6:
-+	c2_cleanup_pd_table(c2dev);
++	iounmap(qp->sq_mq.peer);
 +      bail5:
-+	c2_rnic_close(c2dev);
++	destroy_qp(c2dev, qp);
 +      bail4:
-+	vq_term(c2dev);
++	vq_repbuf_free(c2dev, reply);
 +      bail3:
-+	kfree(q2_pages);
++	vq_req_free(c2dev, vq_req);
 +      bail2:
-+	kfree(q1_pages);
++	c2_free_mqsp(qp->rq_mq.shared);
 +      bail1:
-+	c2_free_mqsp_pool(c2dev->kern_mqsp_pool);
++	c2_free_mqsp(qp->sq_mq.shared);
 +      bail0:
-+	vfree(c2dev->qptr_array);
-+
++	c2_free(&c2dev->qp_table.alloc, qp->qpn);
 +	return err;
 +}
 +
-+/*
-+ * Called by c2_remove to cleanup the RNIC resources. 
-+ */
-+void c2_rnic_term(struct c2_dev *c2dev)
++void c2_free_qp(struct c2_dev *c2dev, struct c2_qp *qp)
 +{
++	struct c2_cq *send_cq;
++	struct c2_cq *recv_cq;
 +
-+	/* Close the open adapter instance */
-+	c2_rnic_close(c2dev);
++	send_cq = to_c2cq(qp->ibqp.send_cq);
++	recv_cq = to_c2cq(qp->ibqp.recv_cq);
 +
-+	/* Send the TERM message to the adapter */
-+	c2_adapter_term(c2dev);
++	/*
++	 * Lock CQs here, so that CQ polling code can do QP lookup
++	 * without taking a lock.
++	 */
++	spin_lock_irq(&send_cq->lock);
++	if (send_cq != recv_cq)
++		spin_lock(&recv_cq->lock);
 +
-+	/* Disable interrupts on the adapter */
-+	writel(1, c2dev->regs + C2_IDIS);
++	spin_lock(&c2dev->qp_table.lock);
++	c2_array_clear(&c2dev->qp_table.qp, qp->qpn & (c2dev->props.max_qp - 1));
++	c2dev->qp_table.map[qp->qpn] = NULL;
++	spin_unlock(&c2dev->qp_table.lock);
 +
-+	/* Free the QP pool */
-+	c2_cleanup_qp_table(c2dev);
++	if (send_cq != recv_cq)
++		spin_unlock(&recv_cq->lock);
++	spin_unlock_irq(&send_cq->lock);
 +
-+	/* Free the PD pool */
-+	c2_cleanup_pd_table(c2dev);
++	/*
++	 * Destory qp in the rnic...
++	 */
++	destroy_qp(c2dev, qp);
 +
-+	/* Free the verbs request allocator */
-+	vq_term(c2dev);
++	/*
++	 * Mark any unreaped CQEs as null and void.
++	 */
++	c2_cq_clean(c2dev, qp, send_cq->cqn);
++	if (send_cq != recv_cq)
++		c2_cq_clean(c2dev, qp, recv_cq->cqn);
++	/*
++	 * Unmap the MQs and return the shared pointers
++	 * to the message pool.
++	 */
++	iounmap(qp->sq_mq.peer);
++	iounmap(qp->rq_mq.peer);
++	c2_free_mqsp(qp->sq_mq.shared);
++	c2_free_mqsp(qp->rq_mq.shared);
 +
-+	/* Free the asynchronus event queue */
-+	kfree(c2dev->aeq.msg_pool.host);
-+
-+	/* Free the verbs reply queue */
-+	kfree(c2dev->rep_vq.msg_pool.host);
-+
-+	/* Free the MQ shared pointer pool */
-+	c2_free_mqsp_pool(c2dev->kern_mqsp_pool);
-+
-+	/* Free the qptr_array */
-+	vfree(c2dev->qptr_array);
-+
-+	return;
++	atomic_dec(&qp->refcount);
++	wait_event(qp->wait, !atomic_read(&qp->refcount));
++	c2_free(&c2dev->qp_table.alloc, qp->qpn);
 +}
++
++/*
++ * Function: move_sgl 
++ *
++ * Description: 
++ * Move an SGL from the user's work request struct into a CCIL Work Request 
++ * message, swapping to WR byte order and ensure the total length doesn't 
++ * overflow. 
++ *
++ * IN: 
++ * dst		- ptr to CCIL Work Request message SGL memory.
++ * src		- ptr to the consumers SGL memory.
++ *
++ * OUT: none
++ *
++ * Return: 
++ * CCIL status codes.
++ */
++static int
++move_sgl(struct c2_data_addr * dst, struct ib_sge *src, int count, u32 * p_len,
++	 u8 * actual_count)
++{
++	u32 tot = 0;		/* running total */
++	u8 acount = 0;		/* running total non-0 len sge's */
++
++	while (count > 0) {
++		/*
++		 * If the addition of this SGE causes the
++		 * total SGL length to exceed 2^32-1, then
++		 * fail-n-bail.
++		 *
++		 * If the current total plus the next element length
++		 * wraps, then it will go negative and be less than the
++		 * current total...
++		 */
++		if ((tot + src->length) < tot) {
++			return -EINVAL;
++		}
++		/*
++		 * Bug: 1456 (as well as 1498 & 1643)
++		 * Skip over any sge's supplied with len=0
++		 */
++		if (src->length) {
++			tot += src->length;
++			dst->stag = cpu_to_be32(src->lkey);
++			dst->to = cpu_to_be64(src->addr);
++			dst->length = cpu_to_be32(src->length);
++			dst++;
++			acount++;
++		}
++		src++;
++		count--;
++	}
++
++	if (acount == 0) {
++		/*
++		 * Bug: 1476 (as well as 1498, 1456 and 1643)
++		 * Setup the SGL in the WR to make it easier for the RNIC.
++		 * This way, the FW doesn't have to deal with special cases.
++		 * Setting length=0 should be sufficient.
++		 */
++		dst->stag = 0;
++		dst->to = 0;
++		dst->length = 0;
++	}
++
++	*p_len = tot;
++	*actual_count = acount;
++	return 0;
++}
++
++/*
++ * Function: c2_activity (private function)
++ *
++ * Description: 
++ * Post an mq index to the host->adapter activity fifo.
++ *
++ * IN: 
++ * c2dev	- ptr to c2dev structure
++ * mq_index	- mq index to post
++ * shared	- value most recently written to shared 
++ *
++ * OUT: 
++ *
++ * Return: 
++ * none
++ */
++static inline void c2_activity(struct c2_dev *c2dev, u32 mq_index, u16 shared)
++{
++	/*
++	 * First read the register to see if the FIFO is full, and if so,
++	 * spin until it's not.  This isn't perfect -- there is no
++	 * synchronization among the clients of the register, but in
++	 * practice it prevents multiple CPU from hammering the bus
++	 * with PCI RETRY. Note that when this does happen, the card
++	 * cannot get on the bus and the card and system hang in a
++	 * deadlock -- thus the need for this code. [TOT]
++	 */
++	while (readl(c2dev->regs + PCI_BAR0_ADAPTER_HINT) & 0x80000000) {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(0);
++	}
++
++	__raw_writel(C2_HINT_MAKE(mq_index, shared),
++		     c2dev->regs + PCI_BAR0_ADAPTER_HINT);
++}
++
++/*
++ * Function: qp_wr_post 
++ *
++ * Description: 
++ * This in-line function allocates a MQ msg, then moves the host-copy of 
++ * the completed WR into msg.  Then it posts the message. 
++ * 
++ * IN: 
++ * q		- ptr to user MQ.
++ * wr		- ptr to host-copy of the WR.
++ * qp		- ptr to user qp
++ * size		- Number of bytes to post.  Assumed to be divisible by 4.
++ *
++ * OUT: none
++ *
++ * Return: 
++ * CCIL status codes.
++ */
++static int qp_wr_post(struct c2_mq *q, union c2wr * wr, struct c2_qp *qp, u32 size)
++{
++	union c2wr *msg;
++
++	msg = c2_mq_alloc(q);
++	if (msg == NULL) {
++		return -EINVAL;
++	}
++#ifdef CCMSGMAGIC
++	((c2wr_hdr_t *) wr)->magic = cpu_to_be32(CCWR_MAGIC);
++#endif
++
++	/*
++	 * Since all header fields in the WR are the same as the
++	 * CQE, set the following so the adapter need not.
++	 */
++	c2_wr_set_result(wr, CCERR_PENDING);
++
++	/*
++	 * Copy the wr down to the adapter
++	 */
++	memcpy((void *) msg, (void *) wr, size);
++
++	c2_mq_produce(q);
++	return 0;
++}
++
++
++int c2_post_send(struct ib_qp *ibqp, struct ib_send_wr *ib_wr,
++		 struct ib_send_wr **bad_wr)
++{
++	struct c2_dev *c2dev = to_c2dev(ibqp->device);
++	struct c2_qp *qp = to_c2qp(ibqp);
++	union c2wr wr;
++	int err = 0;
++
++	u32 flags;
++	u32 tot_len;
++	u8 actual_sge_count;
++	u32 msg_size;
++
++	if (qp->state > IB_QPS_RTS)
++		return -EINVAL;
++
++	while (ib_wr) {
++
++		flags = 0;
++		wr.sqwr.sq_hdr.user_hdr.hdr.context = ib_wr->wr_id;
++		if (ib_wr->send_flags & IB_SEND_SIGNALED) {
++			flags |= SQ_SIGNALED;
++		}
++
++		switch (ib_wr->opcode) {
++		case IB_WR_SEND:
++			if (ib_wr->send_flags & IB_SEND_SOLICITED) {
++				c2_wr_set_id(&wr, C2_WR_TYPE_SEND_SE);
++				msg_size = sizeof(struct c2wr_send_req);
++			} else {
++				c2_wr_set_id(&wr, C2_WR_TYPE_SEND);
++				msg_size = sizeof(struct c2wr_send_req);
++			}
++
++			wr.sqwr.send.remote_stag = 0;
++			msg_size += sizeof(struct c2_data_addr) * ib_wr->num_sge;
++			if (ib_wr->num_sge > qp->send_sgl_depth) {
++				err = -EINVAL;
++				break;
++			}
++			if (ib_wr->send_flags & IB_SEND_FENCE) {
++				flags |= SQ_READ_FENCE;
++			}
++			err = move_sgl((struct c2_data_addr *) & (wr.sqwr.send.data),
++				       ib_wr->sg_list,
++				       ib_wr->num_sge,
++				       &tot_len, &actual_sge_count);
++			wr.sqwr.send.sge_len = cpu_to_be32(tot_len);
++			c2_wr_set_sge_count(&wr, actual_sge_count);
++			break;
++		case IB_WR_RDMA_WRITE:
++			c2_wr_set_id(&wr, C2_WR_TYPE_RDMA_WRITE);
++			msg_size = sizeof(struct c2wr_rdma_write_req) +
++			    (sizeof(struct c2_data_addr) * ib_wr->num_sge);
++			if (ib_wr->num_sge > qp->rdma_write_sgl_depth) {
++				err = -EINVAL;
++				break;
++			}
++			if (ib_wr->send_flags & IB_SEND_FENCE) {
++				flags |= SQ_READ_FENCE;
++			}
++			wr.sqwr.rdma_write.remote_stag =
++			    cpu_to_be32(ib_wr->wr.rdma.rkey);
++			wr.sqwr.rdma_write.remote_to =
++			    cpu_to_be64(ib_wr->wr.rdma.remote_addr);
++			err = move_sgl((struct c2_data_addr *)
++				       & (wr.sqwr.rdma_write.data),
++				       ib_wr->sg_list,
++				       ib_wr->num_sge,
++				       &tot_len, &actual_sge_count);
++			wr.sqwr.rdma_write.sge_len = cpu_to_be32(tot_len);
++			c2_wr_set_sge_count(&wr, actual_sge_count);
++			break;
++		case IB_WR_RDMA_READ:
++			c2_wr_set_id(&wr, C2_WR_TYPE_RDMA_READ);
++			msg_size = sizeof(struct c2wr_rdma_read_req);
++
++			/* IWarp only suppots 1 sge for RDMA reads */
++			if (ib_wr->num_sge > 1) {
++				err = -EINVAL;
++				break;
++			}
++
++			/*
++			 * Move the local and remote stag/to/len into the WR. 
++			 */
++			wr.sqwr.rdma_read.local_stag =
++			    cpu_to_be32(ib_wr->sg_list->lkey);
++			wr.sqwr.rdma_read.local_to =
++			    cpu_to_be64(ib_wr->sg_list->addr);
++			wr.sqwr.rdma_read.remote_stag =
++			    cpu_to_be32(ib_wr->wr.rdma.rkey);
++			wr.sqwr.rdma_read.remote_to =
++			    cpu_to_be64(ib_wr->wr.rdma.remote_addr);
++			wr.sqwr.rdma_read.length =
++			    cpu_to_be32(ib_wr->sg_list->length);
++			break;
++		default:
++			/* error */
++			msg_size = 0;
++			err = -EINVAL;
++			break;
++		}
++
++		/*
++		 * If we had an error on the last wr build, then
++		 * break out.  Possible errors include bogus WR 
++		 * type, and a bogus SGL length...
++		 */
++		if (err) {
++			break;
++		}
++
++		/*
++		 * Store flags
++		 */
++		c2_wr_set_flags(&wr, flags);
++
++		/*
++		 * Post the puppy!
++		 */
++		err = qp_wr_post(&qp->sq_mq, &wr, qp, msg_size);
++		if (err) {
++			break;
++		}
++
++		/*
++		 * Enqueue mq index to activity FIFO.
++		 */
++		c2_activity(c2dev, qp->sq_mq.index, qp->sq_mq.hint_count);
++
++		ib_wr = ib_wr->next;
++	}
++
++	if (err)
++		*bad_wr = ib_wr;
++	return err;
++}
++
++int c2_post_receive(struct ib_qp *ibqp, struct ib_recv_wr *ib_wr,
++		    struct ib_recv_wr **bad_wr)
++{
++	struct c2_dev *c2dev = to_c2dev(ibqp->device);
++	struct c2_qp *qp = to_c2qp(ibqp);
++	union c2wr wr;
++	int err = 0;
++
++	if (qp->state > IB_QPS_RTS)
++		return -EINVAL;
++
++	/*
++	 * Try and post each work request
++	 */
++	while (ib_wr) {
++		u32 tot_len;
++		u8 actual_sge_count;
++
++		if (ib_wr->num_sge > qp->recv_sgl_depth) {
++			err = -EINVAL;
++			break;
++		}
++
++		/*
++		 * Create local host-copy of the WR
++		 */
++		wr.rqwr.rq_hdr.user_hdr.hdr.context = ib_wr->wr_id;
++		c2_wr_set_id(&wr, CCWR_RECV);
++		c2_wr_set_flags(&wr, 0);
++
++		/* sge_count is limited to eight bits. */
++		BUG_ON(ib_wr->num_sge >= 256);
++		err = move_sgl((struct c2_data_addr *) & (wr.rqwr.data),
++			       ib_wr->sg_list,
++			       ib_wr->num_sge, &tot_len, &actual_sge_count);
++		c2_wr_set_sge_count(&wr, actual_sge_count);
++
++		/*
++		 * If we had an error on the last wr build, then
++		 * break out.  Possible errors include bogus WR 
++		 * type, and a bogus SGL length...
++		 */
++		if (err) {
++			break;
++		}
++
++		err = qp_wr_post(&qp->rq_mq, &wr, qp, qp->rq_mq.msg_size);
++		if (err) {
++			break;
++		}
++
++		/*
++		 * Enqueue mq index to activity FIFO
++		 */
++		c2_activity(c2dev, qp->rq_mq.index, qp->rq_mq.hint_count);
++
++		ib_wr = ib_wr->next;
++	}
++
++	if (err)
++		*bad_wr = ib_wr;
++	return err;
++}
++
++int __devinit c2_init_qp_table(struct c2_dev *c2dev)
++{
++	int err;
++
++	spin_lock_init(&c2dev->qp_table.lock);
++
++	err = c2_alloc_init(&c2dev->qp_table.alloc, 
++			    c2dev->props.max_qp, 1);
++	if (err)
++		return err;
++
++	err = c2_array_init(&c2dev->qp_table.qp, c2dev->props.max_qp);
++	if (err) {
++		c2_alloc_cleanup(&c2dev->qp_table.alloc);
++		return err;
++	}
++
++	c2dev->qp_table.map = vmalloc(sizeof(struct c2_qp *) * c2dev->props.max_qp);
++	if (!c2dev->qp_table.map) {
++		pr_debug("Could not allocate QPN <-> QP map\n");
++		c2_alloc_cleanup(&c2dev->qp_table.alloc);
++		c2_array_cleanup(&c2dev->qp_table.qp, c2dev->props.max_qp);
++		return -ENOMEM;
++	}
++
++	return 0;
++}
++
++void __devexit c2_cleanup_qp_table(struct c2_dev *c2dev)
++{
++	c2_alloc_cleanup(&c2dev->qp_table.alloc);
++	c2_array_cleanup(&c2dev->qp_table.qp, c2dev->props.max_qp);
++}
+diff --git a/drivers/infiniband/hw/amso1100/c2_user.h b/drivers/infiniband/hw/amso1100/c2_user.h
+new file mode 100644
+index 0000000..7e9e7ad
+--- /dev/null
++++ b/drivers/infiniband/hw/amso1100/c2_user.h
+@@ -0,0 +1,82 @@
++/*
++ * Copyright (c) 2005 Topspin Communications.  All rights reserved.
++ * Copyright (c) 2005 Cisco Systems.  All rights reserved.
++ * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ */
++
++#ifndef C2_USER_H
++#define C2_USER_H
++
++#include <linux/types.h>
++
++/*
++ * Make sure that all structs defined in this file remain laid out so
++ * that they pack the same way on 32-bit and 64-bit architectures (to
++ * avoid incompatibility between 32-bit userspace and 64-bit kernels).
++ * In particular do not use pointer types -- pass pointers in __u64
++ * instead.
++ */
++
++struct c2_alloc_ucontext_resp {
++	__u32 qp_tab_size;
++	__u32 uarc_size;
++};
++
++struct c2_alloc_pd_resp {
++	__u32 pdn;
++	__u32 reserved;
++};
++
++struct c2_create_cq {
++	__u32 lkey;
++	__u32 pdn;
++	__u64 arm_db_page;
++	__u64 set_db_page;
++	__u32 arm_db_index;
++	__u32 set_db_index;
++};
++
++struct c2_create_cq_resp {
++	__u32 cqn;
++	__u32 reserved;
++};
++
++struct c2_create_qp {
++	__u32 lkey;
++	__u32 reserved;
++	__u64 sq_db_page;
++	__u64 rq_db_page;
++	__u32 sq_db_index;
++	__u32 rq_db_index;
++};
++
++#endif				/* C2_USER_H */

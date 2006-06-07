@@ -1,113 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWFGFEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWFGFFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWFGFEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 01:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWFGFEZ
+	id S1750866AbWFGFFU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 01:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWFGFFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 01:04:25 -0400
-Received: from gate.crashing.org ([63.228.1.57]:23684 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750860AbWFGFEY (ORCPT
+	Wed, 7 Jun 2006 01:05:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14264 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750860AbWFGFFS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 01:04:24 -0400
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <20060606212930.364b43fa.akpm@osdl.org>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <1149652378.27572.109.camel@localhost.localdomain>
-	 <20060606212930.364b43fa.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 07 Jun 2006 15:04:07 +1000
-Message-Id: <1149656647.27572.128.camel@localhost.localdomain>
+	Wed, 7 Jun 2006 01:05:18 -0400
+Date: Tue, 6 Jun 2006 21:58:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: y-goto@jp.fujitsu.com, mbligh@google.com, apw@shadowen.org,
+       linux-kernel@vger.kernel.org, 76306.1226@compuserve.com,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
+       Gerd Hoffmann <kraxel@suse.de>, Rusty Russell <rusty@rustcorp.com.au>,
+       Zachary Amsden <zach@vmware.com>
+Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
+Message-Id: <20060606215813.9bfe07af.akpm@osdl.org>
+In-Reply-To: <20060607094355.b77ed883.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060605200727.374cbf05.akpm@osdl.org>
+	<20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060606142347.2AF2.Y-GOTO@jp.fujitsu.com>
+	<20060606002758.631118da.akpm@osdl.org>
+	<20060607094355.b77ed883.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Jun 2006 09:43:55 +0900
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
-> A couple of cycles repeated a zillion times per second for the entire
-> uptime, just because we cannot get our act together in the first few
-> seconds of booting.  How much does that suc
-
-I don't follow you... what would you call "getting our act together"
-then ? Being able to initialize half of the kernel data structures
-without ever going near a mutex ?
-
-The current stuff is just crap.
-
-> And how much does it suck that we require that an attempt to take a
-> sleeping lock must keep local interrupts disabled if the lock wasn't
-> contended?
-
-That is a more interesting point :)
-
-> Fortunately, it only happens (or at least, is only _known_ to happen) when
-> mutex debugging is enabled, so the performance loss is moot.
+> On Tue, 6 Jun 2006 00:27:58 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> I do not know where the offending mutex_lock()s are occuring (although it
-> would be super-simple to find out).
+> > 
+> > I tried sparsemem on my little x86 box here.  Boots OK, after fixing up the
+> > kswapd_init() patch (below).
+> > 
+> > I'm wondering why I have 4k of highmem:
+> > 
+> 
+> Could you show /proc/iomem of your 4k HIGHMEM box ?
+> Does 4k HIGHMEM exist only when SPARSEMEM is selected ?
 
-And even if we fix those, we'll ultimately get more. 
+Turns out that my 4 kbyte highmem zone (at least, as reported in
+/proc/meminfo) is due to
 
-> By far the best solution to this would be to remove this requirement that
-> local interrupts remain disabled for impractical amounts of time during boot.
+vdso-randomize-the-i386-vdso-by-moving-it-into-a-vma.patch
+vdso-randomize-the-i386-vdso-by-moving-it-into-a-vma-tidy.patch
+vdso-randomize-the-i386-vdso-by-moving-it-into-a-vma-arch_vma_name-fix.patch
+vdso-randomize-the-i386-vdso-by-moving-it-into-a-vma-vs-x86_64-mm-reliable-stack-trace-support-i386.patch
+vdso-randomize-the-i386-vdso-by-moving-it-into-a-vma-vs-x86_64-mm-reliable-stack-trace-support-i386-2.patch
 
-That is not possible in any remotely sane way accross the board.
+I don't think that was intended.
 
-> Either whack the PIC in setup_arch() or reorganise start_kernel() in some
-> appropriate manner.
-
-Neither would be satisfactory. Whacking the PIC means accessing
-hardware, which for a lot of architectures means having page tables up,
-some kind of ioremap, etc... Hence the bunch of workarounds done by
-various archs like having their PTE allocation function do horrors like
-if (mem_init_done) kmalloc() else alloc_bootmem().
-
-It's just too ugly for words.
-
-As you said, we need to get our act together. That means having basic
-kernel services that do _not_ rely on any hardware (interrupts, timer,
-whatever...) be initialized first before we start needing ioremap's and
-friends. That means having things like init_IRQ() which has to handle
-allocating and initializing PICs all over the range and all sorts of
-data structures that are related to interrupt handling, be able to use
-said kernel services instead of having dodgy things like do half init
-now, and another half later from a hook somewhere or an initcall while
-hopeing that nobody will get in the middle.
-
-It would make so much more sense to have the init code do something
-like:
-
- setup_arch();
- init_basic_kernel_services(); <--- that's the blob you spotted with mem
-init, slab init, ...
- init_arch(); <--- new arch hook
-
-and later on, as part of the various inits, you get init_IRQ() and so
-on...
-
-In my example, init_arch() would be where the arch code moves the bits
-currently in setup_arch() that do things like ioremap system devices and
-do things that may want to use the slab etc... thus leaving setup_arch()
-to very basic initialisations.
-
-Not being able to do all of those because we have this
-hyper-optimized-mutex-blah thing that hard enables interrupt all over
-the place seems like a stupid thing to me. In fact, as you mentioned, it
-only affects a debug code path which thus could perfectly take the
-performance hit.
-
-> But I'll be merging
-> work-around-ppc64-bootup-bug-by-making-mutex-debugging-save-restore-irqs.patch
-> so we'll just continue to suck I guess.
-
-How so ? Can you tell me how making the mutex debug code path do
-something sane makes it 'suck' ? Don't argue about the couple of cycles
-benefit, as you mentionned yourself, it's a debug code path.
-
-Ben.
-
+It'll be a screwup in the handling of MAXMEM.  That patch is doing strange
+things with MAXMEM.  They are unchangelogged, uncommented and
+possibly-hacky-looking things too, so I have no intention of fixing it.
 

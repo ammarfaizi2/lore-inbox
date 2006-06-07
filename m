@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWFGWA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWFGWGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWFGWA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 18:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWFGWA7
+	id S932431AbWFGWGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 18:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWFGWGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 18:00:59 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:15030
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S932433AbWFGWA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 18:00:59 -0400
-Message-ID: <44874C9A.8040603@microgate.com>
-Date: Wed, 07 Jun 2006 17:00:58 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Wed, 7 Jun 2006 18:06:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:18243 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932431AbWFGWGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 18:06:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=sWoToZmCwe/2DKtZOhbFiWF+lnMDde3wjofvroRll3kFVkrMHnOAm9AGEIN1xZsrq0UwWVRnHSWAcX/YGcaRSmhB6ed1dOF7+C3dweArRQlrjXYfm/BiCbpFSxbXDi6Xm7BQqYnaEohIn+x5KfOpsNIW2YWHclJFqYdFpy9sCws=
+To: linux-kernel@vger.kernel.org
+Subject: Automatic bug hunting
+Date: Thu, 8 Jun 2006 00:09:04 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, khc@pm.waw.pl
-Subject: Re: [PATCH] fix generic HDLC synclink mismatch build error
-References: <1149694978.12920.14.camel@amdx2.microgate.com>	<20060607143138.62855633.rdunlap@xenotime.net>	<4487488F.3010100@microgate.com> <20060607144859.3ae7bb6d.rdunlap@xenotime.net>
-In-Reply-To: <20060607144859.3ae7bb6d.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606080009.06089.raigengo@yahoo.es>
+From: Jordi <mumismo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> I just wanted you to see how this is handled in some other places
-> in the kernel tree.
 
-That is useful, as I was unaware that comparison operators were
-allowed in forming the depends on expression.
+Related with the recent times _perceived_  increase in the number of bugs of 
+the Kernel. I have found the following website:
+http://scan.coverity.com/
 
-If it actually offered the benefit of automatic
-promotion/demotion to correct the configuration mismatch,
-then I would be all for it.
+They use automatic statis source code test for a number of projects including 
+the Linux kernel.
 
-The limitations of simply disabling generic HDLC support
-on mismatch (essentially what Krzysztof suggested) are
-not too bad. This would generally only happen on random
-kernel configuration tests. If a customer decides to use
-that method to configure a kernel, then they get
-what they deserve :-) (a chance to bug me for support)
+I've not registered so I don't know what kind of bugs have been found but it's 
+very unlikely that they have found "I don't have the hardware to fix this" 
+kind of bugs. They surely are clear bugs, similar to those found by the 
+automatic test for locking problems. 
 
-Thanks again,
-Paul
+I think this is a good source to check before doing a stable release. Unlikely  
+human's bugs report, those report should be clear enought. We may aim for 
+being "coverity free" before each major version (check it before 2.6.17).
+
+--
+Jordi Polo

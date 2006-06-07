@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWFGQNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWFGQVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWFGQNi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 12:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWFGQNi
+	id S932290AbWFGQVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 12:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWFGQVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 12:13:38 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:50846 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932284AbWFGQNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 12:13:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=RmmFAH10UuLURLR96AyXQADvN0duS/UGFX4T/UeJCAkASkScnLfamDykTCAGJVtG9AyVC/P/nAJ/ab9gni/oA3k+sPflwFEHlJtl9sXoYlvhM4K6eIUlkAKaMm2iaNxa1VN6nbGCrHjm8s9ot+d8m7QnCHvK+x7KZNtSSpWB5O8=
-Message-ID: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com>
-Date: Wed, 7 Jun 2006 16:13:36 +0000
-From: "Ram Gupta" <ram.gupta5@gmail.com>
-To: "linux mailing-list" <linux-kernel@vger.kernel.org>
-Subject: booting without initrd
+	Wed, 7 Jun 2006 12:21:20 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:55819 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932289AbWFGQVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 12:21:19 -0400
+Message-ID: <4486FD2F.8040205@gentoo.org>
+Date: Wed, 07 Jun 2006 17:22:07 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Pavel Machek <pavel@suse.cz>
+CC: Jiri Benc <jbenc@suse.cz>, linville@tuxdriver.com,
+       kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: Re: [patch] workaround zd1201 interference problem
+References: <20060607140045.GB1936@elf.ucw.cz> <20060607160828.0045e7f5@griffin.suse.cz> <20060607141536.GD1936@elf.ucw.cz>
+In-Reply-To: <20060607141536.GD1936@elf.ucw.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to boot with 2.6.16  kernel at my desktop running fedora
-core 4 . It does not boot without initrd generating the message "VFS:
-can not open device "804" or unknown-block(8,4)
-Please append a correct "root=" boot option
-Kernel panic - not syncing : VFS:Unable to mount root fs on unknown-block(8,4)
+Pavel Machek wrote:
+> Well, I'll try _enable() alone, but it seems to me that _enable()
+> command is needed to initialize radio properly. I do not think we can
+> get much further without firmware sources...
 
-I have disabled the module support & built in all modules/drivers for
-ide/scsi/sata but it does not boot. I have to disable the module as I
-need a statically built  kernel.
+If you can formulate a proper and technical description of the issue 
+(and exactly what is needed to workaround it), I can contact ZyDAS for 
+you. They have been very helpful with ZD1211.
 
-If someone could describe the way to boot without initrd it will be great.
-
-Thanks in advance for your cooperation.
-Ram Gupta
+Daniel

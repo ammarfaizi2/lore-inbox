@@ -1,98 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWFGFun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWFGGAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWFGFun (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 01:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWFGFum
+	id S1750994AbWFGGAy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 02:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWFGGAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 01:50:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24520 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750855AbWFGFum (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 01:50:42 -0400
-Date: Tue, 6 Jun 2006 22:50:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kamezawa.hiroyu@jp.fujitsu.com, y-goto@jp.fujitsu.com, mbligh@google.com,
-       apw@shadowen.org, linux-kernel@vger.kernel.org,
-       76306.1226@compuserve.com, mingo@elte.hu, arjan@infradead.org,
-       kraxel@suse.de, zach@vmware.com
-Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
-Message-Id: <20060606225009.ae587661.akpm@osdl.org>
-In-Reply-To: <1149658586.5183.217.camel@localhost.localdomain>
-References: <20060605200727.374cbf05.akpm@osdl.org>
-	<20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060606142347.2AF2.Y-GOTO@jp.fujitsu.com>
-	<20060606002758.631118da.akpm@osdl.org>
-	<20060607094355.b77ed883.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060606215813.9bfe07af.akpm@osdl.org>
-	<1149658586.5183.217.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 Jun 2006 02:00:54 -0400
+Received: from mga01.intel.com ([192.55.52.88]:8987 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750986AbWFGGAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 02:00:53 -0400
+X-IronPort-AV: i="4.05,216,1146466800"; 
+   d="scan'208"; a="48196580:sNHT45825843"
+Message-ID: <44866B23.6000302@intel.com>
+Date: Wed, 07 Jun 2006 13:58:59 +0800
+From: "bibo,mao" <bibo.mao@intel.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>,
+       "Zou, Nanhai" <nanhai.zou@intel.com>, linux-kernel@vger.kernel.org
+CC: "bibo,mao" <bibo.mao@intel.com>
+Subject: [PATCH] x86_86 msi miss one entry handler
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jun 2006 15:36:25 +1000
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+Hi,
+  In x86_64 architecture, if device driver with msi function
+gets 0xee vector by assign_irq_vector() function, system will
+crash if this interrupt happens. It is because 0xee interrupt
+entry is empty. This patch modifies this. This patch is based
+on 2.6.17-rc6.
 
-> On Tue, 2006-06-06 at 21:58 -0700, Andrew Morton wrote:
-> > On Wed, 7 Jun 2006 09:43:55 +0900
-> > KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> > 
-> > > On Tue, 6 Jun 2006 00:27:58 -0700
-> > > Andrew Morton <akpm@osdl.org> wrote:
-> > > 
-> > > > 
-> > > > I tried sparsemem on my little x86 box here.  Boots OK, after fixing up the
-> > > > kswapd_init() patch (below).
-> > > > 
-> > > > I'm wondering why I have 4k of highmem:
-> > > > 
-> > > 
-> > > Could you show /proc/iomem of your 4k HIGHMEM box ?
-> > > Does 4k HIGHMEM exist only when SPARSEMEM is selected ?
-> > 
-> > Turns out that my 4 kbyte highmem zone (at least, as reported in
-> > /proc/meminfo) is due to
-> > 
-> > vdso-randomize-the-i386-vdso-by-moving-it-into-a-vma.patch
-> 
-> Thanks for this report, Andrew!
-> 
-> 	Yes, MAXMEM is reduced by one page in the patch, taking into account
-> that kernel memory tops out at __FIXADDR_TOP, not 0xFFFFFFFF.  AFAICT
-> this is in fact a bugfix, which becomes more important when
-> __FIXADDR_TOP can be moved to create a larger memory hole (as for
-> hypervisors).
-> 
-> 	You now have 1 page more memory available in your system.
+Please help to review it, any comments is welcome
 
-The kernel has differing opinions about that:
+thanks
+bibo,mao
 
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 0000000038000000 (usable)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000fffc0000 - 0000000100000000 (reserved)
-0MB HIGHMEM available.
-896MB LOWMEM available.
-
->  Use it
-> wisely.
-
-
-> I'm sure Gerd will slap me if I'm wrong on this.  Here's the patch
-> fragment:
-> 
-> -#define MAXMEM                 (-__PAGE_OFFSET-__VMALLOC_RESERVE)
-> +#define MAXMEM                 (__FIXADDR_TOP-__PAGE_OFFSET-__VMALLOC_RESERVE)
-
-Well.  Applying this with `patch -R' would presumably restore the situation.
-But not having a clue why this change was made, I didn't bother trying it.
-
->From what you're saying, it appears that this patch is an unrelated change,
-to fix the off-by-one?  And that if this machine had anything other than
-exactly 7*128MB of physical memory, I wouldn't have noticed?
+--- 2.6.17-rc6.org/arch/x86_64/kernel/i8259.c	2006-06-07 12:56:01.000000000 +0800
++++ 2.6.17-rc6/arch/x86_64/kernel/i8259.c	2006-06-07 12:59:19.000000000 +0800
+@@ -44,11 +44,11 @@
+ 	BI(x,8) BI(x,9) BI(x,a) BI(x,b) \
+ 	BI(x,c) BI(x,d) BI(x,e) BI(x,f)
+ 
+-#define BUILD_14_IRQS(x) \
++#define BUILD_15_IRQS(x) \
+ 	BI(x,0) BI(x,1) BI(x,2) BI(x,3) \
+ 	BI(x,4) BI(x,5) BI(x,6) BI(x,7) \
+ 	BI(x,8) BI(x,9) BI(x,a) BI(x,b) \
+-	BI(x,c) BI(x,d)
++	BI(x,c) BI(x,d) BI(x,e)
+ 
+ /*
+  * ISA PIC or low IO-APIC triggered (INTA-cycle or APIC) interrupts:
+@@ -73,13 +73,13 @@ BUILD_16_IRQS(0x8) BUILD_16_IRQS(0x9) BU
+ BUILD_16_IRQS(0xc) BUILD_16_IRQS(0xd)
+ 
+ #ifdef CONFIG_PCI_MSI
+-	BUILD_14_IRQS(0xe)
++	BUILD_15_IRQS(0xe)
+ #endif
+ 
+ #endif
+ 
+ #undef BUILD_16_IRQS
+-#undef BUILD_14_IRQS
++#undef BUILD_15_IRQS
+ #undef BI
+ 
+ 
+@@ -92,11 +92,11 @@ BUILD_16_IRQS(0xc) BUILD_16_IRQS(0xd)
+ 	IRQ(x,8), IRQ(x,9), IRQ(x,a), IRQ(x,b), \
+ 	IRQ(x,c), IRQ(x,d), IRQ(x,e), IRQ(x,f)
+ 
+-#define IRQLIST_14(x) \
++#define IRQLIST_15(x) \
+ 	IRQ(x,0), IRQ(x,1), IRQ(x,2), IRQ(x,3), \
+ 	IRQ(x,4), IRQ(x,5), IRQ(x,6), IRQ(x,7), \
+ 	IRQ(x,8), IRQ(x,9), IRQ(x,a), IRQ(x,b), \
+-	IRQ(x,c), IRQ(x,d)
++	IRQ(x,c), IRQ(x,d), IRQ(x,e)
+ 
+ void (*interrupt[NR_IRQS])(void) = {
+ 	IRQLIST_16(0x0),
+@@ -108,7 +108,7 @@ void (*interrupt[NR_IRQS])(void) = {
+ 	IRQLIST_16(0xc), IRQLIST_16(0xd)
+ 
+ #ifdef CONFIG_PCI_MSI
+-	, IRQLIST_14(0xe)
++	, IRQLIST_15(0xe)
+ #endif
+ 
+ #endif

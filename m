@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWFGIDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWFGIE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWFGIDu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 04:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWFGIDt
+	id S1751116AbWFGIE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 04:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWFGIE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 04:03:49 -0400
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:49680 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751116AbWFGIDs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 04:03:48 -0400
-Date: Wed, 7 Jun 2006 10:03:49 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Andy Green <andy@warmcat.com>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: Black box flight recorder for Linux
-Message-Id: <20060607100349.a990e054.khali@linux-fr.org>
-In-Reply-To: <m3zmgqxjs8.fsf@defiant.localdomain>
-References: <44379AB8.6050808@superbug.co.uk>
-	<m3psjqeeor.fsf@defiant.localdomain>
-	<443A4927.5040801@warmcat.com>
-	<m3zmgqxjs8.fsf@defiant.localdomain>
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 Jun 2006 04:04:27 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:61788 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751116AbWFGIE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 04:04:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WsxAk/vbH8O/rtUJYLB92sW6d/q5+ZP4OFfKZiTpXc6gLIO06meD8JmHVtGLmXfK3Fpg9HonA7SIaTc4llsABzc2wCoaRlRCtONrhA78tNqC/ugQq1WTlQ8FJvD8PSuPiVVv+5WksSwNiIa/XSsO6/eoEj4Mw38yyjks3xApNWA=
+Message-ID: <9a8748490606070104i2401e82cm6b4f1170bf543f00@mail.gmail.com>
+Date: Wed, 7 Jun 2006 10:04:24 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Nish Aravamudan" <nish.aravamudan@gmail.com>
+Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
+Cc: "Heiko Gerstung" <heiko.gerstung@meinberg.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <29495f1d0606061130s5451db8r102c7e1e75981994@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <44854F74.50406@meinberg.de>
+	 <9a8748490606060423t102384f4m626b4366898ce9cd@mail.gmail.com>
+	 <29495f1d0606061130s5451db8r102c7e1e75981994@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krzysztof, Andy,
+On 06/06/06, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+> On 6/6/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > On 06/06/06, Heiko Gerstung <heiko.gerstung@meinberg.de> wrote:
+> > > Hi!
+> > >
+> > > Short Version (tm): I try to backport a USB driver (rtl8150.c) from
+> > > 2.6.15.x to 2.4.32 and have no idea how to substitue two functions:
+> > > in_atomic() and schedule_timeout_uninterruptible() ... I really would
+> > > appreciate any help, because I am no kernel hacker at all ...
+> > >
+> > in_atomic() is used to test if the kernel is in a state where sleeping
+> > is allowed or not. The 2.4.x kernel is not preemptive and has quite
+> > coarse grained SMP support (the BKL "Big Kernel Lock"), it didin't
+> > need in_atomic() in the same way as 2.6.x does.
+> >
+> > schedule_timeout_uninterruptible() is used to sleep on a wait-queue,
+> > which 2.4.x does not have.
+>
+> schedule_timeout_uninterruptible(timeout_value) is just a wrapper for
+>
+> set_current_state(TASK_UNINTERRUPTIBLE);
+> schedule_timeout(timeout_value);
+>
+> Maybe you were thinking of sleep_on*()?
+>
 
-Andy Green writes:
-> > Just an additional thought on this idea... both VGA and DVI connectors
-> > on modern video cards appear to have DDC-2 connections, which is in
-> > fact I2C.  This would provide an (inherently bidirectional :-) ) 3-pin
-> > digital interface out of a mostly dead box even on laptops and so on
-> > with no serial, parallel or legacy keyboard/mouse, so long as they had
-> > reasonably modern VGA or DVI out.  You would need to get access to the
-> > two I2C pins and Gnd somehow in that scenario.   Since I2C has a
-> > concept of addressing it should be possible to choose I2C addresses
-> > for this communication that doesn't address whatever may be listening
-> > on the same bus in the monitor.
-
-Krzysztof Halasa  answers:
-> I think I like the idea and have some (not yet finished but working)
-> code. Any comments?
-> 
-> The first part is the "console" driver (obvious parts removed). It works
-> with both my Asus A7V333 (VIA KT333, VIA SMBUS driver) and with VGA DDC
-> interface on a Cirrus Logic GD 5446 VGA chip (simplified source attached
-> as well). Using respectively 2464 and 24512 set to ID 0x57.
-
-How do you intend to connect your device to the DDC channel if there's
-already a monitor connected to the VGA or DVI port?
-
-Beware that many monitors have EDID EEPROMs responding to all I2C
-addresses within the 0x50 - 0x57 range, so it'll be hard to add an
-EEPROM on the bus for your own purpose without hitting an address
-conflict.
-
-> The following is an adapter for Cirrus Logic 5446 VGA on my old R440LX
-> test machine:
-> 
-> There is a locking problem - the VGA is (can be) shared between VT console,
-> X11 and the driver. I'll look at CL FB driver to see how/if it's done.
-
-The current trend is to merge the DDC access driver into the
-framebuffer driver. This solves one of the conflicts, and also makes
-sense because the EDID data can be used to automatically setup the
-framebuffer. We still have a few standalone DDC access drivers
-(i2c-i810, i2c-savage4...) but they are considered deprecated and will
-probably be deleted in a near feature.
-
-This will be a second problem for you though. Most distributions don't
-make use of hardware-specific framebuffer drivers by default, but use
-the VESA framebuffer driver. This driver doesn't have DDC support.
-
-Note that I am not trying to dicourage you, Andy's idea has merit for
-sure. I just mean that it won't be usable by everyone out of the box.
-People will have to use the right driver and pay attention to address
-conflicts.
+Yeah, you are right, that was what I was thinking of. My bad.
+Thank you for the correction.
 
 -- 
-Jean Delvare
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

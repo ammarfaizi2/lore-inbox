@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWFGASX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWFGAYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbWFGASX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWFGASX
+	id S1751399AbWFGAYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWFGAYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:18:23 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:47428 "EHLO
-	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751396AbWFGASW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:18:22 -0400
-Date: Tue, 06 Jun 2006 18:16:46 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
-In-reply-to: <6kHVe-3Hs-45@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>
-Message-id: <44861AEE.3020109@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <6kGwd-1tt-23@gated-at.bofh.it> <6kHVe-3Hs-45@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Tue, 6 Jun 2006 20:24:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20675 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751399AbWFGAYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 20:24:31 -0400
+Date: Tue, 6 Jun 2006 17:24:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: jeremy@goop.org, dzickus@redhat.com, ak@suse.de, shaohua.li@intel.com,
+       miles.lane@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in
+ arch/i386/kernel/nmi.c:174
+Message-Id: <20060606172410.b901950e.akpm@osdl.org>
+In-Reply-To: <200606071013.53490.ncunningham@linuxmail.org>
+References: <4480C102.3060400@goop.org>
+	<200606070938.34927.ncunningham@linuxmail.org>
+	<44861899.1040506@goop.org>
+	<200606071013.53490.ncunningham@linuxmail.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 06/06/06, Heiko Gerstung <heiko.gerstung@meinberg.de> wrote:
->> Hi!
->>
->> Short Version (tm): I try to backport a USB driver (rtl8150.c) from
->> 2.6.15.x to 2.4.32 and have no idea how to substitue two functions:
->> in_atomic() and schedule_timeout_uninterruptible() ... I really would
->> appreciate any help, because I am no kernel hacker at all ...
->>
-> in_atomic() is used to test if the kernel is in a state where sleeping
-> is allowed or not. The 2.4.x kernel is not preemptive and has quite
-> coarse grained SMP support (the BKL "Big Kernel Lock"), it didin't
-> need in_atomic() in the same way as 2.6.x does.
+On Wed, 7 Jun 2006 10:13:49 +1000
+Nigel Cunningham <ncunningham@linuxmail.org> wrote:
 
-There's little difference in the need for it, 2.4 just doesn't have it. 
-I don't see a call to that function in that driver's code though?
-
+> > the new CPU to get the same state as the old one just because it ends up
+> > with the same logical CPU number?  Perhaps, but what if it doesn't even
+> > have the same capabilities?  (Do we support heterogeneous CPUs anyway?)
 > 
-> schedule_timeout_uninterruptible() is used to sleep on a wait-queue,
-> which 2.4.x does not have.
+> Indeed. I'm also not sure that there's necessarily a guarantee that cpus will 
+> be hotplugged in the same order. Perhaps those with more knowledge can 
+> clarify there.
 
-Huh? 2.4 did have wait queues, but that call has nothing to do with 
-them. You should be able to replace it with:
+It all depends on what we mean by "per-cpu state".  If we were to remember
+that "CPU 7 needs 0x1234 in register 44" then that would be wrong.  But
+remembering some high-level functional thing like "CPU 7 needs to run the
+NMI watchdog" is fine.  The CPU bringup code can work out whether that is
+possible, and how to do it.
 
-set_current_state( TASK_UNINTERRUPTIBLE );
-schedule_timeout( timeout );
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
 

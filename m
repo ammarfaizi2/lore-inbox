@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWFGRmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWFGRpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWFGRmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 13:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWFGRmE
+	id S1750761AbWFGRpy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 13:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWFGRpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 13:42:04 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51350 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932090AbWFGRmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 13:42:02 -0400
-Date: Wed, 7 Jun 2006 10:41:55 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Xin Zhao <uszhaoxin@gmail.com>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Linux SLAB allocator issue
-In-Reply-To: <4ae3c140606070837t23182496s42edb3a754169d43@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0606071030040.831@schroedinger.engr.sgi.com>
-References: <4ae3c140606061358j140eec9fl45e22f8a9e673215@mail.gmail.com> 
- <84144f020606070516m4bccdecdr998941ee74744a83@mail.gmail.com>
- <4ae3c140606070837t23182496s42edb3a754169d43@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jun 2006 13:45:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:53940 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750761AbWFGRpx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 13:45:53 -0400
+Date: Wed, 7 Jun 2006 13:50:18 -0400
+From: Don Zickus <dzickus@redhat.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Shaohua Li <shaohua.li@intel.com>, Miles Lane <miles.lane@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in	arch/i386/kernel/nmi.c:174
+Message-ID: <20060607175018.GU2839@redhat.com>
+References: <4480C102.3060400@goop.org> <4483DF32.4090608@goop.org> <20060605004823.566b266c.akpm@osdl.org> <a44ae5cd0606050135w66c2abeu698394b4268e4790@mail.gmail.com> <1149576246.32046.166.camel@sli10-desk.sh.intel.com> <4485AC1F.9050001@goop.org> <20060607024938.GG11696@redhat.com> <448707DA.9090801@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <448707DA.9090801@goop.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jun 2006, Xin Zhao wrote:
+On Wed, Jun 07, 2006 at 10:07:38AM -0700, Jeremy Fitzhardinge wrote:
+> Don Zickus wrote:
+> >Makes the start/stop paths of nmi watchdog more robust to handle the
+> >suspend/resume cases more gracefully.
+> >  
+> This solves the original symptom, but I'm seeing something else now.  
+> After the second resume, there's a noticable pause after it brings cpu 1 
+> online.  After the third resume it's a longer pause, and after the 4th 
+> it just hangs there.  The system is up enough to respond to sysreq, but 
+> nothing in usermode seems to be actually running.  I'll try and get a 
+> better understanding of what I'm seeing later today.
+> 
+>    J
 
-> Then, I used kmem_cache_alloc() to allocate 128 objects. So it should
-> occupy 12 full slabs and 1 partial slab. Right?
+Can you do me a quick favor and 'cat /proc/interrupts |grep NMI' before
+each of your suspends.  I want to double check a piece of code.  Your
+bugzilla postings showed your system starting with no nmi watchdog running
+but after the resume the watchdog started running on cpu1.  I am hoping I
+fixed that issue too.
 
-There may be additional objects in the various caches. If this is a UP 
-system then some will certainly be in the per cpu cache.
+Thanks.
 
-You can push these back into the free lists by draining the array cache.
-
-If you allocate objects on a slab that is fresh (no objects in it) then 
-only full slabs will be used. The remaining objects will end up on the per 
-cpu lists where they can be consumed without more work on the full/partial 
-arrays.
+Cheers,
+Don
 

@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWFGRd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWFGReB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWFGRd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 13:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWFGRd7
+	id S932363AbWFGReB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 13:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWFGReB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 13:33:59 -0400
-Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:56241 "HELO
-	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932361AbWFGRd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 13:33:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ZkZ7bKY4DIpfastOJAPsf+bzVdu/mrLQ1Tdm6raECSzH+vmUMTnpXXV7Nq0Vi6+3AJmbFecPuZT13Jm9FOw4C9CLkC52NjjdLQ8wOg7OqIstI2HJXccxnSMHQTJehcAB2V4NwpNDDH+ST7K+ukMd7kg/4ogGYiII33nAP5+nUOY=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 2/8] UML - Define jmpbuf access constants
-Date: Wed, 7 Jun 2006 19:33:28 +0200
-User-Agent: KMail/1.9.1
-Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200602070223.k172NpJa009654@ccure.user-mode-linux.org> <200606042020.00120.blaisorblade@yahoo.it> <20060605154017.GA24405@ccure.user-mode-linux.org>
-In-Reply-To: <20060605154017.GA24405@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jun 2006 13:34:01 -0400
+Received: from mga07.intel.com ([143.182.124.22]:32952 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932363AbWFGReA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 13:34:00 -0400
+X-IronPort-AV: i="4.05,217,1146466800"; 
+   d="scan'208"; a="47493603:sNHT1053080980"
+Date: Wed, 7 Jun 2006 10:29:17 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andrew Morton <akpm@osdl.org>, davem@caip.rutgers.edu
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, nickpiggin@yahoo.com.au,
+       mingo@elte.hu, pwil3058@bigpond.net.au, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] sched: mc/smt power savings sched policy
+Message-ID: <20060607102917.A25186@unix-os.sc.intel.com>
+References: <20060606112521.A18026@unix-os.sc.intel.com> <20060607094943.0433a52c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606071933.28456.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060607094943.0433a52c.akpm@osdl.org>; from akpm@osdl.org on Wed, Jun 07, 2006 at 09:49:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 June 2006 17:40, Jeff Dike wrote:
-> On Sun, Jun 04, 2006 at 08:19:59PM +0200, Blaisorblade wrote:
-> > What about #ifdef'ing out the offending code #ifndef one of these
-> > constants (they'll be defined or not altogether). As expectable, this
-> > wasn't yet implemented - let's give the right priority to things.
-> > (I've just met this on my SuSE, btw, which prompted me to write this
-> > email).
->
-> I think hpa just came to our rescue.  There's a setjmp/longjmp
-> implementation in klibc.  If we pull that in and use it, we don't need
-> our own copy.
+On Wed, Jun 07, 2006 at 09:49:43AM -0700, Andrew Morton wrote:
+> On Tue, 6 Jun 2006 11:25:21 -0700
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+> 
+> > Appended the patch. Can someone please test compile the powerpc change?
+> 
+> powerpc compiles and boots OK, but sparc64 is not so good.
+> 
+> kernel/built-in.o(.text+0x6ec0): In function `sched_create_sysfs_power_savings_entries':
+> : undefined reference to `smt_capable'
 
-Ok - but we can merge something before 2.6.17, and we should. Any of them. 
-Guess which one...
+Dave, I am not sure if the appended patch is the correct(perhaps temporary?)
+mechanism(currently smp_prepare_cpus() also uses this mechanism) in identifying
+a SMT capable sparc64 processor. Can you confirm?
 
-Not merging hacks is sometimes ok, and guarantees better code. But we're 
-exceeding in this :-)
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+thanks,
+suresh
+--
+
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+
+--- linux-2.6.17-rc5/include/asm-sparc64/topology.h	2006-05-24 18:50:17.000000000 -0700
++++ linux/include/asm-sparc64/topology.h	2006-06-07 08:28:13.726071744 -0700
+@@ -1,6 +1,9 @@
+ #ifndef _ASM_SPARC64_TOPOLOGY_H
+ #define _ASM_SPARC64_TOPOLOGY_H
+ 
++#include <asm/spitfire.h>
++#define smt_capable()	(tlb_type == hypervisor)
++
+ #include <asm-generic/topology.h>
+ 
+ #endif /* _ASM_SPARC64_TOPOLOGY_H */

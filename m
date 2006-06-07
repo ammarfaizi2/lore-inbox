@@ -1,81 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWFGJQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWFGJR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWFGJQk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 05:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWFGJQk
+	id S932081AbWFGJR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 05:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWFGJR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 05:16:40 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:11419 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932079AbWFGJQj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 05:16:39 -0400
-Date: Wed, 7 Jun 2006 10:16:37 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Bligh <mbligh@google.com>, apw@shadowen.org,
+	Wed, 7 Jun 2006 05:17:28 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:14609 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932081AbWFGJR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 05:17:27 -0400
+Message-ID: <4486998D.6060302@shadowen.org>
+Date: Wed, 07 Jun 2006 10:17:01 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, mbligh@google.com, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
-Message-ID: <20060607091636.GA19510@skynet.ie>
-References: <4484D174.7080902@google.com> <20060606164241.69d55238.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20060606164241.69d55238.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: mel@csn.ul.ie (Mel Gorman)
+Subject: Re: [patch, -rc5-mm3] better lock debugging: remove mutex deadlock
+ checking code
+References: <44845C27.3000006@google.com> <20060605194422.GB14709@elte.hu> <20060605130039.db1ac80c.rdunlap@xenotime.net> <20060606085623.GA2932@elte.hu>
+In-Reply-To: <20060606085623.GA2932@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On (06/06/06 16:42), Andrew Morton didst pronounce:
-> On Mon, 05 Jun 2006 17:51:00 -0700
-> Martin Bligh <mbligh@google.com> wrote:
+Ingo Molnar wrote:
+> * Randy.Dunlap <rdunlap@xenotime.net> wrote:
 > 
-> > http://test.kernel.org/abat/34264/debug/console.log
 > 
-> What sort of machine is this, anyway?
+>>BUG: unable to handle kernel paging request at virtual address 22222232
 > 
-> > WARNING: Not an IBM x440/NUMAQ and CONFIG_NUMA enabled!
 > 
-
-It's an IBM x440 that is not recognised by that check. Later in the log,
-we see
-
-IBM eserver xSeries 440 detected: force use of acpi=ht
-
-> And is it expected that ZONE_NORMAL only has 384MB?  That seems awfully low
-> for a 64GB x86 machine.  Could be that we went oom because we chose to
-> allocate really big hash tables, based on the total amount of memory?
+> ok, this was a big thinko on my part, and it was right before our eyes. 
+> Mutex deadlock checking relied on the 'big mutex debugging lock', but 
+> that one is gone now - so mutex deadlock checking became racy (as your 
+> crashes nicely pinpointed that). The races are more likely with an 
+> increasing number of CPUs.
 > 
+> so the patch below finishes the cleanup i started: it removes deadlock 
+> checking from the mutex code and lets the lock validator do that. This 
+> should also be (much) faster on SMP, because the lock validator is 
+> lockless in the fastpath. (if CONFIG_DEBUG_LOCKDEP is disabled)
+> 
+> 	Ingo
+> 
+> ----------------
+> Subject: better lock debugging: remove mutex deadlock checking code
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> with the lock validator we detect mutex deadlocks (and more), the mutex
+> deadlock checking code is both redundant and slower. So remove it.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> ---
 
-The log reports 392MB LOWMEM available. As it is 32 bit machine, it started
-with about 896MB but consumes much of it with mem_maps.  The log shows
-calculate_numa_remap_pages() reporting
+Ok, this patch in combination with either fix for the swap max bug are
+showing passes across the board.
 
-Reserving 35328 pages of KVA for lmem_map of node 0
-Shrinking node 0 from 4456448 pages to 4421120 pages
-Reserving 31232 pages of KVA for lmem_map of node 1
-Shrinking node 1 from 8650752 pages to 8619520 pages
-Reserving 31232 pages of KVA for lmem_map of node 2
-Shrinking node 2 from 12845056 pages to 12813824 pages
-Reserving 29184 pages of KVA for lmem_map of node 3
-Shrinking node 3 from 16777216 pages to 16748032 pages
-Reserving total of 126976 pages for numa KVA remap
-reserve_pages = 126976 find_max_low_pfn() ~ 229375
+Acked-by: Andy Whitcroft <apw@shadowen.org>
 
-That is 400MB gone already which is mapped to lowmem. A little later in the
-log, it says
-
-min_low_pfn = 1140, max_low_pfn = 100352, highstart_pfn = 100352
-
-so about 4MB is missing from the beginning (probably the kernel image),
-so we're down to 396ish. Not sure where the last 4MB is exactly but you
-get the idea.
-
-While it is possible we are going OOM due to the size of lowmem, it's
-doubtful to be the only cause.
-http://test.kernel.org/functional/index.html shows that elm3b67 (the
-machine in question) has passed loads of tests in the past.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+-apw

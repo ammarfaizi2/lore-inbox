@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWFGPXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWFGPYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWFGPXM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 11:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWFGPXM
+	id S932263AbWFGPYU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 11:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWFGPYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 11:23:12 -0400
-Received: from ns2.suse.de ([195.135.220.15]:30600 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932254AbWFGPXL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 11:23:11 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Brendan Trotter" <btrotter@gmail.com>
-Subject: Re: NMI problems with Dell SMP Xeons
-Date: Wed, 7 Jun 2006 17:23:05 +0200
-User-Agent: KMail/1.9.3
-Cc: "Keith Owens" <kaos@sgi.com>, "Ashok Raj" <ashok.raj@intel.com>,
-       linux-kernel@vger.kernel.org
-References: <200606070920.23436.ak@suse.de> <8446.1149666227@kao2.melbourne.sgi.com> <b1ebdcad0606070818l3024b264k89f6cd37ccb0b6f7@mail.gmail.com>
-In-Reply-To: <b1ebdcad0606070818l3024b264k89f6cd37ccb0b6f7@mail.gmail.com>
+	Wed, 7 Jun 2006 11:24:19 -0400
+Received: from mail.jewels.com ([198.70.201.96]:16906 "EHLO mail.jewels.com")
+	by vger.kernel.org with ESMTP id S932259AbWFGPYS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 11:24:18 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606071723.05921.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: HELP! Slip Interface losing packets. Looking for contractor to fix.
+Date: Wed, 7 Jun 2006 11:22:53 -0400
+Message-ID: <7697221D47CA0545961FA7846257369103A860BA@ex01.jewels.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: HELP! Slip Interface losing packets. Looking for contractor to
+	 fix.
+Thread-Index: AcaKRc2phFQt+lG+SRih6S2rNEs5hgAAEamw
+From: "Butler, Gerald" <GButler@jewels.com>
+To: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <linux-serial@vger.kernel.org>
+X-imss-version: 2.8
+X-imss-result: Passed
+X-imss-scores: Clean:19.58605 C:8 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> The "send_IPI_mask_sequence()" function also seems like a perfectly
-> valid option (except for the comments, which are easy enough to
-> change). IMHO it's just not as pretty, especially if it's to be used
-> for all broadcast IPIs (rather than just for broadcast NMIs) - I'd be
-> tempted to do an "#ifdef BORKED_DELL" around it in that case. :-)
+Hello,
 
-It's not only that Dell that has trouble with broadcasts. On newer platforms
-which support CPU hotplug there are races at the hardware level with
-broadcasting. That is why we're moving away from it.
+ 	We have a custom compiled Linux Kernel running oh RHEL 3.1
 
-Not sure why this particular case got missed. Ashok might want to comment -
-he did the hotplug work.
+ 		[root@st0056_1 root]# uname -a
+ 		Linux st0056_1 2.4.21-32.0.1.ELcustom #12 SMP Wed Sep 14 11:55:22 EDT 2005 i686 i686 i386 GNU/Linux
 
--Andi
+ 	We compiled in SLIP support using the standard RHEL kernel supplied by Redhat. Unfortunately, RH does not support SLIP. We are experiencing problems that we believe are a kernel issue (either SLIP or SERIAL) and are interested in hiring a contractor to diagnose the problem and provide a kernel patch to the kernel we are using (if necessary). We do not want to upgrade or change distributions at this time (business/practicality reasons).
+
+ 	If you are interested, please send an e-mail with your resume (doc, odf, or plain text) to 'gerald.edward.butler@gmail.com' (I'll provide a private e-mail address to interested parties).
+
+ 	The company website is here: http://www.sterlingjewelers.com/
+
+ Thank You,
+ 
+
+ 	Gerald Butler
+ 	Project Manager - Store Systems
+ 	Sterling Inc
+ 
+
+
+The information contained in this e-mail message is privileged and/or
+confidential and is intended only for the use of the individual or entity
+named above.  If the reader of this message is not the intended
+recipient, or the employee or agent responsible to deliver it to the
+intended recipient, you are hereby notified that any dissemination,
+distribution or copying of this communication is strictly prohibited.
+If you have received this communication in error, please immediately
+notify us by telephone (330-668-5000), and destroy the original
+message.  Thank you.

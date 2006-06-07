@@ -1,75 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWFGSHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWFGSI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWFGSHb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 14:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWFGSHb
+	id S1751192AbWFGSI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 14:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWFGSI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 14:07:31 -0400
-Received: from [213.91.247.3] ([213.91.247.3]:9734 "EHLO l.himel.bg")
-	by vger.kernel.org with ESMTP id S1751185AbWFGSHa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 14:07:30 -0400
-Date: Wed, 7 Jun 2006 21:06:42 +0300
-From: Alexander Atanasov <alex@ssi.bg>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] I2C block read
-Message-Id: <20060607210642.5cd59aba.alex@ssi.bg>
-In-Reply-To: <20060607194943.db8f1889.khali@linux-fr.org>
-References: <20060607203357.64432ad8.alex@ssi.bg>
-	<20060607194943.db8f1889.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.1.5 (GTK+ 2.6.1; i686-pc-linux-gnu)
+	Wed, 7 Jun 2006 14:08:59 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:38141 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751192AbWFGSI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 14:08:59 -0400
+Subject: Re: [PATCH 0/3] mm: tracking dirty pages -v5
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606062056540.1507@blonde.wat.veritas.com>
+References: <20060525135534.20941.91650.sendpatchset@lappy>
+	 <Pine.LNX.4.64.0606062056540.1507@blonde.wat.veritas.com>
+Content-Type: text/plain
+Date: Wed, 07 Jun 2006 20:08:50 +0200
+Message-Id: <1149703730.4408.45.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jun 2006 19:49:43 +0200
-Jean Delvare wrote:
+On Tue, 2006-06-06 at 21:06 +0100, Hugh Dickins wrote:
 
-> Hi Alexander,
-> 
-> > 	When doing i2c block read the lenght is passed as the first
-> > byte of the buffer, so we must copy it from user otherwise temp is
-> > uninitialized.
-> 
-> > --- drivers/i2c/i2c-dev.c.orig	2006-01-04 02:00:00.000000000
-> > +0200 +++ drivers/i2c/i2c-dev.c	2006-06-07
-> > 19:46:08.000000000 +0300 @@ -337,6 +337,7 @@
-> >  
-> >  		if ((data_arg.size == I2C_SMBUS_PROC_CALL) || 
-> >  		    (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL)
-> > || 
-> > +		    (data_arg.size == I2C_SMBUS_BLOCK_DATA) ||
-> >  		    (data_arg.read_write == I2C_SMBUS_WRITE)) {
-> >  			if (copy_from_user(&temp, data_arg.data,
-> > datasize)) return -EFAULT;
-> 
-> Nack. Firstly, your comment says I2C block read, but your code changes
-> SMBus block read. These are two different transactions. Secondly, for
-> SMBus block read, the master doesn't ask for a given number of bytes.
-> Instead, the chip decides and returns the number of (following) bytes
-> as the first byte of the read part of the transaction. Check the SMBus
-> specification.
-> 
-> So your patch is not correct, sorry.
+> You tend to use get_page/put_page amidst code using page_cache_get/
+> page_cache_release.  Carry on: it sometimes looks odd, but I can't see
+> any way to impose consistency, short of abolishing one or the other
+> throughout the tree.  So don't worry about it.
+
+Noticed that myself too, came to the same conclusion, thanks for the
+confirmation thought.
+
+> You've got a minor cleanup to install_page, left over from an earlier
+> iteration: the cleanup looked okay, but of no relevance to your patchset
+> now, is it?  Just cut mm/fremap.c out of the patchset I think.
+
+OK, unless we go back to the previous way I'll send this tiny cleanup as
+a separate patch to Andrew.
+
+> You've taken the simplification of sys_msync a little too far, I believe:
+> you ought to try to reproduce the same errors as before, so MS_ASYNC
+> should be winding through the separate vmas like MS_SYNC, just to
+> report -ENOMEM if it crosses an unmapped area; and MS_INVALIDATE
+> used to say -EBUSY if VM_LOCKED, but that has disappeared.  (Perhaps
+> I've missed other such details, please recheck.)
+
+Ah, yes, I've noticed this too, I just wasn't sure on if this would be
+wanted or not. Is fixed, thanks!
+
+> Your comment should
+> say "Nor does it mark" instead of "Nor does it just marks".
+
+Hehe, thanks, please do point out my mistakes with the English language.
+I have good enough control to convey most of what I intent but I'm not a
+native.
+
+> Your is_shared_writable(vma) in mprotect_fixup is along the right
+> lines, but wrong: because at that point vma->vm_flags is the old one,
+> and may be omitting VM_WRITE when that is about to be added.  Perhaps
+> you should move the "vma->vm_flags = newflags" above it, or perhaps
+> you should change is_shared_writable to work on flags rather than vma
+> (as Linus' is_cow_mapping does).
+
+How odd, I have the distinct recollection of actually moving that
+assignment upwards a few lines, must have been late or something. Thanks
+for pointing this out, would've never found it again; with me thinking
+it was done with.
+
+<snip: big tiresome story/>
+
+Well, you got me. I don't know either, the only thing I can come up with
+is making the breakage compile-time (for 3rd-party modules) instead of
+subtle run-time, but its still not pretty.
+
+/me looks around at assorted VM gurus; any ideas out there?
+
+If by tomorrow morning CET nobody has spoken up, I'll just go ahead and
+accept Hugh's apology :-), that is revert back to my original way of
+doing it. (I can always go back to this scheme if some smart but slower
+working brain manages a solution)
 
 
-	10x. Here is the case:
-I use SMBus block read with scx200_acb as a bus it uses the lenght
-which is as i say uninitialized and tries to read a number of random bytes
-from the board i use. And it doesn't return the lenght as a first byte,
-so the drivers reads until it gets an oops. Which in turn makes me wonder
-why with this patch i correcly receive the number of bytes i pass,
-looking at the driver i can not see that it gets the lenght from the read data.
-I don't know well SMBus/I2C specs but read with buffer and no lenght 
-doesn't look sane to me. So how should this be fixed?
+Peter
 
---
-have fun,
-alex
-
- 
-
-	

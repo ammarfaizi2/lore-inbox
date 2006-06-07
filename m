@@ -1,456 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWFGSnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWFGSuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWFGSnt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 14:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWFGSnt
+	id S1751253AbWFGSuM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 14:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWFGSuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 14:43:49 -0400
-Received: from mail.sanpeople.com ([196.41.13.122]:37896 "EHLO
-	za-gw.sanpeople.com") by vger.kernel.org with ESMTP
-	id S1751228AbWFGSnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 14:43:47 -0400
-Subject: [PATCH] AT91RM9200 RTC driver
-From: Andrew Victor <andrew@sanpeople.com>
-To: linux-kernel@vger.kernel.org
-Cc: alessandro.zummo@towertech.it, akpm@osdl.org
-Content-Type: text/plain
-Organization: SAN People (Pty) Ltd
-Message-Id: <1149705500.20386.105.camel@fuzzie.sanpeople.com>
+	Wed, 7 Jun 2006 14:50:12 -0400
+Received: from xenotime.net ([66.160.160.81]:42213 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751253AbWFGSuL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 14:50:11 -0400
+Date: Wed, 7 Jun 2006 11:52:58 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, joern@wohnheim.fh-wedel.de
+Subject: [PATCH] checkstack: pirnt module names
+Message-Id: <20060607115258.ff8f337c.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 07 Jun 2006 20:38:21 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds support for the RTC integrated in the Atmel AT91RM9200 SoC.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Driver was originally written for 2.4 by Rick Bronson.
-Then converted to 2.6 ARM RTC API by Steven Scholz.
-Now converted to the RTC class model.
+Finding "init_module" high stack usage problems is challenging
+when there are over 1600 "init_module" functions in the kernel tree,
+so make checkstack.pl print out the filename where the stack usage
+occurs.  This is useful for code built as loadable modules.
 
+For built-in code, it just prints the kernel image file name,
+like "vmlinux".  Examples:
 
+(before patch:)
+0x0000000d callback:					1928
+0xffffffff81678c09 huft_build:				1560
+0x0018 init_module:					1512
 
-Signed-off-by: Andrew Victor <andrew@sanpeople.com>
-Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+(after patch:)
+0x0000000d callback [divacapi]:				1928
+0xffffffff81678c09 huft_build [vmlinux]:		1560
+0x0018 init_module [hdaps]:				1512
 
+Also change one if-series to use elsif to cut down on
+unneeded tests.
 
-diff -urN -x CVS linux-2.6.17-rc6/drivers/rtc/Kconfig linux-2.6.17-rc/drivers/rtc/Kconfig
---- linux-2.6.17-rc6/drivers/rtc/Kconfig	Tue Jun  6 10:28:05 2006
-+++ linux-2.6.17-rc/drivers/rtc/Kconfig	Tue May 16 16:45:44 2006
-@@ -157,6 +157,12 @@
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rtc-vr41xx.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ scripts/checkstack.pl |   14 ++++++++++++--
+ 1 files changed, 12 insertions(+), 2 deletions(-)
+
+--- linux-2617-rc5mm3.orig/scripts/checkstack.pl
++++ linux-2617-rc5mm3/scripts/checkstack.pl
+@@ -89,11 +89,21 @@ sub bysize($) {
+ #
+ my $funcre = qr/^$x* <(.*)>:$/;
+ my $func;
++my $file, $lastslash;
++
+ while (my $line = <STDIN>) {
+ 	if ($line =~ m/$funcre/) {
+ 		$func = $1;
+ 	}
+-	if ($line =~ m/$re/) {
++	elsif ($line =~ m/(.*):\s*file format/) {
++		$file = $1;
++		$file =~ s/\.ko//;
++		$lastslash = rindex($file, "/");
++		if ($lastslash != -1) {
++			$file = substr($file, $lastslash + 1);
++		}
++	}
++	elsif ($line =~ m/$re/) {
+ 		my $size = $1;
+ 		$size = hex($size) if ($size =~ /^0x/);
  
-+config RTC_DRV_AT91
-+	tristate "AT91RM9200"
-+	depends on RTC_CLASS && ARCH_AT91RM9200
-+	help
-+	  Driver for the Atmel AT91RM9200's internal RTC (Realtime Clock).
-+
- config RTC_DRV_TEST
- 	tristate "Test driver/device"
- 	depends on RTC_CLASS
-diff -urN -x CVS linux-2.6.17-rc6/drivers/rtc/Makefile linux-2.6.17-rc/drivers/rtc/Makefile
---- linux-2.6.17-rc6/drivers/rtc/Makefile	Tue Jun  6 10:28:05 2006
-+++ linux-2.6.17-rc/drivers/rtc/Makefile	Tue May 16 16:45:44 2006
-@@ -20,3 +20,4 @@
- obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
- obj-$(CONFIG_RTC_DRV_SA1100)	+= rtc-sa1100.o
- obj-$(CONFIG_RTC_DRV_VR41XX)	+= rtc-vr41xx.o
-+obj-$(CONFIG_RTC_DRV_AT91)	+= rtc-at91.o
-diff -urN -x CVS linux-2.6.17-rc6/drivers/rtc/rtc-at91.c linux-2.6.17-rc/drivers/rtc/rtc-at91.c
---- linux-2.6.17-rc6/drivers/rtc/rtc-at91.c	Thu Jan  1 02:00:00 1970
-+++ linux-2.6.17-rc/drivers/rtc/rtc-at91.c	Wed Jun  7 12:05:26 2006
-@@ -0,0 +1,388 @@
-+/*
-+ *	Real Time Clock interface for Linux on Atmel AT91RM9200
-+ *
-+ *	Copyright (C) 2002 Rick Bronson
-+ *
-+ *	Converted to RTC class model by Andrew Victor
-+ *
-+ *	Ported to Linux 2.6 by Steven Scholz
-+ *	Based on s3c2410-rtc.c Simtec Electronics
-+ *
-+ *	Based on sa1100-rtc.c by Nils Faerber
-+ *	Based on rtc.c by Paul Gortmaker
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License
-+ *	as published by the Free Software Foundation; either version
-+ *	2 of the License, or (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/platform_device.h>
-+#include <linux/time.h>
-+#include <linux/rtc.h>
-+#include <linux/bcd.h>
-+#include <linux/interrupt.h>
-+#include <linux/ioctl.h>
-+#include <linux/completion.h>
-+
-+#include <asm/uaccess.h>
-+#include <asm/rtc.h>
-+
-+#include <asm/mach/time.h>
-+
-+
-+#define AT91_RTC_FREQ		1
-+#define AT91_RTC_EPOCH		1900UL	/* just like arch/arm/common/rtctime.c */
-+
-+static DECLARE_COMPLETION(at91_rtc_updated);
-+static unsigned int at91_alarm_year = AT91_RTC_EPOCH;
-+
-+
-+/*
-+ * Decode time/date into rtc_time structure
-+ */
-+static void at91_rtc_decodetime(unsigned int timereg, unsigned int calreg, struct rtc_time *tm)
-+{
-+	unsigned int time, date;
-+
-+	/* must read twice in case it changes */
-+	do {
-+		time = at91_sys_read(timereg);
-+		date = at91_sys_read(calreg);
-+	} while ((time != at91_sys_read(timereg)) || (date != at91_sys_read(calreg)));
-+
-+	tm->tm_sec  = BCD2BIN((time & AT91_RTC_SEC) >> 0);
-+	tm->tm_min  = BCD2BIN((time & AT91_RTC_MIN) >> 8);
-+	tm->tm_hour = BCD2BIN((time & AT91_RTC_HOUR) >> 16);
-+
-+	/*
-+	 * The Calendar Alarm register does not have a field for
-+	 * the year - so these will return an invalid value.  When an
-+	 * alarm is set, at91_alarm_year wille store the current year.
-+	 */
-+	tm->tm_year  = BCD2BIN(date & AT91_RTC_CENT) * 100;		/* century */
-+	tm->tm_year += BCD2BIN((date & AT91_RTC_YEAR) >> 8);		/* year */
-+
-+	tm->tm_wday = BCD2BIN((date & AT91_RTC_DAY) >> 21) - 1;	/* day of the week [0-6], Sunday=0 */
-+	tm->tm_mon  = BCD2BIN((date & AT91_RTC_MONTH) >> 16) - 1;
-+	tm->tm_mday = BCD2BIN((date & AT91_RTC_DATE) >> 24);
-+}
-+
-+/*
-+ * Read current time and date in RTC
-+ */
-+static int at91_rtc_readtime(struct device *dev, struct rtc_time *tm)
-+{
-+	at91_rtc_decodetime(AT91_RTC_TIMR, AT91_RTC_CALR, tm);
-+	tm->tm_yday = rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	tm->tm_year = tm->tm_year - 1900;
-+
-+	pr_debug("%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __FUNCTION__,
-+		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Set current time and date in RTC
-+ */
-+static int at91_rtc_settime(struct device *dev, struct rtc_time *tm)
-+{
-+	unsigned long cr;
-+
-+	pr_debug("%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __FUNCTION__,
-+		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-+
-+	/* Stop Time/Calendar from counting */
-+	cr = at91_sys_read(AT91_RTC_CR);
-+	at91_sys_write(AT91_RTC_CR, cr | AT91_RTC_UPDCAL | AT91_RTC_UPDTIM);
-+
-+	at91_sys_write(AT91_RTC_IER, AT91_RTC_ACKUPD);
-+	wait_for_completion(&at91_rtc_updated);		/* wait for ACKUPD interrupt */
-+	at91_sys_write(AT91_RTC_IDR, AT91_RTC_ACKUPD);
-+
-+	at91_sys_write(AT91_RTC_TIMR,
-+			  BIN2BCD(tm->tm_sec) << 0
-+			| BIN2BCD(tm->tm_min) << 8
-+			| BIN2BCD(tm->tm_hour) << 16);
-+
-+	at91_sys_write(AT91_RTC_CALR,
-+			  BIN2BCD((tm->tm_year + 1900) / 100)		/* century */
-+			| BIN2BCD(tm->tm_year % 100) << 8		/* year */
-+			| BIN2BCD(tm->tm_mon + 1) << 16			/* tm_mon starts at zero */
-+			| BIN2BCD(tm->tm_wday + 1) << 21		/* day of the week [0-6], Sunday=0 */
-+			| BIN2BCD(tm->tm_mday) << 24);
-+
-+	/* Restart Time/Calendar */
-+	cr = at91_sys_read(AT91_RTC_CR);
-+	at91_sys_write(AT91_RTC_CR, cr & ~(AT91_RTC_UPDCAL | AT91_RTC_UPDTIM));
-+
-+	return 0;
-+}
-+
-+/*
-+ * Read alarm time and date in RTC
-+ */
-+static int at91_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct rtc_time *tm = &alrm->time;
-+
-+	at91_rtc_decodetime(AT91_RTC_TIMALR, AT91_RTC_CALALR, tm);
-+	tm->tm_yday = rtc_year_days(tm->tm_mday, tm->tm_mon, tm->tm_year);
-+	tm->tm_year = at91_alarm_year - 1900;
-+
-+	pr_debug("%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __FUNCTION__,
-+		1900 + tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Set alarm time and date in RTC
-+ */
-+static int at91_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
-+{
-+	struct rtc_time tm;
-+
-+	at91_rtc_decodetime(AT91_RTC_TIMR, AT91_RTC_CALR, &tm);
-+
-+	at91_alarm_year = tm.tm_year;
-+
-+	tm.tm_hour = alrm->time.tm_hour;
-+	tm.tm_min = alrm->time.tm_min;
-+	tm.tm_sec = alrm->time.tm_sec;
-+
-+	at91_sys_write(AT91_RTC_TIMALR,
-+		  BIN2BCD(tm.tm_sec) << 0
-+		| BIN2BCD(tm.tm_min) << 8
-+		| BIN2BCD(tm.tm_hour) << 16
-+		| AT91_RTC_HOUREN | AT91_RTC_MINEN | AT91_RTC_SECEN);
-+	at91_sys_write(AT91_RTC_CALALR,
-+		  BIN2BCD(tm.tm_mon + 1) << 16		/* tm_mon starts at zero */
-+		| BIN2BCD(tm.tm_mday) << 24
-+		| AT91_RTC_DATEEN | AT91_RTC_MTHEN);
-+
-+	pr_debug("%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __FUNCTION__,
-+		at91_alarm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Handle commands from user-space
-+ */
-+static int at91_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	int ret = 0;
-+
-+	pr_debug("%s(): cmd=%08x, arg=%08lx.\n", __FUNCTION__, cmd, arg);
-+
-+	switch (cmd) {
-+	case RTC_AIE_OFF:	/* alarm off */
-+		at91_sys_write(AT91_RTC_IDR, AT91_RTC_ALARM);
-+		break;
-+	case RTC_AIE_ON:	/* alarm on */
-+		at91_sys_write(AT91_RTC_IER, AT91_RTC_ALARM);
-+		break;
-+	case RTC_UIE_OFF:	/* update off */
-+	case RTC_PIE_OFF:	/* periodic off */
-+		at91_sys_write(AT91_RTC_IDR, AT91_RTC_SECEV);
-+		break;
-+	case RTC_UIE_ON:	/* update on */
-+	case RTC_PIE_ON:	/* periodic on */
-+		at91_sys_write(AT91_RTC_IER, AT91_RTC_SECEV);
-+		break;
-+	case RTC_IRQP_READ:	/* read periodic alarm frequency */
-+		ret = put_user(AT91_RTC_FREQ, (unsigned long *) arg);
-+		break;
-+	case RTC_IRQP_SET:	/* set periodic alarm frequency */
-+		if (arg != AT91_RTC_FREQ)
-+			ret = -EINVAL;
-+		break;
-+	default:
-+		ret = -ENOIOCTLCMD;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * Provide additional RTC information in /proc/driver/rtc
-+ */
-+static int at91_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	unsigned long imr = at91_sys_read(AT91_RTC_IMR);
-+
-+	seq_printf(seq, "alarm_IRQ\t: %s\n", (imr & AT91_RTC_ALARM) ? "yes" : "no");
-+	seq_printf(seq, "update_IRQ\t: %s\n", (imr & AT91_RTC_ACKUPD) ? "yes" : "no");
-+	seq_printf(seq, "periodic_IRQ\t: %s\n", (imr & AT91_RTC_SECEV) ? "yes" : "no");
-+	seq_printf(seq, "periodic_freq\t: %ld\n", (unsigned long) AT91_RTC_FREQ);
-+
-+	return 0;
-+}
-+
-+/*
-+ * IRQ handler for the RTC
-+ */
-+static irqreturn_t at91_rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	struct platform_device *pdev = (struct platform_device *)dev_id;
-+	struct rtc_device *rtc = platform_get_drvdata(pdev);
-+	unsigned int rtsr;
-+	unsigned long events = 0;
-+
-+	rtsr = at91_sys_read(AT91_RTC_SR) & at91_sys_read(AT91_RTC_IMR);
-+	if (rtsr) {		/* this interrupt is shared!  Is it ours? */
-+		if (rtsr & AT91_RTC_ALARM)
-+			events |= (RTC_AF | RTC_IRQF);
-+		if (rtsr & AT91_RTC_SECEV)
-+			events |= (RTC_UF | RTC_IRQF);
-+		if (rtsr & AT91_RTC_ACKUPD)
-+			complete(&at91_rtc_updated);
-+
-+		at91_sys_write(AT91_RTC_SCCR, rtsr);		/* clear status reg */
-+
-+		rtc_update_irq(&rtc->class_dev, 1, events);
-+
-+		pr_debug("%s(): num=%ld, events=0x%02lx\n", __FUNCTION__,
-+			events >> 8, events & 0x000000FF);
-+
-+		return IRQ_HANDLED;
-+	}
-+	return IRQ_NONE;		/* not handled */
-+}
-+
-+static struct rtc_class_ops at91_rtc_ops = {
-+	.ioctl		= at91_rtc_ioctl,
-+	.read_time	= at91_rtc_readtime,
-+	.set_time	= at91_rtc_settime,
-+	.read_alarm	= at91_rtc_readalarm,
-+	.set_alarm	= at91_rtc_setalarm,
-+	.proc		= at91_rtc_proc,
-+};
-+
-+/*
-+ * Initialize and install RTC driver
-+ */
-+static int __init at91_rtc_probe(struct platform_device *pdev)
-+{
-+	struct rtc_device *rtc;
-+	int ret;
-+
-+	at91_sys_write(AT91_RTC_CR, 0);
-+	at91_sys_write(AT91_RTC_MR, 0);		/* 24 hour mode */
-+
-+	/* Disable all interrupts */
-+	at91_sys_write(AT91_RTC_IDR, AT91_RTC_ACKUPD | AT91_RTC_ALARM | AT91_RTC_SECEV | AT91_RTC_TIMEV | AT91_RTC_CALEV);
-+
-+	ret = request_irq(AT91_ID_SYS, at91_rtc_interrupt, SA_SHIRQ, "at91_rtc", pdev);
-+	if (ret) {
-+		printk(KERN_ERR "at91_rtc: IRQ %d already in use.\n", AT91_ID_SYS);
-+		return ret;
-+	}
-+
-+	rtc = rtc_device_register(pdev->name, &pdev->dev, &at91_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rtc)) {
-+		free_irq(AT91_ID_SYS, pdev);
-+		return PTR_ERR(rtc);
-+	}
-+	platform_set_drvdata(pdev, rtc);
-+
-+	printk(KERN_INFO "AT91 Real Time Clock driver.\n");
-+	return 0;
-+}
-+
-+/*
-+ * Disable and remove the RTC driver
-+ */
-+static int __devexit at91_rtc_remove(struct platform_device *pdev)
-+{
-+	struct rtc_device *rtc = platform_get_drvdata(pdev);
-+
-+	/* Disable all interrupts */
-+	at91_sys_write(AT91_RTC_IDR, AT91_RTC_ACKUPD | AT91_RTC_ALARM | AT91_RTC_SECEV | AT91_RTC_TIMEV | AT91_RTC_CALEV);
-+	free_irq(AT91_ID_SYS, pdev);
-+
-+	rtc_device_unregister(rtc);
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+
-+/* AT91RM9200 RTC Power management control */
-+
-+static struct timespec at91_rtc_delta;
-+
-+static int at91_rtc_suspend(struct platform_device *pdev, pm_message_t state)
-+{
-+	struct rtc_time tm;
-+	struct timespec time;
-+
-+	time.tv_nsec = 0;
-+
-+	/* calculate time delta for suspend */
-+	at91_rtc_readtime(&pdev->dev, &tm);
-+	rtc_tm_to_time(&tm, &time.tv_sec);
-+	save_time_delta(&at91_rtc_delta, &time);
-+
-+	pr_debug("%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __FUNCTION__,
-+		1900 + tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-+
-+	return 0;
-+}
-+
-+static int at91_rtc_resume(struct platform_device *pdev)
-+{
-+	struct rtc_time tm;
-+	struct timespec time;
-+
-+	time.tv_nsec = 0;
-+
-+	at91_rtc_readtime(&pdev->dev, &tm);
-+	rtc_tm_to_time(&tm, &time.tv_sec);
-+	restore_time_delta(&at91_rtc_delta, &time);
-+
-+	pr_debug("%s(): %4d-%02d-%02d %02d:%02d:%02d\n", __FUNCTION__,
-+		1900 + tm.tm_year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-+
-+	return 0;
-+}
-+#else
-+#define at91_rtc_suspend NULL
-+#define at91_rtc_resume  NULL
-+#endif
-+
-+static struct platform_driver at91_rtc_driver = {
-+	.probe		= at91_rtc_probe,
-+	.remove		= at91_rtc_remove,
-+	.suspend	= at91_rtc_suspend,
-+	.resume		= at91_rtc_resume,
-+	.driver		= {
-+		.name	= "at91_rtc",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+static int __init at91_rtc_init(void)
-+{
-+	return platform_driver_register(&at91_rtc_driver);
-+}
-+
-+static void __exit at91_rtc_exit(void)
-+{
-+	platform_driver_unregister(&at91_rtc_driver);
-+}
-+
-+
-+module_init(at91_rtc_init);
-+module_exit(at91_rtc_exit);
-+
-+MODULE_AUTHOR("Rick Bronson");
-+MODULE_DESCRIPTION("RTC driver for Atmel AT91RM9200");
-+MODULE_LICENSE("GPL");
+@@ -109,7 +119,7 @@ while (my $line = <STDIN>) {
+ 		$addr =~ s/ /0/g;
+ 		$addr = "0x$addr";
+ 
+-		my $intro = "$addr $func:";
++		my $intro = "$addr $func [$file]:";
+ 		my $padlen = 56 - length($intro);
+ 		while ($padlen > 0) {
+ 			$intro .= '	';
 
 
-
+---

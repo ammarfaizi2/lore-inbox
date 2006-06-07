@@ -1,71 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWFGPAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWFGPCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWFGPAp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 11:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWFGPAp
+	id S932245AbWFGPCz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 11:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWFGPCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 11:00:45 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:60347 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932230AbWFGPAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 11:00:45 -0400
-Date: Wed, 7 Jun 2006 17:00:43 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: jvbest@qv3pluto.leidenuniv.nl, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: NI5010 network driver -- MAINTAINERS entry
-Message-ID: <20060607150043.GA30512@rhlx01.fht-esslingen.de>
-References: <20060607142213.GA3618@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060607142213.GA3618@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Wed, 7 Jun 2006 11:02:54 -0400
+Received: from rtr.ca ([64.26.128.89]:58774 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932241AbWFGPCy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 11:02:54 -0400
+Message-ID: <4486EA96.9080502@rtr.ca>
+Date: Wed, 07 Jun 2006 11:02:46 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: 2.6.17-rc6 (potential) bugs:
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>From building the 2.6.17-rc6 kernel on my x86 machine:
+>WARNING: drivers/acpi/processor.o - Section mismatch: reference to .init.data: from .text between 'acpi_processor_power_init' (at offset 0xec7) and 'acpi_processor_cst_has_changed'
 
-On Wed, Jun 07, 2006 at 04:22:14PM +0200, Pavel Machek wrote:
-> 
-> ...is quite inconsistent with rest of file:
-> 
-> NI5010 NETWORK DRIVER
-> P:      Jan-Pascal van Best and Andreas Mohr
-> M:      Jan-Pascal van Best <jvbest@qv3pluto.leidenuniv.nl>
-> M:      Andreas Mohr <100.30936@germany.net>
-> L:      netdev@vger.kernel.org
-> S:      Maintained
-> 
-> probably should be
-> 
-> NI5010 NETWORK DRIVER
-> P:      Jan-Pascal van Best
-> M:      jvbest@qv3pluto.leidenuniv.nl
-> P:	Andreas Mohr
-> M:      100.30936@germany.net
+This is due to processor_power_dmi_table[] (__cpuinitdata)
+being accessed from acpi_processor_power_init() (a non-__init function).
+If the memory for the table is ever released after bootup,
+then this code may crash and burn.
 
-Err, not quite ;)
+>WARNING: drivers/video/macmodes.o - Section mismatch: reference to .init.text:mac_find_mode from __ksymtab between '__ksymtab_mac_find_mode' (at offset 0x0) and '__ksymtab_mac_map_monitor_sense'
 
-> L:      netdev@vger.kernel.org
-> S:      Maintained
-> 
-> ...yes, "new" mail address format makes sense, but I guess whole file
-> should be converted.
+This one looks like a similar issue, but my eyes failed to spot the offending lines.
 
-Right, I've been looking at this entry some time ago and thought that I
-should send an update patch, but haven't gotten around to doing that yet.
-
-Problem is that I'm not actively using this (admittedly historic) card
-any more, so bug reports about this driver would probably have to be fixed
-by the reporter or alternatively get delayed some time (I'm willing to
-look into any reports, so status "Maintained" would still be sort of valid,
-I think).
-
-My currently "best" mail address is andi@lisas.de, not sure about
-the validity of Jan-Pascal van Best's address, though.
-
-Should I send an update patch (to -mm tree?), or do you want to do it?
-
-Andreas Mohr
+Cheers

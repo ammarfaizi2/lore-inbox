@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWFGMyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWFGNCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWFGMyo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 08:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWFGMyo
+	id S1750754AbWFGNCu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 09:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWFGNCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 08:54:44 -0400
-Received: from wx-out-0102.google.com ([66.249.82.195]:3106 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750728AbWFGMyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 08:54:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=HeqJRJ7KQ0YPRPC7IyJPmpG5JSrhGh8EtblKfI5DU4bW52G2MpgluhC8JQRRqDoHKh4jHjz6mqioM9E8Lphwr6twFt7bsradxNbM9GoHV3SzxW9GLsUSPc1dctBt2JJ3d738HwaaEru2ScHm/6tR1XYY+QRSXadKI4J4+VXEGX8=
-Message-ID: <f69849430606070554h5cadb39cgfd5f70f6de09707c@mail.gmail.com>
-Date: Wed, 7 Jun 2006 17:54:43 +0500
-From: "kernel coder" <lhrkernelcoder@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: RTL explaination
+	Wed, 7 Jun 2006 09:02:50 -0400
+Received: from smtpout08-04.prod.mesa1.secureserver.net ([64.202.165.12]:18150
+	"HELO smtpout08-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1750754AbWFGNCt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 09:02:49 -0400
+Message-ID: <4486CE78.2040506@seclark.us>
+Date: Wed, 07 Jun 2006 09:02:48 -0400
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: usb error? linux 2.6.15-1.1831_FC4
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-I'm trying to understand the rtl genrated by gcc for mips processor.I
-have read gcc internals by Richard Stallman but there  are still some
-confusions in the rtl language.
-
-Following is a snippet of code which i'm trying to understand.
-
-(insn 9 6 10 (nil) (set (reg:SI 182)
-        (mem/f:SI (symbol_ref:SI ("a")) [0 a+0 S4 A32])) -1 (nil)
-    (nil))
-
-In the above code following part is still unclear to me
-
-[0 a+0 S4 A32])) -1 (nil)
-    (nil))
-
-Following is the c code for which above rtl is generated :
-
-int a;
-main()
-{
-a=a+1;
-}
+Hello List,
 
 
-thanks,
-shahzad
+Anyone have an idea how I could fix this - I plugged in an ActionTec 
+dualpc modem
+configured so it would ask for a new flash. Where do I put the 
+cxacru-fw.bin file?
+
+Jun  3 17:43:16 joker kernel: usb 1-2: new full speed USB device using 
+uhci_hcd
+and address 65
+Jun  3 17:43:16 joker kernel: NET: Registered protocol family 8
+Jun  3 17:43:16 joker kernel: NET: Registered protocol family 20
+Jun  3 17:43:18 joker kernel: usbcore: registered new driver cxacru
+Jun  3 17:43:19 joker kernel: cxacru 1-2:1.0: firmware (cxacru-fw.bin) 
+unavailab
+le (hotplug misconfiguration?)
+
+Thanks,
+Steve
+
+-- 
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

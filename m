@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWFGPUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWFGPXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWFGPUe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 11:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWFGPUe
+	id S932254AbWFGPXM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 11:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWFGPXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 11:20:34 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59271 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932256AbWFGPUd (ORCPT
+	Wed, 7 Jun 2006 11:23:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:30600 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932254AbWFGPXL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 11:20:33 -0400
+	Wed, 7 Jun 2006 11:23:11 -0400
 From: Andi Kleen <ak@suse.de>
-To: Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [PATCH 0/5] Sizing zones and holes in an architecture independent manner V7
-Date: Wed, 7 Jun 2006 17:20:22 +0200
+To: "Brendan Trotter" <btrotter@gmail.com>
+Subject: Re: NMI problems with Dell SMP Xeons
+Date: Wed, 7 Jun 2006 17:23:05 +0200
 User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
-       tony.luck@intel.com, bob.picco@hp.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, linux-mm@kvack.org
-References: <20060606134710.21419.48239.sendpatchset@skynet.skynet.ie> <200606071216.24640.ak@suse.de> <Pine.LNX.4.64.0606071118230.20653@skynet.skynet.ie>
-In-Reply-To: <Pine.LNX.4.64.0606071118230.20653@skynet.skynet.ie>
+Cc: "Keith Owens" <kaos@sgi.com>, "Ashok Raj" <ashok.raj@intel.com>,
+       linux-kernel@vger.kernel.org
+References: <200606070920.23436.ak@suse.de> <8446.1149666227@kao2.melbourne.sgi.com> <b1ebdcad0606070818l3024b264k89f6cd37ccb0b6f7@mail.gmail.com>
+In-Reply-To: <b1ebdcad0606070818l3024b264k89f6cd37ccb0b6f7@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606071720.22242.ak@suse.de>
+Message-Id: <200606071723.05921.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Ok, while true, I'm not sure how it affects performance. The only "real" 
-> value affected by present_pages is the number of patches that are 
-> allocated in batches to the per-cpu allocator.
+> The "send_IPI_mask_sequence()" function also seems like a perfectly
+> valid option (except for the comments, which are easy enough to
+> change). IMHO it's just not as pretty, especially if it's to be used
+> for all broadcast IPIs (rather than just for broadcast NMIs) - I'd be
+> tempted to do an "#ifdef BORKED_DELL" around it in that case. :-)
 
-It affects the low/high water marks in the VM zone balancer.
+It's not only that Dell that has trouble with broadcasts. On newer platforms
+which support CPU hotplug there are races at the hardware level with
+broadcasting. That is why we're moving away from it.
 
-Especially for the 16MB DMA zone it can make a difference if you
-account 4MB kernel in there or not.
+Not sure why this particular case got missed. Ashok might want to comment -
+he did the hotplug work.
 
 -Andi
-

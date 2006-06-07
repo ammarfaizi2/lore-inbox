@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWFGUX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWFGUgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWFGUX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 16:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWFGUX1
+	id S1750868AbWFGUgc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 16:36:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWFGUgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 16:23:27 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:49899 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932235AbWFGUX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 16:23:26 -0400
-Date: Wed, 7 Jun 2006 22:22:44 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       joern@wohnheim.fh-wedel.de
-Subject: Re: [PATCH] checkstack: pirnt module names
-Message-ID: <20060607202244.GB3802@wohnheim.fh-wedel.de>
-References: <20060607115258.ff8f337c.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060607115258.ff8f337c.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.9i
+	Wed, 7 Jun 2006 16:36:32 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:57740 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750868AbWFGUgc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 16:36:32 -0400
+Message-ID: <448738CD.8030907@drzeus.cx>
+Date: Wed, 07 Jun 2006 22:36:29 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Matt Reimer <mattjreimer@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2GB MMC/SD cards
+References: <447AFE7A.3070401@drzeus.cx> <20060603141548.GA31182@flint.arm.linux.org.uk> <f383264b0606031140l2051a2d7p6a9b2890a6063aef@mail.gmail.com> <4481FB80.40709@drzeus.cx> <4484B5AE.8060404@drzeus.cx> <44869794.9080906@drzeus.cx> <20060607165837.GE13165@flint.arm.linux.org.uk>
+In-Reply-To: <20060607165837.GE13165@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 June 2006 11:52:58 -0700, Randy.Dunlap wrote:
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Acked-By: Joern Engel <joern@wh.fh-wedel.de>
+Russell King wrote:
+> I wonder if all 2GB cards are >= v4.2 of the spec?  If so, we could
+> do what would appear correct to both the spec and reality, and select
+> 512 byte blocksizes irrespective if they conform to v4.2 or later.
+>
+>   
 
-Jörn
+This might only be a clarification as earlier specs apparently states
+that all cards must have the block size set to 512 bytes at init.
 
--- 
-A surrounded army must be given a way out.
--- Sun Tzu
+As people seem to have been running their own hacks without any
+problems, we probably should just change it and see if there's any
+fallout. Live dangerous for a bit. ;)
+
+Rgds
+Pierre
+

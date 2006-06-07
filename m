@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWFGWsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWFGWvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWFGWsw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 18:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWFGWsw
+	id S932456AbWFGWvL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 18:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWFGWvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 18:48:52 -0400
-Received: from hera.kernel.org ([140.211.167.34]:2188 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932454AbWFGWsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 18:48:50 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH[ RTC: Add rtc_year_days() to calculate tm_yday
-Date: Wed, 7 Jun 2006 15:48:31 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e67l3v$k2q$1@terminus.zytor.com>
-References: <1149704768.20154.95.camel@fuzzie.sanpeople.com> <20060607193311.GH13165@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1149720511 20571 127.0.0.1 (7 Jun 2006 22:48:31 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 7 Jun 2006 22:48:31 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Wed, 7 Jun 2006 18:51:11 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45071 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932456AbWFGWvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 18:51:10 -0400
+Date: Thu, 8 Jun 2006 00:51:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jordi <mumismo@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Automatic bug hunting
+Message-ID: <20060607225111.GV3955@stusta.de>
+References: <200606080009.06089.raigengo@yahoo.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606080009.06089.raigengo@yahoo.es>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20060607193311.GH13165@flint.arm.linux.org.uk>
-By author:    Russell King <rmk+lkml@arm.linux.org.uk>
-In newsgroup: linux.dev.kernel
->
-> On Wed, Jun 07, 2006 at 08:26:09PM +0200, Andrew Victor wrote:
-> > RTC: Add exported function rtc_year_days() to calculate the tm_yday
-> > value.
+On Thu, Jun 08, 2006 at 12:09:04AM +0200, Jordi wrote:
 > 
-> Is there a good reason for this?  I ask the question because the x86
-> /dev/rtc driver says:
+> Related with the recent times _perceived_  increase in the number of bugs of 
+> the Kernel. I have found the following website:
+> http://scan.coverity.com/
 > 
->          * Only the values that we read from the RTC are set. We leave
->          * tm_wday, tm_yday and tm_isdst untouched. Note that while the
->          * RTC has RTC_DAY_OF_WEEK, we should usually ignore it, as it is
->          * only updated by the RTC when initially set to a non-zero value.
+> They use automatic statis source code test for a number of projects including 
+> the Linux kernel.
 > 
-> So it seems the established modus operandi for RTC interfaces is "don't
-> trust wday, yday and isdst".
-> 
+> I've not registered so I don't know what kind of bugs have been found but it's 
+> very unlikely that they have found "I don't have the hardware to fix this" 
+> kind of bugs. They surely are clear bugs, similar to those found by the 
+> automatic test for locking problems. 
 
-"Be conservative in what you send, liberal in what you accept."
+"They surely are clear bugs" is wrong, the proof is the trivial fact 
+that not less than 148 kernel issues have already been marked as FALSE 
+inside the Coverity tracker.
 
-	- Mr. Protocol
+> I think this is a good source to check before doing a stable release. Unlikely  
+> human's bugs report, those report should be clear enought. We may aim for 
+> being "coverity free" before each major version (check it before 2.6.17).
 
-In this case it seems a good idea to set these fields correctly, but
-not rely upon them, unless there are known cases where that causes
-trouble.
+If you'd have followed linux-kernel for a while, you'd have seen how 
+many patches have already been sent and merged for issues listed there.
 
-	-hpa
+You can set any aim you want, but since the vast majority of these 
+issues are not regressions from 2.6.16 there's no reason delaying 2.6.17 
+for it.
+
+Even more considering that even many of the Coverity issues are often 
+harmless issues like e.g. dead code.
+
+> Jordi Polo
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

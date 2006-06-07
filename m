@@ -1,80 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWFGPhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWFGPjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWFGPhV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 11:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWFGPhV
+	id S932261AbWFGPjY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 11:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWFGPjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 11:37:21 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:48662 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932267AbWFGPhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 11:37:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=osy0GgJdrrenlEiUYYJv0Pw3fd3iZXKYdJ0+zf2jqpmsFkEfxG0XT15KNpjClQKjEaIt1V3xpPuBALY6D3myWgS99rWu7NgPa2sQrT1zUdfNV35D/YCiVivhLIVjbct6H/8qOvcMwimNyVxPxGY/CJxgA2cevsIRNSxE8nlHHn8=
-Message-ID: <4ae3c140606070837t23182496s42edb3a754169d43@mail.gmail.com>
-Date: Wed, 7 Jun 2006 11:37:18 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: Linux SLAB allocator issue
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <84144f020606070516m4bccdecdr998941ee74744a83@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 7 Jun 2006 11:39:24 -0400
+Received: from pat.uio.no ([129.240.10.4]:63656 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932261AbWFGPjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 11:39:24 -0400
+Subject: Re: [NFS] [PATCH] NFS server does not update mtime on setattr
+	request
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Staubach <staubach@redhat.com>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, Neil Brown <neilb@suse.de>,
+       NFS List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4486F020.3030707@redhat.com>
+References: <4485C3FE.5070504@redhat.com>
+	 <1149658707.27298.10.camel@localhost> <4486E662.5080900@redhat.com>
+	 <20060607151754.GB23954@fieldses.org>  <4486F020.3030707@redhat.com>
+Content-Type: text/plain
+Date: Wed, 07 Jun 2006 11:39:02 -0400
+Message-Id: <1149694742.26188.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4ae3c140606061358j140eec9fl45e22f8a9e673215@mail.gmail.com>
-	 <84144f020606070516m4bccdecdr998941ee74744a83@mail.gmail.com>
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.806, required 12,
+	autolearn=disabled, AWL 1.19, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your kind reply.
-
-I did the following experiment.
-
-I create my own cache with kmem_cache_create() and specify the
-constructor to be init_once()-- a simple constructor like NFS does.
-
-I checked the cache parameter and find that each slab has 1 page and
-can hold 10 objects.
-
-Then, I used kmem_cache_alloc() to allocate 128 objects. So it should
-occupy 12 full slabs and 1 partial slab. Right?
-
-But when I walk through the slabs_full and slabs_partial list, I found
-that slabs_full returned 13 slabs but slabs_partial returned 0.
-
-That's why I am confused. I am using 2.6.16 BTW.
-
-Any further insight?
-
-Thanks,
-Xin
-
-On 6/7/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> On 6/6/06, Xin Zhao <uszhaoxin@gmail.com> wrote:
-> > I am trying to check how many slabs are used for inode_cache, but
-> > found that all slabs are added to slabs_full list, and slabs_partial
-> > is always empty. Even if the active object number does not exactly
-> > occupy all slabs.
+On Wed, 2006-06-07 at 11:26 -0400, Peter Staubach wrote:
+> J. Bruce Fields wrote:
+> 
+> >On Wed, Jun 07, 2006 at 10:44:50AM -0400, Peter Staubach wrote:
+> >  
 > >
-> > Does that mean Linux 2.6 remove the use of slabs_partial?
->
-> No. If slabs_partial is really empty, the number of active objects
-> should match the number of objects in a slab; otherwise you should see
-> an error message when you do cat /proc/slabinfo (see s_show in
-> mm/slab.c for details).
->
-> How are you verifying that the partial list is empty?
->
-> On 6/6/06, Xin Zhao <uszhaoxin@gmail.com> wrote:
-> > Another question, the constructor transfered to the
-> > kmem_cache_create() function is called for every object in a slab when
-> > it is created. Is this true? Is there any way to call back a function
-> > _only once_ when a new slab is allocated?
->
-> We don't have per-slab constructors. Only per-object. What do you need it for?
->
->                                             Pekka
->
+> >>I saw that wording too and assumed what I think that you assumed.  I
+> >>assumed that that meant that if the new size is equal to the old size,
+> >>then nothing should be changed.  However, that does not seem to be how
+> >>those words are to be interpreted.  They are to be interpreted as "if
+> >>the new length of the file can be successfully set, then the
+> >>mtime/ctime should be changed".
+> >>    
+> >>
+> >
+> >What's the basis for that interpretation?  The language seems extremely
+> >clear:
+> >
+> >	"On successful completion, if the file size is changed, these
+> >	functions will mark for update the st_ctime and st_mtime fields
+> >	of the file, and if the file is a regular file, the S_ISUID and
+> >	S_ISGID bits of the file mode may be cleared."
+> >
+> >Why are you concerned about this?  Do you have an actual application
+> >that breaks?
+> >
+> 
+> Yes, there is a customer who is quite unhappy that the semantics over Linux
+> client NFS are different than those of BSD, Solaris, and local file system
+> access on Linux itself.  The basis for my work is based on a bugzilla from
+> this customer.
+> 
+> My interpretation is based on looking at the local behavior on Linux, which
+> changes mtime/ctime even if the file size does not change, and SunOS, which
+> changes mtime/ctime even if the file size does not change and is very
+> heavily SUSv3 compliant.
+> 
+> In this case, "changed" does not mean "made different".  It simply means
+> that the file size is set to the new value.
+> 
+> I would have chosen different words or a different interpretation too,
+> but all of the evidence suggests that the semantics are as I stated.
+
+We've already fixed this to be SuSv3 compliant for both create and
+truncate. Your "safe" suggestion would break truncate again. That is why
+it is being vetoed.
+
+Cheers,
+  Trond
+

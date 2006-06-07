@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWFGWmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWFGWsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWFGWmV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 18:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWFGWmV
+	id S932441AbWFGWsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 18:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWFGWsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 18:42:21 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:40861 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932453AbWFGWmU (ORCPT
+	Wed, 7 Jun 2006 18:48:15 -0400
+Received: from ns2.suse.de ([195.135.220.15]:11706 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932441AbWFGWsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 18:42:20 -0400
-Date: Thu, 8 Jun 2006 00:42:09 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: klibc - another libc?
-In-Reply-To: <e67fok$h25$1@terminus.zytor.com>
-Message-ID: <Pine.LNX.4.64.0606080036250.17704@scrub.home>
-References: <44869397.4000907@tls.msk.ru> <e67fok$h25$1@terminus.zytor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jun 2006 18:48:14 -0400
+Date: Wed, 7 Jun 2006 15:45:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Need pci=conf1 to have my PCI slots working
+Message-ID: <20060607224535.GB17111@kroah.com>
+References: <44872F33.7020708@feitoza.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44872F33.7020708@feitoza.com.br>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 07, 2006 at 04:55:31PM -0300, Marcelo Feitoza Parisi wrote:
+> Motherboard: Asus P5VDC-MX
+> Northbridge: VIA P4M800 PRO
+> Southbridge: VIA VT8251
+> Kernel Version: 2.6.15-23-386 (Ubuntu Dapper Drake original kernel)
+> 
+> My PCI cards where not being showed on lspci and lshw. Tried to change
+> cards, change slots, nothing worked. So someone told me to try pci=conf1
+> in my boot, and it worked.He then told me that you people might be
+> interested in hearing that was necessary and then cowardly ran off.
 
-On Wed, 7 Jun 2006, H. Peter Anvin wrote:
+Can you try the latest 2.6.17-rc6 kernel?  This should hopefully "just
+work" there.
 
-> To be able to *require* it, which means it can't significantly bloat
-> the total size of the kernel image.  klibc binaries are *extremely*
-> small.  Static kinit is only a few tens of kilobytes, a lot of which
-> is zlib.
+thanks,
 
-Every project starts small and has the annoying tendency to grow.
-That still doesn't answer, why it has to be distributed with the kernel, 
-just install the thing somewhere under /lib and Kbuild can link to it. The 
-point is that it contains nothing kernel specific and doesn't has to be 
-rebult with every new kernel.
-
-bye, Roman
+greg k-h

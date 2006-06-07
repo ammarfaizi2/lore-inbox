@@ -1,86 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWFGGKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWFGGP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWFGGKf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 02:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWFGGKf
+	id S1751016AbWFGGP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 02:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbWFGGP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 02:10:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51588 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750829AbWFGGKf (ORCPT
+	Wed, 7 Jun 2006 02:15:57 -0400
+Received: from ozlabs.org ([203.10.76.45]:4307 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750829AbWFGGP4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 02:10:35 -0400
-Subject: genirq: fasteoi change for retrigger
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 07 Jun 2006 16:10:16 +1000
-Message-Id: <1149660616.27572.138.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 7 Jun 2006 02:15:56 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17542.28107.683504.207147@cargo.ozlabs.ibm.com>
+Date: Wed, 7 Jun 2006 16:10:19 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: [PATCH 1/3] Add a prctl to change the endianness of a process.
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo, Thomas.
+From: Anton Blanchard <anton@samba.org>
 
-Would you be ok with a small change to the fasteoi handler that
+This new prctl is intended for changing the execution mode of the
+processor, on processors that support both a little-endian mode and a
+big-endian mode.  It is intended for use by programs such as
+instruction set emulators (for example an x86 emulator on PowerPC),
+which may find it convenient to use the processor in an alternate
+endianness mode when executing translated instructions.
 
- - If the interrupt happens while disabled, rather than just doing goto
-out, also mark it pending
- - In the normal handling code path, clear pending.
+Note that this does not imply the existence of a fully-fledged ABI for
+both endiannesses, or of compatibility code for converting system
+calls done in the non-native endianness mode.  The program is expected
+to arrange for all of its system call arguments to be presented in the
+native endianness.
 
-That would allow some sort of soft-disable to work with fasteoi.
+Switching between big and little-endian mode will require some care in
+constructing the instruction sequence for the switch.  Generally the
+instructions up to the instruction that invokes the prctl system call
+will have to be in the old endianness, and subsequent instructions
+will have to be in the new endianness.
 
-My issue here is on Cell. I have a very strange interrupt controller
-that can't mask interrupts. 
+Signed-off-by: Anton Blanchard <anton@samba.org>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+---
+Andrew: if you are OK with this patch, I will put it in the
+powerpc.git tree along with the next 2 patches in this series, and
+merge them to Linus after 2.6.17 is released.
 
-They are all edges though (it's the internal controller of the chip, it
-only takes messages from other units, possible level interrupts coming
-from devices have to go through a separate cascaded external
-controller).
-
-It's also essentially a fasteoi controller: reading the irq number
-automatically raises the controller priority to that of that interrupt
-and the "EOI" is actually done by pushing the priority back down.
-
-However, I cannot mask those interrupts in hardware. If an interrupt is
-disabled with disable_irq(), it will have IRQ_DISABLED set, but may
-still happen. In that case, it will be properly "skipped" by the fasteoi
-handler. But the current handler won't keep track of the fact that it
-happened, thus preventing me from having a re-trigger logic when that
-interrupt is later re-enabled.
-
-The patch below implements it.
-
-Also, on another note, both the other handlers and my patch on fasteoi,
-when an interrupt happens like that, will mask it as IRQ_PENDING if
-disabled _or_ if it has no action. However, in the later case, adding an
-action (via request_irq() -> setup_irq() will not test nor clear
-IRQ_PENDING. It will be stale. Note sure how much of a problem that is
-but worth noticing... 
-
-Cheers,
-Ben.
-
-Index: linux-work/kernel/irq/chip.c
-===================================================================
---- linux-work.orig/kernel/irq/chip.c	2006-06-05 17:55:31.000000000 +1000
-+++ linux-work/kernel/irq/chip.c	2006-06-07 16:01:59.000000000 +1000
-@@ -312,10 +312,13 @@ handle_fasteoi_irq(unsigned int irq, str
- 	 * keep it masked and get out of here
- 	 */
- 	action = desc->action;
--	if (unlikely(!action || (desc->status & IRQ_DISABLED)))
-+	if (unlikely(!action || (desc->status & IRQ_DISABLED))) {
-+		desc->status |= IRQ_PENDING;
- 		goto out;
-+	}
+diff --git a/include/linux/prctl.h b/include/linux/prctl.h
+index bf022c4..52a9be4 100644
+--- a/include/linux/prctl.h
++++ b/include/linux/prctl.h
+@@ -52,4 +52,11 @@ # define PR_TIMING_TIMESTAMP    1       
+ #define PR_SET_NAME    15		/* Set process name */
+ #define PR_GET_NAME    16		/* Get process name */
  
- 	desc->status |= IRQ_INPROGRESS;
-+	desc->status &= ~IRQ_PENDING;
- 	spin_unlock(&desc->lock);
++/* Get/set process endian */
++#define PR_GET_ENDIAN	19
++#define PR_SET_ENDIAN	20
++# define PR_ENDIAN_BIG		0
++# define PR_ENDIAN_LITTLE	1	/* True little endian mode */
++# define PR_ENDIAN_PPC_LITTLE	2	/* "PowerPC" pseudo little endian */
++
+ #endif /* _LINUX_PRCTL_H */
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 0b6ec0e..12d2d75 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -57,6 +57,12 @@ #endif
+ #ifndef GET_FPEXC_CTL
+ # define GET_FPEXC_CTL(a,b)	(-EINVAL)
+ #endif
++#ifndef GET_ENDIAN
++# define GET_ENDIAN(a,b)	(-EINVAL)
++#endif
++#ifndef SET_ENDIAN
++# define SET_ENDIAN(a,b)	(-EINVAL)
++#endif
  
- 	action_ret = handle_IRQ_event(irq, regs, action);
-
-
+ /*
+  * this is where the system-wide overflow UID and GID are defined, for
+@@ -2057,6 +2063,13 @@ asmlinkage long sys_prctl(int option, un
+ 				return -EFAULT;
+ 			return 0;
+ 		}
++		case PR_GET_ENDIAN:
++			error = GET_ENDIAN(current, arg2);
++			break;
++		case PR_SET_ENDIAN:
++			error = SET_ENDIAN(current, arg2);
++			break;
++
+ 		default:
+ 			error = -EINVAL;
+ 			break;

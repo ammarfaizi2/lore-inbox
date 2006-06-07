@@ -1,34 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWFGGvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWFGGvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWFGGvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 02:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWFGGvJ
+	id S1751092AbWFGGvp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 02:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWFGGvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 02:51:09 -0400
-Received: from wr-out-0506.google.com ([64.233.184.238]:30250 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751085AbWFGGvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 02:51:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m/mQqScGZZReytAL26TenPZDynV22FVbKdsTbREFSBAlbPFJCF0EKv5Dd/CLsmA9SQEU9y8C2SvCBCOJeL9XLMShWfgXeftEdKXQJbjkoYDArCsLYlqSxok4VB/Tk6Zg5o/ZpGbH+FAQ40HH0muxMqgOKlv6eraGqE2ppImDjdM=
-Message-ID: <bda6d13a0606062351i5c94414fpa03ee2ce3dd180ae@mail.gmail.com>
-Date: Tue, 6 Jun 2006 23:51:07 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
+	Wed, 7 Jun 2006 02:51:45 -0400
+Received: from rtsoft2.corbina.net ([85.21.88.2]:2505 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S1751093AbWFGGvp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 02:51:45 -0400
+Date: Wed, 7 Jun 2006 10:52:21 +0400
+From: Vitaly Wool <vitalywool@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: klibc (was: 2.6.18 -mm merge plans)
-In-Reply-To: <200606071425.35802.ncunningham@linuxmail.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: linux-mips@linux-mips.org
+Subject: PNX8550 fails to compile in 2.6.17-rc4
+Message-Id: <20060607105221.7b15b243.vitalywool@gmail.com>
+X-Mailer: Sylpheed version 2.2.1 (GTK+ 2.8.13; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <200606071400.49980.ncunningham@linuxmail.org>
-	 <e65jj9$m9p$1@terminus.zytor.com>
-	 <200606071425.35802.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did anybody ever fix the can't pivot_root() the rootfs filesystem;
-hense can't use on a loopback system backed by NTFS?
+Hi folks,
+
+when I try to compile Linux kernel for pnx8550 in 2.6.17-rc4, I get the following error:
+
+  CC      arch/mips/philips/pnx8550/common/setup.o
+/home/vital/work/opensource/mtd/arch/mips/philips/pnx8550/common/setup.c: In function `plat_setup':
+/home/vital/work/opensource/mtd/arch/mips/philips/pnx8550/common/setup.c:133: warning: implicit declaration of function `ip3106_lcr'
+/home/vital/work/opensource/mtd/arch/mips/philips/pnx8550/common/setup.c:134: error: invalid lvalue in assignment
+/home/vital/work/opensource/mtd/arch/mips/philips/pnx8550/common/setup.c:135: warning: implicit declaration of function `ip3106_baud'
+/home/vital/work/opensource/mtd/arch/mips/philips/pnx8550/common/setup.c:135: error: invalid lvalue in assignment
+make[2]: *** [arch/mips/philips/pnx8550/common/setup.o] Error 1
+make[1]: *** [arch/mips/philips/pnx8550/common] Error 2
+make: *** [vmlinux] Error 2
+
+I guess it's not what it should be ;-)
+
+Vitaly

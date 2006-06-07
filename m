@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWFGNOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWFGNW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbWFGNOf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 09:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWFGNOf
+	id S1750852AbWFGNW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 09:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWFGNW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 09:14:35 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:17309 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750799AbWFGNOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 09:14:34 -0400
-Message-ID: <4486D070.2020806@jp.fujitsu.com>
-Date: Wed, 07 Jun 2006 22:11:12 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       "bibo,mao" <bibo.mao@intel.com>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 4/4] Make Emulex lpfc driver legacy I/O port free
-References: <20060601024611.A32490@unix-os.sc.intel.com> <20060601171559.GA16288@colo.lackof.org> <20060601113625.A4043@unix-os.sc.intel.com> <447FA920.9060509@jp.fujitsu.com> <4484263C.1030508@jp.fujitsu.com> <20060606075812.GB19619@kroah.com> <448643B9.2080805@jp.fujitsu.com> <448644D6.9030907@jp.fujitsu.com> <20060607082448.GA31004@infradead.org> <4486C537.9040105@jp.fujitsu.com> <20060607124353.GA31777@infradead.org>
-In-Reply-To: <20060607124353.GA31777@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jun 2006 09:22:27 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55702 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750852AbWFGNW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 09:22:26 -0400
+Date: Wed, 7 Jun 2006 15:21:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       paulus@samba.org
+Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
+Message-ID: <20060607132155.GB14425@elte.hu>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <1149652378.27572.109.camel@localhost.localdomain> <20060606212930.364b43fa.akpm@osdl.org> <1149656647.27572.128.camel@localhost.localdomain> <20060606222942.43ed6437.akpm@osdl.org> <1149662671.27572.158.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149662671.27572.158.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Wed, Jun 07, 2006 at 09:23:19PM +0900, Kenji Kaneshige wrote:
-> 
->>No. Your idea is very similar to the idea of previous version of my patche
->>which had a bug. The problem is that it doesn't work if 
->>pci_request_regions()
->>is called before pci_enable_device*() (This is the correct order, though so
->>many drivers breaks this rule).
-> 
-> 
-> Doesn't matter.  Drivers not using pci_enable_device_noioport should be
-> unaffect.  Any any driver you convert should be fixed to do thing in
-> the right order.
-> 
-> 
 
-I mean the right order is
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-    (1) pci_request_regions()
-    (2) pci_enable_device*()
+> during boot). In addition to that, archs need to add something to their
+> actual interrupt entry:
+> 
+> 	if (no_irq_boot) {
+> 		local_irq_disable();
+> 		return;
+> 	}
 
-So there are no chance to set the flag for pci_request_regions() to
-know which regions should be requested.
+that just moves the suckage from the mutex-debugging slowpath to the 
+irq-handling hotpath. (at which point i still prefer to have that in the 
+mutex-debugging path)
 
-Thanks,
-Kenji Kaneshige
+a better solution would be to install boot-time IRQ vectors that just do
+nothing but return. They dont mask, they dont ACK nor EOI - they just
+return. The only thing that could break this is a screaming interrupt,
+and even that one probably just slows things down a tiny bit until we
+get so far in the init sequence to set up the PIC.
+
+	Ingo

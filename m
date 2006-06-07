@@ -1,255 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWFGDVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWFGD31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWFGDVK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 23:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWFGDVK
+	id S1750781AbWFGD31 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 23:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWFGD31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 23:21:10 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:29590 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750776AbWFGDVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 23:21:08 -0400
-Message-ID: <448644A2.7000208@jp.fujitsu.com>
-Date: Wed, 07 Jun 2006 12:14:42 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 6 Jun 2006 23:29:27 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:55666 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750781AbWFGD30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 23:29:26 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
+Date: Tue, 6 Jun 2006 20:29:22 -0700
+User-Agent: KMail/1.7.1
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Don Zickus <dzickus@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       jeremy@goop.org, miles.lane@gmail.com, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+References: <4480C102.3060400@goop.org> <20060607004217.GF11696@redhat.com> <200606071050.24916.ncunningham@linuxmail.org>
+In-Reply-To: <200606071050.24916.ncunningham@linuxmail.org>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, akpm@osdl.org,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       "bibo,mao" <bibo.mao@intel.com>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 3/4] Make Intel e1000 driver legacy I/O port free
-References: <447E91CE.7010705@intel.com> <20060601024611.A32490@unix-os.sc.intel.com> <20060601171559.GA16288@colo.lackof.org> <20060601113625.A4043@unix-os.sc.intel.com> <447FA920.9060509@jp.fujitsu.com> <4484263C.1030508@jp.fujitsu.com> <20060606075812.GB19619@kroah.com> <448643B9.2080805@jp.fujitsu.com>
-In-Reply-To: <448643B9.2080805@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606062029.24123.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes Intel e1000 driver legacy I/O port free.
+On Tuesday 06 June 2006 5:50 pm, Nigel Cunningham wrote:
 
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+> Suspend: It's going to be put into a low (possibly no-) power state. It's 
+> going to come back, and when it does, you want to be able to put it back in 
+> the state it's in prior to this call.
 
----
- drivers/net/e1000/e1000.h      |    6 +
- drivers/net/e1000/e1000_main.c |  130 ++++++++++++++++++++++-------------------
- 2 files changed, 75 insertions(+), 61 deletions(-)
+Not exactly.  Suspended devices can in general can resume() into a RESET
+state in which case software reinit is appropriate ... or they can come back
+in the state that the suspend() left them in, modulo changes that may come
+from hot-unplugging hardware connected to that device.  (Which may be a
+wakeup event, depending on system configuration.)
 
-Index: linux-2.6.17-rc6/drivers/net/e1000/e1000.h
-===================================================================
---- linux-2.6.17-rc6.orig/drivers/net/e1000/e1000.h	2006-06-06 21:39:11.000000000 +0900
-+++ linux-2.6.17-rc6/drivers/net/e1000/e1000.h	2006-06-06 21:56:41.000000000 +0900
-@@ -77,8 +77,9 @@
- #define BAR_1		1
- #define BAR_5		5
- 
--#define INTEL_E1000_ETHERNET_DEVICE(device_id) {\
--	PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id)}
-+#define E1000_NO_IOPORT	(1 << 0)
-+#define INTEL_E1000_ETHERNET_DEVICE(device_id, flags) {\
-+	PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id), .driver_data = flags}
- 
- struct e1000_adapter;
- 
-@@ -338,6 +339,7 @@
- #ifdef NETIF_F_TSO
- 	boolean_t tso_force;
- #endif
-+	int bars;	/* BARs to be enabled */
- };
- 
- 
-Index: linux-2.6.17-rc6/drivers/net/e1000/e1000_main.c
-===================================================================
---- linux-2.6.17-rc6.orig/drivers/net/e1000/e1000_main.c	2006-06-06 21:39:11.000000000 +0900
-+++ linux-2.6.17-rc6/drivers/net/e1000/e1000_main.c	2006-06-06 21:56:41.000000000 +0900
-@@ -86,54 +86,54 @@
-  *   {PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id)}
-  */
- static struct pci_device_id e1000_pci_tbl[] = {
--	INTEL_E1000_ETHERNET_DEVICE(0x1000),
--	INTEL_E1000_ETHERNET_DEVICE(0x1001),
--	INTEL_E1000_ETHERNET_DEVICE(0x1004),
--	INTEL_E1000_ETHERNET_DEVICE(0x1008),
--	INTEL_E1000_ETHERNET_DEVICE(0x1009),
--	INTEL_E1000_ETHERNET_DEVICE(0x100C),
--	INTEL_E1000_ETHERNET_DEVICE(0x100D),
--	INTEL_E1000_ETHERNET_DEVICE(0x100E),
--	INTEL_E1000_ETHERNET_DEVICE(0x100F),
--	INTEL_E1000_ETHERNET_DEVICE(0x1010),
--	INTEL_E1000_ETHERNET_DEVICE(0x1011),
--	INTEL_E1000_ETHERNET_DEVICE(0x1012),
--	INTEL_E1000_ETHERNET_DEVICE(0x1013),
--	INTEL_E1000_ETHERNET_DEVICE(0x1014),
--	INTEL_E1000_ETHERNET_DEVICE(0x1015),
--	INTEL_E1000_ETHERNET_DEVICE(0x1016),
--	INTEL_E1000_ETHERNET_DEVICE(0x1017),
--	INTEL_E1000_ETHERNET_DEVICE(0x1018),
--	INTEL_E1000_ETHERNET_DEVICE(0x1019),
--	INTEL_E1000_ETHERNET_DEVICE(0x101A),
--	INTEL_E1000_ETHERNET_DEVICE(0x101D),
--	INTEL_E1000_ETHERNET_DEVICE(0x101E),
--	INTEL_E1000_ETHERNET_DEVICE(0x1026),
--	INTEL_E1000_ETHERNET_DEVICE(0x1027),
--	INTEL_E1000_ETHERNET_DEVICE(0x1028),
--	INTEL_E1000_ETHERNET_DEVICE(0x105E),
--	INTEL_E1000_ETHERNET_DEVICE(0x105F),
--	INTEL_E1000_ETHERNET_DEVICE(0x1060),
--	INTEL_E1000_ETHERNET_DEVICE(0x1075),
--	INTEL_E1000_ETHERNET_DEVICE(0x1076),
--	INTEL_E1000_ETHERNET_DEVICE(0x1077),
--	INTEL_E1000_ETHERNET_DEVICE(0x1078),
--	INTEL_E1000_ETHERNET_DEVICE(0x1079),
--	INTEL_E1000_ETHERNET_DEVICE(0x107A),
--	INTEL_E1000_ETHERNET_DEVICE(0x107B),
--	INTEL_E1000_ETHERNET_DEVICE(0x107C),
--	INTEL_E1000_ETHERNET_DEVICE(0x107D),
--	INTEL_E1000_ETHERNET_DEVICE(0x107E),
--	INTEL_E1000_ETHERNET_DEVICE(0x107F),
--	INTEL_E1000_ETHERNET_DEVICE(0x108A),
--	INTEL_E1000_ETHERNET_DEVICE(0x108B),
--	INTEL_E1000_ETHERNET_DEVICE(0x108C),
--	INTEL_E1000_ETHERNET_DEVICE(0x1096),
--	INTEL_E1000_ETHERNET_DEVICE(0x1098),
--	INTEL_E1000_ETHERNET_DEVICE(0x1099),
--	INTEL_E1000_ETHERNET_DEVICE(0x109A),
--	INTEL_E1000_ETHERNET_DEVICE(0x10B5),
--	INTEL_E1000_ETHERNET_DEVICE(0x10B9),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1000, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1001, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1004, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1008, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1009, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100C, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100D, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100E, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100F, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1010, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1011, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1012, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1013, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1014, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1015, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1016, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1017, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1018, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1019, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101A, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101D, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101E, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1026, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1027, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1028, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x105E, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x105F, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1060, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1075, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1076, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1077, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1078, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1079, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107A, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107B, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107C, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107D, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107E, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107F, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108A, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108B, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108C, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1096, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1098, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1099, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x109A, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10B5, E1000_NO_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10B9, 0),
- 	/* required last entry */
- 	{0,}
- };
-@@ -621,7 +621,14 @@
- 	int i, err, pci_using_dac;
- 	uint16_t eeprom_data;
- 	uint16_t eeprom_apme_mask = E1000_EEPROM_APME;
--	if ((err = pci_enable_device(pdev)))
-+	int bars;
-+
-+	if (ent->driver_data & E1000_NO_IOPORT)
-+		bars = pci_select_bars(pdev, IORESOURCE_MEM);
-+	else
-+		bars = pci_select_bars(pdev, IORESOURCE_MEM | IORESOURCE_IO);
-+
-+	if ((err = pci_enable_device_bars(pdev, bars)))
- 		return err;
- 
- 	if (!(err = pci_set_dma_mask(pdev, DMA_64BIT_MASK))) {
-@@ -634,7 +641,8 @@
- 		pci_using_dac = 0;
- 	}
- 
--	if ((err = pci_request_regions(pdev, e1000_driver_name)))
-+	err = pci_request_selected_regions(pdev, bars, e1000_driver_name);
-+	if (err)
- 		return err;
- 
- 	pci_set_master(pdev);
-@@ -654,6 +662,7 @@
- 	adapter->pdev = pdev;
- 	adapter->hw.back = adapter;
- 	adapter->msg_enable = (1 << debug) - 1;
-+	adapter->bars = bars;
- 
- 	mmio_start = pci_resource_start(pdev, BAR_0);
- 	mmio_len = pci_resource_len(pdev, BAR_0);
-@@ -664,12 +673,15 @@
- 		goto err_ioremap;
- 	}
- 
--	for (i = BAR_1; i <= BAR_5; i++) {
--		if (pci_resource_len(pdev, i) == 0)
--			continue;
--		if (pci_resource_flags(pdev, i) & IORESOURCE_IO) {
--			adapter->hw.io_base = pci_resource_start(pdev, i);
--			break;
-+	if (!(ent->driver_data & E1000_NO_IOPORT)) {
-+		for (i = BAR_1; i <= BAR_5; i++) {
-+			if (pci_resource_len(pdev, i) == 0)
-+				continue;
-+			if (pci_resource_flags(pdev, i) & IORESOURCE_IO) {
-+				adapter->hw.io_base =
-+					pci_resource_start(pdev, i);
-+				break;
-+			}
- 		}
- 	}
- 
-@@ -880,7 +892,7 @@
- err_ioremap:
- 	free_netdev(netdev);
- err_alloc_etherdev:
--	pci_release_regions(pdev);
-+	pci_release_selected_regions(pdev, bars);
- 	return err;
- }
- 
-@@ -935,7 +947,7 @@
- #endif
- 
- 	iounmap(adapter->hw.hw_addr);
--	pci_release_regions(pdev);
-+	pci_release_selected_regions(pdev, adapter->bars);
- 
- 	free_netdev(netdev);
- 
-@@ -4577,7 +4589,7 @@
- 	if (retval)
- 		DPRINTK(PROBE, ERR, "Error in setting power state\n");
- 	e1000_pci_restore_state(adapter);
--	ret_val = pci_enable_device(pdev);
-+	ret_val = pci_enable_device_bars(pdev, adapter->bars);
- 	pci_set_master(pdev);
- 
- 	retval = pci_enable_wake(pdev, PCI_D3hot, 0);
+CPU suspend might have additional rules (just like for any pm-smart class
+of drivers), but those are the generic rules.  Not that I think many
+platforms treat CPUs quite the same as other hardware!  :)
+
+I don't think the PM events -- suspend()/resume() -- should ever be
+entangled with hotplug events.  The former apply to devices which are
+known; the latter are how they become known (or get forgotten).
+
+
+> Every suspend or freeze must be followed by a resume.
+
+Freeze is an optional nuance; it's basically OK to treat every suspend() as
+an "enter low power mode" suspend request, regardless of the event signified
+by its parameter.  The canonical/main example of when it might _not_ do that
+is avoiding disk drive spindown on freeze durin swsusp.
+
+It's a bit problematic just now to handle hot-unplug during suspend(), so
+the best advice just now is to make sure that if that's physically possible
+(like ejecting a PCMCIA/Cardbus adapter) then driver resume() checks whether
+the device is present, just like it checks for power-lost/reset.
+
+- Dave
 

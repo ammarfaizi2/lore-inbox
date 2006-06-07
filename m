@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWFGDiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWFGDrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWFGDiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 23:38:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWFGDiQ
+	id S1750798AbWFGDrT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 23:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWFGDrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 23:38:16 -0400
-Received: from hera.kernel.org ([140.211.167.34]:9192 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750790AbWFGDiQ (ORCPT
+	Tue, 6 Jun 2006 23:47:19 -0400
+Received: from gate.crashing.org ([63.228.1.57]:47491 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750798AbWFGDrS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 23:38:16 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: klibc (was: 2.6.18 -mm merge plans)
-Date: Tue, 6 Jun 2006 20:37:56 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e65hmk$ljv$1@terminus.zytor.com>
-References: <20060604135011.decdc7c9.akpm@osdl.org> <448366FB.1070407@zytor.com> <20060606152041.GA5427@ucw.cz> <200606062256.55472.rjw@sisk.pl>
+	Tue, 6 Jun 2006 23:47:18 -0400
+Subject: Re: genirq
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20060606144242.GB29798@elte.hu>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	 <20060606144242.GB29798@elte.hu>
+Content-Type: text/plain
+Date: Wed, 07 Jun 2006 13:46:32 +1000
+Message-Id: <1149651993.27572.101.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1149651476 22144 127.0.0.1 (7 Jun 2006 03:37:56 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 7 Jun 2006 03:37:56 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200606062256.55472.rjw@sisk.pl>
-By author:    "Rafael J. Wysocki" <rjw@sisk.pl>
-In newsgroup: linux.dev.kernel
-> > 
-> > It allows me to unify swsusp & uswsusp into one in future, for
-> > example, reducing code duplication.
+
+> >  Still stabilising.  It's looking more like 2.6.19 material.  Needs 
+> >  more review from arch maintainers too.
 > 
-> [cough] How distant is the future you're referring to?
+> there hasnt been any real problem since the MSI one. The core bits are 
+> rather stable. The patch-queue had positive input from the maintainers 
+> of the two architectures with the most complex IRQ hardware (arm and 
+> ppc*), and that's reassuring. But in any case, other architectures are 
+> not affected at all (sans brow paperbag build bugs and typos), their 
+> __do_IRQ() handling remains unchanged. So i'd like to see this in 
+> 2.6.18. (there a good deal of stuff we have ontop of genirq)
 > 
+> (the irqpoll discussions are unrelated to genirq - they are fixes for an 
+> irqpoll problem that the lock validator uncovered, and naturally those 
+> patches were ontop of genirq.)
 
-Shouldn't be far, since most of the code is already written.
 
-One major advantage of klibc is that it allows most of the
-initialization code to both be re-used as standalone programs as well
-as be tested in normal userspace.  The former lets distributions
-stitch it together any way they want, and the latter should reduce
-bugs (especially since it's combined with what is a decent-sized
-subset of the POSIX programming model, as opposed to the much more
-difficult kernel programming model.)
+I vote for genirq inclusion in 2.6.18 too. I'm almost finishing porting
+powerpc over to it and so far it looks good. In addition, I'm pretty
+confident the patches have a very low impact (if at all) on archs that
+haven't been ported over (the old mecanism is still there mostly
+untouched). 
 
-	-hpa
+In addition, I'm doing some fairly heavy rework of some of the powerpc
+irq management that is based on top of the genirq port and I'd really
+want it in 2.6.18...
+
+Finally, we are doing some crash-work on MSI (trying to get some basic
+support for powerpc separate from the current unuseable
+drivers/pci/msi.c) so we can at least get something working in 2.6.18
+and that too will be based on my work mentioned above.
+
+So as far as I'm concerned, genirq is pretty important to have in right
+at the beginning.
+
+Cheers,
+Ben.
+
 

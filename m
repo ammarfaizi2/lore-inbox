@@ -1,87 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWFGE3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWFGEtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWFGE3l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 00:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWFGE3l
+	id S1750849AbWFGEtc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 00:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWFGEtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 00:29:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44973 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750841AbWFGE3l (ORCPT
+	Wed, 7 Jun 2006 00:49:31 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55491 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750718AbWFGEtb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 00:29:41 -0400
-Date: Tue, 6 Jun 2006 21:29:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-Message-Id: <20060606212930.364b43fa.akpm@osdl.org>
-In-Reply-To: <1149652378.27572.109.camel@localhost.localdomain>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	<1149652378.27572.109.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 7 Jun 2006 00:49:31 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+cc: ak@suse.de, "Brendan Trotter" <btrotter@gmail.com>
+Subject: Re: NMI problems with Dell SMP Xeons 
+In-reply-to: Your message of "Tue, 23 May 2006 15:03:39 +1000."
+             <8303.1148360619@kao2.melbourne.sgi.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 07 Jun 2006 14:49:11 +1000
+Message-ID: <6143.1149655751@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jun 2006 13:52:58 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Following a suggestion by Brendan Trotter, I ran some more tests to
+track down the problem with sending NMI IPI on Dell Xeons.
 
-> 
-> > work-around-ppc64-bootup-bug-by-making-mutex-debugging-save-restore-irqs.patch
-> > kernel-kernel-cpuc-to-mutexes.patch
-> > 
-> >  ug.  We cannot convert the cpu.c semaphore into a mutex until we work out
-> >  why power4 goes titsup if you enable local interrupts during boot.
-> 
-> What is the exact problem ? Some mutex is forcing local irqs enabled
-> before init_IRQ() ? (Before the normal enabling of IRQ done by
-> init/main.c just after init_IRQ() more precisely ?)
+BIOS Logical    OS ACPI     Cpus    IPI 2             NMI IPI
+ Processor                BIOS  OS                 (APIC_DM_NMI)
 
-Any code which does mutex_lock() will have interrupts reenabled if the
-mutex code was compiled in debug mode.
+Enabled         Enabled    4    4  Not delivered   Delivered as NMI
+Enabled         Disabled   4    2  Machine reset   Machine reset
+Disabled        Enabled    2    2  Not delivered   Delivered as NMI
+Disabled        Disabled   2    2  Not delivered   Delivered as NMI
 
-> This is bad for any architecture. Basically, at this point, the
-> interrupt controller can be in _any_ state, with possible pending
-> interrupts for whatever sources, etc...
-> 
-> As we discussed before, that problem should really be fixed in the mutex
-> code by not hard-enabling.
-> 
-> There is an incredible amount of crap that could be cleaned up for
-> example by re-ordering a bit the init code and making things like slab
-> available before init_IRQ/time_init etc... but all of those will break
-> because of that.
-> 
-> In addition, even without that re-ordering, I'm pretty sure we are
-> hitting semaphores/mutexes early, before init_IRQ(), already and if not
-> in generic code, in arch code somewhere down the call stacks.
-> 
-> I don't think that whole pile of problems lurking around the corner is
-> worth the couple of cycles saved by hard-enabling irq in the mutex
-> instead of doing a save/restore.
+So the killer combination with this motherboard is when the BIOS knows
+about logical processors but the OS does not.  Sending IPI 2 or NMI IPI
+with that combination kills the machine.  Brendan suggested that the
+BIOS is seeing the broadcast NMI on the logical processors which are
+not under OS control and that the BIOS cannot cope.
 
-A couple of cycles repeated a zillion times per second for the entire
-uptime, just because we cannot get our act together in the first few
-seconds of booting.  How much does that suck?
-
-And how much does it suck that we require that an attempt to take a
-sleeping lock must keep local interrupts disabled if the lock wasn't
-contended?
-
-Fortunately, it only happens (or at least, is only _known_ to happen) when
-mutex debugging is enabled, so the performance loss is moot.
-
-I do not know where the offending mutex_lock()s are occuring (although it
-would be super-simple to find out).
-
-By far the best solution to this would be to remove this requirement that
-local interrupts remain disabled for impractical amounts of time during boot.
-Either whack the PIC in setup_arch() or reorganise start_kernel() in some
-appropriate manner.
-
-But I'll be merging
-work-around-ppc64-bootup-bug-by-making-mutex-debugging-save-restore-irqs.patch
-so we'll just continue to suck I guess.
+Should we change the x86_64 send_IPI_allbutself() so it is only
+delivered to cpus that the OS knows about, instead of doing a general
+broadcast.  That would prevent offline or hidden cpus being sent an
+interrupt that they are not expecting.  The failing case is
+__send_IPI_shortcut, with a cfg of 0xc0c00.
 

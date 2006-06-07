@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWFGWLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWFGWMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWFGWLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 18:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWFGWLR
+	id S932435AbWFGWMl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 18:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWFGWMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 18:11:17 -0400
-Received: from mail.gmx.net ([213.165.64.20]:35487 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932440AbWFGWLQ (ORCPT
+	Wed, 7 Jun 2006 18:12:41 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:23199 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932435AbWFGWMk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 18:11:16 -0400
-X-Authenticated: #704063
-Subject: [PATCH] Synclink.c cleanup
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: paulkf@microgate.com
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 00:11:09 +0200
-Message-Id: <1149718269.16898.3.camel@alice>
+	Wed, 7 Jun 2006 18:12:40 -0400
+Date: Thu, 8 Jun 2006 00:11:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc6-mm1
+Message-ID: <20060607221142.GB6287@elte.hu>
+References: <20060607104724.c5d3d730.akpm@osdl.org> <200606072354.41443.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606072354.41443.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+* Rafael J. Wysocki <rjw@sisk.pl> wrote:
 
-coverity was lead to two false bug reports ( #782, #783 )
-where the driver checked if tty was valid, when it should
-always be. All cases which I found call these functions
-by tty->driver->mgsl_write(...) so tty has to be valid.
-This patch removes those two checks.
+> On Wednesday 07 June 2006 19:47, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+> > 
+> > - Many more lockdep updates
+> 
+> Well, I've got this one (Asus L5D, x86_64 kernel):
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+could you try the current lock validator combo patch from:
 
---- linux-2.6.17-rc5/drivers/char/synclink.c.orig	2006-06-08 00:06:04.000000000 +0200
-+++ linux-2.6.17-rc5/drivers/char/synclink.c	2006-06-08 00:06:56.000000000 +0200
-@@ -2049,7 +2049,7 @@ static void mgsl_put_char(struct tty_str
- 	if (mgsl_paranoia_check(info, tty->name, "mgsl_put_char"))
- 		return;
- 
--	if (!tty || !info->xmit_buf)
-+	if (!info->xmit_buf)
- 		return;
- 
- 	spin_lock_irqsave(&info->irq_spinlock,flags);
-@@ -2139,7 +2139,7 @@ static int mgsl_write(struct tty_struct 
- 	if (mgsl_paranoia_check(info, tty->name, "mgsl_write"))
- 		goto cleanup;
- 
--	if (!tty || !info->xmit_buf)
-+	if (!info->xmit_buf)
- 		goto cleanup;
- 
- 	if ( info->params.mode == MGSL_MODE_HDLC ||
+  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc6-mm1.patch
 
+does that fix this for you?
 
+	Ingo

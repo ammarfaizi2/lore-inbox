@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWFGWkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWFGWlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWFGWkn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 18:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWFGWkn
+	id S932452AbWFGWlK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 18:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWFGWlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 18:40:43 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:39043 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932446AbWFGWkm
+	Wed, 7 Jun 2006 18:41:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13967 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932452AbWFGWlI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 18:40:42 -0400
-Date: Wed, 7 Jun 2006 15:43:26 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: James Morris <jmorris@namei.org>
-Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>
-Subject: Re: HOWTO add privileged code to the kernel without breaking LSM/SELinux
-Message-ID: <20060607224326.GM2697@moss.sous-sol.org>
-References: <Pine.LNX.4.64.0606060229240.10150@d.namei>
+	Wed, 7 Jun 2006 18:41:08 -0400
+Date: Wed, 7 Jun 2006 15:40:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "J.A. =?ISO-8859-1?B?TWFnYWxs824i?= <jamagallon@ono.com>"@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc6-mm1
+Message-Id: <20060607154054.cf4f2512.akpm@osdl.org>
+In-Reply-To: <20060608003153.36f59e6a@werewolf.auna.net>
+References: <20060607104724.c5d3d730.akpm@osdl.org>
+	<20060608003153.36f59e6a@werewolf.auna.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606060229240.10150@d.namei>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@namei.org) wrote:
-> If you add any new code to the kernel which exposes any kind of 
-> privileged operation to userspace, then it probably needs an LSM hook and 
-> subsequent changes to SELinux.
-> 
-> It would certainly be unreasonable to expect all kernel developers to know 
-> how to do this, however, it is usually very simple to determine when a new 
-> LSM would be needed as a first step.
-> 
-> The simple tests are: does the code you're adding perform any new DAC 
-> checks involving any of the user or group ID fields of a task?  Did you 
-> add a capable() call?  Does it call DAC helper functions?
+On Thu, 8 Jun 2006 00:31:53 +0200
+"J.A. Magallón" <jamagallon@ono.com> wrote:
 
-The set_task_ioprio changes would make a nice concrete example.
+> WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x3c)
+> WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x40)
+> WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x44)
 
-> If so, it's possible that a corresponding MAC check needs to be added via 
-> LSM; and I'd ask that you simply cc any or all of the LSM and/or SELinux 
-> maintainers when posting such patches upstream for RFC or inclusion.  We 
-> can work on the LSM and SELinux side of things if needed.
-> 
-> This will not cover every case, but I think it will cover most of the ones 
-> that are likely to come up in the future.  If in doubt, it won't hurt to ask.
+Yes, that's a false positive - doing locking from within an __init section.
+We need to shut that up somehow.
 
-On a related note.  When adding sysfs files, file perms (and for SELinux,
-super block label) are the lowest common denominator for protections,
-but should also be considered the last resort.  Smth 0644 may need e.g,
-an explicit capable() check in ->store (in addition to the implicit
-permission() check).
-
-thanks,
--chris

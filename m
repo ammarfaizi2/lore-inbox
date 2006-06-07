@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWFGMRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWFGM1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWFGMRA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 08:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWFGMRA
+	id S1750706AbWFGM1E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 08:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWFGM1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 08:17:00 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:41263 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932221AbWFGMQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 08:16:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=nkzYG3EwZUB5KA0BjX9XaFgPOELcniUGgBij5zWhO9p7sRGlmp7mbot/MjW7SP4HcmqxScRibJynm50G4iAU5Xu9Fj8GcPyMJ4enVkZqG6LmAUqgL0KXBPyL7LbdIOGqD+v2FOEc1CjpFZIFcIpyPTO9Lonc3F1P0fOqfy4bqoo=
-Message-ID: <84144f020606070516m4bccdecdr998941ee74744a83@mail.gmail.com>
-Date: Wed, 7 Jun 2006 15:16:58 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Xin Zhao" <uszhaoxin@gmail.com>
-Subject: Re: Linux SLAB allocator issue
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <4ae3c140606061358j140eec9fl45e22f8a9e673215@mail.gmail.com>
+	Wed, 7 Jun 2006 08:27:04 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:57762 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750706AbWFGM1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 08:27:03 -0400
+Message-ID: <4486C537.9040105@jp.fujitsu.com>
+Date: Wed, 07 Jun 2006 21:23:19 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org,
+       Rajesh Shah <rajesh.shah@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       "bibo,mao" <bibo.mao@intel.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 4/4] Make Emulex lpfc driver legacy I/O port free
+References: <447E91CE.7010705@intel.com> <20060601024611.A32490@unix-os.sc.intel.com> <20060601171559.GA16288@colo.lackof.org> <20060601113625.A4043@unix-os.sc.intel.com> <447FA920.9060509@jp.fujitsu.com> <4484263C.1030508@jp.fujitsu.com> <20060606075812.GB19619@kroah.com> <448643B9.2080805@jp.fujitsu.com> <448644D6.9030907@jp.fujitsu.com> <20060607082448.GA31004@infradead.org>
+In-Reply-To: <20060607082448.GA31004@infradead.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4ae3c140606061358j140eec9fl45e22f8a9e673215@mail.gmail.com>
-X-Google-Sender-Auth: c5f97e954c80f3df
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/6/06, Xin Zhao <uszhaoxin@gmail.com> wrote:
-> I am trying to check how many slabs are used for inode_cache, but
-> found that all slabs are added to slabs_full list, and slabs_partial
-> is always empty. Even if the active object number does not exactly
-> occupy all slabs.
->
-> Does that mean Linux 2.6 remove the use of slabs_partial?
+Christoph Hellwig wrote:
+> On Wed, Jun 07, 2006 at 12:15:34PM +0900, Kenji Kaneshige wrote:
+> 
+>>This patch makes Emulex lpfc driver legacy I/O port free.
+> 
+> 
+> Your interface for this is really horrible ;-)
+> 
+> 
+>>+	int bars = pci_select_bars(pdev, IORESOURCE_MEM);
+>> 
+>>-	if (pci_enable_device(pdev))
+>>+	if (pci_enable_device_bars(pdev, bars))
+>> 		goto out;
+>>-	if (pci_request_regions(pdev, LPFC_DRIVER_NAME))
+>>+	if (pci_request_selected_regions(pdev, bars, LPFC_DRIVER_NAME))
+>> 		goto out_disable_device;
+> 
+> 
+> Please make this something like:
+> 
+> 	if (pci_enable_device_noioport(pdev))
+> 		goto out;
+> 	if (pci_request_regions(pdev, LPFC_DRIVER_NAME))
+> 		goto out_disable_device;
+> 
+> as in:
+> 
+>  - get rid of this awkward pci_select_bars function, the pci_enable* function
+>    should do all the work and add a flag to struct pci_dev so that all other
+>    functions do the right thing.
+> 
+> 
 
-No. If slabs_partial is really empty, the number of active objects
-should match the number of objects in a slab; otherwise you should see
-an error message when you do cat /proc/slabinfo (see s_show in
-mm/slab.c for details).
+No. Your idea is very similar to the idea of previous version of my patche
+which had a bug. The problem is that it doesn't work if pci_request_regions()
+is called before pci_enable_device*() (This is the correct order, though so
+many drivers breaks this rule).
 
-How are you verifying that the partial list is empty?
+Thanks,
+Kenji Kaneshige
 
-On 6/6/06, Xin Zhao <uszhaoxin@gmail.com> wrote:
-> Another question, the constructor transfered to the
-> kmem_cache_create() function is called for every object in a slab when
-> it is created. Is this true? Is there any way to call back a function
-> _only once_ when a new slab is allocated?
-
-We don't have per-slab constructors. Only per-object. What do you need it for?
-
-                                            Pekka

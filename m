@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWFGQDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWFGQNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWFGQDn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 12:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWFGQDn
+	id S932284AbWFGQNi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 12:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWFGQNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 12:03:43 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:8576 "EHLO pickle.fieldses.org")
-	by vger.kernel.org with ESMTP id S932282AbWFGQDm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 12:03:42 -0400
-Date: Wed, 7 Jun 2006 12:03:34 -0400
-To: Peter Staubach <staubach@redhat.com>
-Cc: Neil Brown <neilb@suse.de>, NFS List <nfs@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [NFS] [PATCH] NFS server does not update mtime on setattr request
-Message-ID: <20060607160334.GB22335@fieldses.org>
-References: <4485C3FE.5070504@redhat.com> <1149658707.27298.10.camel@localhost> <4486E662.5080900@redhat.com> <20060607151754.GB23954@fieldses.org> <4486F020.3030707@redhat.com> <20060607154258.GA22335@fieldses.org> <4486F5C7.60606@redhat.com>
+	Wed, 7 Jun 2006 12:13:38 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:50846 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932284AbWFGQNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 12:13:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=RmmFAH10UuLURLR96AyXQADvN0duS/UGFX4T/UeJCAkASkScnLfamDykTCAGJVtG9AyVC/P/nAJ/ab9gni/oA3k+sPflwFEHlJtl9sXoYlvhM4K6eIUlkAKaMm2iaNxa1VN6nbGCrHjm8s9ot+d8m7QnCHvK+x7KZNtSSpWB5O8=
+Message-ID: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com>
+Date: Wed, 7 Jun 2006 16:13:36 +0000
+From: "Ram Gupta" <ram.gupta5@gmail.com>
+To: "linux mailing-list" <linux-kernel@vger.kernel.org>
+Subject: booting without initrd
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4486F5C7.60606@redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 07, 2006 at 11:50:31AM -0400, Peter Staubach wrote:
-> The Red Hat BZ number is 193621.
+I am trying to boot with 2.6.16  kernel at my desktop running fedora
+core 4 . It does not boot without initrd generating the message "VFS:
+can not open device "804" or unknown-block(8,4)
+Please append a correct "root=" boot option
+Kernel panic - not syncing : VFS:Unable to mount root fs on unknown-block(8,4)
 
-"You are not authorized to access bug #193621", it tells me....
+I have disabled the module support & built in all modules/drivers for
+ide/scsi/sata but it does not boot. I have to disable the module as I
+need a statically built  kernel.
 
-> The description is that when zero length files are copied, even over
-> an existing zero length file, the mtime on the target file does not
-> change.
+If someone could describe the way to boot without initrd it will be great.
 
-Is the server-side patch sufficient on its own?
-
---b.
+Thanks in advance for your cooperation.
+Ram Gupta

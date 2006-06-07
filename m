@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWFGSda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWFGSkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWFGSda (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 14:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWFGSda
+	id S1751223AbWFGSkL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 14:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWFGSkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 14:33:30 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:9140 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751218AbWFGSd3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 14:33:29 -0400
-Date: Wed, 7 Jun 2006 12:33:34 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: Question regarding ext3 extents+mballoc+delalloc
-Message-ID: <20060607183334.GD5964@schatzie.adilger.int>
-Mail-Followup-To: Holger Kiehl <Holger.Kiehl@dwd.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	ext2-devel@lists.sourceforge.net
-References: <Pine.LNX.4.61.0606061021330.31147@diagnostix.dwd.de> <20060606180336.GS5964@schatzie.adilger.int> <Pine.LNX.4.61.0606070604460.24940@diagnostix.dwd.de>
+	Wed, 7 Jun 2006 14:40:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48813 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751223AbWFGSkJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 14:40:09 -0400
+Date: Wed, 7 Jun 2006 11:39:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrew Victor <andrew@sanpeople.com>
+Cc: linux-kernel@vger.kernel.org, alessandro.zummo@towertech.it
+Subject: Re: [PATCH] RTC: Ensure that time being passed to set_alarm() is
+ valid.
+Message-Id: <20060607113911.1dd03687.akpm@osdl.org>
+In-Reply-To: <1149704455.20386.90.camel@fuzzie.sanpeople.com>
+References: <1149704455.20386.90.camel@fuzzie.sanpeople.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0606070604460.24940@diagnostix.dwd.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 07, 2006  06:50 +0000, Holger Kiehl wrote:
-> On Tue, 6 Jun 2006, Andreas Dilger wrote:
-> >One of the main reasons this isn't in the kernel yet is that the extents
-> >on-disk format is incompatible with the current ext3 on-disk format.
-> >That is OK for Lustre because the storage servers are essentially
-> >"appliances" that are used in well-controlled environments, but this
-> >isn't so good when random users get involved.  The patches couldn't be
-> >merged until there was some consensus reached about the extents on-disk
-> >format.
->
-> Just to ensure that I understand this correctly. The on-disk format is not
-> final and it will still change. This means if I use it now I will have
-> to reformat the disk when ever the format is changed.
+On 07 Jun 2006 20:20:55 +0200
+Andrew Victor <andrew@sanpeople.com> wrote:
 
-Actually, in the end the format of the current extents is the one that will
-be supported by kernel.org kernels.  It may be that there will be another
-extents format at some time in the future, but the current format was deemed
-good enough for now.
-
-There are still a couple of minor changes that are being worked on, but
-a filesystem with the current extents format will be usable in the future.
-
-> As you mention e2fsprogs also needs to be updated:
+> RTC: Ensure that the time being passed to set_alarm() is valid.
 > 
->    # dumpe2fs -h /dev/md7
->    dumpe2fs 1.38 (30-Jun-2005)
->    dumpe2fs: Filesystem has unsupported feature(s) while trying to open 
->    /dev/md7
->    Couldn't find valid filesystem superblock.
 > 
-> Are there any patches down loadable, that add support to the e2fsprogs?
+> Signed-off-by: Andrew Victor <andrew@sanpeople.com>
+> Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+> 
+> 
+> diff -urN -x CVS linux-2.6.17-rc6/drivers/rtc/interface.c
+> linux-2.6.17-rc/drivers/rtc/interface.c
+> --- linux-2.6.17-rc6/drivers/rtc/interface.c	Tue Jun  6 10:28:05 2006
+> +++ linux-2.6.17-rc/drivers/rtc/interface.c	Wed Jun  7 11:46:28 2006
+> @@ -129,6 +129,10 @@
+>  	int err;
+>  	struct rtc_device *rtc = to_rtc_device(class_dev);
+>  
+> +	err = rtc_valid_tm(&alarm->time);
+> +	if (err != 0)
+> +		return err;
+> +
+>  	err = mutex_lock_interruptible(&rtc->ops_lock);
+>  	if (err)
+>  		return -EBUSY;
+> 
 
-Yes, these were posted as part of a whole patch series by Bull to ext2-devel.
-You can also download the CFS e2fsprogs-1.38-cfs2 RPMs from
-ftp://ftp.lustre.org/pub/lustre/other/e2fsprogs/
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+More details, please.  How can this situation come about?  Buggy kernel
+code?  Userspace action?

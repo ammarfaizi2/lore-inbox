@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWFGEJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWFGEIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWFGEJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 00:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWFGEJ4
+	id S1750783AbWFGEIp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 00:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWFGEIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 00:09:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:58243 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750810AbWFGEJz (ORCPT
+	Wed, 7 Jun 2006 00:08:45 -0400
+Received: from hera.kernel.org ([140.211.167.34]:23961 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750783AbWFGEIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 00:09:55 -0400
-Subject: Re: [PATCH  6/9] PCI PM: call platform helpers properly
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Adam Belay <abelay@novell.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       Len Brown <len.brown@intel.com>
-In-Reply-To: <1149648774.7831.217.camel@localhost.localdomain>
-References: <1149497171.7831.160.camel@localhost.localdomain>
-	 <1149553874.559.2.camel@localhost.localdomain>
-	 <1149648774.7831.217.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 07 Jun 2006 14:09:35 +1000
-Message-Id: <1149653375.27572.111.camel@localhost.localdomain>
+	Wed, 7 Jun 2006 00:08:44 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: AMD64: 64 bit kernel 32 bit userland - some pending questions
+Date: Tue, 6 Jun 2006 21:08:26 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e65jfq$m6v$1@terminus.zytor.com>
+References: <787b0d920606062011j21083e80v659228a7565ecfab@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1149653306 22752 127.0.0.1 (7 Jun 2006 04:08:26 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 7 Jun 2006 04:08:26 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-06 at 22:52 -0400, Adam Belay wrote:
+Followup to:  <787b0d920606062011j21083e80v659228a7565ecfab@mail.gmail.com>
+By author:    "Albert Cahalan" <acahalan@gmail.com>
+In newsgroup: linux.dev.kernel
+> 
+> The bigger problem is that 32-bit code has fewer CPU registers.
+> (nobody has done an ILP32 ABI for long mode) This is slow.
+> 
 
-> Hmm, do you know of any example firmware scenarios that make the entire
-> state transition?  We might need a separate callback.  I think the
-> changes in this patch are at least an improvement over the current
-> behavior, especially for ACPI PM functions.  
+The issue isn't the ABI, the issue is that the processor doesn't
+support it, since some of the opcodes mean different things in 16-,
+32- and 64-bit mode.  The opcodes which access the high half of the
+register sets (REX prefixes) in 64-bit mode are INC and DEC
+instructions in 16- and 32-bit mode.
 
-Well, do we know precisely what ACPI does/needs for example here ?
+AMD was apparently considering adding a "REX32" mode at some point,
+but rather predictably noone was interested enough to make it
+worthwhile.
 
-Ben.
-
+	-hpa
 

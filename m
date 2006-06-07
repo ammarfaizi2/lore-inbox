@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWFGJnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWFGJrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWFGJnh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 05:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWFGJnh
+	id S932113AbWFGJrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 05:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWFGJrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 05:43:37 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:54491 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932109AbWFGJng (ORCPT
+	Wed, 7 Jun 2006 05:47:09 -0400
+Received: from ns.suse.de ([195.135.220.2]:48530 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932113AbWFGJrI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 05:43:36 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: klibc (was: 2.6.18 -mm merge plans)
-Date: Wed, 7 Jun 2006 11:44:01 +0200
+	Wed, 7 Jun 2006 05:47:08 -0400
+From: Andi Kleen <ak@suse.de>
+To: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH 0/5] Sizing zones and holes in an architecture independent manner V7
+Date: Wed, 7 Jun 2006 11:45:04 +0200
 User-Agent: KMail/1.9.3
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060604135011.decdc7c9.akpm@osdl.org> <200606062256.55472.rjw@sisk.pl> <20060607084455.GA7399@elf.ucw.cz>
-In-Reply-To: <20060607084455.GA7399@elf.ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
+       tony.luck@intel.com, bob.picco@hp.com, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, linux-mm@kvack.org
+References: <20060606134710.21419.48239.sendpatchset@skynet.skynet.ie> <20060606164311.27d4af98.akpm@osdl.org> <Pine.LNX.4.64.0606071030100.20653@skynet.skynet.ie>
+In-Reply-To: <Pine.LNX.4.64.0606071030100.20653@skynet.skynet.ie>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606071144.01717.rjw@sisk.pl>
+Message-Id: <200606071145.04938.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 June 2006 10:44, Pavel Machek wrote:
-> > > > The original idea was due Al Viro; obviously, the 
-> > > > implementation is mostly mine.
-> > > > 
-> > > > It is of course my hope that this will be used for more 
-> > > > than just plain initialization code, but that in itself 
-> > > > is a significant step, and one has to start somewhere.
-> > > 
-> > > It allows me to unify swsusp & uswsusp into one in future, for
-> > > example, reducing code duplication.
-> > 
-> > [cough] How distant is the future you're referring to?
-> 
-> Year or two, I believe. Actually it is not as much as "unify swsusp &
-> uswsusp" as "drop kernel/power/swap.c" and possibly put parts of
-> uswsusp into initial userland so that user do not notice it was
-> dropped from kernel.
+> Spanned pages and holes will be different on 
+> x86_64 because I don't account the kernel image and memmap as holes. 
 
-OK
+That's a significant inaccuracy and may give worse VM results.
 
-Rafael
+-Andi

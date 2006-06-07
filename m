@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWFGJRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWFGJQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWFGJRu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 05:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWFGJRu
+	id S932079AbWFGJQk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 05:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWFGJQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 05:17:50 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:18449 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932080AbWFGJRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 05:17:49 -0400
-Message-ID: <4486999E.8000207@shadowen.org>
-Date: Wed, 07 Jun 2006 10:17:18 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-       ak@suse.de, Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.17-rc5-mm1
-References: <447DEF49.9070401@google.com> <20060531140652.054e2e45.akpm@osdl.org> <447E093B.7020107@mbligh.org> <20060531144310.7aa0e0ff.akpm@osdl.org> <447E104B.6040007@mbligh.org> <447F1702.3090405@shadowen.org> <44842C01.2050604@shadowen.org> <Pine.LNX.4.64.0606051137400.17951@schroedinger.engr.sgi.com> <44848DD2.7010506@shadowen.org> <Pine.LNX.4.64.0606051304360.18543@schroedinger.engr.sgi.com> <44848F45.1070205@shadowen.org> <44849075.5070802@google.com> <Pine.LNX.4.64.0606051325351.18717@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606051334010.18717@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jun 2006 05:16:40 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:11419 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932079AbWFGJQj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 05:16:39 -0400
+Date: Wed, 7 Jun 2006 10:16:37 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Bligh <mbligh@google.com>, apw@shadowen.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
+Message-ID: <20060607091636.GA19510@skynet.ie>
+References: <4484D174.7080902@google.com> <20060606164241.69d55238.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20060606164241.69d55238.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: mel@csn.ul.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> Sigh the patch that I sent earlier will make swapon fail when adding more 
-> entries if 32 entries have been defined before even if some of these are 
-> later freed. Plus maybe we better leave the probing intact for arches that 
-> support less than 32 swap devices and also return -EPERM like before. I 
-> guess we need this one instead:
+On (06/06/06 16:42), Andrew Morton didst pronounce:
+> On Mon, 05 Jun 2006 17:51:00 -0700
+> Martin Bligh <mbligh@google.com> wrote:
 > 
+> > http://test.kernel.org/abat/34264/debug/console.log
 > 
-> Do proper boundary checking in sys_swapon().
+> What sort of machine is this, anyway?
 > 
-> sys_swapon currently does not limit the number of swap devices. It may as
-> a result overwrite memory following the swap_info array and get into 
-> entanglements with page migration since it may usethe swap types reserved 
-> for page migration.
+> > WARNING: Not an IBM x440/NUMAQ and CONFIG_NUMA enabled!
 > 
-> Fix this by limiting the number of swap devices in swapon to 
-> MAX_SWAPFILES
-> 
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
-> Index: linux-2.6.17-rc5-mm2/mm/swapfile.c
-> ===================================================================
-> --- linux-2.6.17-rc5-mm2.orig/mm/swapfile.c	2006-06-01 10:03:07.127259731 -0700
-> +++ linux-2.6.17-rc5-mm2/mm/swapfile.c	2006-06-05 13:40:45.887291175 -0700
-> @@ -1408,8 +1408,13 @@ asmlinkage long sys_swapon(const char __
->  		spin_unlock(&swap_lock);
->  		goto out;
->  	}
-> -	if (type >= nr_swapfiles)
-> +	if (type >= nr_swapfiles) {
-> +		if (nr_swapfiles >= MAX_SWAPFILES) {
-> +			spin_unlock(&swap_lock);
-> +			goto out;
-> +		}
->  		nr_swapfiles = type+1;
-> +	}
->  	INIT_LIST_HEAD(&p->extent_list);
->  	p->flags = SWP_USE
->  	p->swap_file = NULL;
 
-Ok, this patch in combination with your other 2222 deadlock fix are
-showing passes across the board.
+It's an IBM x440 that is not recognised by that check. Later in the log,
+we see
 
-Acked-by: Andy Whitcroft <apw@shadowen.org>
+IBM eserver xSeries 440 detected: force use of acpi=ht
 
--apw
+> And is it expected that ZONE_NORMAL only has 384MB?  That seems awfully low
+> for a 64GB x86 machine.  Could be that we went oom because we chose to
+> allocate really big hash tables, based on the total amount of memory?
+> 
+
+The log reports 392MB LOWMEM available. As it is 32 bit machine, it started
+with about 896MB but consumes much of it with mem_maps.  The log shows
+calculate_numa_remap_pages() reporting
+
+Reserving 35328 pages of KVA for lmem_map of node 0
+Shrinking node 0 from 4456448 pages to 4421120 pages
+Reserving 31232 pages of KVA for lmem_map of node 1
+Shrinking node 1 from 8650752 pages to 8619520 pages
+Reserving 31232 pages of KVA for lmem_map of node 2
+Shrinking node 2 from 12845056 pages to 12813824 pages
+Reserving 29184 pages of KVA for lmem_map of node 3
+Shrinking node 3 from 16777216 pages to 16748032 pages
+Reserving total of 126976 pages for numa KVA remap
+reserve_pages = 126976 find_max_low_pfn() ~ 229375
+
+That is 400MB gone already which is mapped to lowmem. A little later in the
+log, it says
+
+min_low_pfn = 1140, max_low_pfn = 100352, highstart_pfn = 100352
+
+so about 4MB is missing from the beginning (probably the kernel image),
+so we're down to 396ish. Not sure where the last 4MB is exactly but you
+get the idea.
+
+While it is possible we are going OOM due to the size of lowmem, it's
+doubtful to be the only cause.
+http://test.kernel.org/functional/index.html shows that elm3b67 (the
+machine in question) has passed loads of tests in the past.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

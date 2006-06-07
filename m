@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWFGReB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWFGRgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWFGReB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 13:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWFGReB
+	id S932364AbWFGRgi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 13:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWFGRgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 13:34:01 -0400
-Received: from mga07.intel.com ([143.182.124.22]:32952 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932363AbWFGReA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 13:34:00 -0400
-X-IronPort-AV: i="4.05,217,1146466800"; 
-   d="scan'208"; a="47493603:sNHT1053080980"
-Date: Wed, 7 Jun 2006 10:29:17 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andrew Morton <akpm@osdl.org>, davem@caip.rutgers.edu
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, nickpiggin@yahoo.com.au,
-       mingo@elte.hu, pwil3058@bigpond.net.au, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] sched: mc/smt power savings sched policy
-Message-ID: <20060607102917.A25186@unix-os.sc.intel.com>
-References: <20060606112521.A18026@unix-os.sc.intel.com> <20060607094943.0433a52c.akpm@osdl.org>
+	Wed, 7 Jun 2006 13:36:38 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:20180 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932364AbWFGRgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 13:36:37 -0400
+Date: Wed, 7 Jun 2006 11:36:42 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Adrian's Trivial Patches" <trivial@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] use unlikely() for current_kernel_time() loop
+Message-ID: <20060607173642.GA6378@schatzie.adilger.int>
+Mail-Followup-To: Adrian's Trivial Patches <trivial@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060607094943.0433a52c.akpm@osdl.org>; from akpm@osdl.org on Wed, Jun 07, 2006 at 09:49:43AM -0700
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 07, 2006 at 09:49:43AM -0700, Andrew Morton wrote:
-> On Tue, 6 Jun 2006 11:25:21 -0700
-> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
-> 
-> > Appended the patch. Can someone please test compile the powerpc change?
-> 
-> powerpc compiles and boots OK, but sparc64 is not so good.
-> 
-> kernel/built-in.o(.text+0x6ec0): In function `sched_create_sysfs_power_savings_entries':
-> : undefined reference to `smt_capable'
+Hello,
+I just noticed this minor optimization.  current_kernel_time() is called
+from current_fs_time() so it is used fairly often but it doesn't use
+unlikely(read_seqretry(&xtime_lock, seq)) as other users of xtime_lock do.
+Also removes extra whitespace on the empty line above.
 
-Dave, I am not sure if the appended patch is the correct(perhaps temporary?)
-mechanism(currently smp_prepare_cpus() also uses this mechanism) in identifying
-a SMT capable sparc64 processor. Can you confirm?
+Signed-off-by: Andreas Dilger <adilger@clusterfs.com>
 
-thanks,
-suresh
---
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-
---- linux-2.6.17-rc5/include/asm-sparc64/topology.h	2006-05-24 18:50:17.000000000 -0700
-+++ linux/include/asm-sparc64/topology.h	2006-06-07 08:28:13.726071744 -0700
-@@ -1,6 +1,9 @@
- #ifndef _ASM_SPARC64_TOPOLOGY_H
- #define _ASM_SPARC64_TOPOLOGY_H
+--- ./kernel/time.c.orig	2006-05-08 15:40:43.000000000 -0600
++++ ./kernel/time.c	2006-06-07 11:24:49.000000000 -0600
+@@ -424,9 +424,9 @@ inline struct timespec current_kernel_time
  
-+#include <asm/spitfire.h>
-+#define smt_capable()	(tlb_type == hypervisor)
+ 	do {
+ 		seq = read_seqbegin(&xtime_lock);
+-		
 +
- #include <asm-generic/topology.h>
+ 		now = xtime;
+-	} while (read_seqretry(&xtime_lock, seq));
++	} while (unlikely(read_seqretry(&xtime_lock, seq)));
  
- #endif /* _ASM_SPARC64_TOPOLOGY_H */
+ 	return now; 
+ }
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

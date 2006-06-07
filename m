@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWFGHEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWFGHJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWFGHEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 03:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFGHEI
+	id S1751076AbWFGHJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 03:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFGHJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 03:04:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39394 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751093AbWFGHEH (ORCPT
+	Wed, 7 Jun 2006 03:09:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63397 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751076AbWFGHJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 03:04:07 -0400
-Date: Wed, 7 Jun 2006 00:03:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, paulus@samba.org
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-Message-Id: <20060607000348.787b8f16.akpm@osdl.org>
-In-Reply-To: <1149662671.27572.158.camel@localhost.localdomain>
+	Wed, 7 Jun 2006 03:09:56 -0400
+Subject: Re: 2.6.18 -mm merge plans -- GFS
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: David Teigland <teigland@redhat.com>, davej@redhat.com,
+       Patrick Caulfield <pcaulfie@redhat.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>
+In-Reply-To: <1149519691.3856.1002.camel@quoit.chygwyn.com>
 References: <20060604135011.decdc7c9.akpm@osdl.org>
-	<1149652378.27572.109.camel@localhost.localdomain>
-	<20060606212930.364b43fa.akpm@osdl.org>
-	<1149656647.27572.128.camel@localhost.localdomain>
-	<20060606222942.43ed6437.akpm@osdl.org>
-	<1149662671.27572.158.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	 <1149514730.30024.133.camel@pmac.infradead.org>
+	 <1149519691.3856.1002.camel@quoit.chygwyn.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Wed, 07 Jun 2006 08:12:10 +0100
+Message-Id: <1149664330.3856.1126.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jun 2006 16:44:31 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Hi,
 
-> So what can we do ?
+[at the risk of appearing to be mad by replying to myself...]
 
-Well my plan is to keep being sucky, hence
-work-around-ppc64-bootup-bug-by-making-mutex-debugging-save-restore-irqs.patch.
+On Mon, 2006-06-05 at 16:01 +0100, Steven Whitehouse wrote:
+> Hi,
+> 
+> On Mon, 2006-06-05 at 14:38 +0100, David Woodhouse wrote:
+> > On Sun, 2006-06-04 at 13:50 -0700, Andrew Morton wrote:
+> > > It's time to take a look at the -mm queue for 2.6.18.
+> > 
+> > You didn't mention GFS2 either -- is that ready to go upstream?
+> 
+> Assuming that 2.6.18 is imminent, as I understand it is, then my
+> preferred option would be for GFS2 to spend one more cycle in -mm,
+> assuming that nobody would disagree with that. I pretty sure that we'll
+> be ready by the time 2.6.19 comes around to request inclusion upstream
+> but 2.6.18 might be just a bit too soon,
+> 
+> Steve.
+> 
 
-The rule is that sleeping locks need to preserve local IRQs in the
-non-contended case.   So be it, move on to more pressing things.
+To clarify the above a bit more, there is one regression in GFS2 in the
+current -mm tree that needs to be fixed. Since Linus has announced
+2.6.17-rc6, there is now in fact time for that to happen, so that we
+will be ready to merge for 2.6.18. Sorry for any confusion my earlier
+comment might have caused,
+
+Steve.
+[now recovered from jet lag :-) ]
+

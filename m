@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWFGVPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWFGVRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbWFGVPb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 17:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWFGVPb
+	id S932422AbWFGVRq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 17:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWFGVRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 17:15:31 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38049 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932421AbWFGVPa (ORCPT
+	Wed, 7 Jun 2006 17:17:46 -0400
+Received: from hera.kernel.org ([140.211.167.34]:12993 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932422AbWFGVRp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 17:15:30 -0400
-Date: Wed, 7 Jun 2006 23:14:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Wed, 7 Jun 2006 17:17:45 -0400
 To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-Subject: 2.6.17-rc6-rt1
-Message-ID: <20060607211455.GA6132@elte.hu>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: klibc - another libc?
+Date: Wed, 7 Jun 2006 14:17:08 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e67fok$h25$1@terminus.zytor.com>
+References: <44869397.4000907@tls.msk.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5002]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1149715028 17478 127.0.0.1 (7 Jun 2006 21:17:08 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 7 Jun 2006 21:17:08 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have released the 2.6.17-rc6-rt1 tree, which can be downloaded from 
-the usual place:
+Followup to:  <44869397.4000907@tls.msk.ru>
+By author:    Michael Tokarev <mjt@tls.msk.ru>
+In newsgroup: linux.dev.kernel
+>
+> After several mentions of klibc recently, I want to ask a question.
+> 
+> I understand all the kernel-mode cleanups -- moving initialization
+> from kernel to user space is a very good thing.
+> 
+> But the question really is: why yet another libc?  We already have
+> dietlibc, uclibc, glibc, now klibc...  With modern kernel, initramfs
+> will very probably contain quite some programs linked with glibc
+> (modprobe/insmod, mdadm/lvm, etc; I highly suggest putting some
+> minimal text editor like nvi there too, for rescue purposes) --
+> so why not have an option to use whatever libc is available on
+> the host platform?
+> 
 
-   http://redhat.com/~mingo/realtime-preempt/
+You have that option just fine; if you build your own initramfs you
+can do whatever you want.
 
-the biggest change was the port to 2.6.17-rc6, and the moving to John's 
-latest and greatest GTOD queue. Most of the porting was done by Thomas 
-Gleixner (thanks Thomas!). We also picked up the freshest genirq queue 
-from -mm and the freshest PI-futex patchset. There are also lots of ARM 
-fixups and enhancements from Deepak Saxena and Daniel Walker.
+> In the other words, kinit/ipconfig/nfsmount/etc stuff is ok,
+> no questions.  But the libc itself -- what for?
 
-if we accidentally dropped some fix in the process then please complain. 
-x86 and x86_64 build and boot, but some initial rough edges are to be 
-expected. Deepak, your ARM-GTOD patches are included but not tested yet.
+To be able to *require* it, which means it can't significantly bloat
+the total size of the kernel image.  klibc binaries are *extremely*
+small.  Static kinit is only a few tens of kilobytes, a lot of which
+is zlib.
 
-to build a 2.6.17-rc6-rt1 tree, the following patches should be applied:
+> And another related question: why not dietlibc which is already
+> here, for quite long time?
 
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.17-rc6.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.17-rc6-rt1
+- Bigger by an order of magnitude
+- License issues
+- Platform support
+- Speed of portability (klibc is fully portable to a new platform in an afternoon)
+- Additional issues which you can find if look through the archives of this list
 
-	Ingo
+	-hpa
+

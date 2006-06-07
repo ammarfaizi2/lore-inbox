@@ -1,39 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWFGQd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWFGQgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWFGQd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 12:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWFGQd6
+	id S932318AbWFGQgF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 12:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWFGQgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 12:33:58 -0400
-Received: from mx2.suse.de ([195.135.220.15]:55440 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932321AbWFGQd5 (ORCPT
+	Wed, 7 Jun 2006 12:36:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53988 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932318AbWFGQgD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 12:33:57 -0400
-From: Andi Kleen <ak@suse.de>
-To: Don Zickus <dzickus@redhat.com>
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG =?iso-8859-1?q?in=09arch/i386/kernel/nmi=2Ec=3A174?=
-Date: Wed, 7 Jun 2006 18:33:38 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Shaohua Li <shaohua.li@intel.com>,
-       Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <4480C102.3060400@goop.org> <4485AC1F.9050001@goop.org> <20060607024938.GG11696@redhat.com>
-In-Reply-To: <20060607024938.GG11696@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 7 Jun 2006 12:36:03 -0400
+Date: Wed, 7 Jun 2006 09:35:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: apw@shadowen.org, y-goto@jp.fujitsu.com, kamezawa.hiroyu@jp.fujitsu.com,
+       mbligh@google.com, linux-kernel@vger.kernel.org,
+       76306.1226@compuserve.com
+Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
+Message-Id: <20060607093535.229bbda4.akpm@osdl.org>
+In-Reply-To: <20060607092950.653db4cb.akpm@osdl.org>
+References: <20060605200727.374cbf05.akpm@osdl.org>
+	<20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060606142347.2AF2.Y-GOTO@jp.fujitsu.com>
+	<20060606002758.631118da.akpm@osdl.org>
+	<44869BAB.6070100@shadowen.org>
+	<20060607092950.653db4cb.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606071833.38773.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 June 2006 04:49, Don Zickus wrote:
-> Makes the start/stop paths of nmi watchdog more robust to handle the
-> suspend/resume cases more gracefully.
+On Wed, 7 Jun 2006 09:29:50 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-Can someone with the problem please confirm the patch actually helps.
+> Note that the code can be optimised:
+> 
+> 	if (page_zone_id(page) != page_zone_id(buddy))
+> 
+> ...
+> 
+> static inline int page_zone_id(struct page *page)
+> {
+> 	return (page->flags >> ZONETABLE_PGSHIFT) & ZONETABLE_MASK;
+> }
+> 
+> We don't need to perform the shift to make that comparison.  If the
+> compiler's sufficiently smart it will be able to optimise that for us.
+> 
+> <checks>
+> 
+>         shrl    $30, %edx       #, <variable>.flags
+>         shrl    $30, %eax       #, <variable>.flags
+>         cmpl    %eax, %edx      # <variable>.flags, <variable>.flags
+> 
+> Nope, not smart enough.
 
-Thanks,
+I take it back:
 
--Andi
+.LFB856:
+	.loc 1 314 0
+.LVL540:
+	pushl	%ebp	#
+.LCFI419:
+	movl	%esp, %ebp	#,
+.LCFI420:
+	pushl	%ebx	#
+.LCFI421:
+	.loc 1 314 0
+	movl	%edx, %ebx	# buddy, buddy
+	.loc 1 320 0
+	movl	(%eax), %edx	# <variable>.flags, <variable>.flags
+.LVL541:
+	movl	(%ebx), %eax	# <variable>.flags, <variable>.flags
+.LVL542:
+	shrl	$30, %edx	#, <variable>.flags
+	shrl	$30, %eax	#, <variable>.flags
+	cmpl	%eax, %edx	# <variable>.flags, <variable>.flags
+	jne	.L587	#,
+.LBB1082:
+
+The compiler's done something sneaky there and has omitted the masking.
+
+
+Anyway.  It sure doesn't look like it's worth a config option.

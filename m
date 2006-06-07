@@ -1,149 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWFGAq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWFGAtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWFGAq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWFGAq3
+	id S1751136AbWFGAtU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWFGAtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:46:29 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:64468 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751084AbWFGAq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:46:28 -0400
-Date: Wed, 7 Jun 2006 09:43:55 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: y-goto@jp.fujitsu.com, mbligh@google.com, apw@shadowen.org,
-       linux-kernel@vger.kernel.org, 76306.1226@compuserve.com
-Subject: Re: sparsemem panic in 2.6.17-rc5-mm1 and -mm2
-Message-Id: <20060607094355.b77ed883.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060606002758.631118da.akpm@osdl.org>
-References: <20060605200727.374cbf05.akpm@osdl.org>
-	<20060606141922.c5fb16ad.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060606142347.2AF2.Y-GOTO@jp.fujitsu.com>
-	<20060606002758.631118da.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 6 Jun 2006 20:49:20 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43189 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751136AbWFGAtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 20:49:19 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Don Zickus <dzickus@redhat.com>, "Linux-pm list" <linux-pm@lists.osdl.org>
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
+Date: Wed, 7 Jun 2006 10:50:20 +1000
+User-Agent: KMail/1.9.1
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       shaohua.li@intel.com, miles.lane@gmail.com, jeremy@goop.org,
+       linux-kernel@vger.kernel.org
+References: <4480C102.3060400@goop.org> <200606071005.14307.ncunningham@linuxmail.org> <20060607004217.GF11696@redhat.com>
+In-Reply-To: <20060607004217.GF11696@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart20171759.IrOMuyQhyY";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606071050.24916.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jun 2006 00:27:58 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+--nextPart20171759.IrOMuyQhyY
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> 
-> I tried sparsemem on my little x86 box here.  Boots OK, after fixing up the
-> kswapd_init() patch (below).
-> 
-> I'm wondering why I have 4k of highmem:
-> 
+Hi.
 
-Could you show /proc/iomem of your 4k HIGHMEM box ?
-Does 4k HIGHMEM exist only when SPARSEMEM is selected ?
+On Wednesday 07 June 2006 10:42, Don Zickus wrote:
+> On Wed, Jun 07, 2006 at 10:05:07AM +1000, Nigel Cunningham wrote:
+> > Hi.
+> >
+> > On Wednesday 07 June 2006 09:55, Don Zickus wrote:
+> > > > > So my question is/was what is the proper way to handle processor
+> > > > > level subsystems during the suspend/resume path on an SMP system.=
+=20
+> > > > > I really don't understand the hotplug path nor the suspend/resume
+> > > > > path very well.
+> > > >
+> > > > Make it work properly for CPU hotplug for individual CPU and then in
+> > > > suspend you take care of "global" state and the last CPU.
+> > >
+> > > So the assumption is treat all the cpus the same either all on or all
+> > > off, no mixed mode (some cpus on, some cpus off).  I guess I was tryi=
+ng
+> > > to hard to work on the per-cpu level.
+> >
+> > This sounds wrong to me. Shouldn't the the effect of hotunplugging a cpu
+> > be to put the driver in a state equivalent to if that cpu simply didn't
+> > exist? Unplugging shouldn't assume we're going to subsequently have
+> > either a driver suspend, or a replug.
+>
+> This is my biggest problem or maybe my complete lack of understanding, is
+> that I don't know how to determine what state I am in during a hotplug
+> event, either a cpu removal or a suspend.  Therefore I feel like I have to
+> store some persistant data around _just_ in case this is a suspend event.
+> Also at the opposite end, how to separate a cpu insert vs. a cpu resume.
+> The different being initialize to a global state vs. initialize to a last
+> known state.
+>
+> I thought it would make more sense if a few more states were to the
+> hotplug event list.  For example, in addition to CPU_ONLINE and CPU_DEAD,
+> there could also be something like CPU_SUSPEND, CPU_FREEZE, CPU_RESUME,
+> and CPU_THAW.
+>
+> Anyway, I am probably complicating the matter.  I'll whip something up and
+> post it for review.
 
-Thanks,
--Kame
+Act like...
 
+Unplug: It's going away, never to return.
+Plug: It's just appeared from nowhere, is completely uninitialised and may =
+be=20
+a different item to anything that happened to look the same before.
+Suspend: It's going to be put into a low (possibly no-) power state. It's=20
+going to come back, and when it does, you want to be able to put it back in=
+=20
+the state it's in prior to this call.
+Resume: You want to restore the state you saved in memory when given the=20
+suspend call earlier.
 
+Regarding _FREEZE, there is work in progress to add this. I haven't been=20
+following the conversation really closely recently, but my understanding is=
+=20
+that you should expect it to be similar to suspend, except that you can=20
+guarantee that power will not be lost. All activity should be stopped so th=
+at=20
+you get a consistent state which you can restore in the resume call. Every=
+=20
+suspend or freeze must be followed by a resume.
 
+I'll add the linux-pm list to the cc, just in case I've gotten something wr=
+ong=20
+or the other guys want to comment and have missed this thread.
 
+Hope this helps.
 
+Regards,
 
-> MemTotal:       898200 kB
-> MemFree:        832936 kB
-> Buffers:          8824 kB
-> Cached:          30140 kB
-> SwapCached:          0 kB
-> Active:          25052 kB
-> Inactive:        20800 kB
-> HighTotal:           4 kB
-> HighFree:            4 kB
-> LowTotal:       898196 kB
-> LowFree:        832932 kB
-> SwapTotal:     1020116 kB
-> SwapFree:      1020116 kB
-> Dirty:               0 kB
-> Writeback:           0 kB
-> Mapped:          10340 kB
-> Slab:            10252 kB
-> CommitLimit:   1469216 kB
-> Committed_AS:    15496 kB
-> PageTables:        528 kB
-> VmallocTotal:   114680 kB
-> VmallocUsed:       648 kB
-> VmallocChunk:   113980 kB
-> HugePages_Total:     0
-> HugePages_Free:      0
-> HugePages_Rsvd:      0
-> Hugepagesize:     4096 kB
-> 
-> The dmesg is at http://www.zip.com.au/~akpm/linux/patches/stuff/log-vmm. 
-> The machine has 900MB of memory (9*128M).
-> 
-> 
-> <enables UNALIGNED_ZONE_BOUNDARIES like the nice message says>
-> <http://www.zip.com.au/~akpm/linux/patches/stuff/log-vmm-2>
-> 
-> Nope, I still have a 4k highmem zone.
-> 
-> 
-> 
-> btw Andy, that UNALIGNED_ZONE_BOUNDARIES message is useless.  Only 0.1% of
-> users even have the knowledge how to recompile their kernel, let alone the
-> inclination.  Can we do something smarter here?
-> 
-> <goes off to use his one-page highmem zone for something>
-> 
-> 
-> 
-> --- devel/mm/vmscan.c~initialise-total_memory-earlier	2006-06-05 23:59:50.000000000 -0700
-> +++ devel-akpm/mm/vmscan.c	2006-06-06 00:00:59.000000000 -0700
-> @@ -111,7 +111,7 @@ struct shrinker {
->   * From 0 .. 100.  Higher means more swappy.
->   */
->  int vm_swappiness = 60;
-> -static long total_memory;
-> +long total_memory;
->  
->  static LIST_HEAD(shrinker_list);
->  static DECLARE_RWSEM(shrinker_rwsem);
-> @@ -1499,7 +1499,6 @@ static int __init kswapd_init(void)
->  	for_each_online_node(nid)
->   		kswapd_run(nid);
->  
-> -	total_memory = nr_free_pagecache_pages();
->  	hotcpu_notifier(cpu_callback, 0);
->  	return 0;
->  }
-> diff -puN mm/page_alloc.c~initialise-total_memory-earlier mm/page_alloc.c
-> --- devel/mm/page_alloc.c~initialise-total_memory-earlier	2006-06-06 00:00:13.000000000 -0700
-> +++ devel-akpm/mm/page_alloc.c	2006-06-06 00:01:28.000000000 -0700
-> @@ -1725,9 +1725,9 @@ void __meminit build_all_zonelists(void)
->  		stop_machine_run(__build_all_zonelists, NULL, NR_CPUS);
->  		/* cpuset refresh routine should be here */
->  	}
-> -
-> -	printk("Built %i zonelists\n", num_online_nodes());
-> -
-> +	total_memory = nr_free_pagecache_pages();
-> +	printk("Built %i zonelists.  Total memory: %ld pages\n",
-> +			num_online_nodes(), total_memory);
->  }
->  
->  /*
-> diff -puN include/linux/swap.h~initialise-total_memory-earlier include/linux/swap.h
-> --- devel/include/linux/swap.h~initialise-total_memory-earlier	2006-06-06 00:00:44.000000000 -0700
-> +++ devel-akpm/include/linux/swap.h	2006-06-06 00:00:56.000000000 -0700
-> @@ -185,6 +185,7 @@ extern unsigned long try_to_free_pages(s
->  extern unsigned long shrink_all_memory(unsigned long nr_pages);
->  extern int vm_swappiness;
->  extern int remove_mapping(struct address_space *mapping, struct page *page);
-> +extern long total_memory;
->  
->  #ifdef CONFIG_NUMA
->  extern int zone_reclaim_mode;
-> _
-> 
-> 
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
 
+--nextPart20171759.IrOMuyQhyY
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEhiLQN0y+n1M3mo0RAoxOAKCsZftYPolOI3tQBnHR7OwnSC9chACdHntY
+GXWmOGPKbE4gjw+uBdQ3u3M=
+=N4Gf
+-----END PGP SIGNATURE-----
+
+--nextPart20171759.IrOMuyQhyY--

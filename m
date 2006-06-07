@@ -1,41 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWFGBKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWFGBWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWFGBKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 21:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWFGBKI
+	id S1750756AbWFGBWU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 21:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWFGBWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 21:10:08 -0400
-Received: from mga07.intel.com ([143.182.124.22]:23867 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750783AbWFGBKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 21:10:07 -0400
-X-IronPort-AV: i="4.05,215,1146466800"; 
-   d="scan'208"; a="47115490:sNHT1373080268"
-Date: Tue, 6 Jun 2006 18:06:22 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>, nickpiggin@yahoo.com.au,
-       mingo@elte.hu, pwil3058@bigpond.net.au, akpm@osdl.org
-Subject: Re: [Patch] sched: mc/smt power savings sched policy
-Message-ID: <20060606180622.B18026@unix-os.sc.intel.com>
-References: <20060606112521.A18026@unix-os.sc.intel.com> <200606070959.09216.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Jun 2006 21:22:20 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:46105 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750756AbWFGBWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 21:22:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lHaiqJa3IpbwC7as5Lk/y6bF4GB+OUGuxgO3E4+ZzMWBt/iKEpm7xwTxma2rFRwtFyHR+lOAfrnFlxJh6O8O1dt/L/2iZCJsDXyJBsZ4W0y+WsimKgm/6odZAEYAflgWMZuSJfJBmXrZiflientxUJso7u+26cKYHKLL1oDLu5U=
+Message-ID: <3faf05680606061822g25c242ddq58efdb762ca33252@mail.gmail.com>
+Date: Wed, 7 Jun 2006 06:52:19 +0530
+From: "vamsi krishna" <vamsi.krishnak@gmail.com>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: Quick close of all the open files.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606070033.k570X6Bu007481@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200606070959.09216.kernel@kolivas.org>; from kernel@kolivas.org on Wed, Jun 07, 2006 at 09:59:08AM +1000
+References: <3faf05680606061445r7da489d9tc265018bc7960779@mail.gmail.com>
+	 <200606062156.k56LuWFD001871@turing-police.cc.vt.edu>
+	 <3faf05680606061502q28501343yb3a91dbda3c423b6@mail.gmail.com>
+	 <200606070033.k570X6Bu007481@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 07, 2006 at 09:59:08AM +1000, Con Kolivas wrote:
-> This MC code is a maze of #ifdefs within functions and getting harder to 
-> follow with each subsequent patch. Can we not deviate so much from kernel 
-> style?
+> > >
+> > I checked as follows I did printf("lowest fd = %d",fileno(tmpfile()));
+> > it prints 3
+>
+> Which proves that file descriptor 3 was closed, so tmpfile() was able to
+> open it.  This certainly implies that fd 0, 1, 2 (connected to stdin,
+> stdout, and stderr streams of stdio) are still open, contrary to your
+> statement that *all* of them are closed.
 
-build_sched_domains() originally was not designed with this many sched
-domains in mind.. I can take a look at cleaning up of the sched domains
-setup..
+I know 0,1,2 are open (I opened it) no need to tell it specifically,
+HOW DO YOU THINK I CAN PRINT SOME THING WITHOUT OPENING THIS
+FILES(stdout,stderr)?
 
-thanks,
-suresh
+
+>
+> If file descriptor 3 is closed, but 4 is open, what does tmpfile()
+> do? Hint - tmpfile() ends up invoking open(), and the manpage for that says:
+>
+>        Given a pathname for a file, open() returns a file descriptor, a small,
+>        non-negative integer for  use  in  subsequent  system  calls  (read(2),
+>        write(2), lseek(2), fcntl(2), etc.).  The file descriptor returned by a
+>        successful call will be the lowest-numbered file  descriptor  not  cur-
+>        rently open for the process.
+>
+> So.. explain why you think that "all files were closed"?  We know that 0..2
+> were open, and we know nothing about 4..1023.
+>
+> This doesn't look like a kernel bug, you may want to continue the discussion
+> on one of the various "beginning Linux C programming" lists.
+>
+> On Tue, 06 Jun 2006 23:03:38 BST, =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= said:
+> > > (Hint - what does that fp->_chain = stderr *really* do? ;)
+> >
+> > As it touches the innards of the FILE type, it invokes undefined
+> > behavior.  Nothing that follows can be considered a bug.
+>
+> Invoking undefined behavior is often considered a bug itself.  And it's
+> certainly happening in userspace.. so there's a userspace bug. ;)
+>
+>
+>

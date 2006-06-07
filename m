@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWFGXOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWFGXUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWFGXOL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 19:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWFGXOL
+	id S932465AbWFGXUj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 19:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWFGXUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 19:14:11 -0400
-Received: from dvhart.com ([64.146.134.43]:32663 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932462AbWFGXOK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 19:14:10 -0400
-Message-ID: <44875DC0.2000406@mbligh.org>
-Date: Wed, 07 Jun 2006 16:14:08 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 7 Jun 2006 19:20:39 -0400
+Received: from xenotime.net ([66.160.160.81]:26604 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932465AbWFGXUj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 19:20:39 -0400
+Date: Wed, 7 Jun 2006 16:23:26 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: 2.6.17-rc6-mm1
+Cc: jamagallon@ono.com, linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: [PATCH] ignore smp_locks section warnings from init/exit code
+Message-Id: <20060607162326.3d2cc76b.rdunlap@xenotime.net>
+In-Reply-To: <20060607154054.cf4f2512.akpm@osdl.org>
 References: <20060607104724.c5d3d730.akpm@osdl.org>
-In-Reply-To: <20060607104724.c5d3d730.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	<20060608003153.36f59e6a@werewolf.auna.net>
+	<20060607154054.cf4f2512.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+On Wed, 7 Jun 2006 15:40:54 -0700 Andrew Morton wrote:
 
+> On Thu, 8 Jun 2006 00:31:53 +0200
+> "J.A. Magallón" <jamagallon@ono.com> wrote:
+> 
+> > WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x3c)
+> > WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x40)
+> > WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x44)
+> 
+> Yes, that's a false positive - doing locking from within an __init section.
+> We need to shut that up somehow.
 
+I currently only see this in an __exit section.
+Here is a patch that fixes it for me.
+J.A., can you test it?
 
-Build failures on everything but x86_64 (possibly different distro
-or something)
+---
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-   GEN     usr/klibc/syscalls/SYSCALLS.i
-/usr/local/autobench/var/tmp/build/usr/klibc/SYSCALLS.def:30:26: missing 
-terminating ' character
-make[3]: *** [usr/klibc/syscalls/SYSCALLS.i] Error 1
-make[2]: *** [usr/klibc/syscalls] Error 2
-make[1]: *** [_usr_klibc] Error 2
-make: *** [usr] Error 2
-06/07/06-18:23:44 Build the kernel. Failed rc = 2
-06/07/06-18:23:44 build: kernel build Failed rc = 1
-06/07/06-18:23:44 command complete: (2) rc=126
-Failed and terminated the run
-  Fatal error, aborting autorun
+Add ".smp_locks" section to whitelist as being safe from
+init and exit sections.
 
-Full example here:
-	http://test.kernel.org/abat/35106/debug/test.log.0
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ scripts/mod/modpost.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+--- linux-2617-rc6mm1.orig/scripts/mod/modpost.c
++++ linux-2617-rc6mm1/scripts/mod/modpost.c
+@@ -852,6 +852,7 @@ static int init_section_ref_ok(const cha
+ 		".pci_fixup_final",
+ 		".pdr",
+ 		"__param",
++		".smp_locks",
+ 		NULL
+ 	};
+ 	/* Start of section names */
+@@ -923,6 +924,7 @@ static int exit_section_ref_ok(const cha
+ 		".exitcall.exit",
+ 		".eh_frame",
+ 		".stab",
++		".smp_locks",
+ 		NULL
+ 	};
+ 	/* Start of section names */

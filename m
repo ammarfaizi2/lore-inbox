@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWFGAdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWFGAdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWFGAdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jun 2006 20:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWFGAdM
+	id S1751406AbWFGAdR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jun 2006 20:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWFGAdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 20:33:12 -0400
-Received: from pool-72-66-198-190.ronkva.east.verizon.net ([72.66.198.190]:33988
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751406AbWFGAdJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 20:33:09 -0400
-Message-Id: <200606070033.k570X6Bu007481@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: vamsi krishna <vamsi.krishnak@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Quick close of all the open files.
-In-Reply-To: Your message of "Wed, 07 Jun 2006 03:32:58 +0530."
-             <3faf05680606061502q28501343yb3a91dbda3c423b6@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <3faf05680606061445r7da489d9tc265018bc7960779@mail.gmail.com> <200606062156.k56LuWFD001871@turing-police.cc.vt.edu>
-            <3faf05680606061502q28501343yb3a91dbda3c423b6@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1149640386_5025P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 6 Jun 2006 20:33:17 -0400
+Received: from ns1.suse.de ([195.135.220.2]:40127 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751406AbWFGAdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jun 2006 20:33:14 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
+Date: Wed, 7 Jun 2006 02:33:06 +0200
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, jeremy@goop.org,
+       dzickus@redhat.com, shaohua.li@intel.com, miles.lane@gmail.com,
+       linux-kernel@vger.kernel.org
+References: <4480C102.3060400@goop.org> <200606071013.53490.ncunningham@linuxmail.org> <20060606172410.b901950e.akpm@osdl.org>
+In-Reply-To: <20060606172410.b901950e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200606070233.07259.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Jun 2006 20:33:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1149640386_5025P
-Content-Type: text/plain; charset=us-ascii
-
-On Wed, 07 Jun 2006 03:32:58 +0530, vamsi krishna said:
-> > For bonus points, how did you verify that all the open files were closed?
+On Wednesday 07 June 2006 02:24, Andrew Morton wrote:
+> On Wed, 7 Jun 2006 10:13:49 +1000
+>
+> Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+> > > the new CPU to get the same state as the old one just because it ends
+> > > up with the same logical CPU number?  Perhaps, but what if it doesn't
+> > > even have the same capabilities?  (Do we support heterogeneous CPUs
+> > > anyway?)
 > >
-> I checked as follows I did printf("lowest fd = %d",fileno(tmpfile()));
-> it prints 3
+> > Indeed. I'm also not sure that there's necessarily a guarantee that cpus
+> > will be hotplugged in the same order. Perhaps those with more knowledge
+> > can clarify there.
+>
+> It all depends on what we mean by "per-cpu state".  If we were to remember
+> that "CPU 7 needs 0x1234 in register 44" then that would be wrong.  But
+> remembering some high-level functional thing like "CPU 7 needs to run the
+> NMI watchdog" is fine.  The CPU bringup code can work out whether that is
+> possible, and how to do it.
 
-Which proves that file descriptor 3 was closed, so tmpfile() was able to
-open it.  This certainly implies that fd 0, 1, 2 (connected to stdin,
-stdout, and stderr streams of stdio) are still open, contrary to your
-statement that *all* of them are closed.
+Actually the nmi watchdog state should be global, not per CPU.  We
+want it to either work for the whole system or be completely disabled.
 
-If file descriptor 3 is closed, but 4 is open, what does tmpfile()
-do? Hint - tmpfile() ends up invoking open(), and the manpage for that says:
+What is per CPU are the performance counter allocations, but these
+can be forgotten over CPU unplug/replug.
 
-       Given a pathname for a file, open() returns a file descriptor, a small,
-       non-negative integer for  use  in  subsequent  system  calls  (read(2),
-       write(2), lseek(2), fcntl(2), etc.).  The file descriptor returned by a
-       successful call will be the lowest-numbered file  descriptor  not  cur-
-       rently open for the process.
+(ok this means oprofile  might need to be restarted after suspend/resume,
+but I guess that's reasonable) 
 
-So.. explain why you think that "all files were closed"?  We know that 0..2
-were open, and we know nothing about 4..1023.
-
-This doesn't look like a kernel bug, you may want to continue the discussion
-on one of the various "beginning Linux C programming" lists.
-
-On Tue, 06 Jun 2006 23:03:38 BST, =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= said:
-> > (Hint - what does that fp->_chain = stderr *really* do? ;)
-> 
-> As it touches the innards of the FILE type, it invokes undefined
-> behavior.  Nothing that follows can be considered a bug.
-
-Invoking undefined behavior is often considered a bug itself.  And it's
-certainly happening in userspace.. so there's a userspace bug. ;)
-
---==_Exmh_1149640386_5025P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEhh7CcC3lWbTT17ARAkhpAKCOceijC264OaSPpMjVElPN7TnDiQCgwSuX
-ntG8xYzTvYtcNj71g5XxLEA=
-=kjBK
------END PGP SIGNATURE-----
-
---==_Exmh_1149640386_5025P--
+-Andi

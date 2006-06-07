@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWFGWjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWFGWkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWFGWjE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 18:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWFGWjD
+	id S932446AbWFGWkn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 18:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWFGWkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 18:39:03 -0400
-Received: from mga03.intel.com ([143.182.124.21]:52999 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932451AbWFGWjC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 18:39:02 -0400
-X-IronPort-AV: i="4.05,218,1146466800"; 
-   d="scan'208"; a="47639309:sNHT659883420"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ANNOUNCE: Linux UWB and Wireless USB project
-Date: Wed, 7 Jun 2006 15:41:05 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A06461EDF@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ANNOUNCE: Linux UWB and Wireless USB project
-Thread-Index: AcaI7M1rANl92X6vS7+tvwbxq0A5LwBlXAXg
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Pavel Machek" <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 07 Jun 2006 22:38:38.0247 (UTC) FILETIME=[1E6D5B70:01C68A83]
+	Wed, 7 Jun 2006 18:40:43 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:39043 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932446AbWFGWkm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 18:40:42 -0400
+Date: Wed, 7 Jun 2006 15:43:26 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: James Morris <jmorris@namei.org>
+Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>
+Subject: Re: HOWTO add privileged code to the kernel without breaking LSM/SELinux
+Message-ID: <20060607224326.GM2697@moss.sous-sol.org>
+References: <Pine.LNX.4.64.0606060229240.10150@d.namei>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606060229240.10150@d.namei>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
->
->Ar Llu, 2006-06-05 am 13:31 -0700, ysgrifennodd Perez-Gonzalez, Inaky:
->> For what I know (and I could be wrong) max is around -40dBm/MHz
->> in the US. I am no expert in the nitty-gritty radio details, but
->> I've been told that is 3000 times less emissions than a common
->> cellphone, around .1 uW? [this is where my knowledge about radio
->> *really* fades].
->
->Life is never that simple. The total emissions of UWB are pretty low
-but
->their spread across the wide frequency range makes them incredibly low
->on any frequency - so very unlikely to interfere.
->
->The total emissions across the set of frequencies as a sum (with
->emphasis on some frequency ranges such as 2.4-2.5GHz) apparently
-matters
->much more than the emissions at one frequency for things like human
->exposure.
+* James Morris (jmorris@namei.org) wrote:
+> If you add any new code to the kernel which exposes any kind of 
+> privileged operation to userspace, then it probably needs an LSM hook and 
+> subsequent changes to SELinux.
+> 
+> It would certainly be unreasonable to expect all kernel developers to know 
+> how to do this, however, it is usually very simple to determine when a new 
+> LSM would be needed as a first step.
+> 
+> The simple tests are: does the code you're adding perform any new DAC 
+> checks involving any of the user or group ID fields of a task?  Did you 
+> add a capable() call?  Does it call DAC helper functions?
 
-Right -- I asked our local radio wizard (so I could get more details)
-and taking into account that each band is 1584 MHz wide at a max of
--41.3 dBm/Mhz, it yields something like 117 uW per band. He also added 
-that once you consider all the fine points it goes down to 100uW per
-band 
-(-10dBm).
+The set_task_ioprio changes would make a nice concrete example.
 
-To answer Pavel's question on hardware power consumption, I don't really
+> If so, it's possible that a corresponding MAC check needs to be added via 
+> LSM; and I'd ask that you simply cc any or all of the LSM and/or SELinux 
+> maintainers when posting such patches upstream for RFC or inclusion.  We 
+> can work on the LSM and SELinux side of things if needed.
+> 
+> This will not cover every case, but I think it will cover most of the ones 
+> that are likely to come up in the future.  If in doubt, it won't hurt to ask.
 
-know -- too early to tell; however, whoever architected the technology
-was keeping in mind a target market similar to bluetooth's, really small
-devices and embedded, home entertainment, cell phones, printers, cameras
-and the like; it'll be pretty low.
+On a related note.  When adding sysfs files, file perms (and for SELinux,
+super block label) are the lowest common denominator for protections,
+but should also be considered the last resort.  Smth 0644 may need e.g,
+an explicit capable() check in ->store (in addition to the implicit
+permission() check).
 
--- Inaky
+thanks,
+-chris

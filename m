@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWFHOCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWFHOLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWFHOCv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 10:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWFHOCv
+	id S964830AbWFHOLp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 10:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWFHOLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 10:02:51 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:49316 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964818AbWFHOCu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 10:02:50 -0400
-Date: Thu, 8 Jun 2006 16:02:31 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-In-Reply-To: <1149773911.31114.36.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0606081545150.17704@scrub.home>
-References: <20060604135011.decdc7c9.akpm@osdl.org> 
- <1149652378.27572.109.camel@localhost.localdomain>  <20060606212930.364b43fa.akpm@osdl.org>
-  <1149656647.27572.128.camel@localhost.localdomain>  <20060606222942.43ed6437.akpm@osdl.org>
-  <1149662671.27572.158.camel@localhost.localdomain>  <20060607132155.GB14425@elte.hu>
-  <1149726685.23790.8.camel@localhost.localdomain>  <Pine.LNX.4.64.0606081301320.17704@scrub.home>
- <1149773911.31114.36.camel@localhost.localdomain>
+	Thu, 8 Jun 2006 10:11:45 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:57300 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750828AbWFHOLp (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 10:11:45 -0400
+Date: Thu, 8 Jun 2006 16:11:32 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Alexey Polyakov <alexey.polyakov@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: [PATCH] updated reiser4 - reduced cpu usage for writes by writing
+ more than 4k at a time (has implications for generic write code and eventually
+ for the IO layer)
+In-Reply-To: <1149770440.6336.39.camel@tribesman.namesys.com>
+Message-ID: <Pine.LNX.4.61.0606081609370.6127@yvahk01.tjqt.qr>
+References: <44736D3E.8090808@namesys.com>  <b5d90b2a0605231326g5319fea8wb9efef34ee5f7ec6@mail.gmail.com>
+  <6bffcb0e0605231333n612da806j9bd910cba65e3692@mail.gmail.com> 
+ <1148481586.6395.25.camel@tribesman.namesys.com> 
+ <Pine.LNX.4.61.0606081245160.28703@yvahk01.tjqt.qr>
+ <1149770440.6336.39.camel@tribesman.namesys.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> >> Any chance to get this patch against 2.6.17-rc4-mm3?
+>> >yes, reiser4 updates for latest stock and mm kernels will be out in one
+>> >or two days
+>> There is a version out for 2.6.17-rc4-mm1, but for stock kernel? Has the latter
+>> been canceled?
+>There is quite fresh
+>ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.16/reiser4-for-2.6.16-4.patch.gz
+>
+Ah thank you. I actually was looking for a /^2.6.17-rc\d+$/ dir which
+explains why I did not find it :)
 
-On Thu, 8 Jun 2006, Benjamin Herrenschmidt wrote:
 
-> > On ppc it should not be that difficult to even modify the exception entry 
-> > code. Instead of calling do_IRQ use do_early_IRQ and only install the real 
-> > handler later.
-> 
-> Yes, it's possible, but will add overhead to the common  IRQ path just
-> to handle an early boot special case.
-
-What I mean is to directly patch the exception entry code, so after the 
-initialization is complete you'll have no additional overhead.
-In the EXC_XFER_TEMPLATE() macro the handler is stored at i##n. You can 
-either export that address or you can use a special transfer handler, 
-which automatically patches the values once some flag is set.
-
-bye, Roman
+Jan Engelhardt
+-- 

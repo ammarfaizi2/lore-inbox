@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWFHTpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbWFHTqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWFHTpi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 15:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWFHTpi
+	id S964949AbWFHTqq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 15:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWFHTqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 15:45:38 -0400
-Received: from www.tglx.de ([213.239.205.147]:38631 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S964869AbWFHTpi (ORCPT
-	<rfc822;linux-kerneL@vger.kernel.org>);
-	Thu, 8 Jun 2006 15:45:38 -0400
-Subject: Re: RT exec for exercising RT kernel capabilities
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: markh@compro.net
-Cc: linux-kerneL@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <448876B9.9060906@compro.net>
-References: <448876B9.9060906@compro.net>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 21:46:15 +0200
-Message-Id: <1149795975.5257.83.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 15:46:46 -0400
+Received: from mail8.sea5.speakeasy.net ([69.17.117.10]:17623 "EHLO
+	mail8.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S964946AbWFHTqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 15:46:45 -0400
+Date: Thu, 8 Jun 2006 15:46:42 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: David Miller <davem@davemloft.net>
+cc: gerrit@erg.abdn.ac.uk, alan@lxorguk.ukuu.org.uk, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc6-mm1 ] net: RFC 3828-compliant UDP-Lite support
+In-Reply-To: <20060608.115331.71094388.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0606081542390.3555@d.namei>
+References: <200606081150.34018@this-message-has-been-logged>
+ <1149778072.22124.6.camel@localhost.localdomain> <200606081703.55361.gerrit@erg.abdn.ac.uk>
+ <20060608.115331.71094388.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark,
+On Thu, 8 Jun 2006, David Miller wrote:
 
-On Thu, 2006-06-08 at 15:12 -0400, Mark Hounschell wrote:
-> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
-> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
-> well the deterministic real-time capabilities of a computer. Maybe it could
-> useful in some way to the effort or to anyone interested in making this type of
-> determination about their kernel/computer.
+> > Understood. Please, anyone, disregard or un-apply the previous
+> > UDP-Lite patch.  A revised patch will be prepared and posted as soon
+> > as testing permits.
 > 
-> A README describing the rt-exec can be found at
-> ftp://ftp.compro.net/public/rt-exec/README
-> 
-> It can be downloaded from
-> ftp://ftp.compro.net/public/rt-exec/rt-exec-1.0.0.tar.bz2
-> 
-> Complaints, comments, or suggestions welcome.
+> Nobody is going to integrate your patch anywhere, don't worry.
+> You make it clear that once you toss this piece of code over
+> the wall, you'll disappear.
 
-Nice tool. 
+Having dealt with more than enough code thrown over the wall in recent 
+times, I agree.
 
-Some remarks. You can build high resolution timer support without the
-extra lib package from the HRT sourceforge site. You need a recent glibc
-and  some quirks in the source. See the cyclictest program I'm using.
-http://www.tglx.de/projects/misc/cyclictest/cyclictest-v0.8.tar.bz2
-
-It would also be cute to add tests for the PI support for
-pthread_mutexes.
-
-	tglx
+But, if someone well known & trusted wants to claim responsibility for the 
+code once it's upstream, that might be a way forward (I think the Apache 
+project has or had a policy like this).
 
 
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

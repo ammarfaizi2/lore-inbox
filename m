@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWFHCny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWFHDUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWFHCny (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 22:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWFHCny
+	id S932476AbWFHDUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 23:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWFHDUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 22:43:54 -0400
-Received: from xenotime.net ([66.160.160.81]:13263 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932474AbWFHCny convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 22:43:54 -0400
-Date: Wed, 7 Jun 2006 19:46:40 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, kraxel@suse.de,
-       jamagallon@ono.com
+	Wed, 7 Jun 2006 23:20:35 -0400
+Received: from pool-72-66-198-190.ronkva.east.verizon.net ([72.66.198.190]:20164
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932476AbWFHDUe (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 23:20:34 -0400
+Message-Id: <200606080319.k583JvjB004726@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.6.17-rc6-mm1
-Message-Id: <20060607194640.19f41f52.rdunlap@xenotime.net>
-In-Reply-To: <p73irnctmcc.fsf@verdi.suse.de>
-References: <20060607104724.c5d3d730.akpm@osdl.org>
-	<20060608003153.36f59e6a@werewolf.auna.net>
-	<20060607154054.cf4f2512.akpm@osdl.org>
-	<p73irnctmcc.fsf@verdi.suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+In-Reply-To: Your message of "Thu, 08 Jun 2006 00:11:42 +0200."
+             <20060607221142.GB6287@elte.hu>
+From: Valdis.Kletnieks@vt.edu
+References: <20060607104724.c5d3d730.akpm@osdl.org> <200606072354.41443.rjw@sisk.pl>
+            <20060607221142.GB6287@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; boundary="==_Exmh_1149736796_3858P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 07 Jun 2006 23:19:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Jun 2006 04:25:39 +0200 Andi Kleen wrote:
+--==_Exmh_1149736796_3858P
+Content-Type: text/plain; charset=us-ascii
 
-> Andrew Morton <akpm@osdl.org> writes:
+On Thu, 08 Jun 2006 00:11:42 +0200, Ingo Molnar said:
+> > On Wednesday 07 June 2006 19:47, Andrew Morton wrote:
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+> > > 
+> > > - Many more lockdep updates
+> could you try the current lock validator combo patch from:
 > 
-> > On Thu, 8 Jun 2006 00:31:53 +0200
-> > "J.A. Magallón" <jamagallon@ono.com> wrote:
-> > 
-> > > WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x3c)
-> > > WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x40)
-> > > WARNING: drivers/block/floppy.o - Section mismatch: reference to .init.text: from .smp_locks after '' (at offset 0x44)
-> > 
-> > Yes, that's a false positive - doing locking from within an __init section.
-> > We need to shut that up somehow.
-> 
-> Are you sure it's false? 
-> 
-> I don't see an explicit check in alternatives.c for the main kernel
-> vs init sections and with CPU hotplug the alternatives can be applied
-> arbitarily after the system has booted.  So it would just stomp
-> over the init text pages which are used for something else now.
-> 
-> I guess to make it safe you would need to teach alternative.c to
-> ignore init sections.
+>   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc6-mm1.patch
 
-for i386 (arch/i386/alternative.c and module.c):
+Seems to be making progress.  With this lockdep-combo, I've been up for
+40 minutes without a peep.
 
-static void alternatives_smp_lock(u8 **start, u8 **end, u8 *text, u8 *text_end)
-{...}
+(I admit I didn't check the base rc6-mm1 version, because I knew my config
+trips on the same unix_stream_connect that Rafael hit, and Rafael and
+Ingo posted while I was off doing other stuff...)
 
-only replaces code between text and text_end.
 
-I've cced Gerd on this before.  Maybe you can get her to repsond
-to confirm or deny.
+--==_Exmh_1149736796_3858P
+Content-Type: application/pgp-signature
 
----
-~Randy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEh5dccC3lWbTT17ARAldeAKCyvbq3iGhyOWx4ViLMMKsGkXGTvgCgvpSQ
+edAnneKcUNULxMnKpuej7Gg=
+=JmM3
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1149736796_3858P--

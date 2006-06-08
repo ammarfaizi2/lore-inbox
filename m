@@ -1,90 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWFHLJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWFHLSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWFHLJt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 07:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWFHLJt
+	id S1751281AbWFHLSE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 07:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWFHLSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 07:09:49 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:60175 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932233AbWFHLJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 07:09:48 -0400
-Message-ID: <4488057A.9090301@onelan.co.uk>
-Date: Thu, 08 Jun 2006 12:09:46 +0100
-From: Barry Scott <barry.scott@onelan.co.uk>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 8 Jun 2006 07:18:04 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:62882 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751281AbWFHLSD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 07:18:03 -0400
+Date: Thu, 8 Jun 2006 13:17:36 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
+In-Reply-To: <1149726685.23790.8.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606081301320.17704@scrub.home>
+References: <20060604135011.decdc7c9.akpm@osdl.org> 
+ <1149652378.27572.109.camel@localhost.localdomain>  <20060606212930.364b43fa.akpm@osdl.org>
+  <1149656647.27572.128.camel@localhost.localdomain>  <20060606222942.43ed6437.akpm@osdl.org>
+  <1149662671.27572.158.camel@localhost.localdomain>  <20060607132155.GB14425@elte.hu>
+ <1149726685.23790.8.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-rc6 Section mismatch warnings
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I built 2.6.17-rc6 I see a lot of warnings after the MODPOST message
-about Section mismatch. What did I do wrong in building the kernel and 
-modules?
+Hi,
 
-I used these commands to build 2.6.17-rc6 on FC4:
-$ tar xjf ~/Downloads/linux-2.6.16.tar.bz2
-$ mv linux-2.6.16  linux-2.6.17-rc6
-$ cd linux-2.6.17-rc6
-$ bzcat ~/Downloads/patch-2.6.17-rc6.bz2| patch -p1
-$ cp /boot/config-2.6.16-1.2096_FC4 
-~/KernelBuild/obj/linux-2.6.17-rc6/.config
-$ make O=~/KernelBuild/obj/linux-2.6.17-rc6 silentoldconfig
-(took the defaults for all new config items)
-$ make O=~/KernelBuild/obj/linux-2.6.17-rc6 >make-1.log 2>&1
-$ make O=~/KernelBuild/obj/linux-2.6.17-rc6 modules >make-2.log 2>&1
+On Thu, 8 Jun 2006, Benjamin Herrenschmidt wrote:
 
-Here are some of the warnings:
+> > a better solution would be to install boot-time IRQ vectors that just do
+> > nothing but return. They dont mask, they dont ACK nor EOI - they just
+> > return. The only thing that could break this is a screaming interrupt,
+> > and even that one probably just slows things down a tiny bit until we
+> > get so far in the init sequence to set up the PIC.
+> 
+> Changing vectors on the fly is hard on some platforms.... We could
+> change our toplevel ppc_md.get_irq() on powerpc, but we still to do
+> something about decrementer interrupts.
 
-  MODPOST
-WARNING: drivers/input/misc/wistron_btns.o - Section mismatch: reference 
-to .init.text:dmi_matched from .data between 'dmi_ids' (at offset 0x120) 
-and 'keymap_aopen_1559as'
-...
-WARNING: drivers/isdn/hisax/hisax.o - Section mismatch: reference to 
-.init.text:setup_teles0 from .text between 'checkcard' (at offset 
-0x11a5) and 'hisax_register'
-...
-WARNING: drivers/net/3c501.o - Section mismatch: reference to 
-.init.text:el1_probe from .text between 'init_module' (at offset 0x146) 
-and 'el_reset'
-WARNING: drivers/net/3c503.o - Section mismatch: reference to 
-.init.data: from .text between 'init_module' (at offset 0x47c) and 
-'el2_block_output'
-WARNING: drivers/net/3c503.o - Section mismatch: reference to 
-.init.data: from .text between 'init_module' (at offset 0x485) and 
-'el2_block_output'
-...
-WARNING: drivers/net/wd.o - Section mismatch: reference to .init.text: 
-from .text after 'init_module' (at offset 0x47d)
-WARNING: drivers/scsi/megaraid/megaraid_mbox.o - Section mismatch: 
-reference to .init.text: from .text between 'megaraid_probe_one' (at 
-offset 0x1f00) and 'megaraid_queue_command'
-WARNING: drivers/video/aty/atyfb.o - Section mismatch: reference to 
-.init.data: from .text between 'atyfb_pci_probe' (at offset 0x297f) and 
-'atyfb_set_par'
-WARNING: drivers/video/aty/atyfb.o - Section mismatch: reference to 
-.init.text:aty_init_cursor from .text between 'atyfb_pci_probe' (at 
-offset 0x2dc1) and 'atyfb_set_par'
-WARNING: drivers/video/macmodes.o - Section mismatch: reference to 
-.init.text:mac_find_mode from __ksymtab between 
-'__ksymtab_mac_find_mode' (at offset 0x0) and 
-'__ksymtab_mac_map_monitor_sense'
-WARNING: fs/jffs2/jffs2.o - Section mismatch: reference to 
-.init.text:jffs2_zlib_init from .text between 'jffs2_compressors_init' 
-(at offset 0x81) and 'jffs2_compressors_exit'
-WARNING: sound/isa/sb/snd-sbawe.o - Section mismatch: reference to 
-.init.text:snd_emu8000_new from .text between 'snd_sb16_probe' (at 
-offset 0x440) and 'snd_sb16_nonpnp_remove'
-WARNING: sound/isa/snd-opl3sa2.o - Section mismatch: reference to 
-.init.text: from .text between 'snd_opl3sa2_pnp_cdetect' (at offset 
-0xe61) and 'snd_opl3sa2_pnp_detect'
-WARNING: sound/isa/snd-opl3sa2.o - Section mismatch: reference to 
-.init.text: from .text between 'snd_opl3sa2_pnp_detect' (at offset 
-0xf52) and 'snd_opl3sa2_put_single'
+On ppc it should not be that difficult to even modify the exception entry 
+code. Instead of calling do_IRQ use do_early_IRQ and only install the real 
+handler later.
 
-Barry
+> A screaming level interrupt will lockup the machine at least on some
+> platforms.
 
+I guess that's even deadly on most platforms.
+
+> The problem with all those approaches is that they require changes to
+> all archs interrupt handling to make the situation safe vs. mutexes...
+
+Only those archs that want to delay interrupt initialization and they at 
+least have to provide minimal support to survive enabled interrupts.
+init_IRQ() stays the same for all other archs and we add another hook to 
+allow the delayed initializtion.
+
+
+> I still don't think where is the suckage in just not hard-enabling in
+> the mutex debug code...
+
+If you want to have full services, then irqs are part of it. :)
+
+bye, Roman

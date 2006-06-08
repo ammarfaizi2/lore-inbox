@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWFHOdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWFHOfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWFHOdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 10:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWFHOdQ
+	id S964837AbWFHOfa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 10:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWFHOfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 10:33:16 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16058 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932173AbWFHOdP
+	Thu, 8 Jun 2006 10:35:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40426 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932281AbWFHOf3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 10:33:15 -0400
-Subject: Re: [PATCH  2.6.17-rc6-mm1 ]  net: RFC 3828-compliant UDP-Lite
-	support
+	Thu, 8 Jun 2006 10:35:29 -0400
+Subject: Re: binary portability
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gerrit Renker <gerrit@erg.abdn.ac.uk>
-Cc: davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@namei.org, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <200606081150.34018@this-message-has-been-logged>
-References: <200606081150.34018@this-message-has-been-logged>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Majumder, Rajib" <rajib.majumder@credit-suisse.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0606081240370.19327@yvahk01.tjqt.qr>
+References: <F444CAE5E62A714C9F45AA292785BED30EB9719C@esng11p33001.sg.csfb.com>
+	 <Pine.LNX.4.61.0606081240370.19327@yvahk01.tjqt.qr>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 08 Jun 2006 15:47:52 +0100
-Message-Id: <1149778072.22124.6.camel@localhost.localdomain>
+Date: Thu, 08 Jun 2006 15:50:46 +0100
+Message-Id: <1149778246.22124.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-06-08 am 11:50 +0100, ysgrifennodd Gerrit Renker:
-> +  UDP-Lite introduces a new socket type, the SOCK_LDGRAM (note the L) for
-> +  lightweight, connection-less services. These are the socket options:
+Ar Iau, 2006-06-08 am 12:42 +0200, ysgrifennodd Jan Engelhardt:
+> >I know that EM64T and AMD64 are ISA compatible, but there could be some 
+> >differences in ELF32 between these 2 processor architectures. 
+> >
+> What differences? (Apart from MMXEXT and SSE2,SSE3)
 
-This is not the intended use of the socket API when distinguishing
-between services. The socket() call has a protocol field that is usually
-unused and it exists precisely to disambiguate multiple protocols with
-the same generic behaviour but different properties.
+There are multiple ISA differences that affect ring 0 (kernel code), but
+only one nasty that hit user code with early Intel clones. The early
+Intel clones didn't implement the prefetch instructions that are
+mandatory in x86-64. This broke a few apps early on but they got
+workarounds very fast.
 
-	s = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDPLITE);
+If the code is built for the generic instruction set (as is the case
+unless you try very hard) then it should be perfect on both.
 
-is probably the right way to do this, keeping 0 "default" as before
-meaning IPPROTO_UDP
+Alan
 

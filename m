@@ -1,61 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWFHLDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWFHLJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWFHLDO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 07:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWFHLDO
+	id S932233AbWFHLJt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 07:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWFHLJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 07:03:14 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:34064 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S964823AbWFHLDL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 07:03:11 -0400
-Date: Thu, 08 Jun 2006 20:03:49 +0900 (JST)
-Message-Id: <20060608.200349.81316352.yoshfuji@linux-ipv6.org>
-To: gerrit@erg.abdn.ac.uk
-Cc: davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@namei.org, kaber@coreworks.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH 2.6.17-rc6-mm1 ] net: RFC 3828-compliant UDP-Lite
- support
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200606081150.34018@this-message-has-been-logged>
-References: <200606081150.34018@this-message-has-been-logged>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 8 Jun 2006 07:09:49 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:60175 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S932233AbWFHLJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 07:09:48 -0400
+Message-ID: <4488057A.9090301@onelan.co.uk>
+Date: Thu, 08 Jun 2006 12:09:46 +0100
+From: Barry Scott <barry.scott@onelan.co.uk>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-rc6 Section mismatch warnings
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200606081150.34018@this-message-has-been-logged> (at Thu, 8 Jun 2006 11:50:33 +0100), Gerrit Renker <gerrit@erg.abdn.ac.uk> says:
+When I built 2.6.17-rc6 I see a lot of warnings after the MODPOST message
+about Section mismatch. What did I do wrong in building the kernel and 
+modules?
 
-> Attached is an extension which adds RFC3828 - compliant UDP-Lite functionality 
-> to the IPv4 networking stack. 
-:
->  net/core/sock.c                       |    7
->  net/ipv4/af_inet.c                    |   64 +
->  net/ipv4/proc.c                       |   32
->  net/udp_lite/Kbuild                   |    1
->  net/udp_lite/Kconfig                  |   20
->  net/udp_lite/udplitev4.c              | 1730 ++++++++++++++++++++++++++++++++++
->  19 files changed, 2296 insertions(+), 22 deletions(-)
+I used these commands to build 2.6.17-rc6 on FC4:
+$ tar xjf ~/Downloads/linux-2.6.16.tar.bz2
+$ mv linux-2.6.16  linux-2.6.17-rc6
+$ cd linux-2.6.17-rc6
+$ bzcat ~/Downloads/patch-2.6.17-rc6.bz2| patch -p1
+$ cp /boot/config-2.6.16-1.2096_FC4 
+~/KernelBuild/obj/linux-2.6.17-rc6/.config
+$ make O=~/KernelBuild/obj/linux-2.6.17-rc6 silentoldconfig
+(took the defaults for all new config items)
+$ make O=~/KernelBuild/obj/linux-2.6.17-rc6 >make-1.log 2>&1
+$ make O=~/KernelBuild/obj/linux-2.6.17-rc6 modules >make-2.log 2>&1
 
-Plase do the ipv6 side.  Thank you.
+Here are some of the warnings:
 
-BTW, is it possible to do merge or share codes among the following things?
- - udp / udp-lite (=> net/ipv4, net/ipv6)
-and/or
- - udp-lite/ipv6 / udp-lite/ipv4 (=> net/udplite)
+  MODPOST
+WARNING: drivers/input/misc/wistron_btns.o - Section mismatch: reference 
+to .init.text:dmi_matched from .data between 'dmi_ids' (at offset 0x120) 
+and 'keymap_aopen_1559as'
+...
+WARNING: drivers/isdn/hisax/hisax.o - Section mismatch: reference to 
+.init.text:setup_teles0 from .text between 'checkcard' (at offset 
+0x11a5) and 'hisax_register'
+...
+WARNING: drivers/net/3c501.o - Section mismatch: reference to 
+.init.text:el1_probe from .text between 'init_module' (at offset 0x146) 
+and 'el_reset'
+WARNING: drivers/net/3c503.o - Section mismatch: reference to 
+.init.data: from .text between 'init_module' (at offset 0x47c) and 
+'el2_block_output'
+WARNING: drivers/net/3c503.o - Section mismatch: reference to 
+.init.data: from .text between 'init_module' (at offset 0x485) and 
+'el2_block_output'
+...
+WARNING: drivers/net/wd.o - Section mismatch: reference to .init.text: 
+from .text after 'init_module' (at offset 0x47d)
+WARNING: drivers/scsi/megaraid/megaraid_mbox.o - Section mismatch: 
+reference to .init.text: from .text between 'megaraid_probe_one' (at 
+offset 0x1f00) and 'megaraid_queue_command'
+WARNING: drivers/video/aty/atyfb.o - Section mismatch: reference to 
+.init.data: from .text between 'atyfb_pci_probe' (at offset 0x297f) and 
+'atyfb_set_par'
+WARNING: drivers/video/aty/atyfb.o - Section mismatch: reference to 
+.init.text:aty_init_cursor from .text between 'atyfb_pci_probe' (at 
+offset 0x2dc1) and 'atyfb_set_par'
+WARNING: drivers/video/macmodes.o - Section mismatch: reference to 
+.init.text:mac_find_mode from __ksymtab between 
+'__ksymtab_mac_find_mode' (at offset 0x0) and 
+'__ksymtab_mac_map_monitor_sense'
+WARNING: fs/jffs2/jffs2.o - Section mismatch: reference to 
+.init.text:jffs2_zlib_init from .text between 'jffs2_compressors_init' 
+(at offset 0x81) and 'jffs2_compressors_exit'
+WARNING: sound/isa/sb/snd-sbawe.o - Section mismatch: reference to 
+.init.text:snd_emu8000_new from .text between 'snd_sb16_probe' (at 
+offset 0x440) and 'snd_sb16_nonpnp_remove'
+WARNING: sound/isa/snd-opl3sa2.o - Section mismatch: reference to 
+.init.text: from .text between 'snd_opl3sa2_pnp_cdetect' (at offset 
+0xe61) and 'snd_opl3sa2_pnp_detect'
+WARNING: sound/isa/snd-opl3sa2.o - Section mismatch: reference to 
+.init.text: from .text between 'snd_opl3sa2_pnp_detect' (at offset 
+0xf52) and 'snd_opl3sa2_put_single'
 
-Regards,
+Barry
 
--- 
-YOSHIFUJI Hideaki @ USAGI Project  <yoshfuji@linux-ipv6.org>
-GPG-FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

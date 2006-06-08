@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWFHXov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbWFHXsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbWFHXov (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 19:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWFHXou
+	id S965046AbWFHXsD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 19:48:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWFHXsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 19:44:50 -0400
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:6332 "HELO
-	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964868AbWFHXou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 19:44:50 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [linux-usb-devel] [PATCH] limit power budget on spitz
-Date: Thu, 8 Jun 2006 16:44:45 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-usb-devel@lists.sourceforge.net, Pavel Machek <pavel@suse.cz>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, lenz@cs.wisc.edu,
-       David Liontooth <liontooth@cogweb.net>,
-       Oliver Neukum <oliver@neukum.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <447EB0DC.4040203@cogweb.net> <200606081440.43840.david-b@pacbell.net> <1149803365.11412.28.camel@localhost.localdomain>
-In-Reply-To: <1149803365.11412.28.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 8 Jun 2006 19:48:02 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29326 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965046AbWFHXsA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 19:48:00 -0400
+Date: Thu, 8 Jun 2006 16:50:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Philipp Baumann <pumuckl@i12.com>
+Cc: linux-kernel@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [2.6.17-rc6-mm1] Oops during sata_promise init
+Message-Id: <20060608165040.29e54147.akpm@osdl.org>
+In-Reply-To: <4488A927.2070809@i12.com>
+References: <4488A927.2070809@i12.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606081644.47288.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 June 2006 2:49 pm, Richard Purdie wrote:
+Philipp Baumann <pumuckl@i12.com> wrote:
+>
+> Hi,
 > 
-> > > The easiest solution might be to move the ohci device registration into
-> > > pxa_set_ohci_info (in pxa27x.c). I gave in and appended a patch (compile
-> > > tested only so far).
-> > 
-> > Looked OK to me.
-> > 
-> > That's the kind of approach now used with OMAP and AT91, and which IMO
-> > would be appropriate to use for most platform devices ... that is, don't
-> > register devices that the board doesn't have.  One additional nuance:  if
-> > the kernel doesn't have that driver configured, that's another reason not
-> > to bother registering its device.
+> testing the latest mm kernel, i still get an Oops as follows:
 > 
-> This is where you start to add ugly ifdefs and generally start making
-> the code look horrible. The device model separated the drivers and the
-> devices to deal with this issue as I see it. 
+> 
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 
+> 00000008
+> printing eip:
+> c0256773
+> *pde  =  00000000
+> Oops: 0002 xxxx
+> 4K_STACKS PREEMPT
+> last sysfs file:
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c0256773>]    Not tainted VLI
+> EFLAGS:    00010202 (2.6.17-rc6-mm1 #1)
+> EIP is at pdc_sata_scr_write+0x10/0x14
+> eax: 00000008  ebx: dfeb429c  ecx: 00000300  edx: 0000002
+> esi: dfeb429c  edi: 00000300  ebp: 00000002  esp: dffc3e44
+> ds: 007b  es: 007b  ss: 0068
+> Process idle (pid: 1, threadinfo=dffc3000 task=dffc2ab0)
+> Stack:  c02cb980 c024c84b dfeb429c dfeb0c78 fffb82ca dfeb429c c024e4b5 
+> c0244541
+>     c02e60a6 c3000000 c01ea753 c0256281 dfeb429c dfeb0c78 00000002 c024e5bc
+>     dfeb0834 c0250cee dfeac408 e1493800 00000053 c02e6ef3 e0802300 c0802338
+> Call Trace:
+> [<c024c84b>] sata_scr_write_flush+0x24/0x37
+> [<c024e4b5>] __sata_phy_reset+0x2e/0x12d
+> [<c0244541>] scsi_add_host+0xc0/0x192
+> [<c01ea753>] __delay+0x6/0x7
+> [<c0256281>] pdc_reset_port+0x1f/0x34
+> [<c024e5bc>] sata_phy_reset+0x8/0x18
+> [<c0250cee>] ata_device_add+0x580/0x6b1
+> [<c0256c41>] pdc_ata_init_one+0x2a9/0x3c8
+> [<c01f5732>] pci_device_probe+0x40/0x5b
+> [<c023f70b>] driver_probe_device+0x3b/0xaa
+> [<c023f830>] __driver_attach+0x5a/0x5c
+> [<c023f1c4>] bus_for_each_dev+0x3a/0x58
+> [<c023f67a>] driver_attach+0x16/0x1a
+> [<c023f7d6>] --driver_attach+0x0/0x5c
+> [<c023ee9c>] bus_add_driver+0x6f/0x11f
+> [<c01f5889>] __pci_register_driver+0x34/0x4f
+> [<c010028c>] init+0x6c/0x225
+> [<c02bd34e>] __kprobes_text_start+0x6/0x14
+> [<c0100220>] init+0x0/0x225
+> [<c0100220>] init+0x0/0x225
+> [<c0101005>] kernel_thread_helper+0x5/0xb
+> Code: 02 77 0a 8d 04 12 01 c0 03 41 60 8b 00 c3 8b 80 78 1f 00 00 8b 40 
+> 08 8b 40 40 c3 53 89 c3 83 fa 02 77 0a 8d
+> 04 12 01 c0 03 43 60 <89> 08 5b c3 55 57 56 53 83 ec 10 89 c6 9c 5d fa 
+> b8 00 f0 ff ff
+> EIP: [<c0256773>] pdc_sata_scr_write+0x10/0x14 SS:ESP 0068:dffc3e44
 
-Enumeration is a separate issue.  You wouldn't argue that every potential
-PCI or USB device must get registered, right?  Only the ones that are
-actually _present_ get registered.
-
-But here you argue that platform bus should not work that same way ... it
-should register devices that can't be present.  If nothing else, that's
-an inconsistent aproach.
-
-Plus, consider the common situation that a given pin could potentially
-be used with several different devices.  On a given board, only one of
-those devices will be wired up.  It's counterproductive to register any
-of the others ... error prone, waste-of-kernel-address-space, etc.
-
-
-> Generally I'd say its 
-> cleaner just to let the device register, then if a module comes along at
-> some later point, the device is there for it.
-
-Whether the device is there or not is a hardware issue.  Board schematics
-will show which devices are relevant ... registering any others is just
-wastage.  "Clean" is somewhat in the eye of the beholder; in mine, wasting
-system resources is not clean.
-
-- Dave
-
+Thanks.  ap->ioaddr.scr_addr is zero in pdc_sata_scr_write().

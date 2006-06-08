@@ -1,117 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWFHH6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWFHH52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWFHH6L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 03:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWFHH6L
+	id S964787AbWFHH52 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWFHH51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 03:58:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6831 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964789AbWFHH6J (ORCPT
+	Thu, 8 Jun 2006 03:57:27 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:41636 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S964787AbWFHH51 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 03:58:09 -0400
-Date: Thu, 8 Jun 2006 00:54:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH v2 1/2] iWARP Connection Manager.
-Message-Id: <20060608005452.087b34db.akpm@osdl.org>
-In-Reply-To: <20060607200605.9003.25830.stgit@stevo-desktop>
-References: <20060607200600.9003.56328.stgit@stevo-desktop>
-	<20060607200605.9003.25830.stgit@stevo-desktop>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 03:57:27 -0400
+Message-ID: <349753441.03000@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 8 Jun 2006 15:57:22 +0800
+From: Fengguang Wu <wfg@mail.ustc.edu.cn>
+To: Voluspa <lista1@comhem.se>
+Cc: akpm@osdl.org, arjan@infradead.org, Valdis.Kletnieks@vt.edu,
+       diegocg@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] readahead: initial method - expected read size - fix fastcall
+Message-ID: <20060608075722.GA5515@mail.ustc.edu.cn>
+Mail-Followup-To: Fengguang Wu <wfg@mail.ustc.edu.cn>,
+	Voluspa <lista1@comhem.se>, akpm@osdl.org, arjan@infradead.org,
+	Valdis.Kletnieks@vt.edu, diegocg@gmail.com,
+	linux-kernel@vger.kernel.org
+References: <349406446.10828@ustc.edu.cn> <20060604020738.31f43cb0.akpm@osdl.org> <1149413103.3109.90.camel@laptopd505.fenrus.org> <20060605031720.0017ae5e.lista1@comhem.se> <349560742.21407@ustc.edu.cn> <20060608093138.79f66acb.lista1@comhem.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060608093138.79f66acb.lista1@comhem.se>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Jun 2006 15:06:05 -0500
-Steve Wise <swise@opengridcomputing.com> wrote:
-
+On Thu, Jun 08, 2006 at 09:31:38AM +0200, Voluspa wrote:
+> On Tue, 6 Jun 2006 10:26:06 +0800 Fengguang Wu wrote:
+> > On Mon, Jun 05, 2006 at 03:17:20AM +0200, Voluspa wrote:
+> > > Patch:
+> > > http://web.comhem.se/~u46139355/storetmp/adaptive-readahead-v14-linux-2.6.17-rc5-git-updated-june-04-2006.patch
+> > 
+> > It seems that the patch has some problem:
+> [...]
+> > The above statements was displaced, rendering the if() clause to fail all the time.
+> > That defeats the small file optimization, for ra_thrash_bytes will remain small.
 > 
-> This patch provides the new files implementing the iWARP Connection
-> Manager.
+> Which rendered all my testing invalid. Nice... It came about with the
+> update-01to04of04 and must have elicited a "fuzz" that I neglected to
+> check. 
 > 
-> Review Changes:
-> 
-> - sizeof -> sizeof()
-> 
-> - removed printks
-> 
-> - removed TT debug code
-> 
-> - cleaned up lock/unlock around switch statements.
-> 
-> - waitqueue -> completion for destroy path.
->
-> ...
->
-> +/* 
-> + * This function is called on interrupt context. Schedule events on
-> + * the iwcm_wq thread to allow callback functions to downcall into
-> + * the CM and/or block.  Events are queued to a per-CM_ID
-> + * work_list. If this is the first event on the work_list, the work
-> + * element is also queued on the iwcm_wq thread.
-> + *
-> + * Each event holds a reference on the cm_id. Until the last posted
-> + * event has been delivered and processed, the cm_id cannot be
-> + * deleted. 
-> + */
-> +static void cm_event_handler(struct iw_cm_id *cm_id,
-> +			     struct iw_cm_event *iw_event) 
-> +{
-> +	struct iwcm_work *work;
-> +	struct iwcm_id_private *cm_id_priv;
-> +	unsigned long flags;
-> +
-> +	work = kmalloc(sizeof(*work), GFP_ATOMIC);
-> +	if (!work)
-> +		return;
+> Sorry to have caused you grief and extra work, Wu. I can only point 
+> towards the _Caveat and preemptive Mea Culpa_.
 
-This allocation _will_ fail sometimes.  The driver must recover from it. 
-Will it do so?
+Not bad ;-)
+The stresses imposed forced me to think hard about the overheads
+the adaptive readahead introduced. And also some areas that the
+stock readahead has been good at.
 
-> +EXPORT_SYMBOL(iw_cm_init_qp_attr);
+me too, have some performance numbers, to be posted on the preferred thread.
 
-This file exports a ton of symbols.  It's usual to provide some justifying
-commentary in the changelog when this happens.
-
-> +/*
-> + * Copyright (c) 2005 Network Appliance, Inc. All rights reserved.
-> + * Copyright (c) 2005 Open Grid Computing, Inc. All rights reserved.
-> + *
-> + * This software is available to you under a choice of one of two
-> + * licenses.  You may choose to be licensed under the terms of the GNU
-> + * General Public License (GPL) Version 2, available from the file
-> + * COPYING in the main directory of this source tree, or the
-> + * OpenIB.org BSD license below:
-> + *
-> + *     Redistribution and use in source and binary forms, with or
-> + *     without modification, are permitted provided that the following
-> + *     conditions are met:
-> + *
-> + *      - Redistributions of source code must retain the above
-> + *        copyright notice, this list of conditions and the following
-> + *        disclaimer.
-> + *
-> + *      - Redistributions in binary form must reproduce the above
-> + *        copyright notice, this list of conditions and the following
-> + *        disclaimer in the documentation and/or other materials
-> + *        provided with the distribution.
-> + *
-> + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-> + * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-> + * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-> + * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-> + * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-> + * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-> + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-> + * SOFTWARE.
-> + */
-> +#if !defined(IW_CM_PRIVATE_H)
-> +#define IW_CM_PRIVATE_H
-
-We normally use #ifndef here.
-
-
+Thanks,
+Wu

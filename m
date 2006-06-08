@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWFHOiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWFHOq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWFHOiP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 10:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWFHOiP
+	id S964850AbWFHOq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 10:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWFHOq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 10:38:15 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:10770 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964843AbWFHOiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 10:38:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CalliC32wIx3xuXpaPgHJXSfn5UdmhfWzXh06ywnn5DqUTNVh9iMkijvKqR1vmugOz2lQQVejYBKPR3jYbQ9GCRuMDgbM0z6e04376/m4yh8MRdfgiE22TlujYS22n0pe4pGqf1md6+u/XreY7iLFhmbxrWkuPlNvV1K9gyr/Ts=
-Message-ID: <9e4733910606080738xd44aab3o5ac0d4bda920575d@mail.gmail.com>
-Date: Thu, 8 Jun 2006 10:38:13 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: Interrupts disabled for too long in printk
-Cc: "Mathieu Desnoyers" <compudj@krystal.dyndns.org>,
-       linux-kernel@vger.kernel.org, ltt-dev@shafik.org
-In-Reply-To: <Pine.LNX.4.61.0606080618520.29263@chaos.analogic.com>
+	Thu, 8 Jun 2006 10:46:57 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:5580 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964850AbWFHOq4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 10:46:56 -0400
+Message-ID: <44883858.3090708@garzik.org>
+Date: Thu, 08 Jun 2006 10:46:48 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+CC: akpm@osdl.org, Greg KH <greg@kroah.com>,
+       Rajesh Shah <rajesh.shah@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       "bibo,mao" <bibo.mao@intel.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 3/4] Make Intel e1000 driver legacy I/O port free
+References: <447E91CE.7010705@intel.com> <20060601024611.A32490@unix-os.sc.intel.com> <20060601171559.GA16288@colo.lackof.org> <20060601113625.A4043@unix-os.sc.intel.com> <447FA920.9060509@jp.fujitsu.com> <4484263C.1030508@jp.fujitsu.com> <20060606075812.GB19619@kroah.com> <448643B9.2080805@jp.fujitsu.com> <448644A2.7000208@jp.fujitsu.com> <448818BB.6020503@garzik.org> <44882787.20901@jp.fujitsu.com>
+In-Reply-To: <44882787.20901@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060603111934.GA14581@Krystal>
-	 <9e4733910606071837l4e81c975t8d531ed9810af60f@mail.gmail.com>
-	 <20060608023102.GA22022@Krystal>
-	 <9e4733910606071935o5f42f581g6392d5a23897fb09@mail.gmail.com>
-	 <Pine.LNX.4.61.0606080618520.29263@chaos.analogic.com>
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/06, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
->
-> On Wed, 7 Jun 2006, Jon Smirl wrote:
->
-> > On 6/7/06, Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
-> >> * Jon Smirl (jonsmirl@gmail.com) wrote:
-> >>> You can look at this problem from the other direction too. Why is it
-> >>> taking 15ms to get between the two points? If IRQs are off how is the
-> >>> serial driver getting interrupts to be able to display the message? It
-> >>> is probably worthwhile to take a look and see what the serial console
-> >>> driver is doing.
-> >>
-> >> Hi John,
-> >>
-> >> The serial port is configured at 38000 bauds. It can therefore transmit 4800
-> >> bytes per seconds, for 72 characters in 15 ms. So the console driver would be
-> >> simply busy sending characters to the serial port during that interrupt
-> >> disabling period.
-> >
-> > Why can't the serial console driver record the message in a buffer at
-> > the point where it is being called with interrupts off, and then let
-> > the serial port slowly print it via interupts? It sounds to me like
-> > the serial port is being driven in polling mode.
-> >
-> >>
-> >> Mathieu
-> >>
-> >> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-> >> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68
->
-> Probably because there is no buffer that is big enough! If the character
-> source (a call to printk()) can generate N characters per second, but
-> the UART can only send out N-1, then the buffer will fill up at which
-> time software will wait until the UART is ready for the next character,
-> effectively becoming poll-mode with a buffer full of characters as
-> backlog.
+Kenji Kaneshige wrote:
+> No, those tasks are done through pci_enable_device_bars() called from
+> pci_enable_device() actually. In addition, I made small changes to
+> pci_enable_device() and pci_enable_device_bars() in another patch ([PATCH 1/4]).
+> Now pci_enable_device_bars() just call pci_enable_device_bars() like below:
+> 
+> int
+> pci_enable_device(struct pci_dev *dev)
+> {
+>         int err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
+>         if (err)
+>                 return err;
+>         return 0;
+> }
 
-That sounds like a reasonable explanation if that is what is actually
-happening.  Does the serial console driver revert to a polling
-behavior when interrupts are off?
+You'll likely break IDE with such a change, which I also NAK.  You can't
+just blindly do everything that pci_enable_device() does in IDE, which
+was the entire reason why pci_enable_device_bars() was added by Alan in
+the first place.
 
-What should the console do in this situation? If called to printk with
-interrupts off, and the backlog buffer is full, should it suspend the
-system like it is doing, or should it toss the printk and return an
-error?
+	Jeff
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+

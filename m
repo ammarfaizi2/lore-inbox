@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWFHMyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWFHNCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWFHMyY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 08:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWFHMyY
+	id S964828AbWFHNCP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 09:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWFHNCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 08:54:24 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:27624 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964825AbWFHMyY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 08:54:24 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-rc6-mm1
-Date: Thu, 8 Jun 2006 14:54:42 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060607104724.c5d3d730.akpm@osdl.org> <200606072354.41443.rjw@sisk.pl> <20060607221142.GB6287@elte.hu>
-In-Reply-To: <20060607221142.GB6287@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 8 Jun 2006 09:02:15 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:36110 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S964828AbWFHNCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 09:02:15 -0400
+Subject: Re: [PATCH] mm: tracking dirty pages -v6
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <1149770654.4408.71.camel@lappy>
+References: <20060525135534.20941.91650.sendpatchset@lappy>
+	 <Pine.LNX.4.64.0606062056540.1507@blonde.wat.veritas.com>
+	 <1149770654.4408.71.camel@lappy>
+Content-Type: text/plain
+Date: Thu, 08 Jun 2006 15:02:02 +0200
+Message-Id: <1149771723.20886.10.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606081454.42809.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 June 2006 00:11, Ingo Molnar wrote:
-> * Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> 
-> > On Wednesday 07 June 2006 19:47, Andrew Morton wrote:
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
-> > > 
-> > > - Many more lockdep updates
-> > 
-> > Well, I've got this one (Asus L5D, x86_64 kernel):
-> 
-> could you try the current lock validator combo patch from:
-> 
->   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc6-mm1.patch
-> 
-> does that fix this for you?
+If this one still has some problems there is on more thing we could try
+before going back to the old way of doing things.
 
-Yes, it does.
+I found this 'gem' in the drm code:
 
-Thanks,
-Rafael
+        vma->vm_page_prot =
+            __pgprot(pte_val
+                     (pte_wrprotect
+                      (__pte(pgprot_val(vma->vm_page_prot)))));
+
+which does exactly what is needed.
+
+OTOH, my alternate version of the mprotect fix leaves dirty pages
+writable, which saves a few faults.
+
+Peter
+

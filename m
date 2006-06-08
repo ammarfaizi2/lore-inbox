@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWFHCJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWFHCME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbWFHCJY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 22:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWFHCJX
+	id S932482AbWFHCME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 22:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWFHCME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 22:09:23 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:52814 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932460AbWFHCJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 22:09:23 -0400
-Subject: Re: 2.6.17-rc6-rt1
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>, Deepak Saxena <dsaxena@plexity.net>
-In-Reply-To: <20060607211455.GA6132@elte.hu>
-References: <20060607211455.GA6132@elte.hu>
-Content-Type: text/plain
-Date: Wed, 07 Jun 2006 19:09:20 -0700
-Message-Id: <1149732560.7316.2.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+	Wed, 7 Jun 2006 22:12:04 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:2270 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932482AbWFHCMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 22:12:03 -0400
+Date: Wed, 7 Jun 2006 22:11:49 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Andrew Morton <akpm@osdl.org>, jamagallon@ono.com,
+       linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: [PATCH] ignore smp_locks section warnings from init/exit code
+Message-ID: <20060608021149.GA5567@ccure.user-mode-linux.org>
+References: <20060607104724.c5d3d730.akpm@osdl.org> <20060608003153.36f59e6a@werewolf.auna.net> <20060607154054.cf4f2512.akpm@osdl.org> <20060607162326.3d2cc76b.rdunlap@xenotime.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060607162326.3d2cc76b.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-07 at 23:14 +0200, Ingo Molnar wrote:
-> i have released the 2.6.17-rc6-rt1 tree, which can be downloaded from 
-> the usual place:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
-> the biggest change was the port to 2.6.17-rc6, and the moving to John's 
-> latest and greatest GTOD queue. Most of the porting was done by Thomas 
-> Gleixner (thanks Thomas!). We also picked up the freshest genirq queue 
-> from -mm and the freshest PI-futex patchset. There are also lots of ARM 
-> fixups and enhancements from Deepak Saxena and Daniel Walker.
-> 
+On Wed, Jun 07, 2006 at 04:23:26PM -0700, Randy.Dunlap wrote:
+> I currently only see this in an __exit section.
+> Here is a patch that fixes it for me.
 
-Does this release also include the lastest hrtimers code ?
+Cool, something equivalent makes the UML link a lot quieter.  I had to
+add ".plt" and ".bss".  I'm guessing mine are false positives as well,
+but have no idea how to check that.
 
-Daniel
+I also think that adding these two sections would be UML-specific, but
+that probably shouldn't hurt other arches.
 
+				Jeff

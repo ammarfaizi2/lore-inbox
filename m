@@ -1,87 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWFHXXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWFHXkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbWFHXXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 19:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWFHXXQ
+	id S964858AbWFHXkr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 19:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWFHXkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 19:23:16 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:43920 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S965042AbWFHXXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 19:23:15 -0400
-Message-ID: <4488B159.2070806@cmu.edu>
-Date: Thu, 08 Jun 2006 19:23:05 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060529)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: what processor family does intel core duo L2400 belong to?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 19:40:47 -0400
+Received: from main.gmane.org ([80.91.229.2]:22660 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964858AbWFHXkr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 19:40:47 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: Idea about a disc backed ram filesystem
+Date: Fri, 09 Jun 2006 00:40:31 +0100
+Message-ID: <yw1x4pyvdxn4.fsf@agrajag.inprovide.com>
+References: <200606082233.13720.Sash_lkl@linuxhowtos.org> <305c16960606081548m316099awafa619bb5d0d14f0@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
+Cancel-Lock: sha1:70j9CybcVmiSxUQHzw9qA317wpc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Matheus Izvekov" <mizvekov@gmail.com> writes:
 
-I am configuring the 2.6.17 kernel for a new thinkpad x60s, and I am 
-wondering what processor family to select.  The processor is an Intel 
-Core Duo L2400, and the gcc people suggested using the prescott march 
-for cflags.  It is *not* a celeron.
+> My idea consisted of adding the capability to specify a device for
+> tmpfs mounting. if you dont specify any device, tmpfs continues to
+> behave the way it currently is. But if you do, once data doesnt fit on
+> ram (or some other limit) anymore, it will flush things to this
+> device. my intention was to reuse swap code for this, so you mount a
+> tmpfs passing the dev node of some unused swap device, and it works
+> just like tmpfs with a dedicated swap partition.
 
-My guess is the "Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon" family, 
-but maybe someone has a different opinion or can support it.
+I don't see what advantage this would have over normal tmpfs.
 
-Here is the /proc/cpuinfo:
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 14
-model name	: Genuine Intel(R) CPU           L2400  @ 1.66GHz
-stepping	: 8
-cpu MHz		: 1662.571
-cache size	: 2048 KB
-physical id	: 0
-siblings	: 2
-core id		: 0
-cpu cores	: 2
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 10
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx pni monitor vmx 
-est tm2 xtpr
-bogomips	: 3331.72
+-- 
+Måns Rullgård
+mru@inprovide.com
 
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 14
-model name	: Genuine Intel(R) CPU           L2400  @ 1.66GHz
-stepping	: 8
-cpu MHz		: 1662.571
-cache size	: 2048 KB
-physical id	: 0
-siblings	: 2
-core id		: 1
-cpu cores	: 2
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 10
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx pni monitor vmx 
-est tm2 xtpr
-bogomips	: 3325.15
-
-Thanks!
-George

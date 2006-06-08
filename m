@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWFHMqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWFHMyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWFHMqe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 08:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWFHMqe
+	id S964825AbWFHMyY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 08:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWFHMyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 08:46:34 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:49283 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964798AbWFHMqd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 08:46:33 -0400
-Message-ID: <44881BD5.2060607@fr.ibm.com>
-Date: Thu, 08 Jun 2006 14:45:09 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 8 Jun 2006 08:54:24 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:27624 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964825AbWFHMyY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 08:54:24 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.17-rc6-mm1
+Date: Thu, 8 Jun 2006 14:54:42 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060607104724.c5d3d730.akpm@osdl.org> <200606072354.41443.rjw@sisk.pl> <20060607221142.GB6287@elte.hu>
+In-Reply-To: <20060607221142.GB6287@elte.hu>
 MIME-Version: 1.0
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: schwidefsky@de.ibm.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       arjan@infradead.org
-Subject: Re: 2.6.17-rc5-mm2 link issues on s390
-References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EE5A4.7050201@fr.ibm.com> <1149168482.5279.34.camel@localhost> <447EF175.4040608@fr.ibm.com> <20060608072802.GB9416@osiris.boeblingen.de.ibm.com> <4487EA41.3030400@fr.ibm.com> <20060608110222.GA16871@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20060608110222.GA16871@osiris.boeblingen.de.ibm.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/mixed;
- boundary="------------030206090205010402050505"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606081454.42809.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030206090205010402050505
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thursday 08 June 2006 00:11, Ingo Molnar wrote:
+> * Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> 
+> > On Wednesday 07 June 2006 19:47, Andrew Morton wrote:
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+> > > 
+> > > - Many more lockdep updates
+> > 
+> > Well, I've got this one (Asus L5D, x86_64 kernel):
+> 
+> could you try the current lock validator combo patch from:
+> 
+>   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc6-mm1.patch
+> 
+> does that fix this for you?
 
-Heiko Carstens wrote:
+Yes, it does.
 
-> Please use an unsigned long long cast and get rid of the ifdefs...
-
-How's that ? Again on rc6-mm1.
-
-thanks !
-
-C.
-
---------------030206090205010402050505
-Content-Type: text/x-patch;
- name="s390-add-raw_writeq.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="s390-add-raw_writeq.patch"
-
-From: Cedric Le Goater <clg@fr.ibm.com>
-Replace-Subject: s390 adds __raw_writeq required by __iowrite64_copy.
-
-It also adds all the related quad routines. 
-
-Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-
----
- include/asm-s390/io.h |    5 +++++
- 1 file changed, 5 insertions(+)
-
-Index: 2.6.17-rc6-mm1/include/asm-s390/io.h
-===================================================================
---- 2.6.17-rc6-mm1.orig/include/asm-s390/io.h
-+++ 2.6.17-rc6-mm1/include/asm-s390/io.h
-@@ -86,20 +86,25 @@ extern void iounmap(void *addr);
- #define readb(addr) (*(volatile unsigned char *) __io_virt(addr))
- #define readw(addr) (*(volatile unsigned short *) __io_virt(addr))
- #define readl(addr) (*(volatile unsigned int *) __io_virt(addr))
-+#define readq(addr) (*(volatile unsigned long long *) __io_virt(addr))
- 
- #define readb_relaxed(addr) readb(addr)
- #define readw_relaxed(addr) readw(addr)
- #define readl_relaxed(addr) readl(addr)
-+#define readq_relaxed(addr) readq(addr)
- #define __raw_readb readb
- #define __raw_readw readw
- #define __raw_readl readl
-+#define __raw_readq readq
- 
- #define writeb(b,addr) (*(volatile unsigned char *) __io_virt(addr) = (b))
- #define writew(b,addr) (*(volatile unsigned short *) __io_virt(addr) = (b))
- #define writel(b,addr) (*(volatile unsigned int *) __io_virt(addr) = (b))
-+#define writeq(b,addr) (*(volatile unsigned long long *) __io_virt(addr) = (b))
- #define __raw_writeb writeb
- #define __raw_writew writew
- #define __raw_writel writel
-+#define __raw_writeq writeq
- 
- #define memset_io(a,b,c)        memset(__io_virt(a),(b),(c))
- #define memcpy_fromio(a,b,c)    memcpy((a),__io_virt(b),(c))
-
---------------030206090205010402050505--
+Thanks,
+Rafael

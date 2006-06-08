@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWFHIu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWFHIvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWFHIu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 04:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWFHIu7
+	id S964803AbWFHIvn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 04:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWFHIvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 04:50:59 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:26781 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S964800AbWFHIu7 (ORCPT
+	Thu, 8 Jun 2006 04:51:43 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:28388 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S964803AbWFHIvm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 04:50:59 -0400
-Message-ID: <349756654.19100@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 8 Jun 2006 16:50:55 +0800
-From: Fengguang Wu <wfg@mail.ustc.edu.cn>
-To: Voluspa <lista1@comhem.se>
-Cc: akpm@osdl.org, arjan@infradead.org, Valdis.Kletnieks@vt.edu,
-       diegocg@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] readahead: initial method - expected read size - fix fastcall
-Message-ID: <20060608085055.GA5917@mail.ustc.edu.cn>
-Mail-Followup-To: Fengguang Wu <wfg@mail.ustc.edu.cn>,
-	Voluspa <lista1@comhem.se>, akpm@osdl.org, arjan@infradead.org,
-	Valdis.Kletnieks@vt.edu, diegocg@gmail.com,
-	linux-kernel@vger.kernel.org
-References: <349406446.10828@ustc.edu.cn> <20060604020738.31f43cb0.akpm@osdl.org> <1149413103.3109.90.camel@laptopd505.fenrus.org> <20060605031720.0017ae5e.lista1@comhem.se> <349562623.17723@ustc.edu.cn> <20060608094356.5c1272cc.lista1@comhem.se> <349754431.09938@ustc.edu.cn> <20060608102802.6e07b148.lista1@comhem.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060608102802.6e07b148.lista1@comhem.se>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 8 Jun 2006 04:51:42 -0400
+Subject: Re: [PATCH] limit power budget on spitz
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: David Brownell <david-b@pacbell.net>, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, patches@arm.linux.org.uk,
+       linux-usb-devel@lists.sourceforge.net,
+       Oliver Neukum <oliver@neukum.org>,
+       David Liontooth <liontooth@cogweb.net>
+In-Reply-To: <20060608083412.GJ3688@elf.ucw.cz>
+References: <447EB0DC.4040203@cogweb.net> <20060530200134.GB4074@ucw.cz>
+	 <200606031129.54580.oliver@neukum.org>
+	 <200606050732.53496.david-b@pacbell.net> <20060608083412.GJ3688@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 08 Jun 2006 09:50:58 +0100
+Message-Id: <1149756659.16945.149.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 08, 2006 at 10:28:02AM +0200, Voluspa wrote:
-> On Thu, 8 Jun 2006 16:13:52 +0800 Fengguang Wu wrote:
-> > It's interesting that copying of sparse file is more efficient with small
-> > readahead size :) I get the same conclusion, though with smaller differences:
-> 
-> How on earth can you copy the file without overwriting the target /dev/null?
+On Thu, 2006-06-08 at 10:34 +0200, Pavel Machek wrote:
+> diff --git a/drivers/usb/host/ohci-pxa27x.c b/drivers/usb/host/ohci-pxa27x.c
+> index acde886..1d8b58c 100644
+> --- a/drivers/usb/host/ohci-pxa27x.c
+> +++ b/drivers/usb/host/ohci-pxa27x.c
+> @@ -185,6 +185,13 @@ int usb_hcd_pxa27x_probe (const struct h
+>  	/* Select Power Management Mode */
+>  	pxa27x_ohci_select_pmm(inf->port_mode);
+>  
+> +	if (machine_is_spitz()) {
+> +		/* Warning, not coming from any official docs. But
+> +		 * spitz is unable to properly power wireless card
+> +		 * claiming 500mA -- usb interface work but wireless
+> +		 * does not. */
+> +		hcd->power_budget = 250;
+> +	}
+>  	ohci_hcd_init(hcd_to_ohci(hcd));
+>  
+>  	retval = usb_add_hcd(hcd, pdev->resource[1].start, SA_INTERRUPT);
 
-Yes, it worked as expected. All the time.
+Should this value not be specified by the platform in the platform data
+rather than a set of machine_is_xxx statements in the driver itself? I
+already put most of the infrastructure for that into place.
 
-I'm running zsh, though bash is also tested ok.
+I also strongly suspect the power supply on the device is limited to
+150mA.
 
-% cp --version
-cp (GNU coreutils) 5.96
-Copyright (C) 2006 Free Software Foundation, Inc.
+Richard
 
-Wu

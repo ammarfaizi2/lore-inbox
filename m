@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWFHAbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWFHAgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWFHAbu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 20:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWFHAbu
+	id S932511AbWFHAgn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 20:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWFHAgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 20:31:50 -0400
-Received: from gate.crashing.org ([63.228.1.57]:20370 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932508AbWFHAbu (ORCPT
+	Wed, 7 Jun 2006 20:36:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54447 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932511AbWFHAgm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 20:31:50 -0400
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       paulus@samba.org
-In-Reply-To: <20060607132155.GB14425@elte.hu>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <1149652378.27572.109.camel@localhost.localdomain>
-	 <20060606212930.364b43fa.akpm@osdl.org>
-	 <1149656647.27572.128.camel@localhost.localdomain>
-	 <20060606222942.43ed6437.akpm@osdl.org>
-	 <1149662671.27572.158.camel@localhost.localdomain>
-	 <20060607132155.GB14425@elte.hu>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 10:31:24 +1000
-Message-Id: <1149726685.23790.8.camel@localhost.localdomain>
+	Wed, 7 Jun 2006 20:36:42 -0400
+Date: Wed, 7 Jun 2006 17:36:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, mchan@broadcom.com
+Subject: Re: tg3 broken on 2.6.17-rc5-mm3
+Message-Id: <20060607173634.0d293e87.akpm@osdl.org>
+In-Reply-To: <200606071711.06774.bjorn.helgaas@hp.com>
+References: <200606071711.06774.bjorn.helgaas@hp.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a better solution would be to install boot-time IRQ vectors that just do
-> nothing but return. They dont mask, they dont ACK nor EOI - they just
-> return. The only thing that could break this is a screaming interrupt,
-> and even that one probably just slows things down a tiny bit until we
-> get so far in the init sequence to set up the PIC.
+On Wed, 7 Jun 2006 17:11:06 -0600
+Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
 
-Changing vectors on the fly is hard on some platforms.... We could
-change our toplevel ppc_md.get_irq() on powerpc, but we still to do
-something about decrementer interrupts.
-A screaming level interrupt will lockup the machine at least on some
-platforms.
+> Something changed between 2.6.17-rc5-mm2 and -mm3 that broke tg3
+> on my HP DL360:
+> 
+> 2.6.17-rc5-mm2:
+>   tg3.c:v3.59 (May 26, 2006)
+>   ACPI: PCI Interrupt 0000:01:02.0[A] -> GSI 30 (level, low) -> IRQ 177
+>   eth0: Tigon3 [partno(N/A) rev 1002 PHY(5703)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:0e:7f:b4:69:94
+>   eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1] 
+>   eth0: dma_rwctrl[769f4000] dma_mask[64-bit]
+> 
+> 2.6.17-rc5-mm3 (with a bit of debug showing tg3_read_mem result):
+>   tg3.c:v3.59 (May 26, 2006)
+>   ACPI: PCI Interrupt 0000:01:02.0[A] -> GSI 30 (level, low) -> IRQ 177
+>   tg3_get_eeprom_hw_cfg:
+>   tg3_get_eeprom_hw_cfg: val 0xffffffff (magic 0x4b657654)
+>   tg3_phy_probe: after readphy, err -16 hw_phy_id 0x0
+>   tg3_phy_probe: phy_id 0xffffffff
+>   lookup_by_subsys: vendor 0xe11 dev 0xcb
+>   tg3: (0000:01:02.0) phy probe failed, err -19
+>   tg3: Problem fetching invariants of chip, aborting.
+> 
+> The tg3 driver itself didn't change, so it must be some other PCI
+> change or something.  The only other PCI device I have (a Smart
+> Array with cciss driver) works fine.
+> 
+> I'll try to narrow down the problem tomorrow, but I'll post this in
+> case it's obvious to somebody.
+> 
 
-The problem with all those approaches is that they require changes to
-all archs interrupt handling to make the situation safe vs. mutexes...
-
-I still don't think where is the suckage in just not hard-enabling in
-the mutex debug code...
-
-Ben.
-
- 
-
+fwiw, tg3 on powermac g5 works OK with rc6-mm1.

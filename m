@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWFHAPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWFHAUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbWFHAPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 20:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWFHAPP
+	id S932506AbWFHAUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 20:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWFHAUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 20:15:15 -0400
-Received: from sccrmhc13.comcast.net ([204.127.200.83]:45979 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932507AbWFHAPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 20:15:14 -0400
-Message-ID: <44876C17.6040709@acm.org>
-Date: Wed, 07 Jun 2006 19:15:19 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
+	Wed, 7 Jun 2006 20:20:50 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:22414
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S932506AbWFHAUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 20:20:49 -0400
+Message-ID: <44876D59.1000509@microgate.com>
+Date: Wed, 07 Jun 2006 19:20:41 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-CC: Linus Torvalds <torvalds@osdl.org>, randy_d_dunlap@linux.intel.com,
+To: Jeff Garzik <jeff@garzik.org>
+CC: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.17-rc6
-References: <Pine.LNX.4.64.0606051807310.5498@g5.osdl.org> <Pine.LNX.4.64.0606070053530.10051@indiana.corp.fedex.com>
-In-Reply-To: <Pine.LNX.4.64.0606070053530.10051@indiana.corp.fedex.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] fix generic HDLC synclink mismatch build error
+References: <1149694978.12920.14.camel@amdx2.microgate.com> <20060607230202.GA12210@havoc.gtf.org>
+In-Reply-To: <20060607230202.GA12210@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
->
-> On Mon, 5 Jun 2006, Linus Torvalds wrote:
->
->> ... a SATA resume fix that is reported to fix resume on at least a
->> couple of machines.
->
-> Thank you. This works on my IBM X60s with Centrino Duo. Pure vanilla
-> 2.6.17-rc6, no other patches necessary.
->
-> Works with ata-piix, but not ahci.
-Same for me on a thinkpad t60.  Works in compatability mode, not not in
-AHCI.
+Jeff Garzik wrote:
+> On Wed, Jun 07, 2006 at 10:42:58AM -0500, Paul Fulghum wrote:
+> 
+>>Fix build errors caused by generic HDLC
+>>and synclink configuration mismatch. Generic HDLC
+>>symbols referenced from synclink drivers do not
+>>resolve if synclink drivers are built-in and generic
+>>HDLC is modularized.
+> 
+> 
+> Please fix the code instead.  _No_ kernel code should be doing
+> 	#define CONFIG_{xxx}
+> 
+> because that is a reserved namespace.
 
--Corey
+I'm happy to leave the code as is, as it has been working
+for the past 8 years. I'm just trying to fix build errors
+for random (unusable) kernel configs that a few people
+have complained about.
+
+Many, many people have chimed in so far without looking
+at the details and I keep responding many, many, many times
+that the generic HDLC support is *optional* for the synclink drivers.
+
+So your suggestion of 'fixing' the code will *break* it.
+Either unnecessary code is forced on someone, or
+they are deprived of necessary code.
+
+But OK, I'm willing to listen: how do you suggest optionally
+including generic HDLC support in the synclink drivers,
+depending on whether generic HDLC is enabled without
+referring to a configuration option?
+
+--
+Paul
+

@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbWFHHPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWFHHUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbWFHHPO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 03:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWFHHPN
+	id S932550AbWFHHUK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWFHHUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 03:15:13 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:39515 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932544AbWFHHPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 03:15:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=ZWCCe/rOGiv6NEE60kMDfP22s0uFqmuIQnWDuv2dE7b7lVYLbM3TjKF2qfXVZlSrlgB55wEkTykSFsttLh5np530fR4iWDdv0KtqnMvYEbI46R5uU3gMCF+CDFg+nL3xlm+emOTuyV9pgp3rU8pbJaONJOzRaXXff2Q7i73flIE=
-Message-ID: <489ecd0c0606080015v4815d0f3wa3d28c564eaf6885@mail.gmail.com>
-Date: Thu, 8 Jun 2006 15:15:11 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: samuel@sortiz.org, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix an inproper alignment accessing in irda protocol stack
+	Thu, 8 Jun 2006 03:20:10 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:10883 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S932505AbWFHHUJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 03:20:09 -0400
+From: Joachim Fritschi <jfritschi@freenet.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH  1/4] Twofish cipher - split out common c code
+Date: Thu, 8 Jun 2006 09:20:04 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, ak@suse.de
+References: <200606041516.21967.jfritschi@freenet.de> <200606072137.24176.jfritschi@freenet.de> <20060608015728.GA8314@gondor.apana.org.au>
+In-Reply-To: <20060608015728.GA8314@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_18446_21065351.1149750911075"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606080920.04480.jfritschi@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_18446_21065351.1149750911075
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thursday 08 June 2006 03:57, Herbert Xu wrote:
+> On Wed, Jun 07, 2006 at 09:37:23PM +0200, Joachim Fritschi wrote:
+> > 
+> > diff -uprN linux-2.6.17-rc5/crypto/Makefile linux-2.6.17-rc5.twofish/crypto/Makefile
+> > --- linux-2.6.17-rc5/crypto/Makefile	2006-06-07 18:43:24.000000000 +0200
+> > +++ linux-2.6.17-rc5.twofish/crypto/Makefile	2006-06-04 13:59:27.949797218 +0200
+> > @@ -32,3 +32,5 @@ obj-$(CONFIG_CRYPTO_MICHAEL_MIC) += mich
+> >  obj-$(CONFIG_CRYPTO_CRC32C) += crc32c.o
+> >  
+> >  obj-$(CONFIG_CRYPTO_TEST) += tcrypt.o
+> > +
+> > +twofish-objs := twofish_c.o twofish_common.o
+> 
+> What do we gain by renaming twofish.c to twofish_c.c?
 
-Hi all,
+Solve the naming conflict when compiling. Seemed to me like it is impossible to create a
+twofish.o out of twofish.o and twofish_common.o . And since having the original module name
+seemed more important to me i changed the name. I didn't find any other way in documentation
+of the kernel makefiles. I hope this isn't another newbie mistake. =)
 
- For "struct irda_device_info" in irda.h:
-struct irda_device_info {
-	__u32       saddr;    /* Address of local interface */
-	__u32       daddr;    /* Address of remote device */
-	char        info[22]; /* Description */
-	__u8        charset;  /* Charset used for description */
-	__u8        hints[2]; /* Hint bits */
-};
-   The "hints" member aligns at the third byte of a word, an odd
-address. So if we visit "hints" as a short in irlmp.c:
-
-    u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
-
-  will cause alignment problem on some machines. Architectures with
-strict alignment rules do not allow 16-bit read on an odd address.
-
-Signed-off-by: Luke Yang <luke.adi@gmail.com>
-
- irlmp.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
---- net/irda/irlmp.c.old        2006-06-08 14:49:20.000000000 +0800
-+++ net/irda/irlmp.c    2006-06-08 14:54:29.000000000 +0800
-@@ -849,7 +849,8 @@
-        }
-
-        /* Construct new discovery info to be used by IrLAP, */
--       u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
-+       irlmp->discovery_cmd.data.hints[0] = irlmp->hints.word & 0xff;
-+       irlmp->discovery_cmd.data.hints[1] = (irlmp->hints.word & 0xff00) >> 8;
-
-        /*
-         *  Set character set for device name (we use ASCII), and
-
--- 
-Best regards,
-Luke Yang
-luke.adi@gmail.com
-
-------=_Part_18446_21065351.1149750911075
-Content-Type: text/x-patch; name=irlmp_alignment_fixing.patch; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eo6ru1m6
-Content-Disposition: attachment; filename="irlmp_alignment_fixing.patch"
-
-LS0tIG5ldC9pcmRhL2lybG1wLmMub2xkCTIwMDYtMDYtMDggMTQ6NDk6MjAuMDAwMDAwMDAwICsw
-ODAwCisrKyBuZXQvaXJkYS9pcmxtcC5jCTIwMDYtMDYtMDggMTQ6NTQ6MjkuMDAwMDAwMDAwICsw
-ODAwCkBAIC04NDksNyArODQ5LDggQEAKIAl9CiAKIAkvKiBDb25zdHJ1Y3QgbmV3IGRpc2NvdmVy
-eSBpbmZvIHRvIGJlIHVzZWQgYnkgSXJMQVAsICovCi0JdTE2aG8oaXJsbXAtPmRpc2NvdmVyeV9j
-bWQuZGF0YS5oaW50cykgPSBpcmxtcC0+aGludHMud29yZDsKKwlpcmxtcC0+ZGlzY292ZXJ5X2Nt
-ZC5kYXRhLmhpbnRzWzBdID0gaXJsbXAtPmhpbnRzLndvcmQgJiAweGZmOworCWlybG1wLT5kaXNj
-b3ZlcnlfY21kLmRhdGEuaGludHNbMV0gPSAoaXJsbXAtPmhpbnRzLndvcmQgJiAweGZmMDApID4+
-IDg7CiAKIAkvKgogCSAqICBTZXQgY2hhcmFjdGVyIHNldCBmb3IgZGV2aWNlIG5hbWUgKHdlIHVz
-ZSBBU0NJSSksIGFuZAo=
-------=_Part_18446_21065351.1149750911075--
+-Joachim

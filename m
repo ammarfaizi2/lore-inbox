@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWFHUVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWFHU2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964963AbWFHUVB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWFHUVB
+	id S964911AbWFHU2L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWFHU2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:21:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60098 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964963AbWFHUVA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:21:00 -0400
-Date: Thu, 8 Jun 2006 13:20:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nate Diller <nate.diller@gmail.com>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Hugh Dickins <hugh@veritas.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>
-Subject: Re: [PATCH] mm: tracking dirty pages -v6
-In-Reply-To: <5c49b0ed0606081310q5771e8d1s55acef09b405922b@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0606081318161.5498@g5.osdl.org>
-References: <20060525135534.20941.91650.sendpatchset@lappy> 
- <Pine.LNX.4.64.0606062056540.1507@blonde.wat.veritas.com> 
- <1149770654.4408.71.camel@lappy> <5c49b0ed0606081310q5771e8d1s55acef09b405922b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Jun 2006 16:28:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24337 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964911AbWFHU2J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:28:09 -0400
+Date: Thu, 8 Jun 2006 20:27:54 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Don Zickus <dzickus@redhat.com>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, shaohua.li@intel.com,
+       miles.lane@gmail.com, jeremy@goop.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
+Message-ID: <20060608202754.GE4006@ucw.cz>
+References: <4480C102.3060400@goop.org> <200606070134.29292.ak@suse.de> <20060606235551.GE11696@redhat.com> <200606071005.14307.ncunningham@linuxmail.org> <20060607004217.GF11696@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060607004217.GF11696@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-On Thu, 8 Jun 2006, Nate Diller wrote:
+> > This sounds wrong to me. Shouldn't the the effect of hotunplugging a cpu be to 
+> > put the driver in a state equivalent to if that cpu simply didn't exist? 
+> > Unplugging shouldn't assume we're going to subsequently have either a driver 
+> > suspend, or a replug.
 > 
-> Does this mean that processes dirtying pages via mmap are now subject
-> to write throttling?  That could dramatically change the performance
-> for tasks with a working set larger than 10% of memory.
+> This is my biggest problem or maybe my complete lack of understanding, is
+> that I don't know how to determine what state I am in during a hotplug
 
-Exactly. Except it's not a "working set", it's a "dirty set".
+Basically you can't/shouldn't determine that. 
 
-Which is the whole (and only) point of the whole patch.
+> I thought it would make more sense if a few more states were to the
+> hotplug event list.  For example, in addition to CPU_ONLINE and CPU_DEAD,
+> there could also be something like CPU_SUSPEND, CPU_FREEZE, CPU_RESUME,
+> and CPU_THAW.  
+> 
+> Anyway, I am probably complicating the matter.  I'll whip something up and
+> post it for review.
 
-If you want to live on the edge, you can set the dirty_balance trigger to 
-something much higher, it's entirely configurable if I remember correctly.
-
-		Linus
+I think you are overcomplicating this. Just forget about
+suspend/resume, and reinit cpus from the scratch each time. It may
+lead into some 'interesting' behaviour if someone tries to suspend
+while profiling, but I believe we can live with that.
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

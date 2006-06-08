@@ -1,44 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWFHG2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWFHGeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932526AbWFHG2k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 02:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWFHG2k
+	id S932479AbWFHGeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 02:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWFHGeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 02:28:40 -0400
-Received: from mail.sanpeople.com ([196.41.13.122]:57608 "EHLO
-	za-gw.sanpeople.com") by vger.kernel.org with ESMTP id S932526AbWFHG2k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 02:28:40 -0400
-Subject: Re: [PATCH] RTC: Ensure that time being passed to set_alarm() is
-	valid.
-From: Andrew Victor <andrew@sanpeople.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, alessandro.zummo@towertech.it, akpm@osdl.org
-In-Reply-To: <20060607193121.GG13165@flint.arm.linux.org.uk>
-References: <1149704455.20386.90.camel@fuzzie.sanpeople.com>
-	 <20060607193121.GG13165@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: SAN People (Pty) Ltd
-Message-Id: <1149747793.2114.4.camel@fuzzie.sanpeople.com>
+	Thu, 8 Jun 2006 02:34:25 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:24343 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932479AbWFHGeY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 02:34:24 -0400
+Date: Thu, 8 Jun 2006 08:30:00 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: akpm@osdl.org, mingo@elte.hu, laurent.riffard@free.fr, barryn@pobox.com,
+       76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
+       jbeulich@novell.com, arjan@linux.intel.com
+Subject: Re: [PATCH] ide-cd: use blk_get_request()
+Message-ID: <20060608063000.GG5207@suse.de>
+References: <20060605110046.2a7db23f.akpm@osdl.org> <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com> <20060606072628.GA28752@elte.hu> <4485E0D3.8080708@free.fr> <20060606205801.GC17787@elte.hu> <4485F5E2.5040708@free.fr> <20060606220507.GA19882@elte.hu> <20060606152930.adc58fe4.akpm@osdl.org> <20060607062208.GZ6693@suse.de> <20060607202223.3478c8ad.rdunlap@xenotime.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 08 Jun 2006 08:23:13 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060607202223.3478c8ad.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, 
-
-> > RTC: Ensure that the time being passed to set_alarm() is valid.
+On Wed, Jun 07 2006, Randy.Dunlap wrote:
+> On Wed, 7 Jun 2006 08:22:08 +0200 Jens Axboe wrote:
 > 
-> NAK.  rtc_valid_tm checks that the time/date is valid (eg, month is
-> within range).  Alarms can have a "don't care" state for each part -
-> for example, setting month to 0xff means "alarm every month".
+> > On Tue, Jun 06 2006, Andrew Morton wrote:
+> > > 
+> > > Note that Laurent is also passing through ide_cdrom_packet(), which has a
+> > > `struct request' on the stack.  The kernel does this in a lot of places,
+> > > and at 168 bytes on x86, it'd really be best if we were to dynamically
+> > > allocate these things.
+> > 
+> > That's an old peeve of mine, on-stack requests... It's nasty from
+> > several angles, stack usage just being one of them. Perhaps I'll give it
+> > a go for 2.6.18 and add checks for request being thrown at the block
+> > layer which didn't originate from get_request().
+> 
+> This is a start at converting ide-cd.c to use blk_get_request().
+> How does it look so far?
+> It builds, but I have not tested it yet.
+> And of course, there are other drivers to be modified as well.
+> 
+> ---
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> Convert struct request req; on function stacks to
+> use allocation via blk_get_request() to
+> (a) reduce stack pressure and
+> (b) use centralized blk_ functions and
+> (c) allow for block IO tracing.
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> ---
+>  drivers/ide/ide-cd.c |  258 +++++++++++++++++++++++++++++++++------------------
+>  1 files changed, 170 insertions(+), 88 deletions(-)
+> 
+> --- linux-2617-rc6.orig/drivers/ide/ide-cd.c
+> +++ linux-2617-rc6/drivers/ide/ide-cd.c
+> @@ -2033,24 +2033,32 @@ int msf_to_lba (byte m, byte s, byte f)
+>  
+>  static int cdrom_check_status(ide_drive_t *drive, struct request_sense *sense)
+>  {
+> -	struct request req;
+> +	struct request *req;
+>  	struct cdrom_info *info = drive->driver_data;
+>  	struct cdrom_device_info *cdi = &info->devinfo;
+> +	request_queue_t *q = cdi->disk->queue;
+> +	int stat;
+>  
+> -	cdrom_prepare_request(drive, &req);
+> -
+> -	req.sense = sense;
+> -	req.cmd[0] = GPCMD_TEST_UNIT_READY;
+> -	req.flags |= REQ_QUIET;
+> +	req = blk_get_request(q, READ, GFP_KERNEL);
+> +	if (!req)
+> +		return -ENOMEM;
+> +
+> +	cdrom_prepare_request(drive, req);
 
-OK. Drop this patch.
+This cannot work, have you seen what cdrom_prepare_request() does?
 
-
-Regards,
-  Andrew Victor
-
+-- 
+Jens Axboe
 

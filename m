@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWFHNyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWFHOAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWFHNyl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 09:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWFHNyk
+	id S964819AbWFHOAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 10:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWFHOAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 09:54:40 -0400
-Received: from wx-out-0102.google.com ([66.249.82.206]:36138 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964845AbWFHNyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 09:54:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QyyZYf2sADsrBh6pqECop4+6FfZNgQVVX12W44UHInsajEh8FvVST6lI2LQviRv0/n7MoeUAe8lzjDX0aSk7pYtxx4ACZg1+y6hVIeRqSE9t1NN+DOjtxIe1JG7oiS+DvZNN3nhYuE6MvAF8wQiKbIAvrZqEl/wwAInp4eIf9zk=
-Message-ID: <a4e6962a0606080654n3157350bgedee4b545988e1dd@mail.gmail.com>
-Date: Thu, 8 Jun 2006 08:54:38 -0500
-From: "Eric Van Hensbergen" <ericvh@gmail.com>
-To: "Florin Malita" <fmalita@gmail.com>
-Subject: Re: [PATCH] 9pfs: missing result check in v9fs_vfs_readlink() and v9fs_vfs_link()
-Cc: rminnich@lanl.gov, lucho@ionkov.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <4487B83E.4090009@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 10:00:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:55831 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964819AbWFHOAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 10:00:16 -0400
+Date: Thu, 8 Jun 2006 16:00:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Voluspa <lista1@comhem.se>, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
+       diegocg@gmail.com, linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
+Subject: Re: adaptive readahead overheads
+Message-ID: <20060608140012.GD5207@suse.de>
+References: <349406446.10828@ustc.edu.cn> <20060604020738.31f43cb0.akpm@osdl.org> <1149413103.3109.90.camel@laptopd505.fenrus.org> <20060605031720.0017ae5e.lista1@comhem.se> <349562623.17723@ustc.edu.cn> <20060608094356.5c1272cc.lista1@comhem.se> <349766648.27054@ustc.edu.cn> <20060608142556.2e10e379.lista1@comhem.se> <p73ac8nu7a5.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4487B83E.4090009@gmail.com>
+In-Reply-To: <p73ac8nu7a5.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/06, Florin Malita <fmalita@gmail.com> wrote:
-> __getname() may fail and return NULL (as pointed out by Coverity 437 &
-> 1220).
->
-> Signed-off-by: Florin Malita <fmalita@gmail.com>
-Acked-by: Eric Van Hensbergen <ericvh@gmail.com>
+On Thu, Jun 08 2006, Andi Kleen wrote:
+> Voluspa <lista1@comhem.se> writes:
+> 
+> > On Thu, 8 Jun 2006 19:37:31 +0800 Fengguang Wu wrote:
+> > > I'd like to show some numbers on the pure software overheads come with
+> > > the adaptive readahead in daily operations.
+> > [...]
+> > > 
+> > > # time find /usr -type f -exec md5sum {} \; >/dev/null
+> > > 
+> > > ARA
+> > > 
+> > > 406.00s user 325.16s system 97% cpu 12:28.17 total
+> > 
+> > Just out of interest, all your figures show an almost maxed out CPU.
+> 
+> It might be because qemu has a poor IO model (old IDE) that is quite 
+> CPU intensive to drive.
+
+qemu ide supports dma, so it's ok in that respect. It doesn't support
+async io for the host though, so all io ends up blocking waiting for io
+to complete at the host. I would not advocate using qemu for benching
+these things, it's just not (yet) well suited for io testing.
+
+-- 
+Jens Axboe
+

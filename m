@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWFHETb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWFHEVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWFHETb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 00:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWFHETb
+	id S932497AbWFHEVK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 00:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWFHEVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 00:19:31 -0400
-Received: from xenotime.net ([66.160.160.81]:31877 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932491AbWFHETb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 00:19:31 -0400
-Date: Wed, 7 Jun 2006 21:22:17 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, tiwai@suse.de
-Subject: [PATCH] sound/vxpocket: fix printk warning
-Message-Id: <20060607212217.911bd60a.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Thu, 8 Jun 2006 00:21:09 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:4063 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932497AbWFHEVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 00:21:08 -0400
+Date: Thu, 8 Jun 2006 00:21:09 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: akpm@osdl.org, jamagallon@ono.com, linux-kernel@vger.kernel.org,
+       sam@ravnborg.org
+Subject: Re: [PATCH] ignore smp_locks section warnings from init/exit code
+Message-ID: <20060608042109.GA6337@ccure.user-mode-linux.org>
+References: <20060607104724.c5d3d730.akpm@osdl.org> <20060608003153.36f59e6a@werewolf.auna.net> <20060607154054.cf4f2512.akpm@osdl.org> <20060607162326.3d2cc76b.rdunlap@xenotime.net> <20060608021149.GA5567@ccure.user-mode-linux.org> <20060607193225.989add4c.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060607193225.989add4c.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Wed, Jun 07, 2006 at 07:32:25PM -0700, Randy.Dunlap wrote:
+> > make ARCH=um allmodconfig
+> /var/linsrc/linux-2617-rc6mm1/arch/um/Makefile:113: *** missing separator.  Stop.
+> 
+> is that known/fixed?
 
-Fix printk format warning:
-sound/pcmcia/vx/vxp_ops.c:205: warning: format '%x' expects type 'unsigned int', but argument 5 has type 'size_t'
+No.  rc6-mm1 builds fine here.  I just checked with a fresh tree.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- sound/pcmcia/vx/vxp_ops.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Are you sure you have a clean tree?
 
---- linux-2617-rc6.orig/sound/pcmcia/vx/vxp_ops.c
-+++ linux-2617-rc6/sound/pcmcia/vx/vxp_ops.c
-@@ -202,7 +202,7 @@ static int vxp_load_xilinx_binary(struct
- 	c |= (int)vx_inb(chip, RXM) << 8;
- 	c |= vx_inb(chip, RXL);
- 
--	snd_printdd(KERN_DEBUG "xilinx: dsp size received 0x%x, orig 0x%x\n", c, fw->size);
-+	snd_printdd(KERN_DEBUG "xilinx: dsp size received 0x%x, orig 0x%Zx\n", c, fw->size);
- 
- 	vx_outb(chip, ICR, ICR_HF0);
- 
-
----
+				Jeff

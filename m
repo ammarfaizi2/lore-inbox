@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWFHGtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWFHGvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbWFHGtD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 02:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWFHGtD
+	id S932542AbWFHGvd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 02:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWFHGvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 02:49:03 -0400
-Received: from mail.sanpeople.com ([196.41.13.122]:59656 "EHLO
-	za-gw.sanpeople.com") by vger.kernel.org with ESMTP id S932528AbWFHGtC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 02:49:02 -0400
-Subject: Re: [PATCH[ RTC: Add rtc_year_days() to calculate tm_yday
-From: Andrew Victor <andrew@sanpeople.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, alessandro.zummo@towertech.it, akpm@osdl.org
-In-Reply-To: <20060607193311.GH13165@flint.arm.linux.org.uk>
-References: <1149704768.20154.95.camel@fuzzie.sanpeople.com>
-	 <20060607193311.GH13165@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: SAN People (Pty) Ltd
-Message-Id: <1149749016.2114.26.camel@fuzzie.sanpeople.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 08 Jun 2006 08:43:36 +0200
+	Thu, 8 Jun 2006 02:51:33 -0400
+Received: from mail.suse.de ([195.135.220.2]:58595 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932542AbWFHGvc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 02:51:32 -0400
+From: Andi Kleen <ak@suse.de>
+To: bidulock@openss7.org
+Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
+Date: Thu, 8 Jun 2006 08:51:20 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+References: <20060607173642.GA6378@schatzie.adilger.int> <200606080739.33967.ak@suse.de> <20060608004153.A11953@openss7.org>
+In-Reply-To: <20060608004153.A11953@openss7.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606080851.20232.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Russell,
-
-> > RTC: Add exported function rtc_year_days() to calculate the tm_yday
-> > value.
+On Thursday 08 June 2006 08:41, Brian F. G. Bidulock wrote:
+> Andi,
 > 
-> Is there a good reason for this?  I ask the question because the x86
-> /dev/rtc driver says:
+> On Thu, 08 Jun 2006, Andi Kleen wrote:
+> > 
+> > Nothing on x86-64 at least - it uses -fno-reorder-blocks by default.
+> > 
 > 
->          * Only the values that we read from the RTC are set. We leave
->          * tm_wday, tm_yday and tm_isdst untouched. Note that while the
->          * RTC has RTC_DAY_OF_WEEK, we should usually ignore it, as it is
->          * only updated by the RTC when initially set to a non-zero value.
-> 
-> So it seems the established modus operandi for RTC interfaces is "don't
-> trust wday, yday and isdst".
+> Why is that?
 
-wday and yday are already being calculated by rtc_time_to_tm() in
-drivers/rtc/rtc-lib.c, and this function is used by about half of the
-RTC class drivers.
+Originally because it made assembly too unreadable. Later it was discovered
+it produces smaller code too.
 
-Since yday can also be easily calculated from dd/mm/yyyy, I don't see
-why those drivers who don't use rtc_time_to_tm() can't also return a
-valid yday value.
-
-
-Regards,
-  Andrew Victor
-
-
+-Andi

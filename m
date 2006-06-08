@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWFHVRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbWFHVRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWFHVRO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 17:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbWFHVRO
+	id S965020AbWFHVRk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 17:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbWFHVRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 17:17:14 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:48299
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S965019AbWFHVRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 17:17:12 -0400
-Message-ID: <448893DD.7010207@microgate.com>
-Date: Thu, 08 Jun 2006 16:17:17 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Thu, 8 Jun 2006 17:17:40 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:28037 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S965020AbWFHVRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 17:17:39 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Thu, 8 Jun 2006 22:17:34 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock
+ detected!
+In-Reply-To: <20060608161130.GA6869@elte.hu>
+Message-ID: <Pine.LNX.4.64.0606082216260.9858@hermes-1.csi.cam.ac.uk>
+References: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com>
+ <1149751953.10056.10.camel@imp.csi.cam.ac.uk> <20060608095522.GA30946@elte.hu>
+ <1149764032.10056.82.camel@imp.csi.cam.ac.uk> <20060608161130.GA6869@elte.hu>
 MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.16.18 kernel freezes while pppd is exiting
-References: <200606081412_MC3-1-C1EF-69A3@compuserve.com>
-In-Reply-To: <200606081412_MC3-1-C1EF-69A3@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> Very infrequently I get kernel freezes while pppd is exiting.
-> Today I finally got traces from the serial console.
+On Thu, 8 Jun 2006, Ingo Molnar wrote:
+> * Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> > >   &ni->mrec_lock  - a spinlock protecting a particular inode's MFT data. 
+> > >                     (finegrained lock for the MFT record) It is 
+> > >                     typically taken by map_mft_record() and released by 
+> > >                     unmap_mft_record().
+> > 
+> > Correct, except s/spinlock/semaphore/ (that really should become a 
+> > mutex one day).
+> 
+> yeah - it's in fact a mutex already.
+> 
+> > No it is not as explained above.  Something has gotten confused 
+> > somewhere because the order of events is the wrong way round...
+> 
+> did my second trace make more sense? The dependency that the validator 
 
-Chuck:
+Which one was that?  Could you please quote it again so we both know we 
+are talking about the same thing?
 
-What kind of device are you using with pppd?
-(so I can identify which driver is feeding
-the tty layer receive data)
+> recorded can be pretty much taken as granted - it only stores 
+> dependencies that truly trigger runtime. What shouldnt be taken as 
+> granted is my explanation of the events :-)
 
-Are you setting the low_latency flag on that device?
-(setserial)
+Ok. (-:
 
-Thanks,
-Paul
+> there is a wide array of methods and APIs available to express locking 
+> semantics to the validator in a natural and non-intrusive way [for cases 
+> where the validator gets it wrong or simply has no way of auto-learning 
+> them] - but for that i'll first have to understand the locking semantics
+> :-)
+
+Indeed. (-:
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer, http://www.linux-ntfs.org/

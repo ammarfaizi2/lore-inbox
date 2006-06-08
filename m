@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWFHUNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWFHUVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWFHUNx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWFHUNx
+	id S964963AbWFHUVB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWFHUVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:13:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20498 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964973AbWFHUNw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:13:52 -0400
-Date: Thu, 8 Jun 2006 20:13:36 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, Don Zickus <dzickus@redhat.com>,
-       ak@suse.de, shaohua.li@intel.com, miles.lane@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Message-ID: <20060608201336.GD4006@ucw.cz>
-References: <4480C102.3060400@goop.org> <20060606230504.GC11696@redhat.com> <20060606162201.f0f9f308.akpm@osdl.org> <200606070938.34927.ncunningham@linuxmail.org> <44861899.1040506@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44861899.1040506@goop.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 8 Jun 2006 16:21:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60098 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964963AbWFHUVA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:21:00 -0400
+Date: Thu, 8 Jun 2006 13:20:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nate Diller <nate.diller@gmail.com>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Hugh Dickins <hugh@veritas.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>
+Subject: Re: [PATCH] mm: tracking dirty pages -v6
+In-Reply-To: <5c49b0ed0606081310q5771e8d1s55acef09b405922b@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0606081318161.5498@g5.osdl.org>
+References: <20060525135534.20941.91650.sendpatchset@lappy> 
+ <Pine.LNX.4.64.0606062056540.1507@blonde.wat.veritas.com> 
+ <1149770654.4408.71.camel@lappy> <5c49b0ed0606081310q5771e8d1s55acef09b405922b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> But the problem is that there's nothing which keeps 
-> track of whether the re-plugged cpus 1-N are the "same" 
-> as the unplugged 1-N, and so nothing can apply the same 
-> per-cpu settings to them.  In the suspend/resume case 
-> they clearly are, but in the general remove/add case, do 
-> you really want the new CPU to get the same state as the 
-> old one just because it ends up with the same logical 
-> CPU number?  Perhaps, but what if it doesn't even have 
-> the same capabilities? 
 
-> (Do we support heterogeneous 
-> CPUs anyway?)
+On Thu, 8 Jun 2006, Nate Diller wrote:
+> 
+> Does this mean that processes dirtying pages via mmap are now subject
+> to write throttling?  That could dramatically change the performance
+> for tasks with a working set larger than 10% of memory.
 
-It works for some people, but it certainly falls into unsupported
-category.
+Exactly. Except it's not a "working set", it's a "dirty set".
 
--- 
-Thanks for all the (sleeping) penguins.
+Which is the whole (and only) point of the whole patch.
+
+If you want to live on the edge, you can set the dirty_balance trigger to 
+something much higher, it's entirely configurable if I remember correctly.
+
+		Linus

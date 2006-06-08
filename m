@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWFHH1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbWFHH2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWFHH1o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 03:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWFHH1o
+	id S932549AbWFHH2V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWFHH2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 03:27:44 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:62477 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932548AbWFHH1n
+	Thu, 8 Jun 2006 03:28:21 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:24394 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932549AbWFHH2U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 03:27:43 -0400
-Date: Thu, 8 Jun 2006 17:27:35 +1000
-To: Joachim Fritschi <jfritschi@freenet.de>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH  1/4] Twofish cipher - split out common c code
-Message-ID: <20060608072735.GA10613@gondor.apana.org.au>
-References: <200606041516.21967.jfritschi@freenet.de> <200606072137.24176.jfritschi@freenet.de> <20060608015728.GA8314@gondor.apana.org.au> <200606080920.04480.jfritschi@freenet.de>
-Mime-Version: 1.0
+	Thu, 8 Jun 2006 03:28:20 -0400
+Date: Thu, 8 Jun 2006 09:28:02 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: schwidefsky@de.ibm.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       arjan@infradead.org
+Subject: Re: 2.6.17-rc5-mm2 link issues on s390
+Message-ID: <20060608072802.GB9416@osiris.boeblingen.de.ibm.com>
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EE5A4.7050201@fr.ibm.com> <1149168482.5279.34.camel@localhost> <447EF175.4040608@fr.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606080920.04480.jfritschi@freenet.de>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <447EF175.4040608@fr.ibm.com>
+User-Agent: mutt-ng/devel-r802 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 08, 2006 at 09:20:04AM +0200, Joachim Fritschi wrote:
+> This patch adds __raw_writeq required by __iowrite64_copy.
 > 
-> Solve the naming conflict when compiling. Seemed to me like it is impossible to create a
-> twofish.o out of twofish.o and twofish_common.o . And since having the original module name
-> seemed more important to me i changed the name. I didn't find any other way in documentation
-> of the kernel makefiles. I hope this isn't another newbie mistake. =)
+> It also adds all the related quad routines.
+> 
+> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+> 
+> ---
+>  include/asm-s390/io.h |    5 +++++
+>  1 files changed, 5 insertions(+)
+> 
+> Index: 2.6.17-rc5-mm2/include/asm-s390/io.h
+> ===================================================================
+> --- 2.6.17-rc5-mm2.orig/include/asm-s390/io.h
+> +++ 2.6.17-rc5-mm2/include/asm-s390/io.h
+> @@ -86,20 +86,25 @@
+>  #define readb(addr) (*(volatile unsigned char *) __io_virt(addr))
+>  #define readw(addr) (*(volatile unsigned short *) __io_virt(addr))
+>  #define readl(addr) (*(volatile unsigned int *) __io_virt(addr))
+> +#define readq(addr) (*(volatile unsigned long *) __io_virt(addr))
+> 
+>  #define readb_relaxed(addr) readb(addr)
+>  #define readw_relaxed(addr) readw(addr)
+>  #define readl_relaxed(addr) readl(addr)
+> +#define readq_relaxed(addr) readq(addr)
+>  #define __raw_readb readb
+>  #define __raw_readw readw
+>  #define __raw_readl readl
+> +#define __raw_readq readq
+> 
+>  #define writeb(b,addr) (*(volatile unsigned char *) __io_virt(addr) = (b))
+>  #define writew(b,addr) (*(volatile unsigned short *) __io_virt(addr) = (b))
+>  #define writel(b,addr) (*(volatile unsigned int *) __io_virt(addr) = (b))
+> +#define writeq(b,addr) (*(volatile unsigned long *) __io_virt(addr) = (b))
 
-Just make a module out of the common code.  See sound/isa/sb/Makefile
-for an example.  It would also help to make a common Kconfig symbol
-that is not visible to the user but instead is selected by any one
-of the twofish implementations.
-
-If you do it this way then the assembly implementations just need to
-select that Kconfig symbol to get the common code either built as a
-module or compiled in.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+This looks wrong: "b" is a u64 and you write it to something that is an
+unsigned long. We're going to miss a few bits on 31 bit platforms...

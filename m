@@ -1,73 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWFHHcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbWFHHcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932554AbWFHHcR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 03:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWFHHcR
+	id S932559AbWFHHcl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWFHHcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 03:32:17 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:25566 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S932554AbWFHHcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 03:32:16 -0400
-Date: Thu, 8 Jun 2006 09:31:38 +0200
-From: Voluspa <lista1@comhem.se>
-To: Fengguang Wu <wfg@mail.ustc.edu.cn>
-Cc: akpm@osdl.org, arjan@infradead.org, Valdis.Kletnieks@vt.edu,
-       diegocg@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] readahead: initial method - expected read size - fix
- fastcall
-Message-Id: <20060608093138.79f66acb.lista1@comhem.se>
-In-Reply-To: <349560742.21407@ustc.edu.cn>
-References: <349406446.10828@ustc.edu.cn>
-	<20060604020738.31f43cb0.akpm@osdl.org>
-	<1149413103.3109.90.camel@laptopd505.fenrus.org>
-	<20060605031720.0017ae5e.lista1@comhem.se>
-	<349560742.21407@ustc.edu.cn>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 8 Jun 2006 03:32:41 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:44470 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932545AbWFHHck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 03:32:40 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock
+	detected!
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com>
+References: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Thu, 08 Jun 2006 08:32:33 +0100
+Message-Id: <1149751953.10056.10.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jun 2006 10:26:06 +0800 Fengguang Wu wrote:
-> On Mon, Jun 05, 2006 at 03:17:20AM +0200, Voluspa wrote:
-> > Patch:
-> > http://web.comhem.se/~u46139355/storetmp/adaptive-readahead-v14-linux-2.6.17-rc5-git-updated-june-04-2006.patch
+Hi,
+
+Thanks for the report.
+
+On Wed, 2006-06-07 at 21:27 -0700, Miles Lane wrote:
+> =====================================================
+> [ BUG: possible circular locking deadlock detected! ]
+> -----------------------------------------------------
+> mount/1219 is trying to acquire lock:
+>  (&ni->mrec_lock){--..}, at: [<c031e4b8>] mutex_lock+0x21/0x24
 > 
-> It seems that the patch has some problem:
-[...]
-> The above statements was displaced, rendering the if() clause to fail all the time.
-> That defeats the small file optimization, for ra_thrash_bytes will remain small.
-
-Which rendered all my testing invalid. Nice... It came about with the
-update-01to04of04 and must have elicited a "fuzz" that I neglected to
-check. 
-
-Sorry to have caused you grief and extra work, Wu. I can only point 
-towards the _Caveat and preemptive Mea Culpa_.
-
-> Voluspa, I attached an updated patch, including two more performance tunings.
-> Please take it when you find time to do more benchmarks, thanks.
+> but task is already holding lock:
+>  (&rl->lock){----}, at: [<f8a98e4d>] ntfs_map_runlist+0x2a/0xb5 [ntfs]
 > 
-> I'd suggest that you(and other kind people interested in testing it out) to run
->         blockdev --setra 2048 /dev/[sda/sda1/...]
-> before each benchmark to ensure fairness and simplicity of analysis, thanks.
+> which lock already depends on the new lock,
+> which could lead to circular deadlocks!
 
-I'm in the process of writing up a new report after having tested for ca 6
-hours straight (repenting mood). Will post in the original thread:
+That's rubbish.  The lock analyser is not intelligent enough for
+ntfs...  )-:
 
-Adaptive Readahead V14 - statistics question...
-http://marc.theaimsgroup.com/?t=114893205000004&r=1&w=2
+FWIW it appears to be picking up that locks depend on each other even
+when they relate to different inodes which means that they do not depend
+on each other.  It perhaps is getting confused by the special case for
+the table of inodes ($MFT) which has the lock dependency reverse to all
+other inodes but it is special because it can never take the lock
+recursively (and hence deadlock) because we always keep the whole
+runlist for $MFT in memory and should a bug or memory corruption cause
+this not to be the case then ntfs will detect this and go BUG() so it
+still will not deadlock...
 
-The subject has a 'higher profile' than this one and might pull in future
-testers.
+The people responsible for the lock analyser will need to fix this in
+their code or by adding some magic to ntfs to make the errors go away...
 
-Note to Andrew; Revised Conclusion: On _this_ machine, with _these_ operations,
-Adaptive Readahead in its current incarnation and default settings is a slight
-_loss_. However, if the readahead size is lowered from 2048 to 256, it becomes
-a slight _gain_ or at least stays in parity with normal readahead.
+Best regards,
 
-Mvh
-Mats Johannesson
---
+	Anton
+
+> the existing dependency chain (in reverse order) is:
+> 
+> -> #1 (&rl->lock){----}:
+>        [<c012ec64>] lock_acquire+0x58/0x74
+>        [<f8a97619>] ntfs_readpage+0x362/0x8fd [ntfs]
+>        [<c01415b0>] read_cache_page+0x8c/0x137
+>        [<f8a9eeb8>] map_mft_record+0xd7/0x1d2 [ntfs]
+>        [<f8a9d661>] ntfs_read_locked_inode+0x74/0xea9 [ntfs]
+>        [<f8a9eabb>] ntfs_read_inode_mount+0x625/0x846 [ntfs]
+>        [<f8aa2ff8>] ntfs_fill_super+0x8ca/0xd14 [ntfs]
+>        [<c01647c4>] get_sb_bdev+0xed/0x14e
+>        [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
+>        [<c0163c11>] vfs_kern_mount+0x76/0x143
+>        [<c0163d17>] do_kern_mount+0x29/0x3d
+>        [<c0177f9f>] do_mount+0x78a/0x7e4
+>        [<c0178058>] sys_mount+0x5f/0x91
+>        [<c031fb5d>] sysenter_past_esp+0x56/0x8d
+> 
+> -> #0 (&ni->mrec_lock){--..}:
+>        [<c012ec64>] lock_acquire+0x58/0x74
+>        [<c031e321>] __mutex_lock_slowpath+0xa7/0x21d
+>        [<c031e4b8>] mutex_lock+0x21/0x24
+>        [<f8a9edfa>] map_mft_record+0x19/0x1d2 [ntfs]
+>        [<f8a98630>] ntfs_map_runlist_nolock+0x48/0x437 [ntfs]
+>        [<f8a98eaa>] ntfs_map_runlist+0x87/0xb5 [ntfs]
+>        [<f8a97739>] ntfs_readpage+0x482/0x8fd [ntfs]
+>        [<c01415b0>] read_cache_page+0x8c/0x137
+>        [<f8aa20bc>] load_system_files+0x155/0x7c7 [ntfs]
+>        [<f8aa30a7>] ntfs_fill_super+0x979/0xd14 [ntfs]
+>        [<c01647c4>] get_sb_bdev+0xed/0x14e
+>        [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
+>        [<c0163c11>] vfs_kern_mount+0x76/0x143
+>        [<c0163d17>] do_kern_mount+0x29/0x3d
+>        [<c0177f9f>] do_mount+0x78a/0x7e4
+>        [<c0178058>] sys_mount+0x5f/0x91
+>        [<c031fb5d>] sysenter_past_esp+0x56/0x8d
+> 
+> other info that might help us debug this:
+> 
+> 2 locks held by mount/1219:
+>  #0:  (&s->s_umount#18){--..}, at: [<c0164443>] sget+0x223/0x3a1
+>  #1:  (&rl->lock){----}, at: [<f8a98e4d>] ntfs_map_runlist+0x2a/0xb5 [ntfs]
+> 
+> stack backtrace:
+>  [<c0103924>] show_trace_log_lvl+0x54/0xfd
+>  [<c01049a9>] show_trace+0xd/0x10
+>  [<c01049c3>] dump_stack+0x17/0x1c
+>  [<c012cefb>] print_circular_bug_tail+0x59/0x64
+>  [<c012e766>] __lock_acquire+0x7c2/0x97a
+>  [<c012ec64>] lock_acquire+0x58/0x74
+>  [<c031e321>] __mutex_lock_slowpath+0xa7/0x21d
+>  [<c031e4b8>] mutex_lock+0x21/0x24
+>  [<f8a9edfa>] map_mft_record+0x19/0x1d2 [ntfs]
+>  [<f8a98630>] ntfs_map_runlist_nolock+0x48/0x437 [ntfs]
+>  [<f8a98eaa>] ntfs_map_runlist+0x87/0xb5 [ntfs]
+>  [<f8a97739>] ntfs_readpage+0x482/0x8fd [ntfs]
+>  [<c01415b0>] read_cache_page+0x8c/0x137
+>  [<f8aa20bc>] load_system_files+0x155/0x7c7 [ntfs]
+>  [<f8aa30a7>] ntfs_fill_super+0x979/0xd14 [ntfs]
+>  [<c01647c4>] get_sb_bdev+0xed/0x14e
+>  [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
+>  [<c0163c11>] vfs_kern_mount+0x76/0x143
+>  [<c0163d17>] do_kern_mount+0x29/0x3d
+>  [<c0177f9f>] do_mount+0x78a/0x7e4
+>  [<c0178058>] sys_mount+0x5f/0x91
+>  [<c031fb5d>] sysenter_past_esp+0x56/0x8d
+> NTFS volume version 3.1.
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

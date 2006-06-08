@@ -1,108 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWFHNab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWFHNi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWFHNab (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 09:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWFHNab
+	id S964831AbWFHNi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 09:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWFHNi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 09:30:31 -0400
-Received: from [213.91.247.3] ([213.91.247.3]:12037 "EHLO l.himel.bg")
-	by vger.kernel.org with ESMTP id S1750831AbWFHNab (ORCPT
+	Thu, 8 Jun 2006 09:38:59 -0400
+Received: from gate.crashing.org ([63.228.1.57]:46232 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964831AbWFHNi6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 09:30:31 -0400
-Date: Thu, 8 Jun 2006 16:29:26 +0300
-From: Alexander Atanasov <alex@ssi.bg>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, jordan.crouse@amd.com
-Subject: Re: [PATCH] I2C block read
-Message-Id: <20060608162926.625aad8b.alex@ssi.bg>
-In-Reply-To: <20060607205025.b2529800.khali@linux-fr.org>
-References: <20060607203357.64432ad8.alex@ssi.bg>
-	<20060607194943.db8f1889.khali@linux-fr.org>
-	<20060607210642.5cd59aba.alex@ssi.bg>
-	<20060607205025.b2529800.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.1.5 (GTK+ 2.6.1; i686-pc-linux-gnu)
+	Thu, 8 Jun 2006 09:38:58 -0400
+Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, paulus@samba.org
+In-Reply-To: <Pine.LNX.4.64.0606081301320.17704@scrub.home>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	 <1149652378.27572.109.camel@localhost.localdomain>
+	 <20060606212930.364b43fa.akpm@osdl.org>
+	 <1149656647.27572.128.camel@localhost.localdomain>
+	 <20060606222942.43ed6437.akpm@osdl.org>
+	 <1149662671.27572.158.camel@localhost.localdomain>
+	 <20060607132155.GB14425@elte.hu>
+	 <1149726685.23790.8.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0606081301320.17704@scrub.home>
+Content-Type: text/plain
+Date: Thu, 08 Jun 2006 23:38:30 +1000
+Message-Id: <1149773911.31114.36.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
-On Wed, 7 Jun 2006 20:50:25 +0200
-Jean Delvare wrote:
-
-> As for the problem you encounter, it looks like a bug in the
-> scx200_acb driver to me. It advertises the I2C_FUNC_SMBUS_BLOCK_DATA
-> functionality, but due to its implementation it can only support SMBus
-> block writes and not SMBus block reads. I see no reason why the chip
-> itself couldn't do it, but right now the driver can't. The state
-> machine the driver is based on would need some rework before the
-> functionality can be added. In the meantime, the quickest fix is to
+On Thu, 2006-06-08 at 13:17 +0200, Roman Zippel wrote:
+> Hi,
 > 
-
-	OK, i got it now.  Untested patch that should do it.
+> On Thu, 8 Jun 2006, Benjamin Herrenschmidt wrote:
 > 
-> May I ask for what slave SMBus chip you need the SMBus block read
-> transaction? It's only rarely used, so it could be that it's not what
-> you need after all.
-
-	It's custom developed board with using some motorola processor,
-and the implementation there is buggy doesn't send the lenght but
-this is fixable. So i'll have to fix the state machine after that.
-Guy who is developing the board says that he doesn't get the ACK 
-after the last byte is read too - one more thing to investigate.
-
-Also i use some pc engines board which has geode cpu on it
-and have two access busses one is at 0x820 and the second is at 0x810
-but the second is not in the list of probed devices, can it be added?
-
+> > > a better solution would be to install boot-time IRQ vectors that just do
+> > > nothing but return. They dont mask, they dont ACK nor EOI - they just
+> > > return. The only thing that could break this is a screaming interrupt,
+> > > and even that one probably just slows things down a tiny bit until we
+> > > get so far in the init sequence to set up the PIC.
+> > 
+> > Changing vectors on the fly is hard on some platforms.... We could
+> > change our toplevel ppc_md.get_irq() on powerpc, but we still to do
+> > something about decrementer interrupts.
 > 
-> The scx200_acb code would probably benefit from a general review. It
-> looks to me like quick command with data bit == 1 would fail, for
-> example. It's not a very popular transaction either, but i2c bus
-> drivers should handle all transactions they advertise as supported.
+> On ppc it should not be that difficult to even modify the exception entry 
+> code. Instead of calling do_IRQ use do_early_IRQ and only install the real 
+> handler later.
+
+Yes, it's possible, but will add overhead to the common  IRQ path just
+to handle an early boot special case.
+
+> > A screaming level interrupt will lockup the machine at least on some
+> > platforms.
 > 
+> I guess that's even deadly on most platforms.
 
---
-have fun,
-alex
+Yup.
 
---- drivers/i2c/busses/scx200_acb.c.orig	2006-06-08 15:57:38.000000000 +0300
-+++ drivers/i2c/busses/scx200_acb.c	2006-06-08 16:24:32.000000000 +0300
-@@ -175,12 +175,22 @@
- 			iface->state = state_read;
- 		} else {
- 			outb(iface->address_byte, ACBSDA);
--
- 			iface->state = state_write;
- 		}
- 		break;
- 
- 	case state_read:
-+		if (iface->len == 42) {
-+			outb(inb(ACBCTL1) & ~ACBCTL1_ACK, ACBCTL1);
-+			iface->len = inb(ACBSDA);
-+			if (iface->len > 31) {
-+				dev_dbg(&iface->adapter.dev, "Invalid read lenght %d in state %s\n",
-+					iface->len, scx200_acb_state_name[iface->state]);
-+				errmsg = "Invalid read lenght";
-+				goto error;
-+			}
-+			break;
-+		}
- 		/* Set ACK if receiving the last byte */
- 		if (iface->len == 1)
- 			outb(inb(ACBCTL1) | ACBCTL1_ACK, ACBCTL1);
-@@ -305,7 +315,11 @@
- 		break;
- 
- 	case I2C_SMBUS_BLOCK_DATA:
--		len = data->block[0];
-+		/* 42 is invalid lenght max 32, use it to get real lenght from data */
-+		if (rw == I2C_SMBUS_READ)
-+			len = 42;
-+		else
-+			len = data->block[0];
- 		buffer = &data->block[1];
- 		break;
- 
+> > The problem with all those approaches is that they require changes to
+> > all archs interrupt handling to make the situation safe vs. mutexes...
+> 
+> Only those archs that want to delay interrupt initialization and they at 
+> least have to provide minimal support to survive enabled interrupts.
+> init_IRQ() stays the same for all other archs and we add another hook to 
+> allow the delayed initializtion.
+
+I'm taking a broader point of view here. More than just interrupt init,
+it's in general having basic kernel services such as memory allocator,
+which shouldn't need any special hardware initialization outside of the
+mmu, be setup before we start banging hardware.
+
+> > I still don't think where is the suckage in just not hard-enabling in
+> > the mutex debug code...
+> 
+> If you want to have full services, then irqs are part of it. :)
+
+No. THere is, imho, a very clear difference between services that do
+rely on hw devices, ioremap, and such major infrastructure as page
+tables, and services like slab which essentially, can be initialized
+with the CPU itself being ready and nothing else.
+
+Cheers,
+Ben.
+
+

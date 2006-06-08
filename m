@@ -1,142 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbWFHHcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWFHHlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbWFHHcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 03:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbWFHHcl
+	id S932493AbWFHHlN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWFHHlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 03:32:41 -0400
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:44470 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932545AbWFHHck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 03:32:40 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock
-	detected!
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com>
-References: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Thu, 08 Jun 2006 08:32:33 +0100
-Message-Id: <1149751953.10056.10.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 8 Jun 2006 03:41:13 -0400
+Received: from smtp.enter.net ([216.193.128.24]:530 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S932493AbWFHHlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 03:41:11 -0400
+From: Daniel Hazelton <dhazelton@enter.net>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Subject: Re: OpenGL-based framebuffer concepts
+Date: Thu, 8 Jun 2006 03:40:59 -0400
+User-Agent: KMail/1.7.2
+Cc: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       Ondrej Zajicek <santiago@mail.cz>, Pavel Machek <pavel@ucw.cz>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Manu Abraham <abraham.manu@gmail.com>, linux cbon <linuxcbon@yahoo.fr>,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
+       adaplas@gmail.com
+References: <20060519224056.37429.qmail@web26611.mail.ukl.yahoo.com> <9e4733910606011918vc53bbag4ac5e353a3e5299a@mail.gmail.com> <4487CB77.3050503@aitel.hist.no>
+In-Reply-To: <4487CB77.3050503@aitel.hist.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606080341.00382.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 08 June 2006 03:02 am, Helge Hafting wrote:
+> Jon Smirl wrote:
+> > On 6/1/06, Dave Airlie <airlied@gmail.com> wrote:
+> >> > Without specifying a design here are a few requirements I would have:
+> >> >
+> >> > 1) The kernel subsystem should be agnostic of the display server. The
+> >> > solution should not be X specific. Any display system should be able
+> >> > to use it, SDL, Y Windows, Fresco, etc...
+> >>
+> >> of course, but that doesn't mean it can't re-use X's code, they are
+> >> the best drivers we have. you forget everytime that the kernel fbdev
+> >> drivers aren't even close, I mean not by a long long way apart from
+> >> maybe radeon.
+> >
+> > This requirement means that stuff like mode setting has to be broken
+> > out into an independent library. For example it would not be ok to say
+> > that Fresco has to install X to get mode setting. No comment was made
+> > on where the code comes from, you are reading in something that isn't
+> > in the requirement.. I am aware that X has the best mode setting code
+> > and it would be foolish to ignore it.
+> >
+> > Both you and I both know what a pain it is to extract this type of
+> > code from X. Let's not repeat X's problems in this area. Let's make
+> > the new library standalone and easy to work with in any environment.
+> > No all encompassing typedef systems this time.
+> >
+> >> > 2) State inside the hardware is maintained by a single driver. No
+> >> > hooks for state swapping (ie, save your state, now I'll load mine,
+> >> > ...).
+> >>
+> >> We still have to do state swapping, we just don't expose it,
+> >> suspend/resume places state swapping as a requirement.
+> >
+> > I don't consider suspend/resume state swapping, it is state save and
+> > restore. The same state is loaded back in.
+> >
+> > Other than suspend/resume why would the driver need to do state swapping?
+> >
+> >> > 9) there needs to be a way to control the mode on each head, merged fb
+> >> > should also work. Monitor hotplug should work. Video card hot plug
+> >> > should work. These should all work for console and the display
+> >> > servers.
+> >>
+> >> Of course, have you got drivers for these written? this is mostly in
+> >> the realms of the driver developer, the modesetting API is going to
+> >> have to deal with all these concepts.
+> >
+> > This needs to be considered in the design stage. For example, if both
+> > heads are mapped through a single device node they can't be
+> > independently controlled by two different user IDs. We need to make
+> > sure we leave the path open to building this.
+>
+> Yes.  Having two nodes should fix this one though.  The two nodes
+> can of course be managed by the same driver, so as to deal with
+> issues when there are some shared resources like memory
+> and a single graphichs accelerator.
 
-Thanks for the report.
+Okay. I'll stick this on my list. Shouldn't be too hard to get to, provided I 
+can finish up my work on drmcon. (Tony, I'm still waiting on that unloadable 
+fbcon/fbdev bit and the userspace fbdev driver you mentioned)
 
-On Wed, 2006-06-07 at 21:27 -0700, Miles Lane wrote:
-> =====================================================
-> [ BUG: possible circular locking deadlock detected! ]
-> -----------------------------------------------------
-> mount/1219 is trying to acquire lock:
->  (&ni->mrec_lock){--..}, at: [<c031e4b8>] mutex_lock+0x21/0x24
-> 
-> but task is already holding lock:
->  (&rl->lock){----}, at: [<f8a98e4d>] ntfs_map_runlist+0x2a/0xb5 [ntfs]
-> 
-> which lock already depends on the new lock,
-> which could lead to circular deadlocks!
+> >> > 10) Console support for complex scripts should get consideration.
+> >>
+> >> not really necessary.. nor should it be... fbset works, something like
+> >> it would be good enough..
+> >
+> > I meant support for Korean, Chinese, etc. You can't draw some of the
+> > complex scripts without using something like Pango. Do we want to
+> > build a system where people can use console in their native language?
+>
+> That is very nice to have.  Of course, it is acceptable to say that
+> those who want a Korean/Chinese console are the ones who have to
+> program that part themselves too, but the console design should not
+> prevent this.
+>
+>
+> Helge Hafting
 
-That's rubbish.  The lock analyser is not intelligent enough for
-ntfs...  )-:
+Actually, if drmcon works out right all that would be needed is a program that 
+can use FreeType to load the font into the driver.
 
-FWIW it appears to be picking up that locks depend on each other even
-when they relate to different inodes which means that they do not depend
-on each other.  It perhaps is getting confused by the special case for
-the table of inodes ($MFT) which has the lock dependency reverse to all
-other inodes but it is special because it can never take the lock
-recursively (and hence deadlock) because we always keep the whole
-runlist for $MFT in memory and should a bug or memory corruption cause
-this not to be the case then ntfs will detect this and go BUG() so it
-still will not deadlock...
-
-The people responsible for the lock analyser will need to fix this in
-their code or by adding some magic to ntfs to make the errors go away...
-
-Best regards,
-
-	Anton
-
-> the existing dependency chain (in reverse order) is:
-> 
-> -> #1 (&rl->lock){----}:
->        [<c012ec64>] lock_acquire+0x58/0x74
->        [<f8a97619>] ntfs_readpage+0x362/0x8fd [ntfs]
->        [<c01415b0>] read_cache_page+0x8c/0x137
->        [<f8a9eeb8>] map_mft_record+0xd7/0x1d2 [ntfs]
->        [<f8a9d661>] ntfs_read_locked_inode+0x74/0xea9 [ntfs]
->        [<f8a9eabb>] ntfs_read_inode_mount+0x625/0x846 [ntfs]
->        [<f8aa2ff8>] ntfs_fill_super+0x8ca/0xd14 [ntfs]
->        [<c01647c4>] get_sb_bdev+0xed/0x14e
->        [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
->        [<c0163c11>] vfs_kern_mount+0x76/0x143
->        [<c0163d17>] do_kern_mount+0x29/0x3d
->        [<c0177f9f>] do_mount+0x78a/0x7e4
->        [<c0178058>] sys_mount+0x5f/0x91
->        [<c031fb5d>] sysenter_past_esp+0x56/0x8d
-> 
-> -> #0 (&ni->mrec_lock){--..}:
->        [<c012ec64>] lock_acquire+0x58/0x74
->        [<c031e321>] __mutex_lock_slowpath+0xa7/0x21d
->        [<c031e4b8>] mutex_lock+0x21/0x24
->        [<f8a9edfa>] map_mft_record+0x19/0x1d2 [ntfs]
->        [<f8a98630>] ntfs_map_runlist_nolock+0x48/0x437 [ntfs]
->        [<f8a98eaa>] ntfs_map_runlist+0x87/0xb5 [ntfs]
->        [<f8a97739>] ntfs_readpage+0x482/0x8fd [ntfs]
->        [<c01415b0>] read_cache_page+0x8c/0x137
->        [<f8aa20bc>] load_system_files+0x155/0x7c7 [ntfs]
->        [<f8aa30a7>] ntfs_fill_super+0x979/0xd14 [ntfs]
->        [<c01647c4>] get_sb_bdev+0xed/0x14e
->        [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
->        [<c0163c11>] vfs_kern_mount+0x76/0x143
->        [<c0163d17>] do_kern_mount+0x29/0x3d
->        [<c0177f9f>] do_mount+0x78a/0x7e4
->        [<c0178058>] sys_mount+0x5f/0x91
->        [<c031fb5d>] sysenter_past_esp+0x56/0x8d
-> 
-> other info that might help us debug this:
-> 
-> 2 locks held by mount/1219:
->  #0:  (&s->s_umount#18){--..}, at: [<c0164443>] sget+0x223/0x3a1
->  #1:  (&rl->lock){----}, at: [<f8a98e4d>] ntfs_map_runlist+0x2a/0xb5 [ntfs]
-> 
-> stack backtrace:
->  [<c0103924>] show_trace_log_lvl+0x54/0xfd
->  [<c01049a9>] show_trace+0xd/0x10
->  [<c01049c3>] dump_stack+0x17/0x1c
->  [<c012cefb>] print_circular_bug_tail+0x59/0x64
->  [<c012e766>] __lock_acquire+0x7c2/0x97a
->  [<c012ec64>] lock_acquire+0x58/0x74
->  [<c031e321>] __mutex_lock_slowpath+0xa7/0x21d
->  [<c031e4b8>] mutex_lock+0x21/0x24
->  [<f8a9edfa>] map_mft_record+0x19/0x1d2 [ntfs]
->  [<f8a98630>] ntfs_map_runlist_nolock+0x48/0x437 [ntfs]
->  [<f8a98eaa>] ntfs_map_runlist+0x87/0xb5 [ntfs]
->  [<f8a97739>] ntfs_readpage+0x482/0x8fd [ntfs]
->  [<c01415b0>] read_cache_page+0x8c/0x137
->  [<f8aa20bc>] load_system_files+0x155/0x7c7 [ntfs]
->  [<f8aa30a7>] ntfs_fill_super+0x979/0xd14 [ntfs]
->  [<c01647c4>] get_sb_bdev+0xed/0x14e
->  [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
->  [<c0163c11>] vfs_kern_mount+0x76/0x143
->  [<c0163d17>] do_kern_mount+0x29/0x3d
->  [<c0177f9f>] do_mount+0x78a/0x7e4
->  [<c0178058>] sys_mount+0x5f/0x91
->  [<c031fb5d>] sysenter_past_esp+0x56/0x8d
-> NTFS volume version 3.1.
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+DRH

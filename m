@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWFHQHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWFHQMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964897AbWFHQHH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 12:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWFHQHG
+	id S964900AbWFHQMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 12:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWFHQMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 12:07:06 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:52977 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S964897AbWFHQHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 12:07:05 -0400
-Message-ID: <448849C6.4060005@comcast.net>
-Date: Thu, 08 Jun 2006 12:01:10 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060522)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Clean-up:  TASK_UNMAPPED_BASE and mmap_base
-References: <44862CE3.7040406@comcast.net>	<1149769487.3380.70.camel@laptopd505.fenrus.org>	<448843A4.8070102@comcast.net> <20060608090239.3da80037.rdunlap@xenotime.net>
-In-Reply-To: <20060608090239.3da80037.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 12:12:25 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:63459 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964900AbWFHQMY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 12:12:24 -0400
+Date: Thu, 8 Jun 2006 18:11:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock detected!
+Message-ID: <20060608161130.GA6869@elte.hu>
+References: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com> <1149751953.10056.10.camel@imp.csi.cam.ac.uk> <20060608095522.GA30946@elte.hu> <1149764032.10056.82.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1149764032.10056.82.camel@imp.csi.cam.ac.uk>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+* Anton Altaparmakov <aia21@cam.ac.uk> wrote:
 
-
-Randy.Dunlap wrote:
-> On Thu, 08 Jun 2006 11:35:00 -0400 John Richard Moser wrote:
+> >   &ni->mrec_lock  - a spinlock protecting a particular inode's MFT data. 
+> >                     (finegrained lock for the MFT record) It is 
+> >                     typically taken by map_mft_record() and released by 
+> >                     unmap_mft_record().
 > 
->> Arjan van de Ven wrote:
->>> On Tue, 2006-06-06 at 21:33 -0400, John Richard Moser wrote:
-> 
->>> now if you put your patch inline you'd get comments in detail
->>>
->> Hmm.  I hit "Attach" in Thunderbird.  Viewing the message shows the
->> patch inline with the message for me.  I wasn't aware I needed to do
->> something for that.  (Any help here is appreciated.. I'm sure I can't
->> just copy-paste the diff because Thunderbird likes to wrap long lines
->> PHYSICALLY)
-> 
-> Attachments don't show up in some mail clients.
-> 
+> Correct, except s/spinlock/semaphore/ (that really should become a 
+> mutex one day).
 
-Nod.  I'll repost it then and just copy-paste it inline.
+yeah - it's in fact a mutex already.
 
-> See
-> http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
-> and
-> http://lkml.org/lkml/2005/12/27/191
-> 
-> 
-> ---
-> ~Randy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> No it is not as explained above.  Something has gotten confused 
+> somewhere because the order of events is the wrong way round...
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+did my second trace make more sense? The dependency that the validator 
+recorded can be pretty much taken as granted - it only stores 
+dependencies that truly trigger runtime. What shouldnt be taken as 
+granted is my explanation of the events :-)
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+there is a wide array of methods and APIs available to express locking 
+semantics to the validator in a natural and non-intrusive way [for cases 
+where the validator gets it wrong or simply has no way of auto-learning 
+them] - but for that i'll first have to understand the locking semantics
+:-)
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRIhJxAs1xW0HCTEFAQJvug/5AdAuLw2gMdtD86mn4VI8ojGoIDrN6yGt
-QdrOBFISoDS3nNiUuIhHp1eSKkIiPcB+wIiqJCf5AWvbARg68mlWiLbaVIxXJWze
-bUppI0MAfCzkozf7aL9pmWEYzIySWOtFQwyD953ojcRuJdh/QqaP3LJgMHepP6Ra
-Uy57D+xB/etktfkx+Gm8WVrMsgJuvEhGJqiJmWlP0LRbz8lQ+pui91NhryLuK9qL
-G5h6mpYwaPY8gwM6gelB0xD2oYrkMh/GaKPE8wY1pWMZEJ+b7ZmWYNAta1wx9QNi
-aCZzQc7uzrL4nzOk9Iy/xm84iERb5817/6irqMZv6OVvFjw5syoXtS5saJkRnlgL
-/y+AVu93dAmEqDcNHt3C+dsD9stTgSQ7wGs4kA2oz5uCW3CyHdQKw0SJFqixLavJ
-Muz44UFU1DttaSyizEnAB3vCK+sf+lOccE5i57FNbvMliqst2O1pdy8G4blJpqXZ
-c5H71aO/PfcB7RM8CCsUIMTCtTOpj3D7lAv3RXx8X9AyFK8tND+0CCxMyNg46Oes
-rf+cL7qm0f4MRfFbKsZhztk//4wnOTRjXi1nakDhIJHfmnVwCXl1DTJ9KlLqWP5H
-uMkLMpri5wnT7px3/E1oUyuVOsozkc1m9e8/vJmCw8v0PgpFJ896id4eRTw0byLZ
-X1DXAL8Xzwo=
-=ubTW
------END PGP SIGNATURE-----
+	Ingo

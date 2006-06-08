@@ -1,30 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWFHKXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWFHKUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWFHKXM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 06:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWFHKXM
+	id S932105AbWFHKUW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 06:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWFHKUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 06:23:12 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:23169 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S932112AbWFHKXL (ORCPT
+	Thu, 8 Jun 2006 06:20:22 -0400
+Received: from mx1.suse.de ([195.135.220.2]:27026 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932105AbWFHKUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 06:23:11 -0400
-Date: Thu, 8 Jun 2006 12:23:05 +0200 (MEST)
-Message-Id: <200606081023.k58AN5Ia026206@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: linux-kernel@vger.kernel.org, rajeevm@subextechnologies.com
-Subject: Re: Problem related to Red Hat Linux kernel 2.6.9-5.EL
+	Thu, 8 Jun 2006 06:20:22 -0400
+From: Andi Kleen <ak@suse.de>
+To: bidulock@openss7.org
+Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
+Date: Thu, 8 Jun 2006 12:20:04 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+References: <20060607173642.GA6378@schatzie.adilger.int> <200606081114.09390.ak@suse.de> <20060608033633.A16099@openss7.org>
+In-Reply-To: <20060608033633.A16099@openss7.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606081220.04060.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 08 Jun 2006 14:30:21 +0550, Rajeev Majumdar wrote:
-> I  have  a problem  with  kernel  2.6.9-5. EL  that  is enterprise
->version of Red Hat linux. I am trying to run 500 or more processes
->parallely with TETware distributed test harness (that can schedule processes
->parallely and using its synchronisizing mechanism) but after running for
->some time some processes get stuck at futex system call and waiting
->infinetly that i found with strace utility.
+On Thursday 08 June 2006 11:36, Brian F. G. Bidulock wrote:
+> Andi,
+> 
+> On Thu, 08 Jun 2006, Andi Kleen wrote:
+> > 
+> > > performance increased 2% per hyperthread; 
+> > 
+> > That would surprise me. Most likely you made some measurement error.
+> > 
+> 
+> Don't think there was an error.  Tests performed on STREAMS external
+> modules optimized with profiling data.
 
-That kernel is ancient: upgrade to 2.6.9-34.0.1.EL and try again.
-If the problem persists, report it to RedHat. This mailing list
-(linux-kernel) is about the standard kernel, not vendor-specific ones.
+
+You mean with compiler profile feedback? 
+
+If that is slower then it would sound like a compiler bug.
+
+-Andi

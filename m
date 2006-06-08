@@ -1,120 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbWFHWsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWFHWsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965032AbWFHWsn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 18:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWFHWsn
+	id S965034AbWFHWsV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 18:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWFHWsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 18:48:43 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:61485 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965032AbWFHWsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 18:48:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rGgpNhtSPx08zc/CzotKqOI0PU4R7Yb/R8OxK35kvx/6FKg5b1BZVE+dtNTrTK61NM0/vfQsbUfG/BeGcw1YBvRNJ9UiQpXxwWJTtdRmvTBiuKzcft/zIHMtc7Qqn0WazivJt6IAoVsUAg+vgxXO0hbCswKv18xaraQf1F4vmGU=
-Message-ID: <305c16960606081548m316099awafa619bb5d0d14f0@mail.gmail.com>
-Date: Thu, 8 Jun 2006 19:48:39 -0300
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: "Sascha Nitsch" <Sash_lkl@linuxhowtos.org>
-Subject: Re: Idea about a disc backed ram filesystem
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200606082233.13720.Sash_lkl@linuxhowtos.org>
+	Thu, 8 Jun 2006 18:48:21 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:26103 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S965034AbWFHWsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 18:48:21 -0400
+Message-ID: <4488A927.2070809@i12.com>
+Date: Fri, 09 Jun 2006 00:48:07 +0200
+From: Philipp Baumann <pumuckl@i12.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.17-rc6-mm1] Oops during sata_promise init
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200606082233.13720.Sash_lkl@linuxhowtos.org>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:80ab310fced15248f8e2da3e2d36cb52
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/06, Sascha Nitsch <Sash_lkl@linuxhowtos.org> wrote:
-> Hi,
->
-> this is (as of this writing) just an idea.
->
-> === current state ===
-> Currently we have ram filesystems (like tmpfs) and disc based file systems
-> (ext2/3, xfs, <insert your fav. fs>).
->
-> tmpfs is extremely fast but suffers from data losses from restarts, crashes
-> and power outages. Disc access is slow against a ram based fs.
->
-> === the idea ===
-> My idea is to mix them to the following hybrid:
-> - mount the new fs over an existing dir as an overlay
-> - all files overlayed are still accessible
-> - after the first read, the file stays in memory (like a file cache)
-> - all writes are flushed out to the underlying fs (maybe done async)
-> - all reads are always done from the memory cache unless they are not cached
->   yet
-> - the cache stays until the partition is unmounted
-> - the maximum size of the overlayed filesystem could be physical ram/2 (like tmpfs)
->
-> === advantages ===
-> once the files are read, no more "slow" disc reading is needed=> huge read
-> speed improvements (like on tmpfs)
-> if the writing is done asyncronous, write speeds would be as fast as a
-> tmpfs => huge write speedup
-> if done syncronous, write speed almost as fast as native disc fs
-> the ram fs would be imune against data loss from reboots or controled shutdown
-> if syncronous write is done, the fs would be imune to crashes/power
-> outages (with the usual exceptions like on disc fs)
->
-> === disadvantage ===
-> possible higher memory usage (see implementation ideas below)
->
-> === usages ===
-> possible usage scenarios could be any storage where a
-> smaller set of files get read/written a lot, like databases
-> definition of smaller: lets say up to 50% of physical ram size.
-> Depending on architecture and money spent, this can be a lot :)
->
-> === implementation ideas ===
-> One note first:
-> I don't know the fs internals of the kernel (yet), so these ideas might not
-> work, but you should get the idea.
->
-> One idea is to build a complete virtual filesystem that connects to the VFS
-> layer and hands the writes through to the "original" fs driver.
-> The caching would be done in that layer. This might cause double caching
-> (in the io cache) and might waste memory.
-> But this idea would enable the possibility of async writes (when the disc has
-> less to do) and gives write speed improves.
->
-> The other idea would be to modify the existing filesystem cache algorithm to
-> have a flag "always keep this file in memory".
->
-> The second one may be easier to do and may cause less side effects, but
-> might not enable async writes.
->
-> Since this overlay is done in the kernel, no other process could change the
-> files under the overlay.
-> Remote FS must be excluded from the cache layer (for obvious reasons).
->
-> Any kind of feedback is welcome.
->
-> If this has been discussed earlier, sorry for double posting. I haven't found
-> anything like this in the archives. Just point me in the right direction.
->
-> Regards,
->
-> Sascha Nitsch
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Hi,
 
-I had a somewhat similar idea, once i have time to implement it ill
-submit a patch.
-My idea consisted of adding the capability to specify a device for
-tmpfs mounting. if you dont specify any device, tmpfs continues to
-behave the way it currently is. But if you do, once data doesnt fit on
-ram (or some other limit) anymore, it will flush things to this
-device. my intention was to reuse swap code for this, so you mount a
-tmpfs passing the dev node of some unused swap device, and it works
-just like tmpfs with a dedicated swap partition.
-So i hope it would be damn fast because of the simple disk format, and
-ofcourse all the data becomes lost if you umount it.
+testing the latest mm kernel, i still get an Oops as follows:
+
+
+BUG: unable to handle kernel NULL pointer dereference at virtual address 
+00000008
+printing eip:
+c0256773
+*pde  =  00000000
+Oops: 0002 xxxx
+4K_STACKS PREEMPT
+last sysfs file:
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c0256773>]    Not tainted VLI
+EFLAGS:    00010202 (2.6.17-rc6-mm1 #1)
+EIP is at pdc_sata_scr_write+0x10/0x14
+eax: 00000008  ebx: dfeb429c  ecx: 00000300  edx: 0000002
+esi: dfeb429c  edi: 00000300  ebp: 00000002  esp: dffc3e44
+ds: 007b  es: 007b  ss: 0068
+Process idle (pid: 1, threadinfo=dffc3000 task=dffc2ab0)
+Stack:  c02cb980 c024c84b dfeb429c dfeb0c78 fffb82ca dfeb429c c024e4b5 
+c0244541
+    c02e60a6 c3000000 c01ea753 c0256281 dfeb429c dfeb0c78 00000002 c024e5bc
+    dfeb0834 c0250cee dfeac408 e1493800 00000053 c02e6ef3 e0802300 c0802338
+Call Trace:
+[<c024c84b>] sata_scr_write_flush+0x24/0x37
+[<c024e4b5>] __sata_phy_reset+0x2e/0x12d
+[<c0244541>] scsi_add_host+0xc0/0x192
+[<c01ea753>] __delay+0x6/0x7
+[<c0256281>] pdc_reset_port+0x1f/0x34
+[<c024e5bc>] sata_phy_reset+0x8/0x18
+[<c0250cee>] ata_device_add+0x580/0x6b1
+[<c0256c41>] pdc_ata_init_one+0x2a9/0x3c8
+[<c01f5732>] pci_device_probe+0x40/0x5b
+[<c023f70b>] driver_probe_device+0x3b/0xaa
+[<c023f830>] __driver_attach+0x5a/0x5c
+[<c023f1c4>] bus_for_each_dev+0x3a/0x58
+[<c023f67a>] driver_attach+0x16/0x1a
+[<c023f7d6>] --driver_attach+0x0/0x5c
+[<c023ee9c>] bus_add_driver+0x6f/0x11f
+[<c01f5889>] __pci_register_driver+0x34/0x4f
+[<c010028c>] init+0x6c/0x225
+[<c02bd34e>] __kprobes_text_start+0x6/0x14
+[<c0100220>] init+0x0/0x225
+[<c0100220>] init+0x0/0x225
+[<c0101005>] kernel_thread_helper+0x5/0xb
+Code: 02 77 0a 8d 04 12 01 c0 03 41 60 8b 00 c3 8b 80 78 1f 00 00 8b 40 
+08 8b 40 40 c3 53 89 c3 83 fa 02 77 0a 8d
+04 12 01 c0 03 43 60 <89> 08 5b c3 55 57 56 53 83 ec 10 89 c6 9c 5d fa 
+b8 00 f0 ff ff
+EIP: [<c0256773>] pdc_sata_scr_write+0x10/0x14 SS:ESP 0068:dffc3e44
+<0>Kernel panic - not syncing: Attempted to kill init!
+
+any advice?
+
+kind regards
+
+prx

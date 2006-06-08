@@ -1,162 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWFHMcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWFHMjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWFHMcK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 08:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFHMcK
+	id S964779AbWFHMjB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 08:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWFHMjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 08:32:10 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:8385 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751318AbWFHMcJ (ORCPT
+	Thu, 8 Jun 2006 08:39:01 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:5529 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S964779AbWFHMjA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 08:32:09 -0400
-Message-ID: <448818BB.6020503@garzik.org>
-Date: Thu, 08 Jun 2006 08:31:55 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 8 Jun 2006 08:39:00 -0400
+Message-ID: <349770337.30464@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 8 Jun 2006 20:39:00 +0800
+From: Fengguang Wu <wfg@mail.ustc.edu.cn>
+To: Voluspa <lista1@comhem.se>
+Cc: akpm@osdl.org, Valdis.Kletnieks@vt.edu, diegocg@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: adaptive readahead overheads
+Message-ID: <20060608123900.GA6885@mail.ustc.edu.cn>
+Mail-Followup-To: Fengguang Wu <wfg@mail.ustc.edu.cn>,
+	Voluspa <lista1@comhem.se>, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
+	diegocg@gmail.com, linux-kernel@vger.kernel.org
+References: <349406446.10828@ustc.edu.cn> <20060604020738.31f43cb0.akpm@osdl.org> <1149413103.3109.90.camel@laptopd505.fenrus.org> <20060605031720.0017ae5e.lista1@comhem.se> <349562623.17723@ustc.edu.cn> <20060608094356.5c1272cc.lista1@comhem.se> <349766648.27054@ustc.edu.cn> <20060608142556.2e10e379.lista1@comhem.se>
 MIME-Version: 1.0
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, akpm@osdl.org
-CC: Greg KH <greg@kroah.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       "bibo,mao" <bibo.mao@intel.com>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 3/4] Make Intel e1000 driver legacy I/O port free
-References: <447E91CE.7010705@intel.com> <20060601024611.A32490@unix-os.sc.intel.com> <20060601171559.GA16288@colo.lackof.org> <20060601113625.A4043@unix-os.sc.intel.com> <447FA920.9060509@jp.fujitsu.com> <4484263C.1030508@jp.fujitsu.com> <20060606075812.GB19619@kroah.com> <448643B9.2080805@jp.fujitsu.com> <448644A2.7000208@jp.fujitsu.com>
-In-Reply-To: <448644A2.7000208@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060608142556.2e10e379.lista1@comhem.se>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenji Kaneshige wrote:
->  static struct pci_device_id e1000_pci_tbl[] = {
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1000),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1001),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1004),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1008),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1009),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x100C),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x100D),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x100E),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x100F),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1010),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1011),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1012),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1013),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1014),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1015),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1016),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1017),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1018),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1019),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x101A),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x101D),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x101E),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1026),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1027),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1028),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x105E),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x105F),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1060),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1075),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1076),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1077),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1078),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1079),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x107A),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x107B),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x107C),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x107D),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x107E),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x107F),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x108A),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x108B),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x108C),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1096),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1098),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x1099),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x109A),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x10B5),
-> -	INTEL_E1000_ETHERNET_DEVICE(0x10B9),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1000, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1001, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1004, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1008, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1009, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x100C, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x100D, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x100E, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x100F, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1010, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1011, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1012, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1013, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1014, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1015, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1016, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1017, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1018, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1019, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x101A, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x101D, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x101E, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1026, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1027, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1028, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x105E, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x105F, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1060, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1075, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1076, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1077, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1078, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1079, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x107A, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x107B, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x107C, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x107D, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x107E, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x107F, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x108A, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x108B, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x108C, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1096, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1098, 0),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x1099, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x109A, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x10B5, E1000_NO_IOPORT),
-> +	INTEL_E1000_ETHERNET_DEVICE(0x10B9, 0),
->  	/* required last entry */
->  	{0,}
->  };
+On Thu, Jun 08, 2006 at 02:25:56PM +0200, Voluspa wrote:
+> On Thu, 8 Jun 2006 19:37:31 +0800 Fengguang Wu wrote:
+> > I'd like to show some numbers on the pure software overheads come with
+> > the adaptive readahead in daily operations.
+> [...]
+> > 
+> > # time find /usr -type f -exec md5sum {} \; >/dev/null
+> > 
+> > ARA
+> > 
+> > 406.00s user 325.16s system 97% cpu 12:28.17 total
+> 
+> Just out of interest, all your figures show an almost maxed out CPU.
+> Why is it that my own runs use so little CPU? I'm running the above
 
-Why change all the entries?  I would just change the ones with flags...
+It does not have to wait for disk _seeks_, I guess.
+All reads inside qemu actually hit the page cache in the host system ;)
 
+> command as we 'speak' and on average only 40% is utilized, with the
+> occasional spike at max 75%. And this is on the lowest CPU level
+> 800MHz, which means that the 80% up_threshold of the ondemand cpufreq
+> governor never is breached (there are 1800MHz, 2000MHz and 2200MHz
+> levels above it).
+> 
+> Are you only 'giving' qemu something like 400MHz to play with or is
+> qemu so inefficient in itself 
 
-> @@ -621,7 +621,14 @@
->  	int i, err, pci_using_dac;
->  	uint16_t eeprom_data;
->  	uint16_t eeprom_apme_mask = E1000_EEPROM_APME;
-> -	if ((err = pci_enable_device(pdev)))
-> +	int bars;
-> +
-> +	if (ent->driver_data & E1000_NO_IOPORT)
-> +		bars = pci_select_bars(pdev, IORESOURCE_MEM);
-> +	else
-> +		bars = pci_select_bars(pdev, IORESOURCE_MEM | IORESOURCE_IO);
-> +
-> +	if ((err = pci_enable_device_bars(pdev, bars)))
->  		return err;
+My qemu command line is:
 
-NAK, this is an obvious regression.
+        qemu -m 156 /lab/wfg/linux_image -kernel ./arch/i386/boot/bzImage
+                        -append "root=/dev /hda console=ttyS0,9600" -nographic
 
-pci_enable_device() also powers up the device, and enables irq delivery
-(on e.g. cardbus), and is allowed to do other platform-specific device
-bring-up tasks.
+I do not have the qemu accelerator, though.
 
-	Jeff
-
-
-
+Thanks,
+Wu

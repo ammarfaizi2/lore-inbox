@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWFHGnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWFHGqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932537AbWFHGnL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 02:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbWFHGnK
+	id S932531AbWFHGqe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 02:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbWFHGqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 02:43:10 -0400
-Received: from www.osadl.org ([213.239.205.134]:39133 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932537AbWFHGnJ (ORCPT
+	Thu, 8 Jun 2006 02:46:34 -0400
+Received: from mx2.suse.de ([195.135.220.15]:57311 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932531AbWFHGqe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 02:43:09 -0400
-Message-ID: <4487C6E5.3070901@tglx.de>
-Date: Thu, 08 Jun 2006 08:42:45 +0200
-From: Jan Altenberg <tb10alj@tglx.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Thu, 8 Jun 2006 02:46:34 -0400
+Message-ID: <4487C7C4.7090302@suse.de>
+Date: Thu, 08 Jun 2006 08:46:28 +0200
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>, Deepak Saxena <dsaxena@plexity.net>
-Subject: [PATCH -rt] Trivial compiler warning fix
-References: <20060607211455.GA6132@elte.hu>
-In-Reply-To: <20060607211455.GA6132@elte.hu>
-X-Enigmail-Version: 0.92.0.0
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jamagallon@ono.com
+Subject: Re: 2.6.17-rc6-mm1
+References: <20060607104724.c5d3d730.akpm@osdl.org>	<20060608003153.36f59e6a@werewolf.auna.net>	<20060607154054.cf4f2512.akpm@osdl.org> <p73irnctmcc.fsf@verdi.suse.de>
+In-Reply-To: <p73irnctmcc.fsf@verdi.suse.de>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi Kleen wrote:
+> I don't see an explicit check in alternatives.c for the main kernel
+> vs init sections and with CPU hotplug the alternatives can be applied
+> arbitarily after the system has booted.  So it would just stomp
+> over the init text pages which are used for something else now.
 
-this patch fixes a simple compiler warning:
+very close to the end of the file:
 
-kernel/workqueue.c: in function »set_workqueue_thread_prio«:
-kernel/workqueue.c:393: warning: implicit declaration of function `sys_sched_setscheduler'
+  alternatives_smp_module_add(NULL, "core kernel",
+                              __smp_locks, __smp_locks_end,
+                              _text, _etext);
 
+The core kernel is just a "special" module (where we keep track of the
+.text section boundaries too), and LOCKs outside the _text -> _etext
+range are never ever patched.
 
-Signed-off-by: Jan Altenberg <tb10alj@tglx.de>
+cheers,
 
-----------------------
+  Gerd
 
---- linux-2.6.17-rc6-rt1/kernel/workqueue.c.orig	2006-06-08 08:14:00.000000000 +0200
-+++ linux-2.6.17-rc6-rt1/kernel/workqueue.c	2006-06-08 08:29:46.000000000 +0200
-@@ -28,6 +28,7 @@
- #include <linux/notifier.h>
- #include <linux/kthread.h>
- #include <linux/hardirq.h>
-+#include <linux/syscalls.h>
- 
- /*
-  * The per-CPU workqueue (if single thread, we always use the first
-
+-- 
+Gerd Hoffmann <kraxel@suse.de>
+http://www.suse.de/~kraxel/julika-dora.jpeg

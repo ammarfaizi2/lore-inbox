@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWFHU2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWFHUco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWFHU2L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWFHU2L
+	id S964982AbWFHUco (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWFHUcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:28:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24337 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S964911AbWFHU2J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:28:09 -0400
-Date: Thu, 8 Jun 2006 20:27:54 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Don Zickus <dzickus@redhat.com>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, shaohua.li@intel.com,
-       miles.lane@gmail.com, jeremy@goop.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.17-rc5-mm2] crash when doing second suspend: BUG in arch/i386/kernel/nmi.c:174
-Message-ID: <20060608202754.GE4006@ucw.cz>
-References: <4480C102.3060400@goop.org> <200606070134.29292.ak@suse.de> <20060606235551.GE11696@redhat.com> <200606071005.14307.ncunningham@linuxmail.org> <20060607004217.GF11696@redhat.com>
+	Thu, 8 Jun 2006 16:32:43 -0400
+Received: from main.gmane.org ([80.91.229.2]:65414 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964982AbWFHUcn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:32:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: booting without initrd
+Date: Thu, 08 Jun 2006 21:32:03 +0100
+Message-ID: <yw1xlks7e6d8.fsf@agrajag.inprovide.com>
+References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com> <b29067a0606081040q17c66f5bpa966da851635e942@mail.gmail.com> <4488368B.5070103@rtr.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060607004217.GF11696@redhat.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
+Cancel-Lock: sha1:pEmaCn6hqaQoF01TYs4seXJhyBw=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Mark Lord <lkml@rtr.ca> writes:
 
-> > This sounds wrong to me. Shouldn't the the effect of hotunplugging a cpu be to 
-> > put the driver in a state equivalent to if that cpu simply didn't exist? 
-> > Unplugging shouldn't assume we're going to subsequently have either a driver 
-> > suspend, or a replug.
-> 
-> This is my biggest problem or maybe my complete lack of understanding, is
-> that I don't know how to determine what state I am in during a hotplug
+> Rahul Karnik wrote:
+>>
+>> AFAIK Fedora sets up the kernel command line with "root=LABEL=/" in
+>> grub.conf and therefore needs the initrd in order to work correctly.
+>> If you do not want an initrd, then change this to
+>> "root=/dev/<your_disk>" in grub.conf. Note that the reason Fedora uses
+>> the LABEL is so you can move disks around in your system without a problem
+>
+> Heh.. except for people like me, who regularly swap disks around
+> to boot from different distros, in which case the LABEL=/ continuously
+> causes nothing but grief until I remember to edit it away.
 
-Basically you can't/shouldn't determine that. 
+Yes, there's an old saying that "grief comes with a red hat".
 
-> I thought it would make more sense if a few more states were to the
-> hotplug event list.  For example, in addition to CPU_ONLINE and CPU_DEAD,
-> there could also be something like CPU_SUSPEND, CPU_FREEZE, CPU_RESUME,
-> and CPU_THAW.  
-> 
-> Anyway, I am probably complicating the matter.  I'll whip something up and
-> post it for review.
-
-I think you are overcomplicating this. Just forget about
-suspend/resume, and reinit cpus from the scratch each time. It may
-lead into some 'interesting' behaviour if someone tries to suspend
-while profiling, but I believe we can live with that.
-							Pavel
 -- 
-Thanks for all the (sleeping) penguins.
+Måns Rullgård
+mru@inprovide.com
+

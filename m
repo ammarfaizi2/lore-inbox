@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWFHLCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWFHLDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWFHLCf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 07:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWFHLCf
+	id S964827AbWFHLDO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 07:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWFHLDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 07:02:35 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:28029 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S964822AbWFHLCe
+	Thu, 8 Jun 2006 07:03:14 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:34064 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S964823AbWFHLDL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 07:02:34 -0400
-Date: Thu, 8 Jun 2006 13:02:22 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: schwidefsky@de.ibm.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       arjan@infradead.org
-Subject: Re: 2.6.17-rc5-mm2 link issues on s390
-Message-ID: <20060608110222.GA16871@osiris.boeblingen.de.ibm.com>
-References: <20060601014806.e86b3cc0.akpm@osdl.org> <447EE5A4.7050201@fr.ibm.com> <1149168482.5279.34.camel@localhost> <447EF175.4040608@fr.ibm.com> <20060608072802.GB9416@osiris.boeblingen.de.ibm.com> <4487EA41.3030400@fr.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4487EA41.3030400@fr.ibm.com>
-User-Agent: mutt-ng/devel-r802 (Linux)
+	Thu, 8 Jun 2006 07:03:11 -0400
+Date: Thu, 08 Jun 2006 20:03:49 +0900 (JST)
+Message-Id: <20060608.200349.81316352.yoshfuji@linux-ipv6.org>
+To: gerrit@erg.abdn.ac.uk
+Cc: davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
+       jmorris@namei.org, kaber@coreworks.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH 2.6.17-rc6-mm1 ] net: RFC 3828-compliant UDP-Lite
+ support
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <200606081150.34018@this-message-has-been-logged>
+References: <200606081150.34018@this-message-has-been-logged>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 08, 2006 at 12:13:37PM +0200, Cedric Le Goater wrote:
-> Heiko Carstens wrote:
-> 
-> > This looks wrong: "b" is a u64 and you write it to something that is an
-> > unsigned long. We're going to miss a few bits on 31 bit platforms...
-> 
-> Indeed. Here's another version protecting the quad macros with __s390x__.
-> to be applied on rc6-mm1.
-> 
-> For the moment, __raw_writeq() is needed by __iowrite64_copy() which is
-> protected by CONFIG_64BIT. Some drivers also use it.
-> 
-> Thanks for reviewing,
-> 
-> C.
+In article <200606081150.34018@this-message-has-been-logged> (at Thu, 8 Jun 2006 11:50:33 +0100), Gerrit Renker <gerrit@erg.abdn.ac.uk> says:
 
-> From: Cedric Le Goater <clg@fr.ibm.com>
-> Replace-Subject: s390 adds __raw_writeq required by __iowrite64_copy.
-> 
-> It also adds all the related quad routines. 
-> 
-> Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
-> 
-> ---
->  include/asm-s390/io.h |   15 +++++++++++++++
->  1 file changed, 15 insertions(+)
-> 
-> Index: 2.6.17-rc6-mm1/include/asm-s390/io.h
-> ===================================================================
-> --- 2.6.17-rc6-mm1.orig/include/asm-s390/io.h
-> +++ 2.6.17-rc6-mm1/include/asm-s390/io.h
-> @@ -86,20 +86,35 @@ extern void iounmap(void *addr);
->  #define readb(addr) (*(volatile unsigned char *) __io_virt(addr))
->  #define readw(addr) (*(volatile unsigned short *) __io_virt(addr))
->  #define readl(addr) (*(volatile unsigned int *) __io_virt(addr))
-> +#ifdef __s390x__
-> +#define readq(addr) (*(volatile unsigned long *) __io_virt(addr))
-> +#endif
+> Attached is an extension which adds RFC3828 - compliant UDP-Lite functionality 
+> to the IPv4 networking stack. 
+:
+>  net/core/sock.c                       |    7
+>  net/ipv4/af_inet.c                    |   64 +
+>  net/ipv4/proc.c                       |   32
+>  net/udp_lite/Kbuild                   |    1
+>  net/udp_lite/Kconfig                  |   20
+>  net/udp_lite/udplitev4.c              | 1730 ++++++++++++++++++++++++++++++++++
+>  19 files changed, 2296 insertions(+), 22 deletions(-)
 
-Please use an unsigned long long cast and get rid of the ifdefs...
+Plase do the ipv6 side.  Thank you.
+
+BTW, is it possible to do merge or share codes among the following things?
+ - udp / udp-lite (=> net/ipv4, net/ipv6)
+and/or
+ - udp-lite/ipv6 / udp-lite/ipv4 (=> net/udplite)
+
+Regards,
+
+-- 
+YOSHIFUJI Hideaki @ USAGI Project  <yoshfuji@linux-ipv6.org>
+GPG-FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

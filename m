@@ -1,106 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbWFHE1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWFHFAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932501AbWFHE1W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 00:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWFHE1V
+	id S1751183AbWFHFAy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 01:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWFHFAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 00:27:21 -0400
-Received: from wx-out-0102.google.com ([66.249.82.193]:37416 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932501AbWFHE1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 00:27:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=jqq4+t1cA0PbEfnmkip+K6sxFkPxzR7vuUanrIL53z42+44tYRPO+owlk/W/GOXvcUz2uvX9lvVtGOYtFuHE7s/JCDnZK+88WSSWXHMSjPj7357/GbGhR0jOwzzIoKf5O3A2zQni+hzN7qq9jZmC4cAAUVGZEv1TuATTEmydKFM=
-Message-ID: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com>
-Date: Wed, 7 Jun 2006 21:27:19 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-Subject: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock detected!
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 01:00:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61888 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751183AbWFHFAx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 01:00:53 -0400
+Date: Thu, 8 Jun 2006 01:00:47 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc6-mm1
+Message-ID: <20060608050047.GB16729@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060607104724.c5d3d730.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060607104724.c5d3d730.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=====================================================
-[ BUG: possible circular locking deadlock detected! ]
------------------------------------------------------
-mount/1219 is trying to acquire lock:
- (&ni->mrec_lock){--..}, at: [<c031e4b8>] mutex_lock+0x21/0x24
+On Wed, Jun 07, 2006 at 10:47:24AM -0700, Andrew Morton wrote:
+ > 
+ > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+ > 
+ > - Many more lockdep updates
+
+Needs more.
+
+====================================
+[ BUG: possible deadlock detected! ]
+------------------------------------
+nfsd/11429 is trying to acquire lock:
+ (&inode->i_mutex){--..}, at: [<c032286a>] mutex_lock+0x21/0x24
 
 but task is already holding lock:
- (&rl->lock){----}, at: [<f8a98e4d>] ntfs_map_runlist+0x2a/0xb5 [ntfs]
+ (&inode->i_mutex){--..}, at: [<c032286a>] mutex_lock+0x21/0x24
 
-which lock already depends on the new lock,
-which could lead to circular deadlocks!
-
-the existing dependency chain (in reverse order) is:
-
--> #1 (&rl->lock){----}:
-       [<c012ec64>] lock_acquire+0x58/0x74
-       [<f8a97619>] ntfs_readpage+0x362/0x8fd [ntfs]
-       [<c01415b0>] read_cache_page+0x8c/0x137
-       [<f8a9eeb8>] map_mft_record+0xd7/0x1d2 [ntfs]
-       [<f8a9d661>] ntfs_read_locked_inode+0x74/0xea9 [ntfs]
-       [<f8a9eabb>] ntfs_read_inode_mount+0x625/0x846 [ntfs]
-       [<f8aa2ff8>] ntfs_fill_super+0x8ca/0xd14 [ntfs]
-       [<c01647c4>] get_sb_bdev+0xed/0x14e
-       [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
-       [<c0163c11>] vfs_kern_mount+0x76/0x143
-       [<c0163d17>] do_kern_mount+0x29/0x3d
-       [<c0177f9f>] do_mount+0x78a/0x7e4
-       [<c0178058>] sys_mount+0x5f/0x91
-       [<c031fb5d>] sysenter_past_esp+0x56/0x8d
-
--> #0 (&ni->mrec_lock){--..}:
-       [<c012ec64>] lock_acquire+0x58/0x74
-       [<c031e321>] __mutex_lock_slowpath+0xa7/0x21d
-       [<c031e4b8>] mutex_lock+0x21/0x24
-       [<f8a9edfa>] map_mft_record+0x19/0x1d2 [ntfs]
-       [<f8a98630>] ntfs_map_runlist_nolock+0x48/0x437 [ntfs]
-       [<f8a98eaa>] ntfs_map_runlist+0x87/0xb5 [ntfs]
-       [<f8a97739>] ntfs_readpage+0x482/0x8fd [ntfs]
-       [<c01415b0>] read_cache_page+0x8c/0x137
-       [<f8aa20bc>] load_system_files+0x155/0x7c7 [ntfs]
-       [<f8aa30a7>] ntfs_fill_super+0x979/0xd14 [ntfs]
-       [<c01647c4>] get_sb_bdev+0xed/0x14e
-       [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
-       [<c0163c11>] vfs_kern_mount+0x76/0x143
-       [<c0163d17>] do_kern_mount+0x29/0x3d
-       [<c0177f9f>] do_mount+0x78a/0x7e4
-       [<c0178058>] sys_mount+0x5f/0x91
-       [<c031fb5d>] sysenter_past_esp+0x56/0x8d
+which could potentially lead to deadlocks!
 
 other info that might help us debug this:
-
-2 locks held by mount/1219:
- #0:  (&s->s_umount#18){--..}, at: [<c0164443>] sget+0x223/0x3a1
- #1:  (&rl->lock){----}, at: [<f8a98e4d>] ntfs_map_runlist+0x2a/0xb5 [ntfs]
+2 locks held by nfsd/11429:
+ #0:  (hash_sem){----}, at: [<d10d0364>] exp_readlock+0x0/0x3e [nfsd]
+ #1:  (&inode->i_mutex){--..}, at: [<c032286a>] mutex_lock+0x21/0x24
 
 stack backtrace:
- [<c0103924>] show_trace_log_lvl+0x54/0xfd
- [<c01049a9>] show_trace+0xd/0x10
- [<c01049c3>] dump_stack+0x17/0x1c
- [<c012cefb>] print_circular_bug_tail+0x59/0x64
- [<c012e766>] __lock_acquire+0x7c2/0x97a
- [<c012ec64>] lock_acquire+0x58/0x74
- [<c031e321>] __mutex_lock_slowpath+0xa7/0x21d
- [<c031e4b8>] mutex_lock+0x21/0x24
- [<f8a9edfa>] map_mft_record+0x19/0x1d2 [ntfs]
- [<f8a98630>] ntfs_map_runlist_nolock+0x48/0x437 [ntfs]
- [<f8a98eaa>] ntfs_map_runlist+0x87/0xb5 [ntfs]
- [<f8a97739>] ntfs_readpage+0x482/0x8fd [ntfs]
- [<c01415b0>] read_cache_page+0x8c/0x137
- [<f8aa20bc>] load_system_files+0x155/0x7c7 [ntfs]
- [<f8aa30a7>] ntfs_fill_super+0x979/0xd14 [ntfs]
- [<c01647c4>] get_sb_bdev+0xed/0x14e
- [<f8aa15ef>] ntfs_get_sb+0x10/0x12 [ntfs]
- [<c0163c11>] vfs_kern_mount+0x76/0x143
- [<c0163d17>] do_kern_mount+0x29/0x3d
- [<c0177f9f>] do_mount+0x78a/0x7e4
- [<c0178058>] sys_mount+0x5f/0x91
- [<c031fb5d>] sysenter_past_esp+0x56/0x8d
-NTFS volume version 3.1.
+ [<c0104966>] show_trace_log_lvl+0x54/0xfd
+ [<c0104f1a>] show_trace+0xd/0x10
+ [<c010502f>] dump_stack+0x19/0x1b
+ [<c013b2d4>] __lockdep_acquire+0x8f6/0x912
+ [<c013b346>] lockdep_acquire+0x56/0x6f
+ [<c03226cf>] __mutex_lock_slowpath+0xae/0x228
+ [<c032286a>] mutex_lock+0x21/0x24
+ [<d10cdb64>] nfsd_setattr+0x2d3/0x49f [nfsd]
+ [<d10ceecd>] nfsd_create_v3+0x319/0x4aa [nfsd]
+ [<d10d413e>] nfsd3_proc_create+0x125/0x135 [nfsd]
+ [<d10ca0d4>] nfsd_dispatch+0xc0/0x178 [nfsd]
+ [<d0ee89e9>] svc_process+0x38d/0x5d5 [sunrpc]
+ [<d10ca581>] nfsd+0x18b/0x302 [nfsd]
+ [<c0102005>] kernel_thread_helper+0x5/0xb
+
+
+It's too close to bedtime for me, and on a cursory examination,
+I don't even see where nfsd_setattr touches a mutex.
+
+This was triggered by a simple 'touch foo' over an nfs v3 mount.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWFHSee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWFHSgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWFHSee (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 14:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWFHSee
+	id S964862AbWFHSgA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 14:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWFHSgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 14:34:34 -0400
-Received: from news.cistron.nl ([62.216.30.38]:29406 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S964908AbWFHSee (ORCPT
+	Thu, 8 Jun 2006 14:36:00 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:37599 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S964862AbWFHSf7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 14:34:34 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Interrupts disabled for too long in printk
-Date: Thu, 8 Jun 2006 18:34:32 +0000 (UTC)
-Organization: Cistron
-Message-ID: <e69qjo$ekd$1@news.cistron.nl>
-References: <20060603111934.GA14581@Krystal> <9e4733910606080738xd44aab3o5ac0d4bda920575d@mail.gmail.com> <Pine.LNX.4.61.0606081107110.31343@chaos.analogic.com> <9e4733910606080845y48dabed1o333b82eeb1a57381@mail.gmail.com>
+	Thu, 8 Jun 2006 14:35:59 -0400
+Date: Thu, 8 Jun 2006 20:35:49 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       jamagallon@ono.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ignore smp_locks section warnings from init/exit code
+Message-ID: <20060608183549.GB18815@mars.ravnborg.org>
+References: <20060607104724.c5d3d730.akpm@osdl.org> <20060608003153.36f59e6a@werewolf.auna.net> <20060607154054.cf4f2512.akpm@osdl.org> <20060607162326.3d2cc76b.rdunlap@xenotime.net> <20060608021149.GA5567@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1149791672 14989 194.109.0.112 (8 Jun 2006 18:34:32 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060608021149.GA5567@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <9e4733910606080845y48dabed1o333b82eeb1a57381@mail.gmail.com>,
-Jon Smirl <jonsmirl@gmail.com> wrote:
->This just seems to be an issue with the serial console implementation
->which is much slower.   So the answer looks to be that if the serial
->console buffer is full, and it is being called with interrupts off, it
->should just toss the printk.
+On Wed, Jun 07, 2006 at 10:11:49PM -0400, Jeff Dike wrote:
+> On Wed, Jun 07, 2006 at 04:23:26PM -0700, Randy.Dunlap wrote:
+> > I currently only see this in an __exit section.
+> > Here is a patch that fixes it for me.
+> 
+> Cool, something equivalent makes the UML link a lot quieter.  I had to
+> add ".plt" and ".bss".  I'm guessing mine are false positives as well,
+> but have no idea how to check that.
 
-Read the serial console code. It is a standalone implementation
-completely seperate from the standard drivers, which deliberately
-turns off the interrupts and reverts to polling. This because
-there is no guarantee the whole irq handling stuff still works
-at the moment you're printk'ing a panic.
+The check is there to catch situations where a function is marked
+__init but referenced after a potential discard of the it sections.
+So if there is no-one discarding the .plt section then we should be all
+safe.
 
-Also the current standard serial drivers only work if the
-tty has been opened by a userspace process.
+Browsing the um code I could not see how .plt was thought used so I
+added it to the ignorelist in modpost.
 
-If you want to change this, first fix the latter problem, then
-change the serial console output driver so that it uses the
-standard serial driver for lower priority messages and only
-uses the polling code for panics.
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index 94047bc..a70f5dd 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -822,6 +822,7 @@ static int init_section_ref_ok(const cha
+ 		".pdr",
+ 		"__param",
+ 		".smp_locks",
++		".plt",  /* seen on ARCH=um build on x86_64. Harmless */
+ 		NULL
+ 	};
+ 	/* Start of section names */
+@@ -894,6 +895,7 @@ static int exit_section_ref_ok(const cha
+ 		".eh_frame",
+ 		".stab",
+ 		".smp_locks",
++		".plt",  /* seen on ARCH=um build on x86_64. Harmless */
+ 		NULL
+ 	};
+ 	/* Start of section names */
 
-Mike.
+As for .bss this is a much more generic section - so for now this is not
+added. Can you explain why there is a reference to do_mount_root from
+.bss or is this a bug in modpost pointing out something wrong?
 
+With the above patch we are down to two section mismatch warnings for
+a defconfig build on x86_64.
+
+	Sam

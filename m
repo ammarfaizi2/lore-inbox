@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWFHTim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWFHTlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbWFHTim (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 15:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFHTim
+	id S1751194AbWFHTlA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 15:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFHTlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 15:38:42 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:51645 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751285AbWFHTil (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 15:38:41 -0400
-Message-ID: <44887B70.9050707@in.ibm.com>
-Date: Fri, 09 Jun 2006 01:03:04 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jlan@engr.sgi.com, peterc@gelato.unsw.edu.au
-Subject: Re: Merge of per task delay accounting (was Re: 2.6.18 -mm merge
- plans)
-References: <20060604135011.decdc7c9.akpm@osdl.org> <4484D25E.4020805@in.ibm.com> <4486017F.8030308@watson.ibm.com> <20060606154034.10147da7.akpm@osdl.org> <448833E2.6000608@watson.ibm.com> <20060608104224.b2fe8c60.akpm@osdl.org> <44886E38.3090809@watson.ibm.com>
-In-Reply-To: <44886E38.3090809@watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 8 Jun 2006 15:41:00 -0400
+Received: from aa003msr.fastwebnet.it ([85.18.95.66]:64201 "EHLO
+	aa003msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751194AbWFHTlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 15:41:00 -0400
+Date: Thu, 8 Jun 2006 21:38:09 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: BUG: warning at kernel/lockdep.c:2427/check_flags()
+Message-ID: <20060608213809.101161b0@localhost>
+X-Mailer: Sylpheed-Claws 2.3.0-rc3 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
->> hm.  Is it possible to check the privileges of a netlink message sender?
->>  
->>
-> Not entirely sure. But there's. a check in net/netlink/genetlink.c: 
-> genl_rcv_msg()
-> for
-> if ((ops->flags & GENL_ADMIN_PERM) && security_netlink_recv(skb))
-> {    err = -EPERM;
->    goto errout;
-> }
-> 
-> and security_netlink_recv(skb), normally set to cap_netlink_recv, checks 
-> on the skb's effective capability
-> being CAP_NET_ADMIN which I thought would be sufficient.
-> Need to look further.
-> 
-> If it doesn't turn out to fit properly, sysfs config variable can be used.
->
+After some hours running 2.6.17-rc6-mm1 + combo-patch I've got this:
 
-The genl_ops has a flags field. If the flags field is initialized to
-GENL_ADMIN_PERM, then privleges are checked as pointed out by you.
- 
+[12138.880686] BUG: warning at kernel/lockdep.c:2427/check_flags()
+[12138.880692]
+[12138.880693] Call Trace:
+[12138.880702]  [<ffffffff80240374>] check_flags+0x86/0x201
+[12138.880707]  [<ffffffff80240873>] lock_acquire+0x2f/0xa3
+[12138.880713]  [<ffffffff8025fcae>] sys_munmap+0x5e/0xa7
+[12138.880719]  [<ffffffff8020944e>] system_call+0x7e/0x83
+[12138.880723]
+[12138.880725] irq event stamp: 18146
+[12138.880728] hardirqs last  enabled at (18145): [<ffffffff8049dffc>] _spin_unlock_irq+0x28/0x50
+[12138.880734] hardirqs last disabled at (18146): [<ffffffff8049d61e>] trace_hardirqs_off_thunk+0x35/0x67
+[12138.880742] softirqs last  enabled at (18112): [<ffffffff8022c1ae>] __do_softirq+0xb2/0xba
+[12138.880748] softirqs last disabled at (18105): [<ffffffff8020a2c2>] call_softirq+0x1e/0x28
+
+
+I don't know if/how it is reproducible.
+
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+	Paolo Ornati
+	Linux 2.6.17-rc6-mm1-lockdep on x86_64

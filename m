@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWFHUDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWFHUHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbWFHUDn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWFHUDn
+	id S964953AbWFHUHq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWFHUHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:03:43 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:53206 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964958AbWFHUDm (ORCPT
+	Thu, 8 Jun 2006 16:07:46 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:41187 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S964953AbWFHUHp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:03:42 -0400
-Date: Thu, 8 Jun 2006 22:02:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: warning at kernel/lockdep.c:2427/check_flags()
-Message-ID: <20060608200256.GA12171@elte.hu>
-References: <20060608213809.101161b0@localhost> <20060608215935.37c52bff@localhost>
+	Thu, 8 Jun 2006 16:07:45 -0400
+Subject: Re: [PATCH] limit power budget on spitz
+From: Richard Purdie <rpurdie@rpsys.net>
+To: David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@suse.cz>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net,
+       Oliver Neukum <oliver@neukum.org>,
+       David Liontooth <liontooth@cogweb.net>
+In-Reply-To: <200606081126.20142.david-b@pacbell.net>
+References: <447EB0DC.4040203@cogweb.net>
+	 <1149758570.16945.156.camel@localhost.localdomain>
+	 <20060608170913.GB15337@flint.arm.linux.org.uk>
+	 <200606081126.20142.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Thu, 08 Jun 2006 21:06:55 +0100
+Message-Id: <1149797216.16945.234.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060608215935.37c52bff@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paolo Ornati <ornati@fastwebnet.it> wrote:
-
-> > I don't know if/how it is reproducible.
+On Thu, 2006-06-08 at 11:26 -0700, David Brownell wrote:
+> On Thu, Jun 08, 2006 at 10:22:50AM +0100, Richard Purdie wrote:
+> > Just because the omap does it that way, doesn't mean it can't be done
+> > better ;-).
 > 
-> Wow, now I can reproduce it easly :)
+> Agreed that platform_data is a better approach overall for holding that
+> power budget.  OMAP and AT91 should do so too.
+>
+> Sounds like someone should update the patch to (a) use a 150 mA budget,
+> and (b) test for those other machines.  As a near term patch, anyway.
 > 
-> Just run under "gdb" a program that segfaults:
-> 
-> void main(void)
-> {
->         *(int*)(0) = 1;
-> }
-> 
-> and it will trigger.
+> Unless there's a patch to provide and use platform_data ... but that'd
+> be much more involved, since ISTR the PXA platforms don't yet have a
+> mechanism to provide board-specific platform_data.  (I'll suggest the
+> AT91 code as a model there; it's simpler hardware than OMAP, so the
+> code is more straightforward.)
 
-thanks alot, that's very helpful! I'll have a look.
+The PXA platform does have an existing mechanism to pass platform data
+(I added it a while back). I've added
+http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=3547/1
+into the patch system replacing Pavel's version.
 
-	Ingo
+Cheers,
+
+Richard
+

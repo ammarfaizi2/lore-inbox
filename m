@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWFHI5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWFHI7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWFHI5D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 04:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWFHI5D
+	id S964807AbWFHI7d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 04:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWFHI7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 04:57:03 -0400
-Received: from mx6-6.spamtrap.magma.ca ([209.217.78.149]:49602 "EHLO
-	mx6-6.spamtrap.magma.ca") by vger.kernel.org with ESMTP
-	id S964807AbWFHI5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 04:57:01 -0400
-X-Originating-IP: [192.168.1.208]
-From: "Rajeev Majumdar" <rajeevm@subextechnologies.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem related to Red Hat Linux kernel 2.6.9-5.EL
-Date: Thu, 08 Jun 2006 14:30:21 +0550
-Message-ID: <20060608.JQf.97689800@192.168.1.2>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 8 Jun 2006 04:59:33 -0400
+Received: from gw.openss7.com ([142.179.199.224]:38079 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1751298AbWFHI7c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 04:59:32 -0400
+Date: Thu, 8 Jun 2006 02:59:30 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
+Message-ID: <20060608025930.A15559@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+	adilger@clusterfs.com, linux-kernel@vger.kernel.org
+References: <20060607173642.GA6378@schatzie.adilger.int> <200606080851.20232.ak@suse.de> <20060608010004.A12202@openss7.org> <200606080907.26350.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mailer: AngleMail for eGroupWare (http://www.egroupware.org) v 1.2.002
-X-magma-MailScanner-Information: Magma Mailscanner Service
-X-magma-MailScanner: Clean
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200606080907.26350.ak@suse.de>; from ak@suse.de on Thu, Jun 08, 2006 at 09:07:26AM +0200
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
+Andi,
 
- I  have  a problem  with  kernel  2.6.9-5. EL  that  is enterprise
-version of Red Hat linux. I am trying to run 500 or more processes
-parallely with TETware distributed test harness (that can schedule processes
-parallely and using its synchronisizing mechanism) but after running for
-some time some processes get stuck at futex system call and waiting
-infinetly that i found with strace utility.Can you please tell me whether
-its bug of kernel or it has something to do with my program and setup.
-If is a bug then can you tell me the patch available to fix this
-problem and where can i find that...
+On Thu, 08 Jun 2006, Andi Kleen wrote:
+> 
+> > > Originally because it made assembly too unreadable. Later it was discovered
+> > > it produces smaller code too.
+> > > 
 
- My machine's configuration is as follows
- Processor- P IV 3Ghz
- Ram - 2 GB
-
- waiting for your reply
- Regards
- Rajeev
+Another quick check on Intel 630.  w/o -fno-reorder-blocks: code increased 2% in
+size; performance increased 2% per hyperthread; code still as readable with
+objdump -S -d.  Rather marginal one way or the other.
 

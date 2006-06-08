@@ -1,91 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWFHNi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWFHNjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWFHNi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 09:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWFHNi7
+	id S964834AbWFHNjW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 09:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWFHNjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 09:38:59 -0400
-Received: from gate.crashing.org ([63.228.1.57]:46232 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964831AbWFHNi6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 09:38:58 -0400
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, paulus@samba.org
-In-Reply-To: <Pine.LNX.4.64.0606081301320.17704@scrub.home>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <1149652378.27572.109.camel@localhost.localdomain>
-	 <20060606212930.364b43fa.akpm@osdl.org>
-	 <1149656647.27572.128.camel@localhost.localdomain>
-	 <20060606222942.43ed6437.akpm@osdl.org>
-	 <1149662671.27572.158.camel@localhost.localdomain>
-	 <20060607132155.GB14425@elte.hu>
-	 <1149726685.23790.8.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606081301320.17704@scrub.home>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 23:38:30 +1000
-Message-Id: <1149773911.31114.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 8 Jun 2006 09:39:22 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:53214 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964839AbWFHNjU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 09:39:20 -0400
+Message-ID: <44882787.20901@jp.fujitsu.com>
+Date: Thu, 08 Jun 2006 22:35:03 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+Cc: akpm@osdl.org, Greg KH <greg@kroah.com>,
+       Rajesh Shah <rajesh.shah@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       "bibo,mao" <bibo.mao@intel.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 3/4] Make Intel e1000 driver legacy I/O port free
+References: <447E91CE.7010705@intel.com> <20060601024611.A32490@unix-os.sc.intel.com> <20060601171559.GA16288@colo.lackof.org> <20060601113625.A4043@unix-os.sc.intel.com> <447FA920.9060509@jp.fujitsu.com> <4484263C.1030508@jp.fujitsu.com> <20060606075812.GB19619@kroah.com> <448643B9.2080805@jp.fujitsu.com> <448644A2.7000208@jp.fujitsu.com> <448818BB.6020503@garzik.org>
+In-Reply-To: <448818BB.6020503@garzik.org>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-08 at 13:17 +0200, Roman Zippel wrote:
-> Hi,
+Hi Jeff,
+
+Thank you for reviewing.
+
+Jeff Garzik wrote:
+> Kenji Kaneshige wrote:
 > 
-> On Thu, 8 Jun 2006, Benjamin Herrenschmidt wrote:
+
+(snip.)
+
+>>+	INTEL_E1000_ETHERNET_DEVICE(0x1099, E1000_NO_IOPORT),
+>>+	INTEL_E1000_ETHERNET_DEVICE(0x109A, E1000_NO_IOPORT),
+>>+	INTEL_E1000_ETHERNET_DEVICE(0x10B5, E1000_NO_IOPORT),
+>>+	INTEL_E1000_ETHERNET_DEVICE(0x10B9, 0),
+>> 	/* required last entry */
+>> 	{0,}
+>> };
 > 
-> > > a better solution would be to install boot-time IRQ vectors that just do
-> > > nothing but return. They dont mask, they dont ACK nor EOI - they just
-> > > return. The only thing that could break this is a screaming interrupt,
-> > > and even that one probably just slows things down a tiny bit until we
-> > > get so far in the init sequence to set up the PIC.
-> > 
-> > Changing vectors on the fly is hard on some platforms.... We could
-> > change our toplevel ppc_md.get_irq() on powerpc, but we still to do
-> > something about decrementer interrupts.
 > 
-> On ppc it should not be that difficult to even modify the exception entry 
-> code. Instead of calling do_IRQ use do_early_IRQ and only install the real 
-> handler later.
-
-Yes, it's possible, but will add overhead to the common  IRQ path just
-to handle an early boot special case.
-
-> > A screaming level interrupt will lockup the machine at least on some
-> > platforms.
+> Why change all the entries?  I would just change the ones with flags...
 > 
-> I guess that's even deadly on most platforms.
 
-Yup.
+I'm sorry. I don't understand what you mean. Could you tell me
+how should I change?
 
-> > The problem with all those approaches is that they require changes to
-> > all archs interrupt handling to make the situation safe vs. mutexes...
+
+>>@@ -621,7 +621,14 @@
+>> 	int i, err, pci_using_dac;
+>> 	uint16_t eeprom_data;
+>> 	uint16_t eeprom_apme_mask = E1000_EEPROM_APME;
+>>-	if ((err = pci_enable_device(pdev)))
+>>+	int bars;
+>>+
+>>+	if (ent->driver_data & E1000_NO_IOPORT)
+>>+		bars = pci_select_bars(pdev, IORESOURCE_MEM);
+>>+	else
+>>+		bars = pci_select_bars(pdev, IORESOURCE_MEM | IORESOURCE_IO);
+>>+
+>>+	if ((err = pci_enable_device_bars(pdev, bars)))
+>> 		return err;
 > 
-> Only those archs that want to delay interrupt initialization and they at 
-> least have to provide minimal support to survive enabled interrupts.
-> init_IRQ() stays the same for all other archs and we add another hook to 
-> allow the delayed initializtion.
-
-I'm taking a broader point of view here. More than just interrupt init,
-it's in general having basic kernel services such as memory allocator,
-which shouldn't need any special hardware initialization outside of the
-mmu, be setup before we start banging hardware.
-
-> > I still don't think where is the suckage in just not hard-enabling in
-> > the mutex debug code...
 > 
-> If you want to have full services, then irqs are part of it. :)
+> NAK, this is an obvious regression.
+> 
+> pci_enable_device() also powers up the device, and enables irq delivery
+> (on e.g. cardbus), and is allowed to do other platform-specific device
+> bring-up tasks.
+> 
 
-No. THere is, imho, a very clear difference between services that do
-rely on hw devices, ioremap, and such major infrastructure as page
-tables, and services like slab which essentially, can be initialized
-with the CPU itself being ready and nothing else.
+No, those tasks are done through pci_enable_device_bars() called from
+pci_enable_device() actually. In addition, I made small changes to
+pci_enable_device() and pci_enable_device_bars() in another patch ([PATCH 1/4]).
+Now pci_enable_device_bars() just call pci_enable_device_bars() like below:
 
-Cheers,
-Ben.
+int
+pci_enable_device(struct pci_dev *dev)
+{
+        int err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
+        if (err)
+                return err;
+        return 0;
+}
 
+Please see the following URL about this another patch.
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0606.0/1726.html
+
+Thanks,
+Kenji Kaneshige
 

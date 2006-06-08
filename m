@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWFHGeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWFHGds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWFHGeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 02:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWFHGeZ
+	id S932527AbWFHGds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 02:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWFHGds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 02:34:25 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:24343 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932479AbWFHGeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 02:34:24 -0400
-Date: Thu, 8 Jun 2006 08:30:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm@osdl.org, mingo@elte.hu, laurent.riffard@free.fr, barryn@pobox.com,
-       76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com, arjan@linux.intel.com
-Subject: Re: [PATCH] ide-cd: use blk_get_request()
-Message-ID: <20060608063000.GG5207@suse.de>
-References: <20060605110046.2a7db23f.akpm@osdl.org> <986ed62e0606051452x320cce2ap9598558b5343ae6b@mail.gmail.com> <20060606072628.GA28752@elte.hu> <4485E0D3.8080708@free.fr> <20060606205801.GC17787@elte.hu> <4485F5E2.5040708@free.fr> <20060606220507.GA19882@elte.hu> <20060606152930.adc58fe4.akpm@osdl.org> <20060607062208.GZ6693@suse.de> <20060607202223.3478c8ad.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060607202223.3478c8ad.rdunlap@xenotime.net>
+	Thu, 8 Jun 2006 02:33:48 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:56283 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932527AbWFHGdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 02:33:47 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4487C40D.702@s5r6.in-berlin.de>
+Date: Thu, 08 Jun 2006 08:30:37 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@sous-sol.org>
+CC: Ingo Molnar <mingo@elte.hu>,
+       =?ISO-8859-1?Q?=22J=2EA=2E_Magall=F3n=22?= <jamagallon@ono.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: 2.6.17-rc6-mm1
+References: <20060607104724.c5d3d730.akpm@osdl.org> <20060607232345.3fcad56e@werewolf.auna.net> <20060607220704.GA6287@elte.hu> <44876745.4050108@s5r6.in-berlin.de> <20060608003153.GN2697@moss.sous-sol.org>
+In-Reply-To: <20060608003153.GN2697@moss.sous-sol.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.045) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 07 2006, Randy.Dunlap wrote:
-> On Wed, 7 Jun 2006 08:22:08 +0200 Jens Axboe wrote:
+Chris Wright wrote:
+> * Stefan Richter (stefanr@s5r6.in-berlin.de) wrote:
+>>The pending_packet_queue is only accessed from within 
+>>drivers/ieee1394/ieee1394_core.c, and only via net/core/skbuff.c's 
+>>access functions for queueing/ dequeueing/ queuewalking. Or am I missing 
+>>something?
 > 
-> > On Tue, Jun 06 2006, Andrew Morton wrote:
-> > > 
-> > > Note that Laurent is also passing through ide_cdrom_packet(), which has a
-> > > `struct request' on the stack.  The kernel does this in a lot of places,
-> > > and at 168 bytes on x86, it'd really be best if we were to dynamically
-> > > allocate these things.
-> > 
-> > That's an old peeve of mine, on-stack requests... It's nasty from
-> > several angles, stack usage just being one of them. Perhaps I'll give it
-> > a go for 2.6.18 and add checks for request being thrown at the block
-> > layer which didn't originate from get_request().
+> Quick grep show following two irq handlers as examples:
 > 
-> This is a start at converting ide-cd.c to use blk_get_request().
-> How does it look so far?
-> It builds, but I have not tested it yet.
-> And of course, there are other drivers to be modified as well.
-> 
-> ---
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> Convert struct request req; on function stacks to
-> use allocation via blk_get_request() to
-> (a) reduce stack pressure and
-> (b) use centralized blk_ functions and
-> (c) allow for block IO tracing.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> ---
->  drivers/ide/ide-cd.c |  258 +++++++++++++++++++++++++++++++++------------------
->  1 files changed, 170 insertions(+), 88 deletions(-)
-> 
-> --- linux-2617-rc6.orig/drivers/ide/ide-cd.c
-> +++ linux-2617-rc6/drivers/ide/ide-cd.c
-> @@ -2033,24 +2033,32 @@ int msf_to_lba (byte m, byte s, byte f)
->  
->  static int cdrom_check_status(ide_drive_t *drive, struct request_sense *sense)
->  {
-> -	struct request req;
-> +	struct request *req;
->  	struct cdrom_info *info = drive->driver_data;
->  	struct cdrom_device_info *cdi = &info->devinfo;
-> +	request_queue_t *q = cdi->disk->queue;
-> +	int stat;
->  
-> -	cdrom_prepare_request(drive, &req);
-> -
-> -	req.sense = sense;
-> -	req.cmd[0] = GPCMD_TEST_UNIT_READY;
-> -	req.flags |= REQ_QUIET;
-> +	req = blk_get_request(q, READ, GFP_KERNEL);
-> +	if (!req)
-> +		return -ENOMEM;
-> +
-> +	cdrom_prepare_request(drive, req);
+> ohci_irq_handler() | lynx_irq_handler()
+>   hpsb_bus_reset()
+>     abort_requests()
+>       skb_dequeue()
+>         spin_lock_irqsave()
+>     
+> That spin_lock is called directly from within irq handler.
 
-This cannot work, have you seen what cdrom_prepare_request() does?
-
+Yes, definitely. What I wanted to reassure myself about was rather that 
+no other net/ code besides skbuff.c's touches this queue. IOW only the 
+ieee1394 low and mid layer control the contexts within which the queue 
+lock is used.
 -- 
-Jens Axboe
-
+Stefan Richter
+-=====-=-==- -==- -=---
+http://arcgraph.de/sr/

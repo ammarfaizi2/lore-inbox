@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWFHJEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWFHJOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWFHJEp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 05:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWFHJEp
+	id S964795AbWFHJOV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 05:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWFHJOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 05:04:45 -0400
-Received: from gw.openss7.com ([142.179.199.224]:45759 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1751309AbWFHJEo (ORCPT
+	Thu, 8 Jun 2006 05:14:21 -0400
+Received: from mx2.suse.de ([195.135.220.15]:21378 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751311AbWFHJOV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 05:04:44 -0400
-Date: Thu, 8 Jun 2006 03:04:43 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Rajeev Majumdar <rajeevm@subextechnologies.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem related to Red Hat Linux kernel 2.6.9-5.EL
-Message-ID: <20060608030443.B15559@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Rajeev Majumdar <rajeevm@subextechnologies.com>,
-	linux-kernel@vger.kernel.org
-References: <20060608.JQf.97689800@192.168.1.2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Jun 2006 05:14:21 -0400
+From: Andi Kleen <ak@suse.de>
+To: bidulock@openss7.org
+Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
+Date: Thu, 8 Jun 2006 11:14:09 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+References: <20060607173642.GA6378@schatzie.adilger.int> <200606080907.26350.ak@suse.de> <20060608025930.A15559@openss7.org>
+In-Reply-To: <20060608025930.A15559@openss7.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060608.JQf.97689800@192.168.1.2>; from rajeevm@subextechnologies.com on Thu, Jun 08, 2006 at 02:30:21PM +0550
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+Message-Id: <200606081114.09390.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajeev,
 
-Try running them all (or TETware itself) 'nice 19'.
+> performance increased 2% per hyperthread; 
+
+That would surprise me. Most likely you made some measurement error.
+
+I guess it can be a difference if it's used in very hot loops, but then
+i would expect a fallthrough path to win. Kernel code very rarely
+has hot loops like this.
+
+-Andi
+

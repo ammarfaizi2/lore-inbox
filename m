@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWFHHUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWFHH0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932550AbWFHHUK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 03:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWFHHUK
+	id S932525AbWFHH0t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWFHH0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 03:20:10 -0400
-Received: from mout2.freenet.de ([194.97.50.155]:10883 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S932505AbWFHHUJ (ORCPT
+	Thu, 8 Jun 2006 03:26:48 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:26274 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932525AbWFHH0s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 03:20:09 -0400
-From: Joachim Fritschi <jfritschi@freenet.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH  1/4] Twofish cipher - split out common c code
-Date: Thu, 8 Jun 2006 09:20:04 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, ak@suse.de
-References: <200606041516.21967.jfritschi@freenet.de> <200606072137.24176.jfritschi@freenet.de> <20060608015728.GA8314@gondor.apana.org.au>
-In-Reply-To: <20060608015728.GA8314@gondor.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 03:26:48 -0400
+Date: Thu, 8 Jun 2006 09:26:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: =?iso-8859-1?B?IkouQS4gTWFnYWxs824i?= <jamagallon@ono.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: 2.6.17-rc6-mm1
+Message-ID: <20060608072608.GA24794@elte.hu>
+References: <20060607104724.c5d3d730.akpm@osdl.org> <20060607232345.3fcad56e@werewolf.auna.net> <20060607220704.GA6287@elte.hu> <44876745.4050108@s5r6.in-berlin.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606080920.04480.jfritschi@freenet.de>
+In-Reply-To: <44876745.4050108@s5r6.in-berlin.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5019]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 June 2006 03:57, Herbert Xu wrote:
-> On Wed, Jun 07, 2006 at 09:37:23PM +0200, Joachim Fritschi wrote:
-> > 
-> > diff -uprN linux-2.6.17-rc5/crypto/Makefile linux-2.6.17-rc5.twofish/crypto/Makefile
-> > --- linux-2.6.17-rc5/crypto/Makefile	2006-06-07 18:43:24.000000000 +0200
-> > +++ linux-2.6.17-rc5.twofish/crypto/Makefile	2006-06-04 13:59:27.949797218 +0200
-> > @@ -32,3 +32,5 @@ obj-$(CONFIG_CRYPTO_MICHAEL_MIC) += mich
-> >  obj-$(CONFIG_CRYPTO_CRC32C) += crc32c.o
-> >  
-> >  obj-$(CONFIG_CRYPTO_TEST) += tcrypt.o
-> > +
-> > +twofish-objs := twofish_c.o twofish_common.o
-> 
-> What do we gain by renaming twofish.c to twofish_c.c?
 
-Solve the naming conflict when compiling. Seemed to me like it is impossible to create a
-twofish.o out of twofish.o and twofish_common.o . And since having the original module name
-seemed more important to me i changed the name. I didn't find any other way in documentation
-of the kernel makefiles. I hope this isn't another newbie mistake. =)
+* Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
 
--Joachim
+> The pending_packet_queue is only accessed from within 
+> drivers/ieee1394/ieee1394_core.c, and only via net/core/skbuff.c's 
+> access functions for queueing/ dequeueing/ queuewalking. Or am I 
+> missing something? [...]
+
+yes, and it looks safe at the moment.
+
+	Ingo

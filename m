@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWFHL2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWFHL2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWFHL2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 07:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWFHL2X
+	id S932259AbWFHL2k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 07:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWFHL2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 07:28:23 -0400
-Received: from muan.mtu.ru ([195.34.34.229]:43026 "EHLO muan.mtu.ru")
-	by vger.kernel.org with ESMTP id S932252AbWFHL2W (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Thu, 8 Jun 2006 07:28:22 -0400
-Subject: Re: [PATCH] updated reiser4 - reduced cpu usage for writes by
-	writing  more than 4k at a time (has implications for generic write code
-	and eventually  for the IO layer)
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Hans Reiser <reiser@namesys.com>, Tom Vier <tmv@comcast.net>,
-       Linux-Kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       Reiserfs mail-list <Reiserfs-List@namesys.com>
-In-Reply-To: <20060608110044.GA5207@suse.de>
-References: <44736D3E.8090808@namesys.com> <20060524175312.GA3579@zero>
-	 <44749E24.40203@namesys.com>  <20060608110044.GA5207@suse.de>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 15:26:40 +0400
-Message-Id: <1149766000.6336.29.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Thu, 8 Jun 2006 07:28:40 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:49775 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932259AbWFHL2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 07:28:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y72yk75x7dX0kj9qnQpfqItIxSipVbu6GcfCBBCl+nXXt+xtoOqt+dE6UGUyjL9+DDRvLgP9LMJWJvtxiI/6gu4xD/mscBy24zuea84B94qfSvkHs7+APlxhEifAPdd+yFSpOCCBUHE0c7NEHSpL3efHzpyNeFGsf/s2TdelqNk=
+Message-ID: <6bffcb0e0606080428g4a224fa0vb9c903d6fef2df69@mail.gmail.com>
+Date: Thu, 8 Jun 2006 13:28:37 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.17-rc6-rt1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060607211455.GA6132@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060607211455.GA6132@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On 07/06/06, Ingo Molnar <mingo@elte.hu> wrote:
+> i have released the 2.6.17-rc6-rt1 tree, which can be downloaded from
+> the usual place:
+>
+>    http://redhat.com/~mingo/realtime-preempt/
+>
 
-On Thu, 2006-06-08 at 13:00 +0200, Jens Axboe wrote:
-> On Wed, May 24 2006, Hans Reiser wrote:
-> > Tom Vier wrote:
-> > 
-> > >On Tue, May 23, 2006 at 01:14:54PM -0700, Hans Reiser wrote:
-> > >  
-> > >
-> > >>underlying FS can be improved.  Performance results show that the new
-> > >>code consumes  40% less CPU when doing "dd bs=1MB ....." (your hardware,
-> > >>and whether the data is in cache, may vary this result).  Note that this
-> > >>has only a small effect on elapsed time for most hardware.
-> > >>    
-> > >>
-> > >
-> > >Write requests in linux are restricted to one page?
-> > >
-> > >  
-> > >
-> > It may go to the kernel as a 64MB write, but VFS sends it to the FS as
-> > 64MB/4k separate 4k writes.
-> 
-> Nonsense, 
+I can't unload ip_conntrack module.
 
-Hans refers to generic_file_write which does
-prepare_write
-copy_from_user
-commit_write
-for each page.
+Here is strace http://www.stardust.webpages.pl/files/rt/2.6.17-rc6-rt1/ip_conntrack_strace
 
-> there are ways to get > PAGE_CACHE_SIZE writes in one chunk.
-> Other file systems have been doing it for years.
-> 
+Regards,
+Michal
 
-Would you, please, say more about it.
-
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

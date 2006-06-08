@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWFHAgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWFHAp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWFHAgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 20:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWFHAgn
+	id S932516AbWFHAp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 20:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbWFHAp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 20:36:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54447 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932511AbWFHAgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 20:36:42 -0400
-Date: Wed, 7 Jun 2006 17:36:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, mchan@broadcom.com
-Subject: Re: tg3 broken on 2.6.17-rc5-mm3
-Message-Id: <20060607173634.0d293e87.akpm@osdl.org>
-In-Reply-To: <200606071711.06774.bjorn.helgaas@hp.com>
-References: <200606071711.06774.bjorn.helgaas@hp.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 7 Jun 2006 20:45:28 -0400
+Received: from mga05.intel.com ([192.55.52.89]:28606 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932516AbWFHAp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 20:45:28 -0400
+X-IronPort-AV: i="4.05,218,1146466800"; 
+   d="scan'208"; a="48690869:sNHT53940537"
+Date: Wed, 7 Jun 2006 17:41:35 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Brendan Trotter <btrotter@gmail.com>, Keith Owens <kaos@sgi.com>,
+       Andi Kleen <ak@suse.de>, Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NMI problems with Dell SMP Xeons
+Message-ID: <20060607174135.A27195@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <200606070920.23436.ak@suse.de> <8446.1149666227@kao2.melbourne.sgi.com> <b1ebdcad0606070818l3024b264k89f6cd37ccb0b6f7@mail.gmail.com> <20060607114747.A25548@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060607114747.A25548@unix-os.sc.intel.com>; from rajesh.shah@intel.com on Wed, Jun 07, 2006 at 11:47:47AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jun 2006 17:11:06 -0600
-Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+On Wed, Jun 07, 2006 at 11:47:47AM -0700, Rajesh Shah wrote:
+> On Wed, Jun 07, 2006 at 03:18:57PM +0000, Brendan Trotter wrote:
+> > 
+> > > I will try forcing send_IPI_allbutself() to use the mask version rather
+> > > than the broadcast shortcut.  Later tonight ...
+> > 
+> > I've been looking into this a little - it appears that Linux tries to
+> > use one bit per CPU in the local APIC's "logical destination register"
+> > and that in all cases at least one bit is set for each valid CPU. As
+> > far as I can tell sending an NMI (or any other broadcast IPI) in
+> > logical mode with no shorthand and "destination = 0xFF" should work
+> > fine for both "cluster mode" and "flat mode". In this case I'd also
+> > suggest that "clear_local_APIC()" clear the destination format
+> > register (DFR) and the logical destination register (LDR) so that it
+> > doesn't receive broadcast NMIs if the CPU is taken offline.
+> > 
+> I will double-check with the CPU folks, but I don't think this
+> will do what you want it to do. If you send an NMI IPI with
+> destination set to 0xff, I think it will interrupt all CPUs,
 
-> Something changed between 2.6.17-rc5-mm2 and -mm3 that broke tg3
-> on my HP DL360:
-> 
-> 2.6.17-rc5-mm2:
->   tg3.c:v3.59 (May 26, 2006)
->   ACPI: PCI Interrupt 0000:01:02.0[A] -> GSI 30 (level, low) -> IRQ 177
->   eth0: Tigon3 [partno(N/A) rev 1002 PHY(5703)] (PCIX:100MHz:64-bit) 10/100/1000BaseT Ethernet 00:0e:7f:b4:69:94
->   eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1] 
->   eth0: dma_rwctrl[769f4000] dma_mask[64-bit]
-> 
-> 2.6.17-rc5-mm3 (with a bit of debug showing tg3_read_mem result):
->   tg3.c:v3.59 (May 26, 2006)
->   ACPI: PCI Interrupt 0000:01:02.0[A] -> GSI 30 (level, low) -> IRQ 177
->   tg3_get_eeprom_hw_cfg:
->   tg3_get_eeprom_hw_cfg: val 0xffffffff (magic 0x4b657654)
->   tg3_phy_probe: after readphy, err -16 hw_phy_id 0x0
->   tg3_phy_probe: phy_id 0xffffffff
->   lookup_by_subsys: vendor 0xe11 dev 0xcb
->   tg3: (0000:01:02.0) phy probe failed, err -19
->   tg3: Problem fetching invariants of chip, aborting.
-> 
-> The tg3 driver itself didn't change, so it must be some other PCI
-> change or something.  The only other PCI device I have (a Smart
-> Array with cciss driver) works fine.
-> 
-> I'll try to narrow down the problem tomorrow, but I'll post this in
-> case it's obvious to somebody.
-> 
+I was wrong - a (reasonably modern) CPU will indeed not take the
+NMI IPI if its LDR is clear and the IPI was sent in logical mode.
+However, the CPU folks weren't expecting it to be used this way,
+so they aren't sure yet if this is guaranteed to work this way
+on all CPUs. 
 
-fwiw, tg3 on powermac g5 works OK with rc6-mm1.
+Rajesh

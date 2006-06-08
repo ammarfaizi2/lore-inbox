@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbWFHGv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWFHHAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbWFHGv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 02:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWFHGv0
+	id S932533AbWFHHAH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWFHHAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 02:51:26 -0400
-Received: from mx2.suse.de ([195.135.220.15]:12768 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932541AbWFHGvZ (ORCPT
+	Thu, 8 Jun 2006 03:00:07 -0400
+Received: from gw.openss7.com ([142.179.199.224]:2238 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S932533AbWFHHAG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 02:51:25 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] x86_64: fix compat mode ptrace() bug
-Date: Thu, 8 Jun 2006 08:50:12 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <acahalan@gmail.com>
-References: <200606080226_MC3-1-C1E2-4DA4@compuserve.com>
-In-Reply-To: <200606080226_MC3-1-C1E2-4DA4@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 03:00:06 -0400
+Date: Thu, 8 Jun 2006 01:00:04 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
+Message-ID: <20060608010004.A12202@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+	adilger@clusterfs.com, linux-kernel@vger.kernel.org
+References: <20060607173642.GA6378@schatzie.adilger.int> <200606080739.33967.ak@suse.de> <20060608004153.A11953@openss7.org> <200606080851.20232.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606080850.12577.ak@suse.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200606080851.20232.ak@suse.de>; from ak@suse.de on Thu, Jun 08, 2006 at 08:51:20AM +0200
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 June 2006 08:23, Chuck Ebbert wrote:
-> ptrace(PTRACE_[GS]ETSIGINFO) is broken in ia32 mode on 64-bit kernel,
-> as reported by Albert Cahalan.
+Andi,
 
-It's already fixed in the ff tree, or in -mm* 
+On Thu, 08 Jun 2006, Andi Kleen wrote:
+> 
+> Originally because it made assembly too unreadable. Later it was discovered
+> it produces smaller code too.
+> 
 
-See ftp://ftp.firstfloor.org/pub/ak/quilt/patches/new-compat-ptrace
+Thank you for the explanation.  But, this brings to mind two other questions:
 
-Will be merged into 2.6.18.
+  Does the option not also make assembly less readable on other architectures?
 
--Andi
+  If one is interested in smaller code, why not use -Os?
+
+Also, does -fno-reorder-blocks actually defeat __builtin_expect()?
+(GCC documentation doesn't really say that.)

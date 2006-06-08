@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWFHUHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbWFHUJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbWFHUHq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWFHUHq
+	id S964961AbWFHUJT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWFHUJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:07:46 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:41187 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S964953AbWFHUHp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:07:45 -0400
-Subject: Re: [PATCH] limit power budget on spitz
-From: Richard Purdie <rpurdie@rpsys.net>
-To: David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@suse.cz>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       Oliver Neukum <oliver@neukum.org>,
-       David Liontooth <liontooth@cogweb.net>
-In-Reply-To: <200606081126.20142.david-b@pacbell.net>
-References: <447EB0DC.4040203@cogweb.net>
-	 <1149758570.16945.156.camel@localhost.localdomain>
-	 <20060608170913.GB15337@flint.arm.linux.org.uk>
-	 <200606081126.20142.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 21:06:55 +0100
-Message-Id: <1149797216.16945.234.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 16:09:19 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:7651 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S964961AbWFHUJR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:09:17 -0400
+Date: Thu, 8 Jun 2006 10:58:14 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Mark Lord <lkml@rtr.ca>
+cc: Rahul Karnik <rahul@genebrew.com>, Ram Gupta <ram.gupta5@gmail.com>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: booting without initrd
+In-Reply-To: <4488368B.5070103@rtr.ca>
+Message-ID: <Pine.LNX.4.63.0606081057100.1833@qynat.qvtvafvgr.pbz>
+References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com> 
+ <b29067a0606081040q17c66f5bpa966da851635e942@mail.gmail.com> <4488368B.5070103@rtr.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-08 at 11:26 -0700, David Brownell wrote:
-> On Thu, Jun 08, 2006 at 10:22:50AM +0100, Richard Purdie wrote:
-> > Just because the omap does it that way, doesn't mean it can't be done
-> > better ;-).
-> 
-> Agreed that platform_data is a better approach overall for holding that
-> power budget.  OMAP and AT91 should do so too.
+On Thu, 8 Jun 2006, Mark Lord wrote:
+
+> Rahul Karnik wrote:
+>> 
+>> AFAIK Fedora sets up the kernel command line with "root=LABEL=/" in
+>> grub.conf and therefore needs the initrd in order to work correctly.
+>> If you do not want an initrd, then change this to
+>> "root=/dev/<your_disk>" in grub.conf. Note that the reason Fedora uses
+>> the LABEL is so you can move disks around in your system without a problem
 >
-> Sounds like someone should update the patch to (a) use a 150 mA budget,
-> and (b) test for those other machines.  As a near term patch, anyway.
-> 
-> Unless there's a patch to provide and use platform_data ... but that'd
-> be much more involved, since ISTR the PXA platforms don't yet have a
-> mechanism to provide board-specific platform_data.  (I'll suggest the
-> AT91 code as a model there; it's simpler hardware than OMAP, so the
-> code is more straightforward.)
+> Heh.. except for people like me, who regularly swap disks around
+> to boot from different distros, in which case the LABEL=/ continuously
+> causes nothing but grief until I remember to edit it away.
 
-The PXA platform does have an existing mechanism to pass platform data
-(I added it a while back). I've added
-http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=3547/1
-into the patch system replacing Pavel's version.
+not to mention the fact that the label checking code only checks the first 
+several drives (I don't know how  many, but I know that it won't find a 
+label on sdq :-)
 
-Cheers,
-
-Richard
-
+David Lang

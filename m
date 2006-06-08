@@ -1,48 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWFHUco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWFHUdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbWFHUco (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWFHUcn
+	id S964985AbWFHUdY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWFHUdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:32:43 -0400
-Received: from main.gmane.org ([80.91.229.2]:65414 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964982AbWFHUcn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:32:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: booting without initrd
-Date: Thu, 08 Jun 2006 21:32:03 +0100
-Message-ID: <yw1xlks7e6d8.fsf@agrajag.inprovide.com>
-References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com> <b29067a0606081040q17c66f5bpa966da851635e942@mail.gmail.com> <4488368B.5070103@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: agrajag.inprovide.com
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (Security Through Obscurity, linux)
-Cancel-Lock: sha1:pEmaCn6hqaQoF01TYs4seXJhyBw=
+	Thu, 8 Jun 2006 16:33:24 -0400
+Received: from server1.spsn.net ([195.234.231.102]:49128 "EHLO
+	server1.spsn.net") by vger.kernel.org with ESMTP id S964985AbWFHUdX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:33:23 -0400
+From: Sascha Nitsch <Sash_lkl@linuxhowtos.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Idea about a disc backed ram filesystem
+Date: Thu, 8 Jun 2006 22:33:13 +0200
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606082233.13720.Sash_lkl@linuxhowtos.org>
+X-Bogosity: Spam, tests=bogofilter, spamicity=1.000000, version=1.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord <lkml@rtr.ca> writes:
+Hi,
 
-> Rahul Karnik wrote:
->>
->> AFAIK Fedora sets up the kernel command line with "root=LABEL=/" in
->> grub.conf and therefore needs the initrd in order to work correctly.
->> If you do not want an initrd, then change this to
->> "root=/dev/<your_disk>" in grub.conf. Note that the reason Fedora uses
->> the LABEL is so you can move disks around in your system without a problem
->
-> Heh.. except for people like me, who regularly swap disks around
-> to boot from different distros, in which case the LABEL=/ continuously
-> causes nothing but grief until I remember to edit it away.
+this is (as of this writing) just an idea.
 
-Yes, there's an old saying that "grief comes with a red hat".
+=== current state ===
+Currently we have ram filesystems (like tmpfs) and disc based file systems
+(ext2/3, xfs, <insert your fav. fs>).
 
--- 
-Måns Rullgård
-mru@inprovide.com
+tmpfs is extremely fast but suffers from data losses from restarts, crashes
+and power outages. Disc access is slow against a ram based fs.
 
+=== the idea ===
+My idea is to mix them to the following hybrid:
+- mount the new fs over an existing dir as an overlay
+- all files overlayed are still accessible
+- after the first read, the file stays in memory (like a file cache)
+- all writes are flushed out to the underlying fs (maybe done async)
+- all reads are always done from the memory cache unless they are not cached
+  yet
+- the cache stays until the partition is unmounted
+- the maximum size of the overlayed filesystem could be physical ram/2 (like tmpfs)
+
+=== advantages ===
+once the files are read, no more "slow" disc reading is needed=> huge read
+speed improvements (like on tmpfs)
+if the writing is done asyncronous, write speeds would be as fast as a
+tmpfs => huge write speedup
+if done syncronous, write speed almost as fast as native disc fs
+the ram fs would be imune against data loss from reboots or controled shutdown
+if syncronous write is done, the fs would be imune to crashes/power
+outages (with the usual exceptions like on disc fs)
+
+=== disadvantage ===
+possible higher memory usage (see implementation ideas below)
+
+=== usages ===
+possible usage scenarios could be any storage where a
+smaller set of files get read/written a lot, like databases
+definition of smaller: lets say up to 50% of physical ram size.
+Depending on architecture and money spent, this can be a lot :)
+
+=== implementation ideas ===
+One note first:
+I don't know the fs internals of the kernel (yet), so these ideas might not
+work, but you should get the idea.
+
+One idea is to build a complete virtual filesystem that connects to the VFS
+layer and hands the writes through to the "original" fs driver.
+The caching would be done in that layer. This might cause double caching
+(in the io cache) and might waste memory.
+But this idea would enable the possibility of async writes (when the disc has
+less to do) and gives write speed improves.
+
+The other idea would be to modify the existing filesystem cache algorithm to
+have a flag "always keep this file in memory".
+
+The second one may be easier to do and may cause less side effects, but
+might not enable async writes.
+
+Since this overlay is done in the kernel, no other process could change the
+files under the overlay.
+Remote FS must be excluded from the cache layer (for obvious reasons).
+
+Any kind of feedback is welcome.
+
+If this has been discussed earlier, sorry for double posting. I haven't found
+anything like this in the archives. Just point me in the right direction.
+
+Regards,
+
+Sascha Nitsch

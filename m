@@ -1,245 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbWFHXDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbWFHXDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbWFHXDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 19:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWFHXDZ
+	id S965059AbWFHXDS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 19:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWFHXDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 19:03:25 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46049 "EHLO
+	Thu, 8 Jun 2006 19:03:18 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:48353 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965054AbWFHXDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 19:03:09 -0400
-Date: Thu, 8 Jun 2006 16:03:00 -0700 (PDT)
+	id S965060AbWFHXDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 19:03:15 -0400
+Date: Thu, 8 Jun 2006 16:03:05 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20060608230300.25121.75048.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060608230305.25121.97821.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060608230239.25121.83503.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060608230239.25121.83503.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 04/14] Conversion of nr_pagecache to per zone counter
+Subject: [PATCH 04/14] Use per zone counters to remove zone_reclaim_interval
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Conversion of nr_pagecache to a per zone counter
+Use zoned counters to remove zone_reclaim_interval
 
-Currently a single atomic variable is used to establish the size of the page
-cache in the whole machine. The zoned VM counters have the same method of
-implementation as the nr_pagecache code but also allow the determination
-of the pagecache size per zone.
+The zone_reclaim_interval was necessary because we were not able to determine
+how many unmapped pages exist in a zone. Therefore we had to scan in intervals
+to figure out if any additional unmapped pages are created.
 
-Remove the special implementation for nr_pagecache and make it a zoned
-counter.
+With the zoned counters we know now the number of pagecache pages
+and the number of mapped pages in a zone. So we are able to
+establish the number of unmapped pages.
 
-Updates of the page cache counters are always performed with interrupts off.
-We can therefore use the __ variant here.
+Caveat: The number of mapped pages includes anonymous pages.
+The current check works but is a bit too cautious. We could perform
+zone reclaim down to the last unmapped page if we would split NR_MAPPED
+into NR_MAPPED_PAGECACHE and NR_MAPPED_ANON. Maybe later.
 
-This will make UP no longer require atomic operations for nr_pagecache.
+Drop all support for zone_reclaim_interval.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.17-rc6-mm1/include/linux/pagemap.h
+Index: linux-2.6.17-rc6-mm1/include/linux/swap.h
 ===================================================================
---- linux-2.6.17-rc6-mm1.orig/include/linux/pagemap.h	2006-06-08 13:03:39.304520730 -0700
-+++ linux-2.6.17-rc6-mm1/include/linux/pagemap.h	2006-06-08 14:07:35.879548728 -0700
-@@ -115,51 +115,6 @@ int add_to_page_cache_lru(struct page *p
- extern void remove_from_page_cache(struct page *page);
- extern void __remove_from_page_cache(struct page *page);
+--- linux-2.6.17-rc6-mm1.orig/include/linux/swap.h	2006-06-07 22:11:37.574190076 -0700
++++ linux-2.6.17-rc6-mm1/include/linux/swap.h	2006-06-07 22:17:53.246235576 -0700
+@@ -190,7 +190,6 @@ extern long vm_total_pages;
  
--extern atomic_t nr_pagecache;
--
--#ifdef CONFIG_SMP
--
--#define PAGECACHE_ACCT_THRESHOLD        max(16, NR_CPUS * 2)
--DECLARE_PER_CPU(long, nr_pagecache_local);
+ #ifdef CONFIG_NUMA
+ extern int zone_reclaim_mode;
+-extern int zone_reclaim_interval;
+ extern int zone_reclaim(struct zone *, gfp_t, unsigned int);
+ #else
+ #define zone_reclaim_mode 0
+Index: linux-2.6.17-rc6-mm1/mm/vmscan.c
+===================================================================
+--- linux-2.6.17-rc6-mm1.orig/mm/vmscan.c	2006-06-07 22:11:57.798523443 -0700
++++ linux-2.6.17-rc6-mm1/mm/vmscan.c	2006-06-07 22:22:04.724800800 -0700
+@@ -1534,11 +1534,6 @@ int zone_reclaim_mode __read_mostly;
+ #define RECLAIM_SLAB (1<<3)	/* Do a global slab shrink if the zone is out of memory */
+ 
+ /*
+- * Mininum time between zone reclaim scans
+- */
+-int zone_reclaim_interval __read_mostly = 30*HZ;
 -
 -/*
-- * pagecache_acct implements approximate accounting for pagecache.
-- * vm_enough_memory() do not need high accuracy. Writers will keep
-- * an offset in their per-cpu arena and will spill that into the
-- * global count whenever the absolute value of the local count
-- * exceeds the counter's threshold.
-- *
-- * MUST be protected from preemption.
-- * current protection is mapping->page_lock.
-- */
--static inline void pagecache_acct(int count)
--{
--	long *local;
+  * Priority for ZONE_RECLAIM. This determines the fraction of pages
+  * of a node considered for each zone_reclaim. 4 scans 1/16th of
+  * a zone.
+@@ -1604,16 +1599,6 @@ static int __zone_reclaim(struct zone *z
+ 
+ 	p->reclaim_state = NULL;
+ 	current->flags &= ~(PF_MEMALLOC | PF_SWAPWRITE);
 -
--	local = &__get_cpu_var(nr_pagecache_local);
--	*local += count;
--	if (*local > PAGECACHE_ACCT_THRESHOLD || *local < -PAGECACHE_ACCT_THRESHOLD) {
--		atomic_add(*local, &nr_pagecache);
--		*local = 0;
+-	if (nr_reclaimed == 0) {
+-		/*
+-		 * We were unable to reclaim enough pages to stay on node.  We
+-		 * now allow off node accesses for a certain time period before
+-		 * trying again to reclaim pages from the local zone.
+-		 */
+-		zone->last_unsuccessful_zone_reclaim = jiffies;
 -	}
--}
 -
--#else
--
--static inline void pagecache_acct(int count)
--{
--	atomic_add(count, &nr_pagecache);
--}
--#endif
--
--static inline unsigned long get_page_cache_size(void)
--{
--	int ret = atomic_read(&nr_pagecache);
--	if (unlikely(ret < 0))
--		ret = 0;
--	return ret;
--}
--
- /*
-  * Return byte-offset into filesystem object for page.
-  */
-Index: linux-2.6.17-rc6-mm1/mm/swap_state.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/mm/swap_state.c	2006-06-08 13:03:39.924599579 -0700
-+++ linux-2.6.17-rc6-mm1/mm/swap_state.c	2006-06-08 14:07:35.880525230 -0700
-@@ -89,7 +89,7 @@ static int __add_to_swap_cache(struct pa
- 			SetPageSwapCache(page);
- 			set_page_private(page, entry.val);
- 			total_swapcache_pages++;
--			pagecache_acct(1);
-+			__inc_zone_page_state(page, NR_PAGECACHE);
- 		}
- 		write_unlock_irq(&swapper_space.tree_lock);
- 		radix_tree_preload_end();
-@@ -135,7 +135,7 @@ void __delete_from_swap_cache(struct pag
- 	set_page_private(page, 0);
- 	ClearPageSwapCache(page);
- 	total_swapcache_pages--;
--	pagecache_acct(-1);
-+	__dec_zone_page_state(page, NR_PAGECACHE);
- 	INC_CACHE_INFO(del_total);
+ 	return nr_reclaimed >= nr_pages;
  }
  
-Index: linux-2.6.17-rc6-mm1/mm/filemap.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/mm/filemap.c	2006-06-08 13:03:39.864056448 -0700
-+++ linux-2.6.17-rc6-mm1/mm/filemap.c	2006-06-08 14:07:35.881501732 -0700
-@@ -126,7 +126,7 @@ void __remove_from_page_cache(struct pag
- 	radix_tree_delete(&mapping->page_tree, page->index);
- 	page->mapping = NULL;
- 	mapping->nrpages--;
--	pagecache_acct(-1);
-+	__dec_zone_page_state(page, NR_PAGECACHE);
- }
- EXPORT_SYMBOL(__remove_from_page_cache);
+@@ -1623,13 +1608,14 @@ int zone_reclaim(struct zone *zone, gfp_
+ 	int node_id;
  
-@@ -424,7 +424,7 @@ int add_to_page_cache(struct page *page,
- 			page->mapping = mapping;
- 			page->index = offset;
- 			mapping->nrpages++;
--			pagecache_acct(1);
-+			__inc_zone_page_state(page, NR_PAGECACHE);
- 		}
- 		write_unlock_irq(&mapping->tree_lock);
- 		radix_tree_preload_end();
-Index: linux-2.6.17-rc6-mm1/mm/page_alloc.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/mm/page_alloc.c	2006-06-08 13:55:23.119232821 -0700
-+++ linux-2.6.17-rc6-mm1/mm/page_alloc.c	2006-06-08 14:07:35.883454737 -0700
-@@ -1583,12 +1583,6 @@ static void show_node(struct zone *zone)
-  */
- static DEFINE_PER_CPU(struct page_state, page_states) = {0};
- 
--atomic_t nr_pagecache = ATOMIC_INIT(0);
--EXPORT_SYMBOL(nr_pagecache);
--#ifdef CONFIG_SMP
--DEFINE_PER_CPU(long, nr_pagecache_local) = 0;
--#endif
--
- static void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
- {
- 	unsigned cpu;
-@@ -2802,6 +2796,7 @@ struct seq_operations zoneinfo_op = {
- static char *vmstat_text[] = {
- 	/* Zoned VM counters */
- 	"nr_mapped",
-+	"nr_pagecache",
- 
- 	/* Page state */
- 	"nr_dirty",
-Index: linux-2.6.17-rc6-mm1/mm/mmap.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/mm/mmap.c	2006-06-08 13:03:39.900187026 -0700
-+++ linux-2.6.17-rc6-mm1/mm/mmap.c	2006-06-08 14:07:35.884431239 -0700
-@@ -96,7 +96,7 @@ int __vm_enough_memory(long pages, int c
- 	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
- 		unsigned long n;
- 
--		free = get_page_cache_size();
-+		free = global_page_state(NR_PAGECACHE);
- 		free += nr_swap_pages;
- 
- 		/*
-Index: linux-2.6.17-rc6-mm1/mm/nommu.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/mm/nommu.c	2006-06-05 17:57:02.000000000 -0700
-+++ linux-2.6.17-rc6-mm1/mm/nommu.c	2006-06-08 14:07:36.292609102 -0700
-@@ -1122,7 +1122,7 @@ int __vm_enough_memory(long pages, int c
- 	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
- 		unsigned long n;
- 
--		free = get_page_cache_size();
-+		free = global_page_state(NR_PAGECACHE);
- 		free += nr_swap_pages;
- 
- 		/*
-Index: linux-2.6.17-rc6-mm1/arch/sparc64/kernel/sys_sunos32.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/arch/sparc64/kernel/sys_sunos32.c	2006-06-08 13:03:31.354816936 -0700
-+++ linux-2.6.17-rc6-mm1/arch/sparc64/kernel/sys_sunos32.c	2006-06-08 14:07:36.469355975 -0700
-@@ -155,7 +155,7 @@ asmlinkage int sunos_brk(u32 baddr)
- 	 * simple, it hopefully works in most obvious cases.. Easy to
- 	 * fool it, but this should catch most mistakes.
+ 	/*
+-	 * Do not reclaim if there was a recent unsuccessful attempt at zone
+-	 * reclaim.  In that case we let allocations go off node for the
+-	 * zone_reclaim_interval.  Otherwise we would scan for each off-node
+-	 * page allocation.
++	 * Do not reclaim if there are not enough reclaimable pages in this
++	 * zone. We decide this based on the number of mapped pages
++	 * in relation to the number of page cache pages in this zone.
++	 * If there are more pagecache pages than mapped pages then we can
++	 * be certain that pages can be reclaimed.
  	 */
--	freepages = get_page_cache_size();
-+	freepages = global_page_state(NR_PAGECACHE);
- 	freepages >>= 1;
- 	freepages += nr_free_pages();
- 	freepages += nr_swap_pages;
-Index: linux-2.6.17-rc6-mm1/arch/sparc/kernel/sys_sunos.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/arch/sparc/kernel/sys_sunos.c	2006-06-08 13:03:31.362628953 -0700
-+++ linux-2.6.17-rc6-mm1/arch/sparc/kernel/sys_sunos.c	2006-06-08 14:07:36.481074000 -0700
-@@ -196,7 +196,7 @@ asmlinkage int sunos_brk(unsigned long b
- 	 * simple, it hopefully works in most obvious cases.. Easy to
- 	 * fool it, but this should catch most mistakes.
- 	 */
--	freepages = get_page_cache_size();
-+	freepages = global_page_state(NR_PAGECACHE);
- 	freepages >>= 1;
- 	freepages += nr_free_pages();
- 	freepages += nr_swap_pages;
-Index: linux-2.6.17-rc6-mm1/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.17-rc6-mm1.orig/fs/proc/proc_misc.c	2006-06-08 13:55:23.115326813 -0700
-+++ linux-2.6.17-rc6-mm1/fs/proc/proc_misc.c	2006-06-08 14:07:36.482050502 -0700
-@@ -142,7 +142,7 @@ static int meminfo_read_proc(char *page,
- 	allowed = ((totalram_pages - hugetlb_total_pages())
- 		* sysctl_overcommit_ratio / 100) + total_swap_pages;
+-	if (time_before(jiffies,
+-		zone->last_unsuccessful_zone_reclaim + zone_reclaim_interval))
++	if (zone_page_state(zone, NR_PAGECACHE) <
++		zone_page_state(zone, NR_MAPPED))
+ 			return 0;
  
--	cached = get_page_cache_size() - total_swapcache_pages - i.bufferram;
-+	cached = global_page_state(NR_PAGECACHE) - total_swapcache_pages - i.bufferram;
- 	if (cached < 0)
- 		cached = 0;
- 
+ 	/*
+Index: linux-2.6.17-rc6-mm1/kernel/sysctl.c
+===================================================================
+--- linux-2.6.17-rc6-mm1.orig/kernel/sysctl.c	2006-06-07 22:11:39.249867545 -0700
++++ linux-2.6.17-rc6-mm1/kernel/sysctl.c	2006-06-07 22:17:26.248884215 -0700
+@@ -1027,15 +1027,6 @@ static ctl_table vm_table[] = {
+ 		.strategy	= &sysctl_intvec,
+ 		.extra1		= &zero,
+ 	},
+-	{
+-		.ctl_name	= VM_ZONE_RECLAIM_INTERVAL,
+-		.procname	= "zone_reclaim_interval",
+-		.data		= &zone_reclaim_interval,
+-		.maxlen		= sizeof(zone_reclaim_interval),
+-		.mode		= 0644,
+-		.proc_handler	= &proc_dointvec_jiffies,
+-		.strategy	= &sysctl_jiffies,
+-	},
+ #endif
+ #ifdef CONFIG_X86_32
+ 	{
+Index: linux-2.6.17-rc6-mm1/include/linux/sysctl.h
+===================================================================
+--- linux-2.6.17-rc6-mm1.orig/include/linux/sysctl.h	2006-06-07 22:11:37.606414643 -0700
++++ linux-2.6.17-rc6-mm1/include/linux/sysctl.h	2006-06-07 22:22:30.026944631 -0700
+@@ -191,7 +191,6 @@ enum
+ 	VM_DROP_PAGECACHE=29,	/* int: nuke lots of pagecache */
+ 	VM_PERCPU_PAGELIST_FRACTION=30,/* int: fraction of pages in each percpu_pagelist */
+ 	VM_ZONE_RECLAIM_MODE=31, /* reclaim local zone memory before going off node */
+-	VM_ZONE_RECLAIM_INTERVAL=32, /* time period to wait after reclaim failure */
+ 	VM_PANIC_ON_OOM=33,	/* panic at out-of-memory */
+ 	VM_VDSO_ENABLED=34,	/* map VDSO into new processes? */
+ 	VM_SWAP_PREFETCH=35,	/* swap prefetch */
 Index: linux-2.6.17-rc6-mm1/include/linux/mmzone.h
 ===================================================================
---- linux-2.6.17-rc6-mm1.orig/include/linux/mmzone.h	2006-06-08 13:55:23.121185825 -0700
-+++ linux-2.6.17-rc6-mm1/include/linux/mmzone.h	2006-06-08 14:07:36.482050502 -0700
-@@ -49,7 +49,7 @@ struct zone_padding {
- enum zone_stat_item {
- 	NR_MAPPED,	/* mapped into pagetables.
- 			   only modified from process context */
--
-+	NR_PAGECACHE,	/* file backed pages */
- 	NR_STAT_ITEMS };
+--- linux-2.6.17-rc6-mm1.orig/include/linux/mmzone.h	2006-06-07 22:11:57.963552285 -0700
++++ linux-2.6.17-rc6-mm1/include/linux/mmzone.h	2006-06-07 22:16:48.392830386 -0700
+@@ -192,12 +192,6 @@ struct zone {
  
- #ifdef CONFIG_SMP
+ 	/* Zone statistics */
+ 	vm_stat_t		vm_stat[NR_STAT_ITEMS];
+-	/*
+-	 * timestamp (in jiffies) of the last zone reclaim that did not
+-	 * result in freeing of pages. This is used to avoid repeated scans
+-	 * if all memory in the zone is in use.
+-	 */
+-	unsigned long		last_unsuccessful_zone_reclaim;
+ 
+ 	/*
+ 	 * prev_priority holds the scanning priority for this zone.  It is

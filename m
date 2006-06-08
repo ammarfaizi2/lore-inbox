@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWFHWNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWFHWbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWFHWNr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 18:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWFHWNr
+	id S965031AbWFHWbe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 18:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWFHWbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 18:13:47 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:10945
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965012AbWFHWNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 18:13:46 -0400
-Date: Thu, 08 Jun 2006 15:13:47 -0700 (PDT)
-Message-Id: <20060608.151347.55505744.davem@davemloft.net>
-To: gerrit@erg.abdn.ac.uk
-Cc: jmorris@namei.org, alan@lxorguk.ukuu.org.uk, kuznet@ms2.inr.ac.ru,
-       pekkas@netcore.fi, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc6-mm1 ] net: RFC 3828-compliant UDP-Lite
- support
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200606082109.34338.gerrit@erg.abdn.ac.uk>
-References: <20060608.115331.71094388.davem@davemloft.net>
-	<Pine.LNX.4.64.0606081542390.3555@d.namei>
-	<200606082109.34338.gerrit@erg.abdn.ac.uk>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 8 Jun 2006 18:31:34 -0400
+Received: from www.osadl.org ([213.239.205.134]:21737 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S965031AbWFHWbe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 18:31:34 -0400
+Subject: Re: [PATCH] genirq: Fix missing initializer for unmask in
+	no_irq_chip
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1149793075.5257.51.camel@localhost.localdomain>
+References: <20060517001310.GA12877@elte.hu>
+	 <20060517221536.GA13444@elte.hu> <20060519145225.GA12703@elte.hu>
+	 <20060607165456.GC13165@flint.arm.linux.org.uk>
+	 <1149700829.5257.16.camel@localhost.localdomain>
+	 <1149706650.5257.19.camel@localhost.localdomain>
+	 <20060608113534.GA5050@flint.arm.linux.org.uk>
+	 <1149768256.5257.37.camel@localhost.localdomain>
+	 <20060608152926.GA15337@flint.arm.linux.org.uk>
+	 <1149782293.5257.43.camel@localhost.localdomain>
+	 <1149793075.5257.51.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 09 Jun 2006 00:32:11 +0200
+Message-Id: <1149805931.5257.111.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Gerrit Renker <gerrit@erg.abdn.ac.uk>
-Date: Thu, 8 Jun 2006 21:09:33 +0100
+On Thu, 2006-06-08 at 20:57 +0200, Thomas Gleixner wrote:
+> I uploaded a new patch series which contains the ARM side fix and I
+> added error messages for that case at the appropriate places.
 
-> That is why I held back regarding the IPv6 port: I can ensure that
-> this (IPv4) code is up to standard and to date, but am lacking the
-> required additional time to implement the same for IPv6.  I am
-> trying to contact people to help with the port, but for the moment I
-> will take responsibility only for the IPv4 version.
+Sorry, pushed out the wrong one.
 
-It's not like an ipv6 port is such a big pile of work.
+Uploaded the non broken version
 
-I'd say it would take you an afternoon, max.
+http://www.tglx.de/projects/armirq/2.6.17-rc6/patch-2.6.17-rc6-armirq5.patch
+http://www.tglx.de/projects/armirq/2.6.17-rc6/patch-2.6.17-rc6-armirq5.patches.tar.bz2
 
-You don't have to test it to the point where it is ISO9000 compliant,
-that's not what is being asked of you.
+	tglx
+
+

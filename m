@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWFHHN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWFHHNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWFHHN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 03:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWFHHN5
+	id S932502AbWFHHNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 03:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWFHHNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 03:13:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34713 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932551AbWFHHNz (ORCPT
+	Thu, 8 Jun 2006 03:13:16 -0400
+Received: from mail.suse.de ([195.135.220.2]:40934 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751228AbWFHHNP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 03:13:55 -0400
-Date: Thu, 8 Jun 2006 09:13:08 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Jiri Benc <jbenc@suse.cz>, linville@tuxdriver.com,
-       kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: [patch] workaround zd1201 interference problem
-Message-ID: <20060608071308.GA4086@elf.ucw.cz>
-References: <20060607140045.GB1936@elf.ucw.cz> <20060607160828.0045e7f5@griffin.suse.cz> <20060607141536.GD1936@elf.ucw.cz> <4486FD2F.8040205@gentoo.org> <20060608070525.GE3688@elf.ucw.cz>
+	Thu, 8 Jun 2006 03:13:15 -0400
+From: Andi Kleen <ak@suse.de>
+To: bidulock@openss7.org
+Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
+Date: Thu, 8 Jun 2006 09:07:26 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, adilger@clusterfs.com,
+       linux-kernel@vger.kernel.org
+References: <20060607173642.GA6378@schatzie.adilger.int> <200606080851.20232.ak@suse.de> <20060608010004.A12202@openss7.org>
+In-Reply-To: <20060608010004.A12202@openss7.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060608070525.GE3688@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200606080907.26350.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thursday 08 June 2006 09:00, Brian F. G. Bidulock wrote:
 
-> > >Well, I'll try _enable() alone, but it seems to me that _enable()
-> > >command is needed to initialize radio properly. I do not think we can
-> > >get much further without firmware sources...
+> > Originally because it made assembly too unreadable. Later it was discovered
+> > it produces smaller code too.
 > > 
-> > If you can formulate a proper and technical description of the issue 
-> > (and exactly what is needed to workaround it), I can contact ZyDAS for 
-> > you. They have been very helpful with ZD1211.
 > 
-> Okay, the issue is:
+> Thank you for the explanation.  But, this brings to mind two other questions:
 > 
-> if you plug zd1201 into USB, it starts jamming radio,
-> immediately. Enable/disable, or iwlist wlan0 scan, or basically any
-> operation unjams the radio. This patch works it around:
+>   Does the option not also make assembly less readable on other architectures?
 
-Of course, the patch should have been:
+Yes it does. Maybe the people who spend a lot of time debugging these
+don't feel the pain anymore.
 
- diff --git a/drivers/net/wireless/zd1201.c b/drivers/net/wireless/zd1201.c
- index 335eaf3..dcc7bc7 100644
- --- a/drivers/net/wireless/zd1201.c
- +++ b/drivers/net/wireless/zd1201.c
- @@ -1835,6 +1835,8 @@ static int zd1201_probe(struct usb_inter
-  	    zd->dev->name);
-  	
-  	usb_set_intfdata(interface, zd);
- +	zd1201_enable(zd);	/* zd1201 likes to startup enabled, interfering */
- +	zd1201_disable(zd); 	/* with all the wifis in range */
-  	return 0;
-  
-  err_net:
- 
- 
- ....question is "is that right solution, or is something different
- needed to solve that problem properly"?
- 								Pavel
+> 
+>   If one is interested in smaller code, why not use -Os?
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+We already use -Os if you set the right config (but this change was actually 
+long before that)
+
+It's possible that -Os includes -fno-block-reordering though.
+
+> Also, does -fno-reorder-blocks actually defeat __builtin_expect()?
+> (GCC documentation doesn't really say that.)
+
+AFAIK gcc mostly uses the probability information for block reordering
+to make the fast path fall through without jumps.
+
+There are some more uses, but they don't impact the code very much.
+
+-Andi

@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWFHC2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWFHC3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbWFHC2S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 22:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWFHC2S
+	id S932488AbWFHC3k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 22:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWFHC3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 22:28:18 -0400
-Received: from mail.suse.de ([195.135.220.2]:5579 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932483AbWFHC2R (ORCPT
+	Wed, 7 Jun 2006 22:29:40 -0400
+Received: from xenotime.net ([66.160.160.81]:53194 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932488AbWFHC3j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 22:28:17 -0400
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
-References: <20060607173642.GA6378@schatzie.adilger.int>
-From: Andi Kleen <ak@suse.de>
-Date: 08 Jun 2006 04:28:12 +0200
-In-Reply-To: <20060607173642.GA6378@schatzie.adilger.int>
-Message-ID: <p73ejy0tm83.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jun 2006 22:29:39 -0400
+Date: Wed, 7 Jun 2006 19:32:25 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: akpm@osdl.org, jamagallon@ono.com, linux-kernel@vger.kernel.org,
+       sam@ravnborg.org
+Subject: Re: [PATCH] ignore smp_locks section warnings from init/exit code
+Message-Id: <20060607193225.989add4c.rdunlap@xenotime.net>
+In-Reply-To: <20060608021149.GA5567@ccure.user-mode-linux.org>
+References: <20060607104724.c5d3d730.akpm@osdl.org>
+	<20060608003153.36f59e6a@werewolf.auna.net>
+	<20060607154054.cf4f2512.akpm@osdl.org>
+	<20060607162326.3d2cc76b.rdunlap@xenotime.net>
+	<20060608021149.GA5567@ccure.user-mode-linux.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> writes:
+On Wed, 7 Jun 2006 22:11:49 -0400 Jeff Dike wrote:
 
-> Hello,
-> I just noticed this minor optimization.  current_kernel_time() is called
-> from current_fs_time() so it is used fairly often but it doesn't use
-> unlikely(read_seqretry(&xtime_lock, seq)) as other users of xtime_lock do.
-> Also removes extra whitespace on the empty line above.
+> On Wed, Jun 07, 2006 at 04:23:26PM -0700, Randy.Dunlap wrote:
+> > I currently only see this in an __exit section.
+> > Here is a patch that fixes it for me.
+> 
+> Cool, something equivalent makes the UML link a lot quieter.  I had to
+> add ".plt" and ".bss".  I'm guessing mine are false positives as well,
+> but have no idea how to check that.
+> 
+> I also think that adding these two sections would be UML-specific, but
+> that probably shouldn't hurt other arches.
 
-It would be better to put the unlikely into the read_seqretry I guess.
+I could look, but:
 
--Andi
+> make ARCH=um allmodconfig
+/var/linsrc/linux-2617-rc6mm1/arch/um/Makefile:113: *** missing separator.  Stop.
+
+is that known/fixed?
+
+---
+~Randy

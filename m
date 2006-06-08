@@ -1,28 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWFHRml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWFHRrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWFHRml (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 13:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWFHRml
+	id S964925AbWFHRrB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 13:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWFHRrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 13:42:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36488 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964923AbWFHRml (ORCPT
+	Thu, 8 Jun 2006 13:47:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:906 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964925AbWFHRrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 13:42:41 -0400
-Date: Thu, 8 Jun 2006 10:42:24 -0700
+	Thu, 8 Jun 2006 13:47:01 -0400
+Date: Thu, 8 Jun 2006 10:46:55 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: balbir@in.ibm.com, linux-kernel@vger.kernel.org, jlan@engr.sgi.com,
-       peterc@gelato.unsw.edu.au
-Subject: Re: Merge of per task delay accounting (was Re: 2.6.18 -mm merge
- plans)
-Message-Id: <20060608104224.b2fe8c60.akpm@osdl.org>
-In-Reply-To: <448833E2.6000608@watson.ibm.com>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	<4484D25E.4020805@in.ibm.com>
-	<4486017F.8030308@watson.ibm.com>
-	<20060606154034.10147da7.akpm@osdl.org>
-	<448833E2.6000608@watson.ibm.com>
+To: Suzuki <suzuki@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fix Compilation error for UM Linux
+Message-Id: <20060608104655.70c6836f.akpm@osdl.org>
+In-Reply-To: <44883C68.8010307@in.ibm.com>
+References: <44883C68.8010307@in.ibm.com>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,52 +24,41 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 08 Jun 2006 10:27:46 -0400
-Shailabh Nagar <nagar@watson.ibm.com> wrote:
+On Thu, 08 Jun 2006 20:34:08 +0530
+Suzuki <suzuki@in.ibm.com> wrote:
 
-> Andrew Morton wrote:
+> Hi,
 > 
-> >On Tue, 06 Jun 2006 18:28:15 -0400
-> >Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> >
-> >  
-> >
-> >>So, we have a good consensus from existing/potential users of taskstats and would
-> >>very much appreciate it being included in 2.6.18.
-> >>    
-> >>
-> >
-> >Yes, for 2.6.18 I'm inclined to send taskstats and to continue to play
-> >wait-and-see on the statistics infrastructure.  Greg is taking a look at
-> >the stats code, which is good.
-> >
-> >  
-> >
-> Thanks !
+> This patch fixes the compilation error for UM Linux with linux-2.6.17-rc5.
 > 
-> The suggestion from  Jay Lan to extend the interface by making sending 
-> of tgid stats configurable
-> is quite reasonable and can be done relatively simply:
-> set some parameter, either by sending a separate command (verify sender 
-> is privileged) or by
-> some sysfs parameter and use that to control sending of tgid stats on 
-> task exit (as well as allocation of
-> any tgid stat related structures).
+> It complains of using (void *) in arithmetic.
 
-hm.  Is it possible to check the privileges of a netlink message sender?
+Really?  We often do arithmetic on void*.  Are you using gcc, with standard
+kbuild and standard compiler options?
 
-> Would you recommend we submit a patch for it now or wait till after 
-> delay accounting has gone into
-> 2.6.18 ?
+> Thanks.
+> 
+> Suzuki K P
+> Linux Technology Center,
+> IBM Software Labs.
+> 
+> 
+> 
+> * Fix the compilation error for um-linux.
+> 
+> Signed Off by: Suzuki K P <suzuki@in.ibm.com>
 
-Earlier, please.
+"Signed-off-by:", please.
 
-> Such requests for extending the interface are likely to happen as more 
-> users start using the interface.
-> But since any patch will need some testing etc. and we are very close to 
-> the 2.6.18 merge window, I
-> wanted your advice on whether this should wait until later.
-
-If it's merged, we'll have a couple more months to test it, and to fix any
-little problems.
-
+> --- arch/um/include/mem.h       2006-05-25 01:45:04.000000000 -0700
+> +++ arch/um/include/mem.h~fix_compilation_error 2006-06-08 
+> 07:46:21.000000000 -0700
+> @@ -22,7 +22,7 @@ static inline unsigned long to_phys(void
+> 
+>   static inline void *to_virt(unsigned long phys)
+>   {
+> -       return((void *) uml_physmem + phys);
+> +       return (void *) (uml_physmem + phys);
+>   }
+> 
+>   #endif

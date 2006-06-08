@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWFHMjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWFHMmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWFHMjB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 08:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWFHMjB
+	id S964810AbWFHMmf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 08:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWFHMmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 08:39:01 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:5529 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S964779AbWFHMjA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 08:39:00 -0400
-Message-ID: <349770337.30464@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 8 Jun 2006 20:39:00 +0800
-From: Fengguang Wu <wfg@mail.ustc.edu.cn>
-To: Voluspa <lista1@comhem.se>
-Cc: akpm@osdl.org, Valdis.Kletnieks@vt.edu, diegocg@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: adaptive readahead overheads
-Message-ID: <20060608123900.GA6885@mail.ustc.edu.cn>
-Mail-Followup-To: Fengguang Wu <wfg@mail.ustc.edu.cn>,
-	Voluspa <lista1@comhem.se>, akpm@osdl.org, Valdis.Kletnieks@vt.edu,
-	diegocg@gmail.com, linux-kernel@vger.kernel.org
-References: <349406446.10828@ustc.edu.cn> <20060604020738.31f43cb0.akpm@osdl.org> <1149413103.3109.90.camel@laptopd505.fenrus.org> <20060605031720.0017ae5e.lista1@comhem.se> <349562623.17723@ustc.edu.cn> <20060608094356.5c1272cc.lista1@comhem.se> <349766648.27054@ustc.edu.cn> <20060608142556.2e10e379.lista1@comhem.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060608142556.2e10e379.lista1@comhem.se>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 8 Jun 2006 08:42:35 -0400
+Received: from chen.mtu.ru ([195.34.34.232]:39178 "EHLO chen.mtu.ru")
+	by vger.kernel.org with ESMTP id S964810AbWFHMme (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 08:42:34 -0400
+Subject: Re: [PATCH] updated reiser4 - reduced cpu usage for writes by
+	writing more than 4k at a time (has implications for generic write code and
+	eventually for the IO layer)
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Alexey Polyakov <alexey.polyakov@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>,
+       Nate Diller <ndiller@namesys.com>
+In-Reply-To: <Pine.LNX.4.61.0606081245160.28703@yvahk01.tjqt.qr>
+References: <44736D3E.8090808@namesys.com>
+	 <b5d90b2a0605231326g5319fea8wb9efef34ee5f7ec6@mail.gmail.com>
+	 <6bffcb0e0605231333n612da806j9bd910cba65e3692@mail.gmail.com>
+	 <1148481586.6395.25.camel@tribesman.namesys.com>
+	 <Pine.LNX.4.61.0606081245160.28703@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Thu, 08 Jun 2006 16:40:40 +0400
+Message-Id: <1149770440.6336.39.camel@tribesman.namesys.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 08, 2006 at 02:25:56PM +0200, Voluspa wrote:
-> On Thu, 8 Jun 2006 19:37:31 +0800 Fengguang Wu wrote:
-> > I'd like to show some numbers on the pure software overheads come with
-> > the adaptive readahead in daily operations.
-> [...]
-> > 
-> > # time find /usr -type f -exec md5sum {} \; >/dev/null
-> > 
-> > ARA
-> > 
-> > 406.00s user 325.16s system 97% cpu 12:28.17 total
+Hello
+
+On Thu, 2006-06-08 at 12:45 +0200, Jan Engelhardt wrote:
+> >> > I'm actively using Reiser4 on a production servers (and I know a lot
+> >> > of people that do that too).
+> >> > Could you please release the patch against the vanilla tree?
+> >> > I don't think there's a lot of people that will test -mm version,
+> >> > especially on production servers - -mm is a little bit too unstable.
+> >> 
+> >> Any chance to get this patch against 2.6.17-rc4-mm3?
+> >
+> >yes, reiser4 updates for latest stock and mm kernels will be out in one
+> >or two days
+> >
+> There is a version out for 2.6.17-rc4-mm1, but for stock kernel? Has the latter
+> been canceled?
 > 
-> Just out of interest, all your figures show an almost maxed out CPU.
-> Why is it that my own runs use so little CPU? I'm running the above
 
-It does not have to wait for disk _seeks_, I guess.
-All reads inside qemu actually hit the page cache in the host system ;)
+There is quite fresh
+ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.16/reiser4-for-2.6.16-4.patch.gz
 
-> command as we 'speak' and on average only 40% is utilized, with the
-> occasional spike at max 75%. And this is on the lowest CPU level
-> 800MHz, which means that the 80% up_threshold of the ondemand cpufreq
-> governor never is breached (there are 1800MHz, 2000MHz and 2200MHz
-> levels above it).
 > 
-> Are you only 'giving' qemu something like 400MHz to play with or is
-> qemu so inefficient in itself 
+> Jan Engelhardt
 
-My qemu command line is:
-
-        qemu -m 156 /lab/wfg/linux_image -kernel ./arch/i386/boot/bzImage
-                        -append "root=/dev /hda console=ttyS0,9600" -nographic
-
-I do not have the qemu accelerator, though.
-
-Thanks,
-Wu

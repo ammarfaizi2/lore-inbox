@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWFHUKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWFHUKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWFHUKR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWFHUKP
+	id S964968AbWFHUKN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWFHUKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:10:15 -0400
-Received: from wr-out-0506.google.com ([64.233.184.224]:27093 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964967AbWFHUKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 8 Jun 2006 16:10:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tiIyqjfGLV6lZrpq+BnvqfYwMxUkB/BoCy3Ksp7dB/cxTbc0jJjwTwTwCBr6j66dSdKnJZgT5DvIPM3ZkITTtSsmzl0l+rQpq7TDastQ0D4DajMI6BpaDf/R0tozgJvJImPKg5pK84r1A1Unvq5hXYt6b4Bu2p6S5OkUOEgGnE0=
-Message-ID: <5c49b0ed0606081310q5771e8d1s55acef09b405922b@mail.gmail.com>
-Date: Thu, 8 Jun 2006 13:10:11 -0700
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Subject: Re: [PATCH] mm: tracking dirty pages -v6
-Cc: "Hugh Dickins" <hugh@veritas.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       "David Howells" <dhowells@redhat.com>,
-       "Christoph Lameter" <christoph@lameter.com>,
-       "Martin Bligh" <mbligh@google.com>, "Nick Piggin" <npiggin@suse.de>,
-       "Linus Torvalds" <torvalds@osdl.org>
-In-Reply-To: <1149770654.4408.71.camel@lappy>
+Received: from dee.erg.abdn.ac.uk ([139.133.204.82]:35774 "EHLO erg.abdn.ac.uk")
+	by vger.kernel.org with ESMTP id S964960AbWFHUKK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:10:10 -0400
+From: Gerrit Renker <gerrit@erg.abdn.ac.uk>
+Organization: Electronics Research Group, UoA
+To: James Morris <jmorris@namei.org>
+Subject: Re: [PATCH 2.6.17-rc6-mm1 ] net: RFC 3828-compliant UDP-Lite support
+Date: Thu, 8 Jun 2006 21:09:33 +0100
+User-Agent: KMail/1.8.3
+Cc: David Miller <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
+       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, yoshfuji@linux-ipv6.org,
+       kaber@coreworks.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <200606081150.34018@this-message-has-been-logged> <20060608.115331.71094388.davem@davemloft.net> <Pine.LNX.4.64.0606081542390.3555@d.namei>
+In-Reply-To: <Pine.LNX.4.64.0606081542390.3555@d.namei>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060525135534.20941.91650.sendpatchset@lappy>
-	 <Pine.LNX.4.64.0606062056540.1507@blonde.wat.veritas.com>
-	 <1149770654.4408.71.camel@lappy>
+Message-Id: <200606082109.34338.gerrit@erg.abdn.ac.uk>
+X-ERG-MailScanner: Found to be clean
+X-ERG-MailScanner-From: gerrit@erg.abdn.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/06, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
->
-> From: Peter Zijlstra <a.p.zijlstra@chello.nl>
->
-> People expressed the need to track dirty pages in shared mappings.
->
-> Linus outlined the general idea of doing that through making clean
-> writable pages write-protected and taking the write fault.
->
-> This patch does exactly that, it makes pages in a shared writable
-> mapping write-protected. On write-fault the pages are marked dirty and
-> made writable. When the pages get synced with their backing store, the
-> write-protection is re-instated.
+Quoting James Morris:
+|  On Thu, 8 Jun 2006, David Miller wrote:
+|  
+|  > > Understood. Please, anyone, disregard or un-apply the previous
+|  > > UDP-Lite patch.  A revised patch will be prepared and posted as soon
+|  > > as testing permits.
+|  > 
+|  > Nobody is going to integrate your patch anywhere, don't worry.
+|  > You make it clear that once you toss this piece of code over
+|  > the wall, you'll disappear.
+|  
+|  Having dealt with more than enough code thrown over the wall in recent 
+|  times, I agree.
 
-Does this mean that processes dirtying pages via mmap are now subject
-to write throttling?  That could dramatically change the performance
-for tasks with a working set larger than 10% of memory.
+I understand the points of both of you well enough. But how come this is interpreted 
+as saying I'd "toss this piece of code over the wall"? I can understand getting tired 
+of cowboy coding jobs, but there is a misunderstanding here.
 
-NATE
+Of course do and will I maintain that code and every issue related it. I have been
+maintaining, improving, testing this code for 9 months. The protocol spec (RFC 3828)
+was developed at University of Aberdeen, and there is continuing research into 
+UDP-Lite here, i.e. it is not a `dead' project. That is why I held back regarding the 
+IPv6 port: I can ensure that this (IPv4) code is up to standard and to date, but am 
+lacking the required additional time to implement the same for IPv6. 
+I am trying to contact people to help with the port, but for the moment I will take 
+responsibility only for the IPv4 version.
+
+And if there is someone `well-known and respected' who is interested in taking this code 
+over, I would only be happy for him/her to do this. But I won't simply `disappear' :-)
+
+
+
+
+
+

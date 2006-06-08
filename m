@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbWFHUJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWFHUJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbWFHUJT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWFHUJT
+	id S964965AbWFHUJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWFHUJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:09:19 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:7651 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S964961AbWFHUJR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:09:17 -0400
-Date: Thu, 8 Jun 2006 10:58:14 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Mark Lord <lkml@rtr.ca>
-cc: Rahul Karnik <rahul@genebrew.com>, Ram Gupta <ram.gupta5@gmail.com>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: booting without initrd
-In-Reply-To: <4488368B.5070103@rtr.ca>
-Message-ID: <Pine.LNX.4.63.0606081057100.1833@qynat.qvtvafvgr.pbz>
-References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com> 
- <b29067a0606081040q17c66f5bpa966da851635e942@mail.gmail.com> <4488368B.5070103@rtr.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 8 Jun 2006 16:09:44 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:14824 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S964965AbWFHUJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:09:43 -0400
+Date: Thu, 8 Jun 2006 17:09:48 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: rmk+lkml@arm.linux.org.uk
+Cc: alan@lxorguk.ukuu.org.uk, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] serial-core: Updates documentation.
+Message-ID: <20060608170948.327372cc@doriath.conectiva>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.2.1 (GTK+ 2.9.1; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Jun 2006, Mark Lord wrote:
 
-> Rahul Karnik wrote:
->> 
->> AFAIK Fedora sets up the kernel command line with "root=LABEL=/" in
->> grub.conf and therefore needs the initrd in order to work correctly.
->> If you do not want an initrd, then change this to
->> "root=/dev/<your_disk>" in grub.conf. Note that the reason Fedora uses
->> the LABEL is so you can move disks around in your system without a problem
->
-> Heh.. except for people like me, who regularly swap disks around
-> to boot from different distros, in which case the LABEL=/ continuously
-> causes nothing but grief until I remember to edit it away.
+ tx_empty(), break_ctl() and set_termios() are not called in atomic context,
+they are allowed to sleep.
 
-not to mention the fact that the label checking code only checks the first 
-several drives (I don't know how  many, but I know that it won't find a 
-label on sdq :-)
+Signed-off-by: Luiz Fernando N. Capitulino <lcapitulino@mandriva.com.br>
 
-David Lang
+---
+
+ Documentation/serial/driver |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
+
+7e65eee0ccc08beec8b98d2a31c2b6807cd29ba2
+diff --git a/Documentation/serial/driver b/Documentation/serial/driver
+index 88ad615..e6fabba 100644
+--- a/Documentation/serial/driver
++++ b/Documentation/serial/driver
+@@ -78,7 +78,6 @@ hardware.
+ 
+ 	Locking: none.
+ 	Interrupts: caller dependent.
+-	This call must not sleep
+ 
+   set_mctrl(port, mctrl)
+ 	This function sets the modem control lines for port described
+@@ -160,7 +159,6 @@ hardware.
+ 
+ 	Locking: none.
+ 	Interrupts: caller dependent.
+-	This call must not sleep
+ 
+   startup(port)
+ 	Grab any interrupt resources and initialise any low level driver
+@@ -227,7 +225,6 @@ hardware.
+ 
+ 	Locking: none.
+ 	Interrupts: caller dependent.
+-	This call must not sleep
+ 
+   pm(port,state,oldstate)
+ 	Perform any power management related activities on the specified
+-- 
+1.3.3
+
+
+
+-- 
+Luiz Fernando N. Capitulino

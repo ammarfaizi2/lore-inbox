@@ -1,85 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWFHBdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWFHBh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWFHBdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jun 2006 21:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWFHBdZ
+	id S932449AbWFHBh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jun 2006 21:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWFHBh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jun 2006 21:33:25 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:36077 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S932286AbWFHBdY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jun 2006 21:33:24 -0400
-Date: Thu, 8 Jun 2006 03:33:30 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RESEND][PATCH] Script for automated historical Git tree grafting
-Message-ID: <20060608013330.GA24203@pasky.or.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jun 2006 21:37:26 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:42577 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932449AbWFHBh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jun 2006 21:37:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DQSh5zP3WOwXWBg0KWZgtJes82Sl0hp8mu0IeFlCReNJ3GuVG6j00Hn5qMu23ukGmbCuMKQMMuVLYkuymFgclwDLfG0kKhamuMrvJMQ7XDVPwBT5kteNC1lLmpDPS005O4JdAxE9Rzo3LjwmoG/Q/fATmh0DEi3oyO6X0RMV1nU=
+Message-ID: <9e4733910606071837l4e81c975t8d531ed9810af60f@mail.gmail.com>
+Date: Wed, 7 Jun 2006 21:37:25 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Mathieu Desnoyers" <compudj@krystal.dyndns.org>
+Subject: Re: Interrupts disabled for too long in printk
+Cc: linux-kernel@vger.kernel.org, ltt-dev@shafik.org
+In-Reply-To: <20060603111934.GA14581@Krystal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <20060603111934.GA14581@Krystal>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This script enables Git users to easily graft the historical Git tree
-(Bitkeeper history import) to the current history.
+On 6/3/06, Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
+> Hi,
+>
+> I ran some experiments with my kernel tracer (LTTng : http://ltt.polymtl.ca)
+> that showed missing interrupts. I wrote a small paper to show how to use my
+> tracer to solve this kind of problem which I presented at the CE Linux Form
+> last April.
+>
+> http://tree.celinuxforum.org/CelfPubWiki/ELC2006Presentations?action=AttachFile&do=get&target=celf2006-desnoyers.pdf
+>
+> It shows that, when the serial console is activated, the following code disables
+> interrupts for up to 15ms. On a system configured with a 250HZ timer (each 4ms),
+> it means that 3 scheduler ticks are lost.
+>
+> In the current git :
+>
+> kernel/printk.c: release_console_sem()
+>
+>         for ( ; ; ) {
+> ----->          spin_lock_irqsave(&logbuf_lock, flags);
+>                 wake_klogd |= log_start - log_end;
+>                 if (con_start == log_end)
+>                         break;                  /* Nothing to print */
+>                 _con_start = con_start;
+>                 _log_end = log_end;
+>                 con_start = log_end;            /* Flush */
+>                 spin_unlock(&logbuf_lock);
+>                 call_console_drivers(_con_start, _log_end);
+> ----->          local_irq_restore(flags);
+>         }
 
-Signed-off-by: Petr Baudis <pasky@suse.cz>
+You can look at this problem from the other direction too. Why is it
+taking 15ms to get between the two points? If IRQs are off how is the
+serial driver getting interrupts to be able to display the message? It
+is probably worthwhile to take a look and see what the serial console
+driver is doing.
 
----
- git-gethistory.sh |   40 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 39 insertions(+), 1 deletion(-)
-
-diff --git a/scripts/git-gethistory.sh b/scripts/git-gethistory.sh
-new file mode 100755
-index 0000000..97b3e78
---- /dev/null
-+++ b/scripts/git-gethistory.sh
-@@ -0,0 +1,39 @@
-+#!/bin/sh
-+#
-+# Graft the development history imported from BitKeeper to the current Git
-+# history tree.
-+#
-+# Note that this will download about 260M.
-+
-+httpget="curl -O -C -"
-+
-+if [ -z "`which curl 2>/dev/null`" ]; then
-+  httpget="wget -c"
-+  if [ -z "`which wget 2>/dev/null`" ]; then
-+    echo "Error: You need to have wget or curl installed so that I can fetch the history." >&2
-+    exit 1
-+  fi
-+fi
-+
-+[ "$GIT_DIR" ] || GIT_DIR=.git
-+if ! [ -d "$GIT_DIR" ]; then
-+  echo "Error: You must run this from the project root (or set GIT_DIR to your .git directory)." >&2
-+  exit 1
-+fi
-+cd "$GIT_DIR"
-+
-+echo "[git-gethistory] Downloading the history"
-+mkdir -p objects/pack
-+cd objects/pack
-+$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-cc3517351ecce3ef7ba010559992bdfc10b7acd4.idx
-+$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-cc3517351ecce3ef7ba010559992bdfc10b7acd4.pack
-+
-+echo "[git-gethistory] Setting up the grafts"
-+cd ../..
-+mkdir -p info
-+# master
-+echo 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 e7e173af42dbf37b1d946f9ee00219cb3b2bea6a >>info/grafts
-+
-+echo "[git-gethistory] Refreshing the dumb server info wrt. new packs"
-+cd ..
-+git-update-server-info
-
+> I guess interrupts are disabled for a good reason (to protect this spinlock for
+> being taken by a nested interrupt handler. One way I am thinking to fix this
+> problem would be to do a spin try lock and fail if it is already taken.
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-Right now I am having amnesia and deja-vu at the same time.  I think
-I have forgotten this before.
+Jon Smirl
+jonsmirl@gmail.com

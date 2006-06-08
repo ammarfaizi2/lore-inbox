@@ -1,84 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWFHPNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWFHPRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbWFHPNt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 11:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWFHPNt
+	id S964856AbWFHPRi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 11:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWFHPRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 11:13:49 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:34516 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S964866AbWFHPNs (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 11:13:48 -0400
-Message-Id: <200606081513.k58FDEUu008334@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-Cc: Ingo Molnar <mingo@elte.hu>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: lockdep wierdness -  was Re: 2.6.17-rc6-mm1
-In-Reply-To: Your message of "Wed, 07 Jun 2006 23:19:57 EDT."
-             <200606080319.k583JvjB004726@turing-police.cc.vt.edu>
-From: Valdis.Kletnieks@vt.edu
-References: <20060607104724.c5d3d730.akpm@osdl.org> <200606072354.41443.rjw@sisk.pl> <20060607221142.GB6287@elte.hu>
-            <200606080319.k583JvjB004726@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1149779594_3152P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 08 Jun 2006 11:13:14 -0400
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 8 Jun 2006 11:17:38 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:19468 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S964856AbWFHPRh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 11:17:37 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 08 Jun 2006 15:17:34.0690 (UTC) FILETIME=[AB54C420:01C68B0E]
+Content-class: urn:content-classes:message
+Subject: Re: Interrupts disabled for too long in printk
+Date: Thu, 8 Jun 2006 11:17:33 -0400
+Message-ID: <Pine.LNX.4.61.0606081107110.31343@chaos.analogic.com>
+In-reply-to: <9e4733910606080738xd44aab3o5ac0d4bda920575d@mail.gmail.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Interrupts disabled for too long in printk
+Thread-Index: AcaLDqtg9d+OhGAPRJaT7mN5QJ5I4g==
+References: <20060603111934.GA14581@Krystal> <9e4733910606071837l4e81c975t8d531ed9810af60f@mail.gmail.com> <20060608023102.GA22022@Krystal> <9e4733910606071935o5f42f581g6392d5a23897fb09@mail.gmail.com> <Pine.LNX.4.61.0606080618520.29263@chaos.analogic.com> <9e4733910606080738xd44aab3o5ac0d4bda920575d@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Cc: "Mathieu Desnoyers" <compudj@krystal.dyndns.org>,
+       <linux-kernel@vger.kernel.org>, <ltt-dev@shafik.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1149779594_3152P
-Content-Type: text/plain; charset=us-ascii
 
-On Wed, 07 Jun 2006 23:19:57 EDT, Valdis.Kletnieks@vt.edu said:
-> >   http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc6-mm1.patch
-> 
-> Seems to be making progress.  With this lockdep-combo, I've been up for
-> 40 minutes without a peep.
+On Thu, 8 Jun 2006, Jon Smirl wrote:
 
-Looks like I spoke too soon.  Caught this while the system was coming
-down for a reboot (fortunately syslogd was still running):
+> On 6/8/06, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+>>
+>> On Wed, 7 Jun 2006, Jon Smirl wrote:
+>>
+>>> On 6/7/06, Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
+>>>> * Jon Smirl (jonsmirl@gmail.com) wrote:
+>>>>> You can look at this problem from the other direction too. Why is it
+>>>>> taking 15ms to get between the two points? If IRQs are off how is the
+>>>>> serial driver getting interrupts to be able to display the message? It
+>>>>> is probably worthwhile to take a look and see what the serial console
+>>>>> driver is doing.
+>>>>
+>>>> Hi John,
+>>>>
+>>>> The serial port is configured at 38000 bauds. It can therefore transmit 4800
+>>>> bytes per seconds, for 72 characters in 15 ms. So the console driver would be
+>>>> simply busy sending characters to the serial port during that interrupt
+>>>> disabling period.
+>>>
+>>> Why can't the serial console driver record the message in a buffer at
+>>> the point where it is being called with interrupts off, and then let
+>>> the serial port slowly print it via interupts? It sounds to me like
+>>> the serial port is being driven in polling mode.
+>>>
+>>>>
+>>>> Mathieu
+>>>>
+>>>> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+>>>> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68
+>>
+>> Probably because there is no buffer that is big enough! If the character
+>> source (a call to printk()) can generate N characters per second, but
+>> the UART can only send out N-1, then the buffer will fill up at which
+>> time software will wait until the UART is ready for the next character,
+>> effectively becoming poll-mode with a buffer full of characters as
+>> backlog.
+>
+> That sounds like a reasonable explanation if that is what is actually
+> happening.  Does the serial console driver revert to a polling
+> behavior when interrupts are off?
 
-[10155.405000] stopped custom tracer.
-[10155.405000] BUG: warning at kernel/lockdep.c:2431/check_flags()
-[10155.405000]  [<c010316f>] show_trace_log_lvl+0x54/0xfd
-[10155.405000]  [<c01036e0>] show_trace+0xd/0x10
-[10155.405000]  [<c010377d>] dump_stack+0x19/0x1b
-[10155.405000]  [<c0129a70>] check_flags+0x98/0x1f1
-[10155.405000]  [<c012c3a4>] lock_release+0x1e/0x369
-[10155.405000]  [<c036ddbf>] _spin_unlock_bh+0x16/0x32
-[10155.405000]  [<c0324f2e>] igmpv3_clear_delrec+0x9e/0xc6
-[10155.405000]  [<c03268ca>] ip_mc_down+0x8e/0xa1
-[10155.405000]  [<c032253b>] inetdev_event+0x137/0x289
-[10155.405000]  [<c036fb17>] notifier_call_chain+0x20/0x31
-[10155.405000]  [<c0120547>] raw_notifier_call_chain+0x8/0xa
-[10155.405000]  [<c02ed984>] dev_close+0x5f/0x64
-[10155.405000]  [<c02ed187>] dev_change_flags+0x51/0xf1
-[10155.405000]  [<c0322c47>] devinet_ioctl+0x23a/0x557
-[10155.405000]  [<c03235d6>] inet_ioctl+0x73/0x91
-[10155.405000]  [<c02e475d>] sock_ioctl+0x1a7/0x1cc
-[10155.405000]  [<c016d642>] do_ioctl+0x22/0x67
-[10155.405000]  [<c016d8db>] vfs_ioctl+0x254/0x267
-[10155.405000]  [<c016d935>] sys_ioctl+0x47/0x72
-[10155.405000]  [<c036e5c3>] syscall_call+0x7/0xb
-[10155.405000] irq event stamp: 3577
-[10155.405000] hardirqs last  enabled at (3575): [<c0118ebc>] local_bh_enable_ip+0xd7/0x104
-[10155.405000] hardirqs last disabled at (3577): [<c036e485>] ret_from_exception+0x9/0xc
-[10155.405000] softirqs last  enabled at (3574): [<c0324ebc>] igmpv3_clear_delrec+0x2c/0xc6
-[10155.405000] softirqs last disabled at (3576): [<c036db93>] _spin_lock_bh+0xb/0x37
+The last serial I/O that I looked at while attempting to fix a problem
+with a ppp link, will normally sleep until there is room in the output
+buffer. This makes everything work smoothly when doing normal I/O
+using RS-232C. However, the serial console can't sleep when being
+fed from interrupt context, so there are likely some compromises.
 
+Right now, I have to take a work-break so I can't look at it, but
+I would suggest that it is illegal, immoral, and fattening to do
+printk() from interrupt context anyway, so you will not find anybody
+who will "fix" the problem. Printk() is already buffered, but there
+is only so much one can do when you can generate characters faster
+than you can possibly dispose of them, especially from within an
+interrupt or otherwise when the interrupts are off.
 
---==_Exmh_1149779594_3152P
-Content-Type: application/pgp-signature
+>
+> What should the console do in this situation? If called to printk with
+> interrupts off, and the backlog buffer is full, should it suspend the
+> system like it is doing, or should it toss the printk and return an
+> error?
+>
+> --
+> Jon Smirl
+> jonsmirl@gmail.com
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-iD8DBQFEiD6KcC3lWbTT17ARAn/dAKDW0uvbC/INHOYF07B3isUnuNtjJgCg24wP
-t2Wx7lWECLuKyh/dqbNTIYQ=
-=oPNT
------END PGP SIGNATURE-----
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
---==_Exmh_1149779594_3152P--
+Thank you.

@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWFHVuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWFHVwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbWFHVuX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 17:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWFHVuX
+	id S965028AbWFHVwA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 17:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWFHVwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 17:50:23 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:63645 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S964987AbWFHVuW (ORCPT
+	Thu, 8 Jun 2006 17:52:00 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:32462 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S965028AbWFHVv7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 17:50:22 -0400
-Subject: Re: [linux-usb-devel] [PATCH] limit power budget on spitz
-From: Richard Purdie <rpurdie@rpsys.net>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, Pavel Machek <pavel@suse.cz>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, lenz@cs.wisc.edu,
-       David Liontooth <liontooth@cogweb.net>,
-       Oliver Neukum <oliver@neukum.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200606081440.43840.david-b@pacbell.net>
-References: <447EB0DC.4040203@cogweb.net>
-	 <200606081338.07489.david-b@pacbell.net>
-	 <1149801774.11412.22.camel@localhost.localdomain>
-	 <200606081440.43840.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 22:49:24 +0100
-Message-Id: <1149803365.11412.28.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jun 2006 17:51:59 -0400
+Message-Id: <200606082151.k58LpTq7007519@laptop11.inf.utfsm.cl>
+To: Sascha Nitsch <Sash_lkl@linuxhowtos.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Idea about a disc backed ram filesystem 
+In-Reply-To: Message from Sascha Nitsch <Sash_lkl@linuxhowtos.org> 
+   of "Thu, 08 Jun 2006 22:33:13 +0200." <200606082233.13720.Sash_lkl@linuxhowtos.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Thu, 08 Jun 2006 17:51:28 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 08 Jun 2006 17:51:31 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-08 at 14:40 -0700, David Brownell wrote:
-> Right.  OHCI was just an example though ... there are lots of other
-> platform drivers for PXA.  I'm not sure they all check for platform_data
-> before succeeding in their probe() methods.
-
-The implementations in mainline generally use all the bits or they'd
-have been fixed by now so its not really a problem. I'm sure Russell
-would take patches :)
-
-> > The easiest solution might be to move the ohci device registration into
-> > pxa_set_ohci_info (in pxa27x.c). I gave in and appended a patch (compile
-> > tested only so far).
+Sascha Nitsch <Sash_lkl@linuxhowtos.org> wrote:
+> this is (as of this writing) just an idea.
 > 
-> Looked OK to me.
-> 
-> That's the kind of approach now used with OMAP and AT91, and which IMO
-> would be appropriate to use for most platform devices ... that is, don't
-> register devices that the board doesn't have.  One additional nuance:  if
-> the kernel doesn't have that driver configured, that's another reason not
-> to bother registering its device.
+> === current state ===
+> Currently we have ram filesystems (like tmpfs) and disc based file systems
+> (ext2/3, xfs, <insert your fav. fs>).
 
-This is where you start to add ugly ifdefs and generally start making
-the code look horrible. The device model separated the drivers and the
-devices to deal with this issue as I see it. Generally I'd say its
-cleaner just to let the device register, then if a module comes along at
-some later point, the device is there for it.
+Right.
 
-Cheers,
+> tmpfs is extremely fast but suffers from data losses from restarts, crashes
+> and power outages.
 
-Richard
+Part of the design tradeoffs.
 
+>                    Disc access is slow against a ram based fs.
+
+On-disk filesystems (and block device handling) are designed around that
+fact.
+
+> === the idea ===
+> My idea is to mix them to the following hybrid:
+> - mount the new fs over an existing dir as an overlay
+> - all files overlayed are still accessible
+> - after the first read, the file stays in memory (like a file cache)
+> - all writes are flushed out to the underlying fs (maybe done async)
+> - all reads are always done from the memory cache unless they are not cached
+>   yet
+> - the cache stays until the partition is unmounted
+> - the maximum size of the overlayed filesystem could be physical ram/2 (like tmpfs)
+
+But the current on.disk filesystems use caching of data in RAM extensively,
+/without/ having to keep the whole file in memory, just the pieces
+currently in active use. Your proposal negates the RAM for caches, so it
+would be much /slower/ than the current on-disk filesystems.
+
+BTW, many of the live-CD distributions do exactly this (RAM overlay over a
+CD-based filesystem).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

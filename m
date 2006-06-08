@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWFHXMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWFHXXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965044AbWFHXMl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 19:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWFHXMl
+	id S965042AbWFHXXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 19:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWFHXXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 19:12:41 -0400
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:2211 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S965044AbWFHXMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 19:12:40 -0400
-Date: Thu, 8 Jun 2006 19:07:44 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.16.18 kernel freezes while pppd is exiting
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606081909_MC3-1-C1F0-8B6B@compuserve.com>
+	Thu, 8 Jun 2006 19:23:16 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:43920 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S965042AbWFHXXP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 19:23:15 -0400
+Message-ID: <4488B159.2070806@cmu.edu>
+Date: Thu, 08 Jun 2006 19:23:05 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060529)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: what processor family does intel core duo L2400 belong to?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <448893DD.7010207@microgate.com>
+Hi,
 
-On Thu, 08 Jun 2006 16:17:17 -0500, Paul Fulghum wrote:
+I am configuring the 2.6.17 kernel for a new thinkpad x60s, and I am 
+wondering what processor family to select.  The processor is an Intel 
+Core Duo L2400, and the gcc people suggested using the prescott march 
+for cflags.  It is *not* a celeron.
 
-> > Very infrequently I get kernel freezes while pppd is exiting.
-> > Today I finally got traces from the serial console.
-> 
-> Chuck:
-> 
-> What kind of device are you using with pppd?
-> (so I can identify which driver is feeding
-> the tty layer receive data)
+My guess is the "Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon" family, 
+but maybe someone has a different opinion or can support it.
 
-Just a regular 16550A port at 57600 baud using the 8250 driver.
+Here is the /proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 14
+model name	: Genuine Intel(R) CPU           L2400  @ 1.66GHz
+stepping	: 8
+cpu MHz		: 1662.571
+cache size	: 2048 KB
+physical id	: 0
+siblings	: 2
+core id		: 0
+cpu cores	: 2
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 10
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
+pat clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx pni monitor vmx 
+est tm2 xtpr
+bogomips	: 3331.72
 
-> Are you setting the low_latency flag on that device?
-> (setserial)
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 14
+model name	: Genuine Intel(R) CPU           L2400  @ 1.66GHz
+stepping	: 8
+cpu MHz		: 1662.571
+cache size	: 2048 KB
+physical id	: 0
+siblings	: 2
+core id		: 1
+cpu cores	: 2
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 10
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
+pat clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx pni monitor vmx 
+est tm2 xtpr
+bogomips	: 3325.15
 
-Not that I know of.
-
--- 
-Chuck
-
+Thanks!
+George

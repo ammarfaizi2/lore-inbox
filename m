@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWFHFes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWFHFpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbWFHFes (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 01:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWFHFes
+	id S932523AbWFHFpI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 01:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWFHFpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 01:34:48 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:39237 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932510AbWFHFes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 01:34:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=UF6byPJ7iFaZOgSs+5/06CQzFBtmZgORal8zkS6FI2p6XazjL6pbHWZQnb8ReFd2gjmRCp7qT0DLic72R+B3tlnSbvvgXeBE4COGQJpAj1456AiLuRJhF4efbK+VbTnEKXe73KIazX1rPexMnDfvRP9p/uM543aBB/4kdOYJlSk=
-Message-ID: <4487B83E.4090009@gmail.com>
-Date: Thu, 08 Jun 2006 01:40:14 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 8 Jun 2006 01:45:08 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:34521 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932523AbWFHFpF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 01:45:05 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] use unlikely() for current_kernel_time() loop
+Date: Thu, 8 Jun 2006 07:39:33 +0200
+User-Agent: KMail/1.9.3
+Cc: adilger@clusterfs.com, linux-kernel@vger.kernel.org
+References: <20060607173642.GA6378@schatzie.adilger.int> <p73ejy0tm83.fsf@verdi.suse.de> <20060607220118.f0c64086.akpm@osdl.org>
+In-Reply-To: <20060607220118.f0c64086.akpm@osdl.org>
 MIME-Version: 1.0
-To: ericvh@gmail.com, rminnich@lanl.gov, lucho@ionkov.net
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] 9pfs: missing result check in v9fs_vfs_readlink() and v9fs_vfs_link()
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606080739.33967.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__getname() may fail and return NULL (as pointed out by Coverity 437 &
-1220).
+On Thursday 08 June 2006 07:01, Andrew Morton wrote:
+> On 08 Jun 2006 04:28:12 +0200
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > Andreas Dilger <adilger@clusterfs.com> writes:
+> > 
+> > > Hello,
+> > > I just noticed this minor optimization.  current_kernel_time() is called
+> > > from current_fs_time() so it is used fairly often but it doesn't use
+> > > unlikely(read_seqretry(&xtime_lock, seq)) as other users of xtime_lock do.
+> > > Also removes extra whitespace on the empty line above.
+> > 
+> > It would be better to put the unlikely into the read_seqretry I guess.
+> > 
+> 
+> yup.  But it'd be good to check that this actually causes the compiler to
+> do the right thing, rather than simply ignoring it.
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
+If it was put into a macro wrapper it should be safe enough.
 
- fs/9p/vfs_inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+> 
+> I'm not sure how one would do that though.  I guess compare
+> before-and-after assembly code, work out if "after" is better.
 
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
-index 2cb87ba..8e60dc7 100644
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -1054,6 +1054,9 @@ static int v9fs_vfs_readlink(struct dent
- 	int ret;
- 	char *link = __getname();
- 
-+	if (unlikely(!link))
-+		return -ENOMEM;
-+
- 	if (buflen > PATH_MAX)
- 		buflen = PATH_MAX;
- 
-@@ -1227,6 +1230,9 @@ v9fs_vfs_link(struct dentry *old_dentry,
- 	}
- 
- 	name = __getname();
-+	if (unlikely(!name))
-+		return -ENOMEM;
-+
- 	sprintf(name, "%d\n", oldfid->fid);
- 	retval = v9fs_vfs_mkspecial(dir, dentry, V9FS_DMLINK, name);
- 	__putname(name);
+Nothing on x86-64 at least - it uses -fno-reorder-blocks by default.
 
+-Andi
 

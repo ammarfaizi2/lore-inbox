@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWFHUAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWFHUBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbWFHUAf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 16:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWFHUAf
+	id S964959AbWFHUBk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 16:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWFHUBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 16:00:35 -0400
-Received: from www.tglx.de ([213.239.205.147]:49383 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S964957AbWFHUAe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 16:00:34 -0400
-Subject: Re: 2.6.17-rc6-rt1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: john stultz <johnstul@us.ibm.com>
-Cc: Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Deepak Saxena <dsaxena@plexity.net>
-In-Reply-To: <1149796339.4266.114.camel@cog.beaverton.ibm.com>
-References: <20060607211455.GA6132@elte.hu>
-	 <1149756709.11429.5.camel@Homer.TheSimpsons.net>
-	 <1149796339.4266.114.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 22:01:10 +0200
-Message-Id: <1149796871.5257.85.camel@localhost.localdomain>
+	Thu, 8 Jun 2006 16:01:40 -0400
+Received: from aa003msr.fastwebnet.it ([85.18.95.66]:11234 "EHLO
+	aa003msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S964959AbWFHUBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 16:01:39 -0400
+Date: Thu, 8 Jun 2006 21:59:35 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: BUG: warning at kernel/lockdep.c:2427/check_flags()
+Message-ID: <20060608215935.37c52bff@localhost>
+In-Reply-To: <20060608213809.101161b0@localhost>
+References: <20060608213809.101161b0@localhost>
+X-Mailer: Sylpheed-Claws 2.3.0-rc3 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-08 at 12:52 -0700, john stultz wrote:
+On Thu, 8 Jun 2006 21:38:09 +0200
+Paolo Ornati <ornati@fastwebnet.it> wrote:
 
-> This fix from Andrew's tree was missed:
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/broken-out/hangcheck-remove-monotomic_clock-on-x86.patch
+> After some hours running 2.6.17-rc6-mm1 + combo-patch I've got this:
 > 
+> [12138.880686] BUG: warning at kernel/lockdep.c:2427/check_flags()
+> [12138.880692]
+> [12138.880693] Call Trace:
+> [12138.880702]  [<ffffffff80240374>] check_flags+0x86/0x201
+> [12138.880707]  [<ffffffff80240873>] lock_acquire+0x2f/0xa3
+> [12138.880713]  [<ffffffff8025fcae>] sys_munmap+0x5e/0xa7
+> [12138.880719]  [<ffffffff8020944e>] system_call+0x7e/0x83
+> [12138.880723]
+> [12138.880725] irq event stamp: 18146
+> [12138.880728] hardirqs last  enabled at (18145): [<ffffffff8049dffc>] _spin_unlock_irq+0x28/0x50
+> [12138.880734] hardirqs last disabled at (18146): [<ffffffff8049d61e>] trace_hardirqs_off_thunk+0x35/0x67
+> [12138.880742] softirqs last  enabled at (18112): [<ffffffff8022c1ae>] __do_softirq+0xb2/0xba
+> [12138.880748] softirqs last disabled at (18105): [<ffffffff8020a2c2>] call_softirq+0x1e/0x28
+> 
+> 
+> I don't know if/how it is reproducible.
 
-Thanks, it's also missing in hrt. I put it there and update -rt then.
+Wow, now I can reproduce it easly :)
 
-	tglx
+Just run under "gdb" a program that segfaults:
 
+void main(void)
+{
+        *(int*)(0) = 1;
+}
 
+and it will trigger.
+
+-- 
+	Paolo Ornati
+	Linux 2.6.17-rc6-mm1-lockdep on x86_64

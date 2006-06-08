@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWFHXu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWFIAAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWFHXu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 19:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWFHXu6
+	id S964782AbWFIAAW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 20:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWFIAAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 19:50:58 -0400
-Received: from wx-out-0102.google.com ([66.249.82.207]:34756 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964875AbWFHXu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 19:50:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=XgGrpCm+vtO8YBFsSiSPKbPXuhRWRj9xNR3ZTq5eqg2WDk72H2I2R44OmE1wIUqTb7FZZePNN/cAnfMQTcwnjG8Zb0p2fYdA1dZqYYE5s/6x6qhRYXZVTT+Li8QmxVbvo0ahnrgXYhPnWhlWR+6pDMu6Wh4smMog0Hi7Nzh2e+4=
-Message-ID: <986ed62e0606081650k227c948dy2c675bedd7a254fa@mail.gmail.com>
-Date: Thu, 8 Jun 2006 16:50:51 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "George Nychis" <gnychis@cmu.edu>
-Subject: Re: what processor family does intel core duo L2400 belong to?
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4488B159.2070806@cmu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 8 Jun 2006 20:00:22 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:20968 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964782AbWFIAAW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 20:00:22 -0400
+Subject: Re: 2.6.17-rc6-rt1
+From: john stultz <johnstul@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Martin Murray <mmurray@vmware.com>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20060607211455.GA6132@elte.hu>
+References: <20060607211455.GA6132@elte.hu>
+Content-Type: text/plain
+Date: Thu, 08 Jun 2006 16:57:46 -0700
+Message-Id: <1149811066.4266.127.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4488B159.2070806@cmu.edu>
-X-Google-Sender-Auth: 3e39870571e88d8e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/06, George Nychis <gnychis@cmu.edu> wrote:
-> My guess is the "Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon" family,
-> but maybe someone has a different opinion or can support it.
->
-> Here is the /proc/cpuinfo:
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 14
-[snip]
+On Wed, 2006-06-07 at 23:14 +0200, Ingo Molnar wrote:
+> if we accidentally dropped some fix in the process then please complain. 
+> x86 and x86_64 build and boot, but some initial rough edges are to be 
+> expected. Deepak, your ARM-GTOD patches are included but not tested yet.
 
-"Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon" are all family 15, not family 6.
+Ingo,
+	This fix will be needed in 2.6.17-rc6-rt1, as it includes the x86-64
+TOD conversion (not yet in -mm).
 
-I have a Pentium M, it's family 6 model 13. Also, AFAIK the Intel Core
-is based on the Pentium M (which in turn is based on Pentium III). So,
-my personal best guess would be to choose "Pentium M".
+I accidentally used the kernel-mapped vsyscall_gtod_data value, 
+rather then the user-mapped __vsyscall_gtod_data value in do_get_tz.
 
-Unfortunately, I don't have one of these (Intel Core) at this point,
-so I can't test it myself...
--- 
--Barry K. Nathan <barryn@pobox.com>
+This would cause gettimeofday to segfault when using a non-null 
+timezone pointer.
+
+Many thanks to Martin Murray, who pointed out this issue and its fix.
+
+thanks
+-john
+
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
+
+diff --git a/arch/x86_64/kernel/vsyscall.c b/arch/x86_64/kernel/vsyscall.c
+index 98692a4..0bda23b 100644
+--- a/arch/x86_64/kernel/vsyscall.c
++++ b/arch/x86_64/kernel/vsyscall.c
+@@ -125,7 +125,7 @@ static __always_inline void do_vgettimeo
+ /* RED-PEN may want to readd seq locking, but then the variable should be write-once. */
+ static __always_inline void do_get_tz(struct timezone * tz)
+ {
+-	*tz = vsyscall_gtod_data.sys_tz;
++	*tz = __vsyscall_gtod_data.sys_tz;
+ }
+ 
+ static __always_inline int gettimeofday(struct timeval *tv, struct timezone *tz)
+
+

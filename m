@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWFITAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWFITB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWFITAU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWFITAU
+	id S1030402AbWFITB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWFITB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:00:20 -0400
-Received: from relay03.pair.com ([209.68.5.17]:16395 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1030209AbWFITAR (ORCPT
+	Fri, 9 Jun 2006 15:01:26 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:45207 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030399AbWFITBZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:00:17 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Fri, 9 Jun 2006 14:00:15 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
+	Fri, 9 Jun 2006 15:01:25 -0400
+Message-ID: <4489C580.7080001@garzik.org>
+Date: Fri, 09 Jun 2006 15:01:20 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
 To: Chase Venters <chase.venters@clientec.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
-       Andreas Dilger <adilger@clusterfs.com>, Jeff Garzik <jeff@garzik.org>,
-       Andrew Morton <akpm@osdl.org>,
+CC: Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
+       Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
        ext2-devel <ext2-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org, cmm@us.ibm.com,
        linux-fsdevel@vger.kernel.org
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org> <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org> <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org> <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>
 In-Reply-To: <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>
-Message-ID: <Pine.LNX.4.64.0606091356340.5541@turbotaz.ourhouse>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
- <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int>
- <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
- <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net>
- <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
- <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org>
- <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
- <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jun 2006, Chase Venters wrote:
+Chase Venters wrote:
+> Now, granted, I really do agree with you about the whole code sharing 
+> thing. A fresh start is often just what you need. I'm just questioning 
+> if it wouldn't be better to do this fresh start immediately after going 
+> 48-bit, rather than before. That way, existing users that want that 
+> extra umph can have it today.
 
-> On Fri, 9 Jun 2006, Linus Torvalds wrote:
->
->> 
->>
->>  On Fri, 9 Jun 2006, Alex Tomas wrote:
->> > 
->> >  would "#if CONFIG_EXT3_EXTENTS" be a good solution then?
->>
->>  Let's put it this way:
->>  - have you had _any_ valid argument at all against "ext4"?
->>
->>  Think about it. Honestly. Tell me anything that doesn't work?
->
-> Now, granted, I really do agree with you about the whole code sharing thing. 
-> A fresh start is often just what you need. I'm just questioning if it 
-> wouldn't be better to do this fresh start immediately after going 48-bit, 
-> rather than before. That way, existing users that want that extra umph can 
-> have it today.
->
+Then you continue to crap up the code with
 
-Let me clarify that I don't have a final answer or opinion for whether or 
-not 48-bit belongs in ext3 or ext4. But I'm trying to illustrate that it's an 
-important question to raise.
+	if (48bit)
+		...
+	else
+		...
 
-In Group A we have some number of users that must have 48-bit support by 
-Date B. 48-bit support could be available in ext3 by Date A, before Date 
-B. It could also be available in ext4 by Date X, along with a handful of 
-other features.
+etc.
 
-Is Date X before Date B? If it's not, is it worth telling Group A to 
-suffer for a while, or asking them to use ext4 before it's ready? These 
-are the questions I'd have to know the answers to if I were the one 
-casting a final decision.
+The proper way to do this is "cp -a ext3 ext4" (excluding JBD as Andrew 
+mentioned), and then let evolution take its course.
+
+"Evolution" means the standard Linux developement -- patch the kernel, 
+patch e4fsprogs, test, lather rinse repeat.  The best development 
+platform for new features is one that _works_, and keeps working.
+
+	Jeff
+
+

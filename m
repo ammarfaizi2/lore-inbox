@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965281AbWFIP4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWFIPzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965281AbWFIP4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWFIPz4
+	id S1030244AbWFIPzt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWFIPzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:55:56 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35816 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030246AbWFIPzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:55:53 -0400
-Message-ID: <44899A05.4070106@sgi.com>
-Date: Fri, 09 Jun 2006 08:55:49 -0700
-From: Chris Sturtivant <csturtiv@sgi.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Fri, 9 Jun 2006 11:55:49 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58596 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030245AbWFIPzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:55:47 -0400
+Date: Fri, 9 Jun 2006 08:55:22 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, hugh@veritas.com, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, ak@suse.de, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 06/14] Add per zone counters to zone node and global VM
+ statistics
+In-Reply-To: <20060608210101.155e8d4f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606090855050.31570@schroedinger.engr.sgi.com>
+References: <20060608230239.25121.83503.sendpatchset@schroedinger.engr.sgi.com>
+ <20060608230310.25121.77780.sendpatchset@schroedinger.engr.sgi.com>
+ <20060608210101.155e8d4f.akpm@osdl.org>
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: Jay Lan <jlan@sgi.com>, Balbir Singh <balbir@in.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>
-In-Reply-To: <44892610.6040001@watson.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 8 Jun 2006, Andrew Morton wrote:
 
-Shailabh Nagar wrote:
-> Jay, Chris, Could you check if this patch does the needful ?
-> Its tested and runs fine for me. A quick response would be appreciated 
-> so that it can be included in -mm before the 2.6.18 merge window begins.
->
-> I decided against adding the configuration to the taskstats interface 
-> directly (as another command) since the sysfs solution
-> is much simpler and the configuration operation is infrequent.
->
-> Balbir, all, comments welcome.
->
-> --Shailabh
->
->
-Unfortunately, I'm currently battling some build problems, so hopefully 
-Jay will be able to take a look through it today.
+> > +char *vm_stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache" };
+> 
+> static?
 
-Best regards,
+It is accessed from driver/base/node.c.
 
-
---Chris
-
--- 
------------------------------------------------------------------
-Chris Sturtivant, PhD,
-Linux System Software,
-SGI
-(650) 933-1703
------------------------------------------------------------------
 

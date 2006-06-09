@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWFIFuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWFIFvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965225AbWFIFuu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 01:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWFIFut
+	id S965223AbWFIFvT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 01:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWFIFvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 01:50:49 -0400
-Received: from mx1.suse.de ([195.135.220.2]:36550 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965221AbWFIFut (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 01:50:49 -0400
-From: Andi Kleen <ak@suse.de>
-To: David Miller <davem@davemloft.net>
-Subject: Re: Using netconsole for debugging suspend/resume
-Date: Fri, 9 Jun 2006 07:50:25 +0200
-User-Agent: KMail/1.9.3
-Cc: auke-jan.h.kok@intel.com, jeremy@goop.org, mpm@selenic.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <20060608210702.GD24227@waste.org> <4489038C.3050901@intel.com> <20060608.222352.59657133.davem@davemloft.net>
-In-Reply-To: <20060608.222352.59657133.davem@davemloft.net>
+	Fri, 9 Jun 2006 01:51:18 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:28327 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S965223AbWFIFvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 01:51:17 -0400
+Message-ID: <44890C0A.1000005@jp.fujitsu.com>
+Date: Fri, 09 Jun 2006 14:50:02 +0900
+From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Peter Williams <peterw@aurema.com>
+Cc: Peter Williams <pwil3058@bigpond.net.au>, Kirill Korotaev <dev@openvz.org>,
+       Srivatsa <vatsa@in.ibm.com>, CKRM <ckrm-tech@lists.sourceforge.net>,
+       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Sam Vilain <sam@vilain.net>,
+       Kingsley Cheung <kingsley@aurema.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, Rene Herman <rene.herman@keyaccess.nl>,
+       MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Subject: Re: [ckrm-tech] [RFC 0/4] sched: Add CPU rate caps (improved)
+References: <20060606023708.2801.24804.sendpatchset@heathwren.pw.nest>	<448688B2.2030206@jp.fujitsu.com>	<4487D6B0.3080502@bigpond.net.au> <4488C765.2050108@aurema.com>
+In-Reply-To: <4488C765.2050108@aurema.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606090750.25067.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 June 2006 07:23, David Miller wrote:
-> From: Auke Kok <auke-jan.h.kok@intel.com>
-> Date: Thu, 08 Jun 2006 22:13:48 -0700
+Peter Williams wrote:
 > 
-> > netconsole should retry. There is no timeout programmed here since that might
-> > lose important information, and you rather want netconsole to survive an odd
-> > unplugged cable then to lose vital debugging information when the system is
-> > busy for instance. (losing link will cause the interface to be down and thus
-> > the queue to be stopped)
+> I've done some informal testing with smaller values of CAP_STATS_OFFSET 
+> and there is only a minor improvement.
 > 
-> I completely disagree that netpoll should loop when the ethernet
-> cable is plugged out. 
+> However, something that does improve behaviour for short lived tasks is 
+> to increase the value of HZ.  This is because the basic unit of CPU
+> allocation by the scheduler is 1/HZ and this is also the minimum time 
+> (and granularity) with which sinbinning and other capping measures can 
+> be implemented.  This is the fundamental limiting factor for the 
+> accuracy of capping i.e. if everything worked perfectly the best 
+> granularity that can be expected from capping of short lived tasks is 
+> 1000 / (HZ * duration) where duration is in seconds.
 
-Currently it is a bit dumb and doesn't distingush the various cases
-well.
+I already defines CONFIG_HZ=1000. Do you suggest increasing more?
 
-I submitted a patch to loop to be a bit more clever at some point. It can be still
-found in the netdev archives.
+> For longer living tasks, once the initial phase has passed the half life 
+> of the Kalman filters takes over from "HZ * duration" in the above 
+> expression.  Reducing CAP_STATS_OFFSET will shorten the half life of the 
+> filters and this in turn will make capping coarser.  On the other hand, 
+> if the half lives are too big then capping will be too slow in reacting 
+> to changes in a task's CPU usage patterns.  So there's a sweet spot in 
+> there somewhere.  There's also an upper limit imposed by the likelihood 
+> of arithmetic overflow during the calculations and this has to consider 
+> the fact that the average cycle length (one of the metrics) can be quite 
+> long.  The current values was based on these considerations.
+> 
+> Peter
 
--Andi
+Thanks,
+MAEDA Naoaki
+

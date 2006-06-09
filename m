@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbWFIUuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965272AbWFIUvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965221AbWFIUuV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbWFIUuV
+	id S965272AbWFIUvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbWFIUvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:50:21 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:59596 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965221AbWFIUuU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:50:20 -0400
-Message-ID: <4489DF03.6020600@zytor.com>
-Date: Fri, 09 Jun 2006 13:50:11 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Nickolay <nickolay@protei.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: initramfs: who does cat init.sh >> init ?
-References: <4489D93F.7090401@protei.ru> <e6cllv$dnb$1@terminus.zytor.com> <4489DB15.9010506@protei.ru> <4489DC2E.4030004@zytor.com> <4489DE84.309@protei.ru>
-In-Reply-To: <4489DE84.309@protei.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 16:51:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:182 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965253AbWFIUvH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:51:07 -0400
+Date: Fri, 9 Jun 2006 16:50:36 -0400
+From: Dave Jones <davej@redhat.com>
+To: Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
+       Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609205036.GI7420@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
+	Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+	cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+	Andreas Dilger <adilger@clusterfs.com>
+References: <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org> <20060609195750.GD10524@thunk.org> <20060609203803.GF3574@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060609203803.GF3574@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nickolay wrote:
-> 
-> yes, i can't grep init.sh in the kernel tree too, this is because i 
-> start asking...
-> But anyway, the problem is still...
-> 
+On Fri, Jun 09, 2006 at 01:38:03PM -0700, Joel Becker wrote:
+ > that the older code cannot read.  Alex claims people just shouldn't use
+ > "-o extents", but the fact is their distro will choose it for them.
 
-Perhaps you should show more context... what comes around this mysterious invocation in 
-your make V=1 log.  Also your .config would help.
+.. on partitions over a certain size, which couldn't be read with
+older ext3 filesystems _anyway_
 
-	-hpa
+Enabling it by default on partitions of a size less than those
+that need extents seems to be somewhat pointless to me?
+
+Am I missing something fundamental that precludes the use of both
+extent-based and current existing filesystems from the same code
+simultaneously ?
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

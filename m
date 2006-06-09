@@ -1,86 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWFIKHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWFIKIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964904AbWFIKHr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 06:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWFIKHr
+	id S965011AbWFIKIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 06:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWFIKIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 06:07:47 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:30861 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S964904AbWFIKHq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 06:07:46 -0400
-Subject: Re: 2.6.17-rc6-rt1
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-In-Reply-To: <1149842550.7585.27.camel@Homer.TheSimpsons.net>
-References: <20060607211455.GA6132@elte.hu>
-	 <1149842550.7585.27.camel@Homer.TheSimpsons.net>
-Date: Fri, 09 Jun 2006 12:12:30 +0200
-Message-Id: <1149847951.3829.26.camel@frecb000686>
+	Fri, 9 Jun 2006 06:08:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26057 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964853AbWFIKIY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 06:08:24 -0400
+Date: Fri, 9 Jun 2006 03:07:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-Id: <20060609030759.48cd17a0.akpm@osdl.org>
+In-Reply-To: <20060609091327.GA3679@infradead.org>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<20060609091327.GA3679@infradead.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/06/2006 12:11:21,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/06/2006 12:11:22,
-	Serialize complete at 09/06/2006 12:11:22
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-09 at 10:42 +0200, Mike Galbraith wrote:
-> On Wed, 2006-06-07 at 23:14 +0200, Ingo Molnar wrote:
-> > i have released the 2.6.17-rc6-rt1 tree, which can be downloaded from 
-> > the usual place:
+On Fri, 9 Jun 2006 10:13:27 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
+
+> On Thu, Jun 08, 2006 at 06:20:54PM -0700, Mingming Cao wrote:
+> > Current ext3 filesystem is limited to 8TB(4k block size), this is
+> > practically not enough for the increasing need of bigger storage as
+> > disks in a few years (or even now).
 > > 
-> >    http://redhat.com/~mingo/realtime-preempt/
-> > 
-> > the biggest change was the port to 2.6.17-rc6, and the moving to John's 
-> > latest and greatest GTOD queue. Most of the porting was done by Thomas 
-> > Gleixner (thanks Thomas!). We also picked up the freshest genirq queue 
-> > from -mm and the freshest PI-futex patchset. There are also lots of ARM 
-> > fixups and enhancements from Deepak Saxena and Daniel Walker.
+> > To address this need, there are co-effort from RedHat, ClusterFS, IBM
+> > and BULL to move ext3 from 32 bit filesystem to 48 bit filesystem,
+> > expanding ext3 filesystem limit from 8TB today to 1024 PB. The 48 bit
+> > ext3 is build on top of extent map changes for ext3, originally from
+> > Alex Tomas. In short, the new ext3 on-disk extents format is:
 > 
-> I have some fairly strange things going on with this kernel.
+> What a horrible idea!  The nice things about ext3 are:
 > 
-> First of all, during boot, I end up with these two entries.
-> BUG: wq(events) setscheduler() returned: -22.
-> BUG: wq(events) setscheduler() returned: -22.
-> 
-> After boot, it takes a very long time for KDE to finish loading... more
-> than five minutes for the desktop background to finally appear.  Tasks
-> which are doing nothing but a ~50ms gettimeofday() select() idle loop
-> show up in top as using 1 to 3 percent cpu, though strace of these looks
-> fine.  Starting any threaded app takes ages, whereas plain-jane things
-> like gcc work fine.  For example, if I fire up xmms, the gui comes up
-> quickly, but it takes over three minutes from the time I poke play until
-> the first sound is emitted.  Starting evolution takes even longer.
-> 
-> Hoping that something might show up while running glibc-2.4 make check
-> to save me from wading through huge truckloads of strace, I tried it.
-> It repeatedly goes boom.  RT29 goes boom the same way, but doesn't
-> exhibit the slow threaded app symptom.  Drat.
-> 
+>  - the rather simple and thus reliable implementation
 
-  Yep noticed that here too. As you pointed out it seems to be related
-to threaded apps. ls, vi, ... work fine whereas xemacs or others are
-real slow, portmapper fails to respond, ...
+JBD isn't simple.  I don't think there's a need in this project to make
+algorithmic changes in either JBD or htree, thankfully.
 
-  I've got no indication in the logs that something went wrong, nor
-do I see any kernel BUG or WARNING.
+>  - the lack of incompatible ondisk changes
 
-  My box is a dual 2.8GHz HT xeon w/ 2GB mem.
+Ted&co have been pretty good at avoiding compatibility problems.
 
-  rt29 was fine as is 2.6.17-rc6.
+> and the block numbers are't the big problem concerning scalability, there's
+> a lot more to it, like btree(-like) structures in the allocator, parallel
+> alloocator algorithms and a better allocation group concept.
 
-  I feel a bit perplexed here.
+The performance testing results I've seen for a few of the components of
+this project have been rather good, and that's the bottom line.
 
+I don't know how the end result would compare in a bakeoff against XFS, and
+I doubt if we know how much XFS performance would be improved if this
+effort were diverted into that project.
 
-  Sébastien.
+But I don't think it's all as clear-cut as you imply.
 
-  
+> If you guys want big storage on linux please help improving the filesystems
+> design for that, e.g. jfs or xfs instead of showhorning it onto ext3 thus
+> both making ext3 less reliable for us desktop/small server users and not get
+> the full thing for the big storage people either.
 
+There have been pretty big changes in ext3 post-2.6.early and we've been OK
+at avoiding breakage thus far.  It all comes down to how well the new
+codepaths manage to avoid altering the existing ones.
+
+That being said, ext3 isn't exactly ....  modern.  One day we'll need
+something better.

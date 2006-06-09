@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWFIO5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWFIO6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWFIO5y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 10:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWFIO5x
+	id S1030195AbWFIO6u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 10:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWFIO6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 10:57:53 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:8799 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030192AbWFIO5x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 10:57:53 -0400
-Message-ID: <44898BF4.4060509@openvz.org>
-Date: Fri, 09 Jun 2006 18:55:48 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: devel@openvz.org, xemul@openvz.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ebiederm@xmission.com, herbert@13thfloor.at, saw@sw.ru,
-       serue@us.ibm.com, sfrench@us.ibm.com, sam@vilain.net,
-       haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: [PATCH] IPC namespace
+	Fri, 9 Jun 2006 10:58:50 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:34299 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1030195AbWFIO6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 10:58:49 -0400
+Date: Fri, 9 Jun 2006 09:57:57 -0500
+From: Hui Zhou <hzhou@hzsolution.net>
+To: linux-kernel@vger.kernel.org
+Subject: Frustrating Random Reboots, seeking suggestions
+Message-ID: <20060609145757.GB1640@smtp.comcast.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patches in this thread add IPC namespace functionality
-additionally to already included in -mm tree UTS namespace.
+Hi Lists,
 
-This patch set allows to unshare IPCs and have a private set
-of IPC objects (sem, shm, msg) inside namespace. Basically, it is 
-another building block of containers functionality.
+I understand this type of ask for help may be slightly off topic here, 
+but hoping for some clue to my desperation, here it goes:
 
-Tested with LTP inside namespaces.
+I am running a linux machine with a self programmed pvr running on it. 
+All is well until I reinstalled the linux system a few weeks ago. Now 
+I am suffering from random reboots. The reboots does not leave any 
+debug messages or clues. After some isolation, I finally narrowed it 
+down to a blankscene marking program -- bkmark. Running bkmark against 
+any recording randomly reboots the computer. By random, I mean  it may 
+complete sucessfully once, but repeating it for a few times, the 
+reboots will happen.  On average, it reboots every 2 - 3 runs.
 
-Signed-Off-By: Pavel Emelianiov <xemul@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+I am happy with and used to seg faults, which given time, I can 
+debug it. But this random reboots stuff is new to me and I have no 
+clues at all. How and why would a user land program reboots the 
+system?
 
-P.S. patches are against linux-2.6.17-rc6-mm1
+I am running debian stable. Self compiled unpatched kernel 2.6.16.15 
+PREEMPT. Single Pentium 2.8GHz on Intel 865P motherboard. bkmark uses 
+libmpeg2 shared library. The source code is 471 lines, availible on 
+request. The same program runs without problem on the system before 
+(debian unstable) and even before (debian stable, but that was 5 months 
+ago) and even with the same kernel (2.6.14.6, I updated the kernel 
+after this problem occured).
 
+More info is availible but I felt it may be inapprorate to post here 
+and honestly I have no clue which info is relavant. Any suggestions 
+or clues or advices on how to debug or narrow down the cause are very 
+appreciated.
+
+Thank you.
+
+-- 
+Hui Zhou

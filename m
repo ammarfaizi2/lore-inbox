@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWFISB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWFISCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030336AbWFISB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWFISB4
+	id S1030342AbWFISCw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWFISCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:01:56 -0400
-Received: from smarthost1.sentex.ca ([64.7.153.18]:28649 "EHLO
-	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
-	id S1030336AbWFISBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:01:55 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Russell King'" <rmk+lkml@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: serial_core: verify_port() in wrong spot?
-Date: Fri, 9 Jun 2006 13:59:13 -0400
-Organization: Connect Tech Inc.
-Message-ID: <093501c68bee$6aef1ad0$294b82ce@stuartm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 9 Jun 2006 14:02:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39815 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030338AbWFISCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 14:02:50 -0400
+Date: Fri, 9 Jun 2006 11:02:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: alex@clusterfs.com, jeff@garzik.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, adilger@clusterfs.com
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-Id: <20060609110236.c342e28c.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<4488E1A4.20305@garzik.org>
+	<20060609083523.GQ5964@schatzie.adilger.int>
+	<44898EE3.6080903@garzik.org>
+	<448992EB.5070405@garzik.org>
+	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+	<m33beecntr.fsf@bzzz.home.net>
+	<Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <20060609162320.GA11997@flint.arm.linux.org.uk>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Russell King [rmk@arm.linux.org.uk]
-> I'd rather verify_port didn't get used for that - it's purpose is to
-> validate changes the admin makes to the port.
+On Fri, 9 Jun 2006 09:25:57 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-I did figure out that's what it's currently used as, but I didn't want
-to introduce a whole new call just to verify that the UART has 9bit
-capability.
+> (buffer heads! In 2006!)
 
-Why aren't user changes validated?
+We should be able to make the vast majority of those go away, btw.
 
-> I don't know why you think that setting 9bit mode should be done this
-> way rather than through the usual termios methods - the 
-> termios methods
-> already have a way to control the length of each character, 
-> so it would
-> seem logical to put the control in there.
+We already have `-o data=writeback,nobh'.  That gives us writeback-mode
+with no buffer_heads on the pagecache.
 
-9bit mode is much more than just words of 9 bit length. Parity is
-gone, replaced by the 9th bit; reads and writes have to treat the
-buffers driver-side buffers as 16 bit-wide instead of 8-bit; reads and
-writes to the hardware are correspondingly different; there are new
-interrupts; software flow control is gone; there's special address
-matching and a new ioctl to set that up.
+On top of that we can implement nobh ordered-mode by adding an inode walk
+which calls do_sync_file_range() into the appropriate place in commit.
 
-It seemed easier to create a new mode of operation based on the
-UPF_9BIT flag; using the CS9 flag doesn't imply any of the above
-except for 9 bit length.
+The tricky part is the inode walk - at present super_block.s_list is a
+list_head and it's not trivial to walk that without missing some inodes.
 
-However, I'm open to having my mind changed.
+Probably it could be done via a new fs-private dirty-inode list which we
+hande carefully, or via a walk of an i_ino-ordered radix-tree, which
+doesn't miss things.
 
-..Stu
-
+I floated this a year or so ago, but no little fishies bit.

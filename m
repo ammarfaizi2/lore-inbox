@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWFITYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWFITYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030446AbWFITYG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030445AbWFITYF
+	id S1030429AbWFITYn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWFITYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:24:05 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:57242 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030442AbWFITYD (ORCPT
+	Fri, 9 Jun 2006 15:24:42 -0400
+Received: from rtr.ca ([64.26.128.89]:5043 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1030427AbWFITYl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:24:03 -0400
-Message-ID: <4489CACE.5080701@garzik.org>
-Date: Fri, 09 Jun 2006 15:23:58 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 15:24:41 -0400
+Message-ID: <448992B7.1050906@rtr.ca>
+Date: Fri, 09 Jun 2006 11:24:39 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Alex Tomas <alex@clusterfs.com>
-CC: Mike Snitzer <snitzer@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       hch@infradead.org, cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org>	<20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org>	<20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org>	<20060609103543.52c00c62.akpm@osdl.org> <4489B452.4050100@garzik.org>	<4489B719.2070707@garzik.org>	<170fa0d20606091127h735531d1s6df27d5721a54b80@mail.gmail.com>	<4489C3D5.4030905@garzik.org> <m3odx26snk.fsf@bzzz.home.net>
-In-Reply-To: <m3odx26snk.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andi Kleen <ak@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Matt Mackall <mpm@selenic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Re: Using netconsole for debugging suspend/resume
+References: <44886381.9050506@goop.org> <200606090546.15923.ak@suse.de>
+In-Reply-To: <200606090546.15923.ak@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
-> what if proposed patch is safer than an average fix?
-> (given that it's just out of usage unless enabled)
+Andi Kleen wrote:
+> 
+> If your laptop has firewire you can also use firescope.
+> (ftp://ftp.suse.com/pub/people/ak/firescope/) 
+..
+> FW keeps running as long as nobody resets the ieee1394 chip.
 
-Regardless of how you phrase it, it is an inescapable fact that you are 
-developing new stuff in the main, supposedly-stable Linux filesystem.
+This looks interesting.  But how does one set it up for use
+on the *other* end of that firewire cable?  The Quickstart and
+manpage don't seem to describe this fully.
 
-	Jeff
-
-
-
+Thanks

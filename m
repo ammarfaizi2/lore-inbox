@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWFIB3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWFIBnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbWFIB3S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 21:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWFIB3S
+	id S1751091AbWFIBnd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 21:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWFIBnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 21:29:18 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:61085 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S965082AbWFIB3R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 21:29:17 -0400
-Message-ID: <4488CEDA.9060104@cmu.edu>
-Date: Thu, 08 Jun 2006 21:28:58 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060529)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Barry K. Nathan" <barryn@pobox.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: what processor family does intel core duo L2400 belong to?
-References: <4488B159.2070806@cmu.edu>	 <986ed62e0606081650k227c948dy2c675bedd7a254fa@mail.gmail.com>	 <4488C098.90802@cmu.edu> <986ed62e0606081750w1be36f9fn35d69bffbc27f294@mail.gmail.com>
-In-Reply-To: <986ed62e0606081750w1be36f9fn35d69bffbc27f294@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 8 Jun 2006 21:43:33 -0400
+Received: from proof.pobox.com ([207.106.133.28]:48257 "EHLO proof.pobox.com")
+	by vger.kernel.org with ESMTP id S1751091AbWFIBnc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 21:43:32 -0400
+Date: Thu, 8 Jun 2006 18:43:25 -0700
+From: Paul Dickson <paul@permanentmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: rahul@genebrew.com, ram.gupta5@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: booting without initrd
+Message-Id: <20060608184325.5c470dcf.paul@permanentmail.com>
+In-Reply-To: <1149813659.3124.31.camel@laptopd505.fenrus.org>
+References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com>
+	<b29067a0606081040q17c66f5bpa966da851635e942@mail.gmail.com>
+	<1149813659.3124.31.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.9.1; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 09 Jun 2006 02:40:59 +0200, Arjan van de Ven wrote:
 
+> On Thu, 2006-06-08 at 13:40 -0400, Rahul Karnik wrote:
+> > On 6/7/06, Ram Gupta <ram.gupta5@gmail.com> wrote:
+> > > I am trying to boot with 2.6.16  kernel at my desktop running fedora
+> > > core 4 . It does not boot without initrd generating the message "VFS:
+> > > can not open device "804" or unknown-block(8,4)
+> > > Please append a correct "root=" boot option
+> > > Kernel panic - not syncing : VFS:Unable to mount root fs on unknown-block(8,4)
+> > 
+> > AFAIK Fedora sets up the kernel command line with "root=LABEL=/" in
+> > grub.conf and therefore needs the initrd in order to work correctly.
+> > If you do not want an initrd, then change this to
+> > "root=/dev/<your_disk>" in grub.conf. 
+> 
+> it's more than that; also udev is used from the initrd to populate a
+> ramfs /dev, if you go without the initrd you need to populate the
+> *real* /dev manually first
 
-Barry K. Nathan wrote:
-> On 6/8/06, George Nychis <gnychis@cmu.edu> wrote:
-> 
->> Put me in your shoes, what would you test to see which one is the true
->> choice?
-> 
-> 
-> I'd start by seeing which one (if either) will boot the system (with
-> CONFIG_X86_GENERIC disabled). In the past, when I've had trouble
-> deciding, this has actually eliminated more possibilities than you
-> might expect.
-> 
-> Beyond that, I don't know for certain what I would test with. Perhaps
-> I'd start with lmbench, or if I was using the system for 3D stuff,
-> perhaps framerates from glxgears or a 3D game. If I was using the
-> system for network stuff, I'd run network benchmarks. (Perhaps disk
-> benchmarks would be good too, but my experience is that network
-> performance tends to suffer first and/or more severely, especially if
-> Gigabit Ethernet or slow CPU's are involved.)
-> 
-> If both choices boot, the performance difference may be quite small.
+Looking through my rc.sysinit (pre-fc6), udev gets started after root is
+mounted (I haven't looked at the initrd).
 
-Both booted... I was hoping this would be a lot more straight forward :P 
-  I am getting the feeling that pentium-m might outperform... my true P4 
-computer is in family 15, whereas my PIII is in family 6, just like the 
-Core Duo L2400
+More than likely, something isn't compiled into the kernel (either left
+as a module or left out entirely) that is required to access the root
+volume.  Without the initrd, no modules can be loaded nor lvm started to
+find the root volume.
+
+Where is your root volume and which filesystem are you using.
+
+	-Paul
+

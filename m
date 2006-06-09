@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965264AbWFINgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWFINji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965264AbWFINgf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 09:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbWFINgf
+	id S965265AbWFINji (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 09:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965262AbWFINji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 09:36:35 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:37256
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S965264AbWFINgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 09:36:35 -0400
-Message-ID: <44897937.9010201@microgate.com>
-Date: Fri, 09 Jun 2006 08:35:51 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16.18 kernel freezes while pppd is exiting
-References: <200606081909_MC3-1-C1F0-8B6B@compuserve.com>
-In-Reply-To: <200606081909_MC3-1-C1F0-8B6B@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 09:39:38 -0400
+Received: from mail.gmx.de ([213.165.64.20]:46470 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965265AbWFINjh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 09:39:37 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc6-rt1
+From: Mike Galbraith <efault@gmx.de>
+To: tglx@linutronix.de
+Cc: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       John Stultz <johnstul@us.ibm.com>, Deepak Saxena <dsaxena@plexity.net>
+In-Reply-To: <1149858713.5257.146.camel@localhost.localdomain>
+References: <20060607211455.GA6132@elte.hu>
+	 <1149842550.7585.27.camel@Homer.TheSimpsons.net>
+	 <1149847951.3829.26.camel@frecb000686>
+	 <1149852951.7421.7.camel@Homer.TheSimpsons.net>
+	 <1149853468.3829.33.camel@frecb000686>
+	 <1149855638.7413.8.camel@Homer.TheSimpsons.net>
+	 <1149857821.3829.42.camel@frecb000686>
+	 <1149858713.5257.146.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 09 Jun 2006 15:42:38 +0200
+Message-Id: <1149860558.7423.9.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
->>What kind of device are you using with pppd?
->>(so I can identify which driver is feeding
->>the tty layer receive data)
+On Fri, 2006-06-09 at 15:11 +0200, Thomas Gleixner wrote:
+> On Fri, 2006-06-09 at 14:57 +0200, Sébastien Dugué wrote:
+> > All the round trips under strace are in the 2ms range.
+> > 
+> >   How on earth can it be that stracing the ping gives better
+> > performance???
 > 
-> 
-> Just a regular 16550A port at 57600 baud using the 8250 driver.
-> 
-> 
->>Are you setting the low_latency flag on that device?
->>(setserial)
-> 
-> 
-> Not that I know of.
+> Was busy fixing a scheduling while atomic bug. I just verified that I
+> have the same weird behaviour. I'm looking into it.
 
-OK, thanks.
+I downloaded and patched a ping.c to do a user triggered latency trace
+around recvfrom() of a ping -c 1 127.0.0.1 running SCHED_RR.  We
+schedule away at 25us, do aaaall kinds of interesting stuff, and come
+back at 42234us.  If you want the trace, holler.  It's 51k bzipped.
 
-I'm 99.9% sure I've identified the problem correctly,
-as it would effect the free list in precisely the
-way necessary to cause an infinite loop when trying to
-free the list.
+	-Mike
 
-My first suggested fix has problems, but there is
-a straight forward solution I'll try to post
-today (I've got a backlog of stuff to do here at
-work before I can get to that.)
-
--- 
-Paul Fulghum
-Microgate Systems, Ltd.

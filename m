@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbWFIULE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030485AbWFIUM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030481AbWFIULE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWFIULD
+	id S1030485AbWFIUM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbWFIUM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:11:03 -0400
-Received: from www.osadl.org ([213.239.205.134]:47754 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030482AbWFIULA (ORCPT
-	<rfc822;linux-kerneL@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:11:00 -0400
-Subject: Re: RT exec for exercising RT kernel capabilities
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: markh@compro.net
-Cc: linux-kerneL@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <4489D44E.6060308@compro.net>
-References: <448876B9.9060906@compro.net>
-	 <1149795975.5257.83.camel@localhost.localdomain>
-	 <44888D8F.2000404@compro.net> <4489614A.3030704@compro.net>
-	 <4489D44E.6060308@compro.net>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 22:11:37 +0200
-Message-Id: <1149883897.5257.181.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 16:12:28 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:45245 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1030482AbWFIUM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:12:26 -0400
+X-Comment-To: Jeff Garzik
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Theodore Tso <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<4488E1A4.20305@garzik.org>
+	<20060609083523.GQ5964@schatzie.adilger.int>
+	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
+	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+	<m33beecntr.fsf@bzzz.home.net>
+	<Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>
+	<m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org>
+	<20060609195750.GD10524@thunk.org> <4489D55F.20103@garzik.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Sat, 10 Jun 2006 00:14:21 +0400
+In-Reply-To: <4489D55F.20103@garzik.org> (Jeff Garzik's message of "Fri, 09 Jun 2006 16:09:03 -0400")
+Message-ID: <m3k67q5boi.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-09 at 16:04 -0400, Mark Hounschell wrote:
-> > Still investigating...
-> 
-> Am I even close in assuming that to enable the PI support you have to use
-> 
-> pthread_mutexattr_setprotocol(mutexattr, PTHREAD_PRIO_INHERIT);
-> 
-> I have only glibc 2.3 and 2.4 and neither of them understand what
-> PTHREAD_PRIO_INHERIT is.
-> 
-> Can anyone point me to an some Doc or examples of how to enable PI for
-> pthread_mutexes?
-> 
-> Sorry I'm ignorant on the subject. I do understand the principle of PI and may
-> even be able to figure out how to test it in user land but how do I turn it on?
+>>>>> Jeff Garzik (JG) writes:
 
-Sorry for letting you in the dark. There was a patch against glibc CVS,
-but it vansihed somehow. The support will go into glibc CVS when the PI
-futex support hits mainline in the 2.6.18 merge window,
+ JG> No, there is a key difference between ext3 and SCSI/etc.:  cruft is removed.
 
-	tglx
+ JG> In ext3, old formats are supported for all eternity.
 
+we'd need this anyway. just to let users to migrate.
 
+thanks, Alex

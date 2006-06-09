@@ -1,282 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965277AbWFIPMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbWFIPRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965277AbWFIPMq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965278AbWFIPMp
+	id S965284AbWFIPRp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWFIPRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:12:45 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:20868 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965277AbWFIPMo (ORCPT
+	Fri, 9 Jun 2006 11:17:45 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:37515 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965072AbWFIPRo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:12:44 -0400
-Message-ID: <44898F8B.3070709@openvz.org>
-Date: Fri, 09 Jun 2006 19:11:07 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 9 Jun 2006 11:17:44 -0400
+Message-ID: <44899113.3070509@garzik.org>
+Date: Fri, 09 Jun 2006 11:17:39 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: devel@openvz.org, xemul@openvz.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ebiederm@xmission.com, herbert@13thfloor.at, saw@sw.ru,
-       serue@us.ibm.com, sfrench@us.ibm.com, sam@vilain.net,
-       haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: [PATCH 6/6] IPC namespace - sysctls
-References: <44898BF4.4060509@openvz.org>
-In-Reply-To: <44898BF4.4060509@openvz.org>
-Content-Type: multipart/mixed;
- boundary="------------000807010707040802000900"
+To: Alex Tomas <alex@clusterfs.com>
+CC: Christoph Hellwig <hch@infradead.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net>	<44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net>	<4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net>
+In-Reply-To: <m3y7w6cr7d.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000807010707040802000900
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Alex Tomas wrote:
+> PS. in the end this is just ext3 with one more feature ...
 
-Sysctl tweaks for IPC namespace
+Incorrect.  You have to look at ext3 development over time.  This is a 
+PATTERN with ext3 development:  mutating the metadata over time in a 
+progressively incompatible manner.
 
-Signed-Off-By: Pavel Emelianiov <xemul@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+You have this thing called "ext3", which fools an admin into thinking 
+they can use their filesystem with any kernel that has "ext3" support. 
+That's somewhat true today, but with extents it will become false. 
+Having a mutating definition of "ext3" is a convenience for developers, 
+and for users WHO ONLY MOVE FORWARD in kernel versions.
 
---------------000807010707040802000900
-Content-Type: text/plain;
- name="diff-ipc-ns-sysctl"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ipc-ns-sysctl"
+A 48bit ext3 filesystem with extents is completely unusable in 2.4.30's 
+"ext3" or 2.6.10's "ext3".  Users are forced to hunt down the specific 
+kernel version when an incompatible feature was added to ext3.  How can 
+that possibly be described as "user friendly"?
 
---- ./kernel/sysctl.c.ipcns	2006-06-06 14:47:59.000000000 +0400
-+++ ./kernel/sysctl.c	2006-06-08 15:29:58.000000000 +0400
-@@ -104,13 +104,8 @@ extern char modprobe_path[];
- extern int sg_big_buff;
- #endif
- #ifdef CONFIG_SYSVIPC
--extern size_t shm_ctlmax;
--extern size_t shm_ctlall;
--extern int shm_ctlmni;
--extern int msg_ctlmax;
--extern int msg_ctlmnb;
--extern int msg_ctlmni;
--extern int sem_ctls[];
-+static int proc_do_ipc_string(ctl_table *table, int write, struct file *filp,
-+		void __user *buffer, size_t *lenp, loff_t *ppos);
- #endif
- 
- #ifdef __sparc__
-@@ -510,58 +505,58 @@ static ctl_table kern_table[] = {
- 	{
- 		.ctl_name	= KERN_SHMMAX,
- 		.procname	= "shmmax",
--		.data		= &shm_ctlmax,
-+		.data		= NULL,
- 		.maxlen		= sizeof (size_t),
- 		.mode		= 0644,
--		.proc_handler	= &proc_doulongvec_minmax,
-+		.proc_handler	= &proc_do_ipc_string,
- 	},
- 	{
- 		.ctl_name	= KERN_SHMALL,
- 		.procname	= "shmall",
--		.data		= &shm_ctlall,
-+		.data		= NULL,
- 		.maxlen		= sizeof (size_t),
- 		.mode		= 0644,
--		.proc_handler	= &proc_doulongvec_minmax,
-+		.proc_handler	= &proc_do_ipc_string,
- 	},
- 	{
- 		.ctl_name	= KERN_SHMMNI,
- 		.procname	= "shmmni",
--		.data		= &shm_ctlmni,
-+		.data		= NULL,
- 		.maxlen		= sizeof (int),
- 		.mode		= 0644,
--		.proc_handler	= &proc_dointvec,
-+		.proc_handler	= &proc_do_ipc_string,
- 	},
- 	{
- 		.ctl_name	= KERN_MSGMAX,
- 		.procname	= "msgmax",
--		.data		= &msg_ctlmax,
-+		.data		= NULL,
- 		.maxlen		= sizeof (int),
- 		.mode		= 0644,
--		.proc_handler	= &proc_dointvec,
-+		.proc_handler	= &proc_do_ipc_string,
- 	},
- 	{
- 		.ctl_name	= KERN_MSGMNI,
- 		.procname	= "msgmni",
--		.data		= &msg_ctlmni,
-+		.data		= NULL,
- 		.maxlen		= sizeof (int),
- 		.mode		= 0644,
--		.proc_handler	= &proc_dointvec,
-+		.proc_handler	= &proc_do_ipc_string,
- 	},
- 	{
- 		.ctl_name	= KERN_MSGMNB,
- 		.procname	=  "msgmnb",
--		.data		= &msg_ctlmnb,
-+		.data		= NULL,
- 		.maxlen		= sizeof (int),
- 		.mode		= 0644,
--		.proc_handler	= &proc_dointvec,
-+		.proc_handler	= &proc_do_ipc_string,
- 	},
- 	{
- 		.ctl_name	= KERN_SEM,
- 		.procname	= "sem",
--		.data		= &sem_ctls,
-+		.data		= NULL,
- 		.maxlen		= 4*sizeof (int),
- 		.mode		= 0644,
--		.proc_handler	= &proc_dointvec,
-+		.proc_handler	= &proc_do_ipc_string,
- 	},
- #endif
- #ifdef CONFIG_MAGIC_SYSRQ
-@@ -1866,8 +1861,9 @@ static int do_proc_dointvec_conv(int *ne
- 	return 0;
- }
- 
--static int do_proc_dointvec(ctl_table *table, int write, struct file *filp,
--		  void __user *buffer, size_t *lenp, loff_t *ppos,
-+static int __do_proc_dointvec(void *tbl_data, ctl_table *table,
-+		  int write, struct file *filp, void __user *buffer,
-+		  size_t *lenp, loff_t *ppos,
- 		  int (*conv)(int *negp, unsigned long *lvalp, int *valp,
- 			      int write, void *data),
- 		  void *data)
-@@ -1880,13 +1876,13 @@ static int do_proc_dointvec(ctl_table *t
- 	char buf[TMPBUFLEN], *p;
- 	char __user *s = buffer;
- 	
--	if (!table->data || !table->maxlen || !*lenp ||
-+	if (!tbl_data || !table->maxlen || !*lenp ||
- 	    (*ppos && !write)) {
- 		*lenp = 0;
- 		return 0;
- 	}
- 	
--	i = (int *) table->data;
-+	i = (int *) tbl_data;
- 	vleft = table->maxlen / sizeof(*i);
- 	left = *lenp;
- 
-@@ -1975,6 +1971,16 @@ static int do_proc_dointvec(ctl_table *t
- #undef TMPBUFLEN
- }
- 
-+static int do_proc_dointvec(ctl_table *table, int write, struct file *filp,
-+		  void __user *buffer, size_t *lenp, loff_t *ppos,
-+		  int (*conv)(int *negp, unsigned long *lvalp, int *valp,
-+			      int write, void *data),
-+		  void *data)
-+{
-+	return __do_proc_dointvec(table->data, table, write, filp,
-+			buffer, lenp, ppos, conv, data);
-+}
-+
- /**
-  * proc_dointvec - read a vector of integers
-  * @table: the sysctl table
-@@ -2108,7 +2114,7 @@ int proc_dointvec_minmax(ctl_table *tabl
- 				do_proc_dointvec_minmax_conv, &param);
- }
- 
--static int do_proc_doulongvec_minmax(ctl_table *table, int write,
-+static int __do_proc_doulongvec_minmax(void *data, ctl_table *table, int write,
- 				     struct file *filp,
- 				     void __user *buffer,
- 				     size_t *lenp, loff_t *ppos,
-@@ -2122,13 +2128,13 @@ static int do_proc_doulongvec_minmax(ctl
- 	char buf[TMPBUFLEN], *p;
- 	char __user *s = buffer;
- 	
--	if (!table->data || !table->maxlen || !*lenp ||
-+	if (!data || !table->maxlen || !*lenp ||
- 	    (*ppos && !write)) {
- 		*lenp = 0;
- 		return 0;
- 	}
- 	
--	i = (unsigned long *) table->data;
-+	i = (unsigned long *) data;
- 	min = (unsigned long *) table->extra1;
- 	max = (unsigned long *) table->extra2;
- 	vleft = table->maxlen / sizeof(unsigned long);
-@@ -2213,6 +2219,17 @@ static int do_proc_doulongvec_minmax(ctl
- #undef TMPBUFLEN
- }
- 
-+static int do_proc_doulongvec_minmax(ctl_table *table, int write,
-+				     struct file *filp,
-+				     void __user *buffer,
-+				     size_t *lenp, loff_t *ppos,
-+				     unsigned long convmul,
-+				     unsigned long convdiv)
-+{
-+	return __do_proc_doulongvec_minmax(table->data, table, write,
-+			filp, buffer, lenp, ppos, convmul, convdiv);
-+}
-+
- /**
-  * proc_doulongvec_minmax - read a vector of long integers with min/max values
-  * @table: the sysctl table
-@@ -2401,6 +2418,49 @@ int proc_dointvec_ms_jiffies(ctl_table *
- 				do_proc_dointvec_ms_jiffies_conv, NULL);
- }
- 
-+#ifdef CONFIG_SYSVIPC
-+static int proc_do_ipc_string(ctl_table *table, int write, struct file *filp,
-+		void __user *buffer, size_t *lenp, loff_t *ppos)
-+{
-+	void *data;
-+	struct ipc_namespace *ns;
-+
-+	ns = current->nsproxy->ipc_ns;
-+
-+	switch (table->ctl_name) {
-+	case KERN_SHMMAX:
-+		data = &ns->shm_ctlmax;
-+		goto proc_minmax;
-+	case KERN_SHMALL:
-+		data = &ns->shm_ctlall;
-+		goto proc_minmax;
-+	case KERN_SHMMNI:
-+		data = &ns->shm_ctlmni;
-+		break;
-+	case KERN_MSGMAX:
-+		data = &ns->msg_ctlmax;
-+		break;
-+	case KERN_MSGMNI:
-+		data = &ns->msg_ctlmni;
-+		break;
-+	case KERN_MSGMNB:
-+		data = &ns->msg_ctlmnb;
-+		break;
-+	case KERN_SEM:
-+		data = &ns->sem_ctls;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return __do_proc_dointvec(data, table, write, filp, buffer,
-+			lenp, ppos, NULL, NULL);
-+proc_minmax:
-+	return __do_proc_doulongvec_minmax(data, table, write, filp, buffer,
-+			lenp, ppos, 1l, 1l);
-+}
-+#endif
-+
- #else /* CONFIG_PROC_FS */
- 
- int proc_dostring(ctl_table *table, int write, struct file *filp,
+"Which ext3 am I talking to, today?"
+"And which kernels am I locked into, in order to talk to my filesystem?"
+
+Not all users are big production houses that plan their filesystem 
+metadata migration months in advance!  I _guarantee_ some users will 
+boot into ext3-with-extents, use it for a while, and then try to 
+downgrade for whatever reason...  only to find they have been LOCKED 
+OUT.  That is a very real world situation, guys.
+
+	Jeff
 
 
-
-
---------------000807010707040802000900--

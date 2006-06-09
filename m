@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbWFIGGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWFIGcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965215AbWFIGGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 02:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWFIGGS
+	id S965230AbWFIGcM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 02:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbWFIGcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 02:06:18 -0400
-Received: from alt.aurema.com ([203.217.18.57]:16791 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S965215AbWFIGGR (ORCPT
+	Fri, 9 Jun 2006 02:32:12 -0400
+Received: from mail.suse.de ([195.135.220.2]:9676 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965231AbWFIGcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 02:06:17 -0400
-Message-ID: <44890F94.3050209@aurema.com>
-Date: Fri, 09 Jun 2006 16:05:08 +1000
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 02:32:11 -0400
+To: George Nychis <gnychis@cmu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what processor family does intel core duo L2400 belong to?
+References: <4488B159.2070806@cmu.edu>
+From: Andi Kleen <ak@suse.de>
+Date: 09 Jun 2006 08:32:09 +0200
+In-Reply-To: <4488B159.2070806@cmu.edu>
+Message-ID: <p731wtyu9ee.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-CC: Kirill Korotaev <dev@openvz.org>, Srivatsa <vatsa@in.ibm.com>,
-       CKRM <ckrm-tech@lists.sourceforge.net>,
-       Balbir Singh <bsingharora@gmail.com>, Mike Galbraith <efault@gmx.de>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Sam Vilain <sam@vilain.net>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kingsley Cheung <kingsley@aurema.com>,
-       Rene Herman <rene.herman@keyaccess.nl>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [ckrm-tech] [RFC 0/4] sched: Add CPU rate caps (improved)
-References: <20060606023708.2801.24804.sendpatchset@heathwren.pw.nest>	<448688B2.2030206@jp.fujitsu.com>	<4487D6B0.3080502@bigpond.net.au>	<4488C765.2050108@aurema.com> <44890C0A.1000005@jp.fujitsu.com>
-In-Reply-To: <44890C0A.1000005@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MAEDA Naoaki wrote:
-> Peter Williams wrote:
->> I've done some informal testing with smaller values of CAP_STATS_OFFSET 
->> and there is only a minor improvement.
->>
->> However, something that does improve behaviour for short lived tasks is 
->> to increase the value of HZ.  This is because the basic unit of CPU
->> allocation by the scheduler is 1/HZ and this is also the minimum time 
->> (and granularity) with which sinbinning and other capping measures can 
->> be implemented.  This is the fundamental limiting factor for the 
->> accuracy of capping i.e. if everything worked perfectly the best 
->> granularity that can be expected from capping of short lived tasks is 
->> 1000 / (HZ * duration) where duration is in seconds.
+George Nychis <gnychis@cmu.edu> writes:
+
+> I am configuring the 2.6.17 kernel for a new thinkpad x60s, and I am
+> wondering what processor family to select.  The processor is an Intel
+> Core Duo L2400, and the gcc people suggested using the prescott march
+> for cflags.  It is *not* a celeron.
 > 
-> I already defines CONFIG_HZ=1000. Do you suggest increasing more?
+> My guess is the "Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon" family,
+> but maybe someone has a different opinion or can support it.
 
-No.
+It's a renamed Pentium-M followon. Not related to Pentium 4.
 
-Peter
--- 
-Dr Peter Williams, Chief Scientist         <peterw@aurema.com>
-Aurema Pty Limited
-Level 2, 130 Elizabeth St, Sydney, NSW 2000, Australia
-Tel:+61 2 9698 2322  Fax:+61 2 9699 9174 http://www.aurema.com
+-Andi
+

@@ -1,57 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWFIImz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWFIInf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWFIImz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 04:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWFIImz
+	id S1751440AbWFIInf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 04:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWFIInf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 04:42:55 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18962 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751342AbWFIImy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 04:42:54 -0400
-Date: Fri, 9 Jun 2006 09:42:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Jones <davej@redhat.com>, Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org,
-       jeremy@goop.org
-Subject: Re: Bisects that are neither good nor bad
-Message-ID: <20060609084234.GA25497@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Dave Jones <davej@redhat.com>,
-	Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org,
-	jeremy@goop.org
-References: <20060528140238.2c25a805.dickson@permanentmail.com> <20060528140854.34ddec2a.paul@permanentmail.com> <200605282324.13431.rjw@sisk.pl> <200605282324.13431.rjw@sisk.pl> <20060528213414.GC5741@redhat.com> <r6u079rrik.fsf@skye.ra.phy.cam.ac.uk> <20060529145255.GB32274@redhat.com> <20060530152926.GA4103@ucw.cz> <20060603091133.GA24271@flint.arm.linux.org.uk> <20060609083833.GD18084@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060609083833.GD18084@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Jun 2006 04:43:35 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:59923 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751440AbWFIIne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 04:43:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=eNV5T57OMfMVKXeOdWNrVs2ngypAzr7QPFMdtBrP5vlE0ad04Ht4bbM1nmP6CfH+wNM19WPbaIsX2YaC1tbQm9W4i+Vv1paFTk4lnHZLpHh60ZPClsb54tJGgY+s2rbiVXW06ZVTVj2qcelNsmPdDxSQNwPjsQeBOhsO6roxMn0=
+Message-ID: <448933D7.6040301@gmail.com>
+Date: Fri, 09 Jun 2006 16:39:51 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+Subject: [PATCH 2/5] VT binding: Add sysfs support
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 10:38:33AM +0200, Pavel Machek wrote:
-> > The serial layer does _not_ have access to the "current" termios
-> > settings due to the layering by the tty subsystem.  If the serial
-> > port being used by serial console has been opened once by the user,
-> > but is closed at the moment when a suspend/resume cycle occurs,
-> > the serial layer and lower level drivers do not have access to the
-> > baud rate.
-> 
-> Could serial layer just cache "last baud rate" in some kind of
-> software shadow register? Yes, it is slightly ugly, but should do the trick.
+Add sysfs attributes for binding and unbinding VT console drivers. The
+attributes are located in /sys/class/tty/console and are namely:
 
-That's not a new suggestion.  How do you deal with the case where
-you have console on two or more different serial ports?  That's
-the problem with this approach.
+    A. backend - list registered drivers in the following format:
 
-The only sane solution is for the tty layer to be adjusted to allow
-suspend/resume support for consoles.
+    "I C: Description"
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+    Where: I  = ID number of the driver
+           C  = status of the driver which can be:
+
+		S = system driver
+		B = bound modular driver
+		U = unbound modular driver
+
+	   Description - text description of the driver
+
+    B. bind - binds a driver to the console layer
+
+       echo <ID> > /sys/class/tty/console/bind
+
+    C. unbind - unbinds a driver from the console layer
+
+       echo <ID> > /sys/class/tty/console/unbind
+
+The tty layer does nothing to these attributes except create them and punt all
+requests to the VT layer.
+
+Signed-off-by: Antonino Daplas <pol.net>
+---
+
+ drivers/char/tty_io.c |   53 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ include/linux/tty.h   |   19 ++++++++++++++++++
+ 2 files changed, 71 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+index a5730a6..e23d360 100644
+--- a/drivers/char/tty_io.c
++++ b/drivers/char/tty_io.c
+@@ -3231,6 +3231,47 @@ #ifdef CONFIG_VT
+ static struct cdev vc0_cdev;
+ #endif
+ 
++static ssize_t store_bind(struct class_device *class_device,
++			  const char *buf, size_t count)
++{
++	int index = simple_strtoul(buf, NULL, 0);
++
++	vt_bind(index);
++	return count;
++}
++
++static ssize_t store_unbind(struct class_device *class_device,
++			    const char *buf, size_t count)
++{
++	int index = simple_strtoul(buf, NULL, 0);
++
++	vt_unbind(index);
++	return count;
++}
++
++static ssize_t show_con_drivers(struct class_device *class_device, char *buf)
++{
++	return vt_show_drivers(buf);
++}
++
++static struct class_device_attribute class_device_attrs[] = {
++	__ATTR(bind,   S_IWUSR, NULL, store_bind),
++	__ATTR(unbind, S_IWUSR, NULL, store_unbind),
++	__ATTR(backend, S_IRUGO, show_con_drivers, NULL),
++};
++
++static struct class_device *console_class_device;
++
++static int console_init_class_device(void)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(class_device_attrs); i++)
++		class_device_create_file(console_class_device,
++					 &class_device_attrs[i]);
++	return 0;
++}
++
+ /*
+  * Ok, now we can initialize the rest of the tty devices and can count
+  * on memory allocations, interrupts etc..
+@@ -3249,7 +3290,17 @@ static int __init tty_init(void)
+ 	    register_chrdev_region(MKDEV(TTYAUX_MAJOR, 1), 1, "/dev/console") < 0)
+ 		panic("Couldn't register /dev/console driver\n");
+ 	devfs_mk_cdev(MKDEV(TTYAUX_MAJOR, 1), S_IFCHR|S_IRUSR|S_IWUSR, "console");
+-	class_device_create(tty_class, NULL, MKDEV(TTYAUX_MAJOR, 1), NULL, "console");
++	console_class_device = class_device_create(tty_class, NULL,
++						   MKDEV(TTYAUX_MAJOR, 1),
++						   NULL, "console");
++	if (IS_ERR(console_class_device)) {
++		printk(KERN_WARNING "Unable to create class device "
++		       "for console; errno = %ldn",
++		       PTR_ERR(console_class_device));
++		console_class_device = NULL;
++	} else
++		console_init_class_device();
++
+ 
+ #ifdef CONFIG_UNIX98_PTYS
+ 	cdev_init(&ptmx_cdev, &ptmx_fops);
+diff --git a/include/linux/tty.h b/include/linux/tty.h
+index cb35ca5..3edaa5d 100644
+--- a/include/linux/tty.h
++++ b/include/linux/tty.h
+@@ -347,6 +347,25 @@ extern void console_print(const char *);
+ extern int vt_ioctl(struct tty_struct *tty, struct file * file,
+ 		    unsigned int cmd, unsigned long arg);
+ 
++#ifdef CONFIG_VT
++extern int vt_bind(int index);
++extern int vt_unbind(int index);
++extern int vt_show_drivers(char *buf);
++#else
++static inline int vt_bind(int index)
++{
++	return 0;
++}
++static inline int vt_unbind(int index)
++{
++	return 0;
++}
++static inline int vt_show_drivers(char *buf)
++{
++	return 0;
++}
++#endif
++
+ static inline dev_t tty_devnum(struct tty_struct *tty)
+ {
+ 	return MKDEV(tty->driver->major, tty->driver->minor_start) + tty->index;
+
+

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWFIVgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030521AbWFIVg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbWFIVgY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbWFIVgY
+	id S1030521AbWFIVg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbWFIVg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:36:24 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:26069 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1030320AbWFIVgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:36:23 -0400
-Message-ID: <4489E9D8.6090002@namesys.com>
-Date: Fri, 09 Jun 2006 14:36:24 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Fri, 9 Jun 2006 17:36:58 -0400
+Received: from relay01.pair.com ([209.68.5.15]:14343 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S1030523AbWFIVg4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 17:36:56 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Fri, 9 Jun 2006 16:36:54 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Joel Becker <Joel.Becker@oracle.com>
+cc: Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
+       Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+In-Reply-To: <20060609212410.GJ3574@ca-server1.us.oracle.com>
+Message-ID: <Pine.LNX.4.64.0606091634340.5541@turbotaz.ourhouse>
+References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
+ <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net>
+ <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net>
+ <4489A7ED.8070007@garzik.org> <20060609195750.GD10524@thunk.org>
+ <20060609203803.GF3574@ca-server1.us.oracle.com> <20060609210319.GF10524@thunk.org>
+ <20060609212410.GJ3574@ca-server1.us.oracle.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Barry K. Nathan" <barryn@pobox.com>, Valdis.Kletnieks@vt.edu,
-       Andrew Morton <akpm@osdl.org>, arjan@linux.intel.com,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
-References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com> <20060604133326.f1b01cfc.akpm@osdl.org> <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu> <20060604213432.GB5898@elte.hu> <986ed62e0606041503v701f8882la4cbead47ae3982f@mail.gmail.com> <20060605065444.GA27445@elte.hu>
-In-Reply-To: <20060605065444.GA27445@elte.hu>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Fri, 9 Jun 2006, Joel Becker wrote:
 
->        if (atomic_read(&node->d_count) != 0) {
->                return 0;
->        }
+> 	Heck, forget the name, just make the breakage more explicit.  Do
+> it at mkfs/tunefs time.  "tunefs -extents" or "mkfs -t ext3 -extents".
+> A mount option assumes that you can do with or without it.  If you do it
+> once, you can mount the next time without it and stuff Just Works.  Even
+> htree follows this.  A clean unmount leaves a clean directory structure
+> that a non-htree driver can use.
+
+I suggested this somewhere back in the thread and it got no play. What's 
+the problem with doing things this way? (Aside from it being a compromise 
+that doesn't automatically result in a new ext4)
+
+Of course, there are a few debates going on here. Only one of them is 
+about compatibility.
+
 >
->why the braces, when on the next line it's not done:
+> Joel
 >
->        if (blocknr_is_fake(jnode_get_block(node)))
->                return 0;
->
->it looks quite inconsistent.
->
-I have a (roughly adhered to) rule that I don't hassle programmers much
-about the style of any code that I can easily read.  I truly do not care
-where the braces are, I care if the comments and variable names are well
-done.  So that is why, and yes, I know I am an unusual manager on this
-point.
+
+Cheers,
+Chase

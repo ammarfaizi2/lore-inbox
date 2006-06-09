@@ -1,86 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWFIILX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWFIILv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbWFIILX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 04:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWFIILX
+	id S1751439AbWFIILv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 04:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWFIIL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 04:11:23 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:30618 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751436AbWFIILW (ORCPT
+	Fri, 9 Jun 2006 04:11:27 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:35482 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751439AbWFIILX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 04:11:22 -0400
-Message-ID: <349840679.03819@ustc.edu.cn>
+	Fri, 9 Jun 2006 04:11:23 -0400
+Message-ID: <349840680.03819@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060609081120.054527393@localhost.localdomain>
+Message-Id: <20060609081120.531013274@localhost.localdomain>
 References: <20060609080801.741901069@localhost.localdomain>
-Date: Fri, 09 Jun 2006 16:08:04 +0800
+Date: Fri, 09 Jun 2006 16:08:05 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 3/5] readahead: call scheme - no fastcall for readahead_cache_hit()
-Content-Disposition: inline; filename=readahead-cache-hit-remove-fastcall.patch
+Cc: linux-kernel@vger.kernel.org, Michael Tokarev <mjt@tls.msk.ru>,
+       Jens Axboe <axboe@suse.de>
+Subject: [PATCH 4/5] readahead: backoff on I/O error
+Content-Disposition: inline; filename=readahead-eio-case.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove 'fastcall' directive for readahead_cache_hit().
+Backoff readahead size exponentially on I/O error.
 
-It leads to unfavorable performance in the following micro benchmark on i386
-with CONFIG_REGPARM=n:
+------
+Michael Tokarev <mjt@tls.msk.ru> described the problem as:
 
-Command:
-        time cp cold /dev/null
+[QUOTE]
+Suppose there's a CD-rom with a scratch/etc, one sector is unreadable.
+In order to "fix" it, one have to read it and write to another CD-rom,
+or something.. or just ignore the error (if it's just a skip in a video
+stream).  Let's assume the unreadable block is number U.
 
-Summary:
-              user     sys     cpu    total
-no-fastcall   1.24    24.88    90.9   28.57
-fastcall      1.16    25.69    91.5   29.23
+But current behavior is just insane.  An application requests block
+number N, which is before U. Kernel tries to read-ahead blocks N..U.
+Cdrom drive tries to read it, re-read it.. for some time.  Finally,
+when all the N..U-1 blocks are read, kernel returns block number N
+(as requested) to an application, successefully.
 
-Details:
-without fastcall:
-cp cold /dev/null  1.27s user 24.63s system 91% cpu 28.348 total
-cp cold /dev/null  1.17s user 25.09s system 91% cpu 28.653 total
-cp cold /dev/null  1.24s user 24.75s system 91% cpu 28.448 total
-cp cold /dev/null  1.20s user 25.04s system 91% cpu 28.614 total
-cp cold /dev/null  1.31s user 24.67s system 91% cpu 28.499 total
-cp cold /dev/null  1.30s user 24.87s system 91% cpu 28.530 total
-cp cold /dev/null  1.26s user 24.84s system 91% cpu 28.542 total
-cp cold /dev/null  1.16s user 25.15s system 90% cpu 28.925 total
+Now an app requests block number N+1, and kernel tries to read
+blocks N+1..U+1.  Retrying again as in previous step.
 
-with fastcall:
-cp cold /dev/null  1.16s user 26.39s system 91% cpu 30.061 total
-cp cold /dev/null  1.25s user 26.53s system 91% cpu 30.378 total
-cp cold /dev/null  1.10s user 25.32s system 92% cpu 28.679 total
-cp cold /dev/null  1.15s user 25.20s system 91% cpu 28.747 total
-cp cold /dev/null  1.19s user 25.38s system 92% cpu 28.841 total
-cp cold /dev/null  1.11s user 25.75s system 92% cpu 29.126 total
-cp cold /dev/null  1.17s user 25.49s system 91% cpu 29.042 total
-cp cold /dev/null  1.17s user 25.49s system 92% cpu 28.970 total
+And so on, up to when an app requests block number U-1.  And when,
+finally, it requests block U, it receives read error.
+
+So, kernel currentry tries to re-read the same failing block as
+many times as the current readahead value (256 (times?) by default).
+
+This whole process already killed my cdrom drive (I posted about it
+to LKML several months ago) - literally, the drive has fried, and
+does not work anymore.  Ofcourse that problem was a bug in firmware
+(or whatever) of the drive *too*, but.. main problem with that is
+current readahead logic as described above.
+[/QUOTE]
+
+Which was confirmed by Jens Axboe <axboe@suse.de>:
+
+[QUOTE]
+For ide-cd, it tends do only end the first part of the request on a
+medium error. So you may see a lot of repeats :/
+[/QUOTE]
+
+With this patch, retries are expected to be reduced from, say, 256, to 5.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
 
---- linux-2.6.17-rc5-mm2.orig/include/linux/mm.h
-+++ linux-2.6.17-rc5-mm2/include/linux/mm.h
-@@ -1074,7 +1074,7 @@ page_cache_readahead_adaptive(struct add
- 			struct file_ra_state *ra, struct file *filp,
- 			struct page *prev_page, struct page *page,
- 			pgoff_t first_index, pgoff_t index, pgoff_t last_index);
--void fastcall readahead_cache_hit(struct file_ra_state *ra, struct page *page);
-+void readahead_cache_hit(struct file_ra_state *ra, struct page *page);
-
- #ifdef CONFIG_ADAPTIVE_READAHEAD
- extern int readahead_ratio;
---- linux-2.6.17-rc5-mm2.orig/mm/readahead.c
-+++ linux-2.6.17-rc5-mm2/mm/readahead.c
-@@ -1916,7 +1916,7 @@ readit:
-  * readahead_cache_hit() is the feedback route of the adaptive read-ahead
-  * logic. It must be called on every access on the read-ahead pages.
-  */
--void fastcall readahead_cache_hit(struct file_ra_state *ra, struct page *page)
-+void readahead_cache_hit(struct file_ra_state *ra, struct page *page)
- {
- 	if (PageActive(page) || PageReferenced(page))
- 		return;
+--- linux-2.6.17-rc4-mm3.orig/mm/filemap.c
++++ linux-2.6.17-rc4-mm3/mm/filemap.c
+@@ -809,6 +809,33 @@ grab_cache_page_nowait(struct address_sp
+ EXPORT_SYMBOL(grab_cache_page_nowait);
+ 
+ /*
++ * CD/DVDs are error prone. When a medium error occurs, the driver may fail
++ * a _large_ part of the i/o request. Imagine the worst scenario:
++ *
++ *      ---R__________________________________________B__________
++ *         ^ reading here                             ^ bad block(assume 4k)
++ *
++ * read(R) => miss => readahead(R...B) => media error => frustrating retries
++ * => failing the whole request => read(R) => read(R+1) =>
++ * readahead(R+1...B+1) => bang => read(R+2) => read(R+3) =>
++ * readahead(R+3...B+2) => bang => read(R+3) => read(R+4) =>
++ * readahead(R+4...B+3) => bang => read(R+4) => read(R+5) => ......
++ *
++ * It is going insane. Fix it by quickly scaling down the readahead size.
++ */
++static void shrink_readahead_size_eio(struct file *filp,
++					struct file_ra_state *ra)
++{
++	if (!ra->ra_pages)
++		return;
++
++	ra->ra_pages /= 4;
++	printk(KERN_WARNING "Retracting readahead size of %s to %luK\n",
++			filp->f_dentry->d_iname,
++			ra->ra_pages << (PAGE_CACHE_SHIFT - 10));
++}
++
++/*
+  * This is a generic file read routine, and uses the
+  * mapping->a_ops->readpage() function for the actual low-level
+  * stuff.
+@@ -983,6 +1010,7 @@ readpage:
+ 				}
+ 				unlock_page(page);
+ 				error = -EIO;
++				shrink_readahead_size_eio(filp, &ra);
+ 				goto readpage_error;
+ 			}
+ 			unlock_page(page);
+@@ -1535,6 +1563,7 @@ page_not_uptodate:
+ 	 * Things didn't work out. Return zero to tell the
+ 	 * mm layer so, possibly freeing the page cache page first.
+ 	 */
++	shrink_readahead_size_eio(file, ra);
+ 	page_cache_release(page);
+ 	return NULL;
+ }
 
 --

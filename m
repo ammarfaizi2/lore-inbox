@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWFIOsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbWFIOye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbWFIOsy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 10:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWFIOsy
+	id S1030180AbWFIOye (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 10:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWFIOye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 10:48:54 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:29066 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751444AbWFIOsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 10:48:53 -0400
-Message-ID: <44898A52.2010008@garzik.org>
-Date: Fri, 09 Jun 2006 10:48:50 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [RFC] ATA host-protected area (HPA) device mapper?
-References: <20060609104759.26001.qmail@web26913.mail.ukl.yahoo.com>
-In-Reply-To: <20060609104759.26001.qmail@web26913.mail.ukl.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Fri, 9 Jun 2006 10:54:34 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:47745 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1030180AbWFIOye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 10:54:34 -0400
+Date: Fri, 9 Jun 2006 10:54:33 -0400
+To: Dieter St?ken <stueken@conterra.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mixing 32 and 64 bit?
+Message-ID: <20060609145433.GB560@csclub.uwaterloo.ca>
+References: <44893D00.8090807@conterra.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44893D00.8090807@conterra.de>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Etienne Lorrain wrote:
->   Your hard disk is a lot more powerfull than what you think, only very old
+On Fri, Jun 09, 2006 at 11:18:56AM +0200, Dieter St?ken wrote:
+> I just wonder how some userland applications are able to use 64-bit 
+> capabilities although they are started by an  ELF 32-bit binary. I observed
+> this when installing vmware: Even if the binary is an ELF32, it is
+> able to provide an 64Bit ABI to its guest OS. Until now I thought a
+> process is either 32bit or 64bit. Seems this is not true. 
+> 
+> Has some one a good link or entry point about this topic?
+> I could not find a matching keyword to search for. 
 
-No, it's not.  I am well aware of what's in the ATA spec.
+VMware also has some kernel modules, which are compiled in whatever
+format the kernel is.  I suspect some of this ability comes from those
+kernel modules, rather than the user interface you use to control the
+vm.
 
-
->  hard disks only have ATA set max command. Nowadays, you can not only set the
-
-Not true.
-
-
->  Gujin also do the absolutely needed setup of the IDE hard disk which is to freeze
->  the password system _and_ the config system of all the IDE hard disks present, so
->  that no virus can put a random password and send you an E-mail with the address
->  where to send the money to get the password to unlock the hard disk and so access
->  again your data. Again, freezing means no more modifiable until next power cycle,
->  so IMO it is the job of the bootloader to setup the hard disk, before running
->  anything like Linux, a commercial OS, a bootable CDROM...
-
-This is totally broken, and I am going to strongly recommend that no one 
-use this software.
-
-It is the OS responsibility to do this.  As a simple example, when the 
-libata ACPI patches are merged (soon), libata will send BIOS-specified 
-taskfiles to the device -- including the hard drive password, if any. 
-Then it will freeze the settings.
-
-Gujin's behavior will prevent the user from accessing their data, if 
-they have protected it via BIOS.
-
-
->  Gujin is assuming that your hard disk are accessible by the documented ATA ide
->  system, and some (or all?) IDE SATA interface have (volumtary?) broken
->  implementation: they are not IDE register compatible.
-
-More evidence that Gujin is completely broken.
-
-Host controller programming interfaces have _always_ been variable.  PCI 
-IDE standard was never a requirement for all host controllers, indeed 
-such a requirement would be stupid, and widely ignored.
-
-Modern SATA controllers are all FIS-based, and are not (and should not 
-be) limited by the legacy IDE register programming interface.
-
-	Jeff
-
-
+Len Sorensen

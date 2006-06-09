@@ -1,46 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWFIPxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWFIPy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWFIPxm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWFIPxl
+	id S1030229AbWFIPy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWFIPy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:53:41 -0400
-Received: from [80.71.248.82] ([80.71.248.82]:14226 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S1030226AbWFIPxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:53:40 -0400
-X-Comment-To: Jeff Garzik
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
-	<4488E1A4.20305@garzik.org>
-	<20060609083523.GQ5964@schatzie.adilger.int>
-	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
-	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
-	<448997FA.50109@garzik.org>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Fri, 09 Jun 2006 19:55:46 +0400
-In-Reply-To: <448997FA.50109@garzik.org> (Jeff Garzik's message of "Fri, 09 Jun 2006 11:47:06 -0400")
-Message-ID: <m3irnacohp.fsf@bzzz.home.net>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+	Fri, 9 Jun 2006 11:54:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:38372 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030229AbWFIPy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:54:58 -0400
+Date: Fri, 9 Jun 2006 08:54:39 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, hugh@veritas.com, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, ak@suse.de, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 01/14] Per zone counter functionality
+In-Reply-To: <20060608210045.62129826.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606090845130.31570@schroedinger.engr.sgi.com>
+References: <20060608230239.25121.83503.sendpatchset@schroedinger.engr.sgi.com>
+ <20060608230244.25121.76440.sendpatchset@schroedinger.engr.sgi.com>
+ <20060608210045.62129826.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Jeff Garzik (JG) writes:
+On Thu, 8 Jun 2006, Andrew Morton wrote:
 
- JG> think about The Experience:  Suddenly users that could use 2.4.x and 
- JG> 2.6.x are locked into 2.6.18+, by the simple and common act of writing 
- JG> to a file.
+> Is the use of 8-bit accumulators more efficient than using 32-bit ones? 
+> Obviously it's better from a cache POV, given that we have a pretty large
+> array of them.  But is there a downside on some architectures in not using
+> the natural wordsize?   I assume not, but I don't really know...
 
-sorry to repeat, but if they simple try 2.6.18, they won't get extents.
-instead, they must specify extents mount option. and at this point
-they must get clear that this is a way to get incompatible fs.
+The advantage is that the whole thing fits into one cacheline right with 
+the pcp information. Some architectures need additional cycles but this 
+increases the cache hit rate. The speed of accessing memory is by far 
+worse than that.
 
-thanks, Alex
+> > +#ifdef CONFIG_SMP
+> > +typedef atomic_long_t vm_stat_t;
+> > +#define VM_STAT_GET(x) atomic_long_read(&(x))
+> > +#define VM_STAT_ADD(x,v) atomic_long_add(v, &(x))
+> > +#else
+> > +typedef unsigned long vm_stat_t;
+> > +#define VM_STAT_GET(x) (x)
+> > +#define VM_STAT_ADD(x,v) (x) += (v)
+> > +#endif
+> 
+> Is there a need to do this?  On !SMP the atomic ops for well-cared-for
+> architectures use nonatomic RMWs anyway.  For most architectures I'd expect
+> that we can simply use atomic_long_foo() in both cases with no loss of
+> efficiency.
+
+Maybe I am not up to date too much on !SMP. I thought they still needed 
+atomic ops for MMU races.
+
+> > +void refresh_cpu_vm_stats(int cpu)
+> > +{
+> > +	struct zone *zone;
+> > +	int i;
+> > +	unsigned long flags;
+> > +
+> > +	for_each_zone(zone) {
+> > +		struct per_cpu_pageset *pcp;
+> > +
+> > +		pcp = zone_pcp(zone, cpu);
+> > +
+> > +		for (i = 0; i < NR_STAT_ITEMS; i++)
+> > +			if (pcp->vm_stat_diff[i]) {
+> > +				local_irq_save(flags);
+> > +				zone_page_state_add(pcp->vm_stat_diff[i],
+> > +					zone, i);
+> > +				pcp->vm_stat_diff[i] = 0;
+> > +				local_irq_restore(flags);
+> > +			}
+> > +	}
+> > +}
+> 
+> Note that when this function is called via on_each_cpu(), local interrupts
+> are already disabled.  So a small efficiency gain would come from changing
+> the API definition here to "caller must have disabled local interrupts".
+
+Interrupts are enabled for on_each_cpu on IA64. The function is also 
+called from memory hotplug.
+
+> We're sure all these exports are needed?
+
+Hummm... Maybe some functions are not used right now.
+
+> >  #ifdef CONFIG_NUMA
+> >  /*
+> > + * Determine the per node value of a stat item. This is done by cycling
+> > + * through all the zones of a node.
+> > + */
+> > +unsigned long node_page_state(int node, enum zone_stat_item item)
+> > +{
+> > +	struct zone *zones = NODE_DATA(node)->node_zones;
+> > +	int i;
+> > +	long v = 0;
+> > +
+> > +	for (i = 0; i < MAX_NR_ZONES; i++)
+> > +		v += VM_STAT_GET(zones[i].vm_stat[item]);
+> > +	if (v < 0)
+> > +		v = 0;
+> > +	return v;
+> > +}
+> > +EXPORT_SYMBOL(node_page_state);
+> 
+> Well I guess if this doesn't oops then we've finally answered that "Should
+> this ever happen" in __alloc_pages().
+
+Why would this oops? I thought all the zones are always populated?
+
+> > +#ifdef CONFIG_SMP
+> > +void refresh_cpu_vm_stats(int);
+> > +void refresh_vm_stats(void);
+> > +#else
+> > +static inline void refresh_cpu_vm_stats(int cpu) { };
+> > +static inline void refresh_vm_stats(void) { };
+> > +#endif
+> 
+> do {} while (0), please.  Always.  All other forms (afaik) have problems. 
+> In this case,
+
+These are inline definitions and not macros.
+
+> Would it be possible/sensible to move all this stuff into a new .c file? 
+> page_alloc.c is getting awfully large and multipurpose, and this code is a
+> single logical chunk.
+
+Right thought about that one as well. Can we stablize this first before I 
+do another big reorg?

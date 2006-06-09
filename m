@@ -1,115 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWFIWte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWFIWuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWFIWte (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 18:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWFIWte
+	id S932291AbWFIWuq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 18:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWFIWuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 18:49:34 -0400
-Received: from pops.net-conex.com ([204.244.176.3]:6338 "EHLO
-	mail.net-conex.com") by vger.kernel.org with ESMTP id S932292AbWFIWtd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 18:49:33 -0400
-Date: Fri, 9 Jun 2006 15:49:36 -0700
-From: "Robin H. Johnson" <robbat2@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] tmpfs time granularity fix for [acm]time moving backwards.
-Message-ID: <20060609224936.GA30611@curie-int.vc.shawcable.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+	Fri, 9 Jun 2006 18:50:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33929 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932291AbWFIWup (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 18:50:45 -0400
+Date: Sat, 10 Jun 2006 00:49:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Oliver Bock <o.bock@fh-wolfenbuettel.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/1] usb: new driver for Cypress CY7C63xxx mirco controllers
+Message-ID: <20060609224957.GA15130@elf.ucw.cz>
+References: <200606100042.19441.o.bock@fh-wolfenbuettel.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200606100042.19441.o.bock@fh-wolfenbuettel.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry, now the review begins...
 
-[Please CC me on replies].
+> +/* used to send usb control messages to device */
+> +int vendor_command(struct cy7c63 *dev, unsigned char request,
+> +			 unsigned char address, unsigned char data) {
 
-I noticed a strange behavior in a tmpfs file system the other day, while
-building packages - occasionally, and seemingly at random, make decided to
-rebuild a target. However only on tmpfs.
+Codingstyle: { goes to new line.
 
-A file would be created, and if checked, it had a sub-second timestamp.
-However, after an utimes related call where sub-seconds should be set, they
-were zeroed instead. In the case that a file was created, and utimes(...,NU=
-LL)
-was used on it in the same second, the timestamp on the file moved backward=
-s.
 
-Puesdo-code of my testcase:
-	int fd =3D creat(name,0644);
-	fstat(fd,&st);
-	printf("...[acm]time...",...)
-	futime(fd,NULL);
-	fstat(fd,&st);
-	printf("...[acm]time...",...)
-	close(fd);
+> +#define get_set_port(num,read_id,write_id) \
+> +static ssize_t set_port##num(struct device *dev, struct device_attribute *attr,	\
+> +					const char *buf, size_t count) {	\
+> +										\
+> +	int value;								\
+> +	int result = 0;								\
+> +										\
+> +	struct usb_interface *intf = to_usb_interface(dev);			\
+> +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
+> +										\
+> +	dev_dbg(&cyp->udev->dev, "WRITE_PORT%d called\n", num);			\
+> +										\
+> +	/* validate input data */						\
+> +	if (sscanf(buf, "%d", &value) < 1) {					\
+> +		result = -EINVAL;						\
+> +		goto error;							\
+> +	}									\
+> +	if (value>255 || value<0) {						\
+> +		result = -EINVAL;						\
+> +		goto error;							\
+> +	}									\
+> +										\
+> +	result = vendor_command(cyp, CY7C63_WRITE_PORT, write_id,		\
+> +					 (unsigned char)value);			\
+> +										\
+> +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n",result);	\
+> +error:										\
+> +	return result < 0 ? result : count;					\
+> +}										\
+> +										\
+> +static ssize_t get_port##num(struct device *dev,				\
+> +				 struct device_attribute *attr, char *buf) {	\
+> +										\
+> +	int result = 0;								\
+> +										\
+> +	struct usb_interface *intf = to_usb_interface(dev);			\
+> +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
+> +										\
+> +	dev_dbg(&cyp->udev->dev, "READ_PORT%d called\n", num);			\
+> +										\
+> +	result = vendor_command(cyp, CY7C63_READ_PORT, read_id, 0);		\
+> +										\
+> +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n", result);	\
+> +										\
+> +	return sprintf(buf, "%d", cyp->port##num);				\
+> +}										\
+> +static DEVICE_ATTR(port##num, S_IWUGO | S_IRUGO, get_port##num, set_port##num);
+> +
+> +get_set_port(0, CY7C63_READ_PORT_ID0, CY7C63_WRITE_PORT_ID0);
+> +get_set_port(1, CY7C63_READ_PORT_ID1, CY7C63_WRITE_PORT_ID1);
 
-Tested against: linus 2.6.13, linus 2.6.17-rc6.
+You get "best abuse of the macros" prize. Can you just use functions,
+and pass num as aditional argument? Then just wrap the long functions
+in small ones... converting cyp->port0/1 into array will be handy..
 
-Test output from a filesystem not supporting sub-second timestamps (ext3, r=
-eiserfs):
-creat:   m=3D1149891410.0 c=3D1149891410.0 a=3D1149891407.0
-futimes: m=3D1149891410.0 c=3D1149891410.0 a=3D1149891410.0
 
-Test output from a filesystem supporting sub-second timestamps (jfs,xfs,ram=
-fs):
-creat:   m=3D1149891452.928796249 c=3D1149891452.928796249 a=3D1149891452.9=
-28796249
-futimes: m=3D1149891452.928796249 c=3D1149891452.928796249 a=3D1149891452.9=
-28796249
+> +static int cy7c63_probe(struct usb_interface *interface,
+> +			const struct usb_device_id *id) {
 
-Test output from the tmpfs filesystem before the fix:
-creat:   m=3D1149892052.562029884 c=3D1149892052.562029884 a=3D1149892052.5=
-62029884
-futimes: m=3D1149892052.0         c=3D1149892052.0         a=3D1149892052.0
+{ on new line, please...
 
-Test output from the tmpfs filesystem with the patch below:
-creat:   m=3D1149892086.382150894 c=3D1149892086.382150894 a=3D1149892075.4=
-73249075
-futimes: m=3D1149892086.383150885 c=3D1149892086.383150885 a=3D1149892086.3=
-83150885
+BTW could we get come better name for the driver? cy7c63 looks like
+password of very paranoid sysadmin.
 
-After some digging, I found that this was being caused by tmpfs not having a
-time granularity set, thus inheriting the default 1s granularity.
+> +	/* let the user know what node this device is now attached to */
+> +	dev_info(&interface->dev,
+> +		"Cypress CY7C63xxx device now attached\n");
 
-NOTE: This also indicates there is another bug at the VFS layer, where the
-initial timestamp did not have the granularity applied to it.
+In cases like this we aling " one character to the right.
 
-Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+Otherwise it looks okay.
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2102,6 +2102,7 @@ #endif
- 	sb->s_blocksize_bits =3D PAGE_CACHE_SHIFT;
- 	sb->s_magic =3D TMPFS_MAGIC;
- 	sb->s_op =3D &shmem_ops;
-+	sb->s_time_gran =3D 1;
-=20
- 	inode =3D shmem_get_inode(sb, S_IFDIR | mode, 0);
- 	if (!inode)
-
---=20
-Robin Hugh Johnson
-E-Mail     : robbat2@gentoo.org
-GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
-
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
-Comment: Robbat2 @ Orbis-Terrarum Networks
-
-iD8DBQFEifsAPpIsIjIzwiwRAsKSAJ9Oqey0BepWssiuPwb3rP72OkRm1gCg3CA4
-tcp52wxeuoIvzuc6aQxOB4Q=
-=ym45
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

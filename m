@@ -1,91 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWFISZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbWFISZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWFISZe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWFISZd
+	id S1030348AbWFISZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWFISZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:25:33 -0400
-Received: from relay03.pair.com ([209.68.5.17]:8709 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1030267AbWFISZc (ORCPT
+	Fri, 9 Jun 2006 14:25:58 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27277 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030348AbWFISZ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:25:32 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Fri, 9 Jun 2006 13:25:30 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Gerrit Huizenga <gh@us.ibm.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-In-Reply-To: <E1FolFA-0007RU-Ab@w-gerrit.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.64.0606091316540.5541@turbotaz.ourhouse>
-References: <E1FolFA-0007RU-Ab@w-gerrit.beaverton.ibm.com>
+	Fri, 9 Jun 2006 14:25:57 -0400
+Message-ID: <4489BD36.9080705@engr.sgi.com>
+Date: Fri, 09 Jun 2006 11:25:58 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, jlan@sgi.com,
+       csturtiv@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com> <20060609010057.e454a14f.akpm@osdl.org> <448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <44897583.5060206@watson.ibm.com>
+In-Reply-To: <44897583.5060206@watson.ibm.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jun 2006, Gerrit Huizenga wrote:
-
-> We are seeing storage needs increasing at a frightening rate.  Health
-> Care folks want to store your MRI's, x-ray's, ultraounds, etc. in high
-> res digital format across your entire life in near-line format.  Terabytes
-> over time per person.  Europe is already doing this pretty extensively,
-> the US is following suit.  Digital media creation has huge storage needs.
-> Most everything is moving to podcasts, webcasts, streaming audio & video.
-> Storage is huge, and ext3 is at the current breaking point.
+Shailabh Nagar wrote:
+> Andrew Morton wrote:
 >
-> I'd argue that whatever we call it, we need a standard, stable, supported
-> solution *soon* for large files, large filesystems, large storage systems
-> in Linux.
+>> On Fri, 09 Jun 2006 16:21:46 +0530
+>> Balbir Singh <balbir@in.ibm.com> wrote:
+>>
+>>  
+>>
+>>> Andrew Morton wrote:
+>>>   
+>>>> On Fri, 09 Jun 2006 03:41:04 -0400
+>>>> Shailabh Nagar <nagar@watson.ibm.com> wrote:
+>>>>
+>>>>
+>>>>     
+>>>>> Hence, this patch introduces a configuration parameter
+>>>>>     /sys/kernel/taskstats_tgid_exit
+>>>>> through which a privileged user can turn on/off sending of
+>>>>> per-tgid stats on
+>>>>> task exit.
+>>>>>       
+>>>> That seems a bit clumsy.  What happens if one consumer wants the
+>>>> per-tgid
+>>>> stats and another does not?
+>>>>     
+> Then the tgid stat sending on exit will need to be turned on for
+> everyone.
+
+I guess that is the limitation of taskstats. One multicast socket for
+every listeners.
+
 >
-> I'd think the quickest path is to relieve the pressure now in ext3.
-
-Makes sense...
-
->> So we have empirical evidence that splitting filesystem work up does
->> actually help.
+>>> For all subsystems that re-use the taskstats structure from the exit
+>>> path,
+>>> we have the issue that you mentioned. Thats because several
+>>> statistics co-exist
+>>> in the same structure. These subsystems can keep their tgid-stats
+>>> empty by not
+>>> filling up anything in fill_tgid() or using this patch to
+>>> selectively enable/disable
+>>> tgid stats.
+>>>   
+>>> For other subsystems, they could pass tgidstats as NULL to
+>>> taskstats_exit_send().
+>>>
+>>>   
+>>
+>> I don't understand.  If a subsystem exists then it fills in its slots in
+>> the taskstats structure, doesn't it?
+>>  
+>>
+> It can choose not to, by not inserting its "fill my fields" function
+> inside the do..while_each_thread
+> loop within fill_tgid. So while they would still necessarily receive
+> the per-tgid taskstats struct on exit
+> (because some other subsystem needs it), they can atleast save on
+> filling up their part of the struct
+> if they don't need it.
 >
-> Agreed.  But... Maybe that should be the set of changes *following*
-> extents.  Then the file format can change, several of the pending ideas
-> can be worked in, and some of the backwards compatibility can be cleaned
-> out if it is in the way.  Then the extents work can get us something
-> usable in all the interim distro releases for the real users who are
-> screaming now about the filesystem size limits.
+>> No other subsystem needs a global knob, does it?
+>>  
+>>
+> I didn't understand.
+>
+>> You see the problem - if one userspace package wants the tgid-stats and
+>> another concurrently-running one does now, what do we do?  Just leave it
+>> enabled and run a bit slower?
+>>  
+>>
+> Yes, thats what will have to be done. If one user wants, all users
+> will need to get the stats. They can
+> limit their impact by not processing the parts of the netlink message
+> that correspond to the per-tgid stats
+> (since the per-tgid stats are sent as a separate attribute, thats easy
+> to do).
+>
+> This patch covers the use case where someone like CSA is the only user
+> (delay accounting is turned off)
+> and wants to reduce the performance impact of the kernel allocating,
+> sending and userspace discarding
+> the per-tgid stats.
+>
+>> If so, how much slower?  Your changelog says some potential users don't
+>> need the tgid-stats, but so what?  I assume this patch is a performance
+>> thing? 
+> Yes, its a performance optimization.
 
-Let's call ext3 "Linux 2.4" for a second and ext(x) w/extents and 48-bit 
-"Linux 2.5". We can now do all the crazy, wild work we want on 2.5, but 
-people need it tomorrow. And they can have it, but we're stamping 
-"Dangerous! Dangerous! Unstable! API changes every 5 minutes, your data 
-will be obsoleted each release!" all over it. This goes on for years until 
-we finally reach a point where we can roll out "Linux 2.6".
+Well, for every task exists, two sets of  data (of struct taskstats) would
+be sent from kernel: one is the stats for the pid, the other is the
+up-to-current stats for the thread (tgid).
 
-The trouble is that "Linux 2.6" is something many of us are going to be 
-wanting _now_.
+Strictly speakly,  the second set of data is not per-task stats. For
+accounting
+subsystems that do not use thread as aggregation, 50% of the data from
+the kernel is useless. The option to not sending thread data is very
+important.
+Of course we are betting a customer site does not run two different
+application on the same system.
 
-Now, taking the quotes back off "Linux 2.6" and speaking about the kernel 
-as a whole again - isn't lots of incremental stable releases with new 
-functionality something that cutting off the development arm made 
-possible?
+>
+>> If so, has it been quantified?
+>>  
+>>
+> No :-(
+> Will try to get some numbers.
+> Jay/Chris, if you can try to do that too, for the kind of usage that
+> is typical of CSA,
+> that would be great.
 
-I acknowledge the concerns about filesystem stability and Linus's points 
-about improperly shared code. From a practical standpoint, I see the need 
-of bigger filesystems coming.
+Probably not until some time next week. But as i point out, 50% of
+traffic is
+not useful to CSA.
 
-And the biggest practical problem I see is one of perception. Making 
-'ext4' means labelling it unstable for a while. And once something like a 
-_filesystem_ is called unstable, it's going to be a long time before 
-people trust it with terabytes of their incredibly valuable data (even if 
-we promise them that it's mostly an ext3 fork).
+Thanks,
+ - jay
 
-Whereas if you play with some experimental 48-bit extension on ext3, well, 
-ext3 already has a good reputation and is in use everywhere, so maybe this 
-isn't a bad "last feature" to add before forking off into ext4-land?
+>
+> --Shailabh
+>
 
-> gerrit
-
-Cheers,
-Chase

@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWFIC4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWFIDei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWFIC4R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 22:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWFIC4R
+	id S1751373AbWFIDei (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 23:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWFIDei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 22:56:17 -0400
-Received: from xenotime.net ([66.160.160.81]:63655 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751370AbWFIC4Q (ORCPT
+	Thu, 8 Jun 2006 23:34:38 -0400
+Received: from users.ccur.com ([66.10.65.2]:29888 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S1751373AbWFIDei (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 22:56:16 -0400
-Date: Thu, 8 Jun 2006 19:59:02 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Barry Scott <barry.scott@onelan.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc6 Section mismatch warnings
-Message-Id: <20060608195902.26902ef0.rdunlap@xenotime.net>
-In-Reply-To: <4488057A.9090301@onelan.co.uk>
-References: <4488057A.9090301@onelan.co.uk>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Thu, 8 Jun 2006 23:34:38 -0400
+Date: Thu, 8 Jun 2006 23:33:50 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Paul Dickson <paul@permanentmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, rahul@genebrew.com,
+       ram.gupta5@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: booting without initrd
+Message-ID: <20060609033350.GA1148@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com> <b29067a0606081040q17c66f5bpa966da851635e942@mail.gmail.com> <1149813659.3124.31.camel@laptopd505.fenrus.org> <20060608184325.5c470dcf.paul@permanentmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060608184325.5c470dcf.paul@permanentmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 08 Jun 2006 12:09:46 +0100 Barry Scott wrote:
+On Thu, Jun 08, 2006 at 06:43:25PM -0700, Paul Dickson wrote:
+> On Fri, 09 Jun 2006 02:40:59 +0200, Arjan van de Ven wrote:
+> > On Thu, 2006-06-08 at 13:40 -0400, Rahul Karnik wrote:
+> > > On 6/7/06, Ram Gupta <ram.gupta5@gmail.com> wrote:
+> > > > I am trying to boot with 2.6.16  kernel at my desktop running fedora
+> > > > core 4 . It does not boot without initrd generating the message "VFS:
+> > > > can not open device "804" or unknown-block(8,4)
+> > > > Please append a correct "root=" boot option
+> > > > Kernel panic - not syncing : VFS:Unable to mount root fs on unknown-block(8,4)
+> > > 
+> > > AFAIK Fedora sets up the kernel command line with "root=LABEL=/" in
+> > > grub.conf and therefore needs the initrd in order to work correctly.
+> > > If you do not want an initrd, then change this to
+> > > "root=/dev/<your_disk>" in grub.conf. 
+> > 
+> > it's more than that; also udev is used from the initrd to populate a
+> > ramfs /dev, if you go without the initrd you need to populate the
+> > *real* /dev manually first
 
-> When I built 2.6.17-rc6 I see a lot of warnings after the MODPOST message
-> about Section mismatch. What did I do wrong in building the kernel and 
-> modules?
-...
-> Here are some of the warnings:
+When I do the following to FC5, I am able to boot kernel.org kernels w/o
+an initrd:
 
-It would be helpful if someone could look at/work on the
-section mismatches in the isdn and sound drivers...
+        # mount --bind / /mnt
+	# cd /mnt/dev
+	# mknod null c 1 3
+	# mknod console c 5 1
+	# for i in $(seq 0 9); do mknod tty$i c 4 $i; done
+	# cd /
+	# umount /mnt
 
-I have 6 new patches to post, then I'll be
-sweeping the net drivers soon.
+IMHO, FC5's failure to set up a minimal disk-based /dev like this
+is a bug on its part.
 
-> WARNING: drivers/scsi/megaraid/megaraid_mbox.o - Section mismatch: 
-> reference to .init.text: from .text between 'megaraid_probe_one' (at 
-> offset 0x1f00) and 'megaraid_queue_command'
-
-Can you see if
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/broken-out/megaraid_mbox-fix-section-mismatch-warnings.patch
-fixes the megaraid warning for you?
-
-
-
----
-~Randy
+Regards,
+Joe

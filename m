@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965269AbWFIP4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWFIP5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965269AbWFIP4d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWFIP4c
+	id S1030253AbWFIP5l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWFIP5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:56:32 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:45490 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1030249AbWFIPz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:55:58 -0400
-Subject: Re: 2.6.17-rc6-rt1
-From: Daniel Walker <dwalker@mvista.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: tglx@linutronix.de,
-       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       John Stultz <johnstul@us.ibm.com>, Deepak Saxena <dsaxena@plexity.net>
-In-Reply-To: <1149860558.7423.9.camel@Homer.TheSimpsons.net>
-References: <20060607211455.GA6132@elte.hu>
-	 <1149842550.7585.27.camel@Homer.TheSimpsons.net>
-	 <1149847951.3829.26.camel@frecb000686>
-	 <1149852951.7421.7.camel@Homer.TheSimpsons.net>
-	 <1149853468.3829.33.camel@frecb000686>
-	 <1149855638.7413.8.camel@Homer.TheSimpsons.net>
-	 <1149857821.3829.42.camel@frecb000686>
-	 <1149858713.5257.146.camel@localhost.localdomain>
-	 <1149860558.7423.9.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 09 Jun 2006 08:55:55 -0700
-Message-Id: <1149868555.3187.25.camel@c-67-180-134-207.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+	Fri, 9 Jun 2006 11:57:41 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:42893 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030220AbWFIP5J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:57:09 -0400
+Message-ID: <44899A53.7080805@garzik.org>
+Date: Fri, 09 Jun 2006 11:57:07 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
+       cmm@us.ibm.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-09 at 15:42 +0200, Mike Galbraith wrote:
-> On Fri, 2006-06-09 at 15:11 +0200, Thomas Gleixner wrote:
-> > On Fri, 2006-06-09 at 14:57 +0200, Sébastien Dugué wrote:
-> > > All the round trips under strace are in the 2ms range.
-> > > 
-> > >   How on earth can it be that stracing the ping gives better
-> > > performance???
-> > 
-> > Was busy fixing a scheduling while atomic bug. I just verified that I
-> > have the same weird behaviour. I'm looking into it.
+Linus Torvalds wrote:
+> Quite frankly, at this point, there's no way in hell I believe we can do 
+> major surgery on ext3. It's the main filesystem for a lot of users, and 
+> it's just not worth the instability worries unless it's something very 
+> obviously transparent.
 > 
-> I downloaded and patched a ping.c to do a user triggered latency trace
-> around recvfrom() of a ping -c 1 127.0.0.1 running SCHED_RR.  We
-> schedule away at 25us, do aaaall kinds of interesting stuff, and come
-> back at 42234us.  If you want the trace, holler.  It's 51k bzipped.
+> I wouldn't mind an ext4 (that hopefully drops some of the features of 
+> ext3, and might not downgrade to ext2 on errors, for example).
 
-What priority ?
+Certainly agreed, for all of this :)
 
-Daniel
+I think that the lack of ext4 means people keep trying to stuff the 
+wrong things into ext3.
+
+	Jeff
+
 

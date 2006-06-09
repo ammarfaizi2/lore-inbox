@@ -1,115 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWFIOy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWFIOzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWFIOy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 10:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWFIOy7
+	id S1030190AbWFIOzV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 10:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWFIOzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 10:54:59 -0400
-Received: from smarthost1.sentex.ca ([64.7.153.18]:21452 "EHLO
-	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
-	id S1030187AbWFIOy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 10:54:58 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: serial_core: verify_port() in wrong spot?
-Date: Fri, 9 Jun 2006 10:52:31 -0400
-Organization: Connect Tech Inc.
-Message-ID: <090301c68bd4$560c92b0$294b82ce@stuartm>
+	Fri, 9 Jun 2006 10:55:21 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:37297 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1030190AbWFIOzP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 10:55:15 -0400
+X-Comment-To: Jeff Garzik
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alex Tomas <alex@clusterfs.com>, Christoph Hellwig <hch@infradead.org>,
+       Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net>
+	<44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net>
+	<4489874C.1020108@garzik.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Fri, 09 Jun 2006 18:57:10 +0400
+In-Reply-To: <4489874C.1020108@garzik.org> (Jeff Garzik's message of "Fri, 09 Jun 2006 10:35:56 -0400")
+Message-ID: <m3y7w6cr7d.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Posted yesterday to linux-serial with no response.
+>>>>> Jeff Garzik (JG) writes:
 
-The OX16PCI954 UART contains a 9bit mode. I'm developing support for
-it. I thought it would be easy to shoehorn into the UPF_* flags:
+ JG> Alex Tomas wrote:
+ >>>>>>> Jeff Garzik (JG) writes:
+ JG> And thus, inodes are progressively incompatible with older
+ JG> kernels. Boot into an older kernel, and you can now only read half
+ JG> your filesystem (if it even allows mount at all).
+ >> nope, you aren't allowed to mount fs with extents-enabled files
+ >> by ext3 which has no the feature compiled in. the same will
+ >> happen if you call it ext4.
 
-diff -Naurp linux-2.6.11-5-titan485/include/linux/serial_core.h linux-2.6.11-6-9bit/include/linux/serial_core.h
---- linux-2.6.11-5-titan485/include/linux/serial_core.h	2006-06-02 13:59:07.000000000 -0400
-+++ linux-2.6.11-6-9bit/include/linux/serial_core.h	2006-06-07 18:11:51.000000000 -0400
-@@ -219,6 +219,7 @@ struct uart_port {
- #define UPF_SKIP_TEST		(1 << 6)
- #define UPF_AUTO_IRQ		(1 << 7)
- #define UPF_HARDPPS_CD		(1 << 11)
-+#define UPF_9BIT		(1 << 12)
- #define UPF_LOW_LATENCY		(1 << 13)
- #define UPF_BUGGY_UART		(1 << 14)
- #define UPF_AUTOPROBE		(1 << 15)
+ JG> This is my point...  why increase user confusion by calling it ext3, then?
 
-However, in serial_core.c:set_uart_info(), there is a problem. The
-flag should be within the purview of UPF_USR_MASK so that
-non-privileged users can turn it on or off, and yet, I don't want the
-mode to be enabled on UARTs that don't have it which requires
-verification from the low-level driver. There is only one call to
-ops->verify_port(), and it's not in the correct place for this to
-happen.
+by default it's still old good ext3 without extents. user should
+enable it explicitly. for him, this means the feature is ready
+to be used anytime. the only thing he needs is to (re)mount fs
+with the option. for us, this means: a) a single source tree -
+easy to maintain b) we must be clear with user that the feature
+isn't backward compatible
 
-So, I initially thought this patch would be best:
+thanks, Alex
 
-diff -Naurp linux-2.6.11-5-titan485/drivers/serial/serial_core.c linux-2.6.11-6-9bit/drivers/serial/serial_core.c
---- linux-2.6.11-5-titan485/drivers/serial/serial_core.c	2006-06-07 16:01:44.000000000 -0400
-+++ linux-2.6.11-6-9bit/drivers/serial/serial_core.c	2006-06-08 11:08:00.000000000 -0400
-@@ -647,6 +647,12 @@ static int uart_set_info(struct uart_sta
- 	old_flags = port->flags;
- 	old_custom_divisor = port->custom_divisor;
- 
-+	/*
-+	 * Ask the low level driver to verify the settings.
-+	 */
-+	if (port->ops->verify_port)
-+		retval = port->ops->verify_port(port, &new_serial);
-+
- 	if (!capable(CAP_SYS_ADMIN)) {
- 		retval = -EPERM;
- 	if (change_irq || change_port ||
-@@ -662,12 +668,6 @@ static int uart_set_info(struct uart_sta
- 		goto check_and_exit;
- 	}
-
--	/*
--	 * Ask the low level driver to verify the settings.
--	 */
--	if (port->ops->verify_port)
--		retval = port->ops->verify_port(port, &new_serial);
--
- 	if ((new_serial.irq >= NR_IRQS) || (new_serial.irq < 0) ||
- 	    (new_serial.baud_base < 9600))
- 		retval = -EINVAL;
-
-but I'm not sure that's not a security hole of some sort; revealing
-that the setting is valid or invalid before revealing whether the user
-is allowed to set it. So perhaps this is better:
-
-diff -Naurp linux-2.6.11-5-titan485/drivers/serial/serial_core.c linux-2.6.11-6-9bit/drivers/serial/serial_core.c
---- linux-2.6.11-5-titan485/drivers/serial/serial_core.c	2006-06-07 16:01:44.000000000 -0400
-+++ linux-2.6.11-6-9bit/drivers/serial/serial_core.c	2006-06-08 11:45:16.000000000 -0400
-@@ -656,6 +656,14 @@ static int uart_set_info(struct uart_sta
- 		    (new_serial.xmit_fifo_size != port->fifosize) ||
- 		    (((new_serial.flags ^ old_flags) & ~UPF_USR_MASK) != 0))
- 			goto exit;
-+		/*
-+		 * Ask the low level driver to verify the settings.
-+		 */
-+		if (port->ops->verify_port) {
-+			retval = port->ops->verify_port(port, &new_serial);
-+			if (retval)
-+				goto exit;
-+		}
- 		port->flags = ((port->flags & ~UPF_USR_MASK) |
- 			       (new_serial.flags & UPF_USR_MASK));
- 		port->custom_divisor = new_serial.custom_divisor;
-
-but I don't like the duplication of code.
-
-Any thoughts?
-
-..Stu
-
+PS. in the end this is just ext3 with one more feature ...

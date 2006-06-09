@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965299AbWFIU6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965298AbWFIU6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965299AbWFIU6L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWFIU6L
+	id S965298AbWFIU6r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965296AbWFIU6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:58:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22202 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965294AbWFIU6J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:58:09 -0400
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Matthew Frost <artusemrys@sbcglobal.net>,
-       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <4489D44A.1080700@garzik.org>
-References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
-	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org>
-	 <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org>
-	 <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net>
-	 <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org>
-	 <20060609194959.GC10524@thunk.org>  <4489D44A.1080700@garzik.org>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 21:57:50 +0100
-Message-Id: <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
+	Fri, 9 Jun 2006 16:58:46 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:59876 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S965298AbWFIU6q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:58:46 -0400
+Message-ID: <4489E0FF.6030904@zytor.com>
+Date: Fri, 09 Jun 2006 13:58:39 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Nickolay <nickolay@protei.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: initramfs: who does cat init.sh >> init ?
+References: <4489D93F.7090401@protei.ru> <e6cllv$dnb$1@terminus.zytor.com> <4489DB15.9010506@protei.ru> <4489DC2E.4030004@zytor.com> <4489DE84.309@protei.ru> <4489DF03.6020600@zytor.com> <4489E030.2090602@protei.ru>
+In-Reply-To: <4489E030.2090602@protei.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nickolay wrote:
+> H. Peter Anvin wrote:
+> 
+>> Nickolay wrote:
+>>
+>>>
+>>> yes, i can't grep init.sh in the kernel tree too, this is because i 
+>>> start asking...
+>>> But anyway, the problem is still...
+>>>
+>>
+>> Perhaps you should show more context... what comes around this 
+>> mysterious invocation in your make V=1 log. Also your .config would help.
+>>
+>> -hpa
+> 
+> OK. Here it is:
+> 
+> --------------------------------------------------------------------------------------------------- 
+> 
+> bash-3.00# make zImage V=1
+> rm -f .kernelrelease
+> echo 2.6.17-rc4-g3bcc86f5-dirty > .kernelrelease
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-On Fri, 2006-06-09 at 16:04 -0400, Jeff Garzik wrote:
+Modified kernel source.
 
-> Consider a blkdev of size S1.  Using LVM we increase that value under 
-> the hood to size S2, where S2 > S1.  We perform an online resize from 
-> size S1 to S2.  The size and alignment of any new groups added will 
-> different from the non-resize case, where mke2fs was run directly on a 
-> blkdev of size S2.
-
-No, they won't.  We simply grow the last block group in the filesystem
-up to the size where we'd naturally add another block group anyway; and
-then, we add another block group exactly where it would have been on a
-fresh mkfs.
-
---Stephen
-
-
+	-hpa

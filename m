@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbWFIUlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWFIUoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbWFIUlu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWFIUlu
+	id S965163AbWFIUoF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbWFIUoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:41:50 -0400
-Received: from web26912.mail.ukl.yahoo.com ([217.146.177.79]:2671 "HELO
-	web26912.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S965157AbWFIUlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:41:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=QuJ+RXZwifLrTAlf1AHiMVWBaH0IUl+mMY0KazM1FKYAm5mMAFaVR5duksyfqd3TbKY0aEqY9dMzKSdSVI06/ufESLGDV1IbL/JywrHwGoqyvWEH2kkzdhHO4QDd6lJ/mVA9gVWruY8xQcuGm9owEFiZXsBVS8yfZjJIED9nWMY=  ;
-Message-ID: <20060609204147.61760.qmail@web26912.mail.ukl.yahoo.com>
-Date: Fri, 9 Jun 2006 22:41:47 +0200 (CEST)
-From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Subject: Re: [RFC] ATA host-protected area (HPA) device mapper?
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+	Fri, 9 Jun 2006 16:44:05 -0400
+Received: from c-71-234-110-81.hsd1.ct.comcast.net ([71.234.110.81]:56756 "EHLO
+	h.klyukin.com") by vger.kernel.org with ESMTP id S965163AbWFIUoD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:44:03 -0400
+Message-ID: <4489DD91.4060404@klyukin.com>
+Date: Fri, 09 Jun 2006 16:44:01 -0400
+From: Yaroslav Klyukin <slava@klyukin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051121
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Ram Gupta <ram.gupta5@gmail.com>
+CC: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: booting without initrd
+References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com>
+In-Reply-To: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- XXXXXXXX wrote:
-> It tends to be preferred around here to implement hardware features so 
-> that hardware actually works, rather than to implement spec and blame 
-> the hardware for failing to work to the spec.
-
- Well, the IDE hardware works, and conform to the ATA specs.
- Gujin is using those ATA command for quite a long time.
- I just have a problem with SATA chipset not being ATA1-7 compatible.
-
->  If, as you say, most BIOS 
-> don't obey the spec, then implementing a spec that bears little 
-> resemblance to actual behavior only helps the small number of 
-> spec-compliant implementations.
-
-  The main problem for BIOS manufacturer is the keyboard mapping
- recognition to enter the password. And there is no real point
- in freezing the password system of a locked drive.
-  Gujin try to solve most of those problems, but because it is
- located on the hard disk itself limit the choice - it would be
- so nice to have a big enough BIOS FLASH and put Gujin there.
- Second best choice is having two hard disks (compact flash as
- first HD with compact flash <-> IDE adapter).
-
-> >   The complete ATA specification is describing a register interface since ATA1,
-> >  SATA chipsets should be software compatible, even if they add commands/interfaces:
-> > http://www.sata-io.org/interopfaq.asp    say:
-> >     Are there any known interoperability issues with SATA?
-> >     One of the primary requirements of the SATA 1.0 specification was to
-> >     maintain backward compatibility with existing operating system drivers
-> >     to eliminate incompatibility issues.
-> > 
+Ram Gupta wrote:
+> I am trying to boot with 2.6.16  kernel at my desktop running fedora
+> core 4 . It does not boot without initrd generating the message "VFS:
+> can not open device "804" or unknown-block(8,4)
+> Please append a correct "root=" boot option
+> Kernel panic - not syncing : VFS:Unable to mount root fs on
+> unknown-block(8,4)
 > 
-> Again with the "The spec says it works this way, so I can do it this 
-> way."  I realize that you can be perfectly, legally, safe implementing 
-> specified behavior, but it leaves you doing what you are doing here, 
-> which is blaming the hardware for not living up to the specification. 
+> I have disabled the module support & built in all modules/drivers for
+> ide/scsi/sata but it does not boot. I have to disable the module as I
+> need a statically built  kernel.
 
-  Well the ATA specs are quite old, Gujin still work with the BIOS hard disk
- so still act as a bootloader, but it can not protecting you against a
- 1 milisecond attack setting password.
- By the way the SATA specs are not free.
+Depending on the type of SATA you use, the hard disk may be called either /dev/sda or /dev/hda
+libata emulates SCSI, so it will be called /dev/sda
 
-> It is generally the choice in the linux kernel to make the hardware 
-> work, and ignore the specification where it is irrelevant to actual 
-> functionality.  Read up on the SAS Transport Layer.
+Find out which partition is /
+Eg: /dev/sda2
 
-  Oh yes, Gujin has some strange code to make things work at the end,
- look for ATAPI stuff - I can and do ignore the specs to make the software
- work on real hardware.
+Then append root=/dev/sda2 to the kernel boot prompt.
+If you are using grub, press "e" for "edit".
 
-  Cheers,
-  Etienne.
+All that will work given that you have built the proper IDE or SCSI drivers into the kernel.
+Also, make sure you have built the proper filesystem support into the kernel too.
 
+> 
+> If someone could describe the way to boot without initrd it will be great.
+> 
+> Thanks in advance for your cooperation.
+> Ram Gupta
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-
-__________________________________________________
-Do You Yahoo!?
-En finir avec le spam? Yahoo! Mail vous offre la meilleure protection possible contre les messages non sollicités 
-http://mail.yahoo.fr Yahoo! Mail 

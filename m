@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWFIPml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWFIPpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbWFIPml (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWFIPmk
+	id S1030224AbWFIPpF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWFIPpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:42:40 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:7556 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S1030219AbWFIPmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:42:39 -0400
-Date: Fri, 9 Jun 2006 09:42:38 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609154238.GN1651@parisc-linux.org>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44899653.1020007@garzik.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 9 Jun 2006 11:45:05 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:49548 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030183AbWFIPpC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:45:02 -0400
+Message-ID: <44899778.1010705@garzik.org>
+Date: Fri, 09 Jun 2006 11:44:56 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Alex Tomas <alex@clusterfs.com>
+CC: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org> <m3r71ycprd.fsf@bzzz.home.net>
+In-Reply-To: <m3r71ycprd.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 11:40:03AM -0400, Jeff Garzik wrote:
-> Users are now forced to remember that, if they write to their filesystem 
-> after using either $mmver or $korgver kernels, they are locked out of 
-> using older kernels.
+Alex Tomas wrote:
+>  JG> "ext3" will become more and more meaningless.  It could mean _any_ of 
+>  JG> several filesystem metadata variants, and the admin will have no clue 
+>  JG> which variant they are talking to until they try to mount the blkdev 
+>  JG> (and possibly fail the mount).
 > 
-> From the user's perspective, ext3 has no clear "metadata version 1", 
-> "metadata version 2" division.  Thus they are now forced to keep a 
-> matrix of kernel versions and ext3 feature flag support, to know which 
-> kernels are usable with which data.  It is a support nightmare.
+> debugfs <dev> -R stats | grep features ?
 
-Hang on, you're going too far.  You have to enable extents with the
-extent mount option.  Otherwise you don't get to use them.  The user
-does, in fact, have a clear division, although maybe the blinky signs
-aren't quite luminous enough.
+The question is, do you
 
-I still think making ext3 bigger than 16TB is just silly.
+a) expect users to run this magic command, and DTRT or
+
+b) watch users boot w/ extents, accidentally do something silly like 
+writing data to a file, and become locked into a new subset of kernels?
+
+The simple act of writing data to a file has become an _irrevocable 
+filesystem upgrade event_.
+
+	Jeff
+
+
+

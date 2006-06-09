@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbWFIVt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbWFIVvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030534AbWFIVt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbWFIVt0
+	id S1030541AbWFIVvy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWFIVvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:49:26 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:17574 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030529AbWFIVtZ (ORCPT
+	Fri, 9 Jun 2006 17:51:54 -0400
+Received: from thunk.org ([69.25.196.29]:58086 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1030541AbWFIVvv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:49:25 -0400
-Message-ID: <4489ECDD.9060307@garzik.org>
-Date: Fri, 09 Jun 2006 17:49:17 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Matthew Frost <artusemrys@sbcglobal.net>,
-       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+	Fri, 9 Jun 2006 17:51:51 -0400
+Date: Fri, 9 Jun 2006 17:51:37 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Jeff Garzik <jeff@garzik.org>, Alex Tomas <alex@clusterfs.com>,
        Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       Andreas Dilger <adilger@clusterfs.com>
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org>	 <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org>	 <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net>	 <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org>	 <20060609194959.GC10524@thunk.org>  <4489D44A.1080700@garzik.org> <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk>
-In-Reply-To: <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Message-ID: <20060609215137.GG10524@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jeff Garzik <jeff@garzik.org>, Alex Tomas <alex@clusterfs.com>,
+	Andrew Morton <akpm@osdl.org>,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+	cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+	Andreas Dilger <adilger@clusterfs.com>
+References: <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org> <20060609195750.GD10524@thunk.org> <20060609203803.GF3574@ca-server1.us.oracle.com> <20060609210319.GF10524@thunk.org> <20060609212410.GJ3574@ca-server1.us.oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060609212410.GJ3574@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Fri, 2006-06-09 at 16:04 -0400, Jeff Garzik wrote:
-> 
->> Consider a blkdev of size S1.  Using LVM we increase that value under 
->> the hood to size S2, where S2 > S1.  We perform an online resize from 
->> size S1 to S2.  The size and alignment of any new groups added will 
->> different from the non-resize case, where mke2fs was run directly on a 
->> blkdev of size S2.
-> 
-> No, they won't.  We simply grow the last block group in the filesystem
-> up to the size where we'd naturally add another block group anyway; and
-> then, we add another block group exactly where it would have been on a
-> fresh mkfs.
+On Fri, Jun 09, 2006 at 02:24:10PM -0700, Joel Becker wrote:
+> 	Heck, forget the name, just make the breakage more explicit.  Do
+> it at mkfs/tunefs time.  "tunefs -extents" or "mkfs -t ext3 -extents".
+> A mount option assumes that you can do with or without it.  If you do it
+> once, you can mount the next time without it and stuff Just Works.  Even
+> htree follows this.  A clean unmount leaves a clean directory structure
+> that a non-htree driver can use.
 
-Yes but the inodes per group etc. would differ.
+Agreed; I've was never a fan of how we enabled extended attributes
+using a mount option, as it clutters the /etc/fstab line, among other
+things.  (I added the tune2fs -o feature so that default mount options
+could be stored in the superblock to try to cover that design botch,
+but the real answer is that extended attributes should never have been
+done via a mount option, or at least not only as the right only thing
+you had to do before the feature became enabled.)
 
-	Jeff
+The right approach is what we did with journaling (tune2fs -j or
+tune2fs -O has_journal) and what we did with htree support (tune2fs -O
+dir_index), to explicitly enable that feature, and that's certainly
+what I will be pushing for.
 
-
+						- Ted
 

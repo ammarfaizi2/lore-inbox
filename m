@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWFIUoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbWFIUow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965163AbWFIUoF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbWFIUoF
+	id S965170AbWFIUow (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbWFIUow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:44:05 -0400
-Received: from c-71-234-110-81.hsd1.ct.comcast.net ([71.234.110.81]:56756 "EHLO
-	h.klyukin.com") by vger.kernel.org with ESMTP id S965163AbWFIUoD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:44:03 -0400
-Message-ID: <4489DD91.4060404@klyukin.com>
-Date: Fri, 09 Jun 2006 16:44:01 -0400
-From: Yaroslav Klyukin <slava@klyukin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051121
-X-Accept-Language: en-us, en
+	Fri, 9 Jun 2006 16:44:52 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:10295 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S965168AbWFIUov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:44:51 -0400
+Date: Fri, 9 Jun 2006 13:44:18 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Alex Tomas <alex@clusterfs.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chase Venters <chase.venters@clientec.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609204418.GG3574@ca-server1.us.oracle.com>
+Mail-Followup-To: Alex Tomas <alex@clusterfs.com>,
+	Jeff Garzik <jeff@garzik.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Chase Venters <chase.venters@clientec.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Andreas Dilger <adilger@clusterfs.com>,
+	Andrew Morton <akpm@osdl.org>,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+	linux-fsdevel@vger.kernel.org
+References: <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org> <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org> <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org> <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse> <1149880865.22124.70.camel@localhost.localdomain> <m3irna6sja.fsf@bzzz.home.net> <4489CB42.6020709@garzik.org> <m3wtbq5dgw.fsf@bzzz.home.net>
 MIME-Version: 1.0
-To: Ram Gupta <ram.gupta5@gmail.com>
-CC: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: booting without initrd
-References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com>
-In-Reply-To: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <m3wtbq5dgw.fsf@bzzz.home.net>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram Gupta wrote:
-> I am trying to boot with 2.6.16  kernel at my desktop running fedora
-> core 4 . It does not boot without initrd generating the message "VFS:
-> can not open device "804" or unknown-block(8,4)
-> Please append a correct "root=" boot option
-> Kernel panic - not syncing : VFS:Unable to mount root fs on
-> unknown-block(8,4)
-> 
-> I have disabled the module support & built in all modules/drivers for
-> ide/scsi/sata but it does not boot. I have to disable the module as I
-> need a statically built  kernel.
+On Fri, Jun 09, 2006 at 11:35:43PM +0400, Alex Tomas wrote:
+> that's your point of view. mine is that this option (and code)
+> to be used only when needed. 
 
-Depending on the type of SATA you use, the hard disk may be called either /dev/sda or /dev/hda
-libata emulates SCSI, so it will be called /dev/sda
+	Which is irrelevant.  If you tell the world "extents are
+better!", they're going to turn them on regardless of whether you
+consider their situation a good candidate.  Many non-kernel-hackers
+started using reiserfs before it was usably stable, just because
+"journaling is better!"
 
-Find out which partition is /
-Eg: /dev/sda2
+Joel
 
-Then append root=/dev/sda2 to the kernel boot prompt.
-If you are using grub, press "e" for "edit".
+-- 
 
-All that will work given that you have built the proper IDE or SCSI drivers into the kernel.
-Also, make sure you have built the proper filesystem support into the kernel too.
+Life's Little Instruction Book #347
 
-> 
-> If someone could describe the way to boot without initrd it will be great.
-> 
-> Thanks in advance for your cooperation.
-> Ram Gupta
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	"Never waste the oppourtunity to tell someone you love them."
 
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

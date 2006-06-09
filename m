@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWFIUE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWFIUEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWFIUE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWFIUE2
+	id S1030473AbWFIUEr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030474AbWFIUEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:04:28 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:24513 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030238AbWFIUE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:04:27 -0400
-Subject: Re: Idea about a disc backed ram filesystem
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Sascha Nitsch <Sash_lkl@linuxhowtos.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <305c16960606091243h10638b2ayb7f1066bb839e496@mail.gmail.com>
-References: <mizvekov@gmail.com>
-	 <305c16960606082159v2dc588abo6359d87173327c83@mail.gmail.com>
-	 <200606091343.k59DhC1f004434@laptop11.inf.utfsm.cl>
-	 <305c16960606090807g6372b69dy3167b0e191b2c113@mail.gmail.com>
-	 <1149878633.3894.224.camel@mindpipe>
-	 <305c16960606091227w7e62003bhef576fb07d0aa95@mail.gmail.com>
-	 <1149881504.3894.250.camel@mindpipe>
-	 <305c16960606091243h10638b2ayb7f1066bb839e496@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 16:03:22 -0400
-Message-Id: <1149883402.3894.265.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 9 Jun 2006 16:04:46 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:44704 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030470AbWFIUEh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:04:37 -0400
+Message-ID: <4489D44A.1080700@garzik.org>
+Date: Fri, 09 Jun 2006 16:04:26 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
+       Matthew Frost <artusemrys@sbcglobal.net>,
+       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org> <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org> <20060609194959.GC10524@thunk.org>
+In-Reply-To: <20060609194959.GC10524@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-09 at 16:43 -0300, Matheus Izvekov wrote:
-> On 6/9/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Fri, 2006-06-09 at 16:27 -0300, Matheus Izvekov wrote:
-> > > Sorry, i took a look at the code which handles this and swappiness = 0
-> > > doesnt seem to imply that process memory will never be swapped out.
-> > >
-> >
-> > OK, then use mlockall().
-> >
-> > Lee
-> >
-> >
+Theodore Tso wrote:
+> On Fri, Jun 09, 2006 at 02:51:55PM -0400, Jeff Garzik wrote:
+>> ext3 is already essentially xiafs-on-life-support, when you consider 
+>> today's large storage systems and today's filesystem technology.  Just 
+>> look at the ugly hacks needed to support expanding an ext3 filesystem 
+>> online.
 > 
-> If i make init mlockall, would all child processes be mlocked too?
+> And what ugly hacks are you talking about?  It's actually quite clean;
+> with the latest e2fsprogs, you use the same command (resize2fs) for
+> doing both online and offline resizing.
 
-No.
+Consider a blkdev of size S1.  Using LVM we increase that value under 
+the hood to size S2, where S2 > S1.  We perform an online resize from 
+size S1 to S2.  The size and alignment of any new groups added will 
+different from the non-resize case, where mke2fs was run directly on a 
+blkdev of size S2.
 
-> If not, using this to enforce a system wide policy seems a bit hacky
-> and non trivial.
-> 
-
-Well, what you are trying to do seems hacky.  What real world problem
-are you trying to solve that setting swappiness to 0 is not sufficient
-for?
-
-Lee
+	Jeff
 
 
 

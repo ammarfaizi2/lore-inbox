@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965287AbWFIUwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965257AbWFIUzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965287AbWFIUwy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965280AbWFIUwy
+	id S965257AbWFIUzR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWFIUzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:52:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20407 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965255AbWFIUwx (ORCPT
+	Fri, 9 Jun 2006 16:55:17 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:9357 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S965257AbWFIUzP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:52:53 -0400
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+	Fri, 9 Jun 2006 16:55:15 -0400
+X-Comment-To: Linus Torvalds
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>,
        "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <44899A1C.7000207@garzik.org>
+       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
 References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
-	 <4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>
-	 <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
-	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>	<448997FA.50109@garzik.org>
-	 <m3irnacohp.fsf@bzzz.home.net>  <44899A1C.7000207@garzik.org>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 21:52:42 +0100
-Message-Id: <1149886363.5776.109.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
-Content-Transfer-Encoding: 7bit
+	<4488E1A4.20305@garzik.org>
+	<20060609083523.GQ5964@schatzie.adilger.int>
+	<44898EE3.6080903@garzik.org>
+	<1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>
+	<Pine.LNX.4.64.0606091344290.5498@g5.osdl.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Sat, 10 Jun 2006 00:56:26 +0400
+In-Reply-To: <Pine.LNX.4.64.0606091344290.5498@g5.osdl.org> (Linus Torvalds's message of "Fri, 9 Jun 2006 13:46:28 -0700 (PDT)")
+Message-ID: <m3bqt259qd.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> Linus Torvalds (LT) writes:
 
-On Fri, 2006-06-09 at 11:56 -0400, Jeff Garzik wrote:
+ LT> On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
+ LT> Btw, where did that 2TB limit number come from? Afaik, it should be 16TB 
+ LT> for a 4kB filesystem, no?
 
-> Think about how this will be deployed in production, long term.
-> 
-> If extents are not made default at some point, then no one will use the 
-> feature, and it should not be merged.
+2TB => 16K group descriptors * 8 (sizeof(void*) on 64bit arch) => 128K -- slab limit
 
-Features such as ACLs and SELinux are still not on by default and are
-most *definitely* used.  This is a bogus argument.
+we have a fix for this as well.
 
-> And when extents are default, you have this blizzard-of-feature-flags 
-> stealth upgrade event occur _sometime_ after they boot into the new fs 
-> for the first time.
-
-No.  I don't see it ever being forced on in the kernel by default, so
-there will be no such "stealth upgrades".
-
-Rather, if it is "made default", that will be done by setting the flag
-by default on newly-created filesystems in mke2fs.  We won't be playing
-magic on existing filesystems.
-
-And to avoid confusion, I am *entirely* open to the idea of making it
-only ever default to on in mke2fs at some point in the future where we
-batch a set of incompat features with the "ext4" label, so that "mke2fs
--O ext4", or "mke4fs", would set it.  That has already been proposed on
-ext2-devel; we're nowhere near the stage of making that default yet.
-
---Stephen
-
-
+thanks, Alex

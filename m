@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWFIUEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWFIUE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbWFIUEf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWFIUEf
+	id S1030238AbWFIUE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWFIUE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:04:35 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:2987 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1030312AbWFIUEd
-	(ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:04:33 -0400
-Message-ID: <4489D44E.6060308@compro.net>
-Date: Fri, 09 Jun 2006 16:04:30 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: markh@compro.net
-Cc: tglx@linutronix.de, linux-kerneL@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: RT exec for exercising RT kernel capabilities
-References: <448876B9.9060906@compro.net> <1149795975.5257.83.camel@localhost.localdomain> <44888D8F.2000404@compro.net> <4489614A.3030704@compro.net>
-In-Reply-To: <4489614A.3030704@compro.net>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 9 Jun 2006 16:04:28 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:24513 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030238AbWFIUE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:04:27 -0400
+Subject: Re: Idea about a disc backed ram filesystem
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matheus Izvekov <mizvekov@gmail.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Sascha Nitsch <Sash_lkl@linuxhowtos.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <305c16960606091243h10638b2ayb7f1066bb839e496@mail.gmail.com>
+References: <mizvekov@gmail.com>
+	 <305c16960606082159v2dc588abo6359d87173327c83@mail.gmail.com>
+	 <200606091343.k59DhC1f004434@laptop11.inf.utfsm.cl>
+	 <305c16960606090807g6372b69dy3167b0e191b2c113@mail.gmail.com>
+	 <1149878633.3894.224.camel@mindpipe>
+	 <305c16960606091227w7e62003bhef576fb07d0aa95@mail.gmail.com>
+	 <1149881504.3894.250.camel@mindpipe>
+	 <305c16960606091243h10638b2ayb7f1066bb839e496@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 09 Jun 2006 16:03:22 -0400
+Message-Id: <1149883402.3894.265.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hounschell wrote:
-> Mark Hounschell wrote:
->> Thomas Gleixner wrote:
->>> Mark,
->>>
->>> On Thu, 2006-06-08 at 15:12 -0400, Mark Hounschell wrote:
->>>> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
->>>> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
->>>> well the deterministic real-time capabilities of a computer. Maybe it could
->>>> useful in some way to the effort or to anyone interested in making this type of
->>>> determination about their kernel/computer.
->>>>
->>>> A README describing the rt-exec can be found at
->>>> ftp://ftp.compro.net/public/rt-exec/README
->>>>
->>>> It can be downloaded from
->>>> ftp://ftp.compro.net/public/rt-exec/rt-exec-1.0.0.tar.bz2
->>>>
->>>> Complaints, comments, or suggestions welcome.
->>> Nice tool. 
->>>
->>> Some remarks. You can build high resolution timer support without the
->>> extra lib package from the HRT sourceforge site. You need a recent glibc
->>> and  some quirks in the source. See the cyclictest program I'm using.
->>> http://www.tglx.de/projects/misc/cyclictest/cyclictest-v0.8.tar.bz2
->>>
->> I didn't realize that. Right you are.
->>
-> Here is a new one that no longer requires the HRT sourceforge package. Thanks
-> again.
+On Fri, 2006-06-09 at 16:43 -0300, Matheus Izvekov wrote:
+> On 6/9/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> > On Fri, 2006-06-09 at 16:27 -0300, Matheus Izvekov wrote:
+> > > Sorry, i took a look at the code which handles this and swappiness = 0
+> > > doesnt seem to imply that process memory will never be swapped out.
+> > >
+> >
+> > OK, then use mlockall().
+> >
+> > Lee
+> >
+> >
 > 
-> ftp://ftp.compro.net/public/rt-exec/rt-exec-1.0.1.tar.bz2
+> If i make init mlockall, would all child processes be mlocked too?
+
+No.
+
+> If not, using this to enforce a system wide policy seems a bit hacky
+> and non trivial.
 > 
->>> It would also be cute to add tests for the PI support for
->>> pthread_mutexes.
->>>
->>> 	tglx
->> I'm not sure what one needs to do in user land to actually test that but I'll
->> investigate.
->>
-> Still investigating...
 
+Well, what you are trying to do seems hacky.  What real world problem
+are you trying to solve that setting swappiness to 0 is not sufficient
+for?
 
-Am I even close in assuming that to enable the PI support you have to use
+Lee
 
-pthread_mutexattr_setprotocol(mutexattr, PTHREAD_PRIO_INHERIT);
-
-I have only glibc 2.3 and 2.4 and neither of them understand what
-PTHREAD_PRIO_INHERIT is.
-
-Can anyone point me to an some Doc or examples of how to enable PI for
-pthread_mutexes?
-
-Sorry I'm ignorant on the subject. I do understand the principle of PI and may
-even be able to figure out how to test it in user land but how do I turn it on?
-
-Thanks
-Mark
 
 

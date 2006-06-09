@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWFIT3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030445AbWFITaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbWFIT3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030440AbWFIT3c
+	id S1030445AbWFITaP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWFITaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:29:32 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:8322 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030251AbWFIT3b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:29:31 -0400
-Message-ID: <4489CC04.10506@zytor.com>
-Date: Fri, 09 Jun 2006 12:29:08 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 15:30:15 -0400
+Received: from wx-out-0102.google.com ([66.249.82.200]:28538 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030445AbWFITaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 15:30:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=B48Jy6Ejx/ZRKeyFO653uiqBMcx5fktHKURjNtJPX0dLzOJK3kMR2EPexxuiM4EiVcULAUNxNTdQz0mkyMoIbWBnImo+McgEl8mKVv+vo4cX007N/r7yXGqTXhMI+uA7xgPMoA5L0mLbMP9efrlrD7DHd12ZYOFrK5SRYYg5WNY=
+Message-ID: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com>
+Date: Fri, 9 Jun 2006 15:30:12 -0400
+From: "Vishal Patil" <vishpat@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: CSCAN vs CFQ I/O scheduler benchmark results
 MIME-Version: 1.0
-To: Michael Tokarev <mjt@tls.msk.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: klibc - another libc?
-References: <44869397.4000907@tls.msk.ru> <Pine.LNX.4.64.0606080036250.17704@scrub.home> <e69fu3$5ch$1@terminus.zytor.com> <Pine.LNX.4.64.0606091409220.17704@scrub.home> <e6cgjv$b8t$1@terminus.zytor.com> <4489C83F.40307@tls.msk.ru>
-In-Reply-To: <4489C83F.40307@tls.msk.ru>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
-> 
-> You *do* need mdadm to boot from RAID.  Unless you rely on broken,
-> obsolete, "don't use" in-kernel raid autodetection code (which, in
-> this case, will be moved from kernel space into kinit).  There are
-> many reasons why raid autodetection in its current form is not a good
-> idea, all goes to simple "unreliable" definition - there where many
-> discussions about this already.
-> 
-> Well ok, mdadm/Assemble.c can be merged into kinit instead of current
-> stuff present there, and adopted somehow.  Until when, mdadm IS
-> necessary.
-> 
-> Ok, the next question may be 'and what about lvm?', or dm, or whatever
-> else..  Md autodetection code has been in kernel for a long time,
-> while lvm/dm/etc stuff wasn't.  So there IS a difference... ;)
-> 
-> But I see a reason for kinit *now*, in its current form - it's
-> compatibility.  Later on, maybe the whole stuff can be removed entirely,
-> to rely on external tools for booting.  Existing mkinitrd/mkinitramfs/
-> etc solutions works, they're being improved all the time, and they
-> don't use kinit.
-> 
-> Did I get it all right?  :)
-> 
+Hello
 
-Pretty much.  :)
+I ran the sysbench benchmark to compare the CSCAN I/O scheduler
+against the CFQ scheduler and following are the results. The results
+are interesting especially in case of sequential writes and the random
+workloads
 
-However, this also is a good basis to point out that one of the big advantages with klibc 
-is that you *can* share code with standalone userspace tools with relative ease.  For 
-example, porting mdadm/Assemble.c to be a tool -- be it standalone or integrated into 
-kinit -- is a pretty trivial project, whereas trying to integrate code like that into the 
-kernel proper is a major task.
+                                            Latency (seconds)
 
-As you can also notice, a number of modules of kinit are also available as standalone 
-programs (and, in fact, I have already gotten requests to break out additional modules in 
-the same way.)  This means that that code is available to distributions to use in their 
-initramfs solutions, without having to take the kinit package.  Finally, unlike the 
-current code, kinit can be wrapped, as is, from a script.
+               seq            seq         seq             rnd
+ rnd         rnd
+               reads         writes      r + w          reads
+writes      r + w
+               --------------------------------------------------------------------------------------
+CFQ         0.0116      0.0164      0.0107      0.1178       0.0423      0.0605
 
-	-hpa
+CSCAN    0.0148      0.0092      0.0169      0.1043      0.0473      0.0732
 
+
+                                           Throughput (MB/seconds)
+
+                seq            seq         seq             rnd
+  rnd         rnd
+                reads         writes      r + w          reads
+writes      r + w
+
+--------------------------------------------------------------------------------------
+CFQ        19.062      15.251      22.127      2.1197      1.0032       1.376
+
+CSCAN   14.553      22.108      14.72       2.394       0.9304         1.399
+
+
+The machine configuation is as follows
+CPU: Intel(R) Pentium(R) 4 CPU 2.80GHz
+Memory: 1027500 KB (1 GB)
+Filesystem: ext3
+Kernel:   2.6.16.2
+
+If interseted you may have a look at the raw data at
+http://www.google.com/notebook/public/14554179817860061151/BDQtXSwoQ2_mdxLgh
+
+- Vishal

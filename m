@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWFIDei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFIDnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWFIDei (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 23:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWFIDei
+	id S1751386AbWFIDnl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 23:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWFIDnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 23:34:38 -0400
-Received: from users.ccur.com ([66.10.65.2]:29888 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S1751373AbWFIDei (ORCPT
+	Thu, 8 Jun 2006 23:43:41 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:55524 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751378AbWFIDnk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 23:34:38 -0400
-Date: Thu, 8 Jun 2006 23:33:50 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Paul Dickson <paul@permanentmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, rahul@genebrew.com,
-       ram.gupta5@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: booting without initrd
-Message-ID: <20060609033350.GA1148@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <728201270606070913g2a6b23bbj9439168a1d8dbca8@mail.gmail.com> <b29067a0606081040q17c66f5bpa966da851635e942@mail.gmail.com> <1149813659.3124.31.camel@laptopd505.fenrus.org> <20060608184325.5c470dcf.paul@permanentmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060608184325.5c470dcf.paul@permanentmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 8 Jun 2006 23:43:40 -0400
+Message-ID: <4488EE68.9000605@garzik.org>
+Date: Thu, 08 Jun 2006 23:43:36 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: linux-ide@vger.kernel.org
+CC: "zhao, forrest" <forrest.zhao@intel.com>, htejun@gmail.com,
+       randy_dunlap <rdunlap@xenotime.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC] ATA host-protected area (HPA) device mapper?
+References: <1149751860.29552.79.camel@forrest26.sh.intel.com>	 <44883BAE.7070406@pobox.com> <1149820043.5721.7.camel@forrest26.sh.intel.com> <4488E6F6.10306@pobox.com>
+In-Reply-To: <4488E6F6.10306@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 08, 2006 at 06:43:25PM -0700, Paul Dickson wrote:
-> On Fri, 09 Jun 2006 02:40:59 +0200, Arjan van de Ven wrote:
-> > On Thu, 2006-06-08 at 13:40 -0400, Rahul Karnik wrote:
-> > > On 6/7/06, Ram Gupta <ram.gupta5@gmail.com> wrote:
-> > > > I am trying to boot with 2.6.16  kernel at my desktop running fedora
-> > > > core 4 . It does not boot without initrd generating the message "VFS:
-> > > > can not open device "804" or unknown-block(8,4)
-> > > > Please append a correct "root=" boot option
-> > > > Kernel panic - not syncing : VFS:Unable to mount root fs on unknown-block(8,4)
-> > > 
-> > > AFAIK Fedora sets up the kernel command line with "root=LABEL=/" in
-> > > grub.conf and therefore needs the initrd in order to work correctly.
-> > > If you do not want an initrd, then change this to
-> > > "root=/dev/<your_disk>" in grub.conf. 
-> > 
-> > it's more than that; also udev is used from the initrd to populate a
-> > ramfs /dev, if you go without the initrd you need to populate the
-> > *real* /dev manually first
+As I just mentioned on linux-ide in another email:
+libata should -- like drivers/ide -- call the ATA "set max" command to 
+fully address the hard drive, including the special "host-protected 
+area" (HPA).  We should do this because the Linux standard is to export 
+the raw hardware directly, making 100% of the hardware capability 
+available to the user (and, in this case, Linux-based BIOS and recovery 
+tools).
 
-When I do the following to FC5, I am able to boot kernel.org kernels w/o
-an initrd:
+However, there are rare bug reports and general paranoia related to 
+presenting 100% of the ATA hard drive "native" space, rather than the 
+possibly-smaller space that the BIOS chose to present to the user.
 
-        # mount --bind / /mnt
-	# cd /mnt/dev
-	# mknod null c 1 3
-	# mknod console c 5 1
-	# for i in $(seq 0 9); do mknod tty$i c 4 $i; done
-	# cd /
-	# umount /mnt
+My thinking is that [someone] should create an optional, ATA-specific 
+device mapper module.  This module would layer on top of an ATA block 
+device, and present two block devices:  the BIOS-presented space, and 
+the HPA.
 
-IMHO, FC5's failure to set up a minimal disk-based /dev like this
-is a bug on its part.
+Such a module would make it trivial for users to ensure that partition 
+tables and RAID metadata formats know what the BIOS (rather than 
+underlying hard drive) considers to be end-of-disk.
 
-Regards,
-Joe
+Comments?  Questions?  Am I completely insane?  ;-)
+
+	Jeff
+
+
+

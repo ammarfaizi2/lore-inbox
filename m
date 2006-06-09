@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWFIKsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWFIKtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWFIKsD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 06:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWFIKsC
+	id S965100AbWFIKtn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 06:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbWFIKtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 06:48:02 -0400
-Received: from web26913.mail.ukl.yahoo.com ([217.146.177.80]:61593 "HELO
-	web26913.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932347AbWFIKsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 06:48:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=xmYdV6G6/upovbe/t2I66wP+kGXSCULhrG7BHyv/ZVjy8KYxcgyY932WjczOQfvZ9mpy8miU1DeugNa3xZ4PwDJrtoDvX7Ik5tmTY1ucMtKnzW2+59Z2HA8op28pI7wN02hLaSEqmIuOqssPr4Gd/QIBOPw3KDb873rx4WogFq8=  ;
-Message-ID: <20060609104759.26001.qmail@web26913.mail.ukl.yahoo.com>
-Date: Fri, 9 Jun 2006 12:47:59 +0200 (CEST)
-From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Subject: [RFC] ATA host-protected area (HPA) device mapper?
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Cc: jeff@garzik.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 9 Jun 2006 06:49:43 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:48001 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S965087AbWFIKtm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 06:49:42 -0400
+Date: Fri, 9 Jun 2006 04:49:48 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Christoph Hellwig <hch@infradead.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609104947.GZ5964@schatzie.adilger.int>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-fsdevel@vger.kernel.org
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060609091327.GA3679@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> libata should -- like drivers/ide -- call the ATA "set max" command to 
-> fully address the hard drive, including the special "host-protected 
-> area" (HPA).  We should do this because the Linux standard is to export 
-> the raw hardware directly, making 100% of the hardware capability 
-> available to the user (and, in this case, Linux-based BIOS and recovery 
-> tools).
-> .....
-> Comments?  Questions?  Am I completely insane?  ;-)
+On Jun 09, 2006  10:13 +0100, Christoph Hellwig wrote:
+> the block numbers are't the big problem concerning scalability, there's
+> a lot more to it, like btree(-like) structures in the allocator, parallel
+> alloocator algorithms and a better allocation group concept.
 
-  Your hard disk is a lot more powerfull than what you think, only very old
- hard disks only have ATA set max command. Nowadays, you can not only set the
- maximum size of the hard disk by HPA, but you can also protect the change of
- the HPA by password and even freeze the HPA (i.e. unmodifiable without power
- cycle).
-  Changing the accessible size of the disk using the HPA is relatively safe
- because the disk is still reporting it complete size, so the BIOS and Linux
- do not have disks changing their size during use.
+All of the allocator changes are already written and well tested, and gave
+ext3 a 30% performance improvement while at the same time reducing CPU
+usage by 50% - not trivial.  See Holger Kiehl's post
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114958967600822&w=4
 
-  You can also read and write the configuration of the hard disk, and so hide
- the fact that your hard disk has the HPA feature, change the real size of
- the hard disk (so hide the end, and none of Linux or the BIOS will know the
- hidden part) independantly of the HPA, make the HPA area appear as a complete
- hard disk by offseting the LBA (for a safety recovery), manage the noise
- level and protect the content of the disk by password.
+> If you guys want big storage on linux please help improving the filesystems
+> design for that, e.g. jfs or xfs instead of showhorning it onto ext3 thus
+> both making ext3 less reliable for us desktop/small server users and not get
+> the full thing for the big storage people either.
 
-  All this is documented in the ATA specification, available for free at least
- at http://www.t13.org/. If you want a (GPL only) source code showing how to
- use it, have a look at the Gujin bootloader at http://gujin.org : in the way
- I am using it, the bootloader installs itself into an HPA and keep a copy of
- the current MBR in the HPA so is nearly indestructible, if the MBR is
- overwritten another floppy or CDROM booting with Gujin will propose to restore
- the MBR. You may want to run a DOS floppy, run the gujin provided dbgdisk.exe,
- go to the setup menu and enable IDE probing, go back to the kernel selection,
- and exit the dbgdisk.exe software by ^C. Then, have a look at the "A:\DBG" file
- created to see what your hard disk is reporting.
- Gujin can also install in a partition if there is no unused space after your
- extended partition at the end of the disk to create a HPA.
+XFS = 108844 lines, and a complete mess to understand.
+ext3+jbd = 27749 lines (includes ~6000 lines extent/allocation changes)
 
- Gujin also do the absolutely needed setup of the IDE hard disk which is to freeze
- the password system _and_ the config system of all the IDE hard disks present, so
- that no virus can put a random password and send you an E-mail with the address
- where to send the money to get the password to unlock the hard disk and so access
- again your data. Again, freezing means no more modifiable until next power cycle,
- so IMO it is the job of the bootloader to setup the hard disk, before running
- anything like Linux, a commercial OS, a bootable CDROM...
+Also, ext3 is just much more robust in the face of on-disk corruption
+than xfs or jfs because of its "static" layout, and e2fsck is way
+better than the alternatives.  Despite their "big storage" designs ext3
+is still competitive in performance, especially with the allocation
+improvements.  See also:
 
- Gujin is assuming that your hard disk are accessible by the documented ATA ide
- system, and some (or all?) IDE SATA interface have (volumtary?) broken
- implementation: they are not IDE register compatible.
- If you buy broken hardware, Gujin will not help you and cannot take care of the
- details for you - it is another win{modem,video,sensor} device.
+http://marc.theaimsgroup.com/?l=ext2-devel&m=108194477207334&w=4
+http://marc.theaimsgroup.com/?l=linux-fsdevel&m=110112879929869&w=4
+	http://samba.org/~tridge/xattr_results/xfs-ext3-tuning.png
 
- Etienne.
+If the XFS or JFS maintainers want to fix their filesystems, they are free
+to do so, the ext3 maintainers (all of them, btw) want these changes.
 
-__________________________________________________
-Do You Yahoo!?
-En finir avec le spam? Yahoo! Mail vous offre la meilleure protection possible contre les messages non sollicités 
-http://mail.yahoo.fr Yahoo! Mail 
+
+The extent code (prior to some minor cleanups for landing on the vanilla
+kernel) has already seen many millions of hours of testing in very heavy
+IO environments, so it isn't something that was just written.  If extents
+aren't enabled it amounts to a couple of extra conditionals in the
+allocation path and basically no modifications to the existing code, so
+you can safely avoid this code if you feel the need to.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

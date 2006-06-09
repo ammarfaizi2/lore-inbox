@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWFIPcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWFIPkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWFIPcX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWFIPcX
+	id S1030213AbWFIPkl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWFIPkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:32:23 -0400
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:28066 "EHLO
-	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S1030211AbWFIPcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:32:22 -0400
-Date: Fri, 9 Jun 2006 11:32:12 -0400
-From: "Bill Rugolsky Jr." <bill@rugolsky.com>
-To: Dan Carpenter <error27.lkml@gmail.com>
-Cc: Matt Heler <lkml@lpbproductions.com>, Jeff Garzik <jeff@garzik.org>,
-       linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH][INCOMPLETE] sata_nv: merge ADMA support
-Message-ID: <20060609153212.GA28830@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <bill@rugolsky.com>,
-	Dan Carpenter <error27.lkml@gmail.com>,
-	Matt Heler <lkml@lpbproductions.com>, Jeff Garzik <jeff@garzik.org>,
-	linux-kernel@vger.kernel.org,
-	"linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-References: <20060317232339.GA5674@ti64.telemetry-investments.com> <20060319232317.GA25578@ti64.telemetry-investments.com> <441F56AD.8020001@garzik.org> <200603262014.35466.lkml@lpbproductions.com> <20060327160845.GG9411@ti64.telemetry-investments.com> <b263e5900606071509o3b06c7a4y84aae7802a5aece2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b263e5900606071509o3b06c7a4y84aae7802a5aece2@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Jun 2006 11:40:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47812 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030213AbWFIPkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:40:40 -0400
+Date: Fri, 9 Jun 2006 08:40:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+cc: linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
+       cmm@us.ibm.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+In-Reply-To: <448992EB.5070405@garzik.org>
+Message-ID: <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+ <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int>
+ <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 07, 2006 at 03:09:31PM -0700, Dan Carpenter wrote:
-> Bill Rugolsky Jr. <bill@rugolsky.com> wrote:
-> >Here is an incomplete attempt to get the sata_nv ADMA code working.
-> >
-> >I made another pass through my merge of the sata_nv driver to fix and
-> >clean up a few things.  I've only made the minimal changes necessary
-> >to get it into a testable state; methinks it could do with a lot of
-> >refactoring and cleanup, instead of all the "if (host->...host_type == 
-> >ADMA)" tests.
-> >
-> 
-> Did you ever figure this out?
-> 
-> It looks like you're mixing two completely seperate bugs.  The ata
-> timeouts and the lost ticks messages.
-> 
-> >BIOS Information
-> >        Vendor: Phoenix Technologies Ltd.
-> >        Version: 2004Q3
-> >        Release Date: 10/12/2005
-> >
-> 
-> This is causing the sata failures:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=190856
-> Downgrade to match your other system (version 1.01).  That will fix
-> the ata timeouts at least.
 
-Interesting; I still have one such machine set aside for testing purposes,
-so I can give that a try; in my limited testing, ADMA didn't exhibit the
-same long latencies.
 
-I'm just rolling up a 2.6.17 kernel patchset, so I'll pull in Jeff's
-sata_nv branch and give it a try; the patch queue is long though, so
-it will probably be sometime next week.
+On Fri, 9 Jun 2006, Jeff Garzik wrote:
+>
+> Overall, I'm surprised that ext3 developers don't see any of the problems
+> related to progressive, stealth filesystem upgrades.
 
-> I'm still interested in the lost ticks messages though...
+Hey, they're used to it - they've been doing it for a long time.
 
-My workaround has been to just use John Stultz's new timekeeping
-code (actually the variant in Thomas Gleixner's hrtimers rollup --
-http://tglx.de/projects/hrtimers/).  Our PostgreSQL servers now maintain
-sub-millisecond NTP offsets, whereas previously they would drift 100+ms away,
-lose sync, and require an NTP restart every day or so.
+In fact, ext3 wouldn't be ext3 unless I (and perhaps a few others) had 
+insisted on it. People wanted to try to upgrade ext2 in place.
 
-John wrote the other day:
+And they've been upgrading it in-place for a long time.
 
-   With the current code in -mm I can run a test app that disables
-   interrupts for 2 seconds at a time over and over and I'm still keeping
-   synched w/ an NTP server within 30 microseconds.
+Now, there are unquestionably advantages to that approach too, but as you 
+say, there are absolutely tons of disadvantages too. Bugs get much much 
+subtler, and more disastrous for old users that don't even want the new 
+features.
 
-The patches in -mm are set to be merged in 2.6.18-rc1, so I have no qualms
-about including them in my internal 2.6.17 patchset.
+Quite frankly, at this point, there's no way in hell I believe we can do 
+major surgery on ext3. It's the main filesystem for a lot of users, and 
+it's just not worth the instability worries unless it's something very 
+obviously transparent.
 
-Kudos to John, Thomas, Ingo, and others who have worked on the new
-timekeeping code.  This is yet another area where work on the -rt kernel
-benefits everyone in a measurable way.
+I wouldn't mind an ext4 (that hopefully drops some of the features of 
+ext3, and might not downgrade to ext2 on errors, for example).
 
-	-Bill
+			Linus

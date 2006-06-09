@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbWFIUq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbWFIUsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965232AbWFIUq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWFIUq7
+	id S965219AbWFIUsU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbWFIUsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:46:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38324 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965200AbWFIUq6 (ORCPT
+	Fri, 9 Jun 2006 16:48:20 -0400
+Received: from ns.protei.ru ([195.239.28.26]:61708 "EHLO mail.protei.ru")
+	by vger.kernel.org with ESMTP id S965219AbWFIUsT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:46:58 -0400
-Date: Fri, 9 Jun 2006 13:46:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Jeff Garzik <jeff@garzik.org>, Andreas Dilger <adilger@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-In-Reply-To: <1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>
-Message-ID: <Pine.LNX.4.64.0606091344290.5498@g5.osdl.org>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> 
- <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> 
- <44898EE3.6080903@garzik.org> <1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>
+	Fri, 9 Jun 2006 16:48:19 -0400
+Message-ID: <4489DE84.309@protei.ru>
+Date: Sat, 10 Jun 2006 00:48:04 +0400
+From: Nickolay <nickolay@protei.ru>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: initramfs: who does cat init.sh >> init ?
+References: <4489D93F.7090401@protei.ru> <e6cllv$dnb$1@terminus.zytor.com> <4489DB15.9010506@protei.ru> <4489DC2E.4030004@zytor.com>
+In-Reply-To: <4489DC2E.4030004@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin wrote:
 
+> Nickolay wrote:
+>
+>>>
+>> I'm afraid, that you wrong.
+>> It is 2.6.17-rc4 git tree.
+>>
+>> BE/2_6/initramfs is just CONFIG_INITRAMFS_SOURCE path.
+>>
+>
+> : neotrantor 11 ; fgrep -nr init.sh *
+> Documentation/filesystems/ramfs-rootfs-initramfs.txt:144:  file /init 
+> initramfs/init.sh 755 0 0
+> Documentation/filesystems/ramfs-rootfs-initramfs.txt:151:two example 
+> "file" entries expect to find files named "init.sh" and "busybox" in
+>
+> The only references to init.sh in the stock kernel tree are in a 
+> documentation file.
+>
+>     -hpa
 
-On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
-> 
-> When is the Linux syscall interface enough?  When should we just bump it
-> and cut out all the compatibility interfaces?
-> 
-> No, we don't; we let people configure certain obsolete bits out (a.out
-> support etc), but we keep it in the tree despite the indirection cost to
-> maintain multiple interfaces etc.
+yes, i can't grep init.sh in the kernel tree too, this is because i 
+start asking...
+But anyway, the problem is still...
 
-Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN WAYS THAT 
-MIGHT BREAK OLD USERS.
+-- 
+Nickolay Vinogradov
 
-Your point was exactly what?
-
-Btw, where did that 2TB limit number come from? Afaik, it should be 16TB 
-for a 4kB filesystem, no?
-
-		Linus

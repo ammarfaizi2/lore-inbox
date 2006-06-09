@@ -1,32 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWFIJTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWFIJW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWFIJTF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 05:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWFIJTE
+	id S932241AbWFIJW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 05:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWFIJW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 05:19:04 -0400
-Received: from vvv.conterra.de ([212.124.44.162]:58307 "EHLO conterra.de")
-	by vger.kernel.org with ESMTP id S932117AbWFIJTD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 05:19:03 -0400
-Message-ID: <44893D00.8090807@conterra.de>
-Date: Fri, 09 Jun 2006 11:18:56 +0200
-From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mixing 32 and 64 bit?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 9 Jun 2006 05:22:29 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:25881 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932241AbWFIJW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 05:22:28 -0400
+Subject: Re: [PATCH 01/14] Per zone counter functionality
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com, nickpiggin@yahoo.com.au, linux-mm@kvack.org,
+       ak@suse.de, marcelo.tosatti@cyclades.com
+In-Reply-To: <20060608210045.62129826.akpm@osdl.org>
+References: <20060608230239.25121.83503.sendpatchset@schroedinger.engr.sgi.com>
+	 <20060608230244.25121.76440.sendpatchset@schroedinger.engr.sgi.com>
+	 <20060608210045.62129826.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 09 Jun 2006 11:22:13 +0200
+Message-Id: <1149844934.20886.41.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just wonder how some userland applications are able to use 64-bit 
-capabilities although they are started by an  ELF 32-bit binary. I observed
-this when installing vmware: Even if the binary is an ELF32, it is
-able to provide an 64Bit ABI to its guest OS. Until now I thought a
-process is either 32bit or 64bit. Seems this is not true. 
+On Thu, 2006-06-08 at 21:00 -0700, Andrew Morton wrote:
+> On Thu, 8 Jun 2006 16:02:44 -0700 (PDT)
+> Christoph Lameter <clameter@sgi.com> wrote:
 
-Has some one a good link or entry point about this topic?
-I could not find a matching keyword to search for. 
+> > +#ifdef CONFIG_SMP
+> > +void refresh_cpu_vm_stats(int);
+> > +void refresh_vm_stats(void);
+> > +#else
+> > +static inline void refresh_cpu_vm_stats(int cpu) { };
+> > +static inline void refresh_vm_stats(void) { };
+> > +#endif
+> 
+> do {} while (0), please.  Always.  All other forms (afaik) have problems. 
+> In this case,
+> 
+> 	if (something)
+> 		refresh_vm_stats();
+> 	else
+> 		foo();
+> 
+> will not compile.
 
-Regards, Dieter.
+It surely will, 'static inline' does not make it less of a function.
+Although the trailing ; is not needed in the function definition.
+

@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030518AbWFIVaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWFIVbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030518AbWFIVaw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWFIVaw
+	id S1030339AbWFIVbg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030521AbWFIVbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:30:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64958 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030518AbWFIVav (ORCPT
+	Fri, 9 Jun 2006 17:31:35 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:47799 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1030520AbWFIVbe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:30:51 -0400
-Date: Fri, 9 Jun 2006 14:33:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, npiggin@suse.de,
-       ak@suse.de, hugh@veritas.com
-Subject: Re: Light weight counter 1/1 Framework
-Message-Id: <20060609143333.39b29109.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606091216320.1174@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0606091216320.1174@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 17:31:34 -0400
+X-Comment-To: Joel Becker
+To: Alex Tomas <alex@clusterfs.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chase Venters <chase.venters@clientec.com>,
+       Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
+	<Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>
+	<1149880865.22124.70.camel@localhost.localdomain>
+	<m3irna6sja.fsf@bzzz.home.net> <4489CB42.6020709@garzik.org>
+	<m3wtbq5dgw.fsf@bzzz.home.net>
+	<20060609204418.GG3574@ca-server1.us.oracle.com>
+	<m3fyie5a19.fsf@bzzz.home.net>
+	<20060609211123.GI3574@ca-server1.us.oracle.com>
+	<m364ja58m8.fsf@bzzz.home.net>
+	<20060609212905.GK3574@ca-server1.us.oracle.com>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Sat, 10 Jun 2006 01:33:36 +0400
+In-Reply-To: <20060609212905.GK3574@ca-server1.us.oracle.com> (Joel Becker's message of "Fri, 9 Jun 2006 14:29:05 -0700")
+Message-ID: <m31wty580f.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
->
-> -/*
-> - * Accumulate the page_state information across all CPUs.
-> - * The result is unavoidably approximate - it can change
-> - * during and after execution of this function.
-> - */
+>>>>> Joel Becker (JB) writes:
 
-sob.  How about updating the nice comment rather than removing it?
+ JB> On Sat, Jun 10, 2006 at 01:20:31AM +0400, Alex Tomas wrote:
+ >> two point here:
+ >> a) warnings should be made visible at mount time,
+ >> something like printk(KERN_CRIT ...)
 
->  
-> -void get_full_page_state(struct page_state *ret)
-> +void all_vm_events(unsigned long *ret)
->  {
-> -	cpumask_t mask = CPU_MASK_ALL;
-> -
-> -	__get_page_state(ret, sizeof(*ret) / sizeof(unsigned long), &mask);
-> +	sum_vm_events(ret, &cpu_online_map);
->  }
-> +EXPORT_SYMBOL(all_vm_events);
->  
-> -unsigned long read_page_state_offset(unsigned long offset)
-> +unsigned long get_global_vm_events(enum vm_event_item e)
->  {
->  	unsigned long ret = 0;
->  	int cpu;
->  
-> -	for_each_online_cpu(cpu) {
-> -		unsigned long in;
-> +	for_each_possible_cpu(cpu)
-> +		ret += per_cpu(vm_event_states, cpu).event[e];
->  
-> -		in = (unsigned long)&per_cpu(page_states, cpu) + offset;
-> -		ret += *((unsigned long *)in);
-> -	}
->  	return ret;
->  }
+ JB> 	Too late, they're already broken!
 
-Here.   Some description of the difference between these two, and why one
-would call one and not the other.
+not at mount time, only upon first file creation.
 
-I'd be rather interested in reading that comment because afaict,
-get_global_vm_events() has no callers.
+thanks, Alex
 
-And nor should it, please.  It has potential to be seriously inefficient. 
-Much, much better to kill this function and to implement a CPU hotplug
-notifier to spill the going-away CPU's stats into another CPU's
-accumulators.
-
+PS. need to think about your tune2fs/mke2fs proposal ... thanks.

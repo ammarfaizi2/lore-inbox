@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWFIUEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030313AbWFIUGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbWFIUEr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030474AbWFIUEq
+	id S1030313AbWFIUGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWFIUGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:04:46 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:44704 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030470AbWFIUEh (ORCPT
+	Fri, 9 Jun 2006 16:06:23 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:35475 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030313AbWFIUGW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:04:37 -0400
-Message-ID: <4489D44A.1080700@garzik.org>
-Date: Fri, 09 Jun 2006 16:04:26 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 16:06:22 -0400
+Date: Fri, 9 Jun 2006 22:05:50 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "s.a." <sancelot@free.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Caching kernel messages at boot w/PATCH
+In-Reply-To: <448991CD.9070404@free.fr>
+Message-ID: <Pine.LNX.4.61.0606092157080.8951@yvahk01.tjqt.qr>
+References: <448991CD.9070404@free.fr>
 MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
-       Matthew Frost <artusemrys@sbcglobal.net>,
-       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org> <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org> <20060609194959.GC10524@thunk.org>
-In-Reply-To: <20060609194959.GC10524@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> On Fri, Jun 09, 2006 at 02:51:55PM -0400, Jeff Garzik wrote:
->> ext3 is already essentially xiafs-on-life-support, when you consider 
->> today's large storage systems and today's filesystem technology.  Just 
->> look at the ugly hacks needed to support expanding an ext3 filesystem 
->> online.
-> 
-> And what ugly hacks are you talking about?  It's actually quite clean;
-> with the latest e2fsprogs, you use the same command (resize2fs) for
-> doing both online and offline resizing.
+>Hi,
+>Is there a way to hide the kernel messages from the screen at boot ?
+>Best Regards
+>Steph
+>
+Except for the sole "quiet" flag, I have this in my kernel tree:
 
-Consider a blkdev of size S1.  Using LVM we increase that value under 
-the hood to size S2, where S2 > S1.  We perform an online resize from 
-size S1 to S2.  The size and alignment of any new groups added will 
-different from the non-resize case, where mke2fs was run directly on a 
-blkdev of size S2.
+AS_13-conlevel.diff
+diff --fast -Ndpru linux-2.6.17-rc6~/kernel/printk.c linux-2.6.17-rc6+/kernel/printk.c
+--- linux-2.6.17-rc6~/kernel/printk.c	2006-06-06 02:57:02.000000000 +0200
++++ linux-2.6.17-rc6+/kernel/printk.c	2006-06-08 22:24:16.847058000 +0200
+@@ -697,6 +697,14 @@ int __init add_preferred_console(char *n
+ 	return 0;
+ }
+ 
++static __init int set_conlevel(char *str) {
++    if(*str >= '0' && *str <= '9')
++        *console_printk = *str - '0';
++    return 1;
++}
++
++__setup("conlevel=", set_conlevel);
++
+ /**
+  * acquire_console_sem - lock the console system for exclusive use.
+  *
+#<<eof>>
 
-	Jeff
+It allows one to finely specify how much noise or silence the user wants.
+conlevel=4 makes it quite silent (still shows some minor erros [1]), and 
+decreasing that of course will make it even more silent.
+
+[1]
+sda: asking for cache data failed
+sda: assuming drive cache: write through
+piix4_smbus 0000:00:07.3: Host SMBus controller not enabled!
+
+These three are then gone for me with conlevel=3. dmesg still 
+records all messages (a good thing(tm)).
 
 
-
+Jan Engelhardt
+-- 

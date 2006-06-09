@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbWFILyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965245AbWFIMRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965235AbWFILyA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 07:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965243AbWFILyA
+	id S965245AbWFIMRf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 08:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWFIMRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 07:54:00 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:22763 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S965235AbWFILx7
-	(ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
-	Fri, 9 Jun 2006 07:53:59 -0400
-Message-ID: <4489614A.3030704@compro.net>
-Date: Fri, 09 Jun 2006 07:53:46 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: markh@compro.net
-Cc: tglx@linutronix.de, linux-kerneL@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: RT exec for exercising RT kernel capabilities
-References: <448876B9.9060906@compro.net> <1149795975.5257.83.camel@localhost.localdomain> <44888D8F.2000404@compro.net>
-In-Reply-To: <44888D8F.2000404@compro.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 08:17:35 -0400
+Received: from mail.gmx.de ([213.165.64.20]:2974 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965245AbWFIMRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 08:17:35 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc6-rt1
+From: Mike Galbraith <efault@gmx.de>
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       Deepak Saxena <dsaxena@plexity.net>
+In-Reply-To: <1149853468.3829.33.camel@frecb000686>
+References: <20060607211455.GA6132@elte.hu>
+	 <1149842550.7585.27.camel@Homer.TheSimpsons.net>
+	 <1149847951.3829.26.camel@frecb000686>
+	 <1149852951.7421.7.camel@Homer.TheSimpsons.net>
+	 <1149853468.3829.33.camel@frecb000686>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 09 Jun 2006 14:20:38 +0200
+Message-Id: <1149855638.7413.8.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hounschell wrote:
-> Thomas Gleixner wrote:
->> Mark,
->>
->> On Thu, 2006-06-08 at 15:12 -0400, Mark Hounschell wrote:
->>> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
->>> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
->>> well the deterministic real-time capabilities of a computer. Maybe it could
->>> useful in some way to the effort or to anyone interested in making this type of
->>> determination about their kernel/computer.
->>>
->>> A README describing the rt-exec can be found at
->>> ftp://ftp.compro.net/public/rt-exec/README
->>>
->>> It can be downloaded from
->>> ftp://ftp.compro.net/public/rt-exec/rt-exec-1.0.0.tar.bz2
->>>
->>> Complaints, comments, or suggestions welcome.
->> Nice tool. 
->>
->> Some remarks. You can build high resolution timer support without the
->> extra lib package from the HRT sourceforge site. You need a recent glibc
->> and  some quirks in the source. See the cyclictest program I'm using.
->> http://www.tglx.de/projects/misc/cyclictest/cyclictest-v0.8.tar.bz2
->>
+On Fri, 2006-06-09 at 13:44 +0200, Sébastien Dugué wrote:
+> On Fri, 2006-06-09 at 13:35 +0200, Mike Galbraith wrote:
+> > 
+> > I found xmms problem.
+> > 
+> > [pid  8498] 12:53:49.936186 socket(PF_INET, SOCK_STREAM, IPPROTO_IP <unfinished ...>
+> > [pid  8498] 12:53:49.936551 <... socket resumed> ) = 9 <0.000301>
+> > [pid  8498] 12:53:49.936774 fcntl64(9, F_SETFD, FD_CLOEXEC <unfinished ...>
+> > [pid  8498] 12:53:49.937287 <... fcntl64 resumed> ) = 0 <0.000465>
+> > [pid  8498] 12:53:49.937451 setsockopt(9, SOL_SOCKET, SO_REUSEADDR, [1], 4 <unfinished ...>
+> > [pid  8498] 12:53:49.937630 <... setsockopt resumed> ) = 0 <0.000110>
+> > [pid  8498] 12:53:49.937893 connect(9, {sa_family=AF_INET, sin_port=htons(16001), sin_addr=inet_addr("127.0.0.1")}, 16 <unfinished ...>
+> > [pid  8498] 12:56:58.902958 <... connect resumed> ) = -1 ETIMEDOUT (Connection timed out) <188.964934>
+> > 
+> > which should have been...
+> > 
+> > [pid  7385] 13:21:38.715146 socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 9 <0.000011>
+> > [pid  7385] 13:21:38.715192 fcntl64(9, F_SETFD, FD_CLOEXEC) = 0 <0.000007>
+> > [pid  7385] 13:21:38.715237 setsockopt(9, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0 <0.000008>
+> > [pid  7385] 13:21:38.715283 connect(9, {sa_family=AF_INET, sin_port=htons(16001), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 ECONNREFUSED (Connection refused) <0.000060>
+> > 
+> > So much for the easy part.
+> > 
 > 
-> I didn't realize that. Right you are.
-> 
-Here is a new one that no longer requires the HRT sourceforge package. Thanks
-again.
+>   I'm starting to believe that it's network related. Pinging my box from
+> a remote host gives a ~.3 ms round trip whereas pinging localhost gives
+> ~500ms. Something real weird is going on here.
 
-ftp://ftp.compro.net/public/rt-exec/rt-exec-1.0.1.tar.bz2
+Wow.  I don't see anything near 500ms, but I am dropping packets, and
+recvmsg, when it isn't saying -EAGAIN, is indeed taking way too long.
 
->> It would also be cute to add tests for the PI support for
->> pthread_mutexes.
->>
->> 	tglx
-> 
-> I'm not sure what one needs to do in user land to actually test that but I'll
-> investigate.
-> 
-Still investigating...
-
-Regards
-Mark
-
+14:04:02.062550 sendmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, msg_iov(1)=[{"\10\0$@\217\36\0\2\262c\211D\35\364\0\0\10\t\n\v\f\r\16"..., 64}], msg_controllen=0, msg_flags=0}, 0) = 64 <0.000048>
+14:04:02.062731 setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0 <0.000016>
+14:04:02.062826 recvmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(19889), sin_addr=inet_addr("127.0.0.1")}, msg_iov(1)=[{"E\0\0T\177]\0\0@\1\375I\177\0\0\1\177\0\0\1\0\0,@\217\36"..., 192}], msg_controllen=20, {cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=0x1d /* SCM_??? */, ...}, msg_flags=0}, 0) = 84 <0.037660>
 
 

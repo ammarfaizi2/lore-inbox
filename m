@@ -1,103 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbWFISB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWFISB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030333AbWFISB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWFISB2
+	id S1030336AbWFISB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWFISB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:01:28 -0400
-Received: from mtaout2.012.net.il ([84.95.2.4]:58186 "EHLO mtaout2.012.net.il")
-	by vger.kernel.org with ESMTP id S1030333AbWFISB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:01:27 -0400
-Date: Fri, 09 Jun 2006 17:32:02 +0300
-From: Andrey Gelman <agelman@012.net.il>
-Subject: Assumably a BUG in Linux Kernel (scheduler part)
-X-012-Sender: agelman@012.net.il
-To: linux-kernel@vger.kernel.org
-Message-id: <200606091732.02943.agelman@012.net.il>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.8.2
+	Fri, 9 Jun 2006 14:01:56 -0400
+Received: from smarthost1.sentex.ca ([64.7.153.18]:28649 "EHLO
+	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
+	id S1030336AbWFISBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 14:01:55 -0400
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Russell King'" <rmk+lkml@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: serial_core: verify_port() in wrong spot?
+Date: Fri, 9 Jun 2006 13:59:13 -0400
+Organization: Connect Tech Inc.
+Message-ID: <093501c68bee$6aef1ad0$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <20060609162320.GA11997@flint.arm.linux.org.uk>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there !
-Assumably, I've discovered a bug in Linux kernel (version 2.6.16), at:
-kernel\sched.c   function set_user_nice()
+From: Russell King [rmk@arm.linux.org.uk]
+> I'd rather verify_port didn't get used for that - it's purpose is to
+> validate changes the admin makes to the port.
 
-Problem description:
-After you execute nice() system call, the dynamic priority is set to the new 
-value of the static priority, instead of being adjusted by a difference 
-between new and old nice values.
-In other words:
-What you have before you execute nice():  p->prio == static_prio - bonus
-After you execute nice():  p->prio == "a new" static_prio  (no bonus)
+I did figure out that's what it's currently used as, but I didn't want
+to introduce a whole new call just to verify that the UART has 9bit
+capability.
 
-BUG Fix:
-Here I paste the whole of function set_user_nice() (thanks god, it's short) 
-with the BUG highlighted and fixed:
+Why aren't user changes validated?
 
-void set_user_nice(task_t *p, long nice)
-{
-        unsigned long flags;
-        prio_array_t *array;
-        runqueue_t *rq;
-        int old_prio, new_prio, delta;
+> I don't know why you think that setting 9bit mode should be done this
+> way rather than through the usual termios methods - the 
+> termios methods
+> already have a way to control the length of each character, 
+> so it would
+> seem logical to put the control in there.
 
-        if (TASK_NICE(p) == nice || nice < -20 || nice > 19)
-                return;
-        /*
-         * We have to be careful, if called from sys_setpriority(),
-         * the task might be in the middle of scheduling on another CPU.
-         */
-        rq = task_rq_lock(p, &flags);
-        /*
-         * The RT priorities are set via sched_setscheduler(), but we still
-         * allow the 'normal' nice value to be set - but as expected
-         * it wont have any effect on scheduling until the task is
-         * not SCHED_NORMAL/SCHED_BATCH:
-         */
-        if (rt_task(p)) {
-                p->static_prio = NICE_TO_PRIO(nice);
-                goto out_unlock;
-        }
-        array = p->array;
-        if (array)
-                dequeue_task(p, array);
-//-------------------------------------------------
-/*
-	//BUGGED FORMULA : 5 lines
-        old_prio = p->prio;
-        new_prio = NICE_TO_PRIO(nice);
-        delta = new_prio - old_prio;
-        p->static_prio = NICE_TO_PRIO(nice);
-        p->prio += delta;
-*/
-    //BUG FIX : 5 lines
-    old_prio = p->static_prio;
-    new_prio = NICE_TO_PRIO(nice);
-    delta = new_prio - old_prio;
-    p->static_prio = new_prio;
-    p->prio += delta;
-//-------------------------------------------------
-        if (array) {
-                enqueue_task(p, array);
-                /*
-                 * If the task increased its priority or is running and
-                 * lowered its priority, then reschedule its CPU:
-                 */
-                if (delta < 0 || (delta > 0 && task_running(rq, p)))
-                        resched_task(rq->curr);
-        }
-out_unlock:
-        task_rq_unlock(rq, &flags);
-}
+9bit mode is much more than just words of 9 bit length. Parity is
+gone, replaced by the 9th bit; reads and writes have to treat the
+buffers driver-side buffers as 16 bit-wide instead of 8-bit; reads and
+writes to the hardware are correspondingly different; there are new
+interrupts; software flow control is gone; there's special address
+matching and a new ioctl to set that up.
 
+It seemed easier to create a new mode of operation based on the
+UPF_9BIT flag; using the CS9 flag doesn't imply any of the above
+except for 9 bit length.
 
+However, I'm open to having my mind changed.
 
-Thank you,
-Andrey Gelman,
-Haifa, ISRAEL
-9-Jun-2006
+..Stu
+

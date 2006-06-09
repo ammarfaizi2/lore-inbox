@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030527AbWFIVpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030536AbWFIVrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030527AbWFIVpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbWFIVpI
+	id S1030536AbWFIVrd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbWFIVrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:45:08 -0400
-Received: from 24-75-174-210-st.chvlva.adelphia.net ([24.75.174.210]:19845
-	"EHLO sanosuke.troilus.org") by vger.kernel.org with ESMTP
-	id S1030527AbWFIVpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:45:06 -0400
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Theodore Tso <tytso@mit.edu>, Gerrit Huizenga <gh@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com>
-	<4489D36C.3010000@garzik.org> <20060609203523.GE10524@thunk.org>
-	<4489EAFE.6090303@garzik.org>
-From: Michael Poole <mdpoole@troilus.org>
-Date: 09 Jun 2006 17:45:05 -0400
-In-Reply-To: <4489EAFE.6090303@garzik.org>
-Message-ID: <87ac8matr2.fsf@graviton.dyn.troilus.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Fri, 9 Jun 2006 17:47:33 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:8614 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030533AbWFIVrc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 17:47:32 -0400
+Message-ID: <4489EC6B.4010200@garzik.org>
+Date: Fri, 09 Jun 2006 17:47:23 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	 <4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	 <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>	<448997FA.50109@garzik.org>	 <m3irnacohp.fsf@bzzz.home.net>  <44899A1C.7000207@garzik.org> <1149886363.5776.109.camel@sisko.sctweedie.blueyonder.co.uk>
+In-Reply-To: <1149886363.5776.109.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-
-> Theodore Tso wrote:
-> > And I'd also dispute with your "weren't really suited for the original
-> > ext2-style design" comment.  Ext2/3 was always designed to be
-> > extensible from the start, and we've successfully added features quite
-> > successfully for quite a while.
+Stephen C. Tweedie wrote:
+> Hi,
 > 
-> Although not the only disk format change, extents are a pretty big
-> one. Will this be the last major on-disk format change?
-
-You keep making "straw that broke the camel's back" type arguments
-without saying why this particular straw (rather than the other
-compatibility-breaking features that are already in ext3) is the one
-that must not be allowed.  Is it a matter of taste, or is there some
-objective threshold that extents cross?
-
-> >> Rather than taking another decade to slowly fix ext2 design
-> >> decisions, why not move the process along a bit more rapidly?
-> >> Release early, release often...
-> > I don't think it will be another decade, but yes, regardless of
-> > whether we do a code fork or not, it will take time.  Basically, you
-> > and the ext2 developers have a disagreement about whether or not a
-> > code fork will actually move the process along more quickly or not.
-> > Either way, we will be releasing early and often, so people can test
-> > it out and comment on it.  Releasing patches to LKML is just the first
-> > step in this process.
+> On Fri, 2006-06-09 at 11:56 -0400, Jeff Garzik wrote:
 > 
-> I don't see how a larger filesystem codebase could possibly move more
-> quickly than a smaller codebase.  You'd have twice as many code paths
-> to worry about.
+>> Think about how this will be deployed in production, long term.
+>>
+>> If extents are not made default at some point, then no one will use the 
+>> feature, and it should not be merged.
+> 
+> Features such as ACLs and SELinux are still not on by default and are
+> most *definitely* used.  This is a bogus argument.
 
-This is also the case when you cut and paste an entire filesystem's
-source code, as has been mentioned several times in this thread.
+They are on in SElinux-enabled distro installs, AFAIK?
 
-Michael Poole
+
+>> And when extents are default, you have this blizzard-of-feature-flags 
+>> stealth upgrade event occur _sometime_ after they boot into the new fs 
+>> for the first time.
+> 
+> No.  I don't see it ever being forced on in the kernel by default, so
+> there will be no such "stealth upgrades".
+> 
+> Rather, if it is "made default", that will be done by setting the flag
+> by default on newly-created filesystems in mke2fs.  We won't be playing
+> magic on existing filesystems.
+> 
+> And to avoid confusion, I am *entirely* open to the idea of making it
+> only ever default to on in mke2fs at some point in the future where we
+> batch a set of incompat features with the "ext4" label, so that "mke2fs
+> -O ext4", or "mke4fs", would set it.  That has already been proposed on
+> ext2-devel; we're nowhere near the stage of making that default yet.
+
+Sure.  And why not bundle that with a vehicle for separating out the 
+_code_ that deals with ancient formats versus newer formats.  A vehicle 
+that enables the existing ext3 stuff to stabilize and freeze, while 
+enabling parallel development of new features.
+
+	Jeff
+
+

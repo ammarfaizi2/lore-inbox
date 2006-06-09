@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWFIIvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWFIIwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWFIIvx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 04:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWFIIvx
+	id S964871AbWFIIwY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 04:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWFIIwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 04:51:53 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34574 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964871AbWFIIvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 04:51:52 -0400
-Date: Fri, 9 Jun 2006 09:51:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Jones <davej@redhat.com>, Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org,
-       jeremy@goop.org
-Subject: Re: fixing serial console over suspend [was Re: Bisects that are neither good nor bad]
-Message-ID: <20060609085134.GB25497@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Dave Jones <davej@redhat.com>,
-	Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	Paul Dickson <paul@permanentmail.com>, linux-kernel@vger.kernel.org,
-	jeremy@goop.org
-References: <200605282324.13431.rjw@sisk.pl> <200605282324.13431.rjw@sisk.pl> <20060528213414.GC5741@redhat.com> <r6u079rrik.fsf@skye.ra.phy.cam.ac.uk> <20060529145255.GB32274@redhat.com> <20060530152926.GA4103@ucw.cz> <20060603091133.GA24271@flint.arm.linux.org.uk> <20060609083833.GD18084@elf.ucw.cz> <20060609084234.GA25497@flint.arm.linux.org.uk> <20060609084600.GF18084@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060609084600.GF18084@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Jun 2006 04:52:24 -0400
+Received: from agrajag.inprovide.com ([82.153.166.94]:54686 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S964871AbWFIIwX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 04:52:23 -0400
+Message-ID: <41391.194.202.59.51.1149843141.squirrel@mail.inprovide.com>
+In-Reply-To: <305c16960606081801y36c90049y2129e4733fa9f954@mail.gmail.com>
+References: <200606082233.13720.Sash_lkl@linuxhowtos.org> 
+    <305c16960606081548m316099awafa619bb5d0d14f0@mail.gmail.com> 
+    <yw1x4pyvdxn4.fsf@agrajag.inprovide.com>
+    <305c16960606081801y36c90049y2129e4733fa9f954@mail.gmail.com>
+Date: Fri, 9 Jun 2006 09:52:21 +0100 (BST)
+Subject: Re: Idea about a disc backed ram filesystem
+From: =?utf-8?Q?M=C3=A5ns_Rullg=C3=A5rd?= <mru@inprovide.com>
+To: "Matheus Izvekov" <mizvekov@gmail.com>
+Cc: =?utf-8?Q?M=C3=A5ns_Rullg=C3=A5rd?= <mru@inprovide.com>,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 10:46:00AM +0200, Pavel Machek wrote:
-> On P? 09-06-06 09:42:34, Russell King wrote:
-> > On Fri, Jun 09, 2006 at 10:38:33AM +0200, Pavel Machek wrote:
-> > > > The serial layer does _not_ have access to the "current" termios
-> > > > settings due to the layering by the tty subsystem.  If the serial
-> > > > port being used by serial console has been opened once by the user,
-> > > > but is closed at the moment when a suspend/resume cycle occurs,
-> > > > the serial layer and lower level drivers do not have access to the
-> > > > baud rate.
-> > > 
-> > > Could serial layer just cache "last baud rate" in some kind of
-> > > software shadow register? Yes, it is slightly ugly, but should do the trick.
-> > 
-> > That's not a new suggestion.  How do you deal with the case where
-> > you have console on two or more different serial ports?  That's
-> > the problem with this approach.
-> 
-> Well, each of serial ports has hardware baud_rate register. I'll need
-> software baud_rate_shadow for every serial port, setting
-> baud_rate_shadow each time baud_rate is set. During resume, I restore
-> baud_rate from baud_rate_shadow for each serial port.
-> 
-> What am I missing?
 
-What about the other parameters like the bit size, number of stop bits,
-etc?
+Matheus Izvekov said:
+> On 6/8/06, Måns Rullgård <mru@inprovide.com> wrote:
+>> "Matheus Izvekov" <mizvekov@gmail.com> writes:
+>>
+>> > My idea consisted of adding the capability to specify a device for
+>> > tmpfs mounting. if you dont specify any device, tmpfs continues to
+>> > behave the way it currently is. But if you do, once data doesnt fit on
+>> > ram (or some other limit) anymore, it will flush things to this
+>> > device. my intention was to reuse swap code for this, so you mount a
+>> > tmpfs passing the dev node of some unused swap device, and it works
+>> > just like tmpfs with a dedicated swap partition.
+>>
+>> I don't see what advantage this would have over normal tmpfs.
+>
+> The difference is that the swap device is exclusive for the tmpfs mount.
 
-> > The only sane solution is for the tty layer to be adjusted to allow
-> > suspend/resume support for consoles.
-> 
-> Well, solution above is likely to be ugly, but even ugly patch would
-> help people debug s-to-RAM.
-
-Why not investigate doing the proper solution?  Since you're obviously
-one of the ones who is able to reproduce the situation (I'm not), you're
-perfectly placed to develop and test such a solution, and I think it's
-well within your capability.
+Yes, and what would the advantage of that be?  Sounds to me you'd only end
+up wasting swap space.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Måns Rullgård
+mru@inprovide.com

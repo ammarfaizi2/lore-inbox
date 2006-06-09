@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbWFIS2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbWFIS3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030343AbWFIS2b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWFIS2b
+	id S1030350AbWFIS3k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWFIS3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:28:31 -0400
-Received: from 63-207-7-10.ded.pacbell.net ([63.207.7.10]:19687 "EHLO
-	cassini.c2micro.com") by vger.kernel.org with ESMTP
-	id S1030343AbWFIS2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:28:30 -0400
-Message-ID: <4489BDCD.4000400@c2micro.com>
-Date: Fri, 09 Jun 2006 11:28:29 -0700
-From: "H. Peter Anvin" <hpa@c2micro.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, mchan@broadcom.com
-Subject: [PATCH] fix to pci ignore pre-set 64-bit bars on 32-bit platforms
-References: <200606071711.06774.bjorn.helgaas@hp.com> <200606082249.14475.bjorn.helgaas@hp.com> <44890117.1000403@c2micro.com> <200606091005.21165.bjorn.helgaas@hp.com>
-In-Reply-To: <200606091005.21165.bjorn.helgaas@hp.com>
-Content-Type: multipart/mixed;
- boundary="------------040003050500020507060208"
+	Fri, 9 Jun 2006 14:29:40 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:12945 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030350AbWFIS3j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 14:29:39 -0400
+Date: Fri, 9 Jun 2006 12:29:45 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609182945.GD5964@schatzie.adilger.int>
+Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
+	Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+	cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <m3r71ycprd.fsf@bzzz.home.net> <44899778.1010705@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44899778.1010705@garzik.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040003050500020507060208
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Jun 09, 2006  11:44 -0400, Jeff Garzik wrote:
+> b) watch users boot w/ extents, accidentally do something silly like 
+> writing data to a file, and become locked into a new subset of kernels?
+> 
+> The simple act of writing data to a file has become an _irrevocable 
+> filesystem upgrade event_.
 
+You keep on saying this, but you know it won't happen TODAY.  On the contrary,
+if extents are merged today, I don't see distros making it a default mount
+option for YEARS (it won't be the default for RHEL5, which is the only distro
+that has participation on the ext3 developers, I can't comment for others).
 
---------------040003050500020507060208
-Content-Type: text/plain;
- name="pci-fix.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pci-fix.txt"
+WHEN extents become the default (which I hope they will at some point, like
+dir_index and large inodes, that have been around for years already too)
+then it will be mostly a non-issue (how many times do you boot into 2.2?).
 
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+The only exception is if you have a filesystem larger than 16TB you have
+to use extents, which isn't an issue either way.  I don't think they will
+ever become the default for e.g. root or boot filesystems, just for
+compatibility reasons, but are highly desirable for e.g. mythtv or other
+"large file" using filesystems.
 
-When we detect a 64-bit pre-set address in a BAR on a 32-bit platform,
-we disable it and treat it as if it had been unset, thus allowing the
-general address assignment code to assign a new address to it when the
-device is enabled.  This can happen either if the firmware assigns
-64-bit addresses; additionally, some cards have been found "in the
-wild" which do not come out of reset with all the BAR registers set to
-zero.
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-Unfortunately, the patch that implemented this tested the low part of
-the address instead of the high part of the address.  This patch fixes
-that.
-
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
-
-Index: rc5-mm3/drivers/pci/probe.c
-===================================================================
---- rc5-mm3.orig/drivers/pci/probe.c	2006-06-09 09:40:51.000000000 -0600
-+++ rc5-mm3/drivers/pci/probe.c	2006-06-09 09:42:35.000000000 -0600
-@@ -199,7 +199,7 @@
- 				printk(KERN_ERR "PCI: Unable to handle 64-bit BAR for device %s\n", pci_name(dev));
- 				res->start = 0;
- 				res->flags = 0;
--			} else if (l) {
-+			} else if (lhi) {
- 				/* 64-bit wide address, treat as disabled */
- 				pci_write_config_dword(dev, reg, l & ~(u32)PCI_BASE_ADDRESS_MEM_MASK);
- 				pci_write_config_dword(dev, reg+4, 0);
-
---------------040003050500020507060208--

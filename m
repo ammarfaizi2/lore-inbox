@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbWFIXht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWFIXlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030382AbWFIXht (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWFIXht
+	id S932588AbWFIXlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWFIXlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:37:49 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:42967 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030376AbWFIXhs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:37:48 -0400
-Date: Fri, 9 Jun 2006 17:37:54 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Dave Jones <davej@redhat.com>, Theodore Tso <tytso@mit.edu>,
-       Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609233754.GO5964@schatzie.adilger.int>
-Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
-	Dave Jones <davej@redhat.com>, Theodore Tso <tytso@mit.edu>,
-	Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-	cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
-References: <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org> <20060609195750.GD10524@thunk.org> <20060609203803.GF3574@ca-server1.us.oracle.com> <20060609205036.GI7420@redhat.com> <4489E8EF.5020508@garzik.org> <20060609225604.GK5964@schatzie.adilger.int> <4489FFB8.3070203@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4489FFB8.3070203@garzik.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Fri, 9 Jun 2006 19:41:23 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:60105 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932588AbWFIXlX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 19:41:23 -0400
+Message-Id: <200606092341.k59Nf6RJ003396@laptop11.inf.utfsm.cl>
+To: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
+cc: Linux e-posta listesi <linux-kernel@vger.kernel.org>
+Subject: Re: Discovering select(2) parameters from driver's poll method 
+In-Reply-To: Message from Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr> 
+   of "Fri, 09 Jun 2006 16:34:12 +0300." <20060609133300.7528F490168@uekae.uekae.gov.tr> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Fri, 09 Jun 2006 19:41:06 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 09 Jun 2006 19:41:11 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 09, 2006  19:09 -0400, Jeff Garzik wrote:
-> Andreas Dilger wrote:
-> >Maybe we should start by deleting ext2 because it is old and obsolete?
-> >The reality is that we will never merge the forks back once they are made.
-> 
-> We _already have_ a relevant example:  ext2 -> ext3.
-> 
-> A useful fork is in the tree, and you're working on it.
+Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr> wrote:
+> I agree you, but your assumption is correct for a generic device, not
+> mine.  The purpose of my driver is slightly different and is not to
+> realize user space request, like other drivers in Linux kernel do.  My
+> goal is to forward the userspace system call to a remote computer, and
+> therefore I need information about these variables in order to call them
+> correctly via an user space application on the remote host.
 
-OK, you're right.  We'll continue working on the fork (namely ext3) and
-when people who care consider those features stable enough they can port
-them to ext2. :-)
-
-Like another person pointed out - there are bugs that are fixed in ext3
-that aren't in fixed ext2, and vice versa.  Even though the ext2 code
-is basically dead, new bugs are still found in it.
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+In that case, this is /not/ a device... The "If it waddles like a duck, and
+quacks like a duck, it is (probably) a duck" can be turned around...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

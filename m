@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWFIUdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWFIUfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWFIUdn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWFIUdn
+	id S932358AbWFIUfu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWFIUfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:33:43 -0400
-Received: from ns.protei.ru ([195.239.28.26]:29971 "EHLO mail.protei.ru")
-	by vger.kernel.org with ESMTP id S932264AbWFIUdm (ORCPT
+	Fri, 9 Jun 2006 16:35:50 -0400
+Received: from thunk.org ([69.25.196.29]:41929 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932358AbWFIUft (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:33:42 -0400
-Message-ID: <4489DB15.9010506@protei.ru>
-Date: Sat, 10 Jun 2006 00:33:25 +0400
-From: Nickolay <nickolay@protei.ru>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Fri, 9 Jun 2006 16:35:49 -0400
+Date: Fri, 9 Jun 2006 16:35:23 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Gerrit Huizenga <gh@us.ibm.com>, Michael Poole <mdpoole@troilus.org>,
+       Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609203523.GE10524@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jeff Garzik <jeff@garzik.org>, Gerrit Huizenga <gh@us.ibm.com>,
+	Michael Poole <mdpoole@troilus.org>, Andrew Morton <akpm@osdl.org>,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>, cmm@us.ibm.com,
+	linux-fsdevel@vger.kernel.org
+References: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com> <4489D36C.3010000@garzik.org>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initramfs: who does cat init.sh >> init ?
-References: <4489D93F.7090401@protei.ru> <e6cllv$dnb$1@terminus.zytor.com>
-In-Reply-To: <e6cllv$dnb$1@terminus.zytor.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4489D36C.3010000@garzik.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
+On Fri, Jun 09, 2006 at 04:00:44PM -0400, Jeff Garzik wrote:
+> But for ext3 specifically, it seems like bolting on extents, 48bit, 
+> delayed allocation, and other new features weren't really suited for the 
+> original ext2-style design.  Outside of the support (and marketing, 
+> because that's all version numbers are in the end) issues already 
+> mentioned, I think it falls into the nebulous realm of "taste."
 
->Followup to:  <4489D93F.7090401@protei.ru>
->By author:    Nickolay <nickolay@protei.ru>
->In newsgroup: linux.dev.kernel
->  
->
->>Guys, in recent kernels, when building kernel with initramfs with V=1, 
->>i  see interesting one:
->>
->>cat /usr/kernel/BE/2_6/initramfs/init.sh >/usr/kernel/BE/2_6/initramfs/init
->>
->>But i can't find, who really do that. Can anyone point me?
->>I need to fix that, because it's impossible for me to have two copy of init.
->>
->>    
->>
->
->Nothing that's part of the standard kernel, that's for sure.
->
->Looks like you have something patched, possibly by a vendor.  The
->BE/2_6 bit definitely looks that way.
->
->	-hpa
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
-I'm afraid, that you wrong.
-It is 2.6.17-rc4 git tree.
+If is very much a matter of taste, why are you trying to dictate to
+the ext2 developers how they choose to do things?  As long as it
+works, and we haven't screwed up yet, I'd argue this is falls into the
+category of letting each subsystem decide how they best work.  The way
+DaveM and the networking team works is quite different from how the
+SCSI developers work or the XFS team work --- it's not a
+one-size-fits-all sort of thing.
 
-BE/2_6/initramfs is just CONFIG_INITRAMFS_SOURCE path.
+And I'd also dispute with your "weren't really suited for the original
+ext2-style design" comment.  Ext2/3 was always designed to be
+extensible from the start, and we've successfully added features quite
+successfully for quite a while.
 
--- 
-Nickolay Vinogradov
+> Rather than taking another decade to slowly fix ext2 design decisions, 
+> why not move the process along a bit more rapidly?  Release early, 
+> release often...
 
+I don't think it will be another decade, but yes, regardless of
+whether we do a code fork or not, it will take time.  Basically, you
+and the ext2 developers have a disagreement about whether or not a
+code fork will actually move the process along more quickly or not.
+Either way, we will be releasing early and often, so people can test
+it out and comment on it.  Releasing patches to LKML is just the first
+step in this process.
+
+						- Ted

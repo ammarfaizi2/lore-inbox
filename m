@@ -1,218 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWFIVHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965302AbWFIVI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWFIVHr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWFIVHM
+	id S965302AbWFIVI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbWFIVGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:07:12 -0400
-Received: from AToulouse-252-1-74-163.w81-49.abo.wanadoo.fr ([81.49.44.163]:8147
+	Fri, 9 Jun 2006 17:06:37 -0400
+Received: from AToulouse-252-1-74-163.w81-49.abo.wanadoo.fr ([81.49.44.163]:6867
 	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932251AbWFIVGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:06:40 -0400
-Message-Id: <20060609210633.492644000@localhost.localdomain>
+	id S1030488AbWFIVGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 17:06:36 -0400
+Message-Id: <20060609210629.099136000@localhost.localdomain>
 References: <20060609210202.215291000@localhost.localdomain>
-Date: Fri, 09 Jun 2006 23:02:08 +0200
+Date: Fri, 09 Jun 2006 23:02:06 +0200
 From: dlezcano@fr.ibm.com
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 Cc: serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com, dlezcano@fr.ibm.com
-Subject: [RFC] [patch 6/6] [Network namespace] Network namespace debugfs
-Content-Disposition: inline; filename=net_ns_debugfs.patch
+Subject: [RFC] [patch 4/6] [Network namespace] Network inet devices isolation 
+Content-Disposition: inline; filename=inetdev_isolation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is for testing purpose. It allows to read which network
-devices are accessible and to add a network device to the view.
-This RFC hack is purely for discussing the best way to do that.
+The network isolation relies on the fact that an application can not
+use IP addresses not belonging to the container in which it's
+running. This patch isolates the inet device level by adding a
+structure namespace pointer in the structure in_ifaddr. When an ip
+address is set inside a network namespace, the structure in_ifaddr is
+filled with the current namespace pointer. There is a special case
+with loopback address which belongs to all the namespaces and its
+particularity is to have the network namespace pointer set to NULL.
+This patch isolates the ifconfig, ip addr commands, so when an IP
+address is set, this one it is not visible by another network
+namespaces.
 
-After unsharing with CLONE_NEWNET flag:
---------------------------------------
- To see which devices are accessible:
-	 cat /sys/kernel/debug/net_ns/dev
-
- To add a device:
-	 echo eth1 > /sys/kernel/debug/net_ns/dev
-
-This functionnality is intended to be implemented in an higher level
-container configuration.
-
-Replace-Subject: [Network namespace] Network namespace debugfs
+Replace-Subject: [Network namespace] Network inet devices isolation 
 Signed-off-by: Daniel Lezcano <dlezcano@fr.ibm.com> 
 --
- fs/debugfs/Makefile |    2 
- fs/debugfs/net_ns.c |  141 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- net/Kconfig         |    4 +
- 3 files changed, 146 insertions(+), 1 deletion(-)
+ include/linux/inetdevice.h |    1 +
+ net/ipv4/devinet.c         |   28 +++++++++++++++++++++++++++-
+ 2 files changed, 28 insertions(+), 1 deletion(-)
 
-Index: 2.6-mm/fs/debugfs/Makefile
+Index: 2.6-mm/include/linux/inetdevice.h
 ===================================================================
---- 2.6-mm.orig/fs/debugfs/Makefile
-+++ 2.6-mm/fs/debugfs/Makefile
-@@ -1,4 +1,4 @@
- debugfs-objs	:= inode.o file.o
+--- 2.6-mm.orig/include/linux/inetdevice.h
++++ 2.6-mm/include/linux/inetdevice.h
+@@ -99,6 +99,7 @@
+ 	unsigned char		ifa_flags;
+ 	unsigned char		ifa_prefixlen;
+ 	char			ifa_label[IFNAMSIZ];
++	struct net_namespace    *ifa_net_ns;
+ };
  
- obj-$(CONFIG_DEBUG_FS)	+= debugfs.o
--
-+obj-$(CONFIG_NET_NS_DEBUG) += net_ns.o
-Index: 2.6-mm/fs/debugfs/net_ns.c
+ extern int register_inetaddr_notifier(struct notifier_block *nb);
+Index: 2.6-mm/net/ipv4/devinet.c
 ===================================================================
---- /dev/null
-+++ 2.6-mm/fs/debugfs/net_ns.c
-@@ -0,0 +1,141 @@
-+/*
-+ *  net_ns.c - adds a net_ns/ directory to debug NET namespaces
-+ *
-+ *  Copyright (C) 2006 IBM
-+ *
-+ *  Author: Daniel Lezcano <dlezcano@fr.ibm.com>
-+ *
-+ *     This program is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation, version 2 of the
-+ *     License.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/pagemap.h>
-+#include <linux/debugfs.h>
-+#include <linux/sched.h>
-+#include <linux/netdevice.h>
+--- 2.6-mm.orig/net/ipv4/devinet.c
++++ 2.6-mm/net/ipv4/devinet.c
+@@ -54,6 +54,7 @@
+ #include <linux/notifier.h>
+ #include <linux/inetdevice.h>
+ #include <linux/igmp.h>
 +#include <linux/net_ns.h>
-+
-+static struct dentry *net_ns_dentry;
-+static struct dentry *net_ns_dentry_dev;
-+
-+static ssize_t net_ns_dev_read_file(struct file *file, char __user *user_buf,
-+				    size_t count, loff_t *ppos)
-+{
-+	size_t len;
-+	char *buf;
-+	struct net_ns_dev_list *devlist = &(net_ns()->dev_list);
-+	struct net_ns_dev *db;
-+	struct net_device *dev;
-+	struct list_head *l;
-+
-+	if (*ppos < 0)
-+		return -EINVAL;
-+	if (*ppos >= count)
-+		return 0;
-+
-+	/* It's for debug, everything should fit */
-+	buf = kmalloc(4096, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+	buf[0] = '\0';
-+
-+	read_lock(&devlist->lock);
-+	list_for_each(l, &devlist->list) {
-+		db = list_entry(l, struct net_ns_dev, list);
-+		dev = db->dev;
-+		strcat(buf,dev->name);
-+		strcat(buf,"\n");
-+	}
-+	read_unlock(&devlist->lock);
-+
-+	len = strlen(buf);
-+
-+	if (len > count)
-+		len = count;
-+
-+	if (copy_to_user(user_buf, buf, len)) {
-+		kfree(buf);
-+		return -EFAULT;
-+	}
-+
-+	*ppos += count;
-+	kfree(buf);
-+
-+	return count;
-+}
-+
-+static ssize_t net_ns_dev_write_file(struct file *file,
-+				     const char __user *user_buf,
-+				     size_t count, loff_t *ppos)
-+{
-+	int ret;
-+	size_t len;
-+	const char __user *p;
-+	char c;
-+	char devname[IFNAMSIZ];
-+	struct net_ns_dev_list *dev_list = &(net_ns()->dev_list);
-+
-+	len = 0;
-+	p = user_buf;
-+	while (len < count) {
-+		if (get_user(c, p++))
-+			return -EFAULT;
-+		if (c == 0 || c == '\n')
-+			break;
-+		len++;
-+	}
-+
-+	if (len >= IFNAMSIZ)
-+		return -EINVAL;
-+
-+	if (copy_from_user(devname, user_buf, len))
-+		return -EFAULT;
-+
-+	devname[len] = '\0';
-+
-+	ret = net_ns_dev_add(devname, dev_list);
-+	if (ret)
-+		return ret;
-+
-+	*ppos += count;
-+	return count;
-+}
-+
-+static int net_ns_dev_open_file(struct inode *inode, struct file *file)
-+{
-+	return 0;
-+}
-+
-+static struct file_operations net_ns_dev_fops = {
-+       .read =         net_ns_dev_read_file,
-+       .write =        net_ns_dev_write_file,
-+       .open =         net_ns_dev_open_file,
-+};
-+
-+static int __init net_ns_init(void)
-+{
-+	net_ns_dentry = debugfs_create_dir("net_ns", NULL);
-+
-+	net_ns_dentry_dev = debugfs_create_file("dev", 0666,
-+						net_ns_dentry,
-+						NULL,
-+						&net_ns_dev_fops);
-+	return 0;
-+}
-+
-+static void __exit net_ns_exit(void)
-+{
-+	debugfs_remove(net_ns_dentry_dev);
-+	debugfs_remove(net_ns_dentry);
-+}
-+
-+module_init(net_ns_init);
-+module_exit(net_ns_exit);
-+
-+MODULE_DESCRIPTION("NET namespace debugfs");
-+MODULE_AUTHOR("Daniel Lezcano <dlezcano@fr.ibm.com>");
-+MODULE_LICENSE("GPL");
-Index: 2.6-mm/net/Kconfig
-===================================================================
---- 2.6-mm.orig/net/Kconfig
-+++ 2.6-mm/net/Kconfig
-@@ -69,6 +69,10 @@ config NET_NS
- 	  vservers, to use network namespaces to provide isolated
- 	  network for different servers.  If unsure, say N.
+ #ifdef CONFIG_SYSCTL
+ #include <linux/sysctl.h>
+ #endif
+@@ -257,6 +258,7 @@
  
-+config NET_NS_DEBUG
-+	bool "Debug fs for network namespace"
-+	depends on DEBUG_FS && NET_NS
+ 			if (!(ifa->ifa_flags & IFA_F_SECONDARY) ||
+ 			    ifa1->ifa_mask != ifa->ifa_mask ||
++			    ifa->ifa_net_ns != net_ns() ||
+ 			    !inet_ifa_match(ifa1->ifa_address, ifa)) {
+ 				ifap1 = &ifa->ifa_next;
+ 				prev_prom = ifa;
+@@ -317,6 +319,8 @@
+ 	if (destroy) {
+ 		inet_free_ifa(ifa1);
+ 
++		put_net_ns(ifa1->ifa_net_ns);
 +
- if INET
- source "net/ipv4/Kconfig"
- source "net/ipv6/Kconfig"
+ 		if (!in_dev->ifa_list)
+ 			inetdev_destroy(in_dev);
+ 	}
+@@ -343,6 +347,7 @@
+ 		    ifa->ifa_scope <= ifa1->ifa_scope)
+ 			last_primary = &ifa1->ifa_next;
+ 		if (ifa1->ifa_mask == ifa->ifa_mask &&
++		    ifa1->ifa_net_ns == ifa->ifa_net_ns &&
+ 		    inet_ifa_match(ifa1->ifa_address, ifa)) {
+ 			if (ifa1->ifa_local == ifa->ifa_local) {
+ 				inet_free_ifa(ifa);
+@@ -437,6 +442,8 @@
+ 
+ 	for (ifap = &in_dev->ifa_list; (ifa = *ifap) != NULL;
+ 	     ifap = &ifa->ifa_next) {
++		if (ifa->ifa_net_ns != net_ns())
++			continue;
+ 		if ((rta[IFA_LOCAL - 1] &&
+ 		     memcmp(RTA_DATA(rta[IFA_LOCAL - 1]),
+ 			    &ifa->ifa_local, 4)) ||
+@@ -497,6 +504,9 @@
+ 	ifa->ifa_scope = ifm->ifa_scope;
+ 	in_dev_hold(in_dev);
+ 	ifa->ifa_dev   = in_dev;
++	ifa->ifa_net_ns = net_ns();
++	get_net_ns(net_ns());
++
+ 	if (rta[IFA_LABEL - 1])
+ 		rtattr_strlcpy(ifa->ifa_label, rta[IFA_LABEL - 1], IFNAMSIZ);
+ 	else
+@@ -631,10 +641,15 @@
+ 			for (ifap = &in_dev->ifa_list; (ifa = *ifap) != NULL;
+ 			     ifap = &ifa->ifa_next)
+ 				if (!strcmp(ifr.ifr_name, ifa->ifa_label))
+-					break;
++					if (!ifa->ifa_net_ns ||
++					    ifa->ifa_net_ns == net_ns())
++						break;
+ 		}
+ 	}
+ 
++	if (ifa && ifa->ifa_net_ns && ifa->ifa_net_ns != net_ns())
++		goto done;
++
+ 	ret = -EADDRNOTAVAIL;
+ 	if (!ifa && cmd != SIOCSIFADDR && cmd != SIOCSIFFLAGS)
+ 		goto done;
+@@ -678,6 +693,12 @@
+ 			ret = -ENOBUFS;
+ 			if ((ifa = inet_alloc_ifa()) == NULL)
+ 				break;
++			if (!LOOPBACK(sin->sin_addr.s_addr)) {
++				ifa->ifa_net_ns = net_ns();
++				get_net_ns(net_ns());
++			} else
++				ifa->ifa_net_ns = NULL;
++
+ 			if (colon)
+ 				memcpy(ifa->ifa_label, ifr.ifr_name, IFNAMSIZ);
+ 			else
+@@ -782,6 +803,8 @@
+ 		goto out;
+ 
+ 	for (; ifa; ifa = ifa->ifa_next) {
++		if (ifa->ifa_net_ns && ifa->ifa_net_ns != net_ns())
++			continue;
+ 		if (!buf) {
+ 			done += sizeof(ifr);
+ 			continue;
+@@ -1012,6 +1035,7 @@
+ 				  ifa->ifa_address = htonl(INADDR_LOOPBACK);
+ 				ifa->ifa_prefixlen = 8;
+ 				ifa->ifa_mask = inet_make_mask(8);
++				ifa->ifa_net_ns = NULL;
+ 				in_dev_hold(in_dev);
+ 				ifa->ifa_dev = in_dev;
+ 				ifa->ifa_scope = RT_SCOPE_HOST;
+@@ -1110,6 +1134,8 @@
+ 
+ 		for (ifa = in_dev->ifa_list, ip_idx = 0; ifa;
+ 		     ifa = ifa->ifa_next, ip_idx++) {
++			if (ifa->ifa_net_ns && ifa->ifa_net_ns != net_ns())
++				continue;
+ 			if (ip_idx < s_ip_idx)
+ 				continue;
+ 			if (inet_fill_ifaddr(skb, ifa, NETLINK_CB(cb->skb).pid,
 
 --

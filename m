@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030549AbWFIVxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030540AbWFIV4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030549AbWFIVxV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030548AbWFIVxV
+	id S1030540AbWFIV4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbWFIV4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:53:21 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:33190 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030544AbWFIVxU (ORCPT
+	Fri, 9 Jun 2006 17:56:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19165 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030540AbWFIV4N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:53:20 -0400
-Message-ID: <4489EDCA.5040808@garzik.org>
-Date: Fri, 09 Jun 2006 17:53:14 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Michael Poole <mdpoole@troilus.org>
-CC: Theodore Tso <tytso@mit.edu>, Gerrit Huizenga <gh@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
+	Fri, 9 Jun 2006 17:56:13 -0400
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com>	<4489D36C.3010000@garzik.org> <20060609203523.GE10524@thunk.org>	<4489EAFE.6090303@garzik.org> <87ac8matr2.fsf@graviton.dyn.troilus.org>
-In-Reply-To: <87ac8matr2.fsf@graviton.dyn.troilus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Matthew Frost <artusemrys@sbcglobal.net>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <4489ECDD.9060307@garzik.org>
+References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
+	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org>
+	 <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org>
+	 <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net>
+	 <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org>
+	 <20060609194959.GC10524@thunk.org> <4489D44A.1080700@garzik.org>
+	 <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <4489ECDD.9060307@garzik.org>
+Content-Type: text/plain
+Date: Fri, 09 Jun 2006 22:55:38 +0100
+Message-Id: <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Poole wrote:
-> Jeff Garzik writes:
+Hi,
+
+On Fri, 2006-06-09 at 17:49 -0400, Jeff Garzik wrote:
+
+> >> Consider a blkdev of size S1.  Using LVM we increase that value under 
+> >> the hood to size S2, where S2 > S1.  We perform an online resize from 
+> >> size S1 to S2.  The size and alignment of any new groups added will 
+> >> different from the non-resize case, where mke2fs was run directly on a 
+> >> blkdev of size S2.
+> > 
+> > No, they won't.  We simply grow the last block group in the filesystem
+> > up to the size where we'd naturally add another block group anyway; and
+> > then, we add another block group exactly where it would have been on a
+> > fresh mkfs.
 > 
->> Theodore Tso wrote:
->>> And I'd also dispute with your "weren't really suited for the original
->>> ext2-style design" comment.  Ext2/3 was always designed to be
->>> extensible from the start, and we've successfully added features quite
->>> successfully for quite a while.
->> Although not the only disk format change, extents are a pretty big
->> one. Will this be the last major on-disk format change?
-> 
-> You keep making "straw that broke the camel's back" type arguments
-> without saying why this particular straw (rather than the other
-> compatibility-breaking features that are already in ext3) is the one
-> that must not be allowed.  Is it a matter of taste, or is there some
-> objective threshold that extents cross?
+> Yes but the inodes per group etc. would differ.
 
-Yes, it's not a small change to the on-disk format.
+No, we add the same number of inodes in the new groups that all the
+previous groups have.
 
-If you write tools that read an ext3 filesystem, you won't be able to 
-read file data at all, without updating your code.
-
-That's a much bigger deal than say 32-bit uids.
-
-	Jeff
-
+--Stephen
 
 

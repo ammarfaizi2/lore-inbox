@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWFIRfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWFIRij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWFIRfv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 13:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWFIRfv
+	id S1751465AbWFIRij (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 13:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbWFIRij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 13:35:51 -0400
-Received: from ns.suse.de ([195.135.220.2]:58818 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750795AbWFIRfu (ORCPT
+	Fri, 9 Jun 2006 13:38:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26240 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751465AbWFIRii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 13:35:50 -0400
-Date: Fri, 9 Jun 2006 10:32:41 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>, Alex Tomas <alex@clusterfs.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609173241.GA32726@kroah.com>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net> <44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net> <4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net> <44899113.3070509@garzik.org> <20060609165643.GA5964@schatzie.adilger.int>
+	Fri, 9 Jun 2006 13:38:38 -0400
+Date: Fri, 9 Jun 2006 10:38:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, hugh@veritas.com, nickpiggin@yahoo.com.au,
+       linux-mm@kvack.org, ak@suse.de, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 01/14] Per zone counter functionality
+Message-Id: <20060609103820.a8cfc7b4.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606091016060.32632@schroedinger.engr.sgi.com>
+References: <20060608230239.25121.83503.sendpatchset@schroedinger.engr.sgi.com>
+	<20060608230244.25121.76440.sendpatchset@schroedinger.engr.sgi.com>
+	<20060608210045.62129826.akpm@osdl.org>
+	<Pine.LNX.4.64.0606090845130.31570@schroedinger.engr.sgi.com>
+	<20060609100627.5ff14228.akpm@osdl.org>
+	<Pine.LNX.4.64.0606091016060.32632@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060609165643.GA5964@schatzie.adilger.int>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 10:56:43AM -0600, Andreas Dilger wrote:
-> It's a lot better than e.g. the latest ubuntu which (apparently,
-> I read) can't mount a kernel older than 2.6.15 because of udev (or
-> sysfs?) changes.
+On Fri, 9 Jun 2006 10:18:23 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-If this is true, then it's only because the Ubuntu developers do not
-want to support older kernel versions.  Other distros handle this just
-fine (Gentoo and Debian for example).  This is not a kernel issue, but
-rather a distro design issue.
+> On Fri, 9 Jun 2006, Andrew Morton wrote:
+> 
+> > There's no need for an atomic op - at the most the architecture would need
+> > local_irq_disable() protection, and that's only if it doesn't have an
+> > atomic-wrt-this-cpu add instruction.
+> 
+> So I can drop the VM_STATS() definitions?
 
-Which is much different from the fact that I take a "ext3" partition
-from my new distro and can't get to the data if I downgrade to an older
-distro for whatever reason (or use an older rescue disk.)
+I _think_ so.  But a bit of a review of the existing atomic ops for the
+major architectures wouldn't hurt.
 
-Don't confuse distro design decisions from issues forced on an unknowing
-user by the ext3 fs kernel developers.
+> > > Right thought about that one as well. Can we stablize this first before I 
+> > > do another big reorg?
+> > 
+> > That's unfortunate patch ordering.  Do it (much) later I guess.
+> 
+> Well there are a couple of trailing issues that would have to be resolved 
+> before that happens. I have another patchset here that does something more 
+> to the remaining counters.
 
-thanks,
-
-greg k-h
+It's a relatively minor issue - we can do this little cleanup much later on.

@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbWFILVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbWFILYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965227AbWFILVo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 07:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWFILVo
+	id S965236AbWFILYb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 07:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWFILYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 07:21:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65502 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965227AbWFILVo (ORCPT
+	Fri, 9 Jun 2006 07:24:31 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:13543 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S965233AbWFILYa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 07:21:44 -0400
-Date: Fri, 9 Jun 2006 04:21:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: balbir@in.ibm.com
-Cc: nagar@watson.ibm.com, jlan@sgi.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
- taskstats
-Message-Id: <20060609042129.ae97018c.akpm@osdl.org>
-In-Reply-To: <448952C2.1060708@in.ibm.com>
-References: <44892610.6040001@watson.ibm.com>
-	<20060609010057.e454a14f.akpm@osdl.org>
-	<448952C2.1060708@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 07:24:30 -0400
+X-Comment-To: Christoph Hellwig
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<20060609091327.GA3679@infradead.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Fri, 09 Jun 2006 15:26:26 +0400
+In-Reply-To: <20060609091327.GA3679@infradead.org> (Christoph Hellwig's message of "Fri, 9 Jun 2006 10:13:27 +0100")
+Message-ID: <m364jafu3h.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 09 Jun 2006 16:21:46 +0530
-Balbir Singh <balbir@in.ibm.com> wrote:
+>>>>> Christoph Hellwig (CH) writes:
 
-> Andrew Morton wrote:
-> > On Fri, 09 Jun 2006 03:41:04 -0400
-> > Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> > 
-> > 
-> >>Hence, this patch introduces a configuration parameter
-> >>	/sys/kernel/taskstats_tgid_exit
-> >>through which a privileged user can turn on/off sending of per-tgid stats on
-> >>task exit.
-> > 
-> > 
-> > That seems a bit clumsy.  What happens if one consumer wants the per-tgid
-> > stats and another does not?
-> 
-> For all subsystems that re-use the taskstats structure from the exit path,
-> we have the issue that you mentioned. Thats because several statistics co-exist
-> in the same structure. These subsystems can keep their tgid-stats empty by not
-> filling up anything in fill_tgid() or using this patch to selectively enable/disable
-> tgid stats.
-> 
-> For other subsystems, they could pass tgidstats as NULL to taskstats_exit_send().
-> 
+ CH> If you guys want big storage on linux please help improving the filesystems
+ CH> design for that, e.g. jfs or xfs instead of showhorning it onto ext3 thus
+ CH> both making ext3 less reliable for us desktop/small server users and not get
+ CH> the full thing for the big storage people either.
 
-I don't understand.  If a subsystem exists then it fills in its slots in
-the taskstats structure, doesn't it?
+proposed patches don't touch existing code paths.
+extents may be enabled/disabled on per-file basis.
 
-No other subsystem needs a global knob, does it?
-
-You see the problem - if one userspace package wants the tgid-stats and
-another concurrently-running one does now, what do we do?  Just leave it
-enabled and run a bit slower?
-
-If so, how much slower?  Your changelog says some potential users don't
-need the tgid-stats, but so what?  I assume this patch is a performance
-thing?  If so, has it been quantified?
-
+thanks, Alex

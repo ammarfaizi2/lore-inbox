@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWFIPKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965270AbWFIPLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbWFIPKY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWFIPKY
+	id S965270AbWFIPLn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbWFIPLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:10:24 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:18039 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030207AbWFIPKW (ORCPT
+	Fri, 9 Jun 2006 11:11:42 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:49000 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965270AbWFIPLl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:10:22 -0400
-Message-ID: <44898EF1.5030704@openvz.org>
-Date: Fri, 09 Jun 2006 19:08:33 +0400
+	Fri, 9 Jun 2006 11:11:41 -0400
+Message-ID: <44898F44.7080108@openvz.org>
+Date: Fri, 09 Jun 2006 19:09:56 +0400
 From: Kirill Korotaev <dev@openvz.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
@@ -21,34 +21,34 @@ CC: devel@openvz.org, xemul@openvz.org,
        ebiederm@xmission.com, herbert@13thfloor.at, saw@sw.ru,
        serue@us.ibm.com, sfrench@us.ibm.com, sam@vilain.net,
        haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: [PATCH 4/6] IPC namespace - sem
+Subject: [PATCH 5/6] IPC namespace - shm
 References: <44898BF4.4060509@openvz.org>
 In-Reply-To: <44898BF4.4060509@openvz.org>
 Content-Type: multipart/mixed;
- boundary="------------040101010807000300030609"
+ boundary="------------050903060307030203020200"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------040101010807000300030609
+--------------050903060307030203020200
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-IPC namespace support for IPC sem code.
+IPC namespace support for IPC shm code.
 
 Signed-Off-By: Pavel Emelianiov <xemul@openvz.org>
 Signed-Off-By: Kirill Korotaev <dev@openvz.org>
 
---------------040101010807000300030609
+--------------050903060307030203020200
 Content-Type: text/plain;
- name="diff-ipc-ns-sem"
+ name="diff-ipc-ns-shm"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="diff-ipc-ns-sem"
+ filename="diff-ipc-ns-shm"
 
---- ./ipc/sem.c.ipcns	2006-06-06 14:47:58.000000000 +0400
-+++ ./ipc/sem.c	2006-06-09 14:20:06.000000000 +0400
-@@ -64,6 +64,10 @@
+--- ./ipc/shm.c.ipcns	2006-06-06 14:47:58.000000000 +0400
++++ ./ipc/shm.c	2006-06-09 14:25:34.000000000 +0400
+@@ -15,6 +15,10 @@
   *
   * support for audit of ipc object properties and permission changes
   * Dustin Kirkland <dustin.kirkland@us.ibm.com>
@@ -59,70 +59,74 @@ Content-Disposition: inline;
   */
  
  #include <linux/config.h>
-@@ -79,22 +83,25 @@
- #include <linux/capability.h>
+@@ -33,6 +37,7 @@
+ #include <linux/ptrace.h>
  #include <linux/seq_file.h>
  #include <linux/mutex.h>
 +#include <linux/nsproxy.h>
  
  #include <asm/uaccess.h>
- #include "util.h"
  
-+#define sem_ids(ns)	(*((ns)->ids[IPC_SEM_IDS]))
+@@ -41,59 +46,115 @@
+ static struct file_operations shm_file_operations;
+ static struct vm_operations_struct shm_vm_ops;
  
--#define sem_lock(id)	((struct sem_array*)ipc_lock(&sem_ids,id))
--#define sem_unlock(sma)	ipc_unlock(&(sma)->sem_perm)
--#define sem_rmid(id)	((struct sem_array*)ipc_rmid(&sem_ids,id))
--#define sem_checkid(sma, semid)	\
--	ipc_checkid(&sem_ids,&sma->sem_perm,semid)
--#define sem_buildid(id, seq) \
--	ipc_buildid(&sem_ids, id, seq)
--static struct ipc_ids sem_ids;
-+#define sem_lock(ns, id)	((struct sem_array*)ipc_lock(&sem_ids(ns), id))
-+#define sem_unlock(sma)		ipc_unlock(&(sma)->sem_perm)
-+#define sem_rmid(ns, id)	((struct sem_array*)ipc_rmid(&sem_ids(ns), id))
-+#define sem_checkid(ns, sma, semid)	\
-+	ipc_checkid(&sem_ids(ns),&sma->sem_perm,semid)
-+#define sem_buildid(ns, id, seq) \
-+	ipc_buildid(&sem_ids(ns), id, seq)
+-static struct ipc_ids shm_ids;
++static struct ipc_ids init_shm_ids;
  
--static int newary (key_t, int, int);
--static void freeary (struct sem_array *sma, int id);
-+static struct ipc_ids init_sem_ids;
+-#define shm_lock(id)	((struct shmid_kernel*)ipc_lock(&shm_ids,id))
+-#define shm_unlock(shp)	ipc_unlock(&(shp)->shm_perm)
+-#define shm_get(id)	((struct shmid_kernel*)ipc_get(&shm_ids,id))
+-#define shm_buildid(id, seq) \
+-	ipc_buildid(&shm_ids, id, seq)
++#define shm_ids(ns)	(*((ns)->ids[IPC_SHM_IDS]))
+ 
+-static int newseg (key_t key, int shmflg, size_t size);
++#define shm_lock(ns, id)		\
++	((struct shmid_kernel*)ipc_lock(&shm_ids(ns),id))
++#define shm_unlock(shp)			\
++	ipc_unlock(&(shp)->shm_perm)
++#define shm_get(ns, id)			\
++	((struct shmid_kernel*)ipc_get(&shm_ids(ns),id))
++#define shm_buildid(ns, id, seq)	\
++	ipc_buildid(&shm_ids(ns), id, seq)
 +
-+static int newary (struct ipc_namespace *, key_t, int, int);
-+static void freeary (struct ipc_namespace *ns, struct sem_array *sma, int id);
++static int newseg (struct ipc_namespace *ns, key_t key,
++		int shmflg, size_t size);
+ static void shm_open (struct vm_area_struct *shmd);
+ static void shm_close (struct vm_area_struct *shmd);
++static void shm_destroy (struct ipc_namespace *ns, struct shmid_kernel *shp);
  #ifdef CONFIG_PROC_FS
- static int sysvipc_sem_proc_show(struct seq_file *s, void *it);
+ static int sysvipc_shm_proc_show(struct seq_file *s, void *it);
  #endif
-@@ -111,22 +118,61 @@ static int sysvipc_sem_proc_show(struct 
-  *	
-  */
  
--int sem_ctls[4] = {SEMMSL, SEMMNS, SEMOPM, SEMMNI};
--#define sc_semmsl	(sem_ctls[0])
--#define sc_semmns	(sem_ctls[1])
--#define sc_semopm	(sem_ctls[2])
--#define sc_semmni	(sem_ctls[3])
-+#define sc_semmsl	sem_ctls[0]
-+#define sc_semmns	sem_ctls[1]
-+#define sc_semopm	sem_ctls[2]
-+#define sc_semmni	sem_ctls[3]
- 
--static int used_sems;
-+static void __ipc_init __sem_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
+-size_t	shm_ctlmax = SHMMAX;
+-size_t 	shm_ctlall = SHMALL;
+-int 	shm_ctlmni = SHMMNI;
++static void __ipc_init __shm_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
 +{
-+	ns->ids[IPC_SEM_IDS] = ids;
-+	ns->sc_semmsl = SEMMSL;
-+	ns->sc_semmns = SEMMNS;
-+	ns->sc_semopm = SEMOPM;
-+	ns->sc_semmni = SEMMNI;
-+	ns->used_sems = 0;
-+	ipc_init_ids(ids, ns->sc_semmni);
++	ns->ids[IPC_SHM_IDS] = ids;
++	ns->shm_ctlmax = SHMMAX;
++	ns->shm_ctlall = SHMALL;
++	ns->shm_ctlmni = SHMMNI;
++	ns->shm_tot = 0;
++	ipc_init_ids(ids, 1);
++}
+ 
+-static int shm_tot; /* total number of shared memory pages */
++static void do_shm_rmid(struct ipc_namespace *ns, struct shmid_kernel *shp)
++{
++	if (shp->shm_nattch){
++		shp->shm_perm.mode |= SHM_DEST;
++		/* Do not find it any more */
++		shp->shm_perm.key = IPC_PRIVATE;
++		shm_unlock(shp);
++	} else
++		shm_destroy(ns, shp);
 +}
 +
 +#ifdef CONFIG_IPC_NS
-+int sem_init_ns(struct ipc_namespace *ns)
++int shm_init_ns(struct ipc_namespace *ns)
 +{
 +	struct ipc_ids *ids;
 +
@@ -130,425 +134,480 @@ Content-Disposition: inline;
 +	if (ids == NULL)
 +		return -ENOMEM;
 +
-+	__sem_init_ns(ns, ids);
++	__shm_init_ns(ns, ids);
 +	return 0;
 +}
 +
-+void sem_exit_ns(struct ipc_namespace *ns)
++void shm_exit_ns(struct ipc_namespace *ns)
 +{
 +	int i;
-+	struct sem_array *sma;
++	struct shmid_kernel *shp;
 +
-+	mutex_lock(&sem_ids(ns).mutex);
-+	for (i = 0; i <= sem_ids(ns).max_id; i++) {
-+		sma = sem_lock(ns, i);
-+		if (sma == NULL)
++	mutex_lock(&shm_ids(ns).mutex);
++	for (i = 0; i <= shm_ids(ns).max_id; i++) {
++		shp = shm_lock(ns, i);
++		if (shp == NULL)
 +			continue;
 +
-+		freeary(ns, sma, i);
++		do_shm_rmid(ns, shp);
 +	}
-+	mutex_unlock(&sem_ids(ns).mutex);
++	mutex_unlock(&shm_ids(ns).mutex);
 +
-+	kfree(ns->ids[IPC_SEM_IDS]);
-+	ns->ids[IPC_SEM_IDS] = NULL;
++	kfree(ns->ids[IPC_SHM_IDS]);
++	ns->ids[IPC_SHM_IDS] = NULL;
 +}
 +#endif
  
- void __init sem_init (void)
+ void __init shm_init (void)
  {
--	used_sems = 0;
--	ipc_init_ids(&sem_ids,sc_semmni);
-+	__sem_init_ns(&init_ipc_ns, &init_sem_ids);
- 	ipc_init_proc_interface("sysvipc/sem",
- 				"       key      semid perms      nsems   uid   gid  cuid  cgid      otime      ctime\n",
--				&sem_ids,
--				sysvipc_sem_proc_show);
-+				IPC_SEM_IDS, sysvipc_sem_proc_show);
+-	ipc_init_ids(&shm_ids, 1);
++	__shm_init_ns(&init_ipc_ns, &init_shm_ids);
+ 	ipc_init_proc_interface("sysvipc/shm",
+ 				"       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime\n",
+-				&shm_ids,
+-				sysvipc_shm_proc_show);
++				IPC_SHM_IDS, sysvipc_shm_proc_show);
+ }
+ 
+-static inline int shm_checkid(struct shmid_kernel *s, int id)
++static inline int shm_checkid(struct ipc_namespace *ns,
++		struct shmid_kernel *s, int id)
+ {
+-	if (ipc_checkid(&shm_ids,&s->shm_perm,id))
++	if (ipc_checkid(&shm_ids(ns), &s->shm_perm, id))
+ 		return -EIDRM;
+ 	return 0;
+ }
+ 
+-static inline struct shmid_kernel *shm_rmid(int id)
++static inline struct shmid_kernel *shm_rmid(struct ipc_namespace *ns, int id)
+ {
+-	return (struct shmid_kernel *)ipc_rmid(&shm_ids,id);
++	return (struct shmid_kernel *)ipc_rmid(&shm_ids(ns), id);
+ }
+ 
+-static inline int shm_addid(struct shmid_kernel *shp)
++static inline int shm_addid(struct ipc_namespace *ns, struct shmid_kernel *shp)
+ {
+-	return ipc_addid(&shm_ids, &shp->shm_perm, shm_ctlmni);
++	return ipc_addid(&shm_ids(ns), &shp->shm_perm, ns->shm_ctlmni);
+ }
+ 
+ 
+ 
+-static inline void shm_inc (int id) {
++static inline void shm_inc(struct ipc_namespace *ns, int id)
++{
+ 	struct shmid_kernel *shp;
+ 
+-	shp = shm_lock(id);
++	shp = shm_lock(ns, id);
+ 	BUG_ON(!shp);
+ 	shp->shm_atim = get_seconds();
+ 	shp->shm_lprid = current->tgid;
+@@ -101,10 +162,13 @@ static inline void shm_inc (int id) {
+ 	shm_unlock(shp);
+ }
+ 
++#define shm_file_ns(file) (*((struct ipc_namespace **)&(file)->private_data))
++
+ /* This is called by fork, once for every shm attach. */
+-static void shm_open (struct vm_area_struct *shmd)
++static void shm_open(struct vm_area_struct *shmd)
+ {
+-	shm_inc (shmd->vm_file->f_dentry->d_inode->i_ino);
++	shm_inc(shm_file_ns(shmd->vm_file),
++			shmd->vm_file->f_dentry->d_inode->i_ino);
  }
  
  /*
-@@ -163,7 +209,7 @@ void __init sem_init (void)
+@@ -115,10 +179,10 @@ static void shm_open (struct vm_area_str
+  * It has to be called with shp and shm_ids.mutex locked,
+  * but returns with shp unlocked and freed.
   */
- #define IN_WAKEUP	1
- 
--static int newary (key_t key, int nsems, int semflg)
-+static int newary (struct ipc_namespace *ns, key_t key, int nsems, int semflg)
+-static void shm_destroy (struct shmid_kernel *shp)
++static void shm_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
  {
- 	int id;
- 	int retval;
-@@ -172,7 +218,7 @@ static int newary (key_t key, int nsems,
- 
- 	if (!nsems)
- 		return -EINVAL;
--	if (used_sems + nsems > sc_semmns)
-+	if (ns->used_sems + nsems > ns->sc_semmns)
- 		return -ENOSPC;
- 
- 	size = sizeof (*sma) + nsems * sizeof (struct sem);
-@@ -192,15 +238,15 @@ static int newary (key_t key, int nsems,
- 		return retval;
- 	}
- 
--	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
-+	id = ipc_addid(&sem_ids(ns), &sma->sem_perm, ns->sc_semmni);
- 	if(id == -1) {
- 		security_sem_free(sma);
- 		ipc_rcu_putref(sma);
- 		return -ENOSPC;
- 	}
--	used_sems += nsems;
-+	ns->used_sems += nsems;
- 
--	sma->sem_id = sem_buildid(id, sma->sem_perm.seq);
-+	sma->sem_id = sem_buildid(ns, id, sma->sem_perm.seq);
- 	sma->sem_base = (struct sem *) &sma[1];
- 	/* sma->sem_pending = NULL; */
- 	sma->sem_pending_last = &sma->sem_pending;
-@@ -216,29 +262,32 @@ asmlinkage long sys_semget (key_t key, i
- {
- 	int id, err = -EINVAL;
- 	struct sem_array *sma;
+-	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
+-	shm_rmid (shp->id);
++	ns->shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	shm_rmid(ns, shp->id);
+ 	shm_unlock(shp);
+ 	if (!is_file_hugepages(shp->shm_file))
+ 		shmem_lock(shp->shm_file, 0, shp->mlock_user);
+@@ -141,20 +205,23 @@ static void shm_close (struct vm_area_st
+ 	struct file * file = shmd->vm_file;
+ 	int id = file->f_dentry->d_inode->i_ino;
+ 	struct shmid_kernel *shp;
 +	struct ipc_namespace *ns;
  
--	if (nsems < 0 || nsems > sc_semmsl)
+-	mutex_lock(&shm_ids.mutex);
++	ns = shm_file_ns(file);
++
++	mutex_lock(&shm_ids(ns).mutex);
+ 	/* remove from the list of attaches of the shm segment */
+-	shp = shm_lock(id);
++	shp = shm_lock(ns, id);
+ 	BUG_ON(!shp);
+ 	shp->shm_lprid = current->tgid;
+ 	shp->shm_dtim = get_seconds();
+ 	shp->shm_nattch--;
+ 	if(shp->shm_nattch == 0 &&
+ 	   shp->shm_perm.mode & SHM_DEST)
+-		shm_destroy (shp);
++		shm_destroy(ns, shp);
+ 	else
+ 		shm_unlock(shp);
+-	mutex_unlock(&shm_ids.mutex);
++	mutex_unlock(&shm_ids(ns).mutex);
+ }
+ 
+ static int shm_mmap(struct file * file, struct vm_area_struct * vma)
+@@ -166,14 +233,25 @@ static int shm_mmap(struct file * file, 
+ 		vma->vm_ops = &shm_vm_ops;
+ 		if (!(vma->vm_flags & VM_WRITE))
+ 			vma->vm_flags &= ~VM_MAYWRITE;
+-		shm_inc(file->f_dentry->d_inode->i_ino);
++		shm_inc(shm_file_ns(file), file->f_dentry->d_inode->i_ino);
+ 	}
+ 
+ 	return ret;
+ }
+ 
++static int shm_release(struct inode *ino, struct file *file)
++{
++	struct ipc_namespace *ns;
++
++	ns = shm_file_ns(file);
++	put_ipc_ns(ns);
++	shm_file_ns(file) = NULL;
++	return 0;
++}
++
+ static struct file_operations shm_file_operations = {
+-	.mmap	= shm_mmap,
++	.mmap		= shm_mmap,
++	.release	= shm_release,
+ #ifndef CONFIG_MMU
+ 	.get_unmapped_area = shmem_get_unmapped_area,
+ #endif
+@@ -189,7 +267,7 @@ static struct vm_operations_struct shm_v
+ #endif
+ };
+ 
+-static int newseg (key_t key, int shmflg, size_t size)
++static int newseg (struct ipc_namespace *ns, key_t key, int shmflg, size_t size)
+ {
+ 	int error;
+ 	struct shmid_kernel *shp;
+@@ -198,10 +276,10 @@ static int newseg (key_t key, int shmflg
+ 	char name[13];
+ 	int id;
+ 
+-	if (size < SHMMIN || size > shm_ctlmax)
++	if (size < SHMMIN || size > ns->shm_ctlmax)
+ 		return -EINVAL;
+ 
+-	if (shm_tot + numpages >= shm_ctlall)
++	if (ns->shm_tot + numpages >= ns->shm_ctlall)
+ 		return -ENOSPC;
+ 
+ 	shp = ipc_rcu_alloc(sizeof(*shp));
+@@ -240,7 +318,7 @@ static int newseg (key_t key, int shmflg
+ 		goto no_file;
+ 
+ 	error = -ENOSPC;
+-	id = shm_addid(shp);
++	id = shm_addid(ns, shp);
+ 	if(id == -1) 
+ 		goto no_id;
+ 
+@@ -250,15 +328,17 @@ static int newseg (key_t key, int shmflg
+ 	shp->shm_ctim = get_seconds();
+ 	shp->shm_segsz = size;
+ 	shp->shm_nattch = 0;
+-	shp->id = shm_buildid(id,shp->shm_perm.seq);
++	shp->id = shm_buildid(ns, id, shp->shm_perm.seq);
+ 	shp->shm_file = file;
+ 	file->f_dentry->d_inode->i_ino = shp->id;
+ 
++	shm_file_ns(file) = get_ipc_ns(ns);
++
+ 	/* Hugetlb ops would have already been assigned. */
+ 	if (!(shmflg & SHM_HUGETLB))
+ 		file->f_op = &shm_file_operations;
+ 
+-	shm_tot += numpages;
++	ns->shm_tot += numpages;
+ 	shm_unlock(shp);
+ 	return shp->id;
+ 
+@@ -274,33 +354,36 @@ asmlinkage long sys_shmget (key_t key, s
+ {
+ 	struct shmid_kernel *shp;
+ 	int err, id = 0;
++	struct ipc_namespace *ns;
+ 
+-	mutex_lock(&shm_ids.mutex);
 +	ns = current->nsproxy->ipc_ns;
 +
-+	if (nsems < 0 || nsems > ns->sc_semmsl)
- 		return -EINVAL;
--	mutex_lock(&sem_ids.mutex);
-+	mutex_lock(&sem_ids(ns).mutex);
- 	
++	mutex_lock(&shm_ids(ns).mutex);
  	if (key == IPC_PRIVATE) {
--		err = newary(key, nsems, semflg);
--	} else if ((id = ipc_findkey(&sem_ids, key)) == -1) {  /* key not used */
-+		err = newary(ns, key, nsems, semflg);
-+	} else if ((id = ipc_findkey(&sem_ids(ns), key)) == -1) {  /* key not used */
- 		if (!(semflg & IPC_CREAT))
+-		err = newseg(key, shmflg, size);
+-	} else if ((id = ipc_findkey(&shm_ids, key)) == -1) {
++		err = newseg(ns, key, shmflg, size);
++	} else if ((id = ipc_findkey(&shm_ids(ns), key)) == -1) {
+ 		if (!(shmflg & IPC_CREAT))
  			err = -ENOENT;
  		else
--			err = newary(key, nsems, semflg);
-+			err = newary(ns, key, nsems, semflg);
- 	} else if (semflg & IPC_CREAT && semflg & IPC_EXCL) {
+-			err = newseg(key, shmflg, size);
++			err = newseg(ns, key, shmflg, size);
+ 	} else if ((shmflg & IPC_CREAT) && (shmflg & IPC_EXCL)) {
  		err = -EEXIST;
  	} else {
--		sma = sem_lock(id);
-+		sma = sem_lock(ns, id);
- 		BUG_ON(sma==NULL);
- 		if (nsems > sma->sem_nsems)
+-		shp = shm_lock(id);
++		shp = shm_lock(ns, id);
+ 		BUG_ON(shp==NULL);
+ 		if (shp->shm_segsz < size)
  			err = -EINVAL;
- 		else if (ipcperms(&sma->sem_perm, semflg))
+ 		else if (ipcperms(&shp->shm_perm, shmflg))
  			err = -EACCES;
  		else {
--			int semid = sem_buildid(id, sma->sem_perm.seq);
-+			int semid = sem_buildid(ns, id, sma->sem_perm.seq);
- 			err = security_sem_associate(sma, semflg);
+-			int shmid = shm_buildid(id, shp->shm_perm.seq);
++			int shmid = shm_buildid(ns, id, shp->shm_perm.seq);
+ 			err = security_shm_associate(shp, shmflg);
  			if (!err)
- 				err = semid;
-@@ -246,7 +295,7 @@ asmlinkage long sys_semget (key_t key, i
- 		sem_unlock(sma);
- 	}
- 
--	mutex_unlock(&sem_ids.mutex);
-+	mutex_unlock(&sem_ids(ns).mutex);
- 	return err;
- }
- 
-@@ -445,7 +494,7 @@ static int count_semzcnt (struct sem_arr
-  * the spinlock for this semaphore set hold. sem_ids.mutex remains locked
-  * on exit.
-  */
--static void freeary (struct sem_array *sma, int id)
-+static void freeary (struct ipc_namespace *ns, struct sem_array *sma, int id)
- {
- 	struct sem_undo *un;
- 	struct sem_queue *q;
-@@ -473,10 +522,10 @@ static void freeary (struct sem_array *s
- 	}
- 
- 	/* Remove the semaphore set from the ID array*/
--	sma = sem_rmid(id);
-+	sma = sem_rmid(ns, id);
- 	sem_unlock(sma);
- 
--	used_sems -= sma->sem_nsems;
-+	ns->used_sems -= sma->sem_nsems;
- 	size = sizeof (*sma) + sma->sem_nsems * sizeof (struct sem);
- 	security_sem_free(sma);
- 	ipc_rcu_putref(sma);
-@@ -504,7 +553,8 @@ static unsigned long copy_semid_to_user(
- 	}
- }
- 
--static int semctl_nolock(int semid, int semnum, int cmd, int version, union semun arg)
-+static int semctl_nolock(struct ipc_namespace *ns, int semid, int semnum,
-+		int cmd, int version, union semun arg)
- {
- 	int err = -EINVAL;
- 	struct sem_array *sma;
-@@ -521,24 +571,24 @@ static int semctl_nolock(int semid, int 
- 			return err;
- 		
- 		memset(&seminfo,0,sizeof(seminfo));
--		seminfo.semmni = sc_semmni;
--		seminfo.semmns = sc_semmns;
--		seminfo.semmsl = sc_semmsl;
--		seminfo.semopm = sc_semopm;
-+		seminfo.semmni = ns->sc_semmni;
-+		seminfo.semmns = ns->sc_semmns;
-+		seminfo.semmsl = ns->sc_semmsl;
-+		seminfo.semopm = ns->sc_semopm;
- 		seminfo.semvmx = SEMVMX;
- 		seminfo.semmnu = SEMMNU;
- 		seminfo.semmap = SEMMAP;
- 		seminfo.semume = SEMUME;
--		mutex_lock(&sem_ids.mutex);
-+		mutex_lock(&sem_ids(ns).mutex);
- 		if (cmd == SEM_INFO) {
--			seminfo.semusz = sem_ids.in_use;
--			seminfo.semaem = used_sems;
-+			seminfo.semusz = sem_ids(ns).in_use;
-+			seminfo.semaem = ns->used_sems;
- 		} else {
- 			seminfo.semusz = SEMUSZ;
- 			seminfo.semaem = SEMAEM;
+ 				err = shmid;
  		}
--		max_id = sem_ids.max_id;
--		mutex_unlock(&sem_ids.mutex);
-+		max_id = sem_ids(ns).max_id;
-+		mutex_unlock(&sem_ids(ns).mutex);
- 		if (copy_to_user (arg.__buf, &seminfo, sizeof(struct seminfo))) 
- 			return -EFAULT;
- 		return (max_id < 0) ? 0: max_id;
-@@ -548,12 +598,12 @@ static int semctl_nolock(int semid, int 
- 		struct semid64_ds tbuf;
- 		int id;
+ 		shm_unlock(shp);
+ 	}
+-	mutex_unlock(&shm_ids.mutex);
++	mutex_unlock(&shm_ids(ns).mutex);
  
--		if(semid >= sem_ids.entries->size)
-+		if(semid >= sem_ids(ns).entries->size)
- 			return -EINVAL;
- 
- 		memset(&tbuf,0,sizeof(tbuf));
- 
--		sma = sem_lock(semid);
-+		sma = sem_lock(ns, semid);
- 		if(sma == NULL)
- 			return -EINVAL;
- 
-@@ -565,7 +615,7 @@ static int semctl_nolock(int semid, int 
- 		if (err)
- 			goto out_unlock;
- 
--		id = sem_buildid(semid, sma->sem_perm.seq);
-+		id = sem_buildid(ns, semid, sma->sem_perm.seq);
- 
- 		kernel_to_ipc64_perm(&sma->sem_perm, &tbuf.sem_perm);
- 		tbuf.sem_otime  = sma->sem_otime;
-@@ -585,7 +635,8 @@ out_unlock:
  	return err;
  }
- 
--static int semctl_main(int semid, int semnum, int cmd, int version, union semun arg)
-+static int semctl_main(struct ipc_namespace *ns, int semid, int semnum,
-+		int cmd, int version, union semun arg)
- {
- 	struct sem_array *sma;
- 	struct sem* curr;
-@@ -594,14 +645,14 @@ static int semctl_main(int semid, int se
- 	ushort* sem_io = fast_sem_io;
- 	int nsems;
- 
--	sma = sem_lock(semid);
-+	sma = sem_lock(ns, semid);
- 	if(sma==NULL)
- 		return -EINVAL;
- 
- 	nsems = sma->sem_nsems;
- 
- 	err=-EIDRM;
--	if (sem_checkid(sma,semid))
-+	if (sem_checkid(ns,sma,semid))
- 		goto out_unlock;
- 
- 	err = -EACCES;
-@@ -803,7 +854,8 @@ static inline unsigned long copy_semid_f
+@@ -396,18 +479,19 @@ static inline unsigned long copy_shminfo
  	}
  }
  
--static int semctl_down(int semid, int semnum, int cmd, int version, union semun arg)
-+static int semctl_down(struct ipc_namespace *ns, int semid, int semnum,
-+		int cmd, int version, union semun arg)
+-static void shm_get_stat(unsigned long *rss, unsigned long *swp) 
++static void shm_get_stat(struct ipc_namespace *ns, unsigned long *rss,
++		unsigned long *swp) 
  {
- 	struct sem_array *sma;
- 	int err;
-@@ -814,11 +866,11 @@ static int semctl_down(int semid, int se
- 		if(copy_semid_from_user (&setbuf, arg.buf, version))
- 			return -EFAULT;
- 	}
--	sma = sem_lock(semid);
-+	sma = sem_lock(ns, semid);
- 	if(sma==NULL)
- 		return -EINVAL;
+ 	int i;
  
--	if (sem_checkid(sma,semid)) {
-+	if (sem_checkid(ns,sma,semid)) {
- 		err=-EIDRM;
- 		goto out_unlock;
- 	}	
-@@ -845,7 +897,7 @@ static int semctl_down(int semid, int se
+ 	*rss = 0;
+ 	*swp = 0;
  
- 	switch(cmd){
- 	case IPC_RMID:
--		freeary(sma, semid);
-+		freeary(ns, sma, semid);
- 		err = 0;
- 		break;
- 	case IPC_SET:
-@@ -873,17 +925,19 @@ asmlinkage long sys_semctl (int semid, i
- {
- 	int err = -EINVAL;
- 	int version;
+-	for (i = 0; i <= shm_ids.max_id; i++) {
++	for (i = 0; i <= shm_ids(ns).max_id; i++) {
+ 		struct shmid_kernel *shp;
+ 		struct inode *inode;
+ 
+-		shp = shm_get(i);
++		shp = shm_get(ns, i);
+ 		if(!shp)
+ 			continue;
+ 
+@@ -431,6 +515,7 @@ asmlinkage long sys_shmctl (int shmid, i
+ 	struct shm_setbuf setbuf;
+ 	struct shmid_kernel *shp;
+ 	int err, version;
 +	struct ipc_namespace *ns;
  
- 	if (semid < 0)
- 		return -EINVAL;
+ 	if (cmd < 0 || shmid < 0) {
+ 		err = -EINVAL;
+@@ -438,6 +523,7 @@ asmlinkage long sys_shmctl (int shmid, i
+ 	}
  
  	version = ipc_parse_version(&cmd);
 +	ns = current->nsproxy->ipc_ns;
  
- 	switch(cmd) {
+ 	switch (cmd) { /* replace with proc interface ? */
  	case IPC_INFO:
- 	case SEM_INFO:
- 	case SEM_STAT:
--		err = semctl_nolock(semid,semnum,cmd,version,arg);
-+		err = semctl_nolock(ns,semid,semnum,cmd,version,arg);
- 		return err;
- 	case GETALL:
- 	case GETVAL:
-@@ -893,13 +947,13 @@ asmlinkage long sys_semctl (int semid, i
- 	case IPC_STAT:
- 	case SETVAL:
- 	case SETALL:
--		err = semctl_main(semid,semnum,cmd,version,arg);
-+		err = semctl_main(ns,semid,semnum,cmd,version,arg);
- 		return err;
- 	case IPC_RMID:
- 	case IPC_SET:
--		mutex_lock(&sem_ids.mutex);
--		err = semctl_down(semid,semnum,cmd,version,arg);
--		mutex_unlock(&sem_ids.mutex);
-+		mutex_lock(&sem_ids(ns).mutex);
-+		err = semctl_down(ns,semid,semnum,cmd,version,arg);
-+		mutex_unlock(&sem_ids(ns).mutex);
- 		return err;
- 	default:
- 		return -EINVAL;
-@@ -987,7 +1041,7 @@ static struct sem_undo *lookup_undo(stru
- 	return un;
- }
+@@ -449,15 +535,15 @@ asmlinkage long sys_shmctl (int shmid, i
+ 			return err;
  
--static struct sem_undo *find_undo(int semid)
-+static struct sem_undo *find_undo(struct ipc_namespace *ns, int semid)
- {
- 	struct sem_array *sma;
- 	struct sem_undo_list *ulp;
-@@ -1006,12 +1060,12 @@ static struct sem_undo *find_undo(int se
- 		goto out;
+ 		memset(&shminfo,0,sizeof(shminfo));
+-		shminfo.shmmni = shminfo.shmseg = shm_ctlmni;
+-		shminfo.shmmax = shm_ctlmax;
+-		shminfo.shmall = shm_ctlall;
++		shminfo.shmmni = shminfo.shmseg = ns->shm_ctlmni;
++		shminfo.shmmax = ns->shm_ctlmax;
++		shminfo.shmall = ns->shm_ctlall;
  
- 	/* no undo structure around - allocate one. */
--	sma = sem_lock(semid);
-+	sma = sem_lock(ns, semid);
- 	un = ERR_PTR(-EINVAL);
- 	if(sma==NULL)
+ 		shminfo.shmmin = SHMMIN;
+ 		if(copy_shminfo_to_user (buf, &shminfo, version))
+ 			return -EFAULT;
+ 		/* reading a integer is always atomic */
+-		err= shm_ids.max_id;
++		err= shm_ids(ns).max_id;
+ 		if(err<0)
+ 			err = 0;
  		goto out;
- 	un = ERR_PTR(-EIDRM);
--	if (sem_checkid(sma,semid)) {
-+	if (sem_checkid(ns,sma,semid)) {
- 		sem_unlock(sma);
+@@ -471,14 +557,14 @@ asmlinkage long sys_shmctl (int shmid, i
+ 			return err;
+ 
+ 		memset(&shm_info,0,sizeof(shm_info));
+-		mutex_lock(&shm_ids.mutex);
+-		shm_info.used_ids = shm_ids.in_use;
+-		shm_get_stat (&shm_info.shm_rss, &shm_info.shm_swp);
+-		shm_info.shm_tot = shm_tot;
++		mutex_lock(&shm_ids(ns).mutex);
++		shm_info.used_ids = shm_ids(ns).in_use;
++		shm_get_stat (ns, &shm_info.shm_rss, &shm_info.shm_swp);
++		shm_info.shm_tot = ns->shm_tot;
+ 		shm_info.swap_attempts = 0;
+ 		shm_info.swap_successes = 0;
+-		err = shm_ids.max_id;
+-		mutex_unlock(&shm_ids.mutex);
++		err = shm_ids(ns).max_id;
++		mutex_unlock(&shm_ids(ns).mutex);
+ 		if(copy_to_user (buf, &shm_info, sizeof(shm_info))) {
+ 			err = -EFAULT;
+ 			goto out;
+@@ -493,17 +579,17 @@ asmlinkage long sys_shmctl (int shmid, i
+ 		struct shmid64_ds tbuf;
+ 		int result;
+ 		memset(&tbuf, 0, sizeof(tbuf));
+-		shp = shm_lock(shmid);
++		shp = shm_lock(ns, shmid);
+ 		if(shp==NULL) {
+ 			err = -EINVAL;
+ 			goto out;
+ 		} else if(cmd==SHM_STAT) {
+ 			err = -EINVAL;
+-			if (shmid > shm_ids.max_id)
++			if (shmid > shm_ids(ns).max_id)
+ 				goto out_unlock;
+-			result = shm_buildid(shmid, shp->shm_perm.seq);
++			result = shm_buildid(ns, shmid, shp->shm_perm.seq);
+ 		} else {
+-			err = shm_checkid(shp,shmid);
++			err = shm_checkid(ns, shp,shmid);
+ 			if(err)
+ 				goto out_unlock;
+ 			result = 0;
+@@ -535,12 +621,12 @@ asmlinkage long sys_shmctl (int shmid, i
+ 	case SHM_LOCK:
+ 	case SHM_UNLOCK:
+ 	{
+-		shp = shm_lock(shmid);
++		shp = shm_lock(ns, shmid);
+ 		if(shp==NULL) {
+ 			err = -EINVAL;
+ 			goto out;
+ 		}
+-		err = shm_checkid(shp,shmid);
++		err = shm_checkid(ns, shp,shmid);
+ 		if(err)
+ 			goto out_unlock;
+ 
+@@ -591,12 +677,12 @@ asmlinkage long sys_shmctl (int shmid, i
+ 		 *	Instead we set a destroyed flag, and then blow
+ 		 *	the name away when the usage hits zero.
+ 		 */
+-		mutex_lock(&shm_ids.mutex);
+-		shp = shm_lock(shmid);
++		mutex_lock(&shm_ids(ns).mutex);
++		shp = shm_lock(ns, shmid);
+ 		err = -EINVAL;
+ 		if (shp == NULL) 
+ 			goto out_up;
+-		err = shm_checkid(shp, shmid);
++		err = shm_checkid(ns, shp, shmid);
+ 		if(err)
+ 			goto out_unlock_up;
+ 
+@@ -615,14 +701,8 @@ asmlinkage long sys_shmctl (int shmid, i
+ 		if (err)
+ 			goto out_unlock_up;
+ 
+-		if (shp->shm_nattch){
+-			shp->shm_perm.mode |= SHM_DEST;
+-			/* Do not find it any more */
+-			shp->shm_perm.key = IPC_PRIVATE;
+-			shm_unlock(shp);
+-		} else
+-			shm_destroy (shp);
+-		mutex_unlock(&shm_ids.mutex);
++		do_shm_rmid(ns, shp);
++		mutex_unlock(&shm_ids(ns).mutex);
  		goto out;
  	}
-@@ -1071,10 +1125,13 @@ asmlinkage long sys_semtimedop(int semid
- 	int undos = 0, alter = 0, max;
- 	struct sem_queue queue;
- 	unsigned long jiffies_left = 0;
-+	struct ipc_namespace *ns;
-+
-+	ns = current->nsproxy->ipc_ns;
  
- 	if (nsops < 1 || semid < 0)
- 		return -EINVAL;
--	if (nsops > sc_semopm)
-+	if (nsops > ns->sc_semopm)
- 		return -E2BIG;
- 	if(nsops > SEMOPM_FAST) {
- 		sops = kmalloc(sizeof(*sops)*nsops,GFP_KERNEL);
-@@ -1110,7 +1167,7 @@ asmlinkage long sys_semtimedop(int semid
- 
- retry_undos:
- 	if (undos) {
--		un = find_undo(semid);
-+		un = find_undo(ns, semid);
- 		if (IS_ERR(un)) {
- 			error = PTR_ERR(un);
- 			goto out_free;
-@@ -1118,12 +1175,12 @@ retry_undos:
- 	} else
- 		un = NULL;
- 
--	sma = sem_lock(semid);
-+	sma = sem_lock(ns, semid);
- 	error=-EINVAL;
- 	if(sma==NULL)
- 		goto out_free;
- 	error = -EIDRM;
--	if (sem_checkid(sma,semid))
-+	if (sem_checkid(ns,sma,semid))
- 		goto out_unlock_free;
- 	/*
- 	 * semid identifies are not unique - find_undo may have
-@@ -1191,7 +1248,7 @@ retry_undos:
- 		goto out_free;
- 	}
- 
--	sma = sem_lock(semid);
-+	sma = sem_lock(ns, semid);
- 	if(sma==NULL) {
- 		BUG_ON(queue.prev != NULL);
- 		error = -EIDRM;
-@@ -1268,6 +1325,7 @@ void exit_sem(struct task_struct *tsk)
- {
- 	struct sem_undo_list *undo_list;
- 	struct sem_undo *u, **up;
+@@ -632,12 +712,12 @@ asmlinkage long sys_shmctl (int shmid, i
+ 			err = -EFAULT;
+ 			goto out;
+ 		}
+-		mutex_lock(&shm_ids.mutex);
+-		shp = shm_lock(shmid);
++		mutex_lock(&shm_ids(ns).mutex);
++		shp = shm_lock(ns, shmid);
+ 		err=-EINVAL;
+ 		if(shp==NULL)
+ 			goto out_up;
+-		err = shm_checkid(shp,shmid);
++		err = shm_checkid(ns, shp,shmid);
+ 		if(err)
+ 			goto out_unlock_up;
+ 		err = audit_ipc_obj(&(shp->shm_perm));
+@@ -674,7 +754,7 @@ asmlinkage long sys_shmctl (int shmid, i
+ out_unlock_up:
+ 	shm_unlock(shp);
+ out_up:
+-	mutex_unlock(&shm_ids.mutex);
++	mutex_unlock(&shm_ids(ns).mutex);
+ 	goto out;
+ out_unlock:
+ 	shm_unlock(shp);
+@@ -700,6 +780,7 @@ long do_shmat(int shmid, char __user *sh
+ 	unsigned long prot;
+ 	int acc_mode;
+ 	void *user_addr;
 +	struct ipc_namespace *ns;
  
- 	undo_list = tsk->sysvsem.undo_list;
- 	if (!undo_list)
-@@ -1276,6 +1334,7 @@ void exit_sem(struct task_struct *tsk)
- 	if (!atomic_dec_and_test(&undo_list->refcnt))
- 		return;
- 
-+	ns = tsk->nsproxy->ipc_ns;
- 	/* There's no need to hold the semundo list lock, as current
-          * is the last task exiting for this undo list.
+ 	if (shmid < 0) {
+ 		err = -EINVAL;
+@@ -738,12 +819,13 @@ long do_shmat(int shmid, char __user *sh
+ 	 * We cannot rely on the fs check since SYSV IPC does have an
+ 	 * additional creator id...
  	 */
-@@ -1289,14 +1348,14 @@ void exit_sem(struct task_struct *tsk)
+-	shp = shm_lock(shmid);
++	ns = current->nsproxy->ipc_ns;
++	shp = shm_lock(ns, shmid);
+ 	if(shp == NULL) {
+ 		err = -EINVAL;
+ 		goto out;
+ 	}
+-	err = shm_checkid(shp,shmid);
++	err = shm_checkid(ns, shp,shmid);
+ 	if (err) {
+ 		shm_unlock(shp);
+ 		goto out;
+@@ -784,16 +866,16 @@ long do_shmat(int shmid, char __user *sh
+ invalid:
+ 	up_write(&current->mm->mmap_sem);
  
- 		if(semid == -1)
- 			continue;
--		sma = sem_lock(semid);
-+		sma = sem_lock(ns, semid);
- 		if (sma == NULL)
- 			continue;
+-	mutex_lock(&shm_ids.mutex);
+-	shp = shm_lock(shmid);
++	mutex_lock(&shm_ids(ns).mutex);
++	shp = shm_lock(ns, shmid);
+ 	BUG_ON(!shp);
+ 	shp->shm_nattch--;
+ 	if(shp->shm_nattch == 0 &&
+ 	   shp->shm_perm.mode & SHM_DEST)
+-		shm_destroy (shp);
++		shm_destroy(ns, shp);
+ 	else
+ 		shm_unlock(shp);
+-	mutex_unlock(&shm_ids.mutex);
++	mutex_unlock(&shm_ids(ns).mutex);
  
- 		if (u->semid == -1)
- 			goto next_entry;
- 
--		BUG_ON(sem_checkid(sma,u->semid));
-+		BUG_ON(sem_checkid(ns,sma,u->semid));
- 
- 		/* remove u from the sma->undo list */
- 		for (unp = &sma->undo; (un = *unp); unp = &un->id_next) {
+ 	*raddr = (unsigned long) user_addr;
+ 	err = 0;
 
 
 
 
---------------040101010807000300030609--
+--------------050903060307030203020200--

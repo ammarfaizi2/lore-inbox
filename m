@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbWFISpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWFISpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbWFISpA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbWFISo7
+	id S1030375AbWFISpw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbWFISpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:44:59 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:17337 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030373AbWFISo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:44:59 -0400
-Subject: Re: Idea about a disc backed ram filesystem
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Sascha Nitsch <Sash_lkl@linuxhowtos.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <305c16960606090807g6372b69dy3167b0e191b2c113@mail.gmail.com>
-References: <mizvekov@gmail.com>
-	 <305c16960606082159v2dc588abo6359d87173327c83@mail.gmail.com>
-	 <200606091343.k59DhC1f004434@laptop11.inf.utfsm.cl>
-	 <305c16960606090807g6372b69dy3167b0e191b2c113@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 14:43:52 -0400
-Message-Id: <1149878633.3894.224.camel@mindpipe>
+	Fri, 9 Jun 2006 14:45:52 -0400
+Received: from hera.kernel.org ([140.211.167.34]:14757 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030375AbWFISpv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 14:45:51 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: klibc
+Date: Fri, 9 Jun 2006 11:45:24 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e6cfk4$aa9$1@terminus.zytor.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <bda6d13a0606062351i5c94414fpa03ee2ce3dd180ae@mail.gmail.com> <e67fg0$grr$1@terminus.zytor.com> <8764ja7o2d.fsf@hades.wkstn.nix>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1149878724 10570 127.0.0.1 (9 Jun 2006 18:45:24 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 9 Jun 2006 18:45:24 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-09 at 12:07 -0300, Matheus Izvekov wrote:
-> Ok, but reality is that, even if i setup a swap partition with the
-> most lazy swapiness, it will swap my processes out. Is there a
-> pratical way to pin all processes to ram or otherwise tell the vm to
-> never swap any process? If there is, then you are right, there is no
-> point in doing this.
+Followup to:  <8764ja7o2d.fsf@hades.wkstn.nix>
+By author:    Nix <nix@esperi.org.uk>
+In newsgroup: linux.dev.kernel
+> > 
+> > You shouldn't pivot_root the rootfs filesystem.
+> 
+> What happens if you do? I mean, it doesn't make even conceptual sense,
+> really. The rootfs is always there: that's its entire purpose.
 > 
 
-echo 0 > /proc/sys/vm/swappiness
+"What happens if you do"... well, it may work, it might not, it may
+break some functionality for you or break in a future kernel version.
+It's undefined behaviour.
 
-Lee
+> >                                                 Use the run-init
+> > utility or something similar instead (which does a mount with
+> > MS_MOVE.)
+> 
+> busybox has a switch_root tool which (conceptually) rm -rf's everything
+> on the root filesystem and then does such a mount. (After all whatever
+> is on that filesystem is inaccessible after the overmount, so keeping
+> it around is just a waste of memory.)
 
+What busybox calls switch_root is the same as the run-init tool from
+the klibc distribution.
+
+	-hpa

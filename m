@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965288AbWFIPXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWFIPZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965288AbWFIPXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965287AbWFIPXP
+	id S1030206AbWFIPZf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965287AbWFIPZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:23:15 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:8638 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965285AbWFIPXO (ORCPT
+	Fri, 9 Jun 2006 11:25:35 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:62603 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965286AbWFIPZe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:23:14 -0400
-Message-ID: <4489925C.4010508@us.ibm.com>
-Date: Fri, 09 Jun 2006 08:23:08 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
+	Fri, 9 Jun 2006 11:25:34 -0400
+Message-ID: <448992EB.5070405@garzik.org>
+Date: Fri, 09 Jun 2006 11:25:31 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux-kernel@vger.kernel.org,
+To: linux-kernel@vger.kernel.org,
        ext2-devel <ext2-devel@lists.sourceforge.net>,
        linux-fsdevel@vger.kernel.org
+CC: Andreas Dilger <adilger@clusterfs.com>, cmm@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
 Subject: Re: [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <200606090240.k592enXj009395@turing-police.cc.vt.edu>
-In-Reply-To: <200606090240.k592enXj009395@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org>
+In-Reply-To: <44898EE3.6080903@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 08 Jun 2006 18:20:54 PDT, Mingming Cao said:
-> 
->>Current ext3 filesystem is limited to 8TB(4k block size), this is
->>practically not enough for the increasing need of bigger storage as
->>disks in a few years (or even now).
->>
->>To address this need, there are co-effort from RedHat, ClusterFS, IBM
->>and BULL to move ext3 from 32 bit filesystem to 48 bit filesystem,
->>expanding ext3 filesystem limit from 8TB today to 1024 PB. The 48 bit
->>ext3 is build on top of extent map changes for ext3, originally from
->>Alex Tomas. In short, the new ext3 on-disk extents format is:
-> 
-> 
-> which implies matching changes to mkfs.ext2 and possibly mount..
-> 
-> 
-Alexandre Ratchov and Laurent Vivier from BULL have been done some work 
-in e2fsprog to support extents and 48/64 bit ext3, although the patches 
-have not been thoroughly reviewed and discussed yet...
+Overall, I'm surprised that ext3 developers don't see any of the 
+problems related to progressive, stealth filesystem upgrades.
 
-http://marc.theaimsgroup.com/?l=ext2-devel&m=114848122624510&w=2
+Users are never given a clear indication of when their metadata is being 
+upgraded, there is no clear "line of demarcation" they cross, when they 
+start using extents.
 
->>Appreciate any comments and feedbacks!
-> 
-> 
-> Somebody else was recently discussing a set of patches to ext3 for
-> extents+delalloc+mballoc patches - is this work compatible with that?
-> 
-Yes, the extents patch you mentioned is the same one included in the 
-series. The delalloc (support delayed allocation for ext3) and mballoc ( 
-support multiple block allocation based on extents) are considered a 
-future to add, as this series is intend to address the capability issue 
-and on-disk format only.
+Since there is no user-visible fs upgrade event, users do not have a 
+clear picture of what features are being used -- which means they are 
+kept in the dark about which kernels are OK to use on their data.
 
-> Also, a pointer to the matching userspace patches would help anybody
-> who's gung-ho enough to test the code....
->
+Do you guys honestly expect users to keep track of which kernels added 
+specific ext3 features?
 
-Thanks for your interest!
+This is why other enterprise filesystems have clear "fs version 1", "fs 
+version 2" points across which a user migrates.  ext3's feature-flags 
+approach just means that there are a million combinations of potential 
+old-and-new features, in-tree and third party, all of which must be 
+supported.
 
-We have tested patch 1-4 (which basically not touching any on-disk 
-format) and they have been in mm tree. Extent patch itself have been 
-tested for a long time by ClusterFS and IBM, as it's actually being 
-posted a while back.
+	Jeff
 
-At this point the whole series pass compile, but not being tested yet. 
-This post as a RFC is intend to collect comments and feedbacks. BULL 
-team has done some test on the 2.6.16 version of the series with the 
-e2fsprog changes they posted though. I will upload the matching 
-e2fsprogs changes to ext2.sf.net/48bitsext3 shortly..
-
-Mingming
 

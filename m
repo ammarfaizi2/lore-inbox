@@ -1,114 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWFIWuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWFIWvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWFIWuq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 18:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWFIWuq
+	id S932574AbWFIWvD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 18:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWFIWvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 18:50:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33929 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932291AbWFIWup (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 18:50:45 -0400
-Date: Sat, 10 Jun 2006 00:49:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 1/1] usb: new driver for Cypress CY7C63xxx mirco controllers
-Message-ID: <20060609224957.GA15130@elf.ucw.cz>
-References: <200606100042.19441.o.bock@fh-wolfenbuettel.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606100042.19441.o.bock@fh-wolfenbuettel.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 9 Jun 2006 18:51:03 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:39093 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932572AbWFIWvA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 18:51:00 -0400
+Message-Id: <200606092249.k59MnoqD015785@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Alex Tomas <alex@clusterfs.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Mike Snitzer <snitzer@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, hch@infradead.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+In-Reply-To: Your message of "Fri, 09 Jun 2006 23:22:23 +0400."
+             <m3odx26snk.fsf@bzzz.home.net>
+From: Valdis.Kletnieks@vt.edu
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org> <4489B452.4050100@garzik.org> <4489B719.2070707@garzik.org> <170fa0d20606091127h735531d1s6df27d5721a54b80@mail.gmail.com> <4489C3D5.4030905@garzik.org>
+            <m3odx26snk.fsf@bzzz.home.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1149893388_4124P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 09 Jun 2006 18:49:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--==_Exmh_1149893388_4124P
+Content-Type: text/plain; charset=us-ascii
 
-Sorry, now the review begins...
+On Fri, 09 Jun 2006 23:22:23 +0400, Alex Tomas said:
+> what if proposed patch is safer than an average fix?
+> (given that it's just out of usage unless enabled)
 
-> +/* used to send usb control messages to device */
-> +int vendor_command(struct cy7c63 *dev, unsigned char request,
-> +			 unsigned char address, unsigned char data) {
+Those are the *dangerous* patches, because they usually contain bugs
+that weren't tripped over by the 6 people who enabled it while it
+was bouncing around in the -mm tree....
 
-Codingstyle: { goes to new line.
+--==_Exmh_1149893388_4124P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> +#define get_set_port(num,read_id,write_id) \
-> +static ssize_t set_port##num(struct device *dev, struct device_attribute *attr,	\
-> +					const char *buf, size_t count) {	\
-> +										\
-> +	int value;								\
-> +	int result = 0;								\
-> +										\
-> +	struct usb_interface *intf = to_usb_interface(dev);			\
-> +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
-> +										\
-> +	dev_dbg(&cyp->udev->dev, "WRITE_PORT%d called\n", num);			\
-> +										\
-> +	/* validate input data */						\
-> +	if (sscanf(buf, "%d", &value) < 1) {					\
-> +		result = -EINVAL;						\
-> +		goto error;							\
-> +	}									\
-> +	if (value>255 || value<0) {						\
-> +		result = -EINVAL;						\
-> +		goto error;							\
-> +	}									\
-> +										\
-> +	result = vendor_command(cyp, CY7C63_WRITE_PORT, write_id,		\
-> +					 (unsigned char)value);			\
-> +										\
-> +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n",result);	\
-> +error:										\
-> +	return result < 0 ? result : count;					\
-> +}										\
-> +										\
-> +static ssize_t get_port##num(struct device *dev,				\
-> +				 struct device_attribute *attr, char *buf) {	\
-> +										\
-> +	int result = 0;								\
-> +										\
-> +	struct usb_interface *intf = to_usb_interface(dev);			\
-> +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
-> +										\
-> +	dev_dbg(&cyp->udev->dev, "READ_PORT%d called\n", num);			\
-> +										\
-> +	result = vendor_command(cyp, CY7C63_READ_PORT, read_id, 0);		\
-> +										\
-> +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n", result);	\
-> +										\
-> +	return sprintf(buf, "%d", cyp->port##num);				\
-> +}										\
-> +static DEVICE_ATTR(port##num, S_IWUGO | S_IRUGO, get_port##num, set_port##num);
-> +
-> +get_set_port(0, CY7C63_READ_PORT_ID0, CY7C63_WRITE_PORT_ID0);
-> +get_set_port(1, CY7C63_READ_PORT_ID1, CY7C63_WRITE_PORT_ID1);
+iD8DBQFEifsJcC3lWbTT17ARAhhvAJ0V+22VSEwjXoDcp8K05lYPGMhlKACg2AcC
+2OkE9tyXQOUjWdFDPHtzbks=
+=1jvq
+-----END PGP SIGNATURE-----
 
-You get "best abuse of the macros" prize. Can you just use functions,
-and pass num as aditional argument? Then just wrap the long functions
-in small ones... converting cyp->port0/1 into array will be handy..
-
-
-> +static int cy7c63_probe(struct usb_interface *interface,
-> +			const struct usb_device_id *id) {
-
-{ on new line, please...
-
-BTW could we get come better name for the driver? cy7c63 looks like
-password of very paranoid sysadmin.
-
-> +	/* let the user know what node this device is now attached to */
-> +	dev_info(&interface->dev,
-> +		"Cypress CY7C63xxx device now attached\n");
-
-In cases like this we aling " one character to the right.
-
-Otherwise it looks okay.
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--==_Exmh_1149893388_4124P--

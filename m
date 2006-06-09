@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWFIQvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWFIQxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbWFIQvS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 12:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWFIQvS
+	id S1030286AbWFIQxR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 12:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965295AbWFIQxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 12:51:18 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:24464 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965297AbWFIQvR (ORCPT
+	Fri, 9 Jun 2006 12:53:17 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:30608 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965297AbWFIQxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 12:51:17 -0400
-Message-ID: <4489A6FB.9010402@garzik.org>
-Date: Fri, 09 Jun 2006 12:51:07 -0400
+	Fri, 9 Jun 2006 12:53:16 -0400
+Message-ID: <4489A777.5050501@garzik.org>
+Date: Fri, 09 Jun 2006 12:53:11 -0400
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
 To: Alex Tomas <alex@clusterfs.com>
-CC: Mike Snitzer <snitzer@gmail.com>, Christoph Hellwig <hch@infradead.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net>	<44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net>	<4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net>	<44899113.3070509@garzik.org>	<170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com>	<4489A15E.5020904@garzik.org> <m3fyieb7gl.fsf@bzzz.home.net>
-In-Reply-To: <m3fyieb7gl.fsf@bzzz.home.net>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>	<m33beecntr.fsf@bzzz.home.net> <44899D93.5030008@garzik.org>	<m3verab8kg.fsf@bzzz.home.net> <4489A199.9050502@garzik.org> <m3bqt2b7eo.fsf@bzzz.home.net>
+In-Reply-To: <m3bqt2b7eo.fsf@bzzz.home.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.2 (----)
@@ -33,14 +33,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Alex Tomas wrote:
 >>>>>> Jeff Garzik (JG) writes:
 > 
->  JG> It's also a question of...  why keep adding modernizing features to
->  JG> ext3, thus keeping it on life support, but just barely?  If we are
->  JG> going to modernize the _main Linux filesystem_, let's not do it in a
->  JG> way that is slow, and ties our hands.
+>  JG> Alex Tomas wrote:
+>  >>>>>>> Jeff Garzik (JG) writes:
+>  JG> If it will remain a mount option, if it is never made the
+>  >> default
+>  JG> (either in kernel or distro level), then only 1% of users will ever
+>  JG> use the feature.  And we shouldn't merge a 1% use feature into the
+>  JG> _main_ filesystem for Linux.
+>  >> strictly speaking, not that many users really need >2TB fs ...
 > 
-> I think trying to solve all problems at once will take much longer.
+>  JG> Not true.  Terabyte SATA drives are less than a year away.  2TB
+>  JG> drives... probably 2 years?
+> 
+> oh, 2 years sound long enough for defaulting extents?
 
-I guess it's a good thing that real world development never works like that.
+If terabyte drives will be here in less than a year, and 750GB drives 
+are already here, then people with today's commodity hardware are 
+probably already chomping at the bit to do >2TB LVM and RAID.
+
+Hook eight 750GB SATA drives to a Marvell SATA controller (all 
+commodity, all production) and you're way past 2TB.
 
 	Jeff
 

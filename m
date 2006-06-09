@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWFIVjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbWFIVl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWFIVjF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWFIVjF
+	id S1030346AbWFIVl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWFIVl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:39:05 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:52703 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932239AbWFIVjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:39:04 -0400
-Message-ID: <4489EA79.3000009@namesys.com>
-Date: Fri, 09 Jun 2006 14:39:05 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Fri, 9 Jun 2006 17:41:26 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:49573 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932328AbWFIVlZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 17:41:25 -0400
+Message-ID: <4489EAFE.6090303@garzik.org>
+Date: Fri, 09 Jun 2006 17:41:18 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Barry K. Nathan" <barryn@pobox.com>, Valdis.Kletnieks@vt.edu,
-       Andrew Morton <akpm@osdl.org>, arjan@linux.intel.com,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
-References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com> <20060604133326.f1b01cfc.akpm@osdl.org> <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu> <20060604213432.GB5898@elte.hu> <986ed62e0606041503v701f8882la4cbead47ae3982f@mail.gmail.com> <20060605065444.GA27445@elte.hu> <986ed62e0606050058v21b457a7tb4da4da62cb7e4e3@mail.gmail.com> <20060605081220.GA30123@elte.hu>
-In-Reply-To: <20060605081220.GA30123@elte.hu>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Theodore Tso <tytso@mit.edu>
+CC: Gerrit Huizenga <gh@us.ibm.com>, Michael Poole <mdpoole@troilus.org>,
+       Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com> <4489D36C.3010000@garzik.org> <20060609203523.GE10524@thunk.org>
+In-Reply-To: <20060609203523.GE10524@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Theodore Tso wrote:
+> And I'd also dispute with your "weren't really suited for the original
+> ext2-style design" comment.  Ext2/3 was always designed to be
+> extensible from the start, and we've successfully added features quite
+> successfully for quite a while.
 
->* Barry K. Nathan <barryn@pobox.com> wrote:
->
->  
->
->>On 6/4/06, Ingo Molnar <mingo@elte.hu> wrote:
->>    
->>
->>>reporting the first one only is necessary, because the validator cannot
->>>trust a system's dependency info that it sees as incorrect. Deadlock
->>>possibilities are quite rare in a kernel that is "in balance". Right now
->>>we are not "in balance" yet, because the validator has only been added a
->>>couple of days ago. The flurry of initial fixes will die down quickly.
->>>      
->>>
->>So, does that mean the plan is to annotate/tweak things in order to 
->>shut up *each and every* false positive in the kernel?
->>    
->>
->
->yes. 
->
-Ingo is very much in the right here.  Things like locking are very hard
-to debug, and require serious methodology.  It is worth the hassle.  I
-hope we do more things like this in the future.
+Although not the only disk format change, extents are a pretty big one. 
+Will this be the last major on-disk format change?
+
+
+>> Rather than taking another decade to slowly fix ext2 design decisions, 
+>> why not move the process along a bit more rapidly?  Release early, 
+>> release often...
+> 
+> I don't think it will be another decade, but yes, regardless of
+> whether we do a code fork or not, it will take time.  Basically, you
+> and the ext2 developers have a disagreement about whether or not a
+> code fork will actually move the process along more quickly or not.
+> Either way, we will be releasing early and often, so people can test
+> it out and comment on it.  Releasing patches to LKML is just the first
+> step in this process.
+
+I don't see how a larger filesystem codebase could possibly move more 
+quickly than a smaller codebase.  You'd have twice as many code paths to 
+worry about.
+
+	Jeff
+
+

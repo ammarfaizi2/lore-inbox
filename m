@@ -1,41 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbWFILYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWFILcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965236AbWFILYb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 07:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWFILYb
+	id S964853AbWFILcv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 07:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbWFILcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 07:24:31 -0400
-Received: from [80.71.248.82] ([80.71.248.82]:13543 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S965233AbWFILYa (ORCPT
+	Fri, 9 Jun 2006 07:32:51 -0400
+Received: from mail.gmx.de ([213.165.64.20]:32477 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964853AbWFILcv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 07:24:30 -0400
-X-Comment-To: Christoph Hellwig
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
-	<20060609091327.GA3679@infradead.org>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Fri, 09 Jun 2006 15:26:26 +0400
-In-Reply-To: <20060609091327.GA3679@infradead.org> (Christoph Hellwig's message of "Fri, 9 Jun 2006 10:13:27 +0100")
-Message-ID: <m364jafu3h.fsf@bzzz.home.net>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Jun 2006 07:32:51 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc6-rt1
+From: Mike Galbraith <efault@gmx.de>
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       Deepak Saxena <dsaxena@plexity.net>
+In-Reply-To: <1149847951.3829.26.camel@frecb000686>
+References: <20060607211455.GA6132@elte.hu>
+	 <1149842550.7585.27.camel@Homer.TheSimpsons.net>
+	 <1149847951.3829.26.camel@frecb000686>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 09 Jun 2006 13:35:51 +0200
+Message-Id: <1149852951.7421.7.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Christoph Hellwig (CH) writes:
+On Fri, 2006-06-09 at 12:12 +0200, Sébastien Dugué wrote:
+> On Fri, 2006-06-09 at 10:42 +0200, Mike Galbraith wrote:
 
- CH> If you guys want big storage on linux please help improving the filesystems
- CH> design for that, e.g. jfs or xfs instead of showhorning it onto ext3 thus
- CH> both making ext3 less reliable for us desktop/small server users and not get
- CH> the full thing for the big storage people either.
+> > After boot, it takes a very long time for KDE to finish loading... more
+> > than five minutes for the desktop background to finally appear.  Tasks
+> > which are doing nothing but a ~50ms gettimeofday() select() idle loop
+> > show up in top as using 1 to 3 percent cpu, though strace of these looks
+> > fine.  Starting any threaded app takes ages, whereas plain-jane things
+> > like gcc work fine.  For example, if I fire up xmms, the gui comes up
+> > quickly, but it takes over three minutes from the time I poke play until
+> > the first sound is emitted.  Starting evolution takes even longer.
+> > 
+> > Hoping that something might show up while running glibc-2.4 make check
+> > to save me from wading through huge truckloads of strace, I tried it.
+> > It repeatedly goes boom.  RT29 goes boom the same way, but doesn't
+> > exhibit the slow threaded app symptom.  Drat.
+> > 
+> 
+>   Yep noticed that here too. As you pointed out it seems to be related
+> to threaded apps. ls, vi, ... work fine whereas xemacs or others are
+> real slow, portmapper fails to respond, ...
+> 
+>   I've got no indication in the logs that something went wrong, nor
+> do I see any kernel BUG or WARNING.
+> 
+>   My box is a dual 2.8GHz HT xeon w/ 2GB mem.
+> 
+>   rt29 was fine as is 2.6.17-rc6.
+> 
+>   I feel a bit perplexed here.
 
-proposed patches don't touch existing code paths.
-extents may be enabled/disabled on per-file basis.
+I found xmms problem.
 
-thanks, Alex
+[pid  8498] 12:53:49.936186 socket(PF_INET, SOCK_STREAM, IPPROTO_IP <unfinished ...>
+[pid  8498] 12:53:49.936551 <... socket resumed> ) = 9 <0.000301>
+[pid  8498] 12:53:49.936774 fcntl64(9, F_SETFD, FD_CLOEXEC <unfinished ...>
+[pid  8498] 12:53:49.937287 <... fcntl64 resumed> ) = 0 <0.000465>
+[pid  8498] 12:53:49.937451 setsockopt(9, SOL_SOCKET, SO_REUSEADDR, [1], 4 <unfinished ...>
+[pid  8498] 12:53:49.937630 <... setsockopt resumed> ) = 0 <0.000110>
+[pid  8498] 12:53:49.937893 connect(9, {sa_family=AF_INET, sin_port=htons(16001), sin_addr=inet_addr("127.0.0.1")}, 16 <unfinished ...>
+[pid  8498] 12:56:58.902958 <... connect resumed> ) = -1 ETIMEDOUT (Connection timed out) <188.964934>
+
+which should have been...
+
+[pid  7385] 13:21:38.715146 socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 9 <0.000011>
+[pid  7385] 13:21:38.715192 fcntl64(9, F_SETFD, FD_CLOEXEC) = 0 <0.000007>
+[pid  7385] 13:21:38.715237 setsockopt(9, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0 <0.000008>
+[pid  7385] 13:21:38.715283 connect(9, {sa_family=AF_INET, sin_port=htons(16001), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 ECONNREFUSED (Connection refused) <0.000060>
+
+So much for the easy part.
+
+	-Mike
+

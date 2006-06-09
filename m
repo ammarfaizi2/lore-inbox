@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWFIQX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWFIQYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbWFIQX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 12:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWFIQX1
+	id S1030285AbWFIQYI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 12:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWFIQYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 12:23:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4621 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030277AbWFIQX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 12:23:26 -0400
-Date: Fri, 9 Jun 2006 17:23:20 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Stuart MacDonald <stuartm@connecttech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: serial_core: verify_port() in wrong spot?
-Message-ID: <20060609162320.GA11997@flint.arm.linux.org.uk>
-Mail-Followup-To: Stuart MacDonald <stuartm@connecttech.com>,
-	linux-kernel@vger.kernel.org
-References: <090301c68bd4$560c92b0$294b82ce@stuartm>
-Mime-Version: 1.0
+	Fri, 9 Jun 2006 12:24:08 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:25493 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1030280AbWFIQYG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 12:24:06 -0400
+Date: Fri, 9 Jun 2006 18:24:04 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609162403.GA26709@harddisk-recovery.com>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <44899D93.5030008@garzik.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <090301c68bd4$560c92b0$294b82ce@stuartm>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <44899D93.5030008@garzik.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 10:52:31AM -0400, Stuart MacDonald wrote:
-> However, in serial_core.c:set_uart_info(), there is a problem. The
-> flag should be within the purview of UPF_USR_MASK so that
-> non-privileged users can turn it on or off, and yet, I don't want the
-> mode to be enabled on UARTs that don't have it which requires
-> verification from the low-level driver. There is only one call to
-> ops->verify_port(), and it's not in the correct place for this to
-> happen.
+On Fri, Jun 09, 2006 at 12:10:59PM -0400, Jeff Garzik wrote:
+> Alex Tomas wrote:
+> > I believe it's as stable as before until you mount with extents
+> > mount option.
+> 
+> If it will remain a mount option, if it is never made the default 
+> (either in kernel or distro level), then only 1% of users will ever use 
+> the feature.  And we shouldn't merge a 1% use feature into the _main_ 
+> filesystem for Linux.
 
-I'd rather verify_port didn't get used for that - it's purpose is to
-validate changes the admin makes to the port.
+Why not? That's how htree dir indexing got in, and AFAIK most distros
+use it as a default.
 
-I don't know why you think that setting 9bit mode should be done this
-way rather than through the usual termios methods - the termios methods
-already have a way to control the length of each character, so it would
-seem logical to put the control in there.
+
+Erik
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

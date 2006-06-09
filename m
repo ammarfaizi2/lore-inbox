@@ -1,59 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFIDnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWFIDpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWFIDnl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 23:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWFIDnl
+	id S932147AbWFIDpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 23:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWFIDpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 23:43:41 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:55524 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751378AbWFIDnk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 23:43:40 -0400
-Message-ID: <4488EE68.9000605@garzik.org>
-Date: Thu, 08 Jun 2006 23:43:36 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 8 Jun 2006 23:45:09 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:5003 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932147AbWFIDpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 23:45:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=pX+8C/fQyuIw9lSxgRFm76vaPSbToahbTg1yrwJx5znFs0UzrW3oHhZ4fTpcfrZjaQX+/zBSrAk82AzEw3AAFUOzGZnmXTdg+tZMQanaf+M2fq2cHxOAcE/VEkn/4yTEWzRShr31yOI5WPHZbiOb2m0Gf0F9VMpmzbWEFdr5ims=
+Message-ID: <489ecd0c0606082045w7456a90et586a3954f1a2fca0@mail.gmail.com>
+Date: Fri, 9 Jun 2006 11:45:06 +0800
+From: "Luke Yang" <luke.adi@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH] Fix an inproper alignment accessing in irda protocol stack
+Cc: samuel@sortiz.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060608003015.52fe1b8e.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-ide@vger.kernel.org
-CC: "zhao, forrest" <forrest.zhao@intel.com>, htejun@gmail.com,
-       randy_dunlap <rdunlap@xenotime.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC] ATA host-protected area (HPA) device mapper?
-References: <1149751860.29552.79.camel@forrest26.sh.intel.com>	 <44883BAE.7070406@pobox.com> <1149820043.5721.7.camel@forrest26.sh.intel.com> <4488E6F6.10306@pobox.com>
-In-Reply-To: <4488E6F6.10306@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_7813_22026591.1149824706389"
+References: <489ecd0c0606080015v4815d0f3wa3d28c564eaf6885@mail.gmail.com>
+	 <20060608003015.52fe1b8e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As I just mentioned on linux-ide in another email:
-libata should -- like drivers/ide -- call the ATA "set max" command to 
-fully address the hard drive, including the special "host-protected 
-area" (HPA).  We should do this because the Linux standard is to export 
-the raw hardware directly, making 100% of the hardware capability 
-available to the user (and, in this case, Linux-based BIOS and recovery 
-tools).
+------=_Part_7813_22026591.1149824706389
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-However, there are rare bug reports and general paranoia related to 
-presenting 100% of the ATA hard drive "native" space, rather than the 
-possibly-smaller space that the BIOS chose to present to the user.
+Hi Andrew,
 
-My thinking is that [someone] should create an optional, ATA-specific 
-device mapper module.  This module would layer on top of an ATA block 
-device, and present two block devices:  the BIOS-presented space, and 
-the HPA.
+   Thanks. I modified the patch (don't know if there is any way better
+to solve this).
 
-Such a module would make it trivial for users to ensure that partition 
-tables and RAID metadata formats know what the BIOS (rather than 
-underlying hard drive) considers to be end-of-disk.
+Signed-off-by: Luke Yang <luke.adi@gmail.com>
 
-Comments?  Questions?  Am I completely insane?  ;-)
+ irlmp.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletion(-)
 
-	Jeff
+--- net/irda/irlmp.c.old        2006-06-08 14:49:20.000000000 +0800
++++ net/irda/irlmp.c    2006-06-09 19:43:58.000000000 +0800
+@@ -849,7 +849,13 @@
+        }
+
+        /* Construct new discovery info to be used by IrLAP, */
+-       u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
++#ifdef __LITTLE_ENDIAN
++       irlmp->discovery_cmd.data.hints[0] = irlmp->hints.word & 0xff;
++       irlmp->discovery_cmd.data.hints[1] = (irlmp->hints.word & 0xff00) >> 8;
++#else /* ifdef __BIG_ENDIAN */
++       irlmp->discovery_cmd.data.hints[0] = (irlmp->hints.word & 0xff00) >> 8;
++       irlmp->discovery_cmd.data.hints[1] = irlmp->hints.word & 0xff;
++#endif
+
+        /*
+         *  Set character set for device name (we use ASCII), and
+
+On 6/8/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Thu, 8 Jun 2006 15:15:11 +0800
+> "Luke Yang" <luke.adi@gmail.com> wrote:
+>
+> > Hi all,
+> >
+> >  For "struct irda_device_info" in irda.h:
+> > struct irda_device_info {
+> >       __u32       saddr;    /* Address of local interface */
+> >       __u32       daddr;    /* Address of remote device */
+> >       char        info[22]; /* Description */
+> >       __u8        charset;  /* Charset used for description */
+> >       __u8        hints[2]; /* Hint bits */
+> > };
+> >    The "hints" member aligns at the third byte of a word, an odd
+> > address. So if we visit "hints" as a short in irlmp.c:
+> >
+> >     u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
+> >
+> >   will cause alignment problem on some machines. Architectures with
+> > strict alignment rules do not allow 16-bit read on an odd address.
+> >
+> > Signed-off-by: Luke Yang <luke.adi@gmail.com>
+> >
+> >  irlmp.c |    3 ++-
+> >  1 files changed, 2 insertions(+), 1 deletion(-)
+> >
+> > --- net/irda/irlmp.c.old        2006-06-08 14:49:20.000000000 +0800
+> > +++ net/irda/irlmp.c    2006-06-08 14:54:29.000000000 +0800
+> > @@ -849,7 +849,8 @@
+> >         }
+> >
+> >         /* Construct new discovery info to be used by IrLAP, */
+> > -       u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
+> > +       irlmp->discovery_cmd.data.hints[0] = irlmp->hints.word & 0xff;
+> > +       irlmp->discovery_cmd.data.hints[1] = (irlmp->hints.word & 0xff00) >> 8;
+>
+> This change will have the effect of swapping those two bytes on big-endian
+> machines.
+>
+>
 
 
+-- 
+Best regards,
+Luke Yang
+luke.adi@gmail.com
 
+------=_Part_7813_22026591.1149824706389
+Content-Type: text/x-patch; name="irlmp_alignment_fixing.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="irlmp_alignment_fixing.patch"
+X-Attachment-Id: f_eo8h8l5m
+
+LS0tIG5ldC9pcmRhL2lybG1wLmMub2xkCTIwMDYtMDYtMDggMTQ6NDk6MjAuMDAwMDAwMDAwICsw
+ODAwCisrKyBuZXQvaXJkYS9pcmxtcC5jCTIwMDYtMDYtMDkgMTk6NDM6NTguMDAwMDAwMDAwICsw
+ODAwCkBAIC04NDksNyArODQ5LDEzIEBACiAJfQogCiAJLyogQ29uc3RydWN0IG5ldyBkaXNjb3Zl
+cnkgaW5mbyB0byBiZSB1c2VkIGJ5IElyTEFQLCAqLwotCXUxNmhvKGlybG1wLT5kaXNjb3Zlcnlf
+Y21kLmRhdGEuaGludHMpID0gaXJsbXAtPmhpbnRzLndvcmQ7CisjaWZkZWYgX19MSVRUTEVfRU5E
+SUFOCisJaXJsbXAtPmRpc2NvdmVyeV9jbWQuZGF0YS5oaW50c1swXSA9IGlybG1wLT5oaW50cy53
+b3JkICYgMHhmZjsKKwlpcmxtcC0+ZGlzY292ZXJ5X2NtZC5kYXRhLmhpbnRzWzFdID0gKGlybG1w
+LT5oaW50cy53b3JkICYgMHhmZjAwKSA+PiA4OworI2Vsc2UgLyogaWZkZWYgX19CSUdfRU5ESUFO
+ICovCisJaXJsbXAtPmRpc2NvdmVyeV9jbWQuZGF0YS5oaW50c1swXSA9IChpcmxtcC0+aGludHMu
+d29yZCAmIDB4ZmYwMCkgPj4gODsKKwlpcmxtcC0+ZGlzY292ZXJ5X2NtZC5kYXRhLmhpbnRzWzFd
+ID0gaXJsbXAtPmhpbnRzLndvcmQgJiAweGZmOworI2VuZGlmCiAKIAkvKgogCSAqICBTZXQgY2hh
+cmFjdGVyIHNldCBmb3IgZGV2aWNlIG5hbWUgKHdlIHVzZSBBU0NJSSksIGFuZAo=
+------=_Part_7813_22026591.1149824706389--

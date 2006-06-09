@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965291AbWFIPkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWFIPk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965291AbWFIPkN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbWFIPkM
+	id S1030217AbWFIPk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWFIPk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:40:12 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:32396 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965291AbWFIPkL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:40:11 -0400
-Message-ID: <44899653.1020007@garzik.org>
-Date: Fri, 09 Jun 2006 11:40:03 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 11:40:57 -0400
+Received: from zrtps0kp.nortel.com ([47.140.192.56]:5114 "EHLO
+	zrtps0kp.nortel.com") by vger.kernel.org with ESMTP
+	id S1030217AbWFIPk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:40:56 -0400
+Message-ID: <44899681.6070003@nortel.com>
+Date: Fri, 09 Jun 2006 09:40:49 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Christoph Hellwig <hch@infradead.org>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org>
-In-Reply-To: <20060609030759.48cd17a0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: cacheline alignment and per-cpu data
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+X-OriginalArrivalTime: 09 Jun 2006 15:40:53.0016 (UTC) FILETIME=[17362180:01C68BDB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Ted&co have been pretty good at avoiding compatibility problems.
 
-Well, extents and 48bit make that track record demonstrably worse.
+Someone asked me a question that I couldn't answer, so I thought I'd 
+pass it on to here.
 
-Users are now forced to remember that, if they write to their filesystem 
-after using either $mmver or $korgver kernels, they are locked out of 
-using older kernels.
+Suppose I declare an array of a struct type, where the size of the 
+struct is not a multiple of the cacheline size.  Each element in the 
+array is used by a different cpu.
 
- From the user's perspective, ext3 has no clear "metadata version 1", 
-"metadata version 2" division.  Thus they are now forced to keep a 
-matrix of kernel versions and ext3 feature flag support, to know which 
-kernels are usable with which data.  It is a support nightmare.
+If I understand it, this would mean that the last member in the data 
+belonging to one cpu shares a cacheline with the first member in the 
+data belonging to the next cpu.
 
-At no point is a user ever told, in big capital letters, "IF YOU WRITE 
-TO THIS FILESYSTEM, YOU CAN'T BOOT OLDER KERNELS."  There is no "click 
-OK to continue with this dramatic event."
+Will this cause cacheline pingpong?  If I do this sort of thing do I 
+need to ensure that the struct is a multiple of cacheline size (or 
+specify cacheline alignement)?
 
-And as features continue to be added in this manner, this problem gets 
-_exponentially_ worse.
+Thanks,
 
-
-On the project management side of things, I see no indication that this 
-momentum slow -- which implies to me that people will keep slapping new 
-stuff into ext3, rather than directing energy towards a newer, cleaner 
-ext-NG filesystem.
-
-Dragging around back-compat really constrains freedom, and you have to 
-have some sort of "pressure relief valve" (a massive, wildly 
-incompatible update) eventually.
-
-In my mind, it's analagous to locking developers into developing and 
-deploying new features into a stable branch of software.  The hacks just 
-get worse and worse, as you bend over backwards for back-compat.
-
-	Jeff
-
-
+Chris

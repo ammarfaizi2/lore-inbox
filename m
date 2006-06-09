@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWFIQ3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWFIQdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWFIQ3D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 12:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWFIQ3B
+	id S1751458AbWFIQdB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 12:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWFIQdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 12:29:01 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:25487 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750707AbWFIQ3A (ORCPT
+	Fri, 9 Jun 2006 12:33:01 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:31380 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1751455AbWFIQdA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 12:29:00 -0400
-Message-ID: <4489A1C6.7040402@garzik.org>
-Date: Fri, 09 Jun 2006 12:28:54 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Erik Mouw <erik@harddisk-recovery.com>
-CC: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+	Fri, 9 Jun 2006 12:33:00 -0400
+X-Comment-To: "Mike Snitzer"
+To: "Mike Snitzer" <snitzer@gmail.com>
+Cc: "Jeff Garzik" <jeff@garzik.org>, "Alex Tomas" <alex@clusterfs.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Mingming Cao" <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
        ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       Andreas Dilger <adilger@clusterfs.com>
+       linux-fsdevel@vger.kernel.org
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <44899D93.5030008@garzik.org> <20060609162403.GA26709@harddisk-recovery.com>
-In-Reply-To: <20060609162403.GA26709@harddisk-recovery.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net>
+	<44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net>
+	<4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net>
+	<44899113.3070509@garzik.org>
+	<170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Fri, 09 Jun 2006 20:33:18 +0400
+In-Reply-To: <170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com> (Mike Snitzer's message of "Fri, 9 Jun 2006 12:21:39 -0400")
+Message-ID: <m3odx2b86p.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
-> On Fri, Jun 09, 2006 at 12:10:59PM -0400, Jeff Garzik wrote:
->> Alex Tomas wrote:
->>> I believe it's as stable as before until you mount with extents
->>> mount option.
->> If it will remain a mount option, if it is never made the default 
->> (either in kernel or distro level), then only 1% of users will ever use 
->> the feature.  And we shouldn't merge a 1% use feature into the _main_ 
->> filesystem for Linux.
-> 
-> Why not? That's how htree dir indexing got in, and AFAIK most distros
-> use it as a default.
+>>>>> Mike Snitzer (MS) writes:
 
-The question is not today's usage, but long term production usage.  If 
-it is destined to be default eventually, then it's not a 1% case.
+ MS> precludes their ability to boot older kernels (steps can be taken to
+ MS> make them well aware of this). The "real world situation" you refer
+ MS> to, while hypothetically valid, isn't something informed
+ MS> ext3-with-extents users will _ever_ elect to do.
 
-	Jeff
+one who needs/wants to go back may get rid of extents by:
+a) remounting w/o extents option
+b) copying new-fashion-style files so that copies use blockmap
+c) dropping extents feature in superblock
 
-
-
+thanks, Alex

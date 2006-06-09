@@ -1,53 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWFISBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbWFISB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWFISBp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWFISBo
+	id S1030333AbWFISB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWFISB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:01:44 -0400
-Received: from mail.gmx.net ([213.165.64.20]:44233 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030298AbWFISBn (ORCPT
+	Fri, 9 Jun 2006 14:01:28 -0400
+Received: from mtaout2.012.net.il ([84.95.2.4]:58186 "EHLO mtaout2.012.net.il")
+	by vger.kernel.org with ESMTP id S1030333AbWFISB1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:01:43 -0400
-Date: Fri, 09 Jun 2006 20:01:42 +0200
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="iso-8859-1"
-From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
-Message-ID: <20060608205048.113800@gmx.net>
-MIME-Version: 1.0
-Subject: RFC: dma_mmap_coherent() for powerpc/ppc architecture and ALSA?
-To: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-X-Authenticated: #6097454
-X-Flags: 1001
-X-GMX-UID: DxjiLIYjTlI8X0ZvKmhrKpFOU2poZdkR
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
+	Fri, 9 Jun 2006 14:01:27 -0400
+Date: Fri, 09 Jun 2006 17:32:02 +0300
+From: Andrey Gelman <agelman@012.net.il>
+Subject: Assumably a BUG in Linux Kernel (scheduler part)
+X-012-Sender: agelman@012.net.il
+To: linux-kernel@vger.kernel.org
+Message-id: <200606091732.02943.agelman@012.net.il>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.8.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello there !
+Assumably, I've discovered a bug in Linux kernel (version 2.6.16), at:
+kernel\sched.c   function set_user_nice()
 
-I'm trying to adapt Linux for the AmigaOne, which is a G3/G4 PPC desktop system with a non cache coherent northbridge (MAI ArticiaS), a VIA82C686B southbridge and the U-boot firmware. Due to the cache coherency problem I compiled in the CONFIG_NOT_COHERENT_CACHE option (arch/ppc/kernel/dma-mapping.c) in the AmigaOne Linux kernel.
+Problem description:
+After you execute nice() system call, the dynamic priority is set to the new 
+value of the static priority, instead of being adjusted by a difference 
+between new and old nice values.
+In other words:
+What you have before you execute nice():  p->prio == static_prio - bonus
+After you execute nice():  p->prio == "a new" static_prio  (no bonus)
 
-While that fixes the DMA data corruption problem, it causes a kernel oops or a complete system lookup after starting sound playback. With kernel versions =<2.6.14 the oops messages refered to a BUG() entry in mm/rmap.c. Therefore I tried out a newer kernel (2.6.16.15), where the oops refers to the ALSA function snd_pcm_mmap_data_nopage() implemented in pcm_native.c.
+BUG Fix:
+Here I paste the whole of function set_user_nice() (thanks god, it's short) 
+with the BUG highlighted and fixed:
 
-Well, after searching a while in some old linux kernel threads, I found this thread here:
-http://www.thisishull.net/showthread.php?t=22080&page=3&pp=10
+void set_user_nice(task_t *p, long nice)
+{
+        unsigned long flags;
+        prio_array_t *array;
+        runqueue_t *rq;
+        int old_prio, new_prio, delta;
 
-Based on the information in this thread, I came to the conclusion that ALSA simply won't work on non cache coherent architectures (except ARM), because the generic DMA API was never expanded to support the functionality required by ALSA (namely mapping dma pages into user space with dma_mmap_coherent()).
+        if (TASK_NICE(p) == nice || nice < -20 || nice > 19)
+                return;
+        /*
+         * We have to be careful, if called from sys_setpriority(),
+         * the task might be in the middle of scheduling on another CPU.
+         */
+        rq = task_rq_lock(p, &flags);
+        /*
+         * The RT priorities are set via sched_setscheduler(), but we still
+         * allow the 'normal' nice value to be set - but as expected
+         * it wont have any effect on scheduling until the task is
+         * not SCHED_NORMAL/SCHED_BATCH:
+         */
+        if (rt_task(p)) {
+                p->static_prio = NICE_TO_PRIO(nice);
+                goto out_unlock;
+        }
+        array = p->array;
+        if (array)
+                dequeue_task(p, array);
+//-------------------------------------------------
+/*
+	//BUGGED FORMULA : 5 lines
+        old_prio = p->prio;
+        new_prio = NICE_TO_PRIO(nice);
+        delta = new_prio - old_prio;
+        p->static_prio = NICE_TO_PRIO(nice);
+        p->prio += delta;
+*/
+    //BUG FIX : 5 lines
+    old_prio = p->static_prio;
+    new_prio = NICE_TO_PRIO(nice);
+    delta = new_prio - old_prio;
+    p->static_prio = new_prio;
+    p->prio += delta;
+//-------------------------------------------------
+        if (array) {
+                enqueue_task(p, array);
+                /*
+                 * If the task increased its priority or is running and
+                 * lowered its priority, then reschedule its CPU:
+                 */
+                if (delta < 0 || (delta > 0 && task_running(rq, p)))
+                        resched_task(rq->curr);
+        }
+out_unlock:
+        task_rq_unlock(rq, &flags);
+}
 
-This leads me to the question, if there are any plans to include the dma_mmap_coherent() function (for powerpc/ppc and/or any other platform) in one of the next kernel versions and if an adapation of the ALSA drivers is planned. Or is there a simple way (hack) to fix this problem?
 
-Thanks!
 
-Regards,
-
-Gerhard
-
--- 
---
--- email : gerhard_pircher -AT- gmx -DOT- net
---
-
-Echte DSL-Flatrate dauerhaft für 0,- Euro*!
-"Feel free" mit GMX DSL! http://www.gmx.net/de/go/dsl
+Thank you,
+Andrey Gelman,
+Haifa, ISRAEL
+9-Jun-2006

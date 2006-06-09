@@ -1,62 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbWFIPRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965278AbWFIPUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965284AbWFIPRp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWFIPRp
+	id S965278AbWFIPUX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWFIPUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:17:45 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:37515 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965072AbWFIPRo (ORCPT
+	Fri, 9 Jun 2006 11:20:23 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:23445 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965278AbWFIPUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:17:44 -0400
-Message-ID: <44899113.3070509@garzik.org>
-Date: Fri, 09 Jun 2006 11:17:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
+	Fri, 9 Jun 2006 11:20:22 -0400
+Message-ID: <448991AF.2060503@fr.ibm.com>
+Date: Fri, 09 Jun 2006 17:20:15 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Alex Tomas <alex@clusterfs.com>
-CC: Christoph Hellwig <hch@infradead.org>, Mingming Cao <cmm@us.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net>	<44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net>	<4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net>
-In-Reply-To: <m3y7w6cr7d.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+To: Kirill Korotaev <dev@openvz.org>
+CC: Andrew Morton <akpm@osdl.org>, devel@openvz.org, xemul@openvz.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ebiederm@xmission.com, herbert@13thfloor.at, saw@sw.ru,
+       serue@us.ibm.com, sfrench@us.ibm.com, sam@vilain.net,
+       haveblue@us.ibm.com
+Subject: Re: [PATCH 1/6] IPC namespace core
+References: <44898BF4.4060509@openvz.org> <44898D52.4080506@openvz.org>
+In-Reply-To: <44898D52.4080506@openvz.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------040601050404050504090403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
-> PS. in the end this is just ext3 with one more feature ...
+This is a multi-part message in MIME format.
+--------------040601050404050504090403
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Incorrect.  You have to look at ext3 development over time.  This is a 
-PATTERN with ext3 development:  mutating the metadata over time in a 
-progressively incompatible manner.
+Kirill Korotaev wrote:
+> This patch implements core IPC namespace changes:
+> - ipc_namespace structure
+> - new config option CONFIG_IPC_NS
+> - adds CLONE_NEWIPC flag
+> - unshare support
+> 
+> Signed-Off-By: Pavel Emelianov <xemul@openvz.org>
+> Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> --- ./include/linux/init_task.h.ipcns	2006-06-06 14:47:58.000000000 +0400
+> +++ ./include/linux/init_task.h	2006-06-08 14:28:23.000000000 +0400
+> @@ -73,6 +73,7 @@ extern struct nsproxy init_nsproxy;
+>  	.count		= ATOMIC_INIT(1),				\
+>  	.nslock		= SPIN_LOCK_UNLOCKED,				\
+>  	.uts_ns		= &init_uts_ns,					\
+> +	.ipc_ns		= &init_ipc_ns,					\
+>  	.namespace	= NULL,						\
+>  }
+>  
+> --- ./include/linux/ipc.h.ipcns	2006-04-21 11:59:36.000000000 +0400
+> +++ ./include/linux/ipc.h	2006-06-08 15:43:43.000000000 +0400
+> @@ -2,6 +2,7 @@
+>  #define _LINUX_IPC_H
+>  
+>  #include <linux/types.h>
+> +#include <linux/kref.h>
+>  
+>  #define IPC_PRIVATE ((__kernel_key_t) 0)  
+>  
+> @@ -68,6 +69,41 @@ struct kern_ipc_perm
+>  	void		*security;
+>  };
+>  
+> +struct ipc_ids;
+> +struct ipc_namespace {
+> +	struct kref	kref;
+> +	struct ipc_ids	*ids[3];
+> +
+> +	int		sem_ctls[4];
+> +	int		used_sems;
+> +
+> +	int		msg_ctlmax;
+> +	int		msg_ctlmnb;
+> +	int		msg_ctlmni;
+> +
+> +	size_t		shm_ctlmax;
+> +	size_t		shm_ctlall;
+> +	int		shm_ctlmni;
+> +	int		shm_tot;
+> +};
 
-You have this thing called "ext3", which fools an admin into thinking 
-they can use their filesystem with any kernel that has "ext3" support. 
-That's somewhat true today, but with extents it will become false. 
-Having a mutating definition of "ext3" is a convenience for developers, 
-and for users WHO ONLY MOVE FORWARD in kernel versions.
+you could probably simplify your patch by moving struct ipc_ids to ipc.h
+and not allocating ids.
 
-A 48bit ext3 filesystem with extents is completely unusable in 2.4.30's 
-"ext3" or 2.6.10's "ext3".  Users are forced to hunt down the specific 
-kernel version when an incompatible feature was added to ext3.  How can 
-that possibly be described as "user friendly"?
+see patch bellow. I've been working all week on this patchset :)
 
-"Which ext3 am I talking to, today?"
-"And which kernels am I locked into, in order to talk to my filesystem?"
-
-Not all users are big production houses that plan their filesystem 
-metadata migration months in advance!  I _guarantee_ some users will 
-boot into ext3-with-extents, use it for a while, and then try to 
-downgrade for whatever reason...  only to find they have been LOCKED 
-OUT.  That is a very real world situation, guys.
-
-	Jeff
+C.
 
 
+
+
+--------------040601050404050504090403
+Content-Type: text/x-patch;
+ name="namespaces-sysvipc-move-struct-ipc-ids.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="namespaces-sysvipc-move-struct-ipc-ids.patch"
+
+From: Cedric Le Goater <clg@fr.ibm.com>
+Subject: namespaces sysvipc : move struct ipc_ids to ipc.h  
+
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+
+---
+ include/linux/ipc.h |   17 +++++++++++++++++
+ ipc/util.h          |   15 ---------------
+ 2 files changed, 17 insertions(+), 15 deletions(-)
+
+Index: 2.6.17-rc5-mm3/include/linux/ipc.h
+===================================================================
+--- 2.6.17-rc5-mm3.orig/include/linux/ipc.h
++++ 2.6.17-rc5-mm3/include/linux/ipc.h
+@@ -51,6 +51,8 @@ struct ipc_perm
+ 
+ #ifdef __KERNEL__
+ 
++#include <linux/mutex.h>
++
+ #define IPCMNI 32768  /* <= MAX_INT limit for ipc arrays (including sysctl changes) */
+ 
+ /* used by in-kernel data structures */
+@@ -68,6 +70,21 @@ struct kern_ipc_perm
+ 	void		*security;
+ };
+ 
++struct ipc_id_ary {
++	int size;
++	struct kern_ipc_perm *p[0];
++};
++
++struct ipc_ids {
++	int in_use;
++	int max_id;
++	unsigned short seq;
++	unsigned short seq_max;
++	struct mutex mutex;
++	struct ipc_id_ary nullentry;
++	struct ipc_id_ary* entries;
++};
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* _LINUX_IPC_H */
+Index: 2.6.17-rc5-mm3/ipc/util.h
+===================================================================
+--- 2.6.17-rc5-mm3.orig/ipc/util.h
++++ 2.6.17-rc5-mm3/ipc/util.h
+@@ -15,21 +15,6 @@ void sem_init (void);
+ void msg_init (void);
+ void shm_init (void);
+ 
+-struct ipc_id_ary {
+-	int size;
+-	struct kern_ipc_perm *p[0];
+-};
+-
+-struct ipc_ids {
+-	int in_use;
+-	int max_id;
+-	unsigned short seq;
+-	unsigned short seq_max;
+-	struct mutex mutex;
+-	struct ipc_id_ary nullentry;
+-	struct ipc_id_ary* entries;
+-};
+-
+ struct seq_file;
+ void __init ipc_init_ids(struct ipc_ids* ids, int size);
+ #ifdef CONFIG_PROC_FS
+
+--------------040601050404050504090403--

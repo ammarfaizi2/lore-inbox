@@ -1,112 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbWFISf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbWFISiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030360AbWFISf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWFISf4
+	id S1030344AbWFISiI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWFISiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:35:56 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52622 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030351AbWFISfz (ORCPT
+	Fri, 9 Jun 2006 14:38:08 -0400
+Received: from mail.gmx.de ([213.165.64.20]:50629 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030344AbWFISiH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:35:55 -0400
-Message-ID: <4489BF8F.2060305@engr.sgi.com>
-Date: Fri, 09 Jun 2006 11:35:59 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com, jlan@sgi.com,
-       csturtiv@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <44899562.6010609@in.ibm.com>
-In-Reply-To: <44899562.6010609@in.ibm.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 14:38:07 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.17-rc6-rt1
+From: Mike Galbraith <efault@gmx.de>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: tglx@linutronix.de,
+       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       John Stultz <johnstul@us.ibm.com>, Deepak Saxena <dsaxena@plexity.net>
+In-Reply-To: <1149868555.3187.25.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+References: <20060607211455.GA6132@elte.hu>
+	 <1149842550.7585.27.camel@Homer.TheSimpsons.net>
+	 <1149847951.3829.26.camel@frecb000686>
+	 <1149852951.7421.7.camel@Homer.TheSimpsons.net>
+	 <1149853468.3829.33.camel@frecb000686>
+	 <1149855638.7413.8.camel@Homer.TheSimpsons.net>
+	 <1149857821.3829.42.camel@frecb000686>
+	 <1149858713.5257.146.camel@localhost.localdomain>
+	 <1149860558.7423.9.camel@Homer.TheSimpsons.net>
+	 <1149868555.3187.25.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 09 Jun 2006 20:41:06 +0200
+Message-Id: <1149878466.7907.5.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> Andrew Morton wrote:
->> On Fri, 09 Jun 2006 16:21:46 +0530
->> Balbir Singh <balbir@in.ibm.com> wrote:
->>
->>
->>> Andrew Morton wrote:
->>>
->>>> On Fri, 09 Jun 2006 03:41:04 -0400
->>>> Shailabh Nagar <nagar@watson.ibm.com> wrote:
->>>>
->>>>
->>>>
->>>>> Hence, this patch introduces a configuration parameter
->>>>>     /sys/kernel/taskstats_tgid_exit
->>>>> through which a privileged user can turn on/off sending of
->>>>> per-tgid stats on
->>>>> task exit.
->>>>
->>>>
->>>> That seems a bit clumsy.  What happens if one consumer wants the
->>>> per-tgid
->>>> stats and another does not?
->>>
->>> For all subsystems that re-use the taskstats structure from the exit
->>> path,
->>> we have the issue that you mentioned. Thats because several
->>> statistics co-exist
->>> in the same structure. These subsystems can keep their tgid-stats
->>> empty by not
->>> filling up anything in fill_tgid() or using this patch to
->>> selectively enable/disable
->>> tgid stats.
->>>
->>> For other subsystems, they could pass tgidstats as NULL to
->>> taskstats_exit_send().
->>>
->>
->>
->> I don't understand.  If a subsystem exists then it fills in its slots in
->> the taskstats structure, doesn't it?
->>
->> No other subsystem needs a global knob, does it?
->>
->> You see the problem - if one userspace package wants the tgid-stats and
->> another concurrently-running one does now, what do we do?  Just leave it
->> enabled and run a bit slower?
->
-> Another option is to get the package to define their own taskstats
-> genetlink attribute and fill it up in taskstats_exit_send(). This
-> would be similar to
-> TASKSTATS_TYPE_AGGR_PID/TGID.
->
-> They can make this attribute independent of the taskstats structure
-> and fill
-> it based on their policy (per-pid or per-tgid). But the current interface
-> users like CSA want to build on top of the taskstats structure.
+On Fri, 2006-06-09 at 08:55 -0700, Daniel Walker wrote:
+> On Fri, 2006-06-09 at 15:42 +0200, Mike Galbraith wrote:
+> > On Fri, 2006-06-09 at 15:11 +0200, Thomas Gleixner wrote:
+> > > On Fri, 2006-06-09 at 14:57 +0200, Sébastien Dugué wrote:
+> > > > All the round trips under strace are in the 2ms range.
+> > > > 
+> > > >   How on earth can it be that stracing the ping gives better
+> > > > performance???
+> > > 
+> > > Was busy fixing a scheduling while atomic bug. I just verified that I
+> > > have the same weird behaviour. I'm looking into it.
+> > 
+> > I downloaded and patched a ping.c to do a user triggered latency trace
+> > around recvfrom() of a ping -c 1 127.0.0.1 running SCHED_RR.  We
+> > schedule away at 25us, do aaaall kinds of interesting stuff, and come
+> > back at 42234us.  If you want the trace, holler.  It's 51k bzipped.
+> 
+> What priority ?
 
-That was my question to you from the beginning: do you propose a common
-interface based on taskstats or genetlink?
+Bare minimum.  None of the other tasks that were scheduled were rt in
+their own right though.
 
-If CSA defines its own taskstats genetlink attirbute, does it listen to
-the same socket as delayacct? If yes, then the socket will be jammed with
-duplicate information before long.
-
-Is it an option to make per-tgid data a unicast? Ie, your daemon
-periodically
-polling the per-tgid stats?
-
-Thanks,
- - jay
-
-
->
->>
->> If so, how much slower?  Your changelog says some potential users don't
->> need the tgid-stats, but so what?  I assume this patch is a performance
->> thing?  If so, has it been quantified?
->>
->
->
+	-Mike
 

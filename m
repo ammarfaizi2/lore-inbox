@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030553AbWFIWKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbWFIWNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030553AbWFIWKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 18:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030555AbWFIWKh
+	id S1030558AbWFIWNl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 18:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030557AbWFIWNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 18:10:37 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:58533 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030553AbWFIWKg (ORCPT
+	Fri, 9 Jun 2006 18:13:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9161 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030266AbWFIWNj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 18:10:36 -0400
-Date: Fri, 9 Jun 2006 15:08:03 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/5] VT binding: Add sysfs support
-Message-ID: <20060609220803.GB7636@suse.de>
-References: <448933D7.6040301@gmail.com>
+	Fri, 9 Jun 2006 18:13:39 -0400
+Date: Fri, 9 Jun 2006 15:15:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sonny Rao <sonny@burdell.org>
+Cc: jeff@garzik.org, hch@infradead.org, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-Id: <20060609151553.30097b44.akpm@osdl.org>
+In-Reply-To: <20060609214200.GA18213@kevlar.burdell.org>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<20060609091327.GA3679@infradead.org>
+	<20060609030759.48cd17a0.akpm@osdl.org>
+	<44899653.1020007@garzik.org>
+	<20060609095620.22326f9d.akpm@osdl.org>
+	<4489AAD9.80806@garzik.org>
+	<20060609103543.52c00c62.akpm@osdl.org>
+	<20060609214200.GA18213@kevlar.burdell.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448933D7.6040301@gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 04:39:51PM +0800, Antonino A. Daplas wrote:
-> Add sysfs attributes for binding and unbinding VT console drivers. The
-> attributes are located in /sys/class/tty/console and are namely:
+Sonny Rao <sonny@burdell.org> wrote:
+>
+> On Fri, Jun 09, 2006 at 10:35:43AM -0700, Andrew Morton wrote:
+> <snip> 
+> > All that being said, Linux's filesystems are looking increasingly crufty
+> > and we are getting to the time where we would benefit from a greenfield
+> > start-a-new-one.  
 > 
->     A. backend - list registered drivers in the following format:
-> 
->     "I C: Description"
+> I'm curious about this comment; in what way are they _collectively_
+> looking crufty ? 
 
-No, this violates the "one value per file" issue with sysfs.  How do you
-know you will not overflow the buffer passed to you?
+We seem to be lagging behind "the industry" in some areas - handling large
+devices, high bandwidth IO, sophisticated on-disk data structures, advanced
+manageability, etc.
 
-> 
->     Where: I  = ID number of the driver
->            C  = status of the driver which can be:
-> 
-> 		S = system driver
-> 		B = bound modular driver
-> 		U = unbound modular driver
-> 
-> 	   Description - text description of the driver
-> 
->     B. bind - binds a driver to the console layer
-> 
->        echo <ID> > /sys/class/tty/console/bind
-> 
->     C. unbind - unbinds a driver from the console layer
-> 
->        echo <ID> > /sys/class/tty/console/unbind
-> 
-> The tty layer does nothing to these attributes except create them and punt all
-> requests to the VT layer.
+I mean, although ZFS is a rampant layering violation and we can do a lot of
+the things in there (without doing it all in the fs!) I don't think we can
+do all of it.
 
-Why is this needed?  What is wrong with the current scheme of binding
-ttys to the console?
+We're continuing to nurse along a few basically-15-year-old filesystems
+while we do have the brains, manpower and processes to implement a new,
+really great one.
 
-thanks,
-
-greg k-h
+It's just this feeling I have ;)

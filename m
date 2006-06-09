@@ -1,37 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030466AbWFITuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030469AbWFIT6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030466AbWFITuW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWFITuW
+	id S1030469AbWFIT6E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbWFIT6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:50:22 -0400
-Received: from thunk.org ([69.25.196.29]:27822 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030219AbWFITuV (ORCPT
+	Fri, 9 Jun 2006 15:58:04 -0400
+Received: from thunk.org ([69.25.196.29]:5544 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1030462AbWFIT6C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:50:21 -0400
-Date: Fri, 9 Jun 2006 15:49:59 -0400
+	Fri, 9 Jun 2006 15:58:02 -0400
+Date: Fri, 9 Jun 2006 15:57:50 -0400
 From: Theodore Tso <tytso@mit.edu>
 To: Jeff Garzik <jeff@garzik.org>
-Cc: Matthew Frost <artusemrys@sbcglobal.net>, Alex Tomas <alex@clusterfs.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
        ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       Andreas Dilger <adilger@clusterfs.com>
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609194959.GC10524@thunk.org>
+Message-ID: <20060609195750.GD10524@thunk.org>
 Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Jeff Garzik <jeff@garzik.org>,
-	Matthew Frost <artusemrys@sbcglobal.net>,
-	Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+	Jeff Garzik <jeff@garzik.org>, Alex Tomas <alex@clusterfs.com>,
 	Andrew Morton <akpm@osdl.org>,
 	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-	linux-fsdevel@vger.kernel.org
-References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org> <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org>
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+	cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+	Andreas Dilger <adilger@clusterfs.com>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4489C34B.1080806@garzik.org>
+In-Reply-To: <4489A7ED.8070007@garzik.org>
 User-Agent: Mutt/1.5.11
 X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: tytso@thunk.org
@@ -39,14 +38,37 @@ X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 02:51:55PM -0400, Jeff Garzik wrote:
-> ext3 is already essentially xiafs-on-life-support, when you consider 
-> today's large storage systems and today's filesystem technology.  Just 
-> look at the ugly hacks needed to support expanding an ext3 filesystem 
-> online.
+On Fri, Jun 09, 2006 at 12:55:09PM -0400, Jeff Garzik wrote:
+> That is what the entirety of Linux development is -- step-by-step.
+> 
+> It is OBVIOUS that it would take five minutes to start ext4.
+> 
+> 1) clone a new tree
+> 2) cp -a fs/ext3 fs/ext4
+> 3) apply extent and 48bit patches
+> 4) apply related e2fsprogs patches
+> 
+> Then update ext4 step-by-step, using the normal Linux development process.
 
-And what ugly hacks are you talking about?  It's actually quite clean;
-with the latest e2fsprogs, you use the same command (resize2fs) for
-doing both online and offline resizing.
+We don't do this with the SCSI layer where we make a complete clone of
+the driver layer so that there is a /usr/src/linux/driver/scsi and
+/usr/src/linux/driver/scsi2, do we?  And we didn't do that with the
+networking layer either, as we added ipsec, ipv6, softnet, and a whole
+host of other changes and improvements.  
+
+What we do instead is we have a series of patches, which can be made
+available in various experimental trees, and as they get more
+polishing and experience with people using it without any problems,
+they can get merged into the -mm tree, and then eventually, when they
+are deemed ready, into mainline.  That is also the normal Linux
+development process, and it's worked quite well up until now with ext3.
+
+Folks seem to be worried about ext3 being "too important to experiment
+with", but the fact remains, we've been doing continuous improvement
+with ext3 for quite some time, and it's been quite smooth.  The htree
+introduction was essentially completely painless, for example --- and
+people liked the fact that they could get the features of indexed
+directories without needing to do a complete dump and restore of the
+filesystem.
 
 						- Ted

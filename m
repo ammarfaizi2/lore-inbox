@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWFIUAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWFIUEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbWFIUAx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWFIUAw
+	id S1030312AbWFIUEf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWFIUEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:00:52 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:28320 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030467AbWFIUAw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:00:52 -0400
-Message-ID: <4489D36C.3010000@garzik.org>
-Date: Fri, 09 Jun 2006 16:00:44 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 16:04:35 -0400
+Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:2987 "EHLO
+	mx1.compro.net") by vger.kernel.org with ESMTP id S1030312AbWFIUEd
+	(ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:04:33 -0400
+Message-ID: <4489D44E.6060308@compro.net>
+Date: Fri, 09 Jun 2006 16:04:30 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+User-Agent: Thunderbird 1.5 (X11/20060111)
 MIME-Version: 1.0
-To: Gerrit Huizenga <gh@us.ibm.com>
-CC: Michael Poole <mdpoole@troilus.org>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com>
-In-Reply-To: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: markh@compro.net
+Cc: tglx@linutronix.de, linux-kerneL@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: RT exec for exercising RT kernel capabilities
+References: <448876B9.9060906@compro.net> <1149795975.5257.83.camel@localhost.localdomain> <44888D8F.2000404@compro.net> <4489614A.3030704@compro.net>
+In-Reply-To: <4489614A.3030704@compro.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerrit Huizenga wrote:
-> On Fri, 09 Jun 2006 14:55:56 EDT, Jeff Garzik wrote:
->> Because it's called backwards compat, when it isn't?
->> Because it is very difficult to find out which set of kernels you are 
->> locked out of?
->> Because the filesystem upgrade is stealthy, occurring as it does on the 
->> first data write?
+Mark Hounschell wrote:
+> Mark Hounschell wrote:
+>> Thomas Gleixner wrote:
+>>> Mark,
+>>>
+>>> On Thu, 2006-06-08 at 15:12 -0400, Mark Hounschell wrote:
+>>>> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
+>>>> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
+>>>> well the deterministic real-time capabilities of a computer. Maybe it could
+>>>> useful in some way to the effort or to anyone interested in making this type of
+>>>> determination about their kernel/computer.
+>>>>
+>>>> A README describing the rt-exec can be found at
+>>>> ftp://ftp.compro.net/public/rt-exec/README
+>>>>
+>>>> It can be downloaded from
+>>>> ftp://ftp.compro.net/public/rt-exec/rt-exec-1.0.0.tar.bz2
+>>>>
+>>>> Complaints, comments, or suggestions welcome.
+>>> Nice tool. 
+>>>
+>>> Some remarks. You can build high resolution timer support without the
+>>> extra lib package from the HRT sourceforge site. You need a recent glibc
+>>> and  some quirks in the source. See the cyclictest program I'm using.
+>>> http://www.tglx.de/projects/misc/cyclictest/cyclictest-v0.8.tar.bz2
+>>>
+>> I didn't realize that. Right you are.
+>>
+> Here is a new one that no longer requires the HRT sourceforge package. Thanks
+> again.
 > 
-> Actually, the *only* point being contended here is running older
-> kernels on some newer filesystems (created originally with a newer
-> kernel), right?
+> ftp://ftp.compro.net/public/rt-exec/rt-exec-1.0.1.tar.bz2
 > 
-> Or do you have examples of where current kernels could not deal
-> with an ext3 feature at some point in time?
-> 
-> I would argue that 0.001% of all Linux *users* actually worry about
-> this - most of them are right here on the development mailing list.
-> So, that group is more vocal, for sure.  But, if it works for 99.99+%
-> users, aren't we still on the good path, from the point of view of
-> those people who actually *use* Linux the most?
+>>> It would also be cute to add tests for the PI support for
+>>> pthread_mutexes.
+>>>
+>>> 	tglx
+>> I'm not sure what one needs to do in user land to actually test that but I'll
+>> investigate.
+>>
+> Still investigating...
 
-The overall objection is to treating ext3 as a highly mutable, 
-one-size-fits-all filesystem.
 
-Maybe there is value in moving some reiser4 concepts -- a set of 
-metadata+algorithm plugins -- to the VFS level.  I dunno.
+Am I even close in assuming that to enable the PI support you have to use
 
-But for ext3 specifically, it seems like bolting on extents, 48bit, 
-delayed allocation, and other new features weren't really suited for the 
-original ext2-style design.  Outside of the support (and marketing, 
-because that's all version numbers are in the end) issues already 
-mentioned, I think it falls into the nebulous realm of "taste."
+pthread_mutexattr_setprotocol(mutexattr, PTHREAD_PRIO_INHERIT);
 
-Rather than taking another decade to slowly fix ext2 design decisions, 
-why not move the process along a bit more rapidly?  Release early, 
-release often...
+I have only glibc 2.3 and 2.4 and neither of them understand what
+PTHREAD_PRIO_INHERIT is.
 
-	Jeff
+Can anyone point me to an some Doc or examples of how to enable PI for
+pthread_mutexes?
 
+Sorry I'm ignorant on the subject. I do understand the principle of PI and may
+even be able to figure out how to test it in user land but how do I turn it on?
+
+Thanks
+Mark
 
 

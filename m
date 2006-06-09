@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbWFIXov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbWFIXpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932594AbWFIXov (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWFIXov
+	id S932595AbWFIXpE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbWFIXpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:44:51 -0400
-Received: from hera.kernel.org ([140.211.167.34]:34782 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932594AbWFIXov (ORCPT
+	Fri, 9 Jun 2006 19:45:03 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:2474 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932595AbWFIXpB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:44:51 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: klibc
-Date: Fri, 9 Jun 2006 16:44:46 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e6d15e$j4l$1@terminus.zytor.com>
-References: <20060604135011.decdc7c9.akpm@osdl.org> <bda6d13a0606091528h4e85265du8651818c73827b7d@mail.gmail.com> <e6ctsb$hij$1@terminus.zytor.com> <bda6d13a0606091613h3334facbrcb86dbb2de01b412@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1149896686 19606 127.0.0.1 (9 Jun 2006 23:44:46 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 9 Jun 2006 23:44:46 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Fri, 9 Jun 2006 19:45:01 -0400
+Message-ID: <448A07EC.6000409@garzik.org>
+Date: Fri, 09 Jun 2006 19:44:44 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Matthew Frost <artusemrys@sbcglobal.net>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org>	 <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org>	 <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net>	 <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org>	 <20060609194959.GC10524@thunk.org> <4489D44A.1080700@garzik.org>	 <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk>	 <4489ECDD.9060307@garzik.org> <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk>
+In-Reply-To: <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <bda6d13a0606091613h3334facbrcb86dbb2de01b412@mail.gmail.com>
-By author:    "Joshua Hudson" <joshudson@gmail.com>
-In newsgroup: linux.dev.kernel
-> Should work if the following is true:
->    if pwd is /, mount / followed by ls . retunrs the contents of initramfs.
+Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Fri, 2006-06-09 at 17:49 -0400, Jeff Garzik wrote:
+> 
+>>>> Consider a blkdev of size S1.  Using LVM we increase that value under 
+>>>> the hood to size S2, where S2 > S1.  We perform an online resize from 
+>>>> size S1 to S2.  The size and alignment of any new groups added will 
+>>>> different from the non-resize case, where mke2fs was run directly on a 
+>>>> blkdev of size S2.
+>>> No, they won't.  We simply grow the last block group in the filesystem
+>>> up to the size where we'd naturally add another block group anyway; and
+>>> then, we add another block group exactly where it would have been on a
+>>> fresh mkfs.
+>> Yes but the inodes per group etc. would differ.
+> 
+> No, we add the same number of inodes in the new groups that all the
+> previous groups have.
 
-It does, and it does work as described.  Again, see the referenced code.
+Yes.  Re-read what I wrote.  To put it another way, "mkfs S1 + resize to 
+S2" does not produce precisely the same layout as "mkfs S2".
 
-You can also fchdir() to the rootfs if you have a file descriptor to
-any directory therein.
+	Jeff
 
-	-hpa
+
+

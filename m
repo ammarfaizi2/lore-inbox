@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWFIPzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbWFIP4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWFIPzF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWFIPzE
+	id S965098AbWFIP4c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWFIP41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:55:04 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:62640 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030240AbWFIPzB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:55:01 -0400
+	Fri, 9 Jun 2006 11:56:27 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:31117 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965098AbWFIP4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:56:17 -0400
+Message-ID: <44899A1C.7000207@garzik.org>
+Date: Fri, 09 Jun 2006 11:56:12 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
 To: Alex Tomas <alex@clusterfs.com>
-cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       Andreas Dilger <adilger@clusterfs.com>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3 
-In-reply-to: Your message of Fri, 09 Jun 2006 19:28:22 +0400.
-             <m3r71ycprd.fsf@bzzz.home.net> 
-Date: Fri, 09 Jun 2006 08:53:57 -0700
-Message-Id: <E1FojJ7-0002gC-9w@w-gerrit.beaverton.ibm.com>
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>	<448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net>
+In-Reply-To: <m3irnacohp.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 09 Jun 2006 19:28:22 +0400, Alex Tomas wrote:
->  JG> "ext3" will become more and more meaningless.  It could mean _any_ of 
->  JG> several filesystem metadata variants, and the admin will have no clue 
->  JG> which variant they are talking to until they try to mount the blkdev 
->  JG> (and possibly fail the mount).
+Alex Tomas wrote:
+>>>>>> Jeff Garzik (JG) writes:
 > 
-> debugfs <dev> -R stats | grep features ?
+>  JG> think about The Experience:  Suddenly users that could use 2.4.x and 
+>  JG> 2.6.x are locked into 2.6.18+, by the simple and common act of writing 
+>  JG> to a file.
+> 
+> sorry to repeat, but if they simple try 2.6.18, they won't get extents.
+> instead, they must specify extents mount option. and at this point
+> they must get clear that this is a way to get incompatible fs.
 
-Sounds similar to cat /proc/cpuinfo.  How *do* we deal with processors
-which have all these many different features?  Probably better than we
-would if each variant were viewed as a different architecture.
+Think about how this will be deployed in production, long term.
 
-Jeff's approach taken to the rediculous would mean that we'd have
-ext versions 1-40 by now at least.  I don't think that helps much,
-either.
+If extents are not made default at some point, then no one will use the 
+feature, and it should not be merged.
 
-I think the ext2/3 team has done a great job of providing compatibility.
-It isn't perfect compatibility forwards *and* backwards, but moving
-forwards always seems to be pretty reasonable.
+And when extents are default, you have this blizzard-of-feature-flags 
+stealth upgrade event occur _sometime_ after they boot into the new fs 
+for the first time.  And then when they want to boot another kernel, 
+they have to dig down a feature matrix, and figure out which ext3 
+codebase will work for them.
 
-gerrit
+	Jeff
+
+
+

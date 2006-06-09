@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWFIQzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWFIQzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWFIQzS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 12:55:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWFIQzR
+	id S1030299AbWFIQzG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 12:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWFIQzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 12:55:17 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:43152 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030297AbWFIQzP (ORCPT
+	Fri, 9 Jun 2006 12:55:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23006 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030297AbWFIQzD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 12:55:15 -0400
-Message-ID: <4489A7ED.8070007@garzik.org>
-Date: Fri, 09 Jun 2006 12:55:09 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
+	Fri, 9 Jun 2006 12:55:03 -0400
+Date: Fri, 9 Jun 2006 09:54:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Alex Tomas <alex@clusterfs.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
        ext2-devel <ext2-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org, cmm@us.ibm.com,
        linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>	<m33beecntr.fsf@bzzz.home.net>	<Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net>
-In-Reply-To: <m3k67qb7hr.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+In-Reply-To: <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+ <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int>
+ <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
+ <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net>
+ <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
-> so, instead of taking one (quite-well-tested) part that solves one of
-> the biggest ext3 limitation, you propose to start a new project and
-> get something in a year (probably) ?
+
+
+On Fri, 9 Jun 2006, Linus Torvalds wrote:
 > 
-> I think about extents as a step-by-step way ...
+> Just as an example: ext3 _sucks_ in many ways. It has huge inodes that 
+> take up way too much space in memory.
 
-That is what the entirety of Linux development is -- step-by-step.
+Btw, I'm not kidding you on this one.
 
-It is OBVIOUS that it would take five minutes to start ext4.
+THE NUMBER ONE MEMORY USAGE ON A LOT OF LOADS IS EXT3 INODES IN MEMORY!
 
-1) clone a new tree
-2) cp -a fs/ext3 fs/ext4
-3) apply extent and 48bit patches
-4) apply related e2fsprogs patches
+And you know what? 2TB files are totally uninteresting to 99.9999% of all 
+people. Most people find it _much_ more interesting to have hundreds of 
+thousands of _smaller_ files instead.
 
-Then update ext4 step-by-step, using the normal Linux development process.
+So do this:
 
-	Jeff
+	cat /proc/slabinfo | grep ext3
 
+and be absolutely disgusted and horrified by the size of those inodes 
+already, and ask yourself whether extending the block size to 48 bits will 
+help or further hurt one of the biggest problems of ext3 right now?
 
+(And yes, I realize that block numbers are just a small part of it. The 
+"vfs_inode" is also a real problem - it's got _way_ too many large 
+list-heads that explode on a 64-bit kernel, for example. Oh, well. My 
+point is that things like this can make a very real issue _worse_ for all 
+the people who don't care one whit about it)
 
+		Linus

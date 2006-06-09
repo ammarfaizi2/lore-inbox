@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbWFIKME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbWFIKed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965000AbWFIKME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 06:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWFIKME
+	id S965084AbWFIKed (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 06:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbWFIKed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 06:12:04 -0400
-Received: from ozlabs.org ([203.10.76.45]:13002 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S965000AbWFIKMB (ORCPT
+	Fri, 9 Jun 2006 06:34:33 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:34948 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965015AbWFIKec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 06:12:01 -0400
+	Fri, 9 Jun 2006 06:34:32 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: Using netconsole for debugging suspend/resume
+Date: Fri, 9 Jun 2006 12:34:50 +0200
+User-Agent: KMail/1.9.3
+Cc: Matt Mackall <mpm@selenic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+References: <44886381.9050506@goop.org> <200606082240.31473.rjw@sisk.pl> <4488D565.2020103@goop.org>
+In-Reply-To: <4488D565.2020103@goop.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17545.16696.195276.334774@cargo.ozlabs.ibm.com>
-Date: Fri, 9 Jun 2006 19:36:56 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: mel@csn.ul.ie (Mel Gorman)
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>, linuxppc-dev@ozlabs.org,
-       vgoyal@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compile failure fix for ppc on 2.6.17-rc4-mm3 (2nd
-	attempt)
-In-Reply-To: <20060529190515.GA17608@skynet.ie>
-References: <20060526151214.GA5190@skynet.ie>
-	<20060526094924.10efc515.akpm@osdl.org>
-	<20060529154923.GA9025@skynet.ie>
-	<2ebd96e4a7ea753273b2c5f856ba8c7a@kernel.crashing.org>
-	<Pine.LNX.4.64.0605291825500.11234@skynet.skynet.ie>
-	<c6414fc4b2c627791a49085bf8eea7e8@kernel.crashing.org>
-	<20060529190515.GA17608@skynet.ie>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+Message-Id: <200606091234.50874.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman writes:
+On Friday 09 June 2006 03:56, Jeremy Fitzhardinge wrote:
+> Rafael J. Wysocki wrote:
+> > Please try doing "echo 8 > /proc/sys/kernel/printk" before suspend.
+> >   
+> Um, why?  That would increase the amount of log output, but I don't see 
+> how it would help with netconsole preventing suspend, or not being able 
+> to see console messages on a blank screen after resume.
 
-> +	res->end = -(-res->end & ~(unsigned long)mask); \
-> +	res->end += mask; \
+Ah, that's after resume.  Sorry for the noise. :-)
 
-I think this is equivalent to
-
-	res->end = (res->end + mask) | mask;
-
-and I have to say the latter seems more understandable to me (and
-doesn't need a cast) ...
-
-Regards,
-Paul.
-
+Rafael

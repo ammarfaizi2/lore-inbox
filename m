@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030469AbWFIT6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbWFIUAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030469AbWFIT6E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbWFIT6E
+	id S1030467AbWFIUAx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbWFIUAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:58:04 -0400
-Received: from thunk.org ([69.25.196.29]:5544 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030462AbWFIT6C (ORCPT
+	Fri, 9 Jun 2006 16:00:52 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:28320 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030467AbWFIUAw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:58:02 -0400
-Date: Fri, 9 Jun 2006 15:57:50 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609195750.GD10524@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Jeff Garzik <jeff@garzik.org>, Alex Tomas <alex@clusterfs.com>,
-	Andrew Morton <akpm@osdl.org>,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-	cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
-	Andreas Dilger <adilger@clusterfs.com>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org>
+	Fri, 9 Jun 2006 16:00:52 -0400
+Message-ID: <4489D36C.3010000@garzik.org>
+Date: Fri, 09 Jun 2006 16:00:44 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4489A7ED.8070007@garzik.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Gerrit Huizenga <gh@us.ibm.com>
+CC: Michael Poole <mdpoole@troilus.org>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com>
+In-Reply-To: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 12:55:09PM -0400, Jeff Garzik wrote:
-> That is what the entirety of Linux development is -- step-by-step.
+Gerrit Huizenga wrote:
+> On Fri, 09 Jun 2006 14:55:56 EDT, Jeff Garzik wrote:
+>> Because it's called backwards compat, when it isn't?
+>> Because it is very difficult to find out which set of kernels you are 
+>> locked out of?
+>> Because the filesystem upgrade is stealthy, occurring as it does on the 
+>> first data write?
 > 
-> It is OBVIOUS that it would take five minutes to start ext4.
+> Actually, the *only* point being contended here is running older
+> kernels on some newer filesystems (created originally with a newer
+> kernel), right?
 > 
-> 1) clone a new tree
-> 2) cp -a fs/ext3 fs/ext4
-> 3) apply extent and 48bit patches
-> 4) apply related e2fsprogs patches
+> Or do you have examples of where current kernels could not deal
+> with an ext3 feature at some point in time?
 > 
-> Then update ext4 step-by-step, using the normal Linux development process.
+> I would argue that 0.001% of all Linux *users* actually worry about
+> this - most of them are right here on the development mailing list.
+> So, that group is more vocal, for sure.  But, if it works for 99.99+%
+> users, aren't we still on the good path, from the point of view of
+> those people who actually *use* Linux the most?
 
-We don't do this with the SCSI layer where we make a complete clone of
-the driver layer so that there is a /usr/src/linux/driver/scsi and
-/usr/src/linux/driver/scsi2, do we?  And we didn't do that with the
-networking layer either, as we added ipsec, ipv6, softnet, and a whole
-host of other changes and improvements.  
+The overall objection is to treating ext3 as a highly mutable, 
+one-size-fits-all filesystem.
 
-What we do instead is we have a series of patches, which can be made
-available in various experimental trees, and as they get more
-polishing and experience with people using it without any problems,
-they can get merged into the -mm tree, and then eventually, when they
-are deemed ready, into mainline.  That is also the normal Linux
-development process, and it's worked quite well up until now with ext3.
+Maybe there is value in moving some reiser4 concepts -- a set of 
+metadata+algorithm plugins -- to the VFS level.  I dunno.
 
-Folks seem to be worried about ext3 being "too important to experiment
-with", but the fact remains, we've been doing continuous improvement
-with ext3 for quite some time, and it's been quite smooth.  The htree
-introduction was essentially completely painless, for example --- and
-people liked the fact that they could get the features of indexed
-directories without needing to do a complete dump and restore of the
-filesystem.
+But for ext3 specifically, it seems like bolting on extents, 48bit, 
+delayed allocation, and other new features weren't really suited for the 
+original ext2-style design.  Outside of the support (and marketing, 
+because that's all version numbers are in the end) issues already 
+mentioned, I think it falls into the nebulous realm of "taste."
 
-						- Ted
+Rather than taking another decade to slowly fix ext2 design decisions, 
+why not move the process along a bit more rapidly?  Release early, 
+release often...
+
+	Jeff
+
+
+

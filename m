@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbWFIUip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbWFIUlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbWFIUip (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 16:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbWFIUin
+	id S965157AbWFIUlu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 16:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWFIUlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 16:38:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5293 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965147AbWFIUil (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 16:38:41 -0400
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-       Andreas Dilger <adilger@clusterfs.com>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <448997FA.50109@garzik.org>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
-	 <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int>
-	 <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
-	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>  <448997FA.50109@garzik.org>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 21:38:25 +0100
-Message-Id: <1149885505.5776.103.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 16:41:50 -0400
+Received: from web26912.mail.ukl.yahoo.com ([217.146.177.79]:2671 "HELO
+	web26912.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965157AbWFIUlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 16:41:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=QuJ+RXZwifLrTAlf1AHiMVWBaH0IUl+mMY0KazM1FKYAm5mMAFaVR5duksyfqd3TbKY0aEqY9dMzKSdSVI06/ufESLGDV1IbL/JywrHwGoqyvWEH2kkzdhHO4QDd6lJ/mVA9gVWruY8xQcuGm9owEFiZXsBVS8yfZjJIED9nWMY=  ;
+Message-ID: <20060609204147.61760.qmail@web26912.mail.ukl.yahoo.com>
+Date: Fri, 9 Jun 2006 22:41:47 +0200 (CEST)
+From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: Re: [RFC] ATA host-protected area (HPA) device mapper?
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--- XXXXXXXX wrote:
+> It tends to be preferred around here to implement hardware features so 
+> that hardware actually works, rather than to implement spec and blame 
+> the hardware for failing to work to the spec.
 
-On Fri, 2006-06-09 at 11:47 -0400, Jeff Garzik wrote:
+ Well, the IDE hardware works, and conform to the ATA specs.
+ Gujin is using those ATA command for quite a long time.
+ I just have a problem with SATA chipset not being ATA1-7 compatible.
 
-> think about The Experience:  Suddenly users that could use 2.4.x and 
-> 2.6.x are locked into 2.6.18+, by the simple and common act of writing 
-> to a file.
+>  If, as you say, most BIOS 
+> don't obey the spec, then implementing a spec that bears little 
+> resemblance to actual behavior only helps the small number of 
+> spec-compliant implementations.
 
-No.
+  The main problem for BIOS manufacturer is the keyboard mapping
+ recognition to enter the password. And there is no real point
+ in freezing the password system of a locked drive.
+  Gujin try to solve most of those problems, but because it is
+ located on the hard disk itself limit the choice - it would be
+ so nice to have a big enough BIOS FLASH and put Gujin there.
+ Second best choice is having two hard disks (compact flash as
+ first HD with compact flash <-> IDE adapter).
 
-The default is --- user writes to file on 2.6.18+, goes back to 2.4, and
-everything still keeps on working just fine.  
+> >   The complete ATA specification is describing a register interface since ATA1,
+> >  SATA chipsets should be software compatible, even if they add commands/interfaces:
+> > http://www.sata-io.org/interopfaq.asp    say:
+> >     Are there any known interoperability issues with SATA?
+> >     One of the primary requirements of the SATA 1.0 specification was to
+> >     maintain backward compatibility with existing operating system drivers
+> >     to eliminate incompatibility issues.
+> > 
+> 
+> Again with the "The spec says it works this way, so I can do it this 
+> way."  I realize that you can be perfectly, legally, safe implementing 
+> specified behavior, but it leaves you doing what you are doing here, 
+> which is blaming the hardware for not living up to the specification. 
 
-Or, user says "I *specifically* request this feature that I *know* is
-not compatible with older kernels", and then they get just that.
-Extents are not going to be on by default.  Please, we've got more sense
-than that!
+  Well the ATA specs are quite old, Gujin still work with the BIOS hard disk
+ so still act as a bootloader, but it can not protecting you against a
+ 1 milisecond attack setting password.
+ By the way the SATA specs are not free.
 
-Just like the developer who says "I *specifically* code for this fancy
-new vmsplice syscall" gets exactly the same.
+> It is generally the choice in the linux kernel to make the hardware 
+> work, and ignore the specification where it is irrelevant to actual 
+> functionality.  Read up on the SAS Transport Layer.
 
---Stephen
+  Oh yes, Gujin has some strange code to make things work at the end,
+ look for ATAPI stuff - I can and do ignore the specs to make the software
+ work on real hardware.
+
+  Cheers,
+  Etienne.
 
 
+
+__________________________________________________
+Do You Yahoo!?
+En finir avec le spam? Yahoo! Mail vous offre la meilleure protection possible contre les messages non sollicités 
+http://mail.yahoo.fr Yahoo! Mail 

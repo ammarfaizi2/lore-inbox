@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWFIXNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbWFIXPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWFIXNP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbWFIXNP
+	id S932582AbWFIXPj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbWFIXPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:13:15 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:51664 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030319AbWFIXNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:13:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i3NJX7qmsUBexMKo5ZMFBiddiAzRSnrbOc5xb+BUPbM13LJ6dbGkdgbmmpGHXcl4T1vPKUS7lr+Q1xMdYuWWucYF55DYMuZbx7QAXUsRv4zs9X0MdNfPxaKEA8NCyEDqUOo/yrdIVcR9UPjnP2dR19LmUEBVCn4XF1beOnbodCk=
-Message-ID: <bda6d13a0606091613h3334facbrcb86dbb2de01b412@mail.gmail.com>
-Date: Fri, 9 Jun 2006 16:13:13 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: klibc
-In-Reply-To: <e6ctsb$hij$1@terminus.zytor.com>
+	Fri, 9 Jun 2006 19:15:39 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:169 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932582AbWFIXPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 19:15:38 -0400
+Message-ID: <448A010F.9060701@garzik.org>
+Date: Fri, 09 Jun 2006 19:15:27 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Sonny Rao <sonny@burdell.org>,
+       jeff@garzik.org, hch@infradead.org, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org> <20060609214200.GA18213@kevlar.burdell.org> <20060609151553.30097b44.akpm@osdl.org> <20060609231151.GL5964@schatzie.adilger.int>
+In-Reply-To: <20060609231151.GL5964@schatzie.adilger.int>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <bda6d13a0606091050n40fda044v668eef09af3c29a7@mail.gmail.com>
-	 <871wty6rl9.fsf@hades.wkstn.nix>
-	 <bda6d13a0606091528h4e85265du8651818c73827b7d@mail.gmail.com>
-	 <e6ctsb$hij$1@terminus.zytor.com>
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/9/06, H. Peter Anvin <hpa@zytor.com> wrote:
-> Followup to:  <bda6d13a0606091528h4e85265du8651818c73827b7d@mail.gmail.com>
-> By author:    "Joshua Hudson" <joshudson@gmail.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > Once again. Loopback mount requires a clean unmount of root and
-> > host filesystem. After remounting root read-only, host is still read-write
-> > and cannot be remounted read-only.
-> >
-> > It is necessary to provide access to the rootfs tree somewhere else
-> > or use pivot_root, like the initrd solution below:
-> >
-> > initrd: /linuxrc
-> > #!/bin/sh
-> > mount /dev/hda1 -o rw -t ntfs /host
-> > mount /host/linux/root.img -o loop,ro -t ext3 /root
-> > pivot_root /root /root/initrd
-> > exec /initrd/bin/init
-> >
-> > root:/etc/rc.d/rc.halt:
-> > #!/bin/sh
-> > pivot_root /initrd /initrd/root
-> > cd /
-> > exec /stop $RUNLEVEL
-> >
-> > initrd:/stop
-> > #!/bin/sh
-> > kill -SIGUSR1 1
-> > umount /root
-> > umount /host
-> > case $1 in
-> > 0) poweroff -f ;;
-> > *) reboot -f ;;
-> > esac
-> >
-> > This requires static binaries of init, sh, mount, umount, an extant /etc, and a
-> > few nodes in /dev.
->
-> Another solution is to leave a process with its cwd parked in the
-> rootfs.  Look at run_linuxrc() in usr/kinit/initrd.c of any klibc tree
-> to see how this can be used.  (That is there to support old-style
-> /linuxrc, but should be applicable here, too.)
->
->         -hpa
-Should work if the following is true:
-   if pwd is /, mount / followed by ls . retunrs the contents of initramfs.
+Andreas Dilger wrote:
+> I'm not so strongly against ext4 that I won't follow that route if needed,
+> but it essentially means that ext3 will be orphaned.
+
+Not orphaned but scaled back over time.  IMO there's only so much 
+developer and brain and test bandwidth for "the main Linux filesystem."
+
+	Jeff
+
+

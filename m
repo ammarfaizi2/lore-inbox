@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWFIQdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWFIQdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751458AbWFIQdB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 12:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWFIQdB
+	id S1030291AbWFIQdY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 12:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWFIQdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 12:33:01 -0400
-Received: from [80.71.248.82] ([80.71.248.82]:31380 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S1751455AbWFIQdA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 12:33:00 -0400
-X-Comment-To: "Mike Snitzer"
-To: "Mike Snitzer" <snitzer@gmail.com>
-Cc: "Jeff Garzik" <jeff@garzik.org>, "Alex Tomas" <alex@clusterfs.com>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Mingming Cao" <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
-	<20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net>
-	<44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net>
-	<4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net>
-	<44899113.3070509@garzik.org>
-	<170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Fri, 09 Jun 2006 20:33:18 +0400
-In-Reply-To: <170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com> (Mike Snitzer's message of "Fri, 9 Jun 2006 12:21:39 -0400")
-Message-ID: <m3odx2b86p.fsf@bzzz.home.net>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Jun 2006 12:33:24 -0400
+Received: from mga01.intel.com ([192.55.52.88]:8312 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1030291AbWFIQdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 12:33:22 -0400
+X-IronPort-AV: i="4.05,224,1146466800"; 
+   d="scan'208"; a="49680161:sNHT2888701837"
+Subject: Re: acpi dock test-drive
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Christian Trefzer <ctrefzer@gmx.de>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060609144326.GA6093@hermes.uziel.local>
+References: <20060609144326.GA6093@hermes.uziel.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 09 Jun 2006 09:45:38 -0700
+Message-Id: <1149871538.4542.7.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+X-OriginalArrivalTime: 09 Jun 2006 16:33:16.0656 (UTC) FILETIME=[68F78700:01C68BE2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Mike Snitzer (MS) writes:
+On Fri, 2006-06-09 at 16:43 +0200, Christian Trefzer wrote:
+> Hi Kristen,
+> 
+> finally I had the chance to try out the fruit of your work on my Dell
+> Latitude CPiA. First of all, congratulations for the ACPI part, which
+> seems to work pretty well so far: the second PCI bridge is detected
+> after a hot-dock. However, the PCI devices behind that bridge are not
+> yet discovered. Pushing the undock request button on the docking station
+> itself results in the PCI bridge being removed again - so far, so good : )
+> 
+> On the other hand, the undock request caused a reproducible Oops at the
+> first time, and kacpid exit the second time. After that, pushing the
+> button has no further effect ; )
+> 
 
- MS> precludes their ability to boot older kernels (steps can be taken to
- MS> make them well aware of this). The "real world situation" you refer
- MS> to, while hypothetically valid, isn't something informed
- MS> ext3-with-extents users will _ever_ elect to do.
+Hi Christian,
+What you are describing sounds like the bug I just fixed :).  Can you
+please try 2.6.17-rc6-mm1 to see if this works any better?  I believe it
+should resolve both the oops and the fact that your devices behind the
+pci bridge are not found.  Thanks very much for continuing to test the
+patches.
 
-one who needs/wants to go back may get rid of extents by:
-a) remounting w/o extents option
-b) copying new-fashion-style files so that copies use blockmap
-c) dropping extents feature in superblock
-
-thanks, Alex
+Kristen

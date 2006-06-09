@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbWFILFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbWFILVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbWFILFx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 07:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWFILFx
+	id S965227AbWFILVo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 07:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWFILVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 07:05:53 -0400
-Received: from smtp-relay.dca.net ([216.158.48.66]:60129 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S965109AbWFILFx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 07:05:53 -0400
-Date: Fri, 9 Jun 2006 07:05:46 -0400
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-Subject: Re: [lm-sensors] [PATCH] I2C: i2c_bit_add_bus should initialize SDA and SCL lines
-Message-ID: <20060609110546.GA26073@jupiter.solarsys.private>
-References: <m34pyyz0e1.fsf@defiant.localdomain>
+	Fri, 9 Jun 2006 07:21:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65502 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965227AbWFILVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 07:21:44 -0400
+Date: Fri, 9 Jun 2006 04:21:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: balbir@in.ibm.com
+Cc: nagar@watson.ibm.com, jlan@sgi.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
+ taskstats
+Message-Id: <20060609042129.ae97018c.akpm@osdl.org>
+In-Reply-To: <448952C2.1060708@in.ibm.com>
+References: <44892610.6040001@watson.ibm.com>
+	<20060609010057.e454a14f.akpm@osdl.org>
+	<448952C2.1060708@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m34pyyz0e1.fsf@defiant.localdomain>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krzysztof:
+On Fri, 09 Jun 2006 16:21:46 +0530
+Balbir Singh <balbir@in.ibm.com> wrote:
 
-* Krzysztof Halasa <khc@pm.waw.pl> [2006-06-06 18:58:46 +0200]:
-> Another thing: I noticed the i2c_bit_add_bus doesn't set SDA and SCL
-> lines to a known levels. If the hw driver set them to 1 all is fine
-> and the first START condition is detected correctly. But if they're
-> set differently (for example, if both are zero), the START will not
-> work.
+> Andrew Morton wrote:
+> > On Fri, 09 Jun 2006 03:41:04 -0400
+> > Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> > 
+> > 
+> >>Hence, this patch introduces a configuration parameter
+> >>	/sys/kernel/taskstats_tgid_exit
+> >>through which a privileged user can turn on/off sending of per-tgid stats on
+> >>task exit.
+> > 
+> > 
+> > That seems a bit clumsy.  What happens if one consumer wants the per-tgid
+> > stats and another does not?
 > 
-> I'm not sure if the following patch isn't an overkill, though, and
-> if the lack of initialization is a real problem which shows in
-> practice and not only on my analyzer.
+> For all subsystems that re-use the taskstats structure from the exit path,
+> we have the issue that you mentioned. Thats because several statistics co-exist
+> in the same structure. These subsystems can keep their tgid-stats empty by not
+> filling up anything in fill_tgid() or using this patch to selectively enable/disable
+> tgid stats.
 > 
-> In case you think it's needed:
+> For other subsystems, they could pass tgidstats as NULL to taskstats_exit_send().
 > 
-> This patch makes i2c_bit_add_bus() initialize SDA and SCL lines
-> as required by subsequent START condition.
-> 
-> Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
-> 
-> --- a/drivers/i2c/algos/i2c-algo-bit.c
-> +++ b/drivers/i2c/algos/i2c-algo-bit.c
-> @@ -544,6 +544,13 @@ int i2c_bit_add_bus(struct i2c_adapter *
->  	adap->timeout = 100;	/* default values, should	*/
->  	adap->retries = 3;	/* be replaced by defines	*/
->  
-> +	setsda(bit_adap, 0);	/* may mean START if SCL = 1 */
-> +	udelay(bit_adap->udelay);
-> +	setscl(bit_adap, 1);	/* may clock a zero bit in */
-> +	udelay(bit_adap->udelay);
-> +	setsda(bit_adap, 1);	/* STOP */
-> +	udelay(bit_adap->udelay);
-> +
->  	i2c_add_adapter(adap);
->  	return 0;
->  }
 
-NACK.  The I2C bus spec says[1]:
+I don't understand.  If a subsystem exists then it fills in its slots in
+the taskstats structure, doesn't it?
 
-	A START condition immediately followed by a STOP condition
-	(void message) is an illegal format.
+No other subsystem needs a global knob, does it?
 
-SCL and SDA must be pulled high by hardware.  If a driver inits to
-setting them low, that's a bug in the driver.
+You see the problem - if one userspace package wants the tgid-stats and
+another concurrently-running one does now, what do we do?  Just leave it
+enabled and run a bit slower?
 
-[1] (page 14, note 5)
-http://www.semiconductors.philips.com/acrobat_download/literature/9398/39340011.pdf
-
-Regards,
-
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+If so, how much slower?  Your changelog says some potential users don't
+need the tgid-stats, but so what?  I assume this patch is a performance
+thing?  If so, has it been quantified?
 

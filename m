@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbWFIBED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWFIBJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965068AbWFIBED (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 21:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWFIBED
+	id S965073AbWFIBJk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 21:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWFIBJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 21:04:03 -0400
-Received: from hermes.hosts.co.uk ([212.84.175.24]:15530 "EHLO
-	pallas.hosts.co.uk") by vger.kernel.org with ESMTP id S965068AbWFIBEC convert rfc822-to-8bit
+	Thu, 8 Jun 2006 21:09:40 -0400
+Received: from twinlark.arctic.org ([207.7.145.18]:64152 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S965073AbWFIBJj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 21:04:02 -0400
-To: <linux-kernel@vger.kernel.org>
-CC: <torvalds@osdl.org>
-From: =?utf-8?q?=22Felix=20Oxley=22?= <lkml@oxley.org>
-Reply-To: =?utf-8?q?=22Felix=20Oxley=22?= <lkml@oxley.org>
-Subject: =?utf-8?q?2=2e6=2e17=2drc6=3a=20Fails=20to=20compile=20on=20PowerBook?=
+	Thu, 8 Jun 2006 21:09:39 -0400
+Date: Thu, 8 Jun 2006 18:09:38 -0700 (PDT)
+From: dean gaudet <dean@arctic.org>
+To: George Nychis <gnychis@cmu.edu>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: what processor family does intel core duo L2400 belong to?
+In-Reply-To: <4488B159.2070806@cmu.edu>
+Message-ID: <Pine.LNX.4.64.0606081757510.18874@twinlark.arctic.org>
+References: <4488B159.2070806@cmu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <E1FoVPv-00059c-HM@mercury.hosts.co.uk>
-Date: Fri, 09 Jun 2006 02:04:03 +0100
-X-Spam-Score: -4.4 (----)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suse 10.1:
+On Thu, 8 Jun 2006, George Nychis wrote:
 
-  CC      mm/util.o
-  CC      mm/mmzone.o
-  CC      mm/fremap.o
-  LD      mm/built-in.o
-  CC [M]  fs/configfs/inode.o
-objdump: 'fs/configfs/.tmp_inode.o': No such file
-mv: cannot stat `fs/configfs/.tmp_inode.o': No such file or directory
-make[2]: *** [fs/configfs/inode.o] Error 1
-make[1]: *** [fs/configfs] Error 2
-make: *** [fs] Error 2
+> Hi,
+> 
+> I am configuring the 2.6.17 kernel for a new thinkpad x60s, and I am wondering
+> what processor family to select.  The processor is an Intel Core Duo L2400,
+> and the gcc people suggested using the prescott march for cflags.  It is *not*
+> a celeron.
 
-//felix
+the core duo is a pentium-m (well, a pair of p-m).  it's just a branding 
+change at this point (an annoying brand name too)... future "core2" have a 
+different microarchitecture but i'd still choose pentium-m for early 
+kernels on those too... until someone finds some reason to differentiate 
+core2.
+
+you can see it's even the same family as pentium-m... see 
+<http://sandpile.org/ia32/cpuid.htm> and search for "Intel P6-core" to see 
+all the related models in family 6.
+
+-dean

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbWFIBVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbWFIBWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965078AbWFIBVf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 21:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbWFIBVe
+	id S965093AbWFIBWy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 21:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWFIBWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 21:21:34 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:33959 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965078AbWFIBVc
+	Thu, 8 Jun 2006 21:22:52 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:10934 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965082AbWFIBWs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 21:21:32 -0400
-Subject: [RFC 2/13] extents and 48bit ext3: sector_t overflow check
+	Thu, 8 Jun 2006 21:22:48 -0400
+Subject: [RFC 7/13] extents and 48bit ext3: Core 64 bit JBD changes
 From: Mingming Cao <cmm@us.ibm.com>
 Reply-To: cmm@us.ibm.com
 To: linux-kernel@vger.kernel.org,
@@ -17,70 +17,290 @@ To: linux-kernel@vger.kernel.org,
        linux-fsdevel@vger.kernel.org
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Thu, 08 Jun 2006 18:21:30 -0700
-Message-Id: <1149816090.4066.62.camel@dyn9047017069.beaverton.ibm.com>
+Date: Thu, 08 Jun 2006 18:22:46 -0700
+Message-Id: <1149816166.4066.69.camel@dyn9047017069.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If ext3 fs system is larger than 2TB, and sector_t is a u32 (i.e.
-CONFIG_LBD not defined in the kernel), the calculation of the disk
-sector will overflow. Add check at ext3_fill_super() and
-ext3_group_extend() to prevent mount/remount/resize >2TB ext3 filesystem
-if sector_t size is 4 bytes.
 
-Signed-Off-By: Mingming Cao<cmm@us.ibm.com>
-Acked-by: Andreas Dilger <adilger@clusterfs.com>
+Here is the  patch to JBD to handle 64 bit block numbers, originally 
+from Zach Brown. This patch is useful only after adding support for
+64-bit block numbers in the filesystem.
 
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
 
 ---
 
- linux-2.6.16-ming/fs/ext3/resize.c |   10 ++++++++++
- linux-2.6.16-ming/fs/ext3/super.c  |   10 ++++++++++
- 2 files changed, 20 insertions(+)
+ linux-2.6.16-ming/fs/jbd/commit.c     |   16 +++++++++---
+ linux-2.6.16-ming/fs/jbd/journal.c    |   11 ++++++++
+ linux-2.6.16-ming/fs/jbd/recovery.c   |   42 +++++++++++++++++++++++-----------
+ linux-2.6.16-ming/fs/jbd/revoke.c     |   14 ++++++++---
+ linux-2.6.16-ming/include/linux/jbd.h |   11 +++++++-
+ 5 files changed, 72 insertions(+), 22 deletions(-)
 
-diff -puN fs/ext3/resize.c~ext3_check_sector_t_overflow fs/ext3/resize.c
---- linux-2.6.16/fs/ext3/resize.c~ext3_check_sector_t_overflow	2006-06-07 15:42:26.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/resize.c	2006-06-08 16:50:07.390825336 -0700
-@@ -925,6 +925,16 @@ int ext3_group_extend(struct super_block
- 	if (n_blocks_count == 0 || n_blocks_count == o_blocks_count)
- 		return 0;
+diff -puN fs/jbd/commit.c~64bit_jbd_core fs/jbd/commit.c
+--- linux-2.6.16/fs/jbd/commit.c~64bit_jbd_core	2006-06-08 16:29:51.822437025 -0700
++++ linux-2.6.16-ming/fs/jbd/commit.c	2006-06-08 16:49:51.639617345 -0700
+@@ -160,6 +160,12 @@ static int journal_write_commit_record(j
+ 	return (ret == -EIO);
+ }
  
-+	if (n_blocks_count > (sector_t)(~0ULL) >> (sb->s_blocksize_bits - 9)) {
-+		printk(KERN_ERR "EXT3-fs: filesystem on %s"
-+			" too large to resize to %lu blocks safely\n",
-+			sb->s_id, n_blocks_count);
-+		if (sizeof(sector_t) < 8)
-+			ext3_warning(sb, __FUNCTION__,
-+			"CONFIG_LBD not enabled\n");
-+		return -EINVAL;
-+	}
++static inline void write_split_be64(__be32 *high, __be32 *low, u64 val)
++{
++	*low = cpu_to_be32(val & (u32)~0);
++	*high = cpu_to_be32(val >> 32);
++}
 +
- 	if (n_blocks_count < o_blocks_count) {
- 		ext3_warning(sb, __FUNCTION__,
- 			     "can't shrink FS - resize aborted");
-diff -puN fs/ext3/super.c~ext3_check_sector_t_overflow fs/ext3/super.c
---- linux-2.6.16/fs/ext3/super.c~ext3_check_sector_t_overflow	2006-06-07 15:42:26.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/super.c	2006-06-08 16:50:07.394824881 -0700
-@@ -1579,6 +1579,16 @@ static int ext3_fill_super (struct super
- 		goto failed_mount;
+ /*
+  * journal_commit_transaction
+  *
+@@ -182,6 +188,7 @@ void journal_commit_transaction(journal_
+ 	int first_tag = 0;
+ 	int tag_flag;
+ 	int i;
++	int tag_bytes = journal_tag_bytes(journal);
+ 
+ 	/*
+ 	 * First job: lock down the current transaction and wait for
+@@ -553,10 +560,11 @@ write_out_data:
+ 			tag_flag |= JFS_FLAG_SAME_UUID;
+ 
+ 		tag = (journal_block_tag_t *) tagp;
+-		tag->t_blocknr = cpu_to_be32(jh2bh(jh)->b_blocknr);
++		write_split_be64(&tag->t_blocknr_high, &tag->t_blocknr,
++				jh2bh(jh)->b_blocknr);
+ 		tag->t_flags = cpu_to_be32(tag_flag);
+-		tagp += sizeof(journal_block_tag_t);
+-		space_left -= sizeof(journal_block_tag_t);
++		tagp += tag_bytes;
++		space_left -= tag_bytes;
+ 
+ 		if (first_tag) {
+ 			memcpy (tagp, journal->j_uuid, 16);
+@@ -570,7 +578,7 @@ write_out_data:
+ 
+ 		if (bufs == journal->j_wbufsize ||
+ 		    commit_transaction->t_buffers == NULL ||
+-		    space_left < sizeof(journal_block_tag_t) + 16) {
++		    space_left < tag_bytes + 16) {
+ 
+ 			jbd_debug(4, "JBD: Submit %d IOs\n", bufs);
+ 
+diff -puN fs/jbd/journal.c~64bit_jbd_core fs/jbd/journal.c
+--- linux-2.6.16/fs/jbd/journal.c~64bit_jbd_core	2006-06-08 16:29:51.826436569 -0700
++++ linux-2.6.16-ming/fs/jbd/journal.c	2006-06-08 16:49:51.648616321 -0700
+@@ -1602,6 +1602,17 @@ int journal_blocks_per_page(struct inode
+ }
+ 
+ /*
++ * helper functions to deal with 32 or 64bit block numbers.
++ */
++size_t journal_tag_bytes(journal_t *journal)
++{
++	if (JFS_HAS_INCOMPAT_FEATURE(journal, JFS_FEATURE_INCOMPAT_64BIT))
++		return sizeof(journal_block_tag_t);
++	else
++		return offsetof(journal_block_tag_t, t_blocknr_high);
++}
++
++/*
+  * Simple support for retrying memory allocations.  Introduced to help to
+  * debug different VM deadlock avoidance strategies. 
+  */
+diff -puN fs/jbd/recovery.c~64bit_jbd_core fs/jbd/recovery.c
+--- linux-2.6.16/fs/jbd/recovery.c~64bit_jbd_core	2006-06-08 16:29:51.829436227 -0700
++++ linux-2.6.16-ming/fs/jbd/recovery.c	2006-06-08 16:49:51.640617231 -0700
+@@ -178,19 +178,20 @@ static int jread(struct buffer_head **bh
+  * Count the number of in-use tags in a journal descriptor block.
+  */
+ 
+-static int count_tags(struct buffer_head *bh, int size)
++static int count_tags(journal_t *journal, struct buffer_head *bh)
+ {
+ 	char *			tagp;
+ 	journal_block_tag_t *	tag;
+-	int			nr = 0;
++	int			nr = 0, size = journal->j_blocksize;
++	int 			tag_bytes = journal_tag_bytes(journal);
+ 
+ 	tagp = &bh->b_data[sizeof(journal_header_t)];
+ 
+-	while ((tagp - bh->b_data + sizeof(journal_block_tag_t)) <= size) {
++	while ((tagp - bh->b_data + tag_bytes) <= size) {
+ 		tag = (journal_block_tag_t *) tagp;
+ 
+ 		nr++;
+-		tagp += sizeof(journal_block_tag_t);
++		tagp += tag_bytes;
+ 		if (!(tag->t_flags & cpu_to_be32(JFS_FLAG_SAME_UUID)))
+ 			tagp += 16;
+ 
+@@ -307,6 +308,13 @@ int journal_skip_recovery(journal_t *jou
+ 	return err;
+ }
+ 
++static inline u64 read_split_be64(__be32 *high, __be32 *low)
++{
++	u64 ret = be32_to_cpu(*low);
++	ret |= (u64)be32_to_cpu(*high) << 32;
++	return ret;
++}
++
+ static int do_one_pass(journal_t *journal,
+ 			struct recovery_info *info, enum passtype pass)
+ {
+@@ -318,11 +326,12 @@ static int do_one_pass(journal_t *journa
+ 	struct buffer_head *	bh;
+ 	unsigned int		sequence;
+ 	int			blocktype;
++	int 			tag_bytes = journal_tag_bytes(journal);
+ 
+ 	/* Precompute the maximum metadata descriptors in a descriptor block */
+ 	int			MAX_BLOCKS_PER_DESC;
+ 	MAX_BLOCKS_PER_DESC = ((journal->j_blocksize-sizeof(journal_header_t))
+-			       / sizeof(journal_block_tag_t));
++			       / tag_bytes);
+ 
+ 	/* 
+ 	 * First thing is to establish what we expect to find in the log
+@@ -412,8 +421,7 @@ static int do_one_pass(journal_t *journa
+ 			 * in pass REPLAY; otherwise, just skip over the
+ 			 * blocks it describes. */
+ 			if (pass != PASS_REPLAY) {
+-				next_log_block +=
+-					count_tags(bh, journal->j_blocksize);
++				next_log_block += count_tags(journal, bh);
+ 				wrap(journal, next_log_block);
+ 				brelse(bh);
+ 				continue;
+@@ -424,7 +432,7 @@ static int do_one_pass(journal_t *journa
+ 			 * getting done here! */
+ 
+ 			tagp = &bh->b_data[sizeof(journal_header_t)];
+-			while ((tagp - bh->b_data +sizeof(journal_block_tag_t))
++			while ((tagp - bh->b_data + tag_bytes)
+ 			       <= journal->j_blocksize) {
+ 				unsigned long io_block;
+ 
+@@ -446,7 +454,8 @@ static int do_one_pass(journal_t *journa
+ 					unsigned long blocknr;
+ 
+ 					J_ASSERT(obh != NULL);
+-					blocknr = be32_to_cpu(tag->t_blocknr);
++					blocknr = read_split_be64(&tag->t_blocknr_high,
++							&tag->t_blocknr);
+ 
+ 					/* If the block has been
+ 					 * revoked, then we're all done
+@@ -494,7 +503,7 @@ static int do_one_pass(journal_t *journa
+ 				}
+ 
+ 			skip_write:
+-				tagp += sizeof(journal_block_tag_t);
++				tagp += tag_bytes;
+ 				if (!(flags & JFS_FLAG_SAME_UUID))
+ 					tagp += 16;
+ 
+@@ -571,17 +580,24 @@ static int scan_revoke_records(journal_t
+ {
+ 	journal_revoke_header_t *header;
+ 	int offset, max;
++	int record_len = 4;
+ 
+ 	header = (journal_revoke_header_t *) bh->b_data;
+ 	offset = sizeof(journal_revoke_header_t);
+ 	max = be32_to_cpu(header->r_count);
+ 
+-	while (offset < max) {
++	if (JFS_HAS_INCOMPAT_FEATURE(journal, JFS_FEATURE_INCOMPAT_64BIT))
++		record_len = 8;
++
++	while (offset + record_len < max) {
+ 		unsigned long blocknr;
+ 		int err;
+ 
+-		blocknr = be32_to_cpu(* ((__be32 *) (bh->b_data+offset)));
+-		offset += 4;
++		if (record_len == 4)
++			blocknr = be32_to_cpu(* ((__be32 *) (bh->b_data+offset)));
++		else
++			blocknr = be64_to_cpu(* ((__be64 *) (bh->b_data+offset)));
++		offset += record_len;
+ 		err = journal_set_revoke(journal, blocknr, sequence);
+ 		if (err)
+ 			return err;
+diff -puN fs/jbd/revoke.c~64bit_jbd_core fs/jbd/revoke.c
+--- linux-2.6.16/fs/jbd/revoke.c~64bit_jbd_core	2006-06-08 16:29:51.832435885 -0700
++++ linux-2.6.16-ming/fs/jbd/revoke.c	2006-06-08 16:49:51.642617003 -0700
+@@ -584,9 +584,17 @@ static void write_one_revoke_record(jour
+ 		*descriptorp = descriptor;
  	}
  
-+	if (le32_to_cpu(es->s_blocks_count) >
-+			(sector_t)(~0ULL) >> (sb->s_blocksize_bits - 9)) {
-+		printk(KERN_ERR "EXT3-fs: filesystem on %s"
-+			" too large to mount safely\n", sb->s_id);
-+			if (sizeof(sector_t) < 8)
-+			printk(KERN_WARNING
-+				"EXT3-fs: CONFIG_LBD not enabled\n");
-+			goto failed_mount;
+-	* ((__be32 *)(&jh2bh(descriptor)->b_data[offset])) = 
+-		cpu_to_be32(record->blocknr);
+-	offset += 4;
++	if (JFS_HAS_INCOMPAT_FEATURE(journal, JFS_FEATURE_INCOMPAT_64BIT)) {
++		* ((__be64 *)(&jh2bh(descriptor)->b_data[offset])) =
++			cpu_to_be64(record->blocknr);
++		offset += 8;
++
++	} else {
++		* ((__be32 *)(&jh2bh(descriptor)->b_data[offset])) =
++			cpu_to_be32(record->blocknr);
++		offset += 4;
 +	}
 +
- 	bgl_lock_init(&sbi->s_blockgroup_lock);
+ 	*offsetp = offset;
+ }
  
- 	for (i = 0; i < db_count; i++) {
+diff -puN include/linux/jbd.h~64bit_jbd_core include/linux/jbd.h
+--- linux-2.6.16/include/linux/jbd.h~64bit_jbd_core	2006-06-08 16:29:51.835435543 -0700
++++ linux-2.6.16-ming/include/linux/jbd.h	2006-06-08 16:49:51.645616662 -0700
+@@ -147,12 +147,16 @@ typedef struct journal_header_s
+ 
+ 
+ /* 
+- * The block tag: used to describe a single buffer in the journal 
++ * The block tag: used to describe a single buffer in the journal.
++ * t_blocknr_high is only used if INCOMPAT_64BIT is set, so this
++ * raw struct shouldn't be used for pointer math or sizeof() - use
++ * journal_tag_bytes(journal) instead to compute this.
+  */
+ typedef struct journal_block_tag_s
+ {
+ 	__be32		t_blocknr;	/* The on-disk block number */
+ 	__be32		t_flags;	/* See below */
++	__be32		t_blocknr_high; /* most-significant high 32bits. */
+ } journal_block_tag_t;
+ 
+ /* 
+@@ -232,11 +236,13 @@ typedef struct journal_superblock_s
+ 	 ((j)->j_superblock->s_feature_incompat & cpu_to_be32((mask))))
+ 
+ #define JFS_FEATURE_INCOMPAT_REVOKE	0x00000001
++#define JFS_FEATURE_INCOMPAT_64BIT	0x00000002
+ 
+ /* Features known to this kernel version: */
+ #define JFS_KNOWN_COMPAT_FEATURES	0
+ #define JFS_KNOWN_ROCOMPAT_FEATURES	0
+-#define JFS_KNOWN_INCOMPAT_FEATURES	JFS_FEATURE_INCOMPAT_REVOKE
++#define JFS_KNOWN_INCOMPAT_FEATURES	(JFS_FEATURE_INCOMPAT_REVOKE | \
++					 JFS_FEATURE_INCOMPAT_64BIT)
+ 
+ #ifdef __KERNEL__
+ 
+@@ -1044,6 +1050,7 @@ static inline int tid_geq(tid_t x, tid_t
+ }
+ 
+ extern int journal_blocks_per_page(struct inode *inode);
++extern size_t journal_tag_bytes(journal_t *journal);
+ 
+ /*
+  * Return the minimum number of blocks which must be free in the journal
 
 _
 

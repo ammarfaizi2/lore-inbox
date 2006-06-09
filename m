@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWFIP5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWFIP5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWFIP5l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWFIP5l
+	id S1030241AbWFIP5F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWFIP5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:57:41 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:42893 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030220AbWFIP5J (ORCPT
+	Fri, 9 Jun 2006 11:57:05 -0400
+Received: from relay00.pair.com ([209.68.5.9]:26387 "HELO relay00.pair.com")
+	by vger.kernel.org with SMTP id S1030249AbWFIP5B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:57:09 -0400
-Message-ID: <44899A53.7080805@garzik.org>
-Date: Fri, 09 Jun 2006 11:57:07 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 11:57:01 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Fri, 9 Jun 2006 10:56:59 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Chris Friesen <cfriesen@nortel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cacheline alignment and per-cpu data
+In-Reply-To: <44899681.6070003@nortel.com>
+Message-ID: <Pine.LNX.4.64.0606091054180.4969@turbotaz.ourhouse>
+References: <44899681.6070003@nortel.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>,
-       cmm@us.ibm.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Quite frankly, at this point, there's no way in hell I believe we can do 
-> major surgery on ext3. It's the main filesystem for a lot of users, and 
-> it's just not worth the instability worries unless it's something very 
-> obviously transparent.
-> 
-> I wouldn't mind an ext4 (that hopefully drops some of the features of 
-> ext3, and might not downgrade to ext2 on errors, for example).
+On Fri, 9 Jun 2006, Chris Friesen wrote:
 
-Certainly agreed, for all of this :)
+>
+> Someone asked me a question that I couldn't answer, so I thought I'd pass it 
+> on to here.
+>
+> Suppose I declare an array of a struct type, where the size of the struct is 
+> not a multiple of the cacheline size.  Each element in the array is used by a 
+> different cpu.
+>
+> If I understand it, this would mean that the last member in the data 
+> belonging to one cpu shares a cacheline with the first member in the data 
+> belonging to the next cpu.
 
-I think that the lack of ext4 means people keep trying to stuff the 
-wrong things into ext3.
+Yes. Since an array element position is essentially 
+base_ptr + sizeof(each_element) * index, if sizeof(each_element) is not a 
+multiple of the cache line, the next element will start in the middle of a 
+cache line.
 
-	Jeff
+> Will this cause cacheline pingpong?  If I do this sort of thing do I need to 
+> ensure that the struct is a multiple of cacheline size (or specify cacheline 
+> alignement)?
 
+Yes. If CPU 2 tries to write to struct member 1 of array element 2, and 
+array element 1 is in CPU 1's cache, it must be invalidated.
 
+GCC (and kernel macros) provide good support for enforced cacheline 
+alignment, but it's also possible to pad your structures.
+
+> Thanks,
+>
+> Chris
+
+Chase

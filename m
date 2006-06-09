@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWFITcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbWFITdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbWFITcu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbWFITcu
+	id S1030454AbWFITdm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030452AbWFITdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:32:50 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:65469 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030449AbWFITct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:32:49 -0400
-Subject: Re: Idea about a disc backed ram filesystem
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Sascha Nitsch <Sash_lkl@linuxhowtos.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <305c16960606091227w7e62003bhef576fb07d0aa95@mail.gmail.com>
-References: <mizvekov@gmail.com>
-	 <305c16960606082159v2dc588abo6359d87173327c83@mail.gmail.com>
-	 <200606091343.k59DhC1f004434@laptop11.inf.utfsm.cl>
-	 <305c16960606090807g6372b69dy3167b0e191b2c113@mail.gmail.com>
-	 <1149878633.3894.224.camel@mindpipe>
-	 <305c16960606091227w7e62003bhef576fb07d0aa95@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 15:31:43 -0400
-Message-Id: <1149881504.3894.250.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 15:33:42 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:7564 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1030451AbWFITdk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 15:33:40 -0400
+X-Comment-To: Jeff Garzik
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alex Tomas <alex@clusterfs.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chase Venters <chase.venters@clientec.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<4488E1A4.20305@garzik.org>
+	<20060609083523.GQ5964@schatzie.adilger.int>
+	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
+	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+	<m33beecntr.fsf@bzzz.home.net>
+	<Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>
+	<Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
+	<20060609181020.GB5964@schatzie.adilger.int>
+	<Pine.LNX.4.64.0606091114270.5498@g5.osdl.org>
+	<m31wty9o77.fsf@bzzz.home.net>
+	<Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
+	<Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>
+	<1149880865.22124.70.camel@localhost.localdomain>
+	<m3irna6sja.fsf@bzzz.home.net> <4489CB42.6020709@garzik.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Fri, 09 Jun 2006 23:35:43 +0400
+In-Reply-To: <4489CB42.6020709@garzik.org> (Jeff Garzik's message of "Fri, 09 Jun 2006 15:25:54 -0400")
+Message-ID: <m3wtbq5dgw.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-09 at 16:27 -0300, Matheus Izvekov wrote:
-> On 6/9/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Fri, 2006-06-09 at 12:07 -0300, Matheus Izvekov wrote:
-> > > Ok, but reality is that, even if i setup a swap partition with the
-> > > most lazy swapiness, it will swap my processes out. Is there a
-> > > pratical way to pin all processes to ram or otherwise tell the vm to
-> > > never swap any process? If there is, then you are right, there is no
-> > > point in doing this.
-> > >
-> >
-> > echo 0 > /proc/sys/vm/swappiness
-> >
-> > Lee
-> 
-> Sorry, i took a look at the code which handles this and swappiness = 0
-> doesnt seem to imply that process memory will never be swapped out.
-> 
+>>>>> Jeff Garzik (JG) writes:
 
-OK, then use mlockall().
+ JG> Irrelevant.  That's a development-only situation.  It will be enabled
+ JG> by default eventually, and should be considered in that light.
 
-Lee
+that's your point of view. mine is that this option (and code)
+to be used only when needed. 
 
+thanks, Alex

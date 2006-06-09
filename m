@@ -1,90 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWFIPlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWFIPml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbWFIPlq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWFIPlq
+	id S1030221AbWFIPml (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWFIPmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:41:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:49293 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030219AbWFIPlp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:41:45 -0400
-Message-ID: <44899562.6010609@in.ibm.com>
-Date: Fri, 09 Jun 2006 21:06:02 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: nagar@watson.ibm.com, jlan@sgi.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org>
-In-Reply-To: <20060609042129.ae97018c.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 11:42:40 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:7556 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1030219AbWFIPmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:42:39 -0400
+Date: Fri, 9 Jun 2006 09:42:38 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609154238.GN1651@parisc-linux.org>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44899653.1020007@garzik.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 09 Jun 2006 16:21:46 +0530
-> Balbir Singh <balbir@in.ibm.com> wrote:
+On Fri, Jun 09, 2006 at 11:40:03AM -0400, Jeff Garzik wrote:
+> Users are now forced to remember that, if they write to their filesystem 
+> after using either $mmver or $korgver kernels, they are locked out of 
+> using older kernels.
 > 
-> 
->>Andrew Morton wrote:
->>
->>>On Fri, 09 Jun 2006 03:41:04 -0400
->>>Shailabh Nagar <nagar@watson.ibm.com> wrote:
->>>
->>>
->>>
->>>>Hence, this patch introduces a configuration parameter
->>>>	/sys/kernel/taskstats_tgid_exit
->>>>through which a privileged user can turn on/off sending of per-tgid stats on
->>>>task exit.
->>>
->>>
->>>That seems a bit clumsy.  What happens if one consumer wants the per-tgid
->>>stats and another does not?
->>
->>For all subsystems that re-use the taskstats structure from the exit path,
->>we have the issue that you mentioned. Thats because several statistics co-exist
->>in the same structure. These subsystems can keep their tgid-stats empty by not
->>filling up anything in fill_tgid() or using this patch to selectively enable/disable
->>tgid stats.
->>
->>For other subsystems, they could pass tgidstats as NULL to taskstats_exit_send().
->>
-> 
-> 
-> I don't understand.  If a subsystem exists then it fills in its slots in
-> the taskstats structure, doesn't it?
-> 
-> No other subsystem needs a global knob, does it?
-> 
-> You see the problem - if one userspace package wants the tgid-stats and
-> another concurrently-running one does now, what do we do?  Just leave it
-> enabled and run a bit slower?
+> From the user's perspective, ext3 has no clear "metadata version 1", 
+> "metadata version 2" division.  Thus they are now forced to keep a 
+> matrix of kernel versions and ext3 feature flag support, to know which 
+> kernels are usable with which data.  It is a support nightmare.
 
-Another option is to get the package to define their own taskstats genetlink 
-attribute and fill it up in taskstats_exit_send(). This would be similar to
-TASKSTATS_TYPE_AGGR_PID/TGID.
+Hang on, you're going too far.  You have to enable extents with the
+extent mount option.  Otherwise you don't get to use them.  The user
+does, in fact, have a clear division, although maybe the blinky signs
+aren't quite luminous enough.
 
-They can make this attribute independent of the taskstats structure and fill
-it based on their policy (per-pid or per-tgid). But the current interface
-users like CSA want to build on top of the taskstats structure.
-
-> 
-> If so, how much slower?  Your changelog says some potential users don't
-> need the tgid-stats, but so what?  I assume this patch is a performance
-> thing?  If so, has it been quantified?
-> 
-
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+I still think making ext3 bigger than 16TB is just silly.

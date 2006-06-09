@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbWFITjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWFITmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030458AbWFITjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWFITjZ
+	id S1030460AbWFITmM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWFITmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:39:25 -0400
-Received: from [80.71.248.82] ([80.71.248.82]:11414 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S1030452AbWFITjX (ORCPT
+	Fri, 9 Jun 2006 15:42:12 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:19387 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030457AbWFITmL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:39:23 -0400
-X-Comment-To: Jeff Garzik
+	Fri, 9 Jun 2006 15:42:11 -0400
 To: Jeff Garzik <jeff@garzik.org>
-Cc: Alex Tomas <alex@clusterfs.com>, linux-fsdevel@vger.kernel.org,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
-	<200606090240.k592enXj009395@turing-police.cc.vt.edu>
-	<20060609082013.GP5964@schatzie.adilger.int>
-	<1149878107.5776.84.camel@sisko.sctweedie.blueyonder.co.uk>
-	<4489C9F6.8020103@garzik.org> <m3ejxy6scn.fsf@bzzz.home.net>
-	<4489CCB8.5000205@garzik.org>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Fri, 09 Jun 2006 23:41:35 +0400
-In-Reply-To: <4489CCB8.5000205@garzik.org> (Jeff Garzik's message of "Fri, 09 Jun 2006 15:32:08 -0400")
-Message-ID: <m3slme5d74.fsf@bzzz.home.net>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+cc: Matthew Frost <artusemrys@sbcglobal.net>, Alex Tomas <alex@clusterfs.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3 
+In-reply-to: Your message of Fri, 09 Jun 2006 14:51:55 EDT.
+             <4489C34B.1080806@garzik.org> 
+Date: Fri, 09 Jun 2006 12:39:19 -0700
+Message-Id: <E1FompD-0006pL-Dg@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Jeff Garzik (JG) writes:
 
- JG> I am much too much of an NIH guy, but I would be willing to
- JG> participate in ext4 development.  Everybody here has no doubt
- JG> experimented with their own from-scratch filesystem, and I am no
- JG> different:
- JG> http://www.kernel.org/pub/linux/kernel/people/jgarzik/ibu/
+On Fri, 09 Jun 2006 14:51:55 EDT, Jeff Garzik wrote:
+> 
+> PRECISELY.  So you should stop modifying a filesystem whose design is 
+> admittedly _not_ modern!
 
-sigh, this is exactly that I was talking about ...
+So just how long do you think it would take to get a modern filesystem
+into the hands of real users, supported by the distros?  From community
+building, through design, development, testing, delivery?
 
-thanks, Alex
-
+gerrit

@@ -1,98 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbWFIEuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbWFIE71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbWFIEuk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 00:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWFIEuk
+	id S965162AbWFIE71 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 00:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWFIE71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 00:50:40 -0400
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:12441 "HELO
-	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965116AbWFIEuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 00:50:39 -0400
-Message-ID: <4488FE41.9010901@sbcglobal.net>
-Date: Thu, 08 Jun 2006 23:51:13 -0500
-From: Matthew Frost <artusemrys@sbcglobal.net>
-Reply-To: artusemrys@sbcglobal.net
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Fri, 9 Jun 2006 00:59:27 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:7348 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965162AbWFIE70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 00:59:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M2VkO8dkG7qIkn8lMzSyquJTXGiFCeslcNpV/03i8U2G7WidaXqLPVwaG/OAxA3IeSB3Qdd7sdiTFN80asaXapr9J+DTloGB/I0dfqT71ubl+G4FGZdRm2aP0VVfKs0ilD6m1cZfGE+2VhwvO9Ap0fZWRHjMpzOVXhzQ9Qxw/4A=
+Message-ID: <305c16960606082159v2dc588abo6359d87173327c83@mail.gmail.com>
+Date: Fri, 9 Jun 2006 01:59:25 -0300
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+Subject: Re: Idea about a disc backed ram filesystem
+Cc: "Sascha Nitsch" <Sash_lkl@linuxhowtos.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200606090217.k592HNjq011090@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: linux-ide@vger.kernel.org, "zhao, forrest" <forrest.zhao@intel.com>,
-       htejun@gmail.com, randy_dunlap <rdunlap@xenotime.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] ATA host-protected area (HPA) device mapper?
-References: <1149751860.29552.79.camel@forrest26.sh.intel.com>	 <44883BAE.7070406@pobox.com> <1149820043.5721.7.camel@forrest26.sh.intel.com> <4488E6F6.10306@pobox.com> <4488EE68.9000605@garzik.org>
-In-Reply-To: <4488EE68.9000605@garzik.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <mizvekov@gmail.com>
+	 <305c16960606081548m316099awafa619bb5d0d14f0@mail.gmail.com>
+	 <200606090217.k592HNjq011090@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> As I just mentioned on linux-ide in another email:
-> libata should -- like drivers/ide -- call the ATA "set max" command to 
-> fully address the hard drive, including the special "host-protected 
-> area" (HPA).  We should do this because the Linux standard is to export 
-> the raw hardware directly, making 100% of the hardware capability 
-> available to the user (and, in this case, Linux-based BIOS and recovery 
-> tools).
-> 
+On 6/8/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> tmpfs does use swap currently. Giving tmpfs a dedicated swap space is dumb,
+> as it takes away the possibility of using that space for swapping when not
+> in use by tmpfs (and viceversa).
 
-Yay for exposing absolute potential functionality; yay for recognizing 
-the havok possible, and proposing strategies for channeling that 
-possibility.
-
-> However, there are rare bug reports and general paranoia related to 
-> presenting 100% of the ATA hard drive "native" space, rather than the 
-> possibly-smaller space that the BIOS chose to present to the user.
-> 
-
-I've grepped through several old discussions of HPA handling, and it 
-doesn't seem like everyone has the same idea of exactly what this will 
-do, possibly because of the delta in BIOS behavior over original design 
-restrictions.
-
-> My thinking is that [someone] should create an optional, ATA-specific 
-> device mapper module.  This module would layer on top of an ATA block 
-> device, and present two block devices:  the BIOS-presented space, and 
-> the HPA.
-> 
-> Such a module would make it trivial for users to ensure that partition 
-> tables and RAID metadata formats know what the BIOS (rather than 
-> underlying hard drive) considers to be end-of-disk.
-> 
-> Comments?  Questions?  Am I completely insane?  ;-)
-> 
-
-Tools with which to lay waste to systems, or save them.
-
-What I like about your proposal is that it doesn't go back to "Do we 
-blow away the HPA or reserve it?"; you suggest conserving both options. 
-  Make the kernel aware of the existence of the HPA, and thereby the 
-whole capacity of the disk, and simultaneously of what it should see and 
-expose for usage 'safely'.  Doesn't sound insane to me; it sounds like 
-you're planning on [having someone] teach the kernel to respect the 
-actual disk limitations.
-
-Whether the implementation will be sane ... 'nother story.  :)  Thence 
-the question of teaching userspace to sanely use what is exposed, though 
-if the 'old' (non-HPA) space is presented, it shouldn't be a hard 
-reorientation.  Would we be talking about a new sysfs entry parallel to 
-the existing information?  If I understand it right -- and I might not 
--- the HPA doesn't get included in the partitioning schemes, because it 
-is protected.  Even nuking the disk will/should bypass it.  So the 
-system will tend to ignore it under normal conditions, until you decide 
-to get fancy and trip over its shadow.  So making the kernel aware that 
-this disk has this spot that must be respected should be a no-brainer. 
-What better way to make the kernel aware of it, than by acknowledging it 
-as a block device among other block devices?  It just needs a good 
-molly-guard to cover the respect portion of the problem.
-
-Of course, I don't hack ATA, so my opinions may have limited validity 
-after a certain level of specificity.  I can always be enlightened as to 
-why you really are insane.  ;)
-
->     Jeff
-> 
-
-Matt
+The idea is not dumb per se. Maybe you want your applications to swap
+to one device (or not swap at all) and a tmpfs mount to swap to
+another. For me at least it would make a difference.
+I dont use swap at all, have enough ram for all my processes. And ive
+seen that for some workloads, setting a temporary directory as tmpfs
+gives huge speed improvements. But just occasionally, the space used
+in this temp dir will not fit in my ram, so in this case swapping
+would be fine. The problem is, currently there is no way to enforce
+this.
+Ditto for the fact that, when you have many swap devices set, each
+with different performances, there is no way to give priorities/rules
+to enforce who uses each device.
+When someone gets to implement those features, this wouldnt be needed
+anymore. But that seems far away enough to justify a more immediate
+workaround.

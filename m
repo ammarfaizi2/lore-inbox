@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030537AbWFIVsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbWFIVt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030537AbWFIVsD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030534AbWFIVsB
+	id S1030534AbWFIVt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbWFIVt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:48:01 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:28846 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1030537AbWFIVsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:48:00 -0400
-Message-ID: <4489ECD0.1030908@gentoo.org>
-Date: Fri, 09 Jun 2006 22:49:04 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+	Fri, 9 Jun 2006 17:49:26 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:17574 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030529AbWFIVtZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 17:49:25 -0400
+Message-ID: <4489ECDD.9060307@garzik.org>
+Date: Fri, 09 Jun 2006 17:49:17 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Jiri Benc <jbenc@suse.cz>, linville@tuxdriver.com,
-       kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: [patch] workaround zd1201 interference problem
-References: <20060607140045.GB1936@elf.ucw.cz> <20060607160828.0045e7f5@griffin.suse.cz> <20060607141536.GD1936@elf.ucw.cz> <4486FD2F.8040205@gentoo.org> <20060608070525.GE3688@elf.ucw.cz>
-In-Reply-To: <20060608070525.GE3688@elf.ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Matthew Frost <artusemrys@sbcglobal.net>,
+       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	 <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org>	 <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org>	 <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net>	 <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org>	 <20060609194959.GC10524@thunk.org>  <4489D44A.1080700@garzik.org> <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk>
+In-Reply-To: <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> if you plug zd1201 into USB, it starts jamming radio,
-> immediately. Enable/disable, or iwlist wlan0 scan, or basically any
-> operation unjams the radio. This patch works it around:
+Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Fri, 2006-06-09 at 16:04 -0400, Jeff Garzik wrote:
+> 
+>> Consider a blkdev of size S1.  Using LVM we increase that value under 
+>> the hood to size S2, where S2 > S1.  We perform an online resize from 
+>> size S1 to S2.  The size and alignment of any new groups added will 
+>> different from the non-resize case, where mke2fs was run directly on a 
+>> blkdev of size S2.
+> 
+> No, they won't.  We simply grow the last block group in the filesystem
+> up to the size where we'd naturally add another block group anyway; and
+> then, we add another block group exactly where it would have been on a
+> fresh mkfs.
 
-Can we be any more specific?
+Yes but the inodes per group etc. would differ.
 
-What is the interference - is it transmitting random packets, or just 
-emitting a magical cloud of invisible anti-wifi?
+	Jeff
 
-At which precise point does the interference start? Does it happen even 
-without the driver loaded?
 
-Which operation is the one which stops the interference, the enable or 
-the disable?
-
-Does this happen on every plug in, or just sometimes? Is it affected by 
-usage patterns such as having the device plugged in throughout boot, 
-reloading the module, etc?
-
-Thanks,
-Daniel
 

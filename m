@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965256AbWFINY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965261AbWFIN2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965256AbWFINY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 09:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbWFINY6
+	id S965261AbWFIN2i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 09:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965260AbWFIN2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 09:24:58 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:38409 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S965256AbWFINY5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 09:24:57 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 09 Jun 2006 13:24:55.0364 (UTC) FILETIME=[18DF3840:01C68BC8]
-Content-class: urn:content-classes:message
-Subject: Re: Caching kernel messages at boot
-Date: Fri, 9 Jun 2006 09:24:55 -0400
-Message-ID: <Pine.LNX.4.61.0606090914200.2241@chaos.analogic.com>
-In-reply-to: <448991CD.9070404@free.fr>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Caching kernel messages at boot
-Thread-Index: AcaLyBkFI3ADMZK1SASTLFt1Jaj6BQ==
-References: <448991CD.9070404@free.fr>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "s.a." <sancelot@free.fr>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Fri, 9 Jun 2006 09:28:38 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:41746 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S965257AbWFIN2h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 09:28:37 -0400
+Date: Fri, 09 Jun 2006 22:29:15 +0900 (JST)
+Message-Id: <20060609.222915.60108698.yoshfuji@linux-ipv6.org>
+To: gerrit@erg.abdn.ac.uk
+Cc: davem@davemloft.net, jmorris@namei.org, alan@lxorguk.ukuu.org.uk,
+       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, kaber@coreworks.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH 2.6.17-rc6-mm1 ] net: RFC 3828-compliant UDP-Lite
+ support
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <200606091036.42075.gerrit@erg.abdn.ac.uk>
+References: <200606082109.34338.gerrit@erg.abdn.ac.uk>
+	<20060608.151347.55505744.davem@davemloft.net>
+	<200606091036.42075.gerrit@erg.abdn.ac.uk>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200606091036.42075.gerrit@erg.abdn.ac.uk> (at Fri, 9 Jun 2006 10:36:41 +0100), Gerrit Renker <gerrit@erg.abdn.ac.uk> says:
 
-On Fri, 9 Jun 2006, s.a. wrote:
+> Thank you for your replies and comments, I will be back when the v6 side is ready.
 
-> Hi,
-> Is there a way to hide the kernel messages from the screen at boot ?
-> Best Regards
-> Steph
+Please fix the following as well.
 
-Sure, but it depends upon your boot loader. If you are using grub,
-you put 'quiet' on the command-line in /boot/grub/grub.conf. If using
-LILO, you can use append="console=null" in lilo.conf. The latter
-causes a bit of a problem later on because no kernel messages will
-ever be sent to the console. This could be fixed by making your own
-'init' which opens /dev/console for the three standard file numbers,
-then execs the real /sbin/init. You can put the temporary init
-program name on the command-line as well as init=/sbin/my.init.
+1. Put your code in net/ipv4, probably as udplite.c, and remove net/udp-lite/.
+   Similarly, plasse put implementation as net/ipv6/udplite.c.
+2. Eliminate any cosmetic changes (space, new-line, coding style etc.);
+   minimize diffs between udp.c udplite.c
 
+BTW, I cannot find descriptions about fragmentation of 
+UDP-Lite in the spec.  Is it yours?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-- 
+YOSHIFUJI Hideaki @ USAGI Project  <yoshfuji@linux-ipv6.org>
+GPG-FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

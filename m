@@ -1,70 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965245AbWFIMRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbWFIMwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965245AbWFIMRf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 08:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWFIMRf
+	id S965244AbWFIMwN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 08:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbWFIMwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 08:17:35 -0400
-Received: from mail.gmx.de ([213.165.64.20]:2974 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965245AbWFIMRf (ORCPT
+	Fri, 9 Jun 2006 08:52:13 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:54279 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S965244AbWFIMwM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 08:17:35 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.17-rc6-rt1
-From: Mike Galbraith <efault@gmx.de>
-To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-In-Reply-To: <1149853468.3829.33.camel@frecb000686>
-References: <20060607211455.GA6132@elte.hu>
-	 <1149842550.7585.27.camel@Homer.TheSimpsons.net>
-	 <1149847951.3829.26.camel@frecb000686>
-	 <1149852951.7421.7.camel@Homer.TheSimpsons.net>
-	 <1149853468.3829.33.camel@frecb000686>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 09 Jun 2006 14:20:38 +0200
-Message-Id: <1149855638.7413.8.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Fri, 9 Jun 2006 08:52:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 09 Jun 2006 12:52:11.0004 (UTC) FILETIME=[8605ABC0:01C68BC3]
+Content-class: urn:content-classes:message
+Subject: Re: Discovering select(2) parameters from driver's poll method
+Date: Fri, 9 Jun 2006 08:52:10 -0400
+Message-ID: <Pine.LNX.4.61.0606090841460.2163@chaos.analogic.com>
+In-reply-to: <20060609114940.01442490169@uekae.uekae.gov.tr>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Discovering select(2) parameters from driver's poll method
+Thread-Index: AcaLw4YRt071GpdpRiqDJW6LCPiUvA==
+References: <20060609114940.01442490169@uekae.uekae.gov.tr>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Ozan Eren Bilgen" <oebilgen@uekae.tubitak.gov.tr>
+Cc: "Linux e-posta listesi" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-09 at 13:44 +0200, Sébastien Dugué wrote:
-> On Fri, 2006-06-09 at 13:35 +0200, Mike Galbraith wrote:
-> > 
-> > I found xmms problem.
-> > 
-> > [pid  8498] 12:53:49.936186 socket(PF_INET, SOCK_STREAM, IPPROTO_IP <unfinished ...>
-> > [pid  8498] 12:53:49.936551 <... socket resumed> ) = 9 <0.000301>
-> > [pid  8498] 12:53:49.936774 fcntl64(9, F_SETFD, FD_CLOEXEC <unfinished ...>
-> > [pid  8498] 12:53:49.937287 <... fcntl64 resumed> ) = 0 <0.000465>
-> > [pid  8498] 12:53:49.937451 setsockopt(9, SOL_SOCKET, SO_REUSEADDR, [1], 4 <unfinished ...>
-> > [pid  8498] 12:53:49.937630 <... setsockopt resumed> ) = 0 <0.000110>
-> > [pid  8498] 12:53:49.937893 connect(9, {sa_family=AF_INET, sin_port=htons(16001), sin_addr=inet_addr("127.0.0.1")}, 16 <unfinished ...>
-> > [pid  8498] 12:56:58.902958 <... connect resumed> ) = -1 ETIMEDOUT (Connection timed out) <188.964934>
-> > 
-> > which should have been...
-> > 
-> > [pid  7385] 13:21:38.715146 socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 9 <0.000011>
-> > [pid  7385] 13:21:38.715192 fcntl64(9, F_SETFD, FD_CLOEXEC) = 0 <0.000007>
-> > [pid  7385] 13:21:38.715237 setsockopt(9, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0 <0.000008>
-> > [pid  7385] 13:21:38.715283 connect(9, {sa_family=AF_INET, sin_port=htons(16001), sin_addr=inet_addr("127.0.0.1")}, 16) = -1 ECONNREFUSED (Connection refused) <0.000060>
-> > 
-> > So much for the easy part.
-> > 
-> 
->   I'm starting to believe that it's network related. Pinging my box from
-> a remote host gives a ~.3 ms round trip whereas pinging localhost gives
-> ~500ms. Something real weird is going on here.
 
-Wow.  I don't see anything near 500ms, but I am dropping packets, and
-recvmsg, when it isn't saying -EAGAIN, is indeed taking way too long.
+On Fri, 9 Jun 2006, Ozan Eren Bilgen wrote:
 
-14:04:02.062550 sendmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")}, msg_iov(1)=[{"\10\0$@\217\36\0\2\262c\211D\35\364\0\0\10\t\n\v\f\r\16"..., 64}], msg_controllen=0, msg_flags=0}, 0) = 64 <0.000048>
-14:04:02.062731 setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0 <0.000016>
-14:04:02.062826 recvmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(19889), sin_addr=inet_addr("127.0.0.1")}, msg_iov(1)=[{"E\0\0T\177]\0\0@\1\375I\177\0\0\1\177\0\0\1\0\0,@\217\36"..., 192}], msg_controllen=20, {cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=0x1d /* SCM_??? */, ...}, msg_flags=0}, 0) = 84 <0.037660>
+> *** Please CC me your responses ***
+>
+> Hi,
+>
+> I am writing a device driver and I have problem with poll method.  For
+> some reason, I need learn the timeout and descriptor sets of select(2)
+> call.  Other words to say, if the user space process calls:
+>
+> 	select(n, &readfds, NULL, &exceptionfds, &tv);
+>
+> With the help of my poll implementation in device driver, I want to
+> learn that only the write fds is empty.  I am also interested in the
+> value of timeout parameter.  Please let me know if this is possible.
+>
 
+If you want to know, your driver is HORRIBLY BROKEN beyond any
+repair.
 
+The kernel handles poll in a POSIX correct manner. There is a
+link into your device driver which is __not__ directly attached
+to the user's poll call, even though its name is similar. Your
+driver must properly signal the kernel, with the proper wake-up
+call, after the proper bits are put into the poll variable, any
+time anything has changed.
+
+If or when user action (read, write, etc.) changes those bits,
+then they must also be updated -- and the kernel again signaled
+that those bits have changed.
+
+> By the way, I checked out some Linux device drivers, which are
+> implemented poll method, and related books like LDD.  Everywhere,
+> poll_wait is called for both read and write queues, without taking the
+> select(2) call's parameters into account.  For example it still waits
+> for the read queue although the select call was looking only for write
+> fds.  My second question is, why a poll method queries all the queues,
+> instead of querying only the necessary one?
+
+Wrong. The kernel calls the poll function in the driver. The user code
+does not call this directly. The kernel knows what fds are active
+for whatever. Your driver **MUST NOT**!
+
+>
+> Thank you in advance,
+>
+> Ozan Eren Bilgen
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

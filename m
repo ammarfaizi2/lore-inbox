@@ -1,111 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWFIRob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbWFIRsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030324AbWFIRob (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 13:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWFIRoa
+	id S1030327AbWFIRsL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 13:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbWFIRsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 13:44:30 -0400
-Received: from thunk.org ([69.25.196.29]:49352 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030324AbWFIRo3 (ORCPT
+	Fri, 9 Jun 2006 13:48:11 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:48530 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030225AbWFIRsK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 13:44:29 -0400
-Date: Fri, 9 Jun 2006 13:44:05 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609174405.GA10524@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
-	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-	linux-fsdevel@vger.kernel.org,
-	Andreas Dilger <adilger@clusterfs.com>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
+	Fri, 9 Jun 2006 13:48:10 -0400
+Message-ID: <4489B452.4050100@garzik.org>
+Date: Fri, 09 Jun 2006 13:48:02 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Andrew Morton <akpm@osdl.org>
+CC: hch@infradead.org, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org>	<20060609030759.48cd17a0.akpm@osdl.org>	<44899653.1020007@garzik.org>	<20060609095620.22326f9d.akpm@osdl.org>	<4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org>
+In-Reply-To: <20060609103543.52c00c62.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 09:54:49AM -0700, Linus Torvalds wrote:
+Andrew Morton wrote:
+> On Fri, 09 Jun 2006 13:07:37 -0400
+> Jeff Garzik <jeff@garzik.org> wrote:
 > 
+>> I would propose the obvious...  'cp -a ext3 ext4', apply the extent and 
+>> 48bit patches, and then do the obvious search-n-replace.
 > 
-> On Fri, 9 Jun 2006, Linus Torvalds wrote:
-> > 
-> > Just as an example: ext3 _sucks_ in many ways. It has huge inodes that 
-> > take up way too much space in memory.
+> Most of ext3 is JBD.  At least, in terms of complexity.  And I don't think
+> there's anything in this proposal which affects JBD, apart from changing
+> the blocksize.
 > 
-> Btw, I'm not kidding you on this one.
+> Cloning JBD for this exercise would, I suspect, be the wrong thing to do -
+> the two clones would be pretty much identical, apart from some scalar
+> types.
 > 
-> THE NUMBER ONE MEMORY USAGE ON A LOT OF LOADS IS EXT3 INODES IN MEMORY!
+> I did suggest a couple of years ago that we should clone the ext3 part and
+> have both ext3 and ext4 use the same JBD layer - I don't know what happened
+> to that idea.
 
-To be fair, the bulk of the size of the size of the inode is is the
-filesystem generic "struct inode", which is 480 bytes.  Ext3 just
-includes the struct inode as part of its core data structure, which
-makes the whole thing *look* big.  In fact, the ext3-specific part of
-the in-core ext3 inode is only 188 bytes, for a total of 688 bytes for
-the ext3_inode_info structure --- which is what you see in
-/proc/slabinfo.   
-
-Other filesystems store the struct inode via a pointer to a separately
-allocated chunk of memory, which makes their in-core inode footprint
-*look* smaller but that's just an illusion if the only place you look
-is /proc/slabinfo.  For example, the xfs_inode_cache is 432 bytes, but
-that's because struct inode is stored separately from xfs's
-fake/pseudo "vfs inode" which it keeps around so the same code can be
-used with Irix.  (It always amazes me that we allow this for XFS,
-where when everywhere else we insist that that kind of cross-OS or
-cross-version portability code is a fundamental violation of
-CodingStyle which by increasing code bloat and making the code harder
-to read and maintain by Linux developers, but that's a rant for
-another day.)
-
-Now, obviously I won't say that we can't do work to trim down
-ext3_inode_info.  To be fair, reiserfs has an inode which is 576 bytes
-long, so they only have 96 bytes of filesystem-specific information,
-instead of the 188 bytes that we have in ext3.  So we can do look at
-that, but remember that from the gross level, we're talking about 688
-bytes per inode for ext3 compared to 576 bytes per inode for reiserfs
---- and at least 912 bytes per inode for xfs.
-
-But I think you would agree that we would want to improve this number
-"honestly", by trying to trim down actual memory structure use,
-instead of just simply making the in-core data structure bushier so as
-to hide the true size of the per-inode footprint from people looking
-at /proc/slabinfo, right?  :-)
+The JBD API is reasonably distinct, so IMO this would be a logical next 
+step.  I would hope they could use the same JBD, so, I strongly agree...
 
 
-And in any case, this is why we have to think very carefully before
-forking the codebase between ext3 and "ext4".  The work that we might
-use to slim down ext4_inode_info would also have to be backported to
-ext3_inode_info before ext3 users see the benefit.  And there may also
-be bugs that now have to be fixed in _three_ separate codebases ---
-ext2, ext3, and ext4.  To give another concrete example, adding
-extents won't change the htree directory lookup code, so needlessly
-having two copies of that htree code in the kernel would be a Bad
-Idea(tm).  We've already on occasion found bugs that we had fixed in
-ext3, but had forgotten to backport to ext2, and vice versa.  Adding a
-third would triple our maintenance headache --- a similar reason why
-we haven't started a 2.7 development tree yet, since we would have to
-backport bug fixes back and forth between 2.6 and 2.7.
+> There has been steady, cautious but significant improvement happening in
+> ext3 over the past few years.  I'd expect that to continue, although
+> perhaps at a lower rate.  Having to apply the same changes to two
+> filesystems would be an obvious loss.
 
-Not to say that forking ext3 to make a copy of the code that we call
-"ext4" isn't automatically a bad idea to be dismissed out of hand,
-just as someday that we might fork 2.6 and start a 2.7 development
-branch.  But in both cases we need to think very hard about the
-tradeoffs before we just go ahead and do it.
+I disagree completely...  it would be an obvious win:  people who want 
+stability get that, people who want new features get that too.
 
-Regards,
 
-						- Ted
+> It comes down to looking at the patches, and I haven't done that in quite
+> some time.  Ideally the new functionality would all be under CONFIG_foo,
+> but I do not know if that is being proposed here?
+> 
+>> We need to draw a line in the sand.  If we don't, no one ever will.
+> 
+> You speak as if this is something which has happened before, or that it will
+> happen again.
+> 
+> All that being said, Linux's filesystems are looking increasingly crufty
+> and we are getting to the time where we would benefit from a greenfield
+> start-a-new-one.  That new one might even be based on reiser4 - has anyone
+> looked?  It's been sitting around for a couple of years.
+
+reiser4 actually has this same problem, but worse.  It has pluggable 
+metadata even to the point of supporting plugin-style metadata development.
+
+If we can successfully devolve a filesystem to metadata and algorithm 
+plugins, that should be done at the VFS level, and not called "reiser4".
+
+But in the absence of a different VFS API, I think it is the most 
+practical of all the options to open the floodgates to ext4 rather than 
+ext3.
+
+	Jeff
+
+

@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbWFIXPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWFIXRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbWFIXPw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbWFIXPw
+	id S932587AbWFIXRB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbWFIXRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:15:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10457 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932584AbWFIXPv (ORCPT
+	Fri, 9 Jun 2006 19:17:01 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7617 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932587AbWFIXRA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:15:51 -0400
-Date: Fri, 9 Jun 2006 16:15:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, npiggin@suse.de,
-       ak@suse.de, hugh@veritas.com
-Subject: Re: Light weight counter 1/1 Framework
-Message-Id: <20060609161531.249de5e1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606091537350.3036@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0606091216320.1174@schroedinger.engr.sgi.com>
-	<20060609143333.39b29109.akpm@osdl.org>
-	<Pine.LNX.4.64.0606091537350.3036@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 9 Jun 2006 19:17:00 -0400
+Date: Fri, 9 Jun 2006 15:50:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Oliver Bock <o.bock@fh-wolfenbuettel.de>, linux-kernel@vger.kernel.org,
+       alan@redhat.com
+Subject: Re: [PATCH 1/1] usb: new driver for Cypress CY7C63xxx mirco controllers
+Message-ID: <20060609225015.GE17807@kroah.com>
+References: <200606082257.23286.o.bock@fh-wolfenbuettel.de> <20060609104541.GB16232@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060609104541.GB16232@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
->
-> Eventcounter fixups
+On Fri, Jun 09, 2006 at 12:45:41PM +0200, Pavel Machek wrote:
+> On ??t 08-06-06 22:57:18, Oliver Bock wrote:
+> > From: Oliver Bock <o.bock@fh-wolfenbuettel.de>
+> > 
+> > This is a new driver for the Cypress CY7C63xxx mirco controller series. It 
+> > currently supports the pre-programmed CYC63001A-PC by AK Modul-Bus GmbH.
+> > It's based on a kernel 2.4 driver (cyport) by Marcus Maul which I ported to kernel 2.6 
+> > using sysfs. I intend to support more controllers of this family (and more features) as
+> > soon as I get hold of the required IDs etc. Please see the source code's header for
+> > more information.
+> 
+> I see "a" letters here tabs should have been. You probably need to
+> resend...
 
-And the kernel still doesn't actually compile with this patch applied.  You
-need to also apply light-weight-counters-counter-conversion.patch to make
-page_alloc.c compile.  So either we break git-bisect or I fold two
-inappropriate patches together or I need to patchwrangle it somehow.
+It's just mime, my tools can handle it, I hope...
 
-<checks>
+> > Please CC me as I'm not yet subscribed to LKML. Any comments are welcome.
+> > Special thanks to Greg K-H for his helpful support!
+> > 
+> > diff against 2.6.16.19
+> 
+> Ugh, and new drivers should really go against 2.6.17-rcX.
 
-Yes, I need to fold them all together.
+Stand-alone drivers should work ok, I'll test this one and see...
 
-And fix the unused-variable warnings.
+thanks,
 
+greg k-h

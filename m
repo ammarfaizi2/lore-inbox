@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWFIGcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbWFIGeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965230AbWFIGcM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 02:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbWFIGcM
+	id S965229AbWFIGeI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 02:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965231AbWFIGeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 02:32:12 -0400
-Received: from mail.suse.de ([195.135.220.2]:9676 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965231AbWFIGcL (ORCPT
+	Fri, 9 Jun 2006 02:34:08 -0400
+Received: from mx2.suse.de ([195.135.220.15]:62623 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965229AbWFIGeF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 02:32:11 -0400
-To: George Nychis <gnychis@cmu.edu>
+	Fri, 9 Jun 2006 02:34:05 -0400
+To: Sascha Nitsch <Sash_lkl@linuxhowtos.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: what processor family does intel core duo L2400 belong to?
-References: <4488B159.2070806@cmu.edu>
+Subject: Re: Idea about a disc backed ram filesystem
+References: <200606082233.13720.Sash_lkl@linuxhowtos.org>
 From: Andi Kleen <ak@suse.de>
-Date: 09 Jun 2006 08:32:09 +0200
-In-Reply-To: <4488B159.2070806@cmu.edu>
-Message-ID: <p731wtyu9ee.fsf@verdi.suse.de>
+Date: 09 Jun 2006 08:33:56 +0200
+In-Reply-To: <200606082233.13720.Sash_lkl@linuxhowtos.org>
+Message-ID: <p73wtbqsuqz.fsf@verdi.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Nychis <gnychis@cmu.edu> writes:
+Sascha Nitsch <Sash_lkl@linuxhowtos.org> writes:
+> - all files overlayed are still accessible
+> - after the first read, the file stays in memory (like a file cache)
 
-> I am configuring the 2.6.17 kernel for a new thinkpad x60s, and I am
-> wondering what processor family to select.  The processor is an Intel
-> Core Duo L2400, and the gcc people suggested using the prescott march
-> for cflags.  It is *not* a celeron.
-> 
-> My guess is the "Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon" family,
-> but maybe someone has a different opinion or can support it.
+Linux has very aggressive file caching and does this effectively
+by default for every file system.
 
-It's a renamed Pentium-M followon. Not related to Pentium 4.
+Sounds like you're trying to reinvent the wheel. 
 
 -Andi
-

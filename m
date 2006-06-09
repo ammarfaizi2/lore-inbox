@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWFIXlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbWFIXov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932588AbWFIXlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWFIXlX
+	id S932594AbWFIXov (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWFIXov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:41:23 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:60105 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932588AbWFIXlX (ORCPT
+	Fri, 9 Jun 2006 19:44:51 -0400
+Received: from hera.kernel.org ([140.211.167.34]:34782 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932594AbWFIXov (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:41:23 -0400
-Message-Id: <200606092341.k59Nf6RJ003396@laptop11.inf.utfsm.cl>
-To: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
-cc: Linux e-posta listesi <linux-kernel@vger.kernel.org>
-Subject: Re: Discovering select(2) parameters from driver's poll method 
-In-Reply-To: Message from Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr> 
-   of "Fri, 09 Jun 2006 16:34:12 +0300." <20060609133300.7528F490168@uekae.uekae.gov.tr> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Fri, 09 Jun 2006 19:41:06 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 09 Jun 2006 19:41:11 -0400 (CLT)
+	Fri, 9 Jun 2006 19:44:51 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: klibc
+Date: Fri, 9 Jun 2006 16:44:46 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <e6d15e$j4l$1@terminus.zytor.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <bda6d13a0606091528h4e85265du8651818c73827b7d@mail.gmail.com> <e6ctsb$hij$1@terminus.zytor.com> <bda6d13a0606091613h3334facbrcb86dbb2de01b412@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1149896686 19606 127.0.0.1 (9 Jun 2006 23:44:46 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 9 Jun 2006 23:44:46 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr> wrote:
-> I agree you, but your assumption is correct for a generic device, not
-> mine.  The purpose of my driver is slightly different and is not to
-> realize user space request, like other drivers in Linux kernel do.  My
-> goal is to forward the userspace system call to a remote computer, and
-> therefore I need information about these variables in order to call them
-> correctly via an user space application on the remote host.
+Followup to:  <bda6d13a0606091613h3334facbrcb86dbb2de01b412@mail.gmail.com>
+By author:    "Joshua Hudson" <joshudson@gmail.com>
+In newsgroup: linux.dev.kernel
+> Should work if the following is true:
+>    if pwd is /, mount / followed by ls . retunrs the contents of initramfs.
 
-In that case, this is /not/ a device... The "If it waddles like a duck, and
-quacks like a duck, it is (probably) a duck" can be turned around...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+It does, and it does work as described.  Again, see the referenced code.
+
+You can also fchdir() to the rootfs if you have a file descriptor to
+any directory therein.
+
+	-hpa

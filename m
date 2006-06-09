@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbWFIXJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWFIXLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbWFIXJz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWFIXJz
+	id S1030351AbWFIXLr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWFIXLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:09:55 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:49320 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932300AbWFIXJy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:09:54 -0400
-Message-ID: <4489FFB8.3070203@garzik.org>
-Date: Fri, 09 Jun 2006 19:09:44 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>, Dave Jones <davej@redhat.com>,
-       Theodore Tso <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org> <20060609195750.GD10524@thunk.org> <20060609203803.GF3574@ca-server1.us.oracle.com> <20060609205036.GI7420@redhat.com> <4489E8EF.5020508@garzik.org> <20060609225604.GK5964@schatzie.adilger.int>
-In-Reply-To: <20060609225604.GK5964@schatzie.adilger.int>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Fri, 9 Jun 2006 19:11:47 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:1156 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030279AbWFIXLq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 19:11:46 -0400
+Date: Fri, 9 Jun 2006 17:11:52 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Sonny Rao <sonny@burdell.org>, jeff@garzik.org, hch@infradead.org,
+       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609231151.GL5964@schatzie.adilger.int>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Sonny Rao <sonny@burdell.org>, jeff@garzik.org, hch@infradead.org,
+	cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org> <20060609214200.GA18213@kevlar.burdell.org> <20060609151553.30097b44.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060609151553.30097b44.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> Maybe we should start by deleting ext2 because it is old and obsolete?
-> The reality is that we will never merge the forks back once they are made.
+On Jun 09, 2006  15:15 -0700, Andrew Morton wrote:
+> We seem to be lagging behind "the industry" in some areas - handling large
+> devices, high bandwidth IO, sophisticated on-disk data structures, advanced
+> manageability, etc.
+> 
+> I mean, although ZFS is a rampant layering violation and we can do a lot of
+> the things in there (without doing it all in the fs!) I don't think we can
+> do all of it.
+> 
+> We're continuing to nurse along a few basically-15-year-old filesystems
+> while we do have the brains, manpower and processes to implement a new,
+> really great one.
+> 
+> It's just this feeling I have ;)
 
-We _already have_ a relevant example:  ext2 -> ext3.
+I think many people share this feeling (me included), hence the linux
+filesystem meeting next week...  The problem is that even getting a
+half-decent disk filesystem is many years of work, and large disks are
+here before then.  The ZFS code took 10 years to get to its current state,
+I understand, so I don't anticipate we will get there overnight.
 
-A useful fork is in the tree, and you're working on it.
+The question is whether we can get to this state more easily by starting
+on a known-good base (ext3) or by starting from scratch.  My opinion is
+strongly in the "start from a known-good base" camp, and make incremental
+improvements to that base instead of discarding everything and starting
+again.
 
-	Jeff
+I think the real frontier for future filesystem development is in the
+ZFS direction where the filesystem can be robust in the face of data
+errors without having a single fail-stop mode of error handling.  While
+ext2 and ext3 have been OK in this regard they can definitely be improved
+without discarding the rest of the code and the millions of hours of
+testing that has gone into it.
 
+I'm not so strongly against ext4 that I won't follow that route if needed,
+but it essentially means that ext3 will be orphaned.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

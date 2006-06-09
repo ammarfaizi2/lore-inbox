@@ -1,25 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbWFIRsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbWFIRuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030327AbWFIRsL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 13:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbWFIRsL
+	id S1030332AbWFIRuP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 13:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWFIRuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 13:48:11 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:48530 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030225AbWFIRsK (ORCPT
+	Fri, 9 Jun 2006 13:50:15 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:54162 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030328AbWFIRuN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 13:48:10 -0400
-Message-ID: <4489B452.4050100@garzik.org>
-Date: Fri, 09 Jun 2006 13:48:02 -0400
+	Fri, 9 Jun 2006 13:50:13 -0400
+Message-ID: <4489B4CB.7060001@garzik.org>
+Date: Fri, 09 Jun 2006 13:50:03 -0400
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: hch@infradead.org, cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org>	<20060609030759.48cd17a0.akpm@osdl.org>	<44899653.1020007@garzik.org>	<20060609095620.22326f9d.akpm@osdl.org>	<4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org>
-In-Reply-To: <20060609103543.52c00c62.akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org> <m3y7w69s6v.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091018150.5498@g5.osdl.org> <20060609174146.GO1651@parisc-linux.org>
+In-Reply-To: <20060609174146.GO1651@parisc-linux.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.2 (----)
@@ -28,62 +31,36 @@ X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 09 Jun 2006 13:07:37 -0400
-> Jeff Garzik <jeff@garzik.org> wrote:
+Matthew Wilcox wrote:
+> On Fri, Jun 09, 2006 at 10:30:06AM -0700, Linus Torvalds wrote:
+>> And I'm not saying that just because it's a filesystem, and people get 
+>> upset if they lose data. No, I'm saying it because from a maintenance 
+>> standpoint, such a filesystem has almost zero cost.
 > 
->> I would propose the obvious...  'cp -a ext3 ext4', apply the extent and 
->> 48bit patches, and then do the obvious search-n-replace.
-> 
-> Most of ext3 is JBD.  At least, in terms of complexity.  And I don't think
-> there's anything in this proposal which affects JBD, apart from changing
-> the blocksize.
-> 
-> Cloning JBD for this exercise would, I suspect, be the wrong thing to do -
-> the two clones would be pretty much identical, apart from some scalar
-> types.
-> 
-> I did suggest a couple of years ago that we should clone the ext3 part and
-> have both ext3 and ext4 use the same JBD layer - I don't know what happened
-> to that idea.
+> One of the costs (and I'm not disagreeing with your main point;
+> I think forking ext3 to ext4 at this point is reasonable), is that
+> bugfixes applied to one don't necessarily get applied to the other.
+> I found some recently between ext2 and ext3, and submitted those, but I
+> only audited one file.  There's lots more to look at and I just haven't
+> found the time recently.  Going to three variations is a lot more work
+> for auditing, and it might be worth splitting some bits which genuinely
+> are the same into common code.
 
-The JBD API is reasonably distinct, so IMO this would be a logical next 
-step.  I would hope they could use the same JBD, so, I strongly agree...
+With extents and 48bit, you have multiple code paths to audit, regardless.
 
+If applied to ext3, you have to audit
 
-> There has been steady, cautious but significant improvement happening in
-> ext3 over the past few years.  I'd expect that to continue, although
-> perhaps at a lower rate.  Having to apply the same changes to two
-> filesystems would be an obvious loss.
+	fs/ext3/*.c:
+		if (extents)
+			...
+		else
+			...
 
-I disagree completely...  it would be an obvious win:  people who want 
-stability get that, people who want new features get that too.
+as opposed to
 
-
-> It comes down to looking at the patches, and I haven't done that in quite
-> some time.  Ideally the new functionality would all be under CONFIG_foo,
-> but I do not know if that is being proposed here?
-> 
->> We need to draw a line in the sand.  If we don't, no one ever will.
-> 
-> You speak as if this is something which has happened before, or that it will
-> happen again.
-> 
-> All that being said, Linux's filesystems are looking increasingly crufty
-> and we are getting to the time where we would benefit from a greenfield
-> start-a-new-one.  That new one might even be based on reiser4 - has anyone
-> looked?  It's been sitting around for a couple of years.
-
-reiser4 actually has this same problem, but worse.  It has pluggable 
-metadata even to the point of supporting plugin-style metadata development.
-
-If we can successfully devolve a filesystem to metadata and algorithm 
-plugins, that should be done at the VFS level, and not called "reiser4".
-
-But in the absence of a different VFS API, I think it is the most 
-practical of all the options to open the floodgates to ext4 rather than 
-ext3.
-
-	Jeff
+	fs/ext3/*.c:
+		...	non-extent code
+	fs/ext4/*.c:
+		...	extent code
 
 

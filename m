@@ -1,64 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWFIAAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWFIAW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWFIAAW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 20:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbWFIAAW
+	id S1750925AbWFIAW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 20:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWFIAW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 20:00:22 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:20968 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964782AbWFIAAW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 20:00:22 -0400
-Subject: Re: 2.6.17-rc6-rt1
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Martin Murray <mmurray@vmware.com>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20060607211455.GA6132@elte.hu>
-References: <20060607211455.GA6132@elte.hu>
-Content-Type: text/plain
-Date: Thu, 08 Jun 2006 16:57:46 -0700
-Message-Id: <1149811066.4266.127.camel@cog.beaverton.ibm.com>
+	Thu, 8 Jun 2006 20:22:58 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:44266 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1750925AbWFIAW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 20:22:57 -0400
+Date: Thu, 8 Jun 2006 20:22:50 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Suzuki <suzuki@in.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Fix Compilation error for UM Linux
+Message-ID: <20060609002250.GC10249@ccure.user-mode-linux.org>
+References: <44883C68.8010307@in.ibm.com> <20060608104655.70c6836f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060608104655.70c6836f.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-07 at 23:14 +0200, Ingo Molnar wrote:
-> if we accidentally dropped some fix in the process then please complain. 
-> x86 and x86_64 build and boot, but some initial rough edges are to be 
-> expected. Deepak, your ARM-GTOD patches are included but not tested yet.
+On Thu, Jun 08, 2006 at 10:46:55AM -0700, Andrew Morton wrote:
+> Really?  We often do arithmetic on void*.  Are you using gcc, with standard
+> kbuild and standard compiler options?
 
-Ingo,
-	This fix will be needed in 2.6.17-rc6-rt1, as it includes the x86-64
-TOD conversion (not yet in -mm).
+I've never seen any gcc complaints from that piece of code, so I'm 
+wondering the same thing.
 
-I accidentally used the kernel-mapped vsyscall_gtod_data value, 
-rather then the user-mapped __vsyscall_gtod_data value in do_get_tz.
-
-This would cause gettimeofday to segfault when using a non-null 
-timezone pointer.
-
-Many thanks to Martin Murray, who pointed out this issue and its fix.
-
-thanks
--john
-
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
-diff --git a/arch/x86_64/kernel/vsyscall.c b/arch/x86_64/kernel/vsyscall.c
-index 98692a4..0bda23b 100644
---- a/arch/x86_64/kernel/vsyscall.c
-+++ b/arch/x86_64/kernel/vsyscall.c
-@@ -125,7 +125,7 @@ static __always_inline void do_vgettimeo
- /* RED-PEN may want to readd seq locking, but then the variable should be write-once. */
- static __always_inline void do_get_tz(struct timezone * tz)
- {
--	*tz = vsyscall_gtod_data.sys_tz;
-+	*tz = __vsyscall_gtod_data.sys_tz;
- }
- 
- static __always_inline int gettimeofday(struct timeval *tv, struct timezone *tz)
-
-
+				Jeff

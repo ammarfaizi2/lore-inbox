@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWFIXVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWFIX0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbWFIXVE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWFIXVE
+	id S932308AbWFIX0s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbWFIX0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:21:04 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:22420 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030301AbWFIXVC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:21:02 -0400
-Date: Fri, 9 Jun 2006 17:21:08 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Alex Tomas <alex@clusterfs.com>, Jeff Garzik <jeff@garzik.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609232108.GM5964@schatzie.adilger.int>
-Mail-Followup-To: Valdis.Kletnieks@vt.edu,
-	Alex Tomas <alex@clusterfs.com>, Jeff Garzik <jeff@garzik.org>,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-	Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
-References: <20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net> <44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net> <4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net> <44899113.3070509@garzik.org> <170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com> <m3odx2b86p.fsf@bzzz.home.net> <200606092252.k59Mqc2Q018613@turing-police.cc.vt.edu>
+	Fri, 9 Jun 2006 19:26:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30876 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932308AbWFIX0r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 19:26:47 -0400
+Date: Fri, 9 Jun 2006 16:26:34 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Heiko Gerstung <heiko.gerstung@meinberg.de>
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: Backport of a 2.6.x USB driver to 2.4.32 - help needed
+Message-Id: <20060609162634.b98fde7c.zaitcev@redhat.com>
+In-Reply-To: <mailman.1149588721.11795.linux-kernel2news@redhat.com>
+References: <mailman.1149588721.11795.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606092252.k59Mqc2Q018613@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 09, 2006  18:52 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 09 Jun 2006 20:33:18 +0400, Alex Tomas said:
-> > one who needs/wants to go back may get rid of extents by:
-> > a) remounting w/o extents option
-> > b) copying new-fashion-style files so that copies use blockmap
-> > c) dropping extents feature in superblock
+On Tue, 06 Jun 2006 11:48:36 +0200, Heiko Gerstung <heiko.gerstung@meinberg.de> wrote:
+
+> [...] The maintainer of the driver
+> modified a few things for me in order to address this problem ("it
+> happens because get/set_registers() are called with no process
+> context"), but he was only able to modify the 2.6.x driver for me.
+
+> I started to backport the modified version, but it seems that I ran into
+> dependency hell because I get the following two missing functions
+> reported when I try to compile the backported module:
 > 
-> OK.. Obviously my brain is tiny and easily overfilled.
+> rtl8150.c: In Funktion »rtl8150_get_settings«:
+> rtl8150.c:790: Warnung: implicit declaration of function `in_atomic'
+> rtl8150.c: In Funktion »rtl8150_thread«:
+> rtl8150.c:857: Warnung: implicit declaration of function
+> `schedule_timeout_uninterruptible'
 
-...
+Tell the author to do it differently. Drivers have no business
+to call in_atomic(). So, he postpones some accesses until later.
+This is an easy way out, I did it myself in 2.4's usb-serial,
+but it's wrong. I don't see what his excuse is. Mine was that
+I didn't want to debug a freaking gazillion of usb-storage
+subdrivers.
 
-> Given that the whole alledged problem with extents is that they're not
-> backward compatible, how do you read the files in (b) so that you can copy
-> them, if the data is in the non-compatible extents that you can't read because
-> you've disabled extents?
+Who's the guy, anyway? Was it Petkan? I'm sure he'll listen
+to reason, I worked with him before.
 
-You mount with the new kernel without "-o extents", and find files with
-extents "lsattr -R /mnt/tmp | awk '/----e / print { $2 }'", copy those
-files, mv over old files, unmount.
+I'm going to keep an eye on rtl8150 and oppose in_atomic when
+it sneaks in.
 
-A similar thing is necessary for ext3 filesystems before you can mount them
-as ext2 - they can't be mounted as ext2 until the journal is recovered
-(an unrecovered journal is an incompatible feature).
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+-- Pete

@@ -1,70 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWFIWiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWFIWjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWFIWiv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 18:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFIWiv
+	id S1751420AbWFIWjG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 18:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWFIWjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 18:38:51 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60874 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751416AbWFIWiu (ORCPT
+	Fri, 9 Jun 2006 18:39:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62634 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751420AbWFIWjE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 18:38:50 -0400
-Date: Sat, 10 Jun 2006 00:38:04 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Jiri Benc <jbenc@suse.cz>, linville@tuxdriver.com,
-       kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: [patch] workaround zd1201 interference problem
-Message-ID: <20060609223804.GB3252@elf.ucw.cz>
-References: <20060607140045.GB1936@elf.ucw.cz> <20060607160828.0045e7f5@griffin.suse.cz> <20060607141536.GD1936@elf.ucw.cz> <4486FD2F.8040205@gentoo.org> <20060608070525.GE3688@elf.ucw.cz> <4489ECD0.1030908@gentoo.org>
+	Fri, 9 Jun 2006 18:39:04 -0400
+Date: Fri, 9 Jun 2006 15:38:54 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, npiggin@suse.de,
+       ak@suse.de, hugh@veritas.com
+Subject: Re: Light weight counter 1/1 Framework
+In-Reply-To: <20060609143333.39b29109.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606091537350.3036@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0606091216320.1174@schroedinger.engr.sgi.com>
+ <20060609143333.39b29109.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4489ECD0.1030908@gentoo.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Eventcounter fixups
 
-I'll try to.
+- Add comment to all_vm_events
 
-> >if you plug zd1201 into USB, it starts jamming radio,
-> >immediately. Enable/disable, or iwlist wlan0 scan, or basically any
-> >operation unjams the radio. This patch works it around:
-> 
-> Can we be any more specific?
-> 
-> What is the interference - is it transmitting random packets, or just 
-> emitting a magical cloud of invisible anti-wifi?
+- remove get_global_events.
 
-Magical cloud, I'm afraid.
+- fold foreign cpu events into our own.
 
-> At which precise point does the interference start? 
+- Remove useless exports
 
-When the card is inserted.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-> Does it happen even 
-> without the driver loaded?
-
-Will try.
-
-> Which operation is the one which stops the interference, the enable or 
-> the disable?
-
-Disable alone was not enough to stop interference.
-
-> Does this happen on every plug in, or just sometimes? 
-
-In 70% or so.
-
-> Is it affected by 
-> usage patterns such as having the device plugged in throughout boot, 
-> reloading the module, etc?
-
-Will try.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Index: linux-2.6.17-rc6-mm1/mm/page_alloc.c
+===================================================================
+--- linux-2.6.17-rc6-mm1.orig/mm/page_alloc.c	2006-06-09 15:14:44.173612828 -0700
++++ linux-2.6.17-rc6-mm1/mm/page_alloc.c	2006-06-09 15:35:21.719837630 -0700
+@@ -1585,7 +1585,7 @@ static void show_node(struct zone *zone)
+ #ifdef CONFIG_VM_EVENT_COUNTERS
+ DEFINE_PER_CPU(struct vm_event_state, vm_event_states) = {{0}};
+ 
+-void sum_vm_events(unsigned long *ret, cpumask_t *cpumask)
++static void sum_vm_events(unsigned long *ret, cpumask_t *cpumask)
+ {
+ 	int cpu = 0;
+ 	int i;
+@@ -1606,25 +1606,16 @@ void sum_vm_events(unsigned long *ret, c
+ 			ret[i] += this->event[i];
+ 	}
+ }
+-EXPORT_SYMBOL(sum_vm_events);
+ 
+-void all_vm_events(unsigned long *ret)
++/*
++ * Accumulate the vm event counters across all CPUs.
++ * The result is unavoidably approximate - it can change
++ * during and after execution of this function.
++*/
++static void all_vm_events(unsigned long *ret)
+ {
+ 	sum_vm_events(ret, &cpu_online_map);
+ }
+-EXPORT_SYMBOL(all_vm_events);
+-
+-unsigned long get_global_vm_events(enum vm_event_item e)
+-{
+-	unsigned long ret = 0;
+-	int cpu;
+-
+-	for_each_possible_cpu(cpu)
+-		ret += per_cpu(vm_event_states, cpu).event[e];
+-
+-	return ret;
+-}
+-EXPORT_SYMBOL(get_global_vm_events);
+ #endif
+ 
+ void __get_zone_counts(unsigned long *active, unsigned long *inactive,
+@@ -2875,6 +2866,25 @@ struct seq_operations vmstat_op = {
+ #endif /* CONFIG_PROC_FS */
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
++/*
++ * Fold the foreign cpu states int our own.
++ *
++ * This is a pretty inconsistent thing to do since
++ * the event array is to count the events occurring
++ * for each processor. But we did this in the past
++ * so I guess that we need to continue.
++ */
++static void vm_events_fold_cpu(int cpu)
++{
++	struct vm_event_state *fold_state = &per_cpu(vm_event_states, cpu);
++	int i;
++
++	for (i = 0; i < NR_VM_EVENT_ITEMS; i++) {
++		count_vm_events(i, fold_state->event[i]);
++		fold_state->event[i] = 0;
++	}
++}
++
+ static int page_alloc_cpu_notify(struct notifier_block *self,
+ 				 unsigned long action, void *hcpu)
+ {
+@@ -2886,17 +2896,7 @@ static int page_alloc_cpu_notify(struct 
+ 
+ 		local_irq_disable();
+ 		__drain_pages(cpu);
+-
+-		/* Add dead cpu's page_states to our own. */
+-		dest = (unsigned long *)&__get_cpu_var(page_states);
+-		src = (unsigned long *)&per_cpu(page_states, cpu);
+-
+-		for (i = 0; i < sizeof(struct page_state)/sizeof(unsigned long);
+-				i++) {
+-			dest[i] += src[i];
+-			src[i] = 0;
+-		}
+-
++		vm_events_fold_cpu(cpu);
+ 		local_irq_enable();
+ 		refresh_cpu_vm_stats(cpu);
+ 	} 
+Index: linux-2.6.17-rc6-mm1/include/linux/page-flags.h
+===================================================================
+--- linux-2.6.17-rc6-mm1.orig/include/linux/page-flags.h	2006-06-09 15:10:30.611239764 -0700
++++ linux-2.6.17-rc6-mm1/include/linux/page-flags.h	2006-06-09 15:35:41.847495238 -0700
+@@ -139,10 +139,6 @@ struct vm_event_state {
+ 
+ DECLARE_PER_CPU(struct vm_event_state, vm_event_states);
+ 
+-extern unsigned long get_global_vm_events(enum vm_event_item e);
+-extern void sum_vm_events(unsigned long *r, cpumask_t *cpumask);
+-extern void all_vm_events(unsigned long *r);
+-
+ static inline unsigned long get_cpu_vm_events(enum vm_event_item item)
+ {
+ 	return __get_cpu_var(vm_event_states).event[item];
+@@ -161,7 +157,6 @@ static inline void count_vm_events(enum 
+ #else
+ /* Disable counters */
+ #define get_cpu_vm_events(e)	0L
+-#define get_global_vm_events(e)	0L
+ #define count_vm_event(e)	do { } while (0)
+ #define count_vm_events(e,d)	do { } while (0)
+ #endif

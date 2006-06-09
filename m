@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965289AbWFIQhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965285AbWFIQhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965289AbWFIQhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 12:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965285AbWFIQhQ
+	id S965285AbWFIQhs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 12:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWFIQhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 12:37:16 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:51599 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965280AbWFIQhO (ORCPT
+	Fri, 9 Jun 2006 12:37:48 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:2224 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965283AbWFIQhr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 12:37:14 -0400
-Message-ID: <4489A3B5.501@garzik.org>
-Date: Fri, 09 Jun 2006 12:37:09 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 12:37:47 -0400
+Date: Fri, 9 Jun 2006 18:37:37 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Paul Fulghum <paulkf@microgate.com>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, khc@pm.waw.pl
+Subject: Re: [PATCH] fix generic HDLC synclink mismatch build error
+In-Reply-To: <44899EE2.2080303@microgate.com>
+Message-ID: <Pine.LNX.4.64.0606091836340.17704@scrub.home>
+References: <1149694978.12920.14.camel@amdx2.microgate.com> 
+ <20060607143138.62855633.rdunlap@xenotime.net> <1149868042.20097.5.camel@amdx2.microgate.com>
+ <Pine.LNX.4.64.0606091757260.17704@scrub.home> <44899EE2.2080303@microgate.com>
 MIME-Version: 1.0
-To: Alex Tomas <alex@clusterfs.com>
-CC: Mike Snitzer <snitzer@gmail.com>, Christoph Hellwig <hch@infradead.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net>	<44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net>	<4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net>	<44899113.3070509@garzik.org>	<170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com> <m3odx2b86p.fsf@bzzz.home.net>
-In-Reply-To: <m3odx2b86p.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
->>>>>> Mike Snitzer (MS) writes:
+Hi,
+
+On Fri, 9 Jun 2006, Paul Fulghum wrote:
+
+> Roman Zippel wrote:
+> > > +config SYNCLINK_HDLC
+> > > +	bool "Generic HDLC support for SyncLink driver"
+> > > +	depends on SYNCLINK
+> > > +	depends on HDLC=y || HDLC=SYNCLINK
+> > 
+> > 
+> > If you replace now 'bool "..."' with 'def_bool y', it's enabled
+> > automatically as soon as HDLC is enabled and the user doesn't has to confirm
+> > it for every driver separately and it has the same effect as your #ifdef
+> > hack.
 > 
->  MS> precludes their ability to boot older kernels (steps can be taken to
->  MS> make them well aware of this). The "real world situation" you refer
->  MS> to, while hypothetically valid, isn't something informed
->  MS> ext3-with-extents users will _ever_ elect to do.
-> 
-> one who needs/wants to go back may get rid of extents by:
-> a) remounting w/o extents option
-> b) copying new-fashion-style files so that copies use blockmap
-> c) dropping extents feature in superblock
+> You need to explain this more.
 
-More likely, they will just backup+restore rather than go through all that.
+Just try it. :)
 
-After leafing through a 50-page manual to match up kernel versions with 
-ext3 features, to see which older kernels will (or won't) require all 
-this work.
+> The only #ifdef in the patch is that which conditionally
+> compiles the generic HDLC support based on the
+> kernel configuration option. If I remove those, then
+> the synclink would require generic HDLC, which
+> is not what we want.
 
-	Jeff
+I meant the old #ifdef hack, which your patch removed.
 
-
-
+bye, Roman

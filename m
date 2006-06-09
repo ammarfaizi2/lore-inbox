@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWFITnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030464AbWFIToA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030455AbWFITnm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWFITnm
+	id S1030464AbWFIToA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWFIToA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:43:42 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:4497 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030455AbWFITnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:43:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cvj01proNlrBvv9JCAIDmkgJ+8G1j6fICmbmp54vR7VFGcnqcA9QWagvdOgCYczPFy+l4xGpj/+n6yHbw9zjB6jEqwbr41UAHCrvnNCm8o6hO4PsGTwe2kV55GbR0W0OC8nyDaA3OHMxhYjvO+B5y+b4m84v9l7F67J5oXtejZU=
-Message-ID: <305c16960606091243h10638b2ayb7f1066bb839e496@mail.gmail.com>
-Date: Fri, 9 Jun 2006 16:43:41 -0300
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Subject: Re: Idea about a disc backed ram filesystem
-Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>,
-       "Sascha Nitsch" <Sash_lkl@linuxhowtos.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1149881504.3894.250.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <mizvekov@gmail.com>
-	 <305c16960606082159v2dc588abo6359d87173327c83@mail.gmail.com>
-	 <200606091343.k59DhC1f004434@laptop11.inf.utfsm.cl>
-	 <305c16960606090807g6372b69dy3167b0e191b2c113@mail.gmail.com>
-	 <1149878633.3894.224.camel@mindpipe>
-	 <305c16960606091227w7e62003bhef576fb07d0aa95@mail.gmail.com>
-	 <1149881504.3894.250.camel@mindpipe>
+	Fri, 9 Jun 2006 15:44:00 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:62929 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030461AbWFITn7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 15:43:59 -0400
+To: Jeff Garzik <jeff@garzik.org>
+cc: Michael Poole <mdpoole@troilus.org>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3 
+In-reply-to: Your message of Fri, 09 Jun 2006 14:55:56 EDT.
+             <4489C43C.6000906@garzik.org> 
+Date: Fri, 09 Jun 2006 12:42:52 -0700
+Message-Id: <E1Fomsf-0007hZ-7S@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/9/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Fri, 2006-06-09 at 16:27 -0300, Matheus Izvekov wrote:
-> > Sorry, i took a look at the code which handles this and swappiness = 0
-> > doesnt seem to imply that process memory will never be swapped out.
-> >
->
-> OK, then use mlockall().
->
-> Lee
->
->
 
-If i make init mlockall, would all child processes be mlocked too?
-If not, using this to enforce a system wide policy seems a bit hacky
-and non trivial.
+On Fri, 09 Jun 2006 14:55:56 EDT, Jeff Garzik wrote:
+> 
+> Because it's called backwards compat, when it isn't?
+> Because it is very difficult to find out which set of kernels you are 
+> locked out of?
+> Because the filesystem upgrade is stealthy, occurring as it does on the 
+> first data write?
+
+Actually, the *only* point being contended here is running older
+kernels on some newer filesystems (created originally with a newer
+kernel), right?
+
+Or do you have examples of where current kernels could not deal
+with an ext3 feature at some point in time?
+
+I would argue that 0.001% of all Linux *users* actually worry about
+this - most of them are right here on the development mailing list.
+So, that group is more vocal, for sure.  But, if it works for 99.99+%
+users, aren't we still on the good path, from the point of view of
+those people who actually *use* Linux the most?
+
+gerrit

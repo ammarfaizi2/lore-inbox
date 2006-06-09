@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbWFIE71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbWFIFCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbWFIE71 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 00:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWFIE71
+	id S965179AbWFIFCR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 01:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWFIFCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 00:59:27 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:7348 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965162AbWFIE70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 00:59:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M2VkO8dkG7qIkn8lMzSyquJTXGiFCeslcNpV/03i8U2G7WidaXqLPVwaG/OAxA3IeSB3Qdd7sdiTFN80asaXapr9J+DTloGB/I0dfqT71ubl+G4FGZdRm2aP0VVfKs0ilD6m1cZfGE+2VhwvO9Ap0fZWRHjMpzOVXhzQ9Qxw/4A=
-Message-ID: <305c16960606082159v2dc588abo6359d87173327c83@mail.gmail.com>
-Date: Fri, 9 Jun 2006 01:59:25 -0300
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-Subject: Re: Idea about a disc backed ram filesystem
-Cc: "Sascha Nitsch" <Sash_lkl@linuxhowtos.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200606090217.k592HNjq011090@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 9 Jun 2006 01:02:17 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17624
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965179AbWFIFCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 01:02:17 -0400
+Date: Thu, 08 Jun 2006 22:01:25 -0700 (PDT)
+Message-Id: <20060608.220125.112621003.davem@davemloft.net>
+To: luke.adi@gmail.com
+Cc: akpm@osdl.org, samuel@sortiz.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix an inproper alignment accessing in irda protocol
+ stack
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <489ecd0c0606082045w7456a90et586a3954f1a2fca0@mail.gmail.com>
+References: <489ecd0c0606080015v4815d0f3wa3d28c564eaf6885@mail.gmail.com>
+	<20060608003015.52fe1b8e.akpm@osdl.org>
+	<489ecd0c0606082045w7456a90et586a3954f1a2fca0@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <mizvekov@gmail.com>
-	 <305c16960606081548m316099awafa619bb5d0d14f0@mail.gmail.com>
-	 <200606090217.k592HNjq011090@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> tmpfs does use swap currently. Giving tmpfs a dedicated swap space is dumb,
-> as it takes away the possibility of using that space for swapping when not
-> in use by tmpfs (and viceversa).
+From: "Luke Yang" <luke.adi@gmail.com>
+Date: Fri, 9 Jun 2006 11:45:06 +0800
 
-The idea is not dumb per se. Maybe you want your applications to swap
-to one device (or not swap at all) and a tmpfs mount to swap to
-another. For me at least it would make a difference.
-I dont use swap at all, have enough ram for all my processes. And ive
-seen that for some workloads, setting a temporary directory as tmpfs
-gives huge speed improvements. But just occasionally, the space used
-in this temp dir will not fit in my ram, so in this case swapping
-would be fine. The problem is, currently there is no way to enforce
-this.
-Ditto for the fact that, when you have many swap devices set, each
-with different performances, there is no way to give priorities/rules
-to enforce who uses each device.
-When someone gets to implement those features, this wouldnt be needed
-anymore. But that seems far away enough to justify a more immediate
-workaround.
+>         /* Construct new discovery info to be used by IrLAP, */
+> -       u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
+> +#ifdef __LITTLE_ENDIAN
+> +       irlmp->discovery_cmd.data.hints[0] = irlmp->hints.word & 0xff;
+> +       irlmp->discovery_cmd.data.hints[1] = (irlmp->hints.word & 0xff00) >> 8;
+> +#else /* ifdef __BIG_ENDIAN */
+> +       irlmp->discovery_cmd.data.hints[0] = (irlmp->hints.word & 0xff00) >> 8;
+> +       irlmp->discovery_cmd.data.hints[1] = irlmp->hints.word & 0xff;
+> +#endif
+
+Please don't add ugly ifdefs, they are not necessary.
+
+You can use the le16_to_cpu() macro on the hints.word datum,
+then pick out the byte you need, as necessary.  That way you
+don't need to use ifdefs.
+

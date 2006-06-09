@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWFIXLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWFIXNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbWFIXLr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWFIXLr
+	id S1030319AbWFIXNP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbWFIXNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:11:47 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:1156 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030279AbWFIXLq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:11:46 -0400
-Date: Fri, 9 Jun 2006 17:11:52 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sonny Rao <sonny@burdell.org>, jeff@garzik.org, hch@infradead.org,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060609231151.GL5964@schatzie.adilger.int>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Sonny Rao <sonny@burdell.org>, jeff@garzik.org, hch@infradead.org,
-	cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org> <20060609214200.GA18213@kevlar.burdell.org> <20060609151553.30097b44.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Jun 2006 19:13:15 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:51664 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030319AbWFIXNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 19:13:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=i3NJX7qmsUBexMKo5ZMFBiddiAzRSnrbOc5xb+BUPbM13LJ6dbGkdgbmmpGHXcl4T1vPKUS7lr+Q1xMdYuWWucYF55DYMuZbx7QAXUsRv4zs9X0MdNfPxaKEA8NCyEDqUOo/yrdIVcR9UPjnP2dR19LmUEBVCn4XF1beOnbodCk=
+Message-ID: <bda6d13a0606091613h3334facbrcb86dbb2de01b412@mail.gmail.com>
+Date: Fri, 9 Jun 2006 16:13:13 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: klibc
+In-Reply-To: <e6ctsb$hij$1@terminus.zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060609151553.30097b44.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	 <bda6d13a0606091050n40fda044v668eef09af3c29a7@mail.gmail.com>
+	 <871wty6rl9.fsf@hades.wkstn.nix>
+	 <bda6d13a0606091528h4e85265du8651818c73827b7d@mail.gmail.com>
+	 <e6ctsb$hij$1@terminus.zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 09, 2006  15:15 -0700, Andrew Morton wrote:
-> We seem to be lagging behind "the industry" in some areas - handling large
-> devices, high bandwidth IO, sophisticated on-disk data structures, advanced
-> manageability, etc.
-> 
-> I mean, although ZFS is a rampant layering violation and we can do a lot of
-> the things in there (without doing it all in the fs!) I don't think we can
-> do all of it.
-> 
-> We're continuing to nurse along a few basically-15-year-old filesystems
-> while we do have the brains, manpower and processes to implement a new,
-> really great one.
-> 
-> It's just this feeling I have ;)
-
-I think many people share this feeling (me included), hence the linux
-filesystem meeting next week...  The problem is that even getting a
-half-decent disk filesystem is many years of work, and large disks are
-here before then.  The ZFS code took 10 years to get to its current state,
-I understand, so I don't anticipate we will get there overnight.
-
-The question is whether we can get to this state more easily by starting
-on a known-good base (ext3) or by starting from scratch.  My opinion is
-strongly in the "start from a known-good base" camp, and make incremental
-improvements to that base instead of discarding everything and starting
-again.
-
-I think the real frontier for future filesystem development is in the
-ZFS direction where the filesystem can be robust in the face of data
-errors without having a single fail-stop mode of error handling.  While
-ext2 and ext3 have been OK in this regard they can definitely be improved
-without discarding the rest of the code and the millions of hours of
-testing that has gone into it.
-
-I'm not so strongly against ext4 that I won't follow that route if needed,
-but it essentially means that ext3 will be orphaned.
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+On 6/9/06, H. Peter Anvin <hpa@zytor.com> wrote:
+> Followup to:  <bda6d13a0606091528h4e85265du8651818c73827b7d@mail.gmail.com>
+> By author:    "Joshua Hudson" <joshudson@gmail.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > Once again. Loopback mount requires a clean unmount of root and
+> > host filesystem. After remounting root read-only, host is still read-write
+> > and cannot be remounted read-only.
+> >
+> > It is necessary to provide access to the rootfs tree somewhere else
+> > or use pivot_root, like the initrd solution below:
+> >
+> > initrd: /linuxrc
+> > #!/bin/sh
+> > mount /dev/hda1 -o rw -t ntfs /host
+> > mount /host/linux/root.img -o loop,ro -t ext3 /root
+> > pivot_root /root /root/initrd
+> > exec /initrd/bin/init
+> >
+> > root:/etc/rc.d/rc.halt:
+> > #!/bin/sh
+> > pivot_root /initrd /initrd/root
+> > cd /
+> > exec /stop $RUNLEVEL
+> >
+> > initrd:/stop
+> > #!/bin/sh
+> > kill -SIGUSR1 1
+> > umount /root
+> > umount /host
+> > case $1 in
+> > 0) poweroff -f ;;
+> > *) reboot -f ;;
+> > esac
+> >
+> > This requires static binaries of init, sh, mount, umount, an extant /etc, and a
+> > few nodes in /dev.
+>
+> Another solution is to leave a process with its cwd parked in the
+> rootfs.  Look at run_linuxrc() in usr/kinit/initrd.c of any klibc tree
+> to see how this can be used.  (That is there to support old-style
+> /linuxrc, but should be applicable here, too.)
+>
+>         -hpa
+Should work if the following is true:
+   if pwd is /, mount / followed by ls . retunrs the contents of initramfs.

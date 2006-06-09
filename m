@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030521AbWFIVg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWFIVjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030521AbWFIVg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbWFIVg6
+	id S932239AbWFIVjF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWFIVjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:36:58 -0400
-Received: from relay01.pair.com ([209.68.5.15]:14343 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S1030523AbWFIVg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:36:56 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Fri, 9 Jun 2006 16:36:54 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
-       Alex Tomas <alex@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-In-Reply-To: <20060609212410.GJ3574@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.64.0606091634340.5541@turbotaz.ourhouse>
-References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
- <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net>
- <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net>
- <4489A7ED.8070007@garzik.org> <20060609195750.GD10524@thunk.org>
- <20060609203803.GF3574@ca-server1.us.oracle.com> <20060609210319.GF10524@thunk.org>
- <20060609212410.GJ3574@ca-server1.us.oracle.com>
+	Fri, 9 Jun 2006 17:39:05 -0400
+Received: from rwcrmhc13.comcast.net ([216.148.227.153]:52703 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S932239AbWFIVjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 17:39:04 -0400
+Message-ID: <4489EA79.3000009@namesys.com>
+Date: Fri, 09 Jun 2006 14:39:05 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: "Barry K. Nathan" <barryn@pobox.com>, Valdis.Kletnieks@vt.edu,
+       Andrew Morton <akpm@osdl.org>, arjan@linux.intel.com,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: 2.6.17-rc5-mm3: bad unlock ordering (reiser4?)
+References: <986ed62e0606040504n148bf744x77bd0669a5642dd0@mail.gmail.com> <20060604133326.f1b01cfc.akpm@osdl.org> <200606042056.k54KuoKQ005588@turing-police.cc.vt.edu> <20060604213432.GB5898@elte.hu> <986ed62e0606041503v701f8882la4cbead47ae3982f@mail.gmail.com> <20060605065444.GA27445@elte.hu> <986ed62e0606050058v21b457a7tb4da4da62cb7e4e3@mail.gmail.com> <20060605081220.GA30123@elte.hu>
+In-Reply-To: <20060605081220.GA30123@elte.hu>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jun 2006, Joel Becker wrote:
+Ingo Molnar wrote:
 
-> 	Heck, forget the name, just make the breakage more explicit.  Do
-> it at mkfs/tunefs time.  "tunefs -extents" or "mkfs -t ext3 -extents".
-> A mount option assumes that you can do with or without it.  If you do it
-> once, you can mount the next time without it and stuff Just Works.  Even
-> htree follows this.  A clean unmount leaves a clean directory structure
-> that a non-htree driver can use.
-
-I suggested this somewhere back in the thread and it got no play. What's 
-the problem with doing things this way? (Aside from it being a compromise 
-that doesn't automatically result in a new ext4)
-
-Of course, there are a few debates going on here. Only one of them is 
-about compatibility.
-
+>* Barry K. Nathan <barryn@pobox.com> wrote:
 >
-> Joel
+>  
 >
-
-Cheers,
-Chase
+>>On 6/4/06, Ingo Molnar <mingo@elte.hu> wrote:
+>>    
+>>
+>>>reporting the first one only is necessary, because the validator cannot
+>>>trust a system's dependency info that it sees as incorrect. Deadlock
+>>>possibilities are quite rare in a kernel that is "in balance". Right now
+>>>we are not "in balance" yet, because the validator has only been added a
+>>>couple of days ago. The flurry of initial fixes will die down quickly.
+>>>      
+>>>
+>>So, does that mean the plan is to annotate/tweak things in order to 
+>>shut up *each and every* false positive in the kernel?
+>>    
+>>
+>
+>yes. 
+>
+Ingo is very much in the right here.  Things like locking are very hard
+to debug, and require serious methodology.  It is worth the hassle.  I
+hope we do more things like this in the future.

@@ -1,15 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbWFIBVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbWFIBWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965088AbWFIBVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 21:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWFIBVv
+	id S965080AbWFIBWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 21:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWFIBWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 21:21:51 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:37040 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965085AbWFIBVr
+	Thu, 8 Jun 2006 21:22:08 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:34524 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965082AbWFIBWA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 21:21:47 -0400
-Subject: [RFC 3/13] extents and 48bit ext3: ext3 fsblk types and fixes
+	Thu, 8 Jun 2006 21:22:00 -0400
+Subject: [RFC 4/13] extents and 48bit ext3: convert ext3 filesystem blocks
+	to ext3_fsblk_t
 From: Mingming Cao <cmm@us.ibm.com>
 Reply-To: cmm@us.ibm.com
 To: linux-kernel@vger.kernel.org,
@@ -17,8 +18,8 @@ To: linux-kernel@vger.kernel.org,
        linux-fsdevel@vger.kernel.org
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Thu, 08 Jun 2006 18:21:44 -0700
-Message-Id: <1149816105.4066.65.camel@dyn9047017069.beaverton.ibm.com>
+Date: Thu, 08 Jun 2006 18:21:58 -0700
+Message-Id: <1149816118.4066.66.camel@dyn9047017069.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
@@ -26,811 +27,594 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Some of the in-kernel ext3 block variable type are treated as signed 4 bytes
-int type, thus limited ext3 filesystem to 8TB (4kblock size based). While
-trying to fix them, it seems quite confusing in the ext3 code where some
-blocks are filesystem-wide blocks, some are group relative offsets that need
-to be signed value (as -1 has special meaning). So it seem saner to define two
-types of physical blocks: one is filesystem wide blocks, another is
-group-relative blocks.
+Convert the rest of all unsigned long type in-kernel filesystem
+blocks to ext3_fsblk_t, and replace the printk format string
+respondingly.
 
-With this series of patches and the percpu counter data type changes in the mm
-tree, we are able to extend exts filesystem limit to 16TB.
-
-This work is also a pre-request for the recent >32 bit ext3 work, and makes the
-kernel to able to address 48 bit ext3 block a lot easier: Simply
-redefine ext3_fsblk_t from unsigned long to sector_t and redefine the format
-string for ext3 filesystem block corresponding.
-
-The following patches clarify these two types of blocks in the ext3 code,
-and fix the type bugs which limit current 32 bit ext3 filesystem limit to 8TB
-
-Signed-Off-By: Mingming Cao<cmm@us.ibm.com>
+Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
 
 
 ---
 
- linux-2.6.16-ming/fs/ext3/balloc.c          |  215 ++++++++++++++--------------
- linux-2.6.16-ming/fs/ext3/ialloc.c          |   10 -
- linux-2.6.16-ming/fs/ext3/inode.c           |    2 
- linux-2.6.16-ming/fs/ext3/resize.c          |   43 +++--
- linux-2.6.16-ming/fs/ext3/super.c           |    2 
- linux-2.6.16-ming/fs/ext3/xattr.c           |   27 +--
- linux-2.6.16-ming/include/linux/ext3_fs.h   |   19 +-
- linux-2.6.16-ming/include/linux/ext3_fs_i.h |    8 +
- 8 files changed, 177 insertions(+), 149 deletions(-)
+ linux-2.6.16-ming/fs/ext3/balloc.c          |   29 ++++++--------
+ linux-2.6.16-ming/fs/ext3/inode.c           |   55 ++++++++++++++--------------
+ linux-2.6.16-ming/fs/ext3/ioctl.c           |    2 -
+ linux-2.6.16-ming/fs/ext3/resize.c          |   34 +++++++++--------
+ linux-2.6.16-ming/fs/ext3/super.c           |   33 ++++++++--------
+ linux-2.6.16-ming/fs/ext3/xattr.c           |   12 +++---
+ linux-2.6.16-ming/include/linux/ext3_fs.h   |   12 +++++-
+ linux-2.6.16-ming/include/linux/ext3_fs_i.h |    8 ++--
+ 8 files changed, 97 insertions(+), 88 deletions(-)
 
-diff -puN fs/ext3/balloc.c~ext3_fsblk_t_fixes fs/ext3/balloc.c
---- linux-2.6.16/fs/ext3/balloc.c~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/balloc.c	2006-06-08 16:50:04.103199446 -0700
-@@ -163,10 +163,10 @@ restart:
- #endif
- 
- static int
--goal_in_my_reservation(struct ext3_reserve_window *rsv, int goal,
-+goal_in_my_reservation(struct ext3_reserve_window *rsv, ext3_grpblk_t grp_goal,
- 			unsigned int group, struct super_block * sb)
+diff -puN fs/ext3/balloc.c~ext3_convert_blks_to_fsblk_t fs/ext3/balloc.c
+--- linux-2.6.16/fs/ext3/balloc.c~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/fs/ext3/balloc.c	2006-06-08 16:49:57.494951296 -0700
+@@ -168,8 +168,7 @@ goal_in_my_reservation(struct ext3_reser
  {
--	unsigned long group_first_block, group_last_block;
-+	ext3_fsblk_t group_first_block, group_last_block;
+ 	ext3_fsblk_t group_first_block, group_last_block;
  
- 	group_first_block = le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block) +
- 				group * EXT3_BLOCKS_PER_GROUP(sb);
-@@ -175,8 +175,8 @@ goal_in_my_reservation(struct ext3_reser
+-	group_first_block = le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block) +
+-				group * EXT3_BLOCKS_PER_GROUP(sb);
++	group_first_block = ext3_group_first_block_no(sb, group);
+ 	group_last_block = group_first_block + EXT3_BLOCKS_PER_GROUP(sb) - 1;
+ 
  	if ((rsv->_rsv_start > group_last_block) ||
- 	    (rsv->_rsv_end < group_first_block))
- 		return 0;
--	if ((goal >= 0) && ((goal + group_first_block < rsv->_rsv_start)
--		|| (goal + group_first_block > rsv->_rsv_end)))
-+	if ((grp_goal >= 0) && ((grp_goal + group_first_block < rsv->_rsv_start)
-+		|| (grp_goal + group_first_block > rsv->_rsv_end)))
- 		return 0;
- 	return 1;
- }
-@@ -187,7 +187,7 @@ goal_in_my_reservation(struct ext3_reser
-  * Returns NULL if there are no windows or if all windows start after the goal.
-  */
- static struct ext3_reserve_window_node *
--search_reserve_window(struct rb_root *root, unsigned long goal)
-+search_reserve_window(struct rb_root *root, ext3_fsblk_t goal)
- {
- 	struct rb_node *n = root->rb_node;
- 	struct ext3_reserve_window_node *rsv;
-@@ -223,7 +223,7 @@ void ext3_rsv_window_add(struct super_bl
- {
- 	struct rb_root *root = &EXT3_SB(sb)->s_rsv_window_root;
- 	struct rb_node *node = &rsv->rsv_node;
--	unsigned int start = rsv->rsv_start;
-+	ext3_fsblk_t start = rsv->rsv_start;
- 
- 	struct rb_node ** p = &root->rb_node;
- 	struct rb_node * parent = NULL;
-@@ -310,20 +310,20 @@ void ext3_discard_reservation(struct ino
- 
- /* Free given blocks, update quota and i_blocks field */
- void ext3_free_blocks_sb(handle_t *handle, struct super_block *sb,
--			 unsigned long block, unsigned long count,
--			 int *pdquot_freed_blocks)
-+			 ext3_fsblk_t block, unsigned long count,
-+			 unsigned long *pdquot_freed_blocks)
- {
- 	struct buffer_head *bitmap_bh = NULL;
- 	struct buffer_head *gd_bh;
- 	unsigned long block_group;
--	unsigned long bit;
-+	ext3_grpblk_t bit;
- 	unsigned long i;
- 	unsigned long overflow;
- 	struct ext3_group_desc * desc;
- 	struct ext3_super_block * es;
- 	struct ext3_sb_info *sbi;
- 	int err = 0, ret;
--	unsigned group_freed;
-+	ext3_grpblk_t group_freed;
- 
- 	*pdquot_freed_blocks = 0;
- 	sbi = EXT3_SB(sb);
-@@ -333,7 +333,7 @@ void ext3_free_blocks_sb(handle_t *handl
- 	    block + count > le32_to_cpu(es->s_blocks_count)) {
- 		ext3_error (sb, "ext3_free_blocks",
- 			    "Freeing blocks not in datazone - "
--			    "block = %lu, count = %lu", block, count);
-+			    "block = "E3FSBLK", count = %lu", block, count);
- 		goto error_return;
- 	}
- 
-@@ -369,7 +369,7 @@ do_more:
- 		      sbi->s_itb_per_group))
- 		ext3_error (sb, "ext3_free_blocks",
- 			    "Freeing blocks in system zones - "
--			    "Block = %lu, count = %lu",
-+			    "Block = "E3FSBLK", count = %lu",
- 			    block, count);
- 
- 	/*
-@@ -453,7 +453,8 @@ do_more:
- 						bit + i, bitmap_bh->b_data)) {
- 			jbd_unlock_bh_state(bitmap_bh);
- 			ext3_error(sb, __FUNCTION__,
--				"bit already cleared for block %lu", block + i);
-+				"bit already cleared for block "E3FSBLK,
-+				 block + i);
- 			jbd_lock_bh_state(bitmap_bh);
- 			BUFFER_TRACE(bitmap_bh, "bit already cleared");
- 		} else {
-@@ -493,10 +494,10 @@ error_return:
- 
- /* Free given blocks, update quota and i_blocks field */
- void ext3_free_blocks(handle_t *handle, struct inode *inode,
--			unsigned long block, unsigned long count)
-+			ext3_fsblk_t block, unsigned long count)
- {
- 	struct super_block * sb;
--	int dquot_freed_blocks;
-+	unsigned long dquot_freed_blocks;
- 
- 	sb = inode->i_sb;
- 	if (!sb) {
-@@ -525,7 +526,7 @@ void ext3_free_blocks(handle_t *handle, 
-  * data-writes at some point, and disable it for metadata allocations or
-  * sync-data inodes.
-  */
--static int ext3_test_allocatable(int nr, struct buffer_head *bh)
-+static int ext3_test_allocatable(ext3_grpblk_t nr, struct buffer_head *bh)
- {
- 	int ret;
- 	struct journal_head *jh = bh2jh(bh);
-@@ -542,11 +543,11 @@ static int ext3_test_allocatable(int nr,
- 	return ret;
- }
- 
--static int
--bitmap_search_next_usable_block(int start, struct buffer_head *bh,
--					int maxblocks)
-+static ext3_grpblk_t
-+bitmap_search_next_usable_block(ext3_grpblk_t start, struct buffer_head *bh,
-+					ext3_grpblk_t maxblocks)
- {
--	int next;
-+	ext3_grpblk_t next;
- 	struct journal_head *jh = bh2jh(bh);
- 
- 	/*
-@@ -576,10 +577,11 @@ bitmap_search_next_usable_block(int star
-  * the initial goal; then for a free byte somewhere in the bitmap; then
-  * for any free bit in the bitmap.
-  */
--static int
--find_next_usable_block(int start, struct buffer_head *bh, int maxblocks)
-+static ext3_grpblk_t
-+find_next_usable_block(ext3_grpblk_t start, struct buffer_head *bh,
-+			ext3_grpblk_t maxblocks)
- {
--	int here, next;
-+	ext3_grpblk_t here, next;
- 	char *p, *r;
- 
- 	if (start > 0) {
-@@ -591,7 +593,7 @@ find_next_usable_block(int start, struct
- 		 * less than EXT3_BLOCKS_PER_GROUP. Aligning up to the
- 		 * next 64-bit boundary is simple..
- 		 */
--		int end_goal = (start + 63) & ~63;
-+		ext3_grpblk_t end_goal = (start + 63) & ~63;
- 		if (end_goal > maxblocks)
- 			end_goal = maxblocks;
- 		here = ext3_find_next_zero_bit(bh->b_data, end_goal, start);
-@@ -628,7 +630,7 @@ find_next_usable_block(int start, struct
-  * zero (failure).
-  */
- static inline int
--claim_block(spinlock_t *lock, int block, struct buffer_head *bh)
-+claim_block(spinlock_t *lock, ext3_grpblk_t block, struct buffer_head *bh)
- {
- 	struct journal_head *jh = bh2jh(bh);
- 	int ret;
-@@ -651,12 +653,13 @@ claim_block(spinlock_t *lock, int block,
-  * new bitmap.  In that case we must release write access to the old one via
-  * ext3_journal_release_buffer(), else we'll run out of credits.
-  */
--static int
-+static ext3_grpblk_t
- ext3_try_to_allocate(struct super_block *sb, handle_t *handle, int group,
--			struct buffer_head *bitmap_bh, int goal,
-+			struct buffer_head *bitmap_bh, ext3_grpblk_t grp_goal,
- 			unsigned long *count, struct ext3_reserve_window *my_rsv)
- {
--	int group_first_block, start, end;
-+	ext3_fsblk_t group_first_block;
-+	ext3_grpblk_t start, end;
- 	unsigned long num = 0;
+@@ -664,9 +663,7 @@ ext3_try_to_allocate(struct super_block 
  
  	/* we do allocation within the reservation window if we have a window */
-@@ -673,13 +676,13 @@ ext3_try_to_allocate(struct super_block 
- 		if (end > EXT3_BLOCKS_PER_GROUP(sb))
- 			/* reservation window crosses group boundary */
- 			end = EXT3_BLOCKS_PER_GROUP(sb);
--		if ((start <= goal) && (goal < end))
--			start = goal;
-+		if ((start <= grp_goal) && (grp_goal < end))
-+			start = grp_goal;
+ 	if (my_rsv) {
+-		group_first_block =
+-			le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block) +
+-			group * EXT3_BLOCKS_PER_GROUP(sb);
++		group_first_block = ext3_group_first_block_no(sb, group);
+ 		if (my_rsv->_rsv_start >= group_first_block)
+ 			start = my_rsv->_rsv_start - group_first_block;
  		else
--			goal = -1;
-+			grp_goal = -1;
- 	} else {
--		if (goal > 0)
--			start = goal;
-+		if (grp_goal > 0)
-+			start = grp_goal;
- 		else
- 			start = 0;
- 		end = EXT3_BLOCKS_PER_GROUP(sb);
-@@ -688,43 +691,43 @@ ext3_try_to_allocate(struct super_block 
- 	BUG_ON(start > EXT3_BLOCKS_PER_GROUP(sb));
- 
- repeat:
--	if (goal < 0 || !ext3_test_allocatable(goal, bitmap_bh)) {
--		goal = find_next_usable_block(start, bitmap_bh, end);
--		if (goal < 0)
-+	if (grp_goal < 0 || !ext3_test_allocatable(grp_goal, bitmap_bh)) {
-+		grp_goal = find_next_usable_block(start, bitmap_bh, end);
-+		if (grp_goal < 0)
- 			goto fail_access;
- 		if (!my_rsv) {
- 			int i;
- 
--			for (i = 0; i < 7 && goal > start &&
--					ext3_test_allocatable(goal - 1,
-+			for (i = 0; i < 7 && grp_goal > start &&
-+					ext3_test_allocatable(grp_goal - 1,
- 								bitmap_bh);
--					i++, goal--)
-+					i++, grp_goal--)
- 				;
- 		}
- 	}
--	start = goal;
-+	start = grp_goal;
- 
--	if (!claim_block(sb_bgl_lock(EXT3_SB(sb), group), goal, bitmap_bh)) {
-+	if (!claim_block(sb_bgl_lock(EXT3_SB(sb), group), grp_goal, bitmap_bh)) {
- 		/*
- 		 * The block was allocated by another thread, or it was
- 		 * allocated and then freed by another thread
- 		 */
- 		start++;
--		goal++;
-+		grp_goal++;
- 		if (start >= end)
- 			goto fail_access;
- 		goto repeat;
- 	}
- 	num++;
--	goal++;
--	while (num < *count && goal < end
--		&& ext3_test_allocatable(goal, bitmap_bh)
--		&& claim_block(sb_bgl_lock(EXT3_SB(sb), group), goal, bitmap_bh)) {
-+	grp_goal++;
-+	while (num < *count && grp_goal < end
-+		&& ext3_test_allocatable(grp_goal, bitmap_bh)
-+		&& claim_block(sb_bgl_lock(EXT3_SB(sb), group), grp_goal, bitmap_bh)) {
- 		num++;
--		goal++;
-+		grp_goal++;
- 	}
- 	*count = num;
--	return goal - num;
-+	return grp_goal - num;
- fail_access:
- 	*count = num;
- 	return -1;
-@@ -766,12 +769,13 @@ fail_access:
- static int find_next_reservable_window(
- 				struct ext3_reserve_window_node *search_head,
- 				struct ext3_reserve_window_node *my_rsv,
--				struct super_block * sb, int start_block,
--				int last_block)
-+				struct super_block * sb,
-+				ext3_fsblk_t start_block,
-+				ext3_fsblk_t last_block)
- {
- 	struct rb_node *next;
- 	struct ext3_reserve_window_node *rsv, *prev;
--	int cur;
-+	ext3_fsblk_t cur;
- 	int size = my_rsv->rsv_goal_size;
- 
- 	/* TODO: make the start of the reservation window byte-aligned */
-@@ -873,10 +877,10 @@ static int find_next_reservable_window(
-  *
-  *	@rsv: the reservation
-  *
-- *	@goal: The goal (group-relative).  It is where the search for a
-+ *	@grp_goal: The goal (group-relative).  It is where the search for a
-  *		free reservable space should start from.
-- *		if we have a goal(goal >0 ), then start from there,
-- *		no goal(goal = -1), we start from the first block
-+ *		if we have a grp_goal(grp_goal >0 ), then start from there,
-+ *		no grp_goal(grp_goal = -1), we start from the first block
-  *		of the group.
-  *
-  *	@sb: the super block
-@@ -885,12 +889,12 @@ static int find_next_reservable_window(
-  *
-  */
- static int alloc_new_reservation(struct ext3_reserve_window_node *my_rsv,
--		int goal, struct super_block *sb,
-+		ext3_grpblk_t grp_goal, struct super_block *sb,
- 		unsigned int group, struct buffer_head *bitmap_bh)
- {
- 	struct ext3_reserve_window_node *search_head;
--	int group_first_block, group_end_block, start_block;
--	int first_free_block;
-+	ext3_fsblk_t group_first_block, group_end_block, start_block;
-+	ext3_grpblk_t first_free_block;
- 	struct rb_root *fs_rsv_root = &EXT3_SB(sb)->s_rsv_window_root;
- 	unsigned long size;
+@@ -900,8 +897,7 @@ static int alloc_new_reservation(struct 
  	int ret;
-@@ -900,10 +904,10 @@ static int alloc_new_reservation(struct 
- 				group * EXT3_BLOCKS_PER_GROUP(sb);
+ 	spinlock_t *rsv_lock = &EXT3_SB(sb)->s_rsv_window_lock;
+ 
+-	group_first_block = le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block) +
+-				group * EXT3_BLOCKS_PER_GROUP(sb);
++	group_first_block = ext3_group_first_block_no(sb, group);
  	group_end_block = group_first_block + EXT3_BLOCKS_PER_GROUP(sb) - 1;
  
--	if (goal < 0)
-+	if (grp_goal < 0)
- 		start_block = group_first_block;
- 	else
--		start_block = goal + group_first_block;
-+		start_block = grp_goal + group_first_block;
- 
- 	size = my_rsv->rsv_goal_size;
- 
-@@ -1057,14 +1061,15 @@ static void try_to_extend_reservation(st
-  * sorted double linked list should be fast.
-  *
-  */
--static int
-+static ext3_grpblk_t
- ext3_try_to_allocate_with_rsv(struct super_block *sb, handle_t *handle,
- 			unsigned int group, struct buffer_head *bitmap_bh,
--			int goal, struct ext3_reserve_window_node * my_rsv,
-+			ext3_grpblk_t grp_goal,
-+			struct ext3_reserve_window_node * my_rsv,
- 			unsigned long *count, int *errp)
- {
--	unsigned long group_first_block;
--	int ret = 0;
-+	ext3_fsblk_t group_first_block;
-+	ext3_grpblk_t ret = 0;
- 	int fatal;
- 	unsigned long num = *count;
- 
-@@ -1090,12 +1095,12 @@ ext3_try_to_allocate_with_rsv(struct sup
- 	 */
- 	if (my_rsv == NULL ) {
- 		ret = ext3_try_to_allocate(sb, handle, group, bitmap_bh,
--						goal, count, NULL);
-+						grp_goal, count, NULL);
- 		goto out;
- 	}
- 	/*
--	 * goal is a group relative block number (if there is a goal)
--	 * 0 < goal < EXT3_BLOCKS_PER_GROUP(sb)
-+	 * grp_goal is a group relative block number (if there is a goal)
-+	 * 0 < grp_goal < EXT3_BLOCKS_PER_GROUP(sb)
+ 	if (grp_goal < 0)
+@@ -1104,8 +1100,7 @@ ext3_try_to_allocate_with_rsv(struct sup
  	 * first block is a filesystem wide block number
  	 * first block is the block number of the first block in this group
  	 */
-@@ -1119,24 +1124,24 @@ ext3_try_to_allocate_with_rsv(struct sup
- 	 */
- 	while (1) {
- 		if (rsv_is_empty(&my_rsv->rsv_window) || (ret < 0) ||
--			!goal_in_my_reservation(&my_rsv->rsv_window, goal, group, sb)) {
-+			!goal_in_my_reservation(&my_rsv->rsv_window, grp_goal, group, sb)) {
- 			if (my_rsv->rsv_goal_size < *count)
- 				my_rsv->rsv_goal_size = *count;
--			ret = alloc_new_reservation(my_rsv, goal, sb,
-+			ret = alloc_new_reservation(my_rsv, grp_goal, sb,
- 							group, bitmap_bh);
- 			if (ret < 0)
- 				break;			/* failed */
+-	group_first_block = le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block) +
+-			group * EXT3_BLOCKS_PER_GROUP(sb);
++	group_first_block = ext3_group_first_block_no(sb, group);
  
--			if (!goal_in_my_reservation(&my_rsv->rsv_window, goal, group, sb))
--				goal = -1;
--		} else if (goal > 0 && (my_rsv->rsv_end-goal+1) < *count)
-+			if (!goal_in_my_reservation(&my_rsv->rsv_window, grp_goal, group, sb))
-+				grp_goal = -1;
-+		} else if (grp_goal > 0 && (my_rsv->rsv_end-grp_goal+1) < *count)
- 			try_to_extend_reservation(my_rsv, sb,
--					*count-my_rsv->rsv_end + goal - 1);
-+					*count-my_rsv->rsv_end + grp_goal - 1);
- 
- 		if ((my_rsv->rsv_start >= group_first_block + EXT3_BLOCKS_PER_GROUP(sb))
- 		    || (my_rsv->rsv_end < group_first_block))
- 			BUG();
--		ret = ext3_try_to_allocate(sb, handle, group, bitmap_bh, goal,
-+		ret = ext3_try_to_allocate(sb, handle, group, bitmap_bh, grp_goal,
- 					   &num, &my_rsv->rsv_window);
- 		if (ret >= 0) {
- 			my_rsv->rsv_alloc_hit += num;
-@@ -1164,7 +1169,7 @@ out:
- 
- static int ext3_has_free_blocks(struct ext3_sb_info *sbi)
- {
--	int free_blocks, root_blocks;
-+	ext3_fsblk_t free_blocks, root_blocks;
- 
- 	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
- 	root_blocks = le32_to_cpu(sbi->s_es->s_r_blocks_count);
-@@ -1200,19 +1205,20 @@ int ext3_should_retry_alloc(struct super
-  * bitmap, and then for any free bit if that fails.
-  * This function also updates quota and i_blocks field.
-  */
--int ext3_new_blocks(handle_t *handle, struct inode *inode,
--			unsigned long goal, unsigned long *count, int *errp)
-+ext3_fsblk_t ext3_new_blocks(handle_t *handle, struct inode *inode,
-+			ext3_fsblk_t goal, unsigned long *count, int *errp)
- {
- 	struct buffer_head *bitmap_bh = NULL;
- 	struct buffer_head *gdp_bh;
- 	int group_no;
- 	int goal_group;
--	int ret_block;
-+	ext3_grpblk_t grp_target_blk;	/* blockgroup relative goal block */
-+	ext3_grpblk_t grp_alloc_blk;	/* blockgroup-relative allocated block*/
-+	ext3_fsblk_t ret_block;		/* filesyetem-wide allocated block */
- 	int bgi;			/* blockgroup iteration index */
--	int target_block;
- 	int fatal = 0, err;
- 	int performed_allocation = 0;
--	int free_blocks;
-+	ext3_grpblk_t free_blocks;	/* number of free blocks in a group */
- 	struct super_block *sb;
- 	struct ext3_group_desc *gdp;
- 	struct ext3_super_block *es;
-@@ -1285,16 +1291,17 @@ retry:
- 		my_rsv = NULL;
- 
- 	if (free_blocks > 0) {
--		ret_block = ((goal - le32_to_cpu(es->s_first_data_block)) %
-+		grp_target_blk = ((goal - le32_to_cpu(es->s_first_data_block)) %
- 				EXT3_BLOCKS_PER_GROUP(sb));
- 		bitmap_bh = read_block_bitmap(sb, group_no);
- 		if (!bitmap_bh)
- 			goto io_error;
--		ret_block = ext3_try_to_allocate_with_rsv(sb, handle, group_no,
--					bitmap_bh, ret_block, my_rsv, &num, &fatal);
-+		grp_alloc_blk = ext3_try_to_allocate_with_rsv(sb, handle,
-+					group_no, bitmap_bh, grp_target_blk,
-+					my_rsv,	&num, &fatal);
- 		if (fatal)
- 			goto out;
--		if (ret_block >= 0)
-+		if (grp_alloc_blk >= 0)
- 			goto allocated;
- 	}
- 
-@@ -1327,11 +1334,15 @@ retry:
- 		bitmap_bh = read_block_bitmap(sb, group_no);
- 		if (!bitmap_bh)
- 			goto io_error;
--		ret_block = ext3_try_to_allocate_with_rsv(sb, handle, group_no,
--					bitmap_bh, -1, my_rsv, &num, &fatal);
-+		/*
-+		 * try to allocate block(s) from this group, without a goal(-1).
-+		 */
-+		grp_alloc_blk = ext3_try_to_allocate_with_rsv(sb, handle,
-+					group_no, bitmap_bh, -1, my_rsv,
-+					&num, &fatal);
- 		if (fatal)
- 			goto out;
--		if (ret_block >= 0) 
-+		if (grp_alloc_blk >= 0)
- 			goto allocated;
- 	}
  	/*
-@@ -1360,18 +1371,19 @@ allocated:
+ 	 * Basically we will allocate a new block from inode's reservation
+@@ -1371,8 +1366,7 @@ allocated:
  	if (fatal)
  		goto out;
  
--	target_block = ret_block + group_no * EXT3_BLOCKS_PER_GROUP(sb)
-+	ret_block = grp_alloc_blk + group_no * EXT3_BLOCKS_PER_GROUP(sb)
- 				+ le32_to_cpu(es->s_first_data_block);
+-	ret_block = grp_alloc_blk + group_no * EXT3_BLOCKS_PER_GROUP(sb)
+-				+ le32_to_cpu(es->s_first_data_block);
++	ret_block = grp_alloc_blk + ext3_group_first_block_no(sb, group_no);
  
--	if (in_range(le32_to_cpu(gdp->bg_block_bitmap), target_block, num) ||
--	    in_range(le32_to_cpu(gdp->bg_inode_bitmap), target_block, num) ||
--	    in_range(target_block, le32_to_cpu(gdp->bg_inode_table),
-+	if (in_range(le32_to_cpu(gdp->bg_block_bitmap), ret_block, num) ||
-+	    in_range(le32_to_cpu(gdp->bg_inode_bitmap), ret_block, num) ||
-+	    in_range(ret_block, le32_to_cpu(gdp->bg_inode_table),
- 		      EXT3_SB(sb)->s_itb_per_group) ||
--	    in_range(target_block + num - 1, le32_to_cpu(gdp->bg_inode_table),
-+	    in_range(ret_block + num - 1, le32_to_cpu(gdp->bg_inode_table),
- 		      EXT3_SB(sb)->s_itb_per_group))
- 		ext3_error(sb, "ext3_new_block",
- 			    "Allocating block in system zone - "
--			    "blocks from %u, length %lu", target_block, num);
-+			    "blocks from "E3FSBLK", length %lu",
-+			     ret_block, num);
+ 	if (in_range(le32_to_cpu(gdp->bg_block_bitmap), ret_block, num) ||
+ 	    in_range(le32_to_cpu(gdp->bg_inode_bitmap), ret_block, num) ||
+@@ -1478,15 +1472,16 @@ ext3_fsblk_t ext3_new_block(handle_t *ha
+ 	return ext3_new_blocks(handle, inode, goal, &count, errp);
+ }
  
- 	performed_allocation = 1;
+-unsigned long ext3_count_free_blocks(struct super_block *sb)
++ext3_fsblk_t ext3_count_free_blocks(struct super_block *sb)
+ {
+-	unsigned long desc_count;
++	ext3_fsblk_t desc_count;
+ 	struct ext3_group_desc *gdp;
+ 	int i;
+ 	unsigned long ngroups = EXT3_SB(sb)->s_groups_count;
+ #ifdef EXT3FS_DEBUG
+ 	struct ext3_super_block *es;
+-	unsigned long bitmap_count, x;
++	ext3_fsblk_t bitmap_count;
++	unsigned long x;
+ 	struct buffer_head *bitmap_bh = NULL;
  
-@@ -1380,7 +1392,7 @@ allocated:
- 		struct buffer_head *debug_bh;
- 
- 		/* Record bitmap buffer state in the newly allocated block */
--		debug_bh = sb_find_get_block(sb, target_block);
-+		debug_bh = sb_find_get_block(sb, ret_block);
- 		if (debug_bh) {
- 			BUFFER_TRACE(debug_bh, "state when allocated");
- 			BUFFER_TRACE2(debug_bh, bitmap_bh, "bitmap state");
-@@ -1393,24 +1405,21 @@ allocated:
- 		int i;
- 
- 		for (i = 0; i < num; i++) {
--			if (ext3_test_bit(ret_block,
-+			if (ext3_test_bit(grp_alloc_blk+i,
- 					bh2jh(bitmap_bh)->b_committed_data)) {
- 				printk("%s: block was unexpectedly set in "
- 					"b_committed_data\n", __FUNCTION__);
- 			}
- 		}
+ 	es = EXT3_SB(sb)->s_es;
+@@ -1511,8 +1506,10 @@ unsigned long ext3_count_free_blocks(str
+ 		bitmap_count += x;
  	}
--	ext3_debug("found bit %d\n", ret_block);
-+	ext3_debug("found bit %d\n", grp_alloc_blk);
- 	spin_unlock(sb_bgl_lock(sbi, group_no));
- 	jbd_unlock_bh_state(bitmap_bh);
- #endif
- 
--	/* ret_block was blockgroup-relative.  Now it becomes fs-relative */
--	ret_block = target_block;
--
- 	if (ret_block + num - 1 >= le32_to_cpu(es->s_blocks_count)) {
- 		ext3_error(sb, "ext3_new_block",
--			    "block(%d) >= blocks count(%d) - "
-+			    "block("E3FSBLK") >= blocks count(%d) - "
- 			    "block_group = %d, es == %p ", ret_block,
- 			le32_to_cpu(es->s_blocks_count), group_no, es);
- 		goto out;
-@@ -1421,7 +1430,7 @@ allocated:
- 	 * list of some description.  We don't know in advance whether
- 	 * the caller wants to use it as metadata or data.
- 	 */
--	ext3_debug("allocating block %d. Goal hits %d of %d.\n",
-+	ext3_debug("allocating block %lu. Goal hits %d of %d.\n",
- 			ret_block, goal_hits, goal_attempts);
- 
- 	spin_lock(sb_bgl_lock(sbi, group_no));
-@@ -1461,8 +1470,8 @@ out:
- 	return 0;
- }
- 
--int ext3_new_block(handle_t *handle, struct inode *inode,
--			unsigned long goal, int *errp)
-+ext3_fsblk_t ext3_new_block(handle_t *handle, struct inode *inode,
-+			ext3_fsblk_t goal, int *errp)
- {
- 	unsigned long count = 1;
- 
-@@ -1520,7 +1529,7 @@ unsigned long ext3_count_free_blocks(str
- }
- 
- static inline int
--block_in_use(unsigned long block, struct super_block *sb, unsigned char *map)
-+block_in_use(ext3_fsblk_t block, struct super_block *sb, unsigned char *map)
- {
- 	return ext3_test_bit ((block -
- 		le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block)) %
-diff -puN fs/ext3/ialloc.c~ext3_fsblk_t_fixes fs/ext3/ialloc.c
---- linux-2.6.16/fs/ext3/ialloc.c~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/ialloc.c	2006-06-08 16:49:57.496951069 -0700
-@@ -262,9 +262,11 @@ static int find_group_orlov(struct super
- 	int ngroups = sbi->s_groups_count;
- 	int inodes_per_group = EXT3_INODES_PER_GROUP(sb);
- 	int freei, avefreei;
--	int freeb, avefreeb;
--	int blocks_per_dir, ndirs;
--	int max_debt, max_dirs, min_blocks, min_inodes;
-+	ext3_fsblk_t freeb, avefreeb;
-+	ext3_fsblk_t blocks_per_dir;
-+	int ndirs;
-+	int max_debt, max_dirs, min_inodes;
-+	ext3_grpblk_t min_blocks;
- 	int group = -1, i;
- 	struct ext3_group_desc *desc;
- 	struct buffer_head *bh;
-@@ -307,7 +309,7 @@ static int find_group_orlov(struct super
- 	min_inodes = avefreei - inodes_per_group / 4;
- 	min_blocks = avefreeb - EXT3_BLOCKS_PER_GROUP(sb) / 4;
- 
--	max_debt = EXT3_BLOCKS_PER_GROUP(sb) / max(blocks_per_dir, BLOCK_COST);
-+	max_debt = EXT3_BLOCKS_PER_GROUP(sb) / max(blocks_per_dir, (ext3_fsblk_t)BLOCK_COST);
- 	if (max_debt * INODE_COST > inodes_per_group)
- 		max_debt = inodes_per_group / INODE_COST;
- 	if (max_debt > 255)
-diff -puN fs/ext3/inode.c~ext3_fsblk_t_fixes fs/ext3/inode.c
---- linux-2.6.16/fs/ext3/inode.c~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/inode.c	2006-06-08 16:50:04.111198536 -0700
-@@ -62,7 +62,7 @@ static int ext3_inode_is_fast_symlink(st
-  * still needs to be revoked.
+ 	brelse(bitmap_bh);
+-	printk("ext3_count_free_blocks: stored = %u, computed = %lu, %lu\n",
+-	       le32_to_cpu(es->s_free_blocks_count), desc_count, bitmap_count);
++	printk("ext3_count_free_blocks: stored = "E3FSBLK
++		", computed = "E3FSBLK", "E3FSBLK"\n",
++	       le32_to_cpu(es->s_free_blocks_count),
++		desc_count, bitmap_count);
+ 	return bitmap_count;
+ #else
+ 	desc_count = 0;
+diff -puN fs/ext3/inode.c~ext3_convert_blks_to_fsblk_t fs/ext3/inode.c
+--- linux-2.6.16/fs/ext3/inode.c~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/fs/ext3/inode.c	2006-06-08 16:49:48.790941336 -0700
+@@ -407,13 +407,13 @@ no_block:
+  *
+  *	Caller must make sure that @ind is valid and will stay that way.
   */
- int ext3_forget(handle_t *handle, int is_metadata, struct inode *inode,
--			struct buffer_head *bh, int blocknr)
-+			struct buffer_head *bh, ext3_fsblk_t blocknr)
+-static unsigned long ext3_find_near(struct inode *inode, Indirect *ind)
++static ext3_fsblk_t ext3_find_near(struct inode *inode, Indirect *ind)
  {
- 	int err;
+ 	struct ext3_inode_info *ei = EXT3_I(inode);
+ 	__le32 *start = ind->bh ? (__le32*) ind->bh->b_data : ei->i_data;
+ 	__le32 *p;
+-	unsigned long bg_start;
+-	unsigned long colour;
++	ext3_fsblk_t bg_start;
++	ext3_grpblk_t colour;
  
-diff -puN fs/ext3/resize.c~ext3_fsblk_t_fixes fs/ext3/resize.c
---- linux-2.6.16/fs/ext3/resize.c~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/resize.c	2006-06-08 16:50:04.114198194 -0700
-@@ -28,16 +28,16 @@ static int verify_group_input(struct sup
+ 	/* Try to find previous block */
+ 	for (p = ind->p - 1; p >= start; p--) {
+@@ -429,8 +429,7 @@ static unsigned long ext3_find_near(stru
+ 	 * It is going to be referred to from the inode itself? OK, just put it
+ 	 * into the same cylinder group then.
+ 	 */
+-	bg_start = (ei->i_block_group * EXT3_BLOCKS_PER_GROUP(inode->i_sb)) +
+-		le32_to_cpu(EXT3_SB(inode->i_sb)->s_es->s_first_data_block);
++	bg_start = ext3_group_first_block_no(inode->i_sb, ei->i_block_group);
+ 	colour = (current->pid % 16) *
+ 			(EXT3_BLOCKS_PER_GROUP(inode->i_sb) / 16);
+ 	return bg_start + colour;
+@@ -448,7 +447,7 @@ static unsigned long ext3_find_near(stru
+  *	stores it in *@goal and returns zero.
+  */
+ 
+-static unsigned long ext3_find_goal(struct inode *inode, long block,
++static ext3_fsblk_t ext3_find_goal(struct inode *inode, long block,
+ 		Indirect chain[4], Indirect *partial)
+ {
+ 	struct ext3_block_alloc_info *block_i;
+@@ -516,13 +515,13 @@ static int ext3_blks_to_allocate(Indirec
+  *		direct blocks
+  */
+ static int ext3_alloc_blocks(handle_t *handle, struct inode *inode,
+-			unsigned long goal, int indirect_blks, int blks,
+-			unsigned long long new_blocks[4], int *err)
++			ext3_fsblk_t goal, int indirect_blks, int blks,
++			ext3_fsblk_t new_blocks[4], int *err)
+ {
+ 	int target, i;
+ 	unsigned long count = 0;
+ 	int index = 0;
+-	unsigned long current_block = 0;
++	ext3_fsblk_t current_block = 0;
+ 	int ret = 0;
+ 
+ 	/*
+@@ -592,7 +591,7 @@ failed_out:
+  *	as described above and return 0.
+  */
+ static int ext3_alloc_branch(handle_t *handle, struct inode *inode,
+-			int indirect_blks, int *blks, unsigned long goal,
++			int indirect_blks, int *blks, ext3_fsblk_t goal,
+ 			int *offsets, Indirect *branch)
+ {
+ 	int blocksize = inode->i_sb->s_blocksize;
+@@ -600,8 +599,8 @@ static int ext3_alloc_branch(handle_t *h
+ 	int err = 0;
+ 	struct buffer_head *bh;
+ 	int num;
+-	unsigned long long new_blocks[4];
+-	unsigned long long current_block;
++	ext3_fsblk_t new_blocks[4];
++	ext3_fsblk_t current_block;
+ 
+ 	num = ext3_alloc_blocks(handle, inode, goal, indirect_blks,
+ 				*blks, new_blocks, &err);
+@@ -688,7 +687,7 @@ static int ext3_splice_branch(handle_t *
+ 	int i;
+ 	int err = 0;
+ 	struct ext3_block_alloc_info *block_i;
+-	unsigned long current_block;
++	ext3_fsblk_t current_block;
+ 
+ 	block_i = EXT3_I(inode)->i_block_alloc_info;
+ 	/*
+@@ -795,13 +794,13 @@ int ext3_get_blocks_handle(handle_t *han
+ 	int offsets[4];
+ 	Indirect chain[4];
+ 	Indirect *partial;
+-	unsigned long goal;
++	ext3_fsblk_t goal;
+ 	int indirect_blks;
+ 	int blocks_to_boundary = 0;
+ 	int depth;
+ 	struct ext3_inode_info *ei = EXT3_I(inode);
+ 	int count = 0;
+-	unsigned long first_block = 0;
++	ext3_fsblk_t first_block = 0;
+ 
+ 
+ 	J_ASSERT(handle != NULL || create == 0);
+@@ -819,7 +818,7 @@ int ext3_get_blocks_handle(handle_t *han
+ 		count++;
+ 		/*map more blocks*/
+ 		while (count < maxblocks && count <= blocks_to_boundary) {
+-			unsigned long blk;
++			ext3_fsblk_t blk;
+ 
+ 			if (!verify_chain(chain, partial)) {
+ 				/*
+@@ -1759,7 +1758,7 @@ void ext3_set_aops(struct inode *inode)
+ static int ext3_block_truncate_page(handle_t *handle, struct page *page,
+ 		struct address_space *mapping, loff_t from)
+ {
+-	unsigned long index = from >> PAGE_CACHE_SHIFT;
++	ext3_fsblk_t index = from >> PAGE_CACHE_SHIFT;
+ 	unsigned offset = from & (PAGE_CACHE_SIZE-1);
+ 	unsigned blocksize, iblock, length, pos;
+ 	struct inode *inode = mapping->host;
+@@ -1960,7 +1959,7 @@ no_top:
+  * than `count' because there can be holes in there.
+  */
+ static void ext3_clear_blocks(handle_t *handle, struct inode *inode,
+-		struct buffer_head *bh, unsigned long block_to_free,
++		struct buffer_head *bh, ext3_fsblk_t block_to_free,
+ 		unsigned long count, __le32 *first, __le32 *last)
+ {
+ 	__le32 *p;
+@@ -2022,12 +2021,12 @@ static void ext3_free_data(handle_t *han
+ 			   struct buffer_head *this_bh,
+ 			   __le32 *first, __le32 *last)
+ {
+-	unsigned long block_to_free = 0;    /* Starting block # of a run */
++	ext3_fsblk_t block_to_free = 0;    /* Starting block # of a run */
+ 	unsigned long count = 0;	    /* Number of blocks in the run */ 
+ 	__le32 *block_to_free_p = NULL;	    /* Pointer into inode/ind
+ 					       corresponding to
+ 					       block_to_free */
+-	unsigned long nr;		    /* Current block # */
++	ext3_fsblk_t nr;		    /* Current block # */
+ 	__le32 *p;			    /* Pointer into inode/ind
+ 					       for current block */
+ 	int err;
+@@ -2089,7 +2088,7 @@ static void ext3_free_branches(handle_t 
+ 			       struct buffer_head *parent_bh,
+ 			       __le32 *first, __le32 *last, int depth)
+ {
+-	unsigned long nr;
++	ext3_fsblk_t nr;
+ 	__le32 *p;
+ 
+ 	if (is_handle_aborted(handle))
+@@ -2113,7 +2112,7 @@ static void ext3_free_branches(handle_t 
+ 			 */
+ 			if (!bh) {
+ 				ext3_error(inode->i_sb, "ext3_free_branches",
+-					   "Read failure, inode=%ld, block=%ld",
++					   "Read failure, inode=%ld, block="E3FSBLK,
+ 					   inode->i_ino, nr);
+ 				continue;
+ 			}
+@@ -2394,11 +2393,12 @@ out_stop:
+ 	ext3_journal_stop(handle);
+ }
+ 
+-static unsigned long ext3_get_inode_block(struct super_block *sb,
++static ext3_fsblk_t ext3_get_inode_block(struct super_block *sb,
+ 		unsigned long ino, struct ext3_iloc *iloc)
+ {
+ 	unsigned long desc, group_desc, block_group;
+-	unsigned long offset, block;
++	unsigned long offset;
++	ext3_fsblk_t block;
+ 	struct buffer_head *bh;
+ 	struct ext3_group_desc * gdp;
+ 
+@@ -2448,7 +2448,7 @@ static unsigned long ext3_get_inode_bloc
+ static int __ext3_get_inode_loc(struct inode *inode,
+ 				struct ext3_iloc *iloc, int in_mem)
+ {
+-	unsigned long block;
++	ext3_fsblk_t block;
+ 	struct buffer_head *bh;
+ 
+ 	block = ext3_get_inode_block(inode->i_sb, inode->i_ino, iloc);
+@@ -2459,7 +2459,8 @@ static int __ext3_get_inode_loc(struct i
+ 	if (!bh) {
+ 		ext3_error (inode->i_sb, "ext3_get_inode_loc",
+ 				"unable to read inode block - "
+-				"inode=%lu, block=%lu", inode->i_ino, block);
++				"inode=%lu, block="E3FSBLK,
++				 inode->i_ino, block);
+ 		return -EIO;
+ 	}
+ 	if (!buffer_uptodate(bh)) {
+@@ -2540,7 +2541,7 @@ make_io:
+ 		if (!buffer_uptodate(bh)) {
+ 			ext3_error(inode->i_sb, "ext3_get_inode_loc",
+ 					"unable to read inode block - "
+-					"inode=%lu, block=%lu",
++					"inode=%lu, block="E3FSBLK,
+ 					inode->i_ino, block);
+ 			brelse(bh);
+ 			return -EIO;
+diff -puN fs/ext3/ioctl.c~ext3_convert_blks_to_fsblk_t fs/ext3/ioctl.c
+--- linux-2.6.16/fs/ext3/ioctl.c~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/fs/ext3/ioctl.c	2006-06-08 16:49:48.791941223 -0700
+@@ -204,7 +204,7 @@ flags_err:
+ 		return 0;
+ 	}
+ 	case EXT3_IOC_GROUP_EXTEND: {
+-		unsigned long n_blocks_count;
++		ext3_fsblk_t n_blocks_count;
+ 		struct super_block *sb = inode->i_sb;
+ 		int err;
+ 
+diff -puN fs/ext3/resize.c~ext3_convert_blks_to_fsblk_t fs/ext3/resize.c
+--- linux-2.6.16/fs/ext3/resize.c~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/fs/ext3/resize.c	2006-06-08 16:49:57.498950841 -0700
+@@ -116,7 +116,7 @@ static int verify_group_input(struct sup
+ }
+ 
+ static struct buffer_head *bclean(handle_t *handle, struct super_block *sb,
+-				  unsigned long blk)
++				  ext3_fsblk_t blk)
+ {
+ 	struct buffer_head *bh;
+ 	int err;
+@@ -167,14 +167,13 @@ static int setup_new_group_blocks(struct
+ 				  struct ext3_new_group_data *input)
  {
  	struct ext3_sb_info *sbi = EXT3_SB(sb);
- 	struct ext3_super_block *es = sbi->s_es;
--	unsigned start = le32_to_cpu(es->s_blocks_count);
--	unsigned end = start + input->blocks_count;
-+	ext3_fsblk_t start = le32_to_cpu(es->s_blocks_count);
-+	ext3_fsblk_t end = start + input->blocks_count;
- 	unsigned group = input->group;
--	unsigned itend = input->inode_table + sbi->s_itb_per_group;
-+	ext3_fsblk_t itend = input->inode_table + sbi->s_itb_per_group;
- 	unsigned overhead = ext3_bg_has_super(sb, group) ?
- 		(1 + ext3_bg_num_gdb(sb, group) +
- 		 le16_to_cpu(es->s_reserved_gdt_blocks)) : 0;
--	unsigned metaend = start + overhead;
-+	ext3_fsblk_t metaend = start + overhead;
- 	struct buffer_head *bh = NULL;
--	int free_blocks_count;
-+	ext3_grpblk_t free_blocks_count;
- 	int err = -EINVAL;
- 
- 	input->free_blocks_count = free_blocks_count =
-@@ -64,7 +64,8 @@ static int verify_group_input(struct sup
- 		ext3_warning(sb, __FUNCTION__, "Bad blocks count %u",
- 			     input->blocks_count);
- 	else if (!(bh = sb_bread(sb, end - 1)))
--		ext3_warning(sb, __FUNCTION__, "Cannot read last block (%u)",
-+		ext3_warning(sb, __FUNCTION__,
-+			     "Cannot read last block ("E3FSBLK")",
- 			     end - 1);
- 	else if (outside(input->block_bitmap, start, end))
- 		ext3_warning(sb, __FUNCTION__,
-@@ -77,7 +78,7 @@ static int verify_group_input(struct sup
- 	else if (outside(input->inode_table, start, end) ||
- 	         outside(itend - 1, start, end))
- 		ext3_warning(sb, __FUNCTION__,
--			     "Inode table not in group (blocks %u-%u)",
-+			     "Inode table not in group (blocks %u-"E3FSBLK")",
- 			     input->inode_table, itend - 1);
- 	else if (input->inode_bitmap == input->block_bitmap)
- 		ext3_warning(sb, __FUNCTION__,
-@@ -85,24 +86,27 @@ static int verify_group_input(struct sup
- 			     input->block_bitmap);
- 	else if (inside(input->block_bitmap, input->inode_table, itend))
- 		ext3_warning(sb, __FUNCTION__,
--			     "Block bitmap (%u) in inode table (%u-%u)",
-+			     "Block bitmap (%u) in inode table (%u-"E3FSBLK")",
- 			     input->block_bitmap, input->inode_table, itend-1);
- 	else if (inside(input->inode_bitmap, input->inode_table, itend))
- 		ext3_warning(sb, __FUNCTION__,
--			     "Inode bitmap (%u) in inode table (%u-%u)",
-+			     "Inode bitmap (%u) in inode table (%u-"E3FSBLK")",
- 			     input->inode_bitmap, input->inode_table, itend-1);
- 	else if (inside(input->block_bitmap, start, metaend))
- 		ext3_warning(sb, __FUNCTION__,
--			     "Block bitmap (%u) in GDT table (%u-%u)",
-+			     "Block bitmap (%u) in GDT table"
-+			     " ("E3FSBLK"-"E3FSBLK")",
- 			     input->block_bitmap, start, metaend - 1);
- 	else if (inside(input->inode_bitmap, start, metaend))
- 		ext3_warning(sb, __FUNCTION__,
--			     "Inode bitmap (%u) in GDT table (%u-%u)",
-+			     "Inode bitmap (%u) in GDT table"
-+			     " ("E3FSBLK"-"E3FSBLK")",
- 			     input->inode_bitmap, start, metaend - 1);
- 	else if (inside(input->inode_table, start, metaend) ||
- 	         inside(itend - 1, start, metaend))
- 		ext3_warning(sb, __FUNCTION__,
--			     "Inode table (%u-%u) overlaps GDT table (%u-%u)",
-+			     "Inode table (%u-"E3FSBLK") overlaps"
-+			     "GDT table ("E3FSBLK"-"E3FSBLK")",
- 			     input->inode_table, itend - 1, start, metaend - 1);
- 	else
- 		err = 0;
-@@ -171,7 +175,7 @@ static int setup_new_group_blocks(struct
+-	unsigned long start = input->group * sbi->s_blocks_per_group +
+-		le32_to_cpu(sbi->s_es->s_first_data_block);
++	ext3_fsblk_t start = ext3_group_first_block_no(sb, input->group);
+ 	int reserved_gdb = ext3_bg_has_super(sb, input->group) ?
+ 		le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) : 0;
+ 	unsigned long gdblocks = ext3_bg_num_gdb(sb, input->group);
  	struct buffer_head *bh;
  	handle_t *handle;
- 	unsigned long block;
--	int bit;
-+	ext3_grpblk_t bit;
+-	unsigned long block;
++	ext3_fsblk_t block;
+ 	ext3_grpblk_t bit;
  	int i;
  	int err = 0, err2;
- 
-@@ -340,7 +344,7 @@ static int verify_reserved_gdb(struct su
+@@ -332,7 +331,7 @@ static unsigned ext3_list_backups(struct
+ static int verify_reserved_gdb(struct super_block *sb,
+ 			       struct buffer_head *primary)
+ {
+-	const unsigned long blk = primary->b_blocknr;
++	const ext3_fsblk_t blk = primary->b_blocknr;
+ 	const unsigned long end = EXT3_SB(sb)->s_groups_count;
+ 	unsigned three = 1;
+ 	unsigned five = 5;
+@@ -344,7 +343,8 @@ static int verify_reserved_gdb(struct su
  	while ((grp = ext3_list_backups(sb, &three, &five, &seven)) < end) {
  		if (le32_to_cpu(*p++) != grp * EXT3_BLOCKS_PER_GROUP(sb) + blk){
  			ext3_warning(sb, __FUNCTION__,
--				     "reserved GDT %ld missing grp %d (%ld)",
-+				     "reserved GDT %lu missing grp %d (%lu)",
+-				     "reserved GDT %lu missing grp %d (%lu)",
++				     "reserved GDT "E3FSBLK
++				     " missing grp %d ("E3FSBLK")",
  				     blk, grp,
  				     grp * EXT3_BLOCKS_PER_GROUP(sb) + blk);
  			return -EINVAL;
-@@ -906,11 +910,12 @@ int ext3_group_extend(struct super_block
+@@ -376,7 +376,7 @@ static int add_new_gdb(handle_t *handle,
+ 	struct super_block *sb = inode->i_sb;
+ 	struct ext3_super_block *es = EXT3_SB(sb)->s_es;
+ 	unsigned long gdb_num = input->group / EXT3_DESC_PER_BLOCK(sb);
+-	unsigned long gdblock = EXT3_SB(sb)->s_sbh->b_blocknr + 1 + gdb_num;
++	ext3_fsblk_t gdblock = EXT3_SB(sb)->s_sbh->b_blocknr + 1 + gdb_num;
+ 	struct buffer_head **o_group_desc, **n_group_desc;
+ 	struct buffer_head *dind;
+ 	int gdbackups;
+@@ -421,7 +421,7 @@ static int add_new_gdb(handle_t *handle,
+ 	data = (__u32 *)dind->b_data;
+ 	if (le32_to_cpu(data[gdb_num % EXT3_ADDR_PER_BLOCK(sb)]) != gdblock) {
+ 		ext3_warning(sb, __FUNCTION__,
+-			     "new group %u GDT block %lu not reserved",
++			     "new group %u GDT block "E3FSBLK" not reserved",
+ 			     input->group, gdblock);
+ 		err = -EINVAL;
+ 		goto exit_dind;
+@@ -519,7 +519,7 @@ static int reserve_backup_gdb(handle_t *
+ 	struct buffer_head **primary;
+ 	struct buffer_head *dind;
+ 	struct ext3_iloc iloc;
+-	unsigned long blk;
++	ext3_fsblk_t blk;
+ 	__u32 *data, *end;
+ 	int gdbackups = 0;
+ 	int res, i;
+@@ -544,7 +544,8 @@ static int reserve_backup_gdb(handle_t *
+ 	for (res = 0; res < reserved_gdb; res++, blk++) {
+ 		if (le32_to_cpu(*data) != blk) {
+ 			ext3_warning(sb, __FUNCTION__,
+-				     "reserved block %lu not at offset %ld",
++				     "reserved block "E3FSBLK
++				     " not at offset %ld",
+ 				     blk, (long)(data - (__u32 *)dind->b_data));
+ 			err = -EINVAL;
+ 			goto exit_bh;
+@@ -906,9 +907,9 @@ exit_put:
+  * GDT blocks are reserved to grow to the desired size.
+  */
+ int ext3_group_extend(struct super_block *sb, struct ext3_super_block *es,
+-		      unsigned long n_blocks_count)
++		      ext3_fsblk_t n_blocks_count)
  {
- 	unsigned long o_blocks_count;
+-	unsigned long o_blocks_count;
++	ext3_fsblk_t o_blocks_count;
  	unsigned long o_groups_count;
--	unsigned long last;
--	int add;
-+	ext3_grpblk_t last;
-+	ext3_grpblk_t add;
- 	struct buffer_head * bh;
- 	handle_t *handle;
--	int err, freed_blocks;
-+	int err;
-+	unsigned long freed_blocks;
+ 	ext3_grpblk_t last;
+ 	ext3_grpblk_t add;
+@@ -924,7 +925,7 @@ int ext3_group_extend(struct super_block
+ 	o_groups_count = EXT3_SB(sb)->s_groups_count;
  
- 	/* We don't need to worry about locking wrt other resizers just
- 	 * yet: we're going to revalidate es->s_blocks_count after
-@@ -1001,10 +1006,10 @@ int ext3_group_extend(struct super_block
+ 	if (test_opt(sb, DEBUG))
+-		printk(KERN_DEBUG "EXT3-fs: extending last group from %lu to %lu blocks\n",
++		printk(KERN_DEBUG "EXT3-fs: extending last group from "E3FSBLK" uto "E3FSBLK" blocks\n",
+ 		       o_blocks_count, n_blocks_count);
+ 
+ 	if (n_blocks_count == 0 || n_blocks_count == o_blocks_count)
+@@ -963,7 +964,8 @@ int ext3_group_extend(struct super_block
+ 
+ 	if (o_blocks_count + add < n_blocks_count)
+ 		ext3_warning(sb, __FUNCTION__,
+-			     "will only finish group (%lu blocks, %u new)",
++			     "will only finish group ("E3FSBLK
++			     " blocks, %u new)",
+ 			     o_blocks_count + add, add);
+ 
+ 	/* See if the device is actually as big as what was requested */
+@@ -1006,10 +1008,10 @@ int ext3_group_extend(struct super_block
  	ext3_journal_dirty_metadata(handle, EXT3_SB(sb)->s_sbh);
  	sb->s_dirt = 1;
  	unlock_super(sb);
--	ext3_debug("freeing blocks %ld through %ld\n", o_blocks_count,
-+	ext3_debug("freeing blocks %lu through %lu\n", o_blocks_count,
+-	ext3_debug("freeing blocks %lu through %lu\n", o_blocks_count,
++	ext3_debug("freeing blocks %lu through "E3FSBLK"\n", o_blocks_count,
  		   o_blocks_count + add);
  	ext3_free_blocks_sb(handle, sb, o_blocks_count, add, &freed_blocks);
--	ext3_debug("freed blocks %ld through %ld\n", o_blocks_count,
-+	ext3_debug("freed blocks %lu through %lu\n", o_blocks_count,
+-	ext3_debug("freed blocks %lu through %lu\n", o_blocks_count,
++	ext3_debug("freed blocks "E3FSBLK" through "E3FSBLK"\n", o_blocks_count,
  		   o_blocks_count + add);
  	if ((err = ext3_journal_stop(handle)))
  		goto exit_put;
-diff -puN fs/ext3/super.c~ext3_fsblk_t_fixes fs/ext3/super.c
---- linux-2.6.16/fs/ext3/super.c~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/super.c	2006-06-08 16:50:04.119197626 -0700
-@@ -1840,7 +1840,7 @@ static journal_t *ext3_get_dev_journal(s
+diff -puN fs/ext3/super.c~ext3_convert_blks_to_fsblk_t fs/ext3/super.c
+--- linux-2.6.16/fs/ext3/super.c~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/fs/ext3/super.c	2006-06-08 16:49:57.502950386 -0700
+@@ -688,14 +688,15 @@ static match_table_t tokens = {
+ 	{Opt_resize, "resize"},
+ };
+ 
+-static unsigned long get_sb_block(void **data)
++static ext3_fsblk_t get_sb_block(void **data)
+ {
+-	unsigned long 	sb_block;
++	ext3_fsblk_t 	sb_block;
+ 	char 		*options = (char *) *data;
+ 
+ 	if (!options || strncmp(options, "sb=", 3) != 0)
+ 		return 1;	/* Default location */
+ 	options += 3;
++	/*todo: use simple_strtoll with >32bit ext3 */
+ 	sb_block = simple_strtoul(options, &options, 0);
+ 	if (*options && *options != ',') {
+ 		printk("EXT3-fs: Invalid sb specification: %s\n",
+@@ -710,7 +711,7 @@ static unsigned long get_sb_block(void *
+ 
+ static int parse_options (char *options, struct super_block *sb,
+ 			  unsigned long *inum, unsigned long *journal_devnum,
+-			  unsigned long *n_blocks_count, int is_remount)
++			  ext3_fsblk_t *n_blocks_count, int is_remount)
+ {
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+ 	char * p;
+@@ -1127,7 +1128,7 @@ static int ext3_setup_super(struct super
+ static int ext3_check_descriptors (struct super_block * sb)
+ {
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+-	unsigned long block = le32_to_cpu(sbi->s_es->s_first_data_block);
++	ext3_fsblk_t block = le32_to_cpu(sbi->s_es->s_first_data_block);
+ 	struct ext3_group_desc * gdp = NULL;
+ 	int desc_block = 0;
+ 	int i;
+@@ -1314,15 +1315,14 @@ static loff_t ext3_max_size(int bits)
+ 	return res;
+ }
+ 
+-static unsigned long descriptor_loc(struct super_block *sb,
+-				    unsigned long logic_sb_block,
++static ext3_fsblk_t descriptor_loc(struct super_block *sb,
++				    ext3_fsblk_t logic_sb_block,
+ 				    int nr)
+ {
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+-	unsigned long bg, first_data_block, first_meta_bg;
++	unsigned long bg, first_meta_bg;
+ 	int has_super = 0;
+ 
+-	first_data_block = le32_to_cpu(sbi->s_es->s_first_data_block);
+ 	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
+ 
+ 	if (!EXT3_HAS_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_META_BG) ||
+@@ -1331,7 +1331,7 @@ static unsigned long descriptor_loc(stru
+ 	bg = sbi->s_desc_per_block * nr;
+ 	if (ext3_bg_has_super(sb, bg))
+ 		has_super = 1;
+-	return (first_data_block + has_super + (bg * sbi->s_blocks_per_group));
++	return (has_super + ext3_group_first_block_no(sb, bg));
+ }
+ 
+ 
+@@ -1340,9 +1340,9 @@ static int ext3_fill_super (struct super
+ 	struct buffer_head * bh;
+ 	struct ext3_super_block *es = NULL;
+ 	struct ext3_sb_info *sbi;
+-	unsigned long block;
+-	unsigned long sb_block = get_sb_block(&data);
+-	unsigned long logic_sb_block;
++	ext3_fsblk_t block;
++	ext3_fsblk_t sb_block = get_sb_block(&data);
++	ext3_fsblk_t logic_sb_block;
+ 	unsigned long offset = 0;
+ 	unsigned long journal_inum = 0;
+ 	unsigned long journal_devnum = 0;
+@@ -1603,6 +1603,7 @@ static int ext3_fill_super (struct super
+ 	}
+ 	if (!ext3_check_descriptors (sb)) {
+ 		printk (KERN_ERR "EXT3-fs: group descriptors corrupted !\n");
++
+ 		goto failed_mount2;
+ 	}
+ 	sbi->s_gdb_count = db_count;
+@@ -1839,10 +1840,10 @@ static journal_t *ext3_get_dev_journal(s
+ {
  	struct buffer_head * bh;
  	journal_t *journal;
- 	int start;
--	int len;
-+	ext3_fsblk_t len;
+-	int start;
++	ext3_fsblk_t start;
+ 	ext3_fsblk_t len;
  	int hblock, blocksize;
- 	unsigned long sb_block;
+-	unsigned long sb_block;
++	ext3_fsblk_t sb_block;
  	unsigned long offset;
-diff -puN fs/ext3/xattr.c~ext3_fsblk_t_fixes fs/ext3/xattr.c
---- linux-2.6.16/fs/ext3/xattr.c~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/fs/ext3/xattr.c	2006-06-08 16:50:04.121197398 -0700
-@@ -225,7 +225,7 @@ ext3_xattr_block_get(struct inode *inode
- 	error = -ENODATA;
- 	if (!EXT3_I(inode)->i_file_acl)
- 		goto cleanup;
--	ea_idebug(inode, "reading block %d", EXT3_I(inode)->i_file_acl);
-+	ea_idebug(inode, "reading block %u", EXT3_I(inode)->i_file_acl);
- 	bh = sb_bread(inode->i_sb, EXT3_I(inode)->i_file_acl);
- 	if (!bh)
- 		goto cleanup;
+ 	struct ext3_super_block * es;
+ 	struct block_device *bdev;
+@@ -2215,7 +2216,7 @@ static int ext3_remount (struct super_bl
+ {
+ 	struct ext3_super_block * es;
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+-	unsigned long n_blocks_count = 0;
++	ext3_fsblk_t n_blocks_count = 0;
+ 	unsigned long old_sb_flags;
+ 	struct ext3_mount_options old_opts;
+ 	int err;
+@@ -2334,7 +2335,7 @@ static int ext3_statfs (struct super_blo
+ {
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+ 	struct ext3_super_block *es = sbi->s_es;
+-	unsigned long overhead;
++	ext3_fsblk_t overhead;
+ 	int i;
+ 
+ 	if (test_opt (sb, MINIX_DF))
+diff -puN fs/ext3/xattr.c~ext3_convert_blks_to_fsblk_t fs/ext3/xattr.c
+--- linux-2.6.16/fs/ext3/xattr.c~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/fs/ext3/xattr.c	2006-06-07 15:43:17.000000000 -0700
 @@ -233,7 +233,7 @@ ext3_xattr_block_get(struct inode *inode
  		atomic_read(&(bh->b_count)), le32_to_cpu(BHDR(bh)->h_refcount));
  	if (ext3_xattr_check_block(bh)) {
  bad_block:	ext3_error(inode->i_sb, __FUNCTION__,
--			   "inode %ld: bad block %d", inode->i_ino,
-+			   "inode %ld: bad block %u", inode->i_ino,
+-			   "inode %ld: bad block %u", inode->i_ino,
++			   "inode %ld: bad block "E3FSBLK, inode->i_ino,
  			   EXT3_I(inode)->i_file_acl);
  		error = -EIO;
  		goto cleanup;
-@@ -366,7 +366,7 @@ ext3_xattr_block_list(struct inode *inod
- 	error = 0;
- 	if (!EXT3_I(inode)->i_file_acl)
- 		goto cleanup;
--	ea_idebug(inode, "reading block %d", EXT3_I(inode)->i_file_acl);
-+	ea_idebug(inode, "reading block %u", EXT3_I(inode)->i_file_acl);
- 	bh = sb_bread(inode->i_sb, EXT3_I(inode)->i_file_acl);
- 	error = -EIO;
- 	if (!bh)
 @@ -375,7 +375,7 @@ ext3_xattr_block_list(struct inode *inod
  		atomic_read(&(bh->b_count)), le32_to_cpu(BHDR(bh)->h_refcount));
  	if (ext3_xattr_check_block(bh)) {
  		ext3_error(inode->i_sb, __FUNCTION__,
--			   "inode %ld: bad block %d", inode->i_ino,
-+			   "inode %ld: bad block %u", inode->i_ino,
+-			   "inode %ld: bad block %u", inode->i_ino,
++			   "inode %ld: bad block "E3FSBLK, inode->i_ino,
  			   EXT3_I(inode)->i_file_acl);
  		error = -EIO;
  		goto cleanup;
@@ -838,121 +622,105 @@ diff -puN fs/ext3/xattr.c~ext3_fsblk_t_fixes fs/ext3/xattr.c
  			le32_to_cpu(BHDR(bs->bh)->h_refcount));
  		if (ext3_xattr_check_block(bs->bh)) {
  			ext3_error(sb, __FUNCTION__,
--				"inode %ld: bad block %d", inode->i_ino,
-+				"inode %ld: bad block %u", inode->i_ino,
+-				"inode %ld: bad block %u", inode->i_ino,
++				"inode %ld: bad block "E3FSBLK, inode->i_ino,
  				EXT3_I(inode)->i_file_acl);
  			error = -EIO;
  			goto cleanup;
-@@ -792,11 +792,12 @@ inserted:
- 			get_bh(new_bh);
- 		} else {
- 			/* We need to allocate a new block */
--			int goal = le32_to_cpu(
-+			ext3_fsblk_t goal = le32_to_cpu(
- 					EXT3_SB(sb)->s_es->s_first_data_block) +
--				EXT3_I(inode)->i_block_group *
-+				(ext3_fsblk_t)EXT3_I(inode)->i_block_group *
- 				EXT3_BLOCKS_PER_GROUP(sb);
--			int block = ext3_new_block(handle, inode, goal, &error);
-+			ext3_fsblk_t block = ext3_new_block(handle, inode,
-+							goal, &error);
- 			if (error)
- 				goto cleanup;
- 			ea_idebug(inode, "creating block %d", block);
-@@ -847,7 +848,7 @@ cleanup_dquot:
+@@ -848,7 +848,7 @@ cleanup_dquot:
  
  bad_block:
  	ext3_error(inode->i_sb, __FUNCTION__,
--		   "inode %ld: bad block %d", inode->i_ino,
-+		   "inode %ld: bad block %u", inode->i_ino,
+-		   "inode %ld: bad block %u", inode->i_ino,
++		   "inode %ld: bad block "E3FSBLK, inode->i_ino,
  		   EXT3_I(inode)->i_file_acl);
  	goto cleanup;
  
-@@ -1076,14 +1077,14 @@ ext3_xattr_delete_inode(handle_t *handle
+@@ -1077,14 +1077,14 @@ ext3_xattr_delete_inode(handle_t *handle
  	bh = sb_bread(inode->i_sb, EXT3_I(inode)->i_file_acl);
  	if (!bh) {
  		ext3_error(inode->i_sb, __FUNCTION__,
--			"inode %ld: block %d read error", inode->i_ino,
-+			"inode %ld: block %u read error", inode->i_ino,
+-			"inode %ld: block %u read error", inode->i_ino,
++			"inode %ld: block "E3FSBLK" read error", inode->i_ino,
  			EXT3_I(inode)->i_file_acl);
  		goto cleanup;
  	}
  	if (BHDR(bh)->h_magic != cpu_to_le32(EXT3_XATTR_MAGIC) ||
  	    BHDR(bh)->h_blocks != cpu_to_le32(1)) {
  		ext3_error(inode->i_sb, __FUNCTION__,
--			"inode %ld: bad block %d", inode->i_ino,
-+			"inode %ld: bad block %u", inode->i_ino,
+-			"inode %ld: bad block %u", inode->i_ino,
++			"inode %ld: bad block "E3FSBLK, inode->i_ino,
  			EXT3_I(inode)->i_file_acl);
  		goto cleanup;
  	}
-@@ -1210,11 +1211,11 @@ again:
- 		bh = sb_bread(inode->i_sb, ce->e_block);
- 		if (!bh) {
- 			ext3_error(inode->i_sb, __FUNCTION__,
--				"inode %ld: block %ld read error",
-+				"inode %ld: block %lu read error",
- 				inode->i_ino, (unsigned long) ce->e_block);
- 		} else if (le32_to_cpu(BHDR(bh)->h_refcount) >=
- 				EXT3_XATTR_REFCOUNT_MAX) {
--			ea_idebug(inode, "block %ld refcount %d>=%d",
-+			ea_idebug(inode, "block %lu refcount %d>=%d",
- 				  (unsigned long) ce->e_block,
- 				  le32_to_cpu(BHDR(bh)->h_refcount),
- 					  EXT3_XATTR_REFCOUNT_MAX);
-diff -puN include/linux/ext3_fs.h~ext3_fsblk_t_fixes include/linux/ext3_fs.h
---- linux-2.6.16/include/linux/ext3_fs.h~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/include/linux/ext3_fs.h	2006-06-08 16:50:04.123197171 -0700
-@@ -732,13 +732,15 @@ struct dir_private_info {
- /* balloc.c */
- extern int ext3_bg_has_super(struct super_block *sb, int group);
- extern unsigned long ext3_bg_num_gdb(struct super_block *sb, int group);
--extern int ext3_new_block (handle_t *, struct inode *, unsigned long, int *);
--extern int ext3_new_blocks (handle_t *, struct inode *, unsigned long,
--			unsigned long *, int *);
--extern void ext3_free_blocks (handle_t *, struct inode *, unsigned long,
--			      unsigned long);
--extern void ext3_free_blocks_sb (handle_t *, struct super_block *,
--				 unsigned long, unsigned long, int *);
-+extern ext3_fsblk_t ext3_new_block (handle_t *handle, struct inode *inode,
-+			ext3_fsblk_t goal, int *errp);
-+extern ext3_fsblk_t ext3_new_blocks (handle_t *handle, struct inode *inode,
-+			ext3_fsblk_t goal, unsigned long *count, int *errp);
-+extern void ext3_free_blocks (handle_t *handle, struct inode *inode,
-+			ext3_fsblk_t block, unsigned long count);
-+extern void ext3_free_blocks_sb (handle_t *handle, struct super_block *sb,
-+				 ext3_fsblk_t block, unsigned long count,
-+				unsigned long *pdquot_freed_blocks);
- extern unsigned long ext3_count_free_blocks (struct super_block *);
+diff -puN include/linux/ext3_fs.h~ext3_convert_blks_to_fsblk_t include/linux/ext3_fs.h
+--- linux-2.6.16/include/linux/ext3_fs.h~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/include/linux/ext3_fs.h	2006-06-08 16:49:57.504950159 -0700
+@@ -712,6 +712,14 @@ struct dir_private_info {
+ 	__u32		next_hash;
+ };
+ 
++/* calculate the first block number of the group */
++static inline ext3_fsblk_t
++ext3_group_first_block_no(struct super_block *sb, unsigned long group_no)
++{
++	return group_no * (ext3_fsblk_t)EXT3_BLOCKS_PER_GROUP(sb) +
++		le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block);
++}
++
+ /*
+  * Special error return code only used by dx_probe() and its callers.
+  */
+@@ -741,7 +749,7 @@ extern void ext3_free_blocks (handle_t *
+ extern void ext3_free_blocks_sb (handle_t *handle, struct super_block *sb,
+ 				 ext3_fsblk_t block, unsigned long count,
+ 				unsigned long *pdquot_freed_blocks);
+-extern unsigned long ext3_count_free_blocks (struct super_block *);
++extern ext3_fsblk_t ext3_count_free_blocks (struct super_block *);
  extern void ext3_check_blocks_bitmap (struct super_block *);
  extern struct ext3_group_desc * ext3_get_group_desc(struct super_block * sb,
-@@ -775,7 +777,8 @@ extern unsigned long ext3_count_free (st
+ 						    unsigned int block_group,
+@@ -813,7 +821,7 @@ extern int ext3_group_add(struct super_b
+ 				struct ext3_new_group_data *input);
+ extern int ext3_group_extend(struct super_block *sb,
+ 				struct ext3_super_block *es,
+-				unsigned long n_blocks_count);
++				ext3_fsblk_t n_blocks_count);
  
+ /* super.c */
+ extern void ext3_error (struct super_block *, const char *, const char *, ...)
+diff -puN include/linux/ext3_fs_i.h~ext3_convert_blks_to_fsblk_t include/linux/ext3_fs_i.h
+--- linux-2.6.16/include/linux/ext3_fs_i.h~ext3_convert_blks_to_fsblk_t	2006-06-07 15:43:17.000000000 -0700
++++ linux-2.6.16-ming/include/linux/ext3_fs_i.h	2006-06-08 16:49:57.505950045 -0700
+@@ -30,8 +30,8 @@ typedef unsigned long ext3_fsblk_t;
+ #define E3FSBLK "%lu"
  
- /* inode.c */
--int ext3_forget(handle_t *, int, struct inode *, struct buffer_head *, int);
-+int ext3_forget(handle_t *handle, int is_metadata, struct inode *inode,
-+		struct buffer_head *bh, ext3_fsblk_t blocknr);
- struct buffer_head * ext3_getblk (handle_t *, struct inode *, long, int, int *);
- struct buffer_head * ext3_bread (handle_t *, struct inode *, int, int, int *);
- int ext3_get_blocks_handle(handle_t *handle, struct inode *inode,
-diff -puN include/linux/ext3_fs_i.h~ext3_fsblk_t_fixes include/linux/ext3_fs_i.h
---- linux-2.6.16/include/linux/ext3_fs_i.h~ext3_fsblk_t_fixes	2006-06-07 15:42:55.000000000 -0700
-+++ linux-2.6.16-ming/include/linux/ext3_fs_i.h	2006-06-08 16:50:04.124197057 -0700
-@@ -21,6 +21,14 @@
- #include <linux/seqlock.h>
- #include <linux/mutex.h>
- 
-+/* data type for block offset of block group */
-+typedef int ext3_grpblk_t;
-+
-+/* data type for filesystem-wide blocks number */
-+typedef unsigned long ext3_fsblk_t;
-+
-+#define E3FSBLK "%lu"
-+
  struct ext3_reserve_window {
- 	__u32			_rsv_start;	/* First byte reserved */
- 	__u32			_rsv_end;	/* Last byte reserved or 0 */
+-	__u32			_rsv_start;	/* First byte reserved */
+-	__u32			_rsv_end;	/* Last byte reserved or 0 */
++	ext3_fsblk_t	_rsv_start;	/* First byte reserved */
++	ext3_fsblk_t	_rsv_end;	/* Last byte reserved or 0 */
+ };
+ 
+ struct ext3_reserve_window_node {
+@@ -58,7 +58,7 @@ struct ext3_block_alloc_info {
+ 	 * allocated to this file.  This give us the goal (target) for the next
+ 	 * allocation when we detect linearly ascending requests.
+ 	 */
+-	__u32                   last_alloc_physical_block;
++	ext3_fsblk_t		last_alloc_physical_block;
+ };
+ 
+ #define rsv_start rsv_window._rsv_start
+@@ -75,7 +75,7 @@ struct ext3_inode_info {
+ 	__u8	i_frag_no;
+ 	__u8	i_frag_size;
+ #endif
+-	__u32	i_file_acl;
++	ext3_fsblk_t	i_file_acl;
+ 	__u32	i_dir_acl;
+ 	__u32	i_dtime;
+ 
 
 _
 

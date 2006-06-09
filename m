@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWFIVbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030524AbWFIVcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030339AbWFIVbg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 17:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030521AbWFIVbf
+	id S1030524AbWFIVcm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 17:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030523AbWFIVcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 17:31:35 -0400
-Received: from [80.71.248.82] ([80.71.248.82]:47799 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S1030520AbWFIVbe (ORCPT
+	Fri, 9 Jun 2006 17:32:42 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:28325 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030520AbWFIVcl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 17:31:34 -0400
-X-Comment-To: Joel Becker
-To: Alex Tomas <alex@clusterfs.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
-	<Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>
-	<1149880865.22124.70.camel@localhost.localdomain>
-	<m3irna6sja.fsf@bzzz.home.net> <4489CB42.6020709@garzik.org>
-	<m3wtbq5dgw.fsf@bzzz.home.net>
-	<20060609204418.GG3574@ca-server1.us.oracle.com>
-	<m3fyie5a19.fsf@bzzz.home.net>
-	<20060609211123.GI3574@ca-server1.us.oracle.com>
-	<m364ja58m8.fsf@bzzz.home.net>
-	<20060609212905.GK3574@ca-server1.us.oracle.com>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Sat, 10 Jun 2006 01:33:36 +0400
-In-Reply-To: <20060609212905.GK3574@ca-server1.us.oracle.com> (Joel Becker's message of "Fri, 9 Jun 2006 14:29:05 -0700")
-Message-ID: <m31wty580f.fsf@bzzz.home.net>
-User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+	Fri, 9 Jun 2006 17:32:41 -0400
+Message-ID: <4489E8EF.5020508@garzik.org>
+Date: Fri, 09 Jun 2006 17:32:31 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dave Jones <davej@redhat.com>
+CC: Theodore Tso <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <m3k67qb7hr.fsf@bzzz.home.net> <4489A7ED.8070007@garzik.org> <20060609195750.GD10524@thunk.org> <20060609203803.GF3574@ca-server1.us.oracle.com> <20060609205036.GI7420@redhat.com>
+In-Reply-To: <20060609205036.GI7420@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Joel Becker (JB) writes:
+Dave Jones wrote:
+> Am I missing something fundamental that precludes the use of both
+> extent-based and current existing filesystems from the same code
+> simultaneously ?
 
- JB> On Sat, Jun 10, 2006 at 01:20:31AM +0400, Alex Tomas wrote:
- >> two point here:
- >> a) warnings should be made visible at mount time,
- >> something like printk(KERN_CRIT ...)
+Nothing precludes it.  The point is that introducing major format 
+changes inline in this manner just complicates the code progressively to 
+the point where your directory walking, inode block walking, and other 
+code winds up being
 
- JB> 	Too late, they're already broken!
+	if (new)
+		...
+	else
+		...
 
-not at mount time, only upon first file creation.
+_anyway_, at which point it is essentially multiple independent 
+filesystems.  I guarantee this won't be the last fundamental fs metadata 
+design change people will want to make...
 
-thanks, Alex
+	Jeff
 
-PS. need to think about your tune2fs/mke2fs proposal ... thanks.
+

@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWFIAtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWFIAud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbWFIAtY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 20:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbWFIAtY
+	id S965058AbWFIAud (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 20:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbWFIAud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 20:49:24 -0400
-Received: from gate.crashing.org ([63.228.1.57]:54177 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965063AbWFIAtX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 20:49:23 -0400
-Subject: Re: mutex vs. local irqs (Was: 2.6.18 -mm merge plans)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, paulus@samba.org
-In-Reply-To: <Pine.LNX.4.64.0606081545150.17704@scrub.home>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <1149652378.27572.109.camel@localhost.localdomain>
-	 <20060606212930.364b43fa.akpm@osdl.org>
-	 <1149656647.27572.128.camel@localhost.localdomain>
-	 <20060606222942.43ed6437.akpm@osdl.org>
-	 <1149662671.27572.158.camel@localhost.localdomain>
-	 <20060607132155.GB14425@elte.hu>
-	 <1149726685.23790.8.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606081301320.17704@scrub.home>
-	 <1149773911.31114.36.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606081545150.17704@scrub.home>
-Content-Type: text/plain
-Date: Fri, 09 Jun 2006 09:40:30 +1000
-Message-Id: <1149810031.22496.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 8 Jun 2006 20:50:33 -0400
+Received: from wx-out-0102.google.com ([66.249.82.205]:43402 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965058AbWFIAuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 20:50:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=fdEVVc2cVM8R7lZIwJC2pF98UgR2iEDVrKymtJL8NR5ucU/x8V9QsIhqtg6Bde8llCeY4UJVxATFEwyfA/dDEfgT/uK8av5I0hH627mKkqgC6YWqYplCE8gVpwkLDGhEd5Gje3uHjGuCdYzJu/oOhopdooi9gBom3WvX+xEDnrw=
+Message-ID: <986ed62e0606081750w1be36f9fn35d69bffbc27f294@mail.gmail.com>
+Date: Thu, 8 Jun 2006 17:50:31 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "George Nychis" <gnychis@cmu.edu>
+Subject: Re: what processor family does intel core duo L2400 belong to?
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4488C098.90802@cmu.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4488B159.2070806@cmu.edu>
+	 <986ed62e0606081650k227c948dy2c675bedd7a254fa@mail.gmail.com>
+	 <4488C098.90802@cmu.edu>
+X-Google-Sender-Auth: 8a692310f20810a0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-08 at 16:02 +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 8 Jun 2006, Benjamin Herrenschmidt wrote:
-> 
-> > > On ppc it should not be that difficult to even modify the exception entry 
-> > > code. Instead of calling do_IRQ use do_early_IRQ and only install the real 
-> > > handler later.
-> > 
-> > Yes, it's possible, but will add overhead to the common  IRQ path just
-> > to handle an early boot special case.
-> 
-> What I mean is to directly patch the exception entry code, so after the 
-> initialization is complete you'll have no additional overhead.
-> In the EXC_XFER_TEMPLATE() macro the handler is stored at i##n. You can 
-> either export that address or you can use a special transfer handler, 
-> which automatically patches the values once some flag is set.
+On 6/8/06, George Nychis <gnychis@cmu.edu> wrote:
+> Put me in your shoes, what would you test to see which one is the true
+> choice?
 
-That is a possibility. Also totally PPC specific for a problem that will
-hit every arch once I start moving things around in the init code. I
-still think that the best way is to fix the mutex code. You remember
-what you can read on most public toilets about leaving them in the state
-you found them ? Sounds like a pretty good rule to me here as well.
+I'd start by seeing which one (if either) will boot the system (with
+CONFIG_X86_GENERIC disabled). In the past, when I've had trouble
+deciding, this has actually eliminated more possibilities than you
+might expect.
 
-Ben.
+Beyond that, I don't know for certain what I would test with. Perhaps
+I'd start with lmbench, or if I was using the system for 3D stuff,
+perhaps framerates from glxgears or a 3D game. If I was using the
+system for network stuff, I'd run network benchmarks. (Perhaps disk
+benchmarks would be good too, but my experience is that network
+performance tends to suffer first and/or more severely, especially if
+Gigabit Ethernet or slow CPU's are involved.)
 
+If both choices boot, the performance difference may be quite small.
+-- 
+-Barry K. Nathan <barryn@pobox.com>

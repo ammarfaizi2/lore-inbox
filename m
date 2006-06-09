@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWFIS1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbWFIS2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWFIS1z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 14:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWFIS1z
+	id S1030343AbWFIS2b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 14:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWFIS2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 14:27:55 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:29391 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750838AbWFIS1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 14:27:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=C5zVb3Fumbjx63FrrVnH+Pr5K67ugjWqg5yaRAszo8YrTDI1Cp4qQ+CKHMx88XfQ16UG9p2mZVhT1KHRfv582GRfXoYXR+aYIYh4S0YapYXwfmGNRf0Mc6wJyPhuonNJzTx4dIjHwc6sujTXgzrKuNfN4YUpLMxGqRqs+FaMVO0=
-Message-ID: <170fa0d20606091127h735531d1s6df27d5721a54b80@mail.gmail.com>
-Date: Fri, 9 Jun 2006 14:27:53 -0400
-From: "Mike Snitzer" <snitzer@gmail.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Cc: "Andrew Morton" <akpm@osdl.org>, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <4489B719.2070707@garzik.org>
+	Fri, 9 Jun 2006 14:28:31 -0400
+Received: from 63-207-7-10.ded.pacbell.net ([63.207.7.10]:19687 "EHLO
+	cassini.c2micro.com") by vger.kernel.org with ESMTP
+	id S1030343AbWFIS2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 14:28:30 -0400
+Message-ID: <4489BDCD.4000400@c2micro.com>
+Date: Fri, 09 Jun 2006 11:28:29 -0700
+From: "H. Peter Anvin" <hpa@c2micro.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
-	 <20060609091327.GA3679@infradead.org>
-	 <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org>
-	 <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org>
-	 <20060609103543.52c00c62.akpm@osdl.org> <4489B452.4050100@garzik.org>
-	 <4489B719.2070707@garzik.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, mchan@broadcom.com
+Subject: [PATCH] fix to pci ignore pre-set 64-bit bars on 32-bit platforms
+References: <200606071711.06774.bjorn.helgaas@hp.com> <200606082249.14475.bjorn.helgaas@hp.com> <44890117.1000403@c2micro.com> <200606091005.21165.bjorn.helgaas@hp.com>
+In-Reply-To: <200606091005.21165.bjorn.helgaas@hp.com>
+Content-Type: multipart/mixed;
+ boundary="------------040003050500020507060208"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/9/06, Jeff Garzik <jeff@garzik.org> wrote:
-> Jeff Garzik wrote:
-> > I disagree completely...  it would be an obvious win:  people who want
-> > stability get that, people who want new features get that too.
->
-> And developers have a better outlet for their wacky developmental urges...
+This is a multi-part message in MIME format.
+--------------040003050500020507060208
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-And no real-world near-term progress is made for production users with
-modern requirements. What you're advocating breeds instability in the
-near-term.
+
+--------------040003050500020507060208
+Content-Type: text/plain;
+ name="pci-fix.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci-fix.txt"
+
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+When we detect a 64-bit pre-set address in a BAR on a 32-bit platform,
+we disable it and treat it as if it had been unset, thus allowing the
+general address assignment code to assign a new address to it when the
+device is enabled.  This can happen either if the firmware assigns
+64-bit addresses; additionally, some cards have been found "in the
+wild" which do not come out of reset with all the BAR registers set to
+zero.
+
+Unfortunately, the patch that implemented this tested the low part of
+the address instead of the high part of the address.  This patch fixes
+that.
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Signed-off-by: H. Peter Anvin <hpa@zytor.com>
+
+Index: rc5-mm3/drivers/pci/probe.c
+===================================================================
+--- rc5-mm3.orig/drivers/pci/probe.c	2006-06-09 09:40:51.000000000 -0600
++++ rc5-mm3/drivers/pci/probe.c	2006-06-09 09:42:35.000000000 -0600
+@@ -199,7 +199,7 @@
+ 				printk(KERN_ERR "PCI: Unable to handle 64-bit BAR for device %s\n", pci_name(dev));
+ 				res->start = 0;
+ 				res->flags = 0;
+-			} else if (l) {
++			} else if (lhi) {
+ 				/* 64-bit wide address, treat as disabled */
+ 				pci_write_config_dword(dev, reg, l & ~(u32)PCI_BASE_ADDRESS_MEM_MASK);
+ 				pci_write_config_dword(dev, reg+4, 0);
+
+--------------040003050500020507060208--

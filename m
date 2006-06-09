@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWFIAky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWFIAlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWFIAky (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jun 2006 20:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWFIAky
+	id S965047AbWFIAlk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jun 2006 20:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWFIAlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jun 2006 20:40:54 -0400
-Received: from mx1.suse.de ([195.135.220.2]:53662 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751334AbWFIAkx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jun 2006 20:40:53 -0400
-From: Neil Brown <neilb@suse.de>
-To: Peter Staubach <staubach@redhat.com>
-Date: Fri, 9 Jun 2006 10:40:21 +1000
+	Thu, 8 Jun 2006 20:41:40 -0400
+Received: from athena.hosts.co.uk ([212.84.175.19]:61605 "EHLO
+	athena.hosts.co.uk") by vger.kernel.org with ESMTP id S965055AbWFIAlj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jun 2006 20:41:39 -0400
+To: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+From: =?utf-8?q?=22Felix=20Oxley=22?= <lkml@oxley.org>
+Reply-To: =?utf-8?q?=22Felix=20Oxley=22?= <lkml@oxley.org>
+Subject: =?utf-8?q?2=2e6=2e17=2drc6=2dmm1=3a=20Signal=5f32=2ec=20won=27t=20compile=20on=20PowerBook?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17544.50037.863862.736802@cse.unsw.edu.au>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       NFS List <nfs@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] [PATCH] NFS server does not update mtime on setattr
-	request
-In-Reply-To: message from Peter Staubach on Wednesday June 7
-References: <4485C3FE.5070504@redhat.com>
-	<1149658707.27298.10.camel@localhost>
-	<4486E662.5080900@redhat.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E1FoUtA-0006ci-KQ@artemis.hosts.co.uk>
+Date: Fri, 09 Jun 2006 01:30:12 +0100
+X-Spam-Score: -4.4 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday June 7, staubach@redhat.com wrote:
-> 
-> Neil, can we get these changes integrated, please?
+Suse 10.1.
+PowerBook
+make allnoconfig
 
-Nope.
-The discussion has already gone on from here, so I might be covering
-old ground, but there seem to be further mentions of still needing the
-server patch, so just to be sure it is covered....
+  CC      arch/powerpc/kernel/syscalls.o
+  CC      arch/powerpc/kernel/irq.o
+  CC      arch/powerpc/kernel/align.o
+  CC      arch/powerpc/kernel/signal_32.o
+arch/powerpc/kernel/signal_32.c: In function ‘handle_rt_signal’:
+arch/powerpc/kernel/signal_32.c:763: error: request for member ‘vdso_base’
+in something not a structure or union
+arch/powerpc/kernel/signal_32.c:766: error: request for member ‘vdso_base’
+in something not a structure or union
+arch/powerpc/kernel/signal_32.c: In function ‘handle_signal’:
+arch/powerpc/kernel/signal_32.c:1037: error: request for member ‘vdso_base’
+in something not a structure or union
+arch/powerpc/kernel/signal_32.c:1040: error: request for member ‘vdso_base’
+in something not a structure or union
+make[1]: *** [arch/powerpc/kernel/signal_32.o] Error 1
+make: *** [arch/powerpc/kernel] Error 2
 
-My reading of SUS says that 
-  open(O_TRUNC) of an empty file does not update the modify time
-  truncate() of an empty file does update the modify time
-
-So the server has to be able to support this distinction without being
-able to directly know what API call was made on the client.
-The patch you suggest makes it impossible to support that distinction.
-
-Possibly the server could make a distinction between when nfsd_setattr
-is called directly, and when it is called via nfsd_create{,_v3}.  I
-would be more open to a patch that makes a distinction there.  However
-I think that it would be best for the client to be explicit about what
-it is doing by setting the right attr flags.
-
-NeilBrown
-
+I'll be happy to test fixes for anybody :-)
+//felix

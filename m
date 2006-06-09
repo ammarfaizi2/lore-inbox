@@ -1,44 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWFIIMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWFIIUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751434AbWFIIMv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 04:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWFIILZ
+	id S1751419AbWFIIUL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 04:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWFIIUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 04:11:25 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:22426 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751437AbWFIILX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 04:11:23 -0400
-Message-ID: <349840678.03819@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20060609080801.741901069@localhost.localdomain>
-Date: Fri, 09 Jun 2006 16:08:01 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] Adaptive readahead updates 2
+	Fri, 9 Jun 2006 04:20:10 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:35807 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751419AbWFIIUI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 04:20:08 -0400
+Date: Fri, 9 Jun 2006 02:20:14 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: cmm@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609082013.GP5964@schatzie.adilger.int>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu, cmm@us.ibm.com,
+	linux-kernel@vger.kernel.org,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-fsdevel@vger.kernel.org
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <200606090240.k592enXj009395@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606090240.k592enXj009395@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Jun 08, 2006  22:40 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 08 Jun 2006 18:20:54 PDT, Mingming Cao said:
+> > To address this need, there are co-effort from RedHat, ClusterFS, IBM
+> > and BULL to move ext3 from 32 bit filesystem to 48 bit filesystem,
+> > expanding ext3 filesystem limit from 8TB today to 1024 PB. The 48 bit
+> > ext3 is build on top of extent map changes for ext3, originally from
+> > Alex Tomas. In short, the new ext3 on-disk extents format is:
+> 
+> which implies matching changes to mkfs.ext2 and possibly mount..
 
-Here are 5 small readahead patches collected in the past week.
-They can be applied cleanly for linux-2.6.17-rc6-mm1.
+The extents format doesn't need any support from mke2fs.  Currently this
+is activated by a mount option "-o extents", so it won't be used until
+a system administrator actively enables it.
 
-- against readahead-state-based-method-routines.patch
-	[PATCH 1/5] readahead: no RA_FLAG_EOF on single page file
+> > Appreciate any comments and feedbacks!
+> 
+> Somebody else was recently discussing a set of patches to ext3 for
+> extents+delalloc+mballoc patches - is this work compatible with that?
 
-- against readahead-initial-method-guiding-sizes.patch
-	[PATCH 2/5] readahead: aggressive initial sizes
+Yes, completely compatible (author is the same person).  We have all been
+working to get these improvements into the vanilla kernel so that everyone
+can benefit from the improved performance.  These patches are just the
+start - the mballoc and delalloc patches are follow-on patches, but they
+do not affect the on-disk format just the in-memory implementation of
+block allocation.
 
-- against readahead-call-scheme.patch
-	[PATCH 3/5] readahead: call scheme - no fastcall for readahead_cache_hit()
+> Also, a pointer to the matching userspace patches would help anybody
+> who's gung-ho enough to test the code....
 
-- standalone patches
-	[PATCH 4/5] readahead: backoff on I/O error
-	[PATCH 5/5] readahead: remove size limit on read_ahead_kb
+They were posted to the ext2-devel mailing list previously, or you can
+download a patched RPM at ftp://ftp.lustre.org/pub/lustre/other/e2fsprogs/
+(the extent support is making its way into the official e2fsprogs also).
 
-Thanks,
-Wu Fengguang
--
-Dept. Automation                University of Science and Technology of China
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbWFIP4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965281AbWFIP4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbWFIP4c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWFIP41
+	id S965281AbWFIP4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWFIPz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:56:27 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:31117 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965098AbWFIP4R (ORCPT
+	Fri, 9 Jun 2006 11:55:56 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35816 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030246AbWFIPzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:56:17 -0400
-Message-ID: <44899A1C.7000207@garzik.org>
-Date: Fri, 09 Jun 2006 11:56:12 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 11:55:53 -0400
+Message-ID: <44899A05.4070106@sgi.com>
+Date: Fri, 09 Jun 2006 08:55:49 -0700
+From: Chris Sturtivant <csturtiv@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-To: Alex Tomas <alex@clusterfs.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>	<448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net>
-In-Reply-To: <m3irnacohp.fsf@bzzz.home.net>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Jay Lan <jlan@sgi.com>, Balbir Singh <balbir@in.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>
+In-Reply-To: <44892610.6040001@watson.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
->>>>>> Jeff Garzik (JG) writes:
-> 
->  JG> think about The Experience:  Suddenly users that could use 2.4.x and 
->  JG> 2.6.x are locked into 2.6.18+, by the simple and common act of writing 
->  JG> to a file.
-> 
-> sorry to repeat, but if they simple try 2.6.18, they won't get extents.
-> instead, they must specify extents mount option. and at this point
-> they must get clear that this is a way to get incompatible fs.
 
-Think about how this will be deployed in production, long term.
+Shailabh Nagar wrote:
+> Jay, Chris, Could you check if this patch does the needful ?
+> Its tested and runs fine for me. A quick response would be appreciated 
+> so that it can be included in -mm before the 2.6.18 merge window begins.
+>
+> I decided against adding the configuration to the taskstats interface 
+> directly (as another command) since the sysfs solution
+> is much simpler and the configuration operation is infrequent.
+>
+> Balbir, all, comments welcome.
+>
+> --Shailabh
+>
+>
+Unfortunately, I'm currently battling some build problems, so hopefully 
+Jay will be able to take a look through it today.
 
-If extents are not made default at some point, then no one will use the 
-feature, and it should not be merged.
-
-And when extents are default, you have this blizzard-of-feature-flags 
-stealth upgrade event occur _sometime_ after they boot into the new fs 
-for the first time.  And then when they want to boot another kernel, 
-they have to dig down a feature matrix, and figure out which ext3 
-codebase will work for them.
-
-	Jeff
+Best regards,
 
 
+--Chris
+
+-- 
+-----------------------------------------------------------------
+Chris Sturtivant, PhD,
+Linux System Software,
+SGI
+(650) 933-1703
+-----------------------------------------------------------------
 

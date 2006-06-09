@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWFIJNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWFIJNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWFIJNy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 05:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWFIJNy
+	id S932343AbWFIJNa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 05:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWFIJNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 05:13:54 -0400
-Received: from odin2.bull.net ([129.184.85.11]:5831 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S932336AbWFIJNx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
-	Fri, 9 Jun 2006 05:13:53 -0400
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: markh@compro.net
-Subject: Re: RT exec for exercising RT kernel capabilities
-Date: Fri, 9 Jun 2006 11:15:50 +0200
-User-Agent: KMail/1.7.1
-Cc: linux-kerneL@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>
-References: <448876B9.9060906@compro.net>
-In-Reply-To: <448876B9.9060906@compro.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 9 Jun 2006 05:13:30 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:39576 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932295AbWFIJN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 05:13:29 -0400
+Date: Fri, 9 Jun 2006 10:13:27 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609091327.GA3679@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-fsdevel@vger.kernel.org
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606091115.50576.Serge.Noiraud@bull.net>
+In-Reply-To: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jeudi 8 Juin 2006 21:12, Mark Hounschell wrote/a écrit :
-> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
-> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
-> well the deterministic real-time capabilities of a computer. Maybe it could
-> useful in some way to the effort or to anyone interested in making this type of
-> determination about their kernel/computer.
+On Thu, Jun 08, 2006 at 06:20:54PM -0700, Mingming Cao wrote:
+> Current ext3 filesystem is limited to 8TB(4k block size), this is
+> practically not enough for the increasing need of bigger storage as
+> disks in a few years (or even now).
 > 
-> A README describing the rt-exec can be found at
-> ftp://ftp.compro.net/public/rt-exec/README
-In the README, you say :
-	...
-	The exec must be run as root because of the use of mlockall,
-	sched_setscheduler, and sched_setaffinity calls. Sorry but
-	there has been no attempt to use the Linux CAPABILITIES API
-	so that it could be run as regular user. 
-	...
+> To address this need, there are co-effort from RedHat, ClusterFS, IBM
+> and BULL to move ext3 from 32 bit filesystem to 48 bit filesystem,
+> expanding ext3 filesystem limit from 8TB today to 1024 PB. The 48 bit
+> ext3 is build on top of extent map changes for ext3, originally from
+> Alex Tomas. In short, the new ext3 on-disk extents format is:
 
-It's false if you use the LSM patch from here :
-	http://sourceforge.net/projects/realtime-lsm/
+What a horrible idea!  The nice things about ext3 are:
 
--- 
-Serge Noiraud
+ - the rather simple and thus reliable implementation
+ - the lack of incompatible ondisk changes
+
+and the block numbers are't the big problem concerning scalability, there's
+a lot more to it, like btree(-like) structures in the allocator, parallel
+alloocator algorithms and a better allocation group concept.
+
+If you guys want big storage on linux please help improving the filesystems
+design for that, e.g. jfs or xfs instead of showhorning it onto ext3 thus
+both making ext3 less reliable for us desktop/small server users and not get
+the full thing for the big storage people either.
+

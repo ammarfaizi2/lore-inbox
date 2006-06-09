@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965182AbWFIFDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbWFIFKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965182AbWFIFDg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 01:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbWFIFDg
+	id S965202AbWFIFKb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 01:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbWFIFKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 01:03:36 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:20150 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965182AbWFIFDf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 01:03:35 -0400
-Message-ID: <44890117.1000403@c2micro.com>
-Date: Thu, 08 Jun 2006 22:03:19 -0700
-From: "H. Peter Anvin" <hpa@c2micro.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 01:10:31 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:65491 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965202AbWFIFK3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 01:10:29 -0400
+Message-ID: <4489030F.4020004@in.ibm.com>
+Date: Fri, 09 Jun 2006 10:41:43 +0530
+From: Suzuki <suzuki@in.ibm.com>
+Organization: IBM Software Labs
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, mchan@broadcom.com
-Subject: Re: tg3 broken on 2.6.17-rc5-mm3
-References: <200606071711.06774.bjorn.helgaas@hp.com> <200606082249.14475.bjorn.helgaas@hp.com>
-In-Reply-To: <200606082249.14475.bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fix Compilation error for UM Linux
+References: <44883C68.8010307@in.ibm.com> <20060608104655.70c6836f.akpm@osdl.org>
+In-Reply-To: <20060608104655.70c6836f.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
-> On Wednesday 07 June 2006 17:11, Bjorn Helgaas wrote:
->> Something changed between 2.6.17-rc5-mm2 and -mm3 that broke tg3
->> on my HP DL360:
+Andrew Morton wrote:
+> On Thu, 08 Jun 2006 20:34:08 +0530
+> Suzuki <suzuki@in.ibm.com> wrote:
 > 
-> and the specific change that broke it seems to be:
->   gregkh-pci-pci-ignore-pre-set-64-bit-bars-on-32-bit-platforms.patch.
 > 
-> pci_read:  0000:01:02.0 reg 0x10 len 4 val 0xf7ef0004
-> pci_write: 0000:01:02.0 reg 0x10 len 4 val 0xffffffff
-> pci_read:  0000:01:02.0 reg 0x10 len 4 val 0xffff0004
-> pci_write: 0000:01:02.0 reg 0x10 len 4 val 0xf7ef0004
-> pci_read:  0000:01:02.0 reg 0x14 len 4 val 0x0000
-> pci_write: 0000:01:02.0 reg 0x14 len 4 val 0xffffffff
-> pci_read:  0000:01:02.0 reg 0x14 len 4 val 0xffffffff
-> pci_write: 0000:01:02.0 reg 0x14 len 4 val 0x0000
+>>Hi,
+>>
+>>This patch fixes the compilation error for UM Linux with linux-2.6.17-rc5.
+>>
+>>It complains of using (void *) in arithmetic.
+> 
+> 
+> Really?  We often do arithmetic on void*.  Are you using gcc, with standard
+> kbuild and standard compiler options?
 
-... this is a 64-bit BAR preset with a 16-bit mask, preset
-to the valid 32-bit address 0x0000_0000_f7ef_0000.
+Ah ! I was using g++ since the kernel had some C++ code in it. Sorry for 
+the same.
 
-> pci_write: 0000:01:02.0 reg 0x10 len 4 val 0x0004  <=== looks questionable
-> pci_write: 0000:01:02.0 reg 0x14 len 4 val 0x0000
+> 
+> 
+>>Thanks.
+>>
+>>Suzuki K P
+>>Linux Technology Center,
+>>IBM Software Labs.
+>>
+>>
+>>
+>>* Fix the compilation error for um-linux.
+>>
+>>Signed Off by: Suzuki K P <suzuki@in.ibm.com>
+> 
+> 
+> "Signed-off-by:", please.
+Sorry ! Will take care of it from now onwards.
 
-... here the algorithm thinks the addrss is above 4 GB and disables it. 
-  It should re-enable it when the device is turned back on, though; if 
-it doesn't that's very strange.
 
-Anyway, the error seems to be that the line:
+Thanks,
 
-+			} else if (l) {
-
-... should be ...
-
-+			} else if (lhi) {
-
-... since l contains the lower half of the pre-set address at that 
-point, and lhi is the upper half.
-
-	-hpa
+Suzuki
+> 
+> 
+>>--- arch/um/include/mem.h       2006-05-25 01:45:04.000000000 -0700
+>>+++ arch/um/include/mem.h~fix_compilation_error 2006-06-08 
+>>07:46:21.000000000 -0700
+>>@@ -22,7 +22,7 @@ static inline unsigned long to_phys(void
+>>
+>>  static inline void *to_virt(unsigned long phys)
+>>  {
+>>-       return((void *) uml_physmem + phys);
+>>+       return (void *) (uml_physmem + phys);
+>>  }
+>>
+>>  #endif

@@ -1,343 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWFIPHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWFIPIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbWFIPHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWFIPHO
+	id S1030204AbWFIPIb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWFIPIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:07:14 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:35460 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030197AbWFIPHM (ORCPT
+	Fri, 9 Jun 2006 11:08:30 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:9611 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030203AbWFIPI3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:07:12 -0400
-Message-ID: <44898E39.3080801@openvz.org>
-Date: Fri, 09 Jun 2006 19:05:29 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 9 Jun 2006 11:08:29 -0400
+Message-ID: <44898EE3.6080903@garzik.org>
+Date: Fri, 09 Jun 2006 11:08:19 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: devel@openvz.org, xemul@openvz.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ebiederm@xmission.com, herbert@13thfloor.at, saw@sw.ru,
-       serue@us.ibm.com, sfrench@us.ibm.com, sam@vilain.net,
-       haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: [PATCH 2/6] IPC namespace - utils
-References: <44898BF4.4060509@openvz.org>
-In-Reply-To: <44898BF4.4060509@openvz.org>
-Content-Type: multipart/mixed;
- boundary="------------000506040707050602010301"
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: cmm@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int>
+In-Reply-To: <20060609083523.GQ5964@schatzie.adilger.int>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000506040707050602010301
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This patch adds basic IPC namespace functionality to
-IPC utils:
-- init_ipc_ns
-- copy/clone/unshare/free IPC ns
-- /proc preparations
-
-Signed-Off-By: Pavel Emelianov <xemul@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
-
---------------000506040707050602010301
-Content-Type: text/plain;
- name="diff-ipc-ns-util"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ipc-ns-util"
-
---- ./ipc/util.c.ipcns	2006-05-18 12:05:15.000000000 +0400
-+++ ./ipc/util.c	2006-06-09 14:19:30.000000000 +0400
-@@ -12,6 +12,9 @@
-  *            Mingming Cao <cmm@us.ibm.com>
-  * Mar 2006 - support for audit of ipc object properties
-  *            Dustin Kirkland <dustin.kirkland@us.ibm.com>
-+ * Jun 2006 - namespaces ssupport
-+ *            OpenVZ, SWsoft Inc.
-+ *            Pavel Emelianov <xemul@openvz.org>
-  */
- 
- #include <linux/config.h>
-@@ -30,6 +33,7 @@
- #include <linux/seq_file.h>
- #include <linux/proc_fs.h>
- #include <linux/audit.h>
-+#include <linux/nsproxy.h>
- 
- #include <asm/unistd.h>
- 
-@@ -38,10 +42,126 @@
- struct ipc_proc_iface {
- 	const char *path;
- 	const char *header;
--	struct ipc_ids *ids;
-+	int ids;
- 	int (*show)(struct seq_file *, void *);
- };
- 
-+struct ipc_namespace init_ipc_ns = {
-+	.kref = {
-+		.refcount	= ATOMIC_INIT(2),
-+	},
-+};
-+
-+#ifdef CONFIG_IPC_NS
-+static struct ipc_namespace *clone_ipc_ns(struct ipc_namespace *old_ns)
-+{
-+	int err;
-+	struct ipc_namespace *ns;
-+
-+	err = -ENOMEM;
-+	ns = kmalloc(sizeof(struct ipc_namespace), GFP_KERNEL);
-+	if (ns == NULL)
-+		goto err_mem;
-+
-+	err = sem_init_ns(ns);
-+	if (err)
-+		goto err_sem;
-+	err = msg_init_ns(ns);
-+	if (err)
-+		goto err_msg;
-+	err = shm_init_ns(ns);
-+	if (err)
-+		goto err_shm;
-+
-+	kref_init(&ns->kref);
-+	return ns;
-+
-+err_shm:
-+	msg_exit_ns(ns);
-+err_msg:
-+	sem_exit_ns(ns);
-+err_sem:
-+	kfree(ns);
-+err_mem:
-+	return ERR_PTR(err);
-+}
-+
-+int unshare_ipcs(unsigned long unshare_flags, struct ipc_namespace **new_ipc)
-+{
-+	struct ipc_namespace *new;
-+
-+	if (unshare_flags & CLONE_NEWIPC) {
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EPERM;
-+
-+		new = clone_ipc_ns(current->nsproxy->ipc_ns);
-+		if (IS_ERR(new))
-+			return PTR_ERR(new);
-+
-+		*new_ipc = new;
-+	}
-+
-+	return 0;
-+}
-+
-+int copy_ipcs(unsigned long flags, struct task_struct *tsk)
-+{
-+	struct ipc_namespace *old_ns = tsk->nsproxy->ipc_ns;
-+	struct ipc_namespace *new_ns;
-+	int err = 0;
-+
-+	if (!old_ns)
-+		return 0;
-+
-+	get_ipc_ns(old_ns);
-+
-+	if (!(flags & CLONE_NEWIPC))
-+		return 0;
-+
-+	if (!capable(CAP_SYS_ADMIN)) {
-+		err = -EPERM;
-+		goto out;
-+	}
-+
-+	new_ns = clone_ipc_ns(old_ns);
-+	if (!new_ns) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	tsk->nsproxy->ipc_ns = new_ns;
-+out:
-+	put_ipc_ns(old_ns);
-+	return err;
-+}
-+
-+void free_ipc_ns(struct kref *kref)
-+{
-+	struct ipc_namespace *ns;
-+
-+	ns = container_of(kref, struct ipc_namespace, kref);
-+	sem_exit_ns(ns);
-+	msg_exit_ns(ns);
-+	shm_exit_ns(ns);
-+	kfree(ns);
-+}
-+#else
-+int unshare_ipcs(unsigned long flags, struct ipc_namespace **ns)
-+{
-+	return -EINVAL;
-+}
-+
-+int copy_ipcs(unsigned long flags, struct task_struct *tsk)
-+{
-+	return 0;
-+}
-+
-+void free_ipc_ns(struct kref *kref)
-+{
-+	BUG(); /* init_ipc_ns should never be put */
-+}
-+#endif
-+
- /**
-  *	ipc_init	-	initialise IPC subsystem
-  *
-@@ -68,7 +188,7 @@ __initcall(ipc_init);
-  *	array itself. 
-  */
-  
--void __init ipc_init_ids(struct ipc_ids* ids, int size)
-+void __ipc_init ipc_init_ids(struct ipc_ids* ids, int size)
- {
- 	int i;
- 
-@@ -111,8 +231,7 @@ static struct file_operations sysvipc_pr
-  *	@show: show routine.
-  */
- void __init ipc_init_proc_interface(const char *path, const char *header,
--				    struct ipc_ids *ids,
--				    int (*show)(struct seq_file *, void *))
-+		int ids, int (*show)(struct seq_file *, void *))
- {
- 	struct proc_dir_entry *pde;
- 	struct ipc_proc_iface *iface;
-@@ -636,6 +755,9 @@ static void *sysvipc_proc_next(struct se
- 	struct ipc_proc_iface *iface = s->private;
- 	struct kern_ipc_perm *ipc = it;
- 	loff_t p;
-+	struct ipc_ids *ids;
-+
-+	ids = current->nsproxy->ipc_ns->ids[iface->ids];
- 
- 	/* If we had an ipc id locked before, unlock it */
- 	if (ipc && ipc != SEQ_START_TOKEN)
-@@ -645,8 +767,8 @@ static void *sysvipc_proc_next(struct se
- 	 * p = *pos - 1 (because id 0 starts at position 1)
- 	 *          + 1 (because we increment the position by one)
- 	 */
--	for (p = *pos; p <= iface->ids->max_id; p++) {
--		if ((ipc = ipc_lock(iface->ids, p)) != NULL) {
-+	for (p = *pos; p <= ids->max_id; p++) {
-+		if ((ipc = ipc_lock(ids, p)) != NULL) {
- 			*pos = p + 1;
- 			return ipc;
- 		}
-@@ -665,12 +787,15 @@ static void *sysvipc_proc_start(struct s
- 	struct ipc_proc_iface *iface = s->private;
- 	struct kern_ipc_perm *ipc;
- 	loff_t p;
-+	struct ipc_ids *ids;
-+
-+	ids = current->nsproxy->ipc_ns->ids[iface->ids];
- 
- 	/*
- 	 * Take the lock - this will be released by the corresponding
- 	 * call to stop().
- 	 */
--	mutex_lock(&iface->ids->mutex);
-+	mutex_lock(&ids->mutex);
- 
- 	/* pos < 0 is invalid */
- 	if (*pos < 0)
-@@ -681,8 +806,8 @@ static void *sysvipc_proc_start(struct s
- 		return SEQ_START_TOKEN;
- 
- 	/* Find the (pos-1)th ipc */
--	for (p = *pos - 1; p <= iface->ids->max_id; p++) {
--		if ((ipc = ipc_lock(iface->ids, p)) != NULL) {
-+	for (p = *pos - 1; p <= ids->max_id; p++) {
-+		if ((ipc = ipc_lock(ids, p)) != NULL) {
- 			*pos = p + 1;
- 			return ipc;
- 		}
-@@ -694,13 +819,15 @@ static void sysvipc_proc_stop(struct seq
- {
- 	struct kern_ipc_perm *ipc = it;
- 	struct ipc_proc_iface *iface = s->private;
-+	struct ipc_ids *ids;
- 
- 	/* If we had a locked segment, release it */
- 	if (ipc && ipc != SEQ_START_TOKEN)
- 		ipc_unlock(ipc);
- 
-+	ids = current->nsproxy->ipc_ns->ids[iface->ids];
- 	/* Release the lock we took in start() */
--	mutex_unlock(&iface->ids->mutex);
-+	mutex_unlock(&ids->mutex);
- }
- 
- static int sysvipc_proc_show(struct seq_file *s, void *it)
---- ./ipc/util.h.ipcns	2006-04-21 11:59:36.000000000 +0400
-+++ ./ipc/util.h	2006-06-09 14:24:40.000000000 +0400
-@@ -3,6 +3,8 @@
-  * Copyright (C) 1999 Christoph Rohland
-  *
-  * ipc helper functions (c) 1999 Manfred Spraul <manfred@colorfullife.com>
-+ * namespaces support.      2006 OpenVZ, SWsoft Inc.
-+ *                               Pavel Emelianov <xemul@openvz.org>
-  */
- 
- #ifndef _IPC_UTIL_H
-@@ -15,6 +17,14 @@ void sem_init (void);
- void msg_init (void);
- void shm_init (void);
- 
-+int sem_init_ns(struct ipc_namespace *ns);
-+int msg_init_ns(struct ipc_namespace *ns);
-+int shm_init_ns(struct ipc_namespace *ns);
-+
-+void sem_exit_ns(struct ipc_namespace *ns);
-+void msg_exit_ns(struct ipc_namespace *ns);
-+void shm_exit_ns(struct ipc_namespace *ns);
-+
- struct ipc_id_ary {
- 	int size;
- 	struct kern_ipc_perm *p[0];
-@@ -31,15 +41,23 @@ struct ipc_ids {
- };
- 
- struct seq_file;
--void __init ipc_init_ids(struct ipc_ids* ids, int size);
-+#ifdef CONFIG_IPC_NS
-+#define __ipc_init
-+#else
-+#define __ipc_init	__init
-+#endif
-+void __ipc_init ipc_init_ids(struct ipc_ids *ids, int size);
- #ifdef CONFIG_PROC_FS
- void __init ipc_init_proc_interface(const char *path, const char *header,
--				    struct ipc_ids *ids,
--				    int (*show)(struct seq_file *, void *));
-+		int ids, int (*show)(struct seq_file *, void *));
- #else
- #define ipc_init_proc_interface(path, header, ids, show) do {} while (0)
- #endif
- 
-+#define IPC_SEM_IDS	0
-+#define IPC_MSG_IDS	1
-+#define IPC_SHM_IDS	2
-+
- /* must be called with ids->mutex acquired.*/
- int ipc_findkey(struct ipc_ids* ids, key_t key);
- int ipc_addid(struct ipc_ids* ids, struct kern_ipc_perm* new, int size);
+Please fix your mailer to stop creating bogus Mail-Followup-To headers, 
+headers which exclude the original poster, and cause compliant MUAs to 
+incorrectly build To/CC.
 
 
+Andreas Dilger wrote:
+> On Jun 08, 2006  22:49 -0400, Jeff Garzik wrote:
+>> One of my common complaints about massive ext3 updates such as this is 
+>> the ever-growing "which ext3 filesystem am I mounting?" problem.
+>>
+>> I really think extents and 48bit-ness should imply
+>> 	cp -a fs/ext3 fs/ext4
+>> and go from there.
+> 
+> The problem with this approach (as seen with ext2 and ext3) is that one
+> tree or the other gets stale w.r.t. bug fixes and now we have the case
+> where ext2 has a noticably different implementation in some areas and
+> bug fixes are no longer trivial to apply to both trees.
+> 
+> I think all of the ext3 maintainers think this split was a bad idea in
+> hindsight, and having an ext3 mode where it can mount without a journal
+> would be much more desirable.
+
+Please look beyond just ext2/3.  Other filesystems which have "version 
+1", "version 2", "version 3", ... formats are all nasty as hell.  The 
+end-result bloated code essentially supports several filesystems, all 
+within the same code base, and its a nightmare of ugliness.
+
+Further, its not only bloated, but slow.  The code inevitably winds up 
+in one of two forms:
+
+	if (spiffy new-feature metadata)
+		...
+	else if (updated metadata)
+		...
+	else /* original metadata */
+		...
+
+_or_ you add a level of indirection, by creating internal-to-the-fs 
+pointer operations.
+
+Stuffing more and more features into fs/ext3 means you are following the 
+path that leads to reiser4...  where EVERYTHING under the hood is 
+mutable, all within fs/ext3.
 
 
---------------000506040707050602010301--
+>> IMHO the ext3 back-compat situation is already really hairy, with all 
+>> the features added since the original ext3 release.
+> 
+> While partially true, ext2/ext3 has a very good history w.r.t. compatibility
+> (with one exception being the EAs on symlinks problem that slipped through
+> with selinux).
+> 
+> Yes, the extents format will be incompatible with older ext3, but it isn't
+> enabled by default so it will be completely up to the sysadmin when they
+> make their filesystem incompatible.  They also won't impact any existing
+> files.  The earlier extents support gets into a kernel.org kernel the
+> more systems will be able to mount a filesystem with the changes when
+> they becomes widely used.
+> 
+> All of the other features that are going to be introduced will only going
+> to be applicable for format time (filesystems larger than 16TB), or if
+> exceeding limits of the current ext3 support (e.g. files larger than 2TB
+> in size).
+
+Yet more progressive incompatibility, yet more
+
+	if (metadata v2)
+		...
+	else /* metadata v1 */
+		...
+
+Why do you insist upon calling the end result ext3, when the truth is 
+that you are slowing rewriting ext3?
+
+As time progresses, more and more admins must ask themselves the 
+question "what flavor of ext3 filesystem is on my hard drive?"
+
+Here's a key question for ext3 developers, which I bet has no answer: 
+when is it enough?  Is the plan to continually introduce incompatible 
+features into ext3, over time, ad infinitum?
+
+
+>> People (including me) still switch back and forth between ext2 and ext3 
+>> mounts of the same filesystem on occasion.  I think creating an "ext4" 
+>> would allow for greater developer flexibility in implementing new 
+>> features and ditching old ones -- while also emphasizing to the user 
+>> that switching back and forth between ext4 and ext[23] is a bad idea.
+> 
+> While this is partly true, one of the big benefits is that you can
+> transparently upgrade your system to use the new features and improve
+> performance without a long outage window.  Having a completely separate
+
+Changing the name to ext4 doesn't erase this capability.
+
+
+> ext4 filesystem doesn't improve the compatibility story at all.  There
+> has been renewed discussion on implementing "mounting ext3 without a
+> journal", just for a recovery mode, because ext2 will not be modified
+> to get all of these features (running e2fsck on a huge filesystem each
+> reboot would be insane).
+
+So now you are going backwards, and implementing ext2-within-ext3?
+
+Are you ready to admit, yet, that ext3 is 100% mutable in the minds of 
+ext3 developers?  Why not implement the minix filesystem format within 
+ext3, at this point?  We could call it a "plugin", I bet.
+
+
+>> Overall, after applying extent (and 48bit) patches, I think it is wrong 
+>> to keep calling it ext3.  That will break some existing user 
+>> assumptions, and continue to restrict developers' freedom to implement 
+>> nifty new features.
+> 
+> Just FYI, all of the ext3 developers are on board with this patch series
+> and it has been discussed and reviewed for many weeks already, it isn't
+> just being pushed by one party.
+
+That is completely irrelevant to this thread.
+
+If all the ext3 developers are on board, that just implies that there is 
+no clear definition of what "ext3" really means.  With this patch 
+series, and with future plans described here and elsewhere, the name 
+"ext3" will become more and more meaningless.  It could mean _any_ of 
+several filesystem metadata variants, and the admin will have no clue 
+which variant they are talking to until they try to mount the blkdev 
+(and possibly fail the mount).
+
+At SOME point, clueful developers will say "we should better concentrate 
+our energy on a new filesystem."
+
+But I see no one at all defining that "some point."
+
+At some point you are beating a dead horse.  At some point, you are 
+pushing features into a filesystem that was never designed to support 
+said features.
+
+	Jeff
+
+

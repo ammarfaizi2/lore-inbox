@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWFIXTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWFIXVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbWFIXTo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 19:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWFIXTn
+	id S1030368AbWFIXVE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 19:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWFIXVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 19:19:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23002 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932592AbWFIXTn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 19:19:43 -0400
-Date: Fri, 9 Jun 2006 16:22:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: nagar@watson.ibm.com, balbir@in.ibm.com, jlan@sgi.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
- taskstats
-Message-Id: <20060609162232.2f2479c5.akpm@osdl.org>
-In-Reply-To: <4489F93E.6070509@engr.sgi.com>
-References: <44892610.6040001@watson.ibm.com>
-	<20060609010057.e454a14f.akpm@osdl.org>
-	<448952C2.1060708@in.ibm.com>
-	<20060609042129.ae97018c.akpm@osdl.org>
-	<4489EE7C.3080007@watson.ibm.com>
-	<4489F93E.6070509@engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 9 Jun 2006 19:21:04 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:22420 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030301AbWFIXVC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 19:21:02 -0400
+Date: Fri, 9 Jun 2006 17:21:08 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Alex Tomas <alex@clusterfs.com>, Jeff Garzik <jeff@garzik.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060609232108.GM5964@schatzie.adilger.int>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu,
+	Alex Tomas <alex@clusterfs.com>, Jeff Garzik <jeff@garzik.org>,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+	Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
+References: <20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net> <44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net> <4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net> <44899113.3070509@garzik.org> <170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com> <m3odx2b86p.fsf@bzzz.home.net> <200606092252.k59Mqc2Q018613@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606092252.k59Mqc2Q018613@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan <jlan@engr.sgi.com> wrote:
->
-> If you can show me how to not sending per-tgid with current patchset,
-> i would be very happy to drop this request.
+On Jun 09, 2006  18:52 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 09 Jun 2006 20:33:18 +0400, Alex Tomas said:
+> > one who needs/wants to go back may get rid of extents by:
+> > a) remounting w/o extents option
+> > b) copying new-fashion-style files so that copies use blockmap
+> > c) dropping extents feature in superblock
+> 
+> OK.. Obviously my brain is tiny and easily overfilled.
 
-pleeeze, not a global sysctl.  It should be some per-client subscription thing.
+...
 
-But the overhead at present is awfully low.  If we don't need this ability
-at present (and I don't think we do) then a paper design would be
-sufficient at this time.  As long as we know we can do this in the future
-without breaking existing APIs then OK.
+> Given that the whole alledged problem with extents is that they're not
+> backward compatible, how do you read the files in (b) so that you can copy
+> them, if the data is in the non-compatible extents that you can't read because
+> you've disabled extents?
+
+You mount with the new kernel without "-o extents", and find files with
+extents "lsattr -R /mnt/tmp | awk '/----e / print { $2 }'", copy those
+files, mv over old files, unmount.
+
+A similar thing is necessary for ext3 filesystems before you can mount them
+as ext2 - they can't be mounted as ext2 until the journal is recovered
+(an unrecovered journal is an incompatible feature).
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

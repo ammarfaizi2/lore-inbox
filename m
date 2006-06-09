@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbWFITfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbWFITjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbWFITfv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 15:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWFITfv
+	id S1030458AbWFITjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 15:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWFITjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 15:35:51 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:61340 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030440AbWFITfu (ORCPT
+	Fri, 9 Jun 2006 15:39:25 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:11414 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1030452AbWFITjX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 15:35:50 -0400
-Message-ID: <4489CD8D.5060809@garzik.org>
-Date: Fri, 09 Jun 2006 15:35:41 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Alex Tomas <alex@clusterfs.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
+	Fri, 9 Jun 2006 15:39:23 -0400
+X-Comment-To: Jeff Garzik
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alex Tomas <alex@clusterfs.com>, linux-fsdevel@vger.kernel.org,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>	<m33beecntr.fsf@bzzz.home.net>	<Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>	<Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>	<20060609181020.GB5964@schatzie.adilger.int>	<Pine.LNX.4.64.0606091114270.5498@g5.osdl.org>	<m31wty9o77.fsf@bzzz.home.net>	<Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>	<Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>	<1149880865.22124.70.camel@localhost.localdomain>	<m3irna6sja.fsf@bzzz.home.net> <4489CB42.6020709@garzik.org> <m3wtbq5dgw.fsf@bzzz.home.net>
-In-Reply-To: <m3wtbq5dgw.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<200606090240.k592enXj009395@turing-police.cc.vt.edu>
+	<20060609082013.GP5964@schatzie.adilger.int>
+	<1149878107.5776.84.camel@sisko.sctweedie.blueyonder.co.uk>
+	<4489C9F6.8020103@garzik.org> <m3ejxy6scn.fsf@bzzz.home.net>
+	<4489CCB8.5000205@garzik.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Fri, 09 Jun 2006 23:41:35 +0400
+In-Reply-To: <4489CCB8.5000205@garzik.org> (Jeff Garzik's message of "Fri, 09 Jun 2006 15:32:08 -0400")
+Message-ID: <m3slme5d74.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
->>>>>> Jeff Garzik (JG) writes:
-> 
->  JG> Irrelevant.  That's a development-only situation.  It will be enabled
->  JG> by default eventually, and should be considered in that light.
-> 
-> that's your point of view. mine is that this option (and code)
-> to be used only when needed. 
+>>>>> Jeff Garzik (JG) writes:
 
-Regardless of any use "when needed," the code is in the codebase, and is 
-thus the "if (metadata_v2) ... else ..." maintenance burden that has 
-been discussed.
+ JG> I am much too much of an NIH guy, but I would be willing to
+ JG> participate in ext4 development.  Everybody here has no doubt
+ JG> experimented with their own from-scratch filesystem, and I am no
+ JG> different:
+ JG> http://www.kernel.org/pub/linux/kernel/people/jgarzik/ibu/
 
-	Jeff
+sigh, this is exactly that I was talking about ...
 
-
+thanks, Alex
 

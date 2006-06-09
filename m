@@ -1,89 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbWFIQFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWFIQFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030262AbWFIQFq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 12:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWFIQFq
+	id S1030265AbWFIQFg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 12:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbWFIQFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 12:05:46 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:54970 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1030262AbWFIQFo (ORCPT
+	Fri, 9 Jun 2006 12:05:35 -0400
+Received: from [80.71.248.82] ([80.71.248.82]:35471 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S1030263AbWFIQFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 12:05:44 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "H. Peter Anvin" <hpa@c2micro.com>
-Subject: Re: tg3 broken on 2.6.17-rc5-mm3
-Date: Fri, 9 Jun 2006 10:05:21 -0600
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, mchan@broadcom.com
-References: <200606071711.06774.bjorn.helgaas@hp.com> <200606082249.14475.bjorn.helgaas@hp.com> <44890117.1000403@c2micro.com>
-In-Reply-To: <44890117.1000403@c2micro.com>
+	Fri, 9 Jun 2006 12:05:32 -0400
+X-Comment-To: Jeff Garzik
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<4488E1A4.20305@garzik.org>
+	<20060609083523.GQ5964@schatzie.adilger.int>
+	<44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
+	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+	<448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net>
+	<44899A1C.7000207@garzik.org>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Fri, 09 Jun 2006 20:07:21 +0400
+In-Reply-To: <44899A1C.7000207@garzik.org> (Jeff Garzik's message of "Fri, 09 Jun 2006 11:56:12 -0400")
+Message-ID: <m3ac8mcnye.fsf@bzzz.home.net>
+User-Agent: Gnus/5.1008 (Gnus v5.10.8) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606091005.21165.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 June 2006 23:03, H. Peter Anvin wrote:
-> Bjorn Helgaas wrote:
-> > On Wednesday 07 June 2006 17:11, Bjorn Helgaas wrote:
-> >> Something changed between 2.6.17-rc5-mm2 and -mm3 that broke tg3
-> >> on my HP DL360:
-> > 
-> > and the specific change that broke it seems to be:
-> >   gregkh-pci-pci-ignore-pre-set-64-bit-bars-on-32-bit-platforms.patch.
-> > 
-> > pci_read:  0000:01:02.0 reg 0x10 len 4 val 0xf7ef0004
-> > pci_write: 0000:01:02.0 reg 0x10 len 4 val 0xffffffff
-> > pci_read:  0000:01:02.0 reg 0x10 len 4 val 0xffff0004
-> > pci_write: 0000:01:02.0 reg 0x10 len 4 val 0xf7ef0004
-> > pci_read:  0000:01:02.0 reg 0x14 len 4 val 0x0000
-> > pci_write: 0000:01:02.0 reg 0x14 len 4 val 0xffffffff
-> > pci_read:  0000:01:02.0 reg 0x14 len 4 val 0xffffffff
-> > pci_write: 0000:01:02.0 reg 0x14 len 4 val 0x0000
-> 
-> ... this is a 64-bit BAR preset with a 16-bit mask, preset
-> to the valid 32-bit address 0x0000_0000_f7ef_0000.
-> 
-> > pci_write: 0000:01:02.0 reg 0x10 len 4 val 0x0004  <=== looks questionable
-> > pci_write: 0000:01:02.0 reg 0x14 len 4 val 0x0000
-> 
-> ... here the algorithm thinks the addrss is above 4 GB and disables it. 
->   It should re-enable it when the device is turned back on, though; if 
-> it doesn't that's very strange.
-> 
-> Anyway, the error seems to be that the line:
-> 
-> +			} else if (l) {
-> 
-> ... should be ...
-> 
-> +			} else if (lhi) {
-> 
-> ... since l contains the lower half of the pre-set address at that 
-> point, and lhi is the upper half.
+>>>>> Jeff Garzik (JG) writes:
 
-The patch below indeed fixes the problem.  You can have my
-"signed-off" if you want (though you supplied the fix above),
-but can you please write the description?  I'm too lazy to
-puzzle it all out and you understand it already anyway :-)
+ JG> Think about how this will be deployed in production, long term.
 
+ JG> If extents are not made default at some point, then no one will use
+ JG> the feature, and it should not be merged.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+sorry, I disagree. for example, NUMA isn't default and shouldn't be.
+but we have it in the tree and any one may choose to use it. the same
+with extents. let's have it in. but let's make clear it's experimental,
+it makes sense for large files only, it isn't backward compatible and
+so on.
 
-Index: rc5-mm3/drivers/pci/probe.c
-===================================================================
---- rc5-mm3.orig/drivers/pci/probe.c	2006-06-09 09:40:51.000000000 -0600
-+++ rc5-mm3/drivers/pci/probe.c	2006-06-09 09:42:35.000000000 -0600
-@@ -199,7 +199,7 @@
- 				printk(KERN_ERR "PCI: Unable to handle 64-bit BAR for device %s\n", pci_name(dev));
- 				res->start = 0;
- 				res->flags = 0;
--			} else if (l) {
-+			} else if (lhi) {
- 				/* 64-bit wide address, treat as disabled */
- 				pci_write_config_dword(dev, reg, l & ~(u32)PCI_BASE_ADDRESS_MEM_MASK);
- 				pci_write_config_dword(dev, reg+4, 0);
+thanks, Alex
+

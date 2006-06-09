@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWFIPZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965286AbWFIP0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbWFIPZf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 11:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965287AbWFIPZf
+	id S965286AbWFIP0x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 11:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965287AbWFIP0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 11:25:35 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:62603 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965286AbWFIPZe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 11:25:34 -0400
-Message-ID: <448992EB.5070405@garzik.org>
-Date: Fri, 09 Jun 2006 11:25:31 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 11:26:52 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:43209 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S965286AbWFIP0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 11:26:51 -0400
+Date: Fri, 9 Jun 2006 11:26:46 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Kirill Korotaev <dev@openvz.org>
+cc: Andrew Morton <akpm@osdl.org>, devel@openvz.org, xemul@openvz.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ebiederm@xmission.com, herbert@13thfloor.at, saw@sw.ru,
+       serue@us.ibm.com, sfrench@us.ibm.com, sam@vilain.net,
+       haveblue@us.ibm.com, clg@fr.ibm.com
+Subject: Re: [PATCH 1/6] IPC namespace core
+In-Reply-To: <44898D52.4080506@openvz.org>
+Message-ID: <Pine.LNX.4.64.0606091119450.12862@d.namei>
+References: <44898BF4.4060509@openvz.org> <44898D52.4080506@openvz.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-CC: Andreas Dilger <adilger@clusterfs.com>, cmm@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org>
-In-Reply-To: <44898EE3.6080903@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Overall, I'm surprised that ext3 developers don't see any of the 
-problems related to progressive, stealth filesystem upgrades.
+On Fri, 9 Jun 2006, Kirill Korotaev wrote:
 
-Users are never given a clear indication of when their metadata is being 
-upgraded, there is no clear "line of demarcation" they cross, when they 
-start using extents.
+> This patch implements core IPC namespace changes:
+> - ipc_namespace structure
+> - new config option CONFIG_IPC_NS
+> - adds CLONE_NEWIPC flag
+> - unshare support
+> 
 
-Since there is no user-visible fs upgrade event, users do not have a 
-clear picture of what features are being used -- which means they are 
-kept in the dark about which kernels are OK to use on their data.
+Please post patches as inline text, so they can be reviewed inline.
 
-Do you guys honestly expect users to keep track of which kernels added 
-specific ext3 features?
++struct ipc_namespace {
++       struct kref     kref;
++       struct ipc_ids  *ids[3];
++
++       int             sem_ctls[4];
 
-This is why other enterprise filesystems have clear "fs version 1", "fs 
-version 2" points across which a user migrates.  ext3's feature-flags 
-approach just means that there are a million combinations of potential 
-old-and-new features, in-tree and third party, all of which must be 
-supported.
-
-	Jeff
+It'd be nice if these weren't magic numbers.
 
 
+
+-- 
+James Morris
+<jmorris@namei.org>

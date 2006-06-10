@@ -1,36 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWFJMLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWFJMNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751501AbWFJMLq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 08:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWFJMLq
+	id S1751498AbWFJMNU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 08:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWFJMNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 08:11:46 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:18565 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1751490AbWFJMLp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 08:11:45 -0400
-Date: Sat, 10 Jun 2006 14:11:42 +0200 (MEST)
-Message-Id: <200606101211.k5ACBgtl029545@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.17-rc6] Section mismatch in drivers/net/ne.o during modpost
-Cc: netdev@vger.kernel.org
+	Sat, 10 Jun 2006 08:13:20 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:10714 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1751498AbWFJMNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 08:13:19 -0400
+Date: Sat, 10 Jun 2006 06:13:18 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: How long can an inode structure reside in the inode_cache?
+Message-ID: <20060610121318.GQ1651@parisc-linux.org>
+References: <4ae3c140606091710k7a320f2ex6390d0e01da4de9b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ae3c140606091710k7a320f2ex6390d0e01da4de9b@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While compiling 2.6.17-rc6 for a 486 with an NE2000 ISA ethernet card, I got:
+On Fri, Jun 09, 2006 at 08:10:10PM -0400, Xin Zhao wrote:
+> I was wondering how Linux decide to free an inode from the
+> inode_cache? If a file is open, an inode structure will be created and
+> put into the inode_cache, but when will this inode be free and removed
+> from the inode_cache? after this file is closed? If so, this seems to
+> be inefficient.
 
-  Building modules, stage 2.
-make -rR -f /tmp/linux-2.6.17-rc6/scripts/Makefile.modpost
-  scripts/mod/modpost   -o /tmp/linux-2.6.17-rc6/Module.symvers   vmlinux drivers/net/8390.o drivers/net/ne.o lib/crc32.o net/packet/af_packet.o
-WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x158) and 'ne_block_input'
-WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x176) and 'ne_block_input'
-WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x183) and 'ne_block_input'
-WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x1ea) and 'ne_block_input'
-WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x251) and 'ne_block_input'
-WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x266) and 'ne_block_input'
-WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x29b) and 'ne_block_input'
-
-Not sure how serious this is; the driver seems to work fine later on.
-
-/Mikael
+how can you possibly release an inode while the file's still open?
+look at all the information stored in the inode, like the length of the
+file, last accessed time, not to mention which filesystem the inode
+belongs to.

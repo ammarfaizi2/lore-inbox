@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbWFJWrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWFJW6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161044AbWFJWrc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 18:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWFJWrc
+	id S1161045AbWFJW6n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 18:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWFJW6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 18:47:32 -0400
-Received: from wr-out-0506.google.com ([64.233.184.225]:48704 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1161043AbWFJWrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 18:47:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n4pDFR6UB290Ene2UwV68qhyI5r0teXSDUE39Lkop3Fmv4rEDY0n2SyfouZuc+UnC62ccoxuQnYWEFDjsy4EG5BgKz/azvvrkdDeoFCYr+ylRK4U6pRMvzxt2L/iFhwk7l8JSmnGVnRoXSq9OH1rNNRsr4Ek4RnJQcdD4yTN+og=
-Message-ID: <4d8e3fd30606101547x46b94058u3bb48ba8d25dc48d@mail.gmail.com>
-Date: Sun, 11 Jun 2006 00:47:30 +0200
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Junio C Hamano" <junkio@cox.net>
-Subject: Re: [ANNOUNCE] GIT 1.4.0
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4d8e3fd30606101537n2d099ee4g5e86956bdfc5cb5@mail.gmail.com>
+	Sat, 10 Jun 2006 18:58:43 -0400
+Received: from w3.zipcon.net ([209.221.136.4]:44723 "HELO w3.zipcon.net")
+	by vger.kernel.org with SMTP id S1161045AbWFJW6n convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 18:58:43 -0400
+From: Bill Waddington <william.waddington@beezmo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SATA Conflict with PATA DMA
+Date: Sat, 10 Jun 2006 15:58:10 -0700
+Message-ID: <r9jm82lm9l4mir6jkfrh7gas3um73tt4rb@4ax.com>
+References: <fa.ln8Pe5HNqw60/RjEpl4xhDtmxDg@ifi.uio.no> <fa.foo0W8w4UdiDztK9eBiA9awyAi8@ifi.uio.no> <fa.UjEGyG0y7x3qVLsO0eHpXVza2r8@ifi.uio.no>
+In-Reply-To: <fa.UjEGyG0y7x3qVLsO0eHpXVza2r8@ifi.uio.no>
+X-Mailer: Forte Agent 3.3/32.846
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <7vmzckhfsx.fsf@assigned-by-dhcp.cox.net>
-	 <4d8e3fd30606101537n2d099ee4g5e86956bdfc5cb5@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/11/06, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> On 6/10/06, Junio C Hamano <junkio@cox.net> wrote:
-> > The latest feature release GIT 1.4.0 is available at the
-> > usual places:
-> >
-> >         http://www.kernel.org/pub/software/scm/git/
+On Sat, 15 Apr 2006 18:39:20 UTC, in fa.linux.kernel you wrote:
+
+>On Sat, 15 Apr 2006 16:42:22 UTC, in fa.linux.kernel you wrote:
 >
-> Cannot pull:
+>>Esben Stien wrote:
+>>> I'm having problems enabling DMA for my PATA HD.
+>>> 
+>>> hdparm -d1 /dev/hdb reports: 
+>>> HDIO_SET_DMA failed: Operation not permitted
+
+>>Disabled combined mode in BIOS.
 >
-> paolo@Italia:~/git$ git pull
-> error: no such remote ref refs/heads/jc/bind
-> Fetch failure: git://www.kernel.org/pub/scm/git/git.git
+>If only that was possible on my fscking T43.  *sigh*
 
-Ok, solved doing (as suggested on #git)
-/.git/remotes$ vi origin
-and removed:
-Pull: jc/bind:jc/bind
+(for others struggling with this) Per the fix reported at
 
-What happened to that branch?
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=163418
 
-Thanks.
+Updating my T43/FC5 to kernel 2.6.16-1.2122_FC5 and booting
+with "combined_mode=libata" gets the DVD drive running at speed
+as /dev/scd0 (although there doesn't seem to be any explicit
+"dma enabled" indication).
 
-Ciao,
+Thanks Jeff et al.
 
+Bill
 -- 
-Paolo
-http://paolociarrocchi.googlepages.com
+William D Waddington
+william.waddington@beezmo.com
+"Even bugs...are unexpected signposts on
+the long road of creativity..." - Ken Burtch
+

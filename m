@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWFJKDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWFJKHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWFJKDj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 06:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWFJKDj
+	id S1751475AbWFJKHw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 06:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWFJKHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 06:03:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29850 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750787AbWFJKDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 06:03:38 -0400
-Date: Sat, 10 Jun 2006 11:03:17 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Matthew Frost <artusemrys@sbcglobal.net>,
-       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060610100317.GC20526@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Gerrit Huizenga <gh@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
-	Matthew Frost <artusemrys@sbcglobal.net>,
-	Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-	linux-fsdevel@vger.kernel.org
-References: <4489C34B.1080806@garzik.org> <E1FompD-0006pL-Dg@w-gerrit.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jun 2006 06:07:52 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:27876 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751475AbWFJKHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 06:07:52 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "Leubner, Achim" <Achim_Leubner@adaptec.com>
+Subject: Re: HEADS UP for gdth driver users
+Date: Sat, 10 Jun 2006 12:03:59 +0200
+User-Agent: KMail/1.9.3
+Cc: "Christoph Hellwig" <hch@lst.de>, linux-kernel@vger.kernel.org
+References: <EF6AF37986D67948AD48624A3E5D93AFAA967C@mtce2k01.adaptec.com>
+In-Reply-To: <EF6AF37986D67948AD48624A3E5D93AFAA967C@mtce2k01.adaptec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1FompD-0006pL-Dg@w-gerrit.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200606101204.00742.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 12:39:19PM -0700, Gerrit Huizenga wrote:
-> > PRECISELY.  So you should stop modifying a filesystem whose design is 
-> > admittedly _not_ modern!
-> 
-> So just how long do you think it would take to get a modern filesystem
-> into the hands of real users, supported by the distros?  From community
-> building, through design, development, testing, delivery?
+Hi Achim,
 
-JFS is pretty nice because it has many adavanced features but still is
-rather simple.  XFS has even more cool features such as a WIP parallel
-fsck and is proven on the biggest filesystems on COS operating systems
-out there, but as a disadvantage is hugely complex so outsiders have a
-hard time getting into it.
+Thanks for working on this!
 
-So shortem the option I'd recommend is to start supporting XFS more broadly,
-because it's the high end filesystem that's out there today and fill the
-needs people have in the next five or so years.
+On Friday, 9. June 2006 13:03, Leubner, Achim wrote:
+> Attached you find a patch to remove the scsi_request interface from the
+> gdth driver. The patch contains your first patch, the changes for
+> removing the scsi_request interface and some changes to preserve the
+> 2.4.x compatibility.
+> We tested it and it should work fine. It would be great if it could be
+> integrated in the 2.6.18 cycle.
 
-For the time after that we need to think about something that can scale
-aswell and better while beeing simpler.  Also we need to start thinking
-about a clustered filesystem more, it might or might not make sense to
-have a cluster filesystem also do the next generation local filesystem
-thing.  I'd probably start designing such a next gen fs by taking jfs
-and revamping it completely.
+Your driver also uses lots of kernel version dependent
+code in the main driver file.
 
+Please implement new kernel API functions using old kernel API
+functions and put these into your existing gdth_kcompat.h file.
+
+Rationale: Linux drivers are required to be forward compatible instead of
+	backward compatible. More details per private email, if your needed.
+
+Other issues with your patch were already raised by Andrew and Christoph.
+
+
+Regards
+
+Ingo Oeser

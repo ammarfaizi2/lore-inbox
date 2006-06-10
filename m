@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWFJCMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWFJCPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbWFJCMM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 22:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbWFJCMM
+	id S932293AbWFJCPh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 22:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWFJCPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 22:12:12 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:60589 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750721AbWFJCML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 22:12:11 -0400
-Message-ID: <448A2A6F.8020301@garzik.org>
-Date: Fri, 09 Jun 2006 22:11:59 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 9 Jun 2006 22:15:37 -0400
+Received: from wx-out-0102.google.com ([66.249.82.205]:28367 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932293AbWFJCPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 22:15:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pjz01rbzrDOl8oBUD+agokuzRSxKYhYe/mWdJEqjWvj3Fvm7KuNBAt8FW0cukfFWl4Jzz28bvqWSUBTbt5HbtJJ6Du/TF47RO4MwYkyI0E4VKlmSrgiG4QpED6DE9mqnTryrvJtvY4eWrNS0YmpvlOouUuEpJnZ0MTLrHTMAWIM=
+Message-ID: <4745278c0606091915n3ed7563do505664c4f8070f81@mail.gmail.com>
+Date: Fri, 9 Jun 2006 22:15:36 -0400
+From: "Vishal Patil" <vishpat@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: CSCAN vs CFQ I/O scheduler benchmark results
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "Jens Axboe" <axboe@suse.de>
+In-Reply-To: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com>
 MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Matthew Frost <artusemrys@sbcglobal.net>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
-       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <20060609194959.GC10524@thunk.org> <4489D44A.1080700@garzik.org> <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk> <4489ECDD.9060307@garzik.org> <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk> <448A07EC.6000409@garzik.org> <20060610004727.GC7749@thunk.org> <448A1BBA.1030103@garzik.org> <20060610013048.GS5964@schatzie.adilger.int> <448A23B2.5080004@garzik.org> <20060610020306.GA449@thunk.org>
-In-Reply-To: <20060610020306.GA449@thunk.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Disposition: inline
+References: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> On Fri, Jun 09, 2006 at 09:43:14PM -0400, Jeff Garzik wrote:
->>> ???  Can you please be specific in what the performance penalty is, and
->>> what specifically is "not sized optimally" after a resize?  How exactly
->>> does inode allocation strategy relate to anything at all to online 
->>> resizing.
->> Inodes per group / inode blocks per group, as I've already stated.
-> 
-> Inodes per group and inode blocks per group are maintained
-> across an online resize.
+The previous mail got scrambbled and hence I am resending this one
+again
 
-That's the problem I'm pointing out.
+Hello
 
+I ran the sysbench benchmark to compare the CSCAN I/O scheduler
+against the CFQ scheduler and following are the results. The results
+are interesting especially in case of sequential writes and the random
+workloads
 
-> So there is no difference in inodes per
-> group for a filesystem created at size S1 and resized to size S2
-> (using either an on-line or off-line resize), and a filesystem which
-> is created to be size S2.
+                                            Latency (seconds)
 
-Trivial to prove false, by your statement above if nothing else.  But 
-anyway:
-Run mke2fs on a blkdev of size 500MB, and one of 500GB.  Note values.
-Now resize blkdev formatted for size 500MB to 500GB, and note differences.
+               seq            seq         seq             rnd
+  rnd          rnd
+               reads         writes      r + w          reads
+writes      r + w
+               --------------------------------------------------------------------------------------
+CFQ         0.0116      0.0164      0.0107      0.1178       0.0423      0.0605
 
-	Jeff
+CSCAN    0.0148      0.0092      0.0169      0.1043      0.0473      0.0732
 
 
+                                           Throughput (MB/seconds)
 
+                seq            seq         seq             rnd
+ rnd         rnd
+                reads         writes      r + w          reads
+writes      r + w
+
+--------------------------------------------------------------------------------------
+CFQ        19.062      15.251      22.127      2.1197      1.0032       1.376
+
+CSCAN   14.553      22.108      14.72       2.394       0.9304         1.399
+
+
+The machine configuation is as follows
+CPU: Intel(R) Pentium(R) 4 CPU 2.80GHz
+Memory: 1027500 KB (1 GB)
+Filesystem: ext3
+Kernel:   2.6.16.2
+
+If interseted you may have a look at the raw data at
+http://www.google.com/notebook/public/14554179817860061151/BDQtXSwoQ2_mdxLgh
+
+- Vishal
+
+
+-- 
+Success is mainly about failing a lot.

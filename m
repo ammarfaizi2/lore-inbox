@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWFJKXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWFJKWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWFJKXj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 06:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWFJKXj
+	id S1751472AbWFJKWM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 06:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWFJKWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 06:23:39 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:50785 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751479AbWFJKXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 06:23:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SBcDaFOEELeNjEGt3GZuB/7fVeoRSYAF35EJw/NXKCxWJ7vKgWgkFU7geN2XeoX469CX49Tpwuu+kq/Rb+TRerh2g8xzgM6OysbarPmAwMVw5z8DK51z6dzMSko7nMVUip/Fprimo465rNN+4D7P6wPVbPs+jVRe84FuP8rmSnY=
-Message-ID: <6bffcb0e0606100323p122e9b23g37350fa9692337ae@mail.gmail.com>
-Date: Sat, 10 Jun 2006 12:23:37 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.16-rc6-mm2
+	Sat, 10 Jun 2006 06:22:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:53445 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751472AbWFJKWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 06:22:12 -0400
+Date: Sat, 10 Jun 2006 11:22:11 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060609214024.2f7dd72c.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.18 -mm merge plans
+Message-ID: <20060610102211.GE20526@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060609214024.2f7dd72c.akpm@osdl.org>
+In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> ecryptfs-crypto-functions.patch
+> ecryptfs-debug-functions.patch
+> ecryptfs-alpha-build-fix.patch
+> ecryptfs-convert-assert-to-bug_on.patch
+> ecryptfs-remove-unnecessary-null-checks.patch
+> ecryptfs-rewrite-ecryptfs_fsync.patch
+> ecryptfs-overhaul-file-locking.patch
+> 
+>  Christoph has half-reviewed this and all the issues arising from that
+>  have, I believe, been addressed.  With the exception of the "we should
+>  have a generic stacking layer" issue.  Which is true.  Michael's take is
+>  "yes, but that's not my job".  Which also is true.
 
-On 10/06/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm2/
->
+It's far from ready.  There's various things that simply can't be done
+properly in a lowlevel fs or abosulutely shouldn't.  And I think a few
+uniqueue gems in there.   Most urgent thing of course is that we somehow
+need to deal with the idiocy of the nameidata passed into most namespace
+methods.
 
-I get a lot of "BUG: using smp_processor_id() in preemptible"
-
-Real Time Clock Driver v1.12ac
-printk: 22314 messages suppressed.
-BUG: using smp_processor_id() in preemptible [00000001] code: restorecon/393
-caller is __handle_mm_fault+0x2b/0x20d
- [<c0103ba8>] show_trace+0xd/0xf
- [<c0103c7a>] dump_stack+0x17/0x19
- [<c0203bcc>] debug_smp_processor_id+0x8c/0xa0
- [<c0160e60>] __handle_mm_fault+0x2b/0x20d
- [<c0116f7b>] do_page_fault+0x226/0x61f
- [<c0103959>] error_code+0x39/0x40
-
-Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.17-rc6-mm2/mm-dmesg
-Here is config http://www.stardust.webpages.pl/files/mm/2.6.17-rc6-mm2/mm-config
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

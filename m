@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWFJI4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWFJJxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWFJI4B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 04:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWFJI4B
+	id S1751457AbWFJJxh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 05:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWFJJxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 04:56:01 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:24269 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751416AbWFJI4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 04:56:00 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Hui Zhou <hzhou@hzsolution.net>
-Subject: Re: Frustrating Random Reboots, seeking suggestions
-Date: Sat, 10 Jun 2006 10:52:03 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060609145757.GB1640@smtp.comcast.net> <Pine.LNX.4.64.0606091058320.4969@turbotaz.ourhouse> <20060610023719.GA10857@smtp.comcast.net>
-In-Reply-To: <20060610023719.GA10857@smtp.comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jun 2006 05:53:37 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:32488 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751457AbWFJJxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 05:53:37 -0400
+Date: Sat, 10 Jun 2006 10:53:33 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 -mm merge plans
+Message-ID: <20060610095333.GB20526@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Serge E. Hallyn" <serue@us.ibm.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-kernel@vger.kernel.org
+References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605144328.GA12904@sergelap.austin.ibm.com> <m17j3r8lqd.fsf@ebiederm.dsl.xmission.com> <20060609232551.GA11240@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606101052.05212.ioe-lkml@rameria.de>
+In-Reply-To: <20060609232551.GA11240@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hui Zhou,
-
-On Saturday, 10. June 2006 04:37, Hui Zhou wrote:
-> Thanks. memtest86 passes 6 times without errors. Serial console didn't 
-> show up anything (it just reboots). 
+On Fri, Jun 09, 2006 at 06:25:51PM -0500, Serge E. Hallyn wrote:
+> Quoting Eric W. Biederman (ebiederm@xmission.com):
+> > If you want to help with the bare pid to struct pid conversion I
+> > don't have any outstanding patches, and getting that done kills
+> > some theoretical pid wrap around problems as well as laying the ground
+> > work for a simple pidspace implementation.
+> > 
+> > Eric
 > 
-> Anyway, I finally suspect the debian libmpeg binary is at fault. I 
-> manually build it from src and statically linked to the `bkmark' 
-> program. It seems cured the random reboots problem. It runs 
-> successfully for 4 times. However, the fifth time it ended up in a `D' 
-> state. The only system call it uses is libc file IO and some signal 
-> passing. Any comment on the cause?
-
-Do you also see the problem if you decode from file to memory only.
-without any display?
-
-NO: You have some problem with your peripherals.
-
-YES: Check for heat and power problems.
-
-	If you are brave you could try some cpuburn variant to put the heat 
-	to the maximum.
-
-	WARNING: This could kill your CPU and might void your warranty, 
-		since this is not "normal use" of your CPU :-)
-
-Good luck!
+> Is this the sort of thing you are looking for?  Is this worthwhile for
+> kernel_threads, or only for userspace threads - i.e. do we expect kernel
+> threads to live?
+> 
+> If we do want to do this for kernel threads, then I assume that
+> eventually we'll want to change kernel_thread() itself.  I actually
+> started to do that earlier, but of course that way every user would
+> have to be changed in the same patch :)
 
 
-Regards
+> 
+> Subject: [PATCH] struct pid: convert ieee1394 to hold struct pid
+> 
+> ieee1394 driver caches pid_t's for kernel threads.  Switch to
+> holding a reference to a struct pid.  This prevents concern
+> about the cached pid pointing to the wrong process after the
+> kernel thread dies and pids wrap around.
 
-Ingo Oeser
+NACK.  please conver to the kthread_ API instead.  A reference to a pid_t
+in a driver should generally be treated as a bug, the few exception should
+be discussed on lkml and commented verbosely.
+

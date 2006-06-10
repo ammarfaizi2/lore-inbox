@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWFJDjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWFJDuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWFJDjK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 23:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWFJDjK
+	id S1030261AbWFJDuP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 23:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWFJDuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 23:39:10 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:47840 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932283AbWFJDjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 23:39:08 -0400
-Date: Fri, 9 Jun 2006 20:37:36 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>, Sonny Rao <sonny@burdell.org>,
-       jeff@garzik.org, hch@infradead.org, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+	Fri, 9 Jun 2006 23:50:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40906 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030225AbWFJDuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 23:50:13 -0400
+Date: Sat, 10 Jun 2006 13:49:51 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
        linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060610033735.GH10524@goober>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org> <20060609214200.GA18213@kevlar.burdell.org> <20060609151553.30097b44.akpm@osdl.org> <20060609231151.GL5964@schatzie.adilger.int>
+Subject: Re: [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060610134951.B775761@wobbly.melbourne.sgi.com>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org> <20060609214200.GA18213@kevlar.burdell.org> <20060609151553.30097b44.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060609231151.GL5964@schatzie.adilger.int>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060609151553.30097b44.akpm@osdl.org>; from akpm@osdl.org on Fri, Jun 09, 2006 at 03:15:53PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 05:11:52PM -0600, Andreas Dilger wrote:
-> On Jun 09, 2006  15:15 -0700, Andrew Morton wrote:
+On Fri, Jun 09, 2006 at 03:15:53PM -0700, Andrew Morton wrote:
+> Sonny Rao <sonny@burdell.org> wrote:
+> > On Fri, Jun 09, 2006 at 10:35:43AM -0700, Andrew Morton wrote:
+> > <snip> 
+> > > All that being said, Linux's filesystems are looking increasingly crufty
+> > > and we are getting to the time where we would benefit from a greenfield
+> > > start-a-new-one.  
 > > 
-> > We're continuing to nurse along a few basically-15-year-old filesystems
-> > while we do have the brains, manpower and processes to implement a new,
-> > really great one.
-> > 
-> > It's just this feeling I have ;)
+> > I'm curious about this comment; in what way are they _collectively_
+> > looking crufty ? 
 > 
-> I think many people share this feeling (me included), hence the linux
-> filesystem meeting next week...  The problem is that even getting a
-> half-decent disk filesystem is many years of work, and large disks are
-> here before then.  The ZFS code took 10 years to get to its current state,
-> I understand, so I don't anticipate we will get there overnight.
+> We seem to be lagging behind "the industry" in some areas - handling large
+> devices, high bandwidth IO, sophisticated on-disk data structures, advanced
+> manageability, etc.
 
-I helped bring up the first instance of ZFS running as a kernel module
-on Halloween, 2002 (one fun week staying up all night hacking with
-Jeff Bonwick).  The earliest code was written in either 2001 or just
-possibly 2000 - so 5-6 years in elapsed time.  On the other hand, in
-terms of total programmer staff-years put into ZFS, it's on the order
-of 25 years.
+Er, no.  I'm not aware of many filesystems that are in the same
+league as XFS on those first three specific points.  It certainly
+has "ondisk sophistication" very well covered, trust me. ;)
 
-I'm not sure either what the best route to the next big Linux file
-system is - start from scratch or reuse a lot of code.  One of the
-things I want to talk about at the workshop is creative reuse of
-existing code, a la the continuation inode idea.
+We are definately not lagging on handling large devices nor high
+bandwidth I/O anyway - XFS serves up very close to the hardware
+capabilities for high end hardware and it scales well.  One could
+come up with a different list of areas where Linux filesystems
+might be lagging, but that list above ain't right.
 
--VAL
+> I mean, although ZFS is a rampant layering violation and we can do a lot of
+> the things in there (without doing it all in the fs!) I don't think we can
+> do all of it.
+
+*nod*.
+
+cheers.
+
+-- 
+Nathan

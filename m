@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161040AbWFJW1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161035AbWFJW1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161040AbWFJW1g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 18:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161038AbWFJW1g
+	id S1161035AbWFJW1R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 18:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161038AbWFJW1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 18:27:36 -0400
-Received: from z2.cat.iki.fi ([212.16.98.133]:8666 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S1161040AbWFJW1f (ORCPT
+	Sat, 10 Jun 2006 18:27:17 -0400
+Received: from khc.piap.pl ([195.187.100.11]:57351 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1161035AbWFJW1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 18:27:35 -0400
-Date: Sun, 11 Jun 2006 01:27:34 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: VGER does gradual SPF activation  (FAQ matter)
-Message-ID: <20060610222734.GZ27502@mea-ext.zmailer.org>
-Mime-Version: 1.0
+	Sat, 10 Jun 2006 18:27:16 -0400
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
+       lm-sensors@lm-sensors.org
+Subject: Re: [lm-sensors] [PATCH] I2C: i2c_bit_add_bus should initialize SDA and SCL lines
+References: <m34pyyz0e1.fsf@defiant.localdomain>
+	<20060609110546.GA26073@jupiter.solarsys.private>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 11 Jun 2006 00:27:14 +0200
+In-Reply-To: <20060609110546.GA26073@jupiter.solarsys.private> (Mark M. Hoffman's message of "Fri, 9 Jun 2006 07:05:46 -0400")
+Message-ID: <m3lks4k5od.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that there is even an RFC published about SPF...
+Hi,
+
+"Mark M. Hoffman" <mhoffman@lightlink.com> writes:
+
+> SCL and SDA must be pulled high by hardware.  If a driver inits to
+> setting them low, that's a bug in the driver.
+
+Thanks for your response.
+
+The question is rather who inits the lines: a) the hw driver,
+b) the I2C algorithm driver.
+
+With a) every hw driver has to know how to init them (duplicated
+code but there might be positive side).
+
+With b) I2C algorithm driver inits the lines and hw driver
+doesn't worry about but it might have some limitations such
+as unknown SCL state.
+
+I understand the current case is a) - right?
 
 
-What is SPF ?
+The other question is _how_ to init the lines. There are 4 possible
+hardware initial conditions:
 
-It is one way to to ensure that at SMTP transport level the claimed
-message source domain is valid, and message is coming from place
-where origination domain's administrator has declared that are valid
-source servers for emails claiming to be of that domain.
+  SCL SDA
+a)  0   0 (outputs zeroed by default)
+b)  0   1 (uncommon but may be left in this state by previous operations)
+c)  1   0 (ditto)
+d)  1   1 (I/O lines configured as input by default)
 
+The internal state of devices connected to the bus is potentially
+unknown. Some implementations just start with STOP to eliminate
+this problem, I don't know what Linux driver is supposed to do.
 
-It does NOT verify that SMTP origination local part is true. 
-
-It does NOT verify message visible headers.
-
-Several people have written MTA configurations that test arriving email
-visible "From:" (and sometimes "Sent:") header against SPF data and
-actually violate SPF specification doing that!
-(We have routinely kicked subscribers with that bug from lists..)
-
-
-What it gives ?
-
-It gives us a way to tell the world, that emails claiming to be
-coming from VGER should be accepted only when they really are
-coming from vger. (Complications like recipients incoming MX
-relays are not _our_ problem..)
-
-We might get slight reduction of back falling junk at vger with
-that - reduction increases when people begin to deploy the SPF
-verification more and more widely into their receiving email servers.
-(And do it correctly...)
+(Other implementation I know are rather specialized and thus they
+know their hardware init state, Linux I2C algorithm handles many
+devices with potentially different initial state of hardware lines).
 
 
-
-Will VGER begin to verify SPF in incoming email ?
-
-Yes, sometime this summer.
-
-
-
-What will break ?
-
-You really should go and read SPF documents and guides and FAQs at:
-    http://spf.pobox.com/
-
-Very little will break, but one should really consider converting
-their email sending methodology to one, which uses fewest possible
-number of servers, publish that data in DNS, and always send all
-emails thru those servers.
-
-In longer run the amount of irresponsible (incurable) network security
-holes (known as Windows) shows no sign of becoming extinct at adsl -lines,
-so there will be increased pressure to demand sender identification
-(and verification) during email sending - viruses can't do that yet...
-And when they learn, user with infection can be trivially identified
-and contacted/blocked.  At the same time I do find it most likely that
-ADSL-lines (and modems) will no longer be allowed to send _anywhere_
-over plain SMTP.
-
-In order to be able to send email, a "SUBMISSION" protocol does exist,
-and is relatively easy to get working with for example the Thunderbird.
-Better would be having a button "use submission service" in its account
-setup..   (And similar in Outlook/O.Express...)
-
-
-/Matti Aarnio -- one of  postmaster at vger.kernel.org
+To summarize questions:
+- is it the hw driver who has to init the bus
+- how to init the bus (depending on init state)
+-- 
+Krzysztof Halasa

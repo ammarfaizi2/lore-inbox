@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWFJRMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWFJRWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030364AbWFJRMo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 13:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbWFJRMn
+	id S1751665AbWFJRWv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 13:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWFJRWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 13:12:43 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:58440 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751660AbWFJRMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 13:12:43 -0400
+	Sat, 10 Jun 2006 13:22:51 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:10619 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751663AbWFJRWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 13:22:51 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YZm0NH0nQu7ge3b8kC4UJgWC+GWMoYSKTAYSj/6jqIBmnCW5apnZOfauS0AnWlPO4038Bw6IwWgQU9MmTjTeWFqOkfvAE03KfkKvkW220jHWN5vdOqDyJAHBLkx1gA+suXxATh+TkxUpN7H5tpmTaIXGLLskARKDchHlxrTqjmY=
-Message-ID: <4ae3c140606101012y6668fd5co7b7d2d453bb02397@mail.gmail.com>
-Date: Sat, 10 Jun 2006 13:12:39 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: "Matthew Wilcox" <matthew@wil.cx>
-Subject: Re: How long can an inode structure reside in the inode_cache?
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060610121318.GQ1651@parisc-linux.org>
+        b=czcVUNTpoAuxzSVHvtCKKIpBycxhcXzcH6DsUypBWMUcFgmG+oKydf3cSWdLHPjdr6jhzlu4xvrj2sddwbt1JeYnS1dfwzajuZwJSBZ03PBrzoiYomG7CfOy2rjSiOc+Twa/UfNlR5Mni50cySZ7oGAJQRF9NRgZCYGJETpoNmQ=
+Message-ID: <9e4733910606101022l331ebb11na4c379d88601b674@mail.gmail.com>
+Date: Sat, 10 Jun 2006 13:22:50 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       "Greg KH" <greg@kroah.com>
+In-Reply-To: <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4ae3c140606091710k7a320f2ex6390d0e01da4de9b@mail.gmail.com>
-	 <20060610121318.GQ1651@parisc-linux.org>
+References: <44893407.4020507@gmail.com>
+	 <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
+	 <448AC8BE.7090202@gmail.com>
+	 <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No. I guess I didn't make my question clear.
+On 6/10/06, Jon Smirl <jonsmirl@gmail.com> wrote:
+> I may be looking at the problem a little differently. I see the
+> drivers like fb, vga, etc as registering with the console and saying
+> they are capable of providing console services. I then see the console
+> system as opening one of the registered devices. A driver is free to
+> register/unregister whenever it wants to as long as it isn't open by
+> the console system. Console can only open one driver at a time.
+> Opening another driver automatically closes the previous driver and
+> one driver always has to be open.
 
-My question is: Will an inode be released after the last file refers
-to this is closed? If so, this could bring a performance issue.
-Consider this case: a process open a file, read it, close it, then
-reopen this file, read it, close it. For every open,  the inode has to
-be read from disk again, which make hurt performance.
+An example might help clarify this.
 
-So I think inode should stay in inode_cache for a while, not released
-right after the last file stops referring it. I just want to know
-whether my guess is right. If it is, when will kernel release the
-inode, since an inode cannot stay in memory forever.
+Imagine that you have three console drivers (vga, serial, fb) and one
+console system all implemented as modules. I'm not saying make console
+a module, just pretend like it is one.
 
-xin
+First you would modprobe in the console system.
+Next modprobe in the three console drivers which automatically
+register with the console system.
 
-On 6/10/06, Matthew Wilcox <matthew@wil.cx> wrote:
-> On Fri, Jun 09, 2006 at 08:10:10PM -0400, Xin Zhao wrote:
-> > I was wondering how Linux decide to free an inode from the
-> > inode_cache? If a file is open, an inode structure will be created and
-> > put into the inode_cache, but when will this inode be free and removed
-> > from the inode_cache? after this file is closed? If so, this seems to
-> > be inefficient.
->
-> how can you possibly release an inode while the file's still open?
-> look at all the information stored in the inode, like the length of the
-> file, last accessed time, not to mention which filesystem the inode
-> belongs to.
->
+At this point the console system would have a ref count of 3. It can
+not be unloaded until the three console drivers have unregistered.
+
+Now console opens the vga console driver, that will increment the ref
+count on that driver.
+
+Now switch to the serial driver, ref count will go to zero on vga and
+one one serial.
+
+At this point vga and fb could be unloaded if they were modules.
+
+If console contains the rule that it always has to keep a console
+open, it will be bound into memory since it will never be possible to
+get its ref count to zero.
+
+In the old model take_over_console() effectively combined these refs
+counts so that it was impossible to unload anything once it was
+loaded. There was no mechanism to decrement the ref count on the
+console drivers.
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

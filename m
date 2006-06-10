@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWFJMnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWFJMt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751502AbWFJMnm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 08:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWFJMnm
+	id S1751507AbWFJMt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 08:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWFJMtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 08:43:42 -0400
-Received: from www.osadl.org ([213.239.205.134]:2709 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751502AbWFJMnl (ORCPT
+	Sat, 10 Jun 2006 08:49:55 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:38410 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751507AbWFJMty convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 08:43:41 -0400
-Subject: Re: 2.6.17-rc6-rt3
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0606100332t9f305c8ubbc715db7956510e@mail.gmail.com>
-References: <20060610082406.GA31985@elte.hu>
-	 <6bffcb0e0606100332t9f305c8ubbc715db7956510e@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 10 Jun 2006 14:44:25 +0200
-Message-Id: <1149943465.5257.199.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jun 2006 08:49:54 -0400
+From: Felix Oxley <felix@oxley.org>
+Reply-To: felix@oxley.org
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc6-mm2 Won't compile on PowerBook
+Date: Sat, 10 Jun 2006 13:49:52 +0100
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, linux-ppc@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200606101349.52995.felix@oxley.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal,
+Suse 10.1.
+rc6 compiles OK without -mm2 patch.
 
-On Sat, 2006-06-10 at 12:32 +0200, Michal Piotrowski wrote:
-> My system hangs on boot.
-
-It boots fine with your config here :(. Any chance to get a full output
-via serial console ?
-
-	tglx
-
-
-
-
+  CHK     include/linux/version.h
+  CHK     include/linux/compile.h
+  KLIBCCC usr/dash/builtins.o
+  KLIBCCC usr/dash/init.o
+  KLIBCLD usr/dash/sh
+  KLIBCLD usr/dash/sh.shared
+  CC      arch/powerpc/kernel/signal_32.o
+arch/powerpc/kernel/signal_32.c: In function ‘handle_rt_signal’:
+arch/powerpc/kernel/signal_32.c:763: error: request for member ‘vdso_base’ in 
+something not a structure or union
+arch/powerpc/kernel/signal_32.c:766: error: request for member ‘vdso_base’ in 
+something not a structure or union
+arch/powerpc/kernel/signal_32.c: In function ‘handle_signal’:
+arch/powerpc/kernel/signal_32.c:1037: error: request for member ‘vdso_base’ in 
+something not a structure or union
+arch/powerpc/kernel/signal_32.c:1040: error: request for member ‘vdso_base’ in 
+something not a structure or union
+make[1]: *** [arch/powerpc/kernel/signal_32.o] Error 1
+make: *** [arch/powerpc/kernel] Error 2

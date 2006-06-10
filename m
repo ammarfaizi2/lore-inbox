@@ -1,87 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWFJIWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWFJIX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbWFJIWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 04:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbWFJIWZ
+	id S1750721AbWFJIX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 04:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWFJIX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 04:22:25 -0400
-Received: from mail.gmx.net ([213.165.64.20]:14218 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030372AbWFJIWZ (ORCPT
+	Sat, 10 Jun 2006 04:23:57 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:35048 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750721AbWFJIX4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 04:22:25 -0400
-X-Flags: 0001
-Date: Sat, 10 Jun 2006 10:22:23 +0200
-Message-ID: <20060610082223.321730@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       alsa-devel@lists.sourceforge.net
-From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
-Subject: Re: Re: RFC: dma_mmap_coherent() for powerpc/ppc architecture and
- ALSA?
-To: Lee Revell <rlrevell@joe-job.com>, benh@kernel.crashing.org
-X-Authenticated: #6097454
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+	Sat, 10 Jun 2006 04:23:56 -0400
+Date: Sat, 10 Jun 2006 10:23:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dinakar Guniguntala <dino@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH] Fix for Bug in PI exit code
+Message-ID: <20060610082300.GA32261@elte.hu>
+References: <20060609131409.GA4962@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060609131409.GA4962@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5224]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -------- Original-Nachricht --------
-> Datum: Fri, 09 Jun 2006 20:46:32 -0400
-> Von: Lee Revell <rlrevell@joe-job.com>
-> An: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Betreff: Re: RFC: dma_mmap_coherent() for powerpc/ppc architecture and 
-> ALSA?
+
+* Dinakar Guniguntala <dino@in.ibm.com> wrote:
+
+> We were seeing oopses like below a lot when using PI mutexes
+
+> ===============================================================================
+> After a lot of debugging we found that this is caused due to the following race.
+> PM is a PI mutex, A and B are RT threads
 > 
-> On Sat, 2006-06-10 at 10:34 +1000, Benjamin Herrenschmidt wrote:
-> > > This leads me to the question, if there are any plans to include the 
-> > > dma_mmap_coherent() function (for powerpc/ppc and/or any other
-> > > platform) in one of the next kernel versions and if an adapation of
-> > > the ALSA drivers is planned. Or is there a simple way (hack) to fix
-> > > this problem?
-> > 
-> > You are welcome to do a patch implementing this :)
+>         Thread A (RT)                  Thread B (RT)
+>             |
+>             v
+>     pthread_mutex_lock (PM)                 |
+>     (glibc) got mutex                       v
+>          do work                   pthread_mutex_lock (PM)
+>                                    rt_mutex_timed_lock
 > 
-> Please cc: alsa-devel when you do so.
+>           EINTR                    EINTR (Process gets aborted)
+> 
+>          do_exit                   lock(pi_mutex->lock->wait_lock)
+>     exit_pi_state_list             clear_waiters
+>     lock(hb->lock)
+>     pi_state->owner = NULL         unlock(pi_mutex->lock->wait_lock)
+>     rt_mutex_unlock(pi_mutex)      lock(hb->lock) (blocks)
+>     unlock(hb->lock)               unblock -> free_pi_state
+>     continue exit processing       doesn't expect pi_state->owner to be NULL
+>                                    Panic
+> 
+> The patch attached below seems to make this problem go away. This has 
+> been stress tested quite a bit in the past 24 hours. Does it look sane 
+> to you ??
 
-:)
+yeah, makes sense. Thanks, applied.
 
-Well, implementing the dma_mmap_coherent() function isn't the problem, because it is already implemented for the ARM architecture. But as far as I understand this would require a rewrite of all the ALSA drivers (or at least a rewrite of the ALSA's DMA helper functions).
-
-Original mail included for alsa-devel mailing list:
-
-> I'm trying to adapt Linux for the AmigaOne, which is a G3/G4 PPC desktop 
-> system with a non cache coherent northbridge (MAI ArticiaS), a VIA82C686B 
-> southbridge and the U-boot firmware. Due to the cache coherency problem I 
-> compiled in the CONFIG_NOT_COHERENT_CACHE option
-> (arch/ppc/kernel/dma-mapping.c) in the AmigaOne Linux kernel.
-
-> While that fixes the DMA data corruption problem, it causes a kernel oops 
-> or a complete system lookup after starting sound playback. With kernel
-> versions =<2.6.14 the oops messages refered to a BUG() entry in
-> mm/rmap.c. Therefore I tried out a newer kernel (2.6.16.15), where the
-> oops refers to the ALSA function snd_pcm_mmap_data_nopage() implemented
-> in pcm_native.c.
-
-> Well, after searching a while in some old linux kernel threads, I found
-> this thread here:
-> http://www.thisishull.net/showthread.php?t=22080&page=3&pp=10
-
-> Based on the information in this thread, I came to the conclusion that
-> ALSA simply won't work on non cache coherent architectures (except ARM),
-> because the generic DMA API was never expanded to support the
-> functionality required by ALSA (namely mapping dma pages into user space > with dma_mmap_coherent()).
-
-> This leads me to the question, if there are any plans to include the
-> dma_mmap_coherent() function (for powerpc/ppc and/or any other platform)
-> in one of the next kernel versions and if an adapation of the ALSA
-> drivers is planned. Or is there a simple way (hack) to fix this problem?
-
-Gerhard
-
--- 
-
-
-Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
-Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer
+	Ingo

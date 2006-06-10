@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbWFJWNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWFJWVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbWFJWNM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 18:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWFJWNL
+	id S1161039AbWFJWVn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 18:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWFJWVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 18:13:11 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:64966 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161032AbWFJWNK (ORCPT
+	Sat, 10 Jun 2006 18:21:43 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:16583 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1161034AbWFJWVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 18:13:10 -0400
-Message-ID: <448B43EB.6050607@garzik.org>
-Date: Sat, 10 Jun 2006 18:12:59 -0400
+	Sat, 10 Jun 2006 18:21:42 -0400
+Message-ID: <448B45ED.1040209@garzik.org>
+Date: Sat, 10 Jun 2006 18:21:33 -0400
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>
-CC: Linus Torvalds <torvalds@osdl.org>, Kyle Moffett <mrmacman_g4@mac.com>,
+To: Theodore Tso <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Jeff Garzik <jeff@garzik.org>,
        Chase Venters <chase.venters@clientec.com>,
        Alex Tomas <alex@clusterfs.com>, Andreas Dilger <adilger@clusterfs.com>,
        Andrew Morton <akpm@osdl.org>,
@@ -34,24 +34,19 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Theodore Tso wrote:
-> 	As far as people who want to use ext3 as the beginning point
-> to do something that is has no forwards- compatibility, there's
-> nothing stopping them from creating a jgarzikfs if they want.  But I
-> think I can speak for most of the ext3 development community that we
-> feel that one of the strengths of ext2/3 is its ability to do smooth
-> upgrades (and in many cases, downgrades as well, when people need to
-> migrate a filesystem so it can be mounted on older kernels), and that
-> it's one of the reasons why ext3 has been more succesful, than say,
-> JFS. 
+> 	So you you would be in OK of a model where we copy fs/ext3 to
+> "fs/ext4", and do development there which would merged rapidly into
+> mainline so that people who want to participate in testing can use
+> ext3dev, while people who want stability can use ext3 --- and at some
+> point, we remove the old ext3 entirely and let fs/ext4 register itself
+> as both the ext3 and ext4 filesystem, and at some point in the future,
+> remove the ext3 name entirely?
 
-When did I ever say smooth upgrades were a bad idea?
-
-The whole point of 'cp -a ext3 ext4' is to ensure smooth upgrades 
-continue.  A key theme is to avoid -backporting- all this new stuff 
-that's going into ext4.  IMO ext3 shouldn't be a devel platform at this 
-point in its lifecycle.
+Yep, and in addition I would argue that you can take the opportunity to 
+make ext4 default to extents-enabled, and some similar behavior changes 
+(dir_index default?).  The existence of both ext3 and ext4 means you can 
+be more aggressive in turning on stuff, IMO.
 
 	Jeff
-
 
 

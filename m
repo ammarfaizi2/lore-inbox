@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWFJIX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWFJIYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWFJIX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 04:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWFJIX5
+	id S1750795AbWFJIYt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 04:24:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWFJIYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 04:23:57 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:35048 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750721AbWFJIX4 (ORCPT
+	Sat, 10 Jun 2006 04:24:49 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:22662 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750795AbWFJIYs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 04:23:56 -0400
-Date: Sat, 10 Jun 2006 10:23:00 +0200
+	Sat, 10 Jun 2006 04:24:48 -0400
+Date: Sat, 10 Jun 2006 10:24:06 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] Fix for Bug in PI exit code
-Message-ID: <20060610082300.GA32261@elte.hu>
-References: <20060609131409.GA4962@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Subject: 2.6.17-rc6-rt3
+Message-ID: <20060610082406.GA31985@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060609131409.GA4962@in.ibm.com>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -3.1
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
 	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5224]
-	0.0 AWL                    AWL: From: address is in the auto white-list
+	[score: 0.5009]
+	0.2 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i have released the 2.6.17-rc6-rt3 tree, which can be downloaded from 
+the usual place:
 
-* Dinakar Guniguntala <dino@in.ibm.com> wrote:
+   http://redhat.com/~mingo/realtime-preempt/
 
-> We were seeing oopses like below a lot when using PI mutexes
+this is a fixes-only release: lots of fixes from Thomas Gleixner (for 
+the softirq problem that caused those ping latency weirdnesses, for 
+hrtimers and timers problems and for the RCU related bug that was 
+causing instability and more), John Stultz, Jan Altenberg and Clark 
+Williams. MIPS update from Manish Lachwani. Futex fix from Dinakar 
+Guniguntala. It also includes the RT-scheduling SMP fix that could fix 
+the scheduling problem reported by Darren Hart.
 
-> ===============================================================================
-> After a lot of debugging we found that this is caused due to the following race.
-> PM is a PI mutex, A and B are RT threads
-> 
->         Thread A (RT)                  Thread B (RT)
->             |
->             v
->     pthread_mutex_lock (PM)                 |
->     (glibc) got mutex                       v
->          do work                   pthread_mutex_lock (PM)
->                                    rt_mutex_timed_lock
-> 
->           EINTR                    EINTR (Process gets aborted)
-> 
->          do_exit                   lock(pi_mutex->lock->wait_lock)
->     exit_pi_state_list             clear_waiters
->     lock(hb->lock)
->     pi_state->owner = NULL         unlock(pi_mutex->lock->wait_lock)
->     rt_mutex_unlock(pi_mutex)      lock(hb->lock) (blocks)
->     unlock(hb->lock)               unblock -> free_pi_state
->     continue exit processing       doesn't expect pi_state->owner to be NULL
->                                    Panic
-> 
-> The patch attached below seems to make this problem go away. This has 
-> been stress tested quite a bit in the past 24 hours. Does it look sane 
-> to you ??
+I think all of the regressions reported against rt1 are fixed, please 
+re-report if any of them is still unfixed.
 
-yeah, makes sense. Thanks, applied.
+to build a 2.6.17-rc6-rt3 tree, the following patches should be applied:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.17-rc6.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.17-rc6-rt3
 
 	Ingo

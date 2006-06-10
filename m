@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbWFJShp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030494AbWFJSmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbWFJShp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 14:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbWFJSho
+	id S1030494AbWFJSmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 14:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030501AbWFJSmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 14:37:44 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:27804 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1030491AbWFJShn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 14:37:43 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: Re: [PATCH 4/5] readahead: backoff on I/O error
-Date: Sat, 10 Jun 2006 20:33:45 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Michael Tokarev <mjt@tls.msk.ru>, Jens Axboe <axboe@suse.de>
-References: <20060609080801.741901069@localhost.localdomain> <349840680.03819@ustc.edu.cn>
-In-Reply-To: <349840680.03819@ustc.edu.cn>
+	Sat, 10 Jun 2006 14:42:40 -0400
+Received: from mail48.e.nsc.no ([193.213.115.48]:40075 "EHLO mail48.e.nsc.no")
+	by vger.kernel.org with ESMTP id S1030494AbWFJSmk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 14:42:40 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: SATA Conflict with PATA DMA
+References: <87odz2kc0k.fsf@esben-stien.name> <4441224C.5010905@garzik.org>
+	<87fyk4mb2x.fsf@esben-stien.name> <87bqusmat7.fsf@esben-stien.name>
+From: Esben Stien <b0ef@esben-stien.name>
+Date: Sat, 10 Jun 2006 22:39:40 +0200
+In-Reply-To: <87bqusmat7.fsf@esben-stien.name> (Esben Stien's message of
+ "Sun, 23 Apr 2006 20:00:36 +0200")
+Message-ID: <87bqt0g2yb.fsf@esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606102033.46844.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Fengguang,
+Esben Stien <b0ef@esben-stien.name> writes:
 
-On Friday, 9. June 2006 10:08, Wu Fengguang wrote:
-> Backoff readahead size exponentially on I/O error.
- 
-> With this patch, retries are expected to be reduced from, say, 256, to 5.
- 
-1. Would you mind to push this patch to -stable?
+> It seems it will be fixed in 2.6.17
 
-Reason: If killing a drive was hit in the field, this should be critical 
-	enough.
+Hmm, I'm still seeing this with 2.6.17-rc6-rt3. 
 
-2. Could you disable (at least optionally) read ahead complety 
-  on the first IO error?
-
-Reason: In a data recovery situation (hitting EIO quite often, 
-	but not really sequentially) readahead is counter productive.
-	E.g. trying to save an old CD with the cdparanoia software.
-
-
-Regards
-
-Ingo Oeser
+-- 
+Esben Stien is b0ef@e     s      a             
+         http://www. s     t    n m
+          irc://irc.  b  -  i  .   e/%23contact
+           sip:b0ef@   e     e 
+           jid:b0ef@    n     n

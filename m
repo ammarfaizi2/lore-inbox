@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWFJKWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWFJKcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWFJKWM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 06:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWFJKWM
+	id S1751483AbWFJKcg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 06:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWFJKcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 06:22:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53445 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751472AbWFJKWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 06:22:12 -0400
-Date: Sat, 10 Jun 2006 11:22:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 -mm merge plans
-Message-ID: <20060610102211.GE20526@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jun 2006 06:32:36 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:33382 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751482AbWFJKce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 06:32:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OFY5AS5m+aDRqFUfGBRxT3HSJv9c5MImcFD6vA61xcAkO9lKmO+Jgq6yIc6I1SxIt8yaS2Baeg1RsAEskMMVSrIoUIBh6wHfhLHkgyHtWfHj94oy72q+S7lgw8ylZ+U5jHm1g686Mz1PtMsTXS3aBI6Orni3Wsihr9+GnspBGwg=
+Message-ID: <6bffcb0e0606100332t9f305c8ubbc715db7956510e@mail.gmail.com>
+Date: Sat, 10 Jun 2006 12:32:33 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.17-rc6-rt3
+Cc: linux-kernel@vger.kernel.org, "Thomas Gleixner" <tglx@linutronix.de>
+In-Reply-To: <20060610082406.GA31985@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060604135011.decdc7c9.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20060610082406.GA31985@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ecryptfs-crypto-functions.patch
-> ecryptfs-debug-functions.patch
-> ecryptfs-alpha-build-fix.patch
-> ecryptfs-convert-assert-to-bug_on.patch
-> ecryptfs-remove-unnecessary-null-checks.patch
-> ecryptfs-rewrite-ecryptfs_fsync.patch
-> ecryptfs-overhaul-file-locking.patch
-> 
->  Christoph has half-reviewed this and all the issues arising from that
->  have, I believe, been addressed.  With the exception of the "we should
->  have a generic stacking layer" issue.  Which is true.  Michael's take is
->  "yes, but that's not my job".  Which also is true.
+Hi,
 
-It's far from ready.  There's various things that simply can't be done
-properly in a lowlevel fs or abosulutely shouldn't.  And I think a few
-uniqueue gems in there.   Most urgent thing of course is that we somehow
-need to deal with the idiocy of the nameidata passed into most namespace
-methods.
+On 10/06/06, Ingo Molnar <mingo@elte.hu> wrote:
+> i have released the 2.6.17-rc6-rt3 tree, which can be downloaded from
+> the usual place:
+>
+>    http://redhat.com/~mingo/realtime-preempt/
+>
 
+My system hangs on boot.
+
+Here is bug http://www.stardust.webpages.pl/files/rt/2.6.17-rc6-rt3/bug1.jpg
+Here is config http://www.stardust.webpages.pl/files/rt/2.6.17-rc6-rt3/rt-config
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

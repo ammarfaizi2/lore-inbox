@@ -1,56 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWFJNaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWFJNdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbWFJNaY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 09:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWFJNaX
+	id S932283AbWFJNdl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 09:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWFJNdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 09:30:23 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:36556 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751516AbWFJNaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 09:30:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UKOOeYpvEbyh5KeVy+6PeqLRfDhgr/UYZindXBLVZFePWjby2Guj0ZjfEEh5ox6dniyyKOsm1wkJREYg9orp/G4gnUJnfER6QoR0ncwA+Y3bbM3MgxIZNapI5V89F3B+m1RA1duN8WdnV+cgERitzyiI+b9TDTQuwouSii1t8eQ=
-Message-ID: <6bffcb0e0606100630k1b7082c7na123a513d853fb13@mail.gmail.com>
-Date: Sat, 10 Jun 2006 15:30:22 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: tglx@linutronix.de
-Subject: Re: 2.6.17-rc6-rt3
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1149943465.5257.199.camel@localhost.localdomain>
+	Sat, 10 Jun 2006 09:33:41 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2570 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751518AbWFJNdk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 09:33:40 -0400
+Date: Sat, 10 Jun 2006 15:33:43 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
+       Andreas Dilger <adilger@clusterfs.com>, Jeff Garzik <jeff@garzik.org>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060610133343.GA11634@stusta.de>
+References: <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net> <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org> <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org> <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org> <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse> <Pine.LNX.4.64.0606091356340.5541@turbotaz.ourhouse>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060610082406.GA31985@elte.hu>
-	 <6bffcb0e0606100332t9f305c8ubbc715db7956510e@mail.gmail.com>
-	 <1149943465.5257.199.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0606091356340.5541@turbotaz.ourhouse>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Thomas,
+On Fri, Jun 09, 2006 at 02:00:15PM -0500, Chase Venters wrote:
+> On Fri, 9 Jun 2006, Chase Venters wrote:
+> 
+> >On Fri, 9 Jun 2006, Linus Torvalds wrote:
+> >
+> >>
+> >>
+> >> On Fri, 9 Jun 2006, Alex Tomas wrote:
+> >>> 
+> >>>  would "#if CONFIG_EXT3_EXTENTS" be a good solution then?
+> >>
+> >> Let's put it this way:
+> >> - have you had _any_ valid argument at all against "ext4"?
+> >>
+> >> Think about it. Honestly. Tell me anything that doesn't work?
+> >
+> >Now, granted, I really do agree with you about the whole code sharing 
+> >thing. A fresh start is often just what you need. I'm just questioning if 
+> >it wouldn't be better to do this fresh start immediately after going 
+> >48-bit, rather than before. That way, existing users that want that extra 
+> >umph can have it today.
+> >
+> 
+> Let me clarify that I don't have a final answer or opinion for whether or 
+> not 48-bit belongs in ext3 or ext4. But I'm trying to illustrate that it's 
+> an important question to raise.
+> 
+> In Group A we have some number of users that must have 48-bit support by 
+> Date B. 48-bit support could be available in ext3 by Date A, before Date 
+> B. It could also be available in ext4 by Date X, along with a handful of 
+> other features.
+> 
+> Is Date X before Date B? If it's not, is it worth telling Group A to 
+> suffer for a while, or asking them to use ext4 before it's ready? These 
+> are the questions I'd have to know the answers to if I were the one 
+> casting a final decision.
 
-On 10/06/06, Thomas Gleixner <tglx@linutronix.de> wrote:
-> Michal,
->
-> On Sat, 2006-06-10 at 12:32 +0200, Michal Piotrowski wrote:
-> > My system hangs on boot.
->
-> It boots fine with your config here :(. Any chance to get a full output
-> via serial console ?
+There are many points mentioned in this discussion like:
+- possibility of regressions for existing users
+- time until the new code is actually stable and well-tested
+- long-term maintainability
 
-Currently not. I'll buy serial cable.
+The faster availability is a point, but it's only one amongst many 
+points.
 
->
->         tglx
->
+And it's not that we are talking about a feature not yet available in 
+Linux at all. Instead of suffering, couldn't the few people in urgent 
+need of 48-bit support use JFS or XFS?
 
-Regards,
-Michal
+cu
+Adrian
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

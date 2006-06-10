@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161049AbWFJXG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWFJXWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161049AbWFJXG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 19:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWFJXG2
+	id S932255AbWFJXWs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 19:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWFJXWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 19:06:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11935 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161049AbWFJXG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 19:06:27 -0400
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060610222734.GZ27502@mea-ext.zmailer.org>
-References: <20060610222734.GZ27502@mea-ext.zmailer.org>
-Content-Type: text/plain
-Date: Sun, 11 Jun 2006 00:06:30 +0100
-Message-Id: <1149980791.18635.197.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
+	Sat, 10 Jun 2006 19:22:48 -0400
+Received: from wx-out-0102.google.com ([66.249.82.200]:5522 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932255AbWFJXWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 19:22:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=GirmRjrVV3kOaCQxRFRO290B3UtA6aUtqqwC2HSe1Z9LOQiM3dbjMHgxV76JCrBhR2xfsmDxDGOqWJYJzdDWCKAZ8anvGsyqzQp4PlhrWMwTFxlJNkFuqOoaA8Zm4oj1u50FAKr81FVVNqWd1ArP7Ef630BrW1BTIl+rDTlN/JY=
+Message-ID: <448B5449.2030605@gmail.com>
+Date: Sat, 10 Jun 2006 19:22:49 -0400
+From: Anne Thrax <foobarfoobarfoobar@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: greg@kroah.com
+Subject: Removal of security/root_plug.c
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-11 at 01:27 +0300, Matti Aarnio wrote:
-> Now that there is even an RFC published about SPF...
+Hello all,
 
-Please, don't do this. SPF makes assumptions about email which are just
-not true; it rejects perfectly valid mail.
-
-http://david.woodhou.se/why-not-spf.html
-
--- 
-dwmw2
-
+Apparently security/root_plug.c was written for a Linux Journal article,
+and while it does do a good job of explaining LSM, I don't see much use for
+it in the mainstream kernel. I suggest that it be removed, because I don't
+think that it serves much purpose. I doubt that anyone actually uses this,
+for if they did, I think that it would be modified and have many additions.
+Even the author states that it is just a starting point. Maybe the article
+(if Linux Journal is okay with it) along with the code should be moved to
+Documentation/?

@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWFJCPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWFJC0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWFJCPh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 22:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWFJCPh
+	id S932373AbWFJC0n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 22:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWFJC0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 22:15:37 -0400
-Received: from wx-out-0102.google.com ([66.249.82.205]:28367 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932293AbWFJCPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 22:15:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pjz01rbzrDOl8oBUD+agokuzRSxKYhYe/mWdJEqjWvj3Fvm7KuNBAt8FW0cukfFWl4Jzz28bvqWSUBTbt5HbtJJ6Du/TF47RO4MwYkyI0E4VKlmSrgiG4QpED6DE9mqnTryrvJtvY4eWrNS0YmpvlOouUuEpJnZ0MTLrHTMAWIM=
-Message-ID: <4745278c0606091915n3ed7563do505664c4f8070f81@mail.gmail.com>
-Date: Fri, 9 Jun 2006 22:15:36 -0400
-From: "Vishal Patil" <vishpat@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: CSCAN vs CFQ I/O scheduler benchmark results
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, "Jens Axboe" <axboe@suse.de>
-In-Reply-To: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jun 2006 22:26:43 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:31948 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932346AbWFJC0m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 22:26:42 -0400
+Date: Fri, 9 Jun 2006 20:26:48 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Theodore Tso <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Matthew Frost <artusemrys@sbcglobal.net>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060610022648.GV5964@schatzie.adilger.int>
+Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
+	Theodore Tso <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Matthew Frost <artusemrys@sbcglobal.net>,
+	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+	linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
+References: <20060609194959.GC10524@thunk.org> <4489D44A.1080700@garzik.org> <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk> <4489ECDD.9060307@garzik.org> <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk> <448A07EC.6000409@garzik.org> <20060610004727.GC7749@thunk.org> <448A1BBA.1030103@garzik.org> <20060610013048.GS5964@schatzie.adilger.int> <448A23B2.5080004@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com>
+In-Reply-To: <448A23B2.5080004@garzik.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The previous mail got scrambbled and hence I am resending this one
-again
+On Jun 09, 2006  21:43 -0400, Jeff Garzik wrote:
+> >???  Can you please be specific in what the performance penalty is, and
+> >what specifically is "not sized optimally" after a resize?  How exactly
+> >does inode allocation strategy relate to anything at all to online 
+> >resizing.
+> 
+> Inodes per group / inode blocks per group, as I've already stated.
 
-Hello
+As Stepen and Ted already replied (though I can understand if you missed
+it, it seems this is a popular thread :-)- the inode count per group
+is a fixed parameter for the whole filesystem that even online resizing
+cannot change.
 
-I ran the sysbench benchmark to compare the CSCAN I/O scheduler
-against the CFQ scheduler and following are the results. The results
-are interesting especially in case of sequential writes and the random
-workloads
+The only things that can change on a per-group basis (with either online or
+offline resizing, or with mke2fs -R stride=N, or if there are bad block
+on disk) is that the relative offset within the group of the inode and
+block bitmaps can change, and the relative location of the inode table
+within the group can change.  The size of the inode table per group (and
+hence number of inodes per group) is always constant, since it is stored
+in the superblock and affects the inode number->group mapping.
 
-                                            Latency (seconds)
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-               seq            seq         seq             rnd
-  rnd          rnd
-               reads         writes      r + w          reads
-writes      r + w
-               --------------------------------------------------------------------------------------
-CFQ         0.0116      0.0164      0.0107      0.1178       0.0423      0.0605
-
-CSCAN    0.0148      0.0092      0.0169      0.1043      0.0473      0.0732
-
-
-                                           Throughput (MB/seconds)
-
-                seq            seq         seq             rnd
- rnd         rnd
-                reads         writes      r + w          reads
-writes      r + w
-
---------------------------------------------------------------------------------------
-CFQ        19.062      15.251      22.127      2.1197      1.0032       1.376
-
-CSCAN   14.553      22.108      14.72       2.394       0.9304         1.399
-
-
-The machine configuation is as follows
-CPU: Intel(R) Pentium(R) 4 CPU 2.80GHz
-Memory: 1027500 KB (1 GB)
-Filesystem: ext3
-Kernel:   2.6.16.2
-
-If interseted you may have a look at the raw data at
-http://www.google.com/notebook/public/14554179817860061151/BDQtXSwoQ2_mdxLgh
-
-- Vishal
-
-
--- 
-Success is mainly about failing a lot.

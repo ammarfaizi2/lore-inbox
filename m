@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWFJHbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWFJHfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWFJHbj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 03:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWFJHbj
+	id S932429AbWFJHfR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 03:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWFJHfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 03:31:39 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:61874 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932402AbWFJHbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 03:31:38 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <448A74B1.5000606@s5r6.in-berlin.de>
-Date: Sat, 10 Jun 2006 09:28:49 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Sat, 10 Jun 2006 03:35:17 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:55150 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932429AbWFJHfQ (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 03:35:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=NhkSOO+R3FN8AWdPQUFswh6OAOi0ZSV/ycHZoK4SDF268ky/bjxdT36Erv59MCNn7ucVxp8vRY9JVbVhkjt+61KSo4PoA2Nja4cEGm1hWBslq0xhDhGYQdN6Eyq3QVDZk56EdMnSp8AnbiqEgE9qSmdAtpsCbw/qoXc9/HreHEs=  ;
+Message-ID: <448A762F.7000105@yahoo.com.au>
+Date: Sat, 10 Jun 2006 17:35:11 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Miles Lane <miles.lane@gmail.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: 2.6.17-rc6-mm1 -- BUG: warning at drivers/ieee1394/ohci1394.c:235/get_phy_reg()
-References: <a44ae5cd0606092234k70f92bfajb359a9e0c09db3b9@mail.gmail.com>
-In-Reply-To: <a44ae5cd0606092234k70f92bfajb359a9e0c09db3b9@mail.gmail.com>
+To: rohitseth@google.com
+CC: Andrew Morton <akpm@osdl.org>, Linux-mm@kvack.org,
+       Linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Adding a counter in vma to indicate the number of	physical
+ pages backing it
+References: <1149903235.31417.84.camel@galaxy.corp.google.com>
+In-Reply-To: <1149903235.31417.84.camel@galaxy.corp.google.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.877) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote at lkml:
-> BUG: warning at drivers/ieee1394/ohci1394.c:235/get_phy_reg()
-> [<c0103999>] show_trace_log_lvl+0x53/0xff
-> [<c0103ff1>] show_trace+0x16/0x19
-> [<c0104037>] dump_stack+0x1a/0x1f
-> [<f9295ade>] get_phy_reg+0x77/0xe4 [ohci1394]
-> [<f9295e66>] ohci_devctl+0x49/0x56c [ohci1394]
-> [<f9298e82>] ohci_irq_handler+0x329/0x720 [ohci1394]
-> [<c01435cd>] handle_IRQ_event+0x18/0x4d
-> [<c01443fb>] handle_fasteoi_irq+0x57/0x95
-> [<c01050bf>] do_IRQ+0xa1/0xc6
-> [<c0103475>] common_interrupt+0x25/0x2c
-> BUG: warning at drivers/ieee1394/ohci1394.c:264/set_phy_reg()
-> [<c0103999>] show_trace_log_lvl+0x53/0xff
-> [<c0103ff1>] show_trace+0x16/0x19
-> [<c0104037>] dump_stack+0x1a/0x1f
-> [<f9295a14>] set_phy_reg+0x84/0xd7 [ohci1394]
-> [<f9295e79>] ohci_devctl+0x5c/0x56c [ohci1394]
-> [<f9298e82>] ohci_irq_handler+0x329/0x720 [ohci1394]
-> [<c01435cd>] handle_IRQ_event+0x18/0x4d
-> [<c01443fb>] handle_fasteoi_irq+0x57/0x95
-> [<c01050bf>] do_IRQ+0xa1/0xc6
-> [<c0103475>] common_interrupt+0x25/0x2c
+Rohit Seth wrote:
+> Below is a patch that adds number of physical pages that each vma is
+> using in a process.  Exporting this information to user space
+> using /proc/<pid>/maps interface.
+> 
+> There is currently /proc/<pid>/smaps that prints the detailed
+> information about the usage of physical pages but that is a very
+> expensive operation as it traverses all the PTs (for some one who is
+> just interested in getting that data for each vma).
 
-Above trace seems to appear due to a hack to get certain FireWire 
-controllers going: Apple UniNorth, NVidia nForce2. Miles, do you have 
-one of those?
+Yet more cacheline footprint in the page fault and unmap paths...
 
-A similar trace occurs as ohci_irq_handler -> hpsb_selfid_complete
--> highlevel_host_reset -> csr.c::host_reset -> {ohci_}hw_csr_reg -> 
-mdelay. This host_rest's purpose is to mark iso channel 31 as default 
-broadcast channel. This functionality can probably be moved into a 
-workqueue job or into nodemgr's kthread. This is currently being tracked 
-as http://bugzilla.kernel.org/show_bug.cgi?id=6070 but I am afraid 
-nobody is actively working on it yet.
+What is this used for and why do we want it? Could you do some
+smaps-like interface that can work on ranges of memory, and
+continue to walk pagetables instead?
+
 -- 
-Stefan Richter
--=====-=-==- -==- -=-=-
-http://arcgraph.de/sr/
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

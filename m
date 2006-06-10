@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWFJWhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbWFJWjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751703AbWFJWhH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 18:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWFJWhH
+	id S1161046AbWFJWjT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 18:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWFJWjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 18:37:07 -0400
-Received: from wr-out-0506.google.com ([64.233.184.226]:3131 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750727AbWFJWhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 18:37:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pFXjq/YuvjgSA0tvoHQkzZGNi+YXt3sNZtare3pqX7Cpy8pW4dOE46jreF+htLgQkT2LW0d/zG/Mw8q+zFVCZlklAfacelSNJQtRT6NL1xZe4ZHOJOJgSoktsaSZE5eX2Qe4fU8K0IhlAsHnBuj6RovkNiYVHC98fgwnaDjTLcg=
-Message-ID: <4d8e3fd30606101537n2d099ee4g5e86956bdfc5cb5@mail.gmail.com>
-Date: Sun, 11 Jun 2006 00:37:04 +0200
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Junio C Hamano" <junkio@cox.net>
-Subject: Re: [ANNOUNCE] GIT 1.4.0
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <7vmzckhfsx.fsf@assigned-by-dhcp.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 10 Jun 2006 18:39:19 -0400
+Received: from buick.jordet.net ([217.8.143.72]:39042 "EHLO buick.jordet.net")
+	by vger.kernel.org with ESMTP id S1161048AbWFJWjS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 18:39:18 -0400
+Subject: APIC error on CPU1: 00(40)
+From: Stian Jordet <liste@jordet.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sun, 11 Jun 2006 00:38:43 +0200
+Message-Id: <1149979123.10302.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <7vmzckhfsx.fsf@assigned-by-dhcp.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/10/06, Junio C Hamano <junkio@cox.net> wrote:
-> The latest feature release GIT 1.4.0 is available at the
-> usual places:
->
->         http://www.kernel.org/pub/software/scm/git/
+Hi,
 
-Cannot pull:
+I have very recently acquired a Intel SC450NX server. It's a Quad
+Pentium III Xeon 550 mhz. With the Debian Sarge 2.6.8 kernel, I got
+quite some "APIC error on CPU1: 00(40)" with some load. After upgrading
+to a self-made 2.6.16.19, the messages disappeared. I thought. I just
+got them back (with heavy load). I have yet to see them with a 2.4.27
+kernel, with will check that more later.
 
-paolo@Italia:~/git$ git pull
-error: no such remote ref refs/heads/jc/bind
-Fetch failure: git://www.kernel.org/pub/scm/git/git.git
+Anyway, I've searched google, and this seems to indicate bad hardware.
+But the server is rock solid here, and the previous owner claims he
+never had any problems with it. If it's indeed bad hardware, could it be
+a cpu? The RAID-controller? Memory? Or the motherboard? The system is
+very well cooled, btw. Or could this be a fault with all the SC450NX
+motherboards? Haven't really read about anyone using these with Linux
+still (but of course, that could be because noone has any problems with
+them :)
 
-Am I alone?
+And second, It's always like this:
 
-Ciao,
--- 
-Paolo
-http://paolociarrocchi.googlepages.com
+APIC error on CPU1: 00(40)
+APIC error on CPU1: 40(40)
+APIC error on CPU1: 40(40)
+
+one 00(40) and several 40(40). What does these numbers mean?
+
+Hope someone can help me.
+
+Best regards,
+Stian
+

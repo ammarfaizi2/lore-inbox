@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWFJXiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbWFJXo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161056AbWFJXiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 19:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWFJXiJ
+	id S1161055AbWFJXo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 19:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWFJXo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 19:38:09 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:44987 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161056AbWFJXiI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 19:38:08 -0400
-Date: Sun, 11 Jun 2006 01:37:48 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: klibc - another libc?
-In-Reply-To: <20060610061327.GD8120@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.64.0606102321060.32445@scrub.home>
-References: <44869397.4000907@tls.msk.ru> <Pine.LNX.4.64.0606080036250.17704@scrub.home>
- <e69fu3$5ch$1@terminus.zytor.com> <Pine.LNX.4.64.0606091409220.17704@scrub.home>
- <e6cgjv$b8t$1@terminus.zytor.com> <Pine.LNX.4.64.0606100257550.17704@scrub.home>
- <20060610061327.GD8120@mars.ravnborg.org>
+	Sat, 10 Jun 2006 19:44:57 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:57030 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1161055AbWFJXo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 19:44:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pOEqB/aYk4WAb2qxMgGk16gRaj2iA6GEl+jmG6bvzJsZuNWGkKGjq0qqGy5KGtG/HITnNPl05LL+sveUEFUYxftmsYpXYbelEEJsn26/Sx9TAFQvlXCW+xCm4edSlHZKGy5sAgXUCXUO34CqEQk2doqJR7Tu6ZGnBYBAPApZJN4=
+Message-ID: <9e4733910606101644j79b3d8a5ud7431564f4f42c7f@mail.gmail.com>
+Date: Sat, 10 Jun 2006 19:44:56 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       "Greg KH" <greg@kroah.com>
+In-Reply-To: <448B38F8.2000402@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <44893407.4020507@gmail.com>
+	 <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
+	 <448AC8BE.7090202@gmail.com>
+	 <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
+	 <448B38F8.2000402@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> > I may be looking at the problem a little differently. I see the
+> > drivers like fb, vga, etc as registering with the console and saying
+> > they are capable of providing console services. I then see the console
+> > system as opening one of the registered devices. A driver is free to
+> > register/unregister whenever it wants to as long as it isn't open by
+> > the console system. Console can only open one driver at a time.
+>
+> No, this isn't true.  You can have multiple console drivers active,
+> that's why you have a first and last parameter in take_over_console().
+> Thus at boot time, the system driver will take consoles 0 - 63.
+> Later on when a driver loads, it can take over consoles 0 - 7, leaving
+> consoles 8 - 63 to the system driver.
+>
+> To put it another way, console drivers can register for consoles 0 - 63,
+> but the user may choose to use it only for consoles 0 - 7.
+>
+> This is another reason for the system driver, it makes the unbinding
+> behavior predictable.  Without a system driver, guessing which driver
+> replaces the just unbound one may become just a tad bit confusing for
+> the typical user.
 
-On Sat, 10 Jun 2006, Sam Ravnborg wrote:
+I find the whole console/tty layer to be quite confusing to talk
+about. I am mixing up console as in where printk goes and console the
+video card login device. The part about making everything equal was
+directed towards the printk output device.
 
-> > Well for now you pretty much just moved code, that was in the kernel 
-> > before. What I'm trying to find out is what is coming next. How does e.g. 
-> > udev or modules fit into the picture?
-> udev and module-init-tools fits nicely with the kernel. I never have
-> understood this 'keep-everyhig-separate' mantra. Just see how many
-> people had troubles with missing module-init-tools or people having
-> troubles with non-backward compatible udev.
+I see now that you can have tty0-7 assigned to a different console
+driver than tty8-63.
+Why do I want to do this?
+Why do we need 64 predefined tty devices?
 
-It just means that we suck at producing stable kernel interfaces.
-Moving everything into the kernel doesn't magically solve problem, it only 
-shifts the problem.
-You still had to define the boundaries - how does it interface with the 
-rest of the system. This is the part I'm currently trying to figure out 
-regarding klibc.
+Googling around the only example I could find was someone with a VGA
+card and a Hercules card. They setup 8 consoles on each card.
 
-> > For -mm that's fine, but do you seriously expect it to get merged like 
-> > that. Again, what makes klibc so special, that it doesn't have to follow 
-> > standard rules?
-> So part of what you ask for is a set of incremental patches that shows
-> all the kernal modifications?
+> > Over time it would nice if these all merged to a single
+> > interchangeable interface. I would really like to be able to
+> > dynamically switch to serial/net while debugging a video driver. Is
+> > there some fundamental reason why these can't be merged?
+>
+> It's already possible to redirect the system messages to two different
+> console classes, ie with the boot parameter:
+>
+> console=tty0,ttyS0 /* direct output to VT and serial console */
+>
+> And you can already choose the console you want by adjusting /etc/inittab.
 
-Well, it's common practice. If we start making exceptions, everyone wants 
-one, so it IMO would need a very, very good reason to merge this as is.
+How can I change where printk are going at run-time? I didn't know you
+could do that.
 
-bye, Roman
+-- 
+Jon Smirl
+jonsmirl@gmail.com

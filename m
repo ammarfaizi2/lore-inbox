@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWFJBVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWFJBYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030440AbWFJBVu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 21:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWFJBVu
+	id S1030442AbWFJBYN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 21:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWFJBYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 21:21:50 -0400
-Received: from pool-72-66-198-190.ronkva.east.verizon.net ([72.66.198.190]:43716
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932615AbWFJBVt (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 21:21:49 -0400
-Message-Id: <200606100121.k5A1LDjR004186@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Alex Tomas <alex@clusterfs.com>, Jeff Garzik <jeff@garzik.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-In-Reply-To: Your message of "Fri, 09 Jun 2006 17:21:08 MDT."
-             <20060609232108.GM5964@schatzie.adilger.int>
-From: Valdis.Kletnieks@vt.edu
-References: <20060609091327.GA3679@infradead.org> <m364jafu3h.fsf@bzzz.home.net> <44898476.80401@garzik.org> <m33beee6tc.fsf@bzzz.home.net> <4489874C.1020108@garzik.org> <m3y7w6cr7d.fsf@bzzz.home.net> <44899113.3070509@garzik.org> <170fa0d20606090921x71719ad3m7f9387ba15413b8f@mail.gmail.com> <m3odx2b86p.fsf@bzzz.home.net> <200606092252.k59Mqc2Q018613@turing-police.cc.vt.edu>
-            <20060609232108.GM5964@schatzie.adilger.int>
+	Fri, 9 Jun 2006 21:24:13 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:20171 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932615AbWFJBYM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 21:24:12 -0400
+Date: Fri, 9 Jun 2006 20:23:14 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 -mm merge plans
+Message-ID: <20060610012314.GA2378@sergelap.austin.ibm.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605144328.GA12904@sergelap.austin.ibm.com> <m17j3r8lqd.fsf@ebiederm.dsl.xmission.com> <20060609232551.GA11240@sergelap.austin.ibm.com> <m1k67p6dz7.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1149902472_2692P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 09 Jun 2006 21:21:12 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1k67p6dz7.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1149902472_2692P
-Content-Type: text/plain; charset=us-ascii
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+> 
+> > Quoting Eric W. Biederman (ebiederm@xmission.com):
+> >> If you want to help with the bare pid to struct pid conversion I
+> >> don't have any outstanding patches, and getting that done kills
+> >> some theoretical pid wrap around problems as well as laying the ground
+> >> work for a simple pidspace implementation.
+> >> 
+> >> Eric
+> >
+> > Is this the sort of thing you are looking for?  Is this worthwhile for
+> > kernel_threads, or only for userspace threads - i.e. do we expect kernel
+> > threads to live?
+> 
+> For kernel threads we should simply be able to use their task
+> struct.
+> 
+> In this instance we have hit upon a different problem.  Anything
+> using the kernel_thread API instead of the kthread api needs 
+> to be updated.
+> 
+> The basic problem is that for kernel_threads can show up
+> inside of containers.
+> 
+> We can fix that by updating daemonize or we can simply
+> universally use the kthread api.  Since the kernel_thread
+> api is deprecated because of these kinds of reasons
+> what really makes sense is to work on the transition
+> to the kthread api.
 
-On Fri, 09 Jun 2006 17:21:08 MDT, Andreas Dilger said:
+Egads, I apologize.
 
-> You mount with the new kernel without "-o extents", and find files with
-> extents "lsattr -R /mnt/tmp | awk '/----e / print { $2 }'", copy those
-> files, mv over old files, unmount.
+Apparently I was in a daze, as I'd forgotten that converting
+all kernel_thread users to kthread was something else we wanted
+to work towards, and which Christoph had explicitly asked for
+help with.
 
-How do you "copy those files" when you don't have extent support at that
-point?  Remember - the whole problem here is that if you don't have
-extent support, you can't read the file, it's backward-incompatible.
-(If you *are* able to read the file even without extents, then this whole
-thread is total BS).
+> Ok a couple of comments.
+> 
+> As I recall there are some pretty sane ways of going
+> from struct pid to a task_struct and then we can use things
+> like group_send_sig.
 
-You can certainly at least try to copy them to another file system
-while the source *is* mounted with -o extents, and then mount without it
-and copy the files back, but (a) that isn't what you said and (b) it doesn't
-work for files over 2T or so..
+Oh, you mean instead of doing kill_proc(struct pid->nr), which
+I guess was pretty braindead?  :)
 
---==_Exmh_1149902472_2692P
-Content-Type: application/pgp-signature
+Ok, futile as this may have seemed overall, I think it's helped
+me figure out what to actually do.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEih6IcC3lWbTT17ARAqscAKDUzF6V1RXOYdUDZB9bwJeCoEKwDgCgzPfY
-4YMnHNclmfZ5L2pzrszdO98=
-=QJ21
------END PGP SIGNATURE-----
-
---==_Exmh_1149902472_2692P--
+thanks,
+-serge

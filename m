@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWFJAXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWFJAYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWFJAXo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 20:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbWFJAXn
+	id S932610AbWFJAYU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 20:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWFJAYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 20:23:43 -0400
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:46006 "EHLO
-	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932609AbWFJAXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 20:23:43 -0400
-Date: Fri, 9 Jun 2006 20:23:39 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: dlezcano@fr.ibm.com
-cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: Re: [RFC] [patch 5/6] [Network namespace] ipv4 isolation
-In-Reply-To: <20060609210631.346330000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0606092022320.17380@d.namei>
-References: <20060609210202.215291000@localhost.localdomain>
- <20060609210631.346330000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jun 2006 20:24:20 -0400
+Received: from quechua.inka.de ([193.197.184.2]:34461 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932610AbWFJAYT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 20:24:19 -0400
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Cc: tytso@mit.edu
+Subject: Re: [RFC]  Slimming down struct inode
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <E1Foqjw-00010e-Ln@candygram.thunk.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1ForGz-0005o8-00@calista.eckenfels.net>
+Date: Sat, 10 Jun 2006 02:24:17 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jun 2006, dlezcano@fr.ibm.com wrote:
+Theodore Ts'o <tytso@mit.edu> wrote:
+> 3) Move i_pipe, i_bdev, and i_cdev into a union.  An inode cannot
+>    simultaneously be a pipe, block device, and character device at the
+>    same time.
 
-> When an outgoing packet has the loopback destination addres, the
-> skbuff is filled with the network namespace. So the loopback packets
-> never go outside the namespace. This approach facilitate the migration
-> of loopback because identification is done by network namespace and
-> not by address. The loopback has been benchmarked by tbench and the
-> overhead is roughly 1.5 %
+Mabe a regular file inode atribute can be put in that union, too?
 
-I think you'll need to make it so this code has zero impact when not 
-configured.
+Gruss
+Bernd
 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>

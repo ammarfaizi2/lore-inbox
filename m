@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWFJDuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWFJEWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbWFJDuP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 23:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWFJDuP
+	id S1030279AbWFJEWU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 00:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWFJEWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 23:50:15 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40906 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030225AbWFJDuN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 23:50:13 -0400
-Date: Sat, 10 Jun 2006 13:49:51 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060610134951.B775761@wobbly.melbourne.sgi.com>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <20060609095620.22326f9d.akpm@osdl.org> <4489AAD9.80806@garzik.org> <20060609103543.52c00c62.akpm@osdl.org> <20060609214200.GA18213@kevlar.burdell.org> <20060609151553.30097b44.akpm@osdl.org>
+	Sat, 10 Jun 2006 00:22:20 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:46519 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030237AbWFJEWT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 00:22:19 -0400
+Date: Fri, 9 Jun 2006 22:22:25 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Theodore Tso <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Matthew Frost <artusemrys@sbcglobal.net>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060610042224.GW5964@schatzie.adilger.int>
+Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
+	Theodore Tso <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Matthew Frost <artusemrys@sbcglobal.net>,
+	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+	linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
+References: <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk> <4489ECDD.9060307@garzik.org> <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk> <448A07EC.6000409@garzik.org> <20060610004727.GC7749@thunk.org> <448A1BBA.1030103@garzik.org> <20060610013048.GS5964@schatzie.adilger.int> <448A23B2.5080004@garzik.org> <20060610022648.GV5964@schatzie.adilger.int> <448A2F1D.3030806@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060609151553.30097b44.akpm@osdl.org>; from akpm@osdl.org on Fri, Jun 09, 2006 at 03:15:53PM -0700
+In-Reply-To: <448A2F1D.3030806@garzik.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 03:15:53PM -0700, Andrew Morton wrote:
-> Sonny Rao <sonny@burdell.org> wrote:
-> > On Fri, Jun 09, 2006 at 10:35:43AM -0700, Andrew Morton wrote:
-> > <snip> 
-> > > All that being said, Linux's filesystems are looking increasingly crufty
-> > > and we are getting to the time where we would benefit from a greenfield
-> > > start-a-new-one.  
-> > 
-> > I'm curious about this comment; in what way are they _collectively_
-> > looking crufty ? 
+On Jun 09, 2006  22:31 -0400, Jeff Garzik wrote:
+> Andreas Dilger wrote:
+> >the inode count per group
+> >is a fixed parameter for the whole filesystem that even online resizing
+> >cannot change.
 > 
-> We seem to be lagging behind "the industry" in some areas - handling large
-> devices, high bandwidth IO, sophisticated on-disk data structures, advanced
-> manageability, etc.
+> Correct.  Fixed... at mke2fs time.  Thus, with varying mke2fs runs, 
+> inodes-per-group can vary, where it does not with online resize.
 
-Er, no.  I'm not aware of many filesystems that are in the same
-league as XFS on those first three specific points.  It certainly
-has "ondisk sophistication" very well covered, trust me. ;)
+Unless specified differently at format time, the inodes-per-group will
+be the same value (namely 16384) if the filesystem is larger than 512MB.
+So, yes, I agree with you if you start with a tiny filesystem and try
+to resize it to a gigantic filesystem you will get a different number
+of inodes, but that is true whether this is online resizing or offline.
 
-We are definately not lagging on handling large devices nor high
-bandwidth I/O anyway - XFS serves up very close to the hardware
-capabilities for high end hardware and it scales well.  One could
-come up with a different list of areas where Linux filesystems
-might be lagging, but that list above ain't right.
+That said, for anyone who has resized their filesystem I think they prefer
+to be able to resize it than not being able to do so at all.
 
-> I mean, although ZFS is a rampant layering violation and we can do a lot of
-> the things in there (without doing it all in the fs!) I don't think we can
-> do all of it.
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-*nod*.
-
-cheers.
-
--- 
-Nathan

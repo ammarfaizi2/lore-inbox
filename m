@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWFJLN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWFJLiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWFJLN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 07:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWFJLN6
+	id S1751489AbWFJLiG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 07:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWFJLiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 07:13:58 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:7565 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751485AbWFJLN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 07:13:57 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: [PATCH 3/5] VT binding: Update fbcon to support binding
-Date: Sat, 10 Jun 2006 13:10:02 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <448933EB.3070003@gmail.com>
-In-Reply-To: <448933EB.3070003@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jun 2006 07:38:06 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:32694 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751489AbWFJLiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 07:38:05 -0400
+Date: Sat, 10 Jun 2006 06:37:12 -0500
+From: Hui Zhou <hzhou@hzsolution.net>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Frustrating Random Reboots, seeking suggestions
+Message-ID: <20060610113712.GA2388@smtp.comcast.net>
+References: <20060609145757.GB1640@smtp.comcast.net> <Pine.LNX.4.64.0606091058320.4969@turbotaz.ourhouse> <20060610023719.GA10857@smtp.comcast.net> <200606101052.05212.ioe-lkml@rameria.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Message-Id: <200606101310.04174.ioe-lkml@rameria.de>
+In-Reply-To: <200606101052.05212.ioe-lkml@rameria.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Antonio,
+On Sat, Jun 10, 2006 at 10:52:03AM +0200, Ingo Oeser wrote:
+>Hi Hui Zhou,
+>
+>On Saturday, 10. June 2006 04:37, Hui Zhou wrote:
+>> Thanks. memtest86 passes 6 times without errors. Serial console didn't 
+>> show up anything (it just reboots). 
+>> 
+>> Anyway, I finally suspect the debian libmpeg binary is at fault. I 
+>> manually build it from src and statically linked to the `bkmark' 
+>> program. It seems cured the random reboots problem. It runs 
+>> successfully for 4 times. However, the fifth time it ended up in a `D' 
+>> state. The only system call it uses is libc file IO and some signal 
+>> passing. Any comment on the cause?
+>
+>Do you also see the problem if you decode from file to memory only.
+>without any display?
+>
+>NO: You have some problem with your peripherals.
 
-On Friday, 9. June 2006 10:40, Antonino A. Daplas wrote:
->     5. When fbcon is completely unbound from the console layer, fbcon will
->        also release (iow, decrement module reference counts to zero) all fbdev
->        drivers. In other words, a bind or unbind request from the console layer
->        will propagate down to the framebuffer drivers.
-> 
->     6. If fbcon is not bound to the console, it will ignore all notifier
->        events (except driver registration and unregistration) and all sysfs
->        requests.
+There is no display. The program just marks the blank scene or scene 
+changes and dumps the results to a text file for another program to 
+analyze.
+>
+>YES: Check for heat and power problems.
+>
+>	If you are brave you could try some cpuburn variant to put the heat 
+>	to the maximum.
+>
+>	WARNING: This could kill your CPU and might void your warranty, 
+>		since this is not "normal use" of your CPU :-)
 
-Wow! 
+No, I am not that brave. :) However, I am now faily certain it is not 
+heat problem. After relinked with a new libmpeg binary, it hasn't 
+rebooted yet (8+hours). Any possibility that some binary code can 
+randomly trigger reboots on certain CPUs? (Sounds absurd, but only you 
+kernel guys have better answers.)
 
-Now one can:
+Now I am concerned with the `D' state. Is that some problem from the 
+kernel?
 
-	- implement different framebuffer drivers for a chip. 
-	- try a stable and development version without rebooting,
-	- have probing with user interaction ("if you see me please 
-	  press enter else I will try the previous driver in 15 seconds.") 
-	  instead of deciding on "failsafe" (vga/vesa) and "fast" 
-	  (special driver) at boot.
+Thanks.
 
-I love it!
-
-Just the take_over_console() as alternative API looks strange. 
-
-It's ok as an intermeditate step (likely, if I remember the discussions
-correctly). If it should stay, it should require the console to 
-be registered first. 
-
-Can be changed later, once as you make progress and don't reach a release
-kernel. This is NO show stopper for me.
-
-Progress is the most important thing for development in this areas 
-until it reaches a release kernel.
-
-
-Regards
-
-Ingo Oeser
+-- 
+Hui Zhou

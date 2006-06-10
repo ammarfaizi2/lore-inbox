@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWFJJxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWFJJuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWFJJxh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 05:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWFJJxh
+	id S1751456AbWFJJuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 05:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWFJJuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 05:53:37 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:32488 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751457AbWFJJxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 05:53:37 -0400
-Date: Sat, 10 Jun 2006 10:53:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 -mm merge plans
-Message-ID: <20060610095333.GB20526@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Serge E. Hallyn" <serue@us.ibm.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	linux-kernel@vger.kernel.org
-References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605144328.GA12904@sergelap.austin.ibm.com> <m17j3r8lqd.fsf@ebiederm.dsl.xmission.com> <20060609232551.GA11240@sergelap.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jun 2006 05:50:06 -0400
+Received: from wr-out-0506.google.com ([64.233.184.236]:2384 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751456AbWFJJuE (ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
+	Sat, 10 Jun 2006 05:50:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=unzJpFeb/Wm19oMevRZ8iOy3G5fWyqFyID90gU4I+J6NLU3sEqzpE2YyDidYmwgW2G6gUGRDf+/Kd9MuRUEQPlyp7yKUCckN1jJHSTX8R8vGlBsXzAiR6a+UosFMG0zLkeHTD+Zox3Y+MaHtBoKEuKKxbKmZUJA87q4cLh80+2E=
+Message-ID: <5486cca80606100250n4d30c756md66f04bf9b80bdac@mail.gmail.com>
+Date: Sat, 10 Jun 2006 11:50:04 +0200
+From: Antonio <tritemio@gmail.com>
+To: markh@compro.net
+Subject: Re: RT exec for exercising RT kernel capabilities
+Cc: linux-kerneL@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>,
+       "Steven Rostedt" <rostedt@goodmis.org>
+In-Reply-To: <448876B9.9060906@compro.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060609232551.GA11240@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <448876B9.9060906@compro.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 06:25:51PM -0500, Serge E. Hallyn wrote:
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
-> > If you want to help with the bare pid to struct pid conversion I
-> > don't have any outstanding patches, and getting that done kills
-> > some theoretical pid wrap around problems as well as laying the ground
-> > work for a simple pidspace implementation.
-> > 
-> > Eric
-> 
-> Is this the sort of thing you are looking for?  Is this worthwhile for
-> kernel_threads, or only for userspace threads - i.e. do we expect kernel
-> threads to live?
-> 
-> If we do want to do this for kernel threads, then I assume that
-> eventually we'll want to change kernel_thread() itself.  I actually
-> started to do that earlier, but of course that way every user would
-> have to be changed in the same patch :)
+Hi,
 
+On 6/8/06, Mark Hounschell <markh@compro.net> wrote:
+> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
+> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
+> well the deterministic real-time capabilities of a computer. Maybe it could
+> useful in some way to the effort or to anyone interested in making this type of
+> determination about their kernel/computer.
+>
+> A README describing the rt-exec can be found at
+> ftp://ftp.compro.net/public/rt-exec/README
 
-> 
-> Subject: [PATCH] struct pid: convert ieee1394 to hold struct pid
-> 
-> ieee1394 driver caches pid_t's for kernel threads.  Switch to
-> holding a reference to a struct pid.  This prevents concern
-> about the cached pid pointing to the wrong process after the
-> kernel thread dies and pids wrap around.
+Sorry for the simple question. How do I check if my hardware support
+HRT? Is it common on i386 desktops (mine is an Athlon XP 2000+)?
 
-NACK.  please conver to the kthread_ API instead.  A reference to a pid_t
-in a driver should generally be treated as a bug, the few exception should
-be discussed on lkml and commented verbosely.
+Many thanks.
 
+Cheers,
+
+  ~  Antonio

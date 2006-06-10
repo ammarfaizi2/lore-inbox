@@ -1,111 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751513AbWFJNFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWFJN2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751513AbWFJNFF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 09:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWFJNFE
+	id S1751496AbWFJN2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 09:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWFJN2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 09:05:04 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.4.200]:37174 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S1751512AbWFJNFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 09:05:03 -0400
-Date: Sat, 10 Jun 2006 09:05:03 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-In-reply-to: <448A089C.6020408@engr.sgi.com>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, jlan@sgi.com,
-       csturtiv@sgi.com, linux-kernel@vger.kernel.org
-Message-id: <448AC37F.8040807@watson.ibm.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-References: <44892610.6040001@watson.ibm.com>
- <20060609010057.e454a14f.akpm@osdl.org> <448952C2.1060708@in.ibm.com>
- <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com>
- <4489F93E.6070509@engr.sgi.com> <20060609162232.2f2479c5.akpm@osdl.org>
- <448A089C.6020408@engr.sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Sat, 10 Jun 2006 09:28:16 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:21666 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751496AbWFJN2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 09:28:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=VAQuPfECzOa6zmyqu5WTOi9GrNakI0MUyNKNjFthaWDHQYuNtmvD4lBM7XDTFH7e1c+Lw2/nkI13PXOwnlNUyagzTU1gHf3hOlzj5VftSK/7LqvwGS+uWYJBnz95f7fpiYkbs0X8EBWXW2KkguyT1LTlLHM9KSJsJEVlqXfhzfg=
+Message-ID: <448AC8E5.6040106@gmail.com>
+Date: Sat, 10 Jun 2006 21:28:05 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/5] VT binding: Update fbcon to support binding
+References: <448933EB.3070003@gmail.com> <200606101310.04174.ioe-lkml@rameria.de>
+In-Reply-To: <200606101310.04174.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
-
->Andrew Morton wrote:
->  
->
->>Jay Lan <jlan@engr.sgi.com> wrote:
->> 
->>    
+Ingo Oeser wrote:
+> Hi Antonio,
+> 
+> On Friday, 9. June 2006 10:40, Antonino A. Daplas wrote:
+>>     5. When fbcon is completely unbound from the console layer, fbcon will
+>>        also release (iow, decrement module reference counts to zero) all fbdev
+>>        drivers. In other words, a bind or unbind request from the console layer
+>>        will propagate down to the framebuffer drivers.
 >>
->>>If you can show me how to not sending per-tgid with current patchset,
->>>i would be very happy to drop this request.
->>>   
->>>      
->>>
->>pleeeze, not a global sysctl.  It should be some per-client subscription thing.
->> 
->>    
->>
->
->Per-client subscription is not possible since it is the push (multicast)
->model we
->talk about and delayacct needs tgid.
->  
->
-One way to do per-client subscription that Balbir brought up
-is to have separate multicast groups for the clients wanting to receive 
-per-pid stats and per-tgid stats.
+>>     6. If fbcon is not bound to the console, it will ignore all notifier
+>>        events (except driver registration and unregistration) and all sysfs
+>>        requests.
+> 
+> Wow! 
+> 
+> Now one can:
+> 
+> 	- implement different framebuffer drivers for a chip. 
+> 	- try a stable and development version without rebooting,
+> 	- have probing with user interaction ("if you see me please 
+> 	  press enter else I will try the previous driver in 15 seconds.") 
+> 	  instead of deciding on "failsafe" (vga/vesa) and "fast" 
+> 	  (special driver) at boot.
 
-However, this does change the current API since a separate connect to 
-the per-tgid multicast group is needed.
-So its not a option that can be tagged on later but needs to be done now.
+Yes, all of the above are possible :-), and with our present user tools,
+are currently very, very doable (at least in x86).
 
->How about sending tgid stats when the last process in the group exist?
->But do not send it if not the last in the thread?
->
->  
->
-This is doable if we have a place where the per-tgid data can be 
-accumalated.
-One choice that was explored and discarded was to have a struct 
-taskstats allocated as part of mm struct,
-and keep accumalating per-pid stats into that struct (ie. while filling 
-the per-pid stat struct, accumalate into the
-per-tgid struct too) which obviously doubles the collection overhead. 
-Instead we chose to collect the per-tgid
-stats dynamically.
+> 
+> I love it!
+> 
+> Just the take_over_console() as alternative API looks strange.
 
-However, we can consider allocating a per-tgid struct as part of the 
-exit routine (when we notice a thread exiting
-that is part of a thread group) and accumalate stats from each exiting 
-thread of that group into the per-tgid stat and
-output it alongwith the last exiting thread.
+It's not an alternative API, it's the default API and behavior. So, I
+just can't remove it without breaking all console drivers.
 
-This would also save on the cost of collecting the entire per-tgid data 
-each time a thread exits (as is being done now).
-
-This solution is also a bit of an API change since the kind of data 
-being received on the common multicast channel
-will be different from what it is now. Also looks a little involved.
-
-
-So we have solutions for the problem going forward, but not without 
-changing the API.
-Question is: does this really need to be done even in future ? If so, 
-then we should perhaps do the change rightaway.
-
-One more point to consider here - if a third or fourth subsystem were to 
-come along to use the taskstats
-interface and did not want to use the taskstats structure (since they 
-have no field in common)...their clients
-would still need to be able to accept getting data they don't care about 
-(whether they have one or two multicast
-groups). So the model for dealing with unwanted data will still need to 
-be "don't process the netlink attributes
-you don't care about". But thats farther into the future...
-
-
---Shailabh
-
+Tony

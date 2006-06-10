@@ -1,93 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751691AbWFJUCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWFJUdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751691AbWFJUCk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 16:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWFJUCk
+	id S1751697AbWFJUdK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 16:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbWFJUdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 16:02:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14027 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751330AbWFJUCj (ORCPT
+	Sat, 10 Jun 2006 16:33:10 -0400
+Received: from xenotime.net ([66.160.160.81]:29333 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751697AbWFJUdJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 16:02:39 -0400
-Date: Sat, 10 Jun 2006 13:02:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Jeff Garzik <jeff@garzik.org>, Chase Venters <chase.venters@clientec.com>,
-       Alex Tomas <alex@clusterfs.com>, Andreas Dilger <adilger@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-In-Reply-To: <Pine.LNX.4.64.0606101238110.5498@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0606101248030.5498@g5.osdl.org>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
- <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int>
- <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org>
- <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <m33beecntr.fsf@bzzz.home.net>
- <Pine.LNX.4.64.0606090913390.5498@g5.osdl.org> <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
- <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org>
- <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
- <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse> <4489C580.7080001@garzik.org>
- <17D07BC0-4B41-4981-80F5-7AAEC0BB6CC8@mac.com> <Pine.LNX.4.64.0606101238110.5498@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Jun 2006 16:33:09 -0400
+Date: Sat, 10 Jun 2006 13:28:03 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: dwmw2@infradead.org, akpm <akpm@osdl.org>
+Subject: [PATCH] jffs2: fix section mismatches
+Message-Id: <20060610132803.8909971c.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Randy Dunlap <rdunlap@xenotime.net>
+
+Priority: not critical; makes init code discardable.
+
+Fix section mismatch warnings:
+WARNING: fs/jffs2/jffs2.o - Section mismatch: reference to .init.text:jffs2_zlib_init from .text between 'jffs2_compressors_init' (at offset 0x546) and 'jffs2_compressors_exit'
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ fs/jffs2/compr.c       |    2 +-
+ fs/jffs2/compr_rtime.c |    2 +-
+ fs/jffs2/compr_rubin.c |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+--- linux-2617-rc6.orig/fs/jffs2/compr.c
++++ linux-2617-rc6/fs/jffs2/compr.c
+@@ -412,7 +412,7 @@ void jffs2_free_comprbuf(unsigned char *
+                 kfree(comprbuf);
+ }
+ 
+-int jffs2_compressors_init(void)
++int __init jffs2_compressors_init(void)
+ {
+ /* Registering compressors */
+ #ifdef CONFIG_JFFS2_ZLIB
+--- linux-2617-rc6.orig/fs/jffs2/compr_rtime.c
++++ linux-2617-rc6/fs/jffs2/compr_rtime.c
+@@ -121,7 +121,7 @@ static struct jffs2_compressor jffs2_rti
+ #endif
+ };
+ 
+-int jffs2_rtime_init(void)
++int __init jffs2_rtime_init(void)
+ {
+     return jffs2_register_compressor(&jffs2_rtime_comp);
+ }
+--- linux-2617-rc6.orig/fs/jffs2/compr_rubin.c
++++ linux-2617-rc6/fs/jffs2/compr_rubin.c
+@@ -344,7 +344,7 @@ static struct jffs2_compressor jffs2_rub
+ #endif
+ };
+ 
+-int jffs2_rubinmips_init(void)
++int __init jffs2_rubinmips_init(void)
+ {
+     return jffs2_register_compressor(&jffs2_rubinmips_comp);
+ }
+@@ -367,7 +367,7 @@ static struct jffs2_compressor jffs2_dyn
+ #endif
+ };
+ 
+-int jffs2_dynrubin_init(void)
++int __init jffs2_dynrubin_init(void)
+ {
+     return jffs2_register_compressor(&jffs2_dynrubin_comp);
+ }
 
 
-On Sat, 10 Jun 2006, Linus Torvalds wrote:
-> 
-> ext2 is half the size of ext3, and that's ignoring JBD entirely.
-
-Btw, let me say again that I'm fairly neutral on any particular individual 
-feature (ie the 48-bit thing doesn't actually move me all that much in 
-itself), but that from a maintenance standpoint, I think splitting off 
-filesystems and drivers has been a _huge_ success.
-
-Starting from scratch - even if you literally start from the same 
-code-base - and allowing the old functionality to remain undisturbed is 
-just a very nice model. Yeah, yeah, it has some diskspace cost (although 
-at least from a git perspective, even that isn't really true), but we've 
-seen both in drivers and in filesystems how splitting things up has been a 
-great thing to do.
-
-Sometimes it's a great thing just because five years later, it turns out 
-that nobody even uses the legacy thing, and you decide to at that point 
-just remove the driver (or filesystem, but so far it's never been the 
-case for filesystems even if smbfs is a potential victim of this in the 
-not _too_ distant future), because the new version simply does everything 
-better.
-
-And that's _not_ a failure of the model. It's a success too. But so is the 
-above commentary on ext2, when the "old driver/filesystem is still used 
-and maintained by odd people". It's just two different possible outcomes 
-of the decision to do development separately from an older user base.
-
-And again, I'd like to stress the _user_base_ over the _code_base_. In 
-many ways, that's the much more important split. I suspect Jeff has seen 
-this in drivers, where a lot of users simply do not want to have a new 
-driver, because it does some huge fundamental improvement for new users 
-but doesn't work for old ethernet cards, for example, because it missed 
-some old use case depended on a legacy feature that just doesn't fit well 
-into the new (and obviously improved) world-view.
-
-So we've often seen a driver that _could_ have handled different versions 
-of the same card/chip split into an "old" and a "new" driver, and on the 
-whole it has always been positive - even if eventually the old driver just 
-becomes irrelevant for one reason or another.
-
-Duplication isn't actually bad. It's what often allows experimentation, 
-and streamlining. In drivers, for example, duplication is _often_ done as 
-part of simply dropping support for old cards in the new version, but also 
-by dropping and simplifying the old driver that now has a much clearer 
-"raison d'etre", aka "user base".
-
-Which gets me back to the whole "'user base' matters more than 'code 
-base'" argument, because it's literally the user base that determines 
-development (or lack of it - non-development is often the big reason for a 
-user base, as anybody who works for a distribution maintainer should know 
-intimately).
-
-			Linus
+---

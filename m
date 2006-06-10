@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWFJLDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWFJLN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWFJLDn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 07:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWFJLDn
+	id S1751485AbWFJLN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 07:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWFJLN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 07:03:43 -0400
-Received: from nsm.pl ([195.34.211.229]:17947 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S1750954AbWFJLDm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 07:03:42 -0400
-Date: Sat, 10 Jun 2006 13:03:36 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC]  Slimming down struct inode
-Message-ID: <20060610110335.GA7959@irc.pl>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	linux-kernel@vger.kernel.org
-References: <E1Foqjw-00010e-Ln@candygram.thunk.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+	Sat, 10 Jun 2006 07:13:58 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:7565 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751485AbWFJLN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 07:13:57 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH 3/5] VT binding: Update fbcon to support binding
+Date: Sat, 10 Jun 2006 13:10:02 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <448933EB.3070003@gmail.com>
+In-Reply-To: <448933EB.3070003@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1Foqjw-00010e-Ln@candygram.thunk.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200606101310.04174.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Antonio,
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Friday, 9. June 2006 10:40, Antonino A. Daplas wrote:
+>     5. When fbcon is completely unbound from the console layer, fbcon will
+>        also release (iow, decrement module reference counts to zero) all fbdev
+>        drivers. In other words, a bind or unbind request from the console layer
+>        will propagate down to the framebuffer drivers.
+> 
+>     6. If fbcon is not bound to the console, it will ignore all notifier
+>        events (except driver registration and unregistration) and all sysfs
+>        requests.
 
-On Fri, Jun 09, 2006 at 07:50:08PM -0400, Theodore Ts'o wrote:
-> So without further ado, here are some ideas of ways that we can slim
-> down struct inode:
->=20
-> 1) Move i_blksize (optimal size for I/O, reported by the stat system
->    call).  Is there any reason why this needs to be per-inode, instead
->    of per-filesystem?
->=20
-> 2) Move i_blkbits (blocksize for doing direct I/O in bits) to struct
->    super.  Again, why is this per-inode?
+Wow! 
 
-  ZFS filesystem uses dynamic, per-file blocksizes. Some Linux
-filesystem may implement something like this in order to be called
-"modern".
+Now one can:
 
---=20
-Tomasz Torcz                 "God, root, what's the difference?"
-zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
+	- implement different framebuffer drivers for a chip. 
+	- try a stable and development version without rebooting,
+	- have probing with user interaction ("if you see me please 
+	  press enter else I will try the previous driver in 15 seconds.") 
+	  instead of deciding on "failsafe" (vga/vesa) and "fast" 
+	  (special driver) at boot.
+
+I love it!
+
+Just the take_over_console() as alternative API looks strange. 
+
+It's ok as an intermeditate step (likely, if I remember the discussions
+correctly). If it should stay, it should require the console to 
+be registered first. 
+
+Can be changed later, once as you make progress and don't reach a release
+kernel. This is NO show stopper for me.
+
+Progress is the most important thing for development in this areas 
+until it reaches a release kernel.
 
 
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Regards
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFEiqcHThhlKowQALQRAlIcAJ0cCVLpFnO/fsdrX58of3tzqnYCLACdE1RJ
-3n9K1WOGLjDhde0qpd3GqUA=
-=3Yx0
------END PGP SIGNATURE-----
-
---dDRMvlgZJXvWKvBx--
+Ingo Oeser

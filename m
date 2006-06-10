@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWFJPgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWFJPm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWFJPgc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 11:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWFJPgc
+	id S1751170AbWFJPm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 11:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWFJPm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 11:36:32 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:50854 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751158AbWFJPgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 11:36:31 -0400
-Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: HighPoint Linux Team <linux@highpoint-tech.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200605161438.09717.linux@highpoint-tech.com>
-References: <200605101704.27491.linux@highpoint-tech.com>
-	 <200605121107.48597.linux@highpoint-tech.com>
-	 <200605161438.09717.linux@highpoint-tech.com>
-Content-Type: text/plain
-Date: Sat, 10 Jun 2006 10:36:22 -0500
-Message-Id: <1149953782.3335.7.camel@mulgrave.il.steeleye.com>
+	Sat, 10 Jun 2006 11:42:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47822 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751170AbWFJPm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 11:42:27 -0400
+Date: Sat, 10 Jun 2006 16:42:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, weihs@ict.tuwien.ac.at,
+       linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kthread conversion: convert ieee1394 from kernel_thread
+Message-ID: <20060610154213.GA19077@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stefan Richter <stefanr@s5r6.in-berlin.de>,
+	"Serge E. Hallyn" <serue@us.ibm.com>, weihs@ict.tuwien.ac.at,
+	linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20060610143100.GA15536@sergelap.austin.ibm.com> <20060610144205.GA13850@infradead.org> <448AE12E.5060002@s5r6.in-berlin.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <448AE12E.5060002@s5r6.in-berlin.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-16 at 14:38 +0800, HighPoint Linux Team wrote: 
-	_req = get_req(hba);
-	if (_req == NULL) {
-		dprintk("hptiop_queuecmd : no free req\n");
-		scp->result = DID_BUS_BUSY << 16;
-		goto cmd_done;
-	}
+On Sat, Jun 10, 2006 at 05:11:42PM +0200, Stefan Richter wrote:
+> Serge, could you reduce your patch to the nodemgr part and resubmit?
 
-This should be doing a return SCSI_MLQUEUE_HOST_BUSY.  DID_BUS_BUSY
-doesn't do the resource contention counting that you want
-(MLQUEUE_HOST_BUSY will wait until a command returns ... presumably
-freeing up resources before trying another).
-
-
-	/*
-	 * hptiop_shutdown will flash controller cache.
-	 */
-	if (scp->cmnd[0] == SYNCHRONIZE_CACHE)  {
-		scp->result = DID_OK<<16;
-		goto cmd_done;
-	}
-
-Are you really sure you want to do this?  It looks like we'll be doing
-this in cases where shutdown won't be called (like suspend). 
-
-	host->can_queue = le32_to_cpu(iop_config.max_requests);
-	host->cmd_per_lun = le32_to_cpu(iop_config.max_requests);
-
-You might want to think about adjusting this.  For the single LUN case,
-it's fine.  For the multi-lun case it may allow commands to a single LUN
-to starve everything else.
-
-However, these are minor points ... I'll put the driver in and you can
-fix them up later.
-
-James
-
+I'd prefer ieee1394 would just stop creating these thread entirely.
+Sure, rescaning the bus might take some time, but so do pci or especially
+scsi bus rescans.  A user should expect his thread to block when he
+writes to an attribute caled rescan.
 

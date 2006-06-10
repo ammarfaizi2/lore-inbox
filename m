@@ -1,143 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWFJSao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbWFJSfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWFJSao (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 14:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWFJSao
+	id S1030475AbWFJSfK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 14:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbWFJSfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 14:30:44 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:44208
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751012AbWFJSao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 14:30:44 -0400
-Subject: [PATCH][RFC] fix memory leak in rocketport rp_do_receive
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Michael Tokarev <mjt@tls.msk.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Content-Type: text/plain
-Date: Sat, 10 Jun 2006 13:29:36 -0500
-Message-Id: <1149964176.2642.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+	Sat, 10 Jun 2006 14:35:09 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:42142 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030475AbWFJSfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 14:35:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PYbzmqLT9q8/JBcHRSBW3m2jN087fFL2BovymxMxoXS6KE8uxuwXeegpl2bXRmnuQ6We3LlcUpN26MdvHiFE6otxrLC8iEZorKX4R/cSajLsguvSOo1lPKXrp4CV0FvqJOXyqUyrVr5Uj8+iJDabe3USvW/7z9sqNAIlSYQRDKI=
+Message-ID: <6bffcb0e0606101135v6771110ft462f0dfdfcc45962@mail.gmail.com>
+Date: Sat, 10 Jun 2006 20:35:05 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Christoph Lameter" <clameter@sgi.com>
+Subject: Re: 2.6.16-rc6-mm2
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606101118410.7535@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060609214024.2f7dd72c.akpm@osdl.org>
+	 <6bffcb0e0606100323p122e9b23g37350fa9692337ae@mail.gmail.com>
+	 <20060610092412.66dd109f.akpm@osdl.org>
+	 <Pine.LNX.4.64.0606100939480.6651@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com>
+	 <20060610100318.8900f849.akpm@osdl.org>
+	 <Pine.LNX.4.64.0606101102380.7421@schroedinger.engr.sgi.com>
+	 <6bffcb0e0606101114u37c8b642u5c9cc8dd566cba7c@mail.gmail.com>
+	 <Pine.LNX.4.64.0606101118410.7535@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix memory leak caused by incorrect use of tty
-buffer facility. tty buffers are allocated but never
-processed by call to tty_flip_buffer_push so they
-accumulate on the full buffer list. Current code
-uses the buffers as a temporary storage for data before
-passing it directly to the line discipline.
-Patch has been tested by one rocketport user.
+On 10/06/06, Christoph Lameter <clameter@sgi.com> wrote:
+> On Sat, 10 Jun 2006, Michal Piotrowski wrote:
+> > [michal@ltg01-fedora linux-mm]$ cat ~/page_alloc.patch | patch -p1 --dry-run
+> > patching file mm/page_alloc.c
+> > Hunk #1 FAILED at 1583.
+> > Hunk #2 succeeded at 1604 (offset 1 line).
+> > 1 out of 3 hunks FAILED -- saving rejects to file mm/page_alloc.c.rej
+> > patching file include/linux/page-flags.h
+> >
+> > PITA for people that aren't kernel hackers.
+>
+> Sorry that patch was still against mm1. Here is a fixed up version that
+> applies cleanly against mm2:
+>
 
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+Great, thanks!
 
---- linux-2.6.16/drivers/char/rocket.c	2006-06-04 10:22:24.000000000 -0500
-+++ b/drivers/char/rocket.c	2006-06-04 10:45:35.000000000 -0500
-@@ -324,35 +324,15 @@ static void rp_do_receive(struct r_port 
- 			  CHANNEL_t * cp, unsigned int ChanStatus)
- {
- 	unsigned int CharNStat;
--	int ToRecv, wRecv, space = 0, count;
--	unsigned char *cbuf, *chead;
--	char *fbuf, *fhead;
--	struct tty_ldisc *ld;
--
--	ld = tty_ldisc_ref(tty);
-+	int ToRecv, wRecv, space;
-+	unsigned char *cbuf;
- 
- 	ToRecv = sGetRxCnt(cp);
--	space = tty->receive_room;
--	if (space > 2 * TTY_FLIPBUF_SIZE)
--		space = 2 * TTY_FLIPBUF_SIZE;
--	count = 0;
- #ifdef ROCKET_DEBUG_INTR
--	printk(KERN_INFO "rp_do_receive(%d, %d)...", ToRecv, space);
-+	printk(KERN_INFO "rp_do_receive(%d)...", ToRecv);
- #endif
--
--	/*
--	 * determine how many we can actually read in.  If we can't
--	 * read any in then we have a software overrun condition.
--	 */
--	if (ToRecv > space)
--		ToRecv = space;
--
--	ToRecv = tty_prepare_flip_string_flags(tty, &chead, &fhead, ToRecv);
--	if (ToRecv <= 0)
--		goto done;
--
--	cbuf = chead;
--	fbuf = fhead;
-+	if (ToRecv == 0)
-+		return;
- 
- 	/*
- 	 * if status indicates there are errored characters in the
-@@ -380,6 +360,8 @@ static void rp_do_receive(struct r_port 
- 		       info->read_status_mask);
- #endif
- 		while (ToRecv) {
-+			char flag;
-+
- 			CharNStat = sInW(sGetTxRxDataIO(cp));
- #ifdef ROCKET_DEBUG_RECEIVE
- 			printk(KERN_INFO "%x...", CharNStat);
-@@ -392,17 +374,16 @@ static void rp_do_receive(struct r_port 
- 			}
- 			CharNStat &= info->read_status_mask;
- 			if (CharNStat & STMBREAKH)
--				*fbuf++ = TTY_BREAK;
-+				flag = TTY_BREAK;
- 			else if (CharNStat & STMPARITYH)
--				*fbuf++ = TTY_PARITY;
-+				flag = TTY_PARITY;
- 			else if (CharNStat & STMFRAMEH)
--				*fbuf++ = TTY_FRAME;
-+				flag = TTY_FRAME;
- 			else if (CharNStat & STMRCVROVRH)
--				*fbuf++ = TTY_OVERRUN;
-+				flag = TTY_OVERRUN;
- 			else
--				*fbuf++ = TTY_NORMAL;
--			*cbuf++ = CharNStat & 0xff;
--			count++;
-+				flag = TTY_NORMAL;
-+			tty_insert_flip_char(tty, CharNStat & 0xff, flag);
- 			ToRecv--;
- 		}
- 
-@@ -422,20 +403,23 @@ static void rp_do_receive(struct r_port 
- 		 * characters at time by doing repeated word IO
- 		 * transfer.
- 		 */
-+		space = tty_prepare_flip_string(tty, &cbuf, ToRecv);
-+		if (space < ToRecv) {
-+#ifdef ROCKET_DEBUG_RECEIVE
-+			printk(KERN_INFO "rp_do_receive:insufficient space ToRecv=%d space=%d\n", ToRecv, space);
-+#endif
-+			if (space <= 0)
-+				return;
-+			ToRecv = space;
-+		}
- 		wRecv = ToRecv >> 1;
- 		if (wRecv)
- 			sInStrW(sGetTxRxDataIO(cp), (unsigned short *) cbuf, wRecv);
- 		if (ToRecv & 1)
- 			cbuf[ToRecv - 1] = sInB(sGetTxRxDataIO(cp));
--		memset(fbuf, TTY_NORMAL, ToRecv);
--		cbuf += ToRecv;
--		fbuf += ToRecv;
--		count += ToRecv;
- 	}
- 	/*  Push the data up to the tty layer */
--	ld->receive_buf(tty, chead, fhead, count);
--done:
--	tty_ldisc_deref(ld);
-+	tty_flip_buffer_push(tty);
- }
- 
- /*
+Regards,
+Michal
 
-
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

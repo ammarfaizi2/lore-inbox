@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbWFJSnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWFJTKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030501AbWFJSnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 14:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030504AbWFJSnZ
+	id S1751677AbWFJTKu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 15:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751680AbWFJTKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 14:43:25 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:1684 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030501AbWFJSnY (ORCPT
+	Sat, 10 Jun 2006 15:10:49 -0400
+Received: from xenotime.net ([66.160.160.81]:17099 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751676AbWFJTKt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 14:43:24 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Dominik Karall <dominik.karall@gmx.net>
-Subject: Re: 2.6.16-rc6-mm2
-Date: Sat, 10 Jun 2006 20:43:40 +0200
-User-Agent: KMail/1.9.3
-Cc: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <6bffcb0e0606100925s2577fb25he22bd4ee086a6234@mail.gmail.com> <200606101942.48968.dominik.karall@gmx.net>
-In-Reply-To: <200606101942.48968.dominik.karall@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 10 Jun 2006 15:10:49 -0400
+Date: Sat, 10 Jun 2006 12:13:35 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       jgarzik <jgarzik@pobox.com>, akpm <akpm@osdl.org>
+Subject: [PATCH] [2.6.17-rc6] Section mismatch in drivers/net/ne.o during
+ modpost
+Message-Id: <20060610121335.447e19f2.rdunlap@xenotime.net>
+In-Reply-To: <200606101211.k5ACBgtl029545@harpo.it.uu.se>
+References: <200606101211.k5ACBgtl029545@harpo.it.uu.se>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606102043.40123.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 June 2006 19:42, Dominik Karall wrote:
-> On Saturday, 10. June 2006 18:25, Michal Piotrowski wrote:
-> > On 10/06/06, Dominik Karall <dominik.karall@gmx.net> wrote:
-> > > On Saturday, 10. June 2006 06:40, Andrew Morton wrote:
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2
-> > > >.6.1 7-rc6/2.6.17-rc6-mm2/
-> > >
-> > > Hi Andrew!
-> > >
-> > > 2.6.17-rc6-mm2 and -mm1 don't boot on my amd64 machine. When I
-> > > select the kernel in grub my computer reboots.
-> > >
-> > > config, cpuinfo and lspci can be found at:
-> > > http://stud4.tuwien.ac.at/~e0227135/kernel/
-> >
-> > Please try to disable SMP and PREEMPT.
+On Sat, 10 Jun 2006 14:11:42 +0200 (MEST) Mikael Pettersson wrote:
+
+> While compiling 2.6.17-rc6 for a 486 with an NE2000 ISA ethernet card, I got:
 > 
-> Thanks! 2.6.17-rc6-mm2 boots fine withouth SMP and PREEMPT.
-s/rc6/rc7/
+> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x158) and 'ne_block_input'
+> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x176) and 'ne_block_input'
+> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x183) and 'ne_block_input'
+> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x1ea) and 'ne_block_input'
+> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x251) and 'ne_block_input'
+> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x266) and 'ne_block_input'
+> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x29b) and 'ne_block_input'
+> 
+> Not sure how serious this is; the driver seems to work fine later on.
 
-FYI, on my AMD64 box it works just fine with PREEMPT (still without SMP).
+Doesn't look serious.  init_module() is not __init, but it calls
+some __init functions and touches some __initdata.
 
-Greetings,
-Rafael
+BTW, I would be happy to see some consistent results from modpost
+section checking.  I don't see all of these warnings (I see only 1)
+when using gcc 3.3.6.  What gcc version are you using?
+Does that matter?  (not directed at anyone in particular)
+
+Patch below fixes it for me.  Please test/report.
+---
+
+From: Randy Dunlap <rdunlap@xenotime.net>
+
+Fix section mismatch warnings:
+WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x396) and 'cleanup_card'
+WARNING: drivers/net/ne2.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x483) and 'cleanup_card'
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/net/ne.c  |    2 +-
+ drivers/net/ne2.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2617-rc6.orig/drivers/net/ne.c
++++ linux-2617-rc6/drivers/net/ne.c
+@@ -829,7 +829,7 @@ that the ne2k probe is the last 8390 bas
+ is at boot) and so the probe will get confused by any other 8390 cards.
+ ISA device autoprobes on a running machine are not recommended anyway. */
+ 
+-int init_module(void)
++int __init init_module(void)
+ {
+ 	int this_dev, found = 0;
+ 
+--- linux-2617-rc6.orig/drivers/net/ne2.c
++++ linux-2617-rc6/drivers/net/ne2.c
+@@ -780,7 +780,7 @@ MODULE_PARM_DESC(bad, "(ignored)");
+ 
+ /* Module code fixed by David Weinehall */
+ 
+-int init_module(void)
++int __init init_module(void)
+ {
+ 	struct net_device *dev;
+ 	int this_dev, found = 0;

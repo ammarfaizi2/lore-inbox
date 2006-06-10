@@ -1,125 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWFJN1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWFJNaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWFJN1i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 09:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWFJN1i
+	id S1751514AbWFJNaY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 09:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWFJNaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 09:27:38 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:48289 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751466AbWFJN1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 09:27:37 -0400
+	Sat, 10 Jun 2006 09:30:23 -0400
+Received: from wr-out-0506.google.com ([64.233.184.236]:36556 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751516AbWFJNaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 09:30:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ISukfJOeOyFJGnsnXuSf3mNHc+HUC6co+bRImmMfpr8/Hv5kzpMRChb+UVxQeeOW/abuOtrrXfYXvmc0aEbPAcuq6inj/M5oyE9gzdiqXL1E2MWr1pa2oeX4qwEZEl1HySGk4wv0IZ4gm4TKUVajJLhmfzNhvLW8r/TnVC/kf/U=
-Message-ID: <448AC8BE.7090202@gmail.com>
-Date: Sat, 10 Jun 2006 21:27:26 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UKOOeYpvEbyh5KeVy+6PeqLRfDhgr/UYZindXBLVZFePWjby2Guj0ZjfEEh5ox6dniyyKOsm1wkJREYg9orp/G4gnUJnfER6QoR0ncwA+Y3bbM3MgxIZNapI5V89F3B+m1RA1duN8WdnV+cgERitzyiI+b9TDTQuwouSii1t8eQ=
+Message-ID: <6bffcb0e0606100630k1b7082c7na123a513d853fb13@mail.gmail.com>
+Date: Sat, 10 Jun 2006 15:30:22 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: tglx@linutronix.de
+Subject: Re: 2.6.17-rc6-rt3
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1149943465.5257.199.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
-References: <44893407.4020507@gmail.com> <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
-In-Reply-To: <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060610082406.GA31985@elte.hu>
+	 <6bffcb0e0606100332t9f305c8ubbc715db7956510e@mail.gmail.com>
+	 <1149943465.5257.199.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 6/9/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> - Describe the characteristics of 2 general types of console drivers
->> - How to use the sysfs to unbind and bind console drivers
->> - Uses for this feature
-> 
-> I like this new binding feature and that for doing the work to make it
-> happen. It is definitely something I will use in the future.
-> 
->> From the docs I see a distinction between system consoles and modular
-> consoles, can't all consoles be created equally?  The only rule would
-> be, that if there is only a single console registered it can't be
-> unbound or unregistered. It shouldn't matter which console is the last
-> one left.
+Hi Thomas,
 
-Yes, it can be made that way. I just made it like that because
-system consoles, since they are initialized very, very early, have to
-be compiled statically. Therefore, they have can never be unloaded. So
-why give them the prerogative to directly unbind, when they can never
-be unloaded? One can unbind them anyway by binding a modular driver.
+On 10/06/06, Thomas Gleixner <tglx@linutronix.de> wrote:
+> Michal,
+>
+> On Sat, 2006-06-10 at 12:32 +0200, Michal Piotrowski wrote:
+> > My system hangs on boot.
+>
+> It boots fine with your config here :(. Any chance to get a full output
+> via serial console ?
 
-It would also make binding/unbinding a more complicated process.
+Currently not. I'll buy serial cable.
 
-> 
-> We have these console systems: dummy, serial, vga, mda, prom, sti,
-> newport, sisusb, fb, network (isn't there some way to use the net for
-> console?)
+>
+>         tglx
+>
 
-network is different.  It's a different class of console itself.  We
-have different console classes BTW. We have netconsole, serial console,
-vt consoles etc. fbcon, vgacon, promcon, etc all fall under the vt
-console class.
+Regards,
+Michal
 
-> 
-> All of these console system could follow the same protocol for
-> registering/binding as the modular consoles so we would end up with a
-> single class of console, not modular vs system.
-
-That was the plan before, the problem here is that we won't have any
-output during the early part of the boot process. That's why I
-differentiated them into system and modular consoles.
-
-> Of course some of these consoles are built in and are never going to
-> unregister themselves, but that doesn't meant that their binding
-> sequence has to be different from the modular systems.
-> 
-> For example I can easily see VGA being converted from built-in to
-> modular. There have also been times when I was working on video
-> drivers that I wanted to switch to a serial console. For symmetry
-> dummycon should be built into all systems.
-
-As mentioned above, making vgacon (and other system drivers) take this
-pathway means we lose output during the early part.  
-
-> 
-> As for the way the sysfs attribute works, in a similar situation in fb
-> I used two attributes. Maybe 'backends' which is a read only list of
-> available console systems. And 'backend' which is read/write. Copy one
-> of the names from 'backends' to 'backend' to swtich the active/bound
-> console. Cat 'backend' to see the active console. Any idea on a better
-> name than 'backend'?
-> 
-> cat /sys/class/tty/console/backends
-> vga
-> serial
-> dummy
-> fb
-> 
-> cat /sys/class/tty/console/backend
-> vga
-> 
-> echo fb >/sys/class/tty/console/backend
-> 
-> cat /sys/class/tty/console/backend
-> fb
-> 
-
-I was thinking of changing it to something like this, after GregKH's
-suggestion:
-
-/sys/class/vtconsole --- vgacon - bind
-                     : 
-                     --- fbcon - bind
-                     : 
-                     --- dummycon - bind
-
-... with the 'bind' as a r/w attribute, 0 for unbound/unbind, 1 for
-bound/bind. 
-
-What do you think?
-
-Tony
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

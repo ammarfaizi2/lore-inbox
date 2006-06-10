@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWFJCcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWFJCiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWFJCcM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 22:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWFJCcM
+	id S1030194AbWFJCiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 22:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWFJCiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 22:32:12 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:31150 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932362AbWFJCcL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 22:32:11 -0400
-Message-ID: <448A2F1D.3030806@garzik.org>
-Date: Fri, 09 Jun 2006 22:31:57 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Matthew Frost <artusemrys@sbcglobal.net>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
-       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <20060609194959.GC10524@thunk.org> <4489D44A.1080700@garzik.org> <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk> <4489ECDD.9060307@garzik.org> <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk> <448A07EC.6000409@garzik.org> <20060610004727.GC7749@thunk.org> <448A1BBA.1030103@garzik.org> <20060610013048.GS5964@schatzie.adilger.int> <448A23B2.5080004@garzik.org> <20060610022648.GV5964@schatzie.adilger.int>
-In-Reply-To: <20060610022648.GV5964@schatzie.adilger.int>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Fri, 9 Jun 2006 22:38:11 -0400
+Received: from sccrmhc14.comcast.net ([204.127.200.84]:44426 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1030194AbWFJCiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 22:38:10 -0400
+Date: Fri, 9 Jun 2006 21:37:19 -0500
+From: Hui Zhou <hzhou@hzsolution.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Frustrating Random Reboots, seeking suggestions
+Message-ID: <20060610023719.GA10857@smtp.comcast.net>
+References: <20060609145757.GB1640@smtp.comcast.net> <Pine.LNX.4.64.0606091058320.4969@turbotaz.ourhouse>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606091058320.4969@turbotaz.ourhouse>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> the inode count per group
-> is a fixed parameter for the whole filesystem that even online resizing
-> cannot change.
+On Fri, Jun 09, 2006 at 11:01:22AM -0500, Chase Venters wrote:
+>On Fri, 9 Jun 2006, Hui Zhou wrote:
+>>I am running a linux machine with a self programmed pvr running on it. All 
+>>is well until I reinstalled the linux system a few weeks ago. Now I am 
+>>suffering from random reboots. The reboots does not leave any debug 
+>>messages or clues. After some isolation, I finally narrowed it down to a 
+>>blankscene marking program -- bkmark. Running bkmark against any recording 
+>>randomly reboots the computer. By random, I mean  it may complete 
+>>sucessfully once, but repeating it for a few times, the reboots will 
+>>happen.  On average, it reboots every 2 - 3 runs.
+>Try to knock out any hardware problems first (run memtest86, check for 
+>high heat / crappy power).
+>
+>If you're still having trouble, purchase a serial cable. Plug it into 
+>another computer with a terminal program. Enable serial console support in 
+>your kernel (and on your kernel command line). When the kernel boots, use 
+>SysRq on the serial console to turn the console messaging level up to 
+>maximum. If you're lucky, you'll catch some sort of diagnostics message on 
+>the serial console before this happens.
+>
 
-Correct.  Fixed... at mke2fs time.  Thus, with varying mke2fs runs, 
-inodes-per-group can vary, where it does not with online resize.
+Thanks. memtest86 passes 6 times without errors. Serial console didn't 
+show up anything (it just reboots). 
 
-	Jeff
+Anyway, I finally suspect the debian libmpeg binary is at fault. I 
+manually build it from src and statically linked to the `bkmark' 
+program. It seems cured the random reboots problem. It runs 
+successfully for 4 times. However, the fifth time it ended up in a `D' 
+state. The only system call it uses is libc file IO and some signal 
+passing. Any comment on the cause?
 
-
-
-
+-- 
+Hui Zhou

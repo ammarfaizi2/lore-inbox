@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbWFJBHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWFJBJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030578AbWFJBHT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 21:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030576AbWFJBHT
+	id S1030428AbWFJBJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 21:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030574AbWFJBJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 21:07:19 -0400
-Received: from thunk.org ([69.25.196.29]:1416 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030425AbWFJBHR (ORCPT
+	Fri, 9 Jun 2006 21:09:27 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:16812 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030428AbWFJBJ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 21:07:17 -0400
-Date: Fri, 9 Jun 2006 21:06:51 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Sven-Haegar Koch <haegar@sdinet.de>
-Cc: Michael Poole <mdpoole@troilus.org>, Jeff Garzik <jeff@garzik.org>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060610010651.GA20202@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Sven-Haegar Koch <haegar@sdinet.de>,
-	Michael Poole <mdpoole@troilus.org>, Jeff Garzik <jeff@garzik.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Christoph Hellwig <hch@infradead.org>, cmm@us.ibm.com,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-	linux-fsdevel@vger.kernel.org
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <20060609091327.GA3679@infradead.org> <20060609030759.48cd17a0.akpm@osdl.org> <44899653.1020007@garzik.org> <87irnab33v.fsf@graviton.dyn.troilus.org> <Pine.LNX.4.64.0606100245130.12765@mercury.sdinet.de>
+	Fri, 9 Jun 2006 21:09:26 -0400
+Message-ID: <448A1BBA.1030103@garzik.org>
+Date: Fri, 09 Jun 2006 21:09:14 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606100245130.12765@mercury.sdinet.de>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Theodore Tso <tytso@mit.edu>, Jeff Garzik <jeff@garzik.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Matthew Frost <artusemrys@sbcglobal.net>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
+       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org> <20060609194959.GC10524@thunk.org> <4489D44A.1080700@garzik.org> <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk> <4489ECDD.9060307@garzik.org> <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk> <448A07EC.6000409@garzik.org> <20060610004727.GC7749@thunk.org>
+In-Reply-To: <20060610004727.GC7749@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 10, 2006 at 02:49:32AM +0200, Sven-Haegar Koch wrote:
-> I see a different problem with "ext3 + extends is not ext3 anymore" when 
-> the feature goes mainstream:
-> - user with old distri, no extends in use, no kernel support for them
-> - user has some kind of problem
-> - uses new rescue disk (aka knoppix at the time of problem) - that then
->   is current stuff, and certainly uses extents - fixes problem on disk
->   (may be a simple as running lilo/grub from chroot, happens often for me)
-> - tries to boot back into his distri -> *boom* he lost
+Theodore Tso wrote:
+> Jeff, you seem to think that the fact that the layout isn't precisely
+> the same after an on-line resizing is proof of something horrible, but
+> it isn't.  The exact location of filesystem metadata has never been
+> fixed, not in the past ten years of ext2/3 history, and this is not a
+> big deal.  It certainly isn't "proof" of on-line resizing being
+> something horrible, as you keep trying to claim, without any arguments
+> other than, "The layout is different!".  
 
-Incorrect, because unless you explicitly enable the use of extents,
-the mere act of using a new kernel such as might be found on knoppix
-will not result in the filesystem utilizing the extent feature.
+No, I was proving merely that it is _different_.  And the values where 
+you see a _difference_ are the ones of which are no longer sized 
+optimally, after you grow the fs to a larger size.
 
-There's a lot FUD being spread by people who haven't been bothering to
-understand what is being proposed, and that's disappointing.
+So you incur a performance penalty for resizing to size S2, rather than 
+mke2fs'ing the new blkdev at size S2.  Certainly within the confines of 
+ext3 that cannot be helped, but a different inode allocation strategy 
+could improve upon that.
 
-						- Ted
+	Jeff
+
+

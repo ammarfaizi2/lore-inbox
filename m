@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWFJQjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWFJQlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbWFJQjR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 12:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030452AbWFJQjR
+	id S1750763AbWFJQlw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 12:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWFJQlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 12:39:17 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57534 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030451AbWFJQjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 12:39:16 -0400
-Date: Sat, 10 Jun 2006 17:38:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ben Collins <bcollins@ubuntu.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, weihs@ict.tuwien.ac.at,
-       linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kthread conversion: convert ieee1394 from kernel_thread
-Message-ID: <20060610163859.GA24081@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ben Collins <bcollins@ubuntu.com>,
-	Stefan Richter <stefanr@s5r6.in-berlin.de>,
-	"Serge E. Hallyn" <serue@us.ibm.com>, weihs@ict.tuwien.ac.at,
-	linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20060610143100.GA15536@sergelap.austin.ibm.com> <20060610144205.GA13850@infradead.org> <448AE12E.5060002@s5r6.in-berlin.de> <20060610154213.GA19077@infradead.org> <1149957286.4448.542.camel@grayson>
+	Sat, 10 Jun 2006 12:41:52 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:40349 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1750763AbWFJQlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 12:41:51 -0400
+Date: Sat, 10 Jun 2006 10:41:50 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-acpi@vger.kernel.org, ambx1@neo.rr.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] pnpacpi mishandles port io ADDRESS resources
+Message-ID: <20060610164150.GR1651@parisc-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1149957286.4448.542.camel@grayson>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 10, 2006 at 12:34:46PM -0400, Ben Collins wrote:
-> 1394 bus rescanning takes a _lot_ longer than a PCI rescan. If we don't
-> do this in a kthread, then we have to do it as a tasklet, and take a
-> chance of stalling for a few seconds (not ms), preventing other
-> tasklet's from running. Suboptimal, IMO.
 
-This is just user-initiated FC rescans.  And I doubt they take as long
-as parallel scsi rescans which can go into the minutes range easily.
-Nothing will be stalled by calling this except the caller, which would
-usually be echo called from some shell, something the user can put in
-the background using job control.
+ACPI ADDRESSn resources can describe both memory and port io, but the
+current code assumes they're descibing memory, which isn't true for HP's
+ia64 systems.
 
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+
+--- a/drivers/pnp/pnpacpi/rsparser.c	4 Feb 2006 04:51:56 -0000	1.7
++++ b/drivers/pnp/pnpacpi/rsparser.c	10 Jun 2006 16:27:48 -0000
+@@ -221,19 +221,34 @@ static acpi_status pnpacpi_allocated_res
+ 				res->data.fixed_memory32.address_length);
+ 		break;
+ 	case ACPI_RESOURCE_TYPE_ADDRESS16:
+-		pnpacpi_parse_allocated_memresource(res_table,
+-				res->data.address16.minimum,
+-				res->data.address16.address_length);
++		if (res->data.address.resource_type == 0)
++			pnpacpi_parse_allocated_memresource(res_table,
++					res->data.address16.minimum,
++					res->data.address16.address_length);
++		else if (res->data.address.resource_type == 1)
++			pnpacpi_parse_allocated_ioresource(res_table,
++					res->data.address16.minimum,
++					res->data.address16.address_length);
+ 		break;
+ 	case ACPI_RESOURCE_TYPE_ADDRESS32:
+-		pnpacpi_parse_allocated_memresource(res_table,
+-				res->data.address32.minimum,
+-				res->data.address32.address_length);
++		if (res->data.address.resource_type == 0)
++			pnpacpi_parse_allocated_memresource(res_table,
++					res->data.address32.minimum,
++					res->data.address32.address_length);
++		else if (res->data.address.resource_type == 1)
++			pnpacpi_parse_allocated_ioresource(res_table,
++					res->data.address32.minimum,
++					res->data.address32.address_length);
+ 		break;
+ 	case ACPI_RESOURCE_TYPE_ADDRESS64:
+-		pnpacpi_parse_allocated_memresource(res_table,
+-		res->data.address64.minimum,
+-		res->data.address64.address_length);
++		if (res->data.address.resource_type == 0)
++			pnpacpi_parse_allocated_memresource(res_table,
++					res->data.address64.minimum,
++					res->data.address64.address_length);
++		else if (res->data.address.resource_type == 1)
++			pnpacpi_parse_allocated_ioresource(res_table,
++					res->data.address64.minimum,
++					res->data.address64.address_length);
+ 		break;
+ 
+ 	case ACPI_RESOURCE_TYPE_EXTENDED_ADDRESS64:

@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWFJFnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWFJFxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWFJFnr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 01:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWFJFnr
+	id S932398AbWFJFxm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 01:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWFJFxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 01:43:47 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:16872 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932389AbWFJFnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 01:43:46 -0400
-Date: Fri, 9 Jun 2006 22:41:12 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: Matthew Wilcox <matthew@wil.cx>, Alex Tomas <alex@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: Continuation Inodes Explained! (was Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3)
-Message-ID: <20060610054111.GN10524@goober>
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <m3r71ycprd.fsf@bzzz.home.net> <20060609153116.GM1651@parisc-linux.org> <20060610032623.GG10524@goober> <20060610052502.GY5964@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jun 2006 01:53:42 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:43596 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932398AbWFJFxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 01:53:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iHNP7RrddhhKsoZOWKtfieZhThEL5vV32MK9zNzUaPQyo9w9uxIsDIj5gr+n8bF9PUxygRR6TWFdTu/MPUFj/iDlmKMwVTAqHe3StSSF/2pqP/jzg3gXodTbjVh5+qVFzUVCinpymyWPyaaM0DpU8FkOOV9vWs1YnS97TGePuVI=
+Message-ID: <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
+Date: Sat, 10 Jun 2006 01:53:41 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+In-Reply-To: <44893407.4020507@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060610052502.GY5964@schatzie.adilger.int>
-User-Agent: Mutt/1.5.9i
+References: <44893407.4020507@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 09, 2006 at 11:25:02PM -0600, Andreas Dilger wrote:
-> 
-> The 48-bit support was acutally only a small of the originalreason for
-> extents, while it seems to be the most popular right now.
+On 6/9/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> - Describe the characteristics of 2 general types of console drivers
+> - How to use the sysfs to unbind and bind console drivers
+> - Uses for this feature
 
-*nod*
+I like this new binding feature and that for doing the work to make it
+happen. It is definitely something I will use in the future.
 
-> This needs some extra data in the directory entry, which I've already
-> been thinking about for ext3, so if you are looking at implementing
-> this for ext3 I'd be happy to share some ideas.
+>From the docs I see a distinction between system consoles and modular
+consoles, can't all consoles be created equally? The only rule would
+be, that if there is only a single console registered it can't be
+unbound or unregistered. It shouldn't matter which console is the last
+one left.
 
-Actually, it seems vaguely possible this could be implemented as a
-layer on top of any normal file system - just use files to store
-continuation inodes and the like.  Then you could use the file system
-that best suits your workload underneath. (Suparna has a paper in the
-next OLS talking about something related but not identical, check it
-out.) Most likely it would be criminally wasteful of space and really
-slow, but it's something to think about.
+We have these console systems: dummy, serial, vga, mda, prom, sti,
+newport, sisusb, fb, network (isn't there some way to use the net for
+console?)
 
-> > One interesting possibility would be to combine this with the ext2
-> > dirty bit patches.
-> 
-> Put on your asbestos vest before suggesting any changes to ext2 :-).
+All of these console system could follow the same protocol for
+registering/binding as the modular consoles so we would end up with a
+single class of console, not modular vs system.
+Of course some of these consoles are built in and are never going to
+unregister themselves, but that doesn't meant that their binding
+sequence has to be different from the modular systems.
 
-*laugh* What about ext2.5? :) Seriously, ext2 needs to be left alone,
-but I'm open to the possibility that any of the existing file system
-code bases could be forked off into a development file system.  Some
-ideas would be more compatible with some code bases than others, and
-forking might get rid of some constraints - e.g., an XFS fork could
-get rid of a lot of crufty compat code.
+For example I can easily see VGA being converted from built-in to
+modular. There have also been times when I was working on video
+drivers that I wanted to switch to a serial console. For symmetry
+dummycon should be built into all systems.
 
--VAL
+As for the way the sysfs attribute works, in a similar situation in fb
+I used two attributes. Maybe 'backends' which is a read only list of
+available console systems. And 'backend' which is read/write. Copy one
+of the names from 'backends' to 'backend' to swtich the active/bound
+console. Cat 'backend' to see the active console. Any idea on a better
+name than 'backend'?
+
+cat /sys/class/tty/console/backends
+vga
+serial
+dummy
+fb
+
+cat /sys/class/tty/console/backend
+vga
+
+echo fb >/sys/class/tty/console/backend
+
+cat /sys/class/tty/console/backend
+fb
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

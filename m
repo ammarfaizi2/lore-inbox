@@ -1,102 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWFJKsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbWFJKvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751482AbWFJKsg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 06:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWFJKsg
+	id S1751486AbWFJKvn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 06:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWFJKvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 06:48:36 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:55172 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751482AbWFJKsg (ORCPT
+	Sat, 10 Jun 2006 06:51:43 -0400
+Received: from lug-owl.de ([195.71.106.12]:14523 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751486AbWFJKvn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 06:48:36 -0400
-Date: Sat, 10 Jun 2006 12:48:27 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC]  Slimming down struct inode
-In-Reply-To: <E1Foqjw-00010e-Ln@candygram.thunk.org>
-Message-ID: <Pine.LNX.4.61.0606101237020.23706@yvahk01.tjqt.qr>
-References: <E1Foqjw-00010e-Ln@candygram.thunk.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Jun 2006 06:51:43 -0400
+Date: Sat, 10 Jun 2006 12:51:41 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: smartmontools-support@lists.sourceforge.net,
+       Remy Card <Remy.Card@linux.org>, "Theodore Ts'o" <tytso@alum.mit.edu>,
+       David Beattie <dbeattie@softhome.net>, linux-kernel@vger.kernel.org,
+       apiszcz@solarrain.com
+Subject: Re: The Death and Diagnosis of a Dying Hard Drive - Is S.M.A.R.T. useful?
+Message-ID: <20060610105141.GE30775@lug-owl.de>
+Mail-Followup-To: Justin Piszcz <jpiszcz@lucidpixels.com>,
+	smartmontools-support@lists.sourceforge.net,
+	Remy Card <Remy.Card@linux.org>, Theodore Ts'o <tytso@alum.mit.edu>,
+	David Beattie <dbeattie@softhome.net>, linux-kernel@vger.kernel.org,
+	apiszcz@solarrain.com
+References: <Pine.LNX.4.64.0606100615500.15475@p34.internal.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G2kvLHdEX2DcGdqq"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606100615500.15475@p34.internal.lan>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->1) Move i_blksize (optimal size for I/O, reported by the stat system
->   call).  Is there any reason why this needs to be per-inode, instead
->   of per-filesystem?
->
-I do not know much about XFS's realtime feature, but from what I have read 
-about it so far, it sounds to be a potential source where i_blksize might 
-differ from the regular filesystem. A guess, though.
+--G2kvLHdEX2DcGdqq
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sat, 2006-06-10 06:23:32 -0400, Justin Piszcz <jpiszcz@lucidpixels.com> =
+wrote:
+> SUMMARY:
+> I pose the following question in the subject, as over the years running=
+=20
+> smartd and having failed disks, I have always first been alerted of bad=
+=20
+> sectors and such through dmesg or logcheck.  Even with a bad disk I=20
+> currently have, smartd does not pickup any errors, except those with the=
+=20
+> kernel writes to syslog.
 
->3) Move i_pipe, i_bdev, and i_cdev into a union.  An inode cannot
->    simultaneously be a pipe, block device, and character device at the
->    same time.
->
-Ah, finally this is being tackled. Let's recall Bernd's post:
+What do
 
-  "Mabe a regular file inode atribute can be put in that union, too?"
+	smartctl -H
+	smartctl --all
 
-which made me think about members in struct inode that are only useful for 
-regular files. Is i_blkbits/i_blksize relevant for block special files? I 
-doubt that, since (as you mentioned above) it is (=should be) a 
-per-filesystem option, but block devices don't have to do anything with 
-filesystems in this respect. IOW,
+tell you?
 
-  struct ionde {
-      ...
-      union {
-          struct regular_file {
-              unsigned int i_blkbits;
-              unsigned long i_blksize;
-              ...
-          };
-          ...
-          struct block_device *i_bdev;
-          struct cdev *i_cdev;
-      };
-      ...
-  };              
+MfG, JBG
 
-something like that. (Yes, i_blkbits/size should go into the sb, but maybe 
-there are other regular-files-only members.)
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
+--G2kvLHdEX2DcGdqq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
->6) Separate out those elements which are only used if the inode is open
->   into a separate data structure (call it "struct inode_state" for
->   the sake of argument):
->
->	i_flock, i_mapping, i_data, i_dnotify_mask, i_dnotify,
->	inotify_watches, inotify_sem, i_state, dirtied_when,
->	i_size_seqcount, i_mutex, i_alloc_sem
->
->   This is the motherload.  Moving these fields out to a separate
->   structure which is only allocated for inodes which are open will save
->   a huge amount of memory.  But, of course, sweeping through all of the
->   code which uses these variables to move them would be a major code
->   change.  (We can do it initially with #define magic, but we will need
->   to audit the code paths to see if it's always to safe to assume that
->   inode is open before dereferencing the i_state pointer, or whether we
->   need to check to see if it is valid first.)
->
-Maybe doing it one at a time.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQFEiqQ9Hb1edYOZ4bsRAi9AAJ9SjcQqdl7pOfVoi+qSfQ4oLk3sfQCfYsTx
+TczeIlKFVgpFgRN6amCGvTQ=
+=ucrF
+-----END PGP SIGNATURE-----
 
-How long is inotify going to remain around?
-
-
->#6 is going to be the hard one, since it will involving touching the
->largest amount of code.  But of course, the payoff will be quite big as
->well.  Of course, memory is pretty cheap these days, which is probably
->
-Cheap is relative :)
-
->What do people think?  Is it worth putting together patches to do some
->or all of the above?
-
-
-Jan Engelhardt
--- 
+--G2kvLHdEX2DcGdqq--

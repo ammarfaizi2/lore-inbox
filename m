@@ -1,161 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWFJV0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWFJV0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161011AbWFJV0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 17:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161012AbWFJV0Y
+	id S1161021AbWFJV0o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 17:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161012AbWFJV0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 17:26:24 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:15593 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161011AbWFJV0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 17:26:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=qW+qh6HeXpJt1v6L+pAKFBdRUS2DLOmfbO+MRcKUU3NcqwuYfDn9+QkCmdXN2lK0f1Aboj5Qiicfx2lRK36oXm3HUF70GG62wCGjBNThDJyC1Q29ezmbtslRxRlZ4zyf3P4Lz+Uk2WhTsAZoUfc1ssnLf9N8gTvs574YYIObdeU=
-Message-ID: <448B38F8.2000402@gmail.com>
-Date: Sun, 11 Jun 2006 05:26:16 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Sat, 10 Jun 2006 17:26:44 -0400
+Received: from thunk.org ([69.25.196.29]:49347 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1161019AbWFJV0m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 17:26:42 -0400
+Date: Sat, 10 Jun 2006 17:26:25 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Jeff Garzik <jeff@garzik.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Alex Tomas <alex@clusterfs.com>, Andreas Dilger <adilger@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060610212624.GD6641@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kyle Moffett <mrmacman_g4@mac.com>, Jeff Garzik <jeff@garzik.org>,
+	Chase Venters <chase.venters@clientec.com>,
+	Alex Tomas <alex@clusterfs.com>,
+	Andreas Dilger <adilger@clusterfs.com>,
+	Andrew Morton <akpm@osdl.org>,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+	linux-fsdevel@vger.kernel.org
+References: <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org> <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org> <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org> <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse> <4489C580.7080001@garzik.org> <17D07BC0-4B41-4981-80F5-7AAEC0BB6CC8@mac.com> <Pine.LNX.4.64.0606101238110.5498@g5.osdl.org> <Pine.LNX.4.64.0606101248030.5498@g5.osdl.org>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
-References: <44893407.4020507@gmail.com>	 <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>	 <448AC8BE.7090202@gmail.com> <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
-In-Reply-To: <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606101248030.5498@g5.osdl.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> Jon Smirl wrote:
->> > On 6/9/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> >> - Describe the characteristics of 2 general types of console drivers
->> >> - How to use the sysfs to unbind and bind console drivers
->> >> - Uses for this feature
->> >
->> > I like this new binding feature and that for doing the work to make it
->> > happen. It is definitely something I will use in the future.
->> >
->> >> From the docs I see a distinction between system consoles and modular
->> > consoles, can't all consoles be created equally?  The only rule would
->> > be, that if there is only a single console registered it can't be
->> > unbound or unregistered. It shouldn't matter which console is the last
->> > one left.
->>
->> Yes, it can be made that way. I just made it like that because
->> system consoles, since they are initialized very, very early, have to
->> be compiled statically. Therefore, they have can never be unloaded. So
->> why give them the prerogative to directly unbind, when they can never
->> be unloaded? One can unbind them anyway by binding a modular driver.
->>
->> It would also make binding/unbinding a more complicated process.
+On Sat, Jun 10, 2006 at 01:02:26PM -0700, Linus Torvalds wrote:
+> Starting from scratch - even if you literally start from the same 
+> code-base - and allowing the old functionality to remain undisturbed is 
+> just a very nice model. Yeah, yeah, it has some diskspace cost (although 
+> at least from a git perspective, even that isn't really true), but we've 
+> seen both in drivers and in filesystems how splitting things up has been a 
+> great thing to do.
 > 
-> I may be looking at the problem a little differently. I see the
-> drivers like fb, vga, etc as registering with the console and saying
-> they are capable of providing console services. I then see the console
-> system as opening one of the registered devices. A driver is free to
-> register/unregister whenever it wants to as long as it isn't open by
-> the console system. Console can only open one driver at a time.
+> Sometimes it's a great thing just because five years later, it turns out 
+> that nobody even uses the legacy thing, and you decide to at that point 
+> just remove the driver (or filesystem, but so far it's never been the 
+> case for filesystems even if smbfs is a potential victim of this in the 
+> not _too_ distant future), because the new version simply does everything 
+> better.
 
-No, this isn't true.  You can have multiple console drivers active,
-that's why you have a first and last parameter in take_over_console().
-Thus at boot time, the system driver will take consoles 0 - 63.
-Later on when a driver loads, it can take over consoles 0 - 7, leaving
-consoles 8 - 63 to the system driver.
+	So you you would be in OK of a model where we copy fs/ext3 to
+"fs/ext4", and do development there which would merged rapidly into
+mainline so that people who want to participate in testing can use
+ext3dev, while people who want stability can use ext3 --- and at some
+point, we remove the old ext3 entirely and let fs/ext4 register itself
+as both the ext3 and ext4 filesystem, and at some point in the future,
+remove the ext3 name entirely?
 
-To put it another way, console drivers can register for consoles 0 - 63,
-but the user may choose to use it only for consoles 0 - 7.
+	If that allows us to make forward progress and stop the
+flamewar, I'm willing to go along with it --- although e2fsprogs will
+continue to support ext2/3/4, and ext4 will have backwards
+compatibility support for ext3 formats (we can look at better ways of
+refactoring code to make it cleaner, if people don't like the current
+conditions).  There are some real advantages to the system, especially
+if we can get changed merged into mainline for ext4 more quickly while
+it is under development and declared to be unstable (we can put it
+under CONFIG_EXPERIMENTAL if people really want).  
 
-This is another reason for the system driver, it makes the unbinding
-behavior predictable.  Without a system driver, guessing which driver
-replaces the just unbound one may become just a tad bit confusing for
-the typical user.
+	As far as people who want to use ext3 as the beginning point
+to do something that is has no forwards- compatibility, there's
+nothing stopping them from creating a jgarzikfs if they want.  But I
+think I can speak for most of the ext3 development community that we
+feel that one of the strengths of ext2/3 is its ability to do smooth
+upgrades (and in many cases, downgrades as well, when people need to
+migrate a filesystem so it can be mounted on older kernels), and that
+it's one of the reasons why ext3 has been more succesful, than say,
+JFS. 
 
-> Opening another driver automatically closes the previous driver and
-> one driver always has to be open.
-> 
->> I was thinking of changing it to something like this, after GregKH's
->> suggestion:
->>
->> /sys/class/vtconsole --- vgacon - bind
->>                      :
->>                      --- fbcon - bind
->>                      :
->>                      --- dummycon - bind
->>
+	I do think there is plenty of room for competition, and I'm
+certainly looking forward to the brainstorming at next week's
+filesystem workshop.  But ext2/3 has been pretty successful for over
+ten years given a certain development model and philosophy, and I for
+one am interested how much farther we can take it.  Remember when
+academics were saying that Linux was an obsolete design and
+Microkernels was where it's at?  If we had given up 15 years ago when
+Prof. Tennenbaum had said it, where would we be?
 
-Just tried the above, but it's a mouthful, as the name is based
-on the description. So I already changed it to this:
-
-/sys/class/vtconsole --- vtcon0
-                      :
-                     --- vtcon1
-
-Each class device file has 2 attributes:
-
-bind - r/w attribute
-name - description of the current backend
-
->> ... with the 'bind' as a r/w attribute, 0 for unbound/unbind, 1 for
->> bound/bind.
-> 
-> This model implies that more than one driver can be open which isn't
-> true.
-
-Yes it implies that and no, it is true. So that is a model compatible
-with the current implementation. What's lacking still is fine-grained
-control, ie, for the user to bind/unbind only a specific range of
-consoles. It's possible to add this fine-grained control in:
-
-/sys/class/tty/tty[n] 
-
-...but that will be for the future.
-
-> Since there is one attribute per driver this also implies that
-> binding(registering) is a driver attribute, not a console one.
-
-The revised model should fix this.
-
-> 
-> If you move binding(registering) over to be a driver property it
-> doesn't need to be an explicit attribute. When a driver first loads it
-> will always register with console. When it unloads it will always
-> unregister and we know that the unregister will succeed because if
-> console has you open you won't be able to unload and get to the
-> unregister code.
-> 
-> The problem with the previous system was that bind(register) and open
-> were combined into a single operation when they should be separate. I
-> should be able to load four console drivers and then pick the one I
-> want to switch to without automatically having the console jump to
-> each device as the drivers are loaded.
-> 
->> > We have these console systems: dummy, serial, vga, mda, prom, sti,
->> > newport, sisusb, fb, network (isn't there some way to use the net for
->> > console?)
->>
->> network is different.  It's a different class of console itself.  We
->> have different console classes BTW. We have netconsole, serial console,
->> vt consoles etc. fbcon, vgacon, promcon, etc all fall under the vt
->> console class.
-> 
-> Over time it would nice if these all merged to a single
-> interchangeable interface. I would really like to be able to
-> dynamically switch to serial/net while debugging a video driver. Is
-> there some fundamental reason why these can't be merged?
-
-It's already possible to redirect the system messages to two different
-console classes, ie with the boot parameter:
-
-console=tty0,ttyS0 /* direct output to VT and serial console */
-
-And you can already choose the console you want by adjusting /etc/inittab.
-
-Tony
+						- Ted

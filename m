@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751669AbWFJRhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWFJRmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751669AbWFJRhl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 13:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWFJRhl
+	id S1030408AbWFJRmY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 13:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWFJRmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 13:37:41 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:29376 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751664AbWFJRhk (ORCPT
+	Sat, 10 Jun 2006 13:42:24 -0400
+Received: from mail.gmx.de ([213.165.64.21]:32694 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030408AbWFJRmX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 13:37:40 -0400
-Message-ID: <448B0362.8030901@garzik.org>
-Date: Sat, 10 Jun 2006 13:37:38 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Sat, 10 Jun 2006 13:42:23 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: 2.6.16-rc6-mm2
+Date: Sat, 10 Jun 2006 19:42:48 +0200
+User-Agent: KMail/1.9.3
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606101818.34952.dominik.karall@gmx.net> <6bffcb0e0606100925s2577fb25he22bd4ee086a6234@mail.gmail.com>
+In-Reply-To: <6bffcb0e0606100925s2577fb25he22bd4ee086a6234@mail.gmail.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, promise_linux@promise.com
-Subject: Re: [PATCH] Promise 'stex' driver
-References: <20060610160852.GA15316@havoc.gtf.org> <20060610170640.GA25118@infradead.org>
-In-Reply-To: <20060610170640.GA25118@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200606101942.48968.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, just did several of these and checked it into 'stex' branch.
+On Saturday, 10. June 2006 18:25, Michal Piotrowski wrote:
+> On 10/06/06, Dominik Karall <dominik.karall@gmx.net> wrote:
+> > On Saturday, 10. June 2006 06:40, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2
+> > >.6.1 7-rc6/2.6.17-rc6-mm2/
+> >
+> > Hi Andrew!
+> >
+> > 2.6.17-rc6-mm2 and -mm1 don't boot on my amd64 machine. When I
+> > select the kernel in grub my computer reboots.
+> >
+> > config, cpuinfo and lspci can be found at:
+> > http://stud4.tuwien.ac.at/~e0227135/kernel/
+>
+> Please try to disable SMP and PREEMPT.
 
-commit 1b6f2a81e789ebef27107765656d425ab44a2f44
-Author: Jeff Garzik <jeff@garzik.org>
-Date:   Sat Jun 10 13:36:54 2006 -0400
+Thanks! 2.6.17-rc6-mm2 boots fine withouth SMP and PREEMPT.
 
-     [SCSI] stex: minor cleanups
-
-     - fix endian bug found in s/g code (used a fixed-endian value
-       as a loop-terminating variable)
-
-     From a list of changes suggested by Christoph:
-
-     - don't include linux/config.h
-     - whitespace fix
-     - let compiler choose whether or not to inline
-     - eliminate unnecessary NULL test on hba->dma_mem
-     - handle pci_map_sg() error
-
+thx,
+dominik

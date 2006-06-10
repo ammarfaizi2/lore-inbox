@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWFJKcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWFJKcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWFJKcg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 06:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWFJKcg
+	id S1751480AbWFJKcF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 06:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWFJKcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 06:32:36 -0400
-Received: from wr-out-0506.google.com ([64.233.184.226]:33382 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751482AbWFJKce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 06:32:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OFY5AS5m+aDRqFUfGBRxT3HSJv9c5MImcFD6vA61xcAkO9lKmO+Jgq6yIc6I1SxIt8yaS2Baeg1RsAEskMMVSrIoUIBh6wHfhLHkgyHtWfHj94oy72q+S7lgw8ylZ+U5jHm1g686Mz1PtMsTXS3aBI6Orni3Wsihr9+GnspBGwg=
-Message-ID: <6bffcb0e0606100332t9f305c8ubbc715db7956510e@mail.gmail.com>
-Date: Sat, 10 Jun 2006 12:32:33 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.17-rc6-rt3
-Cc: linux-kernel@vger.kernel.org, "Thomas Gleixner" <tglx@linutronix.de>
-In-Reply-To: <20060610082406.GA31985@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060610082406.GA31985@elte.hu>
+	Sat, 10 Jun 2006 06:32:05 -0400
+Received: from www.osadl.org ([213.239.205.134]:55955 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751480AbWFJKcE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 06:32:04 -0400
+Message-Id: <20060610085435.487020000@cruncher.tec.linutronix.de>
+References: <20060610085428.366868000@cruncher.tec.linutronix.de>
+Date: Sat, 10 Jun 2006 10:15:11 -0000
+From: Thomas Gleixner <tglx@linutronix.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 1/2] genirq: allow usage of no_irq_chip
+Content-Disposition: inline; filename=genirq-allow-usage-of-no-irq-chip.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 10/06/06, Ingo Molnar <mingo@elte.hu> wrote:
-> i have released the 2.6.17-rc6-rt3 tree, which can be downloaded from
-> the usual place:
->
->    http://redhat.com/~mingo/realtime-preempt/
->
+Some dumb interrupt hardware has no way to ack/mask.... Instead of creating a
+seperate chip structure we allow to reuse the already existing no_irq_chip
 
-My system hangs on boot.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-Here is bug http://www.stardust.webpages.pl/files/rt/2.6.17-rc6-rt3/bug1.jpg
-Here is config http://www.stardust.webpages.pl/files/rt/2.6.17-rc6-rt3/rt-config
+ kernel/irq/handle.c |    8 ++++++--
+ kernel/irq/manage.c |    2 +-
+ kernel/irq/proc.c   |    5 ++---
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-Regards,
-Michal
+Index: linux-2.6.17-rc6-mm/kernel/irq/handle.c
+===================================================================
+--- linux-2.6.17-rc6-mm.orig/kernel/irq/handle.c	2006-06-10 10:32:51.000000000 +0200
++++ linux-2.6.17-rc6-mm/kernel/irq/handle.c	2006-06-10 10:42:22.000000000 +0200
+@@ -63,8 +63,12 @@
+  */
+ static void ack_bad(unsigned int irq)
+ {
+-	print_irq_desc(irq, irq_desc + irq);
+-	ack_bad_irq(irq);
++	struct irq_desc *desc = irq_desc + irq;
++
++	if (desc->handle_irq == handle_bad_irq) {
++		print_irq_desc(irq, desc);
++		ack_bad_irq(irq);
++	}
+ }
+ 
+ /*
+@@ -89,6 +93,7 @@
+ 	.enable		= noop,
+ 	.disable	= noop,
+ 	.ack		= ack_bad,
++	.unmask		= noop,
+ 	.end		= noop,
+ };
+ 
+Index: linux-2.6.17-rc6-mm/kernel/irq/manage.c
+===================================================================
+--- linux-2.6.17-rc6-mm.orig/kernel/irq/manage.c	2006-06-10 10:32:53.000000000 +0200
++++ linux-2.6.17-rc6-mm/kernel/irq/manage.c	2006-06-10 10:42:22.000000000 +0200
+@@ -199,7 +199,7 @@
+ 	if (irq >= NR_IRQS)
+ 		return -EINVAL;
+ 
+-	if (desc->chip == &no_irq_chip)
++	if (desc->handle_irq == &handle_bad_irq)
+ 		return -ENOSYS;
+ 	/*
+ 	 * Some drivers like serial.c use request_irq() heavily,
+Index: linux-2.6.17-rc6-mm/kernel/irq/proc.c
+===================================================================
+--- linux-2.6.17-rc6-mm.orig/kernel/irq/proc.c	2006-06-10 10:32:49.000000000 +0200
++++ linux-2.6.17-rc6-mm/kernel/irq/proc.c	2006-06-10 10:42:22.000000000 +0200
+@@ -116,9 +116,8 @@
+ {
+ 	char name [MAX_NAMELEN];
+ 
+-	if (!root_irq_dir ||
+-		(irq_desc[irq].chip == &no_irq_chip) ||
+-			irq_desc[irq].dir)
++	if (!root_irq_dir || (irq_desc[irq].handle_irq == &handle_bad_irq) ||
++	    irq_desc[irq].dir)
+ 		return;
+ 
+ 	memset(name, 0, MAX_NAMELEN);
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+--
+

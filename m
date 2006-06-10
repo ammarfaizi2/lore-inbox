@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWFJR2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751669AbWFJRhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751063AbWFJR2c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 13:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWFJR2c
+	id S1751669AbWFJRhl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 13:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWFJRhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 13:28:32 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:14978 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751049AbWFJR2c (ORCPT
+	Sat, 10 Jun 2006 13:37:41 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:29376 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751664AbWFJRhk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 13:28:32 -0400
-Date: Sat, 10 Jun 2006 19:28:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Roman Zippel <zippel@linux-m68k.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: klibc - another libc?
-Message-ID: <20060610172807.GA15818@mars.ravnborg.org>
-References: <44869397.4000907@tls.msk.ru> <Pine.LNX.4.64.0606080036250.17704@scrub.home> <e69fu3$5ch$1@terminus.zytor.com> <Pine.LNX.4.64.0606091409220.17704@scrub.home> <e6cgjv$b8t$1@terminus.zytor.com> <4489C83F.40307@tls.msk.ru> <Pine.LNX.4.64.0606100316400.17704@scrub.home> <448AF226.7060003@tls.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448AF226.7060003@tls.msk.ru>
-User-Agent: Mutt/1.5.11
+	Sat, 10 Jun 2006 13:37:40 -0400
+Message-ID: <448B0362.8030901@garzik.org>
+Date: Sat, 10 Jun 2006 13:37:38 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, promise_linux@promise.com
+Subject: Re: [PATCH] Promise 'stex' driver
+References: <20060610160852.GA15316@havoc.gtf.org> <20060610170640.GA25118@infradead.org>
+In-Reply-To: <20060610170640.GA25118@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 10, 2006 at 08:24:06PM +0400, Michael Tokarev wrote:
- 
-> Embedded folks are using uclibc or dietlibc - i see no reason for another
-> "more small" libc for booting, regular tools (linked against uc or diet)
-> can be used just fine.
-Then they can just use uclibc or dietlibc. There is nothing that
-prevents you from providing everything fr the initramfs.
-klibc is the default choice so the kernel can provide a functional set
-of programs. Without klibc it would be almost impossible to factor out
-all the code that ought to run in userspace but are part of the ekrnel
-because there were no other way to do it.
+Thanks, just did several of these and checked it into 'stex' branch.
 
-And klibc being temporary is some odd argument. Why should it be
-temporary. Are there other alternatives when bundling a 'libc' with the
-kernel?
+commit 1b6f2a81e789ebef27107765656d425ab44a2f44
+Author: Jeff Garzik <jeff@garzik.org>
+Date:   Sat Jun 10 13:36:54 2006 -0400
 
-	Sam
+     [SCSI] stex: minor cleanups
+
+     - fix endian bug found in s/g code (used a fixed-endian value
+       as a loop-terminating variable)
+
+     From a list of changes suggested by Christoph:
+
+     - don't include linux/config.h
+     - whitespace fix
+     - let compiler choose whether or not to inline
+     - eliminate unnecessary NULL test on hba->dma_mem
+     - handle pci_map_sg() error
+

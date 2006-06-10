@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWFJBYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWFJB16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030442AbWFJBYN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 21:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWFJBYN
+	id S1030240AbWFJB16 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 21:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWFJB16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 21:24:13 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:20171 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932615AbWFJBYM
+	Fri, 9 Jun 2006 21:27:58 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:10406 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932615AbWFJB16
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 21:24:12 -0400
-Date: Fri, 9 Jun 2006 20:23:14 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
+	Fri, 9 Jun 2006 21:27:58 -0400
+Date: Sat, 10 Jun 2006 02:27:57 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "Theodore Ts'o" <tytso@mit.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 -mm merge plans
-Message-ID: <20060610012314.GA2378@sergelap.austin.ibm.com>
-References: <20060604135011.decdc7c9.akpm@osdl.org> <20060605144328.GA12904@sergelap.austin.ibm.com> <m17j3r8lqd.fsf@ebiederm.dsl.xmission.com> <20060609232551.GA11240@sergelap.austin.ibm.com> <m1k67p6dz7.fsf@ebiederm.dsl.xmission.com>
+Subject: Re: [RFC]  Slimming down struct inode
+Message-ID: <20060610012757.GC27946@ftp.linux.org.uk>
+References: <E1Foqjw-00010e-Ln@candygram.thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1k67p6dz7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <E1Foqjw-00010e-Ln@candygram.thunk.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
-> 
-> > Quoting Eric W. Biederman (ebiederm@xmission.com):
-> >> If you want to help with the bare pid to struct pid conversion I
-> >> don't have any outstanding patches, and getting that done kills
-> >> some theoretical pid wrap around problems as well as laying the ground
-> >> work for a simple pidspace implementation.
-> >> 
-> >> Eric
-> >
-> > Is this the sort of thing you are looking for?  Is this worthwhile for
-> > kernel_threads, or only for userspace threads - i.e. do we expect kernel
-> > threads to live?
-> 
-> For kernel threads we should simply be able to use their task
-> struct.
-> 
-> In this instance we have hit upon a different problem.  Anything
-> using the kernel_thread API instead of the kthread api needs 
-> to be updated.
-> 
-> The basic problem is that for kernel_threads can show up
-> inside of containers.
-> 
-> We can fix that by updating daemonize or we can simply
-> universally use the kthread api.  Since the kernel_thread
-> api is deprecated because of these kinds of reasons
-> what really makes sense is to work on the transition
-> to the kthread api.
+On Fri, Jun 09, 2006 at 07:50:08PM -0400, Theodore Ts'o wrote:
+> 4) i_state and i_flags are both 4-byte longs, but they only need to be
+>    2-byte shorts, and could be placed next to each other.
 
-Egads, I apologize.
+void wake_up_inode(struct inode *inode)
+{
+        /*
+         * Prevent speculative execution through spin_unlock(&inode_lock);
+         */
+        smp_mb();
+        wake_up_bit(&inode->i_state, __I_LOCK);
+}
 
-Apparently I was in a daze, as I'd forgotten that converting
-all kernel_thread users to kthread was something else we wanted
-to work towards, and which Christoph had explicitly asked for
-help with.
+> 5) Nuke i_cindex.  This is only used by ieee1394's
+>    ieee_file_to_instance.  There must be another place where we can
+>    store this --- say, in a ieee1394-specific field in struct file?  Or
+>    maybe it can be derived some other way, but to chew up 4 bytes in
+>    i_cindex for all inodes just for ieee1394's benefit seems like the
+>    Wrong Thing(tm).
 
-> Ok a couple of comments.
+No, it's actually the right thing for _all_ char devices.  And it's used
+before we get a struct file.  If anything, ->i_rdev should go long-term...
+
+> 6) Separate out those elements which are only used if the inode is open
+>    into a separate data structure (call it "struct inode_state" for
+>    the sake of argument):
 > 
-> As I recall there are some pretty sane ways of going
-> from struct pid to a task_struct and then we can use things
-> like group_send_sig.
+> 	i_flock, i_mapping, i_data, i_dnotify_mask, i_dnotify,
+> 	inotify_watches, inotify_sem, i_state, dirtied_when,
+> 	i_size_seqcount, i_mutex, i_alloc_sem
+> 
+>    This is the motherload.  Moving these fields out to a separate
+>    structure which is only allocated for inodes which are open will save
+>    a huge amount of memory.  But, of course, sweeping through all of the
+>    code which uses these variables to move them would be a major code
+>    change.  (We can do it initially with #define magic, but we will need
+>    to audit the code paths to see if it's always to safe to assume that
+>    inode is open before dereferencing the i_state pointer, or whether we
+>    need to check to see if it is valid first.)
 
-Oh, you mean instead of doing kill_proc(struct pid->nr), which
-I guess was pretty braindead?  :)
+It is not safe e.g. for ->i_mutex, since that puppy is used not only when
+there's an opened file over this inode (or, in fact, before any method
+had been called for this inode).
 
-Ok, futile as this may have seemed overall, I think it's helped
-me figure out what to actually do.
+It is _certainly_ not safe for ->i_state (take a look at fs/inode.c).
 
-thanks,
--serge
+It is not safe for ->i_data, unless you are willing to dispose of page
+cache on close (even leaving aside such things as directories).
+
+No comments on idiotify fields - IIRC, they can also be used before any
+->open() on the inode in question.

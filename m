@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030567AbWFJAp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030564AbWFJApn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030567AbWFJAp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 20:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbWFJAp0
+	id S1030564AbWFJApn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 20:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030571AbWFJApn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 20:45:26 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:13522 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030261AbWFJApZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 20:45:25 -0400
-Date: Fri, 9 Jun 2006 18:45:31 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Matthew Frost <artusemrys@sbcglobal.net>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
-       linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060610004531.GR5964@schatzie.adilger.int>
-Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
-	"Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Matthew Frost <artusemrys@sbcglobal.net>,
-	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Mingming Cao <cmm@us.ibm.com>,
-	linux-fsdevel@vger.kernel.org, Alex Tomas <alex@clusterfs.com>
-References: <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org> <20060609194959.GC10524@thunk.org> <4489D44A.1080700@garzik.org> <1149886670.5776.111.camel@sisko.sctweedie.blueyonder.co.uk> <4489ECDD.9060307@garzik.org> <1149890138.5776.114.camel@sisko.sctweedie.blueyonder.co.uk> <448A07EC.6000409@garzik.org>
-Mime-Version: 1.0
+	Fri, 9 Jun 2006 20:45:43 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16041 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030564AbWFJApk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jun 2006 20:45:40 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Kirill Korotaev <dev@openvz.org>
+Cc: Andrew Morton <akpm@osdl.org>, devel@openvz.org, xemul@openvz.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ebiederm@xmission.com, herbert@13thfloor.at, saw@sw.ru,
+       serue@us.ibm.com, sfrench@us.ibm.com, sam@vilain.net,
+       haveblue@us.ibm.com, clg@fr.ibm.com
+Subject: Re: [PATCH 1/6] IPC namespace core
+References: <44898BF4.4060509@openvz.org> <44898D52.4080506@openvz.org>
+Date: Fri, 09 Jun 2006 18:44:30 -0600
+In-Reply-To: <44898D52.4080506@openvz.org> (Kirill Korotaev's message of "Fri,
+	09 Jun 2006 19:01:38 +0400")
+Message-ID: <m1fyid6dqp.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448A07EC.6000409@garzik.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 09, 2006  19:44 -0400, Jeff Garzik wrote:
-> Stephen C. Tweedie wrote:
-> > No, we add the same number of inodes in the new groups that all the
-> > previous groups have.
-> 
-> Yes.  Re-read what I wrote.  To put it another way, "mkfs S1 + resize to 
-> S2" does not produce precisely the same layout as "mkfs S2".
+Kirill Korotaev <dev@openvz.org> writes:
 
-And in what way is that important?  I mean, really, if this is your argument
-that ext3 online resizing is a "hack" then it is pretty weak.  This does
-not affect the operation or compatibility of the resized filesystem all the
-way back to the stone age (i.e. every single ext2 kernel ever will work
-with the resized filesystem).  That is why online resizing (and the resize
-inode) are a COMPAT feature.
+> --- ./kernel/fork.c.ipcns	2006-06-06 14:47:58.000000000 +0400
+> +++ ./kernel/fork.c	2006-06-08 15:31:03.000000000 +0400
+> @@ -1592,6 +1592,7 @@ asmlinkage long sys_unshare(unsigned lon
+>  	struct sem_undo_list *new_ulist = NULL;
+>  	struct nsproxy *new_nsproxy = NULL, *old_nsproxy = NULL;
+>  	struct uts_namespace *uts, *new_uts = NULL;
+> +	struct ipc_namespace *ipc, *new_ipc = NULL;
+>  
+>  	check_unshare_flags(&unshare_flags);
+>  
+> @@ -1617,18 +1618,20 @@ asmlinkage long sys_unshare(unsigned lon
+>  		goto bad_unshare_cleanup_fd;
+>  	if ((err = unshare_utsname(unshare_flags, &new_uts)))
+>  		goto bad_unshare_cleanup_semundo;
+> +	if ((err = unshare_ipcs(unshare_flags, &new_ipc)))
+> +		goto bad_unshare_cleanup_uts;
+>  
+>  	if (new_ns || new_uts) {
+This test needs to be updated to test for new_ipc.
+>  		old_nsproxy = current->nsproxy;
+>  		new_nsproxy = dup_namespaces(old_nsproxy);
+>  		if (!new_nsproxy) {
+>  			err = -ENOMEM;
+> -			goto bad_unshare_cleanup_uts;
+> +			goto bad_unshare_cleanup_ipc;
+>  		}
+>  	}
 
-If I "cp b a /mnt/newfs" and "cp a b /mnt/newfs" "a" and "b" will have
-different inode numbers too, but doesn't mean that "cp" is a "hack".
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+Eric

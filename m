@@ -1,31 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWFJAQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWFJAU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932603AbWFJAQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jun 2006 20:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbWFJAQ1
+	id S932606AbWFJAU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jun 2006 20:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbWFJAU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jun 2006 20:16:27 -0400
-Received: from quechua.inka.de ([193.197.184.2]:20637 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S932603AbWFJAQ0 (ORCPT
+	Fri, 9 Jun 2006 20:20:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54758 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932606AbWFJAU1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jun 2006 20:16:26 -0400
-From: be-news06@lina.inka.de (Bernd Eckenfels)
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <448A07EC.6000409@garzik.org>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1For9M-0005jT-00@calista.eckenfels.net>
-Date: Sat, 10 Jun 2006 02:16:24 +0200
+	Fri, 9 Jun 2006 20:20:27 -0400
+Date: Fri, 9 Jun 2006 17:23:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: ralf@linux-mips.org, linux-kernel@vger.kernel.org,
+       creese@caviumnetworks.com, apw@shadowen.org
+Subject: Re: [PATCH] mem_map is part of the FLATMEM model
+Message-Id: <20060609172306.0ce6bf86.akpm@osdl.org>
+In-Reply-To: <20060609134850.GA20794@shadowen.org>
+References: <447DCBAD.8070307@shadowen.org>
+	<20060609134850.GA20794@shadowen.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jeff@garzik.org> wrote:
-> Yes.  Re-read what I wrote.  To put it another way, "mkfs S1 + resize to 
-> S2" does not produce precisely the same layout as "mkfs S2".
+Andy Whitcroft <apw@shadowen.org> wrote:
+>
+> mem_map is part of the FLATMEM model
+> 
+> It seems that the definition and declaration of mem_map are
+> inconsistent meaning we get usless undirected link failures about
+> mem_map when its being used when it shouldn't be.
+> 
+> Reviewing mem_map, its actually only valid and initialised when
+> CONFIG_FLATMEM is defined.  Indeed in all essence it is part
+> of that memory model used out of FLATMEM's __pfn_to_page etc.
+> mem_map (and max_mapnr) should only be defined and declared when
+> the FLATMEM memory model is selected.
 
-This is normal for ext3 since it creates less inodes, right?
+sparc64 allmodconfig:
 
-Gruss
-Bernd
+arch/sparc64/mm/init.c: In function `paging_init':
+arch/sparc64/mm/init.c:1339: error: `max_mapnr' undeclared (first use in this function)
+arch/sparc64/mm/init.c:1339: error: (Each undeclared identifier is reported only once
+

@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWFJJuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWFJKDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWFJJuG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 05:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWFJJuG
+	id S1751477AbWFJKDj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 06:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWFJKDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 05:50:06 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:2384 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751456AbWFJJuE (ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
-	Sat, 10 Jun 2006 05:50:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=unzJpFeb/Wm19oMevRZ8iOy3G5fWyqFyID90gU4I+J6NLU3sEqzpE2YyDidYmwgW2G6gUGRDf+/Kd9MuRUEQPlyp7yKUCckN1jJHSTX8R8vGlBsXzAiR6a+UosFMG0zLkeHTD+Zox3Y+MaHtBoKEuKKxbKmZUJA87q4cLh80+2E=
-Message-ID: <5486cca80606100250n4d30c756md66f04bf9b80bdac@mail.gmail.com>
-Date: Sat, 10 Jun 2006 11:50:04 +0200
-From: Antonio <tritemio@gmail.com>
-To: markh@compro.net
-Subject: Re: RT exec for exercising RT kernel capabilities
-Cc: linux-kerneL@vger.kernel.org, "Ingo Molnar" <mingo@elte.hu>,
-       "Steven Rostedt" <rostedt@goodmis.org>
-In-Reply-To: <448876B9.9060906@compro.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jun 2006 06:03:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:29850 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750787AbWFJKDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 06:03:38 -0400
+Date: Sat, 10 Jun 2006 11:03:17 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Matthew Frost <artusemrys@sbcglobal.net>,
+       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060610100317.GC20526@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Gerrit Huizenga <gh@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
+	Matthew Frost <artusemrys@sbcglobal.net>,
+	Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+	linux-fsdevel@vger.kernel.org
+References: <4489C34B.1080806@garzik.org> <E1FompD-0006pL-Dg@w-gerrit.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <448876B9.9060906@compro.net>
+In-Reply-To: <E1FompD-0006pL-Dg@w-gerrit.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jun 09, 2006 at 12:39:19PM -0700, Gerrit Huizenga wrote:
+> > PRECISELY.  So you should stop modifying a filesystem whose design is 
+> > admittedly _not_ modern!
+> 
+> So just how long do you think it would take to get a modern filesystem
+> into the hands of real users, supported by the distros?  From community
+> building, through design, development, testing, delivery?
 
-On 6/8/06, Mark Hounschell <markh@compro.net> wrote:
-> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
-> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
-> well the deterministic real-time capabilities of a computer. Maybe it could
-> useful in some way to the effort or to anyone interested in making this type of
-> determination about their kernel/computer.
->
-> A README describing the rt-exec can be found at
-> ftp://ftp.compro.net/public/rt-exec/README
+JFS is pretty nice because it has many adavanced features but still is
+rather simple.  XFS has even more cool features such as a WIP parallel
+fsck and is proven on the biggest filesystems on COS operating systems
+out there, but as a disadvantage is hugely complex so outsiders have a
+hard time getting into it.
 
-Sorry for the simple question. How do I check if my hardware support
-HRT? Is it common on i386 desktops (mine is an Athlon XP 2000+)?
+So shortem the option I'd recommend is to start supporting XFS more broadly,
+because it's the high end filesystem that's out there today and fill the
+needs people have in the next five or so years.
 
-Many thanks.
+For the time after that we need to think about something that can scale
+aswell and better while beeing simpler.  Also we need to start thinking
+about a clustered filesystem more, it might or might not make sense to
+have a cluster filesystem also do the next generation local filesystem
+thing.  I'd probably start designing such a next gen fs by taking jfs
+and revamping it completely.
 
-Cheers,
-
-  ~  Antonio

@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWFJRBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWFJRDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbWFJRBx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 13:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWFJRBx
+	id S932447AbWFJRDV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 13:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWFJRDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 13:01:53 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:49221 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932255AbWFJRBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 13:01:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ANrvmQz4jJqSGyzjgpUBlWli0yyiYQqx+JPPL8S6WLlV5+gmr0pQRFFF2cJspqd8+KpsLNB9+w8cFs1VT4N7YbzkMKo3alETRAqLc5dlA2OhtJJNj6pGFVqKZxdH+xItY0WDhZ1+zqNfJvIVuY0752eOBhdByT0KHP5y3qUIevM=
-Message-ID: <9e4733910606101001j1a10eb9x89d4c2b200fe5ba8@mail.gmail.com>
-Date: Sat, 10 Jun 2006 13:01:52 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Linux Fbdev development list" 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
-       "Greg KH" <greg@kroah.com>
-In-Reply-To: <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 10 Jun 2006 13:03:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6569 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932447AbWFJRDU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 13:03:20 -0400
+Date: Sat, 10 Jun 2006 10:03:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2
+Message-Id: <20060610100318.8900f849.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org>
+	<6bffcb0e0606100323p122e9b23g37350fa9692337ae@mail.gmail.com>
+	<20060610092412.66dd109f.akpm@osdl.org>
+	<Pine.LNX.4.64.0606100939480.6651@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44893407.4020507@gmail.com>
-	 <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
-	 <448AC8BE.7090202@gmail.com>
-	 <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/10/06, Jon Smirl <jonsmirl@gmail.com> wrote:
-> The problem with the previous system was that bind(register) and open
-> were combined into a single operation when they should be separate. I
-> should be able to load four console drivers and then pick the one I
-> want to switch to without automatically having the console jump to
-> each device as the drivers are loaded.
 
-I should clarify this, take_over_console() combines the registration
-and open operations. If I loaded four console drivers using
-take_over_console() my console would bounce from device to device as
-the drivers are loaded. The real problem with the take_over_console()
-implementation was that it effectively made loading console drivers
-into a stack operation instead of a set operation.
 
-take_over_console() is not incompatible with the scheme I described in
-the previous mail if the implementation is changed inside console.
-The new implementation would just call the register and open
-operations as described earlier. When loading four consoles using
-take_over_console() you would still bounce through the four consoles
-but once loaded the console drivers would act as a set. You could use
-sysfs to switch to any of the registered consoles. If a console driver
-is not open it could be unloaded in any order.
+I've placed a rollup of 2.6.17-rc6-mm2 minus the zoned-vm and eventcounter
+patches at
 
-Long term I think take_over_console() should be deprecated in favor of
-a register(bind) call from the console driver and an explicit sysfs
-action to move the console.
+	http://www.zip.com.au/~akpm/linux/patches/stuff/cl.bz2
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Patches against that would suit.
+
+I won't be in a position to do much merging or any testing for the next
+week, so no rush.
+

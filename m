@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751671AbWFJTIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWFJTLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751671AbWFJTIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 15:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751676AbWFJTIZ
+	id S1751681AbWFJTLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 15:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751682AbWFJTLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 15:08:25 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:2486 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751671AbWFJTIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 15:08:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mR4baT8TP13qpXSJLEh1apt20aP4m+N/hYhybdNZ7zRsAVoRY5p5NI9In3GlZ57aBrtsyUnF/FcxUlc5p7nVHv0H9FC2abH0tKYyw7Dt3+0sx+m29OoAEQGpMcrkqU1lKhOKd181rTB6BLUw1U1fgvA67iVTKb5LrCj049lrcvg=
-Message-ID: <6bffcb0e0606101208y4e155371g78b9aea781f39fd4@mail.gmail.com>
-Date: Sat, 10 Jun 2006 21:08:24 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: 2.6.16-rc6-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0606101131430.7535@schroedinger.engr.sgi.com>
+	Sat, 10 Jun 2006 15:11:04 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:49566 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751679AbWFJTLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 15:11:01 -0400
+Message-ID: <448B1707.4090000@suse.com>
+Date: Sat, 10 Jun 2006 15:01:27 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+Organization: SUSE Labs, Novell, Inc
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: Matthew Wilcox <matthew@wil.cx>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: How long can an inode structure reside in the inode_cache?
+References: <4ae3c140606091710k7a320f2ex6390d0e01da4de9b@mail.gmail.com>	 <20060610121318.GQ1651@parisc-linux.org> <4ae3c140606101012y6668fd5co7b7d2d453bb02397@mail.gmail.com>
+In-Reply-To: <4ae3c140606101012y6668fd5co7b7d2d453bb02397@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060609214024.2f7dd72c.akpm@osdl.org>
-	 <6bffcb0e0606100323p122e9b23g37350fa9692337ae@mail.gmail.com>
-	 <20060610092412.66dd109f.akpm@osdl.org>
-	 <Pine.LNX.4.64.0606100939480.6651@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com>
-	 <20060610100318.8900f849.akpm@osdl.org>
-	 <Pine.LNX.4.64.0606101102380.7421@schroedinger.engr.sgi.com>
-	 <6bffcb0e0606101114u37c8b642u5c9cc8dd566cba7c@mail.gmail.com>
-	 <6bffcb0e0606101126v55cc20dbk275d8aa7fdcb0f1a@mail.gmail.com>
-	 <Pine.LNX.4.64.0606101131430.7535@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/06/06, Christoph Lameter <clameter@sgi.com> wrote:
-> On Sat, 10 Jun 2006, Michal Piotrowski wrote:
->
-> > And I get this error
-> > /usr/src/linux-mm/mm/page_alloc.c: In function 'vm_events_fold_cpu':
-> > /usr/src/linux-mm/mm/page_alloc.c:2885: error: incompatible type for
-> > argument 2 of 'count_vm_events'
-> > /usr/src/linux-mm/mm/page_alloc.c:2886: error: invalid type argument of '->'
-> > make[2]: *** [mm/page_alloc.o] B??d 1
-> > make[1]: *** [mm] B??d 2
-> > make: *** [_all] B??d 2
-> >
-> > As I said - pain in the ass for people that aren't kernel hackers.
->
-> Hmmm. That is hotplug which I cannot enable on ia64. I checked this by
-> moving the #ifdef CONFIG_HOTPLUG
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks! Now everything builds, works fine.
+Xin Zhao wrote:
+> No. I guess I didn't make my question clear.
+> 
+> My question is: Will an inode be released after the last file refers
+> to this is closed? If so, this could bring a performance issue.
+> Consider this case: a process open a file, read it, close it, then
+> reopen this file, read it, close it. For every open,  the inode has to
+> be read from disk again, which make hurt performance.
+> 
+> So I think inode should stay in inode_cache for a while, not released
+> right after the last file stops referring it. I just want to know
+> whether my guess is right. If it is, when will kernel release the
+> inode, since an inode cannot stay in memory forever.
 
-Regards,
-Michal
+That's pretty much exactly what happens. The kernel caches inodes and
+dentries when memory usage allows. When the last reference to an inode
+is dropped and the file system is still in use, the inode goes on the
+unused_inode list. It remains linked to the inode hash table. When a
+inode is requested, the hash table is checked before trying to read it
+back from disk. Check out generic_forget_inode() and ifind().
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+When there is memory pressure, the VM system will shrink these caches.
+inode_init() registers a callback for the VM to call
+shrink_icache_memory () which will finally free the memory. Check out
+mm/vmscan.c and fs/inode.c for more detailed information.
+
+- -Jeff
+
+- --
+Jeff Mahoney
+SUSE Labs
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+
+iD8DBQFEixcGLPWxlyuTD7IRAn1SAJ4yjgtJ9YL321W/18a7nttlaEc9pACeIMJX
+yNUuC/impK4eZpHpLkwtCOQ=
+=ykbS
+-----END PGP SIGNATURE-----

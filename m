@@ -1,67 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbWFJOWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWFJOcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbWFJOWU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 10:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbWFJOWU
+	id S1030415AbWFJOcE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 10:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030422AbWFJOcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 10:22:20 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:33210 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030393AbWFJOWT (ORCPT
+	Sat, 10 Jun 2006 10:32:04 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:32186 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030415AbWFJOcC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 10:22:19 -0400
-Message-ID: <448AD590.40005@garzik.org>
-Date: Sat, 10 Jun 2006 10:22:08 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Valerie Henson <val_henson@linux.intel.com>
-CC: Matthew Wilcox <matthew@wil.cx>, Alex Tomas <alex@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       cmm@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       Andreas Dilger <adilger@clusterfs.com>,
-       Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: Continuation Inodes Explained! (was Re: [Ext2-devel] [RFC 0/13]
- extents and 48bit ext3)
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com> <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int> <44898EE3.6080903@garzik.org> <m3r71ycprd.fsf@bzzz.home.net> <20060609153116.GM1651@parisc-linux.org> <20060610032623.GG10524@goober>
-In-Reply-To: <20060610032623.GG10524@goober>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Sat, 10 Jun 2006 10:32:02 -0400
+Date: Sat, 10 Jun 2006 09:31:00 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: bcollins@debian.org, linux1394-devel@lists.sourceforge.net,
+       weihs@ict.tuwien.ac.at
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kthread conversion: convert ieee1394 from kernel_thread
+Message-ID: <20060610143100.GA15536@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valerie Henson wrote:
-> So what the heck are continuation inodes?  Actually, we named this
-> "chunkfs" - not particularly descriptive, maybe continuation inodes is
-> a better term.
-[...]
-> The basic idea is to create a bunch of small file systems - chunks -
-> which look like one big file system to the administrator.  Major
+Convert ieee1394 from using deprecated kernel_thread to
+kthread api.
 
-Back when I was still playing with my experimental filesystem, one of 
-the short-list features I was planning on implementing was the 
-allocation of both metadata and data from the same underlying data 
-store, essentially collections of "buckets" for data.
+Compiles fine, but unfortunately I am unable to test.
 
-The data store would be a succession of progressively-smaller buckets. 
-Typical bucket sizes (chosen by admin) on a single filesystem might be: 
-1G, 128M, 4M, 1M, 64k, 4k.  The largest (top-most) bucket is the 
-fundamental unit of allocation for the filesystem, from which all other 
-metadata and data is read/allocated.
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
-So in my example above, the 1G bucket is analagous to a single chunk in 
-chunkfs, and any number of 1G buckets -- from any number of block 
-devices -- may comprise a single filesystem.
+---
 
-New inode tables, bitmap chunks, directories, large files, etc. are all 
-allocated from an "appropriate" bucket.  IMO this type of solution 
-provides fsck-friendly isolation, and adds sufficient flexibility for 
-doing things like delayed alloc, metadata-is-a-file, etc.
+ drivers/ieee1394/ieee1394_core.c |   20 +++++++++++---------
+ drivers/ieee1394/nodemgr.c       |   12 +++++++-----
+ 2 files changed, 18 insertions(+), 14 deletions(-)
 
-	Jeff
-
-
+d1e631b1c58bc2cfe4dbcdb5138abce5060fed5a
+diff --git a/drivers/ieee1394/ieee1394_core.c b/drivers/ieee1394/ieee1394_core.c
+index be6854e..075ee3e 100644
+--- a/drivers/ieee1394/ieee1394_core.c
++++ b/drivers/ieee1394/ieee1394_core.c
+@@ -33,6 +33,7 @@
+ #include <linux/kdev_t.h>
+ #include <linux/skbuff.h>
+ #include <linux/suspend.h>
++#include <linux/kthread.h>
+ 
+ #include <asm/byteorder.h>
+ #include <asm/semaphore.h>
+@@ -997,7 +998,8 @@ void abort_timedouts(unsigned long __opa
+  * packets that have a "complete" function are sent here. This way, the
+  * completion is run out of kernel context, and doesn't block the rest of
+  * the stack. */
+-static int khpsbpkt_pid = -1, khpsbpkt_kill;
++static int khpsbpkt_kill;
++struct task_struct *khpsbpkt_task;
+ static DECLARE_COMPLETION(khpsbpkt_complete);
+ static struct sk_buff_head hpsbpkt_queue;
+ static DECLARE_MUTEX_LOCKED(khpsbpkt_sig);
+@@ -1065,8 +1067,8 @@ static int __init ieee1394_init(void)
+ 		HPSB_ERR("Some features may not be available\n");
+ 	}
+ 
+-	khpsbpkt_pid = kernel_thread(hpsbpkt_thread, NULL, CLONE_KERNEL);
+-	if (khpsbpkt_pid < 0) {
++	khpsbpkt_task = kthread_create(hpsbpkt_thread, NULL, "hpsbpkt");
++	if (IS_ERR(khpsbpkt_task)) {
+ 		HPSB_ERR("Failed to start hpsbpkt thread!\n");
+ 		ret = -ENOMEM;
+ 		goto exit_cleanup_config_roms;
+@@ -1133,6 +1135,8 @@ static int __init ieee1394_init(void)
+ 		goto cleanup_csr;
+ 	}
+ 
++	wake_up_process(khpsbpkt_task);
++
+ 	return 0;
+ 
+ cleanup_csr:
+@@ -1148,10 +1152,8 @@ release_all_bus:
+ release_chrdev:
+ 	unregister_chrdev_region(IEEE1394_CORE_DEV, 256);
+ exit_release_kernel_thread:
+-	if (khpsbpkt_pid >= 0) {
+-		kill_proc(khpsbpkt_pid, SIGTERM, 1);
+-		wait_for_completion(&khpsbpkt_complete);
+-	}
++	if (khpsbpkt_task && !IS_ERR(khpsbpkt_task))
++		kthread_stop(khpsbpkt_task);
+ exit_cleanup_config_roms:
+ 	hpsb_cleanup_config_roms();
+ 	return ret;
+@@ -1172,11 +1174,11 @@ static void __exit ieee1394_cleanup(void
+ 		bus_remove_file(&ieee1394_bus_type, fw_bus_attrs[i]);
+ 	bus_unregister(&ieee1394_bus_type);
+ 
+-	if (khpsbpkt_pid >= 0) {
++	if (khpsbpkt_task) {
+ 		khpsbpkt_kill = 1;
+ 		mb();
+ 		up(&khpsbpkt_sig);
+-		wait_for_completion(&khpsbpkt_complete);
++		kthread_stop(khpsbpkt_task);
+ 	}
+ 
+ 	hpsb_cleanup_config_roms();
+diff --git a/drivers/ieee1394/nodemgr.c b/drivers/ieee1394/nodemgr.c
+index 082c7fd..83392af 100644
+--- a/drivers/ieee1394/nodemgr.c
++++ b/drivers/ieee1394/nodemgr.c
+@@ -19,6 +19,7 @@
+ #include <linux/delay.h>
+ #include <linux/pci.h>
+ #include <linux/moduleparam.h>
++#include <linux/kthread.h>
+ #include <asm/atomic.h>
+ 
+ #include "ieee1394_types.h"
+@@ -115,7 +116,7 @@ struct host_info {
+ 	struct list_head list;
+ 	struct completion exited;
+ 	struct semaphore reset_sem;
+-	int pid;
++	struct task_struct *task;
+ 	char daemon_name[15];
+ 	int kill_me;
+ };
+@@ -1719,15 +1720,16 @@ static void nodemgr_add_host(struct hpsb
+ 
+ 	sprintf(hi->daemon_name, "knodemgrd_%d", host->id);
+ 
+-	hi->pid = kernel_thread(nodemgr_host_thread, hi, CLONE_KERNEL);
++	hi->task = kthread_create(nodemgr_host_thread, hi, hi->daemon_name);
+ 
+-	if (hi->pid < 0) {
++	if (IS_ERR(hi->task)) {
+ 		HPSB_ERR ("NodeMgr: failed to start %s thread for %s",
+ 			  hi->daemon_name, host->driver->name);
+ 		hpsb_destroy_hostinfo(&nodemgr_highlevel, host);
+ 		return;
+ 	}
+ 
++	wake_up_process(hi->task);
+ 	return;
+ }
+ 
+@@ -1749,11 +1751,11 @@ static void nodemgr_remove_host(struct h
+ 	struct host_info *hi = hpsb_get_hostinfo(&nodemgr_highlevel, host);
+ 
+ 	if (hi) {
+-		if (hi->pid >= 0) {
++		if (hi->task && !IS_ERR(hi->task)) {
+ 			hi->kill_me = 1;
+ 			mb();
+ 			up(&hi->reset_sem);
+-			wait_for_completion(&hi->exited);
++			kthread_stop(hi->task);
+ 			nodemgr_remove_host_dev(&host->device);
+ 		}
+ 	} else
+-- 
+1.1.6

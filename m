@@ -1,100 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbWFKFR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWFKFUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161079AbWFKFR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 01:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbWFKFR3
+	id S932564AbWFKFUY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 01:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWFKFUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 01:17:29 -0400
-Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:41155 "EHLO
-	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S1161079AbWFKFR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 01:17:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=dk20050327; d=earthlink.net;
-  b=X0Ie9z/T3/gM6Oo2HTRyvDBKlnwfqwdmLRmfmNNHsPvgwhEZ1aEsi7ZzlpdHSE3+;
-  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
-Message-ID: <193701c68d16$54cac690$0225a8c0@Wednesday>
-From: "jdow" <jdow@earthlink.net>
-To: <davids@webmaster.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Date: Sat, 10 Jun 2006 22:17:26 -0700
+	Sun, 11 Jun 2006 01:20:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62408 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932091AbWFKFUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 01:20:23 -0400
+Date: Sat, 10 Jun 2006 22:19:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Neil Brown <neilb@suse.de>
+cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Chase Venters <chase.venters@clientec.com>,
+       Alex Tomas <alex@clusterfs.com>, Andreas Dilger <adilger@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Stable/devel policy - was Re: [Ext2-devel] [RFC 0/13] extents
+ and 48bit ext3
+In-Reply-To: <17547.40585.982575.7069@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0606102207030.5498@g5.osdl.org>
+References: <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
+ <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org>
+ <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
+ <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse> <4489C580.7080001@garzik.org>
+ <17D07BC0-4B41-4981-80F5-7AAEC0BB6CC8@mac.com> <Pine.LNX.4.64.0606101238110.5498@g5.osdl.org>
+ <Pine.LNX.4.64.0606101248030.5498@g5.osdl.org> <20060610212624.GD6641@thunk.org>
+ <448B45ED.1040209@garzik.org> <17547.40585.982575.7069@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120b4d35498f734f7ad5a72d0288f62def6a30146a21c727840350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 71.116.167.175
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "David Schwartz" <davids@webmaster.com>
 
->> Rather than inject emotions let's play a little bit with facts. This is
->> excerpts from a SpamAssassin report for about 82000 emails.
->>
->> TOP SPAM RULES FIRED
->> ------------------------------------------------------------
->> RANK    RULE NAME              COUNT %OFRULES %OFMAIL %OFSPAM  %OFHAM
->> ------------------------------------------------------------
->>   49    SPF_SOFTFAIL           1804     0.42    2.20    8.31    0.01
->>   72    SPF_HELO_PASS          1112     0.26    1.36    5.13   47.45
->>   78    SPF_PASS                994     0.23    1.21    4.58   45.53
->>   92    SPF_HELO_SOFTFAIL       772     0.18    0.94    3.56    0.03
->>  113    SPF_FAIL                589     0.14    0.72    2.71    0.00
->>  177    SPF_HELO_FAIL           352     0.08    0.43    1.62    0.00
->>
->> Stated from the opposite view
->>
->> TOP HAM RULES FIRED
->> ------------------------------------------------------------
->> RANK    RULE NAME              COUNT %OFRULES %OFMAIL %OFSPAM  %OFHAM
->> ------------------------------------------------------------
->>    5    SPF_HELO_PASS          28563     7.20   34.88    5.13   47.45
->>    6    SPF_PASS               27409     6.90   33.47    4.58   45.53
->>
->> And so forth.
->>
->> People here should be smart enough to draw their own conclusions from
->> raw data.
+
+On Sun, 11 Jun 2006, Neil Brown wrote:
 > 
-> Yeah, that you measured the wrong thing. SPF does not distinguish spam from
-> non-spam.
+> I'm wondering what all this has to say about general principles of
+> sub-project development with the Linux kernel.
+
+Yes. That's an interesting and relevant tangent.
+
+> Due to the (quite appropriate) lack of a stable API for kernel
+> modules, it isn't really practical (and definitely isn't encouraged)
+> to distribute kernel-modules separately.  This seems to suggest that
+> if we want a 'stable' and a 'devel' branch of a project, both branches
+> need to be distributed as part of the same kernel tree.
 > 
-> What percentage of emails with forged sender addresses passed an SPF check?
-> What percentage of emails with forged sender addresses failed an SPF check?
-> What percentage of emails that correctly identified their senders passed an
-> SPF check? What percentage of emails that correctly identified their senders
-> failed an SPF check?
-> 
-> SPF is an anti-forgery tool. It helps to prevent joe-jobs and false claims
-> of being the victim of a joe-job.
+> Apart from ext2/3 - and maybe reiserfs - there doesn't seem to be much
+> evidence of this happening.  Why is that?
 
-I'll add to my offlist reply - SPF can be forged, as I noted. And it
-really does not matter at all if you have a good or bad SPF record. It
-does not tell you whether or not a message is to be accepted or rejected,
-has bountiful information content or is a troll, or anything else for
-that matter. It simply says, "When I went and looked at the guy's claimed
-mail source the spf record said he was who he said he was." Who vouches
-for the spf record? It seems tautological for me to stand before you
-ladies and gentlemen here and ingenuously proclaim that I am who I
-proclaim I am because I have vouched for myself with an spf record
-I created for myself. This is what spammers did for awhile. That has
-dropped off because it didn't help them and didn't much hurt them
-either.
+I think part of it is "expense". It's pretty expensive to maintain on a 
+bigger scale. For example, you mention "-mm", and there's no question that 
+it's _very_ expensive to do that (ie you basically need a very respected 
+person who must be spending a fair amount of effort and time on it).
 
-This is a LONG AGO dead discussion on the SpamAssassin user's list.
-Those arguing about this issue should dig through the old message
-archives on the list.
+Even in this case, I think a large argument has been that ext3 itself 
+isn't getting a lot of active development outside of the suggested ext4 
+effort, so the "expense" there is literally just the copying of the files. 
+That works ok for a filesystem every once in a while, but it wouldn't 
+scale to _everybody_ doing it often. 
 
-It is probably a good thing for VGER to vouch for its own mailing.
-It is not much of a good thing for VGER to do anything else about SPF.
+Also, in order for it to work at all, it obviously needs to be a part of 
+the kernel that -can- be duplicated. That pretty much means "filesystem" 
+or "device driver". Other parts aren't as amenable to having multiple 
+concurrent versions going on at the same time (although it clearly does 
+happen: look at the IO schedulers, where a large reason for the pluggable 
+IO scheduler model was to allow multiple independent schedulers exactly so 
+that people _could_ do different ones in parallel).
 
-{^_^}   Joanne Dow said that.
+People have obviously suggested pluggable CPU schedulers too, and even 
+more radically pluggable VM modules (not that long ago).
+
+> It seems a bit rough to insist that the ext-fs fork every so-often,
+> but not impose similar requirements on other sections of code.
+
+Well, as mentioned, it's actually quite common in drivers. It's clearly 
+not the _main_ development model, but it's happened several times in 
+almost every single driver subsystem (ie SCSI drivers, video drivers, 
+network drivers, USB, IDE, have _all_ seen "duplicated" drivers where 
+somebody just decided to do things differently, and rather than extend an 
+existing driver, do an alternate one).
+
+So it's not like this is _exceptional_. It happens all the time. It 
+obviously happens less than normal development (we couldn't fork things 
+every time something changes), but it's not unheard of, or even rare.
+
+> So: what would you (collectively) suggest should be the policy for
+> managing substantial innovation within Linux subsystems?  And how
+> broadly should it be applied?
+
+I think the interesting point is how we're moving away from the "global 
+development" model (ie everything breaks at the same time between 2.4.x 
+and 2.6.x), and how the fact that we're trying to maintain a more stable 
+situation may well mean that we'll see more of the "local development" 
+model where a specific subsystem goes through a development series, but 
+where stability requirements mean that we must not allow it to disturb 
+existing users.
+
+And even more interestingly (at least to me), the question might become 
+one of "how does that affect the tools and build and configuration 
+infrastructure", and just the general flow of development.
+
+I don't think one or two filesystems (and a few drivers) splitting is 
+anythign new, but if this ends up becoming _more_ common, maybe that 
+implies a new model entirely..
+
+		Linus

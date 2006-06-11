@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWFKX0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWFKXaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWFKX0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 19:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWFKX0X
+	id S1751120AbWFKXaq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 19:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWFKXaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 19:26:23 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:54938 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751138AbWFKX0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 19:26:23 -0400
-Date: Sun, 11 Jun 2006 19:25:58 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       jamagallon@ono.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ignore smp_locks section warnings from init/exit code
-Message-ID: <20060611232558.GB20639@ccure.user-mode-linux.org>
-References: <20060607104724.c5d3d730.akpm@osdl.org> <20060608003153.36f59e6a@werewolf.auna.net> <20060607154054.cf4f2512.akpm@osdl.org> <20060607162326.3d2cc76b.rdunlap@xenotime.net> <20060608021149.GA5567@ccure.user-mode-linux.org> <20060608183549.GB18815@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060608183549.GB18815@mars.ravnborg.org>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 11 Jun 2006 19:30:46 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:36302 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751120AbWFKXap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 19:30:45 -0400
+Date: Mon, 12 Jun 2006 01:30:27 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matt Mackall <mpm@selenic.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] x86 built-in command line
+In-Reply-To: <20060611215530.GH24227@waste.org>
+Message-ID: <Pine.LNX.4.61.0606120129230.8102@yvahk01.tjqt.qr>
+References: <20060611215530.GH24227@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 08, 2006 at 08:35:49PM +0200, Sam Ravnborg wrote:
-> As for .bss this is a much more generic section - so for now this is not
-> added. Can you explain why there is a reference to do_mount_root from
-> .bss or is this a bug in modpost pointing out something wrong?
+>
+>This patch allows building in a kernel command line on x86 as is
+>possible on several other arches.
+>
+>+config CMDLINE
+>+	  On some systems, there is no way for the boot loader to pass
+>+	  arguments to the kernel. For these platforms, you can supply
+>+	  some command-line options at build time by entering them
+>+	  here. In most cases you will need to specify the root device
+>+	  here.
 
-For me, the ld complaints are completely opaque.  Can you give me a
-clue how you go about figuring out where the complaint is coming from?
+Thank God x86 does not have that limitation. Or am I missing some exotic 
+bootloader that fails to pass in arguments?
 
-This is what I get with UML/x86_64 with rc6-mm2:
-	WARNING: vmlinux - Section mismatch: reference to .init.text:huft_free from .bss between 'stdout@@GLIBC_2.2.5' (at offset 0x6027b748) and 'completed.6111'
 
-gdb tells me:
-	(gdb) x/4xa 0x6027b748
-	0x6027b748 <stdout@@GLIBC_2.2.5>:       0x0     0x0
-	0x6027b758 <completed.6111+8>:  0x0     0x0
-
-So, with stdout@@GLIBC_2.2.5 at 0x6027b748 and completed.6111 at
-0x6027b750 - right next to each other - there would seem to be nothing
-between them to reference anything.
-
-In any case, with bss containing zero-initialized stuff, I don't see
-how anything here can refer to anything anywhere else.
-
-> With the above patch we are down to two section mismatch warnings for
-> a defconfig build on x86_64.
-
-I see one (the one quoted above).  Thanks for adding .plt - that made
-the build much more pleasant.
-
-				Jeff
+Jan Engelhardt
+-- 

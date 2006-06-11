@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWFKMrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWFKNAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWFKMrY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 08:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWFKMrX
+	id S1750711AbWFKNAN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 09:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWFKNAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 08:47:23 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:28119 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751244AbWFKMrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 08:47:23 -0400
-Subject: Re: [PATCH] header install: cosmetic cleanups to kbuild
-	infrastructure
-From: David Woodhouse <dwmw2@infradead.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060611121005.GA1342@mars.ravnborg.org>
-References: <20060611121005.GA1342@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Sun, 11 Jun 2006 13:47:19 +0100
-Message-Id: <1150030039.5213.254.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 11 Jun 2006 09:00:12 -0400
+Received: from thunk.org ([69.25.196.29]:33938 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750711AbWFKNAK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 09:00:10 -0400
+Date: Sun, 11 Jun 2006 08:59:29 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>, apiszcz@solarrain.com,
+       smartmontools-support@lists.sourceforge.net,
+       Remy Card <Remy.Card@linux.org>, linux-kernel@vger.kernel.org,
+       "Theodore Ts'o" <tytso@alum.mit.edu>,
+       David Beattie <dbeattie@softhome.net>
+Subject: Re: [smartmontools-support] The Death and Diagnosis of a Dying Hard Drive - Is S.M.A.R.T. useful?
+Message-ID: <20060611125929.GA8438@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Bruce Allen <ballen@gravity.phys.uwm.edu>,
+	Justin Piszcz <jpiszcz@lucidpixels.com>,
+	Jan-Benedict Glaw <jbglaw@lug-owl.de>, apiszcz@solarrain.com,
+	smartmontools-support@lists.sourceforge.net,
+	Remy Card <Remy.Card@linux.org>, linux-kernel@vger.kernel.org,
+	Theodore Ts'o <tytso@alum.mit.edu>,
+	David Beattie <dbeattie@softhome.net>
+References: <Pine.LNX.4.64.0606100615500.15475@p34.internal.lan> <20060610105141.GE30775@lug-owl.de> <Pine.LNX.4.64.0606100658130.26702@p34.internal.lan> <Pine.LNX.4.62.0606102212060.17718@trinity.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0606102212060.17718@trinity.phys.uwm.edu>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-11 at 14:10 +0200, Sam Ravnborg wrote:
-> -headers_install: include/linux/version.h
-> +headers_install: prepare 
+On Sat, Jun 10, 2006 at 10:15:59PM -0500, Bruce Allen wrote:
+> I am surprised that the extended self-test does not detect the bad sectors 
+> on your disk.  Our experience is that the typical SYSLOG 'seek failure' 
+> error messages do correlate very well with the failing LBAs found via 
+> SMART self-tests.
 
-That breaks cross-export of headers when we don't have a cross-compiler.
+My guess is that it didn't detect the errors for the same reason that
+a read-only scan using badblocks didn't detect the problems, while a
+read/write scan did.
 
-I care about this case because it's how we do glibc-kernheaders for
-Fedora at the moment -- we build a tarball containing _all_ the headers,
-and that tarball is used as source for a separate glibc-kernheaders
-package, after reviewing the changes in it.
+What *did* surprise me a little is that after the bad block had been
+detected by badblocks -w and was remapped by the disk drive, but
+before it had been forcibly rewritten (so that now reads of the block
+would return errors to the OS) that the extended self-test didn't
+return an error.  I guess as far as the disk was concerned, the block
+had been remapped, so everything was OK.
 
-for a in x86_64 s390 ia64 powerpc sparc64; do
-        make ARCH=$a INSTALL_HDR_PATH=/tmp/fish/$a headers_install
-done
-cd /tmp/fish
-mv usr usr.$$
-mv x86_64 usr
-mv usr/include/asm usr/include/asm-bix86
-mv sparc64/include/asm usr/include/asm-bisparc
-mv sparc64/include/asm-sparc{,64} usr/include
-for a in s390 ia64 powerpc; do
-        mv -v $a/include/asm usr/include/asm-$a
-        rm -rf $a
-done
+The real question though is whether the disk continues to work OK from
+this point forward, or whether it is a prelude to an ever-increasing
+number of bad blocks.  If it is the latter, and S.M.A.R.T. still
+didn't give any warning, then it would certainly be an indictment of
+that particular manufacturer's S.M.A.R.T. implementation.  
 
-
--- 
-dwmw2
-
+						- Ted

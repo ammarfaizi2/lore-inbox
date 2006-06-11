@@ -1,117 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWFKQX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWFKQfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWFKQX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 12:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWFKQX2
+	id S1750970AbWFKQfp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 12:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWFKQfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 12:23:28 -0400
-Received: from trinity.phys.uwm.edu ([129.89.57.159]:5338 "EHLO
-	trinity.phys.uwm.edu") by vger.kernel.org with ESMTP
-	id S1750970AbWFKQX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 12:23:27 -0400
-Date: Sun, 11 Jun 2006 11:22:37 -0500 (CDT)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-X-X-Sender: ballen@trinity.phys.uwm.edu
-To: Theodore Tso <tytso@mit.edu>
-cc: apiszcz@solarrain.com,
-       Smartmontools Mailing List 
-	<smartmontools-support@lists.sourceforge.net>,
-       "Theodore Ts'o" <tytso@alum.mit.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Remy Card <Remy.Card@linux.org>,
-       Bruce Allen <ballen@gravity.phys.uwm.edu>,
-       David Beattie <dbeattie@softhome.net>
-Subject: Re: [smartmontools-support] The Death and Diagnosis of a Dying Hard
- Drive - Is S.M.A.R.T. useful?
-In-Reply-To: <20060611125929.GA8438@thunk.org>
-Message-ID: <Pine.LNX.4.62.0606111113001.10540@trinity.phys.uwm.edu>
-References: <Pine.LNX.4.64.0606100615500.15475@p34.internal.lan>
- <20060610105141.GE30775@lug-owl.de> <Pine.LNX.4.64.0606100658130.26702@p34.internal.lan>
- <Pine.LNX.4.62.0606102212060.17718@trinity.phys.uwm.edu> <20060611125929.GA8438@thunk.org>
+	Sun, 11 Jun 2006 12:35:44 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:53447 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750968AbWFKQfn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 12:35:43 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17548.17729.270931.583125@gargle.gargle.HOWL>
+Date: Sun, 11 Jun 2006 20:30:57 +0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthew Frost <artusemrys@sbcglobal.net>, Alex Tomas <alex@clusterfs.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Newsgroups: gmane.linux.file-systems,gmane.comp.file-systems.ext2.devel,gmane.linux.kernel
+In-Reply-To: <1150041738.3131.79.camel@laptopd505.fenrus.org>
+References: <4488E1A4.20305@garzik.org>
+	<20060609083523.GQ5964@schatzie.adilger.int>
+	<44898EE3.6080903@garzik.org>
+	<448992EB.5070405@garzik.org>
+	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+	<448997FA.50109@garzik.org>
+	<m3irnacohp.fsf@bzzz.home.net>
+	<44899A1C.7000207@garzik.org>
+	<m3ac8mcnye.fsf@bzzz.home.net>
+	<4489B83E.9090104@sbcglobal.net>
+	<20060609181426.GC5964@schatzie.adilger.int>
+	<4489C34B.1080806@garzik.org>
+	<1150041738.3131.79.camel@laptopd505.fenrus.org>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+Arjan van de Ven writes:
+ > On Fri, 2006-06-09 at 14:51 -0400, Jeff Garzik wrote:
+ > > PRECISELY.  So you should stop modifying a filesystem whose design is 
+ > > admittedly _not_ modern!
+ > > 
+ > > ext3 is already essentially xiafs-on-life-support, when you consider 
+ > > today's large storage systems and today's filesystem technology.  Just 
+ > > look at the ugly hacks needed to support expanding an ext3 filesystem 
+ > > online.
+ > 
+ > 
+ > actually I think I disagree with you. One thing I've noticed over the
+ > years is that ext2 layout has one thing going for it: it is simple and
+ > robust. Maybe "ext2 layout" is the wrong word, "block bitmap and
+ > direct/indirect block based" may be better. It seems that once you go
+ > into tree space (and I would call htree a borderline thing there) you
+ > get both really complex code and fragile behavior all over (mostly in
+ > terms of "when something goes wrong")
 
-> The real question though is whether the disk continues to work OK from 
-> this point forward, or whether it is a prelude to an ever-increasing 
-> number of bad blocks.  If it is the latter, and S.M.A.R.T. still didn't 
-> give any warning, then it would certainly be an indictment of that 
-> particular manufacturer's S.M.A.R.T. implementation.
+Huh? Direct/indirect/double-indirect/... _is_ a tree, albeit not
+balanced one. What makes s5fs/ffs/ufs/ext* so exceptionally robust is
+fixed position of inode tables, which provides a guaranteed starting
+point for fsck under almost any circumstances.
 
-I have a practical suggestion. Most recent disk drives have a new type of 
-self-test option called 'selective self-tests'.  This allows you to run a 
-self-test on up to five user-defined ranges of LBAs.  For example, if you 
-suspect that LBA=12345678 is failing, then instead of having to wait an 
-hour or two for the entire disk surface to be scanned, you can tell the 
-disk to scan (say) the range LBA_1=12345000 to LBA_2=12345999 five times 
-in a row, which takes only a few seconds.  By repeating this process many 
-times you can scan a trouble area on the disk a few thousands of times in 
-an hour.
-
-For a couple of years, smartmontools smartctl has had the functionality to 
-invoke these selective self-tests if the disk supports them.  But (until 
-just last week) it was awkward: it required a kernel built with TASKFILE 
-support enabled, and only worked with (some of the) ide drivers. This has 
-changed. Thanks to hard work by Doug Gilbert and Jeff Garzik to built a 
-SAT (SCSI to ATA Translation) layer in libata and to put a SAT interface 
-into smartmontools, anyone can easily access this functionality with any 
-SATA disk that supports selective self-test via libata.
-
-Note: no smartmontools release incorporates this yet.  You have to build 
-from CVS.  Here are the instructions (4 lines):
-
-cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
-cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5
-cd sm5
-./autogen.sh && ./configure && make
-
-Here is an example of running a selective self-test five times on the 
-same range of LBAs as above:
-
-[slave0123 ~]# ./smartctl -d sat -t select,12345000-12345999 -t select,12345000-12345999 -t select,12345000-12345999 -t select,12345000-12345999 -t select,12345000-12345999 /dev/sda
-smartctl version 5.37 [x86_64-unknown-linux-gnu] Copyright (C) 2002-6 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
-
-=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===
-Sending command: "Execute SMART Selective self-test routine immediately in 
-off-line mode".
-SPAN         STARTING_LBA           ENDING_LBA
-    0             12345000             12345999
-    1             12345000             12345999
-    2             12345000             12345999
-    3             12345000             12345999
-    4             12345000             12345999
-Drive command "Execute SMART Selective self-test routine immediately in 
-off-line mode" successful. Testing has begun.
-
-
-Wait a few seconds, then see the results of the selective self-testing:
-[slave0123 ~]# ./smartctl -d sat -l selective -l selftest /dev/sda
-smartctl version 5.37 [x86_64-unknown-linux-gnu] Copyright (C) 2002-6 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
-
-=== START OF READ SMART DATA SECTION ===
-SMART Self-test log structure revision number 1
-Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
-# 1  Selective offline   Completed without error       00%      1473         -
-# 2  Selective offline   Completed without error       00%      1473         -
-# 3  Extended offline    Completed without error       00%      1467         -
-
-SMART Selective self-test log data structure revision number 1
-  SPAN   MIN_LBA   MAX_LBA  CURRENT_TEST_STATUS
-     1  12345000  12345999  Not_testing
-     2  12345000  12345999  Not_testing
-     3  12345000  12345999  Not_testing
-     4  12345000  12345999  Not_testing
-     5  12345000  12345999  Not_testing
-
-Justin, I hope that this is of some help to you and others with similar 
-issues.
-
-Cheers,
- 	Brucce
+Nikita.

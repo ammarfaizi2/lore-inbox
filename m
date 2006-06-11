@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWFKLW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWFKLVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWFKLW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 07:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWFKLV6
+	id S1751114AbWFKLVw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 07:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFKLVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 07:21:58 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:56164 "EHLO
+	Sun, 11 Jun 2006 07:21:52 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:36947 "EHLO
 	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751151AbWFKLVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 07:21:53 -0400
+	id S1751114AbWFKLVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 07:21:47 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.17-rc6 6/9] Add kmemleak support for ARM
-Date: Sun, 11 Jun 2006 12:21:49 +0100
+Subject: [PATCH 2.6.17-rc6 5/9] Add kmemleak support for i386
+Date: Sun, 11 Jun 2006 12:21:42 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060611112149.8641.10916.stgit@localhost.localdomain>
+Message-Id: <20060611112142.8641.24442.stgit@localhost.localdomain>
 In-Reply-To: <20060611111815.8641.7879.stgit@localhost.localdomain>
 References: <20060611111815.8641.7879.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,67 +25,82 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 From: Catalin Marinas <catalin.marinas@arm.com>
 
 This patch modifies the vmlinux.lds.S script and adds the backtrace support
-for ARM to be used with kmemleak.
+for i386 to be used with kmemleak.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- arch/arm/kernel/vmlinux.lds.S |    7 +++++++
- include/asm-arm/processor.h   |   12 ++++++++++++
- 2 files changed, 19 insertions(+), 0 deletions(-)
+ arch/i386/kernel/vmlinux.lds.S |    4 ++++
+ include/asm-i386/processor.h   |   12 ++++++++++++
+ include/asm-i386/thread_info.h |   10 +++++++++-
+ 3 files changed, 25 insertions(+), 1 deletions(-)
 
-diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
-index 2b254e8..c6f038c 100644
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -68,6 +68,11 @@ #endif
- 		__per_cpu_start = .;
- 			*(.data.percpu)
- 		__per_cpu_end = .;
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+		__memleak_offsets_start = .;
-+			*(.init.memleak_offsets)
-+		__memleak_offsets_end = .;
-+#endif
- #ifndef CONFIG_XIP_KERNEL
- 		__init_begin = _stext;
- 		*(.init.data)
-@@ -110,6 +115,7 @@ #endif
+diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
+index 8831303..370480e 100644
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -38,6 +38,7 @@ SECTIONS
+   RODATA
  
- 	.data : AT(__data_loc) {
- 		__data_start = .;	/* address in memory */
-+		_sdata = .;
- 
- 		/*
- 		 * first, the init task union, aligned
-@@ -158,6 +164,7 @@ #endif
- 		__bss_start = .;	/* BSS				*/
- 		*(.bss)
- 		*(COMMON)
-+		__bss_stop = .;
- 		_end = .;
- 	}
- 					/* Stabs debugging sections.	*/
-diff --git a/include/asm-arm/processor.h b/include/asm-arm/processor.h
-index 04f4d34..feaf017 100644
---- a/include/asm-arm/processor.h
-+++ b/include/asm-arm/processor.h
-@@ -121,6 +121,18 @@ #define spin_lock_prefetch(x) do { } whi
- 
+   /* writeable */
++  _sdata = .;			/* Start of data section */
+   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
+ 	*(.data)
+ 	CONSTRUCTORS
+@@ -140,6 +141,9 @@ SECTIONS
+   __per_cpu_start = .;
+   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
+   __per_cpu_end = .;
++  __memleak_offsets_start = .;
++  .init.memleak_offsets : AT(ADDR(.init.memleak_offsets) - LOAD_OFFSET) { *(.init.memleak_offsets) }
++  __memleak_offsets_end = .;
+   . = ALIGN(4096);
+   __init_end = .;
+   /* freed after init ends here */
+diff --git a/include/asm-i386/processor.h b/include/asm-i386/processor.h
+index 805f0dc..9b6568a 100644
+--- a/include/asm-i386/processor.h
++++ b/include/asm-i386/processor.h
+@@ -743,4 +743,16 @@ #else
+ #define mcheck_init(c) do {} while(0)
  #endif
  
 +#ifdef CONFIG_FRAME_POINTER
 +static inline unsigned long arch_call_address(void *frame)
 +{
-+	return *(unsigned long *) (frame - 4) - 4;
++	return *(unsigned long *) (frame + 4);
 +}
 +
 +static inline void *arch_prev_frame(void *frame)
 +{
-+	return *(void **) (frame - 12);
++	return *(void **) frame;
 +}
 +#endif
 +
+ #endif /* __ASM_I386_PROCESSOR_H */
+diff --git a/include/asm-i386/thread_info.h b/include/asm-i386/thread_info.h
+index 1f7d48c..7e7c508 100644
+--- a/include/asm-i386/thread_info.h
++++ b/include/asm-i386/thread_info.h
+@@ -102,12 +102,20 @@ #define alloc_thread_info(tsk)					\
+ 		struct thread_info *ret;			\
+ 								\
+ 		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		memleak_ignore(ret);				\
+ 		if (ret)					\
+ 			memset(ret, 0, THREAD_SIZE);		\
+ 		ret;						\
+ 	})
+ #else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk)					\
++	({							\
++		struct thread_info *ret;			\
++								\
++		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		memleak_ignore(ret);				\
++		ret;						\
++	})
  #endif
  
- #endif /* __ASM_ARM_PROCESSOR_H */
+ #define free_thread_info(info)	kfree(info)

@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWFKNDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWFKNOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWFKNDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 09:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWFKNDQ
+	id S1751273AbWFKNOf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 09:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWFKNOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 09:03:16 -0400
-Received: from thunk.org ([69.25.196.29]:38034 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751251AbWFKNDQ (ORCPT
+	Sun, 11 Jun 2006 09:14:35 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:2267 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751273AbWFKNOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 09:03:16 -0400
-Date: Sun, 11 Jun 2006 09:02:49 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Rik van Riel <riel@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-Message-ID: <20060611130249.GA10606@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Rik van Riel <riel@redhat.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	linux-kernel@vger.kernel.org
-References: <20060610222734.GZ27502@mea-ext.zmailer.org> <1149980791.18635.197.camel@shinybook.infradead.org> <Pine.LNX.4.64.0606102015410.30593@cuia.boston.redhat.com>
+	Sun, 11 Jun 2006 09:14:34 -0400
+Message-ID: <448C1732.3060809@garzik.org>
+Date: Sun, 11 Jun 2006 09:14:26 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606102015410.30593@cuia.boston.redhat.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: HighPoint Linux Team <linux@highpoint-tech.com>
+CC: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
+References: <200606111706.52930.linux@highpoint-tech.com>
+In-Reply-To: <200606111706.52930.linux@highpoint-tech.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 10, 2006 at 08:16:24PM -0400, Rik van Riel wrote:
-> On Sun, 11 Jun 2006, David Woodhouse wrote:
-> > On Sun, 2006-06-11 at 01:27 +0300, Matti Aarnio wrote:
-> > > Now that there is even an RFC published about SPF...
-> > 
-> > Please, don't do this. SPF makes assumptions about email which are just
-> > not true; it rejects perfectly valid mail.
-> > 
-> > http://david.woodhou.se/why-not-spf.html
-> 
-> Think about it for a second.  Do you *really* want those
-> something@alumni.mit.edu people on lkml? :)
+HighPoint Linux Team wrote:
+> --- a/drivers/scsi/hptiop.c
+> +++ b/drivers/scsi/hptiop.c
+> @@ -504,18 +504,10 @@ static int hptiop_queuecommand(struct sc
+>  	BUG_ON(!done);
+>  	scp->scsi_done = done;
+>  
+> -	/*
+> -	 * hptiop_shutdown will flash controller cache.
+> -	 */
+> -	if (scp->cmnd[0] == SYNCHRONIZE_CACHE)  {
+> -		scp->result = DID_OK<<16;
+> -		goto cmd_done;
+> -	}
+> -
+>  	_req = get_req(hba);
+>  	if (_req == NULL) {
+>  		dprintk("hptiop_queuecmd : no free req\n");
+> -		scp->result = DID_BUS_BUSY << 16;
+> +		scp->result = SCSI_MLQUEUE_HOST_BUSY;
+>  		goto cmd_done;
+>  	}
 
-Actually, I post as "tytso@mit.edu" (but always relayed through my
-mail relay at thunk.org).  :-)
+Close.  For the last bit of code quoted above, you should return 
+SCSI_MLQUEUE_HOST_BUSY as your ->queuecommand() return code, rather than 
+setting scp->result and calling the done() hook.
 
-						- Ted
+	Jeff
+
+
+

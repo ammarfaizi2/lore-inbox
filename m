@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWFNNw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWFNNxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWFNNw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 09:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWFNNw2
+	id S964936AbWFNNxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 09:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbWFNNxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 09:52:28 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:9353 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S964934AbWFNNw1 (ORCPT
+	Wed, 14 Jun 2006 09:53:22 -0400
+Received: from mailhost.terra.es ([213.4.149.12]:42733 "EHLO
+	csmtpout4.frontal.correo") by vger.kernel.org with ESMTP
+	id S964927AbWFNNxV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 09:52:27 -0400
-Date: Wed, 14 Jun 2006 15:52:05 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Mark Lord <lkml@rtr.ca>,
-       Greg KH <gregkh@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] clean tty fields on failed device open
-Message-ID: <20060614135205.GA5814@fks.be>
-References: <20060612204918.GA16898@suse.de> <448DD968.2010000@rtr.ca> <20060612212812.GA17458@suse.de> <448DE28D.3040708@rtr.ca> <448DF6F6.2050803@rtr.ca> <20060613114604.GB10834@fks.be> <20060613132655.03bcc1d3@doriath.conectiva> <20060613144512.22526797@doriath.conectiva> <20060614115229.GA20751@fks.be> <20060614104918.09fc175a@doriath.conectiva>
+	Wed, 14 Jun 2006 09:53:21 -0400
+Date: Sun, 11 Jun 2006 22:14:46 +0200 (added by postmaster@terra.es)
+From: grundig <grundig@teleline.es>
+To: Alex Tomas <alex@clusterfs.com>
+Cc: jeff@garzik.org, alex@clusterfs.com, alan@lxorguk.ukuu.org.uk,
+       chase.venters@clientec.com, torvalds@osdl.org, adilger@clusterfs.com,
+       akpm@osdl.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-Id: <20060611221438.cecef685.grundig@teleline.es>
+In-Reply-To: <m3wtbq5dgw.fsf@bzzz.home.net>
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>
+	<4488E1A4.20305@garzik.org>
+	<20060609083523.GQ5964@schatzie.adilger.int>
+	<44898EE3.6080903@garzik.org>
+	<448992EB.5070405@garzik.org>
+	<Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
+	<m33beecntr.fsf@bzzz.home.net>
+	<Pine.LNX.4.64.0606090913390.5498@g5.osdl.org>
+	<Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
+	<20060609181020.GB5964@schatzie.adilger.int>
+	<Pine.LNX.4.64.0606091114270.5498@g5.osdl.org>
+	<m31wty9o77.fsf@bzzz.home.net>
+	<Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
+	<Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse>
+	<1149880865.22124.70.camel@localhost.localdomain>
+	<m3irna6sja.fsf@bzzz.home.net>
+	<4489CB42.6020709@garzik.org>
+	<m3wtbq5dgw.fsf@bzzz.home.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060614104918.09fc175a@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-105.809,
-	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL 0.09,
-	BAYES_00 -2.60, USER_IN_WHITELIST -100.00)
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 14, 2006 at 10:49:18AM -0300, Luiz Fernando N. Capitulino wrote:
->  Hmm, I'd prefer something like this:
+El Fri, 09 Jun 2006 23:35:43 +0400,
+Alex Tomas <alex@clusterfs.com> escribió:
 
-OK
+> >>>>> Jeff Garzik (JG) writes:
+> 
+>  JG> Irrelevant.  That's a development-only situation.  It will be enabled
+>  JG> by default eventually, and should be considered in that light.
+> 
+> that's your point of view. mine is that this option (and code)
+> to be used only when needed. 
 
-If either the driver's open() method or try_module_get() fails, we need to
-set 'tty->driver_data' and 'port->tty' to NULL in serial_open(), otherwise
-we'll get an OOPS in usb_device_disconnect() when the device is disconnected.
 
-Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
-
-diff -urp linux-2.6.17-rc6/drivers/usb/serial/usb-serial.c linux-2.6.17-rc6.a/drivers/usb/serial/usb-serial.c
---- linux-2.6.17-rc6/drivers/usb/serial/usb-serial.c	2006-06-14 13:03:55.000000000 +0200
-+++ linux-2.6.17-rc6.a/drivers/usb/serial/usb-serial.c	2006-06-14 13:23:34.000000000 +0200
-@@ -230,6 +232,8 @@ bailout_module_put:
- 	module_put(serial->type->driver.owner);
- bailout_mutex_unlock:
- 	port->open_count = 0;
-+	tty->driver_data = NULL;
-+	port->tty = NULL;
- 	mutex_unlock(&port->mutex);
- bailout_kref_put:
- 	kref_put(&serial->kref, destroy_serial);
-
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+Distros may ignore your opinion and may enable it, and users won't know
+that it's enabled or even if such feature exist - until they try to run
+an older kernel. If almost nobody needs this feature, why not avoid
+problems by not merging it and maintaining it separated from the
+main tree?

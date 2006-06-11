@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWFKLNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWFKLVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbWFKLNk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 07:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWFKLNk
+	id S1751086AbWFKLVG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 07:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWFKLVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 07:13:40 -0400
-Received: from lucidpixels.com ([66.45.37.187]:56485 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750775AbWFKLNj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 07:13:39 -0400
-Date: Sun, 11 Jun 2006 07:13:38 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>,
-       David Greaves <david@dgreaves.com>, Tejun Heo <htejun@gmail.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de,
-       smartmontools-support@lists.sourceforge.net
-Subject: Re: LibPATA code issues / 2.6.16 (previously, 2.6.15.x)
-In-Reply-To: <Pine.LNX.4.64.0604211704120.3701@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0606110712350.3276@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <440083B4.3030307@rtr.ca>
- <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
- <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
- <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com>
- <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca>
- <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca>
- <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com>
- <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603050637110.30164@p34>
- <Pine.LNX.4.64.0603050740500.3116@p34> <440B6CFE.4010503@rtr.ca>
- <440B76B4.5080502@pobox.com> <Pine.LNX.4.64.0604211511120.22768@p34>
- <44493023.4010109@pobox.com> <Pine.LNX.4.64.0604211226120.3701@g5.osdl.org>
- <444960CC.2000009@pobox.com> <Pine.LNX.4.64.0604211704120.3701@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 11 Jun 2006 07:21:04 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:7791 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751034AbWFKLVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 07:21:03 -0400
+From: Catalin Marinas <catalin.marinas@gmail.com>
+Subject: [PATCH 2.6.17-rc6 0/9] Kernel memory leak detector 0.7
+Date: Sun, 11 Jun 2006 12:18:15 +0100
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060611111815.8641.7879.stgit@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[4597362.011000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-0xb/00/00
-[4597362.011000] ata3: status=0x51 { DriveReady SeekComplete Error }
-[4597362.011000] ata3: error=0x04 { DriveStatusError }
+This is a new version (0.7) of the kernel memory leak detector. See
+the Documentation/kmemleak.txt file for a more detailed
+description. The patches are downloadable from (the bundled patch or
+the series):
 
-Now under 2.6.16.20. (was doing an rsync from 1 drive (IDE) -> to this 
-SATA) drive.
+http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.17-rc6-kmemleak-0.7.bz2
+http://homepage.ntlworld.com/cmarinas/kmemleak/patches-kmemleak-0.7.tar.bz2
 
-The SATA drive AFAIK does not have any issues, no bad sectors/etc, still 
-the same drive as before, but this is the new one from the previous RMA.
+What's new in this version:
 
-Just FYI.
+- different configuration options added for tweaking kmemleak
+- reduced the length of time running with interrupts disabled (the
+  interrupts are now only disabled for individual memory block
+  scanning rather than for the whole memory)
+- fixed bug in the memleak_seq_* functions (pointer structure accessed
+  after freeing)
+- more false positives ignored
 
+To do:
 
-On Fri, 21 Apr 2006, Linus Torvalds wrote:
+- more testing
+- more investigation into the task stacks scanning
+- NUMA support
+- (support for ioremap tracking)
 
->
->
-> On Fri, 21 Apr 2006, Jeff Garzik wrote:
->
->>
->> Agreed, though the original poster had already done a 400GB dd from
->> /dev/zero...
->
-> Yes, but to a _file_ on the partition (ie he didn't overwrite any existign
-> data, just the empty parts of a filesystem).
->
-> I realize that it's not enough for the "re-allocate on write" behaviour,
-> and for that you really _do_ need to re-write the whole disk to get all
-> the broken blocks reallocated, but my argument was just that we should
-> make sure to _tell_ people when they are overwriting all their old data ;)
->
-> 		Linus
->
+Many thanks to Michal Piotrowski for stress-testing kmemleak and
+reporting various issues.
+
+-- 
+Catalin

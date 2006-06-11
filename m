@@ -1,130 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWFKMA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWFKMKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWFKMA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 08:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWFKMA7
+	id S1751237AbWFKMKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 08:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWFKMKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 08:00:59 -0400
-Received: from pops.net-conex.com ([204.244.176.3]:61663 "EHLO
-	mail.net-conex.com") by vger.kernel.org with ESMTP id S1751156AbWFKMA7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 08:00:59 -0400
-Date: Sun, 11 Jun 2006 04:54:21 -0700
-From: "Robin H. Johnson" <robbat2@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Cc: Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] tmpfs time granularity fix for [acm]time going backwards. Also VFS time granularity bug on creat(). (Repost, more content)
-Message-ID: <20060611115421.GE26475@curie-int.vc.shawcable.net>
+	Sun, 11 Jun 2006 08:10:20 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:13458 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751237AbWFKMKU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 08:10:20 -0400
+Date: Sun, 11 Jun 2006 14:10:05 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Woodhouse <dwmw2@infradead.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] header install: cosmetic cleanups to kbuild infrastructure
+Message-ID: <20060611121005.GA1342@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JBi0ZxuS5uaEhkUZ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A set of cosmetic cleanups for the header install kbuild infrastructure:
 
---JBi0ZxuS5uaEhkUZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+o Use consistent style for PHONY target in top-lvel Makefile
+o Avoid '@', we want $(Q) so command is visible with make V=1
+o Makefile.headerinst now fits within my 80 coloumn window
+o Only accept Kbuild as input filename. This is new stuff so no
+  need to be backward compatible here.
+o A small comment in the top of the Makefile.headerinst file to
+  explain variable usage. More is needed.
 
-[Please CC me on replies].
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+---
 
-This patch should probably be included for 2.6.17, despite how long the
-bug has been around. It's a one-liner, with no side-effects.
+This is on top of hdrinstall-2.6.git as of yesterday.
 
-I noticed a strange behavior in a tmpfs file system the other day, while
-building packages - occasionally, and seemingly at random, make decided to
-rebuild a target. However only on tmpfs.
+	Sam
 
-A file would be created, and if checked, it had a sub-second timestamp.
-However, after an utimes related call where sub-seconds should be set, they
-were zeroed instead. In the case that a file was created, and utimes(...,NU=
-LL)
-was used on it in the same second, the timestamp on the file moved backward=
-s.
+diff --git a/Makefile b/Makefile
+index 8d92d78..0d372a6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -862,13 +862,13 @@ # Kernel headers
+ INSTALL_HDR_PATH=$(MODLIB)/abi
+ export INSTALL_HDR_PATH
+ 
+-.PHONY: headers_install
+-headers_install: include/linux/version.h
+-	@unifdef -Ux /dev/null
+-	@rm -rf $(INSTALL_HDR_PATH)/include
++PHONY += headers_install
++headers_install: prepare
++	$(Q)unifdef -Ux /dev/null
++	$(Q)rm -rf $(INSTALL_HDR_PATH)/include
+ 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.headersinst obj=include
+ 
+-.PHONY: headers_check
++PHONY += headers_check
+ headers_check: headers_install
+ 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.headersinst obj=include HDRCHECK=1
+ 
+diff --git a/scripts/Makefile.headersinst b/scripts/Makefile.headersinst
+index e653334..4e1f973 100644
+--- a/scripts/Makefile.headersinst
++++ b/scripts/Makefile.headersinst
+@@ -1,5 +1,10 @@
+ # ==========================================================================
+ # Installing headers
++#
++# header-y files will be installed verbatim
++# unifdef-y are the files where unifdef will be run before installing files
++# objhdr-y are generated files that will be installed verbatim
++#
+ # ==========================================================================
+ 
+ UNIFDEF := unifdef -U__KERNEL__
+@@ -19,10 +24,10 @@ # use '-include'.
+ GENASM := 1
+ archasm	   := $(subst include/asm,asm-$(ARCH),$(obj))
+ altarchasm := $(subst include/asm,asm-$(ALTARCH),$(obj))
+--include $(if $(wildcard $(srctree)/include/$(archasm)/Kbuild), include/$(archasm)/Kbuild, include/$(archasm)/Makefile)
+--include $(if $(wildcard $(srctree)/include/$(altarchasm)/Kbuild), include/$(altarchasm)/Kbuild, include/$(altarchasm)/Makefile)
++-include $(srctree)/include/$(archasm)/Kbuild
++-include $(srctree)/include/$(altarchasm)/Kbuild
+ else
+-include $(if $(wildcard $(srctree)/$(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
++include $(srctree)/$(obj)/Kbuild
+ endif
+ 
+ include scripts/Kbuild.include
+@@ -45,47 +50,55 @@ altarch-y	:= altarch-dir
+ endif
+ endif
+ 
++# Make the definitions visible for recursive make invocations
+ export ALTARCH
+ export ARCHDEF
+ export ALTARCHDEF
+ 
+-quiet_cmd_o_hdr_install   = INSTALL_O $(_dst)/$@
++quiet_cmd_o_hdr_install   = INSTALL $(_dst)/$@
+       cmd_o_hdr_install   = cp $(objtree)/$(obj)/$@ $(INSTALL_HDR_PATH)/$(_dst)
+ 
+ quiet_cmd_headers_install = INSTALL $(_dst)/$@
+       cmd_headers_install = cp $(srctree)/$(obj)/$@ $(INSTALL_HDR_PATH)/$(_dst)
+ 
+ quiet_cmd_unifdef	  = UNIFDEF $(_dst)/$@
+-      cmd_unifdef	  = $(UNIFDEF) $(srctree)/$(obj)/$@ > $(INSTALL_HDR_PATH)/$(_dst)/$@ || :
++      cmd_unifdef	  = $(UNIFDEF) $(srctree)/$(obj)/$@          \
++                            > $(INSTALL_HDR_PATH)/$(_dst)/$@ || :
+ 
+-quiet_cmd_check		  = CHECK $(_dst)/$@
+-      cmd_check		  = $(srctree)/scripts/hdrcheck.sh $(INSTALL_HDR_PATH)/include $(INSTALL_HDR_PATH)/$(_dst)/$@
++quiet_cmd_check		  = CHECK   $(_dst)/$@
++      cmd_check		  = $(srctree)/scripts/hdrcheck.sh           \
++                              $(INSTALL_HDR_PATH)/include            \
++			      $(INSTALL_HDR_PATH)/$(_dst)/$@
+ 
+-quiet_cmd_mkdir		  = MKDIR $@
++quiet_cmd_mkdir		  = MKDIR   $@
+       cmd_mkdir		  = mkdir -p $(INSTALL_HDR_PATH)/$@
+ 
+-quiet_cmd_gen		  = GEN $(_dst)/$@
+-      cmd_gen		  = STUBDEF=__ASM_STUB_`echo $@ | tr a-z. A-Z_` ;					\
+-			    ( echo "/* File autogenerated by 'make headers_install' */"	;			\
+-			    echo "\#ifndef $$STUBDEF" ;								\
+-			    echo "\#define $$STUBDEF" ;								\
+-			    echo "\# if $(ARCHDEF)" ;								\
+-			    if [ -r $(srctree)/include/$(archasm)/$@ ]; then					\
+-			       echo "\#  include <$(archasm)/$@>" ;						\
+-			    else										\
+-			       echo "\#  error $(archasm)/$@ does not exist in the $(ARCH) architecture" ;	\
+-			    fi ;										\
+-			    echo "\# elif $(ALTARCHDEF)" ;							\
+-			    if [ -r $(srctree)/include/$(altarchasm)/$@ ]; then					\
+-			       echo "\#  include <$(altarchasm)/$@>" ;						\
+-			    else										\
+-			       echo "\#  error $(altarchasm)/$@ does not exist in the $(ALTARCH) architecture" ;	\
+-			    fi ;										\
+-			    echo "\# else" ;									\
+-			    echo "\#  warning This machine appears to be neither $(ARCH) nor $(ALTARCH)." ;	\
+-			    echo "\# endif" ;									\
+-			    echo "\#endif /* $$STUBDEF */" ;							\
+-			    	 ) > $(INSTALL_HDR_PATH)/$(_dst)/$@
++quiet_cmd_gen		  = GEN     $(_dst)/$@
++      cmd_gen		  = \
++STUBDEF=__ASM_STUB_`echo $@ | tr a-z. A-Z_`;				\
++(echo "/* File autogenerated by 'make headers_install' */" ;		\
++echo "\#ifndef $$STUBDEF" ;						\
++echo "\#define $$STUBDEF" ;						\
++echo "\# if $(ARCHDEF)" ;						\
++if [ -r $(srctree)/include/$(archasm)/$@ ]; then			\
++	echo "\#  include <$(archasm)/$@>" ;				\
++else									\
++	echo "\#  error $(archasm)/$@ does not exist in"		\
++			"the $(ARCH) architecture" ;			\
++fi ;									\
++echo "\# elif $(ALTARCHDEF)" ;						\
++if [ -r $(srctree)/include/$(altarchasm)/$@ ]; then			\
++	echo "\#  include <$(altarchasm)/$@>" ;				\
++else									\
++	echo "\#  error $(altarchasm)/$@ does not exist in"		\
++			"the $(ALTARCH) architecture" ;			\
++fi ;									\
++echo "\# else" ;							\
++echo "\#  warning This machine appears to be"				\
++		 "neither $(ARCH) nor $(ALTARCH)." ;			\
++echo "\# endif" ;							\
++echo "\#endif /* $$STUBDEF */" ;					\
++) > $(INSTALL_HDR_PATH)/$(_dst)/$@
+ 
+ __headersinst: $(subdir-y) $(header-y) $(unifdef-y) $(altarch-y) $(objhdr-y)
+ 
+@@ -120,11 +133,13 @@ else
+ endif
+ endif
+ 
++hdrinst := -rR -f $(srctree)/scripts/Makefile.headersinst obj
++
+ .PHONY: altarch-dir
+ altarch-dir:
+-	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.headersinst obj=include/asm-$(ALTARCH) dst=include/asm-$(ALTARCH)
+-	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.headersinst obj=include/asm dst=include/asm
++	$(Q)$(MAKE) $(hdrinst)=include/asm-$(ALTARCH) dst=include/asm-$(ALTARCH)
++	$(Q)$(MAKE) $(hdrinst)=include/asm dst=include/asm
+ 
+ # Recursion
+ $(subdir-y):
+-	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.headersinst obj=$(obj)/$@ dst=$(_dst)/$@ rel=../$(rel)
++	$(Q)$(MAKE) $(hdrinst)=$(obj)/$@ dst=$(_dst)/$@ rel=../$(rel)
 
-Puesdo-code of my testcase:
-	int fd =3D creat(name,0644);
-	fstat(fd,&st);
-	printf("...[acm]time...",...)
-	futime(fd,NULL);
-	fstat(fd,&st);
-	printf("...[acm]time...",...)
-	close(fd);
-
-Tested against: linus 2.6.13, linus 2.6.17-rc6.
-
-Test output from a filesystem not supporting sub-second timestamps (ext3, r=
-eiserfs):
-creat:   m=3D1149891410.0 c=3D1149891410.0 a=3D1149891407.0
-futimes: m=3D1149891410.0 c=3D1149891410.0 a=3D1149891410.0
-
-Test output from a filesystem supporting sub-second timestamps (jfs,xfs,ram=
-fs):
-creat:   m=3D1149891452.928796249 c=3D1149891452.928796249 a=3D1149891452.9=
-28796249
-futimes: m=3D1149891452.928796249 c=3D1149891452.928796249 a=3D1149891452.9=
-28796249
-
-Test output from the tmpfs filesystem before the fix:
-creat:   m=3D1149892052.562029884 c=3D1149892052.562029884 a=3D1149892052.5=
-62029884
-futimes: m=3D1149892052.0         c=3D1149892052.0         a=3D1149892052.0
-
-Test output from the tmpfs filesystem with the patch below:
-creat:   m=3D1149892086.382150894 c=3D1149892086.382150894 a=3D1149892075.4=
-73249075
-futimes: m=3D1149892086.383150885 c=3D1149892086.383150885 a=3D1149892086.3=
-83150885
-
-The output above of jfs/xfs/ramfs having identical ctime/mtime in the
-utime/creat calls is just co-incidence, my box is reasonably fast, on a
-slower machine, they do diverge more. My box is just fast enough that
-they happened in the same tick (I have HZ=3D1000).
-
-After some digging, I found that this was being caused by tmpfs not having a
-time granularity set, thus inheriting the default 1s granularity.
-
-NOTE: The further bug:
-I believe this also indicates there is another bug at the VFS layer,
-where the initial timestamp from the creat() operation did not have the
-granularity applied to it. I haven't traced this problem down yet,
-others that are more familiar with the VFS might have a bit better luck.
-Unless this is fixed, similar issues may crop up with other filesystems.
-It just needs a bit of code like this:
-inode->i_[acm]time =3D current_fs_time(inode->i_sb);
-
-Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
-
---- mm/shmem.c
-+++ mm/shmem.c
-@@ -2102,6 +2102,7 @@ #endif
- 	sb->s_blocksize_bits =3D PAGE_CACHE_SHIFT;
- 	sb->s_magic =3D TMPFS_MAGIC;
- 	sb->s_op =3D &shmem_ops;
-+	sb->s_time_gran =3D 1;
-=20
- 	inode =3D shmem_get_inode(sb, S_IFDIR | mode, 0);
- 	if (!inode)
-
---=20
-Robin Hugh Johnson
-E-Mail     : robbat2@gentoo.org
-GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
-
---JBi0ZxuS5uaEhkUZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
-Comment: Robbat2 @ Orbis-Terrarum Networks
-
-iD8DBQFEjARtPpIsIjIzwiwRAo4IAJ4tqu0KUNYRGpX5OUOQLVLPoKPyPgCeMgJm
-DEBSQ6NHm0mlaPIpdkmVW6Y=
-=zZgW
------END PGP SIGNATURE-----
-
---JBi0ZxuS5uaEhkUZ--

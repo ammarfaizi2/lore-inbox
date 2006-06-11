@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWFKKJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWFKKMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWFKKJa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 06:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWFKKJa
+	id S1750876AbWFKKMq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 06:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWFKKMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 06:09:30 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:63437 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751171AbWFKKJa (ORCPT
+	Sun, 11 Jun 2006 06:12:46 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:54152 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750876AbWFKKMq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 06:09:30 -0400
-Date: Sun, 11 Jun 2006 12:09:24 +0200 (MEST)
+	Sun, 11 Jun 2006 06:12:46 -0400
+Date: Sun, 11 Jun 2006 12:12:41 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Vishal Patil <vishpat@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: CSCAN vs CFQ I/O scheduler benchmark results
-In-Reply-To: <4745278c0606091915n3ed7563do505664c4f8070f81@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0606111202370.13585@yvahk01.tjqt.qr>
-References: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com>
- <4745278c0606091915n3ed7563do505664c4f8070f81@mail.gmail.com>
+To: "Robin H. Johnson" <robbat2@gentoo.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs time granularity fix for [acm]time moving backwards.
+In-Reply-To: <20060609224936.GA30611@curie-int.vc.shawcable.net>
+Message-ID: <Pine.LNX.4.61.0606111210460.13585@yvahk01.tjqt.qr>
+References: <20060609224936.GA30611@curie-int.vc.shawcable.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> The previous mail got scrambbled and hence I am resending this one
-> again
 >
-Still. Here are the values, fit for 80 cols.
+>Test output from a filesystem supporting sub-second timestamps (jfs,xfs,ramfs):
+>creat:   m=1149891452.928796249 c=1149891452.928796249 a=1149891452.928796249
+>futimes: m=1149891452.928796249 c=1149891452.928796249 a=1149891452.928796249
+>
+>Test output from the tmpfs filesystem with the patch below:
+>creat:   m=1149892086.382150894 c=1149892086.382150894 a=1149892075.473249075
+>futimes: m=1149892086.383150885 c=1149892086.383150885 a=1149892086.383150885
+>
+Is it normal that creat and futimes match for jfs/xfs?
 
-			Latency (seconds)
-			CFQ	CSCAN
-	seq reads	0.0116	0.0148
-	seq writes	0.0164	0.0092
-	seq r+w		0.0107	0.0169
-	rnd reads	0.1178	0.1043
-	rnd writes	0.0423	0.0473
-	rnd r+w		0.0605	0.0732
 
-			Throughput MB/sec
-			CFQ	CSCAN
-	seq reads	19.062	14.553
-	seq writes	15.251	22.108
-	seq r+w		22.127	14.72
-	rnd reads	2.1197	2.394
-	rnd writes	1.0032	0.9304
-	rnd r+w		1.376	1.399
-
-Excels at sequential writes, so it seems like a good idea to use CSCAN on a 
-target drive when doing `rsync disk1/ disk2/`, esp. for large 
-files.
+>Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+>
+Hint: Cc it to the shmem.c maintainer, or it may get missed :)
 
 
 

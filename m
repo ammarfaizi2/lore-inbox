@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWFKLVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWFKLW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWFKLVw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 07:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFKLVw
+	id S1751209AbWFKLW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 07:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFKLV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 07:21:52 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:36947 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751114AbWFKLVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 07:21:47 -0400
+	Sun, 11 Jun 2006 07:21:57 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:28754 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751088AbWFKLVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 07:21:33 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.17-rc6 5/9] Add kmemleak support for i386
-Date: Sun, 11 Jun 2006 12:21:42 +0100
+Subject: [PATCH 2.6.17-rc6 3/9] Add the memory allocation/freeing hooks for kmemleak
+Date: Sun, 11 Jun 2006 12:21:29 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060611112142.8641.24442.stgit@localhost.localdomain>
+Message-Id: <20060611112129.8641.96511.stgit@localhost.localdomain>
 In-Reply-To: <20060611111815.8641.7879.stgit@localhost.localdomain>
 References: <20060611111815.8641.7879.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,83 +24,195 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-This patch modifies the vmlinux.lds.S script and adds the backtrace support
-for i386 to be used with kmemleak.
+This patch adds the callbacks to memleak_(alloc|free) functions from
+kmalloc/kfree, kmem_cache_(alloc|free), vmalloc/vfree etc.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- arch/i386/kernel/vmlinux.lds.S |    4 ++++
- include/asm-i386/processor.h   |   12 ++++++++++++
- include/asm-i386/thread_info.h |   10 +++++++++-
- 3 files changed, 25 insertions(+), 1 deletions(-)
+ include/linux/slab.h |    4 ++++
+ mm/page_alloc.c      |    2 ++
+ mm/slab.c            |   22 ++++++++++++++++++++--
+ mm/vmalloc.c         |   24 ++++++++++++++++++++++--
+ 4 files changed, 48 insertions(+), 4 deletions(-)
 
-diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
-index 8831303..370480e 100644
---- a/arch/i386/kernel/vmlinux.lds.S
-+++ b/arch/i386/kernel/vmlinux.lds.S
-@@ -38,6 +38,7 @@ SECTIONS
-   RODATA
+diff --git a/include/linux/slab.h b/include/linux/slab.h
+index 2d985d5..aa37216 100644
+--- a/include/linux/slab.h
++++ b/include/linux/slab.h
+@@ -89,6 +89,7 @@ #endif
  
-   /* writeable */
-+  _sdata = .;			/* Start of data section */
-   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
- 	*(.data)
- 	CONSTRUCTORS
-@@ -140,6 +141,9 @@ SECTIONS
-   __per_cpu_start = .;
-   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
-   __per_cpu_end = .;
-+  __memleak_offsets_start = .;
-+  .init.memleak_offsets : AT(ADDR(.init.memleak_offsets) - LOAD_OFFSET) { *(.init.memleak_offsets) }
-+  __memleak_offsets_end = .;
-   . = ALIGN(4096);
-   __init_end = .;
-   /* freed after init ends here */
-diff --git a/include/asm-i386/processor.h b/include/asm-i386/processor.h
-index 805f0dc..9b6568a 100644
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -743,4 +743,16 @@ #else
- #define mcheck_init(c) do {} while(0)
- #endif
- 
-+#ifdef CONFIG_FRAME_POINTER
-+static inline unsigned long arch_call_address(void *frame)
-+{
-+	return *(unsigned long *) (frame + 4);
-+}
-+
-+static inline void *arch_prev_frame(void *frame)
-+{
-+	return *(void **) frame;
-+}
+ static inline void *kmalloc(size_t size, gfp_t flags)
+ {
++#ifndef CONFIG_DEBUG_MEMLEAK
+ 	if (__builtin_constant_p(size)) {
+ 		int i = 0;
+ #define CACHE(x) \
+@@ -107,6 +108,7 @@ found:
+ 			malloc_sizes[i].cs_dmacachep :
+ 			malloc_sizes[i].cs_cachep, flags);
+ 	}
 +#endif
-+
- #endif /* __ASM_I386_PROCESSOR_H */
-diff --git a/include/asm-i386/thread_info.h b/include/asm-i386/thread_info.h
-index 1f7d48c..7e7c508 100644
---- a/include/asm-i386/thread_info.h
-+++ b/include/asm-i386/thread_info.h
-@@ -102,12 +102,20 @@ #define alloc_thread_info(tsk)					\
- 		struct thread_info *ret;			\
- 								\
- 		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
-+		memleak_ignore(ret);				\
- 		if (ret)					\
- 			memset(ret, 0, THREAD_SIZE);		\
- 		ret;						\
- 	})
- #else
--#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
-+#define alloc_thread_info(tsk)					\
-+	({							\
-+		struct thread_info *ret;			\
-+								\
-+		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
-+		memleak_ignore(ret);				\
-+		ret;						\
-+	})
- #endif
+ 	return __kmalloc(size, flags);
+ }
  
- #define free_thread_info(info)	kfree(info)
+@@ -114,6 +116,7 @@ extern void *__kzalloc(size_t, gfp_t);
+ 
+ static inline void *kzalloc(size_t size, gfp_t flags)
+ {
++#ifndef CONFIG_DEBUG_MEMLEAK
+ 	if (__builtin_constant_p(size)) {
+ 		int i = 0;
+ #define CACHE(x) \
+@@ -132,6 +135,7 @@ found:
+ 			malloc_sizes[i].cs_dmacachep :
+ 			malloc_sizes[i].cs_cachep, flags);
+ 	}
++#endif
+ 	return __kzalloc(size, flags);
+ }
+ 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 253a450..4a65aa9 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -2800,6 +2800,8 @@ void *__init alloc_large_system_hash(con
+ 	if (_hash_mask)
+ 		*_hash_mask = (1 << log2qty) - 1;
+ 
++	memleak_alloc(table, size, 1);
++
+ 	return table;
+ }
+ 
+diff --git a/mm/slab.c b/mm/slab.c
+index f1b644e..0d38f74 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -2878,6 +2878,7 @@ #endif
+ 		STATS_INC_ALLOCMISS(cachep);
+ 		objp = cache_alloc_refill(cachep, flags);
+ 	}
++	memleak_erase(ac->entry[ac->avail]);
+ 	return objp;
+ }
+ 
+@@ -3143,7 +3144,11 @@ #endif
+  */
+ void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+ {
+-	return __cache_alloc(cachep, flags, __builtin_return_address(0));
++	void *ptr = __cache_alloc(cachep, flags, __builtin_return_address(0));
++
++	memleak_alloc(ptr, cachep->obj_size, 1);
++
++	return ptr;
+ }
+ EXPORT_SYMBOL(kmem_cache_alloc);
+ 
+@@ -3158,6 +3163,9 @@ EXPORT_SYMBOL(kmem_cache_alloc);
+ void *kmem_cache_zalloc(struct kmem_cache *cache, gfp_t flags)
+ {
+ 	void *ret = __cache_alloc(cache, flags, __builtin_return_address(0));
++
++	memleak_alloc(ret, cache->obj_size, 1);
++
+ 	if (ret)
+ 		memset(ret, 0, obj_size(cache));
+ 	return ret;
+@@ -3279,6 +3287,7 @@ static __always_inline void *__do_kmallo
+ 					  void *caller)
+ {
+ 	struct kmem_cache *cachep;
++	void *ptr;
+ 
+ 	/* If you want to save a few bytes .text space: replace
+ 	 * __ with kmem_.
+@@ -3288,7 +3297,11 @@ static __always_inline void *__do_kmallo
+ 	cachep = __find_general_cachep(size, flags);
+ 	if (unlikely(cachep == NULL))
+ 		return NULL;
+-	return __cache_alloc(cachep, flags, caller);
++	ptr = __cache_alloc(cachep, flags, caller);
++
++	memleak_alloc(ptr, size, 1);
++
++	return ptr;
+ }
+ 
+ 
+@@ -3372,6 +3385,9 @@ void kmem_cache_free(struct kmem_cache *
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
++
++	memleak_free(objp);
++
+ 	__cache_free(cachep, objp);
+ 	local_irq_restore(flags);
+ }
+@@ -3395,6 +3411,8 @@ void kfree(const void *objp)
+ 		return;
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
++	memleak_free(objp);
++
+ 	c = virt_to_cache(objp);
+ 	mutex_debug_check_no_locks_freed(objp, obj_size(c));
+ 	__cache_free(c, (void *)objp);
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index c0504f1..b7a9db3 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -349,6 +349,9 @@ void __vunmap(void *addr, int deallocate
+ void vfree(void *addr)
+ {
+ 	BUG_ON(in_interrupt());
++
++	memleak_free(addr);
++
+ 	__vunmap(addr, 1);
+ }
+ EXPORT_SYMBOL(vfree);
+@@ -447,7 +450,14 @@ fail:
+ 
+ void *__vmalloc_area(struct vm_struct *area, gfp_t gfp_mask, pgprot_t prot)
+ {
+-	return __vmalloc_area_node(area, gfp_mask, prot, -1);
++	void *addr = __vmalloc_area_node(area, gfp_mask, prot, -1);
++
++	/* this needs ref_count = 2 since vm_struct also contains a
++	   pointer to this address. The guard page is also subtracted
++	   from the size */
++	memleak_alloc(addr, area->size - PAGE_SIZE, 2);
++
++	return addr;
+ }
+ 
+ /**
+@@ -466,6 +476,10 @@ void *__vmalloc_node(unsigned long size,
+ 			int node)
+ {
+ 	struct vm_struct *area;
++	void *addr;
++#ifdef CONFIG_DEBUG_MEMLEAK
++	unsigned long real_size = size;
++#endif
+ 
+ 	size = PAGE_ALIGN(size);
+ 	if (!size || (size >> PAGE_SHIFT) > num_physpages)
+@@ -475,7 +489,13 @@ void *__vmalloc_node(unsigned long size,
+ 	if (!area)
+ 		return NULL;
+ 
+-	return __vmalloc_area_node(area, gfp_mask, prot, node);
++	addr = __vmalloc_area_node(area, gfp_mask, prot, node);
++
++	/* this needs ref_count = 2 since the vm_struct also contains
++	   a pointer to this address */
++	memleak_alloc(addr, real_size, 2);
++
++	return addr;
+ }
+ EXPORT_SYMBOL(__vmalloc_node);
+ 

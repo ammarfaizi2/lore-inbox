@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWFKLWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWFKLXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWFKLWi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 07:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWFKLWc
+	id S1751199AbWFKLXl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 07:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWFKLW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 07:22:32 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:34912 "EHLO
+	Sun, 11 Jun 2006 07:22:28 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:64082 "EHLO
 	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751154AbWFKLWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 07:22:07 -0400
+	id S1751199AbWFKLWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 07:22:14 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.17-rc6 8/9] Simple testing for kmemleak
-Date: Sun, 11 Jun 2006 12:22:03 +0100
+Subject: [PATCH 2.6.17-rc6 9/9] Keep the __init functions after initialization
+Date: Sun, 11 Jun 2006 12:22:10 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060611112203.8641.86838.stgit@localhost.localdomain>
+Message-Id: <20060611112210.8641.51560.stgit@localhost.localdomain>
 In-Reply-To: <20060611111815.8641.7879.stgit@localhost.localdomain>
 References: <20060611111815.8641.7879.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,132 +24,51 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-This patch only contains some very simple testing at the moment. Proper
-testing will be needed.
+This patch adds the CONFIG_DEBUG_KEEP_INIT option which preserves the
+.init.text section after initialization. Memory leaks happening during this
+phase can be more easily tracked.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- lib/Kconfig.debug |    9 ++++++
- mm/Makefile       |    1 +
- mm/memleak-test.c |   83 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 93 insertions(+), 0 deletions(-)
+ include/linux/init.h |    4 ++++
+ lib/Kconfig.debug    |   10 ++++++++++
+ 2 files changed, 14 insertions(+), 0 deletions(-)
 
+diff --git a/include/linux/init.h b/include/linux/init.h
+index 93dcbe1..198edb5 100644
+--- a/include/linux/init.h
++++ b/include/linux/init.h
+@@ -41,7 +41,11 @@ #include <linux/compiler.h>
+ 
+ /* These are for everybody (although not all archs will actually
+    discard it in modules) */
++#ifdef CONFIG_DEBUG_KEEP_INIT
++#define __init
++#else
+ #define __init		__attribute__ ((__section__ (".init.text")))
++#endif
+ #define __initdata	__attribute__ ((__section__ (".init.data")))
+ #define __exitdata	__attribute__ ((__section__(".exit.data")))
+ #define __exit_call	__attribute_used__ __attribute__ ((__section__ (".exitcall.exit")))
 diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 8bfc665..36e001b 100644
+index 36e001b..54b3d0d 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
-@@ -154,6 +154,15 @@ config DEBUG_MEMLEAK_ORPHAN_FREEING
+@@ -154,6 +154,16 @@ config DEBUG_MEMLEAK_ORPHAN_FREEING
  	  information displayed allow an easier identification of
  	  false positives.
  
-+config DEBUG_MEMLEAK_TEST
-+	tristate "Test the kernel memory leak detector"
++config DEBUG_KEEP_INIT
++	bool "Do not free the __init functions"
 +	default n
 +	depends on DEBUG_MEMLEAK
 +	help
-+	  Say Y here to build the test harness for the kernel memory
-+	  leak detector. At the moment, this option enables a module
-+	  that explicitly leaks memory.
++	  This option moves the __init functions out of the .init.text
++	  section and therefore they are no longer freed after the
++	  kernel initialization. It is useful for identifying memory
++	  leaks happening during the kernel or modules initialization.
 +
- config DEBUG_PREEMPT
- 	bool "Debug preemptible kernel"
- 	depends on DEBUG_KERNEL && PREEMPT
-diff --git a/mm/Makefile b/mm/Makefile
-index d487d96..aef1bd8 100644
---- a/mm/Makefile
-+++ b/mm/Makefile
-@@ -24,3 +24,4 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
- obj-$(CONFIG_FS_XIP) += filemap_xip.o
- obj-$(CONFIG_MIGRATION) += migrate.o
- obj-$(CONFIG_DEBUG_MEMLEAK) += memleak.o
-+obj-$(CONFIG_DEBUG_MEMLEAK_TEST) += memleak-test.o
-diff --git a/mm/memleak-test.c b/mm/memleak-test.c
-new file mode 100644
-index 0000000..4061f99
---- /dev/null
-+++ b/mm/memleak-test.c
-@@ -0,0 +1,83 @@
-+/*
-+ * mm/memleak-test.c
-+ *
-+ * Copyright (C) 2006 ARM Limited
-+ * Written by Catalin Marinas <catalin.marinas@arm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include <linux/list.h>
-+
-+#include <linux/memleak.h>
-+
-+struct test_node {
-+	long header[25];
-+	struct list_head list;
-+	long footer[25];
-+};
-+
-+static LIST_HEAD(test_list);
-+
-+/* Some very simple testing. This function needs to be extended for
-+ * proper testing */
-+static int __init memleak_test_init(void)
-+{
-+	struct test_node *elem;
-+	int i;
-+
-+	printk(KERN_INFO "KMemLeak testing\n");
-+
-+	/* make some orphan pointers */
-+	kmalloc(32, GFP_KERNEL);
-+	kmalloc(32, GFP_KERNEL);
-+#ifndef CONFIG_MODULES
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
-+	kmem_cache_alloc(files_cachep, GFP_KERNEL);
-+#endif
-+	vmalloc(64);
-+	vmalloc(64);
-+
-+	/* add elements to a list. They should only appear as orphan
-+	 * after the module is removed */
-+	for (i = 0; i < 10; i++) {
-+		elem = kmalloc(sizeof(*elem), GFP_KERNEL);
-+		if (!elem)
-+			return -ENOMEM;
-+		memset(elem, 0, sizeof(*elem));
-+		INIT_LIST_HEAD(&elem->list);
-+
-+		list_add_tail(&elem->list, &test_list);
-+	}
-+
-+	return 0;
-+}
-+module_init(memleak_test_init);
-+
-+static void __exit memleak_test_exit(void)
-+{
-+	struct test_node *elem, *tmp;
-+
-+	/* remove the list elements without actually freeing the memory */
-+	list_for_each_entry_safe(elem, tmp, &test_list, list)
-+		list_del(&elem->list);
-+}
-+module_exit(memleak_test_exit);
-+
-+MODULE_LICENSE("GPL");
+ config DEBUG_MEMLEAK_TEST
+ 	tristate "Test the kernel memory leak detector"
+ 	default n

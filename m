@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWFKK5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWFKLDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWFKK5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 06:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWFKK5g
+	id S1750800AbWFKLDy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 07:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWFKLDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 06:57:36 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:62870 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750770AbWFKK5f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 06:57:35 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: 2.6.16-rc6-mm2
-Date: Sun, 11 Jun 2006 12:58:01 +0200
-User-Agent: KMail/1.9.3
-Cc: Dominik Karall <dominik.karall@gmx.net>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606102043.40123.rjw@sisk.pl> <Pine.LNX.4.61.0606111216470.13585@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0606111216470.13585@yvahk01.tjqt.qr>
+	Sun, 11 Jun 2006 07:03:53 -0400
+Received: from stats.hypersurf.com ([209.237.0.12]:4883 "EHLO
+	stats.hypersurf.com") by vger.kernel.org with ESMTP
+	id S1750771AbWFKLDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 07:03:52 -0400
+From: HighPoint Linux Team <linux@highpoint-tech.com>
+Organization: HighPoint Technologies, Inc.
+To: James.Bottomley@SteelEye.com
+Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
+Date: Sun, 11 Jun 2006 19:18:08 +0800
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, akpm@osdl.org
+References: <200606111706.52930.linux@highpoint-tech.com>
+In-Reply-To: <200606111706.52930.linux@highpoint-tech.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606111258.01396.rjw@sisk.pl>
+Message-Id: <200606111918.08529.linux@highpoint-tech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 June 2006 12:17, Jan Engelhardt wrote:
-> >> 
-> >> Thanks! 2.6.17-rc6-mm2 boots fine withouth SMP and PREEMPT.
-> >s/rc6/rc7/
-> >
-> There's already a 2.6.17-rc7?
+On Sunday 11 June 2006 05:07 pm, HighPoint Linux Team wrote:
+>>
+>>	host->can_queue = le32_to_cpu(iop_config.max_requests);
+>>	host->cmd_per_lun = le32_to_cpu(iop_config.max_requests);
+>> 
+>> You might want to think about adjusting this.  For the single LUN case,
+>> it's fine.  For the multi-lun case it may allow commands to a single LUN
+>> to starve everything else.
+>
+>There will be no multi-lun support for the controller so this is not
+>an issue.
 
-No, sorry. :-)
+Sorry, a mistake. Multi-lun is supported.
+Should host->can_queue be set to (cmd_per_lun * max_lun) ?
 
-Greetings,
-Rafael

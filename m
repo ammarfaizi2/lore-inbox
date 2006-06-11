@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWFKVEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWFKVGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWFKVEG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 17:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWFKVEG
+	id S1750975AbWFKVGS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 17:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWFKVGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 17:04:06 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:43723 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S1750974AbWFKVEE (ORCPT
+	Sun, 11 Jun 2006 17:06:18 -0400
+Received: from www.osadl.org ([213.239.205.134]:17062 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750974AbWFKVGR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 17:04:04 -0400
-Message-ID: <448C85B7.1010902@labri.fr>
-Date: Sun, 11 Jun 2006 23:05:59 +0200
-From: Emmanuel Fleury <emmanuel.fleury@labri.fr>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386: use C code for current_thread_info()
-References: <200606111647_MC3-1-C228-993B@compuserve.com>
-In-Reply-To: <200606111647_MC3-1-C228-993B@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 11 Jun 2006 17:06:17 -0400
+Subject: Re: [PATCH -rt] fix misspelled PREEMPT
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: dwalker@mvista.com
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20060611194749.358928000@mvista.com>
+References: <20060611194749.358928000@mvista.com>
+Content-Type: text/plain
+Date: Sun, 11 Jun 2006 23:07:02 +0200
+Message-Id: <1150060022.5257.214.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> 
-> I just tried gcc 3.3.3 and the kernel gets a little bigger but it boots
-> and runs OK. That's the oldest compiler I can find.
-> 
->    text    data     bss     dec     hex filename
-> 3593627  559864  342728 4496219  449b5b 2.6.17-rc6-32-post/vmlinux
-> 3591371  559864  342728 4493963  44928b 2.6.17-rc6-32/vmlinux
->   +2256
-> 
-> Looking at the generated code, it seems the compiler just makes dumb
-> choices and tends to recompute current_thread_info() in unlikely code
-> paths even when there is no register pressure.  4.0.2 makes better
-> choices.
+On Sun, 2006-06-11 at 12:47 -0700, dwalker@mvista.com wrote:
+> While reviewing I noticed this .. It didn't effect me, but it
+> must effect someone .. The patch is untested ..
 
-What size with gcc 4.1.2 ? (just curiosity)
+Good catch. 
 
-Regards
--- 
-Emmanuel Fleury              | Office: 211
-Associate Professor,         | Phone: +33 (0)5 40 00 35 24
-LaBRI, Domaine Universitaire | Fax:   +33 (0)5 40 00 66 69
-351, Cours de la Libération  | email: fleury@labri.fr
-33405 Talence Cedex, France  | URL: http://www.labri.fr/~fleury
+Thanks,
+
+	tglx
+
+
+> ---
+>  arch/i386/kernel/io_apic.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6.16/arch/i386/kernel/io_apic.c
+> ===================================================================
+> --- linux-2.6.16.orig/arch/i386/kernel/io_apic.c
+> +++ linux-2.6.16/arch/i386/kernel/io_apic.c
+> @@ -1297,7 +1297,7 @@ static void ioapic_register_intr(int irq
+>  
+>  	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
+>  			trigger == IOAPIC_LEVEL)
+> -#ifdef CONFIG_PREMMPT_HARDIRQS
+> +#ifdef CONFIG_PREEMPT_HARDIRQS
+>  		set_irq_chip_and_handler(idx, &ioapic_chip,
+>  					 handle_level_irq);
+>  #else
+> --
+

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWFKSy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWFKS7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWFKSy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 14:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWFKSy0
+	id S1750797AbWFKS7B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 14:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWFKS7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 14:54:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26302
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750764AbWFKSyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 14:54:25 -0400
-Date: Sun, 11 Jun 2006 11:54:30 -0700 (PDT)
-Message-Id: <20060611.115430.112290058.davem@davemloft.net>
-To: rlrevell@joe-job.com
-Cc: folkert@vanheusden.com, matti.aarnio@zmailer.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1150048497.14253.140.camel@mindpipe>
-References: <20060610222734.GZ27502@mea-ext.zmailer.org>
-	<20060611160243.GH20700@vanheusden.com>
-	<1150048497.14253.140.camel@mindpipe>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sun, 11 Jun 2006 14:59:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:18798 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750797AbWFKS7A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 14:59:00 -0400
+Date: Sun, 11 Jun 2006 20:58:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Vishal Patil <vishpat@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: CSCAN vs CFQ I/O scheduler benchmark results
+Message-ID: <20060611185854.GF13556@suse.de>
+References: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com> <4745278c0606091915n3ed7563do505664c4f8070f81@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4745278c0606091915n3ed7563do505664c4f8070f81@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Lee Revell <rlrevell@joe-job.com>
-Date: Sun, 11 Jun 2006 13:54:57 -0400
+On Fri, Jun 09 2006, Vishal Patil wrote:
+> The machine configuation is as follows
+> CPU: Intel(R) Pentium(R) 4 CPU 2.80GHz
+> Memory: 1027500 KB (1 GB)
+> Filesystem: ext3
+> Kernel:   2.6.16.2
 
-> On Sun, 2006-06-11 at 18:02 +0200, Folkert van Heusden wrote:
-> > Hmmm.
-> > What about using spamhaus.org sbl+xbl list?
-> > I used to receive 1200 spam messages a day, with spamhaus only half of
-> > that.
-> 
-> What about doing nothing?  The percentage of spam on LKML is vanishingly
-> small.
+You don't mention the storage used, which is quite relevant.
 
-We definitely need a better spam solution at vger, the reason is that
-the current mechanism (ad-hoc by-hand regexp blocking) creates lots of
-problems.  For one thing, it means that people with names in languages
-other than english get blocked when their emails are quoted in
-postings.  This is because we don't understand a lot of languages, so
-we just regexp block multibyte characters typically assosciated with
-that language in order to block spam written in that language.
+If you have the time, please rerun with 2.6.17-rc6-gitX latest. Although
+I'm not sure why you think CSCAN is a good scheduling algorithm, in
+general it may be fine but there are trivial non-root 'dos' attacks. Any
+of the non-noop Linux io schedulers is a better choice imo.
 
-That isn't acceptable in the long term.
+-- 
+Jens Axboe
 
-To be honest I'm all for some kind of bayesian filter at vger as long
-as the rejected postings go somewhere into a folder I can scan every
-couple of days looking for false positives.

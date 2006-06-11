@@ -1,113 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWFKFUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbWFKF01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbWFKFUY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 01:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWFKFUY
+	id S1161084AbWFKF01 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 01:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWFKF01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 01:20:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62408 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932091AbWFKFUX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 01:20:23 -0400
-Date: Sat, 10 Jun 2006 22:19:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Neil Brown <neilb@suse.de>
-cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Chase Venters <chase.venters@clientec.com>,
-       Alex Tomas <alex@clusterfs.com>, Andreas Dilger <adilger@clusterfs.com>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Stable/devel policy - was Re: [Ext2-devel] [RFC 0/13] extents
- and 48bit ext3
-In-Reply-To: <17547.40585.982575.7069@cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.64.0606102207030.5498@g5.osdl.org>
-References: <Pine.LNX.4.64.0606090933130.5498@g5.osdl.org>
- <20060609181020.GB5964@schatzie.adilger.int> <Pine.LNX.4.64.0606091114270.5498@g5.osdl.org>
- <m31wty9o77.fsf@bzzz.home.net> <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org>
- <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse> <4489C580.7080001@garzik.org>
- <17D07BC0-4B41-4981-80F5-7AAEC0BB6CC8@mac.com> <Pine.LNX.4.64.0606101238110.5498@g5.osdl.org>
- <Pine.LNX.4.64.0606101248030.5498@g5.osdl.org> <20060610212624.GD6641@thunk.org>
- <448B45ED.1040209@garzik.org> <17547.40585.982575.7069@cse.unsw.edu.au>
+	Sun, 11 Jun 2006 01:26:27 -0400
+Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:2255 "EHLO
+	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1161084AbWFKF01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 01:26:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=earthlink.net;
+  b=I2Uh24xp5U4DSQAb9onTC4zHgMYNPmeZ25k0+b+lrvALQPaWh2TnCve3aaNsHGAW;
+  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
+Message-ID: <193f01c68d17$92570ae0$0225a8c0@Wednesday>
+From: "jdow" <jdow@earthlink.net>
+To: "Neil Brown" <neilb@suse.de>, "David Woodhouse" <dwmw2@infradead.org>
+Cc: "Matti Aarnio" <matti.aarnio@zmailer.org>, <linux-kernel@vger.kernel.org>
+References: <20060610222734.GZ27502@mea-ext.zmailer.org><1149980791.18635.197.camel@shinybook.infradead.org> <17547.42403.669502.694618@cse.unsw.edu.au>
+Subject: Re: VGER does gradual SPF activation  (FAQ matter)
+Date: Sat, 10 Jun 2006 22:26:19 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120b4d35498f734f7adfd5425c3d7a80221c078aea63b72d6fc350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 71.116.167.175
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Neil Brown" <neilb@suse.de>
 
-
-On Sun, 11 Jun 2006, Neil Brown wrote:
+> On Sunday June 11, dwmw2@infradead.org wrote:
+>> On Sun, 2006-06-11 at 01:27 +0300, Matti Aarnio wrote:
+>> > Now that there is even an RFC published about SPF...
+>> 
+>> Please, don't do this. SPF makes assumptions about email which are just
+>> not true; it rejects perfectly valid mail.
+>> 
+>> http://david.woodhou.se/why-not-spf.html
 > 
-> I'm wondering what all this has to say about general principles of
-> sub-project development with the Linux kernel.
-
-Yes. That's an interesting and relevant tangent.
-
-> Due to the (quite appropriate) lack of a stable API for kernel
-> modules, it isn't really practical (and definitely isn't encouraged)
-> to distribute kernel-modules separately.  This seems to suggest that
-> if we want a 'stable' and a 'devel' branch of a project, both branches
-> need to be distributed as part of the same kernel tree.
+> Conversely, please do do this :-)
 > 
-> Apart from ext2/3 - and maybe reiserfs - there doesn't seem to be much
-> evidence of this happening.  Why is that?
+> I agree with David that SPF breaks mail-as-we-know-it, but I cannot
+> help thinking that mail-as-we-know-it is way too permissive and bits
+> of it need to be broken (the old egg/omelette analogy).
+> 
+> And I think that kernel.org is a great place to start with pushing
+> SPF, because if a few mail items go astray to-or-from it really isn't
+> the end of the world.
+> 
+> - kernel.org should publish very strict SPF records that sites with
+>  any gumption can reject forged mail claiming to be from kernel.org.
+>  If systems drop mail incorrectly because of this, the end-recipient
+>  can follow linux-kernel any number of other ways, and can badger
+>  their local admins to "get it right".
 
-I think part of it is "expense". It's pretty expensive to maintain on a 
-bigger scale. For example, you mention "-mm", and there's no question that 
-it's _very_ expensive to do that (ie you basically need a very respected 
-person who must be spending a fair amount of effort and time on it).
+Sir, I've been doing this for years already using primary source
+information - the trackable message headers. So far forgeries are
+not a problem. It becomes quite obvious when a message has forged
+headers, obvious enough automated analysis works remarkably well.
 
-Even in this case, I think a large argument has been that ext3 itself 
-isn't getting a lot of active development outside of the suggested ext4 
-effort, so the "expense" there is literally just the copying of the files. 
-That works ok for a filesystem every once in a while, but it wouldn't 
-scale to _everybody_ doing it often. 
+> - kernel.org should reject mail that earns an SPF 'fail' and should
+>  grey-list mail that earns an SPF 'softfail' (so the sending system
+>  will have to retry once). Any mail that incorrectly gets rejected
+>  will hopefully have a link to a web page that explains the problem
+>  and lists a number of free-mail sites where anyone can sign up and
+>  safely send mail to kernel.org.  So people who need to get mail
+>  through still can, while they complain to their admins about
+>  configuring things properly.
 
-Also, in order for it to work at all, it obviously needs to be a part of 
-the kernel that -can- be duplicated. That pretty much means "filesystem" 
-or "device driver". Other parts aren't as amenable to having multiple 
-concurrent versions going on at the same time (although it clearly does 
-happen: look at the IO schedulers, where a large reason for the pluggable 
-IO scheduler model was to allow multiple independent schedulers exactly so 
-that people _could_ do different ones in parallel).
+No sir. FAIL and SOFT_FAIL prove nothing. PASS proves remarkably
+little. SPF is not a good criterion for much of anything.
 
-People have obviously suggested pluggable CPU schedulers too, and even 
-more radically pluggable VM modules (not that long ago).
+> I think kernel.org is a great site to be an early adopter because:
+>  - the mail it transports isn't critical
+>  - it interacts with a very large number of mail sites
+>  - it's customers are reasonably technology-savvy. 
 
-> It seems a bit rough to insist that the ext-fs fork every so-often,
-> but not impose similar requirements on other sections of code.
+It would be a good site to adopt it outgoing. But adopting it as an
+incoming message filter is silly.
 
-Well, as mentioned, it's actually quite common in drivers. It's clearly 
-not the _main_ development model, but it's happened several times in 
-almost every single driver subsystem (ie SCSI drivers, video drivers, 
-network drivers, USB, IDE, have _all_ seen "duplicated" drivers where 
-somebody just decided to do things differently, and rather than extend an 
-existing driver, do an alternate one).
+> sourceforge would be another good site.
+> 
+> 
+> (No, SPF doesn't stop spam, but it can increase accountability so that
+> white/black lists can begin to be more usable).
 
-So it's not like this is _exceptional_. It happens all the time. It 
-obviously happens less than normal development (we couldn't fork things 
-every time something changes), but it's not unheard of, or even rare.
+It does not even do that conclusively. Many of us wish it did. But if
+a spammer can post his own spf records he can claim what he wants
+about email sources. DNS cache poisoning attacks assure that this can
+take place even for sites you might control.
 
-> So: what would you (collectively) suggest should be the policy for
-> managing substantial innovation within Linux subsystems?  And how
-> broadly should it be applied?
-
-I think the interesting point is how we're moving away from the "global 
-development" model (ie everything breaks at the same time between 2.4.x 
-and 2.6.x), and how the fact that we're trying to maintain a more stable 
-situation may well mean that we'll see more of the "local development" 
-model where a specific subsystem goes through a development series, but 
-where stability requirements mean that we must not allow it to disturb 
-existing users.
-
-And even more interestingly (at least to me), the question might become 
-one of "how does that affect the tools and build and configuration 
-infrastructure", and just the general flow of development.
-
-I don't think one or two filesystems (and a few drivers) splitting is 
-anythign new, but if this ends up becoming _more_ common, maybe that 
-implies a new model entirely..
-
-		Linus
+{^_^}   Joanne Dow said that. Seriously, I recommend a pass through the
+        old SpamAssassin users mailing list for past discussions. An
+        SPF_HELO_SOFTFAIL is the only thing given a sizeable score.

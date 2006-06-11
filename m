@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWFKX5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWFLABI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWFKX5v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 19:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWFKX5v
+	id S1751191AbWFLABI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 20:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWFLABI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 19:57:51 -0400
-Received: from waste.org ([64.81.244.121]:26081 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751182AbWFKX5v (ORCPT
+	Sun, 11 Jun 2006 20:01:08 -0400
+Received: from waste.org ([64.81.244.121]:52450 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751191AbWFLABG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 19:57:51 -0400
-Date: Sun, 11 Jun 2006 18:47:46 -0500
+	Sun, 11 Jun 2006 20:01:06 -0400
+Date: Sun, 11 Jun 2006 18:51:02 -0500
 From: Matt Mackall <mpm@selenic.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Arjan van de Ven <arjan@infradead.org>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
 Subject: Re: [PATCH] x86 built-in command line
-Message-ID: <20060611234746.GJ24227@waste.org>
-References: <20060611215530.GH24227@waste.org> <Pine.LNX.4.61.0606120129230.8102@yvahk01.tjqt.qr>
+Message-ID: <20060611235101.GK24227@waste.org>
+References: <20060611215530.GH24227@waste.org> <1150069241.3131.97.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0606120129230.8102@yvahk01.tjqt.qr>
+In-Reply-To: <1150069241.3131.97.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 01:30:27AM +0200, Jan Engelhardt wrote:
-> >
-> >This patch allows building in a kernel command line on x86 as is
-> >possible on several other arches.
-> >
-> >+config CMDLINE
-> >+	  On some systems, there is no way for the boot loader to pass
-> >+	  arguments to the kernel. For these platforms, you can supply
-> >+	  some command-line options at build time by entering them
-> >+	  here. In most cases you will need to specify the root device
-> >+	  here.
+On Mon, Jun 12, 2006 at 01:40:41AM +0200, Arjan van de Ven wrote:
+> On Sun, 2006-06-11 at 16:55 -0500, Matt Mackall wrote:
+> > This patch allows building in a kernel command line on x86 as is
+> > possible on several other arches.
 > 
-> Thank God x86 does not have that limitation. Or am I missing some exotic 
-> bootloader that fails to pass in arguments?
+> wouldn't it make more sense to allow the initramfs to set such arguments
+> instead?
 
-Yes. Note that this depends on CONFIG_EMBEDDED. It's quite common for
-embedded apps to roll their own trivial ROM-based boot loaders. It's
-also quite common for embedded boxen to run up against the command
-line length limit that's hardcoded in the boot protocol.
+Huh?
+
+Are you suggesting we go digging around in a gzipped initramfs image at
+early command line parsing time? I can't really see how that would work. 
 
 -- 
 Mathematics is the supreme nostalgia of our time.

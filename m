@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWFKUsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWFKUyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWFKUsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 16:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWFKUsP
+	id S1751027AbWFKUyw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 16:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWFKUyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 16:48:15 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:51885 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751001AbWFKUsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 16:48:14 -0400
-Date: Sun, 11 Jun 2006 16:43:36 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: use C code for current_thread_info()
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606111647_MC3-1-C228-993B@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Sun, 11 Jun 2006 16:54:52 -0400
+Received: from ftp.linux-mips.org ([194.74.144.162]:8411 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1751027AbWFKUyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 16:54:52 -0400
+Date: Sun, 11 Jun 2006 21:54:48 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Vitaly Wool <vitalywool@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: PNX8550 fails to compile in 2.6.17-rc4
+Message-ID: <20060611205448.GA27193@linux-mips.org>
+References: <20060607105221.7b15b243.vitalywool@gmail.com> <20060607142702.GA20184@linux-mips.org> <acd2a5930606111321t11c29c77p83e56615b42902f9@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <acd2a5930606111321t11c29c77p83e56615b42902f9@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.64.0606111225380.5498@g5.osdl.org>
+On Mon, Jun 12, 2006 at 12:21:57AM +0400, Vitaly Wool wrote:
 
-On Sun, 11 Jun 2006 12:33:10 -0700, Linus Torbalds wrote:
-
-> On Sun, 11 Jun 2006, Chuck Ebbert wrote:
-> >
-> > Using C code for current_thread_info() lets the compiler optimize it.
+> On 6/7/06, Ralf Baechle <ralf@linux-mips.org> wrote:
+> >This seems to be one of the serial bits for the ip3106 which must have
+> >been lost on the way to kernel.org.  Unfortunately the original author
+> >does no longer take care of the code.  I just took a stab at the PNX8550
+> >code and it has a significant number of other problems.  All small in
+> >the sum large enough such that I will mark PNX8550 support broken.
 > 
-> Ok, me likee. I just worry that this might break some older gcc version. 
-> Have you checked with gcc-3.2 or something?
+> I took an attempt to compile 2.6.16.20 kernel from linux-mips.org for
+> PNX8550 and it went a little further but also failed soon:
+> 
+>  CC      arch/mips/philips/pnx8550/common/platform.o
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:101: error: variable
+> `pnx8550_usb_ohci_device' has initializer but incomplete type
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:102: error: unknown
+> field `name' specified in initializer
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:102: warning: excess
+> elements in struct initializer
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:102: warning: (near
+> initialization for `pnx8550_usb_ohci_device')
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:103: error: unknown
+> field `id' specified in initializer
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:103: warning: excess
+> elements in struct initializer
+> ...
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:101: error: storage
+> size of `pnx8550_usb_ohci_device' isn't known
+> /home/vital/work/opensource/linux-
+> 2.6.16.20/arch/mips/philips/pnx8550/common/platform.c:112: error: storage
+> size of `pnx8550_uart_device' isn't known
+> make[2]: *** [arch/mips/philips/pnx8550/common/platform.o] Error 1
+> make[1]: *** [arch/mips/philips/pnx8550/common] Error 2
+> make: *** [vmlinux] Error 2
+> 
+> Does it make sense to try to fix those? Or will it only result in more
+> errore showing up next?
 
-I just tried gcc 3.3.3 and the kernel gets a little bigger but it boots
-and runs OK. That's the oldest compiler I can find.
+There is a whole number of small problems such as this one but as far
+as I look at it all where only simple.
 
-   text    data     bss     dec     hex filename
-3593627  559864  342728 4496219  449b5b 2.6.17-rc6-32-post/vmlinux
-3591371  559864  342728 4493963  44928b 2.6.17-rc6-32/vmlinux
-  +2256
-
-Looking at the generated code, it seems the compiler just makes dumb
-choices and tends to recompute current_thread_info() in unlikely code
-paths even when there is no register pressure.  4.0.2 makes better
-choices.
-
--- 
-Chuck
-
+  Ralf

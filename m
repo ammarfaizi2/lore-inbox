@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWFKHnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWFKIWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWFKHnD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 03:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFKHnD
+	id S1750822AbWFKIWS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 04:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWFKIWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 03:43:03 -0400
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:15632 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S1750717AbWFKHnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 03:43:01 -0400
-Message-ID: <448C4F38.8030807@internode.on.net>
-Date: Sun, 11 Jun 2006 17:13:28 +0000
-From: Tom Gaudasinski <cetus@internode.on.net>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: List of Optical devices.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jun 2006 04:22:17 -0400
+Received: from science.horizon.com ([192.35.100.1]:46150 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750820AbWFKIWR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 04:22:17 -0400
+Date: 11 Jun 2006 04:22:15 -0400
+Message-ID: <20060611082215.7622.qmail@science.horizon.com>
+From: linux@horizon.com
+To: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 0/13] extents and 48bit ext3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-    I would like to get a list of all the optical drives registered. I 
-see that in <linux/cdrom.h> there is a register_cdrom() function, and an 
-unregister variant. Nowhere do i see however a way to get  a list of 
-these devices. I understand that they form a linked list, so getting the 
-first one would be peachy enough, yet again I can't find such 
-functionality. Currently what I'm doing is parsing the text out of 
-/proc/sys/dev/cdrom/info, which is cumbersome. However due to the fact 
-that a file in proc can produce this, i assume there's a way to get that 
-list. How may I do so? All i need are the device names so that I may 
-send some ioctls to them.
+> We seem to be lagging behind "the industry" in some areas - handling large
+> devices, high bandwidth IO, sophisticated on-disk data structures, advanced
+> manageability, etc.
 
-Thank you.
+Er... I would like to point out that "sophisticated on-disk data
+structures" are, in and of themselves, a Bad Thing.  It's only when
+they provide some desirable capability that they earn their cost in
+implementation difficulty, code size, and bug rate.
 
-P.S.
-I am not subscribed to the mailing list, please CC me a copy of any replies.
+
+ZFS is interesting, and I Really Really Like its reliability guarantees,
+but I notice that, due to the append-only nature of its operation,
+it's extraordinarily difficult to move data once it's been written.
+This makes migrating a file system off of old nasty disks to big new
+disks rather annoying.  If you know before you add the new drives, you
+can physically mirror the old disks and avoid changing block pointers,
+but I'd wish for something more flexible.
+
+Because block pointers are physical, and all checksummed, moving a
+single block requires rewriting the root block of every snapshot that
+contains that block.  Now, you can keep an index of "old block X is now
+in new location Y" while walking the entire file system until you're
+sure that all the old pointers are gone, but it's hard to preallocate
+that index, because you also have to know that "old pointer block X
+has been recreated at new location Y, but its contents are different;
+only the logical content is the same", and there's no obvious way to
+bound the number of such forwarding notes that need to be made.
+
+You must have such an index, or you can't preserve sharing while you
+migrate the data.
+
+H'm... for sane efficiency, you also need to keep track of all metadata
+blocks that have been examined and NOT changed, so when you hit them again
+traversing the file system structure DAG, you know that you can stop.
+Between the two, this amounts to every metadata block on the file system.
+Wow!
+
+Well, at least that gives you an upper limit on the size needed.
+One block forwarding entry per data block on the migrated-from disk,
+plus one index-forwarding entry (which may be larger, if it contains
+the new block checksum) for each index block on the entire file system.
+
+Ouch.
+
+(And, of course, all of this has to be done on a live file system.)

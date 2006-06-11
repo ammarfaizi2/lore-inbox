@@ -1,218 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWFKHKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWFKHdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751560AbWFKHKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 03:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWFKHKQ
+	id S932121AbWFKHdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 03:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751573AbWFKHdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 03:10:16 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:48097 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751560AbWFKHKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 03:10:15 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sun, 11 Jun 2006 08:10:10 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock
- detected!
-In-Reply-To: <20060611053154.GA8581@elte.hu>
-Message-ID: <Pine.LNX.4.64.0606110739310.3726@hermes-1.csi.cam.ac.uk>
-References: <a44ae5cd0606072127n761c64fepf388e2f9de8ca1fe@mail.gmail.com>
- <1149751953.10056.10.camel@imp.csi.cam.ac.uk> <20060608095522.GA30946@elte.hu>
- <1149764032.10056.82.camel@imp.csi.cam.ac.uk> <20060608112306.GA4234@elte.hu>
- <1149840563.3619.46.camel@imp.csi.cam.ac.uk> <20060610075954.GA30119@elte.hu>
- <Pine.LNX.4.64.0606100916050.25777@hermes-1.csi.cam.ac.uk>
- <20060611053154.GA8581@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Jun 2006 03:33:13 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55712 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751569AbWFKHdM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 03:33:12 -0400
+Date: Sun, 11 Jun 2006 09:32:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Neil Brown <neilb@suse.de>, Jeff Garzik <jeff@garzik.org>,
+       Theodore Tso <tytso@mit.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Chase Venters <chase.venters@clientec.com>,
+       Alex Tomas <alex@clusterfs.com>, Andreas Dilger <adilger@clusterfs.com>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Stable/devel policy - was Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060611073214.GB11558@elte.hu>
+References: <Pine.LNX.4.64.0606091137340.5498@g5.osdl.org> <Pine.LNX.4.64.0606091347590.5541@turbotaz.ourhouse> <4489C580.7080001@garzik.org> <17D07BC0-4B41-4981-80F5-7AAEC0BB6CC8@mac.com> <Pine.LNX.4.64.0606101238110.5498@g5.osdl.org> <Pine.LNX.4.64.0606101248030.5498@g5.osdl.org> <20060610212624.GD6641@thunk.org> <448B45ED.1040209@garzik.org> <17547.40585.982575.7069@cse.unsw.edu.au> <Pine.LNX.4.64.0606102207030.5498@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606102207030.5498@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5409]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Jun 2006, Ingo Molnar wrote:
-> * Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> And even more interestingly (at least to me), the question might 
+> become one of "how does that affect the tools and build and 
+> configuration infrastructure", and just the general flow of 
+> development.
 > 
-> > I think the lock validator has the problem of not knowing that there 
-> > are two different types of runlist which is why it complains about it.
-> 
-> ah, ok! What happened is that the rwlock_init() 'lock type keys' 
-> (inlined via ntfs_init_runlist()) for the two runlists were 'merged':
-> 
->         ntfs_init_runlist(&ni->runlist);
->         ntfs_init_runlist(&ni->attr_list_rl);
-> 
-> i have annotated things by initializing the two locks separately (via a 
-> simple oneliner change), and this has solved the problem.
-> 
-> The two types are now properly 'split', and the validator tracks them 
-> separately and understands their separate roles. So there's no need to 
-> touch attribute runlist locking in the NTFS code.
+> I don't think one or two filesystems (and a few drivers) splitting is 
+> anythign new, but if this ends up becoming _more_ common, maybe that 
+> implies a new model entirely..
 
-Great!
+at least for core kernel stuff, it's hard to split things in any 
+manageable way (as you mentioned it as well) - so higher flux is 
+inevitable.
 
-> Some background: the validator uses lock initialization as a hint about 
+So what i've been focusing on more in the past year or so is to enable 
+the core kernel to take more development flux, via kernel features.
 
-Thanks for explaining.
+Instead of adding more features to the kernel, i'm quite interested in 
+seeing more technologies that make a higher development flux safer: to
+make the kernel more debuggable, to make bugs more reportable for users,
+to make the effects of bugs less harmful, and to make the kernel itself
+notice more bugs by itself.
 
-> The good news is that after this fix things went pretty well for 
-> readonly stuff and i got no new complaints from the validator. Phew! :-) 
+To be able to handle a higher development flux in core code, i think we 
+need the following policies wrt. core kernel changes:
 
-Great!
+ - More code consolidation between architectures and subsystems.
 
-> It does not fully cover read-write mode yet. When extending an existing 
-> file the validator did not understand the following locking construct:
-> 
-> =======================================================
-> [ INFO: possible circular locking dependency detected ]
-> -------------------------------------------------------
-> cat/2802 is trying to acquire lock:
->  (&vol->lcnbmp_lock){----}, at: [<c01e80dd>] ntfs_cluster_alloc+0x10d/0x23a0
-> 
-> but task is already holding lock:
->  (&ni->mrec_lock){--..}, at: [<c01d5e53>] map_mft_record+0x53/0x2c0
-> 
-> which lock already depends on the new lock,
-> which could lead to circular dependencies.
-> 
-> the existing dependency chain (in reverse order) is:
-> 
-> -> #2 (&ni->mrec_lock){--..}:
->        [<c01394df>] lock_acquire+0x6f/0x90
->        [<c0346193>] mutex_lock_nested+0x73/0x2a0
->        [<c01d5e53>] map_mft_record+0x53/0x2c0
->        [<c01c54f8>] ntfs_map_runlist_nolock+0x3d8/0x530
->        [<c01c5bc1>] ntfs_map_runlist+0x41/0x70
->        [<c01c1929>] ntfs_readpage+0x8c9/0x9b0
->        [<c0142ffc>] read_cache_page+0xac/0x150
->        [<c01e213d>] ntfs_statfs+0x41d/0x660
->        [<c0163254>] vfs_statfs+0x54/0x70
->        [<c0163288>] vfs_statfs64+0x18/0x30
->        [<c0163384>] sys_statfs64+0x64/0xa0
->        [<c0347ddd>] sysenter_past_esp+0x56/0x8d
-> 
-> -> #1 (&rl->lock){----}:
->        [<c01394df>] lock_acquire+0x6f/0x90
->        [<c0134c8a>] down_read_nested+0x2a/0x40
->        [<c01c18a4>] ntfs_readpage+0x844/0x9b0
->        [<c0142ffc>] read_cache_page+0xac/0x150
->        [<c01e213d>] ntfs_statfs+0x41d/0x660
->        [<c0163254>] vfs_statfs+0x54/0x70
->        [<c0163288>] vfs_statfs64+0x18/0x30
->        [<c0163384>] sys_statfs64+0x64/0xa0
->        [<c0347ddd>] sysenter_past_esp+0x56/0x8d
-> 
-> -> #0 (&vol->lcnbmp_lock){----}:
->        [<c01394df>] lock_acquire+0x6f/0x90
->        [<c0134ccc>] down_write+0x2c/0x50
->        [<c01e80dd>] ntfs_cluster_alloc+0x10d/0x23a0
->        [<c01c427d>] ntfs_attr_extend_allocation+0x5fd/0x14a0
->        [<c01caa38>] ntfs_file_buffered_write+0x188/0x3880
->        [<c01ce2a8>] ntfs_file_aio_write_nolock+0x178/0x210
->        [<c01ce3f1>] ntfs_file_writev+0xb1/0x150
->        [<c01ce4af>] ntfs_file_write+0x1f/0x30
->        [<c0164f09>] vfs_write+0x99/0x160
->        [<c016589d>] sys_write+0x3d/0x70
->        [<c0347ddd>] sysenter_past_esp+0x56/0x8d
-> 
-> other info that might help us debug this:
-> 
-> 3 locks held by cat/2802:
->  #0:  (&inode->i_mutex){--..}, at: [<c0346118>] mutex_lock+0x8/0x10
->  #1:  (&rl->lock){----}, at: [<c01c3dbe>] ntfs_attr_extend_allocation+0x13e/0x14a0
->  #2:  (&ni->mrec_lock){--..}, at: [<c01d5e53>] map_mft_record+0x53/0x2c0
-> 
-> stack backtrace:
->  [<c0104bf2>] show_trace+0x12/0x20
->  [<c0104c19>] dump_stack+0x19/0x20
->  [<c0136ef1>] print_circular_bug_tail+0x61/0x70
->  [<c01389ff>] __lock_acquire+0x74f/0xde0
->  [<c01394df>] lock_acquire+0x6f/0x90
->  [<c0134ccc>] down_write+0x2c/0x50
->  [<c01e80dd>] ntfs_cluster_alloc+0x10d/0x23a0
->  [<c01c427d>] ntfs_attr_extend_allocation+0x5fd/0x14a0
->  [<c01caa38>] ntfs_file_buffered_write+0x188/0x3880
->  [<c01ce2a8>] ntfs_file_aio_write_nolock+0x178/0x210
->  [<c01ce3f1>] ntfs_file_writev+0xb1/0x150
->  [<c01ce4af>] ntfs_file_write+0x1f/0x30
->  [<c0164f09>] vfs_write+0x99/0x160
->  [<c016589d>] sys_write+0x3d/0x70
->  [<c0347ddd>] sysenter_past_esp+0x56/0x8d
-> 
-> this seems to be a pretty complex 3-way dependency related to 
-> &vol->lcnbmp_lock and &ni->mrec_lock. Should i send a full dependency 
-> events trace perhaps?
+   Core kernel changes impact "non-mainstream" architectures the most - 
+   while some of our best technologies root from non-mainstream 
+   technologies. So it's a net loss to only concentrate on the 
+   mainstream, because developer and technology distribution does not 
+   follow user distribution.
 
-First an explanation of two relevant locks that are both going to upset 
-the validator.  I half expected this to happen given what has happened so 
-far.  The two locks are lcnbmp_lock and mftbmp_lock (both are r/w 
-semaphores).
+   The generic irq subsystem, spinlock and semaphore/mutex consolidation 
+   are all efforts in this direction. I consider the Generic Time Of Day 
+   (GTOD) effort a similarly important item, for the same reasons. There 
+   are other good examples too, for example klibc is a good step towards 
+   a more consolidated boot process. The Xen subarch work triggers 
+   consolidation too - etc. Andrew's policy of "you must not break _any_ 
+   architecture in -mm" is very important too.
 
-Both those locks lock the two big bitmaps on an NTFS volume:
+   And we should do consolidation even in cases where there's some
+   minimal runtime cost. Being able to handle higher flux is more 
+   important than getting the last cycle out of the system. This does
+   not mean we should reject patches that do get those last cycles, this 
+   only means we should not reject consolidation patches on the grounds 
+   that they _lose_ a few cycles. I dont think this is a common problem 
+   for consolidation projects right now - but it could happen in the 
+   future.
 
-lcnbmp_lock locks accesses to the cluster bitmap (i.e. the physical blocks 
-bitmap where each 0 bit means an unallocated block and a 1 bit means an 
-allocated block).
+ - Even more cleanups.
 
-mftbmp_lock locks accesses to the mft bitmap (i.e. the inodes bitmap where 
-each 0 bit means an unused inode and a 1 bit means the inode is in use).
+   We always preferred cleanups but it now becomes critical: i strongly 
+   believe that cleanups must take precedence over feature work. [with a 
+   few rare and temporary exceptions perhaps, like hardware-enablement 
+   or really critical features.] It's much easier to spot bugs in clean 
+   code, plus it's much easier for automated correctness validators to 
+   find bugs in clean code.
 
-The locks are taken when a cluster is being allocated / an mft record is 
-being allocated.
+   (My own examples here include spinlock-init cleanups, which directly
+   enabled things like the lock validator. But pure code cleanups apply 
+   too. )
 
-The reason the validator will likely get very confused is that they 
-introduce reverse semantics depending on what you are locking, i.e.
+ - More automated correctness-checking tools and kernel features.
 
-When extending a file the locking order is:
+   While the preferred mode of avoiding bugs should be a clean 
+   design and clean code, higher flux introduces higher noise and bugs 
+   are inevitable. So the importance of automated tools (both static and 
+   dynamic analysis) increased.
 
-Lock runlist (data one) of file to be extended for writing (as it will be 
-modified by the file extension).
+   Sparse annotations are one good example. My own examples here are the
+   lock validator, the mutex debugging code, the consolidated
+   spinlock debugging code. Some of these are direct feature-enablers: 
+   for example the smp_processor_id() debugging code directly enabled a 
+   safe and painless migration to PREEMPT_BKL. One nice feature in the 
+   works that can find hard-to-spot bugs is kmemleak.
 
-Lock lcnbmp_lock for writing (as the bitmap will be modified by the 
-allocated clusters).
+ - Coding style police!
 
-Lock runlist of $Bitmap system file (the contents of which contain the 
-bitmap) for reading so the on-disk physical location can be determined.
+   With higher development flux it is becoming even more important for 
+   kernel developers to review other developer's work. But that is very 
+   hard if the coding style varies too much. This is a fundamentally 
+   human problem, and the only sane solution is brutal: the _strict_ 
+   Linus coding style must be used in all high-flux subsystems.
 
-If the above fails then re-lock the runlist of $Bitmap for writing and 
-lock mft record of $Bitmap system file and load in the runlist of the 
-bitmap, the unlock the mft record, unlock the runlist of $Bitmap.
+ - More debuggability, reportability.
 
-Load the $Bitmap data and allocate clusters in the bitmap.
+   In this area we still suck quite a bit, and this affects userspace
+   too: currently we have nothing equivalent to things like Dr Watson,
+   in Linux most of the info about the first userspace crash almost 
+   always gets lost! (and even afterwards, once debug packages are 
+   downloaded and the app is run in gdb, it's still too painful for the 
+   user, so we lose lots of feedback.)
 
-Unlock lcnbmp_lock.
+   Some of the GUIs try to do something about this and automate crash 
+   reporting, but it doesnt cover most of the app crashes and userspace 
+   clearly needs kernel help, because ptrace is too inflexible for this 
+   purpose. (help is on the way though, there's a next-gen ptrace 
+   project that solves these problems very cleanly.)
 
-Update the runlist of the file being extended with the newly allocated 
-clusters.
+   There are a number of important projects going on in this area - for 
+   example the dwarf unwinder for x86_64 to improve the quality of 
+   kernel oopses, and kgdb (or bits of NLKD) if it gets clean enough.
 
-Lock the mft record of the file being extended and update the mft record 
-with the new allocations.
+my own impression is that things are going in the right direction, but
+that there should be more awareness of these principles. I think if we
+add a couple of more key technologies then we can take the higher kernel
+development flux just fine, without compromising quality. Even though
+Linux has lots of developers, we should be more economic with that
+development power and should waste less of that on unnecessarily complex
+debugging tasks.
 
-Unlock the mft record and the runlist of the file that was extended.
+I do consider the forking of a subsystem the "easy way out" - the hard 
+and more correct approach is i think to turn every drastic rewrite into 
+small manageable steps. That's much easier said than done, and it's 
+sometimes 10 times the work but it's alot safer - and the end result is 
+often wildly different (and alot cleaner!) from what one would do via a 
+drastic rewrite. A dumb 'cp -a' copying of a subsystem will preserve 
+most of the legacies and architectural inefficiencies. Even an 
+intelligent drastic rewrite preserves most of the legacies - there's 
+just so much of change users can take at once, and _eventually_ a new 
+subsystem has to be exposed to real users - at which point the 
+compatibility constraints apply again. I have yet to see a single case 
+of hard physical necessity to throw away an old subsystem due to 
+legacies. I think the prime example to follow is how Al Viro works - 
+he's beein maintaining the VFS for many years without having to 
+duplicate functionality, without breaking the world, but he still 
+managed to turn the VFS upside down, inside out, in small, manageable 
+steps. It _is_ possible in almost every case, for all but the most 
+spaghetti pieces of code.
 
-So yes lock dependencies are inverted the validator complains.  But they 
-are inverted in a special way that is safe.
-
-Is the above description sufficient for you to fix it?
-
-The mftbmp_lock works simillarly as above but instead of allocating 
-clusters we are allocating an mft record, the locking sequence is the 
-same though just substitute s/lcnbmp_lock/mftbmp_lock/ and s/cluster 
-allocation/mft record allocation/.
-
-Extending the mft in turn can require the mft itself to be extended which 
-will take the lcnbmp_lock, thus mftbmp_lock nests outside the lcnbmp_lock 
-and that should never be violated so the validator should be at least 
-happy with that bit.  (-;
-
-Sorry ntfs is that locking evil!
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer, http://www.linux-ntfs.org/
+	Ingo

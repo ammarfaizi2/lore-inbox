@@ -1,128 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161082AbWFKFtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161085AbWFKF7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161082AbWFKFtf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 01:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWFKFte
+	id S1161085AbWFKF7T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 01:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161086AbWFKF7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 01:49:34 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:46033 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161082AbWFKFte (ORCPT
+	Sun, 11 Jun 2006 01:59:19 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26312 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161085AbWFKF7S (ORCPT
 	<rfc822;linux-kerneL@vger.kernel.org>);
-	Sun, 11 Jun 2006 01:49:34 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [RFC PATCH -rt] Priority preemption latency
-Date: Sat, 10 Jun 2006 22:49:25 -0700
-User-Agent: KMail/1.9.1
+	Sun, 11 Jun 2006 01:59:18 -0400
+Date: Sun, 11 Jun 2006 07:58:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Darren Hart <dvhltc@us.ibm.com>
 Cc: linux-kerneL@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-References: <200606091701.55185.dvhltc@us.ibm.com> <20060610064850.GA11002@elte.hu>
-In-Reply-To: <20060610064850.GA11002@elte.hu>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_m76iEwE6eL3I7RX"
-Message-Id: <200606102249.26063.dvhltc@us.ibm.com>
+Subject: Re: [RFC PATCH -rt] Priority preemption latency
+Message-ID: <20060611055828.GA9452@elte.hu>
+References: <200606091701.55185.dvhltc@us.ibm.com> <20060610064850.GA11002@elte.hu> <200606102249.26063.dvhltc@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606102249.26063.dvhltc@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5006]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_m76iEwE6eL3I7RX
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Friday 09 June 2006 23:48, Ingo Molnar wrote:
-> * Darren Hart <dvhltc@us.ibm.com> wrote:
-> > @@ -1543,6 +1543,17 @@ static int try_to_wake_up(task_t *p, uns
-> >  		}
-> >  	}
-> >
-> > +	/*
-> > +	 * XXX  Don't send RT task elsewhere unless it can preempt current
-> > +	 * XXX  on other CPU.  Better yet would be for awakened RT tasks to
-> > +	 * XXX  examine this(and all other) CPU(s) to see what is the best
-> > +	 * XXX  fit.  For example there is no check here to see if the
-> > +	 * XXX  currently running task can be preempted (which would be the
-> > +	 * XXX  ideal case).
-> > +	 */
-> > +	if (rt_task(p) && !TASK_PREEMPTS_CURR(p, rq))
-> > +		goto out_set_cpu;
-> > +
->
-> Great testcase! Note that we already do RT-overload wakeups further
-> below:
->
->                 /*
->                  * If a newly woken up RT task cannot preempt the
->                  * current (RT) task then try to find another
->                  * CPU it can preempt:
->                  */
->                 if (rt_task(p) && !TASK_PREEMPTS_CURR(p, rq)) {
->                         smp_send_reschedule_allbutself();
->                         rt_overload_wakeup++;
->                 }
->
-> what i think happened is that the above logic misses the case you have
-> described in detail, and doesnt mark the current CPU for rescheduling.
->
-> I.e. it sends an IPI to all _other_ CPUs, including the 'wrong target' -
-> but it doesnt mark the current CPU for reschedule - hence if the current
-> CPU is the only right target we might fail to handle this task!
->
-> could you try the (untested) patch below, does it solve your testcase
-> too?
+* Darren Hart <dvhltc@us.ibm.com> wrote:
 
-Thanks for the updated patch!  It wouldn't quite build (proc_misc.c still 
-referenced the old rt_overload_* variables, fixup patch attached removing 
-those print statements).  I have it running on a 4 way opteron box running 
-prio-preempt in a timed while loop, exiting only on failure.  It's been 
-running fine for several minutes - usually fails in under a mintue.  We'll 
-see how it's doing in the morning :-)
+> Thanks for the updated patch!  It wouldn't quite build (proc_misc.c 
+> still referenced the old rt_overload_* variables, fixup patch attached 
+> removing those print statements). [...]
 
--- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
+doh, forgot to send those changes ...
 
---Boundary-00=_m76iEwE6eL3I7RX
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="rto-proc_misc-fixup.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="rto-proc_misc-fixup.patch"
+> [...]  I have it running on a 4 way opteron box running prio-preempt 
+> in a timed while loop, exiting only on failure.  It's been running 
+> fine for several minutes - usually fails in under a mintue.  We'll see 
+> how it's doing in the morning :-)
 
-diff -Nurp linux-2.6.16/fs/proc/proc_misc.c linux-2.6.16-fixup/fs/proc/proc_misc.c
---- linux-2.6.16/fs/proc/proc_misc.c	2006-06-10 16:48:23.000000000 -0700
-+++ linux-2.6.16-fixup/fs/proc/proc_misc.c	2006-06-10 17:00:55.000000000 -0700
-@@ -569,19 +569,11 @@ static int show_stat(struct seq_file *p,
- 	{
- 		unsigned long nr_uninterruptible_cpu(int cpu);
- 		extern int pi_initialized;
--		extern int rt_overload_schedule,
--			   rt_overload_wakeup, rt_overload_pulled;
- 		unsigned long rt_nr_running_cpu(int cpu);
- 		extern atomic_t rt_overload;
+meanwhile i've released -rt3 with the fix (and the procfs change) 
+included.
+
+i slept on it meanwhile, and i think the safest would be to also do the 
+attached patch ontop of -rt3. This makes the 'kick other CPUs' logic 
+totally unconditional - so whatever happens the wakeup code will notice 
+if an RT task is in trouble finding the right CPU. Under -rt3 we'd only 
+run into this branch if we stayed on the same CPU - but there can be 
+cases when we have your scenario even in precisely such a case. It's 
+rare but possible.
+
+	Ingo
+
+Index: linux-rt.q/kernel/sched.c
+===================================================================
+--- linux-rt.q.orig/kernel/sched.c
++++ linux-rt.q/kernel/sched.c
+@@ -1588,38 +1588,37 @@ out_set_cpu:
  
- 		int i;
+ 		this_cpu = smp_processor_id();
+ 		cpu = task_cpu(p);
+-	} else {
++	}
++	/*
++	 * If a newly woken up RT task cannot preempt the
++	 * current (RT) task (on a target runqueue) then try
++	 * to find another CPU it can preempt:
++	 */
++	if (rt_task(p) && !TASK_PREEMPTS_CURR(p, rq)) {
++		this_rq = cpu_rq(this_cpu);
+ 		/*
+-		 * If a newly woken up RT task cannot preempt the
+-		 * current (RT) task (on a target runqueue) then try
+-		 * to find another CPU it can preempt:
++		 * Special-case: the task on this CPU can be
++		 * preempted. In that case there's no need to
++		 * trigger reschedules on other CPUs, we can
++		 * mark the current task for reschedule.
++		 *
++		 * (Note that it's safe to access this_rq without
++		 * extra locking in this particular case, because
++		 * we are on the current CPU.)
+ 		 */
+-		if (rt_task(p) && !TASK_PREEMPTS_CURR(p, rq)) {
+-			this_rq = cpu_rq(this_cpu);
++		if (TASK_PREEMPTS_CURR(p, this_rq))
++			set_tsk_need_resched(this_rq->curr);
++		else
+ 			/*
+-			 * Special-case: the task on this CPU can be
+-			 * preempted. In that case there's no need to
+-			 * trigger reschedules on other CPUs, we can
+-			 * mark the current task for reschedule.
+-			 *
+-			 * (Note that it's safe to access this_rq without
+-			 * extra locking in this particular case, because
+-			 * we are on the current CPU.)
++			 * Neither the intended target runqueue
++			 * nor the current CPU can take this task.
++			 * Trigger a reschedule on all other CPUs
++			 * nevertheless, maybe one of them can take
++			 * this task:
+ 			 */
+-			if (TASK_PREEMPTS_CURR(p, this_rq))
+-				set_tsk_need_resched(this_rq->curr);
+-			else
+-				/*
+-				 * Neither the intended target runqueue
+-				 * nor the current CPU can take this task.
+-				 * Trigger a reschedule on all other CPUs
+-				 * nevertheless, maybe one of them can take
+-				 * this task:
+-				 */
+-				smp_send_reschedule_allbutself();
++			smp_send_reschedule_allbutself();
  
--		seq_printf(p, "rt_overload_schedule: %d\n",
--					rt_overload_schedule);
--		seq_printf(p, "rt_overload_wakeup:   %d\n",
--					rt_overload_wakeup);
--		seq_printf(p, "rt_overload_pulled:   %d\n",
--					rt_overload_pulled);
- 		seq_printf(p, "pi_init: %d\n", pi_initialized);
- 		seq_printf(p, "nr_running(): %ld\n",
- 			nr_running());
-@@ -593,8 +585,6 @@ static int show_stat(struct seq_file *p,
- 		for_each_cpu(i)
- 			seq_printf(p, "rt_nr_running(%d): %ld\n",
- 				i, rt_nr_running_cpu(i));
--		seq_printf(p, "rt_overload: %d\n", atomic_read(&rt_overload));
--
+-			schedstat_inc(this_rq, rto_wakeup);
+-		}
++		schedstat_inc(this_rq, rto_wakeup);
  	}
- #endif
  
-
---Boundary-00=_m76iEwE6eL3I7RX--
+ out_activate:

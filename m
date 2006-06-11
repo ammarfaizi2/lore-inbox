@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWFKTa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWFKTh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWFKTa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 15:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWFKTa1
+	id S1750881AbWFKTh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 15:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWFKTh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 15:30:27 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:50089 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750834AbWFKTa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 15:30:26 -0400
-Subject: Re: Video drivers and System Management mode.
-From: Lee Revell <rlrevell@joe-job.com>
-To: James Courtier-Dutton <James@superbug.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <448C5BF0.7070601@superbug.demon.co.uk>
-References: <448C5BF0.7070601@superbug.demon.co.uk>
-Content-Type: text/plain
-Date: Sun, 11 Jun 2006 15:30:31 -0400
-Message-Id: <1150054232.14253.157.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jun 2006 15:37:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1933 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750890AbWFKTh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 15:37:26 -0400
+Date: Sun, 11 Jun 2006 12:33:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] i386: use C code for current_thread_info()
+In-Reply-To: <200606111512_MC3-1-C229-37D@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0606111225380.5498@g5.osdl.org>
+References: <200606111512_MC3-1-C229-37D@compuserve.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-11 at 19:07 +0100, James Courtier-Dutton wrote:
-> Hi,
-> 
-> I know we all laugh about the windows blue screen of death, but to be
-> fair, when Linux oops, it is not even able to display anything on the
-> screen, unless in dump terminal mode. I.e. Not X or some other GUI.
-> 
-> Are there any plans to implement a sort of interactive system management
-> mode, that would pop up a window when Linux oops. Something like the
-> program called SoftICE for windows would be a nice addition to Linux,
-> and help with kernel development.
 
-kdb would definitely be a good starting point.  But I don't think it
-works if you're in X when the kernel crashes.
 
-Lee
+On Sun, 11 Jun 2006, Chuck Ebbert wrote:
+>
+> Using C code for current_thread_info() lets the compiler optimize it.
 
+Ok, me likee. I just worry that this might break some older gcc version. 
+Have you checked with gcc-3.2 or something?
+
+We've had that "current_stack_pointer" thing for a long while, but we only 
+use it in the irq-stack path (where it's really very incidental: the whole 
+use of the "previous_esp" thing is only for the oops tracing. Maybe there 
+was some reason (like gcc generating bad code) for not using it earlier?
+
+(Admittedly, a more likely reason is probably just nobody looking at it, 
+but it sounds like we should check it out anyway, just in case)
+
+		Linus

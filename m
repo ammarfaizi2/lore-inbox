@@ -1,96 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbWFKDFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbWFKDGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161073AbWFKDFS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 23:05:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbWFKDFS
+	id S932557AbWFKDGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 23:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWFKDGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 23:05:18 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:40140 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161073AbWFKDFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 23:05:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=oQiwnFYNiBtGDYTJJfz/ebGwRDPxqrmC93GUJxhPlPb/Mv/CNVjQuYPldg8w10bLSVLB2Fy879pBdWVqo3y+qEAaZw0K/3VK0PYo9JCE6rszp1OvK5r09STe9sSvuiYlbMC6B59kaJ/Nt2qRDJKIPZssUOAISJmTLSgKTLTduJw=
-Message-ID: <448B8862.3040904@gmail.com>
-Date: Sun, 11 Jun 2006 11:05:06 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
+	Sat, 10 Jun 2006 23:06:38 -0400
+Received: from xenotime.net ([66.160.160.81]:58260 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932557AbWFKDGh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 23:06:37 -0400
+Date: Sat, 10 Jun 2006 20:09:22 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: jonsmirl@gmail.com, akpm@osdl.org, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, greg@kroah.com
 Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
-References: <44893407.4020507@gmail.com>	 <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>	 <448AC8BE.7090202@gmail.com>	 <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>	 <448B38F8.2000402@gmail.com>	 <9e4733910606101644j79b3d8a5ud7431564f4f42c7f@mail.gmail.com>	 <448B61F9.4060507@gmail.com>	 <9e4733910606101749r77d72a56mbcf6fb3505eb1de0@mail.gmail.com>	 <9e4733910606101805t3060c0cdgd08ceabe8cfe4e0e@mail.gmail.com>	 <448B7594.6040408@gmail.com> <9e4733910606101926h73addc1j7cbb4027d3d9f41e@mail.gmail.com>
-In-Reply-To: <9e4733910606101926h73addc1j7cbb4027d3d9f41e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <20060610200922.a93c3c72.rdunlap@xenotime.net>
+In-Reply-To: <448B61F9.4060507@gmail.com>
+References: <44893407.4020507@gmail.com>
+	<9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
+	<448AC8BE.7090202@gmail.com>
+	<9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
+	<448B38F8.2000402@gmail.com>
+	<9e4733910606101644j79b3d8a5ud7431564f4f42c7f@mail.gmail.com>
+	<448B61F9.4060507@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> Jon Smirl wrote:
->> > On 6/10/06, Jon Smirl <jonsmirl@gmail.com> wrote:
->> >> On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> >> > > I see now that you can have tty0-7 assigned to a different console
->> >> > > driver than tty8-63.
->> >> > > Why do I want to do this?
->> >> >
->> >> > Multi-head.  I can have vgacon on the primary card for tty0-7,
->> >> > fbcon on the secondary card for tty8-16.
->> >>
->> >
->> > When I say dropped, I mean drop the feature of having multiple drivers
->> > simultaneously open by the VT layer. You would still be able to switch
->> > from vgacon to fbcon by using sysfs. You just wouldn't be able to use
->> > VT swap hotkeys between them.
->>
->> Quoting you:
->>
->> "Googling around the only example I could find was someone with a VGA
->> card and a Hercules card. They setup 8 consoles on each card."
->>
->> How do you think they accomplished that? They did not rewrite the VT
->> layer, all they need to do is change the 'first' and 'last' parameter
->> passed to take_over_console() in mdacon.c.  This implies that the VT
->> layer already supports multiple active VT console drivers, maybe as
->> early as 2.2, and no, we won't remove that.
+On Sun, 11 Jun 2006 08:21:13 +0800 Antonino A. Daplas wrote:
+
+> Jon Smirl wrote:
+> > On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> >> > I may be looking at the problem a little differently. I see the
+> >> > drivers like fb, vga, etc as registering with the console and saying
+> >> > they are capable of providing console services. I then see the console
+> >> > system as opening one of the registered devices. A driver is free to
+> >> > register/unregister whenever it wants to as long as it isn't open by
+> >> > the console system. Console can only open one driver at a time.
+> >>
+> >> No, this isn't true.  You can have multiple console drivers active,
+> >> that's why you have a first and last parameter in take_over_console().
+> >> Thus at boot time, the system driver will take consoles 0 - 63.
+> >> Later on when a driver loads, it can take over consoles 0 - 7, leaving
+> >> consoles 8 - 63 to the system driver.
+> >>
+> >> To put it another way, console drivers can register for consoles 0 - 63,
+> >> but the user may choose to use it only for consoles 0 - 7.
+> >>
+> >> This is another reason for the system driver, it makes the unbinding
+> >> behavior predictable.  Without a system driver, guessing which driver
+> >> replaces the just unbound one may become just a tad bit confusing for
+> >> the typical user.
+> > 
+> > I find the whole console/tty layer to be quite confusing to talk
+> > about. I am mixing up console as in where printk goes and console the
+> > video card login device. The part about making everything equal was
+> > directed towards the printk output device.
+> > 
 > 
-> But the hardware has changed. The kernel is missing a lot of the
-> support needed for multiple VGA cards in a single box so that option
-> isn't legal. So this needs to be done with non-VGA cards. Are there
-> non-VGA cards still in production where a user would want to put
-> multiple cards in their box? As far as I know they aren't any in the
-> x86 world, I don't know about other architectures.
+> Sorry about that, I probably should use VT or VC for the main topic
+> of this thread, and plain 'console' for where the printk output goes.
 > 
-> All modern Hercules cards are VGA based, they use NVidia and ATI
-> chips. The reference was from 1998, they were referring to the ancient
-> Hercules cards that were non-VGA.
+> This illustration might help, though I'm not sure if it's entirely
+> correct. The main topic of this thread deals with the VT branch only.
 > 
-> Back in the days of CGA, MDA, HGC, 8514, etc this situation was
-> common, but now everything is VGA.
+> Console
+>    :
+>    :-----:-----------:--- etc
+>    :     :           :
+>    VT    Serial      Net
+>    :
+>    :--------:-------:-----etc
+>    :        :       : 
+>    vgacon   fbcon   newport_con
+>    :        :       :
+>    :        :       :
+>    hardware fbdev   hardware
+>             :
+>             :
+>             hardware
 > 
+> 
+> > I see now that you can have tty0-7 assigned to a different console
+> > driver than tty8-63.
+> > Why do I want to do this?
+> 
+> Multi-head.  I can have vgacon on the primary card for tty0-7,
+> fbcon on the secondary card for tty8-16.
+> 
+> > Why do we need 64 predefined tty devices?
+> 
+> I don't know, but no one's stopping you to redefine MAX_NR_CONSOLES to
+> a lower or higher number.
+> 
+> > 
+> > Googling around the only example I could find was someone with a VGA
+> > card and a Hercules card. They setup 8 consoles on each card.
+> > 
+> >> > Over time it would nice if these all merged to a single
+> >> > interchangeable interface. I would really like to be able to
+> >> > dynamically switch to serial/net while debugging a video driver. Is
+> >> > there some fundamental reason why these can't be merged?
+> >>
+> >> It's already possible to redirect the system messages to two different
+> >> console classes, ie with the boot parameter:
+> >>
+> >> console=tty0,ttyS0 /* direct output to VT and serial console */
+> >>
+> >> And you can already choose the console you want by adjusting
+> >> /etc/inittab.
+> > 
+> > How can I change where printk are going at run-time? I didn't know you
+> > could do that.
+> 
+> I really don't know.  Maybe we have some kind of entry in /proc somewhere?
 
-It doesn't really matter what the hardware is.  We have a feature that
-is supported in the kernel for a long time, we can't just drop it
-because we do not have the capability to initialize secondary cards?
-That's too x86-centric.
+If not, it should be in /sys(fs) (if being added).
 
-And even today, in an x86 system, we can support multiple vt drivers
-in one system:
+fwiw, I have a patch to list all registered consoles:
+http://www.xenotime.net/linux/patches/consoles-list.patch
 
-primary card - vgacon
-secondary card - fbcon (the secondary card initialized by X perhaps,
-	or even any tool that uses lrmi).
 
-But the argument is moot anyway.  Users won't be able to support
-multiple drivers at one time without hacking the kernel. We are not
-giving them the interface nor the control to do that, except perhaps
-for fbcon, but that option was present for a long time.  
-
-Tony
+---
+~Randy

@@ -1,100 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWFKQPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWFKQX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWFKQPV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 12:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWFKQPV
+	id S1751020AbWFKQX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 12:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWFKQX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 12:15:21 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:60222 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932126AbWFKQPU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 12:15:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=fqLosDNQSZCMgya5rHDZ8erGymGleX2QoqnrfpwwxaohEkJhbkp88/bjiICXL1C62S9SzDYteOgFtvIL9r0/tCGPWw7JM3hW1r3rYGLLSDiW0CHoQp3SCuKbnqUDASa1Ri0xpoVBOry+bd5pY+fpU9HDJM3mVhyJ/Pcty9/amjw=
-Message-ID: <b0943d9e0606110915l767f26d0t1d2dca78c65d51ad@mail.gmail.com>
-Date: Sun, 11 Jun 2006 17:15:19 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Stacked GIT 0.10
+	Sun, 11 Jun 2006 12:23:28 -0400
+Received: from trinity.phys.uwm.edu ([129.89.57.159]:5338 "EHLO
+	trinity.phys.uwm.edu") by vger.kernel.org with ESMTP
+	id S1750970AbWFKQX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 12:23:27 -0400
+Date: Sun, 11 Jun 2006 11:22:37 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+X-X-Sender: ballen@trinity.phys.uwm.edu
+To: Theodore Tso <tytso@mit.edu>
+cc: apiszcz@solarrain.com,
+       Smartmontools Mailing List 
+	<smartmontools-support@lists.sourceforge.net>,
+       "Theodore Ts'o" <tytso@alum.mit.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Remy Card <Remy.Card@linux.org>,
+       Bruce Allen <ballen@gravity.phys.uwm.edu>,
+       David Beattie <dbeattie@softhome.net>
+Subject: Re: [smartmontools-support] The Death and Diagnosis of a Dying Hard
+ Drive - Is S.M.A.R.T. useful?
+In-Reply-To: <20060611125929.GA8438@thunk.org>
+Message-ID: <Pine.LNX.4.62.0606111113001.10540@trinity.phys.uwm.edu>
+References: <Pine.LNX.4.64.0606100615500.15475@p34.internal.lan>
+ <20060610105141.GE30775@lug-owl.de> <Pine.LNX.4.64.0606100658130.26702@p34.internal.lan>
+ <Pine.LNX.4.62.0606102212060.17718@trinity.phys.uwm.edu> <20060611125929.GA8438@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stacked GIT 0.10 release is available from http://www.procode.org/stgit/.
+Theodore Tso wrote:
 
-StGIT is a Python application providing similar functionality to Quilt
-(i.e. pushing/popping patches to/from a stack) on top of GIT. These
-operations are performed using GIT commands and the patches are stored
-as GIT commit objects, allowing easy merging of the StGIT patches into
-other repositories using standard GIT functionality.
+> The real question though is whether the disk continues to work OK from 
+> this point forward, or whether it is a prelude to an ever-increasing 
+> number of bad blocks.  If it is the latter, and S.M.A.R.T. still didn't 
+> give any warning, then it would certainly be an indictment of that 
+> particular manufacturer's S.M.A.R.T. implementation.
 
-The main features in this release:
+I have a practical suggestion. Most recent disk drives have a new type of 
+self-test option called 'selective self-tests'.  This allows you to run a 
+self-test on up to five user-defined ranges of LBAs.  For example, if you 
+suspect that LBA=12345678 is failing, then instead of having to wait an 
+hour or two for the entire disk surface to be scanned, you can tell the 
+disk to scan (say) the range LBA_1=12345000 to LBA_2=12345999 five times 
+in a row, which takes only a few seconds.  By repeating this process many 
+times you can scan a trouble area on the disk a few thousands of times in 
+an hour.
 
-    *  Handle branch names with slashes
-    * Testsuite framework
-    * Configurable file extensions for merge conflicts
-    * 'goto' command, equivalent to 'pop --to' or 'push --to'
-    * '--update' option for 'pick' to only fold the changes to files
-      already in the current patch
-    * '--replace' option for 'import' to replace existing patches in
-      the series
-    * Look for templates in ~/.stgit/templates as well
-    * Allow multiple patch names on the 'push' command line
-    * Classify commands in 'stg --help' output
-    * Bug fixes
+For a couple of years, smartmontools smartctl has had the functionality to 
+invoke these selective self-tests if the disk supports them.  But (until 
+just last week) it was awkward: it required a kernel built with TASKFILE 
+support enabled, and only worked with (some of the) ide drivers. This has 
+changed. Thanks to hard work by Doug Gilbert and Jeff Garzik to built a 
+SAT (SCSI to ATA Translation) layer in libata and to put a SAT interface 
+into smartmontools, anyone can easily access this functionality with any 
+SATA disk that supports selective self-test via libata.
 
-Acknowledgements (generated with 'git shortlog'):
+Note: no smartmontools release incorporates this yet.  You have to build 
+from CVS.  Here are the instructions (4 lines):
 
-Catalin Marinas:
-      Allow git.checkout() to work on unmerged indexes
-      Fix the added to both but different conflict
-      Fix git.reset() to remove the added files
-      Allow configurable file extensions for merge conflicts
-      Add the --update option to pick
-      Implement the 'goto' command
-      Add the --replace option to import
-      Fix the t1201-pull-trailing.sh test
-      Show the stderr for failed GIT commands
-      Generate an empty commit for the newly created patches
-      Fix the add and rm commands to fail if no patch is applied
-      Fix the t0001-subdir-branches.sh test
-      Update the TODO file
-      Release 0.10
+cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
+cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5
+cd sm5
+./autogen.sh && ./configure && make
 
-Karl HasselstrÃ¶m:
-      Fix infinite recursion on absolute paths
-      Fix indexing error during "diff -r/"
-      Explicitly specify utf-8 coding in file
+Here is an example of running a selective self-test five times on the 
+same range of LBAs as above:
 
-Karl Hasselström:
-      Don't die when there are no branches
-      Handle branch names with slashes
-      Tests for branch names with slashes
+[slave0123 ~]# ./smartctl -d sat -t select,12345000-12345999 -t select,12345000-12345999 -t select,12345000-12345999 -t select,12345000-12345999 -t select,12345000-12345999 /dev/sda
+smartctl version 5.37 [x86_64-unknown-linux-gnu] Copyright (C) 2002-6 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
 
-Pavel Roskin:
-      Add .gitignore files, list generated files there
-      Add a simple makefile
-
-Yann Dirson:
-      Add a testsuite framework copied from git-core
-      Add list of bugs to TODO
-      Add a couple of safety checks to series creation
-      Make branch creation atomic
-      Correctly handle refs/patches on series rename
-      Fix a seriously bad interaction between .git caching and repo cloning
-      Test that pulls a patch creating a file that got modified afterwards
-      Exercise "stg pull" on patches just appending lines.
-      Look for templates in ~/.stgit/templates as well
-      Fixes to the pull testcases.
-      Allow to specify multiple patch names on push command-line
-      Classify commands in stg --help output.
+=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===
+Sending command: "Execute SMART Selective self-test routine immediately in 
+off-line mode".
+SPAN         STARTING_LBA           ENDING_LBA
+    0             12345000             12345999
+    1             12345000             12345999
+    2             12345000             12345999
+    3             12345000             12345999
+    4             12345000             12345999
+Drive command "Execute SMART Selective self-test routine immediately in 
+off-line mode" successful. Testing has begun.
 
 
--- 
-Catalin
+Wait a few seconds, then see the results of the selective self-testing:
+[slave0123 ~]# ./smartctl -d sat -l selective -l selftest /dev/sda
+smartctl version 5.37 [x86_64-unknown-linux-gnu] Copyright (C) 2002-6 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF READ SMART DATA SECTION ===
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Selective offline   Completed without error       00%      1473         -
+# 2  Selective offline   Completed without error       00%      1473         -
+# 3  Extended offline    Completed without error       00%      1467         -
+
+SMART Selective self-test log data structure revision number 1
+  SPAN   MIN_LBA   MAX_LBA  CURRENT_TEST_STATUS
+     1  12345000  12345999  Not_testing
+     2  12345000  12345999  Not_testing
+     3  12345000  12345999  Not_testing
+     4  12345000  12345999  Not_testing
+     5  12345000  12345999  Not_testing
+
+Justin, I hope that this is of some help to you and others with similar 
+issues.
+
+Cheers,
+ 	Brucce

@@ -1,131 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751553AbWFKCGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWFKCFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751553AbWFKCGk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 22:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751552AbWFKCGk
+	id S1751198AbWFKCFz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 22:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWFKCFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 22:06:40 -0400
-Received: from munin.agotnes.com ([202.173.149.60]:58550 "EHLO
-	mail.agotnes.com") by vger.kernel.org with ESMTP id S1751202AbWFKCGj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 22:06:39 -0400
-Message-ID: <448B7A88.5070009@agotnes.com>
-Date: Sun, 11 Jun 2006 12:06:00 +1000
-From: =?ISO-8859-1?Q?Johny_=C5gotnes?= <johny@agotnes.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Sat, 10 Jun 2006 22:05:55 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:21274 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751198AbWFKCFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 22:05:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B8Pf71JhrmMvC6VHmlXe0VrgGscYAOw7gcdocJQA+7lcpQL0jdseWLx6C4+3yGmIIpdc0fML0kcVAabeaVjKzNDeUT9pg4u/oPs/QfouqbDWK5sxS4ra11OPUgUmvxL53r9vqLX4doB/X/m946IqigjQYMrromff9ahj+3aO6sg=
+Message-ID: <9e4733910606101905y6bfdff4bo3c1b1a2126d02b26@mail.gmail.com>
+Date: Sat, 10 Jun 2006 22:05:54 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       "Greg KH" <greg@kroah.com>
+In-Reply-To: <448B6ED3.5060408@gmail.com>
 MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-rc5-mm3 - USB issues
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <44893407.4020507@gmail.com>
+	 <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
+	 <448AC8BE.7090202@gmail.com>
+	 <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
+	 <448B38F8.2000402@gmail.com>
+	 <9e4733910606101644j79b3d8a5ud7431564f4f42c7f@mail.gmail.com>
+	 <448B61F9.4060507@gmail.com>
+	 <9e4733910606101749r77d72a56mbcf6fb3505eb1de0@mail.gmail.com>
+	 <448B6ED3.5060408@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> Jon Smirl wrote:
+> > On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> >> > I see now that you can have tty0-7 assigned to a different console
+> >> > driver than tty8-63.
+> >> > Why do I want to do this?
+> >>
+> >> Multi-head.  I can have vgacon on the primary card for tty0-7,
+> >> fbcon on the secondary card for tty8-16.
+> >
+> > That's what I thought, I couldn't see any other reason. The kernel
+> > doesn't support input from multiple users so multihead can only be
+> > used by a single user.
+> >
+> > Does anyone use single user multihead on current systems? The kernel
+> > doesn't have code in it to initialize secondary VGA cards. What modern
+> > non-VGA hardware does this work on?
+>
+> matroxfb supports multihead and fbcon already has this feature for a
+> long time, ie you can bind /dev/fb0 to tty0-3 and /dev/fb1 to tty4-6.
+> And there are definite users because I happen to break this feature once
+> and I got rained with complaints :-)
 
-My USB hub isn't recognised with the latest -mm series, whereas with 
-2.6.16 vanilla it is picked up & used immediately.
+Were those people using this: http://linuxconsole.sourceforge.net/
+Does that work anymore?
 
-The error I get in dmesg is;
+This is single a single driver bound to the vt layer. Support for both
+fb0 and fb1 are provided by that single driver. So there may be some
+way to make this work.
 
-hub 4-0:1.0: USB hub found
-hub 4-0:1.0: 2 ports detected
-usb 1-4: new high speed USB device using ehci_hcd and address 3
-ehci_hcd 0000:00:10.3: Unlink after no-IRQ?  Controller is probably 
-using the wrong IRQ.
-usb 1-4: device not accepting address 3, error -110
-usb 1-4: new high speed USB device using ehci_hcd and address 4
-usb 1-4: device not accepting address 4, error -110
-usb 1-4: new high speed USB device using ehci_hcd and address 5
-usb 1-4: device not accepting address 5, error -110
-usb 1-4: new high speed USB device using ehci_hcd and address 6
-usb 1-4: device not accepting address 6, error -110
-usb 2-2: new full speed USB device using uhci_hcd and address 2
+> > If this feature doesn't work on current hardware, could it be dropped?
+> > It would make binding to the vt system much simpler if only one driver
+> > could be bound at a time. Anything we do to make that system simpler
+> > would benefit everyone.
+>
+> You can't drop something that's already in the kernel and has users, well,
+> the binding part at least. What we don't currently have is the fine-grained
+> control and because of the reason's you mentioned, I said that it's for the
+> future.
 
-Which seems to be related to my Belkin hub. The full USB related dmesg 
-information can be found below, I'm happy to provide further debugging 
-information as required :)
+There are variations on 'drop' is it dropping if we provide an
+alternate way to achieve the same thing?
 
-ACPI (acpi_bus-0192): Device `USB9]is not power manageable [20060310]
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 10
-PCI: setting IRQ 10 as level-triggered
-ACPI: PCI Interrupt 0000:00:10.3[D] -> Link [LNKD] -> GSI 10 (level, 
-low) -> IRQ 10
-ehci_hcd 0000:00:10.3: EHCI Host Controller
-ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:00:10.3: irq 10, io mem 0xea022000
-ehci_hcd 0000:00:10.3: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
-usb usb1: new device found, idVendor=0000, idProduct=0000
-usb usb1: new device strings: Mfr=3, Product=2, SerialNumber=1
-usb usb1: Product: EHCI Host Controller
-usb usb1: Manufacturer: Linux 2.6.17-rc5-mm3 ehci_hcd
-usb usb1: SerialNumber: 0000:00:10.3
-usb usb1: configuration #1 chosen from 1 choice
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 6 ports detected
-USB Universal Host Controller Interface driver v3.0
-ACPI (acpi_bus-0192): Device `USB6]is not power manageable [20060310]
-ACPI: PCI Interrupt 0000:00:10.0[A] -> Link [LNKA] -> GSI 11 (level, 
-low) -> IRQ 11
-uhci_hcd 0000:00:10.0: UHCI Host Controller
-uhci_hcd 0000:00:10.0: new USB bus registered, assigned bus number 2
-uhci_hcd 0000:00:10.0: irq 11, io base 0x0000d000
-usb usb2: new device found, idVendor=0000, idProduct=0000
-usb usb2: new device strings: Mfr=3, Product=2, SerialNumber=1
-usb usb2: Product: UHCI Host Controller
-usb usb2: Manufacturer: Linux 2.6.17-rc5-mm3 uhci_hcd
-usb usb2: SerialNumber: 0000:00:10.0
-usb usb2: configuration #1 chosen from 1 choice
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 2 ports detected
-ACPI (acpi_bus-0192): Device `USB7]is not power manageable [20060310]
-ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
-ACPI: PCI Interrupt 0000:00:10.1[B] -> Link [LNKB] -> GSI 11 (level, 
-low) -> IRQ 11
-uhci_hcd 0000:00:10.1: UHCI Host Controller
-uhci_hcd 0000:00:10.1: new USB bus registered, assigned bus number 3
-uhci_hcd 0000:00:10.1: irq 11, io base 0x0000d400
-usb usb3: new device found, idVendor=0000, idProduct=0000
-usb usb3: new device strings: Mfr=3, Product=2, SerialNumber=1
-usb usb3: Product: UHCI Host Controller
-usb usb3: Manufacturer: Linux 2.6.17-rc5-mm3 uhci_hcd
-usb usb3: SerialNumber: 0000:00:10.1
-usb usb3: configuration #1 chosen from 1 choice
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 2 ports detected
-ACPI (acpi_bus-0192): Device `USB8]is not power manageable [20060310]
-ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 10
-ACPI: PCI Interrupt 0000:00:10.2[C] -> Link [LNKC] -> GSI 10 (level, 
-low) -> IRQ 10
-uhci_hcd 0000:00:10.2: UHCI Host Controller
-uhci_hcd 0000:00:10.2: new USB bus registered, assigned bus number 4
-uhci_hcd 0000:00:10.2: irq 10, io base 0x0000d800
-usb usb4: new device found, idVendor=0000, idProduct=0000
-usb usb4: new device strings: Mfr=3, Product=2, SerialNumber=1
-usb usb4: Product: UHCI Host Controller
-usb usb4: Manufacturer: Linux 2.6.17-rc5-mm3 uhci_hcd
-usb usb4: SerialNumber: 0000:00:10.2
-usb usb4: configuration #1 chosen from 1 choice
-hub 4-0:1.0: USB hub found
-hub 4-0:1.0: 2 ports detected
-usb 1-4: new high speed USB device using ehci_hcd and address 3
-ehci_hcd 0000:00:10.3: Unlink after no-IRQ?  Controller is probably 
-using the wrong IRQ.
-usb 1-4: device not accepting address 3, error -110
-usb 1-4: new high speed USB device using ehci_hcd and address 4
-usb 1-4: device not accepting address 4, error -110
-usb 1-4: new high speed USB device using ehci_hcd and address 5
-usb 1-4: device not accepting address 5, error -110
-usb 1-4: new high speed USB device using ehci_hcd and address 6
-usb 1-4: device not accepting address 6, error -110
-usb 2-2: new full speed USB device using uhci_hcd and address 2
-usb 2-2: new device found, idVendor=0731, idProduct=0528
-usb 2-2: new device strings: Mfr=0, Product=0, SerialNumber=0
-usb 2-2: configuration #1 chosen from 1 choice
-usbcore: registered new driver usblp
-drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
-Initializing USB Mass Storage driver...
-usbcore: registered new driver usb-storage
-USB Mass Storage support registered.
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.6:USB HID core driver
+Does matroxfb know which VC number it is drawing too? If so, we could
+move the mapping between head and VC down to an attribute on the
+matroxfb driver. That would allow the general case of the VC layer
+binding to be simplified to opening a single driver.
+
+That is not an attribute you want long term on the matroxfb driver,
+but all of this would get more cleanly sorted out when a user space
+implementation happens.
+
+> (Note1: fbcon already has support to selectively bind/unbind drivers
+> to specific tty's, using the con2fbmap utility.)
+
+Could a variation on this be used to bind the matrox heads to a
+specific tty? Is that binding happening inside fbcon or the vt layer?
+
+>
+> So what we have is control for wholescale binding and unbinding of
+> drivers, which essentially results in only 1 driver loaded at one time.
+>
+> (Note2: fbcon already has an option to determine what range of vc's to
+> control, as a kernel boot parameter, so we can't just drop something
+> that's already supported by one driver at least.  Though I know of no one,
+> including myself, who uses this feature.)
+>
+> >
+> > At some future point I would like to explore pushing the VT system out
+> > to user space where it becomes much easier to make it multi-user and
+> > multi-head. If you do that, something like a single user, in-kernel
+> > system management console makes more sense.
+>
+> Yes.
+>
+> Tony
+>
+>
+>
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

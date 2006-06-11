@@ -1,32 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWFKRbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWFKRyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWFKRbd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 13:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWFKRbd
+	id S1750735AbWFKRyx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 13:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWFKRyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 13:31:33 -0400
-Received: from 8.ctyme.com ([69.50.231.8]:17339 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S1750737AbWFKRbc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 13:31:32 -0400
-Message-ID: <448C536F.9070006@perkel.com>
-Date: Sun, 11 Jun 2006 10:31:27 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-CC: linux-kernel@vger.kernel.org
+	Sun, 11 Jun 2006 13:54:53 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:17571 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750735AbWFKRyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 13:54:52 -0400
 Subject: Re: VGER does gradual SPF activation  (FAQ matter)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060611160243.GH20700@vanheusden.com>
 References: <20060610222734.GZ27502@mea-ext.zmailer.org>
-In-Reply-To: <20060610222734.GZ27502@mea-ext.zmailer.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	 <20060611160243.GH20700@vanheusden.com>
+Content-Type: text/plain
+Date: Sun, 11 Jun 2006 13:54:57 -0400
+Message-Id: <1150048497.14253.140.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While I support your desire to get rid of spam, SPF doesn't work. It's 
-hopelessly broken and it needs to die in favor of some real solution. 
-I'm in the spam filtering business http://www.junkemailfilter.com and I 
-tried hard to get anything useful out of this technology and it's just 
-plain useless.
+On Sun, 2006-06-11 at 18:02 +0200, Folkert van Heusden wrote:
+> Hmmm.
+> What about using spamhaus.org sbl+xbl list?
+> I used to receive 1200 spam messages a day, with spamhaus only half of
+> that.
+
+What about doing nothing?  The percentage of spam on LKML is vanishingly
+small.
+
+Lee
 

@@ -1,88 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWFKWEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWFKWFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWFKWEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 18:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWFKWEZ
+	id S1751077AbWFKWFa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 18:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWFKWFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 18:04:25 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:8124 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750956AbWFKWEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 18:04:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=T0Ir9BC4heBjC0eCA3ykyz8NdFixxSpQ0waLkTQP2quls9/qUPbliXrbafGBf2BdEaDEggLhplNNzhwv9CZXT0BtXJyslmSHPfrxtQePfULaUhlxWhP2uUjH1u4IM1z9lpK9egsXs43gRvY4aVKCdZqp3Hof/tnVfC7PaxjJxL8=
-Message-ID: <448C83AD.9060200@gmail.com>
-Date: Mon, 12 Jun 2006 04:57:17 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: linux-fbdev-devel@lists.sourceforge.net
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 0/7] Detaching fbcon
-References: <44856223.9010606@gmail.com> <448C19D7.5010706@t-online.de>
-In-Reply-To: <448C19D7.5010706@t-online.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 11 Jun 2006 18:05:30 -0400
+Received: from waste.org ([64.81.244.121]:46002 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751077AbWFKWF3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 18:05:29 -0400
+Date: Sun, 11 Jun 2006 16:55:30 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: [PATCH] x86 built-in command line
+Message-ID: <20060611215530.GH24227@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Knut Petersen wrote:
-> Antonino A. Daplas wrote:
-> 
->> Overall, this feature is a great help for developers working in the
->> framebuffer or console layer.  
->>
-> Well, it has long been possible to load / unload framebuffer hardware
-> drivers using the vfb module as an intermediate step. It even has been
-> possible to load both vesafb and another framebuffer driver for the same
-> hardware, to assign vesafb to tty{a,b,c..}, the other framebuffer driver
-> to tty{m,n,o...} and to switch between those drivers using the usual
-> keyboard hotkeys.
-> 
-> So the main addition of your patchset is the possibility to replace
-> fbcon and helper modules, a nice feature I missed in the past.
-> 
-> But should a framebuffer driver terminate and leave the hardware in
-> graphics mode or in text mode? Up to now that was not a real question,
-> as we all knew that another framebuffer driver would take over control.
-> With your patches it is possible that a user really wants to switch to text
-> mode and to remove the complete fbcon layer. So should we switch the
-> hardware to text mode upon unloading a framebuffer driver?
-> 
-> Maybe unbinding of the framebuffer console is not followed by an
-> unloading of the framebuffer module. You tell us that an
-> "echo 1 > /sys/class/graphics/fbcon/detach" has the simple effect of a
-> corrupt display unless vbetools is used. No, that´s not ok.
-> 
-> Think about an echo 1 > /sys/class/graphics/fbcon/detach inside of an
-> xterm session.
-> 
-> I think we need new fbops, eg.
-> 
->     int fb_fbcon_unbind(...)
->     int fb_fbcon_bind(...)
-> 
-> If these are not implemented, unbinding is not allowed. Any requests to do
-> so will be ignored.
+This patch allows building in a kernel command line on x86 as is
+possible on several other arches.
 
-We'll use fb_restore_state and fb_save_state if available, yes, but I don't
-think we need to implement unbind and bind.  For one, as Jon and Andrew
-has pointed out, drivers should have no concept of binding. (That's why the
-patch has escalated to VT binding).
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-And why force drivers to have an fb_restore_state/fb_save_state just to
-unbind/bind?  This is going to penalize 10's of drivers that don't need
-it.  Just make this feature an experimental kconfig option, or make this
-available as a boot option.
+Index: linux/arch/i386/Kconfig
+===================================================================
+--- linux.orig/arch/i386/Kconfig	2006-05-26 16:18:13.000000000 -0500
++++ linux/arch/i386/Kconfig	2006-06-11 17:01:01.000000000 -0500
+@@ -763,6 +763,20 @@ config HOTPLUG_CPU
+ 	  /sys/devices/system/cpu.
+ 
+ 
++config CMDLINE_BOOL
++	bool "Default bootloader kernel arguments" if EMBEDDED
++
++config CMDLINE
++	string "Initial kernel command string" if EMBEDDED
++	depends on CMDLINE_BOOL
++	default "root=/dev/hda1 ro"
++	help
++	  On some systems, there is no way for the boot loader to pass
++	  arguments to the kernel. For these platforms, you can supply
++	  some command-line options at build time by entering them
++	  here. In most cases you will need to specify the root device
++	  here.
++
+ endmenu
+ 
+ 
+Index: linux/arch/i386/kernel/setup.c
+===================================================================
+--- linux.orig/arch/i386/kernel/setup.c	2006-05-26 16:18:13.000000000 -0500
++++ linux/arch/i386/kernel/setup.c	2006-06-11 16:23:51.000000000 -0500
+@@ -713,6 +713,10 @@ static void __init parse_cmdline_early (
+ 	int len = 0;
+ 	int userdef = 0;
+ 
++#ifdef CONFIG_CMDLINE_BOOL
++	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
++#endif
++
+ 	/* Save unparsed command line copy for /proc/cmdline */
+ 	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
+ 
 
-This feature is in a state of flux, so this is definitely not its final
-form, nor the last one in a series.  The main goal here is to make the fbdev
-system synchronize with other tools/modules whether it be for state
-preservation, assistance on mode setting, etc. We need this if we are going
-to make the different architectures work together.
 
-Tony
-
+-- 
+Mathematics is the supreme nostalgia of our time.

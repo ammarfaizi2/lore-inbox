@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWFKKZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWFKK25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751587AbWFKKZU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 06:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWFKKZT
+	id S932110AbWFKK25 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 06:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWFKK25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 06:25:19 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:37772 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751586AbWFKKZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 06:25:18 -0400
-Date: Sun, 11 Jun 2006 12:25:04 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Mikael Pettersson <mikpe@it.uu.se>
-cc: rdunlap@xenotime.net, akpm@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] [2.6.17-rc6] Section mismatch in drivers/net/ne.o during
- modpost
-In-Reply-To: <200606110051.k5B0pLBI010621@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.61.0606111224320.13585@yvahk01.tjqt.qr>
-References: <200606110051.k5B0pLBI010621@harpo.it.uu.se>
+	Sun, 11 Jun 2006 06:28:57 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:37434 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932110AbWFKK25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 06:28:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gCbdCRLS6UPXLCvVsXgbQtP9QlQeJkU78WLZRlCpJxdkfLWtSKE9b79Kv+63svNNl6gjD6EbUmuYNWLgo4d9ZL0o5MvMecC2mPmPgwdP5EE8lTG2eqgHWWzy1Trr+edwMgHCgocMZI0TgdDa6t/4vpzsCgILJA0OAr98IlIEg2Y=
+Message-ID: <20f65d530606110328l5287cdf1ha4579f4120ed8ae9@mail.gmail.com>
+Date: Sun, 11 Jun 2006 22:28:56 +1200
+From: "Keith Chew" <keith.chew@gmail.com>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>
+Subject: Re: IRQ sharing: BUG: spinlock lockup on CPU#0
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200606110211_MC3-1-C21E-301E@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200606110211_MC3-1-C21E-301E@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->The messages above are from when I used gcc-4.1.1.
->With gcc-3.2.3 I only see a single warning.
->
-FTR, gcc 4.0.x is also 'affected'.
+Hi Chuck
 
+> Whether IO-APIC caused this bug or not, it's hard to say...
+>
 
-Jan Engelhardt
--- 
+We tested it with pci=noacpi, and it has been stable for 36 hours now.
+It looks like it has something to do with that.
+
+Regards
+Keith

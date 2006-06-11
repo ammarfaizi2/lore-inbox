@@ -1,123 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWFKAVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161050AbWFKAoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbWFKAVY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jun 2006 20:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbWFKAVY
+	id S1161050AbWFKAoS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jun 2006 20:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbWFKAoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jun 2006 20:21:24 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:59108 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932540AbWFKAVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jun 2006 20:21:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=a7MThKdSDRRnlTPPW0n9cO+5UEQ17aUkOxL8CADaZwGXE89fQR/fWUGeJwHZAFj3g5YNsY7NPHx38VJhL9SzheHT139uP3IMx/j6CgpA5UD5PXv8WgBG4JVcNaJYPHd3Mj1I5Jn8WS3qCntXkcYrN/XzfnEU5VYrWOIXXBgQakQ=
-Message-ID: <448B61F9.4060507@gmail.com>
-Date: Sun, 11 Jun 2006 08:21:13 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 5/5] VT binding: Add new doc file describing the feature
-References: <44893407.4020507@gmail.com>	 <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>	 <448AC8BE.7090202@gmail.com>	 <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>	 <448B38F8.2000402@gmail.com> <9e4733910606101644j79b3d8a5ud7431564f4f42c7f@mail.gmail.com>
-In-Reply-To: <9e4733910606101644j79b3d8a5ud7431564f4f42c7f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 10 Jun 2006 20:44:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61098 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161050AbWFKAoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jun 2006 20:44:17 -0400
+Subject: Re: VGER does gradual SPF activation  (FAQ matter)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606102015410.30593@cuia.boston.redhat.com>
+References: <20060610222734.GZ27502@mea-ext.zmailer.org>
+	 <1149980791.18635.197.camel@shinybook.infradead.org>
+	 <Pine.LNX.4.64.0606102015410.30593@cuia.boston.redhat.com>
+Content-Type: text/plain
+Date: Sun, 11 Jun 2006 01:44:09 +0100
+Message-Id: <1149986649.14664.1.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> > I may be looking at the problem a little differently. I see the
->> > drivers like fb, vga, etc as registering with the console and saying
->> > they are capable of providing console services. I then see the console
->> > system as opening one of the registered devices. A driver is free to
->> > register/unregister whenever it wants to as long as it isn't open by
->> > the console system. Console can only open one driver at a time.
->>
->> No, this isn't true.  You can have multiple console drivers active,
->> that's why you have a first and last parameter in take_over_console().
->> Thus at boot time, the system driver will take consoles 0 - 63.
->> Later on when a driver loads, it can take over consoles 0 - 7, leaving
->> consoles 8 - 63 to the system driver.
->>
->> To put it another way, console drivers can register for consoles 0 - 63,
->> but the user may choose to use it only for consoles 0 - 7.
->>
->> This is another reason for the system driver, it makes the unbinding
->> behavior predictable.  Without a system driver, guessing which driver
->> replaces the just unbound one may become just a tad bit confusing for
->> the typical user.
-> 
-> I find the whole console/tty layer to be quite confusing to talk
-> about. I am mixing up console as in where printk goes and console the
-> video card login device. The part about making everything equal was
-> directed towards the printk output device.
-> 
+On Sat, 2006-06-10 at 20:16 -0400, Rik van Riel wrote:
+> Think about it for a second.  Do you *really* want those
+> something@alumni.mit.edu people on lkml? :) 
 
-Sorry about that, I probably should use VT or VC for the main topic
-of this thread, and plain 'console' for where the printk output goes.
+I'd rather not exclude them by making ill-conceived, unilateral and
+incompatible changes to the way that SMTP email works.
 
-This illustration might help, though I'm not sure if it's entirely
-correct. The main topic of this thread deals with the VT branch only.
-
-Console
-   :
-   :-----:-----------:--- etc
-   :     :           :
-   VT    Serial      Net
-   :
-   :--------:-------:-----etc
-   :        :       : 
-   vgacon   fbcon   newport_con
-   :        :       :
-   :        :       :
-   hardware fbdev   hardware
-            :
-            :
-            hardware
-
-
-> I see now that you can have tty0-7 assigned to a different console
-> driver than tty8-63.
-> Why do I want to do this?
-
-Multi-head.  I can have vgacon on the primary card for tty0-7,
-fbcon on the secondary card for tty8-16.
-
-> Why do we need 64 predefined tty devices?
-
-I don't know, but no one's stopping you to redefine MAX_NR_CONSOLES to
-a lower or higher number.
-
-> 
-> Googling around the only example I could find was someone with a VGA
-> card and a Hercules card. They setup 8 consoles on each card.
-> 
->> > Over time it would nice if these all merged to a single
->> > interchangeable interface. I would really like to be able to
->> > dynamically switch to serial/net while debugging a video driver. Is
->> > there some fundamental reason why these can't be merged?
->>
->> It's already possible to redirect the system messages to two different
->> console classes, ie with the boot parameter:
->>
->> console=tty0,ttyS0 /* direct output to VT and serial console */
->>
->> And you can already choose the console you want by adjusting
->> /etc/inittab.
-> 
-> How can I change where printk are going at run-time? I didn't know you
-> could do that.
-
-I really don't know.  Maybe we have some kind of entry in /proc somewhere?
-
-Tony
-
+-- 
+dwmw2
 

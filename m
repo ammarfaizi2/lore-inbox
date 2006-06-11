@@ -1,76 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWFKFKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbWFKFR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161076AbWFKFKT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 01:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbWFKFKT
+	id S1161079AbWFKFR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 01:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbWFKFR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 01:10:19 -0400
-Received: from ns.suse.de ([195.135.220.2]:29383 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161076AbWFKFKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 01:10:17 -0400
-From: Neil Brown <neilb@suse.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Date: Sun, 11 Jun 2006 15:09:55 +1000
+	Sun, 11 Jun 2006 01:17:29 -0400
+Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:41155 "EHLO
+	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1161079AbWFKFR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jun 2006 01:17:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=earthlink.net;
+  b=X0Ie9z/T3/gM6Oo2HTRyvDBKlnwfqwdmLRmfmNNHsPvgwhEZ1aEsi7ZzlpdHSE3+;
+  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
+Message-ID: <193701c68d16$54cac690$0225a8c0@Wednesday>
+From: "jdow" <jdow@earthlink.net>
+To: <davids@webmaster.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+Date: Sat, 10 Jun 2006 22:17:26 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Message-ID: <17547.42403.669502.694618@cse.unsw.edu.au>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-In-Reply-To: message from David Woodhouse on Sunday June 11
-References: <20060610222734.GZ27502@mea-ext.zmailer.org>
-	<1149980791.18635.197.camel@shinybook.infradead.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120b4d35498f734f7ad5a72d0288f62def6a30146a21c727840350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 71.116.167.175
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday June 11, dwmw2@infradead.org wrote:
-> On Sun, 2006-06-11 at 01:27 +0300, Matti Aarnio wrote:
-> > Now that there is even an RFC published about SPF...
+From: "David Schwartz" <davids@webmaster.com>
+
+>> Rather than inject emotions let's play a little bit with facts. This is
+>> excerpts from a SpamAssassin report for about 82000 emails.
+>>
+>> TOP SPAM RULES FIRED
+>> ------------------------------------------------------------
+>> RANK    RULE NAME              COUNT %OFRULES %OFMAIL %OFSPAM  %OFHAM
+>> ------------------------------------------------------------
+>>   49    SPF_SOFTFAIL           1804     0.42    2.20    8.31    0.01
+>>   72    SPF_HELO_PASS          1112     0.26    1.36    5.13   47.45
+>>   78    SPF_PASS                994     0.23    1.21    4.58   45.53
+>>   92    SPF_HELO_SOFTFAIL       772     0.18    0.94    3.56    0.03
+>>  113    SPF_FAIL                589     0.14    0.72    2.71    0.00
+>>  177    SPF_HELO_FAIL           352     0.08    0.43    1.62    0.00
+>>
+>> Stated from the opposite view
+>>
+>> TOP HAM RULES FIRED
+>> ------------------------------------------------------------
+>> RANK    RULE NAME              COUNT %OFRULES %OFMAIL %OFSPAM  %OFHAM
+>> ------------------------------------------------------------
+>>    5    SPF_HELO_PASS          28563     7.20   34.88    5.13   47.45
+>>    6    SPF_PASS               27409     6.90   33.47    4.58   45.53
+>>
+>> And so forth.
+>>
+>> People here should be smart enough to draw their own conclusions from
+>> raw data.
 > 
-> Please, don't do this. SPF makes assumptions about email which are just
-> not true; it rejects perfectly valid mail.
+> Yeah, that you measured the wrong thing. SPF does not distinguish spam from
+> non-spam.
 > 
-> http://david.woodhou.se/why-not-spf.html
+> What percentage of emails with forged sender addresses passed an SPF check?
+> What percentage of emails with forged sender addresses failed an SPF check?
+> What percentage of emails that correctly identified their senders passed an
+> SPF check? What percentage of emails that correctly identified their senders
+> failed an SPF check?
+> 
+> SPF is an anti-forgery tool. It helps to prevent joe-jobs and false claims
+> of being the victim of a joe-job.
 
-Conversely, please do do this :-)
+I'll add to my offlist reply - SPF can be forged, as I noted. And it
+really does not matter at all if you have a good or bad SPF record. It
+does not tell you whether or not a message is to be accepted or rejected,
+has bountiful information content or is a troll, or anything else for
+that matter. It simply says, "When I went and looked at the guy's claimed
+mail source the spf record said he was who he said he was." Who vouches
+for the spf record? It seems tautological for me to stand before you
+ladies and gentlemen here and ingenuously proclaim that I am who I
+proclaim I am because I have vouched for myself with an spf record
+I created for myself. This is what spammers did for awhile. That has
+dropped off because it didn't help them and didn't much hurt them
+either.
 
-I agree with David that SPF breaks mail-as-we-know-it, but I cannot
-help thinking that mail-as-we-know-it is way too permissive and bits
-of it need to be broken (the old egg/omelette analogy).
+This is a LONG AGO dead discussion on the SpamAssassin user's list.
+Those arguing about this issue should dig through the old message
+archives on the list.
 
-And I think that kernel.org is a great place to start with pushing
-SPF, because if a few mail items go astray to-or-from it really isn't
-the end of the world.
+It is probably a good thing for VGER to vouch for its own mailing.
+It is not much of a good thing for VGER to do anything else about SPF.
 
-- kernel.org should publish very strict SPF records that sites with
-  any gumption can reject forged mail claiming to be from kernel.org.
-  If systems drop mail incorrectly because of this, the end-recipient
-  can follow linux-kernel any number of other ways, and can badger
-  their local admins to "get it right".
-
-- kernel.org should reject mail that earns an SPF 'fail' and should
-  grey-list mail that earns an SPF 'softfail' (so the sending system
-  will have to retry once). Any mail that incorrectly gets rejected
-  will hopefully have a link to a web page that explains the problem
-  and lists a number of free-mail sites where anyone can sign up and
-  safely send mail to kernel.org.  So people who need to get mail
-  through still can, while they complain to their admins about
-  configuring things properly.
-
-I think kernel.org is a great site to be an early adopter because:
-  - the mail it transports isn't critical
-  - it interacts with a very large number of mail sites
-  - it's customers are reasonably technology-savvy. 
-
-sourceforge would be another good site.
-
-
-(No, SPF doesn't stop spam, but it can increase accountability so that
-white/black lists can begin to be more usable).
-
-NeilBrown
+{^_^}   Joanne Dow said that.

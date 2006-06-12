@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWFLGmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWFLGt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWFLGmX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 02:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWFLGmX
+	id S1751055AbWFLGt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 02:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWFLGt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 02:42:23 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:14354 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751003AbWFLGmW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 02:42:22 -0400
-Date: Mon, 12 Jun 2006 16:41:22 +1000
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Valdis.Kletnieks@vt.edu,
-       Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	Mon, 12 Jun 2006 02:49:59 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54204
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751055AbWFLGt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 02:49:58 -0400
+Date: Sun, 11 Jun 2006 23:50:05 -0700 (PDT)
+Message-Id: <20060611.235005.51843280.davem@davemloft.net>
+To: mingo@elte.hu
+Cc: herbert@gondor.apana.org.au, stefanr@s5r6.in-berlin.de,
+       Valdis.Kletnieks@vt.edu, jirislaby@gmail.com, akpm@osdl.org,
        arjan@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
+       linux1394-devel@lists.sourceforge.net, netdev@vger.kernel.org
 Subject: Re: 2.6.17-rc5-mm3-lockdep -
-Message-ID: <20060612064122.GA1101@gondor.apana.org.au>
-References: <200606060250.k562oCrA004583@turing-police.cc.vt.edu> <44852819.2080503@gmail.com> <4485798B.4030007@s5r6.in-berlin.de> <4485AFB9.3040005@s5r6.in-berlin.de> <20060607071208.GA1951@gondor.apana.org.au> <20060612063807.GA23939@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20060612063807.GA23939@elte.hu>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+References: <4485AFB9.3040005@s5r6.in-berlin.de>
+	<20060607071208.GA1951@gondor.apana.org.au>
+	<20060612063807.GA23939@elte.hu>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 08:38:07AM +0200, Ingo Molnar wrote:
-> 
+From: Ingo Molnar <mingo@elte.hu>
+Date: Mon, 12 Jun 2006 08:38:07 +0200
+
 > yeah. I'll investigate - it's quite likely that sk_receive_queue.lock 
 > will have to get per-address family locking rules - right?
 
-Yes that's the issue.
+That's right.
 
 > Maybe it's enough to introduce a separate key for AF_UNIX alone (and 
 > still having all other protocols share the locking rules for 
 > sk_receive_queue.lock) , by reinitializing its spinlock after 
 > sock_init_data()?
 
-This could work.  AF_UNIX is probably the only family that does not
-interact with hardware.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+AF_NETLINK and/or AF_PACKET might be in a similar situation
+as AF_UNIX.

@@ -1,99 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWFLU7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWFLVDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWFLU7j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 16:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWFLU7j
+	id S932093AbWFLVDM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWFLVDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 16:59:39 -0400
-Received: from waste.org ([64.81.244.121]:61065 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932086AbWFLU7j (ORCPT
+	Mon, 12 Jun 2006 17:03:11 -0400
+Received: from relay03.pair.com ([209.68.5.17]:53260 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S932093AbWFLVDK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 16:59:39 -0400
-Date: Mon, 12 Jun 2006 15:49:25 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Tim Bird <tim.bird@am.sony.com>
-Subject: Re: [PATCH] x86 built-in command line
-Message-ID: <20060612204925.GT24227@waste.org>
-References: <20060611215530.GH24227@waste.org> <200606121712.k5CHClUE017185@terminus.zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606121712.k5CHClUE017185@terminus.zytor.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 12 Jun 2006 17:03:10 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Mon, 12 Jun 2006 15:55:23 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Andrew Clayton <andrew@digital-domain.net>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: VMSPLIT kernel config option
+In-Reply-To: <20060612215434.0b8c873f@alpha.digital-domain.net>
+Message-ID: <Pine.LNX.4.64.0606121552380.17886@turbotaz.ourhouse>
+References: <20060612215434.0b8c873f@alpha.digital-domain.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 10:12:47AM -0700, H. Peter Anvin wrote:
-> Followup to:  <20060611215530.GH24227@waste.org>
-> By author:    Matt Mackall <mpm@selenic.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > This patch allows building in a kernel command line on x86 as is
-> > possible on several other arches.
-> > 
-> > Index: linux/arch/i386/kernel/setup.c
-> > ===================================================================
-> > --- linux.orig/arch/i386/kernel/setup.c	2006-05-26 16:18:13.000000000 -0500
-> > +++ linux/arch/i386/kernel/setup.c	2006-06-11 16:23:51.000000000 -0500
-> > @@ -713,6 +713,10 @@ static void __init parse_cmdline_early (
-> >  	int len = 0;
-> >  	int userdef = 0;
-> >  
-> > +#ifdef CONFIG_CMDLINE_BOOL
-> > +	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
-> > +#endif
-> > +
-> >  	/* Save unparsed command line copy for /proc/cmdline */
-> >  	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
-> >  
-> 
-> NAK.
-> 
-> a. Please make the patch available for x86-64 as well as x86.  The two
-> are coupled enough that they need to agree.
+On Mon, 12 Jun 2006, Andrew Clayton wrote:
 
-I don't think that's a show-stopper. I'll provide one after we decide
-how this should work.
- 
-> b. This patch will override a user-provided command line if one
-> exists.  This is the wrong behaviour; instead, the builtin command
-> line should only apply if no user-specified command line is present.
+> Hi,
+>
+> Is it meant, that the VMSPLIT_* options are only enabled
+> "if EMBEDDED"?
 
-There are four possible behaviors:
+Indeed. Unfortunately, adjusting VMSPLIT appeared to break the assumptions 
+of some programs like Valgrind (and hence caused a regression for some 
+users). VMSPLIT was thusly "hidden" under CONFIG_EMBEDDED such that the only
+people who would be inclined to mess with the setting were people already tinkering 
+with "low-level" settings if you will.
 
-a) internal supercedes external (what's in the patch)
-b) external supercedes internal (what you proposed)
-c) external is appended to internal (what Tim proposed)
-d) internal is appended to external (not very interesting)
+> See line 470 of arch/i386/Kconfig
+>
+> This is with 2.6.17-rc6-git4
+>
+>
+> Cheers
+>
+> Andrew
 
-And there are some possible uses:
-
-1) bootloader doesn't support command line
-2) bootloader has hardcoded or otherwise difficult-to-change command line
-3) automated testing for tftp boot, etc.
-4) bypassing boot protocol command line length (not yet supported)
-5) setting defaults like ACPI off, etc.
-
-(a) works for 1, 2, 3, and 4.
-(b) works for 1, 3, and 4, provided you clear the command line in your
-boot loader
-(c) works for 1, 3, and 4, provided you're not trying to override
-earlier arguments
-
-(5) generally is unworkable because our parser doesn't generally do the
-right thing for options like "acpi=on acpi=off" (though it might work
-in the specific case of acpi, haven't checked). If, for instance, you
-try to override console, you'll get two consoles.
-
-So I think (a) is the way to go. If there's a use case for (b) that's
-important, it's not jumping out at me. Finally, at least the arch I
-inspected when preparing this patch had gone with (a) too.
-
-(As an example of (2), the last x86 bootloader I dealt with was written
-in Forth, and getting a fresh build of it meant getting some cycles
-from the last two Forth hackers on the planet.)
-
--- 
-Mathematics is the supreme nostalgia of our time.
+Thanks,
+Chase

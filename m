@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752115AbWFLQL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752118AbWFLQQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752115AbWFLQL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 12:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752116AbWFLQL0
+	id S1752118AbWFLQQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 12:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752121AbWFLQQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 12:11:26 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:56200
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1752115AbWFLQL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 12:11:26 -0400
-Message-ID: <448D922F.80801@microgate.com>
-Date: Mon, 12 Jun 2006 11:11:27 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Mon, 12 Jun 2006 12:16:29 -0400
+Received: from wr-out-0506.google.com ([64.233.184.233]:1500 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1752118AbWFLQQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 12:16:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lcj11kopYef9z25TGKGQC6DjPUiJpTYJGPw3ae3gJtP+hDkvXuPqOFffWe0tcopEjg2r25ADcLz+LeyiN2F7RIJ6vBltzG2I+c5t/OaNyoZh5VRoOZz/8EXU60WvWYQFq2yDzFaVW2oCjqwJ5sFSyKVmQQLbc/EHKEXMvKxRZxs=
+Message-ID: <d120d5000606120916h48b4037ei1bbc54ebc645134@mail.gmail.com>
+Date: Mon, 12 Jun 2006 12:16:28 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Jerome Pinot" <ngc891@gmail.com>
+Subject: Re: Patch for atkbd.c from Ubuntu
+Cc: "Pete Zaitcev" <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <88ee31b70606120901ud36842eu99355a546fea59cc@mail.gmail.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16.18 kernel freezes while pppd is exiting
-References: <200606081909_MC3-1-C1F0-8B6B@compuserve.com>	 <1150124830.3703.6.camel@amdx2.microgate.com> <1150127588.25462.7.camel@localhost.localdomain>
-In-Reply-To: <1150127588.25462.7.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060524113139.e457d3a8.zaitcev@redhat.com>
+	 <200605290059.32302.dtor_core@ameritech.net>
+	 <20060528233420.9de79795.zaitcev@redhat.com>
+	 <200606120049.13974.dtor_core@ameritech.net>
+	 <20060612002650.6f61a83b.zaitcev@redhat.com>
+	 <88ee31b70606120901ud36842eu99355a546fea59cc@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->> 	spin_unlock_irqrestore(&tty->buf.lock, flags);
->>+	clear_bit(TTY_FLUSHING, &tty->flags);
-> 
-> 
-> Shouldn't those two be reversed if you want to go with this path.
+On 6/12/06, Jerome Pinot <ngc891@gmail.com> wrote:
+> On 6/12/06, Pete Zaitcev <zaitcev@redhat.com> wrote:
+> > On Mon, 12 Jun 2006 00:49:13 -0400, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> [...]
+> > Sounds good. Hangul is usually spelled without 'E' in the West, but
+> > I am not Korean, I can't know what is right.
+> >
+> > -- Pete
+>
+> Maybe a good time, at last, to correct this mispelling ?
+>
+> http://lists.osdl.org/pipermail/kernel-janitors/2005-October/004970.html
+>
 
-I don't see that is necessary.
+Yep. Could you please resend me the patch?
 
- > How is this occuring anyway the flush_to_ldisc path should never re-enter.
-
-If a driver has low_latency set, flush_to_ldisc
-can be called from both scheduled work (due to
-hitting TTY_DONT_FLIP) and directly from an ISR.
-On an SMP system, they can run in parallel.
-
-I don't know for sure that is the path being hit,
-it could be some other odd combination.
-But there is no inherent serialization
-of flush_to_ldisc.
+Thanks!
 
 -- 
-Paul Fulghum
-Microgate Systems, Ltd.
+Dmitry

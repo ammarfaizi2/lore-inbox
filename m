@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWFLJaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWFLJfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWFLJaY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 05:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFLJaY
+	id S1751279AbWFLJfV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 05:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWFLJfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 05:30:24 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51435 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751350AbWFLJaV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 05:30:21 -0400
-Subject: Re: 2.6.17-rc6-rt3
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20060612092023.GA30872@elte.hu>
-References: <20060610082406.GA31985@elte.hu>
-	 <1150104040.3835.3.camel@frecb000686>  <20060612092023.GA30872@elte.hu>
-Date: Mon, 12 Jun 2006 11:35:08 +0200
-Message-Id: <1150104909.3835.5.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 12/06/2006 11:34:01,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 12/06/2006 11:34:03,
-	Serialize complete at 12/06/2006 11:34:03
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+	Mon, 12 Jun 2006 05:35:21 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:10804 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751279AbWFLJfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 05:35:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=V6a3mdo7lCX742vA47Kr4QLCSFAo79Bkci+cVKsr/131dPwqWmbgQedwFoF5ZF8E4Bzvf25cbN8TfAH1yKQEPaFVcbzA8bh9cuUTU1cFtZEElEn8gE48UUelgmWfTOeZOsWVeffkuWgh8BmjMa6W2ZHcBMkZ1zmueTfW6M0rE+0=
+Message-ID: <b0943d9e0606120235u62110bfcj4e1eeb64eab94a5c@mail.gmail.com>
+Date: Mon, 12 Jun 2006 10:35:19 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <1150103864.20886.88.camel@lappy>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060611111815.8641.7879.stgit@localhost.localdomain>
+	 <20060611112156.8641.94787.stgit@localhost.localdomain>
+	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
+	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
+	 <1150103864.20886.88.camel@lappy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 11:20 +0200, Ingo Molnar wrote:
-> * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
-> 
-> > > I think all of the regressions reported against rt1 are fixed, please 
-> > > re-report if any of them is still unfixed.
-> > 
-> >   Great, boots fine on my dual Xeon and solves the ping problem I was 
-> > having.
-> > 
-> >   Thomas, any hint at what was going on?
-> 
-> the problem was caused by a mismerge of the __raise_softirq_irqoff() 
-> changes of preempt-softirqs. In PREEMPT_SOFTIRQS, softirq activation 
-> means a wakeup of the softirq thread - hence __raise_softirq_irqoff() 
-> must wake up the softirq thead too. This didnt happen in -rt1 so the 
-> network softirq (which processes things like ping reply packets) got 
-> delayed to the natural softirq event - the next timer interrupt in the 
-> usual case. Hence depending on HZ you got a delay of 1-4-10 msecs 
-> (divided into two parts).
-> 
+On 12/06/06, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> > I need to do some tests to see how it works but I won't be able to use
+> > the radix_tree (as storing each location in the block would lead to a
+> > huge tree).
+>
+> A radix-priority-search-tree would allow to store intervals and query
+> addresses.
 
-  Thanks.
+Great, this would simplify things. I'll post a new version using this
+in the next days.
 
-  Sébastien.
+Thanks.
 
+-- 
+Catalin

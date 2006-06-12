@@ -1,68 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWFLL4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751897AbWFLMC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWFLL4O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 07:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751892AbWFLL4N
+	id S1751897AbWFLMC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 08:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751896AbWFLMC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 07:56:13 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:204 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750998AbWFLL4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 07:56:13 -0400
-Date: Mon, 12 Jun 2006 14:56:11 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Catalin Marinas <catalin.marinas@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-In-Reply-To: <20060612113637.GA14136@elte.hu>
-Message-ID: <Pine.LNX.4.58.0606121446130.7129@sbz-30.cs.Helsinki.FI>
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
- <20060611112156.8641.94787.stgit@localhost.localdomain>
- <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
- <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
- <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI> <20060612105345.GA8418@elte.hu>
- <Pine.LNX.4.58.0606121404080.7129@sbz-30.cs.Helsinki.FI> <20060612113637.GA14136@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jun 2006 08:02:27 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:41872 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751897AbWFLMC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 08:02:26 -0400
+Message-ID: <448D57CD.4030007@de.ibm.com>
+Date: Mon, 12 Jun 2006 14:02:21 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: Jay Lan <jlan@sgi.com>
+CC: Shailabh Nagar <nagar@watson.ibm.com>, balbir@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Chris Sturtivant <csturtiv@sgi.com>,
+       Peter Chubb <peterc@gelato.unsw.edu.au>
+Subject: Re: Merge of per task delay accounting (was Re: 2.6.18 -mm merge
+ plans)
+References: <20060604135011.decdc7c9.akpm@osdl.org> <4484D25E.4020805@in.ibm.com> <4486017F.8030308@watson.ibm.com> <4486073B.2040102@sgi.com>
+In-Reply-To: <4486073B.2040102@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2006, Ingo Molnar wrote:
-> but "supporting existing kernel coding style as-is" is not a must-have 
-> criterium for inclusion. While preserving semantics is strongly 
-> encouraged of course, a patch can change semantics (or can introduce 
-> restrictions) as long as it's common-sense or there is no other way out. 
-> The question is benefit vs. disadvantage, not a rigid "does it change 
-> semantics" rule.
+Jay Lan wrote:
+> Shailabh Nagar wrote:
+>> Balbir Singh wrote:
 
-Agreed.  I wasn't talking about general principles though but about the 
-current kmemleak annotations, which I still find lacking as-is.
-
-On Mon, 12 Jun 2006, Ingo Molnar wrote:
-> > I found at least two unacceptable false positive classes:
-> > 
-> >   - arch/i386/kernel/setup.c:
-> >     False positive because res pointer is stored in a global instance of
-> >     struct resource.
+>> Andrew,
+>>
+>> The only other new set of patches to be discussed in this context are the
+>> statistics-infrastructure patches from Martin Peschke.
+>>
+>> That infrastructure cannot meet the needs of delay accounting, CSA 
+>> etc. because
+>> - it only provides "user pull" model of getting stats whereas "kernel 
+>> push" is
+>> needed for delay accounting
 > 
-> there's no good way around this one but to annotate it in one way or 
-> another.
-
-Scanning bss and data sections is too expensive, I guess.  I would prefer 
-we create a separate section for gc roots but what you're suggesting is 
-ok as well.
- 
-On Mon, 12 Jun 2006, Ingo Molnar wrote:
-> >   - drivers/base/platform.c and fs/ext3/dir.c:
-> >     False positive because we allocate memory for struct + some extra
-> >     stuff.
-> > 
-> > At least the latter can be fixed as outlined by Catalin in another 
-> > mail.
+> Doesn't taskstats interface provide "user pull" request-reply model
+> also? Serious accounting needs to push accounting data as soon as
+> possible.
 > 
-> yes.
+>> - it uses a relatively slow interface unsuitable for high volumes of 
+>> data. 
 
-Indeed and should be fixed before inclusion.
+By design.
 
-				Pekka
+I think it would be fatal to report every event relevant
+to statistical data gathering up to user space. It's fine to have
+the kernel maintain counters and to provide preprocessed data.
+
+Given that, is there a need for a high-speed interface for a
+huge amount of unprocessed statistical data?
+
+However, the user interface is a just one building brick,
+which can be enhanced or replaced with moderate effort, if
+there is a need.
+
+ >> Each statistic has its own definition,
+
+Allowing users to restrict accounting to what they need in their
+particular case. Sensible defaults are usually available.
+
+>> needs to be read separately using ASCII,
+>> reading data continuously means open/read/close each time.....all of
+>> which is not very conducive to large structures being sent to userspace.
+
+Debugfs file are fine for larger structures.
+
+Unless one keeps reading statistics dozens of times per second,
+I don't see an issue with that.
+
+The question is: what are the requirements to be covered?
+
+> Yes, i second the point. It won't be able to catch up the traffic.
+> 
+>> - its oriented towards sampled data whereas taskstats isn't.
+>>
+>> So, we have a good consensus from existing/potential users of 
+>> taskstats and would
+>> very much appreciate it being included in 2.6.18.
+> 
+> Andrew, it has become clear that the community wants to see accounting
+> data processing being moved to userspace. Thus there is a need for a
+> common accounting interface to provide minimal works at kernel (via
+> hooks at fork and exit) and deliver data to userspace.
+
+Both, the statistics infrastructure on behalf of its exploiters as well
+as the exploiters of the taskstats interface do data preprocessing,
+that is, maintain counters in the kernel.
+User space counters won't perform, of course.
+
+AFAICS, actual differences are:
+- triggers for data delivery to user space
+   (statistics infrastructure: when user reads statistics through file,
+    taskstats: on certain task related events, right?)
+- and, therewith, frequency of data delivery to user space
+
+
+Martin
+

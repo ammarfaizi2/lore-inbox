@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932623AbWFLWYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWFLWZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932623AbWFLWYj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 18:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbWFLWYj
+	id S932119AbWFLWZi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 18:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWFLWZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 18:24:39 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:2271 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932623AbWFLWYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 18:24:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IkCFKAmcjYbSroHjXYryrUqxSEJqdNX3Ij4jiCz0tPQbEAjauLC24a/DQg7WNherUPu/Nn3xoXP1GJpxOO+6hRzkdqhU3N2OIsyb8SOI1bKA+hnYJV/gEBg7lP2snSDpX+T32q5MkNdAC9b3y6qnU4ORxT3BZ/n8apuzwnr+W4I=
-Message-ID: <b0943d9e0606121524x1ee55e25rdfa41e5d1edf9dbc@mail.gmail.com>
-Date: Mon, 12 Jun 2006 23:24:37 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Cc: "Pekka J Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060612192227.GA5497@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jun 2006 18:25:38 -0400
+Received: from mail.suse.de ([195.135.220.2]:40385 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932119AbWFLWZh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 18:25:37 -0400
+Date: Mon, 12 Jun 2006 15:23:04 -0700
+From: Greg KH <gregkh@suse.de>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb, error -28
+Message-ID: <20060612222304.GA21459@suse.de>
+References: <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD50F.3060002@rtr.ca> <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD968.2010000@rtr.ca> <20060612212812.GA17458@suse.de> <448DE28D.3040708@rtr.ca> <20060612220321.GA19792@suse.de> <448DE6EA.8020708@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
-	 <20060611112156.8641.94787.stgit@localhost.localdomain>
-	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
-	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
-	 <20060612105345.GA8418@elte.hu>
-	 <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-	 <20060612192227.GA5497@elte.hu>
+In-Reply-To: <448DE6EA.8020708@rtr.ca>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/06/06, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Catalin Marinas <catalin.marinas@gmail.com> wrote:
->
-> > On 12/06/06, Ingo Molnar <mingo@elte.hu> wrote:
-> > >What i'd like to see though are clear explanations about why an
-> > >allocation is not considered a leak, in terms of comments added to the
-> > >code. That will also help us reduce the number of annotations later on.
+On Mon, Jun 12, 2006 at 06:12:58PM -0400, Mark Lord wrote:
+> Greg KH wrote:
+> >On Mon, Jun 12, 2006 at 05:54:21PM -0400, Mark Lord wrote:
+> >>Okay, with these two patches from -mm, the USB no longer dies
+> >>when I plug in my hub/dock device:
+> >>
+> >>gregkh-usb-improved-tt-scheduling-for-ehci.patch
+> >>gregkh-usb-usb-rmmod-pl2303-after-28.patch
+> >>
+> >>So let's get these pushed upstream sooner than later, please!
 > >
-> > I'll document them in both Documentation/kmemleak.txt and inside the
-> > code. If I implement the "any pointer inside the block" method, all
-> > the memleak_padding() false positives will disappear.
->
-> i dont know - i feel uneasy about the 'any pointer' method - it has a
-> high potential for false negatives, especially for structures that
-> contain strings (or other random data), etc.
+> >It will happen after 2.6.17 is out, as they are in the queue to do so.
+> 
+> 2.6.18 will do, I suppose.
+> 
+> But has the *real* bug been fixed with these patches,
+> or merely "avoided" ?
 
-That's my concern as well. The advantage is that it simplifies
-kmemleak but I can't tell how good the detection would be. I can add
-some code to the current implementation to show how many values (32
-bit aligned) found during scanning look like valid pointers (i.e.
-PAGE_OFFSET < x < PAGE_OFFSET + ram_size) but cannot be found in the
-radix_tree. It might not be that bad (I'll post tomorrow some
-statistics).
+The tt-scheduling patch should have fixed the "real" bug.
 
-> did you consider the tracking of the types of allocated blocks
-> explicitly? I'd expect that most blocks dont have pointers embedded in
-> them that point to allocated blocks. For the ones that do, the
-> allocation could be extended with the type information. For each
-> affected type, we could annotate the structures themselves with offset
-> information. How intrusive would such a method be?
+> Eg. If usb_submit_urb() ever fails again (low on memory, etc..)
+> inside  pl2303_open(), will we be back with the same bug?
+> 
+> What's the *real* actual bug here?
 
-Do you mean that when scanning it should only consider at the pointer
-members in a structure? I don't think this can be easily achieved
-because of the amount of structures in the kernel. There are places
-where a pointer is stored as a long. There is also no way in C to
-quantify the type of an object (similar to "typeid" in C++). The
-closest approximation I could get was the size.
+There are two of them.
 
--- 
-Catalin
+The fact that the urb submission in the pl2303 driver fails, and is now
+handled properly is fixed in the pl2303 patch.
+
+The fact that we can (hopefully) handle scheduling TT in the EHCI driver
+fixes the real problem with plugging slow or full speed devices into a
+USB 2.0 hub (not root hub).  That's fixed by the tt patch.
+
+So we should have finally covered both of them now.
+
+thanks,
+
+greg k-h

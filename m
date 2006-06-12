@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWFLKbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWFLKdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751825AbWFLKbs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 06:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751826AbWFLKbs
+	id S1751826AbWFLKdU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 06:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWFLKdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 06:31:48 -0400
-Received: from wildsau.enemy.org ([193.170.194.34]:56476 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1751825AbWFLKbr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 06:31:47 -0400
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200606121026.k5CAQA9S011158@wildsau.enemy.org>
-Subject: Re: Q: how to send ATA cmds to USB drive?
-In-Reply-To: <200606121002.k5CA2gGf011148@wildsau.enemy.org>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 12 Jun 2006 12:26:10 +0200 (MET DST)
-CC: alan@lxorguk.ukuu.org.uk
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+	Mon, 12 Jun 2006 06:33:20 -0400
+Received: from ns.suse.de ([195.135.220.2]:1712 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751826AbWFLKdU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 06:33:20 -0400
+From: Neil Brown <neilb@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 12 Jun 2006 20:33:12 +1000
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <17549.17128.4155.144140@cse.unsw.edu.au>
+Cc: jdow <jdow@earthlink.net>, Bernd Petrovitsch <bernd@firmix.at>,
+       davids@webmaster.com, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+In-Reply-To: message from Alan Cox on Monday June 12
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+	<193701c68d16$54cac690$0225a8c0@Wednesday>
+	<1150100286.26402.13.camel@tara.firmix.at>
+	<00de01c68df9$7d2b2330$0225a8c0@Wednesday>
+	<17549.14402.71021.274336@cse.unsw.edu.au>
+	<1150108220.22124.164.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         int scsi_dispatch_cmd(struct scsi_cmnd *cmd)
->         ...
->                 /*
->                  * If SCSI-2 or lower, store the LUN value in cmnd.
->                  */
->                 if (cmd->device->scsi_level <= SCSI_2) {
->                         cmd->cmnd[1] = (cmd->cmnd[1] & 0x1f) |
->                                        (cmd->device->lun << 5 & 0xe0);
->                 }
+On Monday June 12, alan@lxorguk.ukuu.org.uk wrote:
+> Ar Llu, 2006-06-12 am 19:47 +1000, ysgrifennodd Neil Brown:
+> > mailing list shortly before I had to unsubscribe) is to develop a
+> > mechanism to measure the credibility of new domains.  No point doing
+> > this until authenticity is fairly reliable, but once it is, that will
+> > be the next logical step.
 > 
-> hm. now what .... ? If scsi-2 requires this, and the device is scsi-2.
+> Which is very very hard.
 
-actually, the scsi-level reported by the device is *not* 2.
+We do hard things every day, don't we? 
 
-it is set to 2 by "slave_configure" from drivers/usb/storage/scsiglue.c:
+> 
+> Think about it logically. Today to get a domain you need a credit/debit
+> card. A credit/debit card is ID managed by organisations very keen that
+> they don't get copied or faked. You are talking about building a
+> worldwide system that is more effective than the ones the banks run: for
+> a ten US dollar (ie peanuts and falling) value domain.
 
-static int slave_configure(struct scsi_device *sdev)
-{
-...
-        /* Set the SCSI level to at least 2.  We'll leave it at 3 if that's
-         * what is originally reported.  We need this to avoid confusing
-         * the SCSI layer with devices that report 0 or 1, but need 10-byte
-         * commands (ala ATAPI devices behind certain bridges, or devices
-                                              ^^^^^^^^^^^^^^^
+Thinks about it creatively.
+How many domains need to be able to send mail?  I suspect a tiny
+fraction.
+Having a domain that can be a web address and a destination for mail
+is (I suspect) the greatest demand.  Having a domain that can send
+mail it less important to many, but important enough to some that they
+will pay.
 
-the CY7C68310 is exactly that.
+Yes, it is hard, but if everyone says "that cannot work" we will never
+move forward.  SPF may not be a big step forward, but I believe it is
+a step forward (and at least it is a step!)
 
-         * which simply have broken INQUIRY data).
-...
-
-        if (sdev->scsi_level < SCSI_2)
-                sdev->scsi_level = sdev->sdev_target->scsi_level = SCSI_2;
-
-
-kind regards,
-h.rosmanith
+NeilBrown

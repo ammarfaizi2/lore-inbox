@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752106AbWFLQE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752107AbWFLQFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752106AbWFLQE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 12:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752107AbWFLQE5
+	id S1752107AbWFLQFb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 12:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752109AbWFLQFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 12:04:57 -0400
-Received: from xenotime.net ([66.160.160.81]:52159 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1752106AbWFLQE5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 12:04:57 -0400
-Date: Mon, 12 Jun 2006 09:07:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Barry Scott <barry.scott@onelan.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc6 Section mismatch warnings
-Message-Id: <20060612090742.011bf483.rdunlap@xenotime.net>
-In-Reply-To: <448D6B53.3070803@onelan.co.uk>
-References: <4488057A.9090301@onelan.co.uk>
-	<20060608195902.26902ef0.rdunlap@xenotime.net>
-	<448D6B53.3070803@onelan.co.uk>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 12 Jun 2006 12:05:31 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:64458 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1752107AbWFLQFa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 12:05:30 -0400
+Date: Tue, 13 Jun 2006 01:06:28 +0900 (JST)
+Message-Id: <20060613.010628.41632745.anemo@mba.ocn.ne.jp>
+To: sebastien.dugue@bull.net
+Cc: jakub@redhat.com, arjan@infradead.org, mingo@redhat.com,
+       linux-kernel@vger.kernel.org, pierre.peiffer@bull.net
+Subject: Re: NPTL mutex and the scheduling priority
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <1150125869.3835.12.camel@frecb000686>
+References: <1150115008.3131.106.camel@laptopd505.fenrus.org>
+	<20060612124406.GZ3115@devserv.devel.redhat.com>
+	<1150125869.3835.12.camel@frecb000686>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2006 14:25:39 +0100 Barry Scott wrote:
-
-> Randy.Dunlap wrote:
-> > On Thu, 08 Jun 2006 12:09:46 +0100 Barry Scott wrote:
-> >
-> >   
-> >> When I built 2.6.17-rc6 I see a lot of warnings after the MODPOST message
-> >> about Section mismatch. What did I do wrong in building the kernel and 
-> >> modules?
-> >>     
-> > ...
-> >   
-> >> Here are some of the warnings:
-> >>     
-> >
-> > It would be helpful if someone could look at/work on the
-> > section mismatches in the isdn and sound drivers...
-> >
-> > I have 6 new patches to post, then I'll be
-> > sweeping the net drivers soon.
-> >   
-> The alsa folks have fixed their problem and you should see a patch from them
-> shortly.
+On Mon, 12 Jun 2006 17:24:28 +0200, Sébastien Dugué <sebastien.dugue@bull.net> wrote:
+> > > you want to use the PI futexes that are in 2.6.17-rc5-mm tree
+> > 
+> > Even for normal mutices pthread_mutex_unlock and
+> > pthread_cond_{signal,broadcast} is supposed to honor the RT priority and
+> > scheduling policy when waking up:
+> > http://www.opengroup.org/onlinepubs/009695399/functions/pthread_mutex_trylock.html
+> > "If there are threads blocked on the mutex object referenced by mutex when
+> > pthread_mutex_unlock() is called, resulting in the mutex becoming available,
+> > the scheduling policy shall determine which thread shall acquire the mutex."
+> > and similarly for condvars.
+> > "Use PI" is not a valid answer for this.
+> > Really FUTEX_WAKE/FUTEX_REQUEUE can't use a FIFO.  I think there was a patch
+> > floating around to use a plist there instead, which is one possibility,
+> > another one is to keep the queue sorted by priority (and adjust whenever
+> > priority changes - one thread can be waiting on at most one futex at a
+> > time).
+> > 
 > 
-> Any news on the net driver problems?
+>   The patch you refer to is at
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114725326712391&w=2
 
-Sorry, I posted patches for a bunch of net drivers and forgot to
-copy you on them.  On Sat., 2006-June-10, on the netdev mailing
-list, patches for smc, hp, & 3c5zz:
-
-http://marc.theaimsgroup.com/?l=linux-netdev&m=114997161622800&w=2
-http://marc.theaimsgroup.com/?l=linux-netdev&m=114997161630191&w=2
-http://marc.theaimsgroup.com/?l=linux-netdev&m=114997161722035&w=2
-
+Thank you all.  I'll look into PI futexes which seems the right
+direction, but I still welcome short term (limited) solutions,
+hopefully work with existing glibc.  I'll look at the plist patch.
 
 ---
-~Randy
+Atsushi Nemoto

@@ -1,73 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWFLRGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWFLRG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWFLRGh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWFLRGg
+	id S1751239AbWFLRG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWFLRG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:06:36 -0400
-Received: from ns2.suse.de ([195.135.220.15]:14780 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751066AbWFLRGg (ORCPT
+	Mon, 12 Jun 2006 13:06:56 -0400
+Received: from xenotime.net ([66.160.160.81]:63723 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751211AbWFLRGz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:06:36 -0400
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: broken local_t on i386
-Date: Mon, 12 Jun 2006 19:06:28 +0200
-User-Agent: KMail/1.9.3
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606121848.05438.ak@suse.de> <Pine.LNX.4.64.0606120950280.19309@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606120950280.19309@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 12 Jun 2006 13:06:55 -0400
+Date: Mon, 12 Jun 2006 10:09:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Ivo van Doorn <ivdoorn@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CRC ITU-T V.41
+Message-Id: <20060612100942.62ad4d0e.rdunlap@xenotime.net>
+In-Reply-To: <200606121617.08791.IvDoorn@gmail.com>
+References: <200606121617.08791.IvDoorn@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606121906.28692.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 June 2006 18:54, Christoph Lameter wrote:
-> On Mon, 12 Jun 2006, Andi Kleen wrote:
+On Mon, 12 Jun 2006 16:17:04 +0200 Ivo van Doorn wrote:
+
+> This will add the CRC calculation according
+> to the CRC ITU-T V.41 to the kernel lib/ folder.
 > 
-> > > #define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, __my_cpu_offset()))
-> > 
-> > It is also affected by your race. The inc would only be atomic if the counter
-> > was in the PDA, but standard per cpu data isn't. So it has to follow 
-> > a pointer and then it could already have switched.
+> This code has been derived from the rt2x00 driver,
+> currently found only in the wireless-dev tree, but
+> this library is generic and could be used by more
+> drivers who currently use their own implementation.
+
+so the rt2x00 driver will be converted to use this lib/ code?
+
+> Signed-off-by Ivo van Doorn <IvDoorn@gmail.com>
+> ---
 > 
-> I thought the above would refer to a PDA memory area that is specially 
-> mapped by each processor? That is the only thing that would get this 
-> working right because we would map to a different PDA if the process 
-> would be mapped to a different processor.
+> diff --git a/include/linux/crc-itu-t.h b/include/linux/crc-itu-t.h
+> new file mode 100644
+> index 0000000..84920f3
+> --- /dev/null
+> +++ b/include/linux/crc-itu-t.h
+> @@ -0,0 +1,28 @@
+> +/*
+> + *	crc-itu-t.h - CRC ITU-T V.41 routine
+> + *
+> + * Implements the standard CRC ITU-T V.41:
+> + *   Width 16
+> + *   Poly  0x0x1021 (x^16 + x^12 + x^15 + 1)
 
-It does, but the per cpu data that everybody uses doesn't reside in the PDA
-because it wasn't possible to make this work with binutils
+what does 0x0x.... mean?  and aren't poly exponents usually
+listed in descending order?  or should the 15 be 5?
 
-It would require a relocation relative to another symbol which isn't
-really supported.
+> + *   Init  0
+> + *
+> + * This source code is licensed under the GNU General Public License,
+> + * Version 2. See the file COPYING for more details.
+> + */
 
-At some point I considered using runtime patching to work around
-this limitation, but it would be some work and relatively complex.
+> diff --git a/lib/crc-itu-t.c b/lib/crc-itu-t.c
+> new file mode 100644
+> index 0000000..b4d4a21
+> --- /dev/null
+> +++ b/lib/crc-itu-t.c
+> @@ -0,0 +1,68 @@
+> +
+> +/**
+> + * Compute the CRC-ITU-T for the data buffer
 
-So the PDA just contains a pointer to the real per CPU area and it's
-added. Unfortunately it's three instructions or so and not atomic 
-(mov, add, reference) 
+Please use Linux kernel-doc format.  See
+Documentation/kernel-doc-nano-HOWTO.txt.  Basically:
 
-> 
-> > Fix would be to disable preemption. I don't think it needs cli/sti
-> > on non preemptible kernels.
-> 
-> Yuck. The advantage of local.t was that it does not need any of these 
-> tricks. What is the point of local.t if one needs to disable preemption?
+ * crc_itu_t - compute the CRC-ITU-T for the data buffer
 
-No atomic operations. Preemption just requires to increase a counter
-in thread info.
+and make parameter changes below:
 
-Also on non preemptive kernels - which are the majority - it's a single
-instruction on x86. I guess preempt users can live with a bit more
-overhead ... 
+> + *
+> + * @param crc     previous CRC value
+> + * @param buffer  data pointer
+> + * @param len     number of bytes in the buffer
 
--Andi
+ * @crc:	previous CRC value
+ * @buffer:	data pointer
+ * @len:	number of bytes in the buffer
+ *
+ * Returns the updated CRC value.
 
+> + * @return        the updated CRC value
+> + */
+> +u16 crc_itu_t(u16 crc, const u8 *buffer, size_t len)
+> +{
+
+
+---
+~Randy

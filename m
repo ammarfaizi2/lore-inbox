@@ -1,137 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWFLReK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWFLReQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWFLReK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWFLReJ
+	id S1750873AbWFLReQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWFLReQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:34:09 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:21227 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750757AbWFLReI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:34:08 -0400
-From: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 1/1] usb: new driver for Cypress CY7C63xxx mirco controllers
-Date: Mon, 12 Jun 2006 19:34:05 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <200606100042.19441.o.bock@fh-wolfenbuettel.de> <20060609224957.GA15130@elf.ucw.cz>
-In-Reply-To: <20060609224957.GA15130@elf.ucw.cz>
-MIME-Version: 1.0
+	Mon, 12 Jun 2006 13:34:16 -0400
+Received: from mga05.intel.com ([192.55.52.89]:18260 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750898AbWFLReO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:34:14 -0400
+X-IronPort-AV: i="4.05,229,1146466800"; 
+   d="scan'208"; a="50859404:sNHT5713564073"
+Date: Mon, 12 Jun 2006 10:28:58 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Gerd Hoffmann <kraxel@suse.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] scheduler issue & patch
+Message-ID: <20060612102847.A5687@unix-os.sc.intel.com>
+References: <448D88A2.1060002@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Length: 4428
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606121934.05619.o.bock@fh-wolfenbuettel.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:dd33dd6c1d5f49fc970db4042b12446b
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <448D88A2.1060002@suse.de>; from kraxel@suse.de on Mon, Jun 12, 2006 at 05:30:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 June 2006 00:49, Pavel Machek wrote:
-> Sorry, now the review begins...
+On Mon, Jun 12, 2006 at 05:30:42PM +0200, Gerd Hoffmann wrote:
+>   Hi,
+> 
+> I'm looking into a scheduler issue with a NUMA box and scheduling
+> domains.  The machine is a dual-core opteron with with two nodes, i.e.
+> four cpus.  cpu0+1 build node0, cpu2+3 build node1.
+> 
+> Now I have an application (benchmark) with two threads which performs
+> best when the two threads are running on different nodes (probably
+> because the cpus on each node share the L2 cache).  The scheduler tends
+> to keep threads on the local node though, wihch probably makes sense on
+> most cases because local memory is faster.
+> 
+> Ok, we have tools to give hints to the scheduler (taskset, numactl).
+> The problem is it doesn't work well.  I can ask the scheduler to use
+> cpu1 (node0) and cpu3 (node1) only (via "taskset 0x0a").  But the
+> scheduler very often schedules both threads on the same cpu :-(
+> 
+> I think the reason is that the scheduler always checks the complete cpu
+> groups when calculation the group load, without looking at
+> task->cpus_allowed.  So we have the effect that the scheduler walks down
+> the scheduler domain tree, looks at the group for node0, looks at both
+> cpu0 and cpu1, finds node0 being not overloaded due to cpu0 being idle
+> and decides to keep the thread on the local node.  Next it walks down
+> the tree and finds it isn't allowed to use the idle cpu0.  So both
+> threads get scheduled to cpu1.  Oops.
 
-No problem at all.
+I don't think it is the problem with sched_balance_self(). sched_balance_self()
+probably is doing the right thing based on the load that is present at the
+time of fork/exec. Once the node-1 becomes idle, we expect the two threads
+on node-0 cpu-1 to get distributed between the two nodes.
 
-> > +/* used to send usb control messages to device */
-> > +int vendor_command(struct cy7c63 *dev, unsigned char request,
-> > +			 unsigned char address, unsigned char data) {
->
-> Codingstyle: { goes to new line.
+Perhaps the real issue is how cpu_power is calculated for node domain
+on these systems. Because of the shared resources between the cpus in a node,
+cpu_power for a group in node domain should be < 2 * SCHED_LOAD_SCALE..
 
-Ok, I missed that one and remembered only the if-styling. I'll change it and 
-I'm glad to see that as it's according to my style.
+Once this is the case, find_busiest_group() should detect the imbalance and
+move one of the threads from cpu-1(node-0) to cpu-3(node-1)
 
-> > +#define get_set_port(num,read_id,write_id) \
-> > +static ssize_t set_port##num(struct device *dev, struct device_attribute
-> > *attr,	\ +					const char *buf, size_t count) {	\
-> > +										\
-> > +	int value;								\
-> > +	int result = 0;								\
-> > +										\
-> > +	struct usb_interface *intf = to_usb_interface(dev);			\
-> > +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
-> > +										\
-> > +	dev_dbg(&cyp->udev->dev, "WRITE_PORT%d called\n", num);			\
-> > +										\
-> > +	/* validate input data */						\
-> > +	if (sscanf(buf, "%d", &value) < 1) {					\
-> > +		result = -EINVAL;						\
-> > +		goto error;							\
-> > +	}									\
-> > +	if (value>255 || value<0) {						\
-> > +		result = -EINVAL;						\
-> > +		goto error;							\
-> > +	}									\
-> > +										\
-> > +	result = vendor_command(cyp, CY7C63_WRITE_PORT, write_id,		\
-> > +					 (unsigned char)value);			\
-> > +										\
-> > +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n",result);	\
-> > +error:										\
-> > +	return result < 0 ? result : count;					\
-> > +}										\
-> > +										\
-> > +static ssize_t get_port##num(struct device *dev,				\
-> > +				 struct device_attribute *attr, char *buf) {	\
-> > +										\
-> > +	int result = 0;								\
-> > +										\
-> > +	struct usb_interface *intf = to_usb_interface(dev);			\
-> > +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
-> > +										\
-> > +	dev_dbg(&cyp->udev->dev, "READ_PORT%d called\n", num);			\
-> > +										\
-> > +	result = vendor_command(cyp, CY7C63_READ_PORT, read_id, 0);		\
-> > +										\
-> > +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n", result);	\
-> > +										\
-> > +	return sprintf(buf, "%d", cyp->port##num);				\
-> > +}										\
-> > +static DEVICE_ATTR(port##num, S_IWUGO | S_IRUGO, get_port##num,
-> > set_port##num); +
-> > +get_set_port(0, CY7C63_READ_PORT_ID0, CY7C63_WRITE_PORT_ID0);
-> > +get_set_port(1, CY7C63_READ_PORT_ID1, CY7C63_WRITE_PORT_ID1);
->
-> You get "best abuse of the macros" prize. Can you just use functions,
-> and pass num as aditional argument? Then just wrap the long functions
-> in small ones... converting cyp->port0/1 into array will be handy..
+> The patch attached takes the sledgehammer approach to fix it:  In case
+> we have a non-default cpumask in task->cpus_allowed the scheduler
+> ignores all the fancy scheduling domains and simply spreads the load
+> equally over the cpus allowed by task->cpus_allowed.  Not exactly
+> elegant, but works.  Not each time, but very often.
+> 
+> Comments?  Ideas how to solve this better?  I've also tried to play with
+> the group load calculation, but it didn't work well.  I'm kida lost in
+> all those scheduler tuning knobs ...
 
-Well, thanks but I think I've to "share the price" with at least one other:
-drivers/usb/misc/phidgetservo.c
+In my opinion, this patch is not the correct fix for the issue.
 
-I agree that this is no excuse for bad style, but I was just trying to keep 
-the code compliant with the kernel coding conventions - my personal style 
-looks a bit different anyway. I tried to avoid any formatting issues by 
-looking at other drivers and the one mentioned above was recommended to me 
-when I did the porting from ioctls to sysfs. Due to this I assumed that this 
-might be a common way you guys try to avoid redundant code...
-
-To be sure (and because he's the author of the USB skeleton I also used) I 
-asked Greg K-H for an initial review of my code before I sent it to the list, 
-and he didn't complain a bit about this marco. So is there any common rule 
-for this?
-
-> BTW could we get come better name for the driver? cy7c63 looks like
-> password of very paranoid sysadmin.
-
-Hm, the chipset family is just called like that and there're at least three 
-other Cypress related drivers (cypress, cypress_m8 and cytherm) with generic 
-names. I think this name shows clearly what kind of device it supports, 
-doesn't it?
-
-Apart from that there are again other drivers (ark3116.c, cp2101.c) which do 
-it the same way, and I assumed that this might be some sort of naming 
-convention...
-
-> > +	/* let the user know what node this device is now attached to */
-> > +	dev_info(&interface->dev,
-> > +		"Cypress CY7C63xxx device now attached\n");
->
-> In cases like this we aling " one character to the right.
-
-You mean the whole string (line) one character to the right, correct?
-
-
-Regards,
-Oliver
+thanks,
+suresh

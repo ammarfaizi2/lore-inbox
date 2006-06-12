@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWFLRwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbWFLRwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbWFLRwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWFLRwW
+	id S1751069AbWFLRwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWFLRwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:52:22 -0400
-Received: from mx1.suse.de ([195.135.220.2]:52378 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750842AbWFLRwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:52:22 -0400
-Message-ID: <448DA9D3.1090908@suse.de>
-Date: Mon, 12 Jun 2006 19:52:19 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Mon, 12 Jun 2006 13:52:25 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:37835 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751069AbWFLRwY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:52:24 -0400
+Message-ID: <448DA9CF.9090504@zytor.com>
+Date: Mon, 12 Jun 2006 10:52:15 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] scheduler issue & patch
-References: <448D88A2.1060002@suse.de> <20060612102847.A5687@unix-os.sc.intel.com>
-In-Reply-To: <20060612102847.A5687@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Michael Buesch <mb@bu3sch.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 built-in command line
+References: <20060611215530.GH24227@waste.org> <e6k7ak$gpd$1@terminus.zytor.com> <200606121936.35042.mb@bu3sch.de>
+In-Reply-To: <200606121936.35042.mb@bu3sch.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> I don't think it is the problem with sched_balance_self(). sched_balance_self()
-> probably is doing the right thing based on the load that is present at the
-> time of fork/exec. Once the node-1 becomes idle, we expect the two threads
-> on node-0 cpu-1 to get distributed between the two nodes.
+Michael Buesch wrote:
+>>
+>> a. Please make the patch available for x86-64 as well as x86.  The two
+>> are coupled enough that they need to agree.
+>>
+>> b. This patch will override a user-provided command line if one
+>> exists.  This is the wrong behaviour; instead, the builtin command
+>> line should only apply if no user-specified command line is present.
+> 
+> I would say a user supplied cmd line should be appended to the
+> built-in cmd line.
+> 
 
-That happens indeed.  Problem with that is that the thread which gets
-migrated from cpu1 (node0) to cpu3 (node1) ends up with memory for the
-working set being allocated from node0 memory because it ran on node0
-for a short time.  Which is a noticable performance hit on a NUMA system.
+That's another option; going with the "later wins" rule.  However, there is a problem with 
+this, and that is that the total length can end up being very long.
 
-I think the scheduler should try harder to spread the threads across
-cpus in a way that they can stay on the initial cpu instead of migrating
-them later on.
-
-> In my opinion, this patch is not the correct fix for the issue.
-
-Sure, it's sort-od band-aid fix, thats why I'm trying to find something
-better.
-
-cheers,
-
-  Gerd
-
--- 
-Gerd Hoffmann <kraxel@suse.de>
-http://www.suse.de/~kraxel/julika-dora.jpeg
+	-hpa

@@ -1,176 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWFLG6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWFLG7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbWFLG6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 02:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWFLG6Q
+	id S1751406AbWFLG7h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 02:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWFLG7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 02:58:16 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:31380 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751389AbWFLG6P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 02:58:15 -0400
-Date: Mon, 12 Jun 2006 08:57:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Valdis.Kletnieks@vt.edu,
-       Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       arjan@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: [patch] undo AF_UNIX _bh locking changes and split lock-type instead
-Message-ID: <20060612065701.GA24213@elte.hu>
-References: <200606060250.k562oCrA004583@turing-police.cc.vt.edu> <44852819.2080503@gmail.com> <4485798B.4030007@s5r6.in-berlin.de> <4485AFB9.3040005@s5r6.in-berlin.de> <20060607071208.GA1951@gondor.apana.org.au> <20060612063807.GA23939@elte.hu> <20060612064122.GA1101@gondor.apana.org.au>
+	Mon, 12 Jun 2006 02:59:37 -0400
+Received: from bay19-f25.bay19.hotmail.com ([64.4.53.75]:34156 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1751406AbWFLG7g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 02:59:36 -0400
+Message-ID: <BAY19-F254968ED7AAD0015BDA24CCD8F0@phx.gbl>
+X-Originating-IP: [87.51.137.160]
+X-Originating-Email: [nkbj1970@hotmail.com]
+From: "Niels Kristian Bech Jensen" <nkbj1970@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@kernel.org
+Subject: [PATCH 2.6.17-rc6-git2] Update my contact information in CREDITS.
+Date: Mon, 12 Jun 2006 08:59:31 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060612064122.GA1101@gondor.apana.org.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_30a6_5d70_6caa"
+X-OriginalArrivalTime: 12 Jun 2006 06:59:36.0079 (UTC) FILETIME=[C3F189F0:01C68DED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-* Herbert Xu <herbert@gondor.apana.org.au> wrote:
+------=_NextPart_000_30a6_5d70_6caa
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 
-> > Maybe it's enough to introduce a separate key for AF_UNIX alone (and 
-> > still having all other protocols share the locking rules for 
-> > sk_receive_queue.lock) , by reinitializing its spinlock after 
-> > sock_init_data()?
-> 
-> This could work.  AF_UNIX is probably the only family that does not 
-> interact with hardware.
+Update my contact information in CREDITS.
 
-ok, great. The patch below does the trick on my box.
+_________________________________________________________________
+Få 250 MB gratis lagerplads på MSN Hotmail:  http://www.hotmail.com
 
-regarding your point wrt. path of integration - it is pretty much the 
-only practical way to do this centrally as part of the lock validator 
-patches, but to collect ACKs from subsystem maintainers in the process. 
-So if you like it i'd like to have your ACK but this patch depends on 
-the other lock validator patches (and only makes sense together with 
-them), so they should temporarily stay in the lock validator queue. 
-Hopefully this wont be a state that lasts too long and once the 
-validator is upstream, all patches of course go via the subsystem 
-submission rules.
+------=_NextPart_000_30a6_5d70_6caa
+Content-Type: text/x-patch; name="CREDITS-2.6.17-rc6-git2.diff"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="CREDITS-2.6.17-rc6-git2.diff"
 
-(the #ifdef LOCKDEP should probably be converted to some sort of 
-lockdep_split_lock_key(&sk->sk_receive_queue.lock) op - i'll do that 
-later)
-
-	Ingo
-
-------
-Subject: undo AF_UNIX _bh locking changes and split lock-type instead
-From: Ingo Molnar <mingo@elte.hu>
-
-this cleans up lock-validator-special-locking-af_unix.patch: instead
-of adding _bh locking to AF_UNIX, this patch splits their
-sk_receive_queue.lock type from the other networking skb-queue locks.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- net/unix/af_unix.c |   17 +++++++++++++----
- net/unix/garbage.c |    8 ++++----
- 2 files changed, 17 insertions(+), 8 deletions(-)
-
-Index: linux/net/unix/af_unix.c
-===================================================================
---- linux.orig/net/unix/af_unix.c
-+++ linux/net/unix/af_unix.c
-@@ -557,6 +557,15 @@ static struct sock * unix_create1(struct
- 	atomic_inc(&unix_nr_socks);
+diff -urN linux-2.6.17-rc6-git2.orig/CREDITS linux-2.6.17-rc6-git2/CREDITS
+--- linux-2.6.17-rc6-git2.orig/CREDITS	2006-06-12 08:39:24.000000000 +0200
++++ linux-2.6.17-rc6-git2/CREDITS	2006-06-12 08:46:46.000000000 +0200
+@@ -1573,12 +1573,8 @@
+ S: Czech Republic
  
- 	sock_init_data(sock,sk);
-+#ifdef CONFIG_LOCKDEP
-+	/*
-+	 * AF_UNIX sockets do not interact with hardware, hence they
-+	 * dont trigger interrupts - so it's safe for them to have
-+	 * bh-unsafe locking for their sk_receive_queue.lock. Split off
-+	 * this special lock-type by reinitializing the spinlock.
-+	 */
-+	spin_lock_init(&sk->sk_receive_queue.lock);
-+#endif
+ N: Niels Kristian Bech Jensen
+-E: nkbj@image.dk
+-W: http://www.image.dk/~nkbj
++E: nkbj1970@hotmail.com
+ D: Miscellaneous kernel updates and fixes.
+-S: Dr. Holsts Vej 34, lejl. 164
+-S: DK-8230 Åbyhøj
+-S: Denmark
  
- 	sk->sk_write_space	= unix_write_space;
- 	sk->sk_max_ack_backlog	= sysctl_unix_max_dgram_qlen;
-@@ -1073,12 +1082,12 @@ restart:
- 	unix_state_wunlock(sk);
- 
- 	/* take ten and and send info to listening sock */
--	spin_lock_bh(&other->sk_receive_queue.lock);
-+	spin_lock(&other->sk_receive_queue.lock);
- 	__skb_queue_tail(&other->sk_receive_queue, skb);
- 	/* Undo artificially decreased inflight after embrion
- 	 * is installed to listening socket. */
- 	atomic_inc(&newu->inflight);
--	spin_unlock_bh(&other->sk_receive_queue.lock);
-+	spin_unlock(&other->sk_receive_queue.lock);
- 	unix_state_runlock(other);
- 	other->sk_data_ready(other, 0);
- 	sock_put(other);
-@@ -1843,7 +1852,7 @@ static int unix_ioctl(struct socket *soc
- 				break;
- 			}
- 
--			spin_lock_bh(&sk->sk_receive_queue.lock);
-+			spin_lock(&sk->sk_receive_queue.lock);
- 			if (sk->sk_type == SOCK_STREAM ||
- 			    sk->sk_type == SOCK_SEQPACKET) {
- 				skb_queue_walk(&sk->sk_receive_queue, skb)
-@@ -1853,7 +1862,7 @@ static int unix_ioctl(struct socket *soc
- 				if (skb)
- 					amount=skb->len;
- 			}
--			spin_unlock_bh(&sk->sk_receive_queue.lock);
-+			spin_unlock(&sk->sk_receive_queue.lock);
- 			err = put_user(amount, (int __user *)arg);
- 			break;
- 		}
-Index: linux/net/unix/garbage.c
-===================================================================
---- linux.orig/net/unix/garbage.c
-+++ linux/net/unix/garbage.c
-@@ -235,7 +235,7 @@ void unix_gc(void)
- 		struct sock *x = pop_stack();
- 		struct sock *sk;
- 
--		spin_lock_bh(&x->sk_receive_queue.lock);
-+		spin_lock(&x->sk_receive_queue.lock);
- 		skb = skb_peek(&x->sk_receive_queue);
- 		
- 		/*
-@@ -270,7 +270,7 @@ void unix_gc(void)
- 				maybe_unmark_and_push(skb->sk);
- 			skb=skb->next;
- 		}
--		spin_unlock_bh(&x->sk_receive_queue.lock);
-+		spin_unlock(&x->sk_receive_queue.lock);
- 		sock_put(x);
- 	}
- 
-@@ -283,7 +283,7 @@ void unix_gc(void)
- 		if (u->gc_tree == GC_ORPHAN) {
- 			struct sk_buff *nextsk;
- 
--			spin_lock_bh(&s->sk_receive_queue.lock);
-+			spin_lock(&s->sk_receive_queue.lock);
- 			skb = skb_peek(&s->sk_receive_queue);
- 			while (skb &&
- 			       skb != (struct sk_buff *)&s->sk_receive_queue) {
-@@ -298,7 +298,7 @@ void unix_gc(void)
- 				}
- 				skb = nextsk;
- 			}
--			spin_unlock_bh(&s->sk_receive_queue.lock);
-+			spin_unlock(&s->sk_receive_queue.lock);
- 		}
- 		u->gc_tree = GC_ORPHAN;
- 	}
+ N: Michael K. Johnson
+ E: johnsonm@redhat.com
+
+
+------=_NextPart_000_30a6_5d70_6caa--

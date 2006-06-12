@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWFLS7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWFLTAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWFLS7U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 14:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752171AbWFLS7U
+	id S932065AbWFLTAL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 15:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWFLTAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 14:59:20 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:14025 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751222AbWFLS7T (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 14:59:19 -0400
-From: Andi Kleen <ak@suse.de>
-To: rohitseth@google.com
-Subject: Re: [PATCH]: Adding a counter in vma to indicate the number =?utf-8?q?of=09physical_pages_backing?= it
-Date: Mon, 12 Jun 2006 19:58:40 +0200
-User-Agent: KMail/1.8
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux-mm@kvack.org, Linux-kernel@vger.kernel.org
-References: <1149903235.31417.84.camel@galaxy.corp.google.com> <448A762F.7000105@yahoo.com.au> <1150133795.9576.19.camel@galaxy.corp.google.com>
-In-Reply-To: <1150133795.9576.19.camel@galaxy.corp.google.com>
+	Mon, 12 Jun 2006 15:00:10 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:59291 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932065AbWFLTAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 15:00:08 -0400
+Date: Mon, 12 Jun 2006 11:59:49 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: broken local_t on i386
+In-Reply-To: <200606121955.47803.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0606121156460.20195@schroedinger.engr.sgi.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606121935.02693.ak@suse.de>
+ <Pine.LNX.4.64.0606121139380.20123@schroedinger.engr.sgi.com>
+ <200606121955.47803.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606121958.41127.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Jun 2006, Andi Kleen wrote:
 
-> It is just the price of those walks that makes smaps not an attractive
-> solution for monitoring purposes.
+> Possible, but is it worth reinventing the linker?
 
-It just shouldn't be used for that. It's a debugging hack and not really 
-suitable for monitoring even with optimizations.
+How would that work?
 
-For monitoring if the current numa statistics are not good enough
-you should probably propose new counters.
+IMHO The linker cannot help with virtual to physical address translations. 
+A linker that will link per processor would be amazing. What happens if 
+the process is rescheduled? We dynamically relink to the new processor?
 
--Andi
+I thought you had some funky segment registers on i386 and x86_64. Cant 
+they be switched on context switch? If an inc/dec could work relative to 
+those then you would not need a virtual mapping.
+
+
+

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWFLJRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWFLJSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWFLJRz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 05:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWFLJRz
+	id S1751205AbWFLJSI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 05:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWFLJSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 05:17:55 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:40117 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1751224AbWFLJRy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 05:17:54 -0400
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: cacheline alignment and per-cpu data
-References: <44899681.6070003@nortel.com>
-	<Pine.LNX.4.64.0606091054180.4969@turbotaz.ourhouse>
-From: Jes Sorensen <jes@sgi.com>
-Date: 12 Jun 2006 05:17:53 -0400
-In-Reply-To: <Pine.LNX.4.64.0606091054180.4969@turbotaz.ourhouse>
-Message-ID: <yq0mzci3f7i.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jun 2006 05:18:08 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:22545 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751205AbWFLJSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 05:18:07 -0400
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false
+	positives
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
+References: <20060611111815.8641.7879.stgit@localhost.localdomain>
+	 <20060611112156.8641.94787.stgit@localhost.localdomain>
+	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
+	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 12 Jun 2006 11:17:44 +0200
+Message-Id: <1150103864.20886.88.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Chase" == Chase Venters <chase.venters@clientec.com> writes:
+On Mon, 2006-06-12 at 09:11 +0100, Catalin Marinas wrote:
+> On 12/06/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> > Hi Catalin,
+> >
+> > On 6/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > > There are allocations for which the main pointer cannot be found but they
+> > > are not memory leaks. This patch fixes some of them.
+> >
+> > Can we fix this by looking for pointers to anywhere in the allocated
+> > memory block instead of just looking for the start?
+> 
+> I thought about this as well (I think that's how Valgrind works) but
+> it would increase the chances of missing real leaks. It currently
+> looks for the start of the block and a few locations inside the block
+> (those from which the main pointer is computed using the
+> container_of() macro).
+> 
+> I need to do some tests to see how it works but I won't be able to use
+> the radix_tree (as storing each location in the block would lead to a
+> huge tree).
 
-Chase> On Fri, 9 Jun 2006, Chris Friesen wrote:
->> Will this cause cacheline pingpong?  If I do this sort of thing do
->> I need to ensure that the struct is a multiple of cacheline size
->> (or specify cacheline alignement)?
+A radix-priority-search-tree would allow to store intervals and query
+addresses.
 
-Chase> Yes. If CPU 2 tries to write to struct member 1 of array
-Chase> element 2, and array element 1 is in CPU 1's cache, it must be
-Chase> invalidated.
+Peter
 
-Chase> GCC (and kernel macros) provide good support for enforced
-Chase> cacheline alignment, but it's also possible to pad your
-Chase> structures.
-
-Best way to go is to use __cacheline_aligned rather than try to get
-the padding right manually. Someone will add a field somewhere in the
-middle and mess it up and nobody notices.
-
-Cheers,
-Jes

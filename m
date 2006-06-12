@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752001AbWFLOUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752004AbWFLOVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752001AbWFLOUU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 10:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752003AbWFLOUT
+	id S1752004AbWFLOVV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 10:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752006AbWFLOVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 10:20:19 -0400
-Received: from admin.zirkelwireless.com ([209.216.203.65]:63634 "EHLO
-	admin.zirkelwireless.com") by vger.kernel.org with ESMTP
-	id S1752001AbWFLOUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 10:20:18 -0400
-Subject: Re: [Linux-fbdev-devel] [PATCH 0/7] Detaching fbcon
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@tungstengraphics.com>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <a5d587fb0606120628o203941c3h761bfffbb6ec08f7@mail.gmail.com>
-References: <44856223.9010606@gmail.com> <448C19D7.5010706@t-online.de>
-	 <448C83AD.9060200@gmail.com> <448D1C9E.7050606@t-online.de>
-	 <448D5B4F.5080504@gmail.com>
-	 <a5d587fb0606120628o203941c3h761bfffbb6ec08f7@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Organization: Tungsten Graphics
-Date: Mon, 12 Jun 2006 16:20:11 +0200
-Message-Id: <1150122011.5693.17.camel@thor.lorrainebruecke.local>
+	Mon, 12 Jun 2006 10:21:21 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:13954 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1752004AbWFLOVV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 10:21:21 -0400
+Date: Mon, 12 Jun 2006 16:20:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2
+Message-ID: <20060612142028.GA22154@elte.hu>
+References: <6bffcb0e0606100323p122e9b23g37350fa9692337ae@mail.gmail.com> <20060610092412.66dd109f.akpm@osdl.org> <Pine.LNX.4.64.0606100939480.6651@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com> <20060610100318.8900f849.akpm@osdl.org> <Pine.LNX.4.64.0606101102380.7421@schroedinger.engr.sgi.com> <6bffcb0e0606101114u37c8b642u5c9cc8dd566cba7c@mail.gmail.com> <Pine.LNX.4.64.0606101118410.7535@schroedinger.engr.sgi.com> <20060612110537.GA11358@elte.hu> <6bffcb0e0606120650l7116ac17vc3a0379194b56315@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6bffcb0e0606120650l7116ac17vc3a0379194b56315@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5005]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 15:28 +0200, Michal Suchanek wrote:
+
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+
+> I just tried your latest lockdep-combo-2.6.17-rc6-mm2 patch, and I get 
+> many warnings
 > 
-> I like the possibility to change X resolution using fbset (from inside
-> X). I use it to correct problems caused by crashed X programs that
-> change resolution. But I run X with the UseFbDev option.
+> WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/snd-pcm.ko
+> needs unknown symbol down_write
 
-Still, you should use something like xrandr instead, so the X server
-knows about it.
+ok, i have uploaded a new version - does that work any better?
 
-
--- 
-Earthling Michel Dänzer           |          http://tungstengraphics.com
-Libre software enthusiast         |          Debian, X and DRI developer
-
-
+	Ingo

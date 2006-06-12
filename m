@@ -1,110 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWFLJ15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWFLJaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWFLJ15 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 05:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWFLJ15
+	id S1751350AbWFLJaY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 05:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFLJaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 05:27:57 -0400
-Received: from wildsau.enemy.org ([193.170.194.34]:53916 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1751338AbWFLJ14
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 05:27:56 -0400
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200606120922.k5C9MFMO011138@wildsau.enemy.org>
-Subject: Re: Q: how to send ATA cmds to USB drive?
-In-Reply-To: <1148469753.4753.4.camel@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 12 Jun 2006 11:22:15 +0200 (MET DST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jun 2006 05:30:24 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51435 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751350AbWFLJaV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 05:30:21 -0400
+Subject: Re: 2.6.17-rc6-rt3
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20060612092023.GA30872@elte.hu>
+References: <20060610082406.GA31985@elte.hu>
+	 <1150104040.3835.3.camel@frecb000686>  <20060612092023.GA30872@elte.hu>
+Date: Mon, 12 Jun 2006 11:35:08 +0200
+Message-Id: <1150104909.3835.5.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/06/2006 11:34:01,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/06/2006 11:34:03,
+	Serialize complete at 12/06/2006 11:34:03
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > But now I also have to support USB harddisks from the same company.
-> > The USB harddisk uses the same set of ATA commands as the IDE harddisk,
-> > well, at least that's what I suppose.
+On Mon, 2006-06-12 at 11:20 +0200, Ingo Molnar wrote:
+> * Sébastien Dugué <sebastien.dugue@bull.net> wrote:
 > 
-> USB storage is a sort of 'pigdin' SCSI. You send SCSI commands to the
-> USB storage device but you may find anything too clever breaks.
+> > > I think all of the regressions reported against rt1 are fixed, please 
+> > > re-report if any of them is still unfixed.
+> > 
+> >   Great, boots fine on my dual Xeon and solves the ping problem I was 
+> > having.
+> > 
+> >   Thomas, any hint at what was going on?
+> 
+> the problem was caused by a mismerge of the __raise_softirq_irqoff() 
+> changes of preempt-softirqs. In PREEMPT_SOFTIRQS, softirq activation 
+> means a wakeup of the softirq thread - hence __raise_softirq_irqoff() 
+> must wake up the softirq thead too. This didnt happen in -rt1 so the 
+> network softirq (which processes things like ping reply packets) got 
+> delayed to the natural softirq event - the next timer interrupt in the 
+> usual case. Hence depending on HZ you got a delay of 1-4-10 msecs 
+> (divided into two parts).
+> 
 
-hm, that depends 
-on where "too much cleverness" is implemented.
-I just noticed that scsi-commands I send to
-via SG_IO get modified underway.
+  Thanks.
 
-the userland program looks like this:
-
-        memset(cmd,0,16);
-        cmd[0]=0x24;
-        cmd[1]=0x24;
-        cmd[2]=0x01;
-        cmd[3]=0x01;
-
-        memset(&ioh,0,sizeof(ioh));
-        ioh.interface_id='S';
-        ioh.dxfer_direction=SG_DXFER_FROM_DEV;
-        ioh.dxferp = buf;
-        ioh.dxfer_len = 8;
-        ioh.cmdp=cmd;
-        ioh.cmd_len=16;
-        ioh.sbp=sbuf;
-        ioh.mx_sb_len=SG_MAX_SENSE;
-        ioh.timeout = 2000;     // 2 sekunden
-        ioh.flags = SG_FLAG_DIRECT_IO;
-
-        if ((i=ioctl(fd,SG_IO,&ioh))==-1)
-                die("ioctl");
-
-but what's really sent to the device is:
-
-> usb_stor_Bulk_transport
-Bulk Command S 0x43425355 T 0x2a L 8 F 0 Trg 0 LUN 0 CL 16
-> usb_stor_bulk_transfer_buf (length=31)
- 55
- 53
- 42
- 43
- 2a
- 00
- 00
- 00
- 08
- 00
- 00
- 00
- 00
- 00
- 10
- 24
- 04
- 01
- 01
- 00
- 00
- 00
- 00
- 00
- 00
- 00
- 00
- 00
- 00
- 00
- 00
-
-the data really sent is "0x24 0x04 0x01 0x01", which means that 0x20 gets
-cleared in byte 2 (for whatever reason).
-
-the specs I have (CY7C68310.pdf from http://www.rockbox.org/twiki/pub/Main/DataSheets/)
-say that this field has to be 0x24 for ATACB commands. this is on page12. with the
-ATACB, I want to implement TaskFileRead and TaskFileWrite (page 13).
-the device is a "Low-Power USB 2.0 ATA/ATPAI Bridge IC".
-
-do you have any idea why the data is modified and how I can prevent this?
-
-kind regards,
-herbert rosmanith
+  Sébastien.
 

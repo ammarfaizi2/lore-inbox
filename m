@@ -1,124 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWFMXKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWFMXKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWFMXKH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 19:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWFMXKH
+	id S964794AbWFMXKR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 19:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWFMXKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 19:10:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43157 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964792AbWFMXKF (ORCPT
+	Tue, 13 Jun 2006 19:10:16 -0400
+Received: from smtpout.mac.com ([17.250.248.174]:27365 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964794AbWFMXKP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 19:10:05 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jun 2006 19:10:15 -0400
+In-Reply-To: <1150100286.26402.13.camel@tara.firmix.at>
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com> <193701c68d16$54cac690$0225a8c0@Wednesday> <1150100286.26402.13.camel@tara.firmix.at>
+Mime-Version: 1.0 (Apple Message framework v749.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <AC44C19E-109F-4DD4-933E-B641BF3BF9CB@mac.com>
+Cc: David Schwartz <davids@webmaster.com>,
+       LKML Kernel <linux-kernel@vger.kernel.org>, jdow <jdow@earthlink.net>
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: linux-kernel@vger.kernel.org
-X-Fcc: ~/Mail/linus
-Subject: [RFC PATCH 0/4] utrace: new modular infrastructure for user debug/tracing
-Message-Id: <20060613231000.38B76180072@magilla.sf.frob.com>
-Date: Tue, 13 Jun 2006 16:10:00 -0700 (PDT)
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+Date: Mon, 12 Jun 2006 07:42:06 -0400
+To: Bernd Petrovitsch <bernd@firmix.at>
+X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been working on for a while, and imagining for much longer,
-replacing ptrace from the ground up.  This is what I've come up with so
-far, and I'm looking for some reactions on the direction.  What I'm
-proposing here is a substrate for doing wonderful new things, and I don't
-yet have something built on top of it to demonstrate wonderful things.
-This is intended to make it easy for lots of folks to whip up new things
-and show what fancy business is possible and worthwhile.
+On Jun 12, 2006, at 04:18:06, Bernd Petrovitsch wrote:
+> No. SPF simply defines legitimate outgoing MTAs for a given domain.
 
-I've separated this into four successive patches in hopes it makes it
-easier to read the patches.  The intent is that each intermediate patch
-yields a kernel tree that compiles and works, though after the first patch
-and before the last you get ENOSYS from any ptrace call.  Patch #1 wipes
-out ptrace and its cruft from the bowels of the kernel.  Patch #2 converts
-the architecture-specific ptrace guts into the architecture-specific guts
-for the new thing.  Patch #3 is the crux of it, the new layer for writing
-debugging interfaces.  Patch #4 implements ptrace with user ABI
-compatibility in terms of that layer.
+I'm sorry, but the internet just doesn't work that way.  I have 3  
+email accounts (mac.com, vt.edu, and cox.net).  Both my college and  
+my house deny all SMTP to anyone but their local servers.  If mac.com  
+published an SPF filter and VGER used the SPF filter, I would have no  
+way at all to send mail via this account, simply for the reason that  
+neither of my local ISPs will allow my to directly send email to  
+mac.com.  Likewise for my vt.edu account while at home or my cox.net  
+account while at college.
 
-These patches are relative to 2.6.16.20; I will shortly rebase to the
-current 2.6.17ish tree, and post updated patches.  I don't think the old
-base will make it any harder to review the new code in the patches or its
-core design and implementation choices.  
+IMHO, turning on SPF will not gain anything for the LKML; a bayesian  
+filter based solution would be much more tenable.
 
-There are some known loose ends in the code.  I am working on those and
-will have more updates along with the rebase in a few days.  I am seeking
-feedback on the patches now to identify more issues I have not already
-noted in the code.
+Cheers,
+Kyle Moffett
 
-These changes require some small porting work for each architecture.  In
-these patches, I have done the architecture work only for i386, x86_64, and
-powerpc.  The machine-specific work is quite small and straightforward for
-anyone even mildly familiar with the architecture in question.  It consists
-mainly of rearranging the existing architecture code used for ptrace into
-some new functions.  There should be no need for new assembly hacking or
-anything like that.  I was able to do the powerpc support in a couple of
-hours, and am not any kind of expert on ppc (and took quite a bit longer
-just to get myself able to build and boot ppc kernels).  Anyone interested
-in doing the architecture support for another machine, please contact me
-and I'll be glad to help.  The steps might already be fairly obvious from
-reading the arch/ changes in these patches.
-
-At http://redhat.com/~roland/utrace/ you can always find the current state
-of this work.  There you can also find a small test suite I use, and an
-example module demonstrating a novel feature implemented very cheaply using
-the new infrastructure.  Please send feedback to me at <roland@redhat.com>.
-
-I've tested the new kernel APIs directly with the aforementioned (tiny)
-test suite, and tested them more thoroughly by testing the ptrace
-compatibility implementation based on them.  That I've tested using the gdb
-test suite, on x86_64 and ppc64 for both 32-bit and 64-bit userland
-(including both 32-bit and 64-bit gdb's debugging 32-bit processes on the
-64-bit kernel), and on i386.  I have not tested the ppc32 kernel, but it
-builds and the changed code is mostly shared with the ppc64 code that does
-work, so it has a decent chance.  (For other architectures, some work is
-still required even to get the kernel building again.)
-
----
-
-This series of patches revamps the support for user process debugging
-from the ground up, replacing the old ptrace support completely.
-
-Two major problems with ptrace are its interface and its implementation.
-
-The low-level code for tracing core events is directly tied into the
-implementation of the ptrace system call interface.  Machine-dependent
-code for accessing registers and controlling single-stepping is
-intermingled with core implementation details that are actually
-machine-independent and repeated across arch directories.  ptrace
-interferes with the normal parent-child linkage, introducing many
-corner cases that have caused trouble in the past.
-
-The shortcomings of ptrace as a user-mode interface for debugging are
-many, and well-known to those who have worked with it from the userland
-side, or been involved in fixing and maintaining it in the kernel.  The
-system call interface is clunky to use and to extend, and makes it
-difficult to reduce the overhead of doing several operations and of
-transferring large amounts of data.  There is no way for more than one
-party to trace a process.  The reporting model using SIGCHLD and wait4
-is tricky to use reliably from userland, and especially hard to
-integrate with other kinds of event loop.  Thread event reporting is
-heavy-weight and not specified with good granularity: in practice a
-traced thread stops for everything.
-
-The old ptrace implementation is removed entirely and replaced with a
-modular interface layer that provides user debugging and tracing
-functionality separate from any single userland interface.  Rather than
-trying to come up with a single new interface to replace ptrace, this
-provides a platform for higher-level code in kernel modules to provide
-userland interfaces for tracing and debugging.  The ptrace system call
-is provided for compatibility, written on top of the new modular layer.
-
-Currently there are these four patches:
-
-[PATCH 1] utrace: tracehook (die, ptrace, die)
-[PATCH 2] utrace: register sets
-[PATCH 3] utrace core
-[PATCH 4] utrace: ptrace compatibility
-
-
-Thanks,
-Roland

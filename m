@@ -1,695 +1,371 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751899AbWFLM26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWFLM3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751899AbWFLM26 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 08:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751918AbWFLM26
+	id S1751918AbWFLM3u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 08:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751919AbWFLM3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 08:28:58 -0400
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:43496 "EHLO
-	mail-gw1.sa.eol.hu") by vger.kernel.org with ESMTP id S1751909AbWFLM25
+	Mon, 12 Jun 2006 08:29:49 -0400
+Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:11498 "EHLO
+	mail-gw1.sa.eol.hu") by vger.kernel.org with ESMTP id S1751918AbWFLM3s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 08:28:57 -0400
+	Mon, 12 Jun 2006 08:29:48 -0400
 To: akpm@osdl.org
 CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 In-reply-to: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu> (message from Miklos
 	Szeredi on Mon, 12 Jun 2006 14:21:49 +0200)
-Subject: [PATCH 3/7] fuse: add control filesystem
+Subject: [PATCH 4/7] fuse: add POSIX file locking support
 References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1FplWy-000620-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1FplXk-00062M-00@dorka.pomaz.szeredi.hu>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 12 Jun 2006 14:28:32 +0200
+Date: Mon, 12 Jun 2006 14:29:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a control filesystem to fuse, replacing the attributes currently
-exported through sysfs.  An empty directory '/sys/fs/fuse/connections'
-is still created in sysfs, and mounting the control filesystem here
-provides backward compatibility.
+This patch adds POSIX file locking support to the fuse interface.
 
-Advantages of the control filesystem over the previous solution:
+This implementation doesn't keep any locking state in kernel.
+Unlocking on close() is handled by the FLUSH message, which now
+contains the lock owner id.
 
-  - allows the object directory and the attributes to be owned by the
-    filesystem owner, hence letting unpriviled users abort the
-    filesystem connection
-
-  - does not suffer from module unload race
+Mandatory locking is not supported.  The filesystem may enfoce
+mandatory locking in userspace if needed.
 
 Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 ---
 
-Index: linux/fs/fuse/control.c
+Index: linux/fs/fuse/file.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux/fs/fuse/control.c	2006-06-12 14:09:57.000000000 +0200
-@@ -0,0 +1,204 @@
+--- linux.orig/fs/fuse/file.c	2006-06-12 14:09:56.000000000 +0200
++++ linux/fs/fuse/file.c	2006-06-12 14:09:59.000000000 +0200
+@@ -160,6 +160,18 @@ static int fuse_release(struct inode *in
+ 	return fuse_release_common(inode, file, 0);
+ }
+ 
 +/*
-+  FUSE: Filesystem in Userspace
-+  Copyright (C) 2001-2006  Miklos Szeredi <miklos@szeredi.hu>
-+
-+  This program can be distributed under the terms of the GNU GPL.
-+  See the file COPYING.
-+*/
-+
-+#include "fuse_i.h"
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+
-+#define FUSE_CTL_SUPER_MAGIC 0x65735543
-+
-+static struct super_block *fuse_control_sb;
-+
-+static struct fuse_conn *fuse_ctl_file_conn_get(struct file *file)
++ * It would be nice to scramble the ID space, so that the value of the
++ * files_struct pointer is not exposed to userspace.  Symmetric crypto
++ * functions are overkill, since the inverse function doesn't need to
++ * be implemented (though it does have to exist).  Is there something
++ * simpler?
++ */
++static inline u64 fuse_lock_owner_id(fl_owner_t id)
 +{
-+	struct fuse_conn *fc;
-+	mutex_lock(&fuse_mutex);
-+	fc = file->f_dentry->d_inode->u.generic_ip;
-+	if (fc)
-+		fc = fuse_conn_get(fc);
-+	mutex_unlock(&fuse_mutex);
-+	return fc;
++	return (unsigned long) id;
 +}
 +
-+static ssize_t fuse_conn_abort_write(struct file *file, const char __user *buf,
-+				     size_t count, loff_t *ppos)
+ static int fuse_flush(struct file *file, fl_owner_t id)
+ {
+ 	struct inode *inode = file->f_dentry->d_inode;
+@@ -181,11 +193,13 @@ static int fuse_flush(struct file *file,
+ 
+ 	memset(&inarg, 0, sizeof(inarg));
+ 	inarg.fh = ff->fh;
++	inarg.lock_owner = fuse_lock_owner_id(id);
+ 	req->in.h.opcode = FUSE_FLUSH;
+ 	req->in.h.nodeid = get_node_id(inode);
+ 	req->in.numargs = 1;
+ 	req->in.args[0].size = sizeof(inarg);
+ 	req->in.args[0].value = &inarg;
++	req->force = 1;
+ 	request_send(fc, req);
+ 	err = req->out.h.error;
+ 	fuse_put_request(fc, req);
+@@ -604,6 +618,122 @@ static int fuse_set_page_dirty(struct pa
+ 	return 0;
+ }
+ 
++static int convert_fuse_file_lock(const struct fuse_file_lock *ffl,
++				  struct file_lock *fl)
 +{
-+	struct fuse_conn *fc = fuse_ctl_file_conn_get(file);
-+	if (fc) {
-+		fuse_abort_conn(fc);
-+		fuse_conn_put(fc);
++	switch (ffl->type) {
++	case F_UNLCK:
++		break;
++
++	case F_RDLCK:
++	case F_WRLCK:
++		if (ffl->start > OFFSET_MAX || ffl->end > OFFSET_MAX ||
++		    ffl->end < ffl->start)
++			return -EIO;
++
++		fl->fl_start = ffl->start;
++		fl->fl_end = ffl->end;
++		fl->fl_pid = ffl->pid;
++		break;
++
++	default:
++		return -EIO;
 +	}
-+	return count;
-+}
-+
-+static ssize_t fuse_conn_waiting_read(struct file *file, char __user *buf,
-+				      size_t len, loff_t *ppos)
-+{
-+	char tmp[32];
-+	size_t size;
-+
-+	if (!*ppos) {
-+		struct fuse_conn *fc = fuse_ctl_file_conn_get(file);
-+		if (!fc)
-+			return 0;
-+
-+		file->private_data = (void *) atomic_read(&fc->num_waiting);
-+		fuse_conn_put(fc);
-+	}
-+	size = sprintf(tmp, "%i\n", (int) file->private_data);
-+	return simple_read_from_buffer(buf, len, ppos, tmp, size);
-+}
-+
-+static const struct file_operations fuse_ctl_abort_ops = {
-+	.open = nonseekable_open,
-+	.write = fuse_conn_abort_write,
-+};
-+
-+static const struct file_operations fuse_ctl_waiting_ops = {
-+	.open = nonseekable_open,
-+	.read = fuse_conn_waiting_read,
-+};
-+
-+static struct dentry *fuse_ctl_add_dentry(struct dentry *parent,
-+					  struct fuse_conn *fc,
-+					  const char *name,
-+					  int mode, int nlink,
-+					  struct inode_operations *iop,
-+					  const struct file_operations *fop)
-+{
-+	struct dentry *dentry;
-+	struct inode *inode;
-+
-+	BUG_ON(fc->ctl_ndents >= FUSE_CTL_NUM_DENTRIES);
-+	dentry = d_alloc_name(parent, name);
-+	if (!dentry)
-+		return NULL;
-+
-+	fc->ctl_dentry[fc->ctl_ndents++] = dentry;
-+	inode = new_inode(fuse_control_sb);
-+	if (!inode)
-+		return NULL;
-+
-+	inode->i_mode = mode;
-+	inode->i_uid = fc->user_id;
-+	inode->i_gid = fc->group_id;
-+	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+	if (iop)
-+		inode->i_op = iop;
-+	inode->i_fop = fop;
-+	inode->i_nlink = nlink;
-+	inode->u.generic_ip = fc;
-+	d_add(dentry, inode);
-+	return dentry;
-+}
-+
-+int fuse_ctl_add_conn(struct fuse_conn *fc)
-+{
-+	struct dentry *parent;
-+	char name[32];
-+
-+	if (!fuse_control_sb)
-+		return 0;
-+
-+	parent = fuse_control_sb->s_root;
-+	parent->d_inode->i_nlink++;
-+	sprintf(name, "%llu", (unsigned long long) fc->id);
-+	parent = fuse_ctl_add_dentry(parent, fc, name, S_IFDIR | 0500, 2,
-+				     &simple_dir_inode_operations,
-+				     &simple_dir_operations);
-+	if (!parent)
-+		goto err;
-+
-+	if (!fuse_ctl_add_dentry(parent, fc, "waiting", S_IFREG | 0400, 1,
-+				NULL, &fuse_ctl_waiting_ops) ||
-+	    !fuse_ctl_add_dentry(parent, fc, "abort", S_IFREG | 0200, 1,
-+				 NULL, &fuse_ctl_abort_ops))
-+		goto err;
-+
++	fl->fl_type = ffl->type;
 +	return 0;
-+
-+ err:
-+	fuse_ctl_remove_conn(fc);
-+	return -ENOMEM;
 +}
 +
-+void fuse_ctl_remove_conn(struct fuse_conn *fc)
++static void fuse_lk_fill(struct fuse_req *req, struct file *file,
++			 const struct file_lock *fl, int opcode, pid_t pid)
 +{
-+	int i;
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_file *ff = file->private_data;
++	struct fuse_lk_in *arg = &req->misc.lk_in;
 +
-+	if (!fuse_control_sb)
-+		return;
-+
-+	for (i = fc->ctl_ndents - 1; i >= 0; i--) {
-+		struct dentry *dentry = fc->ctl_dentry[i];
-+		dentry->d_inode->u.generic_ip = NULL;
-+		d_drop(dentry);
-+		dput(dentry);
-+	}
-+	fuse_control_sb->s_root->d_inode->i_nlink--;
++	arg->fh = ff->fh;
++	arg->owner = fuse_lock_owner_id(fl->fl_owner);
++	arg->lk.start = fl->fl_start;
++	arg->lk.end = fl->fl_end;
++	arg->lk.type = fl->fl_type;
++	arg->lk.pid = pid;
++	req->in.h.opcode = opcode;
++	req->in.h.nodeid = get_node_id(inode);
++	req->in.numargs = 1;
++	req->in.args[0].size = sizeof(*arg);
++	req->in.args[0].value = arg;
 +}
 +
-+static int fuse_ctl_fill_super(struct super_block *sb, void *data, int silent)
++static int fuse_getlk(struct file *file, struct file_lock *fl)
 +{
-+	struct tree_descr empty_descr = {""};
-+	struct fuse_conn *fc;
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++	struct fuse_req *req;
++	struct fuse_lk_out outarg;
 +	int err;
 +
-+	err = simple_fill_super(sb, FUSE_CTL_SUPER_MAGIC, &empty_descr);
-+	if (err)
-+		return err;
++	req = fuse_get_req(fc);
++	if (IS_ERR(req))
++		return PTR_ERR(req);
 +
-+	mutex_lock(&fuse_mutex);
-+	BUG_ON(fuse_control_sb);
-+	fuse_control_sb = sb;
-+	list_for_each_entry(fc, &fuse_conn_list, entry) {
-+		err = fuse_ctl_add_conn(fc);
-+		if (err) {
-+			fuse_control_sb = NULL;
-+			mutex_unlock(&fuse_mutex);
-+			return err;
-+		}
++	fuse_lk_fill(req, file, fl, FUSE_GETLK, 0);
++	req->out.numargs = 1;
++	req->out.args[0].size = sizeof(outarg);
++	req->out.args[0].value = &outarg;
++	request_send(fc, req);
++	err = req->out.h.error;
++	fuse_put_request(fc, req);
++	if (!err)
++		err = convert_fuse_file_lock(&outarg.lk, fl);
++
++	return err;
++}
++
++static int fuse_setlk(struct file *file, struct file_lock *fl)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++	struct fuse_req *req;
++	int opcode = (fl->fl_flags & FL_SLEEP) ? FUSE_SETLKW : FUSE_SETLK;
++	pid_t pid = fl->fl_type != F_UNLCK ? current->tgid : 0;
++	int err;
++
++	/* Unlock on close is handled by the flush method */
++	if (fl->fl_flags & FL_CLOSE)
++		return 0;
++
++	req = fuse_get_req(fc);
++	if (IS_ERR(req))
++		return PTR_ERR(req);
++
++	fuse_lk_fill(req, file, fl, opcode, pid);
++	request_send(fc, req);
++	err = req->out.h.error;
++	fuse_put_request(fc, req);
++	return err;
++}
++
++static int fuse_file_lock(struct file *file, int cmd, struct file_lock *fl)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++	int err;
++
++	if (cmd == F_GETLK) {
++		if (fc->no_lock) {
++			if (!posix_test_lock(file, fl, fl))
++				fl->fl_type = F_UNLCK;
++			err = 0;
++		} else
++			err = fuse_getlk(file, fl);
++	} else {
++		if (fc->no_lock)
++			err = posix_lock_file_wait(file, fl);
++		else
++			err = fuse_setlk(file, fl);
 +	}
-+	mutex_unlock(&fuse_mutex);
++	return err;
++}
++
+ static const struct file_operations fuse_file_operations = {
+ 	.llseek		= generic_file_llseek,
+ 	.read		= generic_file_read,
+@@ -613,6 +743,7 @@ static const struct file_operations fuse
+ 	.flush		= fuse_flush,
+ 	.release	= fuse_release,
+ 	.fsync		= fuse_fsync,
++	.lock		= fuse_file_lock,
+ 	.sendfile	= generic_file_sendfile,
+ };
+ 
+@@ -624,6 +755,7 @@ static const struct file_operations fuse
+ 	.flush		= fuse_flush,
+ 	.release	= fuse_release,
+ 	.fsync		= fuse_fsync,
++	.lock		= fuse_file_lock,
+ 	/* no mmap and sendfile */
+ };
+ 
+Index: linux/fs/fuse/fuse_i.h
+===================================================================
+--- linux.orig/fs/fuse/fuse_i.h	2006-06-12 14:09:57.000000000 +0200
++++ linux/fs/fuse/fuse_i.h	2006-06-12 14:09:59.000000000 +0200
+@@ -190,6 +190,7 @@ struct fuse_req {
+ 		struct fuse_init_in init_in;
+ 		struct fuse_init_out init_out;
+ 		struct fuse_read_in read_in;
++		struct fuse_lk_in lk_in;
+ 	} misc;
+ 
+ 	/** page vector */
+@@ -307,6 +308,9 @@ struct fuse_conn {
+ 	/** Is removexattr not implemented by fs? */
+ 	unsigned no_removexattr : 1;
+ 
++	/** Are file locking primitives not implemented by fs? */
++	unsigned no_lock : 1;
++
+ 	/** Is access not implemented by fs? */
+ 	unsigned no_access : 1;
+ 
+Index: linux/include/linux/fuse.h
+===================================================================
+--- linux.orig/include/linux/fuse.h	2006-06-12 14:09:54.000000000 +0200
++++ linux/include/linux/fuse.h	2006-06-12 14:09:59.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+     FUSE: Filesystem in Userspace
+-    Copyright (C) 2001-2005  Miklos Szeredi <miklos@szeredi.hu>
++    Copyright (C) 2001-2006  Miklos Szeredi <miklos@szeredi.hu>
+ 
+     This program can be distributed under the terms of the GNU GPL.
+     See the file COPYING.
+@@ -15,7 +15,7 @@
+ #define FUSE_KERNEL_VERSION 7
+ 
+ /** Minor version number of this interface */
+-#define FUSE_KERNEL_MINOR_VERSION 6
++#define FUSE_KERNEL_MINOR_VERSION 7
+ 
+ /** The node ID of the root inode */
+ #define FUSE_ROOT_ID 1
+@@ -59,6 +59,13 @@ struct fuse_kstatfs {
+ 	__u32	spare[6];
+ };
+ 
++struct fuse_file_lock {
++	__u64	start;
++	__u64	end;
++	__u32	type;
++	__u32	pid; /* tgid */
++};
++
+ /**
+  * Bitmasks for fuse_setattr_in.valid
+  */
+@@ -83,6 +90,7 @@ struct fuse_kstatfs {
+  * INIT request/reply flags
+  */
+ #define FUSE_ASYNC_READ		(1 << 0)
++#define FUSE_POSIX_LOCKS	(1 << 1)
+ 
+ enum fuse_opcode {
+ 	FUSE_LOOKUP	   = 1,
+@@ -113,6 +121,9 @@ enum fuse_opcode {
+ 	FUSE_READDIR       = 28,
+ 	FUSE_RELEASEDIR    = 29,
+ 	FUSE_FSYNCDIR      = 30,
++	FUSE_GETLK         = 31,
++	FUSE_SETLK         = 32,
++	FUSE_SETLKW        = 33,
+ 	FUSE_ACCESS        = 34,
+ 	FUSE_CREATE        = 35
+ };
+@@ -200,6 +211,7 @@ struct fuse_flush_in {
+ 	__u64	fh;
+ 	__u32	flush_flags;
+ 	__u32	padding;
++	__u64	lock_owner;
+ };
+ 
+ struct fuse_read_in {
+@@ -248,6 +260,16 @@ struct fuse_getxattr_out {
+ 	__u32	padding;
+ };
+ 
++struct fuse_lk_in {
++	__u64	fh;
++	__u64	owner;
++	struct fuse_file_lock lk;
++};
++
++struct fuse_lk_out {
++	struct fuse_file_lock lk;
++};
++
+ struct fuse_access_in {
+ 	__u32	mask;
+ 	__u32	padding;
+Index: linux/fs/fuse/inode.c
+===================================================================
+--- linux.orig/fs/fuse/inode.c	2006-06-12 14:09:57.000000000 +0200
++++ linux/fs/fuse/inode.c	2006-06-12 14:09:59.000000000 +0200
+@@ -98,6 +98,14 @@ static void fuse_clear_inode(struct inod
+ 	}
+ }
+ 
++static int fuse_remount_fs(struct super_block *sb, int *flags, char *data)
++{
++	if (*flags & MS_MANDLOCK)
++		return -EINVAL;
 +
 +	return 0;
 +}
 +
-+static struct super_block *fuse_ctl_get_sb(struct file_system_type *fs_type,
-+					   int flags, const char *dev_name,
-+					   void *raw_data)
-+{
-+	return get_sb_single(fs_type, flags, raw_data, fuse_ctl_fill_super);
-+}
-+
-+static void fuse_ctl_kill_sb(struct super_block *sb)
-+{
-+	mutex_lock(&fuse_mutex);
-+	fuse_control_sb = NULL;
-+	mutex_unlock(&fuse_mutex);
-+
-+	kill_litter_super(sb);
-+}
-+
-+static struct file_system_type fuse_ctl_fs_type = {
-+	.owner		= THIS_MODULE,
-+	.name		= "fusectl",
-+	.get_sb		= fuse_ctl_get_sb,
-+	.kill_sb	= fuse_ctl_kill_sb,
-+};
-+
-+int __init fuse_ctl_init(void)
-+{
-+	return register_filesystem(&fuse_ctl_fs_type);
-+}
-+
-+void fuse_ctl_cleanup(void)
-+{
-+	unregister_filesystem(&fuse_ctl_fs_type);
-+}
-Index: linux/fs/fuse/inode.c
-===================================================================
---- linux.orig/fs/fuse/inode.c	2006-06-12 14:09:56.000000000 +0200
-+++ linux/fs/fuse/inode.c	2006-06-12 14:09:57.000000000 +0200
-@@ -22,13 +22,8 @@ MODULE_DESCRIPTION("Filesystem in Usersp
- MODULE_LICENSE("GPL");
- 
- static kmem_cache_t *fuse_inode_cachep;
--static struct subsystem connections_subsys;
--
--struct fuse_conn_attr {
--	struct attribute attr;
--	ssize_t (*show)(struct fuse_conn *, char *);
--	ssize_t (*store)(struct fuse_conn *, const char *, size_t);
--};
-+struct list_head fuse_conn_list;
-+DEFINE_MUTEX(fuse_mutex);
- 
- #define FUSE_SUPER_MAGIC 0x65735546
- 
-@@ -212,8 +207,11 @@ static void fuse_put_super(struct super_
- 	kill_fasync(&fc->fasync, SIGIO, POLL_IN);
- 	wake_up_all(&fc->waitq);
- 	wake_up_all(&fc->blocked_waitq);
--	kobject_del(&fc->kobj);
--	kobject_put(&fc->kobj);
-+	mutex_lock(&fuse_mutex);
-+	list_del(&fc->entry);
-+	fuse_ctl_remove_conn(fc);
-+	mutex_unlock(&fuse_mutex);
-+	fuse_conn_put(fc);
- }
- 
- static void convert_fuse_statfs(struct kstatfs *stbuf, struct fuse_kstatfs *attr)
-@@ -362,11 +360,6 @@ static int fuse_show_options(struct seq_
- 	return 0;
- }
- 
--static void fuse_conn_release(struct kobject *kobj)
--{
--	kfree(get_fuse_conn_kobj(kobj));
--}
--
- static struct fuse_conn *new_conn(void)
+ void fuse_change_attributes(struct inode *inode, struct fuse_attr *attr)
  {
- 	struct fuse_conn *fc;
-@@ -374,13 +367,12 @@ static struct fuse_conn *new_conn(void)
- 	fc = kzalloc(sizeof(*fc), GFP_KERNEL);
- 	if (fc) {
- 		spin_lock_init(&fc->lock);
-+		atomic_set(&fc->count, 1);
- 		init_waitqueue_head(&fc->waitq);
- 		init_waitqueue_head(&fc->blocked_waitq);
- 		INIT_LIST_HEAD(&fc->pending);
- 		INIT_LIST_HEAD(&fc->processing);
- 		INIT_LIST_HEAD(&fc->io);
--		kobj_set_kset_s(fc, connections_subsys);
--		kobject_init(&fc->kobj);
- 		atomic_set(&fc->num_waiting, 0);
- 		fc->bdi.ra_pages = (VM_MAX_READAHEAD * 1024) / PAGE_CACHE_SIZE;
- 		fc->bdi.unplug_io_fn = default_unplug_io_fn;
-@@ -390,6 +382,18 @@ static struct fuse_conn *new_conn(void)
- 	return fc;
- }
+ 	if (S_ISREG(inode->i_mode) && i_size_read(inode) != attr->size)
+@@ -409,6 +417,7 @@ static struct super_operations fuse_supe
+ 	.destroy_inode  = fuse_destroy_inode,
+ 	.read_inode	= fuse_read_inode,
+ 	.clear_inode	= fuse_clear_inode,
++	.remount_fs	= fuse_remount_fs,
+ 	.put_super	= fuse_put_super,
+ 	.umount_begin	= fuse_umount_begin,
+ 	.statfs		= fuse_statfs,
+@@ -428,8 +437,12 @@ static void process_init_reply(struct fu
+ 			ra_pages = arg->max_readahead / PAGE_CACHE_SIZE;
+ 			if (arg->flags & FUSE_ASYNC_READ)
+ 				fc->async_read = 1;
+-		} else
++			if (!(arg->flags & FUSE_POSIX_LOCKS))
++				fc->no_lock = 1;
++		} else {
+ 			ra_pages = fc->max_read / PAGE_CACHE_SIZE;
++			fc->no_lock = 1;
++		}
  
-+void fuse_conn_put(struct fuse_conn *fc)
-+{
-+	if (atomic_dec_and_test(&fc->count))
-+		kfree(fc);
-+}
+ 		fc->bdi.ra_pages = min(fc->bdi.ra_pages, ra_pages);
+ 		fc->minor = arg->minor;
+@@ -447,7 +460,7 @@ static void fuse_send_init(struct fuse_c
+ 	arg->major = FUSE_KERNEL_VERSION;
+ 	arg->minor = FUSE_KERNEL_MINOR_VERSION;
+ 	arg->max_readahead = fc->bdi.ra_pages * PAGE_CACHE_SIZE;
+-	arg->flags |= FUSE_ASYNC_READ;
++	arg->flags |= FUSE_ASYNC_READ | FUSE_POSIX_LOCKS;
+ 	req->in.h.opcode = FUSE_INIT;
+ 	req->in.numargs = 1;
+ 	req->in.args[0].size = sizeof(*arg);
+@@ -479,6 +492,9 @@ static int fuse_fill_super(struct super_
+ 	struct fuse_req *init_req;
+ 	int err;
+ 
++	if (sb->s_flags & MS_MANDLOCK)
++		return -EINVAL;
 +
-+struct fuse_conn *fuse_conn_get(struct fuse_conn *fc)
-+{
-+	atomic_inc(&fc->count);
-+	return fc;
-+}
-+
- static struct inode *get_root_inode(struct super_block *sb, unsigned mode)
- {
- 	struct fuse_attr attr;
-@@ -459,10 +463,9 @@ static void fuse_send_init(struct fuse_c
- 	request_send_background(fc, req);
- }
+ 	if (!parse_fuse_opt((char *) data, &d))
+ 		return -EINVAL;
  
--static unsigned long long conn_id(void)
-+static u64 conn_id(void)
- {
--	/* BKL is held for ->get_sb() */
--	static unsigned long long ctr = 1;
-+	static u64 ctr = 1;
- 	return ctr++;
- }
- 
-@@ -519,24 +522,21 @@ static int fuse_fill_super(struct super_
- 	if (!init_req)
- 		goto err_put_root;
- 
--	err = kobject_set_name(&fc->kobj, "%llu", conn_id());
--	if (err)
--		goto err_free_req;
--
--	err = kobject_add(&fc->kobj);
--	if (err)
--		goto err_free_req;
--
--	/* Setting file->private_data can't race with other mount()
--	   instances, since BKL is held for ->get_sb() */
-+	mutex_lock(&fuse_mutex);
- 	err = -EINVAL;
- 	if (file->private_data)
--		goto err_kobject_del;
-+		goto err_unlock;
- 
-+	fc->id = conn_id();
-+	err = fuse_ctl_add_conn(fc);
-+	if (err)
-+		goto err_unlock;
-+
-+	list_add_tail(&fc->entry, &fuse_conn_list);
- 	sb->s_root = root_dentry;
- 	fc->connected = 1;
--	kobject_get(&fc->kobj);
--	file->private_data = fc;
-+	file->private_data = fuse_conn_get(fc);
-+	mutex_unlock(&fuse_mutex);
- 	/*
- 	 * atomic_dec_and_test() in fput() provides the necessary
- 	 * memory barrier for file->private_data to be visible on all
-@@ -548,15 +548,14 @@ static int fuse_fill_super(struct super_
- 
- 	return 0;
- 
-- err_kobject_del:
--	kobject_del(&fc->kobj);
-- err_free_req:
-+ err_unlock:
-+	mutex_unlock(&fuse_mutex);
- 	fuse_request_free(init_req);
-  err_put_root:
- 	dput(root_dentry);
-  err:
- 	fput(file);
--	kobject_put(&fc->kobj);
-+	fuse_conn_put(fc);
- 	return err;
- }
- 
-@@ -574,68 +573,8 @@ static struct file_system_type fuse_fs_t
- 	.kill_sb	= kill_anon_super,
- };
- 
--static ssize_t fuse_conn_waiting_show(struct fuse_conn *fc, char *page)
--{
--	return sprintf(page, "%i\n", atomic_read(&fc->num_waiting));
--}
--
--static ssize_t fuse_conn_abort_store(struct fuse_conn *fc, const char *page,
--				     size_t count)
--{
--	fuse_abort_conn(fc);
--	return count;
--}
--
--static struct fuse_conn_attr fuse_conn_waiting =
--	__ATTR(waiting, 0400, fuse_conn_waiting_show, NULL);
--static struct fuse_conn_attr fuse_conn_abort =
--	__ATTR(abort, 0600, NULL, fuse_conn_abort_store);
--
--static struct attribute *fuse_conn_attrs[] = {
--	&fuse_conn_waiting.attr,
--	&fuse_conn_abort.attr,
--	NULL,
--};
--
--static ssize_t fuse_conn_attr_show(struct kobject *kobj,
--				   struct attribute *attr,
--				   char *page)
--{
--	struct fuse_conn_attr *fca =
--		container_of(attr, struct fuse_conn_attr, attr);
--
--	if (fca->show)
--		return fca->show(get_fuse_conn_kobj(kobj), page);
--	else
--		return -EACCES;
--}
--
--static ssize_t fuse_conn_attr_store(struct kobject *kobj,
--				    struct attribute *attr,
--				    const char *page, size_t count)
--{
--	struct fuse_conn_attr *fca =
--		container_of(attr, struct fuse_conn_attr, attr);
--
--	if (fca->store)
--		return fca->store(get_fuse_conn_kobj(kobj), page, count);
--	else
--		return -EACCES;
--}
--
--static struct sysfs_ops fuse_conn_sysfs_ops = {
--	.show	= &fuse_conn_attr_show,
--	.store	= &fuse_conn_attr_store,
--};
--
--static struct kobj_type ktype_fuse_conn = {
--	.release	= fuse_conn_release,
--	.sysfs_ops	= &fuse_conn_sysfs_ops,
--	.default_attrs	= fuse_conn_attrs,
--};
--
- static decl_subsys(fuse, NULL, NULL);
--static decl_subsys(connections, &ktype_fuse_conn, NULL);
-+static decl_subsys(connections, NULL, NULL);
- 
- static void fuse_inode_init_once(void *foo, kmem_cache_t *cachep,
- 				 unsigned long flags)
-@@ -709,6 +648,7 @@ static int __init fuse_init(void)
- 	printk("fuse init (API version %i.%i)\n",
- 	       FUSE_KERNEL_VERSION, FUSE_KERNEL_MINOR_VERSION);
- 
-+	INIT_LIST_HEAD(&fuse_conn_list);
- 	res = fuse_fs_init();
- 	if (res)
- 		goto err;
-@@ -721,8 +661,14 @@ static int __init fuse_init(void)
- 	if (res)
- 		goto err_dev_cleanup;
- 
-+	res = fuse_ctl_init();
-+	if (res)
-+		goto err_sysfs_cleanup;
-+
- 	return 0;
- 
-+ err_sysfs_cleanup:
-+	fuse_sysfs_cleanup();
-  err_dev_cleanup:
- 	fuse_dev_cleanup();
-  err_fs_cleanup:
-@@ -735,6 +681,7 @@ static void __exit fuse_exit(void)
- {
- 	printk(KERN_DEBUG "fuse exit\n");
- 
-+	fuse_ctl_cleanup();
- 	fuse_sysfs_cleanup();
- 	fuse_fs_cleanup();
- 	fuse_dev_cleanup();
-Index: linux/fs/fuse/Makefile
-===================================================================
---- linux.orig/fs/fuse/Makefile	2006-06-12 14:09:21.000000000 +0200
-+++ linux/fs/fuse/Makefile	2006-06-12 14:09:57.000000000 +0200
-@@ -4,4 +4,4 @@
- 
- obj-$(CONFIG_FUSE_FS) += fuse.o
- 
--fuse-objs := dev.o dir.o file.o inode.o
-+fuse-objs := dev.o dir.o file.o inode.o control.o
-Index: linux/fs/fuse/dev.c
-===================================================================
---- linux.orig/fs/fuse/dev.c	2006-06-12 14:09:56.000000000 +0200
-+++ linux/fs/fuse/dev.c	2006-06-12 14:09:57.000000000 +0200
-@@ -833,7 +833,7 @@ static int fuse_dev_release(struct inode
- 		end_requests(fc, &fc->processing);
- 		spin_unlock(&fc->lock);
- 		fasync_helper(-1, file, 0, &fc->fasync);
--		kobject_put(&fc->kobj);
-+		fuse_conn_put(fc);
- 	}
- 
- 	return 0;
-Index: linux/fs/fuse/fuse_i.h
-===================================================================
---- linux.orig/fs/fuse/fuse_i.h	2006-06-12 14:09:56.000000000 +0200
-+++ linux/fs/fuse/fuse_i.h	2006-06-12 14:09:57.000000000 +0200
-@@ -14,6 +14,7 @@
- #include <linux/spinlock.h>
- #include <linux/mm.h>
- #include <linux/backing-dev.h>
-+#include <linux/mutex.h>
- 
- /** Max number of pages that can be used in a single read request */
- #define FUSE_MAX_PAGES_PER_REQ 32
-@@ -24,6 +25,9 @@
- /** It could be as large as PATH_MAX, but would that have any uses? */
- #define FUSE_NAME_MAX 1024
- 
-+/** Number of dentries for each connection in the control filesystem */
-+#define FUSE_CTL_NUM_DENTRIES 3
-+
- /** If the FUSE_DEFAULT_PERMISSIONS flag is given, the filesystem
-     module will check permissions based on the file mode.  Otherwise no
-     permission checking is done in the kernel */
-@@ -33,6 +37,11 @@
-     doing the mount will be allowed to access the filesystem */
- #define FUSE_ALLOW_OTHER         (1 << 1)
- 
-+/** List of active connections */
-+extern struct list_head fuse_conn_list;
-+
-+/** Global mutex protecting fuse_conn_list and the control filesystem */
-+extern struct mutex fuse_mutex;
- 
- /** FUSE inode */
- struct fuse_inode {
-@@ -216,6 +225,9 @@ struct fuse_conn {
- 	/** Lock protecting accessess to  members of this structure */
- 	spinlock_t lock;
- 
-+	/** Refcount */
-+	atomic_t count;
-+
- 	/** The user id for this mount */
- 	uid_t user_id;
- 
-@@ -310,8 +322,17 @@ struct fuse_conn {
- 	/** Backing dev info */
- 	struct backing_dev_info bdi;
- 
--	/** kobject */
--	struct kobject kobj;
-+	/** Entry on the fuse_conn_list */
-+	struct list_head entry;
-+
-+	/** Unique ID */
-+	u64 id;
-+
-+	/** Dentries in the control filesystem */
-+	struct dentry *ctl_dentry[FUSE_CTL_NUM_DENTRIES];
-+
-+	/** number of dentries used in the above array */
-+	int ctl_ndents;
- 
- 	/** O_ASYNC requests */
- 	struct fasync_struct *fasync;
-@@ -327,11 +348,6 @@ static inline struct fuse_conn *get_fuse
- 	return get_fuse_conn_super(inode->i_sb);
- }
- 
--static inline struct fuse_conn *get_fuse_conn_kobj(struct kobject *obj)
--{
--	return container_of(obj, struct fuse_conn, kobj);
--}
--
- static inline struct fuse_inode *get_fuse_inode(struct inode *inode)
- {
- 	return container_of(inode, struct fuse_inode, inode);
-@@ -422,6 +438,9 @@ int fuse_dev_init(void);
-  */
- void fuse_dev_cleanup(void);
- 
-+int fuse_ctl_init(void);
-+void fuse_ctl_cleanup(void);
-+
- /**
-  * Allocate a request
-  */
-@@ -470,3 +489,23 @@ int fuse_do_getattr(struct inode *inode)
-  * Invalidate inode attributes
-  */
- void fuse_invalidate_attr(struct inode *inode);
-+
-+/**
-+ * Acquire reference to fuse_conn
-+ */
-+struct fuse_conn *fuse_conn_get(struct fuse_conn *fc);
-+
-+/**
-+ * Release reference to fuse_conn
-+ */
-+void fuse_conn_put(struct fuse_conn *fc);
-+
-+/**
-+ * Add connection to control filesystem
-+ */
-+int fuse_ctl_add_conn(struct fuse_conn *fc);
-+
-+/**
-+ * Remove connection from control filesystem
-+ */
-+void fuse_ctl_remove_conn(struct fuse_conn *fc);
-Index: linux/Documentation/filesystems/fuse.txt
-===================================================================
---- linux.orig/Documentation/filesystems/fuse.txt	2006-06-12 14:09:56.000000000 +0200
-+++ linux/Documentation/filesystems/fuse.txt	2006-06-12 14:09:57.000000000 +0200
-@@ -18,6 +18,14 @@ Non-privileged mount (or user mount):
-   user.  NOTE: this is not the same as mounts allowed with the "user"
-   option in /etc/fstab, which is not discussed here.
- 
-+Filesystem connection:
-+
-+  A connection between the filesystem daemon and the kernel.  The
-+  connection exists until either the daemon dies, or the filesystem is
-+  umounted.  Note that detaching (or lazy umounting) the filesystem
-+  does _not_ break the connection, in this case it will exist until
-+  the last reference to the filesystem is released.
-+
- Mount owner:
- 
-   The user who does the mounting.
-@@ -86,16 +94,20 @@ Mount options
-   The default is infinite.  Note that the size of read requests is
-   limited anyway to 32 pages (which is 128kbyte on i386).
- 
--Sysfs
--~~~~~
-+Control filesystem
-+~~~~~~~~~~~~~~~~~~
-+
-+There's a control filesystem for FUSE, which can be mounted by:
- 
--FUSE sets up the following hierarchy in sysfs:
-+  mount -t fusectl none /sys/fs/fuse/connections
- 
--  /sys/fs/fuse/connections/N/
-+Mounting it under the '/sys/fs/fuse/connections' directory makes it
-+backwards compatible with earlier versions.
- 
--where N is an increasing number allocated to each new connection.
-+Under the fuse control filesystem each connection has a directory
-+named by a unique number.
- 
--For each connection the following attributes are defined:
-+For each connection the following files exist within this directory:
- 
-  'waiting'
- 
-@@ -110,7 +122,7 @@ For each connection the following attrib
-   connection.  This means that all waiting requests will be aborted an
-   error returned for all aborted and new requests.
- 
--Only a privileged user may read or write these attributes.
-+Only the owner of the mount may read or write these files.
- 
- Aborting a filesystem connection
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@@ -139,8 +151,8 @@ the filesystem.  There are several ways 
-   - Use forced umount (umount -f).  Works in all cases but only if
-     filesystem is still attached (it hasn't been lazy unmounted)
- 
--  - Abort filesystem through the sysfs interface.  Most powerful
--    method, always works.
-+  - Abort filesystem through the FUSE control filesystem.  Most
-+    powerful method, always works.
- 
- How do non-privileged mounts work?
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

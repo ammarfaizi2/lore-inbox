@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751846AbWFLK5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751853AbWFLK7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751846AbWFLK5T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 06:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWFLK5T
+	id S1751853AbWFLK7X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 06:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWFLK7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 06:57:19 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49551 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751846AbWFLK5S (ORCPT
+	Mon, 12 Jun 2006 06:59:23 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:27790 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751853AbWFLK7W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 06:57:18 -0400
-Date: Mon, 12 Jun 2006 12:56:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock detected!
-Message-ID: <20060612105621.GA10887@elte.hu>
-References: <20060608112306.GA4234@elte.hu> <1149840563.3619.46.camel@imp.csi.cam.ac.uk> <20060610075954.GA30119@elte.hu> <Pine.LNX.4.64.0606100916050.25777@hermes-1.csi.cam.ac.uk> <20060611053154.GA8581@elte.hu> <Pine.LNX.4.64.0606110739310.3726@hermes-1.csi.cam.ac.uk> <20060612083117.GA29026@elte.hu> <1150102041.24273.15.camel@imp.csi.cam.ac.uk> <20060612094011.GA32640@elte.hu> <1150107897.24273.25.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
+	Mon, 12 Jun 2006 06:59:22 -0400
+From: Neil Brown <neilb@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 12 Jun 2006 20:58:58 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150107897.24273.25.camel@imp.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
+Message-ID: <17549.18674.809648.549618@cse.unsw.edu.au>
+Cc: Bernd Petrovitsch <bernd@firmix.at>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, jdow <jdow@earthlink.net>,
+       davids@webmaster.com, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+In-Reply-To: message from Alan Cox on Monday June 12
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+	<193701c68d16$54cac690$0225a8c0@Wednesday>
+	<1150100286.26402.13.camel@tara.firmix.at>
+	<1150106004.22124.155.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-
-> > below i've attached a cleaned up version of my NTFS annotations so far. 
-> > I think they are pretty straightforward and nonintrusive - for 
-> > !CONFIG_LOCKDEP they add zero changes to ntfs.ko. Most of the linecount 
-> > of the patch comes from comments - so i think we might even consider 
-> > this a "document locking rules" patch :-)
+On Monday June 12, alan@lxorguk.ukuu.org.uk wrote:
 > 
-> Thanks, looks great!  Can I leave it to you to keep it as part of the 
-> lock validator patches so it gets into -mm with them and later makes 
-> it into the stock kernel with them?
-
-sure!
-
-> If you want, feel free to add:
+> SPF *would* be wonderful if the users controlled SPF handling and
+> someone fixed the forwarding flaws in it, but neither is the case today.
 > 
-> Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-> 
-> To the patch...
 
-thanks - added.
+The "forwarding flaws" are not flaws in SPF but in SMTP practice.
+I suspect they grew out of the multi-hop days of UUCP and similar
+protocols, but it isn't appropriate in todays Internet.
 
-If anyone wants to try the NTFS related lock-validator fixes, they are 
-included in the combo patch:
+A forwarded email is a new message and shouldn't claim to be from the
+original sender.
 
-  http://redhat.com/~mingo/lockdep-patches/lockdep-combo-2.6.17-rc6-mm2.patch
+I rent a home and occasionally get mail for the landlords which I
+redirect to them.  If I mis-direct it, it should really come back to
+me rather than the original sender (though the current postal system
+doesn't actually encourage that). Of course my landlord needs to trust
+me, but if they didn't they would have told everybody their new
+address (and they have told most people).
 
-which goes ontop of 2.6.17-rc6-mm2.
+Forwarding systems *Shouldn't* simply forward the mail.  They should
+re-send it from a new origin.  If it bounces, there are various thing
+that can be done, from human interaction, or disabling the forward for
+future email, allowing customers to register backup addresses, or
+having web-access to bounced mail or whatever.
 
-	Ingo
+Yes, people have to change their forwarding practices to be fully SPF
+compliant, but that is a case of it is broke, and should be fixed
+anyway.
+
+NeilBrown

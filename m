@@ -1,123 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWFLRnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWFLRou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWFLRnt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWFLRnt
+	id S1751148AbWFLRou (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWFLRou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:43:49 -0400
-Received: from fmmailgate03.web.de ([217.72.192.234]:54513 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP
-	id S1750823AbWFLRnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:43:49 -0400
-Date: Mon, 12 Jun 2006 19:43:46 +0200
-From: Arne Ahrend <aahrend@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: PATA: UDMA settings in Alans patch-2.6.17-rc4-ide1.gz better than
- with 2.6.17-rc6-mm2
-Message-Id: <20060612194346.d92fbb05.aahrend@web.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jun 2006 13:44:50 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:53129 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751148AbWFLRot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:44:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:message-id:from;
+        b=dXmp9fl8uAaQYt319GocyrbKDJmKPAwkzgnumPv+AcNJOqVyWpIoN43GXYTMuOKCEO33GbA+se3Q+TkYbpBMxveIIkhZONjk2EFNrdVAVqCjzoZ/6RWwDLIZMP70W3vARUVd5RHYcesr0S7ocDk3AWneQureEVQdIwarYfViSLU=
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] CRC ITU-T V.41
+Date: Mon, 12 Jun 2006 19:48:15 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <200606121617.08791.IvDoorn@gmail.com> <200606121932.37990.IvDoorn@gmail.com> <20060612103954.1f2a1f0e.rdunlap@xenotime.net>
+In-Reply-To: <20060612103954.1f2a1f0e.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1405012.tonIbus6Wt";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606121948.19055.IvDoorn@gmail.com>
+From: Ivo van Doorn <ivdoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current 2.6.17-rc6-mm2 tree sets UDMA speed for my IDE harddisk to 33, whereas Alans patch-2.6.17-rc4-ide1.gz
-patch has it at 100. This results in hdparm -T /dev/sda measurements on -mm2 roughly halved from 60+ MB/sec to 30+ MB/sec.
+--nextPart1405012.tonIbus6Wt
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Measurements were in both cases taken on kernels based off 2.6.17-rc6, with Alans -rc4 patch forward-fitted.
+On Monday 12 June 2006 19:39, Randy.Dunlap wrote:
+> On Mon, 12 Jun 2006 19:32:34 +0200 Ivo van Doorn wrote:
+>=20
+> > On Monday 12 June 2006 19:09, Randy.Dunlap wrote:
+> > > On Mon, 12 Jun 2006 16:17:04 +0200 Ivo van Doorn wrote:
+> > >=20
+> >=20
+> > > > +/**
+> > > > + * Compute the CRC-ITU-T for the data buffer
+> > >=20
+> > > Please use Linux kernel-doc format.  See
+> > > Documentation/kernel-doc-nano-HOWTO.txt.  Basically:
+> >=20
+> > Ah ok. I just followed the crc16 approach.
+>=20
+> OK, I'll plan to fix that file's kernel-doc then.
+>=20
+> > >  * crc_itu_t - compute the CRC-ITU-T for the data buffer
+> > >=20
+> > > and make parameter changes below:
+> > >=20
+> > > > + *
+> > > > + * @param crc     previous CRC value
+> > > > + * @param buffer  data pointer
+> > > > + * @param len     number of bytes in the buffer
+> > >=20
+> > >  * @crc:	previous CRC value
+> > >  * @buffer:	data pointer
+> > >  * @len:	number of bytes in the buffer
+> > >  *
+> > >  * Returns the updated CRC value.
+> > >=20
+> > > > + * @return        the updated CRC value
+> > > > + */
+> > > > +u16 crc_itu_t(u16 crc, const u8 *buffer, size_t len)
+> > > > +{
+> >=20
+> > The updated patch would then become:
+> >=20
+> > Signed-off-by Ivo van Doorn <IvDoorn@gmail.com>
+> >=20
+> > ---
+> >=20
+> > +/**
+> > + * crc_itu_t - Compute the CRC-ITU-T for the data buffer
+> > + *
+> > + * @crc previous CRC value
+> > + * @buffer data pointer
+> > + * @len number of bytes in the buffer
+>=20
+> The kernel-doc doc. says to put a colon after each parameter name,
+> so please do that too.  Otherwise looks good, thanks.
 
-The remaining three ATAPI devices get UDMA/33 in both setups.
+Updated version. :)
+
+Signed-off-by Ivo van Doorn <IvDoorn@gmail.com>
+
+=2D--
+
+diff --git a/include/linux/crc-itu-t.h b/include/linux/crc-itu-t.h
+new file mode 100644
+index 0000000..a9953c7
+=2D-- /dev/null
++++ b/include/linux/crc-itu-t.h
+@@ -0,0 +1,28 @@
++/*
++ *	crc-itu-t.h - CRC ITU-T V.41 routine
++ *
++ * Implements the standard CRC ITU-T V.41:
++ *   Width 16
++ *   Poly  0x1021 (x^16 + x^12 + x^15 + 1)
++ *   Init  0
++ *
++ * This source code is licensed under the GNU General Public License,
++ * Version 2. See the file COPYING for more details.
++ */
++
++#ifndef CRC_ITU_T_H
++#define CRC_ITU_T_H
++
++#include <linux/types.h>
++
++extern u16 const crc_itu_t_table[256];
++
++extern u16 crc_itu_t(u16 crc, const u8 *buffer, size_t len);
++
++static inline u16 crc_itu_t_byte(u16 crc, const u8 data)
++{
++	return (crc << 8) ^ crc_itu_t_table[((crc >> 8) ^ data) & 0xff];
++}
++
++#endif /* CRC_ITU_T_H */
++
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 3de9335..451d821 100644
+=2D-- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -20,6 +20,14 @@ config CRC16
+ 	  the kernel tree does. Such modules that use library CRC16
+ 	  functions require M here.
+=20
++config CRC_ITU_T
++	tristate "CRC ITU-T V.41 functions"
++	help
++	  This option is provided for the case where no in-kernel-tree
++	  modules require CRC ITU-T V.41 functions, but a module built outside
++	  the kernel tree does. Such modules that use library CRC ITU-T V.41
++	  functions require M here.
++
+ config CRC32
+ 	tristate "CRC32 functions"
+ 	default y
+diff --git a/lib/Makefile b/lib/Makefile
+index b830c9a..d2d08ce 100644
+=2D-- a/lib/Makefile
++++ b/lib/Makefile
+@@ -33,6 +33,7 @@ endif
+=20
+ obj-$(CONFIG_CRC_CCITT)	+=3D crc-ccitt.o
+ obj-$(CONFIG_CRC16)	+=3D crc16.o
++obj-$(CONFIG_CRC_ITU_T)	+=3D crc-itu-t.o
+ obj-$(CONFIG_CRC32)	+=3D crc32.o
+ obj-$(CONFIG_LIBCRC32C)	+=3D libcrc32c.o
+ obj-$(CONFIG_GENERIC_IOMAP) +=3D iomap.o
+diff --git a/lib/crc-itu-t.c b/lib/crc-itu-t.c
+new file mode 100644
+index 0000000..15128ae
+=2D-- /dev/null
++++ b/lib/crc-itu-t.c
+@@ -0,0 +1,69 @@
++/*
++ *      crc-itu-t.c
++ *
++ * This source code is licensed under the GNU General Public License,
++ * Version 2. See the file COPYING for more details.
++ */
++
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/crc-itu-t.h>
++
++/** CRC table for the CRC ITU-T V.41 0x0x1021 (x^16 + x^12 + x^15 + 1) */
++const u16 crc_itu_t_table[256] =3D {
++	0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
++	0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
++	0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
++	0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
++	0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
++	0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
++	0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
++	0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
++	0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
++	0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
++	0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
++	0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
++	0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
++	0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
++	0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
++	0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
++	0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
++	0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
++	0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
++	0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
++	0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
++	0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
++	0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
++	0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
++	0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
++	0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
++	0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
++	0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
++	0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
++	0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
++	0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
++	0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
++};
++
++EXPORT_SYMBOL(crc_itu_t_table);
++
++/**
++ * crc_itu_t - Compute the CRC-ITU-T for the data buffer
++ *
++ * @crc: previous CRC value
++ * @buffer: data pointer
++ * @len: number of bytes in the buffer
++ *
++ * Returns the updated CRC value
++ */
++u16 crc_itu_t(u16 crc, const u8 *buffer, size_t len)
++{
++	while (len--)
++		crc =3D crc_itu_t_byte(crc, *buffer++);
++	return crc;
++}
++EXPORT_SYMBOL(crc_itu_t);
++
++MODULE_DESCRIPTION("CRC ITU-T V.41 calculations");
++MODULE_LICENSE("GPL");
++
 
 
+--nextPart1405012.tonIbus6Wt
+Content-Type: application/pgp-signature
 
-Alans ide patch for 2.6.17-rc4 conflicts with this post-rc4 change in drivers/scsi/libata-core.c:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=bb31a8faa270beafcc51a65880c5564c6b718bd6;hp=387e2b0439026aa738a9edca15a57e5c0bcb4dfc
+iD8DBQBEjajjaqndE37Em0gRAjK1AJ4xHWiKxdCojxOfXwih1Uh6Ts5/QACgkXPq
+36jtqAdAxrh8ykUmSBiTVCI=
+=A0cE
+-----END PGP SIGNATURE-----
 
-Following patch can be used in -rc[56] after applying Alans patch in order to apply the failed hunk and also keep the post-rc4 patch from git:
-
---- linux-2.6.17-rc6-pata-broken/drivers/scsi/libata-core.c	2006-06-12 19:07:42.000000000 +0200
-+++ linux-2.6.17-rc6-pata/drivers/scsi/libata-core.c	2006-06-06 20:16:30.000000000 +0200
-@@ -3736,14 +3736,14 @@ static void atapi_packet_task(void *_dat
- 		 */
- 		spin_lock_irqsave(&ap->host_set->lock, flags);
- 		ap->flags &= ~ATA_FLAG_NOINTR;
--		ata_data_xfer(ap, qc->cdb, qc->dev->cdb_len, 1);
-+ 		ap->ops->data_xfer(ap, qc->dev, qc->cdb, qc->dev->cdb_len, 1);
- 		ata_altstatus(ap); /* flush */
- 
- 		if (qc->tf.protocol == ATA_PROT_ATAPI_DMA)
- 			ap->ops->bmdma_start(qc);	/* initiate bmdma */
- 		spin_unlock_irqrestore(&ap->host_set->lock, flags);
- 	} else {
--		ata_data_xfer(ap, qc->cdb, qc->dev->cdb_len, 1);
-+ 		ap->ops->data_xfer(ap, qc->dev, qc->cdb, qc->dev->cdb_len, 1);
- 		ata_altstatus(ap); /* flush */
- 
- 		/* PIO commands are handled by polling */
-
-
-
-
-
-dmesg section from 2.6.17-rc6 with Alans -rc4 patch fitted:
------------------------------------------------------------
-pata_via 0000:00:0f.1: version 0.1.9
-ACPI: PCI Interrupt 0000:00:0f.1[A] -> GSI 20 (level, low) -> IRQ 17
-PCI: VIA IRQ fixup for 0000:00:0f.1, from 255 to 1
-ata3: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFC00 irq 14
-ata3: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3c69 86:3c01 87:4003 88:203f
-ata3: dev 0 ATA-7, max UDMA/100, 312581808 sectors: LBA48
-ata3: dev 1 cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0407
-ata3: dev 1 ATAPI, max UDMA/33
-via_do_set_mode: Mode=12 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-via_do_set_mode: Mode=12 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-via_do_set_mode: Mode=69 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-via_do_set_mode: Mode=66 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-ata3: dev 0 configured for UDMA/100
-ata3: dev 1 configured for UDMA/33
-scsi2 : pata_via
-isa bounce pool size: 16 pages
-  Vendor: ATA       Model: SAMSUNG SP1614N   Rev: TM10
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: TOSHIBA   Model: DVD-ROM SD-M1612  Rev: X004
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-ata4: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFC08 irq 15
-ata4: dev 0 cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0407
-ata4: dev 0 ATAPI, max UDMA/33
-ata4: dev 1 cfg 49:0f00 82:421c 83:0000 84:0000 85:0000 86:0000 87:0000 88:0407
-ata4: dev 1 ATAPI, max UDMA/33
-via_do_set_mode: Mode=12 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-via_do_set_mode: Mode=12 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-via_do_set_mode: Mode=66 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-via_do_set_mode: Mode=66 ast broken=Y udma=133 mul=4
-t.act8b = 3, t.rec8b = 1, t.active = 3, t.recover = 1
-FIT t.act8b = 2, t.rec8b = 0, t.active = 2, t.recover = 0
-ata4: dev 0 configured for UDMA/33
-ata4: dev 1 configured for UDMA/33
-scsi3 : pata_via
-  Vendor: PLEXTOR   Model: CD-R   PX-W4012A  Rev: 1.06
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-  Vendor: HL-DT-ST  Model: DVDRAM GSA-4163B  Rev: A103
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-
-
-
-Cheers,
-
-Arne
+--nextPart1405012.tonIbus6Wt--

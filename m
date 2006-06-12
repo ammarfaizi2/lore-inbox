@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWFLJ5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWFLKBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751565AbWFLJ5t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 05:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWFLJ5t
+	id S1751679AbWFLKBK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 06:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751686AbWFLKBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 05:57:49 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:18821 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751410AbWFLJ5t (ORCPT
+	Mon, 12 Jun 2006 06:01:10 -0400
+Received: from ns.firmix.at ([62.141.48.66]:17054 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751679AbWFLKBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 05:57:49 -0400
-From: Neil Brown <neilb@suse.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Date: Mon, 12 Jun 2006 19:57:22 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jun 2006 06:01:09 -0400
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, jdow <jdow@earthlink.net>,
+       davids@webmaster.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1150106004.22124.155.camel@localhost.localdomain>
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+	 <193701c68d16$54cac690$0225a8c0@Wednesday>
+	 <1150100286.26402.13.camel@tara.firmix.at>
+	 <1150106004.22124.155.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 12 Jun 2006 12:01:01 +0200
+Message-Id: <1150106461.6354.5.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17549.14978.52678.562114@cse.unsw.edu.au>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, zwane@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-In-Reply-To: message from Russell King on Monday June 12
-References: <20060610222734.GZ27502@mea-ext.zmailer.org>
-	<20060611072223.GA16150@flint.arm.linux.org.uk>
-	<20060612083239.GA27502@mea-ext.zmailer.org>
-	<20060612084012.GA7291@flint.arm.linux.org.uk>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Spam-Score: -2.332 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday June 12, rmk+lkml@arm.linux.org.uk wrote:
-> On Mon, Jun 12, 2006 at 11:32:39AM +0300, Matti Aarnio wrote:
-> > SPF is application level version of this type of source sanity
-> > enforcement, and all that I intend to do is to publish that TXT
-> > entry for VGER.  Analyzing SPF data in incoming SMTP reception
-> > is a thing that I leave for latter phase  (how much latter,
-> > I can't say yet.)
+On Mon, 2006-06-12 at 10:53 +0100, Alan Cox wrote:
+> Ar Llu, 2006-06-12 am 10:18 +0200, ysgrifennodd Bernd Petrovitsch:
+> > No. SPF simply defines legitimate outgoing MTAs for a given domain.
 > 
-> In which case I have no option but to ask - Zwane, please stop using
-> my systems to forward your lkml email - Matti's proposed change will
-> potentially break that setup.
+> No it does not. If it did it would be almost a usable idea, but it fails
+> because the ISP generally controls the definition and the users are more
 
-Of course you do have other options.
+ACK. The domain owner controls it. So if you are not happy with your
+domain owner .....
 
-One is to take responsibility of the mail that you forward.  I don't
-necessarily mean SRS - anything that makes the mail come from a domain
-which claims your server as a valid sender will do.
+[...]
+> ISPs *love* SPF because they can enforce policies that allow them to
+> charge even more to users who want to do anything interesting. The fact
+> many of them don't allow users to control their own domain SPF or get a
+> fixed SPF pointing at the ISP mailhost only is not entirely that they
+> haven't gotten around to fixing it either.
+> 
+> The people who suffer from SPF are unfortunately the users. The people
+> its alleged to stop like it. The people it is alleged to help run
+> filters get richer and the users get screwed.
+[....]
+> SPF *would* be wonderful if the users controlled SPF handling and
 
-Another option would be to arrange with the site that you are
-forwarding mail to to trust you.
+Of course it would be much more useful (at least for the more
+knowing/interested folks) if the user can specify "legitimate" email
+(i.e. for the whole email address, not only th domain part).
+This can be done since years with PGP-signatures but almost no one is
+really using ist. And this requires understanding of PGP etc. - which is
+unfortunately not the case for everyone.
+So any simpler (but also reliable enough) scheme needs to be defined.
 
-Exactly what option is best for you would depend a lot on the details
-of your current setup - and Zwane's.
+> someone fixed the forwarding flaws in it, but neither is the case today.
 
-And certainly not forwarding mail for Zwane is an option.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-But there *are* multiple options.
-
-NeilBrown

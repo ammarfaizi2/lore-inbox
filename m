@@ -1,108 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751897AbWFLMC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751903AbWFLMOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751897AbWFLMC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 08:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751896AbWFLMC1
+	id S1751903AbWFLMOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 08:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751905AbWFLMOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 08:02:27 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:41872 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751897AbWFLMC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 08:02:26 -0400
-Message-ID: <448D57CD.4030007@de.ibm.com>
-Date: Mon, 12 Jun 2006 14:02:21 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Mon, 12 Jun 2006 08:14:16 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:35734 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751903AbWFLMOQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 08:14:16 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2
+References: <20060609214024.2f7dd72c.akpm@osdl.org>
+	<6bffcb0e0606100323p122e9b23g37350fa9692337ae@mail.gmail.com>
+	<20060610092412.66dd109f.akpm@osdl.org>
+	<Pine.LNX.4.64.0606100939480.6651@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com>
+	<20060610100318.8900f849.akpm@osdl.org>
+	<Pine.LNX.4.64.0606101102380.7421@schroedinger.engr.sgi.com>
+	<6bffcb0e0606101114u37c8b642u5c9cc8dd566cba7c@mail.gmail.com>
+	<Pine.LNX.4.64.0606101118410.7535@schroedinger.engr.sgi.com>
+	<20060612110537.GA11358@elte.hu> <20060612114857.GA14616@elte.hu>
+From: Andi Kleen <ak@suse.de>
+Date: 12 Jun 2006 14:14:09 +0200
+In-Reply-To: <20060612114857.GA14616@elte.hu>
+Message-ID: <p73irn6sh9q.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Jay Lan <jlan@sgi.com>
-CC: Shailabh Nagar <nagar@watson.ibm.com>, balbir@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Chris Sturtivant <csturtiv@sgi.com>,
-       Peter Chubb <peterc@gelato.unsw.edu.au>
-Subject: Re: Merge of per task delay accounting (was Re: 2.6.18 -mm merge
- plans)
-References: <20060604135011.decdc7c9.akpm@osdl.org> <4484D25E.4020805@in.ibm.com> <4486017F.8030308@watson.ibm.com> <4486073B.2040102@sgi.com>
-In-Reply-To: <4486073B.2040102@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
-> Shailabh Nagar wrote:
->> Balbir Singh wrote:
+Ingo Molnar <mingo@elte.hu> writes:
 
->> Andrew,
->>
->> The only other new set of patches to be discussed in this context are the
->> statistics-infrastructure patches from Martin Peschke.
->>
->> That infrastructure cannot meet the needs of delay accounting, CSA 
->> etc. because
->> - it only provides "user pull" model of getting stats whereas "kernel 
->> push" is
->> needed for delay accounting
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Doesn't taskstats interface provide "user pull" request-reply model
-> also? Serious accounting needs to push accounting data as soon as
-> possible.
+> > 
+> > * Christoph Lameter <clameter@sgi.com> wrote:
+> > 
+> > > Sorry that patch was still against mm1. Here is a fixed up version 
+> > > that applies cleanly against mm2:
+> > 
+> > i have applied both patches you sent in this thread but it still 
+> > triggers tons of messages:
 > 
->> - it uses a relatively slow interface unsuitable for high volumes of 
->> data. 
-
-By design.
-
-I think it would be fatal to report every event relevant
-to statistical data gathering up to user space. It's fine to have
-the kernel maintain counters and to provide preprocessed data.
-
-Given that, is there a need for a high-speed interface for a
-huge amount of unprocessed statistical data?
-
-However, the user interface is a just one building brick,
-which can be enhanced or replaced with moderate effort, if
-there is a need.
-
- >> Each statistic has its own definition,
-
-Allowing users to restrict accounting to what they need in their
-particular case. Sensible defaults are usually available.
-
->> needs to be read separately using ASCII,
->> reading data continuously means open/read/close each time.....all of
->> which is not very conducive to large structures being sent to userspace.
-
-Debugfs file are fine for larger structures.
-
-Unless one keeps reading statistics dozens of times per second,
-I don't see an issue with that.
-
-The question is: what are the requirements to be covered?
-
-> Yes, i second the point. It won't be able to catch up the traffic.
+> > trying to fix it i realized that i'd have to touch tons of 
+> > architectures, which all duplicate this piece of code:
 > 
->> - its oriented towards sampled data whereas taskstats isn't.
->>
->> So, we have a good consensus from existing/potential users of 
->> taskstats and would
->> very much appreciate it being included in 2.6.18.
-> 
-> Andrew, it has become clear that the community wants to see accounting
-> data processing being moved to userspace. Thus there is a need for a
-> common accounting interface to provide minimal works at kernel (via
-> hooks at fork and exit) and deliver data to userspace.
+> below is an updated patch that includes fixups for i386 - but the real 
+> fix should be to properly reduce the per-arch local.h footprint to the 
+> bare minimum possible, and to do this fix on the asm-generic headers.
 
-Both, the statistics infrastructure on behalf of its exploiters as well
-as the exploiters of the taskstats interface do data preprocessing,
-that is, maintain counters in the kernel.
-User space counters won't perform, of course.
+I think an even better approach would be to use local_save_flags() / 
+local_restore_flags () and then use a normal increment and get
+rid of smp_processor_id completely.
 
-AFAICS, actual differences are:
-- triggers for data delivery to user space
-   (statistics infrastructure: when user reads statistics through file,
-    taskstats: on certain task related events, right?)
-- and, therewith, frequency of data delivery to user space
+I've never seen any evidence that the complex and bloated code generated by 
+this is any better that just enabling/disabling interrupts. 
 
+In the x86 world P4 has costly cli/sti, but I wouldn't expect
+that problem to be very widespread.
 
-Martin
-
+-Andi

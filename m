@@ -1,91 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751923AbWFLMgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751930AbWFLMmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751923AbWFLMgd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 08:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751927AbWFLMgc
+	id S1751930AbWFLMmR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 08:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbWFLMmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 08:36:32 -0400
-Received: from smtp-relay.dca.net ([216.158.48.66]:61154 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S1751923AbWFLMgc
+	Mon, 12 Jun 2006 08:42:17 -0400
+Received: from 36.53.5646.static.theplanet.com ([70.86.83.54]:25219 "EHLO
+	zacbowling.com") by vger.kernel.org with ESMTP id S1751930AbWFLMmR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 08:36:32 -0400
-Date: Mon, 12 Jun 2006 08:36:26 -0400
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-Subject: Re: [lm-sensors] [PATCH] I2C: i2c_bit_add_bus should initialize SDA and SCL lines
-Message-ID: <20060612123626.GA27429@jupiter.solarsys.private>
-References: <m34pyyz0e1.fsf@defiant.localdomain> <20060609110546.GA26073@jupiter.solarsys.private> <m3lks4k5od.fsf@defiant.localdomain>
+	Mon, 12 Jun 2006 08:42:17 -0400
+Subject: [PATCH] saa7134 card (LifeView3000 NTSC)
+From: Zac Bowling <zac@zacbowling.com>
+Reply-To: zac@zacbowling.com
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 12 Jun 2006 07:42:14 -0500
+Message-Id: <1150116134.5538.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3lks4k5od.fsf@defiant.localdomain>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krzysztof:
+Below is a patch to add detection for the LifeView3000 NTSC model (right
+now the PAL version is the only one in there, which is sort of annoying
+for me living in the US and all.. sigh...)
 
-> "Mark M. Hoffman" <mhoffman@lightlink.com> writes:
-> > SCL and SDA must be pulled high by hardware.  If a driver inits to
-> > setting them low, that's a bug in the driver.
+I wrote it on 2.15.x but it applies on 2.16.x cleanly, but I'm not sure
+(nor am in a very well positioned place) to check it against head.
+However the only probable difference unless someone rewrote this
+entirely is that the ID I assigned for it in "saa7134.h" is already
+added for something else, in which case it just needs to be incremented.
+Its a fairly trivial patch (mostly a copy and paste from the PAL
+version, but changing it to use NTSC instead). 
 
-* Krzysztof Halasa <khc@pm.waw.pl> [2006-06-11 00:27:14 +0200]:
-> Thanks for your response.
-> 
-> The question is rather who inits the lines: a) the hw driver,
-> b) the I2C algorithm driver.
-> 
-> With a) every hw driver has to know how to init them (duplicated
-> code but there might be positive side).
-> 
-> With b) I2C algorithm driver inits the lines and hw driver
-> doesn't worry about but it might have some limitations such
-> as unknown SCL state.
-> 
-> I understand the current case is a) - right?
+This is one of those things that I like to classify "as a works for me
+so take it or leave it" :-) . Not that worried because its an $18 video
+capture card that didn't look it was selling to well in the US, but then
+again who knows.
 
-I think it should be, yes.
+The documentation needs updating too I bet but its behind anyways
+usually to what is in the code.
 
-> The other question is _how_ to init the lines. There are 4 possible
-> hardware initial conditions:
-> 
->   SCL SDA
-> a)  0   0 (outputs zeroed by default)
-> b)  0   1 (uncommon but may be left in this state by previous operations)
-> c)  1   0 (ditto)
-> d)  1   1 (I/O lines configured as input by default)
-> 
-> The internal state of devices connected to the bus is potentially
-> unknown. Some implementations just start with STOP to eliminate
-> this problem, I don't know what Linux driver is supposed to do.
+Well there you go. Have fun. I'm back to working on the the Mono Project
+to rid evil the world of evil Java. (just poking fun... no flamewars
+please :-P )
 
-If you can read the line state, then yes... I would detect which of
-the above four states you're in, and generate a STOP condition for
-a, b, and c:
+Signed-off-by: Zac Bowling <zac@zacbowling.com>
 
-a) setscl(1), setsda(1)
-b) setsda(0), setscl(1), setsda(1)
-c) setsda(1)
 
-If you can't read the line state... well, that's not actually a proper
-I2C bus anyway.  At that point I suggest 'whatever works'.
+diff -upr media.orig/video/saa7134/saa7134-cards.c
+media/video/saa7134/saa7134-cards.c
+--- media.orig/video/saa7134/saa7134-cards.c    2006-06-12
+02:34:46.000000000 -0500
++++ media/video/saa7134/saa7134-cards.c 2006-06-12 02:44:12.000000000
+-0500
+@@ -2555,6 +2555,55 @@ struct saa7134_board saa7134_boards[] =
+                        .amux   = LINE1,
+                },
+        },
++    [SAA7134_BOARD_FLYVIDEO3000_NTSC] = {
++               /* "Zac Bowling" <zac@zacbowling.com> */
++               .name           = "LifeView FlyVIDEO3000 (NTSC)",
++               .audio_clock    = 0x00200000,
++               .tuner_type     = TUNER_PHILIPS_NTSC,
++               .radio_type     = UNSET,
++               .tuner_addr     = ADDR_UNSET,
++               .radio_addr     = ADDR_UNSET,
++
++               .gpiomask       = 0xe000,
++               .inputs         = {{
++                       .name = name_tv,
++                       .vmux = 1,
++                       .amux = TV,
++                       .gpio = 0x8000,
++                       .tv   = 1,
++               },{
++                       .name = name_tv_mono,
++                       .vmux = 1,
++                       .amux = LINE2,
++                       .gpio = 0x0000,
++                       .tv   = 1,
++               },{
++                       .name = name_comp1,
++                       .vmux = 0,
++                       .amux = LINE2,
++                       .gpio = 0x4000,
++               },{
++                       .name = name_comp2,
++                       .vmux = 3,
++                       .amux = LINE2,
++                       .gpio = 0x4000,
++               },{
++                       .name = name_svideo,
++                       .vmux = 8,
++                       .amux = LINE2,
++                       .gpio = 0x4000,
++               }},
++               .radio = {
++                       .name = name_radio,
++                       .amux = LINE2,
++                       .gpio = 0x2000,
++               },
++               .mute = {
++                       .name = name_mute,
++                       .amux = TV,
++                       .gpio = 0x8000,
++               },
++       },
+ };
 
-But even if you need to generate a 'null transfer' (prohibited by spec)
-to get reliable operation... that doesn't belong in the algorithm driver.
+ const unsigned int saa7134_bcount = ARRAY_SIZE(saa7134_boards);
+@@ -2614,6 +2663,12 @@ struct pci_device_id saa7134_pci_tbl[] =
+        },{
+                .vendor       = PCI_VENDOR_ID_PHILIPS,
+                .device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
++               .subvendor    = 0x5169,
++               .subdevice    = 0x0138,
++               .driver_data  = SAA7134_BOARD_FLYVIDEO3000_NTSC,
++       },{
++               .vendor       = PCI_VENDOR_ID_PHILIPS,
++               .device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
+                .subvendor    = 0x5168,
+                .subdevice    = 0x0138,
+                .driver_data  = SAA7134_BOARD_FLYVIDEO3000,
+@@ -3070,6 +3125,7 @@ int saa7134_board_init1(struct saa7134_d
+        switch (dev->board) {
+        case SAA7134_BOARD_FLYVIDEO2000:
+        case SAA7134_BOARD_FLYVIDEO3000:
++       case SAA7134_BOARD_FLYVIDEO3000_NTSC:
+                dev->has_remote = SAA7134_REMOTE_GPIO;
+                board_flyvideo(dev);
+                break;
+diff -upr media.orig/video/saa7134/saa7134.h
+media/video/saa7134/saa7134.h
+--- media.orig/video/saa7134/saa7134.h  2006-06-12 02:34:46.000000000
+-0500
++++ media/video/saa7134/saa7134.h       2006-06-12 02:36:31.000000000
+-0500
+@@ -209,6 +209,7 @@ struct saa7134_format {
+ #define SAA7134_BOARD_ASUSTEK_DIGIMATRIX_TV 80
+ #define SAA7134_BOARD_PHILIPS_TIGER  81
+ #define SAA7134_BOARD_MSI_TVATANYWHERE_PLUS  82
++#define SAA7134_BOARD_FLYVIDEO3000_NTSC 83
 
-> (Other implementation I know are rather specialized and thus they
-> know their hardware init state, Linux I2C algorithm handles many
-> devices with potentially different initial state of hardware lines).
-> 
-> 
-> To summarize questions:
-> - is it the hw driver who has to init the bus
-> - how to init the bus (depending on init state)
+ #define SAA7134_MAXBOARDS 8
+ #define SAA7134_INPUT_MAX 8
 
-Regards,
+
 
 -- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+Zac Bowling <zac@zacbowling.com>
+Mono Project Maintainer
+http://zacbowling.com/ 
 

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWFLVZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWFLV2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWFLVZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWFLVZ4
+	id S932349AbWFLV2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWFLV2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:25:56 -0400
-Received: from gw.goop.org ([64.81.55.164]:38067 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932346AbWFLVZy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:25:54 -0400
-Message-ID: <448DDBD9.6030900@goop.org>
-Date: Mon, 12 Jun 2006 14:25:45 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Mon, 12 Jun 2006 17:28:04 -0400
+Received: from mail.mazunetworks.com ([4.19.249.111]:5032 "EHLO
+	mail.mazunetworks.com") by vger.kernel.org with ESMTP
+	id S932349AbWFLV2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 17:28:01 -0400
+Message-ID: <448DDC7F.4030308@mazunetworks.com>
+Date: Mon, 12 Jun 2006 17:28:31 -0400
+From: Jeff Gold <jgold@mazunetworks.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Mark Lord <lkml@rtr.ca>, Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-Subject: Re: Using netconsole for debugging suspend/resume
-References: <44886381.9050506@goop.org> <200606121321.30388.ak@suse.de> <448D8A90.3040508@rtr.ca> <200606121746.34880.ak@suse.de>
-In-Reply-To: <200606121746.34880.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Serial Console and Slow SCSI Disk Access?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Monday 12 June 2006 17:38, Mark Lord wrote:
->   
->> Okay, so I'm daft.  But.. *what* is "it" ??
->>
->> We have two machines:  target (being debugged), and host (anything).
->> Sure, the target has to have ohci1394 loaded, and firescope running.
->> But what about the *other* end of the connection?  What commands?
->>     
->
-> From the same manpage:
-> "The raw1394 module must be loaded and its device node
->  be writable (this normally requires root)" 
->
-> Ok it doesn't say you need ohci1394 too and doesn't say that's the target.
-> If I do a new revision I'll perhaps expand the docs a bit.
->
-> So load ohci1394/raw1394 and run firescope as root. Your distribution
-> will hopefully take care of the device nodes. Usually you want 
-> something like firescope -Au System.map  
->   
+Does it make sense that enabling a serial console would reduce the 
+bandwidth of a SCSI disk by more than a factor of ten?  This seems crazy 
+to me but there's no arguing with empirical facts.  I have an IBM x345 
+system on which I installed an unmodified 2.6.16.20 kernel built with 
+gcc-4.0.2-8.fc4 (the kernel configuration file I used can be found at 
+http://augart.com/jgold/kconfig).  With the control kernel command line 
+I get about 70 MB/sec with hdparm -t but when I add "console=ttyS0,9600 
+console=tty0" I get about 1.6 MB/sec instead.
 
-I think the confusion here is that the target doesn't need to be running 
-anything; you can DMA chunks of memory with the OHCI controller with no 
-need for any software support.  The debugger host is what's running 
-firescope.
+Here are the complete kernel command lines from grub.conf (the second 
+one doesn't actually include a backslash in grub.conf -- that's just to 
+avoid email wrapping):
 
-Unless I'm confused too, which is likely.  Andi, I think your docs 
-should be more explicit about what runs where.
+   ro root=/dev/sda3 pci=biosirq loglevel=7
 
-Also, the tricky bit for me is debugging resume; firescope still 
-requires the OHCI device to come up to be useful, but I that's no 
-different from using netconsole.
+   ro root=/dev/sda3 pci=biosirq console=ttyS0,9600n8 console=tty0 \
+     loglevel=7
 
-Neat stuff; I need to get my two firewire-enabled machines close enough 
-to each other to try it out.
+I have not been able to connect this behavior to any known kernel bugs 
+using Google or mailing list archives.  What might I be doing wrong?
 
-    J
+                                          Jeff

@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751878AbWFLLV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751876AbWFLLXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751878AbWFLLV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 07:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751876AbWFLLV4
+	id S1751876AbWFLLXA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 07:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751874AbWFLLXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 07:21:56 -0400
-Received: from ns2.suse.de ([195.135.220.15]:37265 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751873AbWFLLVz (ORCPT
+	Mon, 12 Jun 2006 07:23:00 -0400
+Received: from mail.gmx.de ([213.165.64.20]:25579 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751880AbWFLLW7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 07:21:55 -0400
-From: Andi Kleen <ak@suse.de>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: Using netconsole for debugging suspend/resume
-Date: Mon, 12 Jun 2006 13:21:30 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-References: <44886381.9050506@goop.org> <200606090546.15923.ak@suse.de> <448992B7.1050906@rtr.ca>
-In-Reply-To: <448992B7.1050906@rtr.ca>
+	Mon, 12 Jun 2006 07:22:59 -0400
+X-Authenticated: #428038
+Date: Mon, 12 Jun 2006 13:22:54 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Neil Brown <neilb@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bernd Petrovitsch <bernd@firmix.at>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, jdow <jdow@earthlink.net>,
+       davids@webmaster.com, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+Message-ID: <20060612112254.GC27069@merlin.emma.line.org>
+Mail-Followup-To: Neil Brown <neilb@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Bernd Petrovitsch <bernd@firmix.at>,
+	Matti Aarnio <matti.aarnio@zmailer.org>, jdow <jdow@earthlink.net>,
+	davids@webmaster.com, linux-kernel@vger.kernel.org
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com> <193701c68d16$54cac690$0225a8c0@Wednesday> <1150100286.26402.13.camel@tara.firmix.at> <1150106004.22124.155.camel@localhost.localdomain> <17549.18674.809648.549618@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606121321.30388.ak@suse.de>
+In-Reply-To: <17549.18674.809648.549618@cse.unsw.edu.au>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11-2006-06-08
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 June 2006 17:24, Mark Lord wrote:
-> Andi Kleen wrote:
+Neil Brown schrieb am 2006-06-12:
+
+> On Monday June 12, alan@lxorguk.ukuu.org.uk wrote:
 > > 
-> > If your laptop has firewire you can also use firescope.
-> > (ftp://ftp.suse.com/pub/people/ak/firescope/) 
-> ..
-> > FW keeps running as long as nobody resets the ieee1394 chip.
+> > SPF *would* be wonderful if the users controlled SPF handling and
+> > someone fixed the forwarding flaws in it, but neither is the case today.
+> > 
 > 
-> This looks interesting.  But how does one set it up for use
-> on the *other* end of that firewire cable?  The Quickstart and
-> manpage don't seem to describe this fully.
+> The "forwarding flaws" are not flaws in SPF but in SMTP practice.
 
-It's in the manpage:
+No. SPF neglected existing SMTP practice when it was invented, the
+typical sign of something engineered without respect for realities. It
+has since been given a crutch named SRS, but it still can't walk. And
+rather than fixing the SPF/SRS/... problems, their disciples advocate it
+and tell all the world it needs to change.
 
->.SH NOTES
->The target must have the ohci1394 driver loaded. This implies
->that firescope cannot be used in early boot.
+Quite overstating their own importance I'd say.
 
-That's it.
+> I suspect they grew out of the multi-hop days of UUCP and similar
+> protocols, but it isn't appropriate in todays Internet.
 
--Andi
+Your suspicions are irrelevant, and thanks goodness neither Wong nor
+Brown nor Matthias Anree are the absolute rulers of the internet.
+
+> A forwarded email is a new message and shouldn't claim to be from the
+> original sender.
+
+A forwarded email conveys the same message as the originator sent,
+it's a long way from being a new message. The time of monks copying
+books is long past.
+
+> Forwarding systems *Shouldn't* simply forward the mail.
+
+I am controlling the forwarding system, and you aren't going to take it
+away from me.
+
+> Yes, people have to change their forwarding practices to be fully SPF
+> compliant, but that is a case of it is broke, and should be fixed
+> anyway.
+
+Right, <twisting your words> SPF should be fixed.
+
+-- 
+Matthias Andree

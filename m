@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbWFLWNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbWFLWQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932598AbWFLWNA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 18:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWFLWNA
+	id S932615AbWFLWQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 18:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbWFLWQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 18:13:00 -0400
-Received: from rtr.ca ([64.26.128.89]:57756 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932598AbWFLWM7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 18:12:59 -0400
-Message-ID: <448DE6EA.8020708@rtr.ca>
-Date: Mon, 12 Jun 2006 18:12:58 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Mon, 12 Jun 2006 18:16:44 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:63151 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932612AbWFLWQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 18:16:43 -0400
+Date: Mon, 12 Jun 2006 15:16:35 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: 2.6.16-rc6-mm2
+In-Reply-To: <448DA5DD.203@fr.ibm.com>
+Message-ID: <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
- error -28
-References: <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD50F.3060002@rtr.ca> <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD968.2010000@rtr.ca> <20060612212812.GA17458@suse.de> <448DE28D.3040708@rtr.ca> <20060612220321.GA19792@suse.de>
-In-Reply-To: <20060612220321.GA19792@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Jun 12, 2006 at 05:54:21PM -0400, Mark Lord wrote:
->> Okay, with these two patches from -mm, the USB no longer dies
->> when I plug in my hub/dock device:
->>
->> gregkh-usb-improved-tt-scheduling-for-ehci.patch
->> gregkh-usb-usb-rmmod-pl2303-after-28.patch
->>
->> So let's get these pushed upstream sooner than later, please!
-> 
-> It will happen after 2.6.17 is out, as they are in the queue to do so.
+On Mon, 12 Jun 2006, Cedric Le Goater wrote:
 
-2.6.18 will do, I suppose.
+> Unable to handle kernel NULL pointer dereference at 0000000000000007 RIP:
+>  [<ffffffff8025b017>] dec_zone_page_state+0x1/0x5b
 
-But has the *real* bug been fixed with these patches,
-or merely "avoided" ?
+Seems that req->wb_page may be NULL.
 
-Eg. If usb_submit_urb() ever fails again (low on memory, etc..)
-inside  pl2303_open(), will we be back with the same bug?
+This patch may fix it but we may miss an unstable page then. We may 
+have to move the decrement of NR_UNSTABLE to a different location when
+wb_page is still valid.
 
-What's the *real* actual bug here?
+Index: linux-2.6.17-rc6-cl/fs/nfs/write.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/fs/nfs/write.c	2006-06-12 13:37:47.321243148 -0700
++++ linux-2.6.17-rc6-cl/fs/nfs/write.c	2006-06-12 15:13:48.020908204 -0700
+@@ -1419,7 +1419,8 @@ static void nfs_commit_done(struct rpc_t
+ 		nfs_mark_request_dirty(req);
+ 	next:
+ 		nfs_clear_page_writeback(req);
+-		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
++		if (req->wb_page)
++			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+ 	}
+ }
+ 
 
-Thanks

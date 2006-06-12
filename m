@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752118AbWFLQQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752077AbWFLQVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752118AbWFLQQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 12:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752121AbWFLQQ3
+	id S1752077AbWFLQVI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 12:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752081AbWFLQVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 12:16:29 -0400
-Received: from wr-out-0506.google.com ([64.233.184.233]:1500 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1752118AbWFLQQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 12:16:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lcj11kopYef9z25TGKGQC6DjPUiJpTYJGPw3ae3gJtP+hDkvXuPqOFffWe0tcopEjg2r25ADcLz+LeyiN2F7RIJ6vBltzG2I+c5t/OaNyoZh5VRoOZz/8EXU60WvWYQFq2yDzFaVW2oCjqwJ5sFSyKVmQQLbc/EHKEXMvKxRZxs=
-Message-ID: <d120d5000606120916h48b4037ei1bbc54ebc645134@mail.gmail.com>
-Date: Mon, 12 Jun 2006 12:16:28 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Jerome Pinot" <ngc891@gmail.com>
-Subject: Re: Patch for atkbd.c from Ubuntu
-Cc: "Pete Zaitcev" <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <88ee31b70606120901ud36842eu99355a546fea59cc@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 12 Jun 2006 12:21:08 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32424 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1752077AbWFLQVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 12:21:07 -0400
+Subject: Re: 2.6.16.18 kernel freezes while pppd is exiting
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <448D922F.80801@microgate.com>
+References: <200606081909_MC3-1-C1F0-8B6B@compuserve.com>
+	 <1150124830.3703.6.camel@amdx2.microgate.com>
+	 <1150127588.25462.7.camel@localhost.localdomain>
+	 <448D922F.80801@microgate.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060524113139.e457d3a8.zaitcev@redhat.com>
-	 <200605290059.32302.dtor_core@ameritech.net>
-	 <20060528233420.9de79795.zaitcev@redhat.com>
-	 <200606120049.13974.dtor_core@ameritech.net>
-	 <20060612002650.6f61a83b.zaitcev@redhat.com>
-	 <88ee31b70606120901ud36842eu99355a546fea59cc@mail.gmail.com>
+Date: Mon, 12 Jun 2006 17:36:45 +0100
+Message-Id: <1150130206.25462.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/12/06, Jerome Pinot <ngc891@gmail.com> wrote:
-> On 6/12/06, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> > On Mon, 12 Jun 2006 00:49:13 -0400, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> [...]
-> > Sounds good. Hangul is usually spelled without 'E' in the West, but
-> > I am not Korean, I can't know what is right.
-> >
-> > -- Pete
->
-> Maybe a good time, at last, to correct this mispelling ?
->
-> http://lists.osdl.org/pipermail/kernel-janitors/2005-October/004970.html
->
+Ar Llu, 2006-06-12 am 11:11 -0500, ysgrifennodd Paul Fulghum:
+> If a driver has low_latency set, flush_to_ldisc
+> can be called from both scheduled work (due to
+> hitting TTY_DONT_FLIP) and directly from an ISR.
+> On an SMP system, they can run in parallel.
 
-Yep. Could you please resend me the patch?
+Ok, so yet another reason that the ugly TTY_DONT_FLIP hack should die
+forever.
 
-Thanks!
+Alan
 
--- 
-Dmitry

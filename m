@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWFLTxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWFLTyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbWFLTxi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 15:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWFLTxi
+	id S932172AbWFLTyL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 15:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWFLTyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 15:53:38 -0400
-Received: from silver.veritas.com ([143.127.12.111]:57495 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932160AbWFLTxh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 15:53:37 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.05,229,1146466800"; 
-   d="scan'208"; a="39137497:sNHT27583436"
-Date: Mon, 12 Jun 2006 20:38:17 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: "Robin H. Johnson" <robbat2@gentoo.org>, Al Viro <viro@zeniv.linux.org.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tmpfs time granularity fix for [acm]time going backwards.
- Also VFS time granularity bug on creat(). (Repost, more content)
-In-Reply-To: <p73ac8isgv9.fsf@verdi.suse.de>
-Message-ID: <Pine.LNX.4.64.0606122024330.18760@blonde.wat.veritas.com>
-References: <20060611115421.GE26475@curie-int.vc.shawcable.net>
- <p73ac8isgv9.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 12 Jun 2006 19:53:36.0675 (UTC) FILETIME=[E4B21F30:01C68E59]
+	Mon, 12 Jun 2006 15:54:10 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:10142 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932172AbWFLTyJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 15:54:09 -0400
+Date: Mon, 12 Jun 2006 14:54:04 -0500
+To: Paul Mackerras <paulus@samba.org>, Adam Belay <ambx1@neo.rr.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ryan Lortie <desrt@desrt.ca>,
+       linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org, bcollins@ubuntu.com,
+       Greg KH <greg@kroah.com>
+Subject: Re: [ambx1@neo.rr.com: Re: pci_restore_state]
+Message-ID: <20060612195404.GC7583@austin.ibm.com>
+References: <17545.21437.203619.798273@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17545.21437.203619.798273@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2006, Andi Kleen wrote:
-> "Robin H. Johnson" <robbat2@gentoo.org> writes:
-> > 
-> > This patch should probably be included for 2.6.17, despite how long the
-> > bug has been around. It's a one-liner, with no side-effects.
+On Fri, Jun 09, 2006 at 08:55:57PM +1000, Paul Mackerras wrote:
+> Any comments on Adam's patch, particularly as it relates to EEH?  Do
+> we use dev->saved_config_space to restore the device after an EEH
+> reset?
+
+Thanks, I was out sick.
+
+On PowerPC, we don't use this struct; we save to a private area 
+hanging off the device nocde. The goal for PCI error recovery was to 
+save PCI state as it was shortly after boot, before the device driver
+has mucked with it. That way, when the device driver starts up, 
+it finds the state to be more-or-less the same as it would be on 
+discovery after a cold boot.
+
+> Any comments on this patch as an alternative solution?
 > 
-> Agreed. Good catch.
-> 
-> That was my bug when doing the conversion - but for my defense
-> having file systems outside fs/* is error prone.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114949711413176&w=2
 
-Yes.  And my bug for not noticing your s_time_gran patch to the others.
+One question/remark. The patch says:
 
-> Can we perhaps move tmpfs or at least the fs parts of shmem.c
-> into fs/ in the future?  (the file is too big anyways)
++	command = conf->command & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
++				    PCI_COMMAND_MASTER);
++
++	pci_write_config_word(dev, PCI_COMMAND, command);
++	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, conf->cacheline_size);
++	pci_write_config_byte(dev, PCI_LATENCY_TIMER, conf->latency_timer);
++	pci_write_config_byte(dev, PCI_INTERRUPT_PIN, conf->interrupt_pin);
++	pci_write_config_byte(dev, PCI_INTERRUPT_LINE, conf->interrupt_line);
++
++	pci_restore_bars(dev);
+ 
+-	for (i = 0; i < 16; i++)
+-		pci_write_config_dword(dev,i * 4, dev->saved_config_space[i]);
+ 	pci_restore_msi_state(dev);
+ 	pci_restore_msix_state(dev);
 
-The file is shamefully big, yes.  I'd hate to move the swap entry
-part of it out of mm/, but it might be a possibility to divide it up:
-the filesystem entry points in fs/, the use of swap in mm/ - be nice
-if all that could be under obj-$(CONFIG_SWAP) in the Makefile.
 
-I did once embark on looking at it from a CONFIG_SWAP point of view;
-but didn't get far before more urgent work intervened.  And your
-argument grows weaker, with filesystems spreading through drivers,
-and even to arch (spufs).
+First thing it does is disable bus mastering (which is probably good, 
+you don't want the device going wild doing dma's till you're ready).
+However, at some point, bus mastering needs to be re-enabled; does
+some other power management code do this? Is the device driver 
+supposed to notice something is amiss after a PM resume, and supposed
+to set these?
 
-Hugh
+--linas

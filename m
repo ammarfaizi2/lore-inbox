@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWFLJPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWFLJRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWFLJPy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 05:15:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWFLJPy
+	id S1751224AbWFLJRz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 05:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWFLJRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 05:15:54 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:10708 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751206AbWFLJPx convert rfc822-to-8bit (ORCPT
+	Mon, 12 Jun 2006 05:17:55 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:40117 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S1751224AbWFLJRy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 05:15:53 -0400
-Subject: Re: 2.6.17-rc6-rt3
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20060610082406.GA31985@elte.hu>
-References: <20060610082406.GA31985@elte.hu>
-Date: Mon, 12 Jun 2006 11:20:40 +0200
-Message-Id: <1150104040.3835.3.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 12/06/2006 11:19:33,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 12/06/2006 11:19:35,
-	Serialize complete at 12/06/2006 11:19:35
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+	Mon, 12 Jun 2006 05:17:54 -0400
+To: Chase Venters <chase.venters@clientec.com>
+Cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
+Subject: Re: cacheline alignment and per-cpu data
+References: <44899681.6070003@nortel.com>
+	<Pine.LNX.4.64.0606091054180.4969@turbotaz.ourhouse>
+From: Jes Sorensen <jes@sgi.com>
+Date: 12 Jun 2006 05:17:53 -0400
+In-Reply-To: <Pine.LNX.4.64.0606091054180.4969@turbotaz.ourhouse>
+Message-ID: <yq0mzci3f7i.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-10 at 10:24 +0200, Ingo Molnar wrote:
-> i have released the 2.6.17-rc6-rt3 tree, which can be downloaded from 
-> the usual place:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
-> this is a fixes-only release: lots of fixes from Thomas Gleixner (for 
-> the softirq problem that caused those ping latency weirdnesses, for 
-> hrtimers and timers problems and for the RCU related bug that was 
-> causing instability and more), John Stultz, Jan Altenberg and Clark 
-> Williams. MIPS update from Manish Lachwani. Futex fix from Dinakar 
-> Guniguntala. It also includes the RT-scheduling SMP fix that could fix 
-> the scheduling problem reported by Darren Hart.
-> 
-> I think all of the regressions reported against rt1 are fixed, please 
-> re-report if any of them is still unfixed.
-> 
+>>>>> "Chase" == Chase Venters <chase.venters@clientec.com> writes:
 
-  Great, boots fine on my dual Xeon and solves the ping problem I was
-having.
+Chase> On Fri, 9 Jun 2006, Chris Friesen wrote:
+>> Will this cause cacheline pingpong?  If I do this sort of thing do
+>> I need to ensure that the struct is a multiple of cacheline size
+>> (or specify cacheline alignement)?
 
-  Thomas, any hint at what was going on?
+Chase> Yes. If CPU 2 tries to write to struct member 1 of array
+Chase> element 2, and array element 1 is in CPU 1's cache, it must be
+Chase> invalidated.
 
-  Thanks,
+Chase> GCC (and kernel macros) provide good support for enforced
+Chase> cacheline alignment, but it's also possible to pad your
+Chase> structures.
 
-  Sébastien.
+Best way to go is to use __cacheline_aligned rather than try to get
+the padding right manually. Someone will add a field somewhere in the
+middle and mess it up and nobody notices.
 
+Cheers,
+Jes

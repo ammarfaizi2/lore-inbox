@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWFLDns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWFLECP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWFLDns (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 23:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWFLDns
+	id S1751290AbWFLECP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 00:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWFLECP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 23:43:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23274 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751248AbWFLDnr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 23:43:47 -0400
-Date: Sun, 11 Jun 2006 20:43:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: mjt@tls.msk.ru, ioe-lkml@rameria.de, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: [PATCH 4/5] readahead: backoff on I/O error
-Message-Id: <20060611204318.ebc42608.akpm@osdl.org>
-In-Reply-To: <350074764.23563@ustc.edu.cn>
-References: <20060609080801.741901069@localhost.localdomain>
-	<349840680.03819@ustc.edu.cn>
-	<200606102033.46844.ioe-lkml@rameria.de>
-	<448B221D.3080907@tls.msk.ru>
-	<350074764.23563@ustc.edu.cn>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jun 2006 00:02:15 -0400
+Received: from stats.hypersurf.com ([209.237.0.12]:19716 "EHLO
+	stats.hypersurf.com") by vger.kernel.org with ESMTP
+	id S1751270AbWFLECO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 00:02:14 -0400
+Message-ID: <029801c68dd5$1e8ee6f0$1200a8c0@GMM>
+From: "HighPoint Linux Team" <linux@highpoint-tech.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       <akpm@osdl.org>
+References: <200606111706.52930.linux@highpoint-tech.com> <200606111918.08529.linux@highpoint-tech.com> <1150038042.4128.11.camel@mulgrave.il.steeleye.com>
+Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
+Date: Mon, 12 Jun 2006 12:03:01 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2006 09:12:45 +0800
-Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+James Bottomley wrote:
+>> Should host->can_queue be set to (cmd_per_lun * max_lun) ?
+>
+> It depends on how the controller behaves.  Setting can_queue and
+> cmd_per_lun tends to work for most SCSI controllers because the 
+> actual scsi devices have queue depths << this number.  If your 
+> controller will behave like this (i.e. will not allow the internal
+> queue for a single lun to fill up to this depth) then you can keep
+> this setting (although, again, since this is probably fixed by the
+> firmware, you want to set cmd_per_lun to this value to avoid
+> excessive QUEUE_FULL returns). If the controller will happily load
+> all the available slots up for a single lun, then you might want
+> to think about reducing cmd_per_lun to some fraction of can_queue
+> (you could even set it to can_queue - 2 like the 3ware controller).
 
-> Andrew:
-> I was a bit afraid about that because I have no CDROM to try it out.
-> But since Michael has tested it OK, it should be OK for the stable kernel.
+The hptiop firmware works as the latter case. Should it be modified
+like this:
+  host->can_queue = le32_to_cpu(iop_config.max_requests);
+- host->cmd_per_lun = le32_to_cpu(iop_config.max_requests);
++ host->cmd_per_lun = host->can_queue - 2;
 
-hm.  It's a problem, but not a terribly huge one.
+While the 3ware driver sets both can_queue and cmd_per_lun to 254:
 
+(3w-9xxx.h)
+#define TW_Q_LENGTH           256
+#define TW_MAX_CMDS_PER_LUN   254
 
+(3w-9xxx.c)
+.can_queue   = TW_Q_LENGTH-2,
+.cmd_per_lun = TW_MAX_CMDS_PER_LUN
 
-It's nice to print the filename, but we shouldn't use d_iname because long
-filenames aren't stored there.  And if the file was unlinked after open
-then I don't think we'll oops, but the filename isn't very meaningful.
+Should can_queue be set to TW_Q_LENGTH ?
 
-
-So...
-
-
---- devel/mm/filemap.c~readahead-backoff-on-i-o-error-tweaks	2006-06-11 20:40:52.000000000 -0700
-+++ devel-akpm/mm/filemap.c	2006-06-11 20:41:05.000000000 -0700
-@@ -804,8 +804,7 @@ static void shrink_readahead_size_eio(st
- 		return;
- 
- 	ra->ra_pages /= 4;
--	printk(KERN_WARNING "Retracting readahead size of %s to %luK\n",
--			filp->f_dentry->d_iname,
-+	printk(KERN_WARNING "Reducing readahead size to %luK\n",
- 			ra->ra_pages << (PAGE_CACHE_SHIFT - 10));
- }
- 
-_
+HighPoint Linux Team
 

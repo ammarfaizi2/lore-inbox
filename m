@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWFLTQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752208AbWFLTX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWFLTQR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 15:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWFLTQR
+	id S1752208AbWFLTX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 15:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752210AbWFLTX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 15:16:17 -0400
-Received: from khc.piap.pl ([195.187.100.11]:39359 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932103AbWFLTQP (ORCPT
+	Mon, 12 Jun 2006 15:23:29 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:46819 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1752208AbWFLTX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 15:16:15 -0400
-To: "jdow" <jdow@earthlink.net>
-Cc: "Gerhard Mack" <gmack@innerfire.net>,
-       "Bernd Petrovitsch" <bernd@firmix.at>, <davids@webmaster.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
-	<193701c68d16$54cac690$0225a8c0@Wednesday>
-	<1150100286.26402.13.camel@tara.firmix.at>
-	<00de01c68df9$7d2b2330$0225a8c0@Wednesday>
-	<Pine.LNX.4.64.0606121331090.16348@mtl.rackplans.net>
-	<m38xo244wz.fsf@defiant.localdomain>
-	<01bb01c68e50$93753de0$0225a8c0@Wednesday>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 12 Jun 2006 21:16:13 +0200
-In-Reply-To: <01bb01c68e50$93753de0$0225a8c0@Wednesday> (jdow@earthlink.net's message of "Mon, 12 Jun 2006 11:46:53 -0700")
-Message-ID: <m3ver62nia.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Mon, 12 Jun 2006 15:23:28 -0400
+Date: Mon, 12 Jun 2006 21:22:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+Message-ID: <20060612192227.GA5497@elte.hu>
+References: <20060611111815.8641.7879.stgit@localhost.localdomain> <20060611112156.8641.94787.stgit@localhost.localdomain> <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com> <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com> <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI> <20060612105345.GA8418@elte.hu> <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5002]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"jdow" <jdow@earthlink.net> writes:
 
-> Krzysztof, the point here is that experience with active spam
-> filtering indicates that there is no such thing as "obviously bad
-> messages" that will not catch some good messages in its broad
-> brush.
+* Catalin Marinas <catalin.marinas@gmail.com> wrote:
 
-Sure, but if someone bounces a message for whatever reason I assume
-it's (at that point) obviously bad. It doesn't necessarily means
-spam, it might as well be a "detected virus", "user unknown" etc.
-And yes, you can usually reject them in SMTP session. Doing that
-fixes a real problem.
--- 
-Krzysztof Halasa
+> On 12/06/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >What i'd like to see though are clear explanations about why an
+> >allocation is not considered a leak, in terms of comments added to the
+> >code. That will also help us reduce the number of annotations later on.
+> 
+> I'll document them in both Documentation/kmemleak.txt and inside the 
+> code. If I implement the "any pointer inside the block" method, all 
+> the memleak_padding() false positives will disappear.
+
+i dont know - i feel uneasy about the 'any pointer' method - it has a 
+high potential for false negatives, especially for structures that 
+contain strings (or other random data), etc.
+
+did you consider the tracking of the types of allocated blocks 
+explicitly? I'd expect that most blocks dont have pointers embedded in 
+them that point to allocated blocks. For the ones that do, the 
+allocation could be extended with the type information. For each 
+affected type, we could annotate the structures themselves with offset 
+information. How intrusive would such a method be?
+
+	Ingo

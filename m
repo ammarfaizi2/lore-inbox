@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWFLBsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWFLCBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWFLBsM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jun 2006 21:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWFLBsM
+	id S1751189AbWFLCBX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jun 2006 22:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWFLCBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jun 2006 21:48:12 -0400
-Received: from waste.org ([64.81.244.121]:24997 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750749AbWFLBsL (ORCPT
+	Sun, 11 Jun 2006 22:01:23 -0400
+Received: from smtp.enter.net ([216.193.128.24]:13318 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S1750765AbWFLCBW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jun 2006 21:48:11 -0400
-Date: Sun, 11 Jun 2006 20:38:01 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] x86 built-in command line
-Message-ID: <20060612013801.GL24227@waste.org>
-References: <20060611215530.GH24227@waste.org> <1150069241.3131.97.camel@laptopd505.fenrus.org> <20060611235101.GK24227@waste.org> <1150070898.3131.99.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 11 Jun 2006 22:01:22 -0400
+From: Daniel Hazelton <dhazelton@enter.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Video drivers and System Management mode.
+Date: Sun, 11 Jun 2006 22:01:20 -0400
+User-Agent: KMail/1.7.2
+Cc: James Courtier-Dutton <James@superbug.demon.co.uk>,
+       linux-kernel@vger.kernel.org
+References: <448C5BF0.7070601@superbug.demon.co.uk> <1150054232.14253.157.camel@mindpipe>
+In-Reply-To: <1150054232.14253.157.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1150070898.3131.99.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200606112201.21027.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 02:08:18AM +0200, Arjan van de Ven wrote:
-> On Sun, 2006-06-11 at 18:51 -0500, Matt Mackall wrote:
-> > On Mon, Jun 12, 2006 at 01:40:41AM +0200, Arjan van de Ven wrote:
-> > > On Sun, 2006-06-11 at 16:55 -0500, Matt Mackall wrote:
-> > > > This patch allows building in a kernel command line on x86 as is
-> > > > possible on several other arches.
-> > > 
-> > > wouldn't it make more sense to allow the initramfs to set such arguments
-> > > instead?
-> > 
-> > Huh?
-> > 
-> > Are you suggesting we go digging around in a gzipped initramfs image at
-> > early command line parsing time? I can't really see how that would work. 
-> 
-> but.. the example you give is for the rootfs.. which is used only really
-> late...
+On Sunday 11 June 2006 03:30 pm, Lee Revell wrote:
+> On Sun, 2006-06-11 at 19:07 +0100, James Courtier-Dutton wrote:
+> > Hi,
+> >
+> > I know we all laugh about the windows blue screen of death, but to be
+> > fair, when Linux oops, it is not even able to display anything on the
+> > screen, unless in dump terminal mode. I.e. Not X or some other GUI.
+> >
+> > Are there any plans to implement a sort of interactive system management
+> > mode, that would pop up a window when Linux oops. Something like the
+> > program called SoftICE for windows would be a nice addition to Linux,
+> > and help with kernel development.
+>
+> kdb would definitely be a good starting point.  But I don't think it
+> works if you're in X when the kernel crashes.
+>
 
-That's not an example, that's just pointing out if you don't specify
-root=, it probably won't boot.
+This problem is being addressed by the work several of us are doing on the 
+kernel graphics system. Hopefully this will be addressed in the first major 
+patch.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+DRH

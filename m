@@ -1,74 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWFMMm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWFMMrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWFMMm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 08:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWFMMm2
+	id S1750750AbWFMMrm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 08:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWFMMrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 08:42:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:7344 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750746AbWFMMm1 (ORCPT
+	Tue, 13 Jun 2006 08:47:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:785 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750754AbWFMMrm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 08:42:27 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.2
-From: Keith Owens <kaos@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: ak@suse.de, mingo@elte.hu, michal.k.k.piotrowski@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm2 
-In-reply-to: Your message of "Tue, 13 Jun 2006 04:45:32 MST."
-             <20060613044532.29e10a31.akpm@osdl.org> 
+	Tue, 13 Jun 2006 08:47:42 -0400
+Date: Mon, 12 Jun 2006 08:12:45 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Adam Belay <abelay@novell.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 5/9] PCI PM: remove PCI_D3cold, PCI_UNKNOWN, and PCI_POWER_ERROR
+Message-ID: <20060612081245.GB4950@ucw.cz>
+References: <1149497169.7831.159.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Jun 2006 22:41:33 +1000
-Message-ID: <21427.1150202493@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <1149497169.7831.159.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton (on Tue, 13 Jun 2006 04:45:32 -0700) wrote:
->On Tue, 13 Jun 2006 15:08:40 +1000
->Keith Owens <kaos@sgi.com> wrote:
->
->> Andi Kleen (on Tue, 13 Jun 2006 06:56:45 +0200) wrote:
->> >
->> >> I have previously suggested a lightweight solution that pins a process
->> >> to a cpu 
->> >
->> >That is preempt_disable()/preempt_enable() effectively
->> >It's also light weight as much as these things can be.
->> 
->> The difference being that preempt_disable() does not allow the code to
->> sleep.  There are some places where we want to use cpu local data and
->> the code can tolerate preemption and even sleeping, as long as the
->> process schedules back on the same cpu.
->
->It would be easy to use this mechanism wrongly:
+Hi!
 
-Agreed.
+> PCI_D3cold is not a software enter-able power state.  Rather, it's the
+> state a card enters when Vcc is removed.  Moreover, PCI power management
 
->	thread 1 on CPU N		thread 2 on CPU N
->
->	foo = per_cpu(...)
->	<preempt>
->					foo = per_cpu(...);
->					foo++;
->					per_cpu(...) = foo;
->					<unpreempt>
->	foo++;
->	per_cpu(...) = foo;	// whoops
->
->
->In which scenarios did you envisage it being used?
+Well, you admit it may be useful in future, still you do big
+search&replace to remove it... I do not think we want that.
 
-There are not many scenarios where this makes any sense.  One is where
-the code is working on a collection of related cpu data and the whole
-collection is protected by a per cpu mutex.  Taking the mutex stops
-your race.  I doubt if we have any code like that yet.
+(Maybe removing D3cold is useful, but even if it is, please don't
+rename D3hot).
 
-The other possibility is to allow work to preempt the current process
-while it spins in udelay().  This is a problem on systems that use the
-cycle counter (TSC, ITC) and different cpus run at different rates.
-See http://marc.theaimsgroup.com/?l=linux-ia64&m=113460274218885&w=2
+> does not have any error reporting or failure states.  This patch removes
 
-I am not going to be too persistent about this facility.  If it seems
-too risky or of too little use, then forget it.
+No, but we want something to return when error happens in
+pci_choose_state.
 
+> diff -urN a/drivers/pci/pm.c b/drivers/pci/pm.c
+> --- a/drivers/pci/pm.c	2006-06-04 01:38:35.000000000 -0400
+> +++ b/drivers/pci/pm.c	2006-06-04 01:38:10.000000000 -0400
+> @@ -168,11 +163,6 @@
+>  		pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
+>  		pmcsr |= state;
+>  		break;
+> -	case PCI_UNKNOWN: /* Boot-up */
+> -		if ((pmcsr & PCI_PM_CTRL_STATE_MASK) == PCI_D3hot
+> -		 && !(pmcsr & PCI_PM_CTRL_NO_SOFT_RESET))
+> -			need_restore = 1;
+> -		/* Fall-through: force to D0 */
+>  	default:
+>  		pmcsr = 0;
+>  		break;
+
+So how do you handle bootup?
+
+> @@ -197,21 +187,6 @@
+>  
+>  	dev->current_state = state;
+>  
+> -	/* According to section 5.4.1 of the "PCI BUS POWER MANAGEMENT
+> -	 * INTERFACE SPECIFICATION, REV. 1.2", a device transitioning
+> -	 * from D3hot to D0 _may_ perform an internal reset, thereby
+> -	 * going to "D0 Uninitialized" rather than "D0 Initialized".
+> -	 * For example, at least some versions of the 3c905B and the
+> -	 * 3c556B exhibit this behaviour.
+> -	 *
+> -	 * At least some laptop BIOSen (e.g. the Thinkpad T21) leave
+> -	 * devices in a D3hot state at boot.  Consequently, we need to
+> -	 * restore at least the BARs so that the device will be
+> -	 * accessible to its driver.
+> -	 */
+> -	if (need_restore)
+> -		pci_restore_bars(dev);
+> -
+>  	return 0;
+>  }
+>  
+
+This does not really belong to this patchset....?
+
+						Pavel
+-- 
+Thanks for all the (sleeping) penguins.

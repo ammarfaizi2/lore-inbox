@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWFLHT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWFLHSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWFLHT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 03:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWFLHT1
+	id S1751093AbWFLHSX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 03:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWFLHSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 03:19:27 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49078 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751025AbWFLHT0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 03:19:26 -0400
-Date: Mon, 12 Jun 2006 09:18:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrey Gelman <agelman@012.net.il>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Assumably a BUG in Linux Kernel (scheduler part)
-Message-ID: <20060612071830.GA26475@elte.hu>
-References: <200606091732.02943.agelman@012.net.il>
+	Mon, 12 Jun 2006 03:18:23 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:20955
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751025AbWFLHSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 03:18:22 -0400
+Date: Mon, 12 Jun 2006 00:18:29 -0700 (PDT)
+Message-Id: <20060612.001829.49243997.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: mingo@elte.hu, stefanr@s5r6.in-berlin.de, Valdis.Kletnieks@vt.edu,
+       jirislaby@gmail.com, akpm@osdl.org, arjan@infradead.org,
+       mingo@redhat.com, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: Re: [patch] undo AF_UNIX _bh locking changes and split lock-type
+ instead
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060612070356.GA1273@gondor.apana.org.au>
+References: <20060612064122.GA1101@gondor.apana.org.au>
+	<20060612065701.GA24213@elte.hu>
+	<20060612070356.GA1273@gondor.apana.org.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606091732.02943.agelman@012.net.il>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Mon, 12 Jun 2006 17:03:56 +1000
 
-* Andrey Gelman <agelman@012.net.il> wrote:
+> On Mon, Jun 12, 2006 at 08:57:01AM +0200, Ingo Molnar wrote:
+> >
+> > regarding your point wrt. path of integration - it is pretty much the 
+> > only practical way to do this centrally as part of the lock validator 
+> > patches, but to collect ACKs from subsystem maintainers in the process. 
+> > So if you like it i'd like to have your ACK but this patch depends on 
+> > the other lock validator patches (and only makes sense together with 
+> > them), so they should temporarily stay in the lock validator queue. 
+> > Hopefully this wont be a state that lasts too long and once the 
+> > validator is upstream, all patches of course go via the subsystem 
+> > submission rules.
+> 
+> Obviously as long as Dave is happy with it then it's fine.  However,
+> it's probably a good idea to cc netdev for relevant patches so that
+> they get a wider review.  If you've already sent this one there then
+> I apologise for missing it :)
 
-> Hello there !
-> Assumably, I've discovered a bug in Linux kernel (version 2.6.16), at:
-> kernel\sched.c   function set_user_nice()
-[...]
-
-> //-------------------------------------------------
-> /*
-> 	//BUGGED FORMULA : 5 lines
->         old_prio = p->prio;
->         new_prio = NICE_TO_PRIO(nice);
->         delta = new_prio - old_prio;
->         p->static_prio = NICE_TO_PRIO(nice);
->         p->prio += delta;
-> */
->     //BUG FIX : 5 lines
->     old_prio = p->static_prio;
->     new_prio = NICE_TO_PRIO(nice);
->     delta = new_prio - old_prio;
->     p->static_prio = new_prio;
->     p->prio += delta;
-> //-------------------------------------------------
-
-you are right, this is a bug in the scheduler - good find.
-
-I did accidentally fix it months ago via one of the PI-scheduling 
-cleanups, and thus the fix is in the current -mm tree and is scheduled 
-for 2.6.18 inclusion:
-
- http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm2/broken-out/pi-futex-scheduler-support-for-pi.patch
-
-(see the adding of effective_prio() to set_user_nice(), instead of an 
-open-coded calculation of the priority)
-
-But i did not realize that this also fixed a bug. The effects of the bug 
-are minor: a user can renice only 19 times (to go from 0 to +19), so 
-there's a finite amount of extra timeslices a CPU hog might win due to 
-this. I'd not include the effective_prio() change in 2.6.17 - it touches 
-quite some code and we are close to the release of 2.6.17. Nevertheless 
-kudos for finding and pointing out this bug!
-
-Andrew, please add this to the changelog of
-pi-futex-scheduler-support-for-pi.patch:
-
-the effective_prio() cleanups also fix a priority-calculation bug 
-pointed out by Andrey Gelman, in set_user_nice().
-
-	Ingo
+Yes, this is fine with me.

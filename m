@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWFLUhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWFLUlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWFLUhi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 16:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWFLUhi
+	id S1751031AbWFLUlR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 16:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWFLUlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 16:37:38 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:35490 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750986AbWFLUhi (ORCPT
+	Mon, 12 Jun 2006 16:41:17 -0400
+Received: from rtr.ca ([64.26.128.89]:20608 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751015AbWFLUlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 16:37:38 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH] revert "swsusp: fix breakage with swap on lvm"
-Date: Mon, 12 Jun 2006 22:38:04 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-References: <200603231702.k2NH2MUS006739@hera.kernel.org> <200606121221.13867.rjw@sisk.pl> <20060612122510.GA26600@redhat.com>
-In-Reply-To: <20060612122510.GA26600@redhat.com>
+	Mon, 12 Jun 2006 16:41:16 -0400
+Message-ID: <448DD16A.9090609@rtr.ca>
+Date: Mon, 12 Jun 2006 16:41:14 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
+ error -28
+References: <448DC93E.9050200@rtr.ca>
+In-Reply-To: <448DC93E.9050200@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606122238.04572.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 June 2006 14:25, Dave Jones wrote:
-> On Mon, Jun 12, 2006 at 12:21:13PM +0200, Rafael J. Wysocki wrote:
+Mark Lord wrote:
+> Greg,
 > 
->  > > So, now I'm getting bug reports from users about .17rc breaking
->  > > their resume again. (https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=194784)
->  > > 
->  > > If this was a temporary thing, what should we be doing to keep
->  > > old installations working ?
->  > 
->  > This was temporary, because the handling of it has been moved to
->  > kernel/power/swap.c and mm/swapfile.c now, but the code has not changed much
->  > (surely it doesn't return -ENODEV if swsusp_resume_device is not set).
->  > Moreover, the new code has been in -rc since 2.6.17-rc1.
->  > 
->  > The report you are referring to is for the kernel called 2.6.16-1.2255_FC6. 
->  > Is this just 2.6.17-rc* renamed or is it related to -rc in another way?
+> With 2.6.17-rc6-git2, I'm seeing this kernel message during start-up:
 > 
-> Yes, it's .17rc6.
-> (They only become a 2.6.17-x after .17 is final)
+>  pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb, error -28
+> 
+> The pl2303 serial port is part of a USB1.1 Hub/dock device,
+> plugged into a USB2 port on my notebook.
+> 
+> I get the same failure again when trying to use the port with Kermit.
+> This device was working fine here not long ago -- on the -rc5 kernels I 
+> think.
 
-Clear.
+Mmm.. no, it's broken in 2.6.17-rc5 as well.
+I'll go back to 2.6.16.xx now, and see about that.
 
-Well, I need some more information.
-
-I don't think the breakage has been caused by any of my patches this time, so
-I'll have to figure out what else might have caused it.  [The problem is last
-significant changes in swsusp that might be related to this were commited
-a couple of months ago. ;-) ]
-
-Greetings,
-Rafael
+> 
+> Unplugging the hub/dock does this:
+> 
+> kernel BUG at kernel/workqueue.c:110!
+> invalid opcode: 0000 [#1]
+> PREEMPT
+...

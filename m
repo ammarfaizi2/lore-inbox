@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWFLRgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWFLRg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWFLRgr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWFLRgr
+	id S1750769AbWFLRg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWFLRg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:36:47 -0400
-Received: from ns0.rackplans.net ([65.39.167.209]:32944 "EHLO
-	mtl.rackplans.net") by vger.kernel.org with ESMTP id S1750767AbWFLRgq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:36:46 -0400
-Date: Mon, 12 Jun 2006 13:37:46 -0400 (EDT)
-From: Gerhard Mack <gmack@innerfire.net>
-X-X-Sender: gmack@mtl.rackplans.net
-To: jdow <jdow@earthlink.net>
-cc: Bernd Petrovitsch <bernd@firmix.at>, davids@webmaster.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-In-Reply-To: <00de01c68df9$7d2b2330$0225a8c0@Wednesday>
-Message-ID: <Pine.LNX.4.64.0606121331090.16348@mtl.rackplans.net>
-References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
- <193701c68d16$54cac690$0225a8c0@Wednesday> <1150100286.26402.13.camel@tara.firmix.at>
- <00de01c68df9$7d2b2330$0225a8c0@Wednesday>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jun 2006 13:36:56 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:16496 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750769AbWFLRgy (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:36:54 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=FH78ifDbiR0vVaDzGom0+I7NsbF6AsnDRmAlc9BdGY8howjjs23CMTgWB3XRs+db5
+	ophEO8kPzzz6YpkGqmIkQ==
+Subject: Re: [PATCH]: Adding a counter in vma to indicate the number
+	of	physical pages backing it
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Linux-mm@kvack.org,
+       Linux-kernel@vger.kernel.org
+In-Reply-To: <448A762F.7000105@yahoo.com.au>
+References: <1149903235.31417.84.camel@galaxy.corp.google.com>
+	 <448A762F.7000105@yahoo.com.au>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Mon, 12 Jun 2006 10:36:34 -0700
+Message-Id: <1150133795.9576.19.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2006, jdow wrote:
-
-> Date: Mon, 12 Jun 2006 01:23:30 -0700
-> From: jdow <jdow@earthlink.net>
-> To: Bernd Petrovitsch <bernd@firmix.at>
-> Cc: davids@webmaster.com, linux-kernel@vger.kernel.org
-> Subject: Re: VGER does gradual SPF activation (FAQ matter)
-> 
-> From: "Bernd Petrovitsch" <bernd@firmix.at>
-> 
-> > On Sat, 2006-06-10 at 22:17 -0700, jdow wrote:
-> > [...]
-> > > that matter. It simply says, "When I went and looked at the guy's claimed
-> > > mail source the spf record said he was who he said he was." Who vouches
+On Sat, 2006-06-10 at 17:35 +1000, Nick Piggin wrote:
+> Rohit Seth wrote:
+> > Below is a patch that adds number of physical pages that each vma is
+> > using in a process.  Exporting this information to user space
+> > using /proc/<pid>/maps interface.
 > > 
-> > No. SPF simply defines legitimate outgoing MTAs for a given domain.
-> > Within a domain, it is up to the postmaster to allow/disallow address
-> > forgery and for the rest of a world (to tell where legitimate email of
-> > his domain comes from), the postmaster defines SPF records.
-> > 
-> > Bernd
+> > There is currently /proc/<pid>/smaps that prints the detailed
+> > information about the usage of physical pages but that is a very
+> > expensive operation as it traverses all the PTs (for some one who is
+> > just interested in getting that data for each vma).
 > 
-> And just recently we received a spate of spam that came from a domain
-> that disappeared almost immediately. Domain names are cheap. They can
-> vouch for the spam run. Then what happens to them doesn't matter. But
-> the SPF record passes.
+> Yet more cacheline footprint in the page fault and unmap paths...
 > 
-> {^_-}   There Ain't No Such Thing As A Free Lunch.
->        Too many people think SPF is a free lunch.
 
-Look at it from a mail admin's perspective.  The bounces are now going 
-nowhere instead of some poor user's mailbox.  You have just cut the damage 
-in half.
+Not necessarily.  If I'm doing calculation right then vm_struct is
+currently 176 bytes (without the addition of nphys) on my x86_64 box. So
+in this case addition would not result in bigger cache foot print of
+page fulats. Also currently two adjacent vmas share a cache line.  So
+there is already that much of cache line ping pong going on. 
 
-Innerfire.net used to be foraged as a spam sender every other month and 
-gmack@innerfire.net so often that I still have procmail filters to 
-redirect bounces to their own folder.  The thousands of messages I was 
-getting was infuriating but it has been a very rare event since I setup 
-SPF on my domain.
+Though I agree that we should try to not extend this size beyond
+absolutely necessary.
 
-SPF may not filter spam much but if you set it to autofail you can reduce 
-the risk for innocent mail admins.
+> What is this used for and why do we want it? Could you do some
+> smaps-like interface that can work on ranges of memory, and
+> continue to walk pagetables instead?
+> 
 
-	Gerhard
+It is just the price of those walks that makes smaps not an attractive
+solution for monitoring purposes.
 
---
-Gerhard Mack
+I'm thinking if it is possible to extend current interfaces (possibly
+having a new system call) in such a way that a user land process can
+give some hints/preferences to kernel in terms of <pid, virtual_range>
+to remove/inactivate.  This can help in keeping the current kernel
+behavior for vmscans but at the same time provide little bit of
+non-symmetry for user land applications.  Thoughts?
 
-gmack@innerfire.net
+-rohit
 
-<>< As a computer I find your faith in technology amusing.

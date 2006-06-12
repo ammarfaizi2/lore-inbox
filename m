@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWFLTPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWFLTQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWFLTPx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 15:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWFLTPw
+	id S932113AbWFLTQR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 15:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWFLTQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 15:15:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:28829 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932108AbWFLTPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 15:15:51 -0400
-Date: Mon, 12 Jun 2006 12:15:33 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: broken local_t on i386
-In-Reply-To: <200606122011.52841.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0606121212510.20259@schroedinger.engr.sgi.com>
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606121955.47803.ak@suse.de>
- <Pine.LNX.4.64.0606121156460.20195@schroedinger.engr.sgi.com>
- <200606122011.52841.ak@suse.de>
+	Mon, 12 Jun 2006 15:16:17 -0400
+Received: from khc.piap.pl ([195.187.100.11]:39359 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932103AbWFLTQP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 15:16:15 -0400
+To: "jdow" <jdow@earthlink.net>
+Cc: "Gerhard Mack" <gmack@innerfire.net>,
+       "Bernd Petrovitsch" <bernd@firmix.at>, <davids@webmaster.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+	<193701c68d16$54cac690$0225a8c0@Wednesday>
+	<1150100286.26402.13.camel@tara.firmix.at>
+	<00de01c68df9$7d2b2330$0225a8c0@Wednesday>
+	<Pine.LNX.4.64.0606121331090.16348@mtl.rackplans.net>
+	<m38xo244wz.fsf@defiant.localdomain>
+	<01bb01c68e50$93753de0$0225a8c0@Wednesday>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 12 Jun 2006 21:16:13 +0200
+In-Reply-To: <01bb01c68e50$93753de0$0225a8c0@Wednesday> (jdow@earthlink.net's message of "Mon, 12 Jun 2006 11:46:53 -0700")
+Message-ID: <m3ver62nia.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2006, Andi Kleen wrote:
+"jdow" <jdow@earthlink.net> writes:
 
-> > I thought you had some funky segment registers on i386 and x86_64. Cant
-> > they be switched on context switch? If an inc/dec could work relative to
-> > those then you would not need a virtual mapping.
-> 
-> The segment register needs an offset. So you need the linker to generate
-> the offset from the base of the per cpu segment somehow. At compile time the 
-> address is not known so it cannot be done then.
+> Krzysztof, the point here is that experience with active spam
+> filtering indicates that there is no such thing as "obviously bad
+> messages" that will not catch some good messages in its broad
+> brush.
 
-Define something like a big struct and use offsetof?
-
-So the compiler is not able to generate an offset to the beginning of a 
-data segment? 
+Sure, but if someone bounces a message for whatever reason I assume
+it's (at that point) obviously bad. It doesn't necessarily means
+spam, it might as well be a "detected virus", "user unknown" etc.
+And yes, you can usually reject them in SMTP session. Doing that
+fixes a real problem.
+-- 
+Krzysztof Halasa

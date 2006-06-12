@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752005AbWFLOF4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751994AbWFLOLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752005AbWFLOF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 10:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752004AbWFLOF4
+	id S1751994AbWFLOLx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 10:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751996AbWFLOLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 10:05:56 -0400
-Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:143
-	"HELO office-m.at") by vger.kernel.org with SMTP id S1752005AbWFLOFz
+	Mon, 12 Jun 2006 10:11:53 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:25523 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1751994AbWFLOLw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 10:05:55 -0400
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Transfer-Encoding: 7bit
-Message-Id: <0CB396BB-A11B-4191-982F-8C0B89F848D6@office-m.at>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Markus Biermaier <mbier@office-m.at>
-Subject: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
-Date: Mon, 12 Jun 2006 16:05:51 +0200
-X-Mailer: Apple Mail (2.750)
+	Mon, 12 Jun 2006 10:11:52 -0400
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [discuss] x86_64: x86-64 mailing lists / posting patchkits
+ / x86-64 releases
+Date: Mon, 12 Jun 2006 09:11:44 -0500
+Message-ID: <84EA05E2CA77634C82730353CBE3A84303218DB5@SAUSEXMB1.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [discuss] x86_64: x86-64 mailing lists / posting patchkits
+ / x86-64 releases
+Thread-Index: AcaOEk2neWdqHtkuTu2VsPF8H6M+PAAF4iDA
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+X-OriginalArrivalTime: 12 Jun 2006 14:11:45.0386 (UTC)
+ FILETIME=[2303CCA0:01C68E2A]
+X-WSS-ID: 6893A9AA27K8228601-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >We still have a patches@x86-64 mailing list on x86-64.org which is 
+> >mostly unused. If I moved the big patch floods over there, would the 
+> >people who do reviews subscribe there? Please comment.
+> 
+> I certainly would subscribe there if you want to split 
+> things. Depending on your intentions, I could also switch to 
+> send patches there. But if I'm asked about my preferences, 
+> I'd rather see things stay on the discuss list (as sending 
+> patches is generally meant to trigger discussion if need be).
 
-Hi,
+I'd prefer to see patches sent to patches@x86-64.org,
+as that will make them easier to track.  However, I 
+agree with Jan that discussion of patches should occur
+on discuss@x86-64.org.  It should be possible to make
+all responses from patches@x86-64.org go to 
+discuss@x86-64.org.
 
-I use an EPIA MII6000E motherboard with CF-Card as hard-drive.
-Since this device can't boot from CF-Card I boot from network via  
-PXELINUX.
-Works fine for kernel 2.4.25.
+-Mark Langsdorf
+AMD, Inc.
 
-Now I want to change to kernel 2.6.15.4.
-
-I boot an initrd, execute "linuxrc" and at this point I can mount the  
-CF-Card as "hde1", inspect the file-system, ...
-
-As soon as I finish "linuxrc" the root-fs should be mounted but the  
-kernel panics with:
-
-   VFS: Cannot open root device "hde1" or unknown-block(0,0)
-   Please append a correct "root=" boot option
-   Kernel panic - not syncinc: VFS: Unable to mount root fs on  
-unknown-block(0,0)
-
-"/tftpboot/pxelinux.cfg/Cxxxxxx":
-------------------------- [ BEGIN Cxxxxxx ] -------------------------
-DEFAULT standard
-LABEL standard
-KERNEL vmlinuz
-APPEND initrd=initrd ramdisk_size=32768 root=/dev/hde1 acpi=off udev
-------------------------- [ END   Cxxxxxx ] -------------------------
-
-I tried:
-------------------------- [ BEGIN linuxrc ] -------------------------
-   ...
-   mount /dev/hde1
-   umount /proc
-   umount /sys
-   cd /mnt
-   /mnt/sbin/pivot_root . initrd
-   mount /sys /sys -t sysfs
-   /sbin/udevstart
-   /sbin/pcmcia-socket-startup
-   mount /proc
-   echo -n "42" > /sys/bus/pcmcia/devices/1.0/allow_func_id_match
-   echo 0x3301 > /proc/sys/kernel/real-root-dev
-   sleep 5
-   exec <dev/console >dev/console 2>&1
-   exec chroot . /bin/sh <<EOF
-        umount initrd
-        /sbin/blockdev --flushbufs /dev/ram0
-        sleep 3
-        exec /sbin/init 5
-   EOF
-------------------------- [ END   linuxrc ] -------------------------
-
-I found that the root-fs is mounted twice. First as initial-RAM-Disk.  
-Works ok.
-Second as "real" root. With "printk" I found that in file "init/ 
-do_mounts.c"
-...
-int err = do_mount_root(name, p, flags, root_mount_data);
-...
-The value of "name" is "/dev/root" before this statement.
-After this "err" is -6 ("No such device or address").
-
-BTW: When I have the line
-   echo 0x3301 > /proc/sys/kernel/real-root-dev
-in "linuxrc" the panic message
-   "VFS: Unable to mount root fs on unknown-block(0,0)"
-becomes
-   "VFS: Unable to mount root fs on unknown-block(51,1)"
-
-Any ideas?
-
-Markus
-  

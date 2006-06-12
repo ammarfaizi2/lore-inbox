@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWFLVDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWFLVG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWFLVDU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWFLVDU
+	id S1751234AbWFLVG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWFLVG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:03:20 -0400
-Received: from waste.org ([64.81.244.121]:59017 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932225AbWFLVDT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:03:19 -0400
-Date: Mon, 12 Jun 2006 15:53:10 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH RFC] netpoll: don't spin forever sending to stopped queues
-Message-ID: <20060612205310.GU24227@waste.org>
-References: <44886381.9050506@goop.org> <20060608210702.GD24227@waste.org> <4488D9D6.6070205@goop.org> <20060611200407.GG24227@waste.org> <448DD556.6030705@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448DD556.6030705@goop.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 12 Jun 2006 17:06:28 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:55488 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751234AbWFLVG1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 17:06:27 -0400
+Message-ID: <448DD71E.1020209@fr.ibm.com>
+Date: Mon, 12 Jun 2006 23:05:34 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
+       devel@openvz.org, xemul@openvz.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       herbert@13thfloor.at, saw@sw.ru, serue@us.ibm.com, sfrench@us.ibm.com,
+       sam@vilain.net, haveblue@us.ibm.com
+Subject: Re: [PATCH 2/6] IPC namespace - utils
+References: <44898BF4.4060509@openvz.org> <44898E39.3080801@openvz.org>	<448D9F96.5030305@fr.ibm.com> <m1bqsy6ynn.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1bqsy6ynn.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 01:57:58PM -0700, Jeremy Fitzhardinge wrote:
-> Matt Mackall wrote:
-> >On Thu, Jun 08, 2006 at 07:15:50PM -0700, Jeremy Fitzhardinge wrote:
-> >  
-> >>Here's a patch.  I haven't tested it beyond compiling it, and I don't 
-> >>know if it is actually correct.  In this case, it seems pointless to 
-> >>spin waiting for an even which will never happen.  Should 
-> >>netif_poll_disable() cause netpoll_send_skb() (or something) to not even 
-> >>bother trying to send?  netif_poll_disable seems mysteriously simple to 
-> >>me.
-> >>
-> >>   J
-> >>    
-> >
-> >Did this work for you at all?
-> >  
+Eric W. Biederman wrote:
+> Cedric Le Goater <clg@fr.ibm.com> writes:
 > 
-> No, it didn't appear to help; I get the same symptom.  I think fix is 
-> correct (in that its better than what was there before), but there's 
-> probably more going on in my case.  I haven't looked into it more deeply 
-> yet.  I suspect there's another netpoll code path which is spinning 
-> forever on an XOFFed queue.
+>> I've used the ipc namespace patchset in rc6-mm2. Thanks for putting this
+>> together, it works pretty well ! A few questions when we clone :
+>>
+>> * We should do something close to what exit_sem() already does to clear the
+>> sem_undo list from the task doing the clone() or unshare().
 > 
-> >>When transmitting a skb in netpoll_send_skb(), only retry a limited
-> >>number of times if the device queue is stopped.
-> >>    
-> >
-> >Where limited = once?
-> >  
-> 
-> No, it reuses the existing retry logic.  It retries 20000 times with a 
-> 50us pause between attempts, so up to a second.  This seems excessive to 
-> me; I don't know where those original numbers came from.  I tried 5000 
-> retries, but it didn't make any difference to my case.
+> Possibly which case are you trying to prevent?
 
-Ahh, right. I forgot that I'd done that. Can you resend?
+task records a list of struct sem_undo each containing a semaphore id. When
+we unshare ipc namespace, we break the 'reference' between the semaphore id
+and the struct sem_array because the struct sem_array are cleared and freed
+in the new namespace. When the task exit, that inconstency could lead to
+unexpected results in exit_sem(), task locks, BUG_ON, etc. Nope ?
 
--- 
-Mathematics is the supreme nostalgia of our time.
+
+>> * I don't like the idea of being able to unshare the ipc namespace and keep
+>> some shared memory from the previous ipc namespace mapped in the process mm.
+>> Should we forbid the unshare ?
+> 
+> No.  As long as the code handles that case properly we should be fine.
+
+what is the proper way to handle that case ? the current patchset is not
+protected : a process can be in one ipc namespace and use a shared segment
+from a previous ipc namespace. This situation is not desirable in a
+migration scenario. May be asking too much for the moment ... and I agree
+this can be fixed by the way namespaces are created.
+
+> As a general principle we should be able to keep things from other namespaces
+> open if we get them.  The chroot or equivalent binary is the one that needs
+> to ensure these kinds of issues don't exist if we care.
+>
+> Speaking of we should put together a small test application probably similar
+> to chroot so people can access these features at least for testing.
+
+are you thinking about a command unshare()ing each namespace or some kind
+of create_nsproxy ?
+
+> Ack.  For the unshare fix below.  Could you resend this one separately with
+> patch in the subject so Andrew sees it and picks  up?
+
+done.
+
+thanks,
+
+c.

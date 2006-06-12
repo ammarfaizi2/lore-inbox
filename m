@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWFLVgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWFLVg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbWFLVgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWFLVgM
+	id S932369AbWFLVg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWFLVg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:36:12 -0400
-Received: from outbound-red.frontbridge.com ([216.148.222.49]:42567 "EHLO
-	outbound2-red-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S932379AbWFLVgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:36:10 -0400
-X-BigFish: V
-Message-ID: <448DDE46.2020602@am.sony.com>
-Date: Mon, 12 Jun 2006 14:36:06 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 12 Jun 2006 17:36:56 -0400
+Received: from rtr.ca ([64.26.128.89]:10654 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932369AbWFLVgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 17:36:55 -0400
+Message-ID: <448DDE76.3090401@rtr.ca>
+Date: Mon, 12 Jun 2006 17:36:54 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Matt Mackall <mpm@selenic.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86 built-in command line
-References: <20060611215530.GH24227@waste.org>	 <200606121712.k5CHClUE017185@terminus.zytor.com>	 <20060612204925.GT24227@waste.org> <1150147153.5257.277.camel@localhost.localdomain>
-In-Reply-To: <1150147153.5257.277.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
+ error -28
+References: <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD50F.3060002@rtr.ca> <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD968.2010000@rtr.ca> <20060612212812.GA17458@suse.de>
+In-Reply-To: <20060612212812.GA17458@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> Well most of the bootloaders I'm working with let me change the
-> commandline. 
+>> I found this fix in -mm:   gregkh-usb-usb-rmmod-pl2303-after-28.patch
+>> > It did *not* fix the problem.
+> 
+> That should fix the memory leak after getting that error and let you
+> unload the module, right?
 
-Just FYI for this thread, most of the bootloaders I work with
-don't let me change the kernel command line.  Many have no
-knowledge of Linux whatsoever.  Many boards, especially internal
-boards, have hobbled-together custom bootloaders.
+Nope.  No difference here.
 
-Hence, I've gotten out of the habit of figuring out how to set
-the command line args from the bootloader even for those
-platforms where the bootloader *is* capable of it.
- -- Tim
+>> If I plug the 1.1 hub/dock into another external hub, no problems.
+>
+>I recommend doing that  :) 
+>It's not like you get _any_ speed differences by using a USB 2.0 hub
+>with this device...
 
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+I suppose not!  ;)
+
+But the USB2.0 "hub" is built-into my notebook,
+and the "cascading hubs" solution is likely to stop
+working when we begin enforcing per-port power limits
+on these devices.
+
+I'm rebuilding to try the suggested patch now.
+
+Cheers
 

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWFLIRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWFLISM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWFLIRV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 04:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWFLIRV
+	id S1750848AbWFLISM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 04:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWFLISM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 04:17:21 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:28097 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750808AbWFLIRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 04:17:20 -0400
-Date: Mon, 12 Jun 2006 11:17:18 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Catalin Marinas <catalin.marinas@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-In-Reply-To: <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
-References: <20060611111815.8641.7879.stgit@localhost.localdomain> 
- <20060611112156.8641.94787.stgit@localhost.localdomain> 
- <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
- <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
+	Mon, 12 Jun 2006 04:18:12 -0400
+Received: from ns.firmix.at ([62.141.48.66]:6302 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1750700AbWFLISL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 04:18:11 -0400
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: jdow <jdow@earthlink.net>
+Cc: davids@webmaster.com, linux-kernel@vger.kernel.org
+In-Reply-To: <193701c68d16$54cac690$0225a8c0@Wednesday>
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+	 <193701c68d16$54cac690$0225a8c0@Wednesday>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 12 Jun 2006 10:18:06 +0200
+Message-Id: <1150100286.26402.13.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.331 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2006-06-10 at 22:17 -0700, jdow wrote:
+[...]
+> that matter. It simply says, "When I went and looked at the guy's claimed
+> mail source the spf record said he was who he said he was." Who vouches
 
-On 12/06/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> > Can we fix this by looking for pointers to anywhere in the allocated
-> > memory block instead of just looking for the start?
+No. SPF simply defines legitimate outgoing MTAs for a given domain.
+Within a domain, it is up to the postmaster to allow/disallow address
+forgery and for the rest of a world (to tell where legitimate email of
+his domain comes from), the postmaster defines SPF records.
 
-On Mon, 12 Jun 2006, Catalin Marinas wrote:
-> I thought about this as well (I think that's how Valgrind works) but
-> it would increase the chances of missing real leaks.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Yeah but that's far better than adding bunch of 'not a leak' annotations 
-around the kernel which is very impractical to maintain.  I would like to 
-see your leak detector in the kernel so we can finally get rid of all 
-those per-subsystem magic allocators.  This patch, however, is 
-unacceptable for inclusion IMHO.
-
-				Pekka

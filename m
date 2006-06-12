@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWFLG7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWFLHCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWFLG7h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 02:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWFLG7h
+	id S1751408AbWFLHCc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 03:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWFLHCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 02:59:37 -0400
-Received: from bay19-f25.bay19.hotmail.com ([64.4.53.75]:34156 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1751406AbWFLG7g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 02:59:36 -0400
-Message-ID: <BAY19-F254968ED7AAD0015BDA24CCD8F0@phx.gbl>
-X-Originating-IP: [87.51.137.160]
-X-Originating-Email: [nkbj1970@hotmail.com]
-From: "Niels Kristian Bech Jensen" <nkbj1970@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@kernel.org
-Subject: [PATCH 2.6.17-rc6-git2] Update my contact information in CREDITS.
-Date: Mon, 12 Jun 2006 08:59:31 +0200
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_30a6_5d70_6caa"
-X-OriginalArrivalTime: 12 Jun 2006 06:59:36.0079 (UTC) FILETIME=[C3F189F0:01C68DED]
+	Mon, 12 Jun 2006 03:02:32 -0400
+Received: from www.osadl.org ([213.239.205.134]:53418 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751408AbWFLHCb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 03:02:31 -0400
+Message-ID: <448D117D.9020304@tglx.de>
+Date: Mon, 12 Jun 2006 09:02:21 +0200
+From: Jan Altenberg <tb10alj@tglx.de>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: geert@linux-m68k.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH][M68K]Trivial typo fix
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi,
 
-------=_NextPart_000_30a6_5d70_6caa
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+by chance I came across this little typo in asm/ptrace.h
+for the m68knommu architecture.
 
-Update my contact information in CREDITS.
+It doesn't affect me, but maybe it'll affect somebody out there.
 
-_________________________________________________________________
-Få 250 MB gratis lagerplads på MSN Hotmail:  http://www.hotmail.com
-
-------=_NextPart_000_30a6_5d70_6caa
-Content-Type: text/x-patch; name="CREDITS-2.6.17-rc6-git2.diff"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="CREDITS-2.6.17-rc6-git2.diff"
-
-diff -urN linux-2.6.17-rc6-git2.orig/CREDITS linux-2.6.17-rc6-git2/CREDITS
---- linux-2.6.17-rc6-git2.orig/CREDITS	2006-06-12 08:39:24.000000000 +0200
-+++ linux-2.6.17-rc6-git2/CREDITS	2006-06-12 08:46:46.000000000 +0200
-@@ -1573,12 +1573,8 @@
- S: Czech Republic
- 
- N: Niels Kristian Bech Jensen
--E: nkbj@image.dk
--W: http://www.image.dk/~nkbj
-+E: nkbj1970@hotmail.com
- D: Miscellaneous kernel updates and fixes.
--S: Dr. Holsts Vej 34, lejl. 164
--S: DK-8230 Åbyhøj
--S: Denmark
- 
- N: Michael K. Johnson
- E: johnsonm@redhat.com
+See the following patch against 2.6.17-rc6.
 
 
-------=_NextPart_000_30a6_5d70_6caa--
+Signed-off-by: Jan Altenberg <tb10alj@tglx.de>
+
+----------------------
+
+--- linux-2.6.17-rc6/include/asm-m68knommu/ptrace.h.orig	2006-06-12 08:49:51.000000000 +0200
++++ linux-2.6.17-rc6/include/asm-m68knommu/ptrace.h	2006-06-12 08:50:11.000000000 +0200
+@@ -70,7 +70,7 @@ struct switch_stack {
+ /* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
+ #define PTRACE_GETREGS            12
+ #define PTRACE_SETREGS            13
+-#ifdef COFNIG_FPU
++#ifdef CONFIG_FPU
+ #define PTRACE_GETFPREGS          14
+ #define PTRACE_SETFPREGS          15
+ #endif

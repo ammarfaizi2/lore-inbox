@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWFLVOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWFLVOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWFLVOz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWFLVOT
+	id S932288AbWFLVOy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWFLVOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:14:19 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:65455 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932304AbWFLVOQ (ORCPT
+	Mon, 12 Jun 2006 17:14:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7600 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932306AbWFLVOm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:14:16 -0400
-Date: Mon, 12 Jun 2006 14:14:07 -0700 (PDT)
+	Mon, 12 Jun 2006 17:14:42 -0400
+Date: Mon, 12 Jun 2006 14:14:33 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
@@ -17,172 +17,216 @@ Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20060612211407.20862.42200.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060612211433.20862.22225.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 16/21] Conversion of nr_writeback to per zone counter
+Subject: [PATCH 21/21] Remove useless struct wbs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: zoned vm counters: conversion of nr_writeback to per zone counter
+Subject: zoned vm counters: remove useless writeback structure
 From: Christoph Lameter <clameter@sgi.com>
 
-Conversion of nr_writeback to per zone counter.
+Remove writeback state
 
-This removes the last page_state counter from arch/i386/mm/pgtable.c
-so we drop the page_state from there.
+We can remove some functions now that were needed to calculate the page state
+for writeback control since these statistics are now directly available.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
-
-Index: linux-2.6.17-rc6-cl/arch/i386/mm/pgtable.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/arch/i386/mm/pgtable.c	2006-06-12 13:02:52.201905469 -0700
-+++ linux-2.6.17-rc6-cl/arch/i386/mm/pgtable.c	2006-06-12 13:03:04.914008833 -0700
-@@ -30,7 +30,6 @@ void show_mem(void)
- 	struct page *page;
- 	pg_data_t *pgdat;
- 	unsigned long i;
--	struct page_state ps;
- 	unsigned long flags;
- 
- 	printk(KERN_INFO "Mem-info:\n");
-@@ -58,9 +57,8 @@ void show_mem(void)
- 	printk(KERN_INFO "%d pages shared\n", shared);
- 	printk(KERN_INFO "%d pages swap cached\n", cached);
- 
--	get_page_state(&ps);
- 	printk(KERN_INFO "%lu pages dirty\n", global_page_state(NR_DIRTY));
--	printk(KERN_INFO "%lu pages writeback\n", ps.nr_writeback);
-+	printk(KERN_INFO "%lu pages writeback\n", global_page_state(NR_WRITEBACK));
- 	printk(KERN_INFO "%lu pages mapped\n", global_page_state(NR_MAPPED));
- 	printk(KERN_INFO "%lu pages slab\n", global_page_state(NR_SLAB));
- 	printk(KERN_INFO "%lu pages pagetables\n", global_page_state(NR_PAGETABLE));
-Index: linux-2.6.17-rc6-cl/drivers/base/node.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/drivers/base/node.c	2006-06-12 13:02:52.202881971 -0700
-+++ linux-2.6.17-rc6-cl/drivers/base/node.c	2006-06-12 13:03:04.914985335 -0700
-@@ -49,9 +49,6 @@ static ssize_t node_read_meminfo(struct 
- 	get_page_state_node(&ps, nid);
- 	__get_zone_counts(&active, &inactive, &free, NODE_DATA(nid));
- 
--	/* Check for negative values in these approximate counters */
--	if ((long)ps.nr_writeback < 0)
--		ps.nr_writeback = 0;
- 
- 	n = sprintf(buf, "\n"
- 		       "Node %d MemTotal:     %8lu kB\n"
-@@ -80,7 +77,7 @@ static ssize_t node_read_meminfo(struct 
- 		       nid, K(i.totalram - i.totalhigh),
- 		       nid, K(i.freeram - i.freehigh),
- 		       nid, K(node_page_state(nid, NR_DIRTY)),
--		       nid, K(ps.nr_writeback),
-+		       nid, K(node_page_state(nid, NR_WRITEBACK)),
- 		       nid, K(node_page_state(nid, NR_PAGECACHE)),
- 		       nid, K(node_page_state(nid, NR_MAPPED)),
- 		       nid, K(node_page_state(nid, NR_ANON)),
-Index: linux-2.6.17-rc6-cl/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/fs/proc/proc_misc.c	2006-06-12 13:02:52.207764481 -0700
-+++ linux-2.6.17-rc6-cl/fs/proc/proc_misc.c	2006-06-12 13:03:04.915961837 -0700
-@@ -191,7 +191,7 @@ static int meminfo_read_proc(char *page,
- 		K(i.totalswap),
- 		K(i.freeswap),
- 		K(global_page_state(NR_DIRTY)),
--		K(ps.nr_writeback),
-+		K(global_page_state(NR_WRITEBACK)),
- 		K(global_page_state(NR_ANON)),
- 		K(global_page_state(NR_MAPPED)),
- 		K(global_page_state(NR_SLAB)),
-Index: linux-2.6.17-rc6-cl/include/linux/mmzone.h
-===================================================================
---- linux-2.6.17-rc6-cl.orig/include/linux/mmzone.h	2006-06-12 13:02:52.209717485 -0700
-+++ linux-2.6.17-rc6-cl/include/linux/mmzone.h	2006-06-12 13:03:04.916938339 -0700
-@@ -54,6 +54,7 @@ enum zone_stat_item {
- 	NR_SLAB,	/* Pages used by slab allocator */
- 	NR_PAGETABLE,	/* used for pagetables */
- 	NR_DIRTY,
-+	NR_WRITEBACK,
- 	NR_STAT_ITEMS };
- 
- struct per_cpu_pages {
-Index: linux-2.6.17-rc6-cl/include/linux/page-flags.h
-===================================================================
---- linux-2.6.17-rc6-cl.orig/include/linux/page-flags.h	2006-06-12 12:43:12.081607020 -0700
-+++ linux-2.6.17-rc6-cl/include/linux/page-flags.h	2006-06-12 13:03:04.917914841 -0700
-@@ -176,7 +176,7 @@
- 	do {								\
- 		if (!test_and_set_bit(PG_writeback,			\
- 				&(page)->flags))			\
--			inc_page_state(nr_writeback);			\
-+			inc_zone_page_state(page, NR_WRITEBACK);	\
- 	} while (0)
- #define TestSetPageWriteback(page)					\
- 	({								\
-@@ -184,14 +184,14 @@
- 		ret = test_and_set_bit(PG_writeback,			\
- 					&(page)->flags);		\
- 		if (!ret)						\
--			inc_page_state(nr_writeback);			\
-+			inc_zone_page_state(page, NR_WRITEBACK);	\
- 		ret;							\
- 	})
- #define ClearPageWriteback(page)					\
- 	do {								\
- 		if (test_and_clear_bit(PG_writeback,			\
- 				&(page)->flags))			\
--			dec_page_state(nr_writeback);			\
-+			dec_zone_page_state(page, NR_WRITEBACK);	\
- 	} while (0)
- #define TestClearPageWriteback(page)					\
- 	({								\
-@@ -199,7 +199,7 @@
- 		ret = test_and_clear_bit(PG_writeback,			\
- 				&(page)->flags);			\
- 		if (ret)						\
--			dec_page_state(nr_writeback);			\
-+			dec_zone_page_state(page, NR_WRITEBACK);	\
- 		ret;							\
- 	})
- 
-Index: linux-2.6.17-rc6-cl/mm/page_alloc.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/page_alloc.c	2006-06-12 13:02:52.210693987 -0700
-+++ linux-2.6.17-rc6-cl/mm/page_alloc.c	2006-06-12 13:03:04.919867845 -0700
-@@ -1405,7 +1405,7 @@ void show_free_areas(void)
- 		active,
- 		inactive,
- 		global_page_state(NR_DIRTY),
--		ps.nr_writeback,
-+		global_page_state(NR_WRITEBACK),
- 		ps.nr_unstable,
- 		nr_free_pages(),
- 		global_page_state(NR_SLAB),
 Index: linux-2.6.17-rc6-cl/mm/page-writeback.c
 ===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/page-writeback.c	2006-06-12 13:02:52.211670489 -0700
-+++ linux-2.6.17-rc6-cl/mm/page-writeback.c	2006-06-12 13:03:04.919867845 -0700
-@@ -113,7 +113,7 @@ static void get_writeback_state(struct w
- 	wbs->nr_unstable = read_page_state(nr_unstable);
- 	wbs->nr_mapped = global_page_state(NR_MAPPED) +
- 				global_page_state(NR_ANON);
--	wbs->nr_writeback = read_page_state(nr_writeback);
-+	wbs->nr_writeback = global_page_state(NR_WRITEBACK);
+--- linux-2.6.17-rc6-cl.orig/mm/page-writeback.c	2006-06-10 17:25:05.237248907 -0700
++++ linux-2.6.17-rc6-cl/mm/page-writeback.c	2006-06-10 19:27:44.138352158 -0700
+@@ -99,23 +99,6 @@ EXPORT_SYMBOL(laptop_mode);
+ 
+ static void background_writeout(unsigned long _min_pages);
+ 
+-struct writeback_state
+-{
+-	unsigned long nr_dirty;
+-	unsigned long nr_unstable;
+-	unsigned long nr_mapped;
+-	unsigned long nr_writeback;
+-};
+-
+-static void get_writeback_state(struct writeback_state *wbs)
+-{
+-	wbs->nr_dirty = global_page_state(NR_DIRTY);
+-	wbs->nr_unstable = global_page_state(NR_UNSTABLE);
+-	wbs->nr_mapped = global_page_state(NR_MAPPED) +
+-				global_page_state(NR_ANON);
+-	wbs->nr_writeback = global_page_state(NR_WRITEBACK);
+-}
+-
+ /*
+  * Work out the current dirty-memory clamping and background writeout
+  * thresholds.
+@@ -134,8 +117,7 @@ static void get_writeback_state(struct w
+  * clamping level.
+  */
+ static void
+-get_dirty_limits(struct writeback_state *wbs, long *pbackground, long *pdirty,
+-		struct address_space *mapping)
++get_dirty_limits(long *pbackground, long *pdirty, struct address_space *mapping)
+ {
+ 	int background_ratio;		/* Percentages */
+ 	int dirty_ratio;
+@@ -145,8 +127,6 @@ get_dirty_limits(struct writeback_state 
+ 	unsigned long available_memory = total_pages;
+ 	struct task_struct *tsk;
+ 
+-	get_writeback_state(wbs);
+-
+ #ifdef CONFIG_HIGHMEM
+ 	/*
+ 	 * If this mapping can only allocate from low memory,
+@@ -157,7 +137,9 @@ get_dirty_limits(struct writeback_state 
+ #endif
+ 
+ 
+-	unmapped_ratio = 100 - (wbs->nr_mapped * 100) / total_pages;
++	unmapped_ratio = 100 - ((global_page_state(NR_MAPPED) +
++				global_page_state(NR_ANON)) * 100) /
++					total_pages;
+ 
+ 	dirty_ratio = vm_dirty_ratio;
+ 	if (dirty_ratio > unmapped_ratio / 2)
+@@ -190,7 +172,6 @@ get_dirty_limits(struct writeback_state 
+  */
+ static void balance_dirty_pages(struct address_space *mapping)
+ {
+-	struct writeback_state wbs;
+ 	long nr_reclaimable;
+ 	long background_thresh;
+ 	long dirty_thresh;
+@@ -208,11 +189,12 @@ static void balance_dirty_pages(struct a
+ 			.range_cyclic	= 1,
+ 		};
+ 
+-		get_dirty_limits(&wbs, &background_thresh,
+-					&dirty_thresh, mapping);
+-		nr_reclaimable = wbs.nr_dirty + wbs.nr_unstable;
+-		if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh)
+-			break;
++		get_dirty_limits(&background_thresh, &dirty_thresh, mapping);
++		nr_reclaimable = global_page_state(NR_DIRTY) +
++					global_page_state(NR_UNSTABLE);
++		if (nr_reclaimable + global_page_state(NR_WRITEBACK) <=
++			dirty_thresh)
++				break;
+ 
+ 		if (!dirty_exceeded)
+ 			dirty_exceeded = 1;
+@@ -225,11 +207,14 @@ static void balance_dirty_pages(struct a
+ 		 */
+ 		if (nr_reclaimable) {
+ 			writeback_inodes(&wbc);
+-			get_dirty_limits(&wbs, &background_thresh,
+-					&dirty_thresh, mapping);
+-			nr_reclaimable = wbs.nr_dirty + wbs.nr_unstable;
+-			if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh)
+-				break;
++			get_dirty_limits(&background_thresh,
++					 	&dirty_thresh, mapping);
++			nr_reclaimable = global_page_state(NR_DIRTY) +
++					global_page_state(NR_UNSTABLE);
++			if (nr_reclaimable +
++				global_page_state(NR_WRITEBACK)
++					<= dirty_thresh)
++						break;
+ 			pages_written += write_chunk - wbc.nr_to_write;
+ 			if (pages_written >= write_chunk)
+ 				break;		/* We've done our duty */
+@@ -237,8 +222,9 @@ static void balance_dirty_pages(struct a
+ 		blk_congestion_wait(WRITE, HZ/10);
+ 	}
+ 
+-	if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh && dirty_exceeded)
+-		dirty_exceeded = 0;
++	if (nr_reclaimable + global_page_state(NR_WRITEBACK)
++		<= dirty_thresh && dirty_exceeded)
++			dirty_exceeded = 0;
+ 
+ 	if (writeback_in_progress(bdi))
+ 		return;		/* pdflush is already working this queue */
+@@ -300,12 +286,11 @@ EXPORT_SYMBOL(balance_dirty_pages_rateli
+ 
+ void throttle_vm_writeout(void)
+ {
+-	struct writeback_state wbs;
+ 	long background_thresh;
+ 	long dirty_thresh;
+ 
+         for ( ; ; ) {
+-		get_dirty_limits(&wbs, &background_thresh, &dirty_thresh, NULL);
++		get_dirty_limits(&background_thresh, &dirty_thresh, NULL);
+ 
+                 /*
+                  * Boost the allowable dirty threshold a bit for page
+@@ -313,8 +298,9 @@ void throttle_vm_writeout(void)
+                  */
+                 dirty_thresh += dirty_thresh / 10;      /* wheeee... */
+ 
+-                if (wbs.nr_unstable + wbs.nr_writeback <= dirty_thresh)
+-                        break;
++                if (global_page_state(NR_UNSTABLE) +
++			global_page_state(NR_WRITEBACK) <= dirty_thresh)
++                        	break;
+                 blk_congestion_wait(WRITE, HZ/10);
+         }
+ }
+@@ -337,12 +323,12 @@ static void background_writeout(unsigned
+ 	};
+ 
+ 	for ( ; ; ) {
+-		struct writeback_state wbs;
+ 		long background_thresh;
+ 		long dirty_thresh;
+ 
+-		get_dirty_limits(&wbs, &background_thresh, &dirty_thresh, NULL);
+-		if (wbs.nr_dirty + wbs.nr_unstable < background_thresh
++		get_dirty_limits(&background_thresh, &dirty_thresh, NULL);
++		if (global_page_state(NR_DIRTY) +
++			global_page_state(NR_UNSTABLE) < background_thresh
+ 				&& min_pages <= 0)
+ 			break;
+ 		wbc.encountered_congestion = 0;
+@@ -366,12 +352,9 @@ static void background_writeout(unsigned
+  */
+ int wakeup_pdflush(long nr_pages)
+ {
+-	if (nr_pages == 0) {
+-		struct writeback_state wbs;
+-
+-		get_writeback_state(&wbs);
+-		nr_pages = wbs.nr_dirty + wbs.nr_unstable;
+-	}
++	if (nr_pages == 0)
++		nr_pages = global_page_state(NR_DIRTY) +
++				global_page_state(NR_UNSTABLE);
+ 	return pdflush_operation(background_writeout, nr_pages);
  }
  
- /*
-Index: linux-2.6.17-rc6-cl/mm/vmstat.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/vmstat.c	2006-06-12 13:02:58.922192406 -0700
-+++ linux-2.6.17-rc6-cl/mm/vmstat.c	2006-06-12 13:03:12.036614604 -0700
-@@ -469,9 +469,9 @@ static char *vmstat_text[] = {
- 	"nr_slab",
- 	"nr_page_table_pages",
- 	"nr_dirty",
-+	"nr_writeback",
+@@ -402,7 +385,6 @@ static void wb_kupdate(unsigned long arg
+ 	unsigned long start_jif;
+ 	unsigned long next_jif;
+ 	long nr_to_write;
+-	struct writeback_state wbs;
+ 	struct writeback_control wbc = {
+ 		.bdi		= NULL,
+ 		.sync_mode	= WB_SYNC_NONE,
+@@ -415,11 +397,11 @@ static void wb_kupdate(unsigned long arg
  
- 	/* Page state */
--	"nr_writeback",
- 	"nr_unstable",
+ 	sync_supers();
  
- 	"pgpgin",
+-	get_writeback_state(&wbs);
+ 	oldest_jif = jiffies - dirty_expire_interval;
+ 	start_jif = jiffies;
+ 	next_jif = start_jif + dirty_writeback_interval;
+-	nr_to_write = wbs.nr_dirty + wbs.nr_unstable +
++	nr_to_write = global_page_state(NR_DIRTY) +
++			global_page_state(NR_UNSTABLE) +
+ 			(inodes_stat.nr_inodes - inodes_stat.nr_unused);
+ 	while (nr_to_write > 0) {
+ 		wbc.encountered_congestion = 0;

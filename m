@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752061AbWFLPjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752058AbWFLPli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752061AbWFLPjA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 11:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWFLPjA
+	id S1752058AbWFLPli (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 11:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWFLPli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 11:39:00 -0400
-Received: from rtr.ca ([64.26.128.89]:42387 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1752061AbWFLPi7 (ORCPT
+	Mon, 12 Jun 2006 11:41:38 -0400
+Received: from darla.ti-wmc.nl ([217.114.97.45]:20657 "EHLO smtp.wmc")
+	by vger.kernel.org with ESMTP id S1752058AbWFLPlh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 11:38:59 -0400
-Message-ID: <448D8A90.3040508@rtr.ca>
-Date: Mon, 12 Jun 2006 11:38:56 -0400
-From: Mark Lord <lkml@rtr.ca>
+	Mon, 12 Jun 2006 11:41:37 -0400
+Message-ID: <448D8B2F.8060405@ti-wmc.nl>
+Date: Mon, 12 Jun 2006 17:41:35 +0200
+From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-Subject: Re: Using netconsole for debugging suspend/resume
-References: <44886381.9050506@goop.org> <200606090546.15923.ak@suse.de> <448992B7.1050906@rtr.ca> <200606121321.30388.ak@suse.de>
-In-Reply-To: <200606121321.30388.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation  (FAQ matter)
+References: <20060610222734.GZ27502@mea-ext.zmailer.org> <20060611072223.GA16150@flint.arm.linux.org.uk> <20060612083239.GA27502@mea-ext.zmailer.org>
+In-Reply-To: <20060612083239.GA27502@mea-ext.zmailer.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Friday 09 June 2006 17:24, Mark Lord wrote:
->> Andi Kleen wrote:
->>> If your laptop has firewire you can also use firescope.
->>> (ftp://ftp.suse.com/pub/people/ak/firescope/) 
->> ..
->>> FW keeps running as long as nobody resets the ieee1394 chip.
->> This looks interesting.  But how does one set it up for use
->> on the *other* end of that firewire cable?  The Quickstart and
->> manpage don't seem to describe this fully.
-> 
-> It's in the manpage:
-> 
->> .SH NOTES
->> The target must have the ohci1394 driver loaded. This implies
->> that firescope cannot be used in early boot.
-> 
-> That's it.
+Hi Matti
 
-Okay, so I'm daft.  But.. *what* is "it" ??
+(please don't consider this a personal attack, just the idea is wrong to me)
 
-We have two machines:  target (being debugged), and host (anything).
-Sure, the target has to have ohci1394 loaded, and firescope running.
-But what about the *other* end of the connection?  What commands?
+Matti Aarnio wrote:
+> 
+> For a very long time (like 20 years or so) I used to think like that.
+> 
+> Doing email services in big ISP environments for about 10 years did
+> cure me of that thinking.  Ordinary Janes and Joes (and grannies
+> and granpas) must not be allowed to send email in similar ways that
+> we used to do in happy 1980es when the internet was engineer playground.
 
-Thanks
+This is so against the spirit and meaning of the Internet, you're not 
+talking about the network we call Internet. You're talking about two 
+tiered internet, which is bad too.
+
+> The Internet needs to be segregated into two kinds of users - those that
+> must not be allowed to do much of anything ( = common man to whom the
+> internet equals anyway to IE web-browser ) and to first-class citizens
+> with their own email servers...
+> 
+
+Why don't you go fork the Internet then? Go see if that will work?
+
+This whole discussion is kind of ridiculous for an open source project 
+like the linux kernel. If you're so keen on fixing e-mail, you should 
+work closely with the IETF working groups to create a new standard that 
+works.
+
+Finally, if you consider doing this, why not consider closing the 
+mailinglist to a subscription only list, that will work so much better 
+than this "free lunch" (to quote someone else)
+
+Cheers
+
+Simon

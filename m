@@ -1,94 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWFLVuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWFLVvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWFLVuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWFLVuP
+	id S932400AbWFLVvG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWFLVvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:50:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30430 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932399AbWFLVuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:50:13 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       devel@openvz.org, xemul@openvz.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       herbert@13thfloor.at, saw@sw.ru, serue@us.ibm.com, sfrench@us.ibm.com,
-       sam@vilain.net, haveblue@us.ibm.com
-Subject: Re: [PATCH 2/6] IPC namespace - utils
-References: <44898BF4.4060509@openvz.org> <44898E39.3080801@openvz.org>
-	<448D9F96.5030305@fr.ibm.com>
-	<m1bqsy6ynn.fsf@ebiederm.dsl.xmission.com>
-	<448DD71E.1020209@fr.ibm.com>
-Date: Mon, 12 Jun 2006 15:49:03 -0600
-In-Reply-To: <448DD71E.1020209@fr.ibm.com> (Cedric Le Goater's message of
-	"Mon, 12 Jun 2006 23:05:34 +0200")
-Message-ID: <m1slma3v00.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jun 2006 17:51:06 -0400
+Received: from ns.firmix.at ([62.141.48.66]:8864 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932400AbWFLVvE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 17:51:04 -0400
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: marty fouts <mf.danger@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200606122025.k5CKPTGB005597@laptop11.inf.utfsm.cl>
+References: <200606122025.k5CKPTGB005597@laptop11.inf.utfsm.cl>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Mon, 12 Jun 2006 23:43:11 +0200
+Message-Id: <1150148591.3107.16.camel@gimli.at.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.333 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater <clg@fr.ibm.com> writes:
+On Mon, 2006-06-12 at 16:25 -0400, Horst von Brand wrote:
+> Bernd Petrovitsch <bernd@firmix.at> wrote:
+[...]
+> > The "problem" is that postmasters on the Net must do something
+> 
+> It took /years/ until open relays weren't common anymore... and that is a
 
-> Eric W. Biederman wrote:
->> Cedric Le Goater <clg@fr.ibm.com> writes:
->> 
->>> I've used the ipc namespace patchset in rc6-mm2. Thanks for putting this
->>> together, it works pretty well ! A few questions when we clone :
->>>
->>> * We should do something close to what exit_sem() already does to clear the
->>> sem_undo list from the task doing the clone() or unshare().
->> 
->> Possibly which case are you trying to prevent?
->
-> task records a list of struct sem_undo each containing a semaphore id. When
-> we unshare ipc namespace, we break the 'reference' between the semaphore id
-> and the struct sem_array because the struct sem_array are cleared and freed
-> in the new namespace. When the task exit, that inconstency could lead to
-> unexpected results in exit_sem(), task locks, BUG_ON, etc. Nope ?
+ACK. And it will take years to somwhat get a grip on the the spam
+problem. And will take more "tools" than SPF.
 
-Agreed.  Hmm.  I bet I didn't see this one earlier because it is specific
-to the unshare case.  In this case I guess we should either deny the unshare
-or simply undo all of the semaphores.  Because we will never be able to
-talk to them again.
+> /simple/ measure, on by default in newer upstream packages, no admin
+> intervention required. DNS works badly, here in Chile a mayor ISP had a
 
-Thinking about this some more we need to unsharing the semaphore undo semantics
-when we create a new instances of the sysvipc namespace.  Which means that
-until that piece is implemented we can't unshare the sysvipc namespace.
+Well, the only necessary admin intervention was "update that MTA
+package". This seems trivial and no work for people used to
+yum/apt-get/urpmi/red-carpet/... but it looked quite differently 10
+years ago for other OSs (Win*, Solaris 2.5, etc., hell, I knew of a
+third-party MTA on Novell 3.12 where it was not even possible to
+deactivate relaying).
 
-But we clearly need the check in check_unshare_flags and the start of copy_process.
+> totally broken setup for many years.
 
->>> * I don't like the idea of being able to unshare the ipc namespace and keep
->>> some shared memory from the previous ipc namespace mapped in the process mm.
->>> Should we forbid the unshare ?
->> 
->> No.  As long as the code handles that case properly we should be fine.
->
-> what is the proper way to handle that case ? the current patchset is not
-> protected : a process can be in one ipc namespace and use a shared segment
-> from a previous ipc namespace. This situation is not desirable in a
-> migration scenario. May be asking too much for the moment ... and I agree
-> this can be fixed by the way namespaces are created.
+It was an interesting experience in Austria for (mostly small) ISPs that
+from one day to another email delivery didn't work anymore. No wonder
+since they had almost no reverse DNS zones .... 
 
-As long as the appropriate reference counting happens it shouldn't be
-a problem.  We obviously can't use the sysvipc name of the shm area
-but mmap and reads and writes should continue to work.
+> >                                                                (namely
+> > 1) define if they want to allow others to detect forged emails claimed
+> > to come from their domain
+> 
+> They have /very/ little to gain by that, and setting it up correctly is a
+> mayor hassle. It breaks people sending mail "from" the domain when they
+> aren't there (this is rather common for people on the road), and has no
+> real fix. I.e., it won't ever be done. Or it will be tried, some email from
 
->> As a general principle we should be able to keep things from other namespaces
->> open if we get them.  The chroot or equivalent binary is the one that needs
->> to ensure these kinds of issues don't exist if we care.
->>
->> Speaking of we should put together a small test application probably similar
->> to chroot so people can access these features at least for testing.
->
-> are you thinking about a command unshare()ing each namespace or some kind
-> of create_nsproxy ?
+Use secure authenticated mail submission on a known good MTA of said
+domain (and even the smallest ISP should be able to set that up).
+Yes, this seems like a waste of everything - but IMHO neglectable
+compared to the ressources wasted by spam.
 
-A little user space program like chroot.  That takes a flag of which
-namespaces not to share.  I have one around somewhere.  Just enough
-of something that these interfaces can be exercised from userspace.
+> Big Cheese doesn't go through, and it will be axed.
+> 
+> >                           and 2) - if yes to 1) - to get appropriate SPF
+> > records into DNS)
+> 
+> Many people have no (or very little) control over their DNS data. A spammer
+> can then just claim it comes from one of the millions of SPF-less domains
+> in the world (if they don't set up their own SPFied one...). Besides,
+> discussions on the spamassassin lists show that SPFied email is a rather
+> reliable indicator of spam as things stand today...
 
-Eric
+Apparently spammers are faster to adopt new developments and standards
+than others. SCNR ...
+
+> >                   and people must either use a "good" mail relay (and
+> > not just the one next door) or convince postmasters to change the SPF
+> > records.
+> 
+> Won't happen.
+> 
+> > > It'll break standard-abiding email.
+> 
+> > As you see, standards change.
+> 
+> Yep. But SPF breaks email, not just changes the standard. For no gain at all.
+
+Well, if you run a mail server behind a quite small line and some
+spammer really forges your domain in the From: so that it takes 4 days
+(yes, 96 hours) so that the bounce storm calms down and legitimate mail
+can be processed again, means against trivial domain forgeries make
+sense.
+
+> > > Do you really want that?
+> 
+> > Yes. Especially gmail.com should do such a thing - there is such a lot
+> > of - presumbly forged - @gmail.com mails in my mailboxes that
+> > blacklisting the whole domain causes probably more good than bad (for
+> > me, of course).
+> 
+> There is spam that really comes from gmail...
+
+Probably. But this is a problem gmail must (and only can) solve.
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

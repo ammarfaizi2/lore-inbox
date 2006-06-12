@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752113AbWFLQLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752115AbWFLQL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752113AbWFLQLP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 12:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752114AbWFLQLP
+	id S1752115AbWFLQL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 12:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752116AbWFLQL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 12:11:15 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:45779 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752113AbWFLQLP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 12:11:15 -0400
-Subject: Re: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Franck <vagabon.xyz@gmail.com>
-Cc: apw@shadowen.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <448D1117.8010407@innova-card.com>
-References: <448D1117.8010407@innova-card.com>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 09:10:03 -0700
-Message-Id: <1150128603.13644.28.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Mon, 12 Jun 2006 12:11:26 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:56200
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1752115AbWFLQL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 12:11:26 -0400
+Message-ID: <448D922F.80801@microgate.com>
+Date: Mon, 12 Jun 2006 11:11:27 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16.18 kernel freezes while pppd is exiting
+References: <200606081909_MC3-1-C1F0-8B6B@compuserve.com>	 <1150124830.3703.6.camel@amdx2.microgate.com> <1150127588.25462.7.camel@localhost.localdomain>
+In-Reply-To: <1150127588.25462.7.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 09:00 +0200, Franck Bui-Huu wrote:
-> Is it me or the use of CONFIG_SPARSEMEM_EXTREME is really confusing in
-> mm/sparce.c ? Shouldn't we use CONFIG_SPARSEMEM_STATIC instead like
-> the following patch suggests ? 
+Alan Cox wrote:
+>> 	spin_unlock_irqrestore(&tty->buf.lock, flags);
+>>+	clear_bit(TTY_FLUSHING, &tty->flags);
+> 
+> 
+> Shouldn't those two be reversed if you want to go with this path.
 
-I'll take positive config options over negative ones any day.  I find it
-easier to read things that say what they *are* rather than what they are
-*not*.
+I don't see that is necessary.
 
-In any case, STATIC is really there as an override for architectures to
-say, "I know what I am doing, I use gcc 3.4 and above, or, I don't want
-to use bootmem".  Extreme is really there to say, "I want two-level
-lookups because my memory is extremely sparse."
+ > How is this occuring anyway the flush_to_ldisc path should never re-enter.
 
-Make sense?
+If a driver has low_latency set, flush_to_ldisc
+can be called from both scheduled work (due to
+hitting TTY_DONT_FLIP) and directly from an ISR.
+On an SMP system, they can run in parallel.
 
--- Dave
+I don't know for sure that is the path being hit,
+it could be some other odd combination.
+But there is no inherent serialization
+of flush_to_ldisc.
 
+-- 
+Paul Fulghum
+Microgate Systems, Ltd.

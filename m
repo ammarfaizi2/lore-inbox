@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWFLGt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWFLGyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWFLGt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 02:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWFLGt7
+	id S1751092AbWFLGyP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 02:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFLGyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 02:49:59 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54204
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751055AbWFLGt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 02:49:58 -0400
-Date: Sun, 11 Jun 2006 23:50:05 -0700 (PDT)
-Message-Id: <20060611.235005.51843280.davem@davemloft.net>
-To: mingo@elte.hu
-Cc: herbert@gondor.apana.org.au, stefanr@s5r6.in-berlin.de,
-       Valdis.Kletnieks@vt.edu, jirislaby@gmail.com, akpm@osdl.org,
-       arjan@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: Re: 2.6.17-rc5-mm3-lockdep -
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060612063807.GA23939@elte.hu>
-References: <4485AFB9.3040005@s5r6.in-berlin.de>
-	<20060607071208.GA1951@gondor.apana.org.au>
-	<20060612063807.GA23939@elte.hu>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jun 2006 02:54:15 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:14097 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751065AbWFLGyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 02:54:14 -0400
+Date: Mon, 12 Jun 2006 14:52:45 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: [PATCH] autofs4 - need to invalidate children on tree mount expire
+Message-ID: <Pine.LNX.4.64.0606121427080.9538@raven.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-2.599,
+	required 5, autolearn=not spam, BAYES_00 -2.60)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
-Date: Mon, 12 Jun 2006 08:38:07 +0200
 
-> yeah. I'll investigate - it's quite likely that sk_receive_queue.lock 
-> will have to get per-address family locking rules - right?
+Hi Andrew,
 
-That's right.
+I've found a case where invalid dentrys in a mount tree, waiting to be 
+cleaned up by d_invalidate, prevent the expected expire.
 
-> Maybe it's enough to introduce a separate key for AF_UNIX alone (and 
-> still having all other protocols share the locking rules for 
-> sk_receive_queue.lock) , by reinitializing its spinlock after 
-> sock_init_data()?
+In this case dentrys created during a lookup for which a mount fails or 
+has no entry in the mount map contribute to the d_count of the parent 
+dentry. These dentrys may not be invalidated prior to comparing the 
+interanl usage count of valid autofs dentrys against the dentry d_count 
+which makes a mount tree appear busy so it doesn't expire.
 
-AF_NETLINK and/or AF_PACKET might be in a similar situation
-as AF_UNIX.
+Signed-off-by: Ian Kent <raven@themaw.net>
+
+--
+
+--- linux-2.6.17-rc6-mm2/fs/autofs4/expire.c.need-invalidate-on-tree-expire	2006-06-12 14:24:21.000000000 +0800
++++ linux-2.6.17-rc6-mm2/fs/autofs4/expire.c	2006-06-12 14:24:36.000000000 +0800
+@@ -174,6 +174,12 @@ static int autofs4_tree_busy(struct vfsm
+ 			struct autofs_info *ino = autofs4_dentry_ino(p);
+ 			unsigned int ino_count = atomic_read(&ino->count);
+ 
++			/*
++			 * Clean stale dentries below that have not been
++			 * invalidated after a mount fail during lookup
++			 */
++			d_invalidate(p);
++
+ 			/* allow for dget above and top is already dgot */
+ 			if (p == top)
+ 				ino_count += 2;

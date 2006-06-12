@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWFLIby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWFLIch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWFLIby (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 04:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWFLIby
+	id S1751039AbWFLIch (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 04:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWFLIcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 04:31:54 -0400
-Received: from ns.firmix.at ([62.141.48.66]:8862 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750875AbWFLIbx (ORCPT
+	Mon, 12 Jun 2006 04:32:36 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:64738 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751039AbWFLIcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 04:31:53 -0400
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: marty fouts <mf.danger@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <9f7850090606101924r32947e69vb6a34fe905227ff4@mail.gmail.com>
-References: <20060610222734.GZ27502@mea-ext.zmailer.org>
-	 <1149980791.18635.197.camel@shinybook.infradead.org>
-	 <9f7850090606101924r32947e69vb6a34fe905227ff4@mail.gmail.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 12 Jun 2006 10:27:23 +0200
-Message-Id: <1150100843.26402.22.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.331 () AWL,BAYES_00,FORGED_RCVD_HELO
+	Mon, 12 Jun 2006 04:32:35 -0400
+Date: Mon, 12 Jun 2006 10:31:56 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Jon Smirl <jonsmirl@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH 5/5] VT binding: Add new doc file
+ describing the feature
+In-Reply-To: <448B7594.6040408@gmail.com>
+Message-ID: <Pine.LNX.4.62.0606121029010.7668@pademelon.sonytel.be>
+References: <44893407.4020507@gmail.com>  <9e4733910606092253n7fe4e074xe54eaec0fe4149f3@mail.gmail.com>
+  <448AC8BE.7090202@gmail.com>  <9e4733910606100916r74615af8i34d37f323414034c@mail.gmail.com>
+  <448B38F8.2000402@gmail.com>  <9e4733910606101644j79b3d8a5ud7431564f4f42c7f@mail.gmail.com>
+  <448B61F9.4060507@gmail.com>  <9e4733910606101749r77d72a56mbcf6fb3505eb1de0@mail.gmail.com>
+ <9e4733910606101805t3060c0cdgd08ceabe8cfe4e0e@mail.gmail.com>
+ <448B7594.6040408@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-10 at 19:24 -0700, marty fouts wrote:
-[...]
-> Further, while there is an RFC for SPF, it is an RFC for an
-> experimental protocol. In addition to what David points out in his web
-> site, SPF is controversial, and is in competition with other
-> approaches.  (See RFC 4408.)
+On Sun, 11 Jun 2006, Antonino A. Daplas wrote:
+> Jon Smirl wrote:
+> > On 6/10/06, Jon Smirl <jonsmirl@gmail.com> wrote:
+> >> On 6/10/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> >> > > I see now that you can have tty0-7 assigned to a different console
+> >> > > driver than tty8-63.
+> >> > > Why do I want to do this?
+> >> >
+> >> > Multi-head.  I can have vgacon on the primary card for tty0-7,
+> >> > fbcon on the secondary card for tty8-16.
+> >>
+> > 
+> > When I say dropped, I mean drop the feature of having multiple drivers
+> > simultaneously open by the VT layer. You would still be able to switch
+> > from vgacon to fbcon by using sysfs. You just wouldn't be able to use
+> > VT swap hotkeys between them.
+> 
+> Quoting you:
+> 
+> "Googling around the only example I could find was someone with a VGA
+> card and a Hercules card. They setup 8 consoles on each card."
+> 
+> How do you think they accomplished that? They did not rewrite the VT
+> layer, all they need to do is change the 'first' and 'last' parameter
+> passed to take_over_console() in mdacon.c.  This implies that the VT
+> layer already supports multiple active VT console drivers, maybe as
+> early as 2.2, and no, we won't remove that.
 
-Not really: http://new.openspf.org/SPF_vs_Sender_ID
+JFYI, probably 2.1.x. Multi-head dates back to at least 1996.
 
-> It's not widely deployed.
+Gr{oetje,eeting}s,
 
-However "widely deployed" is defined.
-It is more widely deployed than any remotely similar proposed mechanism
-(including and especially SenderId - which addresses actually another
-problem).
+						Geert
 
-> It doesn't work.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-It works if it is used correctly (as any tool in the world).
-The "problem" is that postmasters on the Net must do something (namely
-1) define if they want to allow others to detect forged emails claimed
-to come from their domain and 2) - if yes to 1) - to get appropriate SPF
-records into DNS) and people must either use a "good" mail relay (and
-not just the one next door) or convince postmasters to change the SPF
-records.
-
-> It'll break standard-abiding email.
-
-As you see, standards change.
-
-> Do you really want that?
-
-Yes. Especially gmail.com should do such a thing - there is such a lot
-of - presumbly forged - @gmail.com mails in my mailboxes that
-blacklisting the whole domain causes probably more good than bad (for
-me, of course).
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

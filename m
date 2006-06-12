@@ -1,201 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932663AbWFLX6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbWFMABF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932663AbWFLX6P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 19:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWFLX6P
+	id S932657AbWFMABF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 20:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWFMABF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 19:58:15 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:6590 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932658AbWFLX6M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 19:58:12 -0400
-Subject: [RFC/PATCH 1/2] in-kernel sockets API
-From: Sridhar Samudrala <sri@us.ibm.com>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 16:56:01 -0700
-Message-Id: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 12 Jun 2006 20:01:05 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:404 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932657AbWFMABE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 20:01:04 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH 19/21] swap_prefetch: Conversion of nr_unstable to ZVC
+Date: Tue, 13 Jun 2006 09:57:27 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Hugh Dickins <hugh@veritas.com>, Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
+References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com> <200606130940.16956.kernel@kolivas.org> <Pine.LNX.4.64.0606121647090.22052@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0606121647090.22052@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606130957.28414.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes it convenient to use the sockets API by the in-kernel
-users like sunrpc, cifs & ocfs2 etc and any future users.
-Currently they get to this API by directly accesing the function pointers
-in the sock structure.
+On Tuesday 13 June 2006 09:48, Christoph Lameter wrote:
+> On Tue, 13 Jun 2006, Con Kolivas wrote:
+> > Nack. You're changing some other code unintentionally.
+>
+> Is this okay?
 
-Most of these functions are pretty simple and can be made inline and moved
-to linux/net.h.
+Not quite.
 
-I used kernel_ prefix for this API to match with the existing kernel_sendmsg
-and kernel_recvmsg() although i would prefer ksock_.
+Remove the test_pagestate variable entirely and leave the check something 
+like:
 
-I have updated sunrpc to use this API.
-
-I would appreciate any comments or suggestions for improvements.
+	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX) &&
+		above_background_load())
+			goto out;
 
 Thanks
-Sridhar
 
-diff --git a/include/linux/net.h b/include/linux/net.h
-index 84a490e..b70c28f 100644
---- a/include/linux/net.h
-+++ b/include/linux/net.h
-@@ -208,6 +208,25 @@ extern int   	     kernel_recvmsg(struct
- 				    struct kvec *vec, size_t num,
- 				    size_t len, int flags);
- 
-+extern int kernel_bind(struct socket *sock, struct sockaddr *addr,
-+		       int addrlen);
-+extern int kernel_listen(struct socket *sock, int backlog);
-+extern int kernel_accept(struct socket *sock, struct socket **newsock,
-+			 int flags);
-+extern int kernel_connect(struct socket *sock, struct sockaddr *addr,
-+			  int addrlen, int flags);
-+extern int kernel_getsockname(struct socket *sock, struct sockaddr *addr,
-+			      int *addrlen);
-+extern int kernel_getpeername(struct socket *sock, struct sockaddr *addr,
-+			      int *addrlen);
-+extern int kernel_getsockopt(struct socket *sock, int level, int optname,
-+			     char *optval, int *optlen);
-+extern int kernel_setsockopt(struct socket *sock, int level, int optname,
-+			     char *optval, int optlen);
-+extern int kernel_sendpage(struct socket *sock, struct page *page, int offset,
-+			   size_t size, int flags);
-+extern int kernel_ioctl(struct socket *sock, int cmd, unsigned long arg);
-+
- #ifndef CONFIG_SMP
- #define SOCKOPS_WRAPPED(name) name
- #define SOCKOPS_WRAP(name, fam)
-diff --git a/net/socket.c b/net/socket.c
-index 02948b6..8f36be7 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -2160,6 +2160,109 @@ static long compat_sock_ioctl(struct fil
- }
- #endif
- 
-+int kernel_bind(struct socket *sock, struct sockaddr *addr, int addrlen)
-+{
-+	return sock->ops->bind(sock, addr, addrlen);
-+}
-+
-+int kernel_listen(struct socket *sock, int backlog)
-+{
-+	return sock->ops->listen(sock, backlog);
-+}
-+
-+int kernel_accept(struct socket *sock, struct socket **newsock, int flags)
-+{
-+	struct sock *sk = sock->sk;
-+	int err;
-+
-+	err = sock_create_lite(sk->sk_family, sk->sk_type, sk->sk_protocol,
-+			       newsock);	
-+	if (err < 0)
-+		goto done;	
-+
-+	err = sock->ops->accept(sock, *newsock, flags);
-+	if (err < 0) {
-+		sock_release(*newsock);
-+		goto done;
-+	}
-+			
-+	(*newsock)->ops = sock->ops;
-+
-+done:
-+	return err;
-+}
-+
-+int kernel_connect(struct socket *sock, struct sockaddr *addr, int addrlen,
-+                   int flags)
-+{
-+	return sock->ops->connect(sock, addr, addrlen, flags);
-+}	
-+
-+int kernel_getsockname(struct socket *sock, struct sockaddr *addr,
-+			 int *addrlen)
-+{
-+	return sock->ops->getname(sock, addr, addrlen, 0);
-+}
-+
-+int kernel_getpeername(struct socket *sock, struct sockaddr *addr,
-+			 int *addrlen)
-+{
-+	return sock->ops->getname(sock, addr, addrlen, 1);
-+}
-+
-+int kernel_getsockopt(struct socket *sock, int level, int optname,
-+			char *optval, int *optlen)
-+{
-+	mm_segment_t oldfs = get_fs();
-+	int err;
-+
-+	set_fs(KERNEL_DS);
-+	if (level == SOL_SOCKET)
-+		err = sock_getsockopt(sock, level, optname, optval, optlen);
-+	else
-+		err = sock->ops->getsockopt(sock, level, optname, optval,
-+					    optlen);
-+	set_fs(oldfs);
-+	return err;
-+}
-+
-+int kernel_setsockopt(struct socket *sock, int level, int optname,
-+			char *optval, int optlen)
-+{
-+	mm_segment_t oldfs = get_fs();
-+	int err;
-+
-+	set_fs(KERNEL_DS);
-+	if (level == SOL_SOCKET)
-+		err = sock_setsockopt(sock, level, optname, optval, optlen);
-+	else
-+		err = sock->ops->setsockopt(sock, level, optname, optval,
-+					    optlen);
-+	set_fs(oldfs);
-+	return err;
-+}
-+
-+int kernel_sendpage(struct socket *sock, struct page *page, int offset,
-+		    size_t size, int flags)
-+{
-+	if (sock->ops->sendpage)
-+		return sock->ops->sendpage(sock, page, offset, size, flags);
-+	
-+	return sock_no_sendpage(sock, page, offset, size, flags);
-+}
-+
-+int kernel_ioctl(struct socket *sock, int cmd, unsigned long arg)
-+{
-+	mm_segment_t oldfs = get_fs();
-+	int err;
-+
-+	set_fs(KERNEL_DS);
-+	err = sock->ops->ioctl(sock, cmd, arg);
-+	set_fs(oldfs);
-+	
-+	return err;
-+}
-+
- /* ABI emulation layers need these two */
- EXPORT_SYMBOL(move_addr_to_kernel);
- EXPORT_SYMBOL(move_addr_to_user);
-@@ -2176,3 +2279,13 @@ EXPORT_SYMBOL(sock_wake_async);
- EXPORT_SYMBOL(sockfd_lookup);
- EXPORT_SYMBOL(kernel_sendmsg);
- EXPORT_SYMBOL(kernel_recvmsg);
-+EXPORT_SYMBOL(kernel_bind);
-+EXPORT_SYMBOL(kernel_listen);
-+EXPORT_SYMBOL(kernel_accept);
-+EXPORT_SYMBOL(kernel_connect);
-+EXPORT_SYMBOL(kernel_getsockname);
-+EXPORT_SYMBOL(kernel_getpeername);
-+EXPORT_SYMBOL(kernel_getsockopt);
-+EXPORT_SYMBOL(kernel_setsockopt);
-+EXPORT_SYMBOL(kernel_sendpage);
-+EXPORT_SYMBOL(kernel_ioctl);
+>
+> Subject: swap_prefetch: conversion of nr_unstable to per zone counter
+> From: Christoph Lameter <clameter@sgi.com>
+>
+> The determination of the vm state is now not that expensive
+> anymore after we remove the use of the page state.
+> Remove the logic to avoid the expensive checks.
+>
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+>
+> Index: linux-2.6.17-rc6-cl/mm/swap_prefetch.c
+> ===================================================================
+> --- linux-2.6.17-rc6-cl.orig/mm/swap_prefetch.c	2006-06-12
+> 13:37:47.283159568 -0700 +++
+> linux-2.6.17-rc6-cl/mm/swap_prefetch.c	2006-06-12 16:46:48.504626417 -0700
+> @@ -357,7 +357,6 @@ static int prefetch_suitable(void)
+>  	 */
+>  	for_each_node_mask(node, sp_stat.prefetch_nodes) {
+>  		struct node_stats *ns = &sp_stat.node[node];
+> -		struct page_state ps;
+>
+>  		/*
+>  		 * We check to see that pages are not being allocated
+> @@ -375,11 +374,6 @@ static int prefetch_suitable(void)
+>  		} else
+>  			ns->last_free = ns->current_free;
+>
+> -		if (!test_pagestate)
+> -			continue;
+> -
+> -		get_page_state_node(&ps, node);
+> -
+>  		/* We shouldn't prefetch when we are doing writeback */
+>  		if (node_page_state(node, NR_WRITEBACK)) {
+>  			node_clear(node, sp_stat.prefetch_nodes);
+> @@ -394,7 +388,8 @@ static int prefetch_suitable(void)
+>  			node_page_state(node, NR_ANON) +
+>  			node_page_state(node, NR_SLAB) +
+>  			node_page_state(node, NR_DIRTY) +
+> -			ps.nr_unstable + total_swapcache_pages;
+> +			node_page_state(node, NR_UNSTABLE) +
+> +			total_swapcache_pages;
+>  		if (limit > ns->prefetch_watermark) {
+>  			node_clear(node, sp_stat.prefetch_nodes);
+>  			continue;
 
-
+-- 
+-ck

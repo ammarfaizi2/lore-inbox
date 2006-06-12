@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWFLRTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWFLRUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWFLRTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFLRTz
+	id S1751119AbWFLRUe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWFLRUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:19:55 -0400
-Received: from hera.kernel.org ([140.211.167.34]:7826 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751188AbWFLRTx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:19:53 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: TCSBRK(1) on pl2303 USB/serial returns prematurely
-Date: Mon, 12 Jun 2006 10:19:29 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e6k7n1$h4c$1@terminus.zytor.com>
-References: <20060612145750.GA19338@kestrel.barix.local>
+	Mon, 12 Jun 2006 13:20:34 -0400
+Received: from admin.zirkelwireless.com ([209.216.203.65]:19354 "EHLO
+	admin.zirkelwireless.com") by vger.kernel.org with ESMTP
+	id S1751119AbWFLRUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:20:32 -0400
+Subject: Re: [Linux-fbdev-devel] [PATCH 0/7] Detaching fbcon
+From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@tungstengraphics.com>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <a5d587fb0606120946n7bbc2a41jd489efaff6742fe8@mail.gmail.com>
+References: <44856223.9010606@gmail.com> <448C19D7.5010706@t-online.de>
+	 <448C83AD.9060200@gmail.com> <448D1C9E.7050606@t-online.de>
+	 <448D5B4F.5080504@gmail.com>
+	 <a5d587fb0606120628o203941c3h761bfffbb6ec08f7@mail.gmail.com>
+	 <1150122011.5693.17.camel@thor.lorrainebruecke.local>
+	 <a5d587fb0606120946n7bbc2a41jd489efaff6742fe8@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Organization: Tungsten Graphics
+Date: Mon, 12 Jun 2006 19:20:26 +0200
+Message-Id: <1150132826.5693.71.camel@thor.lorrainebruecke.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1150132769 17549 127.0.0.1 (12 Jun 2006 17:19:29 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 12 Jun 2006 17:19:29 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20060612145750.GA19338@kestrel.barix.local>
-By author:    Karel Kulhavy <clock@twibright.com>
-In newsgroup: linux.dev.kernel
->
-> Hello
+On Mon, 2006-06-12 at 18:46 +0200, Michal Suchanek wrote:
+> On 6/12/06, Michel Dänzer <michel@tungstengraphics.com> wrote:
+> > On Mon, 2006-06-12 at 15:28 +0200, Michal Suchanek wrote:
+> > >
+> > > I like the possibility to change X resolution using fbset (from inside
+> > > X). I use it to correct problems caused by crashed X programs that
+> > > change resolution. But I run X with the UseFbDev option.
+> >
+> > Still, you should use something like xrandr instead, so the X server
+> > knows about it.
 > 
-> TCSBRK(1) ioctl system call on pl2303 USB/serial converter on 2.6.16.19
-> returns prematurely. Additional 53ms delay is necessary to work this
-> around at speed of 57600. TCSBRK(1) is translation of the tcdrain()
-> function by glibc. With ordinary serial port the TCSBRK(1) seems to work
-> correctly.
-> 
+> I have never heared of a tool for X that does it.
 
-Not only that, but pl2303 doesn't seem to be able to receive a break
-properly, either.
+Well, now you have. :) Unless you have a different problem, but xrandr
+has always worked for me in the situations you describe above.
 
-	-hpa
+
+-- 
+Earthling Michel Dänzer           |          http://tungstengraphics.com
+Libre software enthusiast         |          Debian, X and DRI developer
+
+

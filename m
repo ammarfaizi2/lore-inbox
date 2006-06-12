@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751956AbWFLOm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWFLOr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751956AbWFLOm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 10:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751968AbWFLOm4
+	id S1751973AbWFLOr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 10:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWFLOr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 10:42:56 -0400
-Received: from mail.gmx.de ([213.165.64.20]:29624 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751956AbWFLOm4 (ORCPT
+	Mon, 12 Jun 2006 10:47:59 -0400
+Received: from waste.org ([64.81.244.121]:60293 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751973AbWFLOr7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 10:42:56 -0400
-X-Flags: 0001
-Date: Mon, 12 Jun 2006 16:42:54 +0200
-Message-ID: <20060612144254.305930@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Cc: alsa-devel@lists.sourceforge.net, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-       rlrevell@joe-job.com
-From: "Gerhard Pircher" <gerhard_pircher@gmx.net>
-In-Reply-To: <s5hbqsyd4uz.wl%tiwai@suse.de>
-References: <20060610082223.321730@gmx.net> <s5hbqsyd4uz.wl%tiwai@suse.de>
-Subject: Re: Re: RFC: dma_mmap_coherent() for powerpc/ppc architecture and
- ALSA?
-To: Takashi Iwai <tiwai@suse.de>
-X-Authenticated: #6097454
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+	Mon, 12 Jun 2006 10:47:59 -0400
+Date: Mon, 12 Jun 2006 09:37:48 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 built-in command line
+Message-ID: <20060612143748.GN24227@waste.org>
+References: <20060611215530.GH24227@waste.org> <p73odwyssib.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73odwyssib.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> -------- Original-Nachricht --------
-> Datum: Mon, 12 Jun 2006 12:51:16 +0200
-> Von: Takashi Iwai <tiwai@suse.de>
-> An: Gerhard Pircher <gerhard_pircher@gmx.net>
-> Betreff: Re: RFC: dma_mmap_coherent() for powerpc/ppc architecture and
-> ALSA?
+On Mon, Jun 12, 2006 at 10:11:24AM +0200, Andi Kleen wrote:
+> Matt Mackall <mpm@selenic.com> writes:
 > 
-> > Well, implementing the dma_mmap_coherent() function isn't the
-> > problem, because it is already implemented for the ARM
-> > architecture.
+> > This patch allows building in a kernel command line on x86 as is
+> > possible on several other arches.
 > 
-> Actually, I wrote dma_coherent_mmap patch long time ago but it has
-> been left forgotten.  The patch attached below seems applicable to
-> 2.6.17 tree, but I'm not sure whether it still works properly.
-> It's untested on most of architectures.
+> I'm surprised you didn't do the obvious "tiny" changes associated with
+> that. Look at the static array sizes of the command line buffers.
 
-Thanks, that helps me a lot!
+They're not entirely obvious. The saved command line buffer size is
+currently fixed so if we set a default that's larger, we'd like to
+have a compile failure if it's too large.
 
-> > But as far as I understand this would require a rewrite of all the
-> > ALSA drivers (or at least a rewrite of the ALSA's DMA helper
-> > functions).
-> 
-> Yes.  The change of ALSA side has been also on my tree.  But it was
-> still pending since I'm not satisfied with the design yet.
-> If you're interested in it, let me know.  I'll post the patch.
-
-Yes, please! Then I can test, if the dma_mmap_coherent() patch works on
-my non cache coherent powerpc machine. Do you think the DMA Layer/ALSA patches will go upstream in one of the next ALSA/Linux kernel versions?
-
-Thanks!
-
-Gerhard
+Next step here is to make the buffer size configurable, which will
+allow people to use command lines longer (or shorter!) than the boot
+protocol allows (256 bytes on x86).
 
 -- 
-
-
-Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!
-Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer
+Mathematics is the supreme nostalgia of our time.

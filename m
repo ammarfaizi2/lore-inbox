@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWFLVH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWFLVIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWFLVH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWFLVH3
+	id S932237AbWFLVIf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWFLVIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:07:29 -0400
-Received: from A.painless.aaisp.net.uk ([81.187.81.51]:8680 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S1751407AbWFLVH2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:07:28 -0400
-Date: Mon, 12 Jun 2006 22:07:27 +0100
-From: Andrew Clayton <andrew@digital-domain.net>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: VMSPLIT kernel config option
-Message-ID: <20060612220727.4bd12759@alpha.digital-domain.net>
-In-Reply-To: <Pine.LNX.4.64.0606121552380.17886@turbotaz.ourhouse>
-References: <20060612215434.0b8c873f@alpha.digital-domain.net>
-	<Pine.LNX.4.64.0606121552380.17886@turbotaz.ourhouse>
-X-Mailer: Sylpheed-Claws 2.2.3 (GTK+ 2.6.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jun 2006 17:08:35 -0400
+Received: from gold.veritas.com ([143.127.12.110]:58388 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932237AbWFLVIe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 17:08:34 -0400
+X-IronPort-AV: i="4.05,229,1146466800"; 
+   d="scan'208"; a="60529041:sNHT29364308"
+Date: Mon, 12 Jun 2006 21:53:23 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Sergey Vlasov <vsu@altlinux.ru>, Al Viro <viro@zeniv.linux.org.uk>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH] tmpfs: Decrement i_nlink correctly in shmem_rmdir()
+In-Reply-To: <Pine.LNX.4.64.0606121957580.18760@blonde.wat.veritas.com>
+Message-ID: <Pine.LNX.4.64.0606122150400.23556@blonde.wat.veritas.com>
+References: <11501251772137-git-send-email-vsu@altlinux.ru>
+ <Pine.LNX.4.64.0606121957580.18760@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 12 Jun 2006 21:08:33.0816 (UTC) FILETIME=[5D336180:01C68E64]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jun 2006 15:55:23 -0500 (CDT), Chase Venters wrote:
+From: Sergey Vlasov <vsu@altlinux.ru>
 
-> On Mon, 12 Jun 2006, Andrew Clayton wrote:
-> 
-> > Hi,
-> >
-> > Is it meant, that the VMSPLIT_* options are only enabled
-> > "if EMBEDDED"?
-> 
-> Indeed. Unfortunately, adjusting VMSPLIT appeared to break the
-> assumptions of some programs like Valgrind (and hence caused a
-> regression for some users). VMSPLIT was thusly "hidden" under
-> CONFIG_EMBEDDED such that the only people who would be inclined to
-> mess with the setting were people already tinkering with "low-level"
-> settings if you will.
+shmem_rmdir() must undo the increment of i_nlink done in
+shmem_get_inode() for directories, otherwise at least
+IN_DELETE_SELF inotify event generation is broken.
 
-Ah, understood.
+Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+This can also be included in 2.6.17, though only inotify depends on it.
 
+ mm/shmem.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-Cheers,
-
-Andrew
+--- 2.6.17-rc6-git/mm/shmem.c
++++ linux/mm/shmem.c
+@@ -1780,6 +1780,7 @@ static int shmem_rmdir(struct inode *dir
+ 	if (!simple_empty(dentry))
+ 		return -ENOTEMPTY;
+ 
++	dentry->d_inode->i_nlink--;
+ 	dir->i_nlink--;
+ 	return shmem_unlink(dir, dentry);
+ }

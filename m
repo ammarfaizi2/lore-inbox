@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWFLWJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbWFLWNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbWFLWJS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 18:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWFLWJS
+	id S932598AbWFLWNA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 18:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWFLWNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 18:09:18 -0400
-Received: from xenotime.net ([66.160.160.81]:63895 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932560AbWFLWJR (ORCPT
+	Mon, 12 Jun 2006 18:13:00 -0400
+Received: from rtr.ca ([64.26.128.89]:57756 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932598AbWFLWM7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 18:09:17 -0400
-Date: Mon, 12 Jun 2006 15:12:02 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: nick@linicks.net, vonbrand@inf.utfsm.cl, bernd@firmix.at,
-       mf.danger@gmail.com, dwmw2@infradead.org, matti.aarnio@zmailer.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Message-Id: <20060612151202.64327bf2.rdunlap@xenotime.net>
-In-Reply-To: <9a8748490606121506w43c8a45yf44d0c4120ae80c@mail.gmail.com>
-References: <bernd@firmix.at>
-	<1150100843.26402.22.camel@tara.firmix.at>
-	<200606122025.k5CKPTGB005597@laptop11.inf.utfsm.cl>
-	<7c3341450606121410y7f2349e1y7d8ecf3f3873732@mail.gmail.com>
-	<9a8748490606121506w43c8a45yf44d0c4120ae80c@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jun 2006 18:12:59 -0400
+Message-ID: <448DE6EA.8020708@rtr.ca>
+Date: Mon, 12 Jun 2006 18:12:58 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
+ error -28
+References: <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD50F.3060002@rtr.ca> <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD968.2010000@rtr.ca> <20060612212812.GA17458@suse.de> <448DE28D.3040708@rtr.ca> <20060612220321.GA19792@suse.de>
+In-Reply-To: <20060612220321.GA19792@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006 00:06:52 +0200 Jesper Juhl wrote:
-
-> On 12/06/06, Nick Warne <nick.warne@gmail.com> wrote:
-> > I have been following this closely, and without getting into the
-> > discussion re SPF, I think one issue especially affecting LKML is the
-> > traffic.
-> >
-> > One (almost sure) fire way to stop the spam is to make a subscribed
-> > ML.  But people like myself cannot/have not the resource to take on
-> > the 200+ mails a day (how the kernel devs manage it, I don't know?).
-> >
-> > So I have subscribed via my gmail account to follow the mails, but
-> > then at least I can reply from my 'real address' and keep the thread
-> > intact (if you see what I mean).
-> >
-> > So, why not make the list a subscribe only list to SEND, but give an
-> > option to NOT receive any mail from the list unless CC'ed?
-> >
+Greg KH wrote:
+> On Mon, Jun 12, 2006 at 05:54:21PM -0400, Mark Lord wrote:
+>> Okay, with these two patches from -mm, the USB no longer dies
+>> when I plug in my hub/dock device:
+>>
+>> gregkh-usb-improved-tt-scheduling-for-ehci.patch
+>> gregkh-usb-usb-rmmod-pl2303-after-28.patch
+>>
+>> So let's get these pushed upstream sooner than later, please!
 > 
-> Making subscription to LKML a requirement would be a major barier for
-> people who just want to shoot off a bug report or similar but who do
-> not want to be subscribed (nor can be botherd to go through the
-> motions to subscribe, or perhaps can't work out how to subscribe)...
-> We want users to be able to submit bugreports to the list easily.
+> It will happen after 2.6.17 is out, as they are in the queue to do so.
 
-or they could use bugzilla.kernel.org ...
+2.6.18 will do, I suppose.
 
----
-~Randy
+But has the *real* bug been fixed with these patches,
+or merely "avoided" ?
+
+Eg. If usb_submit_urb() ever fails again (low on memory, etc..)
+inside  pl2303_open(), will we be back with the same bug?
+
+What's the *real* actual bug here?
+
+Thanks

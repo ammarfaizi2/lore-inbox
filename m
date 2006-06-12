@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWFLJSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWFLJVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWFLJSI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 05:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWFLJSI
+	id S1751243AbWFLJVH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 05:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWFLJVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 05:18:08 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:22545 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751205AbWFLJSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 05:18:07 -0400
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false
-	positives
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Catalin Marinas <catalin.marinas@gmail.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
-	 <20060611112156.8641.94787.stgit@localhost.localdomain>
-	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
-	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 11:17:44 +0200
-Message-Id: <1150103864.20886.88.camel@lappy>
+	Mon, 12 Jun 2006 05:21:07 -0400
+Received: from www.tglx.de ([213.239.205.147]:35756 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751243AbWFLJVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 05:21:06 -0400
+Subject: Re: 2.6.17-rc6-rt3
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1150104040.3835.3.camel@frecb000686>
+References: <20060610082406.GA31985@elte.hu>
+	 <1150104040.3835.3.camel@frecb000686>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 12 Jun 2006 11:21:58 +0200
+Message-Id: <1150104118.5257.219.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 09:11 +0100, Catalin Marinas wrote:
-> On 12/06/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> > Hi Catalin,
-> >
-> > On 6/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> > > There are allocations for which the main pointer cannot be found but they
-> > > are not memory leaks. This patch fixes some of them.
-> >
-> > Can we fix this by looking for pointers to anywhere in the allocated
-> > memory block instead of just looking for the start?
+On Mon, 2006-06-12 at 11:20 +0200, Sébastien Dugué wrote:
+> > 
+> > I think all of the regressions reported against rt1 are fixed, please 
+> > re-report if any of them is still unfixed.
+> > 
 > 
-> I thought about this as well (I think that's how Valgrind works) but
-> it would increase the chances of missing real leaks. It currently
-> looks for the start of the block and a few locations inside the block
-> (those from which the main pointer is computed using the
-> container_of() macro).
+>   Great, boots fine on my dual Xeon and solves the ping problem I was
+> having.
 > 
-> I need to do some tests to see how it works but I won't be able to use
-> the radix_tree (as storing each location in the block would lead to a
-> huge tree).
+>   Thomas, any hint at what was going on?
 
-A radix-priority-search-tree would allow to store intervals and query
-addresses.
+I missed some modificatons in the networking code when I did the forward
+to 2.6.17-rc6. The network softirq was raised, but the thread not woken
+up.
 
-Peter
+	tglx
+
 

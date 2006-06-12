@@ -1,187 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWFLX5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932663AbWFLX6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932659AbWFLX5t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 19:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbWFLX5t
+	id S932663AbWFLX6P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 19:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWFLX6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 19:57:49 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:25766 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932656AbWFLX5s (ORCPT
+	Mon, 12 Jun 2006 19:58:15 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:6590 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932658AbWFLX6M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 19:57:48 -0400
-Subject: [RFC/PATCH 2/2] update sunrpc to use in-kernel sockets API
+	Mon, 12 Jun 2006 19:58:12 -0400
+Subject: [RFC/PATCH 1/2] in-kernel sockets API
 From: Sridhar Samudrala <sri@us.ibm.com>
 To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Mon, 12 Jun 2006 16:56:04 -0700
-Message-Id: <1150156564.19929.33.camel@w-sridhar2.beaverton.ibm.com>
+Date: Mon, 12 Jun 2006 16:56:01 -0700
+Message-Id: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates sunrpc to use in-kernel sockets API.
+This patch makes it convenient to use the sockets API by the in-kernel
+users like sunrpc, cifs & ocfs2 etc and any future users.
+Currently they get to this API by directly accesing the function pointers
+in the sock structure.
+
+Most of these functions are pretty simple and can be made inline and moved
+to linux/net.h.
+
+I used kernel_ prefix for this API to match with the existing kernel_sendmsg
+and kernel_recvmsg() although i would prefer ksock_.
+
+I have updated sunrpc to use this API.
+
+I would appreciate any comments or suggestions for improvements.
 
 Thanks
 Sridhar
 
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index a27905a..ee80b3c 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -388,7 +388,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
- 	/* send head */
- 	if (slen == xdr->head[0].iov_len)
- 		flags = 0;
--	len = sock->ops->sendpage(sock, rqstp->rq_respages[0], 0, xdr->head[0].iov_len, flags);
-+	len = kernel_sendpage(sock, rqstp->rq_respages[0], 0, xdr->head[0].iov_len, flags);
- 	if (len != xdr->head[0].iov_len)
- 		goto out;
- 	slen -= xdr->head[0].iov_len;
-@@ -400,7 +400,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
- 	while (pglen > 0) {
- 		if (slen == size)
- 			flags = 0;
--		result = sock->ops->sendpage(sock, *ppage, base, size, flags);
-+		result = kernel_sendpage(sock, *ppage, base, size, flags);
- 		if (result > 0)
- 			len += result;
- 		if (result != size)
-@@ -413,7 +413,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
- 	}
- 	/* send tail */
- 	if (xdr->tail[0].iov_len) {
--		result = sock->ops->sendpage(sock, rqstp->rq_respages[rqstp->rq_restailpage], 
-+		result = kernel_sendpage(sock, rqstp->rq_respages[rqstp->rq_restailpage], 
- 					     ((unsigned long)xdr->tail[0].iov_base)& (PAGE_SIZE-1),
- 					     xdr->tail[0].iov_len, 0);
+diff --git a/include/linux/net.h b/include/linux/net.h
+index 84a490e..b70c28f 100644
+--- a/include/linux/net.h
++++ b/include/linux/net.h
+@@ -208,6 +208,25 @@ extern int   	     kernel_recvmsg(struct
+ 				    struct kvec *vec, size_t num,
+ 				    size_t len, int flags);
  
-@@ -434,13 +434,10 @@ out:
- static int
- svc_recv_available(struct svc_sock *svsk)
- {
--	mm_segment_t	oldfs;
- 	struct socket	*sock = svsk->sk_sock;
- 	int		avail, err;
- 
--	oldfs = get_fs(); set_fs(KERNEL_DS);
--	err = sock->ops->ioctl(sock, TIOCINQ, (unsigned long) &avail);
--	set_fs(oldfs);
-+	err = kernel_ioctl(sock, TIOCINQ, (unsigned long) &avail);
- 
- 	return (err >= 0)? avail : err;
- }
-@@ -472,7 +469,7 @@ svc_recvfrom(struct svc_rqst *rqstp, str
- 	 * at accept time. FIXME
- 	 */
- 	alen = sizeof(rqstp->rq_addr);
--	sock->ops->getname(sock, (struct sockaddr *)&rqstp->rq_addr, &alen, 1);
-+	kernel_getpeername(sock, (struct sockaddr *)&rqstp->rq_addr, &alen);
- 
- 	dprintk("svc: socket %p recvfrom(%p, %Zu) = %d\n",
- 		rqstp->rq_sock, iov[0].iov_base, iov[0].iov_len, len);
-@@ -758,7 +755,6 @@ svc_tcp_accept(struct svc_sock *svsk)
- 	struct svc_serv	*serv = svsk->sk_server;
- 	struct socket	*sock = svsk->sk_sock;
- 	struct socket	*newsock;
--	const struct proto_ops *ops;
- 	struct svc_sock	*newsvsk;
- 	int		err, slen;
- 
-@@ -766,29 +762,23 @@ svc_tcp_accept(struct svc_sock *svsk)
- 	if (!sock)
- 		return;
- 
--	err = sock_create_lite(PF_INET, SOCK_STREAM, IPPROTO_TCP, &newsock);
--	if (err) {
-+	clear_bit(SK_CONN, &svsk->sk_flags);
-+	err = kernel_accept(sock, &newsock, O_NONBLOCK);
-+	if (err < 0) {
- 		if (err == -ENOMEM)
- 			printk(KERN_WARNING "%s: no more sockets!\n",
- 			       serv->sv_name);
--		return;
--	}
--
--	dprintk("svc: tcp_accept %p allocated\n", newsock);
--	newsock->ops = ops = sock->ops;
--
--	clear_bit(SK_CONN, &svsk->sk_flags);
--	if ((err = ops->accept(sock, newsock, O_NONBLOCK)) < 0) {
--		if (err != -EAGAIN && net_ratelimit())
-+		else if (err != -EAGAIN && net_ratelimit())
- 			printk(KERN_WARNING "%s: accept failed (err %d)!\n",
- 				   serv->sv_name, -err);
--		goto failed;		/* aborted connection or whatever */
-+		return;
- 	}
++extern int kernel_bind(struct socket *sock, struct sockaddr *addr,
++		       int addrlen);
++extern int kernel_listen(struct socket *sock, int backlog);
++extern int kernel_accept(struct socket *sock, struct socket **newsock,
++			 int flags);
++extern int kernel_connect(struct socket *sock, struct sockaddr *addr,
++			  int addrlen, int flags);
++extern int kernel_getsockname(struct socket *sock, struct sockaddr *addr,
++			      int *addrlen);
++extern int kernel_getpeername(struct socket *sock, struct sockaddr *addr,
++			      int *addrlen);
++extern int kernel_getsockopt(struct socket *sock, int level, int optname,
++			     char *optval, int *optlen);
++extern int kernel_setsockopt(struct socket *sock, int level, int optname,
++			     char *optval, int optlen);
++extern int kernel_sendpage(struct socket *sock, struct page *page, int offset,
++			   size_t size, int flags);
++extern int kernel_ioctl(struct socket *sock, int cmd, unsigned long arg);
 +
- 	set_bit(SK_CONN, &svsk->sk_flags);
- 	svc_sock_enqueue(svsk);
+ #ifndef CONFIG_SMP
+ #define SOCKOPS_WRAPPED(name) name
+ #define SOCKOPS_WRAP(name, fam)
+diff --git a/net/socket.c b/net/socket.c
+index 02948b6..8f36be7 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2160,6 +2160,109 @@ static long compat_sock_ioctl(struct fil
+ }
+ #endif
  
- 	slen = sizeof(sin);
--	err = ops->getname(newsock, (struct sockaddr *) &sin, &slen, 1);
-+	err = kernel_getpeername(newsock, (struct sockaddr *) &sin, &slen);
- 	if (err < 0) {
- 		if (net_ratelimit())
- 			printk(KERN_WARNING "%s: peername failed (err %d)!\n",
-@@ -1407,14 +1397,14 @@ svc_create_socket(struct svc_serv *serv,
- 	if (sin != NULL) {
- 		if (type == SOCK_STREAM)
- 			sock->sk->sk_reuse = 1; /* allow address reuse */
--		error = sock->ops->bind(sock, (struct sockaddr *) sin,
-+		error = kernel_bind(sock, (struct sockaddr *) sin,
- 						sizeof(*sin));
- 		if (error < 0)
- 			goto bummer;
- 	}
- 
- 	if (protocol == IPPROTO_TCP) {
--		if ((error = sock->ops->listen(sock, 64)) < 0)
-+		if ((error = kernel_listen(sock, 64)) < 0)
- 			goto bummer;
- 	}
- 
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 4b4e7df..c60b422 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -207,7 +207,7 @@ static inline int xs_sendpages(struct so
- 		base &= ~PAGE_CACHE_MASK;
- 	}
- 
--	sendpage = sock->ops->sendpage ? : sock_no_sendpage;
-+	sendpage = kernel_sendpage ? : sock_no_sendpage;
- 	do {
- 		int flags = XS_SENDMSG_FLAGS;
- 
-@@ -952,7 +952,7 @@ static int xs_bindresvport(struct rpc_xp
- 
- 	do {
- 		myaddr.sin_port = htons(port);
--		err = sock->ops->bind(sock, (struct sockaddr *) &myaddr,
-+		err = kernel_bind(sock, (struct sockaddr *) &myaddr,
- 						sizeof(myaddr));
- 		if (err == 0) {
- 			xprt->port = port;
-@@ -1047,7 +1047,7 @@ static void xs_tcp_reuse_connection(stru
- 	 */
- 	memset(&any, 0, sizeof(any));
- 	any.sa_family = AF_UNSPEC;
--	result = sock->ops->connect(sock, &any, sizeof(any), 0);
-+	result = kernel_connect(sock, &any, sizeof(any), 0);
- 	if (result)
- 		dprintk("RPC:      AF_UNSPEC connect return code %d\n",
- 				result);
-@@ -1117,7 +1117,7 @@ static void xs_tcp_connect_worker(void *
- 	/* Tell the socket layer to start connecting... */
- 	xprt->stat.connect_count++;
- 	xprt->stat.connect_start = jiffies;
--	status = sock->ops->connect(sock, (struct sockaddr *) &xprt->addr,
-+	status = kernel_connect(sock, (struct sockaddr *) &xprt->addr,
- 			sizeof(xprt->addr), O_NONBLOCK);
- 	dprintk("RPC: %p  connect status %d connected %d sock state %d\n",
- 			xprt, -status, xprt_connected(xprt), sock->sk->sk_state);
++int kernel_bind(struct socket *sock, struct sockaddr *addr, int addrlen)
++{
++	return sock->ops->bind(sock, addr, addrlen);
++}
++
++int kernel_listen(struct socket *sock, int backlog)
++{
++	return sock->ops->listen(sock, backlog);
++}
++
++int kernel_accept(struct socket *sock, struct socket **newsock, int flags)
++{
++	struct sock *sk = sock->sk;
++	int err;
++
++	err = sock_create_lite(sk->sk_family, sk->sk_type, sk->sk_protocol,
++			       newsock);	
++	if (err < 0)
++		goto done;	
++
++	err = sock->ops->accept(sock, *newsock, flags);
++	if (err < 0) {
++		sock_release(*newsock);
++		goto done;
++	}
++			
++	(*newsock)->ops = sock->ops;
++
++done:
++	return err;
++}
++
++int kernel_connect(struct socket *sock, struct sockaddr *addr, int addrlen,
++                   int flags)
++{
++	return sock->ops->connect(sock, addr, addrlen, flags);
++}	
++
++int kernel_getsockname(struct socket *sock, struct sockaddr *addr,
++			 int *addrlen)
++{
++	return sock->ops->getname(sock, addr, addrlen, 0);
++}
++
++int kernel_getpeername(struct socket *sock, struct sockaddr *addr,
++			 int *addrlen)
++{
++	return sock->ops->getname(sock, addr, addrlen, 1);
++}
++
++int kernel_getsockopt(struct socket *sock, int level, int optname,
++			char *optval, int *optlen)
++{
++	mm_segment_t oldfs = get_fs();
++	int err;
++
++	set_fs(KERNEL_DS);
++	if (level == SOL_SOCKET)
++		err = sock_getsockopt(sock, level, optname, optval, optlen);
++	else
++		err = sock->ops->getsockopt(sock, level, optname, optval,
++					    optlen);
++	set_fs(oldfs);
++	return err;
++}
++
++int kernel_setsockopt(struct socket *sock, int level, int optname,
++			char *optval, int optlen)
++{
++	mm_segment_t oldfs = get_fs();
++	int err;
++
++	set_fs(KERNEL_DS);
++	if (level == SOL_SOCKET)
++		err = sock_setsockopt(sock, level, optname, optval, optlen);
++	else
++		err = sock->ops->setsockopt(sock, level, optname, optval,
++					    optlen);
++	set_fs(oldfs);
++	return err;
++}
++
++int kernel_sendpage(struct socket *sock, struct page *page, int offset,
++		    size_t size, int flags)
++{
++	if (sock->ops->sendpage)
++		return sock->ops->sendpage(sock, page, offset, size, flags);
++	
++	return sock_no_sendpage(sock, page, offset, size, flags);
++}
++
++int kernel_ioctl(struct socket *sock, int cmd, unsigned long arg)
++{
++	mm_segment_t oldfs = get_fs();
++	int err;
++
++	set_fs(KERNEL_DS);
++	err = sock->ops->ioctl(sock, cmd, arg);
++	set_fs(oldfs);
++	
++	return err;
++}
++
+ /* ABI emulation layers need these two */
+ EXPORT_SYMBOL(move_addr_to_kernel);
+ EXPORT_SYMBOL(move_addr_to_user);
+@@ -2176,3 +2279,13 @@ EXPORT_SYMBOL(sock_wake_async);
+ EXPORT_SYMBOL(sockfd_lookup);
+ EXPORT_SYMBOL(kernel_sendmsg);
+ EXPORT_SYMBOL(kernel_recvmsg);
++EXPORT_SYMBOL(kernel_bind);
++EXPORT_SYMBOL(kernel_listen);
++EXPORT_SYMBOL(kernel_accept);
++EXPORT_SYMBOL(kernel_connect);
++EXPORT_SYMBOL(kernel_getsockname);
++EXPORT_SYMBOL(kernel_getpeername);
++EXPORT_SYMBOL(kernel_getsockopt);
++EXPORT_SYMBOL(kernel_setsockopt);
++EXPORT_SYMBOL(kernel_sendpage);
++EXPORT_SYMBOL(kernel_ioctl);
 
 

@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWFLGyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWFLG4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWFLGyP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 02:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFLGyP
+	id S1751094AbWFLG4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 02:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFLG4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 02:54:15 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:14097 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1751065AbWFLGyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 02:54:14 -0400
-Date: Mon, 12 Jun 2006 14:52:45 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH] autofs4 - need to invalidate children on tree mount expire
-Message-ID: <Pine.LNX.4.64.0606121427080.9538@raven.themaw.net>
+	Mon, 12 Jun 2006 02:56:41 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:54439 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751094AbWFLG4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 02:56:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:subject:content-type:content-transfer-encoding:from;
+        b=KWloRC+c5ztmenWhMlmbp8AS/C6a9/o0HZ7U7u1BLWhFYafgwCeD9z++hfVNrzWsmQv3o8aQhHfyT2128nWBdNyJZnuatqR/3Djgc2XLkr6dHhQMXf4mDuWTgRfZsMj5Mb9zzeaC21dArQ0JQRSDoduoOul34GZGjoBv+7bdOZU=
+Message-ID: <448D1117.8010407@innova-card.com>
+Date: Mon, 12 Jun 2006 09:00:39 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-2.599,
-	required 5, autolearn=not spam, BAYES_00 -2.60)
-X-themaw-MailScanner-From: raven@themaw.net
+To: apw@shadowen.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <fbh.work@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Andrew,
+Is it me or the use of CONFIG_SPARSEMEM_EXTREME is really confusing in
+mm/sparce.c ? Shouldn't we use CONFIG_SPARSEMEM_STATIC instead like
+the following patch suggests ?
 
-I've found a case where invalid dentrys in a mount tree, waiting to be 
-cleaned up by d_invalidate, prevent the expected expire.
+-- >8 --
+Subject: [PATCH] Remove confusing uses of SPARSEMEM_EXTREME
 
-In this case dentrys created during a lookup for which a mount fails or 
-has no entry in the mount map contribute to the d_count of the parent 
-dentry. These dentrys may not be invalidated prior to comparing the 
-interanl usage count of valid autofs dentrys against the dentry d_count 
-which makes a mount tree appear busy so it doesn't expire.
+CONFIG_SPARSEMEM_EXTREME is used in sparce.c whereas
+CONFIG_SPARSEMEM_STATIC seems to be more appropriate.
 
-Signed-off-by: Ian Kent <raven@themaw.net>
+Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com> 
 
---
+---
 
---- linux-2.6.17-rc6-mm2/fs/autofs4/expire.c.need-invalidate-on-tree-expire	2006-06-12 14:24:21.000000000 +0800
-+++ linux-2.6.17-rc6-mm2/fs/autofs4/expire.c	2006-06-12 14:24:36.000000000 +0800
-@@ -174,6 +174,12 @@ static int autofs4_tree_busy(struct vfsm
- 			struct autofs_info *ino = autofs4_dentry_ino(p);
- 			unsigned int ino_count = atomic_read(&ino->count);
+include/linux/mmzone.h |    2 +-
+mm/sparse.c            |    6 +++---
+2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index ebfc238..35f38b0 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -551,7 +551,7 @@ #define SECTION_NR_TO_ROOT(sec)	((sec) /
+ #define NR_SECTION_ROOTS	(NR_MEM_SECTIONS / SECTIONS_PER_ROOT)
+ #define SECTION_ROOT_MASK	(SECTIONS_PER_ROOT - 1)
  
-+			/*
-+			 * Clean stale dentries below that have not been
-+			 * invalidated after a mount fail during lookup
-+			 */
-+			d_invalidate(p);
-+
- 			/* allow for dget above and top is already dgot */
- 			if (p == top)
- 				ino_count += 2;
+-#ifdef CONFIG_SPARSEMEM_EXTREME
++#ifndef CONFIG_SPARSEMEM_STATIC
+ extern struct mem_section *mem_section[NR_SECTION_ROOTS];
+ #else
+ extern struct mem_section mem_section[NR_SECTION_ROOTS][SECTIONS_PER_ROOT];
+diff --git a/mm/sparse.c b/mm/sparse.c
+index 0a51f36..341d935 100644
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -16,7 +16,7 @@ #include <asm/dma.h>
+  *
+  * 1) mem_section	- memory sections, mem_map's for valid memory
+  */
+-#ifdef CONFIG_SPARSEMEM_EXTREME
++#ifndef CONFIG_SPARSEMEM_STATIC
+ struct mem_section *mem_section[NR_SECTION_ROOTS]
+ 	____cacheline_internodealigned_in_smp;
+ #else
+@@ -25,7 +25,7 @@ struct mem_section mem_section[NR_SECTIO
+ #endif
+ EXPORT_SYMBOL(mem_section);
+ 
+-#ifdef CONFIG_SPARSEMEM_EXTREME
++#ifndef CONFIG_SPARSEMEM_STATIC
+ static struct mem_section *sparse_index_alloc(int nid)
+ {
+ 	struct mem_section *section = NULL;
+@@ -67,7 +67,7 @@ out:
+ 	spin_unlock(&index_init_lock);
+ 	return ret;
+ }
+-#else /* !SPARSEMEM_EXTREME */
++#else /* SPARSEMEM_STATIC */
+ static inline int sparse_index_init(unsigned long section_nr, int nid)
+ {
+ 	return 0;
+-- 
+1.3.3.g8701
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

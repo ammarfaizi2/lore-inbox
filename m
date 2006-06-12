@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWFLJJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWFLJPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWFLJJp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 05:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWFLJJp
+	id S1751206AbWFLJPy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 05:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWFLJPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 05:09:45 -0400
-Received: from mail.gmx.net ([213.165.64.20]:61346 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750916AbWFLJJo (ORCPT
+	Mon, 12 Jun 2006 05:15:54 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:10708 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751206AbWFLJPx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 05:09:44 -0400
-X-Authenticated: #428038
-Date: Mon, 12 Jun 2006 11:09:32 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: David Miller <davem@davemloft.net>
-Cc: rlrevell@joe-job.com, folkert@vanheusden.com, matti.aarnio@zmailer.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Message-ID: <20060612090932.GF11649@merlin.emma.line.org>
-Mail-Followup-To: David Miller <davem@davemloft.net>, rlrevell@joe-job.com,
-	folkert@vanheusden.com, matti.aarnio@zmailer.org,
-	linux-kernel@vger.kernel.org
-References: <20060610222734.GZ27502@mea-ext.zmailer.org> <20060611160243.GH20700@vanheusden.com> <1150048497.14253.140.camel@mindpipe> <20060611.115430.112290058.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060611.115430.112290058.davem@davemloft.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11-2006-06-08
-X-Y-GMX-Trusted: 0
+	Mon, 12 Jun 2006 05:15:53 -0400
+Subject: Re: 2.6.17-rc6-rt3
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20060610082406.GA31985@elte.hu>
+References: <20060610082406.GA31985@elte.hu>
+Date: Mon, 12 Jun 2006 11:20:40 +0200
+Message-Id: <1150104040.3835.3.camel@frecb000686>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/06/2006 11:19:33,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 12/06/2006 11:19:35,
+	Serialize complete at 12/06/2006 11:19:35
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Bcc'ing David Relson to protect his mail address from the usual vger
-flamewars.)
+On Sat, 2006-06-10 at 10:24 +0200, Ingo Molnar wrote:
+> i have released the 2.6.17-rc6-rt3 tree, which can be downloaded from 
+> the usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
+> this is a fixes-only release: lots of fixes from Thomas Gleixner (for 
+> the softirq problem that caused those ping latency weirdnesses, for 
+> hrtimers and timers problems and for the RCU related bug that was 
+> causing instability and more), John Stultz, Jan Altenberg and Clark 
+> Williams. MIPS update from Manish Lachwani. Futex fix from Dinakar 
+> Guniguntala. It also includes the RT-scheduling SMP fix that could fix 
+> the scheduling problem reported by Darren Hart.
+> 
+> I think all of the regressions reported against rt1 are fixed, please 
+> re-report if any of them is still unfixed.
+> 
 
-On Sun, 11 Jun 2006, David Miller wrote:
+  Great, boots fine on my dual Xeon and solves the ping problem I was
+having.
 
-> To be honest I'm all for some kind of bayesian filter at vger as long
-> as the rejected postings go somewhere into a folder I can scan every
-> couple of days looking for false positives.
+  Thomas, any hint at what was going on?
 
-I suggest to try out bogofilter and spamprobe. Either lets YOU decide
-what to do with its finding if it's spam or ham. bogofilter or spamprobe
-works together with some filter like procmail or maildrop and you code
-what happens with message that is "Spam", "Ham" or "Unsure", and you can
-even look at the numeric value from 0 (ham) to 1 (spam) and decide. The
-default install suggests an "unsure" range that you can also manually
-look at.
+  Thanks,
 
-Spamprobe also works rather well for many, although I don't know much
-about its details today, haven't followed it for many months.
+  Sébastien.
 
--- 
-Matthias Andree

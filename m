@@ -1,70 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWFLFJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWFLFJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWFLFJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 01:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWFLFJ0
+	id S1751346AbWFLFJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 01:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWFLFJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 01:09:26 -0400
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:18100 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
-	id S1751331AbWFLFJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 01:09:26 -0400
+	Mon, 12 Jun 2006 01:09:59 -0400
+Received: from pops.net-conex.com ([204.244.176.3]:18918 "EHLO
+	mail.net-conex.com") by vger.kernel.org with ESMTP id S1751332AbWFLFJ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 01:09:58 -0400
+Date: Sun, 11 Jun 2006 22:10:01 -0700
+From: "Robin H. Johnson" <robbat2@gentoo.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "Robin H. Johnson" <robbat2@gentoo.org>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs time granularity fix for [acm]time going backwards. Also VFS time granularity bug on creat(). (Repost, more content)
+Message-ID: <20060612051001.GA18634@curie-int.vc.shawcable.net>
+References: <20060611115421.GE26475@curie-int.vc.shawcable.net> <Pine.LNX.4.64.0606111833220.15060@blonde.wat.veritas.com>
 Mime-Version: 1.0
-Message-Id: <a06230917c0b15c73a4c5@[129.98.90.227]>
-Date: Mon, 12 Jun 2006 01:09:00 -0400
-To: linux-kernel@vger.kernel.org
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Soft lockup on CPU 0 possibly related to threads in kernel
- 2.6.16.1
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606111833220.15060@blonde.wat.veritas.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A dual amd64-based computer is running kernel 2.6.16.1 and reports 
-the following spontaneously:
 
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-99516.921354] BUG: soft lockup detected on CPU#0!
-[99516.921359] CPU 0:
-[99516.921361] Modules linked in: drbd xt_limit bonding appletalk 
-psnap llc xt_state nfnetlink_log ipt_LOG ip_conntrack_ftp 
-xt_conntrack ip_conntrack iptable_filter nfnetlink xt_tcpudp 
-ip_tables x_tables r8169 tg3 mptspi mptscsih mptbase sym53c8xx 
-dm_mirror
-[99516.921377] Pid: 16, comm: kblockd/0 Tainted: G   M  2.6.16.1 #3
-[99516.921380] RIP: 0010:[<ffffffff8035fecb>] 
-<ffffffff8035fecb>{_spin_unlock_irqrestore+17}
-[99516.921390] RSP: 0018:ffff810037ecbe28  EFLAGS: 00000247
-[99516.921393] RAX: 0000000000000000 RBX: 0000000000000247 RCX: 
-0000000000000247
-[99516.921396] RDX: ffff810037fe0ba0 RSI: 0000000000000247 RDI: 
-ffff810037fe0b78
-[99516.921400] RBP: ffff810037ecbe38 R08: ffff810037fe0bf0 R09: 
-0000000300000000
-[99516.921403] R10: 0000000300000000 R11: ffff8100f7eb7238 R12: 
-ffff8100f7eb7370
-[99516.921407] R13: ffff810037fe0b78 R14: 0000000000000247 R15: 
-ffff8100f7ef2ed8
-[99516.921411] FS:  00002ad040b7e6d0(0000) GS:ffffffff80527000(0000) 
-knlGS:0000000000000000
-[99516.921414] CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-[99516.921417] CR2: 00002b7ab1af6e90 CR3: 00000000f4ddd000 CR4: 
-00000000000006e0
-[99516.921419]
-[99516.921420] Call Trace: <ffffffff8013f4ac>{run_workqueue+138} 
-<ffffffff80235569>{cfq_kick_queue+0}
-[99516.921432]        <ffffffff8013f511>{worker_thread+0} 
-<ffffffff8013f60d>{worker_thread+252}
-[99516.921439]        <ffffffff80128c18>{default_wake_function+0} 
-<ffffffff80128c18>{default_wake_function+0}
-[99516.921448]        <ffffffff8013f511>{worker_thread+0} 
-<ffffffff80142d94>{kthread+208}
-[99516.921456]        <ffffffff8010b9fe>{child_rip+8} 
-<ffffffff80142cc4>{kthread+0}
-[99516.921464]        <ffffffff8010b9f6>{child_rip+0}
+On Sun, Jun 11, 2006 at 07:10:31PM +0100, Hugh Dickins wrote:
+> On Sun, 11 Jun 2006, Robin H. Johnson wrote:
+> > After some digging, I found that this was being caused by tmpfs not hav=
+ing a
+> > time granularity set, thus inheriting the default 1s granularity.
+> That's a great little discovery, and a very good report and analysis:
+> thank you.  Seems tmpfs got missed when s_time_gran was added in 2.6.11,
+> and I (tmpfs maintainer) failed to notice that patch going past.
+Ah, ok, it was mentioned to me there was a maintainer for tmpfs, but I
+found no mention of you in the tmpfs source, or MAINTAINERS. Maybe
+submit a patch ;-).
 
--- 
+> Perhaps we could devise a debug WARN_ON somewhere to check consistent
+> granularity; but I don't have the ingenuity right now, and would need
+> an additional superblock field or flag to not spam the logs horribly.
+> Perhaps it's easier just to delete CURRENT_TIME, converting its users.
+Yes, I'd agree that replacing CURRENT_TIME in filesystems with
+current_fs_time should be worthwhile for all filesystems - That,
+combined with your patch below to ensure they all use s_time_gran,
+should ensure safety.
 
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+A total removal of CURRENT_TIME wouldn't work, there are a few other
+users besides setting [acm]times - however as above, we should be able
+to kill it for all filesystems.
+
+However CURRENT_TIME_SEC looks safe to convert, all of it's users are
+filesystems.
+
+> Setting that safety aside, the patch below (against 2.6.17-rc6) looks
+> to me like all that's currently needed in mainline - but ecryptfs and
+> reiser4 in the mm tree will also want fixing, and more discrepancies
+> are sure to trickle in later.
+I checked at well, and this does cover every filesystem I see in the
+mainline.
+
+> If anyone thinks tmpfs is the most important to fix (I would think
+> that, wouldn't I?), I can forward your fix to Linus ahead of the rest.
+> Or if people agree the patch below is good, I can sign it off and send;
+> or FS maintainers extract their own little parts.
+I'd appreciate it tmpfs either of the fixes actually making it to
+2.6.17, there are a reasonable number of Gentoo users that use tmpfs as
+temporary storage to compile stuff, and there's a long-standing argument
+that tmpfs wasn't safe for that, due to this bug ;-).
+
+Acked-By: Robin H. Johnson <robbat2@gentoo.org>
+[snip]
+
+--=20
+Robin Hugh Johnson
+E-Mail     : robbat2@gentoo.org
+GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
+Comment: Robbat2 @ Orbis-Terrarum Networks
+
+iD8DBQFEjPcpPpIsIjIzwiwRArQ1AJ9jbSHTbv4QR7Y185A0PO+oPVMk9wCg8jv8
+M5qtncMAxt2n4wWZpnEVFgY=
+=oUaV
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--

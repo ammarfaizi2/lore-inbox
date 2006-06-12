@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWFLWEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWFLWF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbWFLWEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 18:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWFLWEI
+	id S932567AbWFLWF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 18:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWFLWF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 18:04:08 -0400
-Received: from mail.mazunetworks.com ([4.19.249.111]:47784 "EHLO
-	mail.mazunetworks.com") by vger.kernel.org with ESMTP
-	id S932427AbWFLWEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 18:04:07 -0400
-Message-ID: <448DE4F1.9000407@mazunetworks.com>
-Date: Mon, 12 Jun 2006 18:04:33 -0400
-From: Jeff Gold <jgold@mazunetworks.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 12 Jun 2006 18:05:56 -0400
+Received: from mail.suse.de ([195.135.220.2]:9407 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932560AbWFLWFz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 18:05:55 -0400
+Date: Mon, 12 Jun 2006 15:03:21 -0700
+From: Greg KH <gregkh@suse.de>
 To: Mark Lord <lkml@rtr.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Serial Console and Slow SCSI Disk Access?
-References: <448DDC7F.4030308@mazunetworks.com> <448DDF1D.5020108@rtr.ca>
-In-Reply-To: <448DDF1D.5020108@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb, error -28
+Message-ID: <20060612220321.GA19792@suse.de>
+References: <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD50F.3060002@rtr.ca> <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD968.2010000@rtr.ca> <20060612212812.GA17458@suse.de> <448DE28D.3040708@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <448DE28D.3040708@rtr.ca>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> This can happen if there are kernel messages being printed on the serial 
-> console.
-> If all is quiet, I would expect things to be as fast as normal elsewhere.
+On Mon, Jun 12, 2006 at 05:54:21PM -0400, Mark Lord wrote:
+> Okay, with these two patches from -mm, the USB no longer dies
+> when I plug in my hub/dock device:
+> 
+> gregkh-usb-improved-tt-scheduling-for-ehci.patch
+> gregkh-usb-usb-rmmod-pl2303-after-28.patch
+> 
+> So let's get these pushed upstream sooner than later, please!
 
-Thank you for the suggestion.  I don't see much in /var/log/messages 
-(syslogd is running).  There are 3326 lines taking up about 256 kB 
-there, and when I run hdparm runs no further messages are generated.
+It will happen after 2.6.17 is out, as they are in the queue to do so.
 
-I don't have anything attached to the serial port at the moment.  Could 
-that cause problems?  I'm going to attach something and see what 
-happens.  Other advice is still welcome.
+And it's not a "must rush" fix, this has _always_ been like this, you
+just got lucky in the past :)
 
-                                         Jeff
+thanks,
+
+greg k-h

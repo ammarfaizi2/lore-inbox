@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751862AbWFLLID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751869AbWFLLIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751862AbWFLLID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 07:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751863AbWFLLIB
+	id S1751869AbWFLLIG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 07:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751868AbWFLLIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 07:08:01 -0400
-Received: from mail.gmx.net ([213.165.64.20]:31979 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751862AbWFLLIA (ORCPT
+	Mon, 12 Jun 2006 07:08:05 -0400
+Received: from ns2.suse.de ([195.135.220.15]:28047 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751865AbWFLLIA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 12 Jun 2006 07:08:00 -0400
-X-Authenticated: #428038
-Date: Mon, 12 Jun 2006 13:07:49 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Neil Brown <neilb@suse.de>
-Cc: Matthias Andree <matthias.andree@gmx.de>, Avi Kivity <avi@argo.co.il>,
-       Rik van Riel <riel@redhat.com>, Theodore Tso <tytso@mit.edu>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-Message-ID: <20060612110749.GA27069@merlin.emma.line.org>
-Mail-Followup-To: Neil Brown <neilb@suse.de>, Avi Kivity <avi@argo.co.il>,
-	Rik van Riel <riel@redhat.com>, Theodore Tso <tytso@mit.edu>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0606110952560.29891@cuia.boston.redhat.com> <448C2298.5000409@argo.co.il> <20060612084739.GD11649@merlin.emma.line.org> <17549.16182.237312.734481@cse.unsw.edu.au>
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: x86_64: x86-64 mailing lists / posting patchkits / x86-64 releases
+Date: Mon, 12 Jun 2006 13:07:54 +0200
+User-Agent: KMail/1.9.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17549.16182.237312.734481@cse.unsw.edu.au>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11-2006-06-08
-X-Y-GMX-Trusted: 0
+Message-Id: <200606121307.54556.ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown schrieb am 2006-06-12:
 
-> Your screwdriver is leaking!
-> 
-> If you get a letter from your aunt in Rome, and it is post-marked
-> 'Moscow', you might doubt the authenticity.
+Hallo,
 
-Family situation aside, if she's travelling and knows she's no longer
-reachable in the place she stays in Moscow by the time when I get the
-postcard/letter, it's perfectly reasonable to write her Italian return
-address on the envelope.
+Some administrativa.
 
-For counter arguments versus your other points, see David Woodhouse's reply.
+In the last time I've posted all patches I sent to Linus
+at discuss@x86-64.org at least once. I did this because this list is relatively 
+low volume and I tended to get some useful feedback from the people
+subscribed here.
 
--- 
-Matthias Andree
+However I heard some rumours that I scared people away 
+from the list with the many patches.  
+
+I also planned to post patches more often to get better
+turnaround for reviews on changed patches.
+
+We still have a patches@x86-64 mailing list on x86-64.org which
+is mostly unused. If I moved the big patch floods over there,
+would the people who do reviews subscribe there? Please comment.
+
+Also I'll probably start x86_64-* patchkit releases again. Currently
+my working dir on ftp.firstfloor.org is directly going into -mm* and 
+that sometimes causes problems because it is not as well tested as it would
+be if a larger audience has run it. Also there are often non trivial
+interactions with the many patches in -mm* and it's hard to figure
+out where a problem comes from. So it looks like some separate 
+testing would be better.
+
+I hope people would be still interested in running x86_64-* patchkits.
+
+Also my feeling is that I need to involve linux-kernel more. It seems
+the majority of x86-64 users don't even know now this mailing list
+exists, so they don't review or test the latest releases. Also
+the traffic here seems to be less and less now except for me
+(or do I just imagine that?) 
+
+I suppose posting all patches there would be too much though, but
+at least the announcements should be going there. I still think
+it's valuable to have some kind of separate x86-64 list because
+linux-kernel is just too much to keep up with and it would
+drown valuable bug reports etc. in the general noise.
+
+Any feedback from x86-64 contributors on how to organize this better welcome.
+
+-Andi
+ 

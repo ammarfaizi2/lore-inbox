@@ -1,79 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWFLXtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWFLX5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbWFLXtX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 19:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbWFLXtX
+	id S932659AbWFLX5t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 19:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbWFLX5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 19:49:23 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:64440 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932652AbWFLXtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 19:49:22 -0400
-Date: Mon, 12 Jun 2006 16:48:55 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Hugh Dickins <hugh@veritas.com>, Marcelo Tosatti <marcelo@kvack.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
-Subject: Re: [PATCH 19/21] swap_prefetch: Conversion of nr_unstable to ZVC
-In-Reply-To: <200606130940.16956.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.64.0606121647090.22052@schroedinger.engr.sgi.com>
-References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
- <20060612211423.20862.41488.sendpatchset@schroedinger.engr.sgi.com>
- <200606130940.16956.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jun 2006 19:57:49 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:25766 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932656AbWFLX5s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 19:57:48 -0400
+Subject: [RFC/PATCH 2/2] update sunrpc to use in-kernel sockets API
+From: Sridhar Samudrala <sri@us.ibm.com>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Mon, 12 Jun 2006 16:56:04 -0700
+Message-Id: <1150156564.19929.33.camel@w-sridhar2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006, Con Kolivas wrote:
+This patch updates sunrpc to use in-kernel sockets API.
 
-> Nack. You're changing some other code unintentionally.
+Thanks
+Sridhar
 
-Is this okay?
-
-Subject: swap_prefetch: conversion of nr_unstable to per zone counter
-From: Christoph Lameter <clameter@sgi.com>
-
-The determination of the vm state is now not that expensive
-anymore after we remove the use of the page state.
-Remove the logic to avoid the expensive checks.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-
-Index: linux-2.6.17-rc6-cl/mm/swap_prefetch.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/swap_prefetch.c	2006-06-12 13:37:47.283159568 -0700
-+++ linux-2.6.17-rc6-cl/mm/swap_prefetch.c	2006-06-12 16:46:48.504626417 -0700
-@@ -357,7 +357,6 @@ static int prefetch_suitable(void)
+diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
+index a27905a..ee80b3c 100644
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -388,7 +388,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
+ 	/* send head */
+ 	if (slen == xdr->head[0].iov_len)
+ 		flags = 0;
+-	len = sock->ops->sendpage(sock, rqstp->rq_respages[0], 0, xdr->head[0].iov_len, flags);
++	len = kernel_sendpage(sock, rqstp->rq_respages[0], 0, xdr->head[0].iov_len, flags);
+ 	if (len != xdr->head[0].iov_len)
+ 		goto out;
+ 	slen -= xdr->head[0].iov_len;
+@@ -400,7 +400,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
+ 	while (pglen > 0) {
+ 		if (slen == size)
+ 			flags = 0;
+-		result = sock->ops->sendpage(sock, *ppage, base, size, flags);
++		result = kernel_sendpage(sock, *ppage, base, size, flags);
+ 		if (result > 0)
+ 			len += result;
+ 		if (result != size)
+@@ -413,7 +413,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
+ 	}
+ 	/* send tail */
+ 	if (xdr->tail[0].iov_len) {
+-		result = sock->ops->sendpage(sock, rqstp->rq_respages[rqstp->rq_restailpage], 
++		result = kernel_sendpage(sock, rqstp->rq_respages[rqstp->rq_restailpage], 
+ 					     ((unsigned long)xdr->tail[0].iov_base)& (PAGE_SIZE-1),
+ 					     xdr->tail[0].iov_len, 0);
+ 
+@@ -434,13 +434,10 @@ out:
+ static int
+ svc_recv_available(struct svc_sock *svsk)
+ {
+-	mm_segment_t	oldfs;
+ 	struct socket	*sock = svsk->sk_sock;
+ 	int		avail, err;
+ 
+-	oldfs = get_fs(); set_fs(KERNEL_DS);
+-	err = sock->ops->ioctl(sock, TIOCINQ, (unsigned long) &avail);
+-	set_fs(oldfs);
++	err = kernel_ioctl(sock, TIOCINQ, (unsigned long) &avail);
+ 
+ 	return (err >= 0)? avail : err;
+ }
+@@ -472,7 +469,7 @@ svc_recvfrom(struct svc_rqst *rqstp, str
+ 	 * at accept time. FIXME
  	 */
- 	for_each_node_mask(node, sp_stat.prefetch_nodes) {
- 		struct node_stats *ns = &sp_stat.node[node];
--		struct page_state ps;
+ 	alen = sizeof(rqstp->rq_addr);
+-	sock->ops->getname(sock, (struct sockaddr *)&rqstp->rq_addr, &alen, 1);
++	kernel_getpeername(sock, (struct sockaddr *)&rqstp->rq_addr, &alen);
  
- 		/*
- 		 * We check to see that pages are not being allocated
-@@ -375,11 +374,6 @@ static int prefetch_suitable(void)
- 		} else
- 			ns->last_free = ns->current_free;
+ 	dprintk("svc: socket %p recvfrom(%p, %Zu) = %d\n",
+ 		rqstp->rq_sock, iov[0].iov_base, iov[0].iov_len, len);
+@@ -758,7 +755,6 @@ svc_tcp_accept(struct svc_sock *svsk)
+ 	struct svc_serv	*serv = svsk->sk_server;
+ 	struct socket	*sock = svsk->sk_sock;
+ 	struct socket	*newsock;
+-	const struct proto_ops *ops;
+ 	struct svc_sock	*newsvsk;
+ 	int		err, slen;
  
--		if (!test_pagestate)
--			continue;
+@@ -766,29 +762,23 @@ svc_tcp_accept(struct svc_sock *svsk)
+ 	if (!sock)
+ 		return;
+ 
+-	err = sock_create_lite(PF_INET, SOCK_STREAM, IPPROTO_TCP, &newsock);
+-	if (err) {
++	clear_bit(SK_CONN, &svsk->sk_flags);
++	err = kernel_accept(sock, &newsock, O_NONBLOCK);
++	if (err < 0) {
+ 		if (err == -ENOMEM)
+ 			printk(KERN_WARNING "%s: no more sockets!\n",
+ 			       serv->sv_name);
+-		return;
+-	}
 -
--		get_page_state_node(&ps, node);
+-	dprintk("svc: tcp_accept %p allocated\n", newsock);
+-	newsock->ops = ops = sock->ops;
 -
- 		/* We shouldn't prefetch when we are doing writeback */
- 		if (node_page_state(node, NR_WRITEBACK)) {
- 			node_clear(node, sp_stat.prefetch_nodes);
-@@ -394,7 +388,8 @@ static int prefetch_suitable(void)
- 			node_page_state(node, NR_ANON) +
- 			node_page_state(node, NR_SLAB) +
- 			node_page_state(node, NR_DIRTY) +
--			ps.nr_unstable + total_swapcache_pages;
-+			node_page_state(node, NR_UNSTABLE) +
-+			total_swapcache_pages;
- 		if (limit > ns->prefetch_watermark) {
- 			node_clear(node, sp_stat.prefetch_nodes);
- 			continue;
+-	clear_bit(SK_CONN, &svsk->sk_flags);
+-	if ((err = ops->accept(sock, newsock, O_NONBLOCK)) < 0) {
+-		if (err != -EAGAIN && net_ratelimit())
++		else if (err != -EAGAIN && net_ratelimit())
+ 			printk(KERN_WARNING "%s: accept failed (err %d)!\n",
+ 				   serv->sv_name, -err);
+-		goto failed;		/* aborted connection or whatever */
++		return;
+ 	}
++
+ 	set_bit(SK_CONN, &svsk->sk_flags);
+ 	svc_sock_enqueue(svsk);
+ 
+ 	slen = sizeof(sin);
+-	err = ops->getname(newsock, (struct sockaddr *) &sin, &slen, 1);
++	err = kernel_getpeername(newsock, (struct sockaddr *) &sin, &slen);
+ 	if (err < 0) {
+ 		if (net_ratelimit())
+ 			printk(KERN_WARNING "%s: peername failed (err %d)!\n",
+@@ -1407,14 +1397,14 @@ svc_create_socket(struct svc_serv *serv,
+ 	if (sin != NULL) {
+ 		if (type == SOCK_STREAM)
+ 			sock->sk->sk_reuse = 1; /* allow address reuse */
+-		error = sock->ops->bind(sock, (struct sockaddr *) sin,
++		error = kernel_bind(sock, (struct sockaddr *) sin,
+ 						sizeof(*sin));
+ 		if (error < 0)
+ 			goto bummer;
+ 	}
+ 
+ 	if (protocol == IPPROTO_TCP) {
+-		if ((error = sock->ops->listen(sock, 64)) < 0)
++		if ((error = kernel_listen(sock, 64)) < 0)
+ 			goto bummer;
+ 	}
+ 
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 4b4e7df..c60b422 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -207,7 +207,7 @@ static inline int xs_sendpages(struct so
+ 		base &= ~PAGE_CACHE_MASK;
+ 	}
+ 
+-	sendpage = sock->ops->sendpage ? : sock_no_sendpage;
++	sendpage = kernel_sendpage ? : sock_no_sendpage;
+ 	do {
+ 		int flags = XS_SENDMSG_FLAGS;
+ 
+@@ -952,7 +952,7 @@ static int xs_bindresvport(struct rpc_xp
+ 
+ 	do {
+ 		myaddr.sin_port = htons(port);
+-		err = sock->ops->bind(sock, (struct sockaddr *) &myaddr,
++		err = kernel_bind(sock, (struct sockaddr *) &myaddr,
+ 						sizeof(myaddr));
+ 		if (err == 0) {
+ 			xprt->port = port;
+@@ -1047,7 +1047,7 @@ static void xs_tcp_reuse_connection(stru
+ 	 */
+ 	memset(&any, 0, sizeof(any));
+ 	any.sa_family = AF_UNSPEC;
+-	result = sock->ops->connect(sock, &any, sizeof(any), 0);
++	result = kernel_connect(sock, &any, sizeof(any), 0);
+ 	if (result)
+ 		dprintk("RPC:      AF_UNSPEC connect return code %d\n",
+ 				result);
+@@ -1117,7 +1117,7 @@ static void xs_tcp_connect_worker(void *
+ 	/* Tell the socket layer to start connecting... */
+ 	xprt->stat.connect_count++;
+ 	xprt->stat.connect_start = jiffies;
+-	status = sock->ops->connect(sock, (struct sockaddr *) &xprt->addr,
++	status = kernel_connect(sock, (struct sockaddr *) &xprt->addr,
+ 			sizeof(xprt->addr), O_NONBLOCK);
+ 	dprintk("RPC: %p  connect status %d connected %d sock state %d\n",
+ 			xprt, -status, xprt_connected(xprt), sock->sk->sk_state);
+
+

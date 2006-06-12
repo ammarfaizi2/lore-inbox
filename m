@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752058AbWFLPli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752068AbWFLPmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752058AbWFLPli (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 11:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWFLPli
+	id S1752068AbWFLPmF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 11:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752066AbWFLPmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 11:41:38 -0400
-Received: from darla.ti-wmc.nl ([217.114.97.45]:20657 "EHLO smtp.wmc")
-	by vger.kernel.org with ESMTP id S1752058AbWFLPlh (ORCPT
+	Mon, 12 Jun 2006 11:42:05 -0400
+Received: from xenotime.net ([66.160.160.81]:14510 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1752056AbWFLPmC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 11:41:37 -0400
-Message-ID: <448D8B2F.8060405@ti-wmc.nl>
-Date: Mon, 12 Jun 2006 17:41:35 +0200
-From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-References: <20060610222734.GZ27502@mea-ext.zmailer.org> <20060611072223.GA16150@flint.arm.linux.org.uk> <20060612083239.GA27502@mea-ext.zmailer.org>
-In-Reply-To: <20060612083239.GA27502@mea-ext.zmailer.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Mon, 12 Jun 2006 11:42:02 -0400
+Date: Mon, 12 Jun 2006 08:44:47 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [discuss] x86_64: x86-64 mailing lists / posting patchkits /
+ x86-64 releases
+Message-Id: <20060612084447.385b1c9d.rdunlap@xenotime.net>
+In-Reply-To: <84EA05E2CA77634C82730353CBE3A84303218DB5@SAUSEXMB1.amd.com>
+References: <84EA05E2CA77634C82730353CBE3A84303218DB5@SAUSEXMB1.amd.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matti
+On Mon, 12 Jun 2006 09:11:44 -0500 Langsdorf, Mark wrote:
 
-(please don't consider this a personal attack, just the idea is wrong to me)
+> > >We still have a patches@x86-64 mailing list on x86-64.org which is 
+> > >mostly unused. If I moved the big patch floods over there, would the 
+> > >people who do reviews subscribe there? Please comment.
+> > 
+> > I certainly would subscribe there if you want to split 
+> > things. Depending on your intentions, I could also switch to 
+> > send patches there. But if I'm asked about my preferences, 
+> > I'd rather see things stay on the discuss list (as sending 
+> > patches is generally meant to trigger discussion if need be).
 
-Matti Aarnio wrote:
-> 
-> For a very long time (like 20 years or so) I used to think like that.
-> 
-> Doing email services in big ISP environments for about 10 years did
-> cure me of that thinking.  Ordinary Janes and Joes (and grannies
-> and granpas) must not be allowed to send email in similar ways that
-> we used to do in happy 1980es when the internet was engineer playground.
+I agree with Jan, one list is preferable IMO.
+However, please let us know if it is split so that we will know
+to subscribe to the other list.
 
-This is so against the spirit and meaning of the Internet, you're not 
-talking about the network we call Internet. You're talking about two 
-tiered internet, which is bad too.
+> I'd prefer to see patches sent to patches@x86-64.org,
+> as that will make them easier to track.  However, I 
+> agree with Jan that discussion of patches should occur
+> on discuss@x86-64.org.  It should be possible to make
+> all responses from patches@x86-64.org go to 
+> discuss@x86-64.org.
 
-> The Internet needs to be segregated into two kinds of users - those that
-> must not be allowed to do much of anything ( = common man to whom the
-> internet equals anyway to IE web-browser ) and to first-class citizens
-> with their own email servers...
-> 
 
-Why don't you go fork the Internet then? Go see if that will work?
-
-This whole discussion is kind of ridiculous for an open source project 
-like the linux kernel. If you're so keen on fixing e-mail, you should 
-work closely with the IETF working groups to create a new standard that 
-works.
-
-Finally, if you consider doing this, why not consider closing the 
-mailinglist to a subscription only list, that will work so much better 
-than this "free lunch" (to quote someone else)
-
-Cheers
-
-Simon
+---
+~Randy

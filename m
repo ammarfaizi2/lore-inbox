@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWFLWGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWFLWGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWFLWGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 18:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWFLWGy
+	id S932430AbWFLWGr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 18:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWFLWGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 18:06:54 -0400
-Received: from wr-out-0506.google.com ([64.233.184.232]:3157 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932432AbWFLWGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 18:06:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XArME0Tgk6x1amuEpJX7gSSajMpCoPdNsib2LrSZweNlb/gjgY+geUCidcbD387ASKtAcFefIrKMRi2revKxWyc1gPZKYmYbuQDAdzuRJ1Zj0rcbQbVG0XjutsQzBZ6St0uAgMNLG2r5kBLoelu+ZRnetylxE6mFUH90oTQXHqI=
-Message-ID: <9a8748490606121506w43c8a45yf44d0c4120ae80c@mail.gmail.com>
-Date: Tue, 13 Jun 2006 00:06:52 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: nick@linicks.net
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>,
-       "Bernd Petrovitsch" <bernd@firmix.at>,
-       "marty fouts" <mf.danger@gmail.com>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Matti Aarnio" <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <7c3341450606121410y7f2349e1y7d8ecf3f3873732@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 12 Jun 2006 18:06:47 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:63381 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S932430AbWFLWGq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 18:06:46 -0400
+Subject: Re: How long can an inode structure reside in the inode_cache?
+From: Charlie Brett <cfb@hp.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4ae3c140606091710k7a320f2ex6390d0e01da4de9b@mail.gmail.com>
+References: <4ae3c140606091710k7a320f2ex6390d0e01da4de9b@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 12 Jun 2006 16:21:57 -0600
+Message-Id: <1150150917.5631.77.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <bernd@firmix.at> <1150100843.26402.22.camel@tara.firmix.at>
-	 <200606122025.k5CKPTGB005597@laptop11.inf.utfsm.cl>
-	 <7c3341450606121410y7f2349e1y7d8ecf3f3873732@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/06/06, Nick Warne <nick.warne@gmail.com> wrote:
-> I have been following this closely, and without getting into the
-> discussion re SPF, I think one issue especially affecting LKML is the
-> traffic.
->
-> One (almost sure) fire way to stop the spam is to make a subscribed
-> ML.  But people like myself cannot/have not the resource to take on
-> the 200+ mails a day (how the kernel devs manage it, I don't know?).
->
-> So I have subscribed via my gmail account to follow the mails, but
-> then at least I can reply from my 'real address' and keep the thread
-> intact (if you see what I mean).
->
-> So, why not make the list a subscribe only list to SEND, but give an
-> option to NOT receive any mail from the list unless CC'ed?
->
+On Fri, 2006-06-09 at 20:10 -0400, Xin Zhao wrote:
+> I was wondering how Linux decide to free an inode from the
+> inode_cache? If a file is open, an inode structure will be created and
+> put into the inode_cache, but when will this inode be free and removed
+> from the inode_cache? after this file is closed? If so, this seems to
+> be inefficient.
+> 
+> Can someone tell me how Linux handle this issue?
+> 
+> Thanks,
+> Xin
 
-Making subscription to LKML a requirement would be a major barier for
-people who just want to shoot off a bug report or similar but who do
-not want to be subscribed (nor can be botherd to go through the
-motions to subscribe, or perhaps can't work out how to subscribe)...
-We want users to be able to submit bugreports to the list easily.
+As already pointed out, in the simplest case, an inode is removed from
+the in_use list and marked free in the cache when the last user closes
+it. There are certain situations where the inode cannot be marked free
+right away, because of references to it. In those cases, the inode will
+end up on the unused list, and will eventually get marked free in the
+inode cache by kswapd when the system is low on free memory.
+
+Now if your question is really, "When does the memory occupied by the
+inode get released to the general memory pool?", then the answer is when
+all the inodes of a cache page are marked free and kswapd returns the
+entire page to the memory pool.
+
+The whole process is not that inefficient, since memory is not
+"recovered" until there is a need for it. Odds are, if memory was used
+for a given type of cache, it will probably be needed again for the same
+thing. The only problem that could occur is when there are a lot of
+partially filled cache pages (e.g. pages that only contain a very few
+number of objects). It does happen, but I think it's pretty rare.
+
+If you do get into a situation where you think your system is spending a
+lot of time trying to recover memory (perhaps because it has a large
+amount of icache allocated), you could try running a process that
+requires a large amount of memory, which would force recovery. Then,
+when the process terminates, the memory would be released. This doesn't
+change the behavior, but makes it a bit more predictable.
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Charlie Brett <cfb@hp.com>
+

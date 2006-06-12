@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWFLRzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWFLR7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWFLRzN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWFLRzN
+	id S1751201AbWFLR7E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWFLR7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:55:13 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29452 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750720AbWFLRzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:55:11 -0400
-Date: Mon, 12 Jun 2006 19:55:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Emmanuel Fleury <emmanuel.fleury@labri.fr>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386: use C code for current_thread_info()
-Message-ID: <20060612175509.GC30587@stusta.de>
-References: <200606121317_MC3-1-C23A-4F2D@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606121317_MC3-1-C23A-4F2D@compuserve.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Mon, 12 Jun 2006 13:59:03 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:55828 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751201AbWFLR7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:59:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:cc:message-id:date:from;
+        b=n8wOzKJgXrzGzksNh2DaeCPcA3CbPpX/bVax+90CcFYJ0MKNlql806nzO6sRli6kWiZ4pjkIOpq9E+8QpTKUzvgWoCQ20IGe7lc38ueEbiW6qMICy1xS5wPPJwN/3Ul3grK7ZY+rlGD5vkBN2lk7h1qLs4MjtYKHNZwh9JJeEtA=
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] vfs: Support for COW files in sys_open
+Cc: akpm@osdl.org
+Message-Id: <20060612181025.597041185DC@localhost.localdomain>
+Date: Mon, 12 Jun 2006 14:10:25 -0400 (EDT)
+From: Carl Spalletta <cspalletta@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 01:14:34PM -0400, Chuck Ebbert wrote:
-> In-Reply-To: <448C85B7.1010902@labri.fr>
-> 
-> On Sun, 11 Jun 2006 23:05:59 +0200, Emmanuel Fleury wrote:
-> 
-> > > Looking at the generated code, it seems the compiler just makes dumb
-> > > choices and tends to recompute current_thread_info() in unlikely code
-> > > paths even when there is no register pressure.  4.0.2 makes better
-> > > choices.
-> >
-> > What size with gcc 4.1.2 ? (just curiosity)
-> 
-> The 3.3 vs 4.0 comparisons were with two different configs, so only
-> relative gain/loss with asm vs. C could be compared.
-> 
-> I downloaded gcc 4.1.1 and compared to 4.0.2 with the exact same config,
-> since I was curious how much better it might be overall.
-> 
-> gcc 4.0.2:
->    text	   data	    bss	    dec	    hex	filename
-> 3645212	 555556	 312024	4512792	 44dc18	2.6.17-rc6-nb-C/vmlinux
-> 3647276	 555556	 312024	4514856	 44e428	2.6.17-rc6-nb-asm/vmlinux
->   -2064
-> 
-> gcc 4.1.1:
->    text	   data	    bss	    dec	    hex	filename
-> 3614686	 520416	 311672	4446774	 43da36	2.6.17-rc6-nb-C/vmlinux
-> 3616942	 520416	 311672	4449030	 43e306	2.6.17-rc6-nb-asm/vmlinux
->   -2256
-> 
-> Kernel code starts out ~30K bytes smaller with gcc 4.1 and using C
-> for current_thread_info() helps even more than with 4.0.  Nice...
-> 
-> Maybe a patch that enables C code for gcc 4.0+ would work, since
-> on 3.3 the asm code is better?
+I need a quick heads up on the following proposal regarding adding
+support for COW files in sys_open.  The way it works is this:
 
+A self described "COW-aware" application will open files with the proposed
+O_COW flag to sys_open.  Getting back the proposed error value ECOW it
+knows it has requested write permissions on a COW file (marked as such
+by its owner with the proposed value S_COW) and it must preserve the
+contents of the original file.
 
-No.
+Applications can set their own policy on this:  For illustration,
+one policy would be if the path given to open was a symlink it can
+provisionally rename the link and open a new unlinked regular file with
+the same contents.  If anything actually gets written it just closes the
+regular file when it is done.  Otherwise it deletes the unchanged regular
+file and moves back the symlink where it was.  If the path given to open
+was a hard link it can do the same, moving aside the file and creating
+a new unlinked file, treating them both with the same logic as in the
+previous case.
 
-gcc 3.3 is still supported, and it's important that the kernel runs 
-correctly when compiled with this compiler (implying workarounds for 
-compiler bugs).
+There are probably many different policies that could be adopted, that
+is not what I am arguing about.
 
-But for best performance, people should always use the latest gcc.
-(And if there was a case where usage of the latest gcc would give a 
- worse performance, that would be a bug in gcc and/or the kernel that
- should be reported.)
+The point is, this proposal is intended as a bridge to allow COW semantics
+to be provided by applications until a final solution is agreed upon
+in the kernel.  It could in some measure serve as a testbed  for that
+hypothetical "final solution".  And files marked S_COW would remain so
+even if this proposal was to be superseded by a kernel-only approach.
 
-So unless there's a _really_ significant regression with older gcc 
-versions, adding #ifdef's for such micro optimizations is not worth it.
+Applications would not need to be concerned with the different IOCTLs
+and IOCTL args for each filesystem, or the status of individual
+filesystems with regard to implementation of the proposed S_COW
+flag. Just 'open("path",flag | O_COW)';  moreover nothing would be
+broken either in userspace or the kernel since ECOW is never returned
+from anything that does not end up passing a mask containing O_COW to
+fs/namei.c::permission(); ie, only if an application or a kernel user
+deliberately adds that flag to the mask.
 
+Original patch here:
 
-> Chuck
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+http://lkml.org/lkml/2006/6/8/213
 

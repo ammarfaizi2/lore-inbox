@@ -1,88 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWFLU1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752292AbWFLU1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWFLU1V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 16:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWFLU1V
+	id S1752292AbWFLU1x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 16:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752290AbWFLU1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 16:27:21 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:7867 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1750744AbWFLU1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 16:27:20 -0400
-Message-Id: <200606122025.k5CKPTGB005597@laptop11.inf.utfsm.cl>
-To: Bernd Petrovitsch <bernd@firmix.at>
-cc: marty fouts <mf.danger@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter) 
-In-Reply-To: Message from Bernd Petrovitsch <bernd@firmix.at> 
-   of "Mon, 12 Jun 2006 10:27:23 +0200." <1150100843.26402.22.camel@tara.firmix.at> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Mon, 12 Jun 2006 16:25:29 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 12 Jun 2006 16:25:49 -0400 (CLT)
+	Mon, 12 Jun 2006 16:27:53 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:28890 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S1752065AbWFLU1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 16:27:52 -0400
+Message-ID: <448DCE3F.8090905@sw.ru>
+Date: Tue, 13 Jun 2006 00:27:43 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060411)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ipc namespace - compilation fix
+Content-Type: multipart/mixed;
+ boundary="------------080907000503030903070107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch <bernd@firmix.at> wrote:
-> On Sat, 2006-06-10 at 19:24 -0700, marty fouts wrote:
+This is a multi-part message in MIME format.
+--------------080907000503030903070107
+Content-Type: text/plain; charset=windows-1251; format=flowed
+Content-Transfer-Encoding: 7bit
 
-[...]
+This patch fixes IPC namespace compilation when `make allnoconfig` is 
+used. Checked all 3 possible combinations of config options.
 
-> > It doesn't work.
+Thanks,
+Kirill
 
-> It works if it is used correctly (as any tool in the world).
+--------------080907000503030903070107
+Content-Type: text/plain;
+ name="diff-ipc-ns-compilation"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-ipc-ns-compilation"
 
-Right.
+diff -uprN linux-2.6.16/include/linux/init_task.h linux-2.6.16-rc6-mm1/include/linux/init_task.h
+--- linux-2.6.16/include/linux/init_task.h	2006-06-13 00:20:52.000000000 +0400
++++ linux-2.6.16-rc6-mm1/include/linux/init_task.h	2006-06-13 00:02:41.000000000 +0400
+@@ -5,6 +5,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/utsname.h>
+ #include <linux/interrupt.h>
++#include <linux/ipc.h>
+ 
+ #define INIT_FDTABLE \
+ {							\
+@@ -73,8 +74,8 @@ extern struct nsproxy init_nsproxy;
+ 	.count		= ATOMIC_INIT(1),				\
+ 	.nslock		= SPIN_LOCK_UNLOCKED,				\
+ 	.uts_ns		= &init_uts_ns,					\
+-	.ipc_ns		= &init_ipc_ns,					\
+ 	.namespace	= NULL,						\
++	INIT_IPC_NS(ipc_ns)						\
+ }
+ 
+ #define INIT_SIGHAND(sighand) {						\
+diff -uprN linux-2.6.16/include/linux/ipc.h linux-2.6.16-rc6-mm1/include/linux/ipc.h
+--- linux-2.6.16/include/linux/ipc.h	2006-06-13 00:20:52.000000000 +0400
++++ linux-2.6.16-rc6-mm1/include/linux/ipc.h	2006-06-13 00:04:41.000000000 +0400
+@@ -88,20 +88,38 @@ struct ipc_namespace {
+ };
+ 
+ extern struct ipc_namespace init_ipc_ns;
++
++#ifdef CONFIG_SYSVIPC
++#define INIT_IPC_NS(ns)		.ns		= &init_ipc_ns,
++#else
++#define INIT_IPC_NS(ns)	
++#endif
++
++#ifdef CONFIG_IPC_NS
+ extern void free_ipc_ns(struct kref *kref);
+ extern int copy_ipcs(unsigned long flags, struct task_struct *tsk);
+ extern int unshare_ipcs(unsigned long flags, struct ipc_namespace **ns);
++#else
++static inline int copy_ipcs(unsigned long flags, struct task_struct *tsk)
++{
++	return 0;
++}
++#endif
+ 
+ static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
+ {
++#ifdef CONFIG_IPC_NS
+ 	if (ns)
+ 		kref_get(&ns->kref);
++#endif
+ 	return ns;
+ }
+ 
+ static inline void put_ipc_ns(struct ipc_namespace *ns)
+ {
++#ifdef CONFIG_IPC_NS
+ 	kref_put(&ns->kref, free_ipc_ns);
++#endif
+ }
+ 
+ #endif /* __KERNEL__ */
+diff -uprN linux-2.6.16/ipc/util.c linux-2.6.16-rc6-mm1/ipc/util.c
+--- linux-2.6.16/ipc/util.c	2006-06-13 00:21:04.000000000 +0400
++++ linux-2.6.16-rc6-mm1/ipc/util.c	2006-06-12 23:39:11.000000000 +0400
+@@ -145,21 +145,6 @@ void free_ipc_ns(struct kref *kref)
+ 	shm_exit_ns(ns);
+ 	kfree(ns);
+ }
+-#else
+-int unshare_ipcs(unsigned long flags, struct ipc_namespace **ns)
+-{
+-	return -EINVAL;
+-}
+-
+-int copy_ipcs(unsigned long flags, struct task_struct *tsk)
+-{
+-	return 0;
+-}
+-
+-void free_ipc_ns(struct kref *kref)
+-{
+-	BUG(); /* init_ipc_ns should never be put */
+-}
+ #endif
+ 
+ /**
+diff -uprN linux-2.6.16/kernel/fork.c linux-2.6.16-rc6-mm1/kernel/fork.c
+--- linux-2.6.16/kernel/fork.c	2006-06-13 00:20:52.000000000 +0400
++++ linux-2.6.16-rc6-mm1/kernel/fork.c	2006-06-12 23:51:16.000000000 +0400
+@@ -1573,6 +1573,16 @@ static int unshare_semundo(unsigned long
+ 	return 0;
+ }
+ 
++#ifndef CONFIG_IPC_NS
++static inline int unshare_ipcs(unsigned long flags, struct ipc_namespace **ns)
++{
++	if (flags & CLONE_NEWIPC)
++		return -EINVAL;
++
++	return 0;
++}
++#endif
++
+ /*
+  * unshare allows a process to 'unshare' part of the process
+  * context which was originally shared using clone.  copy_*
 
-> The "problem" is that postmasters on the Net must do something
-
-It took /years/ until open relays weren't common anymore... and that is a
-/simple/ measure, on by default in newer upstream packages, no admin
-intervention required. DNS works badly, here in Chile a mayor ISP had a
-totally broken setup for many years.
-
->                                                                (namely
-> 1) define if they want to allow others to detect forged emails claimed
-> to come from their domain
-
-They have /very/ little to gain by that, and setting it up correctly is a
-mayor hassle. It breaks people sending mail "from" the domain when they
-aren't there (this is rather common for people on the road), and has no
-real fix. I.e., it won't ever be done. Or it will be tried, some email from
-Big Cheese doesn't go through, and it will be axed.
-
->                           and 2) - if yes to 1) - to get appropriate SPF
-> records into DNS)
-
-Many people have no (or very little) control over their DNS data. A spammer
-can then just claim it comes from one of the millions of SPF-less domains
-in the world (if they don't set up their own SPFied one...). Besides,
-discussions on the spamassassin lists show that SPFied email is a rather
-reliable indicator of spam as things stand today...
-
->                   and people must either use a "good" mail relay (and
-> not just the one next door) or convince postmasters to change the SPF
-> records.
-
-Won't happen.
-
-> > It'll break standard-abiding email.
-
-> As you see, standards change.
-
-Yep. But SPF breaks email, not just changes the standard. For no gain at all.
-
-> > Do you really want that?
-
-> Yes. Especially gmail.com should do such a thing - there is such a lot
-> of - presumbly forged - @gmail.com mails in my mailboxes that
-> blacklisting the whole domain causes probably more good than bad (for
-> me, of course).
-
-There is spam that really comes from gmail...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+--------------080907000503030903070107--

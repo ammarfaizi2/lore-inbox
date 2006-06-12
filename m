@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751838AbWFLKgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWFLKmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751838AbWFLKgp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 06:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWFLKgp
+	id S1751361AbWFLKmc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 06:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWFLKmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 06:36:45 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:39629 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751822AbWFLKgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 06:36:44 -0400
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Matthias Andree <matthias.andree@gmx.de>, Avi Kivity <avi@argo.co.il>,
-       Rik van Riel <riel@redhat.com>, Theodore Tso <tytso@mit.edu>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <17549.16182.237312.734481@cse.unsw.edu.au>
-References: <Pine.LNX.4.64.0606110952560.29891@cuia.boston.redhat.com>
-	 <448C2298.5000409@argo.co.il> <20060612084739.GD11649@merlin.emma.line.org>
-	 <17549.16182.237312.734481@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 11:35:52 +0100
-Message-Id: <1150108552.8184.30.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 12 Jun 2006 06:42:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25769 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751361AbWFLKmc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 06:42:32 -0400
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org, paulmck@us.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Another couple of alterations to the memory barrier doc
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 12 Jun 2006 11:42:11 +0100
+Message-ID: <10587.1150108931@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 20:17 +1000, Neil Brown wrote:
-> If you get a letter from your aunt in Rome, and it is post-marked
-> 'Moscow', you might doubt the authenticity.
 
-If my aunt lives in Rome but I get a postcard (or even a letter) from
-her in Moscow, are you suggesting I should consign it to the dustbin
-unread? That's what the SPF folks seem to want, and it works no better
-in your snail mail analogy than it does in real life.
+The attached patch makes another couple of alterations to the memory barrier
+document following suggestions by Alan Stern and in co-operation with Paul
+McKenney:
 
-People travel. Mail gets forwarded.
+ (*) Rework the point of introduction of memory barriers and the description
+     of what they are to reiterate why they're needed.
 
->   If it claims to be from your swiss bank with the same post mark you
-> would doubt it even more. 
+ (*) Modify a statement about the use of data dependency barriers to note that
+     other barriers can be used instead (as they imply DD-barriers).
 
-In the case of mail from my bank, if it _had_ a postmark rather than
-being pre-paid I would be suspicious.
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 /tmp/mb.diff 
+ Documentation/memory-barriers.txt |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-The SPF folks would have me refuse mail from claiming to be from the
-bank because it's actually delivered by my postman, and he doesn't work
-for the bank therefore it must be a "forgery" (using their new
-definition of that term).
-
-Meanwhile, in the real world, I don't want to throw away valid mail. And
-there are better ways of avoiding fakes, too. 
-
-ObVger: we should probably enable sender verification callouts, if
-they're not being done already. There's no justification for accepting
-mail from an address which doesn't accept bounces. That would combat
-forgery in a much saner manner.
-
--- 
-dwmw2
-
+diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
+index 4710845..cc53f47 100644
+--- a/Documentation/memory-barriers.txt
++++ b/Documentation/memory-barriers.txt
+@@ -262,9 +262,14 @@ What is required is some way of interven
+ CPU to restrict the order.
+ 
+ Memory barriers are such interventions.  They impose a perceived partial
+-ordering between the memory operations specified on either side of the barrier.
+-They request that the sequence of memory events generated appears to other
+-parts of the system as if the barrier is effective on that CPU.
++ordering over the memory operations on either side of the barrier.
++
++Such enforcement is important because the CPUs and other devices in a system
++can use a variety of tricks to improve performance - including reordering,
++deferral and combination of memory operations; speculative loads; speculative
++branch prediction and various types of caching.  Memory barriers are used to
++override or suppress these tricks, allowing the code to sanely control the
++interaction of multiple CPUs and/or devices.
+ 
+ 
+ VARIETIES OF MEMORY BARRIER
+@@ -461,8 +466,8 @@ Whilst this may seem like a failure of c
+ isn't, and this behaviour can be observed on certain real CPUs (such as the DEC
+ Alpha).
+ 
+-To deal with this, a data dependency barrier must be inserted between the
+-address load and the data load:
++To deal with this, a data dependency barrier or better must be inserted
++between the address load and the data load:
+ 
+ 	CPU 1		CPU 2
+ 	===============	===============

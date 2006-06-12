@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751908AbWFLMW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751907AbWFLMWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751908AbWFLMW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 08:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbWFLMW3
+	id S1751907AbWFLMWx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 08:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWFLMWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 08:22:29 -0400
-Received: from mail-gw2.sa.eol.hu ([212.108.200.109]:15527 "EHLO
-	mail-gw2.sa.eol.hu") by vger.kernel.org with ESMTP id S1751905AbWFLMW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 08:22:29 -0400
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH 0/7] fuse: file locking + misc
-Message-Id: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 12 Jun 2006 14:21:49 +0200
+	Mon, 12 Jun 2006 08:22:53 -0400
+Received: from mail.suse.de ([195.135.220.2]:54722 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751907AbWFLMWw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 08:22:52 -0400
+To: "Robin H. Johnson" <robbat2@gentoo.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org,
+       hugh@veritas.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs time granularity fix for [acm]time going backwards. Also VFS time granularity bug on creat(). (Repost, more content)
+References: <20060611115421.GE26475@curie-int.vc.shawcable.net>
+From: Andi Kleen <ak@suse.de>
+Date: 12 Jun 2006 14:22:50 +0200
+In-Reply-To: <20060611115421.GE26475@curie-int.vc.shawcable.net>
+Message-ID: <p73ac8isgv9.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patches add POSIX file locking to the fuse interface.
+"Robin H. Johnson" <robbat2@gentoo.org> writes:
 
-Additional changes ralated to this are:
+> [Please CC me on replies].
+> 
+> This patch should probably be included for 2.6.17, despite how long the
+> bug has been around. It's a one-liner, with no side-effects.
 
-  - asynchronous interrupt of requests by SIGKILL no longer supported
+Agreed. Good catch.
 
-  - separate control filesystem, instead of using sysfs objects
+That was my bug when doing the conversion - but for my defense
+having file systems outside fs/* is error prone.
 
-  - add support for synchronously interrupting requests
+Can we perhaps move tmpfs or at least the fs parts of shmem.c
+into fs/ in the future?  (the file is too big anyways)
 
-Details are documented in Documentation/filesystems/fuse.txt
-throughout the patches.
-
-Note: this series depends on
-
-  vfs-add-lock-owner-argument-to-flush-operation.patch
-
-to compile and to some extent on
-
-  remove-steal_locks.patch
-
-to work correctly.
-
-Miklos
+-Andi

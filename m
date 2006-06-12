@@ -1,99 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWFLG4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWFLG6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWFLG4l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 02:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFLG4l
+	id S1751389AbWFLG6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 02:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWFLG6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 02:56:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:54439 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751094AbWFLG4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 02:56:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:user-agent:mime-version:to:subject:content-type:content-transfer-encoding:from;
-        b=KWloRC+c5ztmenWhMlmbp8AS/C6a9/o0HZ7U7u1BLWhFYafgwCeD9z++hfVNrzWsmQv3o8aQhHfyT2128nWBdNyJZnuatqR/3Djgc2XLkr6dHhQMXf4mDuWTgRfZsMj5Mb9zzeaC21dArQ0JQRSDoduoOul34GZGjoBv+7bdOZU=
-Message-ID: <448D1117.8010407@innova-card.com>
-Date: Mon, 12 Jun 2006 09:00:39 +0200
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: apw@shadowen.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: Franck Bui-Huu <fbh.work@gmail.com>
+	Mon, 12 Jun 2006 02:58:16 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:31380 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751389AbWFLG6P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 02:58:15 -0400
+Date: Mon, 12 Jun 2006 08:57:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Valdis.Kletnieks@vt.edu,
+       Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       arjan@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: [patch] undo AF_UNIX _bh locking changes and split lock-type instead
+Message-ID: <20060612065701.GA24213@elte.hu>
+References: <200606060250.k562oCrA004583@turing-police.cc.vt.edu> <44852819.2080503@gmail.com> <4485798B.4030007@s5r6.in-berlin.de> <4485AFB9.3040005@s5r6.in-berlin.de> <20060607071208.GA1951@gondor.apana.org.au> <20060612063807.GA23939@elte.hu> <20060612064122.GA1101@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060612064122.GA1101@gondor.apana.org.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Is it me or the use of CONFIG_SPARSEMEM_EXTREME is really confusing in
-mm/sparce.c ? Shouldn't we use CONFIG_SPARSEMEM_STATIC instead like
-the following patch suggests ?
+* Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
--- >8 --
-Subject: [PATCH] Remove confusing uses of SPARSEMEM_EXTREME
+> > Maybe it's enough to introduce a separate key for AF_UNIX alone (and 
+> > still having all other protocols share the locking rules for 
+> > sk_receive_queue.lock) , by reinitializing its spinlock after 
+> > sock_init_data()?
+> 
+> This could work.  AF_UNIX is probably the only family that does not 
+> interact with hardware.
 
-CONFIG_SPARSEMEM_EXTREME is used in sparce.c whereas
-CONFIG_SPARSEMEM_STATIC seems to be more appropriate.
+ok, great. The patch below does the trick on my box.
 
-Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com> 
+regarding your point wrt. path of integration - it is pretty much the 
+only practical way to do this centrally as part of the lock validator 
+patches, but to collect ACKs from subsystem maintainers in the process. 
+So if you like it i'd like to have your ACK but this patch depends on 
+the other lock validator patches (and only makes sense together with 
+them), so they should temporarily stay in the lock validator queue. 
+Hopefully this wont be a state that lasts too long and once the 
+validator is upstream, all patches of course go via the subsystem 
+submission rules.
 
+(the #ifdef LOCKDEP should probably be converted to some sort of 
+lockdep_split_lock_key(&sk->sk_receive_queue.lock) op - i'll do that 
+later)
+
+	Ingo
+
+------
+Subject: undo AF_UNIX _bh locking changes and split lock-type instead
+From: Ingo Molnar <mingo@elte.hu>
+
+this cleans up lock-validator-special-locking-af_unix.patch: instead
+of adding _bh locking to AF_UNIX, this patch splits their
+sk_receive_queue.lock type from the other networking skb-queue locks.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
+ net/unix/af_unix.c |   17 +++++++++++++----
+ net/unix/garbage.c |    8 ++++----
+ 2 files changed, 17 insertions(+), 8 deletions(-)
 
-include/linux/mmzone.h |    2 +-
-mm/sparse.c            |    6 +++---
-2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-index ebfc238..35f38b0 100644
---- a/include/linux/mmzone.h
-+++ b/include/linux/mmzone.h
-@@ -551,7 +551,7 @@ #define SECTION_NR_TO_ROOT(sec)	((sec) /
- #define NR_SECTION_ROOTS	(NR_MEM_SECTIONS / SECTIONS_PER_ROOT)
- #define SECTION_ROOT_MASK	(SECTIONS_PER_ROOT - 1)
+Index: linux/net/unix/af_unix.c
+===================================================================
+--- linux.orig/net/unix/af_unix.c
++++ linux/net/unix/af_unix.c
+@@ -557,6 +557,15 @@ static struct sock * unix_create1(struct
+ 	atomic_inc(&unix_nr_socks);
  
--#ifdef CONFIG_SPARSEMEM_EXTREME
-+#ifndef CONFIG_SPARSEMEM_STATIC
- extern struct mem_section *mem_section[NR_SECTION_ROOTS];
- #else
- extern struct mem_section mem_section[NR_SECTION_ROOTS][SECTIONS_PER_ROOT];
-diff --git a/mm/sparse.c b/mm/sparse.c
-index 0a51f36..341d935 100644
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -16,7 +16,7 @@ #include <asm/dma.h>
-  *
-  * 1) mem_section	- memory sections, mem_map's for valid memory
-  */
--#ifdef CONFIG_SPARSEMEM_EXTREME
-+#ifndef CONFIG_SPARSEMEM_STATIC
- struct mem_section *mem_section[NR_SECTION_ROOTS]
- 	____cacheline_internodealigned_in_smp;
- #else
-@@ -25,7 +25,7 @@ struct mem_section mem_section[NR_SECTIO
- #endif
- EXPORT_SYMBOL(mem_section);
+ 	sock_init_data(sock,sk);
++#ifdef CONFIG_LOCKDEP
++	/*
++	 * AF_UNIX sockets do not interact with hardware, hence they
++	 * dont trigger interrupts - so it's safe for them to have
++	 * bh-unsafe locking for their sk_receive_queue.lock. Split off
++	 * this special lock-type by reinitializing the spinlock.
++	 */
++	spin_lock_init(&sk->sk_receive_queue.lock);
++#endif
  
--#ifdef CONFIG_SPARSEMEM_EXTREME
-+#ifndef CONFIG_SPARSEMEM_STATIC
- static struct mem_section *sparse_index_alloc(int nid)
- {
- 	struct mem_section *section = NULL;
-@@ -67,7 +67,7 @@ out:
- 	spin_unlock(&index_init_lock);
- 	return ret;
- }
--#else /* !SPARSEMEM_EXTREME */
-+#else /* SPARSEMEM_STATIC */
- static inline int sparse_index_init(unsigned long section_nr, int nid)
- {
- 	return 0;
--- 
-1.3.3.g8701
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+ 	sk->sk_write_space	= unix_write_space;
+ 	sk->sk_max_ack_backlog	= sysctl_unix_max_dgram_qlen;
+@@ -1073,12 +1082,12 @@ restart:
+ 	unix_state_wunlock(sk);
+ 
+ 	/* take ten and and send info to listening sock */
+-	spin_lock_bh(&other->sk_receive_queue.lock);
++	spin_lock(&other->sk_receive_queue.lock);
+ 	__skb_queue_tail(&other->sk_receive_queue, skb);
+ 	/* Undo artificially decreased inflight after embrion
+ 	 * is installed to listening socket. */
+ 	atomic_inc(&newu->inflight);
+-	spin_unlock_bh(&other->sk_receive_queue.lock);
++	spin_unlock(&other->sk_receive_queue.lock);
+ 	unix_state_runlock(other);
+ 	other->sk_data_ready(other, 0);
+ 	sock_put(other);
+@@ -1843,7 +1852,7 @@ static int unix_ioctl(struct socket *soc
+ 				break;
+ 			}
+ 
+-			spin_lock_bh(&sk->sk_receive_queue.lock);
++			spin_lock(&sk->sk_receive_queue.lock);
+ 			if (sk->sk_type == SOCK_STREAM ||
+ 			    sk->sk_type == SOCK_SEQPACKET) {
+ 				skb_queue_walk(&sk->sk_receive_queue, skb)
+@@ -1853,7 +1862,7 @@ static int unix_ioctl(struct socket *soc
+ 				if (skb)
+ 					amount=skb->len;
+ 			}
+-			spin_unlock_bh(&sk->sk_receive_queue.lock);
++			spin_unlock(&sk->sk_receive_queue.lock);
+ 			err = put_user(amount, (int __user *)arg);
+ 			break;
+ 		}
+Index: linux/net/unix/garbage.c
+===================================================================
+--- linux.orig/net/unix/garbage.c
++++ linux/net/unix/garbage.c
+@@ -235,7 +235,7 @@ void unix_gc(void)
+ 		struct sock *x = pop_stack();
+ 		struct sock *sk;
+ 
+-		spin_lock_bh(&x->sk_receive_queue.lock);
++		spin_lock(&x->sk_receive_queue.lock);
+ 		skb = skb_peek(&x->sk_receive_queue);
+ 		
+ 		/*
+@@ -270,7 +270,7 @@ void unix_gc(void)
+ 				maybe_unmark_and_push(skb->sk);
+ 			skb=skb->next;
+ 		}
+-		spin_unlock_bh(&x->sk_receive_queue.lock);
++		spin_unlock(&x->sk_receive_queue.lock);
+ 		sock_put(x);
+ 	}
+ 
+@@ -283,7 +283,7 @@ void unix_gc(void)
+ 		if (u->gc_tree == GC_ORPHAN) {
+ 			struct sk_buff *nextsk;
+ 
+-			spin_lock_bh(&s->sk_receive_queue.lock);
++			spin_lock(&s->sk_receive_queue.lock);
+ 			skb = skb_peek(&s->sk_receive_queue);
+ 			while (skb &&
+ 			       skb != (struct sk_buff *)&s->sk_receive_queue) {
+@@ -298,7 +298,7 @@ void unix_gc(void)
+ 				}
+ 				skb = nextsk;
+ 			}
+-			spin_unlock_bh(&s->sk_receive_queue.lock);
++			spin_unlock(&s->sk_receive_queue.lock);
+ 		}
+ 		u->gc_tree = GC_ORPHAN;
+ 	}

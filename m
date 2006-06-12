@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWFLECP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWFLEtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWFLECP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 00:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWFLECP
+	id S1750837AbWFLEtR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 00:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWFLEtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 00:02:15 -0400
-Received: from stats.hypersurf.com ([209.237.0.12]:19716 "EHLO
-	stats.hypersurf.com") by vger.kernel.org with ESMTP
-	id S1751270AbWFLECO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 00:02:14 -0400
-Message-ID: <029801c68dd5$1e8ee6f0$1200a8c0@GMM>
-From: "HighPoint Linux Team" <linux@highpoint-tech.com>
-To: "James Bottomley" <James.Bottomley@SteelEye.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       <akpm@osdl.org>
-References: <200606111706.52930.linux@highpoint-tech.com> <200606111918.08529.linux@highpoint-tech.com> <1150038042.4128.11.camel@mulgrave.il.steeleye.com>
-Subject: Re: [PATCH] hptiop: HighPoint RocketRAID 3xxx controller driver
-Date: Mon, 12 Jun 2006 12:03:01 +0800
+	Mon, 12 Jun 2006 00:49:17 -0400
+Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:5768 "HELO
+	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750837AbWFLEtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 00:49:17 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Patch for atkbd.c from Ubuntu
+Date: Mon, 12 Jun 2006 00:49:13 -0400
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20060524113139.e457d3a8.zaitcev@redhat.com> <200605290059.32302.dtor_core@ameritech.net> <20060528233420.9de79795.zaitcev@redhat.com>
+In-Reply-To: <20060528233420.9de79795.zaitcev@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="gb2312"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+Content-Disposition: inline
+Message-Id: <200606120049.13974.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
->> Should host->can_queue be set to (cmd_per_lun * max_lun) ?
+On Monday 29 May 2006 02:34, Pete Zaitcev wrote:
+> On Mon, 29 May 2006 00:59:31 -0400, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> 
+> > 	http://bugzilla.kernel.org/show_bug.cgi?id=2817#c4
+> 
+> Thanks for letting me know, especially the reference.
 >
-> It depends on how the controller behaves.  Setting can_queue and
-> cmd_per_lun tends to work for most SCSI controllers because the 
-> actual scsi devices have queue depths << this number.  If your 
-> controller will behave like this (i.e. will not allow the internal
-> queue for a single lun to fill up to this depth) then you can keep
-> this setting (although, again, since this is probably fixed by the
-> firmware, you want to set cmd_per_lun to this value to avoid
-> excessive QUEUE_FULL returns). If the controller will happily load
-> all the available slots up for a single lun, then you might want
-> to think about reducing cmd_per_lun to some fraction of can_queue
-> (you could even set it to can_queue - 2 like the 3ware controller).
 
-The hptiop firmware works as the latter case. Should it be modified
-like this:
-  host->can_queue = le32_to_cpu(iop_config.max_requests);
-- host->cmd_per_lun = le32_to_cpu(iop_config.max_requests);
-+ host->cmd_per_lun = host->can_queue - 2;
+Pete,
 
-While the 3ware driver sets both can_queue and cmd_per_lun to 254:
+I am backpedaling on that problem. It seems that HANGUEL/HANJA scancodes are
+pretty well-defined an we need to make them work properly. Please look here
+for the proposed patch:
 
-(3w-9xxx.h)
-#define TW_Q_LENGTH           256
-#define TW_MAX_CMDS_PER_LUN   254
+	http://bugzilla.kernel.org/show_bug.cgi?id=6642
 
-(3w-9xxx.c)
-.can_queue   = TW_Q_LENGTH-2,
-.cmd_per_lun = TW_MAX_CMDS_PER_LUN
-
-Should can_queue be set to TW_Q_LENGTH ?
-
-HighPoint Linux Team
-
+-- 
+Dmitry

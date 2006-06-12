@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWFLVNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWFLVUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWFLVNk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752064AbWFLVNf
+	id S932313AbWFLVUO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWFLVNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:13:35 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44719 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751099AbWFLVNV (ORCPT
+	Mon, 12 Jun 2006 17:13:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41903 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751517AbWFLVNN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:13:21 -0400
-Date: Mon, 12 Jun 2006 14:13:10 -0700 (PDT)
+	Mon, 12 Jun 2006 17:13:13 -0400
+Date: Mon, 12 Jun 2006 14:13:00 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
@@ -17,273 +17,205 @@ Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20060612211310.20862.738.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060612211300.20862.49020.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 05/21] Conversion of nr_pagecache to per zone counter
+Subject: [PATCH 03/21] Convert nr_mapped to per zone counter
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: zoned vm counters: conversion of nr_pagecache to per zone counter
+Subject: zoned vm counters: conversion of nr_mapped to per zone counter
 From: Christoph Lameter <clameter@sgi.com>
 
-Currently a single atomic variable is used to establish the size of the page
-cache in the whole machine. The zoned VM counters have the same method of
-implementation as the nr_pagecache code but also allow the determination of
-the pagecache size per zone.
+nr_mapped is important because it allows a determination how many pages of a
+zone are not mapped, which would allow a more efficient means of determining
+when we need to reclaim memory in a zone.
 
-Remove the special implementation for nr_pagecache and make it a zoned
-counter.
+We take the nr_mapped field out of the page state structure and define a new
+per zone counter named NR_MAPPED.
 
-Updates of the page cache counters are always performed with interrupts off.
-We can therefore use the __ variant here.
+We replace the use of nr_mapped in various kernel locations.  This avoids the
+looping over all processors in try_to_free_pages(), writeback, reclaim (swap +
+zone reclaim).
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-Index: linux-2.6.17-rc6-cl/arch/sparc64/kernel/sys_sunos32.c
+Index: linux-2.6.17-rc6-cl/arch/i386/mm/pgtable.c
 ===================================================================
---- linux-2.6.17-rc6-cl.orig/arch/sparc64/kernel/sys_sunos32.c	2006-06-12 12:42:42.240680230 -0700
-+++ linux-2.6.17-rc6-cl/arch/sparc64/kernel/sys_sunos32.c	2006-06-12 13:00:50.575648675 -0700
-@@ -155,7 +155,7 @@ asmlinkage int sunos_brk(u32 baddr)
- 	 * simple, it hopefully works in most obvious cases.. Easy to
- 	 * fool it, but this should catch most mistakes.
- 	 */
--	freepages = get_page_cache_size();
-+	freepages = global_page_state(NR_PAGECACHE);
- 	freepages >>= 1;
- 	freepages += nr_free_pages();
- 	freepages += nr_swap_pages;
-Index: linux-2.6.17-rc6-cl/arch/sparc/kernel/sys_sunos.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/arch/sparc/kernel/sys_sunos.c	2006-06-12 12:42:42.249468748 -0700
-+++ linux-2.6.17-rc6-cl/arch/sparc/kernel/sys_sunos.c	2006-06-12 13:00:50.577601679 -0700
-@@ -196,7 +196,7 @@ asmlinkage int sunos_brk(unsigned long b
- 	 * simple, it hopefully works in most obvious cases.. Easy to
- 	 * fool it, but this should catch most mistakes.
- 	 */
--	freepages = get_page_cache_size();
-+	freepages = global_page_state(NR_PAGECACHE);
- 	freepages >>= 1;
- 	freepages += nr_free_pages();
- 	freepages += nr_swap_pages;
-Index: linux-2.6.17-rc6-cl/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/fs/proc/proc_misc.c	2006-06-12 12:57:23.383401642 -0700
-+++ linux-2.6.17-rc6-cl/fs/proc/proc_misc.c	2006-06-12 13:00:50.578578181 -0700
-@@ -142,7 +142,8 @@ static int meminfo_read_proc(char *page,
- 	allowed = ((totalram_pages - hugetlb_total_pages())
- 		* sysctl_overcommit_ratio / 100) + total_swap_pages;
- 
--	cached = get_page_cache_size() - total_swapcache_pages - i.bufferram;
-+	cached = global_page_state(NR_PAGECACHE) -
-+			total_swapcache_pages - i.bufferram;
- 	if (cached < 0)
- 		cached = 0;
- 
-Index: linux-2.6.17-rc6-cl/include/linux/pagemap.h
-===================================================================
---- linux-2.6.17-rc6-cl.orig/include/linux/pagemap.h	2006-06-12 12:42:50.853428498 -0700
-+++ linux-2.6.17-rc6-cl/include/linux/pagemap.h	2006-06-12 13:00:50.579554683 -0700
-@@ -115,51 +115,6 @@ int add_to_page_cache_lru(struct page *p
- extern void remove_from_page_cache(struct page *page);
- extern void __remove_from_page_cache(struct page *page);
- 
--extern atomic_t nr_pagecache;
--
--#ifdef CONFIG_SMP
--
--#define PAGECACHE_ACCT_THRESHOLD        max(16, NR_CPUS * 2)
--DECLARE_PER_CPU(long, nr_pagecache_local);
--
--/*
-- * pagecache_acct implements approximate accounting for pagecache.
-- * vm_enough_memory() do not need high accuracy. Writers will keep
-- * an offset in their per-cpu arena and will spill that into the
-- * global count whenever the absolute value of the local count
-- * exceeds the counter's threshold.
-- *
-- * MUST be protected from preemption.
-- * current protection is mapping->page_lock.
-- */
--static inline void pagecache_acct(int count)
--{
--	long *local;
--
--	local = &__get_cpu_var(nr_pagecache_local);
--	*local += count;
--	if (*local > PAGECACHE_ACCT_THRESHOLD || *local < -PAGECACHE_ACCT_THRESHOLD) {
--		atomic_add(*local, &nr_pagecache);
--		*local = 0;
--	}
--}
--
--#else
--
--static inline void pagecache_acct(int count)
--{
--	atomic_add(count, &nr_pagecache);
--}
--#endif
--
--static inline unsigned long get_page_cache_size(void)
--{
--	int ret = atomic_read(&nr_pagecache);
--	if (unlikely(ret < 0))
--		ret = 0;
--	return ret;
--}
--
- /*
-  * Return byte-offset into filesystem object for page.
-  */
-Index: linux-2.6.17-rc6-cl/mm/filemap.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/filemap.c	2006-06-12 12:42:52.024254482 -0700
-+++ linux-2.6.17-rc6-cl/mm/filemap.c	2006-06-12 13:00:50.581507687 -0700
-@@ -126,7 +126,7 @@ void __remove_from_page_cache(struct pag
- 	radix_tree_delete(&mapping->page_tree, page->index);
- 	page->mapping = NULL;
- 	mapping->nrpages--;
--	pagecache_acct(-1);
-+	__dec_zone_page_state(page, NR_PAGECACHE);
+--- linux-2.6.17-rc6-cl.orig/arch/i386/mm/pgtable.c	2006-06-05 17:57:02.000000000 -0700
++++ linux-2.6.17-rc6-cl/arch/i386/mm/pgtable.c	2006-06-12 12:57:23.381448638 -0700
+@@ -61,7 +61,7 @@ void show_mem(void)
+ 	get_page_state(&ps);
+ 	printk(KERN_INFO "%lu pages dirty\n", ps.nr_dirty);
+ 	printk(KERN_INFO "%lu pages writeback\n", ps.nr_writeback);
+-	printk(KERN_INFO "%lu pages mapped\n", ps.nr_mapped);
++	printk(KERN_INFO "%lu pages mapped\n", global_page_state(NR_MAPPED));
+ 	printk(KERN_INFO "%lu pages slab\n", ps.nr_slab);
+ 	printk(KERN_INFO "%lu pages pagetables\n", ps.nr_page_table_pages);
  }
- EXPORT_SYMBOL(__remove_from_page_cache);
- 
-@@ -424,7 +424,7 @@ int add_to_page_cache(struct page *page,
- 			page->mapping = mapping;
- 			page->index = offset;
- 			mapping->nrpages++;
--			pagecache_acct(1);
-+			__inc_zone_page_state(page, NR_PAGECACHE);
- 		}
- 		write_unlock_irq(&mapping->tree_lock);
- 		radix_tree_preload_end();
-Index: linux-2.6.17-rc6-cl/mm/mmap.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/mmap.c	2006-06-12 12:42:52.037925511 -0700
-+++ linux-2.6.17-rc6-cl/mm/mmap.c	2006-06-12 13:00:50.582484189 -0700
-@@ -96,7 +96,7 @@ int __vm_enough_memory(long pages, int c
- 	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
- 		unsigned long n;
- 
--		free = get_page_cache_size();
-+		free = global_page_state(NR_PAGECACHE);
- 		free += nr_swap_pages;
- 
- 		/*
-Index: linux-2.6.17-rc6-cl/mm/nommu.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/nommu.c	2006-06-05 17:57:02.000000000 -0700
-+++ linux-2.6.17-rc6-cl/mm/nommu.c	2006-06-12 13:00:50.583460691 -0700
-@@ -1122,7 +1122,7 @@ int __vm_enough_memory(long pages, int c
- 	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
- 		unsigned long n;
- 
--		free = get_page_cache_size();
-+		free = global_page_state(NR_PAGECACHE);
- 		free += nr_swap_pages;
- 
- 		/*
-Index: linux-2.6.17-rc6-cl/mm/page_alloc.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/page_alloc.c	2006-06-12 12:57:23.385354646 -0700
-+++ linux-2.6.17-rc6-cl/mm/page_alloc.c	2006-06-12 13:00:50.584437193 -0700
-@@ -2231,16 +2231,11 @@ static int page_alloc_cpu_notify(struct 
- 				 unsigned long action, void *hcpu)
- {
- 	int cpu = (unsigned long)hcpu;
--	long *count;
- 	unsigned long *src, *dest;
- 
- 	if (action == CPU_DEAD) {
- 		int i;
- 
--		/* Drain local pagecache count. */
--		count = &per_cpu(nr_pagecache_local, cpu);
--		atomic_add(*count, &nr_pagecache);
--		*count = 0;
- 		local_irq_disable();
- 		__drain_pages(cpu);
- 
-Index: linux-2.6.17-rc6-cl/mm/swap_state.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/swap_state.c	2006-06-12 12:42:52.062338063 -0700
-+++ linux-2.6.17-rc6-cl/mm/swap_state.c	2006-06-12 13:00:50.585413695 -0700
-@@ -89,7 +89,7 @@ static int __add_to_swap_cache(struct pa
- 			SetPageSwapCache(page);
- 			set_page_private(page, entry.val);
- 			total_swapcache_pages++;
--			pagecache_acct(1);
-+			__inc_zone_page_state(page, NR_PAGECACHE);
- 		}
- 		write_unlock_irq(&swapper_space.tree_lock);
- 		radix_tree_preload_end();
-@@ -135,7 +135,7 @@ void __delete_from_swap_cache(struct pag
- 	set_page_private(page, 0);
- 	ClearPageSwapCache(page);
- 	total_swapcache_pages--;
--	pagecache_acct(-1);
-+	__dec_zone_page_state(page, NR_PAGECACHE);
- 	INC_CACHE_INFO(del_total);
- }
- 
-Index: linux-2.6.17-rc6-cl/include/linux/mmzone.h
-===================================================================
---- linux-2.6.17-rc6-cl.orig/include/linux/mmzone.h	2006-06-12 12:57:23.383401642 -0700
-+++ linux-2.6.17-rc6-cl/include/linux/mmzone.h	2006-06-12 13:00:50.585413695 -0700
-@@ -49,7 +49,7 @@ struct zone_padding {
- enum zone_stat_item {
- 	NR_MAPPED,	/* mapped into pagetables.
- 			   only modified from process context */
--
-+	NR_PAGECACHE,
- 	NR_STAT_ITEMS };
- 
- struct per_cpu_pages {
-Index: linux-2.6.17-rc6-cl/arch/s390/appldata/appldata_mem.c
-===================================================================
---- linux-2.6.17-rc6-cl.orig/arch/s390/appldata/appldata_mem.c	2006-06-12 12:42:42.183066607 -0700
-+++ linux-2.6.17-rc6-cl/arch/s390/appldata/appldata_mem.c	2006-06-12 13:00:50.586390197 -0700
-@@ -130,7 +130,8 @@ static void appldata_get_mem_data(void *
- 	mem_data->totalhigh = P2K(val.totalhigh);
- 	mem_data->freehigh  = P2K(val.freehigh);
- 	mem_data->bufferram = P2K(val.bufferram);
--	mem_data->cached    = P2K(atomic_read(&nr_pagecache) - val.bufferram);
-+	mem_data->cached    = P2K(global_page_state(NR_PAGECACHE)
-+				- val.bufferram);
- 
- 	si_swapinfo(&val);
- 	mem_data->totalswap = P2K(val.totalswap);
 Index: linux-2.6.17-rc6-cl/drivers/base/node.c
 ===================================================================
---- linux-2.6.17-rc6-cl.orig/drivers/base/node.c	2006-06-12 12:57:23.382425140 -0700
-+++ linux-2.6.17-rc6-cl/drivers/base/node.c	2006-06-12 13:00:50.587366699 -0700
-@@ -69,6 +69,7 @@ static ssize_t node_read_meminfo(struct 
- 		       "Node %d LowFree:      %8lu kB\n"
- 		       "Node %d Dirty:        %8lu kB\n"
- 		       "Node %d Writeback:    %8lu kB\n"
-+		       "Node %d PageCache:    %8lu kB\n"
- 		       "Node %d Mapped:       %8lu kB\n"
- 		       "Node %d Slab:         %8lu kB\n",
- 		       nid, K(i.totalram),
-@@ -82,6 +83,7 @@ static ssize_t node_read_meminfo(struct 
+--- linux-2.6.17-rc6-cl.orig/drivers/base/node.c	2006-06-12 12:42:42.797286410 -0700
++++ linux-2.6.17-rc6-cl/drivers/base/node.c	2006-06-12 12:57:23.382425140 -0700
+@@ -54,8 +54,6 @@ static ssize_t node_read_meminfo(struct 
+ 		ps.nr_dirty = 0;
+ 	if ((long)ps.nr_writeback < 0)
+ 		ps.nr_writeback = 0;
+-	if ((long)ps.nr_mapped < 0)
+-		ps.nr_mapped = 0;
+ 	if ((long)ps.nr_slab < 0)
+ 		ps.nr_slab = 0;
+ 
+@@ -84,7 +82,7 @@ static ssize_t node_read_meminfo(struct 
  		       nid, K(i.freeram - i.freehigh),
  		       nid, K(ps.nr_dirty),
  		       nid, K(ps.nr_writeback),
-+		       nid, K(node_page_state(nid, NR_PAGECACHE)),
- 		       nid, K(node_page_state(nid, NR_MAPPED)),
+-		       nid, K(ps.nr_mapped),
++		       nid, K(node_page_state(nid, NR_MAPPED)),
  		       nid, K(ps.nr_slab));
  	n += hugetlb_report_node_meminfo(nid, buf + n);
+ 	return n;
+Index: linux-2.6.17-rc6-cl/fs/proc/proc_misc.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/fs/proc/proc_misc.c	2006-06-12 12:42:48.170000806 -0700
++++ linux-2.6.17-rc6-cl/fs/proc/proc_misc.c	2006-06-12 12:57:23.383401642 -0700
+@@ -190,7 +190,7 @@ static int meminfo_read_proc(char *page,
+ 		K(i.freeswap),
+ 		K(ps.nr_dirty),
+ 		K(ps.nr_writeback),
+-		K(ps.nr_mapped),
++		K(global_page_state(NR_MAPPED)),
+ 		K(ps.nr_slab),
+ 		K(allowed),
+ 		K(committed),
+Index: linux-2.6.17-rc6-cl/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/include/linux/mmzone.h	2006-06-12 12:54:33.238664762 -0700
++++ linux-2.6.17-rc6-cl/include/linux/mmzone.h	2006-06-12 12:57:23.383401642 -0700
+@@ -47,6 +47,9 @@ struct zone_padding {
+ #endif
+ 
+ enum zone_stat_item {
++	NR_MAPPED,	/* mapped into pagetables.
++			   only modified from process context */
++
+ 	NR_STAT_ITEMS };
+ 
+ struct per_cpu_pages {
+Index: linux-2.6.17-rc6-cl/mm/page_alloc.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/mm/page_alloc.c	2006-06-12 12:54:33.240617767 -0700
++++ linux-2.6.17-rc6-cl/mm/page_alloc.c	2006-06-12 12:57:23.385354646 -0700
+@@ -1409,7 +1409,7 @@ void show_free_areas(void)
+ 		ps.nr_unstable,
+ 		nr_free_pages(),
+ 		ps.nr_slab,
+-		ps.nr_mapped,
++		global_page_state(NR_MAPPED),
+ 		ps.nr_page_table_pages);
+ 
+ 	for_each_zone(zone) {
+Index: linux-2.6.17-rc6-cl/mm/page-writeback.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/mm/page-writeback.c	2006-06-12 12:42:52.043784523 -0700
++++ linux-2.6.17-rc6-cl/mm/page-writeback.c	2006-06-12 12:57:23.386331148 -0700
+@@ -111,7 +111,7 @@ static void get_writeback_state(struct w
+ {
+ 	wbs->nr_dirty = read_page_state(nr_dirty);
+ 	wbs->nr_unstable = read_page_state(nr_unstable);
+-	wbs->nr_mapped = read_page_state(nr_mapped);
++	wbs->nr_mapped = global_page_state(NR_MAPPED);
+ 	wbs->nr_writeback = read_page_state(nr_writeback);
+ }
+ 
+Index: linux-2.6.17-rc6-cl/mm/rmap.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/mm/rmap.c	2006-06-12 12:42:52.051596540 -0700
++++ linux-2.6.17-rc6-cl/mm/rmap.c	2006-06-12 12:57:23.386331148 -0700
+@@ -455,7 +455,7 @@ static void __page_set_anon_rmap(struct 
+ 	 * nr_mapped state can be updated without turning off
+ 	 * interrupts because it is not modified via interrupt.
+ 	 */
+-	__inc_page_state(nr_mapped);
++	__inc_zone_page_state(page, NR_MAPPED);
+ }
+ 
+ /**
+@@ -499,7 +499,7 @@ void page_add_new_anon_rmap(struct page 
+ void page_add_file_rmap(struct page *page)
+ {
+ 	if (atomic_inc_and_test(&page->_mapcount))
+-		__inc_page_state(nr_mapped);
++		__inc_zone_page_state(page, NR_MAPPED);
+ }
+ 
+ /**
+@@ -531,7 +531,7 @@ void page_remove_rmap(struct page *page)
+ 		 */
+ 		if (page_test_and_clear_dirty(page))
+ 			set_page_dirty(page);
+-		__dec_page_state(nr_mapped);
++		__dec_zone_page_state(page, NR_MAPPED);
+ 	}
+ }
+ 
+Index: linux-2.6.17-rc6-cl/mm/vmscan.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/mm/vmscan.c	2006-06-12 12:42:52.067220573 -0700
++++ linux-2.6.17-rc6-cl/mm/vmscan.c	2006-06-12 12:57:23.388284152 -0700
+@@ -996,7 +996,7 @@ unsigned long try_to_free_pages(struct z
+ 	}
+ 
+ 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
+-		sc.nr_mapped = read_page_state(nr_mapped);
++		sc.nr_mapped = global_page_state(NR_MAPPED);
+ 		sc.nr_scanned = 0;
+ 		if (!priority)
+ 			disable_swap_token();
+@@ -1081,7 +1081,7 @@ loop_again:
+ 	total_scanned = 0;
+ 	nr_reclaimed = 0;
+ 	sc.may_writepage = !laptop_mode,
+-	sc.nr_mapped = read_page_state(nr_mapped);
++	sc.nr_mapped = global_page_state(NR_MAPPED);
+ 
+ 	inc_page_state(pageoutrun);
+ 
+@@ -1416,7 +1416,7 @@ unsigned long shrink_all_memory(unsigned
+ 		for (prio = DEF_PRIORITY; prio >= 0; prio--) {
+ 			unsigned long nr_to_scan = nr_pages - ret;
+ 
+-			sc.nr_mapped = read_page_state(nr_mapped);
++			sc.nr_mapped = global_page_state(NR_MAPPED);
+ 			sc.nr_scanned = 0;
+ 
+ 			ret += shrink_all_zones(nr_to_scan, prio, pass, &sc);
+@@ -1558,7 +1558,7 @@ static int __zone_reclaim(struct zone *z
+ 	struct scan_control sc = {
+ 		.may_writepage = !!(zone_reclaim_mode & RECLAIM_WRITE),
+ 		.may_swap = !!(zone_reclaim_mode & RECLAIM_SWAP),
+-		.nr_mapped = read_page_state(nr_mapped),
++		.nr_mapped = global_page_state(NR_MAPPED),
+ 		.swap_cluster_max = max_t(unsigned long, nr_pages,
+ 					SWAP_CLUSTER_MAX),
+ 		.gfp_mask = gfp_mask,
 Index: linux-2.6.17-rc6-cl/mm/vmstat.c
 ===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/vmstat.c	2006-06-12 13:00:45.074036260 -0700
-+++ linux-2.6.17-rc6-cl/mm/vmstat.c	2006-06-12 13:01:24.304028650 -0700
-@@ -464,6 +464,7 @@ struct seq_operations fragmentation_op =
+--- linux-2.6.17-rc6-cl.orig/mm/vmstat.c	2006-06-12 12:55:05.481785246 -0700
++++ linux-2.6.17-rc6-cl/mm/vmstat.c	2006-06-12 13:00:45.074036260 -0700
+@@ -463,13 +463,13 @@ struct seq_operations fragmentation_op =
+ 
  static char *vmstat_text[] = {
  	/* Zoned VM counters */
- 	"nr_mapped",
-+	"nr_pagecache",
++	"nr_mapped",
  
  	/* Page state */
  	"nr_dirty",
+ 	"nr_writeback",
+ 	"nr_unstable",
+ 	"nr_page_table_pages",
+-	"nr_mapped",
+ 	"nr_slab",
+ 
+ 	"pgpgin",

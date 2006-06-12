@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWFLQZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752089AbWFLQZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWFLQZW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 12:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752087AbWFLQZW
+	id S1752089AbWFLQZg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 12:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752088AbWFLQZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 12:25:22 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:55527
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1750724AbWFLQZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 12:25:21 -0400
-Message-ID: <448D9567.2080603@microgate.com>
-Date: Mon, 12 Jun 2006 11:25:11 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Mon, 12 Jun 2006 12:25:36 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:20240 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1752087AbWFLQZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 12:25:35 -0400
+Message-ID: <448D9577.3040903@shadowen.org>
+Date: Mon, 12 Jun 2006 17:25:27 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16.18 kernel freezes while pppd is exiting
-References: <200606081909_MC3-1-C1F0-8B6B@compuserve.com>	 <1150124830.3703.6.camel@amdx2.microgate.com>	 <1150127588.25462.7.camel@localhost.localdomain>	 <448D922F.80801@microgate.com> <1150130206.25462.13.camel@localhost.localdomain>
-In-Reply-To: <1150130206.25462.13.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Franck <vagabon.xyz@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
+References: <448D1117.8010407@innova-card.com>
+In-Reply-To: <448D1117.8010407@innova-card.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> ... the ugly TTY_DONT_FLIP hack should die forever.
+Franck Bui-Huu wrote:
+> Is it me or the use of CONFIG_SPARSEMEM_EXTREME is really confusing in
+> mm/sparce.c ? Shouldn't we use CONFIG_SPARSEMEM_STATIC instead like
+> the following patch suggests ?
+> 
+> -- >8 --
+> Subject: [PATCH] Remove confusing uses of SPARSEMEM_EXTREME
+> 
+> CONFIG_SPARSEMEM_EXTREME is used in sparce.c whereas
+> CONFIG_SPARSEMEM_STATIC seems to be more appropriate.
+> 
+> Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com> 
 
-No tears here.
+In my mind the positive option is selecting for code supporting EXTREME
+so it seems to make sense to use that option.  Perhaps the confusion
+comes from a lack of comments there to say that the else case is STATIC.
 
--- 
-Paul Fulghum
-Microgate Systems, Ltd.
+-apw

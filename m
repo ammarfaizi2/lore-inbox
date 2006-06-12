@@ -1,128 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932628AbWFLW3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbWFLWi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932628AbWFLW3s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 18:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWFLW3r
+	id S932626AbWFLWi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 18:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbWFLWi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 18:29:47 -0400
-Received: from wr-out-0506.google.com ([64.233.184.232]:34921 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932613AbWFLW3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 18:29:47 -0400
+	Mon, 12 Jun 2006 18:38:27 -0400
+Received: from web50103.mail.yahoo.com ([206.190.38.31]:899 "HELO
+	web50103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932626AbWFLWi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 18:38:26 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hwm62gkplJcj6cP2KIldho2cqjXjd6fMGcmayerhbcq2PDjuQBXSSm3G/kYX9lBPO441FRDz3hwsF8ifsveaa8pKrX7QDFOQdNPlnKiFyF7N98kOWPx7oGO9nHMseIC6sSZQ36LiDMjx5UalIRBMmtCuDuy92n+kmvqAYoi4tGE=
-Message-ID: <9a8748490606121529v4fe3c261jd73ebcb6a06f8386@mail.gmail.com>
-Date: Tue, 13 Jun 2006 00:29:46 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "David Miller" <davem@davemloft.net>
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Cc: jeff@garzik.org, matti.aarnio@zmailer.org, rlrevell@joe-job.com,
-       folkert@vanheusden.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060612.130058.78495098.davem@davemloft.net>
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=leKPo2KCIM3/tVtLTsyM+o1ByivpJlblbVWw1BY/N3qNZI+MoUvAmA9JgBbzCWdcc+uAJgcJrZM/rZklOmvq8vn/c7ixYsDtYQ3GtjwhFK3EeuqPzNIE6c6xEb+ntHAUlUxw+SuwcJA9OiGFohB+hb6Xsh5iKC8mPp6XkZ1Rbak=  ;
+Message-ID: <20060612223827.33255.qmail@web50103.mail.yahoo.com>
+Date: Mon, 12 Jun 2006 15:38:27 -0700 (PDT)
+From: Doug Thompson <norsk5@yahoo.com>
+Subject: [BUG] safe_smp_process_id() uses apicid which exceeds NR_CPUs in array
+To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1150048497.14253.140.camel@mindpipe>
-	 <20060611.115430.112290058.davem@davemloft.net>
-	 <448D7FB0.9070604@garzik.org>
-	 <20060612.130058.78495098.davem@davemloft.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/06/06, David Miller <davem@davemloft.net> wrote:
-> From: Jeff Garzik <jeff@garzik.org>
-> Date: Mon, 12 Jun 2006 10:52:32 -0400
->
-> > Create two simple web pages, one that shows the last 24 hours' worth of
-> > LKML posts, and another one that shows the last 24 hours' worth of spam.
-> >   Allow any user on the Internet to report an LKML post as spam, or
-> > alternately, highlight a false positive as not-spam.  (perhaps generate
-> > one of those wavy-text verify-you-are-a-human graphics)
-> >
-> > Then you, as admin, only have to click a button that accepts or rejects
-> > the submission(s).  If you want to scan it yourself for false positives,
-> > you just hit the same webpage as everybody else.
-> >
-> > That feedback is then fed into the bayesian system, to train it using
-> > well-known methods.
->
-> I like this idea a lot.
 
-It's a lot more sane than SPF, that's for sure.
+with 2.6.15 kernel running on a Tyan S4881 quad processor board (with factory BIOS)
+using Opterons 254s, I received the following MCEs:
 
-I'd suggest taking a look at DSPAM (http://dspam.nuclearelephant.com/)
-for something like that.
+CPU 18: Machine Check Exception:                4 Bank 0: b601a00000000833
+TSC 9c3799943459 ADDR 4eee07800
 
-But, there are also other, and even simpler, options.
-I've personally found that using some of the build-in anti-spam
-features in postfix can be used to stop a lot of spam with almost zero
-impact on ham. While some of the features do affect some ham, there
-are a few that almost never do, yet they stop quite a bit of spam :
+CPU 18: Machine Check Exception:                4 Bank 2: d000400000000863
+TSC 9c3799943d01
+
+CPU 18: Machine Check Exception:                4 Bank 4: d42dc00100000813
+TSC 9c379994422d ADDR 4eee05708
 
 
-  smtpd_client_restrictions =
-    reject_unauth_pipelining
+It was later determined to be a bad memory stick, but the problem was 
+'CPU 18'.  Running the same hardware with 2.6.17-rc6 produced MCEs with:
 
-Reject the mail if the sending server tries to send SMTP commands
-ahead of time without first checking if the server supports
-pipelining.
-I've only ever seen obvious spam sources being rejected by this.
+'CPU 2' messages instead
 
+as the output. Thought problem fixed, BUT.....
 
-  smtpd_helo_required = yes
+looking at 2.6.17-rc6 safe_smp_processor_id()  in arch/x86_64/kernel/smp.c (This
+function is called by the MCE handler code):
 
-Mail servers that can't be bothered to send any HELO/EHLO at all are
-in my experience only spam sources.
+int safe_smp_processor_id(void)
+{
+        int apicid, i;
 
+        if (disable_apic)
+                return 0;
 
-  smtpd_helo_restrictions =
-    reject_invalid_hostname,
+        apicid = hard_smp_processor_id();
 
-This will reject mail from servers that send a hostname in HELO/EHLO
-that has bad syntax or invalid characters. I've never seen this one
-reject valid senders, but I have seen it reject a lot of spam sources.
- Postfix also has other more strict checks you can enable on helo, but
-those tend to reject too much valid mail.
+----->  if (x86_cpu_to_apicid[apicid] == apicid)
+                return apicid;
 
+        for (i = 0; i < NR_CPUS; ++i) {
+                if (x86_cpu_to_apicid[i] == apicid)
+                        return i;
+        }
 
-  strict_rfc821_envelopes = yes
+        /* No entries in x86_cpu_to_apicid?  Either no MPS|ACPI,
+         * or called too early.  Either way, we must be CPU 0. */
+        if (x86_cpu_to_apicid[0] == BAD_APICID)
+                return 0;
 
-This rejects some spam from spambots that don't know how to generate a
-proper mail. I've on occasion seen it hit valid senders, but very
-rarely.
+        return 0; /* Should not happen */
+}
 
+I noticed the:   if (x86_cpu_to_apicid[apicid] == apicid)
+above.
 
-  smtpd_sender_restrictions =
-    reject_non_fqdn_sender,
-    reject_unknown_sender_domain
+NR_CPUS was 4 and apicid could be:  16, 17 18, or 19
 
-This will reject mail with senders without a fully qualified name as
-well as sender addresses where the sender domain does not have an A or
-MX record.
-This stops a lot of spam on my servers and I've never had any problems
-with it since what's the point of accepting a mail from somewhere that
-you can't reply back to...
+definitely an out-of-bounds reference.
 
+doug thompson
 
-  smtpd_recipient_restrictions =
-    reject_non_fqdn_recipient,
-    reject_unknown_recipient_domain
+portion of boot.mesg follows:
 
-Same as for senders, reject the mail if the recipient domain i not
-fully qualified or the recipient domain has no A or MX record.
+SRAT: PXM 0 -> APIC 16 -> Node 0
+SRAT: PXM 1 -> APIC 17 -> Node 1
+SRAT: PXM 2 -> APIC 18 -> Node 2
+SRAT: PXM 3 -> APIC 19 -> Node 3
+SRAT: Node 0 PXM 0 0-a0000
+SRAT: Node 0 PXM 0 0-d0000000
+SRAT: Node 0 PXM 0 0-230000000
+SRAT: Node 1 PXM 1 230000000-430000000
+SRAT: Node 2 PXM 2 430000000-630000000
+SRAT: Node 3 PXM 3 630000000-830000000
+NUMA: Using 28 for the hash shift.
+Bootmem setup node 0 0000000000000000-0000000230000000
+Bootmem setup node 1 0000000230000000-0000000430000000
+Bootmem setup node 2 0000000430000000-0000000630000000
+Bootmem setup node 3 0000000630000000-0000000830000000
+On node 0 totalpages: 2063996
+  DMA zone: 2596 pages, LIFO batch:0
+  DMA32 zone: 833240 pages, LIFO batch:31
+  Normal zone: 1228160 pages, LIFO batch:31
+On node 1 totalpages: 2068480
+  Normal zone: 2068480 pages, LIFO batch:31
+On node 2 totalpages: 2068480
+  Normal zone: 2068480 pages, LIFO batch:31
+On node 3 totalpages: 2068480
+  Normal zone: 2068480 pages, LIFO batch:31
+Nvidia board detected. Ignoring ACPI timer override.
+ACPI: PM-Timer IO Port: 0x8008
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x10] enabled)
+Processor #16 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x11] enabled)
+Processor #17 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x02] lapic_id[0x12] enabled)
+Processor #18 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x03] lapic_id[0x13] enabled)
+Processor #19 15:5 APIC version 16
 
-
-Implementing these things should have a minimum of impact on ham on
-vger, but should stop a fair amount of spam - at least they do for me,
-and my servers at work pass hundreds of thousands of messages daily
-without users complaining about these settings and I can see in the
-logs that they stop quite a lot of junk.
-
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752170AbWFLS42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWFLS7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752170AbWFLS42 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 14:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752155AbWFLS41
+	id S1751222AbWFLS7U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 14:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752171AbWFLS7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 14:56:27 -0400
-Received: from ns1.suse.de ([195.135.220.2]:4516 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752170AbWFLS41 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 14:56:27 -0400
+	Mon, 12 Jun 2006 14:59:20 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:14025 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751222AbWFLS7T (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 14:59:19 -0400
 From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: broken local_t on i386
-Date: Mon, 12 Jun 2006 19:55:47 +0200
+To: rohitseth@google.com
+Subject: Re: [PATCH]: Adding a counter in vma to indicate the number =?utf-8?q?of=09physical_pages_backing?= it
+Date: Mon, 12 Jun 2006 19:58:40 +0200
 User-Agent: KMail/1.8
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606121935.02693.ak@suse.de> <Pine.LNX.4.64.0606121139380.20123@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606121139380.20123@schroedinger.engr.sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linux-mm@kvack.org, Linux-kernel@vger.kernel.org
+References: <1149903235.31417.84.camel@galaxy.corp.google.com> <448A762F.7000105@yahoo.com.au> <1150133795.9576.19.camel@galaxy.corp.google.com>
+In-Reply-To: <1150133795.9576.19.camel@galaxy.corp.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606121955.47803.ak@suse.de>
+Message-Id: <200606121958.41127.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 June 2006 20:42, Christoph Lameter wrote:
-> On Mon, 12 Jun 2006, Andi Kleen wrote:
-> > Saving two instructions? And PDA is usually in L1. I doubt you could
-> > benchmark a difference.
->
-> The two instructions occur over and over again for each PDA reference. And
-> then there are now two more instruction for disabling preempt and
-> reenabling preempt.
 
-Only for those who set CONFIG_OVERHEAD
+> It is just the price of those walks that makes smaps not an attractive
+> solution for monitoring purposes.
 
-> A simple dec/inc <absolute location> would be nicely suitable for
-> inlining per processor counters.
+It just shouldn't be used for that. It's a debugging hack and not really 
+suitable for monitoring even with optimizations.
 
-Possible, but is it worth reinventing the linker?
+For monitoring if the current numa statistics are not good enough
+you should probably propose new counters.
 
 -Andi

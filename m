@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752289AbWFLUSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWFLUUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752289AbWFLUSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 16:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752286AbWFLUSY
+	id S932232AbWFLUUj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 16:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWFLUUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 16:18:24 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:9347 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1752245AbWFLUSX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 16:18:23 -0400
-Date: Mon, 12 Jun 2006 21:18:17 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Delete unused definitions of kvaddr_to_nid
-Message-ID: <20060612201817.GA5036@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Mon, 12 Jun 2006 16:20:39 -0400
+Received: from rtr.ca ([64.26.128.89]:26003 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932232AbWFLUUi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 16:20:38 -0400
+Message-ID: <448DCC94.7080800@rtr.ca>
+Date: Mon, 12 Jun 2006 16:20:36 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
+ error -28
+References: <448DC93E.9050200@rtr.ca>
+In-Reply-To: <448DC93E.9050200@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+Mark Lord wrote:
+> Greg,
+> 
+> With 2.6.17-rc6-git2, I'm seeing this kernel message during start-up:
+> 
+>  pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb, error -28
+> 
+> The pl2303 serial port is part of a USB1.1 Hub/dock device,
+> plugged into a USB2 port on my notebook.
+> 
+> I get the same failure again when trying to use the port with Kermit.
+> This device was working fine here not long ago -- on the -rc5 kernels I 
+> think.
+> 
+> Unplugging the hub/dock does this:
+> 
+> kernel BUG at kernel/workqueue.c:110!
+> invalid opcode: 0000 [#1]
+> PREEMPT
+>...
 
-diff --git a/include/asm-mips/mmzone.h b/include/asm-mips/mmzone.h
-index 7bde443..e07e1a4 100644
---- a/include/asm-mips/mmzone.h
-+++ b/include/asm-mips/mmzone.h
-@@ -11,7 +11,6 @@ #include <mmzone.h>
- 
- #ifdef CONFIG_DISCONTIGMEM
- 
--#define kvaddr_to_nid(kvaddr)	pa_to_nid(__pa(kvaddr))
- #define pfn_to_nid(pfn)		pa_to_nid((pfn) << PAGE_SHIFT)
- 
- #define pfn_valid(pfn)						\
-diff --git a/include/asm-parisc/mmzone.h b/include/asm-parisc/mmzone.h
-index ceb9b73..c878136 100644
---- a/include/asm-parisc/mmzone.h
-+++ b/include/asm-parisc/mmzone.h
-@@ -14,11 +14,6 @@ extern struct node_map_data node_data[];
- 
- #define NODE_DATA(nid)          (&node_data[nid].pg_data)
- 
--/*
-- * Given a kernel address, find the home node of the underlying memory.
-- */
--#define kvaddr_to_nid(kaddr)	pfn_to_nid(__pa(kaddr) >> PAGE_SHIFT)
--
- #define node_start_pfn(nid)	(NODE_DATA(nid)->node_start_pfn)
- #define node_end_pfn(nid)						\
- ({									\
-diff --git a/include/asm-x86_64/mmzone.h b/include/asm-x86_64/mmzone.h
-index 6944e71..05704f9 100644
---- a/include/asm-x86_64/mmzone.h
-+++ b/include/asm-x86_64/mmzone.h
-@@ -43,7 +43,6 @@ #define node_end_pfn(nid)       (NODE_DA
- 
- #ifdef CONFIG_DISCONTIGMEM
- #define pfn_to_nid(pfn) phys_to_nid((unsigned long)(pfn) << PAGE_SHIFT)
--#define kvaddr_to_nid(kaddr)	phys_to_nid(__pa(kaddr))
- 
- extern int pfn_valid(unsigned long pfn);
- #endif
+MMmm.. entire USB subsystem is toast after that -- reboot required.
+
+Cheers

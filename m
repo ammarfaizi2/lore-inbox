@@ -1,111 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWFLRdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWFLReK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWFLRdU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFLRdU
+	id S1750757AbWFLReK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWFLReJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:33:20 -0400
-Received: from mail2.utc.com ([192.249.46.191]:43708 "EHLO mail2.utc.com")
-	by vger.kernel.org with ESMTP id S1750725AbWFLRdT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:33:19 -0400
-Message-ID: <448DA546.7070102@cybsft.com>
-Date: Mon, 12 Jun 2006 12:32:54 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Mon, 12 Jun 2006 13:34:09 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:21227 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750757AbWFLReI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:34:08 -0400
+From: Oliver Bock <o.bock@fh-wolfenbuettel.de>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 1/1] usb: new driver for Cypress CY7C63xxx mirco controllers
+Date: Mon, 12 Jun 2006 19:34:05 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+References: <200606100042.19441.o.bock@fh-wolfenbuettel.de> <20060609224957.GA15130@elf.ucw.cz>
+In-Reply-To: <20060609224957.GA15130@elf.ucw.cz>
 MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc6-rt3
-References: <20060610082406.GA31985@elte.hu> <448D9F70.2040400@cybsft.com>	 <448DA21C.7090609@cybsft.com> <1150132934.5257.230.camel@localhost.localdomain>
-In-Reply-To: <1150132934.5257.230.camel@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+X-Length: 4428
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606121934.05619.o.bock@fh-wolfenbuettel.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:dd33dd6c1d5f49fc970db4042b12446b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Mon, 2006-06-12 at 12:19 -0500, K.R. Foley wrote:
->>> BUG: unable to handle kernel paging request at virtual address f3010000
->>>  printing eip:
->>> *pde = 00000000
->>> Oops: 0000 [#1]
->>> PREEMPT SMP
->>> Modules linked in:
->>> CPU:    1
->>> EIP:    0060:[<c0132f9c>]    Not tainted VLI
->>> EFLAGS: 00010297   (2.6.17-rc6-rt4 #10)
->>> EIP is at lookup_symbol+0x11/0x35
->>> eax: 00000001   ebx: e083185c   ecx: c02f20c4   edx: c02f0000
->>> esi: f3010000   edi: e083185c   ebp: df597e80   esp: df597e74
->>> ds: 007b   es: 007b   ss: 0068   preempt: 00000001
->>> Process modprobe (pid: 1419, threadinfo=df596000 task=dec3ac90
->>> stack_left=7744 worst_left=-1)
->>> Stack: e083b580 00000bf0 e083185c df597e9c c0132fe5 df597eb4 df597eb0
->>> e083b580
->>>        00000bf0 e083185c df597ec4 c0133c93 00000001 00000012 e082dde8
->>> 00000000
->>>        df597ed8 e0839200 00000bf0 e082dde8 df597ee8 c01341fa e083b580
->>> 00000000
->>> Call Trace:
->>>  [<c01036a1>] show_stack_log_lvl+0x82/0x8a (36)
->>>  [<c0103821>] show_registers+0x139/0x1a1 (32)
->>>  [<c0103a15>] die+0x118/0x1df (60)
->>>  [<c0110cf3>] do_page_fault+0x45c/0x532 (76)
->>>  [<c010336b>] error_code+0x4f/0x54 (72)
->>>  [<c0132fe5>] __find_symbol+0x25/0x1b7 (28)
->>>  [<c0133c93>] resolve_symbol+0x27/0x5f (40)
->>>  [<c01341fa>] simplify_symbols+0x83/0xf3 (36)
->>>  [<c0134e31>] load_module+0x668/0x9e2 (184)
->>>  [<c0135210>] sys_init_module+0x42/0x1a4 (20)
->>>  [<c01027fb>] sysenter_past_esp+0x54/0x75 (-8116)
->>> Code: eb 11 8b 75 f0 41 83 c2 28 0f b7 46 30 39 c1 72 c9 31 c0 5a 59 5b
->>> 5e 5f 5d c3 55 89 e5 57 56 53 89 c3 39 ca 73 22 8b 72 04 89 df <ac> ae
->>> 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 04 89
->>> EIP: [<c0132f9c>] lookup_symbol+0x11/0x35 SS:ESP 0068:df597e74
->> DOH! That was actually 2.6.17-rc6-rt4. Sorry.
-> 
-> Which module is it trying to load ?
-> 
-> 	tglx
+On Saturday 10 June 2006 00:49, Pavel Machek wrote:
+> Sorry, now the review begins...
 
-Can't really say which it is trying to load when it dies. The lines
-below are the lines that immediately preceed the oops.
+No problem at all.
 
-NET: Registered protocol family 1
-input: AT Translated Set 2 keyboard as /class/input/input0
-NET: Registered protocol family 17
-NET: Registered protocol family 8
-NET: Registered protocol family 20
-Starting balanced_irq
-Using IPI Shortcut mode
-Time: tsc clocksource has been installed.
-hrtimers: Switched to high resolution mode CPU 3
-hrtimers: Switched to high resolution mode CPU 2
-hrtimers: Switched to high resolution mode CPU 1
-hrtimers: Switched to high resolution mode CPU 0
-*****************************************************************************
-*
-    *
-*  REMINDER, the following debugging option is turned on in your
-.config:   *
-*
-    *
-*        CONFIG_DEBUG_RT_MUTEXES
-     *
-*
-    *
-*  it may increase runtime overhead and latencies.
-    *
-*
-    *
-*****************************************************************************
-Freeing unused kernel memory: 200k freed
-input: ImExPS/2 Generic Explorer Mouse as /class/input/input1
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
+> > +/* used to send usb control messages to device */
+> > +int vendor_command(struct cy7c63 *dev, unsigned char request,
+> > +			 unsigned char address, unsigned char data) {
+>
+> Codingstyle: { goes to new line.
 
--- 
-   kr
+Ok, I missed that one and remembered only the if-styling. I'll change it and 
+I'm glad to see that as it's according to my style.
+
+> > +#define get_set_port(num,read_id,write_id) \
+> > +static ssize_t set_port##num(struct device *dev, struct device_attribute
+> > *attr,	\ +					const char *buf, size_t count) {	\
+> > +										\
+> > +	int value;								\
+> > +	int result = 0;								\
+> > +										\
+> > +	struct usb_interface *intf = to_usb_interface(dev);			\
+> > +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
+> > +										\
+> > +	dev_dbg(&cyp->udev->dev, "WRITE_PORT%d called\n", num);			\
+> > +										\
+> > +	/* validate input data */						\
+> > +	if (sscanf(buf, "%d", &value) < 1) {					\
+> > +		result = -EINVAL;						\
+> > +		goto error;							\
+> > +	}									\
+> > +	if (value>255 || value<0) {						\
+> > +		result = -EINVAL;						\
+> > +		goto error;							\
+> > +	}									\
+> > +										\
+> > +	result = vendor_command(cyp, CY7C63_WRITE_PORT, write_id,		\
+> > +					 (unsigned char)value);			\
+> > +										\
+> > +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n",result);	\
+> > +error:										\
+> > +	return result < 0 ? result : count;					\
+> > +}										\
+> > +										\
+> > +static ssize_t get_port##num(struct device *dev,				\
+> > +				 struct device_attribute *attr, char *buf) {	\
+> > +										\
+> > +	int result = 0;								\
+> > +										\
+> > +	struct usb_interface *intf = to_usb_interface(dev);			\
+> > +	struct cy7c63 *cyp = usb_get_intfdata(intf);				\
+> > +										\
+> > +	dev_dbg(&cyp->udev->dev, "READ_PORT%d called\n", num);			\
+> > +										\
+> > +	result = vendor_command(cyp, CY7C63_READ_PORT, read_id, 0);		\
+> > +										\
+> > +	dev_dbg(&cyp->udev->dev, "Result of vendor_command: %d\n\n", result);	\
+> > +										\
+> > +	return sprintf(buf, "%d", cyp->port##num);				\
+> > +}										\
+> > +static DEVICE_ATTR(port##num, S_IWUGO | S_IRUGO, get_port##num,
+> > set_port##num); +
+> > +get_set_port(0, CY7C63_READ_PORT_ID0, CY7C63_WRITE_PORT_ID0);
+> > +get_set_port(1, CY7C63_READ_PORT_ID1, CY7C63_WRITE_PORT_ID1);
+>
+> You get "best abuse of the macros" prize. Can you just use functions,
+> and pass num as aditional argument? Then just wrap the long functions
+> in small ones... converting cyp->port0/1 into array will be handy..
+
+Well, thanks but I think I've to "share the price" with at least one other:
+drivers/usb/misc/phidgetservo.c
+
+I agree that this is no excuse for bad style, but I was just trying to keep 
+the code compliant with the kernel coding conventions - my personal style 
+looks a bit different anyway. I tried to avoid any formatting issues by 
+looking at other drivers and the one mentioned above was recommended to me 
+when I did the porting from ioctls to sysfs. Due to this I assumed that this 
+might be a common way you guys try to avoid redundant code...
+
+To be sure (and because he's the author of the USB skeleton I also used) I 
+asked Greg K-H for an initial review of my code before I sent it to the list, 
+and he didn't complain a bit about this marco. So is there any common rule 
+for this?
+
+> BTW could we get come better name for the driver? cy7c63 looks like
+> password of very paranoid sysadmin.
+
+Hm, the chipset family is just called like that and there're at least three 
+other Cypress related drivers (cypress, cypress_m8 and cytherm) with generic 
+names. I think this name shows clearly what kind of device it supports, 
+doesn't it?
+
+Apart from that there are again other drivers (ark3116.c, cp2101.c) which do 
+it the same way, and I assumed that this might be some sort of naming 
+convention...
+
+> > +	/* let the user know what node this device is now attached to */
+> > +	dev_info(&interface->dev,
+> > +		"Cypress CY7C63xxx device now attached\n");
+>
+> In cases like this we aling " one character to the right.
+
+You mean the whole string (line) one character to the right, correct?
+
+
+Regards,
+Oliver

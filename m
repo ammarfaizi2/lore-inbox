@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWFLKdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751838AbWFLKgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751826AbWFLKdU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 06:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWFLKdU
+	id S1751838AbWFLKgp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 06:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWFLKgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 06:33:20 -0400
-Received: from ns.suse.de ([195.135.220.2]:1712 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751826AbWFLKdU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 06:33:20 -0400
-From: Neil Brown <neilb@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 12 Jun 2006 20:33:12 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jun 2006 06:36:45 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:39629 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1751822AbWFLKgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 06:36:44 -0400
+Subject: Re: VGER does gradual SPF activation  (FAQ matter)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Neil Brown <neilb@suse.de>
+Cc: Matthias Andree <matthias.andree@gmx.de>, Avi Kivity <avi@argo.co.il>,
+       Rik van Riel <riel@redhat.com>, Theodore Tso <tytso@mit.edu>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <17549.16182.237312.734481@cse.unsw.edu.au>
+References: <Pine.LNX.4.64.0606110952560.29891@cuia.boston.redhat.com>
+	 <448C2298.5000409@argo.co.il> <20060612084739.GD11649@merlin.emma.line.org>
+	 <17549.16182.237312.734481@cse.unsw.edu.au>
+Content-Type: text/plain
+Date: Mon, 12 Jun 2006 11:35:52 +0100
+Message-Id: <1150108552.8184.30.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17549.17128.4155.144140@cse.unsw.edu.au>
-Cc: jdow <jdow@earthlink.net>, Bernd Petrovitsch <bernd@firmix.at>,
-       davids@webmaster.com, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-In-Reply-To: message from Alan Cox on Monday June 12
-References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
-	<193701c68d16$54cac690$0225a8c0@Wednesday>
-	<1150100286.26402.13.camel@tara.firmix.at>
-	<00de01c68df9$7d2b2330$0225a8c0@Wednesday>
-	<17549.14402.71021.274336@cse.unsw.edu.au>
-	<1150108220.22124.164.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday June 12, alan@lxorguk.ukuu.org.uk wrote:
-> Ar Llu, 2006-06-12 am 19:47 +1000, ysgrifennodd Neil Brown:
-> > mailing list shortly before I had to unsubscribe) is to develop a
-> > mechanism to measure the credibility of new domains.  No point doing
-> > this until authenticity is fairly reliable, but once it is, that will
-> > be the next logical step.
-> 
-> Which is very very hard.
+On Mon, 2006-06-12 at 20:17 +1000, Neil Brown wrote:
+> If you get a letter from your aunt in Rome, and it is post-marked
+> 'Moscow', you might doubt the authenticity.
 
-We do hard things every day, don't we? 
+If my aunt lives in Rome but I get a postcard (or even a letter) from
+her in Moscow, are you suggesting I should consign it to the dustbin
+unread? That's what the SPF folks seem to want, and it works no better
+in your snail mail analogy than it does in real life.
 
-> 
-> Think about it logically. Today to get a domain you need a credit/debit
-> card. A credit/debit card is ID managed by organisations very keen that
-> they don't get copied or faked. You are talking about building a
-> worldwide system that is more effective than the ones the banks run: for
-> a ten US dollar (ie peanuts and falling) value domain.
+People travel. Mail gets forwarded.
 
-Thinks about it creatively.
-How many domains need to be able to send mail?  I suspect a tiny
-fraction.
-Having a domain that can be a web address and a destination for mail
-is (I suspect) the greatest demand.  Having a domain that can send
-mail it less important to many, but important enough to some that they
-will pay.
+>   If it claims to be from your swiss bank with the same post mark you
+> would doubt it even more. 
 
-Yes, it is hard, but if everyone says "that cannot work" we will never
-move forward.  SPF may not be a big step forward, but I believe it is
-a step forward (and at least it is a step!)
+In the case of mail from my bank, if it _had_ a postmark rather than
+being pre-paid I would be suspicious.
 
-NeilBrown
+The SPF folks would have me refuse mail from claiming to be from the
+bank because it's actually delivered by my postman, and he doesn't work
+for the bank therefore it must be a "forgery" (using their new
+definition of that term).
+
+Meanwhile, in the real world, I don't want to throw away valid mail. And
+there are better ways of avoiding fakes, too. 
+
+ObVger: we should probably enable sender verification callouts, if
+they're not being done already. There's no justification for accepting
+mail from an address which doesn't accept bounces. That would combat
+forgery in a much saner manner.
+
+-- 
+dwmw2
+

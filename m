@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751938AbWFLM4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751939AbWFLNIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751938AbWFLM4N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 08:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751939AbWFLM4M
+	id S1751939AbWFLNIS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 09:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751941AbWFLNIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 08:56:12 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:29530 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751938AbWFLM4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 08:56:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=T+7LAlmFzux6eHfM5v3C+FN/2yYAi8EnCrbJtenukWXkWJoKOV8L1Y+1sFYaaN3s9gUbKyY3/9kSNOuNifaXrijcLrrwqZ0rtom3TVmX1QGkK6XjBLjC66yolmgRzzNwQuD92BpzPFHT8DDGBLN0zvHfBEifgf3Q9q7DZoIJvyg=
-Message-ID: <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-Date: Mon, 12 Jun 2006 13:56:11 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Cc: "Pekka J Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060612105345.GA8418@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jun 2006 09:08:18 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33256 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751939AbWFLNIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 09:08:18 -0400
+Date: Mon, 12 Jun 2006 15:07:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2
+Message-ID: <20060612130723.GA17463@elte.hu>
+References: <20060610092412.66dd109f.akpm@osdl.org> <Pine.LNX.4.64.0606100939480.6651@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com> <20060610100318.8900f849.akpm@osdl.org> <Pine.LNX.4.64.0606101102380.7421@schroedinger.engr.sgi.com> <6bffcb0e0606101114u37c8b642u5c9cc8dd566cba7c@mail.gmail.com> <Pine.LNX.4.64.0606101118410.7535@schroedinger.engr.sgi.com> <20060612110537.GA11358@elte.hu> <20060612114857.GA14616@elte.hu> <p73irn6sh9q.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
-	 <20060611112156.8641.94787.stgit@localhost.localdomain>
-	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
-	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
-	 <20060612105345.GA8418@elte.hu>
+In-Reply-To: <p73irn6sh9q.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/06/06, Ingo Molnar <mingo@elte.hu> wrote:
-> What i'd like to see though are clear explanations about why an
-> allocation is not considered a leak, in terms of comments added to the
-> code. That will also help us reduce the number of annotations later on.
 
-I'll document them in both Documentation/kmemleak.txt and inside the
-code. If I implement the "any pointer inside the block" method, all
-the memleak_padding() false positives will disappear.
+* Andi Kleen <ak@suse.de> wrote:
 
--- 
-Catalin
+> > below is an updated patch that includes fixups for i386 - but the real 
+> > fix should be to properly reduce the per-arch local.h footprint to the 
+> > bare minimum possible, and to do this fix on the asm-generic headers.
+> 
+> I think an even better approach would be to use local_save_flags() / 
+> local_restore_flags () and then use a normal increment and get rid of 
+> smp_processor_id completely.
+
+local_irq_save()/local_irq_restore() you must have meant :-)
+
+> I've never seen any evidence that the complex and bloated code 
+> generated by this is any better that just enabling/disabling 
+> interrupts.
+> 
+> In the x86 world P4 has costly cli/sti, but I wouldn't expect that 
+> problem to be very widespread.
+
+i think you are right - but if someone goes the trouble of implementing 
+per-arch support for local increments then i'm not against it. (except 
+if the generated code is grossly inefficient) There are architectures 
+where cli/sti hurts alot.
+
+In any case, on x86 we should switch to a cli/sti implementation indeed 
+- it will quite likely have alot smaller footprint than __per_cpu_offset 
+based approaches.
+
+Although on x86_64 we'd probably be pretty OK if all per-cpu variables 
+were in the PDA and were thus at a constant %gs-relative offset. But for 
+now we only have data_offset in the PDA so there's one more unnecessary 
+indirection.
+
+	Ingo

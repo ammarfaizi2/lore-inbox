@@ -1,101 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752132AbWFLSdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752139AbWFLSfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752132AbWFLSdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 14:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752138AbWFLSdK
+	id S1752139AbWFLSfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 14:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752137AbWFLSfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 14:33:10 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:63896 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1752135AbWFLSdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 14:33:09 -0400
-Message-ID: <448DB363.6060102@sgi.com>
-Date: Mon, 12 Jun 2006 13:33:07 -0500
-From: Eric Sandeen <sandeen@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 12 Jun 2006 14:35:42 -0400
+Received: from ns.suse.de ([195.135.220.2]:58272 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1752139AbWFLSfl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 14:35:41 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: broken local_t on i386
+Date: Mon, 12 Jun 2006 19:35:02 +0200
+User-Agent: KMail/1.8
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606121906.28692.ak@suse.de> <Pine.LNX.4.64.0606121124510.19770@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0606121124510.19770@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: [PATCH] stack overflow checking for x86_64 / 2.6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606121935.02693.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This existed for x86_64 in 2.4, but seems to have gone AWOL in 2.6.
+On Monday 12 June 2006 20:27, Christoph Lameter wrote:
+> On Mon, 12 Jun 2006, Andi Kleen wrote:
+> > It does, but the per cpu data that everybody uses doesn't reside in the
+> > PDA because it wasn't possible to make this work with binutils
+> >
+> > It would require a relocation relative to another symbol which isn't
+> > really supported.
+>
+> I dont think you need a relocation relative to another symbol. Map the
+> pda to a virtual adress range. That is then translated with a
+> processor specific page table to various physical addresses.
 
-I've pretty much just copied this over from the 2.4 code, with appropriate tweaks for the 2.6 
-kernel, plus a bugfix.  I'd personally rather see it printed out the way other arches do it, i.e. 
-bytes-remaining-until-overflow, rather than having to do the subtraction yourself.  Also, only 128 
-bytes remaining seems awfully late to issue a warning.  But I'll start here :)
+Per processor page tables are not really practical on x86-64. They would
+get really messy because you would need to duplicate the top level
+of the page tables per CPU.
 
-Thanks,
+>
+> > At some point I considered using runtime patching to work around
+> > this limitation, but it would be some work and relatively complex.
+>
+> Well this would drastically decreased the overhead for PDA access and fix
+> local.t
 
--Eric
+Saving two instructions? And PDA is usually in L1. I doubt you could benchmark
+a difference.
 
-signed-off-by: Eric Sandeen <sandeen@sgi.com>
-
-Index: linux-2.6.16/arch/x86_64/Kconfig.debug
-===================================================================
---- linux-2.6.16.orig/arch/x86_64/Kconfig.debug	2006-03-19 23:53:29.000000000 -0600
-+++ linux-2.6.16/arch/x86_64/Kconfig.debug	2006-06-09 16:15:58.991377500 -0500
-@@ -35,6 +35,13 @@
-           Add a simple leak tracer to the IOMMU code. This is useful when you
-  	 are debugging a buggy device driver that leaks IOMMU mappings.
-
-+config DEBUG_STACKOVERFLOW
-+        bool "Check for stack overflows"
-+        depends on DEBUG_KERNEL
-+        help
-+	  This option will cause messages to be printed if free stack space
-+	  drops below a certain limit.
-+
-  #config X86_REMOTE_DEBUG
-  #       bool "kgdb debugging stub"
-
-Index: linux-2.6.16/arch/x86_64/kernel/irq.c
-===================================================================
---- linux-2.6.16.orig/arch/x86_64/kernel/irq.c	2006-06-09 16:14:55.991440250 -0500
-+++ linux-2.6.16/arch/x86_64/kernel/irq.c	2006-06-12 13:04:59.226174500 -0500
-@@ -26,6 +26,30 @@
-  #endif
-  #endif
-
-+#ifdef CONFIG_DEBUG_STACKOVERFLOW
-+/*
-+ * Probalistic stack overflow check:
-+ *
-+ * Only check the stack in process context, because everything else
-+ * runs on the big interrupt stacks. Checking reliably is too expensive,
-+ * so we just check from interrupts.
-+ */
-+static inline void stack_overflow_check(struct pt_regs *regs)
-+{
-+	u64 curbase = (u64) current->thread_info;
-+	static unsigned long warned = -60*HZ;
-+
-+	if (regs->rsp >= curbase && regs->rsp <= curbase + THREAD_SIZE &&
-+	    regs->rsp <  curbase + sizeof(struct thread_info) + 128 &&
-+	    time_after(jiffies, warned + 60*HZ)) {
-+		printk("do_IRQ: %s near stack overflow (cur:%Lx,rsp:%lx)\n",
-+		       current->comm, curbase, regs->rsp);
-+		show_stack(NULL,NULL);
-+		warned = jiffies;
-+	}
-+}
-+#endif
-+
-  /*
-   * Generic, controller-independent functions:
-   */
-@@ -96,7 +120,9 @@
-
-  	exit_idle();
-  	irq_enter();
--
-+#ifdef CONFIG_DEBUG_STACKOVERFLOW
-+	stack_overflow_check(regs);
-+#endif
-  	__do_IRQ(irq, regs);
-  	irq_exit();
-
+-Andi

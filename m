@@ -1,118 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWFLVvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWFLVyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWFLVvG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWFLVvG
+	id S932406AbWFLVyY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWFLVyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:51:06 -0400
-Received: from ns.firmix.at ([62.141.48.66]:8864 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932400AbWFLVvE (ORCPT
+	Mon, 12 Jun 2006 17:54:24 -0400
+Received: from rtr.ca ([64.26.128.89]:4061 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932406AbWFLVyX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:51:04 -0400
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: marty fouts <mf.danger@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200606122025.k5CKPTGB005597@laptop11.inf.utfsm.cl>
-References: <200606122025.k5CKPTGB005597@laptop11.inf.utfsm.cl>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Mon, 12 Jun 2006 23:43:11 +0200
-Message-Id: <1150148591.3107.16.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 12 Jun 2006 17:54:23 -0400
+Message-ID: <448DE28D.3040708@rtr.ca>
+Date: Mon, 12 Jun 2006 17:54:21 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
+ error -28
+References: <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD50F.3060002@rtr.ca> <448DC93E.9050200@rtr.ca> <20060612204918.GA16898@suse.de> <448DD968.2010000@rtr.ca> <20060612212812.GA17458@suse.de>
+In-Reply-To: <20060612212812.GA17458@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.333 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 16:25 -0400, Horst von Brand wrote:
-> Bernd Petrovitsch <bernd@firmix.at> wrote:
-[...]
-> > The "problem" is that postmasters on the Net must do something
+Okay, with these two patches from -mm, the USB no longer dies
+when I plug in my hub/dock device:
+
+gregkh-usb-improved-tt-scheduling-for-ehci.patch
+gregkh-usb-usb-rmmod-pl2303-after-28.patch
+
+So let's get these pushed upstream sooner than later, please!
+
+(Original 2.6.17-rc6-git2 crash quoted below)
+ 
+> With 2.6.17-rc6-git2, I'm seeing this kernel message during start-up:
 > 
-> It took /years/ until open relays weren't common anymore... and that is a
-
-ACK. And it will take years to somwhat get a grip on the the spam
-problem. And will take more "tools" than SPF.
-
-> /simple/ measure, on by default in newer upstream packages, no admin
-> intervention required. DNS works badly, here in Chile a mayor ISP had a
-
-Well, the only necessary admin intervention was "update that MTA
-package". This seems trivial and no work for people used to
-yum/apt-get/urpmi/red-carpet/... but it looked quite differently 10
-years ago for other OSs (Win*, Solaris 2.5, etc., hell, I knew of a
-third-party MTA on Novell 3.12 where it was not even possible to
-deactivate relaying).
-
-> totally broken setup for many years.
-
-It was an interesting experience in Austria for (mostly small) ISPs that
-from one day to another email delivery didn't work anymore. No wonder
-since they had almost no reverse DNS zones .... 
-
-> >                                                                (namely
-> > 1) define if they want to allow others to detect forged emails claimed
-> > to come from their domain
+>  pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb, error -28
 > 
-> They have /very/ little to gain by that, and setting it up correctly is a
-> mayor hassle. It breaks people sending mail "from" the domain when they
-> aren't there (this is rather common for people on the road), and has no
-> real fix. I.e., it won't ever be done. Or it will be tried, some email from
-
-Use secure authenticated mail submission on a known good MTA of said
-domain (and even the smallest ISP should be able to set that up).
-Yes, this seems like a waste of everything - but IMHO neglectable
-compared to the ressources wasted by spam.
-
-> Big Cheese doesn't go through, and it will be axed.
+> The pl2303 serial port is part of a USB1.1 Hub/dock device,
+> plugged into a USB2 port on my notebook.
 > 
-> >                           and 2) - if yes to 1) - to get appropriate SPF
-> > records into DNS)
+> I get the same failure again when trying to use the port with Kermit.
+> This device was working fine here not long ago -- on the -rc5 kernels I think.
 > 
-> Many people have no (or very little) control over their DNS data. A spammer
-> can then just claim it comes from one of the millions of SPF-less domains
-> in the world (if they don't set up their own SPFied one...). Besides,
-> discussions on the spamassassin lists show that SPFied email is a rather
-> reliable indicator of spam as things stand today...
-
-Apparently spammers are faster to adopt new developments and standards
-than others. SCNR ...
-
-> >                   and people must either use a "good" mail relay (and
-> > not just the one next door) or convince postmasters to change the SPF
-> > records.
+> Unplugging the hub/dock does this:
 > 
-> Won't happen.
-> 
-> > > It'll break standard-abiding email.
-> 
-> > As you see, standards change.
-> 
-> Yep. But SPF breaks email, not just changes the standard. For no gain at all.
-
-Well, if you run a mail server behind a quite small line and some
-spammer really forges your domain in the From: so that it takes 4 days
-(yes, 96 hours) so that the bounce storm calms down and legitimate mail
-can be processed again, means against trivial domain forgeries make
-sense.
-
-> > > Do you really want that?
-> 
-> > Yes. Especially gmail.com should do such a thing - there is such a lot
-> > of - presumbly forged - @gmail.com mails in my mailboxes that
-> > blacklisting the whole domain causes probably more good than bad (for
-> > me, of course).
-> 
-> There is spam that really comes from gmail...
-
-Probably. But this is a problem gmail must (and only can) solve.
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+> kernel BUG at kernel/workqueue.c:110!
+> invalid opcode: 0000 [#1]
+> PREEMPT
+> Modules linked in: nfsd exportfs lockd nfs_acl sunrpc speedstep_centrino cpufreq_conservative cpufreq_stats cpufreq_userspace cpufreq_powersave freq_table cpufreq_ondemand thermal fan battery ac processor container video button rfcomm l2cap bluetooth cfq_iosched deflate zlib_deflate twofish serpent aes blowfish des sha256 sha1 crypto_null af_key sbp2 af_packet pl2303 usbserial ipw2200 pcmcia usblp usbhid snd_intel8x0 snd_ac97_codec snd_ac97_bus ieee80211 ieee80211_crypt yenta_socket sdhci mmc_core snd_pcm_oss snd_mixer_oss mousedev firmware_class rsrc_nonstatic pcmcia_core ohci1394 ieee1394 b44 mii snd_pcm snd_timer snd serio_raw pcspkr ehci_hcd uhci_hcd psmouse soundcore snd_page_alloc intel_agp agpgart usbcore sg sr_mod cdrom unix
+> CPU:    0
+> EIP:    0060:[queue_work+81/96]    Not tainted VLI
+> EFLAGS: 00210296   (2.6.17-rc6-git2 #1)
+> EIP is at queue_work+0x51/0x60
+> eax: f701113c   ebx: 00000000   ecx: b21b9f80   edx: f7011138
+> esi: f79bcc80   edi: f79bcc80   ebp: f78a7614   esp: f79e3e4c
+> ds: 007b   es: 007b   ss: 0068
+> Process khubd (pid: 1733, threadinfo=f79e2000 task=f7e86a90)
+> Stack: 00000000 f8b09d63 b01ca38f b02e136b f8972ad3 f78a7600 f8b17080 f8b170a4
+>       f78a7614 f89747f2 f78a767c f78a7614 b022240f f78a7614 f78a7614 f8989ae0
+>       b02226a6 f78a7614 b0221c87 f78a7614 f7be9058 00000001 b0220e35 f78a7600
+> Call Trace:
+> <f8b09d63> usb_serial_disconnect+0x53/0xd0 [usbserial]  <b01ca38f> kref_put+0x2f/0x80
+> <f8972ad3> usb_disable_interface+0x53/0x70 [usbcore]  <f89747f2> usb_unbind_interface+0x32/0x70 [usbcore]
+> <b022240f> __device_release_driver+0x5f/0xc0  <b02226a6> device_release_driver+0x16/0x30
+> <b0221c87> bus_remove_device+0x77/0x90  <b0220e35> device_del+0x35/0x70
+> <f8973733> usb_disable_device+0xb3/0x100 [usbcore]  <f896d404> usb_disconnect+0x94/0x100 [usbcore]
+> <f896d3f2> usb_disconnect+0x82/0x100 [usbcore]  <f896d3f2> usb_disconnect+0x82/0x100 [usbcore]
+> <f896fc1e> hub_thread+0x3be/0xc75 [usbcore]  <b012efc0> autoremove_wake_function+0x0/0x50
+> <b02b6d9f> preempt_schedule+0x4f/0x70  <b012eed6> kthread+0xd6/0xe0
+> <f896f860> hub_thread+0x0/0xc75 [usbcore]  <b012ee00> kthread+0x0/0xe0
+> <b0101005> kernel_thread_helper+0x5/0x10
+> Code: a8 08 75 1c 89 d8 5b c3 89 f6 8d 42 04 3b 42 04 75 19 8b 01 bb 01 00 00 00 e8 dc fa ff ff eb d3 e8 85 ae 18 00 89 d8 5b 89 f6 c3 <0f> 0b 6e 00 d1 de 2c b0 eb dd 90 8d 74 26 00 89 c2 a1 d4 d1 38
+> EIP: [queue_work+81/96] queue_work+0x51/0x60 SS:ESP 0068:f79e3e4c
+> <6>note: khubd[1733] exited with preempt_count 1

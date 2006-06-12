@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752208AbWFLTX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752231AbWFLTYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752208AbWFLTX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 15:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752210AbWFLTX3
+	id S1752231AbWFLTYe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 15:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752233AbWFLTYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 15:23:29 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:46819 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1752208AbWFLTX2 (ORCPT
+	Mon, 12 Jun 2006 15:24:34 -0400
+Received: from gold.veritas.com ([143.127.12.110]:29356 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1752228AbWFLTYd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 15:23:28 -0400
-Date: Mon, 12 Jun 2006 21:22:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Catalin Marinas <catalin.marinas@gmail.com>
-Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Message-ID: <20060612192227.GA5497@elte.hu>
-References: <20060611111815.8641.7879.stgit@localhost.localdomain> <20060611112156.8641.94787.stgit@localhost.localdomain> <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com> <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com> <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI> <20060612105345.GA8418@elte.hu> <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5002]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 12 Jun 2006 15:24:33 -0400
+X-IronPort-AV: i="4.05,229,1146466800"; 
+   d="scan'208"; a="60524940:sNHT30220528"
+Date: Mon, 12 Jun 2006 20:24:19 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: "Robin H. Johnson" <robbat2@gentoo.org>
+cc: linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] tmpfs time granularity fix for [acm]time going backwards.
+ Also VFS time granularity bug on creat(). (Repost, more content)
+In-Reply-To: <20060612051001.GA18634@curie-int.vc.shawcable.net>
+Message-ID: <Pine.LNX.4.64.0606122011020.18760@blonde.wat.veritas.com>
+References: <20060611115421.GE26475@curie-int.vc.shawcable.net>
+ <Pine.LNX.4.64.0606111833220.15060@blonde.wat.veritas.com>
+ <20060612051001.GA18634@curie-int.vc.shawcable.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 12 Jun 2006 19:24:32.0839 (UTC) FILETIME=[D549DD70:01C68E55]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Catalin Marinas <catalin.marinas@gmail.com> wrote:
-
-> On 12/06/06, Ingo Molnar <mingo@elte.hu> wrote:
-> >What i'd like to see though are clear explanations about why an
-> >allocation is not considered a leak, in terms of comments added to the
-> >code. That will also help us reduce the number of annotations later on.
+On Sun, 11 Jun 2006, Robin H. Johnson wrote:
+> On Sun, Jun 11, 2006 at 07:10:31PM +0100, Hugh Dickins wrote:
 > 
-> I'll document them in both Documentation/kmemleak.txt and inside the 
-> code. If I implement the "any pointer inside the block" method, all 
-> the memleak_padding() false positives will disappear.
+> > Perhaps we could devise a debug WARN_ON somewhere to check consistent
+> > granularity; but I don't have the ingenuity right now, and would need
+> > an additional superblock field or flag to not spam the logs horribly.
+> > Perhaps it's easier just to delete CURRENT_TIME, converting its users.
+> Yes, I'd agree that replacing CURRENT_TIME in filesystems with
+> current_fs_time should be worthwhile for all filesystems - That,
+> combined with your patch below to ensure they all use s_time_gran,
+> should ensure safety.
+> 
+> A total removal of CURRENT_TIME wouldn't work, there are a few other
+> users besides setting [acm]times - however as above, we should be able
+> to kill it for all filesystems.
 
-i dont know - i feel uneasy about the 'any pointer' method - it has a 
-high potential for false negatives, especially for structures that 
-contain strings (or other random data), etc.
+Well, with CURRENT_TIME defined, for some time to come we're likely
+to have new filesystems going into the tree, copying old filesystems,
+using CURRENT_TIME but not setting s_time_gran.  Undefining CURRENT_TIME
+and updating all its users would prevent that; but I don't intend to do
+so myself, and it certainly wouldn't be a 2.6.17 thing.
 
-did you consider the tracking of the types of allocated blocks 
-explicitly? I'd expect that most blocks dont have pointers embedded in 
-them that point to allocated blocks. For the ones that do, the 
-allocation could be extended with the type information. For each 
-affected type, we could annotate the structures themselves with offset 
-information. How intrusive would such a method be?
+> However CURRENT_TIME_SEC looks safe to convert, all of it's users are
+> filesystems.
 
-	Ingo
+There should be no need to change that one at all: it was introduced to
+match the default s_time_gran of one second, so filesystems using it
+are declaring that they understand all this.  Except for that odd
+stray usage in JFS.
+
+> > Setting that safety aside, the patch below (against 2.6.17-rc6) looks
+> > to me like all that's currently needed in mainline - but ecryptfs and
+> > reiser4 in the mm tree will also want fixing, and more discrepancies
+> > are sure to trickle in later.
+> I checked at well, and this does cover every filesystem I see in the
+> mainline.
+
+Oh, thanks a lot for double checking, that's a great help.
+
+> > If anyone thinks tmpfs is the most important to fix (I would think
+> > that, wouldn't I?), I can forward your fix to Linus ahead of the rest.
+> > Or if people agree the patch below is good, I can sign it off and send;
+> > or FS maintainers extract their own little parts.
+> I'd appreciate it tmpfs either of the fixes actually making it to
+> 2.6.17, there are a reasonable number of Gentoo users that use tmpfs as
+> temporary storage to compile stuff, and there's a long-standing argument
+> that tmpfs wasn't safe for that, due to this bug ;-).
+
+Right, I don't want Gentoo user impugning the safety of tmpfs:
+I'll send just your patch on to Linus; but divide the rest up
+to send to maintainers later (some of my choices may be wrong).
+
+Hugh

@@ -1,54 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWFLILK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWFLILb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWFLILK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 04:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWFLILK
+	id S1750779AbWFLILb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 04:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWFLILb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 04:11:10 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:32130 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750783AbWFLILI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 04:11:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SuAlY1AKe7yHmOJzLRM1p//iS/LKjyBdkIubRO1fDs0UeApBbJanpoNfKfP8wPbL2BldSE3JOje/WT7tF3Fcn2DfTXyMPXmYkDoqa0oZTEG10SRzkA1P8EU5WggQGPKoumFk+ClZFgtoDp/nJAPdkEFx2L3NsSKVa8w8fQO2Y94=
-Message-ID: <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-Date: Mon, 12 Jun 2006 09:11:07 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+	Mon, 12 Jun 2006 04:11:31 -0400
+Received: from mx1.suse.de ([195.135.220.2]:63642 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750848AbWFLILa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 04:11:30 -0400
+To: Matt Mackall <mpm@selenic.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
+Subject: Re: [PATCH] x86 built-in command line
+References: <20060611215530.GH24227@waste.org>
+From: Andi Kleen <ak@suse.de>
+Date: 12 Jun 2006 10:11:24 +0200
+In-Reply-To: <20060611215530.GH24227@waste.org>
+Message-ID: <p73odwyssib.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
-	 <20060611112156.8641.94787.stgit@localhost.localdomain>
-	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/06/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> Hi Catalin,
->
-> On 6/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> > There are allocations for which the main pointer cannot be found but they
-> > are not memory leaks. This patch fixes some of them.
->
-> Can we fix this by looking for pointers to anywhere in the allocated
-> memory block instead of just looking for the start?
+Matt Mackall <mpm@selenic.com> writes:
 
-I thought about this as well (I think that's how Valgrind works) but
-it would increase the chances of missing real leaks. It currently
-looks for the start of the block and a few locations inside the block
-(those from which the main pointer is computed using the
-container_of() macro).
+> This patch allows building in a kernel command line on x86 as is
+> possible on several other arches.
 
-I need to do some tests to see how it works but I won't be able to use
-the radix_tree (as storing each location in the block would lead to a
-huge tree).
+I'm surprised you didn't do the obvious "tiny" changes associated with
+that. Look at the static array sizes of the command line buffers.
 
--- 
-Catalin
+-Andi

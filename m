@@ -1,101 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752101AbWFLQB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752097AbWFLQBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752101AbWFLQB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 12:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752097AbWFLQB0
+	id S1752097AbWFLQBz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 12:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752106AbWFLQBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 12:01:26 -0400
-Received: from es335.com ([67.65.19.105]:60715 "EHLO mail.es335.com")
-	by vger.kernel.org with ESMTP id S1752075AbWFLQBZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 12:01:25 -0400
-Subject: Re: [PATCH v2 4/7] AMSO1100 Memory Management.
-From: Tom Tucker <tom@opengridcomputing.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Steve Wise <swise@opengridcomputing.com>, rdreier@cisco.com,
-       mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20060608011744.1a66e85a.akpm@osdl.org>
-References: <20060607200646.9259.24588.stgit@stevo-desktop>
-	 <20060607200655.9259.90768.stgit@stevo-desktop>
-	 <20060608011744.1a66e85a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 11:05:49 -0500
-Message-Id: <1150128349.22704.20.camel@trinity.ogc.int>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Mon, 12 Jun 2006 12:01:55 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:16235 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1752102AbWFLQBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 12:01:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FGzKX4hxxNoplga3uKmEjus+cUCS+bn6eQoYhjFI+sGvDxIGwW1jNY4bl0d6qNSOS71SkHmAHRoB57k1Ovdk/IG9yUQ+4pb+rMOQdkzSIyFlVY1zoBJKog/J4eqbE4GSjqMOUHApUsey9QNI9982oB43jiH270tspB9IvJjVyrs=
+Message-ID: <88ee31b70606120901ud36842eu99355a546fea59cc@mail.gmail.com>
+Date: Tue, 13 Jun 2006 01:01:53 +0900
+From: "Jerome Pinot" <ngc891@gmail.com>
+To: "Pete Zaitcev" <zaitcev@redhat.com>
+Subject: Re: Patch for atkbd.c from Ubuntu
+Cc: "Dmitry Torokhov" <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <20060612002650.6f61a83b.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060524113139.e457d3a8.zaitcev@redhat.com>
+	 <200605290059.32302.dtor_core@ameritech.net>
+	 <20060528233420.9de79795.zaitcev@redhat.com>
+	 <200606120049.13974.dtor_core@ameritech.net>
+	 <20060612002650.6f61a83b.zaitcev@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-08 at 01:17 -0700, Andrew Morton wrote:
-> On Wed, 07 Jun 2006 15:06:55 -0500
-> Steve Wise <swise@opengridcomputing.com> wrote:
-> 
-> > 
-> > +void c2_free(struct c2_alloc *alloc, u32 obj)
-> > +{
-> > +	spin_lock(&alloc->lock);
-> > +	clear_bit(obj, alloc->table);
-> > +	spin_unlock(&alloc->lock);
-> > +}
-> 
-> The spinlock is unneeded here.
+On 6/12/06, Pete Zaitcev <zaitcev@redhat.com> wrote:
+> On Mon, 12 Jun 2006 00:49:13 -0400, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+[...]
+> Sounds good. Hangul is usually spelled without 'E' in the West, but
+> I am not Korean, I can't know what is right.
+>
+> -- Pete
 
-Good point.
+Maybe a good time, at last, to correct this mispelling ?
 
-> 
-> 
-> What does all the code in this file do, anyway?  It looks totally generic
-> (and hence inappropriate for drivers/infiniband/hw/amso1100/) and somewhat
-> similar to idr trees, perhaps.
-> 
+http://lists.osdl.org/pipermail/kernel-janitors/2005-October/004970.html
 
-We mimicked the mthca driver. It may be code that should be replaced
-with Linux core services for new drivers. We'll investigate.
+Regards,
 
-> > +int c2_array_set(struct c2_array *array, int index, void *value)
-> > +{
-> > +	int p = (index * sizeof(void *)) >> PAGE_SHIFT;
-> > +
-> > +	/* Allocate with GFP_ATOMIC because we'll be called with locks held. */
-> > +	if (!array->page_list[p].page)
-> > +		array->page_list[p].page =
-> > +		    (void **) get_zeroed_page(GFP_ATOMIC);
-> > +
-> > +	if (!array->page_list[p].page)
-> > +		return -ENOMEM;
-> 
-> This _will_ happen under load.  What will the result of that be, in the
-> context of thise driver?
-
-A higher level object allocation will fail. In this case, a kernel
-application request will fail and the application must handle the error.
-> 
-> This function is incorrectly designed - it should receive a gfp_t argument.
-> Because you don't *know* that the caller will always hold a spinlock.  And
-> GFP_KERNEL is far, far stronger than GFP_ATOMIC.
-
-This service is allocating a page that the adapter will DMA 2B message
-indices into. 
-> 
-> > +static int c2_alloc_mqsp_chunk(gfp_t gfp_mask, struct sp_chunk **head)
-> > +{
-> > +	int i;
-> > +	struct sp_chunk *new_head;
-> > +
-> > +	new_head = (struct sp_chunk *) __get_free_page(gfp_mask | GFP_DMA);
-> 
-> Why is __GFP_DMA in there?  Unless you've cornered the ISA bus infiniband
-> market, it's likely to be wrong.
-> 
-
-Flag confusion about what GFP_DMA means. We'll revisit this whole
-file ... 
-
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+-- 
+Jerome Pinot
+http://ngc891.blogdns.net/

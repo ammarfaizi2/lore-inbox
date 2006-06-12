@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWFLWBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWFLWDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWFLWBY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 18:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWFLWBY
+	id S932416AbWFLWDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 18:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWFLWDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 18:01:24 -0400
-Received: from outbound-kan.frontbridge.com ([63.161.60.23]:65122 "EHLO
-	outbound2-kan-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S932412AbWFLWBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 18:01:23 -0400
+	Mon, 12 Jun 2006 18:03:16 -0400
+Received: from outbound-haw.frontbridge.com ([12.129.219.97]:42857 "EHLO
+	outbound2-haw-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S932416AbWFLWDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 18:03:15 -0400
 X-BigFish: V
-Message-ID: <448DE3FF.5030304@am.sony.com>
-Date: Mon, 12 Jun 2006 15:00:31 -0700
+Message-ID: <448DE4A1.2030906@am.sony.com>
+Date: Mon, 12 Jun 2006 15:03:13 -0700
 From: Tim Bird <tim.bird@am.sony.com>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Matt Mackall <mpm@selenic.com>, hpa@zytor.com,
-       linux-kernel@vger.kernel.org
+To: tglx@linutronix.de
+CC: Matt Mackall <mpm@selenic.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] x86 built-in command line
-References: <20060612144505.ee4788f0.rdunlap@xenotime.net>
-In-Reply-To: <20060612144505.ee4788f0.rdunlap@xenotime.net>
+References: <1150148707.5257.284.camel@localhost.localdomain>
+In-Reply-To: <1150148707.5257.284.camel@localhost.localdomain>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> I frequently override command line options.  I guess I have no
-> use for this patch.
+Thomas Gleixner wrote:
+> This would also ensure compability with grub and friends, which I
+> consider as a real strong argument to avoid breakage all over the place.
 
-Randy,
-
-Do you override the complete command line or individual boot args?
-On what platform(s)?
-
-Thanks - just trying to learn other people's situations...
+In any of the cases, wouldn't you have to set the option in order
+to break something?
  -- Tim
 
 =============================

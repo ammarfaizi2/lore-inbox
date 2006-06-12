@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWFLKMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751754AbWFLKOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751752AbWFLKMU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 06:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWFLKMU
+	id S1751754AbWFLKOm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 06:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751758AbWFLKOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 06:12:20 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:7441 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751752AbWFLKMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 06:12:18 -0400
-In-Reply-To: <20060612095008.21733.qmail@www.wolff-online.nl>
-References: <20060612095008.21733.qmail@www.wolff-online.nl>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <FEBBD28D-B00D-42DB-A2EB-13A501D7FBC2@oxley.org>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 12 Jun 2006 06:14:42 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31113 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751754AbWFLKOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 06:14:41 -0400
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Neil Brown <neilb@suse.de>
+Cc: jdow <jdow@earthlink.net>, Bernd Petrovitsch <bernd@firmix.at>,
+       davids@webmaster.com, linux-kernel@vger.kernel.org
+In-Reply-To: <17549.14402.71021.274336@cse.unsw.edu.au>
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+	 <193701c68d16$54cac690$0225a8c0@Wednesday>
+	 <1150100286.26402.13.camel@tara.firmix.at>
+	 <00de01c68df9$7d2b2330$0225a8c0@Wednesday>
+	 <17549.14402.71021.274336@cse.unsw.edu.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-From: Felix Oxley <lkml@oxley.org>
-Subject: Re: Good performance (hard realtime ??) on 2.6.16 patched with patch-2.6.16-rt29 from Ingo Molnar
-Date: Mon, 12 Jun 2006 11:12:08 +0100
-To: kernel@wolff-online.nl
-X-Mailer: Apple Mail (2.750)
+Date: Mon, 12 Jun 2006 11:30:20 +0100
+Message-Id: <1150108220.22124.164.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Llu, 2006-06-12 am 19:47 +1000, ysgrifennodd Neil Brown:
+> mailing list shortly before I had to unsubscribe) is to develop a
+> mechanism to measure the credibility of new domains.  No point doing
+> this until authenticity is fairly reliable, but once it is, that will
+> be the next logical step.
 
-On 12 Jun 2006, at 10:50, kernel@wolff-online.nl wrote:
+Which is very very hard.
 
-> Hello,
-> I have tested 2.6.16 patched with 2.6.16-rt29 on two ordinary boxes  
-> (Dell PIII, 780 Mhz, IDE disks) connected back to back with  
-> ethernet cross at 100Mbit, one broadcasting small udp messages  
-> @50Hz, the other receiving those messages. Distro Mandriva 2006.0,  
-> used .config from them.
-> Conditions:
-> * Sending and receiving process @RT priority, FIFO, prio 99
-> * Sending box is almost idle, receiving box heavily loaded (cpu /  
-> mem).
-> * Watchdog/0 non RT (this setting is critical!)
-> * IRQ from network card on RT prio, rx thread from softirq-net-rx  
-> on RT prio (FIFO)
-> * posix_cpu_timer on RT
-> * kernel compiled without preemption debugging, complete realtime,  
-> scheduler@100Hz
-> * receiving process memory locked MCL_CURRENT|MCL_FUTURE
-> * Heavily loaded (continuously compiling kernel, with 100 jobs in  
-> parallel)
-> I see following figures:
-> max latency 512 microseconds on receiving box, during 24 hours of  
-> heavily testing.
-> ** this looks like hard realtime, am I correct, or is this  
-> coincidence ?
-> Thanks
-> Carl.
->
+Think about it logically. Today to get a domain you need a credit/debit
+card. A credit/debit card is ID managed by organisations very keen that
+they don't get copied or faked. You are talking about building a
+worldwide system that is more effective than the ones the banks run: for
+a ten US dollar (ie peanuts and falling) value domain.
 
-Could you explain to me, in nice easy steps, how you got the  
-measurement?
-Specifically what triggered the 'start' of your time slice?
-BTW, where you using hi resolution timers?
-You say the max latency was 512usecs. What were the mean and mode?
+Alan
 
-(Regarding Hard Real Time, my understanding is that that depends on a  
-_guarantee_ that the system will always be able to produce the  
-'result' within the required interval. Ingo's -rt patches may give  
-exceedingly good responsiveness but they offer no guarantees, so they  
-cannot be considered Hard Real Time)
-
-//felix

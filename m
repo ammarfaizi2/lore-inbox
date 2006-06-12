@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752098AbWFLP6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752095AbWFLP6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752098AbWFLP6J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 11:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752097AbWFLP6J
+	id S1752095AbWFLP6E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 11:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWFLP6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 11:58:09 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:20866 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752098AbWFLP6H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 11:58:07 -0400
-Date: Mon, 12 Jun 2006 08:58:34 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Another couple of alterations to the memory barrier doc
-Message-ID: <20060612155834.GC1293@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <10587.1150108931@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jun 2006 11:58:03 -0400
+Received: from pih-relay04.plus.net ([212.159.14.131]:7378 "EHLO
+	pih-relay04.plus.net") by vger.kernel.org with ESMTP
+	id S1752095AbWFLP6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 11:58:02 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: PS/2 vs IDE problem on Athlon64 X2
+Date: Mon, 12 Jun 2006 16:57:01 +0100
+User-Agent: KMail/1.9.3
+Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
+References: <20060612074437.0690014018@rhn.tartu-labor> <200606121201.57708.rjw@sisk.pl>
+In-Reply-To: <200606121201.57708.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <10587.1150108931@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200606121657.01555.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 11:42:11AM +0100, David Howells wrote:
-> 
-> The attached patch makes another couple of alterations to the memory barrier
-> document following suggestions by Alan Stern and in co-operation with Paul
-> McKenney:
-> 
->  (*) Rework the point of introduction of memory barriers and the description
->      of what they are to reiterate why they're needed.
-> 
->  (*) Modify a statement about the use of data dependency barriers to note that
->      other barriers can be used instead (as they imply DD-barriers).
+On Monday 12 June 2006 11:01, Rafael J. Wysocki wrote:
+> On Monday 12 June 2006 09:44, Meelis Roos wrote:
+> > RJW> I have a machnine with Athlon64 X2 and AsRock 939Dual-SATA2 mobo
+> > (based RJW> on the ULI chipset) on which the PS/2 devices (keyboard and
+> > mouse) are in a RJW> bad correlation with IDE, or at least with the
+> > LiteOn DVD burner attached to it.
+> >
+> > I recently got the same mainboard and it works fine for me with CD
+> > reading/writing (LG CDRW, no DVD drive). Just tried yesterday, wrote a
+> > CD at speed 12 and then read it as fast as it could and I did not notice
+> > anything wrong. I'm using PS/2 keyboard and mouse and a very recent git
+> > kernel (2.6.17-rc6+...). Maybe the CD speed is not enough to trigger it.
+>
+> That would probably mean there's a hardware problem with my mobo.  Well ...
 
-Good stuff!
+This problem certainly sounds like a hardware fault. If you're not using the 
+latest BIOS for this board, I suggest you upgrade it.
 
-							Thanx, Paul
+-- 
+Cheers,
+Alistair.
 
-Acked-By: Paul E. McKenney <paulmck@us.ibm.com>
-> Signed-Off-By: David Howells <dhowells@redhat.com>
-> ---
-> warthog>diffstat -p1 /tmp/mb.diff 
->  Documentation/memory-barriers.txt |   15 ++++++++++-----
->  1 file changed, 10 insertions(+), 5 deletions(-)
-> 
-> diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-> index 4710845..cc53f47 100644
-> --- a/Documentation/memory-barriers.txt
-> +++ b/Documentation/memory-barriers.txt
-> @@ -262,9 +262,14 @@ What is required is some way of interven
->  CPU to restrict the order.
->  
->  Memory barriers are such interventions.  They impose a perceived partial
-> -ordering between the memory operations specified on either side of the barrier.
-> -They request that the sequence of memory events generated appears to other
-> -parts of the system as if the barrier is effective on that CPU.
-> +ordering over the memory operations on either side of the barrier.
-> +
-> +Such enforcement is important because the CPUs and other devices in a system
-> +can use a variety of tricks to improve performance - including reordering,
-> +deferral and combination of memory operations; speculative loads; speculative
-> +branch prediction and various types of caching.  Memory barriers are used to
-> +override or suppress these tricks, allowing the code to sanely control the
-> +interaction of multiple CPUs and/or devices.
->  
->  
->  VARIETIES OF MEMORY BARRIER
-> @@ -461,8 +466,8 @@ Whilst this may seem like a failure of c
->  isn't, and this behaviour can be observed on certain real CPUs (such as the DEC
->  Alpha).
->  
-> -To deal with this, a data dependency barrier must be inserted between the
-> -address load and the data load:
-> +To deal with this, a data dependency barrier or better must be inserted
-> +between the address load and the data load:
->  
->  	CPU 1		CPU 2
->  	===============	===============
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

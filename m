@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWFLHTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWFLH1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWFLHTr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 03:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWFLHTr
+	id S1751515AbWFLH1F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 03:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWFLH1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 03:19:47 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:4828 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751025AbWFLHTq (ORCPT
+	Mon, 12 Jun 2006 03:27:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62381 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751531AbWFLH1C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 03:19:46 -0400
-Date: Mon, 12 Jun 2006 09:19:33 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Robin H. Johnson" <robbat2@gentoo.org>
-cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] tmpfs time granularity fix for [acm]time going backwards.
- Also VFS time granularity bug on creat(). (Repost, more content)
-In-Reply-To: <20060612051001.GA18634@curie-int.vc.shawcable.net>
-Message-ID: <Pine.LNX.4.61.0606120917270.2918@yvahk01.tjqt.qr>
-References: <20060611115421.GE26475@curie-int.vc.shawcable.net>
- <Pine.LNX.4.64.0606111833220.15060@blonde.wat.veritas.com>
- <20060612051001.GA18634@curie-int.vc.shawcable.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jun 2006 03:27:02 -0400
+Date: Mon, 12 Jun 2006 00:26:50 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Patch for atkbd.c from Ubuntu
+Message-Id: <20060612002650.6f61a83b.zaitcev@redhat.com>
+In-Reply-To: <200606120049.13974.dtor_core@ameritech.net>
+References: <20060524113139.e457d3a8.zaitcev@redhat.com>
+	<200605290059.32302.dtor_core@ameritech.net>
+	<20060528233420.9de79795.zaitcev@redhat.com>
+	<200606120049.13974.dtor_core@ameritech.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > After some digging, I found that this was being caused by tmpfs not having a
->> > time granularity set, thus inheriting the default 1s granularity.
->> That's a great little discovery, and a very good report and analysis:
->> thank you.  Seems tmpfs got missed when s_time_gran was added in 2.6.11,
->> and I (tmpfs maintainer) failed to notice that patch going past.
->Ah, ok, it was mentioned to me there was a maintainer for tmpfs,
->
-Well I was not for sure there was one. I just repeated what Linus said to 
-me a while ago when trying to figure out why a patch did not get 
-in or replied to. :p
+On Mon, 12 Jun 2006 00:49:13 -0400, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
+> I am backpedaling on that problem. It seems that HANGUEL/HANJA scancodes are
+> pretty well-defined an we need to make them work properly. Please look here
+> for the proposed patch:
+> 
+> 	http://bugzilla.kernel.org/show_bug.cgi?id=6642
 
-Jan Engelhardt
--- 
+Sounds good. Hangul is usually spelled without 'E' in the West, but
+I am not Korean, I can't know what is right.
+
+-- Pete

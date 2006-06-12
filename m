@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWFLVNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWFLVNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWFLVNK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 17:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWFLVNK
+	id S932271AbWFLVNb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 17:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWFLVNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 17:13:10 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38319 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751443AbWFLVNH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 17:13:07 -0400
-Date: Mon, 12 Jun 2006 14:12:50 -0700 (PDT)
+	Mon, 12 Jun 2006 17:13:12 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:25257 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751517AbWFLVNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 17:13:09 -0400
+Date: Mon, 12 Jun 2006 14:12:55 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
@@ -17,1190 +17,582 @@ Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20060612211250.20862.71521.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060612211255.20862.39044.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 01/21] Create vmstat.c/.h from page_alloc.c/.h
+Subject: [PATCH 02/21] Basic ZVC (zoned vm counter) implementation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move counter code from page_alloc.c/page-flags.h to vmstat.c/h.
+Subject: zoned vm counters: per zone counter functionality
+From: Christoph Lameter <clameter@sgi.com>
 
-Create vmstat.c/vmstat.h by separating the counter code and the proc functions.
+Per zone counter infrastructure
 
-Move the vm_stat_text array before zoneinfo_show.
+The counters that we currently have for the VM are split per processor.
+The processor however has not much to do with the zone these pages belong
+to. We cannot tell f.e. how many ZONE_DMA pages are dirty.
+
+So we are blind to potentially inbalances in the usage of memory in various
+zones.  F.e. in a NUMA system we cannot tell how many pages are dirty on
+a particular node.  If we knew then we could put measures into the VM to balance
+the use of memory between different zones and different nodes in a NUMA
+system. For example it would be possible to limit the dirty pages per node
+so that fast local memory is kept available even if a process is dirtying
+huge amounts of pages.
+
+Another example is zone reclaim.  We do not know how many unmapped pages exist
+per zone.  So we just have to try to reclaim.  If it is not working then we
+pause and try again later.  It would be better if we knew when it makes sense
+to reclaim unmapped pages from a zone.  This patchset allows the determination
+of the number of unmapped pages per zone.  We can remove the zone reclaim
+interval with the counters introduced here.
+
+Futhermore the ability to have various usage statistics available will allow
+the development of new NUMA balancing algorithms that may be able to improve
+the decision making in the scheduler of when to move a process to another node
+and hopefully will also enable automatic page migration through a user space
+program that can analyse the memory load distribution and then rebalance
+memory use in order to increase performance.
+
+The counter framework here implements differential counters for each processor
+in struct zone.  The differential counters are consolidated when a threshold
+is exceeded (like done in the current implementation for nr_pageache), when
+slab reaping occurs or when a consolidation function is called.
+
+Consolidation uses atomic operations and accumulates counters per zone in the
+zone structure and also globally in the vm_stat array.  VM functions can
+access the counts by simply indexing a global or zone specific array.
+
+The arrangement of counters in an array also simplifies processing when output
+has to be generated for /proc/*.
+
+Counters can be updated by calling *_zone_page_state or  __*_zone_page_state
+analogous to *_page_state. The second group of functions can be called if it
+is known that interrupts are disabled.
+
+Special optimized increment and decrement functions are provided.  These can
+avoid certain checks and use increment or decrement instructions that an
+architecture may provide.
+
+We also add a new CONFIG_DMA_IS_NORMAL that signifies that an architecture
+can do DMA to all memory and therefore ZONE_NORMAL will not be populated.
+This is only currently set for ia64 and only affects node_page_state(). In
+the best case node_page_state can be reduced to retrieving a single counter
+for the one zone on the node.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-Index: linux-2.6.17-rc6-cl/include/linux/page-flags.h
+Index: linux-2.6.17-rc6-cl/include/linux/mmzone.h
 ===================================================================
---- linux-2.6.17-rc6-cl.orig/include/linux/page-flags.h	2006-06-12 12:42:50.853428498 -0700
-+++ linux-2.6.17-rc6-cl/include/linux/page-flags.h	2006-06-12 12:43:12.081607020 -0700
-@@ -5,11 +5,7 @@
- #ifndef PAGE_FLAGS_H
- #define PAGE_FLAGS_H
- 
--#include <linux/percpu.h>
--#include <linux/cache.h>
--#include <linux/types.h>
--
--#include <asm/pgtable.h>
-+#include <linux/vmstat.h>
- 
- /*
-  * Various page->flags bits:
-@@ -105,134 +101,6 @@
+--- linux-2.6.17-rc6-cl.orig/include/linux/mmzone.h	2006-06-12 12:42:50.753825287 -0700
++++ linux-2.6.17-rc6-cl/include/linux/mmzone.h	2006-06-12 12:54:33.238664762 -0700
+@@ -46,6 +46,9 @@ struct zone_padding {
+ #define ZONE_PADDING(name)
  #endif
  
- /*
-- * Global page accounting.  One instance per CPU.  Only unsigned longs are
-- * allowed.
-- *
-- * - Fields can be modified with xxx_page_state and xxx_page_state_zone at
-- * any time safely (which protects the instance from modification by
-- * interrupt.
-- * - The __xxx_page_state variants can be used safely when interrupts are
-- * disabled.
-- * - The __xxx_page_state variants can be used if the field is only
-- * modified from process context and protected from preemption, or only
-- * modified from interrupt context.  In this case, the field should be
-- * commented here.
-- */
--struct page_state {
--	unsigned long nr_dirty;		/* Dirty writeable pages */
--	unsigned long nr_writeback;	/* Pages under writeback */
--	unsigned long nr_unstable;	/* NFS unstable pages */
--	unsigned long nr_page_table_pages;/* Pages used for pagetables */
--	unsigned long nr_mapped;	/* mapped into pagetables.
--					 * only modified from process context */
--	unsigned long nr_slab;		/* In slab */
--#define GET_PAGE_STATE_LAST nr_slab
--
--	/*
--	 * The below are zeroed by get_page_state().  Use get_full_page_state()
--	 * to add up all these.
--	 */
--	unsigned long pgpgin;		/* Disk reads */
--	unsigned long pgpgout;		/* Disk writes */
--	unsigned long pswpin;		/* swap reads */
--	unsigned long pswpout;		/* swap writes */
--
--	unsigned long pgalloc_high;	/* page allocations */
--	unsigned long pgalloc_normal;
--	unsigned long pgalloc_dma32;
--	unsigned long pgalloc_dma;
--
--	unsigned long pgfree;		/* page freeings */
--	unsigned long pgactivate;	/* pages moved inactive->active */
--	unsigned long pgdeactivate;	/* pages moved active->inactive */
--
--	unsigned long pgfault;		/* faults (major+minor) */
--	unsigned long pgmajfault;	/* faults (major only) */
--
--	unsigned long pgrefill_high;	/* inspected in refill_inactive_zone */
--	unsigned long pgrefill_normal;
--	unsigned long pgrefill_dma32;
--	unsigned long pgrefill_dma;
--
--	unsigned long pgsteal_high;	/* total highmem pages reclaimed */
--	unsigned long pgsteal_normal;
--	unsigned long pgsteal_dma32;
--	unsigned long pgsteal_dma;
--
--	unsigned long pgscan_kswapd_high;/* total highmem pages scanned */
--	unsigned long pgscan_kswapd_normal;
--	unsigned long pgscan_kswapd_dma32;
--	unsigned long pgscan_kswapd_dma;
--
--	unsigned long pgscan_direct_high;/* total highmem pages scanned */
--	unsigned long pgscan_direct_normal;
--	unsigned long pgscan_direct_dma32;
--	unsigned long pgscan_direct_dma;
--
--	unsigned long pginodesteal;	/* pages reclaimed via inode freeing */
--	unsigned long slabs_scanned;	/* slab objects scanned */
--	unsigned long kswapd_steal;	/* pages reclaimed by kswapd */
--	unsigned long kswapd_inodesteal;/* reclaimed via kswapd inode freeing */
--	unsigned long pageoutrun;	/* kswapd's calls to page reclaim */
--	unsigned long allocstall;	/* direct reclaim calls */
--
--	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
--	unsigned long nr_bounce;	/* pages for bounce buffers */
--};
--
--extern void get_page_state(struct page_state *ret);
--extern void get_page_state_node(struct page_state *ret, int node);
--extern void get_full_page_state(struct page_state *ret);
--extern unsigned long read_page_state_offset(unsigned long offset);
--extern void mod_page_state_offset(unsigned long offset, unsigned long delta);
--extern void __mod_page_state_offset(unsigned long offset, unsigned long delta);
--
--#define read_page_state(member) \
--	read_page_state_offset(offsetof(struct page_state, member))
--
--#define mod_page_state(member, delta)	\
--	mod_page_state_offset(offsetof(struct page_state, member), (delta))
--
--#define __mod_page_state(member, delta)	\
--	__mod_page_state_offset(offsetof(struct page_state, member), (delta))
--
--#define inc_page_state(member)		mod_page_state(member, 1UL)
--#define dec_page_state(member)		mod_page_state(member, 0UL - 1)
--#define add_page_state(member,delta)	mod_page_state(member, (delta))
--#define sub_page_state(member,delta)	mod_page_state(member, 0UL - (delta))
--
--#define __inc_page_state(member)	__mod_page_state(member, 1UL)
--#define __dec_page_state(member)	__mod_page_state(member, 0UL - 1)
--#define __add_page_state(member,delta)	__mod_page_state(member, (delta))
--#define __sub_page_state(member,delta)	__mod_page_state(member, 0UL - (delta))
--
--#define page_state(member) (*__page_state(offsetof(struct page_state, member)))
--
--#define state_zone_offset(zone, member)					\
--({									\
--	unsigned offset;						\
--	if (is_highmem(zone))						\
--		offset = offsetof(struct page_state, member##_high);	\
--	else if (is_normal(zone))					\
--		offset = offsetof(struct page_state, member##_normal);	\
--	else if (is_dma32(zone))					\
--		offset = offsetof(struct page_state, member##_dma32);	\
--	else								\
--		offset = offsetof(struct page_state, member##_dma);	\
--	offset;								\
--})
--
--#define __mod_page_state_zone(zone, member, delta)			\
-- do {									\
--	__mod_page_state_offset(state_zone_offset(zone, member), (delta)); \
-- } while (0)
--
--#define mod_page_state_zone(zone, member, delta)			\
-- do {									\
--	mod_page_state_offset(state_zone_offset(zone, member), (delta)); \
-- } while (0)
--
--/*
-  * Manipulation of page state flags
-  */
- #define PageLocked(page)		\
-Index: linux-2.6.17-rc6-cl/mm/Makefile
-===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/Makefile	2006-06-12 12:42:52.028160490 -0700
-+++ linux-2.6.17-rc6-cl/mm/Makefile	2006-06-12 12:43:12.082583522 -0700
-@@ -10,7 +10,7 @@ mmu-$(CONFIG_MMU)	:= fremap.o highmem.o 
- obj-y			:= bootmem.o filemap.o mempool.o oom_kill.o fadvise.o \
- 			   page_alloc.o page-writeback.o pdflush.o \
- 			   readahead.o swap.o truncate.o vmscan.o \
--			   prio_tree.o util.o mmzone.o $(mmu-y)
-+			   prio_tree.o util.o mmzone.o vmstat.o $(mmu-y)
++enum zone_stat_item {
++	NR_STAT_ITEMS };
++
+ struct per_cpu_pages {
+ 	int count;		/* number of pages in the list */
+ 	int high;		/* high watermark, emptying needed */
+@@ -55,6 +58,10 @@ struct per_cpu_pages {
  
- obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
- obj-$(CONFIG_SWAP_PREFETCH) += swap_prefetch.o
-Index: linux-2.6.17-rc6-cl/include/linux/mm.h
-===================================================================
---- linux-2.6.17-rc6-cl.orig/include/linux/mm.h	2006-06-12 12:42:50.747966275 -0700
-+++ linux-2.6.17-rc6-cl/include/linux/mm.h	2006-06-12 12:43:12.083560024 -0700
-@@ -4,6 +4,7 @@
- #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/capability.h>
-+#include <linux/vmstat.h>
- 
- #ifdef __KERNEL__
- 
-@@ -37,7 +38,6 @@ extern int sysctl_legacy_va_layout;
- #include <asm/page.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
--#include <asm/atomic.h>
- 
- #define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
- 
-Index: linux-2.6.17-rc6-cl/include/linux/vmstat.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.17-rc6-cl/include/linux/vmstat.h	2006-06-12 12:43:12.084536526 -0700
-@@ -0,0 +1,135 @@
-+#ifndef _LINUX_VMSTAT_H
-+#define _LINUX_VMSTAT_H
-+
-+#include <linux/types.h>
-+
-+/*
-+ * Global page accounting.  One instance per CPU.  Only unsigned longs are
-+ * allowed.
-+ *
-+ * - Fields can be modified with xxx_page_state and xxx_page_state_zone at
-+ * any time safely (which protects the instance from modification by
-+ * interrupt.
-+ * - The __xxx_page_state variants can be used safely when interrupts are
-+ * disabled.
-+ * - The __xxx_page_state variants can be used if the field is only
-+ * modified from process context and protected from preemption, or only
-+ * modified from interrupt context.  In this case, the field should be
-+ * commented here.
-+ */
-+struct page_state {
-+	unsigned long nr_dirty;		/* Dirty writeable pages */
-+	unsigned long nr_writeback;	/* Pages under writeback */
-+	unsigned long nr_unstable;	/* NFS unstable pages */
-+	unsigned long nr_page_table_pages;/* Pages used for pagetables */
-+	unsigned long nr_mapped;	/* mapped into pagetables.
-+					 * only modified from process context */
-+	unsigned long nr_slab;		/* In slab */
-+#define GET_PAGE_STATE_LAST nr_slab
-+
-+	/*
-+	 * The below are zeroed by get_page_state().  Use get_full_page_state()
-+	 * to add up all these.
-+	 */
-+	unsigned long pgpgin;		/* Disk reads */
-+	unsigned long pgpgout;		/* Disk writes */
-+	unsigned long pswpin;		/* swap reads */
-+	unsigned long pswpout;		/* swap writes */
-+
-+	unsigned long pgalloc_high;	/* page allocations */
-+	unsigned long pgalloc_normal;
-+	unsigned long pgalloc_dma32;
-+	unsigned long pgalloc_dma;
-+
-+	unsigned long pgfree;		/* page freeings */
-+	unsigned long pgactivate;	/* pages moved inactive->active */
-+	unsigned long pgdeactivate;	/* pages moved active->inactive */
-+
-+	unsigned long pgfault;		/* faults (major+minor) */
-+	unsigned long pgmajfault;	/* faults (major only) */
-+
-+	unsigned long pgrefill_high;	/* inspected in refill_inactive_zone */
-+	unsigned long pgrefill_normal;
-+	unsigned long pgrefill_dma32;
-+	unsigned long pgrefill_dma;
-+
-+	unsigned long pgsteal_high;	/* total highmem pages reclaimed */
-+	unsigned long pgsteal_normal;
-+	unsigned long pgsteal_dma32;
-+	unsigned long pgsteal_dma;
-+
-+	unsigned long pgscan_kswapd_high;/* total highmem pages scanned */
-+	unsigned long pgscan_kswapd_normal;
-+	unsigned long pgscan_kswapd_dma32;
-+	unsigned long pgscan_kswapd_dma;
-+
-+	unsigned long pgscan_direct_high;/* total highmem pages scanned */
-+	unsigned long pgscan_direct_normal;
-+	unsigned long pgscan_direct_dma32;
-+	unsigned long pgscan_direct_dma;
-+
-+	unsigned long pginodesteal;	/* pages reclaimed via inode freeing */
-+	unsigned long slabs_scanned;	/* slab objects scanned */
-+	unsigned long kswapd_steal;	/* pages reclaimed by kswapd */
-+	unsigned long kswapd_inodesteal;/* reclaimed via kswapd inode freeing */
-+	unsigned long pageoutrun;	/* kswapd's calls to page reclaim */
-+	unsigned long allocstall;	/* direct reclaim calls */
-+
-+	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
-+	unsigned long nr_bounce;	/* pages for bounce buffers */
-+};
-+
-+extern void get_page_state(struct page_state *ret);
-+extern void get_page_state_node(struct page_state *ret, int node);
-+extern void get_full_page_state(struct page_state *ret);
-+extern unsigned long read_page_state_offset(unsigned long offset);
-+extern void mod_page_state_offset(unsigned long offset, unsigned long delta);
-+extern void __mod_page_state_offset(unsigned long offset, unsigned long delta);
-+
-+#define read_page_state(member) \
-+	read_page_state_offset(offsetof(struct page_state, member))
-+
-+#define mod_page_state(member, delta)	\
-+	mod_page_state_offset(offsetof(struct page_state, member), (delta))
-+
-+#define __mod_page_state(member, delta)	\
-+	__mod_page_state_offset(offsetof(struct page_state, member), (delta))
-+
-+#define inc_page_state(member)		mod_page_state(member, 1UL)
-+#define dec_page_state(member)		mod_page_state(member, 0UL - 1)
-+#define add_page_state(member,delta)	mod_page_state(member, (delta))
-+#define sub_page_state(member,delta)	mod_page_state(member, 0UL - (delta))
-+
-+#define __inc_page_state(member)	__mod_page_state(member, 1UL)
-+#define __dec_page_state(member)	__mod_page_state(member, 0UL - 1)
-+#define __add_page_state(member,delta)	__mod_page_state(member, (delta))
-+#define __sub_page_state(member,delta)	__mod_page_state(member, 0UL - (delta))
-+
-+#define page_state(member) (*__page_state(offsetof(struct page_state, member)))
-+
-+#define state_zone_offset(zone, member)					\
-+({									\
-+	unsigned offset;						\
-+	if (is_highmem(zone))						\
-+		offset = offsetof(struct page_state, member##_high);	\
-+	else if (is_normal(zone))					\
-+		offset = offsetof(struct page_state, member##_normal);	\
-+	else if (is_dma32(zone))					\
-+		offset = offsetof(struct page_state, member##_dma32);	\
-+	else								\
-+		offset = offsetof(struct page_state, member##_dma);	\
-+	offset;								\
-+})
-+
-+#define __mod_page_state_zone(zone, member, delta)			\
-+ do {									\
-+	__mod_page_state_offset(state_zone_offset(zone, member), (delta)); \
-+ } while (0)
-+
-+#define mod_page_state_zone(zone, member, delta)			\
-+ do {									\
-+	mod_page_state_offset(state_zone_offset(zone, member), (delta)); \
-+ } while (0)
-+
-+#endif /* _LINUX_VMSTAT_H */
-+
-Index: linux-2.6.17-rc6-cl/mm/vmstat.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.17-rc6-cl/mm/vmstat.c	2006-06-12 12:51:44.438570245 -0700
-@@ -0,0 +1,417 @@
-+/*
-+ *  linux/mm/vmstat.c
-+ *
-+ *  Manages VM statistics
-+ *  Copyright (C) 1991, 1992, 1993, 1994  Linus Torvalds
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+
-+/*
-+ * Accumulate the page_state information across all CPUs.
-+ * The result is unavoidably approximate - it can change
-+ * during and after execution of this function.
-+ */
-+static DEFINE_PER_CPU(struct page_state, page_states) = {0};
-+
-+atomic_t nr_pagecache = ATOMIC_INIT(0);
-+EXPORT_SYMBOL(nr_pagecache);
+ struct per_cpu_pageset {
+ 	struct per_cpu_pages pcp[2];	/* 0: hot.  1: cold */
 +#ifdef CONFIG_SMP
-+DEFINE_PER_CPU(long, nr_pagecache_local) = 0;
++	s8 vm_stat_diff[NR_STAT_ITEMS];
 +#endif
 +
-+static void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
-+{
-+	unsigned cpu;
-+
-+	memset(ret, 0, nr * sizeof(unsigned long));
-+	cpus_and(*cpumask, *cpumask, cpu_online_map);
-+
-+	for_each_cpu_mask(cpu, *cpumask) {
-+		unsigned long *in;
-+		unsigned long *out;
-+		unsigned off;
-+		unsigned next_cpu;
-+
-+		in = (unsigned long *)&per_cpu(page_states, cpu);
-+
-+		next_cpu = next_cpu(cpu, *cpumask);
-+		if (likely(next_cpu < NR_CPUS))
-+			prefetch(&per_cpu(page_states, next_cpu));
-+
-+		out = (unsigned long *)ret;
-+		for (off = 0; off < nr; off++)
-+			*out++ += *in++;
-+	}
-+}
-+
-+void get_page_state_node(struct page_state *ret, int node)
-+{
-+	int nr;
-+	cpumask_t mask = node_to_cpumask(node);
-+
-+	nr = offsetof(struct page_state, GET_PAGE_STATE_LAST);
-+	nr /= sizeof(unsigned long);
-+
-+	__get_page_state(ret, nr+1, &mask);
-+}
-+
-+void get_page_state(struct page_state *ret)
-+{
-+	int nr;
-+	cpumask_t mask = CPU_MASK_ALL;
-+
-+	nr = offsetof(struct page_state, GET_PAGE_STATE_LAST);
-+	nr /= sizeof(unsigned long);
-+
-+	__get_page_state(ret, nr + 1, &mask);
-+}
-+
-+void get_full_page_state(struct page_state *ret)
-+{
-+	cpumask_t mask = CPU_MASK_ALL;
-+
-+	__get_page_state(ret, sizeof(*ret) / sizeof(unsigned long), &mask);
-+}
-+
-+unsigned long read_page_state_offset(unsigned long offset)
-+{
-+	unsigned long ret = 0;
-+	int cpu;
-+
-+	for_each_online_cpu(cpu) {
-+		unsigned long in;
-+
-+		in = (unsigned long)&per_cpu(page_states, cpu) + offset;
-+		ret += *((unsigned long *)in);
-+	}
-+	return ret;
-+}
-+
-+void __mod_page_state_offset(unsigned long offset, unsigned long delta)
-+{
-+	void *ptr;
-+
-+	ptr = &__get_cpu_var(page_states);
-+	*(unsigned long *)(ptr + offset) += delta;
-+}
-+EXPORT_SYMBOL(__mod_page_state_offset);
-+
-+void mod_page_state_offset(unsigned long offset, unsigned long delta)
-+{
-+	unsigned long flags;
-+	void *ptr;
-+
-+	local_irq_save(flags);
-+	ptr = &__get_cpu_var(page_states);
-+	*(unsigned long *)(ptr + offset) += delta;
-+	local_irq_restore(flags);
-+}
-+EXPORT_SYMBOL(mod_page_state_offset);
-+
-+void __get_zone_counts(unsigned long *active, unsigned long *inactive,
-+			unsigned long *free, struct pglist_data *pgdat)
-+{
-+	struct zone *zones = pgdat->node_zones;
-+	int i;
-+
-+	*active = 0;
-+	*inactive = 0;
-+	*free = 0;
-+	for (i = 0; i < MAX_NR_ZONES; i++) {
-+		*active += zones[i].nr_active;
-+		*inactive += zones[i].nr_inactive;
-+		*free += zones[i].free_pages;
-+	}
-+}
-+
-+void get_zone_counts(unsigned long *active,
-+		unsigned long *inactive, unsigned long *free)
-+{
-+	struct pglist_data *pgdat;
-+
-+	*active = 0;
-+	*inactive = 0;
-+	*free = 0;
-+	for_each_online_pgdat(pgdat) {
-+		unsigned long l, m, n;
-+		__get_zone_counts(&l, &m, &n, pgdat);
-+		*active += l;
-+		*inactive += m;
-+		*free += n;
-+	}
-+}
-+
-+#ifdef CONFIG_PROC_FS
-+
-+#include <linux/seq_file.h>
-+
-+static void *frag_start(struct seq_file *m, loff_t *pos)
-+{
-+	pg_data_t *pgdat;
-+	loff_t node = *pos;
-+	for (pgdat = first_online_pgdat();
-+	     pgdat && node;
-+	     pgdat = next_online_pgdat(pgdat))
-+		--node;
-+
-+	return pgdat;
-+}
-+
-+static void *frag_next(struct seq_file *m, void *arg, loff_t *pos)
-+{
-+	pg_data_t *pgdat = (pg_data_t *)arg;
-+
-+	(*pos)++;
-+	return next_online_pgdat(pgdat);
-+}
-+
-+static void frag_stop(struct seq_file *m, void *arg)
-+{
-+}
-+
-+/*
-+ * This walks the free areas for each zone.
-+ */
-+static int frag_show(struct seq_file *m, void *arg)
-+{
-+	pg_data_t *pgdat = (pg_data_t *)arg;
-+	struct zone *zone;
-+	struct zone *node_zones = pgdat->node_zones;
-+	unsigned long flags;
-+	int order;
-+
-+	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
-+		if (!populated_zone(zone))
-+			continue;
-+
-+		spin_lock_irqsave(&zone->lock, flags);
-+		seq_printf(m, "Node %d, zone %8s ", pgdat->node_id, zone->name);
-+		for (order = 0; order < MAX_ORDER; ++order)
-+			seq_printf(m, "%6lu ", zone->free_area[order].nr_free);
-+		spin_unlock_irqrestore(&zone->lock, flags);
-+		seq_putc(m, '\n');
-+	}
-+	return 0;
-+}
-+
-+struct seq_operations fragmentation_op = {
-+	.start	= frag_start,
-+	.next	= frag_next,
-+	.stop	= frag_stop,
-+	.show	= frag_show,
-+};
-+
-+static char *vmstat_text[] = {
-+	"nr_dirty",
-+	"nr_writeback",
-+	"nr_unstable",
-+	"nr_page_table_pages",
-+	"nr_mapped",
-+	"nr_slab",
-+
-+	"pgpgin",
-+	"pgpgout",
-+	"pswpin",
-+	"pswpout",
-+
-+	"pgalloc_high",
-+	"pgalloc_normal",
-+	"pgalloc_dma32",
-+	"pgalloc_dma",
-+
-+	"pgfree",
-+	"pgactivate",
-+	"pgdeactivate",
-+
-+	"pgfault",
-+	"pgmajfault",
-+
-+	"pgrefill_high",
-+	"pgrefill_normal",
-+	"pgrefill_dma32",
-+	"pgrefill_dma",
-+
-+	"pgsteal_high",
-+	"pgsteal_normal",
-+	"pgsteal_dma32",
-+	"pgsteal_dma",
-+
-+	"pgscan_kswapd_high",
-+	"pgscan_kswapd_normal",
-+	"pgscan_kswapd_dma32",
-+	"pgscan_kswapd_dma",
-+
-+	"pgscan_direct_high",
-+	"pgscan_direct_normal",
-+	"pgscan_direct_dma32",
-+	"pgscan_direct_dma",
-+
-+	"pginodesteal",
-+	"slabs_scanned",
-+	"kswapd_steal",
-+	"kswapd_inodesteal",
-+	"pageoutrun",
-+	"allocstall",
-+
-+	"pgrotated",
-+	"nr_bounce",
-+};
-+
-+/*
-+ * Output information about zones in @pgdat.
-+ */
-+static int zoneinfo_show(struct seq_file *m, void *arg)
-+{
-+	pg_data_t *pgdat = arg;
-+	struct zone *zone;
-+	struct zone *node_zones = pgdat->node_zones;
-+	unsigned long flags;
-+
-+	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; zone++) {
-+		int i;
-+
-+		if (!populated_zone(zone))
-+			continue;
-+
-+		spin_lock_irqsave(&zone->lock, flags);
-+		seq_printf(m, "Node %d, zone %8s", pgdat->node_id, zone->name);
-+		seq_printf(m,
-+			   "\n  pages free     %lu"
-+			   "\n        min      %lu"
-+			   "\n        low      %lu"
-+			   "\n        high     %lu"
-+			   "\n        active   %lu"
-+			   "\n        inactive %lu"
-+			   "\n        scanned  %lu (a: %lu i: %lu)"
-+			   "\n        spanned  %lu"
-+			   "\n        present  %lu",
-+			   zone->free_pages,
-+			   zone->pages_min,
-+			   zone->pages_low,
-+			   zone->pages_high,
-+			   zone->nr_active,
-+			   zone->nr_inactive,
-+			   zone->pages_scanned,
-+			   zone->nr_scan_active, zone->nr_scan_inactive,
-+			   zone->spanned_pages,
-+			   zone->present_pages);
-+		seq_printf(m,
-+			   "\n        protection: (%lu",
-+			   zone->lowmem_reserve[0]);
-+		for (i = 1; i < ARRAY_SIZE(zone->lowmem_reserve); i++)
-+			seq_printf(m, ", %lu", zone->lowmem_reserve[i]);
-+		seq_printf(m,
-+			   ")"
-+			   "\n  pagesets");
-+		for_each_online_cpu(i) {
-+			struct per_cpu_pageset *pageset;
-+			int j;
-+
-+			pageset = zone_pcp(zone, i);
-+			for (j = 0; j < ARRAY_SIZE(pageset->pcp); j++) {
-+				if (pageset->pcp[j].count)
-+					break;
-+			}
-+			if (j == ARRAY_SIZE(pageset->pcp))
-+				continue;
-+			for (j = 0; j < ARRAY_SIZE(pageset->pcp); j++) {
-+				seq_printf(m,
-+					   "\n    cpu: %i pcp: %i"
-+					   "\n              count: %i"
-+					   "\n              high:  %i"
-+					   "\n              batch: %i",
-+					   i, j,
-+					   pageset->pcp[j].count,
-+					   pageset->pcp[j].high,
-+					   pageset->pcp[j].batch);
-+			}
-+#ifdef CONFIG_NUMA
-+			seq_printf(m,
-+				   "\n            numa_hit:       %lu"
-+				   "\n            numa_miss:      %lu"
-+				   "\n            numa_foreign:   %lu"
-+				   "\n            interleave_hit: %lu"
-+				   "\n            local_node:     %lu"
-+				   "\n            other_node:     %lu",
-+				   pageset->numa_hit,
-+				   pageset->numa_miss,
-+				   pageset->numa_foreign,
-+				   pageset->interleave_hit,
-+				   pageset->local_node,
-+				   pageset->other_node);
-+#endif
-+		}
-+		seq_printf(m,
-+			   "\n  all_unreclaimable: %u"
-+			   "\n  prev_priority:     %i"
-+			   "\n  temp_priority:     %i"
-+			   "\n  start_pfn:         %lu",
-+			   zone->all_unreclaimable,
-+			   zone->prev_priority,
-+			   zone->temp_priority,
-+			   zone->zone_start_pfn);
-+		spin_unlock_irqrestore(&zone->lock, flags);
-+		seq_putc(m, '\n');
-+	}
-+	return 0;
-+}
-+
-+struct seq_operations zoneinfo_op = {
-+	.start	= frag_start, /* iterate over all zones. The same as in
-+			       * fragmentation. */
-+	.next	= frag_next,
-+	.stop	= frag_stop,
-+	.show	= zoneinfo_show,
-+};
-+
-+static void *vmstat_start(struct seq_file *m, loff_t *pos)
-+{
-+	struct page_state *ps;
-+
-+	if (*pos >= ARRAY_SIZE(vmstat_text))
-+		return NULL;
-+
-+	ps = kmalloc(sizeof(*ps), GFP_KERNEL);
-+	m->private = ps;
-+	if (!ps)
-+		return ERR_PTR(-ENOMEM);
-+	get_full_page_state(ps);
-+	ps->pgpgin /= 2;		/* sectors -> kbytes */
-+	ps->pgpgout /= 2;
-+	return (unsigned long *)ps + *pos;
-+}
-+
-+static void *vmstat_next(struct seq_file *m, void *arg, loff_t *pos)
-+{
-+	(*pos)++;
-+	if (*pos >= ARRAY_SIZE(vmstat_text))
-+		return NULL;
-+	return (unsigned long *)m->private + *pos;
-+}
-+
-+static int vmstat_show(struct seq_file *m, void *arg)
-+{
-+	unsigned long *l = arg;
-+	unsigned long off = l - (unsigned long *)m->private;
-+
-+	seq_printf(m, "%s %lu\n", vmstat_text[off], *l);
-+	return 0;
-+}
-+
-+static void vmstat_stop(struct seq_file *m, void *arg)
-+{
-+	kfree(m->private);
-+	m->private = NULL;
-+}
-+
-+struct seq_operations vmstat_op = {
-+	.start	= vmstat_start,
-+	.next	= vmstat_next,
-+	.stop	= vmstat_stop,
-+	.show	= vmstat_show,
-+};
-+
-+#endif /* CONFIG_PROC_FS */
-+
+ #ifdef CONFIG_NUMA
+ 	unsigned long numa_hit;		/* allocated in intended node */
+ 	unsigned long numa_miss;	/* allocated in non intended node */
+@@ -170,6 +177,8 @@ struct zone {
+ 	/* A count of how many reclaimers are scanning this zone */
+ 	atomic_t		reclaim_in_progress;
+ 
++	/* Zone statistics */
++	atomic_long_t		vm_stat[NR_STAT_ITEMS];
+ 	/*
+ 	 * timestamp (in jiffies) of the last zone reclaim that did not
+ 	 * result in freeing of pages. This is used to avoid repeated scans
 Index: linux-2.6.17-rc6-cl/mm/page_alloc.c
 ===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/page_alloc.c	2006-06-12 12:42:52.042808021 -0700
-+++ linux-2.6.17-rc6-cl/mm/page_alloc.c	2006-06-12 12:43:12.087466032 -0700
-@@ -1306,141 +1306,6 @@ static void show_node(struct zone *zone)
- #endif
+--- linux-2.6.17-rc6-cl.orig/mm/page_alloc.c	2006-06-12 12:43:12.087466032 -0700
++++ linux-2.6.17-rc6-cl/mm/page_alloc.c	2006-06-12 12:54:33.240617767 -0700
+@@ -2143,6 +2143,7 @@ static void __meminit free_area_init_cor
+ 		zone->nr_scan_inactive = 0;
+ 		zone->nr_active = 0;
+ 		zone->nr_inactive = 0;
++		zap_zone_vm_stats(zone);
+ 		atomic_set(&zone->reclaim_in_progress, 0);
+ 		if (!size)
+ 			continue;
+@@ -2254,6 +2255,7 @@ static int page_alloc_cpu_notify(struct 
+ 		}
+ 
+ 		local_irq_enable();
++		refresh_cpu_vm_stats(cpu);
+ 	}
+ 	return NOTIFY_OK;
+ }
+Index: linux-2.6.17-rc6-cl/mm/slab.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/mm/slab.c	2006-06-12 12:42:52.056479050 -0700
++++ linux-2.6.17-rc6-cl/mm/slab.c	2006-06-12 12:54:33.242570771 -0700
+@@ -3826,6 +3826,7 @@ next:
+ 	check_irq_on();
+ 	mutex_unlock(&cache_chain_mutex);
+ 	next_reap_node();
++	refresh_cpu_vm_stats(smp_processor_id());
+ 	/* Set up the next iteration */
+ 	schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC);
+ }
+Index: linux-2.6.17-rc6-cl/include/linux/vmstat.h
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/include/linux/vmstat.h	2006-06-12 12:43:12.084536526 -0700
++++ linux-2.6.17-rc6-cl/include/linux/vmstat.h	2006-06-12 12:54:33.243547273 -0700
+@@ -2,6 +2,9 @@
+ #define _LINUX_VMSTAT_H
+ 
+ #include <linux/types.h>
++#include <linux/config.h>
++#include <linux/mmzone.h>
++#include <asm/atomic.h>
  
  /*
-- * Accumulate the page_state information across all CPUs.
-- * The result is unavoidably approximate - it can change
-- * during and after execution of this function.
-- */
--static DEFINE_PER_CPU(struct page_state, page_states) = {0};
--
--atomic_t nr_pagecache = ATOMIC_INIT(0);
--EXPORT_SYMBOL(nr_pagecache);
--#ifdef CONFIG_SMP
--DEFINE_PER_CPU(long, nr_pagecache_local) = 0;
--#endif
--
--static void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
--{
--	unsigned cpu;
--
--	memset(ret, 0, nr * sizeof(unsigned long));
--	cpus_and(*cpumask, *cpumask, cpu_online_map);
--
--	for_each_cpu_mask(cpu, *cpumask) {
--		unsigned long *in;
--		unsigned long *out;
--		unsigned off;
--		unsigned next_cpu;
--
--		in = (unsigned long *)&per_cpu(page_states, cpu);
--
--		next_cpu = next_cpu(cpu, *cpumask);
--		if (likely(next_cpu < NR_CPUS))
--			prefetch(&per_cpu(page_states, next_cpu));
--
--		out = (unsigned long *)ret;
--		for (off = 0; off < nr; off++)
--			*out++ += *in++;
--	}
--}
--
--void get_page_state_node(struct page_state *ret, int node)
--{
--	int nr;
--	cpumask_t mask = node_to_cpumask(node);
--
--	nr = offsetof(struct page_state, GET_PAGE_STATE_LAST);
--	nr /= sizeof(unsigned long);
--
--	__get_page_state(ret, nr+1, &mask);
--}
--
--void get_page_state(struct page_state *ret)
--{
--	int nr;
--	cpumask_t mask = CPU_MASK_ALL;
--
--	nr = offsetof(struct page_state, GET_PAGE_STATE_LAST);
--	nr /= sizeof(unsigned long);
--
--	__get_page_state(ret, nr + 1, &mask);
--}
--
--void get_full_page_state(struct page_state *ret)
--{
--	cpumask_t mask = CPU_MASK_ALL;
--
--	__get_page_state(ret, sizeof(*ret) / sizeof(unsigned long), &mask);
--}
--
--unsigned long read_page_state_offset(unsigned long offset)
--{
--	unsigned long ret = 0;
--	int cpu;
--
--	for_each_online_cpu(cpu) {
--		unsigned long in;
--
--		in = (unsigned long)&per_cpu(page_states, cpu) + offset;
--		ret += *((unsigned long *)in);
--	}
--	return ret;
--}
--
--void __mod_page_state_offset(unsigned long offset, unsigned long delta)
--{
--	void *ptr;
--
--	ptr = &__get_cpu_var(page_states);
--	*(unsigned long *)(ptr + offset) += delta;
--}
--EXPORT_SYMBOL(__mod_page_state_offset);
--
--void mod_page_state_offset(unsigned long offset, unsigned long delta)
--{
--	unsigned long flags;
--	void *ptr;
--
--	local_irq_save(flags);
--	ptr = &__get_cpu_var(page_states);
--	*(unsigned long *)(ptr + offset) += delta;
--	local_irq_restore(flags);
--}
--EXPORT_SYMBOL(mod_page_state_offset);
--
--void __get_zone_counts(unsigned long *active, unsigned long *inactive,
--			unsigned long *free, struct pglist_data *pgdat)
--{
--	struct zone *zones = pgdat->node_zones;
--	int i;
--
--	*active = 0;
--	*inactive = 0;
--	*free = 0;
--	for (i = 0; i < MAX_NR_ZONES; i++) {
--		*active += zones[i].nr_active;
--		*inactive += zones[i].nr_inactive;
--		*free += zones[i].free_pages;
--	}
--}
--
--void get_zone_counts(unsigned long *active,
--		unsigned long *inactive, unsigned long *free)
--{
--	struct pglist_data *pgdat;
--
--	*active = 0;
--	*inactive = 0;
--	*free = 0;
--	for_each_online_pgdat(pgdat) {
--		unsigned long l, m, n;
--		__get_zone_counts(&l, &m, &n, pgdat);
--		*active += l;
--		*inactive += m;
--		*free += n;
--	}
--}
--
--/*
-  * The node's effective length of inactive_list(s).
+  * Global page accounting.  One instance per CPU.  Only unsigned longs are
+@@ -131,5 +134,84 @@ extern void __mod_page_state_offset(unsi
+ 	mod_page_state_offset(state_zone_offset(zone, member), (delta)); \
+  } while (0)
+ 
++/*
++ * Zone based page accounting with per cpu differentials.
++ */
++extern atomic_long_t vm_stat[NR_STAT_ITEMS];
++
++static inline unsigned long global_page_state(enum zone_stat_item item)
++{
++	long x = atomic_long_read(&vm_stat[item]);
++#ifdef CONFIG_SMP
++	if (x < 0)
++		x = 0;
++#endif
++	return x;
++}
++
++static inline unsigned long zone_page_state(struct zone *zone,
++					enum zone_stat_item item)
++{
++	long x = atomic_long_read(&zone->vm_stat[item]);
++#ifdef CONFIG_SMP
++	if (x < 0)
++		x = 0;
++#endif
++	return x;
++}
++
++#ifdef CONFIG_NUMA
++/*
++ * Determine the per node value of a stat item. This function
++ * is called frequently in a NUMA machine, so try to be as
++ * frugal as possible.
++ */
++static inline unsigned long node_page_state(int node,
++				 enum zone_stat_item item)
++{
++	struct zone *zones = NODE_DATA(node)->node_zones;
++
++	return
++#ifndef CONFIG_DMA_IS_NORMAL
++#if !defined(CONFIG_DMA_IS_DMA32) && BITS_PER_LONG >= 64
++		zone_page_state(&zones[ZONE_DMA32], item) +
++#endif
++		zone_page_state(&zones[ZONE_NORMAL], item) +
++#endif
++#ifdef CONFIG_HIGHMEM
++		zone_page_state(&zones[ZONE_HIGHMEM], item) +
++#endif
++		zone_page_state(&zones[ZONE_DMA], item);
++}
++#else
++#define node_page_state(node, item) global_page_state(item)
++#endif
++
++void __mod_zone_page_state(struct zone *, enum zone_stat_item item, int);
++void __inc_zone_page_state(struct page *, enum zone_stat_item);
++void __dec_zone_page_state(struct page *, enum zone_stat_item);
++
++#define __add_zone_page_state(__z, __i, __d) __mod_zone_page_state(__z, __i, __d)
++#define __sub_zone_page_state(__z, __i, __d) __mod_zone_page_state(__z, __i,-(__d))
++
++void mod_zone_page_state(struct zone *, enum zone_stat_item, int);
++void inc_zone_page_state(struct page *, enum zone_stat_item);
++void dec_zone_page_state(struct page *, enum zone_stat_item);
++
++#define add_zone_page_state(__z, __i, __d) mod_zone_page_state(__z, __i, __d)
++#define sub_zone_page_state(__z, __i, __d) mod_zone_page_state(__z, __i, -(__d))
++
++static inline void zap_zone_vm_stats(struct zone *zone) {
++	memset(zone->vm_stat, 0, sizeof(zone->vm_stat));
++}
++
++#ifdef CONFIG_SMP
++void refresh_cpu_vm_stats(int);
++void refresh_vm_stats(void);
++#else
++static inline void refresh_cpu_vm_stats(int cpu) { }
++static inline void refresh_vm_stats(void) { }
++#endif
++
+ #endif /* _LINUX_VMSTAT_H */
+ 
+Index: linux-2.6.17-rc6-cl/arch/ia64/Kconfig
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/arch/ia64/Kconfig	2006-06-12 12:42:41.828596355 -0700
++++ linux-2.6.17-rc6-cl/arch/ia64/Kconfig	2006-06-12 13:31:07.490528917 -0700
+@@ -70,6 +70,10 @@ config DMA_IS_DMA32
+ 	bool
+ 	default y
+ 
++config DMA_IS_NORMAL
++	bool
++	default y
++
+ choice
+ 	prompt "System type"
+ 	default IA64_GENERIC
+Index: linux-2.6.17-rc6-cl/mm/vmstat.c
+===================================================================
+--- linux-2.6.17-rc6-cl.orig/mm/vmstat.c	2006-06-12 12:51:44.438570245 -0700
++++ linux-2.6.17-rc6-cl/mm/vmstat.c	2006-06-12 13:07:49.853393476 -0700
+@@ -3,10 +3,15 @@
+  *
+  *  Manages VM statistics
+  *  Copyright (C) 1991, 1992, 1993, 1994  Linus Torvalds
++ *
++ *  zoned VM statistics
++ *  Copyright (C) 2006 Silicon Graphics, Inc.,
++ *		Christoph Lameter <christoph@lameter.com>
   */
- unsigned long nr_free_inactive_pages_node(int nid)
-@@ -2360,278 +2225,6 @@ void __init free_area_init(unsigned long
- 			__pa(PAGE_OFFSET) >> PAGE_SHIFT, NULL);
+ 
+ #include <linux/config.h>
+ #include <linux/mm.h>
++#include <linux/module.h>
+ 
+ /*
+  * Accumulate the page_state information across all CPUs.
+@@ -143,6 +148,259 @@ void get_zone_counts(unsigned long *acti
+ 	}
  }
  
--#ifdef CONFIG_PROC_FS
--
--#include <linux/seq_file.h>
--
--static void *frag_start(struct seq_file *m, loff_t *pos)
--{
--	pg_data_t *pgdat;
--	loff_t node = *pos;
--	for (pgdat = first_online_pgdat();
--	     pgdat && node;
--	     pgdat = next_online_pgdat(pgdat))
--		--node;
--
--	return pgdat;
--}
--
--static void *frag_next(struct seq_file *m, void *arg, loff_t *pos)
--{
--	pg_data_t *pgdat = (pg_data_t *)arg;
--
--	(*pos)++;
--	return next_online_pgdat(pgdat);
--}
--
--static void frag_stop(struct seq_file *m, void *arg)
--{
--}
--
--/* 
-- * This walks the free areas for each zone.
-- */
--static int frag_show(struct seq_file *m, void *arg)
--{
--	pg_data_t *pgdat = (pg_data_t *)arg;
--	struct zone *zone;
--	struct zone *node_zones = pgdat->node_zones;
--	unsigned long flags;
--	int order;
--
--	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
--		if (!populated_zone(zone))
--			continue;
--
--		spin_lock_irqsave(&zone->lock, flags);
--		seq_printf(m, "Node %d, zone %8s ", pgdat->node_id, zone->name);
--		for (order = 0; order < MAX_ORDER; ++order)
--			seq_printf(m, "%6lu ", zone->free_area[order].nr_free);
--		spin_unlock_irqrestore(&zone->lock, flags);
--		seq_putc(m, '\n');
--	}
--	return 0;
--}
--
--struct seq_operations fragmentation_op = {
--	.start	= frag_start,
--	.next	= frag_next,
--	.stop	= frag_stop,
--	.show	= frag_show,
--};
--
--/*
-- * Output information about zones in @pgdat.
-- */
--static int zoneinfo_show(struct seq_file *m, void *arg)
--{
--	pg_data_t *pgdat = arg;
--	struct zone *zone;
--	struct zone *node_zones = pgdat->node_zones;
--	unsigned long flags;
--
--	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; zone++) {
--		int i;
--
--		if (!populated_zone(zone))
--			continue;
--
--		spin_lock_irqsave(&zone->lock, flags);
--		seq_printf(m, "Node %d, zone %8s", pgdat->node_id, zone->name);
--		seq_printf(m,
--			   "\n  pages free     %lu"
--			   "\n        min      %lu"
--			   "\n        low      %lu"
--			   "\n        high     %lu"
--			   "\n        active   %lu"
--			   "\n        inactive %lu"
--			   "\n        scanned  %lu (a: %lu i: %lu)"
--			   "\n        spanned  %lu"
--			   "\n        present  %lu",
--			   zone->free_pages,
--			   zone->pages_min,
--			   zone->pages_low,
--			   zone->pages_high,
--			   zone->nr_active,
--			   zone->nr_inactive,
--			   zone->pages_scanned,
--			   zone->nr_scan_active, zone->nr_scan_inactive,
--			   zone->spanned_pages,
--			   zone->present_pages);
--		seq_printf(m,
--			   "\n        protection: (%lu",
--			   zone->lowmem_reserve[0]);
--		for (i = 1; i < ARRAY_SIZE(zone->lowmem_reserve); i++)
--			seq_printf(m, ", %lu", zone->lowmem_reserve[i]);
--		seq_printf(m,
--			   ")"
--			   "\n  pagesets");
--		for_each_online_cpu(i) {
--			struct per_cpu_pageset *pageset;
--			int j;
--
--			pageset = zone_pcp(zone, i);
--			for (j = 0; j < ARRAY_SIZE(pageset->pcp); j++) {
--				if (pageset->pcp[j].count)
--					break;
--			}
--			if (j == ARRAY_SIZE(pageset->pcp))
--				continue;
--			for (j = 0; j < ARRAY_SIZE(pageset->pcp); j++) {
--				seq_printf(m,
--					   "\n    cpu: %i pcp: %i"
--					   "\n              count: %i"
--					   "\n              high:  %i"
--					   "\n              batch: %i",
--					   i, j,
--					   pageset->pcp[j].count,
--					   pageset->pcp[j].high,
--					   pageset->pcp[j].batch);
--			}
--#ifdef CONFIG_NUMA
--			seq_printf(m,
--				   "\n            numa_hit:       %lu"
--				   "\n            numa_miss:      %lu"
--				   "\n            numa_foreign:   %lu"
--				   "\n            interleave_hit: %lu"
--				   "\n            local_node:     %lu"
--				   "\n            other_node:     %lu",
--				   pageset->numa_hit,
--				   pageset->numa_miss,
--				   pageset->numa_foreign,
--				   pageset->interleave_hit,
--				   pageset->local_node,
--				   pageset->other_node);
--#endif
--		}
--		seq_printf(m,
--			   "\n  all_unreclaimable: %u"
--			   "\n  prev_priority:     %i"
--			   "\n  temp_priority:     %i"
--			   "\n  start_pfn:         %lu",
--			   zone->all_unreclaimable,
--			   zone->prev_priority,
--			   zone->temp_priority,
--			   zone->zone_start_pfn);
--		spin_unlock_irqrestore(&zone->lock, flags);
--		seq_putc(m, '\n');
--	}
--	return 0;
--}
--
--struct seq_operations zoneinfo_op = {
--	.start	= frag_start, /* iterate over all zones. The same as in
--			       * fragmentation. */
--	.next	= frag_next,
--	.stop	= frag_stop,
--	.show	= zoneinfo_show,
--};
--
--static char *vmstat_text[] = {
--	"nr_dirty",
--	"nr_writeback",
--	"nr_unstable",
--	"nr_page_table_pages",
--	"nr_mapped",
--	"nr_slab",
--
--	"pgpgin",
--	"pgpgout",
--	"pswpin",
--	"pswpout",
--
--	"pgalloc_high",
--	"pgalloc_normal",
--	"pgalloc_dma32",
--	"pgalloc_dma",
--
--	"pgfree",
--	"pgactivate",
--	"pgdeactivate",
--
--	"pgfault",
--	"pgmajfault",
--
--	"pgrefill_high",
--	"pgrefill_normal",
--	"pgrefill_dma32",
--	"pgrefill_dma",
--
--	"pgsteal_high",
--	"pgsteal_normal",
--	"pgsteal_dma32",
--	"pgsteal_dma",
--
--	"pgscan_kswapd_high",
--	"pgscan_kswapd_normal",
--	"pgscan_kswapd_dma32",
--	"pgscan_kswapd_dma",
--
--	"pgscan_direct_high",
--	"pgscan_direct_normal",
--	"pgscan_direct_dma32",
--	"pgscan_direct_dma",
--
--	"pginodesteal",
--	"slabs_scanned",
--	"kswapd_steal",
--	"kswapd_inodesteal",
--	"pageoutrun",
--	"allocstall",
--
--	"pgrotated",
--	"nr_bounce",
--};
--
--static void *vmstat_start(struct seq_file *m, loff_t *pos)
--{
--	struct page_state *ps;
--
--	if (*pos >= ARRAY_SIZE(vmstat_text))
--		return NULL;
--
++/*
++ * Manage combined zone based / global counters
++ *
++ * vm_stat contains the global counters
++ */
++atomic_long_t vm_stat[NR_STAT_ITEMS];
++
++static inline void zone_page_state_add(long x, struct zone *zone,
++				 enum zone_stat_item item)
++{
++	atomic_long_add(x, &zone->vm_stat[item]);
++	atomic_long_add(x, &vm_stat[item]);
++}
++
++#ifdef CONFIG_SMP
++
++#define STAT_THRESHOLD 32
++
++/*
++ * Determine pointer to currently valid differential byte given a zone and
++ * the item number.
++ *
++ * Preemption must be off
++ */
++static inline s8 *diff_pointer(struct zone *zone, enum zone_stat_item item)
++{
++	return &zone_pcp(zone, smp_processor_id())->vm_stat_diff[item];
++}
++
++/*
++ * For use when we know that interrupts are disabled.
++ */
++void __mod_zone_page_state(struct zone *zone, enum zone_stat_item item,
++				int delta)
++{
++	s8 *p;
++	long x;
++
++	p = diff_pointer(zone, item);
++	x = delta + *p;
++
++	if (unlikely(x > STAT_THRESHOLD || x < -STAT_THRESHOLD)) {
++		zone_page_state_add(x, zone, item);
++		x = 0;
++	}
++
++	*p = x;
++}
++EXPORT_SYMBOL(__mod_zone_page_state);
++
++/*
++ * For an unknown interrupt state
++ */
++void mod_zone_page_state(struct zone *zone, enum zone_stat_item item,
++					int delta)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	__mod_zone_page_state(zone, item, delta);
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(mod_zone_page_state);
++
++/*
++ * Optimized increment and decrement functions.
++ *
++ * These are only for a single page and therefore can take a struct page *
++ * argument instead of struct zone *. This allows the inclusion of the code
++ * generated for page_zone(page) into the optimized functions.
++ *
++ * No overflow check is necessary and therefore the differential can be
++ * incremented or decremented in place which may allow the compilers to
++ * generate better code.
++ *
++ * The increment or decrement is known and therefore one boundary check can
++ * be omitted.
++ *
++ * Some processors have inc/dec instructions that are atomic vs an interrupt.
++ * However, the code must first determine the differential location in a zone
++ * based on the processor number and then inc/dec the counter. There is no
++ * guarantee without disabling preemption that the processor will not change
++ * in between and therefore the atomicity vs. interrupt cannot be exploited
++ * in a useful way here.
++ */
++void __inc_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	struct zone *zone = page_zone(page);
++	s8 *p = diff_pointer(zone, item);
++
++	(*p)++;
++
++	if (unlikely(*p > STAT_THRESHOLD)) {
++		zone_page_state_add(*p, zone, item);
++		*p = 0;
++	}
++}
++EXPORT_SYMBOL(__inc_zone_page_state);
++
++void __dec_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	struct zone *zone = page_zone(page);
++	s8 *p = diff_pointer(zone, item);
++
++	(*p)--;
++
++	if (unlikely(*p < -STAT_THRESHOLD)) {
++		zone_page_state_add(*p, zone, item);
++		*p = 0;
++	}
++}
++EXPORT_SYMBOL(__dec_zone_page_state);
++
++void inc_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	unsigned long flags;
++	struct zone *zone;
++	s8 *p;
++
++	zone = page_zone(page);
++	local_irq_save(flags);
++	p = diff_pointer(zone, item);
++
++	(*p)++;
++
++	if (unlikely(*p > STAT_THRESHOLD)) {
++		zone_page_state_add(*p, zone, item);
++		*p = 0;
++	}
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(inc_zone_page_state);
++
++void dec_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	unsigned long flags;
++	struct zone *zone;
++	s8 *p;
++
++	zone = page_zone(page);
++	local_irq_save(flags);
++	p = diff_pointer(zone, item);
++
++	(*p)--;
++
++	if (unlikely(*p < -STAT_THRESHOLD)) {
++		zone_page_state_add(*p, zone, item);
++		*p = 0;
++	}
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(dec_zone_page_state);
++
++/*
++ * Update the zone counters for one cpu.
++ */
++void refresh_cpu_vm_stats(int cpu)
++{
++	struct zone *zone;
++	int i;
++	unsigned long flags;
++
++	for_each_zone(zone) {
++		struct per_cpu_pageset *pcp;
++
++		pcp = zone_pcp(zone, cpu);
++
++		for (i = 0; i < NR_STAT_ITEMS; i++)
++			if (pcp->vm_stat_diff[i]) {
++				local_irq_save(flags);
++				zone_page_state_add(pcp->vm_stat_diff[i],
++					zone, i);
++				pcp->vm_stat_diff[i] = 0;
++				local_irq_restore(flags);
++			}
++	}
++}
++
++static void __refresh_cpu_vm_stats(void *dummy)
++{
++	refresh_cpu_vm_stats(smp_processor_id());
++}
++
++/*
++ * Consolidate all counters.
++ *
++ * Note that the result is less inaccurate but still inaccurate
++ * if concurrent processes are allowed to run.
++ */
++void refresh_vm_stats(void)
++{
++	on_each_cpu(__refresh_cpu_vm_stats, NULL, 0, 1);
++}
++EXPORT_SYMBOL(refresh_vm_stats);
++
++#else /* CONFIG_SMP */
++
++/*
++ * We do not maintain differentials in a single processor configuration.
++ * The functions directly modify the zone and global counters.
++ */
++
++void __mod_zone_page_state(struct zone *zone, enum zone_stat_item item,
++				int delta)
++{
++	zone_page_state_add(delta, zone, item);
++}
++EXPORT_SYMBOL(__mod_zone_page_state);
++
++void mod_zone_page_state(struct zone *zone, enum zone_stat_item item,
++ 				int delta)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	zone_page_state_add(delta, zone, item);
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(mod_zone_page_state);
++
++void __inc_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	zone_page_state_add(1, page_zone(page), item);
++}
++EXPORT_SYMBOL(__inc_zone_page_state);
++
++void __dec_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	zone_page_state_add(-1, page_zone(page), item);
++}
++EXPORT_SYMBOL(__dec_zone_page_state);
++
++void inc_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	zone_page_state_add(1, page_zone(page), item);
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(inc_zone_page_state);
++
++void dec_zone_page_state(struct page *page, enum zone_stat_item item)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	zone_page_state_add( -1, page_zone(page), item);
++	local_irq_restore(flags);
++}
++EXPORT_SYMBOL(dec_zone_page_state);
++#endif
++
+ #ifdef CONFIG_PROC_FS
+ 
+ #include <linux/seq_file.h>
+@@ -204,6 +462,9 @@ struct seq_operations fragmentation_op =
+ };
+ 
+ static char *vmstat_text[] = {
++	/* Zoned VM counters */
++
++	/* Page state */
+ 	"nr_dirty",
+ 	"nr_writeback",
+ 	"nr_unstable",
+@@ -297,6 +558,11 @@ static int zoneinfo_show(struct seq_file
+ 			   zone->nr_scan_active, zone->nr_scan_inactive,
+ 			   zone->spanned_pages,
+ 			   zone->present_pages);
++
++		for (i = 0; i < NR_STAT_ITEMS; i++)
++			seq_printf(m, "\n    %-12s %lu", vmstat_text[i],
++					zone_page_state(zone, i));
++
+ 		seq_printf(m,
+ 			   "\n        protection: (%lu",
+ 			   zone->lowmem_reserve[0]);
+@@ -368,19 +634,25 @@ struct seq_operations zoneinfo_op = {
+ 
+ static void *vmstat_start(struct seq_file *m, loff_t *pos)
+ {
++	unsigned long *v;
+ 	struct page_state *ps;
++	int i;
+ 
+ 	if (*pos >= ARRAY_SIZE(vmstat_text))
+ 		return NULL;
+ 
 -	ps = kmalloc(sizeof(*ps), GFP_KERNEL);
 -	m->private = ps;
 -	if (!ps)
--		return ERR_PTR(-ENOMEM);
--	get_full_page_state(ps);
--	ps->pgpgin /= 2;		/* sectors -> kbytes */
--	ps->pgpgout /= 2;
++	v = kmalloc(NR_STAT_ITEMS *sizeof(unsigned long)
++			+ sizeof(*ps), GFP_KERNEL);
++	m->private = v;
++	if (!v)
+ 		return ERR_PTR(-ENOMEM);
++	for (i = 0; i < NR_STAT_ITEMS; i++)
++		v[i] = global_page_state(i);
++	ps = (struct page_state *)(v + NR_STAT_ITEMS);
+ 	get_full_page_state(ps);
+ 	ps->pgpgin /= 2;		/* sectors -> kbytes */
+ 	ps->pgpgout /= 2;
 -	return (unsigned long *)ps + *pos;
--}
--
--static void *vmstat_next(struct seq_file *m, void *arg, loff_t *pos)
--{
--	(*pos)++;
--	if (*pos >= ARRAY_SIZE(vmstat_text))
--		return NULL;
--	return (unsigned long *)m->private + *pos;
--}
--
--static int vmstat_show(struct seq_file *m, void *arg)
--{
--	unsigned long *l = arg;
--	unsigned long off = l - (unsigned long *)m->private;
--
--	seq_printf(m, "%s %lu\n", vmstat_text[off], *l);
--	return 0;
--}
--
--static void vmstat_stop(struct seq_file *m, void *arg)
--{
--	kfree(m->private);
--	m->private = NULL;
--}
--
--struct seq_operations vmstat_op = {
--	.start	= vmstat_start,
--	.next	= vmstat_next,
--	.stop	= vmstat_stop,
--	.show	= vmstat_show,
--};
--
--#endif /* CONFIG_PROC_FS */
--
- #ifdef CONFIG_HOTPLUG_CPU
- static int page_alloc_cpu_notify(struct notifier_block *self,
- 				 unsigned long action, void *hcpu)
++	return v + *pos;
+ }
+ 
+ static void *vmstat_next(struct seq_file *m, void *arg, loff_t *pos)

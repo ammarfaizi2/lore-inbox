@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWFLRWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWFLRXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWFLRWD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 13:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWFLRWC
+	id S1751204AbWFLRXE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 13:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWFLRXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 13:22:02 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:48680 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750869AbWFLRWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 13:22:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=djxINsGlsJw4RKp316luMp19zMS4AUiGAc++wha++ZOkK1TNhPAinf/hfvs4hEXmQl+ypP6vt99dSYAVQ/xEH6YfpuUtXALWhkkGPUMRWGMxvw9nBi34AMcGYCghWqmQEWPGrPzHlWES0TIkAqvJ+JIu9zdaux1KBEKARA7vqhs=
-Message-ID: <cda58cb80606121021w22207ef6yf6dfcbf428b144c3@mail.gmail.com>
-Date: Mon, 12 Jun 2006 19:21:59 +0200
-From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-To: "Andy Whitcroft" <apw@shadowen.org>
-Subject: Re: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <448D9577.3040903@shadowen.org>
+	Mon, 12 Jun 2006 13:23:04 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:12675
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751267AbWFLRXB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 13:23:01 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] Fix for the PPTP hangs that have been reported
+Date: Mon, 12 Jun 2006 19:22:22 +0200
+User-Agent: KMail/1.9.1
+References: <17548.52858.22555.610055@cargo.ozlabs.ibm.com>
+In-Reply-To: <17548.52858.22555.610055@cargo.ozlabs.ibm.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, xxebxebx@gmail.com,
+       Greg KH <gregkh@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <448D1117.8010407@innova-card.com> <448D9577.3040903@shadowen.org>
+Message-Id: <200606121922.23431.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andy
+On Monday 12 June 2006 04:16, Paul Mackerras wrote:
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
+> ---
+> Linus & Andrew, I think this one is a 2.6.17 candidate.
 
-2006/6/12, Andy Whitcroft <apw@shadowen.org>:
->
-> In my mind the positive option is selecting for code supporting EXTREME
-> so it seems to make sense to use that option.
+What about 2.6.16-stable?
+I just applied that patch to my server running 2.6.16.20.
+Seems to be ok, but I did not stresstest it.
 
-well I find it confusing because in my mind, something like this seems
-more logical.
+> It's a small 
+> and harmless patch and it fixes a bug that has been annoying quite a
+> few people, if the bugzilla reports are anything to go by.  I think it
+> should solve bugzilla 6402 as well.
+> 
+> diff --git a/drivers/char/n_tty.c b/drivers/char/n_tty.c
+> index ede365d..b9371d5 100644
+> --- a/drivers/char/n_tty.c
+> +++ b/drivers/char/n_tty.c
+> @@ -1384,8 +1384,10 @@ do_it_again:
+>  		 * longer than TTY_THRESHOLD_UNTHROTTLE in canonical mode,
+>  		 * we won't get any more characters.
+>  		 */
+> -		if (n_tty_chars_in_buffer(tty) <= TTY_THRESHOLD_UNTHROTTLE)
+> +		if (n_tty_chars_in_buffer(tty) <= TTY_THRESHOLD_UNTHROTTLE) {
+> +			n_tty_set_room(tty);
+>  			check_unthrottle(tty);
+> +		}
+>  
+>  		if (b - buf >= minimum)
+>  			break;
 
-#ifndef CONFIG_SPARSEMEM_STATIC
-static struct mem_section *sparse_index_alloc(int nid)
-{
-        return alloc_bootmem_node(...);
-}
-#else
-static struct mem_section *sparse_index_alloc(int nid)
-{
-        /* nothing to do here, since it has been statically allocated */
-        return 0;
-}
-#endif
-
-This code only deals with section allocation and the way it's achieved
-depends only if the section array has been statically allocated.
-There's nothing related on the two-level lookups here, is there ?
-
-And use SPARSEMEM_EXTREME when it deals only with two-level lookups:
-
-#ifdef CONFIG_SPARSEMEM_EXTREME
-#define SECTIONS_PER_ROOT       (PAGE_SIZE / sizeof (struct mem_section))
-#else
-#define SECTIONS_PER_ROOT       1
-#endif
-
-> Perhaps the confusion
-> comes from a lack of comments there to say that the else case is STATIC.
->
-
-nope but maybe a comment to explain why i386 use SPARSEMEM_STATIC
-option could be useful. At least for someone who is not working on
-this arch...
-
-Thanks
 -- 
-               Franck
+Greetings Michael.

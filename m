@@ -1,59 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751974AbWFLNls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751978AbWFLNu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751974AbWFLNls (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 09:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751975AbWFLNls
+	id S1751978AbWFLNu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 09:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751981AbWFLNu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 09:41:48 -0400
-Received: from mx2.suse.de ([195.135.220.15]:54178 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751974AbWFLNls (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 09:41:48 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
+	Mon, 12 Jun 2006 09:50:29 -0400
+Received: from wr-out-0506.google.com ([64.233.184.228]:28473 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751978AbWFLNu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 09:50:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oei06/bT/uX+b0gbXkm16SOFUOiVztaCTeO7HCOX0C/szZ/ARhknvvdgVtOZ4Q4ppislDy4sbunvGSp4LTjMTHX3UPsl7I1h1gLWNOx3UZVMNK39li/ATeYBrmp1+ZR0EWb6+OlPazPYvcnHCzHd8qWpVnT61qfxszWgLcaJqcU=
+Message-ID: <6bffcb0e0606120650l7116ac17vc3a0379194b56315@mail.gmail.com>
+Date: Mon, 12 Jun 2006 15:50:28 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
 Subject: Re: 2.6.16-rc6-mm2
-Date: Mon, 12 Jun 2006 15:41:29 +0200
-User-Agent: KMail/1.9.3
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060610092412.66dd109f.akpm@osdl.org> <p73irn6sh9q.fsf@verdi.suse.de> <20060612130723.GA17463@elte.hu>
-In-Reply-To: <20060612130723.GA17463@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060612110537.GA11358@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606121541.29753.ak@suse.de>
+References: <20060609214024.2f7dd72c.akpm@osdl.org>
+	 <6bffcb0e0606100323p122e9b23g37350fa9692337ae@mail.gmail.com>
+	 <20060610092412.66dd109f.akpm@osdl.org>
+	 <Pine.LNX.4.64.0606100939480.6651@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.64.0606100951340.7174@schroedinger.engr.sgi.com>
+	 <20060610100318.8900f849.akpm@osdl.org>
+	 <Pine.LNX.4.64.0606101102380.7421@schroedinger.engr.sgi.com>
+	 <6bffcb0e0606101114u37c8b642u5c9cc8dd566cba7c@mail.gmail.com>
+	 <Pine.LNX.4.64.0606101118410.7535@schroedinger.engr.sgi.com>
+	 <20060612110537.GA11358@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ingo,
 
-> i think you are right - but if someone goes the trouble of implementing 
-> per-arch support for local increments then i'm not against it. (except 
-> if the generated code is grossly inefficient) There are architectures 
-> where cli/sti hurts alot.
+On 12/06/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Christoph Lameter <clameter@sgi.com> wrote:
+>
+> > Sorry that patch was still against mm1. Here is a fixed up version
+> > that applies cleanly against mm2:
+>
+> i have applied both patches you sent in this thread but it still
+> triggers tons of messages:
+>
+>  printk: 104 messages suppressed.
+>  BUG: using smp_processor_id() in preemptible [00000001] code: distccd/9263
+>  caller is __handle_mm_fault+0x58/0xd70
+>   [<c0105d6f>] show_trace+0xd/0x10
+>   [<c0105d89>] dump_stack+0x17/0x1a
+>   [<c0585ab4>] debug_smp_processor_id+0x88/0xa0
+>   [<c016eb63>] __handle_mm_fault+0x58/0xd70
+>   [<c110ff1c>] do_page_fault+0x2e5/0x672
+>   [<c0104a69>] error_code+0x39/0x40
+>   [<c110eade>] __kprobes_text_start+0x6/0x14
+>
+> trying to fix it i realized that i'd have to touch tons of
+> architectures, which all duplicate this piece of code:
+>
+> /* Use these for per-cpu local_t variables: on some archs they are
+>  * much more efficient than these naive implementations.  Note they take
+>  * a variable, not an address.
+>  */
+> #define cpu_local_read(v)       local_read(&__get_cpu_var(v))
+> #define cpu_local_set(v, i)     local_set(&__get_cpu_var(v), (i))
+> #define cpu_local_inc(v)        local_inc(&__get_cpu_var(v))
+> #define cpu_local_dec(v)        local_dec(&__get_cpu_var(v))
+> #define cpu_local_add(i, v)     local_add((i), &__get_cpu_var(v))
+> #define cpu_local_sub(i, v)     local_sub((i), &__get_cpu_var(v))
+>
+> #define __cpu_local_inc(v)      cpu_local_inc(v)
+> #define __cpu_local_dec(v)      cpu_local_dec(v)
+> #define __cpu_local_add(i, v)   cpu_local_add((i), (v))
+> #define __cpu_local_sub(i, v)   cpu_local_sub((i), (v))
+>
+> that code must all be consolidated into a header in asm-generic, so that
+> the per-arch file only implements _truly_ per-arch logic.
 
-I was refering to asm-generic/local.h
+I just tried your latest  lockdep-combo-2.6.17-rc6-mm2 patch, and I
+get many warnings
 
-> 
-> In any case, on x86 we should switch to a cli/sti implementation indeed 
+WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/snd-pcm.ko
+needs unknown symbol down_write
+WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/snd-pcm.ko
+needs unknown symbol up_write
+WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/snd-pcm.ko
+needs unknown symbol down_read
+WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/snd-pcm.ko
+needs unknown symbol up_read
+WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/oss/snd-mixer-oss.ko
+needs unknown symbol down_read
+WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/oss/snd-mixer-oss.ko
+needs unknown symbol up_read
+WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/sound/core/seq/snd-seq.ko
+needs unknown symbol down_write
 
-x86 doesn't need it IMHO - as long as the RMW is atomic as seen by the local
-CPU it's ok to use a stale per CPU variable here. So using raw_smp_processor_id()
-for this is ok.
+>
+>         Ingo
+>
 
-> 
-> Although on x86_64 we'd probably be pretty OK if all per-cpu variables 
-> were in the PDA and were thus at a constant %gs-relative offset. But for 
-> now we only have data_offset in the PDA so there's one more unnecessary 
-> indirection.
+Regards,
+Michal
 
-I looked at this some time ago. The problem is that it would require
-new relocation types implemented in the assembler/linker. So I kept
-the current implementation.
-
-But even the current code is ok because the access is atomic towards
-the local CPU. If it's out of date by two cycles on preempt it doesn't
-matter much.
-
--Andi
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

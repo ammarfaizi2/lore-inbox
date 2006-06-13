@@ -1,116 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWFMVTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWFMVUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWFMVTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWFMVTo
+	id S932278AbWFMVUA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWFMVUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:19:44 -0400
-Received: from xenotime.net ([66.160.160.81]:22687 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932275AbWFMVTo (ORCPT
+	Tue, 13 Jun 2006 17:20:00 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:52658 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932277AbWFMVT7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:19:44 -0400
-Date: Tue, 13 Jun 2006 14:22:29 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Markus Biermaier <mbier@office-m.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS:
- Cannot open root device
-Message-Id: <20060613142229.5072b657.rdunlap@xenotime.net>
-In-Reply-To: <6137A58D-963C-4379-A836-DCD28C3E88EE@office-m.at>
-References: <6137A58D-963C-4379-A836-DCD28C3E88EE@office-m.at>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 13 Jun 2006 17:19:59 -0400
+Date: Tue, 13 Jun 2006 23:18:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock detected!
+Message-ID: <20060613211858.GA31051@elte.hu>
+References: <20060610075954.GA30119@elte.hu> <Pine.LNX.4.64.0606100916050.25777@hermes-1.csi.cam.ac.uk> <20060611053154.GA8581@elte.hu> <Pine.LNX.4.64.0606110739310.3726@hermes-1.csi.cam.ac.uk> <20060612083117.GA29026@elte.hu> <1150102041.24273.15.camel@imp.csi.cam.ac.uk> <20060612094011.GA32640@elte.hu> <1150107897.24273.25.camel@imp.csi.cam.ac.uk> <20060612105621.GA10887@elte.hu> <a44ae5cd0606122241nd24a83as9c4ff10d3539260b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a44ae5cd0606122241nd24a83as9c4ff10d3539260b@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006 23:10:04 +0200 Markus Biermaier wrote:
+* Miles Lane <miles.lane@gmail.com> wrote:
 
-> 
-> Am 12.06.2006 um 21:09 schrieb Jan Engelhardt:
-> 
-> 
-> > Hm. Maybe http://lkml.org/lkml/2005/2/26/92 (updated version for
-> > 2.6.16/.17 below) can help you.
-> >
-> > diff --fast -Ndpru linux-2.6.17-rc6~/block/genhd.c linux-2.6.17-rc6 
-> > +/block/genhd.c
-> > --- linux-2.6.17-rc6~/block/genhd.c	2006-06-06 02:57:02.000000000  
-> > +0200
-> > +++ linux-2.6.17-rc6+/block/genhd.c	2006-06-08 22:29:16.607058000  
-> > +0200
-> > @@ -214,6 +214,52 @@ struct gendisk *get_gendisk(dev_t dev, i
-> >  	return  kobj ? to_disk(kobj) : NULL;
-> >  }
-> >
-> > +/*
-> > + * printk a full list of all partitions - intended for
-> > + * places where the root filesystem can't be mounted and thus
-> > + * to give the victim some idea of what went wrong
-> > + */
-> > +void printk_all_partitions(void)
-> >
-> 
-> 
-> Am 13.06.2006 um 09:47 schrieb Markus Biermaier:
-> 
-> 
-> > to get the function "printk_all_partitions" compiled I simply  
-> > commented out "mutex_lock" and "mutex_unlock"...
-> >
-> > So the result before the boot-panic is:
-> >
-> > ...
-> > here are the partitions available:
-> > 2100     500472 hde driver: ide-disk
-> >   2101     500440 hde1
-> > ...
-> > What does this mean?
-> >
-> 
-> This holds the solution:
->                          /* Note, unlike /proc/partitions I'm showing  
-> the numbers in hex
->                             in the same format as the root= option */
->                          printk("%02x%02x %10llu %s",
->                                 sgp->major, sgp->first_minor,
->                                 (unsigned long long)get_capacity(sgp)  
->  >> 1,
->                                 disk_name(sgp, 0, buf));
-> 
-> So my "/tftpboot/pxelinux.cfg/Cxxxxxx" is:
-> ------------------------- [ BEGIN Cxxxxxx ] -------------------------
-> DEFAULT standard
-> LABEL standard
-> KERNEL vmlinuz
-> # APPEND initrd=initrd ramdisk_size=32768 root=/dev/hde1 udev  
-> acpi=off rootdelay=5
-> APPEND initrd=initrd ramdisk_size=32768 root=2101 udev acpi=off  
-> rootdelay=5
-> ------------------------- [ END   Cxxxxxx ] -------------------------
-> 
-> so the right root-string is: "root=2101".
-> 
-> But can anyone tell me how "root=/dev/hde1" translates to "root=2101"???
+> if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
+> System.map  2.6.17-rc6-mm2-lockdep; fi
+> WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/fs/ntfs/ntfs.ko
+> needs unknown symbol lockdep_on
+> WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/fs/ntfs/ntfs.ko
+> needs unknown symbol lockdep_off
 
-That's (hex) 0x2101.  In Documentation /devices.txt, we see:
+oops - please re-download the combo patch, i fixed this one.
 
- 33 block	Third IDE hard disk/CD-ROM interface
-		  0 = /dev/hde		Master: whole disk (or CD-ROM)
-		 64 = /dev/hdf		Slave: whole disk (or CD-ROM)
-
-		Partitions are handled the same way as for the first
-		interface (see major number 3)
-
-So device 33 (hex 21) is /dev/hde and 0x01 is partition 1 == hde1.
-
-
-> Thank you very much, Jan.
-> 
-> You brought me the solution.
-
-
----
-~Randy
+	Ingo

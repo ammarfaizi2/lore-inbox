@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWFMU3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWFMUa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbWFMU3l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 16:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWFMU3l
+	id S932150AbWFMUa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 16:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWFMUa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 16:29:41 -0400
-Received: from xenotime.net ([66.160.160.81]:19945 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932137AbWFMU3l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 16:29:41 -0400
-Date: Tue, 13 Jun 2006 13:32:27 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: nigelenki@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: Packing data in kernel memory
-Message-Id: <20060613133227.1eee4578.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.61.0606132217110.11918@yvahk01.tjqt.qr>
-References: <448F0893.1080706@comcast.net>
-	<Pine.LNX.4.61.0606132217110.11918@yvahk01.tjqt.qr>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 Jun 2006 16:30:57 -0400
+Received: from p-dns.epublica.de ([213.238.59.9]:36770 "EHLO
+	kermit.epublica.de") by vger.kernel.org with ESMTP id S932150AbWFMUa5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 16:30:57 -0400
+Message-ID: <448F207A.6080601@hanno.de>
+Date: Tue, 13 Jun 2006 22:30:50 +0200
+From: Hanno Mueller <sockpuppet@hanno.de>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060522)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: more than 3 GB in userspace (4G/4G patch?) for 2.6.16
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006 22:18:55 +0200 (MEST) Jan Engelhardt wrote:
+Hi,
 
-> 
-> >Subject: Packing data in kernel memory
-> >
-> 
-> Can't you just use mlock(), if you want to keep it in RAM?
-> 
-> Or do you need it in kernel memory, because you need it in the lowmem area? 
-> Or for interaction with other kernel code?
-> 
-> >Is there a way to pack and store arbitrary data in the kernel, or do I
-> >need to roll my own?
+on my 8 GB system with two 32-bit-xeons, I would like to have more than
+3 gigs in userspace.
 
-Sounds a bit like a slab cache to me.
+A 0.5/3.5 GB split appears to be what I need for my application.
 
-> Write a device driver, kmalloc some buffer, and copy data via a write 
-> function from userspace to that buffer. Should be trivial.
-> 
-> >1 excess pages, 4 units wasted memory.
-> 
-> Of course, kmalloc only works up to some boundary AFIACS.
+I read about the 4G/4G patch from 2004 but couldn't find a current patch
+for 2.6.16 - is there anything similar to it that I can apply on a
+2.6.16 kernel?
 
-128 KB on some arches.  More on a few IIRC.
+Thanks a lot & regards,
 
----
-~Randy
+Hanno

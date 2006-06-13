@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWFMMsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWFMMtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbWFMMsT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 08:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWFMMsD
+	id S1751090AbWFMMtu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 08:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWFMMtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 08:48:03 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2065 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750728AbWFMMrv (ORCPT
+	Tue, 13 Jun 2006 08:49:49 -0400
+Received: from mail.gmx.de ([213.165.64.21]:52187 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750754AbWFMMts (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 08:47:51 -0400
-Date: Mon, 12 Jun 2006 22:06:05 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Matthew Frost <artusemrys@sbcglobal.net>, Alex Tomas <alex@clusterfs.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060612220605.GD4950@ucw.cz>
-References: <44898EE3.6080903@garzik.org> <448992EB.5070405@garzik.org> <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org> <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org>
-Mime-Version: 1.0
+	Tue, 13 Jun 2006 08:49:48 -0400
+X-Authenticated: #428038
+Date: Tue, 13 Jun 2006 14:49:44 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+Message-ID: <20060613124944.GA16171@merlin.emma.line.org>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl> <1150189506.11159.93.camel@shinybook.infradead.org> <20060613104557.GA13597@merlin.emma.line.org> <1150201475.12423.12.camel@hades.cambridge.redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4489C34B.1080806@garzik.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1150201475.12423.12.camel@hades.cambridge.redhat.com>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11-2006-06-08
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+(cutting Cc list short)
 
-> >If ext2 and ext3 didn't support > 2GB files (which was 
-> >a filesystem
-> >feature added in exactly the same way as extents are 
-> >today, and nobody
-> >bitched about it then) then they would be relegated to 
-> >the same status
-> >as minix and xiafs and all the other filesystems that 
-> >are stuck in the
-> >"we can't change" or "we aren't supported" camps.
-> 
-> PRECISELY.  So you should stop modifying a filesystem 
-> whose design is admittedly _not_ modern!
-> 
-> ext3 is already essentially xiafs-on-life-support, when 
-> you consider today's large storage systems and today's 
-> filesystem technology. 
+On Tue, 13 Jun 2006, David Woodhouse wrote:
 
-Please don't. AFAIK, ext2/3 is only filesystem with working fsck
-(because that fsck was actually needed in the old days). Starting from
-xfs/jfs/reiser/??? means we no longer have working fsck...
+> > Given that list drivers are separate from the MTA (and that's good),
+> 
+> I'm unconvinced of the goodness of that.
+
+Separating tasks into distinct processes, to prevent rampant list
+drivers from messing with the MTA and vice versa.
+
+I'm also not convinced greylisting is a "solution". Once it catches on,
+spammers will retry. They control enough drones where smashing out
+successful deliveries from their address list and retrying them will
+work for them.
 
 -- 
-Thanks for all the (sleeping) penguins.
+Matthias Andree

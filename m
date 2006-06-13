@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWFMIJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWFMIey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWFMIJG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 04:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWFMIJG
+	id S1750731AbWFMIey (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 04:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWFMIey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 04:09:06 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:11056 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750708AbWFMIJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 04:09:03 -0400
-Date: Tue, 13 Jun 2006 11:02:37 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: x86_64: x86-64 mailing lists / posting patchkits / x86-64 releases
-Message-ID: <20060613080237.GD6864@rhun.haifa.ibm.com>
-References: <200606121307.54556.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jun 2006 04:34:54 -0400
+Received: from wr-out-0506.google.com ([64.233.184.231]:22372 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750731AbWFMIey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 04:34:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iZsgC3J1Xgycwllmw8VxvHLedZZZDeYXsmvJcXnu5kn2TTM1gXdIIz5ds1sF3h6T7ZWB5YJiNagKtTt2XkEDo6WlpvsAggGq4kt6OFHMb1oiBj+uGq/iksjMCpdA6sdnGRQiwknaeEzNyXOCPQfIraBscpV8nuD6mOzt/Y4uVvk=
+Message-ID: <cda58cb80606130134h4f74a4b8ndd977a89942c8933@mail.gmail.com>
+Date: Tue, 13 Jun 2006 10:34:53 +0200
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "Andy Whitcroft" <apw@shadowen.org>
+Subject: Re: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <448DA530.7050604@shadowen.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200606121307.54556.ak@suse.de>
-User-Agent: Mutt/1.5.11
+References: <448D1117.8010407@innova-card.com> <448D9577.3040903@shadowen.org>
+	 <cda58cb80606121021w22207ef6yf6dfcbf428b144c3@mail.gmail.com>
+	 <448DA530.7050604@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 01:07:54PM +0200, Andi Kleen wrote:
+2006/6/12, Andy Whitcroft <apw@shadowen.org>:
+> Franck Bui-Huu wrote:
+> > Hi Andy
+> >
+> > 2006/6/12, Andy Whitcroft <apw@shadowen.org>:
+> >
+> >>
+> >> In my mind the positive option is selecting for code supporting EXTREME
+> >> so it seems to make sense to use that option.
+> >
+> >
+> > well I find it confusing because in my mind, something like this seems
+> > more logical.
+> >
+> > #ifndef CONFIG_SPARSEMEM_STATIC
+> > static struct mem_section *sparse_index_alloc(int nid)
+> > {
+> >        return alloc_bootmem_node(...);
+> > }
+> > #else
+> > static struct mem_section *sparse_index_alloc(int nid)
+> > {
+> >        /* nothing to do here, since it has been statically allocated */
+> >        return 0;
+> > }
+> > #endif
+>
+> But also in this case the code in the first stanza is only applicable to
+> SPARSEMEM EXTREME, therefore its also logical to say
+>
 
-> I also planned to post patches more often to get better
-> turnaround for reviews on changed patches.
+Well I don't think so. Please show me which part of this code is
+_only_ applicable to EXTREME.
 
-Yes please :-)
+The only thing that makes it applicable to EXTREME is not in the code
+but rather in the Kconfig script:
 
-> We still have a patches@x86-64 mailing list on x86-64.org which
-> is mostly unused. If I moved the big patch floods over there,
-> would the people who do reviews subscribe there? Please comment.
+        config SPARSEMEM_EXTREME
+                def_bool y
+                depends on SPARSEMEM && !SPARSEMEM_STATIC
 
-I'll go where the patches are, but in general I prefer less lists to
-more.
-
-> I hope people would be still interested in running x86_64-*
-> patchkits.
-
-Yep.
-
-> Also my feeling is that I need to involve linux-kernel more.
-
-Yes!
-
-Cheers,
-Muli
+-- 
+               Franck

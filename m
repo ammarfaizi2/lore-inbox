@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932929AbWFMGo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbWFMG7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932929AbWFMGo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 02:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932930AbWFMGo3
+	id S932552AbWFMG7y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 02:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932930AbWFMG7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 02:44:29 -0400
-Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:64911
-	"HELO office-m.at") by vger.kernel.org with SMTP id S932929AbWFMGo2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 02:44:28 -0400
-In-Reply-To: <Pine.LNX.4.61.0606122105490.27755@yvahk01.tjqt.qr>
-References: <0CB396BB-A11B-4191-982F-8C0B89F848D6@office-m.at> <Pine.LNX.4.61.0606122003190.7959@yvahk01.tjqt.qr> <6988083B-3A0E-41F2-A1E4-B4A953B88705@office-m.at> <Pine.LNX.4.61.0606122105490.27755@yvahk01.tjqt.qr>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <43E144F5-768B-4710-A4CA-5D49242600F8@office-m.at>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 13 Jun 2006 02:59:54 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:33123 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932552AbWFMG7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 02:59:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jul6Ng1ACpRpEUEbU4ej2kFMsX9VApehpN4NZhieWLRIoMnGhUTzxLr0rkmnLBCzC+2dOqDc0P6FKx3oPpmi/TOTiT+x9SUYttnPUWQLlndIbAFTBeBzW5/FzhsmF3gFJ6CnaqxoPoEQ9dW/MPDt1sk60tQl5+RiaNzbtzr0hbc=
+Message-ID: <b0943d9e0606122359q6ffabdbdqada9a6c79642cf2a@mail.gmail.com>
+Date: Tue, 13 Jun 2006 07:59:52 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Markus Biermaier <mbier@office-m.at>
-Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
-Date: Tue, 13 Jun 2006 08:44:25 +0200
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-X-Mailer: Apple Mail (2.750)
+Content-Disposition: inline
+References: <20060611111815.8641.7879.stgit@localhost.localdomain>
+	 <20060611112156.8641.94787.stgit@localhost.localdomain>
+	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
+	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
+	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
+	 <20060612105345.GA8418@elte.hu>
+	 <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
+	 <20060612192227.GA5497@elte.hu>
+	 <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Am 12.06.2006 um 21:09 schrieb Jan Engelhardt:
-
-> Hm. Maybe http://lkml.org/lkml/2005/2/26/92 (updated version for
-> 2.6.16/.17 below) can help you.
+On 13/06/06, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
+> Hi Ingo,
 >
-> diff --fast -Ndpru linux-2.6.17-rc6~/block/genhd.c linux-2.6.17-rc6 
-> +/block/genhd.c
-> --- linux-2.6.17-rc6~/block/genhd.c	2006-06-06 02:57:02.000000000  
-> +0200
-> +++ linux-2.6.17-rc6+/block/genhd.c	2006-06-08 22:29:16.607058000  
-> +0200
-> @@ -214,6 +214,52 @@ struct gendisk *get_gendisk(dev_t dev, i
->  	return  kobj ? to_disk(kobj) : NULL;
->  }
+> On Mon, 12 Jun 2006, Ingo Molnar wrote:
+> > i dont know - i feel uneasy about the 'any pointer' method - it has a
+> > high potential for false negatives, especially for structures that
+> > contain strings (or other random data), etc.
 >
-> +/*
-> + * printk a full list of all partitions - intended for
-> + * places where the root filesystem can't be mounted and thus
-> + * to give the victim some idea of what went wrong
-> + */
-> +void printk_all_partitions(void)
-> +{
-> +	int n;
-> +        struct gendisk* sgp;
-> +	mutex_lock(&block_subsys_lock);
-> +
-> +        /* For each block device... */
-[snip]
+> Is that a problem in practice?  Structures that contain data are usually
+> allocated from the slab.  There needs to be a link to that struct from the
+> gc roots to get a false negative.  Or am I missing something here?
 
-Thank you for the patch.
-Compiling yields:
+The gc roots are the data and bss sections (and maybe task kernel
+stacks) and all the slab-allocated blocks are scanned if a link to
+them is found from the roots (and all of them are usually scanned). If
+no link is found, they would be reported as memory leaks (and not
+scanned). You can't really avoid the scanning of allocated blocks
+since they may contain pointers to other blocks.
 
-make targz-pkg
-block/genhd.c: In function `printk_all_partitions':
-block/genhd.c:240: Warnung: implicit declaration of function  
-`mutex_lock'
-block/genhd.c:240: error: `block_subsys_lock' undeclared (first use  
-in this function)
-block/genhd.c:240: error: (Each undeclared identifier is reported  
-only once
-block/genhd.c:240: error: for each function it appears in.)
-block/genhd.c:273: Warnung: implicit declaration of function  
-`mutex_unlock'
-make[3]: *** [block/genhd.o] Error 1
-make[2]: *** [block] Error 2
-make[1]: *** [targz-pkg] Error 2
-make: *** [targz-pkg] Error 2
-
-Can you please help me pointing to "mutex_lock" and  
-"block_subsys_lock". Sorry.
-
-Kind regards
-
-Markus
-
+-- 
+Catalin

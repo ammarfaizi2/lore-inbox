@@ -1,16 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWFNADF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWFNADG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWFNADF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 20:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWFNACl
+	id S964814AbWFNADG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 20:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWFNACj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 20:02:41 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:50846 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964816AbWFNACC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 20:02:02 -0400
-Subject: [PATCH 07/11] Task watchers:  Register per-task delay accounting
-	task watcher
+	Tue, 13 Jun 2006 20:02:39 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:4523 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964814AbWFNACD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 20:02:03 -0400
+Subject: [PATCH 05/11] Task watchers:  Allow task watchers to block
 From: Matt Helsley <matthltc@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
@@ -20,158 +19,79 @@ Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
        Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
 References: <20060613235122.130021000@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 13 Jun 2006 16:54:49 -0700
-Message-Id: <1150242889.21787.147.camel@stark>
+Date: Tue, 13 Jun 2006 16:54:44 -0700
+Message-Id: <1150242884.21787.145.camel@stark>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adapts delayacct to use Task Watchers. Does not adapt taskstats to use Task
-Watchers.
+This patch switches task_watchers to from atomic to blocking notifier chains,
+allowing notifier_calls to sleep.
 
 Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Balbir Singh <balbir@in.ibm.com>
-Cc: Chandra S. Seetharaman <sekharan@us.ibm.com>
 --
 
- include/linux/delayacct.h |    2 +-
- kernel/delayacct.c        |   23 +++++++++++++++++++++++
- kernel/exit.c             |    2 --
- kernel/fork.c             |    2 --
- 4 files changed, 24 insertions(+), 5 deletions(-)
+ drivers/connector/cn_proc.c |    2 +-
+ kernel/sys.c                |    8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-Index: linux-2.6.17-rc5-mm2/kernel/exit.c
+Index: linux-2.6.17-rc6-mm2/kernel/sys.c
 ===================================================================
---- linux-2.6.17-rc5-mm2.orig/kernel/exit.c
-+++ linux-2.6.17-rc5-mm2/kernel/exit.c
-@@ -26,11 +26,10 @@
- #include <linux/profile.h>
- #include <linux/mount.h>
- #include <linux/proc_fs.h>
- #include <linux/mempolicy.h>
- #include <linux/taskstats_kern.h>
--#include <linux/delayacct.h>
- #include <linux/cpuset.h>
- #include <linux/syscalls.h>
- #include <linux/signal.h>
- #include <linux/posix-timers.h>
- #include <linux/mutex.h>
-@@ -916,11 +915,10 @@ fastcall NORET_TYPE void do_exit(long co
- 		compat_exit_robust_list(tsk);
- #endif
- 	tsk->exit_code = code;
- 	taskstats_exit_send(tsk, tidstats, tgidstats);
- 	taskstats_exit_free(tidstats, tgidstats);
--	delayacct_tsk_exit(tsk);
- 	notify_result = notify_watchers(WATCH_TASK_FREE, tsk);
- 	WARN_ON(notify_result & NOTIFY_STOP_MASK);
- 
- 	exit_mm(tsk);
- 
-Index: linux-2.6.17-rc5-mm2/kernel/fork.c
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/kernel/fork.c
-+++ linux-2.6.17-rc5-mm2/kernel/fork.c
-@@ -41,11 +41,10 @@
- #include <linux/ptrace.h>
- #include <linux/mount.h>
- #include <linux/profile.h>
- #include <linux/rmap.h>
- #include <linux/acct.h>
--#include <linux/delayacct.h>
- #include <linux/notifier.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -1002,11 +1001,10 @@ static task_t *copy_process(unsigned lon
- 
- 	if (p->binfmt && !try_module_get(p->binfmt->module))
- 		goto bad_fork_cleanup_put_domain;
- 
- 	p->did_exec = 0;
--	delayacct_tsk_init(p);	/* Must remain after dup_task_struct() */
- 	copy_flags(clone_flags, p);
- 	p->pid = pid;
- 	retval = -EFAULT;
- 	if (clone_flags & CLONE_PARENT_SETTID)
- 		if (put_user(p->pid, parent_tidptr))
-Index: linux-2.6.17-rc5-mm2/kernel/delayacct.c
-===================================================================
---- linux-2.6.17-rc5-mm2.orig/kernel/delayacct.c
-+++ linux-2.6.17-rc5-mm2/kernel/delayacct.c
-@@ -16,10 +16,11 @@
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/time.h>
- #include <linux/sysctl.h>
- #include <linux/delayacct.h>
-+#include <linux/notifier.h>
- 
- int delayacct_on __read_mostly;	/* Delay accounting turned on/off */
- kmem_cache_t *delayacct_cache;
- 
- static int __init delayacct_setup_enable(char *str)
-@@ -27,17 +28,39 @@ static int __init delayacct_setup_enable
- 	delayacct_on = 1;
- 	return 1;
- }
- __setup("delayacct", delayacct_setup_enable);
- 
-+static int delayacct_watch_task(struct notifier_block *nb, unsigned long val,
-+				void *t)
-+{
-+	struct task_struct *tsk = t;
-+	switch(get_watch_event(val)) {
-+	case WATCH_TASK_CLONE:
-+		delayacct_tsk_init(tsk);
-+		break;
-+	case WATCH_TASK_FREE:
-+		delayacct_tsk_exit(tsk);
-+		break;
-+	default:
-+		return NOTIFY_DONE;
-+	}
-+	return NOTIFY_OK;
-+}
-+
-+static struct notifier_block __read_mostly delayacct_nb = {
-+	.notifier_call = delayacct_watch_task,
-+};
-+
- void delayacct_init(void)
- {
- 	delayacct_cache = kmem_cache_create("delayacct_cache",
- 					sizeof(struct task_delay_info),
- 					0,
- 					SLAB_PANIC,
- 					NULL, NULL);
-+	register_task_watcher(&delayacct_nb);
- 	delayacct_tsk_init(&init_task);
+--- linux-2.6.17-rc6-mm2.orig/kernel/sys.c
++++ linux-2.6.17-rc6-mm2/kernel/sys.c
+@@ -434,29 +434,29 @@ int unregister_reboot_notifier(struct no
  }
  
- void __delayacct_tsk_init(struct task_struct *tsk)
+ EXPORT_SYMBOL(unregister_reboot_notifier);
+ 
+ /* task watchers notifier chain */
+-static ATOMIC_NOTIFIER_HEAD(task_watchers);
++static BLOCKING_NOTIFIER_HEAD(task_watchers);
+ 
+ int register_task_watcher(struct notifier_block *nb)
  {
-Index: linux-2.6.17-rc5-mm2/include/linux/delayacct.h
+-	return atomic_notifier_chain_register(&task_watchers, nb);
++	return blocking_notifier_chain_register(&task_watchers, nb);
+ }
+ 
+ EXPORT_SYMBOL_GPL(register_task_watcher);
+ 
+ int unregister_task_watcher(struct notifier_block *nb)
+ {
+-	return atomic_notifier_chain_unregister(&task_watchers, nb);
++	return blocking_notifier_chain_unregister(&task_watchers, nb);
+ }
+ 
+ EXPORT_SYMBOL_GPL(unregister_task_watcher);
+ 
+ int notify_watchers(unsigned long val, void *v)
+ {
+-	return atomic_notifier_call_chain(&task_watchers, val, v);
++	return blocking_notifier_call_chain(&task_watchers, val, v);
+ }
+ 
+
+ static int set_one_prio(struct task_struct *p, int niceval, int error)
+ {
+Index: linux-2.6.17-rc6-mm2/drivers/connector/cn_proc.c
 ===================================================================
---- linux-2.6.17-rc5-mm2.orig/include/linux/delayacct.h
-+++ linux-2.6.17-rc5-mm2/include/linux/delayacct.h
-@@ -59,11 +59,11 @@ static inline void delayacct_tsk_init(st
- 		__delayacct_tsk_init(tsk);
+--- linux-2.6.17-rc6-mm2.orig/drivers/connector/cn_proc.c
++++ linux-2.6.17-rc6-mm2/drivers/connector/cn_proc.c
+@@ -193,11 +193,11 @@ static int cn_proc_watch_task(struct not
+ 	get_seq(&msg->seq, &ev->cpu);
+ 	ktime_get_ts(&ev->timestamp); /* get high res monotonic timestamp */
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = 0; /* not used */
+ 	msg->len = sizeof(*ev);
+-	cn_netlink_send(msg, CN_IDX_PROC, GFP_ATOMIC);
++	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+ 	/* If cn_netlink_send() fails, drop data */
+ 	return rc;
  }
  
- static inline void delayacct_tsk_exit(struct task_struct *tsk)
- {
--	if (tsk->delays)
-+	if (unlikely(tsk->delays))
- 		__delayacct_tsk_exit(tsk);
- }
- 
- static inline void delayacct_blkio_start(void)
- {
+ static struct notifier_block __read_mostly cn_proc_nb = {
 
 --
 

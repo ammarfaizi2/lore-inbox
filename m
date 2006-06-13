@@ -1,73 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWFMVNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWFMVNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWFMVNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWFMVNJ
+	id S932261AbWFMVNu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWFMVNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:13:09 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:7539 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932253AbWFMVNF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:13:05 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=DEPPsY3MmB54UBZUsFABlfovKffExXkbEhTy1lHxqF/YUXnPDzXgAV/aHMvnJbcAZ
-	ZTUf9IzidyJqWr6C9ZxNg==
-Message-ID: <448F2A49.5020809@google.com>
-Date: Tue, 13 Jun 2006 14:12:41 -0700
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
+	Tue, 13 Jun 2006 17:13:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2195 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932270AbWFMVNs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 17:13:48 -0400
+Date: Tue, 13 Jun 2006 14:13:36 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: 2.6.16-rc6-mm2
+In-Reply-To: <448F1E8A.3030202@fr.ibm.com>
+Message-ID: <Pine.LNX.4.64.0606131412290.31769@schroedinger.engr.sgi.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com>
+ <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
+ <448E6798.3020104@fr.ibm.com> <Pine.LNX.4.64.0606131049270.29947@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0606131234010.31186@schroedinger.engr.sgi.com>
+ <448F1E8A.3030202@fr.ibm.com>
 MIME-Version: 1.0
-To: bidulock@openss7.org
-CC: Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org>
-In-Reply-To: <20060613052215.B27858@openss7.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian F. G. Bidulock wrote:
-> Stephen,
-> 
-> On Tue, 13 Jun 2006, Stephen Hemminger wrote:
-> 
-> 
->>>@@ -2176,3 +2279,13 @@ EXPORT_SYMBOL(sock_wake_async);
->>> EXPORT_SYMBOL(sockfd_lookup);
->>> EXPORT_SYMBOL(kernel_sendmsg);
->>> EXPORT_SYMBOL(kernel_recvmsg);
->>>+EXPORT_SYMBOL(kernel_bind);
->>>+EXPORT_SYMBOL(kernel_listen);
->>>+EXPORT_SYMBOL(kernel_accept);
->>>+EXPORT_SYMBOL(kernel_connect);
->>>+EXPORT_SYMBOL(kernel_getsockname);
->>>+EXPORT_SYMBOL(kernel_getpeername);
->>>+EXPORT_SYMBOL(kernel_getsockopt);
->>>+EXPORT_SYMBOL(kernel_setsockopt);
->>>+EXPORT_SYMBOL(kernel_sendpage);
->>>+EXPORT_SYMBOL(kernel_ioctl);
->>
->>Don't we want to restrict this to GPL code with EXPORT_SYMBOL_GPL?
-> 
-> 
-> There are direct derivatives of the BSD/POSIX system call
-> interface.  The protocol function pointers within the socket
-> structure are not GPL only.  Why make this wrappered access to
-> them GPL only?  It will only encourange the reverse of what they
-> were intended to do: be used instead of the protocol function
-> pointers within the socket structure, that currently carry no
-> such restriction.
+On Tue, 13 Jun 2006, Cedric Le Goater wrote:
 
-This has the makings of a nice stable internal kernel api.  Why do we want
-to provide this nice stable internal api to proprietary modules?
+> NFS write seems to work fine with that patch. No more oops.
 
-Regards,
+Sigh. There is another issue that the NR_DIRTY count is not decremented. 
 
-Daniel
+Which brings us to this fix:
+
+Index: linux-2.6.17-rc6-mm2/fs/nfs/write.c
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/fs/nfs/write.c	2006-06-10 11:11:53.051397816 -0700
++++ linux-2.6.17-rc6-mm2/fs/nfs/write.c	2006-06-13 10:52:04.428456013 -0700
+@@ -1418,8 +1418,9 @@ static void nfs_commit_done(struct rpc_t
+ 		dprintk(" mismatch\n");
+ 		nfs_mark_request_dirty(req);
+ 	next:
++		if (req->wb_page)
++			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+ 		nfs_clear_page_writeback(req);
+-		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+ 	}
+ }
+ 
+Index: linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/fs/nfs/pagelist.c	2006-06-10 11:11:53.049444812 -0700
++++ linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c	2006-06-13 14:12:17.963198388 -0700
+@@ -154,6 +154,7 @@ void nfs_clear_request(struct nfs_page *
+ {
+ 	struct page *page = req->wb_page;
+ 	if (page != NULL) {
++		dec_zone_page_state(page, NR_UNSTABLE);
+ 		page_cache_release(page);
+ 		req->wb_page = NULL;
+ 	}
+@@ -315,7 +316,7 @@ nfs_scan_lock_dirty(struct nfs_inode *nf
+ 						req->wb_index, NFS_PAGE_TAG_DIRTY);
+ 				nfs_list_remove_request(req);
+ 				nfs_list_add_request(req, dst);
+-				inc_zone_page_state(req->wb_page, NR_DIRTY);
++				dec_zone_page_state(req->wb_page, NR_DIRTY);
+ 				res++;
+ 			}
+ 		}

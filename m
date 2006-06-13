@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWFMN3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWFMNiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWFMN3R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 09:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWFMN3R
+	id S1750754AbWFMNiH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 09:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWFMNiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 09:29:17 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:64951 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932092AbWFMN3Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 09:29:16 -0400
-Message-Id: <200606131328.k5DDSRd4003689@laptop11.inf.utfsm.cl>
-To: "jdow" <jdow@earthlink.net>
-cc: "Jesper Juhl" <jesper.juhl@gmail.com>, nick@linicks.net,
-       "Bernd Petrovitsch" <bernd@firmix.at>,
-       "marty fouts" <mf.danger@gmail.com>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Matti Aarnio" <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter) 
-In-Reply-To: Message from "jdow" <jdow@earthlink.net> 
-   of "Mon, 12 Jun 2006 22:54:02 MST." <02f401c68ead$c69815a0$0225a8c0@Wednesday> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Tue, 13 Jun 2006 09:28:27 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 13 Jun 2006 09:28:27 -0400 (CLT)
+	Tue, 13 Jun 2006 09:38:07 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:4251 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750742AbWFMNiF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 09:38:05 -0400
+Message-ID: <448EBEF9.9040808@aitel.hist.no>
+Date: Tue, 13 Jun 2006 15:34:49 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Gerrit Huizenga <gh@us.ibm.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <E1FolFA-0007RU-Ab@w-gerrit.beaverton.ibm.com>
+In-Reply-To: <E1FolFA-0007RU-Ab@w-gerrit.beaverton.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jdow <jdow@earthlink.net> wrote:
-> From: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-> > jdow <jdow@earthlink.net> wrote:
+Gerrit Huizenga wrote:
+> On Fri, 09 Jun 2006 09:09:01 PDT, Linus Torvalds wrote:
+>   
+>> On Fri, 9 Jun 2006, Gerrit Huizenga wrote:
+>>     
+>>> Jeff's approach taken to the rediculous would mean that we'd have
+>>> ext versions 1-40 by now at least.  I don't think that helps much,
+>>> either.
+>>>       
+>> On the other hand, I _guarantee_ you that it helps that we have ext2-3, 
+>> and not just ext2 (nobody even tried to keep ext1 compatible, thank the 
+>> Gods).
+>>     
+>  
+> I had originally argued for ext4 as well based on the fact that it would
+> allow lots of potential cleanups & simplifications and at the same time
+> would allow a break in the on disk filesystems layout.
+>
+> These changes don't yet change the actual on-disk layout and that might
+> be something that would be done if ext4 were a real, new filesystem.
+>
+> But then how long until ext4 is used enough to be put into production?
+>   
+No problem.  It didn't take long for ext3 - it won't take long for ext4.
+First, you have developers and some enthusiasts using it.
+Then, you get the thousands of people who like living
+on the edge using ext4. As soon as it doesn't have bad known bugs.
+Then some distros pick it up, wanting to be first with
+large-disk support.
+After that, it is considered "harmless".
 
-> > [...]
+If a break in on-disk layout is useful, then the time is now while
+a new fs is introduced anyway.  It could be 7 years to the next chance.
 
-> >> Greylist those who have not subscribed.
-> > That is not easy to do.
+Helge Hafting
 
-> Somebody needs to write the code to make it easy to do for a list
-> server. It should not be hard to do.
 
-Great! Show us how. I'd be delighted to use it here.
-
-> >>                                         Let their email server try
-> >> again in 30 minutes. For those who are not subscribed it should not
-> >> matter if their message is delayed 30 minutes. And so far spammers
-> >> never try again.
-
-> > Wrong. Greylisting does stop an immense amount of spam here, but a
-> > lot comes through.
-
-> So if it's not perfect it's not worth doing at all, eh?
-
-Didn't say that. Spammers /are/ finding ways to fool greylisting, that is
-all.
-
->                                                         Yet you think
-> SPF, which is FAR less suited as a spam preventative, is a single
-> point solution.
-
-I don't know where you got the idea I consider SPF a "single point
-solution". FYI, here we use greylisting, spamassassin, ClamAV (much junk is
-malware), and blacklists (both local ones and via DNS). We analyzed SPF and
-rejected it a while ago as unfixably broken. No "single point solution" in
-sight, sadly.
-
->                 Double think was supposed to have come and gone in
-> 1984, I thought.
-
-Double think is alive and well, thank you very much.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

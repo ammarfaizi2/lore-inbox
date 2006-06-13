@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWFMUL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWFMUS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWFMUL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 16:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWFMUL7
+	id S932076AbWFMUS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 16:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWFMUS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 16:11:59 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:39624 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932189AbWFMUL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 16:11:58 -0400
-Message-ID: <448F1BCE.50708@linux.intel.com>
-Date: Tue, 13 Jun 2006 13:10:54 -0700
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 13 Jun 2006 16:18:58 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:37101 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932076AbWFMUS5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 16:18:57 -0400
+Date: Tue, 13 Jun 2006 22:18:55 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: John Richard Moser <nigelenki@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Packing data in kernel memory
+In-Reply-To: <448F0893.1080706@comcast.net>
+Message-ID: <Pine.LNX.4.61.0606132217110.11918@yvahk01.tjqt.qr>
+References: <448F0893.1080706@comcast.net>
 MIME-Version: 1.0
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] i386 usercopy.c opcode reordering (pipelining)
-References: <20060613195502.GE24167@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060613195502.GE24167@rhlx01.fht-esslingen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr wrote:
-> Hi all,
-> 
-> this one wrote to register %0 and immediately right-shifted it,
-> so let's andl register %3 first for better parallelism (rrright?).
 
-have you benchmarked this?
-I would actually expect no difference since a reg-reg move is basically
-a thing for the register rename engine which then... well it's supposed
-to be near free like this.
+>Subject: Packing data in kernel memory
+>
+
+Can't you just use mlock(), if you want to keep it in RAM?
+
+Or do you need it in kernel memory, because you need it in the lowmem area? 
+Or for interaction with other kernel code?
+
+>Is there a way to pack and store arbitrary data in the kernel, or do I
+>need to roll my own?
+>
+
+Write a device driver, kmalloc some buffer, and copy data via a write 
+function from userspace to that buffer. Should be trivial.
+
+>1 excess pages, 4 units wasted memory.
+
+Of course, kmalloc only works up to some boundary AFIACS.
+
+
+Jan Engelhardt
+-- 

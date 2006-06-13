@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWFMWb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWFMWhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWFMWb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWFMWb0
+	id S964780AbWFMWhW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWFMWhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:31:26 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56491 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932342AbWFMWb0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:31:26 -0400
-Subject: Re: How does RAID work with IT8212 RAID PCI card?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Christian H?rtwig <christian.haertwig@gmx.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060613160138.GC560@csclub.uwaterloo.ca>
-References: <200606131758.45704.christian.haertwig@gmx.de>
-	 <20060613160138.GC560@csclub.uwaterloo.ca>
+	Tue, 13 Jun 2006 18:37:22 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:16848 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932318AbWFMWhV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 18:37:21 -0400
+Subject: Re: 2.6.16-rc6-mm2
+From: Steve Fox <drfickle@us.ibm.com>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1150235502.28414.52.camel@dyn9047017100.beaverton.ibm.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org>
+	 <pan.2006.06.12.22.09.47.855327@us.ibm.com>
+	 <20060613065443.7f302319.akpm@osdl.org>  <448EC74F.30104@ru.mvista.com>
+	 <1150235502.28414.52.camel@dyn9047017100.beaverton.ibm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 13 Jun 2006 23:47:27 +0100
-Message-Id: <1150238847.2232.1.camel@localhost.localdomain>
+Date: Tue, 13 Jun 2006 17:36:17 -0500
+Message-Id: <1150238178.4721.4.camel@flooterbu>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-06-13 am 12:01 -0400, ysgrifennodd Lennart Sorensen:
-> Congratulations.  You have a fake raid card by the sound of it.  A
-> hardware raid card would have only shown one drive, while a fake raid
-> card expects the driver to work with the bios to find out the setup (and
-> handle booting), and then the driver does all the raid work in software.
+On Tue, 2006-06-13 at 14:51 -0700, Badari Pulavarty wrote:
 
-The IT8212 is not a fake raid card - it depends on the firmware whether
-you see a drive per raid volume (hardware raid mode) or not (ATAPI
-capable firmware). We've found the raid firmware seems quite
-temperamental and there is little performance gain from raid 1 in
-hardware over software so using md or device mapper is recommended for
-that reason.
+> Okay. Here is the fix Anton did - which helped my machine.
+> 
+> http://patchwork.ozlabs.org/linuxppc/patch?id=5713
 
+That fixed the IDE adapter error on this machine too. Thanks!
 
+-- 
+
+Steve Fox
+IBM Linux Technology Center

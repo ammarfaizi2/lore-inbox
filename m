@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbWFMCNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932752AbWFMC3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932736AbWFMCNV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 22:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932779AbWFMCNU
+	id S932752AbWFMC3J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 22:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932780AbWFMC3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 22:13:20 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:53971 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932736AbWFMCNU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 22:13:20 -0400
-Subject: Mark profile notifier blocks __read_mostly
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Philippe Elie <phil.el@wanadoo.fr>
-Cc: oprofile-list@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 19:01:52 -0700
-Message-Id: <1150164112.21787.68.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Mon, 12 Jun 2006 22:29:07 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:51906 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932752AbWFMC3G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 22:29:06 -0400
+Date: Tue, 13 Jun 2006 02:24:00 -0480
+From: "Brianna Pace" <BriannaPace@0451.com>
+X-Mailer: The Bat! (v3.0.1 RC7) Educational
+Reply-To: "Brianna Pace" <BriannaPace@0451.com>
+X-Priority: 3 (Normal)
+Message-ID: <416778684.20060613022400@0451.com>
+To: linux-kernel@vger.kernel.org
+Subject: Your money, New englandish
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark profile notifier blocks __read_mostly since once registered they tend
-not to be written. This seems like a good idea but I'm not yet familiar
-enough with the profile paths to be certain.
+Join and Play at the best Emperial zCASINOz!
+As a Special Welcome TODAY, we will DOUBL your 1 Deposit up to 200 bucks!
 
-Compiles, boots, and runs with CONFIG_PROFILING=y and readprofile on a 4-way
-Opteron running Debian Sarge.
+For example:
+Deposit 50 play with 100!
+Deposit 100 play with 200!
+And your FREE Bonuses will be INSTANTLY added to your acount!
 
-Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
-Cc: oprofile-list@lists.sf.net
---
+Try us, inhere: 
 
-Booted with profile=2
-Profiling 3 iterations of kernbench
-readprofile output | grep profile:
-	without this patch:
-	     1 write_profile                              0.0037
-	     1 profile_tick                               0.0112
-	     1 profile_munmap                             0.0435
+http://KNBB36.erprost.com/d1/today
 
-	with this patch:
-	     1 write_profile                              0.0037
-
-(full readprofile results available for posting upon request)
-
- drivers/oprofile/buffer_sync.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-Index: linux-2.6.17-rc6-mm2/drivers/oprofile/buffer_sync.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/drivers/oprofile/buffer_sync.c
-+++ linux-2.6.17-rc6-mm2/drivers/oprofile/buffer_sync.c
-@@ -115,23 +115,23 @@ static int module_load_notify(struct not
- #endif
- 	return 0;
- }
- 
-  
--static struct notifier_block task_free_nb = {
-+static struct notifier_block __read_mostly task_free_nb = {
- 	.notifier_call	= task_free_notify,
- };
- 
--static struct notifier_block task_exit_nb = {
-+static struct notifier_block __read_mostly task_exit_nb = {
- 	.notifier_call	= task_exit_notify,
- };
- 
--static struct notifier_block munmap_nb = {
-+static struct notifier_block __read_mostly munmap_nb = {
- 	.notifier_call	= munmap_notify,
- };
- 
--static struct notifier_block module_load_nb = {
-+static struct notifier_block __read_mostly module_load_nb = {
- 	.notifier_call = module_load_notify,
- };
- 
-  
- static void end_sync(void)
+==========
+     Here he came this minute, a blurred gray shape roaring out of a dive,
+     Austin  isn't  a  bad  guy,  he's got  the  right  mix  of  courage and
+and they needed more to sleep.
+Outcast! We can't force ourselves to go where we're not welcome, can we?"
+in prison every Sunday. And I  really needed  a  drink--toy thirst  wouldn't
+==
+avidly sought by the science-fiction reader. It has space flight and  future
+Commission on Problems of the Visitation."
+bread. But he couldn't make it work.
+==
+Kirill. There was no point in even suggesting it--he wasn't the type.
+more - was no ordinary bird.
+"Reverse?" he whispered. I shook my head desperately and waved my fist right
 
 

@@ -1,91 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWFMXIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWFMXKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWFMXIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 19:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWFMXIV
+	id S964792AbWFMXKH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 19:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWFMXKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 19:08:21 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:47298 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751185AbWFMXIV (ORCPT
+	Tue, 13 Jun 2006 19:10:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43157 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964792AbWFMXKF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 19:08:21 -0400
-Subject: Re: [RFC][PATCH] Avoid race w/ posix-cpu-timer and exiting tasks
-From: john stultz <johnstul@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>
-In-Reply-To: <20060614024909.GA563@oleg>
-References: <20060614024909.GA563@oleg>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 16:05:45 -0700
-Message-Id: <1150239945.5799.14.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Tue, 13 Jun 2006 19:10:05 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: linux-kernel@vger.kernel.org
+X-Fcc: ~/Mail/linus
+Subject: [RFC PATCH 0/4] utrace: new modular infrastructure for user debug/tracing
+Message-Id: <20060613231000.38B76180072@magilla.sf.frob.com>
+Date: Tue, 13 Jun 2006 16:10:00 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-14 at 06:49 +0400, Oleg Nesterov wrote:
-> john stultz wrote:
-> >
-> > Hey Ingo,
-> > 	We've occasionally come across OOPSes in posix-cpu-timer thread (as
-> > well as tripping over the BUG_ON(tsk->exit_state there) where it appears
-> > the task we're processing exits out on us while we're using it. 
-> >
-> > Thus this fix tries to avoid running the posix-cpu-timers on a task that
-> > is exiting.
-> >
-> > --- 2.6-rt/kernel/posix-cpu-timers.c	2006-06-11 15:38:58.000000000 -0500
-> > +++ devrt/kernel/posix-cpu-timers.c	2006-06-12 10:52:20.000000000 -0500
-> > @@ -1290,12 +1290,15 @@
-> >
-> >  #undef	UNEXPIRED
-> >
-> > -	BUG_ON(tsk->exit_state);
-> > -
-> >  	/*
-> >  	 * Double-check with locks held.
-> >  	 */
-> >  	read_lock(&tasklist_lock);
-> > +	/* Make sure the task doesn't exit under us. */
-> > +	if(unlikely(tsk->exit_state)) {
-> > +		read_unlock(&tasklist_lock);
-> > +		return;
-> > +	}
-> >  	spin_lock(&tsk->sighand->siglock);
-> 
-> I strongly believe this BUG_ON() is indeed wrong, and I did a similar patch
-> a long ago:
-> 
-> 	[PATCH] posix-timers: remove false BUG_ON() from run_posix_cpu_timers()
-> 	Commit 3de463c7d9d58f8cf3395268230cb20a4c15bffa
+I have been working on for a while, and imagining for much longer,
+replacing ptrace from the ground up.  This is what I've come up with so
+far, and I'm looking for some reactions on the direction.  What I'm
+proposing here is a substrate for doing wonderful new things, and I don't
+yet have something built on top of it to demonstrate wonderful things.
+This is intended to make it easy for lots of folks to whip up new things
+and show what fancy business is possible and worthwhile.
 
-Thanks for the pointer! Hmm.  That patch is very similar to what I'm
-trying to avoid. 
+I've separated this into four successive patches in hopes it makes it
+easier to read the patches.  The intent is that each intermediate patch
+yields a kernel tree that compiles and works, though after the first patch
+and before the last you get ENOSYS from any ptrace call.  Patch #1 wipes
+out ptrace and its cruft from the bowels of the kernel.  Patch #2 converts
+the architecture-specific ptrace guts into the architecture-specific guts
+for the new thing.  Patch #3 is the crux of it, the new layer for writing
+debugging interfaces.  Patch #4 implements ptrace with user ABI
+compatibility in terms of that layer.
 
-Just to be clear for everyone else, that commit id is for Linus' git
-tree. The patch I'm proposing is against the -rt tree, where the
-run_posix_timers() function has been converted to a kthread instead of
-being run from the timer interrupt context.
+These patches are relative to 2.6.16.20; I will shortly rebase to the
+current 2.6.17ish tree, and post updated patches.  I don't think the old
+base will make it any harder to review the new code in the patches or its
+core design and implementation choices.  
 
-This allows the possibility of the the run_posix_timers_thread racing
-against the task its running on behalf and the task exiting, and I hope
-that is what my patch resolves (although I'm not confident its 100%).
+There are some known loose ends in the code.  I am working on those and
+will have more updates along with the rebase in a few days.  I am seeking
+feedback on the patches now to identify more issues I have not already
+noted in the code.
 
-The tsk->signal check from the patch above looks like it would avoid
-this as well. Is there a specific benefit to checking that over
-exit_state?
+These changes require some small porting work for each architecture.  In
+these patches, I have done the architecture work only for i386, x86_64, and
+powerpc.  The machine-specific work is quite small and straightforward for
+anyone even mildly familiar with the architecture in question.  It consists
+mainly of rearranging the existing architecture code used for ptrace into
+some new functions.  There should be no need for new assembly hacking or
+anything like that.  I was able to do the powerpc support in a couple of
+hours, and am not any kind of expert on ppc (and took quite a bit longer
+just to get myself able to build and boot ppc kernels).  Anyone interested
+in doing the architecture support for another machine, please contact me
+and I'll be glad to help.  The steps might already be fairly obvious from
+reading the arch/ changes in these patches.
 
-If anyone has further feedback or info about why the above was reverted
-it would be appreciated.
+At http://redhat.com/~roland/utrace/ you can always find the current state
+of this work.  There you can also find a small test suite I use, and an
+example module demonstrating a novel feature implemented very cheaply using
+the new infrastructure.  Please send feedback to me at <roland@redhat.com>.
 
-thanks
--john
+I've tested the new kernel APIs directly with the aforementioned (tiny)
+test suite, and tested them more thoroughly by testing the ptrace
+compatibility implementation based on them.  That I've tested using the gdb
+test suite, on x86_64 and ppc64 for both 32-bit and 64-bit userland
+(including both 32-bit and 64-bit gdb's debugging 32-bit processes on the
+64-bit kernel), and on i386.  I have not tested the ppc32 kernel, but it
+builds and the changed code is mostly shared with the ppc64 code that does
+work, so it has a decent chance.  (For other architectures, some work is
+still required even to get the kernel building again.)
+
+---
+
+This series of patches revamps the support for user process debugging
+from the ground up, replacing the old ptrace support completely.
+
+Two major problems with ptrace are its interface and its implementation.
+
+The low-level code for tracing core events is directly tied into the
+implementation of the ptrace system call interface.  Machine-dependent
+code for accessing registers and controlling single-stepping is
+intermingled with core implementation details that are actually
+machine-independent and repeated across arch directories.  ptrace
+interferes with the normal parent-child linkage, introducing many
+corner cases that have caused trouble in the past.
+
+The shortcomings of ptrace as a user-mode interface for debugging are
+many, and well-known to those who have worked with it from the userland
+side, or been involved in fixing and maintaining it in the kernel.  The
+system call interface is clunky to use and to extend, and makes it
+difficult to reduce the overhead of doing several operations and of
+transferring large amounts of data.  There is no way for more than one
+party to trace a process.  The reporting model using SIGCHLD and wait4
+is tricky to use reliably from userland, and especially hard to
+integrate with other kinds of event loop.  Thread event reporting is
+heavy-weight and not specified with good granularity: in practice a
+traced thread stops for everything.
+
+The old ptrace implementation is removed entirely and replaced with a
+modular interface layer that provides user debugging and tracing
+functionality separate from any single userland interface.  Rather than
+trying to come up with a single new interface to replace ptrace, this
+provides a platform for higher-level code in kernel modules to provide
+userland interfaces for tracing and debugging.  The ptrace system call
+is provided for compatibility, written on top of the new modular layer.
+
+Currently there are these four patches:
+
+[PATCH 1] utrace: tracehook (die, ptrace, die)
+[PATCH 2] utrace: register sets
+[PATCH 3] utrace core
+[PATCH 4] utrace: ptrace compatibility
 
 
-
-
-
-
+Thanks,
+Roland

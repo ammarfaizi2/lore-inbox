@@ -1,166 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932703AbWFMAgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbWFMAea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932703AbWFMAgi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 20:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWFMAfB
+	id S932698AbWFMAea (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 20:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbWFMAe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 20:35:01 -0400
-Received: from cantor.suse.de ([195.135.220.2]:47566 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932703AbWFMAeo (ORCPT
+	Mon, 12 Jun 2006 20:34:27 -0400
+Received: from ns2.suse.de ([195.135.220.15]:60395 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932692AbWFMAeI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 20:34:44 -0400
+	Mon, 12 Jun 2006 20:34:08 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 15/16] 64bit Resource: convert a few remaining drivers to use resource_size_t where needed
+Subject: [PATCH 05/16] 64bit resource: fix up printks for resources in mtd drivers
 Reply-To: Greg KH <greg@kroah.com>
-Date: Mon, 12 Jun 2006 17:31:17 -0700
-Message-Id: <11501587303683-git-send-email-greg@kroah.com>
+Date: Mon, 12 Jun 2006 17:31:07 -0700
+Message-Id: <11501586942938-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11501587273612-git-send-email-greg@kroah.com>
-References: <20060613003033.GA10717@kroah.com> <11501586781628-git-send-email-greg@kroah.com> <1150158683636-git-send-email-greg@kroah.com> <11501586871870-git-send-email-greg@kroah.com> <11501586902008-git-send-email-greg@kroah.com> <11501586942938-git-send-email-greg@kroah.com> <11501586982289-git-send-email-greg@kroah.com> <11501587011194-git-send-email-greg@kroah.com> <11501587043722-git-send-email-greg@kroah.com> <11501587082203-git-send-email-greg@kroah.com> <11501587122736-git-send-email-greg@kroah.com> <11501587153872-git-send-email-greg@kroah.com> <11501587193060-git-send-email-greg@kroah.com> <11501587223213-git-send-email-greg@kroah.com> <11501587273612-git-send-email-greg@kroah.com>
+In-Reply-To: <11501586902008-git-send-email-greg@kroah.com>
+References: <20060613003033.GA10717@kroah.com> <11501586781628-git-send-email-greg@kroah.com> <1150158683636-git-send-email-greg@kroah.com> <11501586871870-git-send-email-greg@kroah.com> <11501586902008-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-Based on a patch series originally from Vivek Goyal <vgoyal@in.ibm.com>
+This is needed if we wish to change the size of the resource structures.
+
+Based on an original patch from Vivek Goyal <vgoyal@in.ibm.com>
 
 Cc: Vivek Goyal <vgoyal@in.ibm.com>
 Cc: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/ieee1394/ohci1394.c     |    2 +-
- drivers/isdn/hisax/hfc_pci.c    |    2 +-
- drivers/net/8139cp.c            |    2 +-
- drivers/pcmcia/rsrc_nonstatic.c |   14 +++++++-------
- drivers/serial/8250_pci.c       |    4 ++--
- drivers/usb/host/sl811-hcd.c    |   10 +++++++---
- 6 files changed, 19 insertions(+), 15 deletions(-)
+ drivers/mtd/devices/pmc551.c       |    8 ++++----
+ drivers/mtd/maps/amd76xrom.c       |    5 +++--
+ drivers/mtd/maps/ichxrom.c         |    5 +++--
+ drivers/mtd/maps/scx200_docflash.c |    5 +++--
+ drivers/mtd/maps/sun_uflash.c      |   10 ++++++----
+ 5 files changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/ieee1394/ohci1394.c b/drivers/ieee1394/ohci1394.c
-index 744b66c..4ebc530 100644
---- a/drivers/ieee1394/ohci1394.c
-+++ b/drivers/ieee1394/ohci1394.c
-@@ -3210,7 +3210,7 @@ static int __devinit ohci1394_pci_probe(
- {
- 	struct hpsb_host *host;
- 	struct ti_ohci *ohci;	/* shortcut to currently handled device */
--	unsigned long ohci_base;
-+	resource_size_t ohci_base;
+diff --git a/drivers/mtd/devices/pmc551.c b/drivers/mtd/devices/pmc551.c
+index 666cce1..ce2a233 100644
+--- a/drivers/mtd/devices/pmc551.c
++++ b/drivers/mtd/devices/pmc551.c
+@@ -551,11 +551,11 @@ #ifdef CONFIG_MTD_PMC551_DEBUG
+         /*
+          * Some screen fun
+          */
+-        printk(KERN_DEBUG "pmc551: %d%c (0x%x) of %sprefetchable memory at 0x%lx\n",
++        printk(KERN_DEBUG "pmc551: %d%c (0x%x) of %sprefetchable memory at 0x%llx\n",
+ 	       (size<1024)?size:(size<1048576)?size>>10:size>>20,
+                (size<1024)?'B':(size<1048576)?'K':'M',
+ 	       size, ((dcmd&(0x1<<3)) == 0)?"non-":"",
+-               (dev->resource[0].start)&PCI_BASE_ADDRESS_MEM_MASK );
++               (unsigned long long)((dev->resource[0].start)&PCI_BASE_ADDRESS_MEM_MASK));
  
-         if (pci_enable_device(dev))
- 		FAIL(-ENXIO, "Failed to enable OHCI hardware");
-diff --git a/drivers/isdn/hisax/hfc_pci.c b/drivers/isdn/hisax/hfc_pci.c
-index 91d25ac..3622720 100644
---- a/drivers/isdn/hisax/hfc_pci.c
-+++ b/drivers/isdn/hisax/hfc_pci.c
-@@ -1688,7 +1688,7 @@ #ifdef CONFIG_PCI
- 				printk(KERN_WARNING "HFC-PCI: No IRQ for PCI card found\n");
- 				return (0);
- 			}
--			cs->hw.hfcpci.pci_io = (char *) dev_hfcpci->resource[ 1].start;
-+			cs->hw.hfcpci.pci_io = (char *)(unsigned long)dev_hfcpci->resource[1].start;
- 			printk(KERN_INFO "HiSax: HFC-PCI card manufacturer: %s card name: %s\n", id_list[i].vendor_name, id_list[i].card_name);
- 		} else {
- 			printk(KERN_WARNING "HFC-PCI: No PCI card found\n");
-diff --git a/drivers/net/8139cp.c b/drivers/net/8139cp.c
-index e74e20a..1eaf0a4 100644
---- a/drivers/net/8139cp.c
-+++ b/drivers/net/8139cp.c
-@@ -1668,7 +1668,7 @@ static int cp_init_one (struct pci_dev *
- 	struct cp_private *cp;
- 	int rc;
- 	void __iomem *regs;
--	long pciaddr;
-+	resource_size_t pciaddr;
- 	unsigned int addr_len, i, pci_using_dac;
- 	u8 pci_rev;
+         /*
+          * Check to see the state of the memory
+@@ -685,8 +685,8 @@ static int __init init_pmc551(void)
+                         break;
+                 }
  
-diff --git a/drivers/pcmcia/rsrc_nonstatic.c b/drivers/pcmcia/rsrc_nonstatic.c
-index cc03130..c3176b1 100644
---- a/drivers/pcmcia/rsrc_nonstatic.c
-+++ b/drivers/pcmcia/rsrc_nonstatic.c
-@@ -72,7 +72,7 @@ #define MEM_PROBE_HIGH	(1 << 1)
- ======================================================================*/
+-                printk(KERN_NOTICE "pmc551: Found PCI V370PDC at 0x%lX\n",
+-				    PCI_Device->resource[0].start);
++                printk(KERN_NOTICE "pmc551: Found PCI V370PDC at 0x%llx\n",
++				    (unsigned long long)PCI_Device->resource[0].start);
  
- static struct resource *
--make_resource(unsigned long b, unsigned long n, int flags, char *name)
-+make_resource(resource_size_t b, resource_size_t n, int flags, char *name)
- {
- 	struct resource *res = kzalloc(sizeof(*res), GFP_KERNEL);
+                 /*
+                  * The PMC551 device acts VERY weird if you don't init it
+diff --git a/drivers/mtd/maps/amd76xrom.c b/drivers/mtd/maps/amd76xrom.c
+index c350878..a505870 100644
+--- a/drivers/mtd/maps/amd76xrom.c
++++ b/drivers/mtd/maps/amd76xrom.c
+@@ -123,9 +123,10 @@ static int __devinit amd76xrom_init_one 
+ 		window->rsrc.parent = NULL;
+ 		printk(KERN_ERR MOD_NAME
+ 			" %s(): Unable to register resource"
+-			" 0x%.08lx-0x%.08lx - kernel bug?\n",
++			" 0x%.16llx-0x%.16llx - kernel bug?\n",
+ 			__func__,
+-			window->rsrc.start, window->rsrc.end);
++			(unsigned long long)window->rsrc.start,
++			(unsigned long long)window->rsrc.end);
+ 	}
  
-@@ -86,8 +86,8 @@ make_resource(unsigned long b, unsigned 
- }
+ #if 0
+diff --git a/drivers/mtd/maps/ichxrom.c b/drivers/mtd/maps/ichxrom.c
+index ea50737..1673279 100644
+--- a/drivers/mtd/maps/ichxrom.c
++++ b/drivers/mtd/maps/ichxrom.c
+@@ -177,9 +177,10 @@ static int __devinit ichxrom_init_one (s
+ 		window->rsrc.parent = NULL;
+ 		printk(KERN_DEBUG MOD_NAME
+ 			": %s(): Unable to register resource"
+-			" 0x%.08lx-0x%.08lx - kernel bug?\n",
++			" 0x%.16llx-0x%.16llx - kernel bug?\n",
+ 			__func__,
+-			window->rsrc.start, window->rsrc.end);
++			(unsigned long long)window->rsrc.start,
++			(unsigned long long)window->rsrc.end);
+ 	}
  
- static struct resource *
--claim_region(struct pcmcia_socket *s, unsigned long base, unsigned long size,
--	     int type, char *name)
-+claim_region(struct pcmcia_socket *s, resource_size_t base,
-+		resource_size_t size, int type, char *name)
- {
- 	struct resource *res, *parent;
+ 	/* Map the firmware hub into my address space. */
+diff --git a/drivers/mtd/maps/scx200_docflash.c b/drivers/mtd/maps/scx200_docflash.c
+index 28b8a57..331a158 100644
+--- a/drivers/mtd/maps/scx200_docflash.c
++++ b/drivers/mtd/maps/scx200_docflash.c
+@@ -164,8 +164,9 @@ static int __init init_scx200_docflash(v
+ 		outl(pmr, scx200_cb_base + SCx200_PMR);
+ 	}
  
-@@ -519,10 +519,10 @@ struct pcmcia_align_data {
+-       	printk(KERN_INFO NAME ": DOCCS mapped at 0x%lx-0x%lx, width %d\n",
+-	       docmem.start, docmem.end, width);
++       	printk(KERN_INFO NAME ": DOCCS mapped at 0x%llx-0x%llx, width %d\n",
++			(unsigned long long)docmem.start,
++			(unsigned long long)docmem.end, width);
  
- static void
- pcmcia_common_align(void *align_data, struct resource *res,
--		    unsigned long size, unsigned long align)
-+			resource_size_t size, resource_size_t align)
- {
- 	struct pcmcia_align_data *data = align_data;
--	unsigned long start;
-+	resource_size_t start;
- 	/*
- 	 * Ensure that we have the correct start address
- 	 */
-@@ -533,8 +533,8 @@ pcmcia_common_align(void *align_data, st
- }
+ 	scx200_docflash_map.size = size;
+ 	if (width == 8)
+diff --git a/drivers/mtd/maps/sun_uflash.c b/drivers/mtd/maps/sun_uflash.c
+index 0758cb1..9ed42d5 100644
+--- a/drivers/mtd/maps/sun_uflash.c
++++ b/drivers/mtd/maps/sun_uflash.c
+@@ -74,9 +74,10 @@ int uflash_devinit(struct linux_ebus_dev
+ 		/* Non-CFI userflash device-- once I find one we
+ 		 * can work on supporting it.
+ 		 */
+-		printk("%s: unsupported device at 0x%lx (%d regs): " \
++		printk("%s: unsupported device at 0x%llx (%d regs): " \
+ 			"email ebrower@usa.net\n",
+-			UFLASH_DEVNAME, edev->resource[0].start, nregs);
++			UFLASH_DEVNAME,
++			(unsigned long long)edev->resource[0].start, nregs);
+ 		return -ENODEV;
+ 	}
  
- static void
--pcmcia_align(void *align_data, struct resource *res,
--	     unsigned long size, unsigned long align)
-+pcmcia_align(void *align_data, struct resource *res, resource_size_t size,
-+		resource_size_t align)
- {
- 	struct pcmcia_align_data *data = align_data;
- 	struct resource_map *m;
-diff --git a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
-index 94886c0..864ef85 100644
---- a/drivers/serial/8250_pci.c
-+++ b/drivers/serial/8250_pci.c
-@@ -594,8 +594,8 @@ pci_default_setup(struct serial_private 
- 	else
- 		offset += idx * board->uart_offset;
- 
--	maxnr = (pci_resource_len(priv->dev, bar) - board->first_offset) /
--		(8 << board->reg_shift);
-+	maxnr = (pci_resource_len(priv->dev, bar) - board->first_offset) >>
-+		(board->reg_shift + 3);
- 
- 	if (board->flags & FL_REGION_SZ_CAP && idx >= maxnr)
- 		return 1;
-diff --git a/drivers/usb/host/sl811-hcd.c b/drivers/usb/host/sl811-hcd.c
-index a923430..658f570 100644
---- a/drivers/usb/host/sl811-hcd.c
-+++ b/drivers/usb/host/sl811-hcd.c
-@@ -1684,9 +1684,13 @@ sl811h_probe(struct platform_device *dev
- 		if (!addr || !data)
- 			return -ENODEV;
- 		ioaddr = 1;
--
--		addr_reg = (void __iomem *) addr->start;
--		data_reg = (void __iomem *) data->start;
-+		/*
-+		 * NOTE: 64-bit resource->start is getting truncated
-+		 * to avoid compiler warning, assuming that ->start
-+		 * is always 32-bit for this case
-+		 */
-+		addr_reg = (void __iomem *) (unsigned long) addr->start;
-+		data_reg = (void __iomem *) (unsigned long) data->start;
- 	} else {
- 		addr_reg = ioremap(addr->start, 1);
- 		if (addr_reg == NULL) {
+@@ -132,8 +133,9 @@ static int __init uflash_init(void)
+ 		for_each_ebusdev(edev, ebus) {
+ 			if (!strcmp(edev->prom_name, UFLASH_OBPNAME)) {
+ 				if(0 > prom_getproplen(edev->prom_node, "user")) {
+-					DEBUG(2, "%s: ignoring device at 0x%lx\n",
+-							UFLASH_DEVNAME, edev->resource[0].start);
++					DEBUG(2, "%s: ignoring device at 0x%llx\n",
++						UFLASH_DEVNAME,
++						(unsigned long long)edev->resource[0].start);
+ 				} else {
+ 					uflash_devinit(edev);
+ 				}
 -- 
 1.4.0
 

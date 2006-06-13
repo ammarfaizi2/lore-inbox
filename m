@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWFMAMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWFMAW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbWFMAMn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 20:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWFMAMm
+	id S932674AbWFMAW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 20:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWFMAW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 20:12:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4252 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932320AbWFMAMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 20:12:42 -0400
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060612090521.GE11649@merlin.emma.line.org>
-References: <20060610222734.GZ27502@mea-ext.zmailer.org>
-	 <20060612090521.GE11649@merlin.emma.line.org>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 01:12:50 +0100
-Message-Id: <1150157570.11159.87.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
+	Mon, 12 Jun 2006 20:22:29 -0400
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:49035 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932674AbWFMAW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 20:22:29 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH 19/21] swap_prefetch: Conversion of nr_unstable to ZVC
+Date: Tue, 13 Jun 2006 10:19:07 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Hugh Dickins <hugh@veritas.com>, Marcelo Tosatti <marcelo@kvack.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
+References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com> <200606130959.48006.kernel@kolivas.org> <Pine.LNX.4.64.0606121707130.22052@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0606121707130.22052@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200606131019.08228.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 11:05 +0200, Matthias Andree wrote:
-> I believe checking Received: headers of backscatter (that term is used
-> in Postfix discussions for "back falling junk") catches a fair amount
-> of that junk. 
+On Tuesday 13 June 2006 10:08, Christoph Lameter wrote:
+> On Tue, 13 Jun 2006, Con Kolivas wrote:
+> > The comment should read something like:
+>
+> If we need another round then maybe it would be best if you would do that
+> patch.
 
-Backscatter is trivial to deal with by other means -- like BATV.
+Sorry about that I wasn't trying to pester you.
 
-Presumably we'd never accept bounces to the list addresses _anyway_,
-since the lists never send mail from their canonical address.
+> This?
+
+Looks good :)
+
+> Subject: swap_prefetch: conversion of nr_unstable to per zone counter
+> From: Christoph Lameter <clameter@sgi.com>
+>
+> The determination of the vm state is now not that expensive
+> anymore after we remove the use of the page state.
+> Change the logic to avoid the expensive checks.
+>
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+Thanks for your work on this.
 
 -- 
-dwmw2
-
+-ck

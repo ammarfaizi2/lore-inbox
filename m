@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWFMQYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWFMQZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWFMQYo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 12:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWFMQYo
+	id S932171AbWFMQZA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 12:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWFMQY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 12:24:44 -0400
-Received: from 216-54-166-5.static.twtelecom.net ([216.54.166.5]:59353 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S932170AbWFMQYo
-	(ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
-	Tue, 13 Jun 2006 12:24:44 -0400
-Message-ID: <448EE6C7.2020306@compro.net>
-Date: Tue, 13 Jun 2006 12:24:39 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
+	Tue, 13 Jun 2006 12:24:59 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:11381 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932171AbWFMQY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 12:24:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fk7Qc9cS5YR2hBb6+D6uocVVVFFfdKtWu5lV3vSm/9/KxUUScZ6/XYWTcUPa3DxqatmdN/j7edHE54oVJa7WIS63HxE55o/zXAasdCRhraifRTTtZpWOgLv+ZpmPOYv2u98doB0IC/TZRHY6ji24TN18TcZQNH5o6uDLKFldq6A=
+Message-ID: <4807377b0606130924i4b5ea36aq83b8db050831bea4@mail.gmail.com>
+Date: Tue, 13 Jun 2006 09:24:55 -0700
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: [PATCH 03/16] 64bit resource: fix up printks for resources in networks drivers
+Cc: linux-kernel@vger.kernel.org, "Greg Kroah-Hartman" <gregkh@suse.de>,
+       "NetDEV list" <netdev@vger.kernel.org>
+In-Reply-To: <11501586871870-git-send-email-greg@kroah.com>
 MIME-Version: 1.0
-To: markh@compro.net
-Cc: Serge Noiraud <serge.noiraud@bull.net>, linux-kerneL@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: RT exec for exercising RT kernel capabilities
-References: <448876B9.9060906@compro.net> <200606131613.45078.Serge.Noiraud@bull.net> <448ECCE0.8040206@compro.net> <200606131648.22547.Serge.Noiraud@bull.net> <448ED167.8080600@compro.net>
-In-Reply-To: <448ED167.8080600@compro.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060613003033.GA10717@kroah.com>
+	 <11501586781628-git-send-email-greg@kroah.com>
+	 <1150158683636-git-send-email-greg@kroah.com>
+	 <11501586871870-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hounschell wrote:
-> Serge Noiraud wrote:
->> mardi 13 Juin 2006 16:34, Mark Hounschell wrote/a écrit :
->>> Serge Noiraud wrote:
->>>> jeudi 8 Juin 2006 21:12, Mark Hounschell wrote/a écrit :
->>>>> With the ongoing work being done to rt kernel enhancements by Ingo and friends,
->>>>> I would like to offer the use of a user land test (rt-exec). The rt-exec tests
->> ...
->>>> I ran ./go and after 16:50 hours, the tasks 9 and 10 ( type hrt ) jumped respectively to 9787
->>>> and 3843usec ! 5 or 10 minutes earlier I did have between 100 and 200 usec.
->>>> What can cause this problem ? is it a hrt problem ?
->>>> Could it be a driver problem ( network ) ?
->> ...
->>> All I can say about those 2 big hits is that your system burped. Why, I can't
->>> tell you. The people working on the rt stuff may be able to help you.
->>>
->>> What bugs me is task16 is not running at all. Tell what kernel and glibc you are
->>> using please?
->> I forgot to ask you this problem.
->>
->> I'm using linux 2.6.16 with rt28.
->> glibc-2.3.3
->>
->>> Mark
-> 
-> This is a bug in the exec. I'll fix it ASAIC.
-> 
-> Mark
+First, added netdev,
 
-There is a new version there that should fix that.
+On 6/12/06, Greg KH <greg@kroah.com> wrote:
+> From: Greg Kroah-Hartman <gregkh@suse.de>
+>
+> This is needed if we wish to change the size of the resource structures.
+>
+> Based on an original patch from Vivek Goyal <vgoyal@in.ibm.com>
+>
+> Cc: Vivek Goyal <vgoyal@in.ibm.com>
+> Cc: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> ---
+>  drivers/net/3c59x.c            |    6 ++++--
+>  drivers/net/8139cp.c           |    9 +++++----
+>  drivers/net/8139too.c          |    6 +++---
+>  drivers/net/e100.c             |    4 ++--
+>  drivers/net/skge.c             |    4 ++--
+>  drivers/net/sky2.c             |    6 +++---
+>  drivers/net/tulip/de2104x.c    |    9 +++++----
+>  drivers/net/tulip/tulip_core.c |    6 +++---
+>  drivers/net/typhoon.c          |    5 +++--
+>  drivers/net/wan/dscc4.c        |   12 ++++++------
+>  drivers/net/wan/pc300_drv.c    |    4 ++--
+>  11 files changed, 38 insertions(+), 33 deletions(-)
+>
+> diff --git a/drivers/net/e100.c b/drivers/net/e100.c
+> index 31ac001..0c0bd67 100644
+> --- a/drivers/net/e100.c
+> +++ b/drivers/net/e100.c
+> @@ -2678,9 +2678,9 @@ #endif
+>                 goto err_out_free;
+>         }
+>
+> -       DPRINTK(PROBE, INFO, "addr 0x%lx, irq %d, "
+> +       DPRINTK(PROBE, INFO, "addr 0x%llx, irq %d, "
+>                 "MAC addr %02X:%02X:%02X:%02X:%02X:%02X\n",
+> -               pci_resource_start(pdev, 0), pdev->irq,
+> +               (unsigned long long)pci_resource_start(pdev, 0), pdev->irq,
+>                 netdev->dev_addr[0], netdev->dev_addr[1], netdev->dev_addr[2],
+>                 netdev->dev_addr[3], netdev->dev_addr[4], netdev->dev_addr[5]);
 
-Mark
+color me confused, but why is this change necessary for e100?  e100
+can not support 64 bit BARs, so it seems to me to make little sense to
+cast to unsigned long long.  e100 is 32 bit the whole way through.
 
+Jesse

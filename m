@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWFMIk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWFMIsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWFMIk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 04:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWFMIk2
+	id S1750791AbWFMIsa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 04:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFMIsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 04:40:28 -0400
-Received: from ns.firmix.at ([62.141.48.66]:5537 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750774AbWFMIk1 (ORCPT
+	Tue, 13 Jun 2006 04:48:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14016 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750791AbWFMIs3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 04:40:27 -0400
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: jdow <jdow@earthlink.net>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jesper Juhl <jesper.juhl@gmail.com>, nick@linicks.net,
-       marty fouts <mf.danger@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <02f401c68ead$c69815a0$0225a8c0@Wednesday>
-References: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl>
-	 <02f401c68ead$c69815a0$0225a8c0@Wednesday>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 13 Jun 2006 10:36:06 +0200
-Message-Id: <1150187766.28123.13.camel@tara.firmix.at>
+	Tue, 13 Jun 2006 04:48:29 -0400
+Date: Tue, 13 Jun 2006 04:48:19 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Sebastien Dugue <sebastien.dugue@bull.net>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+       Pierre PEIFFER <pierre.peiffer@bull.net>
+Subject: Re: NPTL mutex and the scheduling priority
+Message-ID: <20060613084819.GL3115@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20060612.171035.108739746.nemoto@toshiba-tops.co.jp> <1150115008.3131.106.camel@laptopd505.fenrus.org> <20060612124406.GZ3115@devserv.devel.redhat.com> <1150125869.3835.12.camel@frecb000686>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.126 () AWL,BAYES_00,FORGED_RCVD_HELO,FUZZY_AMBIEN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150125869.3835.12.camel@frecb000686>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 22:54 -0700, jdow wrote:
-> From: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-> > jdow <jdow@earthlink.net> wrote:
-[...]
-> >> Greylist those who have not subscribed.
-[...]
-> >>                                         Let their email server try
-> >> again in 30 minutes. For those who are not subscribed it should not
-> >> matter if their message is delayed 30 minutes. And so far spammers
-> >> never try again.
-> > 
-> > Wrong. Greylisting does stop an immense amount of spam here, but a lot
-> > comes through.
+On Mon, Jun 12, 2006 at 05:24:28PM +0200, S?bastien Dugu? wrote:
+>   The patch you refer to is at
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114725326712391&w=2
+> 
+>   But maybe a better solution for condvars would be to implement
+> something like a futex_requeue_pi() to handle the broadcast and
+> only use PI futexes all along in glibc.
 
-On one low traffic domain, we perceived 50% less spam with greylisting.
-But spam is rising.
+FUTEX_REQUEUE certainly should be able to requeue from normal futex
+to a PI futex or vice versa, I don't think it is desirable to create
+a separate futex cmds for that.
+Now not sure what do you mean by "use PI futexes all along in glibc",
+certainly you don't mean using them for normal mutexes, right? 
+FUTEX_LOCK_PI has effects the normal futexes shouldn't have.
+The condvars can be also used with PP mutexes and using PI for the cv
+internal lock unconditionally wouldn't be the right thing either.
 
-> So if it's not perfect it's not worth doing at all, eh? Yet you think
-
-It works now but the next generation viruses/trojans/.... will have real
-MTA functionality (i.e. SMTP 100% correct) and it is not a problem since
-the zombie nets are large enough that that won't hurt anyone really.
-
-> SPF, which is FAR less suited as a spam preventative, is a single
-
-No means alone will kill spam (except making email as such as expensive
-as snail mail). So comparing different means makes no sense.
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+	Jakub

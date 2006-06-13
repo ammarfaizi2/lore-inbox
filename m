@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932842AbWFMDvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWFMDvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932842AbWFMDvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 23:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932841AbWFMDvn
+	id S932480AbWFMDvj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 23:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932842AbWFMDvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 23:51:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:16018 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932842AbWFMDvn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 23:51:43 -0400
+	Mon, 12 Jun 2006 23:51:39 -0400
+Received: from mx2.suse.de ([195.135.220.15]:14994 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932480AbWFMDvi (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 23:51:38 -0400
 From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: broken local_t on i386
-Date: Tue, 13 Jun 2006 05:36:01 +0200
+To: rohitseth@google.com
+Subject: Re: [PATCH]: Adding a counter in vma to indicate the number =?iso-8859-15?q?of=09physical_pages_backing?= it
+Date: Tue, 13 Jun 2006 05:51:23 +0200
 User-Agent: KMail/1.9.3
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <200606122011.52841.ak@suse.de> <Pine.LNX.4.64.0606121212510.20259@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606121212510.20259@schroedinger.engr.sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linux-mm@kvack.org, Linux-kernel@vger.kernel.org
+References: <1149903235.31417.84.camel@galaxy.corp.google.com> <200606121958.41127.ak@suse.de> <1150141369.9576.43.camel@galaxy.corp.google.com>
+In-Reply-To: <1150141369.9576.43.camel@galaxy.corp.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606130536.01381.ak@suse.de>
+Message-Id: <200606130551.23825.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 June 2006 21:15, Christoph Lameter wrote:
-> On Mon, 12 Jun 2006, Andi Kleen wrote:
-> 
-> > > I thought you had some funky segment registers on i386 and x86_64. Cant
-> > > they be switched on context switch? If an inc/dec could work relative to
-> > > those then you would not need a virtual mapping.
+On Monday 12 June 2006 21:42, Rohit Seth wrote:
+> On Mon, 2006-06-12 at 19:58 +0200, Andi Kleen wrote:
+> > > It is just the price of those walks that makes smaps not an attractive
+> > > solution for monitoring purposes.
 > > 
-> > The segment register needs an offset. So you need the linker to generate
-> > the offset from the base of the per cpu segment somehow. At compile time the 
-> > address is not known so it cannot be done then.
+> > It just shouldn't be used for that. It's a debugging hack and not really 
+> > suitable for monitoring even with optimizations.
+> > 
+> > For monitoring if the current numa statistics are not good enough
+> > you should probably propose new counters.
 > 
-> Define something like a big struct and use offsetof?
-
-That is how the basic architecture specific PDA works (asm/pda.h)
-
-But i don't see a good way to define a big struct for asm/percpu.h
-
-Preprocessing would be too slow and getting all people to put
-their per CPU variables into a single header also doesn't seem
-like a good idea.
-
 > 
-> So the compiler is not able to generate an offset to the beginning of a 
-> data segment? 
+> numa stats are giving different data.  The proposed vma->nr_phys is the
+> new counter that can provide a detailed information about physical mem
+> usage at each virtual mem segment level.  
 
-It's an assembler/linker issue.
+And for what do you need that?
 
--Andi (who is really surprised people make such a big deal out of 
-two instructions)
+It's somewhat useful to debug the NUMA tuning of your app (although
+there are other ways to do that too) but do you
+really need it for normal runtime monitoring? 
 
+
+> I think having this 
+> information in each vma keeps the impact (of adding new counter) to very
+> low.
+> 
+> Second question is to advertize this value to user space.  Please let me
+> know what suites the most among /proc, /sys or system call (or if there
+> is any other mechanism then let me know) for a per process per segment
+> related information.
+
+I think we first need to identify the basic need.
+Don't see why we even need per VMA information so far.
+
+-Andi

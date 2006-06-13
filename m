@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWFMVNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWFMVNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWFMVNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWFMVNS
+	id S932253AbWFMVNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWFMVNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:13:18 -0400
-Received: from xenotime.net ([66.160.160.81]:59289 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932256AbWFMVNQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:13:16 -0400
-Date: Tue, 13 Jun 2006 14:16:00 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org
-Subject: Re: Packing data in kernel memory
-Message-Id: <20060613141600.c736e183.rdunlap@xenotime.net>
-In-Reply-To: <448F2602.2030402@comcast.net>
-References: <448F0893.1080706@comcast.net>
-	<Pine.LNX.4.61.0606132217110.11918@yvahk01.tjqt.qr>
-	<20060613133227.1eee4578.rdunlap@xenotime.net>
-	<448F2602.2030402@comcast.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 Jun 2006 17:13:09 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:7539 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932253AbWFMVNF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 17:13:05 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=DEPPsY3MmB54UBZUsFABlfovKffExXkbEhTy1lHxqF/YUXnPDzXgAV/aHMvnJbcAZ
+	ZTUf9IzidyJqWr6C9ZxNg==
+Message-ID: <448F2A49.5020809@google.com>
+Date: Tue, 13 Jun 2006 14:12:41 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: bidulock@openss7.org
+CC: Stephen Hemminger <shemminger@osdl.org>,
+       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org>
+In-Reply-To: <20060613052215.B27858@openss7.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006 16:54:26 -0400 John Richard Moser wrote:
+Brian F. G. Bidulock wrote:
+> Stephen,
+> 
+> On Tue, 13 Jun 2006, Stephen Hemminger wrote:
+> 
+> 
+>>>@@ -2176,3 +2279,13 @@ EXPORT_SYMBOL(sock_wake_async);
+>>> EXPORT_SYMBOL(sockfd_lookup);
+>>> EXPORT_SYMBOL(kernel_sendmsg);
+>>> EXPORT_SYMBOL(kernel_recvmsg);
+>>>+EXPORT_SYMBOL(kernel_bind);
+>>>+EXPORT_SYMBOL(kernel_listen);
+>>>+EXPORT_SYMBOL(kernel_accept);
+>>>+EXPORT_SYMBOL(kernel_connect);
+>>>+EXPORT_SYMBOL(kernel_getsockname);
+>>>+EXPORT_SYMBOL(kernel_getpeername);
+>>>+EXPORT_SYMBOL(kernel_getsockopt);
+>>>+EXPORT_SYMBOL(kernel_setsockopt);
+>>>+EXPORT_SYMBOL(kernel_sendpage);
+>>>+EXPORT_SYMBOL(kernel_ioctl);
+>>
+>>Don't we want to restrict this to GPL code with EXPORT_SYMBOL_GPL?
+> 
+> 
+> There are direct derivatives of the BSD/POSIX system call
+> interface.  The protocol function pointers within the socket
+> structure are not GPL only.  Why make this wrappered access to
+> them GPL only?  It will only encourange the reverse of what they
+> were intended to do: be used instead of the protocol function
+> pointers within the socket structure, that currently carry no
+> such restriction.
 
-> Randy.Dunlap wrote:
-> > On Tue, 13 Jun 2006 22:18:55 +0200 (MEST) Jan Engelhardt wrote:
-> > 
-> >>> Subject: Packing data in kernel memory
-> >>>
-> >> Can't you just use mlock(), if you want to keep it in RAM?
-> >>
-> >> Or do you need it in kernel memory, because you need it in the lowmem area? 
-> >> Or for interaction with other kernel code?
-> >>
-> >>> Is there a way to pack and store arbitrary data in the kernel, or do I
-> >>> need to roll my own?
-> > 
-> > Sounds a bit like a slab cache to me.
-> > 
-> 
-> OK cool, can I make that non-swappable?
+This has the makings of a nice stable internal kernel api.  Why do we want
+to provide this nice stable internal api to proprietary modules?
 
-kernel (allocated) memory is non-swappable.
+Regards,
 
-> I'm going to be trying to do
-> this between where kernel swaps a page out and swapped page actually is
-> written to disk.  The result will be a "Swap Zone," in-memory storage of
-> pages that the rest of the kernel thinks have been swapped to disk.
-> (Code here will use the swap interface, so the rest of the kernel thinks
-> it's just swapping; I'll handle whether to pull it out of memory or off
-> disk behind that)
-> 
-> The need for packing pages comes because eventually (using above
-> infrastructure) I'll be taking sets of 32KiB of data and compressing it;
-> I don't want to pad up to 4095 excess unused bytes if that stuff
-> compresses to 28KiB+1 :)  (more likely 16KiB+1 +/-8KiB)
-> 
-> This is all, of course, assuming I ever figure out how the heck to get
-> in the middle of the swapping process.  I'm looking at mm/page_io.c
-> swap_writepage() and friends and scratching my head.  I have no idea wtf...
-> 
-> 
-> >> Write a device driver, kmalloc some buffer, and copy data via a write 
-> >> function from userspace to that buffer. Should be trivial.
-> >>
-> >>> 1 excess pages, 4 units wasted memory.
-> >> Of course, kmalloc only works up to some boundary AFIACS.
-> > 
-> > 128 KB on some arches.  More on a few IIRC.
-
----
-~Randy
+Daniel

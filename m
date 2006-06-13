@@ -1,100 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWFMHWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932952AbWFMH1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932553AbWFMHWT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 03:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932948AbWFMHWT
+	id S932952AbWFMH1p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 03:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932953AbWFMH1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 03:22:19 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:15580 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932553AbWFMHWS (ORCPT
+	Tue, 13 Jun 2006 03:27:45 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:19918 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932952AbWFMH1o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 03:22:18 -0400
-Message-ID: <448E6798.3020104@fr.ibm.com>
-Date: Tue, 13 Jun 2006 09:22:00 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm2
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com> <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jun 2006 03:27:44 -0400
+Date: Tue, 13 Jun 2006 09:26:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: Catalin Marinas <catalin.marinas@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+Message-ID: <20060613072646.GA17978@elte.hu>
+References: <20060611111815.8641.7879.stgit@localhost.localdomain> <20060611112156.8641.94787.stgit@localhost.localdomain> <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com> <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com> <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI> <20060612105345.GA8418@elte.hu> <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com> <20060612192227.GA5497@elte.hu> <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Mon, 12 Jun 2006, Cedric Le Goater wrote:
+
+* Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+
+> Hi Ingo,
 > 
->> Unable to handle kernel NULL pointer dereference at 0000000000000007 RIP:
->>  [<ffffffff8025b017>] dec_zone_page_state+0x1/0x5b
+> On Mon, 12 Jun 2006, Ingo Molnar wrote:
+> > i dont know - i feel uneasy about the 'any pointer' method - it has a 
+> > high potential for false negatives, especially for structures that 
+> > contain strings (or other random data), etc.
 > 
-> Seems that req->wb_page may be NULL.
-> 
-> This patch may fix it but we may miss an unstable page then. We may 
-> have to move the decrement of NR_UNSTABLE to a different location when
-> wb_page is still valid.
-> 
-> Index: linux-2.6.17-rc6-cl/fs/nfs/write.c
-> ===================================================================
-> --- linux-2.6.17-rc6-cl.orig/fs/nfs/write.c	2006-06-12 13:37:47.321243148 -0700
-> +++ linux-2.6.17-rc6-cl/fs/nfs/write.c	2006-06-12 15:13:48.020908204 -0700
-> @@ -1419,7 +1419,8 @@ static void nfs_commit_done(struct rpc_t
->  		nfs_mark_request_dirty(req);
->  	next:
->  		nfs_clear_page_writeback(req);
-> -		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
-> +		if (req->wb_page)
-> +			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
->  	}
->  }
+> Is that a problem in practice?  Structures that contain data are 
+> usually allocated from the slab.  There needs to be a link to that 
+> struct from the gc roots to get a false negative.  Or am I missing 
+> something here?
 
-thanks for the patch ! I gave it a try but req->wb_page seems bogus ?
+you should think of this in terms of a 'graph of data', where each node 
+is a block of memory. The edges between nodes are represented by 
+pointers. The graph roots from .data/bss, but it may go indefinitely 
+into dynamically allocated blocks as well - just think of a hash-list 
+where the hash list table is in .data, but all the chain entries are in 
+allocated blocks and the chaining can be arbitrarily deep.
 
+Furtermore, each block of data has a couple of fields within it that 
+contain 'outgoing pointers', and each block of data has a couple of 
+addresses associated with it that are valid targets for 'incoming 
+pointers'.
 
+The task of kmemleak is to find orphan blocks of memory - the ones that 
+are not connected to the graph via any edge. For that it starts scanning 
+in .data/bss and recursively searches through the blocks of memory 
+(marking all scanned blocks, to avoid circular walking of the graph) 
+until it has walked the whole graph. Blocks that were registered but 
+were not touched during this recursive walking are the leaks.
 
-general protection fault: 0000 [1] SMP
-last sysfs file: /class/vc/vcsa3/dev
-CPU 1
-Modules linked in: autofs4 nfs lockd sunrpc joydev sony_acpi button battery
-ac uhci_hcd ehci_hcd tg3 sg ext3 jbd ata_piix libata
-Pid: 2456, comm: rpciod/1 Not tainted 2.6.17-rc6-mm2 #2
-RIP: 0010:[<ffffffff8025b017>]  [<ffffffff8025b017>]
-dec_zone_page_state+0x1/0x5b
-RSP: 0018:ffff81014022dda8  EFLAGS: 00010202
-RAX: 0000000000000000 RBX: ffff810140419408 RCX: ffff810140419450
-RDX: 0000000000000006 RSI: 0000000000000007 RDI: 6b6b6b6b6b6b6b6b
-RBP: ffff81014022ddd8 R08: ffff81013ef08b70 R09: 0000000000000000
-R10: ffff810140419408 R11: 0000000000000060 R12: ffff81013d7c2668
-R13: ffff81013d7c2670 R14: 0000000000000283 R15: ffff81013d7c2670
-FS:  0000000000000000(0000) GS:ffff810142c82238(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 0000000000703ba8 CR3: 000000013dd32000 CR4: 00000000000006e0
-Process rpciod/1 (pid: 2456, threadinfo ffff81014022c000, task
-ffff810140c8e0c0)
-Stack:  ffff81014022ddd8 ffffffff880eab24 0000000000000000 ffff81013d7c2670
- ffff81013d7c2740 0000000000000000 ffff81014022ddf8 ffffffff880a5a51
- ffff81013d7c2670 ffff81013d7c2670
-Call Trace:
- [<ffffffff880eab24>] :nfs:nfs_commit_done+0x191/0x19f
- [<ffffffff880a5a51>] :sunrpc:rpc_exit_task+0x2a/0x6c
- [<ffffffff880a5f98>] :sunrpc:__rpc_execute+0x99/0x1e0
- [<ffffffff880a60e8>] :sunrpc:rpc_async_schedule+0x9/0xb
- [<ffffffff8023c72e>] run_workqueue+0xa8/0xef
- [<ffffffff880a60df>] :sunrpc:rpc_async_schedule+0x0/0xb
- [<ffffffff8023c775>] worker_thread+0x0/0x12f
- [<ffffffff8023c871>] worker_thread+0xfc/0x12f
- [<ffffffff80225eca>] default_wake_function+0x0/0xf
- [<ffffffff80225eca>] default_wake_function+0x0/0xf
- [<ffffffff8023c775>] worker_thread+0x0/0x12f
- [<ffffffff8023f92c>] kthread+0xd0/0xfc
- [<ffffffff8020a33a>] child_rip+0x8/0x12
- [<ffffffff8023f85c>] kthread+0x0/0xfc
- [<ffffffff8020a332>] child_rip+0x0/0x12
+Currently kmemleak does not track the per-block position of 'outgoing 
+pointers': it assumes that all fields within a block may be an outgoing 
+pointer. This is a source of false negatives. (fields that do not 
+contain a real pointer might accidentally contain a value that is 
+interpreted as a false edge - falsely connecting a leaked block to the 
+graph.)
 
+Kmemleak does recognize 'incoming pointers' via the offsetof tracking 
+method, but it's limited in that it is not a type-accurate method 
+either: it tracks per-size offsets, so two types accidentally having the 
+same size merges their 'possible incoming pointer offset' lists, which 
+introduces false negatives. (a pointer may be considered an incoming 
+edge while in reality the pointer is not validly pointing into this 
+structure)
 
-Code: 48 0f b6 47 07 48 89 e5 4c 8b 0c c5 80 2b 80 80 9c 41 58 fa
-RIP  [<ffffffff8025b017>] dec_zone_page_state+0x1/0x5b
- RSP <ffff81014022dda8>
+The full matching that was suggested before would further weaken the 
+'incoming pointers' logic and would introduce yet another source of 
+false negatives: we'd match every block pointer against every possible 
+target address that points to within another block.
+
+My suggestion would be to attempt to achieve perfect matches: annotate 
+structures to figure out the offset of pointers, and thus to figure out 
+the precise source addresses and a precise list of valid target 
+addresses. This is a quite elaborate task to pull off though, and i'm 
+not sure it's possible without intolerable maintainance overhead, but we 
+should consider it nevertheless. It will also be _much_ faster, because 
+per block we'd only have to scan a handful of outgoing pointers.
+
+Perhaps a hybrid method could be used: by default we assume the most 
+lenient structure: if the block type is 'unknown' (which is the default 
+for not-yet-annotated structures) then we'd assume that all fields are 
+pointers, and that they could all be targets too.
+
+Once a structure is annotated, the scope of scanning is drastically 
+reduced: only the annotated fields are scanned for pointers (and at that 
+point we'd also _enforce_ that those pointers do indeed point to valid 
+blocks of memory - i.e. this would also serve as a pointer-correctness 
+checker), and annotated blocks will also restrict the scope of 'incoming 
+pointers'.
+
+Naturally, there would be two types of annotations: one that finetunes 
+the scanning of outgoing pointers to happen only for fields that are 
+true pointers, and one that finetunes incoming pointer matching to only 
+those addresses within the block that program logic allows. All in a 
+strictly per-type manner.
+
+This also means that by default we'd have no false positives at all, but 
+that there is a capable annotation method to reduce the amount of false 
+negatives, in a gradual and managable way - down to zero if everything 
+is annotated.
+
+	Ingo

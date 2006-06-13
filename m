@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932794AbWFMCqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932802AbWFMDBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932794AbWFMCqD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 22:46:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWFMCqD
+	id S932802AbWFMDBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 23:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932803AbWFMDBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 22:46:03 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14525 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932794AbWFMCqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 22:46:02 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Kirill Korotaev <dev@openvz.org>
-Cc: Andrew Morton <akpm@osdl.org>, devel@openvz.org, xemul@openvz.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       herbert@13thfloor.at, saw@sw.ru, serue@us.ibm.com, sfrench@us.ibm.com,
-       sam@vilain.net, haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: Re: [PATCH] IPC namespace
-References: <44898BF4.4060509@openvz.org>
-Date: Mon, 12 Jun 2006 20:44:52 -0600
-In-Reply-To: <44898BF4.4060509@openvz.org> (Kirill Korotaev's message of "Fri,
-	09 Jun 2006 18:55:48 +0400")
-Message-ID: <m1bqsx4vvf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jun 2006 23:01:11 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:53476 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932802AbWFMDBK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 23:01:10 -0400
+Message-Id: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl>
+To: "jdow" <jdow@earthlink.net>
+cc: "Jesper Juhl" <jesper.juhl@gmail.com>, nick@linicks.net,
+       "Horst von Brand" <vonbrand@inf.utfsm.cl>,
+       "Bernd Petrovitsch" <bernd@firmix.at>,
+       "marty fouts" <mf.danger@gmail.com>,
+       "David Woodhouse" <dwmw2@infradead.org>,
+       "Matti Aarnio" <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter) 
+In-Reply-To: Message from "jdow" <jdow@earthlink.net> 
+   of "Mon, 12 Jun 2006 16:03:46 MST." <027e01c68e74$76875910$0225a8c0@Wednesday> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 12 Jun 2006 23:00:02 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 12 Jun 2006 23:00:20 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@openvz.org> writes:
+jdow <jdow@earthlink.net> wrote:
 
-> The patches in this thread add IPC namespace functionality
-> additionally to already included in -mm tree UTS namespace.
->
-> This patch set allows to unshare IPCs and have a private set
-> of IPC objects (sem, shm, msg) inside namespace. Basically, it is another
-> building block of containers functionality.
->
-> Tested with LTP inside namespaces.
->
-> Signed-Off-By: Pavel Emelianiov <xemul@openvz.org>
-> Signed-Off-By: Kirill Korotaev <dev@openvz.org>
->
-> P.S. patches are against linux-2.6.17-rc6-mm1
+[...]
 
-Minor nit.  These patches are not git-bisect safe.
-So if you have to apply them all to get a kernel
-that builds.
+> Greylist those who have not subscribed.
 
-Anyone trying to narrow down breakage is likely to land
-in the middle and hit a compile error.
+That is not easy to do.
 
-Eric
+>                                         Let their email server try
+> again in 30 minutes. For those who are not subscribed it should not
+> matter if their message is delayed 30 minutes. And so far spammers
+> never try again.
 
+Wrong. Greylisting does stop an immense amount of spam here, but a lot
+comes through.
+
+>                  That's FAR more likely to nail spam than using SPF
+> as a singular measure. It doesn't even require the remote DNS
+> transaction to check an SPF record.
+
+Right.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

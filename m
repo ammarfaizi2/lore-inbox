@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWFMXnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWFMXpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWFMXnU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 19:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWFMXnT
+	id S932180AbWFMXpx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 19:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWFMXpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 19:43:19 -0400
-Received: from ns2.lanforge.com ([66.165.47.211]:34728 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S932231AbWFMXnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 19:43:18 -0400
-Message-ID: <448F4D6F.9070601@candelatech.com>
-Date: Tue, 13 Jun 2006 16:42:39 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Tue, 13 Jun 2006 19:45:52 -0400
+Received: from web25218.mail.ukl.yahoo.com ([217.146.176.204]:5208 "HELO
+	web25218.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932180AbWFMXpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 19:45:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=OYfZTIXU1bXb5tCbr4lDo/i67khayVW8NnA7RcJcTzFzvM9lcTMRmIQD/rvOIjh1KXvxw1V+WktDiIaOxr9uoG6pF+8bxr3b5F3PLkKpJwLS6ySr0pIZRfxLpzuJECTI5s2NQyMJDZOA+PMiBIHVaihwlhVQARfjEABtxrae2fk=  ;
+Message-ID: <20060613234551.69651.qmail@web25218.mail.ukl.yahoo.com>
+Date: Wed, 14 Jun 2006 01:45:51 +0200 (CEST)
+From: Paolo Giarrusso <blaisorblade@yahoo.it>
+Subject: Re: [UML] Problems building and running 2.6.17-rc4 on x86-64
+To: Jeff Dike <jdike@addtoit.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20060613182129.GA4619@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: "Brian F. G. Bidulock" <bidulock@openss7.org>,
-       Daniel Phillips <phillips@google.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org> <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
-In-Reply-To: <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters wrote:
+Jeff Dike <jdike@addtoit.com> ha scritto: 
 
-> At least some of us feel like stable module APIs should be explicitly 
-> discouraged, because we don't want to offer comfort for code that 
-> refuses to live in the tree (since getting said code into the tree is 
-> often a goal).
+> On Tue, Jun 13, 2006 at 11:57:18AM -0300, Alberto Bertogli wrote:
+> > I just wanted to report that this went away when trying
+> 2.6.17-rc6 as a
+> > host. It also works fine as a guest (after I patch it with
+> >
+>
+http://user-mode-linux.sourceforge.net/work/current/2.6/2.6.17-rc4/patches/jmpbuf
+> > so that it builds).
 
-Some of us write modules for specific features that are not wanted in
-the mainline kernel, even though they are pure GPL.  Our life is hard
-enough with out people setting out to deliberately make things more
-difficult!
+> > Besides, the random segfault problems I had with previous guests
+> > versions also seem to be fixed.
 
-Ben
+> These two problems are related, and were both on the host.  Bodo
+> Stroesser reported a while ago that ptrace, by returning via sysret
+> rather than iret, could cause register corruption when tracing
+> sigreturn.
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+> The UML crash seems to have been caused by the fix to that problem.
 
+If that problem has been fixed, this would imply that SKAS should
+work on x86-64... or not? Well, I remember that problem being on IA32
+emulation and IA32 wasn't included in the patch (for what I can see).
+Can you ask more information about this? Also, could you verify if at
+least with noprocmm and a host SKAS-V9 it works? Two things are to
+check:
+* Uml64 should use /proc/mm64 (unimplemented)
+* Uml64 should use the right version of PTRACE_FAULTINFO (I don't
+remember what I did, if I introduced PTRACE_EX_FAULTINFO or if I
+directly added the missing trap_no field in PTRACE_FAULTINFO; please
+verify).
+
+I won't have the time to check this at least until the 22 June.
+
+Bye
+
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

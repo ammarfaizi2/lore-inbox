@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWFMTX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWFMTfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWFMTX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 15:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWFMTX6
+	id S1751183AbWFMTfk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 15:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWFMTfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 15:23:58 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43752 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751173AbWFMTX6 (ORCPT
+	Tue, 13 Jun 2006 15:35:39 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51943 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751185AbWFMTfj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 15:23:58 -0400
-Date: Tue, 13 Jun 2006 21:23:04 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/1] usb: new driver for Cypress CY7C63xxx mirco controllers
-Message-ID: <20060613192304.GG27312@elf.ucw.cz>
-References: <200606100042.19441.o.bock@fh-wolfenbuettel.de> <20060609224957.GA15130@elf.ucw.cz> <200606121934.05619.o.bock@fh-wolfenbuettel.de>
+	Tue, 13 Jun 2006 15:35:39 -0400
+Date: Tue, 13 Jun 2006 12:35:25 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: 2.6.16-rc6-mm2
+In-Reply-To: <Pine.LNX.4.64.0606131049270.29947@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0606131234010.31186@schroedinger.engr.sgi.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com>
+ <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
+ <448E6798.3020104@fr.ibm.com> <Pine.LNX.4.64.0606131049270.29947@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606121934.05619.o.bock@fh-wolfenbuettel.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 13 Jun 2006, Christoph Lameter wrote:
 
-> > BTW could we get come better name for the driver? cy7c63 looks like
-> > password of very paranoid sysadmin.
+> On Tue, 13 Jun 2006, Cedric Le Goater wrote:
 > 
-> Hm, the chipset family is just called like that and there're at least three 
-> other Cypress related drivers (cypress, cypress_m8 and cytherm) with generic 
-> names. I think this name shows clearly what kind of device it supports, 
-> doesn't it?
-
-cypress_63 might be unique and still easier to pronounce?
-
-> Apart from that there are again other drivers (ark3116.c, cp2101.c) which do 
-> it the same way, and I assumed that this might be some sort of naming 
-> convention...
-
-Well, at least it is not ark2a116.c :-).
-
-> > > +	/* let the user know what node this device is now attached to */
-> > > +	dev_info(&interface->dev,
-> > > +		"Cypress CY7C63xxx device now attached\n");
-> >
-> > In cases like this we aling " one character to the right.
+> > thanks for the patch ! I gave it a try but req->wb_page seems bogus ?
 > 
-> You mean the whole string (line) one character to the right, correct?
+> It seems that req->wb_page is bogus after nfs_clear_page_writeback()
+> has run. So we need to do the statistics before.
 
-Yes. It should be
+But then we miss the decrement of NR_UNSTABLE when a page is freed before 
+we get to that function. NR_UNSTABLE grows beyond bounds and the write 
+throttling stalls processes.
 
-foo(BAR,
-    BAZ).
+So we need an additional dec_zone_state..
 
-(You have it at few more places).
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Index: linux-2.6.17-rc6-mm2/fs/nfs/write.c
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/fs/nfs/write.c	2006-06-10 11:11:53.051397816 -0700
++++ linux-2.6.17-rc6-mm2/fs/nfs/write.c	2006-06-13 10:52:04.428456013 -0700
+@@ -1418,8 +1418,9 @@ static void nfs_commit_done(struct rpc_t
+ 		dprintk(" mismatch\n");
+ 		nfs_mark_request_dirty(req);
+ 	next:
++		if (req->wb_page)
++			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+ 		nfs_clear_page_writeback(req);
+-		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+ 	}
+ }
+ 
+Index: linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/fs/nfs/pagelist.c	2006-06-10 11:11:53.049444812 -0700
++++ linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c	2006-06-13 12:33:39.545259204 -0700
+@@ -154,6 +154,7 @@ void nfs_clear_request(struct nfs_page *
+ {
+ 	struct page *page = req->wb_page;
+ 	if (page != NULL) {
++		dec_zone_page_state(page, NR_UNSTABLE);
+ 		page_cache_release(page);
+ 		req->wb_page = NULL;
+ 	}

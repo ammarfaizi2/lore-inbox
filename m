@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWFMUpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWFMUsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWFMUpp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 16:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWFMUpp
+	id S932233AbWFMUsl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 16:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWFMUsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 16:45:45 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:39792 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932234AbWFMUpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 16:45:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=Yp4dp1UvFilZCmcDjk/rt1p3EO3YiNQlBAM+aw9DZeAbIgUiedgZiF2W6qTl8czXWDcvZnWyiISt1WkiCQ+85jsLS1O0yDnM19hzxl4ihP5qtelPZe5IzH8/flM42+oQPq2zW4haLSjBDWF+TgNdZgiAmd2mfKJ/O+WFHBw+wqk=
-Message-ID: <986ed62e0606131345w7bdad0aap53e2edc5fea0f68f@mail.gmail.com>
-Date: Tue, 13 Jun 2006 13:45:43 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "John Heffner" <jheffner@psc.edu>
-Subject: Re: 2.6.17: networking bug??
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Mark Lord" <lkml@rtr.ca>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       davem@davemloft.net
-In-Reply-To: <448F03B3.5040501@psc.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 13 Jun 2006 16:48:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1503 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932233AbWFMUsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 16:48:40 -0400
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Auke Kok <sofar@foo-projects.org>, Marc Perkel <marc@perkel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060613203108.GE560@csclub.uwaterloo.ca>
+References: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl>
+	 <1150189506.11159.93.camel@shinybook.infradead.org>
+	 <20060613104557.GA13597@merlin.emma.line.org>
+	 <1150201475.12423.12.camel@hades.cambridge.redhat.com>
+	 <20060613124944.GA16171@merlin.emma.line.org> <448ED798.2080706@perkel.com>
+	 <448EE057.6010101@foo-projects.org>
+	 <1150228444.11159.101.camel@shinybook.infradead.org>
+	 <20060613203108.GE560@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Date: Tue, 13 Jun 2006 21:48:57 +0100
+Message-Id: <1150231737.11159.118.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <448EC6F3.3060002@rtr.ca> <448ECB09.3010308@rtr.ca>
-	 <448ED2FC.2040704@rtr.ca> <448ED9B3.8050506@rtr.ca>
-	 <448EEE9D.10105@rtr.ca> <448EF45B.2080601@rtr.ca>
-	 <448EF85E.50405@psc.edu>
-	 <Pine.LNX.4.64.0606131048550.5498@g5.osdl.org>
-	 <448F03B3.5040501@psc.edu>
-X-Google-Sender-Auth: c503dc38fe47c7cd
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/13/06, John Heffner <jheffner@psc.edu> wrote:
-> Though I haven't gotten my hands on it, I believe Windows will soon have
-> this capability, too.  I'm sure Windows is big enough that whenever they
-> turn this on, it will flush out all these boxes pretty quickly.  We
-> could wait for them to do it first, that that's not my favored approach.
+On Tue, 2006-06-13 at 16:31 -0400, Lennart Sorensen wrote:
+> On Tue, Jun 13, 2006 at 08:54:03PM +0100, David Woodhouse wrote:
+> > On Tue, 2006-06-13 at 08:57 -0700, Auke Kok wrote:
+> > > and this will also get you blacklisted - it is not allowed to have non-working 
+> > > or bogus MX records. See http://www.rfc-ignorant.org/policy-bogusmx.php 
+> > 
+> > Just set it to an IPv6-only host; that'll have the same effect on most
+> > of the Luddites out there without being invalid.
+> 
+> That particular site did explictly state that they treat ipv6 only hosts
+> the same as invalid hosts.  So not much point doing that either, unless
+> you like being blacklisted.
 
-Yes, that appears to be the case with Windows Vista:
-http://blogs.msdn.com/wndp/archive/2006/05/05/Winhec_blog_tcpip_2.aspx
+Oh, in that case, it can just get dumped in the pile of other
+kook-blacklists and we don't need to worry about it.
 
-*However*, they're also adding "black hole detection", for working
-around broken boxes that drop ICMP. And that kinda makes me wonder how
-long they're going to stick to their guns for enabling window scaling.
-(For instance, if too many sites break, maybe they'll disable it again
-with Vista Service Pack 1 or something.)
+Shame; I didn't realise RFC-ignorant.org was so, well, ignorant.
+
 -- 
--Barry K. Nathan <barryn@pobox.com>
+dwmw2
+

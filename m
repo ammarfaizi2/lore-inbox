@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWFMKiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWFMKqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWFMKiA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 06:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWFMKiA
+	id S1750928AbWFMKqE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 06:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWFMKqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 06:38:00 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:2752 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750847AbWFMKh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 06:37:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fAnQaiNpsUBAnYpBxniLT471Lgg2BlQiZHfGu6krZrZhLqgzB5kriaeFtOIEQ/9XPFAw3kzNo5AHxVK0AaWrdO06JwfBHWQU9uYtMCegd7DM/T+8k24Z6bjMzAvDJAqXBotQm4/uKL8lpo+YGlvQPZRAMr3m7kyYN99ICC2zALY=
-Message-ID: <b0943d9e0606130337l32a0ee69vc0812a829f4025af@mail.gmail.com>
-Date: Tue, 13 Jun 2006 11:37:58 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <84144f020606130304s7420c642wababc4ce40edbcec@mail.gmail.com>
+	Tue, 13 Jun 2006 06:46:04 -0400
+Received: from mail.gmx.de ([213.165.64.21]:22150 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750926AbWFMKqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 06:46:03 -0400
+X-Authenticated: #428038
+Date: Tue, 13 Jun 2006 12:45:57 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, jdow <jdow@earthlink.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>, nick@linicks.net,
+       Bernd Petrovitsch <bernd@firmix.at>, marty fouts <mf.danger@gmail.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+Message-ID: <20060613104557.GA13597@merlin.emma.line.org>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>, jdow <jdow@earthlink.net>,
+	Jesper Juhl <jesper.juhl@gmail.com>, nick@linicks.net,
+	Bernd Petrovitsch <bernd@firmix.at>,
+	marty fouts <mf.danger@gmail.com>,
+	Matti Aarnio <matti.aarnio@zmailer.org>,
+	linux-kernel@vger.kernel.org
+References: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl> <1150189506.11159.93.camel@shinybook.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
-	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
-	 <20060612105345.GA8418@elte.hu>
-	 <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-	 <20060612192227.GA5497@elte.hu>
-	 <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
-	 <b0943d9e0606122359q6ffabdbdqada9a6c79642cf2a@mail.gmail.com>
-	 <Pine.LNX.4.58.0606131052400.15861@sbz-30.cs.Helsinki.FI>
-	 <b0943d9e0606130245me8ff210h672a8c3360ad6944@mail.gmail.com>
-	 <84144f020606130304s7420c642wababc4ce40edbcec@mail.gmail.com>
+In-Reply-To: <1150189506.11159.93.camel@shinybook.infradead.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11-2006-06-08
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13/06/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> On 13/06/06, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
-> > > As far as I understood, Ingo is worried about:
-> > >
-> > >         struct s { /* some fields */; char *buf; };
-> > >
-> > >         struct s *p = kmalloc(sizeof(struct s) + BUF_SIZE);
-> > >         p->buf = p + sizeof(struct s);
-> > >
-> > > Which could lead to false negative due to p->buf pointing to p.  However,
-> > > for us to even _find_ p->buf, we would need an incoming pointer _to_ p
-> > > which makes me think this is not a problem in practice.  Hmm?
->
-> On 6/13/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> > Not exactly. In the above case, Ingo (and me) is worried about having
-> > a incoming pointer (from other block) equal to p->buf and therefore
-> > inside the block allocated with kmalloc.
->
-> Ah, right, I overlooked that case. But, is it really a leak? That is,
-> even though we currently don't have a pointer to the beginning fo the
-> block, we don't know for sure it was a leak. You're now allowed to do:
->
->     p = kmalloc(...);
->     p = p + HDR_SIZE;
->
->     /* ... */
->
->     kfree(p - HDR_SIZE);
->
-> Do you think we should ban the above?
+On Tue, 13 Jun 2006, David Woodhouse wrote:
 
-I don't think you can ban this because of places where the structure
-needs to be aligned to a certain value. Look in the false positives
-patch for the memleak_padding() calls with the 2nd argument not zero.
+> On Mon, 2006-06-12 at 23:00 -0400, Horst von Brand wrote:
+> > > Greylist those who have not subscribed.
+> > 
+> > That is not easy to do. 
+> 
+> It's fairly trivial with a decent MTA. I use all kinds of conditions to
+> trigger greylisting -- HTML mail, 'Re:' in subject with no References:,
+> lack of reverse DNS or CSA on the sending host, >=0.1 SA points, etc.
+> Adding "is not subscribed to the mailing list they're trying to post to"
+> should be trivial.
+
+Given that list drivers are separate from the MTA (and that's good),
+it's less trivial than simple looking at message headers or DNS info
+that the MTA shuffles around anyways. The MTA doesn't need the
+subscription list however, since "exploding" the subscriber list is a
+separate problem handled by Majordomo, Mailman, Sympa, whatever.
 
 -- 
-Catalin
+Matthias Andree

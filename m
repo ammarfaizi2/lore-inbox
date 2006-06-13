@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWFMXma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWFMXnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWFMXma (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 19:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWFMXm3
+	id S932231AbWFMXnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 19:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWFMXnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 19:42:29 -0400
-Received: from smtpout.mac.com ([17.250.248.184]:32708 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932230AbWFMXm3 (ORCPT
+	Tue, 13 Jun 2006 19:43:19 -0400
+Received: from ns2.lanforge.com ([66.165.47.211]:34728 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S932231AbWFMXnS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 19:42:29 -0400
-In-Reply-To: <001801c68f41$b3cd24d0$290ee00a@wshq41>
-References: <001801c68f41$b3cd24d0$290ee00a@wshq41>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <31CE7A77-33BE-4958-BCF3-4D5D47212DBC@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 13 Jun 2006 19:43:18 -0400
+Message-ID: <448F4D6F.9070601@candelatech.com>
+Date: Tue, 13 Jun 2006 16:42:39 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chase Venters <chase.venters@clientec.com>
+CC: "Brian F. G. Bidulock" <bidulock@openss7.org>,
+       Daniel Phillips <phillips@google.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org> <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
+In-Reply-To: <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Date: Tue, 13 Jun 2006 19:42:21 -0400
-To: Scott Lockwood <lkml@lrsehosting.com>
-X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 13, 2006, at 19:32:54, Scott Lockwood wrote:
-> So get a better ISP than cox.net.
+Chase Venters wrote:
 
-Right; I get to pick between comcast cable, cox cable, and verizon  
-dsl, all of which offer that same "feature" along with port 80  
-blocking and a host of other invasive features (not to mention the  
-hundred ARP "Who has 1.2.3.4?" requests per second).  My college does  
-the same SMTP blocking and there is no "alternate ISP" there.
+> At least some of us feel like stable module APIs should be explicitly 
+> discouraged, because we don't want to offer comfort for code that 
+> refuses to live in the tree (since getting said code into the tree is 
+> often a goal).
 
-Cheers,
-Kyle Moffett
+Some of us write modules for specific features that are not wanted in
+the mainline kernel, even though they are pure GPL.  Our life is hard
+enough with out people setting out to deliberately make things more
+difficult!
+
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

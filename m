@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWFMQ6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWFMQ7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWFMQ6J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 12:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWFMQ6I
+	id S932196AbWFMQ7f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 12:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWFMQ7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 12:58:08 -0400
-Received: from rtr.ca ([64.26.128.89]:17897 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932188AbWFMQ6H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 12:58:07 -0400
-Message-ID: <448EEE9D.10105@rtr.ca>
-Date: Tue, 13 Jun 2006 12:58:05 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: netdev@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.17: networking bug??
-References: <448EC6F3.3060002@rtr.ca> <448ECB09.3010308@rtr.ca> <448ED2FC.2040704@rtr.ca> <448ED9B3.8050506@rtr.ca>
-In-Reply-To: <448ED9B3.8050506@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 13 Jun 2006 12:59:35 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:24846 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932196AbWFMQ7e
+	(ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 12:59:34 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=Niu06D+rMhxG1li5bjxHH2P5+ZjNZlNfDZYnRvTmvj5d2BnOFor5s4ZWmdXZqxDlA
+	p9BtFCsqaVZQxD9eBrJRw==
+Subject: Re: [PATCH]: Adding a counter in vma to indicate the number
+	of	physical pages backing it
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Andi Kleen <ak@suse.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Linux-mm@kvack.org, Linux-kernel@vger.kernel.org
+In-Reply-To: <200606130551.23825.ak@suse.de>
+References: <1149903235.31417.84.camel@galaxy.corp.google.com>
+	 <200606121958.41127.ak@suse.de>
+	 <1150141369.9576.43.camel@galaxy.corp.google.com>
+	 <200606130551.23825.ak@suse.de>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Tue, 13 Jun 2006 09:59:08 -0700
+Message-Id: <1150217948.9576.67.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-..
-> The site www.everymac.com is still not browseable until
-> setting /proc/sys/net/ipv4/tcp_window_scaling===0.
+On Tue, 2006-06-13 at 05:51 +0200, Andi Kleen wrote:
+> On Monday 12 June 2006 21:42, Rohit Seth wrote:
+
 > 
-> There's one other difference I see in the tcpdump traces.
-> The first packets from each trace below show different
-> values for "wscale".  The old (working) kernels use "wscale 2",
-> whereas 2.6.17 uses "wscale 6".  In both cases, the value
-> seen in /proc/sys/net/ipv4/tcp_adv_win_scale is 2.
+> > I think having this information in each vma keeps the impact (of adding new counter) to very
+> > low.
+> > 
+> > Second question is to advertize this value to user space.  Please let me
+> > know what suites the most among /proc, /sys or system call (or if there
+> > is any other mechanism then let me know) for a per process per segment
+> > related information.
+> 
+> I think we first need to identify the basic need.
+> Don't see why we even need per VMA information so far.
 
-Okay.  More progress here.  The calculation of the "wscale" values
-is based on the "tcp_rmem" sysctl numbers.
+This information is for user land applications to have the knowledge of
+which virtual ranges are getting actively used and which are not.
+This information then can be fed into a new system call
+sys_change_page_activation(pid, start_va, len, flag).  The purpose of
+this system call would be to give hints to kernel that certain physical
+pages are okay to be inactivated (or vice versa).   
 
-The defaults for these *differ* between 2.6.16.18 and 2.6.17-rc*.
-
-2.6.16: 4096    87380    174760  
-2.6.17: 4096    87380   2097152
-
-If I change the tcp_rmem setting on 2.6.17 to match the old value,
-then the website www.everymac.com becomes accessible again:
-
-echo 4096 87380 174760 > /proc/sys/net/ipv4/tcp_rmem
-
-Looking at diffs between 2.6.16 and 2.6.17, I see a big rework
-of the tcp_rmem code in linux/net/ipv4/tcp.c
-
-Looks like something got broken there, or possibly the wscale
-calculations have a bug that is only triggered by the new rmem values ??
-
+-rohit
 

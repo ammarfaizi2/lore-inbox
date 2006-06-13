@@ -1,468 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWFMXuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWFMX7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWFMXuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 19:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWFMXuT
+	id S964808AbWFMX7K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 19:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWFMX7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 19:50:19 -0400
-Received: from mx2.suse.de ([195.135.220.15]:13475 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932254AbWFMXuR (ORCPT
+	Tue, 13 Jun 2006 19:59:10 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:10683 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932363AbWFMX7J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 19:50:17 -0400
-Date: Tue, 13 Jun 2006 16:47:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: statistics infrastructure (in -mm tree) review
-Message-ID: <20060613234739.GA30534@kroah.com>
-References: <20060613232131.GA30196@kroah.com>
+	Tue, 13 Jun 2006 19:59:09 -0400
+Subject: [PATCH 00/11] Task watchers:  Introduction
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
+Content-Type: text/plain
+Date: Tue, 13 Jun 2006 16:52:01 -0700
+Message-Id: <1150242721.21787.138.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060605163001.GC26259@kroah.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First cut at reviewing this code.
+Task watchers is a notifier chain that sends notifications to registered
+callers whenever a task forks, execs, changes its [re][ug]id, or exits.
+The goal is to keep the these paths comparatively simple while
+enabling the addition of per-task intialization, monitoring, and tear-down
+functions by existing and proposed kernel features.
 
-Initial impression is, "damm, that's a complex interface".  I'd really
-like to see some other, real-world usages of this.  Like perhaps the
-io-schedular statistics?  Some other /proc stats that have nothing to do
-with processes?
+The first patch adds a global atomic notifier chain, registration
+functions, and a function to invoke the callers on the chain.
 
-And what does this mean for relayfs?  Those developers tuned that code
-to the nth degree to get speed and other goodness, and here you go just
-ignoring that stuff and add yet another way to get stats out of the
-kernel.  Why should I use this instead of my own code with relayfs?
+Later patches:
 
-And is the need for the in-kernel parser really necessary?  I know it
-makes the userspace tools simpler (cat and echo), but should we be
-telling the kernel how to filter and adjust the data?  Shouldn't we just
-dump it all to userspace and use tools there to manipulate it?
+Register a task watcher for process events, shuffle bits of process events
+functions around to reduce the code, and turn it into a module. 
 
-Oh, and use C99 structure initializers for when creating the statisic
-structures in the example code (and real code), it makes it much easier
-to understand, and future proof when the api changes.
+Switch task watchers from an atomic to a blocking notifier chain
 
-Code comments now:
+Register task watchers for:
+	Audit
+	Per Task Delay Accounting (note: not the taskstats calls)
+	Profile
 
+Add a per-task raw notifier chain
 
-> diff -puN arch/s390/Kconfig~statistics-infrastructure arch/s390/Kconfig
-> --- devel/arch/s390/Kconfig~statistics-infrastructure	2006-06-09 15:22:58.000000000 -0700
-> +++ devel-akpm/arch/s390/Kconfig	2006-06-09 15:22:58.000000000 -0700
-> @@ -490,8 +490,14 @@ source "drivers/net/Kconfig"
->  
->  source "fs/Kconfig"
->  
-> +menu "Instrumentation Support"
-> +
->  source "arch/s390/oprofile/Kconfig"
->  
-> +source "lib/Kconfig.statistic"
-> +
-> +endmenu
-> +
->  source "arch/s390/Kconfig.debug"
->  
->  source "security/Kconfig"
-> diff -puN arch/s390/oprofile/Kconfig~statistics-infrastructure arch/s390/oprofile/Kconfig
-> --- devel/arch/s390/oprofile/Kconfig~statistics-infrastructure	2006-06-09 15:22:58.000000000 -0700
-> +++ devel-akpm/arch/s390/oprofile/Kconfig	2006-06-09 15:22:58.000000000 -0700
-> @@ -1,6 +1,3 @@
-> -
-> -menu "Profiling support"
-> -
->  config PROFILING
->  	bool "Profiling support"
->  	help
-> @@ -18,5 +15,3 @@ config OPROFILE
->  
->  	  If unsure, say N.
->  
-> -endmenu
-> -
+Add a task watcher for semundo
 
-These two patches should probably go somewhere else, they don't have
-much to do with this one.  (well, adding Kconfig.statistic" does, but
-the other wording doesn't.)
+Switch the semundo task watcher to a per-task watcher
 
-> diff -puN /dev/null include/linux/statistic.h
-> --- /dev/null	2006-06-03 22:34:36.282200750 -0700
-> +++ devel-akpm/include/linux/statistic.h	2006-06-09 15:22:58.000000000 -0700
-> @@ -0,0 +1,348 @@
-> +/*
-> + * include/linux/statistic.h
-> + *
-> + * Statistics facility
-> + *
-> + * (C) Copyright IBM Corp. 2005, 2006
-> + *
-> + * Author(s): Martin Peschke <mpeschke@de.ibm.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2, or (at your option)
-> + * any later version.
+I've broken up the patches this way for clarity, to allow cherry-picking, and
+to help focus the discussion of any potentially controversial details.
 
-Are you sure "any later version"?
+Testing:
 
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+Each patch applies to 2.6.17-rc6-mm2, compiles, boots, and runs with
+audit=1 profile=2 and auditctl -e 0 or 1 during a run of random system calls
+with all config values set to y.
 
-Two not-needed paragraphs.
+I've tested a variety of combinations with respect to the CONNECTOR
+and PROC_EVENTS config values:
+CONFIG_CONNECTOR=y, CONFIG_PROC_EVENTS=y
+CONFIG_CONNECTOR=y, CONFIG_PROC_EVENTS=m
+CONFIG_CONNECTOR=m, CONFIG_PROC_EVENTS=m
+CONFIG_CONNECTOR=n, CONFIG_PROC_EVENTS=n
 
-> +#ifndef STATISTIC_H
-> +#define STATISTIC_H
-> +
-> +#include <linux/fs.h>
-> +#include <linux/types.h>
-> +#include <linux/percpu.h>
-> +
-> +#define STATISTIC_ROOT_DIR	"statistics"
-> +
-> +#define STATISTIC_FILENAME_DATA	"data"
-> +#define STATISTIC_FILENAME_DEF	"definition"
-> +
-> +#define STATISTIC_NEED_BARRIER	1
+while all the rest were =y|n:
+CONFIG_TASKSTATS=y
+CONFIG_TASK_DELAY_ACCT=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=y
 
-Meta-comment about this file, does most of the stuff in this file,
-really belong here?  At first glance, this should only hold the public
-interface to the statistic code, not everything else needed by the
-internal workings of that code.  It looks like it could be made a lot
-smaller.
+I also did some touch testing of process events with the modular configuration.
 
-> +enum statistic_state {
-> +	STATISTIC_STATE_INVALID,
-> +	STATISTIC_STATE_UNCONFIGURED,
-> +	STATISTIC_STATE_RELEASED,
-> +	STATISTIC_STATE_OFF,
-> +	STATISTIC_STATE_ON
-> +};
-> +
-> +enum statistic_type {
-> +	STATISTIC_TYPE_COUNTER_INC,
-> +	STATISTIC_TYPE_COUNTER_PROD,
-> +	STATISTIC_TYPE_UTIL,
-> +	STATISTIC_TYPE_HISTOGRAM_LIN,
-> +	STATISTIC_TYPE_HISTOGRAM_LOG2,
-> +	STATISTIC_TYPE_SPARSE,
-> +	STATISTIC_TYPE_NONE
-> +};
+While I haven't done every combination of configuration possible I
+believe this covers a wide number of common configurations.
 
-Make these bit-safe so sparse can catch mistakes?
+Andrew, please consider these patches for inclusion in -mm. Assuming
+there are no objections I'd like to aim the task watchers and process events
+patches for 2.6.18.
 
-> +#define STATISTIC_FLAGS_NOINCR	0x01
+I've Cc'd most of the folks who responded with comments last time and added
+folks listed in MAINTAINERS for the audit and profile patches. If anyone
+would like to be removed from future Ccs or if there's anyone I ought to add
+please let me know.
 
-What's this for?
+Cheers,
+	-Matt Helsley
 
-> +/**
-> + * struct statistic_info - description of a class of statistics
-> + * @name: pointer to name name string
-> + * @x_unit: pointer to string describing unit of X of (X, Y) data pair
-> + * @y_unit: pointer to string describing unit of Y of (X, Y) data pair
-> + * @flags: only flag so far (distinction of incremental and other statistic)
-> + * @defaults: pointer to string describing defaults setting for attributes
-> + *
-> + * Exploiters must setup an array of struct statistic_info for a
-> + * corresponding array of struct statistic, which are then pointed to
-> + * by struct statistic_interface.
-> + *
-> + * Struct statistic_info and all members and addressed strings must stay for
-> + * the lifetime of corresponding statistics created with statistic_create().
-> + *
-> + * Except for the name string, all other members may be left blank.
-> + * It would be nice of exploiters to fill it out completely, though.
-> + */
-> +struct statistic_info {
-> +/* public: */
-> +	char *name;
-> +	char *x_unit;
-> +	char *y_unit;
-> +	int  flags;
-> +	char *defaults;
-> +};
+-------------------------------------------------------------------------------
+Here are some performance numbers for those interested in getting a
+rough idea of how applying each patch affects performance. I ran the
+benchmarks with two other patches I've posted recently that aren't in this
+series:
+	profile_make_notifier_blocks_read_mostly
+	semundo_simplify
 
-The whole "public:" and "private:" thing in these structures is not
-needed.  Just document it in the kernel-doc comments and you should be
-fine.  This isn't C++ :)
+Kernbench
+NUMAQ - 16 700MHz PIII processors, Debian Sarge
 
-> +struct sgrb_seg {
-> +	struct list_head list;
-> +	char *address;
-> +	int offset;
-> +	int size;
-> +};
-> +
-> +struct statistic_file_private {
-> +	struct list_head read_seg_lh;
-> +	struct list_head write_seg_lh;
-> +	size_t write_seg_total_size;
-> +};
-> +
-> +struct statistic_merge_private {
-> +	struct statistic *stat;
-> +	spinlock_t lock;
-> +	void *dst;
-> +};
++Patch 0 - None
+Elapsed: 100.99s User: 1163.63s System: 224.24s CPU: 1373.67%
+1163.68user 224.49system 1:41.35elapsed 1369%CPU (0avgtext+0avgdata 0maxresident)k
+1164.11user 222.03system 1:40.41elapsed 1380%CPU (0avgtext+0avgdata 0maxresident)k
+1163.10user 226.21system 1:41.20elapsed 1372%CPU (0avgtext+0avgdata 0maxresident)k
 
-I'm guessing these three structures aren't needed here.  Otherwise,
-please document them.
++Patch 0 - None (second run)
+Elapsed: 100.57s User: 1163.10s System: 224.01s CPU: 1378.33%
+1163.48user 223.40system 1:40.06elapsed 1385%CPU (0avgtext+0avgdata 0maxresident)k
+1161.64user 224.99system 1:40.63elapsed 1377%CPU (0avgtext+0avgdata 0maxresident)k
+1164.18user 223.64system 1:41.01elapsed 1373%CPU (0avgtext+0avgdata 0maxresident)k
 
-> +#ifdef CONFIG_STATISTICS
++Patch - profile_make_notifier_blocks_read_mostly (Posted outside of this series)
+Elapsed: 100.74s User: 1163.92s System: 223.10s CPU: 1376.66%
+1164.58user 222.78system 1:41.33elapsed 1369%CPU (0avgtext+0avgdata 0maxresident)k
+1163.26user 224.21system 1:40.17elapsed 1385%CPU (0avgtext+0avgdata 0maxresident)k
+1163.93user 222.32system 1:40.73elapsed 1376%CPU (0avgtext+0avgdata 0maxresident)k
 
-Why ifdef now, so late?
++Patch - semundo_simplify (Posted outside of this series)
+Elapsed: 100.92s User: 1162.45s System: 224.52s CPU: 1373.67%
+1163.16user 224.83system 1:40.85elapsed 1376%CPU (0avgtext+0avgdata 0maxresident)k
+1162.95user 223.99system 1:41.33elapsed 1368%CPU (0avgtext+0avgdata 0maxresident)k
+1161.23user 224.74system 1:40.58elapsed 1377%CPU (0avgtext+0avgdata 0maxresident)k
 
-> +extern int statistic_create(struct statistic_interface *, const char *);
-> +extern int statistic_remove(struct statistic_interface *);
-> +
-> +/**
-> + * statistic_add - update statistic with incremental data in (X, Y) pair
-> + * @stat: struct statistic array
-> + * @i: index of statistic to be updated
-> + * @value: X
-> + * @incr: Y
-> + *
-> + * The actual processing of the (X, Y) data pair is determined by the current
-> + * the definition applied to the statistic. See Documentation/statistics.txt.
-> + *
-> + * This variant takes care of protecting per-cpu data. It is preferred whenever
-> + * exploiters don't update several statistics of the same entity in one go.
-> + */
-> +static inline void statistic_add(struct statistic *stat, int i,
-> +				 s64 value, u64 incr)
-> +{
-> +	unsigned long flags;
-> +	local_irq_save(flags);
-> +	if (stat[i].state == STATISTIC_STATE_ON)
-> +		stat[i].add(&stat[i], smp_processor_id(), value, incr);
-> +	local_irq_restore(flags);
-> +}
++Patch 1 - task_watchers
+Elapsed: 100.99s User: 1163.45s System: 224.78s CPU: 1374%
+1163.45user 224.74system 1:40.30elapsed 1384%CPU (0avgtext+0avgdata 0maxresident)k
+1164.55user 223.82system 1:41.12elapsed 1372%CPU (0avgtext+0avgdata 0maxresident)k
+1162.34user 225.78system 1:41.56elapsed 1366%CPU (0avgtext+0avgdata 0maxresident)k
 
-These are all inline, which I guess is acceptable.  But see the current
-inline-or-not comments on lkml which may make you rethink this.
++Patch 2 - add a process events task watcher
+Elapsed: 100.87s User: 1163.36s System: 225.11s CPU: 1375.67%
+1164.12user 225.32system 1:41.13elapsed 1373%CPU (0avgtext+0avgdata 0maxresident)k
+1163.05user 226.86system 1:40.87elapsed 1377%CPU (0avgtext+0avgdata 0maxresident)k
+1162.92user 223.16system 1:40.61elapsed 1377%CPU (0avgtext+0avgdata 0maxresident)k
 
-> +/**
-> + * statistic_add_nolock - update statistic with incremental data in (X, Y) pair
-> + * @stat: struct statistic array
-> + * @i: index of statistic to be updated
-> + * @value: X
-> + * @incr: Y
-> + *
-> + * The actual processing of the (X, Y) data pair is determined by the current
-> + * definition applied to the statistic. See Documentation/statistics.txt.
-> + *
-> + * This variant leaves protecting per-cpu data to exploiters. It is preferred
-> + * whenever exploiters update several statistics of the same entity in one go.
-> + */
-> +static inline void statistic_add_nolock(struct statistic *stat, int i,
-> +					s64 value, u64 incr)
-> +{
-> +	if (stat[i].state == STATISTIC_STATE_ON)
-> +		stat[i].add(&stat[i], smp_processor_id(), value, incr);
-> +}
-> +
-> +/**
-> + * statistic_inc - update statistic with incremental data in (X, 1) pair
-> + * @stat: struct statistic array
-> + * @i: index of statistic to be updated
-> + * @value: X
-> + *
-> + * The actual processing of the (X, Y) data pair is determined by the current
-> + * definition applied to the statistic. See Documentation/statistics.txt.
-> + *
-> + * This variant takes care of protecting per-cpu data. It is preferred whenever
-> + * exploiters don't update several statistics of the same entity in one go.
-> + */
-> +static inline void statistic_inc(struct statistic *stat, int i, s64 value)
-> +{
-> +	unsigned long flags;
-> +	local_irq_save(flags);
-> +	if (stat[i].state == STATISTIC_STATE_ON)
-> +		stat[i].add(&stat[i], smp_processor_id(), value, 1);
-> +	local_irq_restore(flags);
-> +}
++Patch 3 - refactor process events
+Elapsed: 100.66s User: 1162.81s System: 227.08s CPU: 1380.33%
+1162.62user 226.87system 1:40.69elapsed 1379%CPU (0avgtext+0avgdata 0maxresident)k
+1163.26user 226.93system 1:40.56elapsed 1382%CPU (0avgtext+0avgdata 0maxresident)k
+1162.54user 227.45system 1:40.72elapsed 1380%CPU (0avgtext+0avgdata 0maxresident)k
 
-Shouldn't this just call statistic_add() with a incr of 1?
++Patch 4 - process events module
+Elapsed: 101.06s User: 1162.57s System: 225.67s CPU: 1373%
+1164.08user 224.63system 1:40.57elapsed 1380%CPU (0avgtext+0avgdata 0maxresident)k
+1160.70user 226.88system 1:40.79elapsed 1376%CPU (0avgtext+0avgdata 0maxresident)k
+1162.94user 225.50system 1:41.82elapsed 1363%CPU (0avgtext+0avgdata 0maxresident)k
 
-> +
-> +/**
-> + * statistic_inc_nolock - update statistic with incremental data in (X, 1) pair
-> + * @stat: struct statistic array
-> + * @i: index of statistic to be updated
-> + * @value: X
-> + *
-> + * The actual processing of the (X, Y) data pair is determined by the current
-> + * definition applied to the statistic. See Documentation/statistics.txt.
-> + *
-> + * This variant leaves protecting per-cpu data to exploiters. It is preferred
-> + * whenever exploiters update several statistics of the same entity in one go.
-> + */
-> +static inline void statistic_inc_nolock(struct statistic *stat, int i,
-> +					s64 value)
-> +{
-> +	if (stat[i].state == STATISTIC_STATE_ON)
-> +		stat[i].add(&stat[i], smp_processor_id(), value, 1);
-> +}
++Patch 5 - switch to use a blocking notifier chain
+Elapsed: 102.52s User: 1162.54s System: 224.73s CPU: 1353.67%
+1162.57user 224.95system 1:40.50elapsed 1380%CPU (0avgtext+0avgdata 0maxresident)k
+1162.77user 224.85system 1:46.22elapsed 1306%CPU (0avgtext+0avgdata 0maxresident)k
+1162.28user 224.39system 1:40.84elapsed 1375%CPU (0avgtext+0avgdata 0maxresident)k
 
-Shouldn't this just call statistic_add_nolock with a incr of 1?
++Patch 6 - add an audit task watcher
+Elapsed: 101.07s User: 1161.91s System: 224.90s CPU: 1371.33%
+1162.64user 224.15system 1:40.79elapsed 1375%CPU (0avgtext+0avgdata 0maxresident)k
+1162.21user 225.85system 1:41.50elapsed 1367%CPU (0avgtext+0avgdata 0maxresident)k
+1160.88user 224.69system 1:40.92elapsed 1372%CPU (0avgtext+0avgdata 0maxresident)k
 
-> diff -puN /dev/null lib/Kconfig.statistic
-> --- /dev/null	2006-06-03 22:34:36.282200750 -0700
-> +++ devel-akpm/lib/Kconfig.statistic	2006-06-09 15:22:58.000000000 -0700
-> @@ -0,0 +1,11 @@
-> +config STATISTICS
-> +	bool "Statistics infrastructure"
-> +	depends on DEBUG_FS
-> +	help
-> +	  The statistics infrastructure provides a debug-fs based user interface
++Patch 7 - add a delayacct task watcher
+Elapsed: 101.00s User: 1163.59s System: 224.08s CPU: 1373.33%
+1163.09user 225.15system 1:41.04elapsed 1373%CPU (0avgtext+0avgdata 0maxresident)k
+1164.51user 221.55system 1:40.89elapsed 1373%CPU (0avgtext+0avgdata 0maxresident)k
+1163.17user 225.55system 1:41.06elapsed 1374%CPU (0avgtext+0avgdata 0maxresident)k
 
-No "-" in debugfs :)
++Patch 8 - add a profile task watcher
+Elapsed: 100.61s User: 1162.95s System: 224.36s CPU: 1378.33%
+1163.38user 224.60system 1:40.93elapsed 1375%CPU (0avgtext+0avgdata 0maxresident)k
+1162.59user 224.10system 1:41.00elapsed 1372%CPU (0avgtext+0avgdata 0maxresident)k
+1162.88user 224.38system 1:39.89elapsed 1388%CPU (0avgtext+0avgdata 0maxresident)k
 
-> +	  for statistics of kernel components, that is, usually device drivers.
++Patch 8 - add a profile task watcher (second run)
+Elapsed: 100.95s User: 1164.07s System: 224.58s CPU: 1375%
+1164.13user 224.69system 1:40.90elapsed 1376%CPU (0avgtext+0avgdata 0maxresident)k
+1164.74user 224.09system 1:40.96elapsed 1375%CPU (0avgtext+0avgdata 0maxresident)k
+1163.34user 224.96system 1:40.99elapsed 1374%CPU (0avgtext+0avgdata 0maxresident)k
 
-Why mention drivers?  Other things might use this (see original comments
-at the start of the message.)
++Patch 9 - introduce per-task watchers
+Elapsed: 100.76s User: 1162.49s System: 225.37s CPU: 1377%
+1162.65user 225.80system 1:40.89elapsed 1376%CPU (0avgtext+0avgdata 0maxresident)k
+1162.09user 225.44system 1:40.53elapsed 1380%CPU (0avgtext+0avgdata 0maxresident)k
+1162.72user 224.86system 1:40.85elapsed 1375%CPU (0avgtext+0avgdata 0maxresident)k
 
-> --- /dev/null	2006-06-03 22:34:36.282200750 -0700
-> +++ devel-akpm/lib/statistic.c	2006-06-09 15:22:58.000000000 -0700
-> @@ -0,0 +1,1459 @@
-> +/*
-> + *  lib/statistic.c
-> + *    statistics facility
-> + *
-> + *    Copyright (C) 2005, 2006
-> + *		IBM Deutschland Entwicklung GmbH,
-> + *		IBM Corporation
-> + *
-> + *    Author(s): Martin Peschke (mpeschke@de.ibm.com),
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2, or (at your option)
-> + * any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++Patch 10 - add a semundo task watcher
+Elapsed: 101.27s User: 1163.71s System: 224.82s CPU: 1370.67%
+1163.84user 224.10system 1:41.55elapsed 1366%CPU (0avgtext+0avgdata 0maxresident)k
+1163.43user 224.76system 1:41.16elapsed 1372%CPU (0avgtext+0avgdata 0maxresident)k
+1163.86user 225.59system 1:41.10elapsed 1374%CPU (0avgtext+0avgdata 0maxresident)k
 
-Again with the verbose license :)
++Patch 11 - switch the semundo task watcher to a per-task watcher
+Elapsed: 100.96s User: 1162.93s System: 224.76s CPU: 1374%
+1163.14user 223.37system 1:40.61elapsed 1378%CPU (0avgtext+0avgdata 0maxresident)k
+1162.92user 226.02system 1:41.34elapsed 1370%CPU (0avgtext+0avgdata 0maxresident)k
+1162.73user 224.88system 1:40.94elapsed 1374%CPU (0avgtext+0avgdata 0maxresident)k
 
+--
 
-> +static void _statistic_barrier(void *unused)
-> +{
-> +}
-> +
-> +static inline int statistic_stop(struct statistic *stat)
-> +{
-> +	stat->stopped = sched_clock();
-> +	stat->state = STATISTIC_STATE_OFF;
-> +	/* ensures that all CPUs have ceased updating statistics */
-> +	smp_mb();
-> +	on_each_cpu(_statistic_barrier, NULL, 0, 1);
-> +	return 0;
-> +}
-
-Isn't there a way to use rcu for this instead?  Just a suggestion, it
-might be totally wrong...
-
-
-> +
-> +static int statistic_transition(struct statistic *stat,
-> +				struct statistic_info *info,
-> +				enum statistic_state requested_state)
-> +{
-> +	int z = (requested_state < stat->state ? 1 : 0);
-> +	int retval = -EINVAL;
-
-	int retval = 0;
-
-> +
-> +	while (stat->state != requested_state) {
-> +		switch (stat->state) {
-> +		case STATISTIC_STATE_INVALID:
-> +			retval = ( z ? -EINVAL : statistic_initialise(stat) );
-> +			break;
-> +		case STATISTIC_STATE_UNCONFIGURED:
-> +			retval = ( z ? statistic_uninitialise(stat)
-> +				     : statistic_define(stat) );
-> +			break;
-> +		case STATISTIC_STATE_RELEASED:
-> +			retval = ( z ? statistic_initialise(stat)
-> +				     : statistic_alloc(stat, info) );
-> +			break;
-> +		case STATISTIC_STATE_OFF:
-> +			retval = ( z ? statistic_free(stat, info)
-> +				     : statistic_start(stat) );
-> +			break;
-> +		case STATISTIC_STATE_ON:
-> +			retval = ( z ? statistic_stop(stat) : -EINVAL );
-> +			break;
-> +		}
-> +		if (unlikely(retval))
-> +			return retval;
-
-delete these two lines.
-
-> +	}
-> +	return 0;
-
-	return retval;
-
-> +static match_table_t statistic_match_type = {
-> +	{1, "type=%s"},
-> +	{9, NULL}
-> +};
-
-named field initializers please.
-
-
-> +static match_table_t statistic_match_common = {
-> +	{STATISTIC_STATE_UNCONFIGURED, "state=unconfigured"},
-> +	{STATISTIC_STATE_RELEASED, "state=released"},
-> +	{STATISTIC_STATE_OFF, "state=off"},
-> +	{STATISTIC_STATE_ON, "state=on"},
-> +	{1001, "name=%s"},
-> +	{1002, "data=reset"},
-> +	{1003, "defaults"},
-> +	{9999, NULL}
-> +};
-
-Same here.
-
-And why do you have numbers and a mix of enums here?  Shouldn't you
-define the name=, data= and defaults too?
-
-Also, just null terminate the list, is 9999 really needed?
-
-> +static struct statistic_discipline statistic_discs[] = {
-> +	{ /* STATISTIC_TYPE_COUNTER_INC */
-> +	  NULL,
-> +	  statistic_alloc_generic,
-> +	  NULL,
-> +	  statistic_reset_counter,
-> +	  statistic_merge_counter,
-> +	  statistic_fdata_counter,
-> +	  NULL,
-> +	  statistic_add_counter_inc,
-> +	  statistic_set_counter_inc,
-> +	  "counter_inc", sizeof(u64)
-> +	},
-
-named initializers please.  That will let you not have to specify the
-NULL fields, making it much easier to read overall.
-
-thanks,
-
-greg k-h

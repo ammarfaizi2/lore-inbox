@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932759AbWFMFSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752316AbWFMF0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932759AbWFMFSn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 01:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932888AbWFMFSm
+	id S1752316AbWFMF0b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 01:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752317AbWFMF0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 01:18:42 -0400
-Received: from ns2.suse.de ([195.135.220.15]:2201 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932759AbWFMFSm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 01:18:42 -0400
-From: Andi Kleen <ak@suse.de>
-To: Keith Owens <kaos@sgi.com>
-Subject: Re: 2.6.16-rc6-mm2
-Date: Tue, 13 Jun 2006 07:18:35 +0200
-User-Agent: KMail/1.9.3
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <10021.1150175320@kao2.melbourne.sgi.com>
-In-Reply-To: <10021.1150175320@kao2.melbourne.sgi.com>
+	Tue, 13 Jun 2006 01:26:31 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:1675 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752315AbWFMF0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 01:26:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rk0FDw5MuXID2EyjZXu0zGSYAIwn60VdPaoMcnYsvgU79/phMtWY4TIntKPIgWXD4RxwWIz8DwIzdwGCjci/0BMo/BCkgWzKhSKHmi386pDCEnJIXZMb2AlbBrKivS3Tq14eSkkn91fLLU7v95BBFkCs/QfGfizeeBiR0kqHhfs=
+Message-ID: <787b0d920606122226h1febfb45pd8ec1a6b7a8a59ed@mail.gmail.com>
+Date: Tue, 13 Jun 2006 01:26:29 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: linux-kernel@vger.kernel.org, emmanuel.fleury@labri.fr, torvalds@osdl.org,
+       s0348365@sms.ed.ac.uk, jengelh@linux01.gwdg.de,
+       76306.1226@compuserve.com, akpm@osdl.org
+Subject: Re: [patch] i386: use C code for current_thread_info()
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606130718.35498.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 June 2006 07:08, Keith Owens wrote:
-> Andi Kleen (on Tue, 13 Jun 2006 06:56:45 +0200) wrote:
-> >
-> >> I have previously suggested a lightweight solution that pins a process
-> >> to a cpu 
-> >
-> >That is preempt_disable()/preempt_enable() effectively
-> >It's also light weight as much as these things can be.
-> 
-> The difference being that preempt_disable() does not allow the code to
-> sleep.  There are some places where we want to use cpu local data 
-> and 
-> the code can tolerate preemption and even sleeping, as long as the
-> process schedules back on the same cpu.
+Chuck Ebbert writes:
 
-Seems like a pretty obscure case to optimize for.
+> Using C code for current_thread_info() lets the compiler optimize it.
+> With gcc 4.0.2, kernel is smaller:
 
-Anyways if you want to do that you can always do
+The often-forgotten __attribute__((const)) might do the job.
+The function is indeed const as far as gcc can see, except
+perhaps near the schedular code that switches stacks.
 
-disable_preempt(); 
-set thread affinity mask to current cpu
-enable_preempt(); 
-do weird stuff and sleep ...  ;
-restore affinity mask
-
-Can any of these people proposing "solutions" in this thread
-demonstrate this stuff is actually performance critical?
-
--Andi
+This applies to many similar functions, like the ones used
+to get current. It should work for the C code too.

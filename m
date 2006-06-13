@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWFMWk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWFMWmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWFMWk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWFMWk6
+	id S964789AbWFMWmf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWFMWmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:40:58 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:21996 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S932318AbWFMWk5 (ORCPT
+	Tue, 13 Jun 2006 18:42:35 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7849 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964789AbWFMWme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:40:57 -0400
-Message-ID: <448F3EF5.50701@hp.com>
-Date: Tue, 13 Jun 2006 15:40:53 -0700
-From: Rick Jones <rick.jones2@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.6) Gecko/20040304
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-Cc: lkml@rtr.ca, jheffner@psc.edu, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.17: networking bug??
-References: <448F0D4B.30201@rtr.ca>	<20060613.142603.48825062.davem@davemloft.net>	<448F32E1.8080002@rtr.ca> <20060613.152301.26928146.davem@davemloft.net>
-In-Reply-To: <20060613.152301.26928146.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jun 2006 18:42:34 -0400
+Date: Wed, 14 Jun 2006 08:41:55 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Avi Kivity <avi@argo.co.il>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC]  Slimming down struct inode
+Message-ID: <20060614084155.C888012@wobbly.melbourne.sgi.com>
+References: <20060613143230.A867599@wobbly.melbourne.sgi.com> <448EC51B.6040404@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <448EC51B.6040404@argo.co.il>; from avi@argo.co.il on Tue, Jun 13, 2006 at 05:00:59PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One final word about window sizes.  If you have a connection whose
-> bandwidth-delay-product needs an N byte buffer to fill, you actually
-> have to have an "N * 2" sized buffer available in order for fast
-> retransmit to work.
+On Tue, Jun 13, 2006 at 05:00:59PM +0300, Avi Kivity wrote:
+> Nathan Scott wrote:
+> > Such a change would would indeed break XFS, in exactly the way you
 
-Is that as important in the presence of SACK?
+Oh, I should clarify - the suggestion of using sb->s_blocksize/
+s_blocksize_bits was what I meant by "would break XFS".
 
-rick jones
+> > suggest Jan - the realtime subvolume does typically use a different
+> > blocksize from the data subvolume (the realtime extent size is used,
+> > and this can be set per-inode too), and there would now be no way to
+> > distinguish this preferred IO size difference.
+> 
+> It can be made into an inode operation:
+
+*nod* - that'd work fine for our needs here.
+
+cheers.
+
+-- 
+Nathan

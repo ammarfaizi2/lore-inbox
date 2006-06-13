@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752343AbWFMHrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWFMH5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752343AbWFMHrm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 03:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752346AbWFMHrm
+	id S1750723AbWFMH5n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 03:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWFMH5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 03:47:42 -0400
-Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:4752
-	"HELO office-m.at") by vger.kernel.org with SMTP id S1752343AbWFMHrm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 03:47:42 -0400
-In-Reply-To: <Pine.LNX.4.61.0606122105490.27755@yvahk01.tjqt.qr>
-References: <0CB396BB-A11B-4191-982F-8C0B89F848D6@office-m.at> <Pine.LNX.4.61.0606122003190.7959@yvahk01.tjqt.qr> <6988083B-3A0E-41F2-A1E4-B4A953B88705@office-m.at> <Pine.LNX.4.61.0606122105490.27755@yvahk01.tjqt.qr>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <2F9A5649-92B3-439A-83E4-39FC6C5B7BB7@office-m.at>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 13 Jun 2006 03:57:43 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:45964 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750723AbWFMH5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 03:57:42 -0400
+Date: Tue, 13 Jun 2006 10:57:38 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+In-Reply-To: <b0943d9e0606122359q6ffabdbdqada9a6c79642cf2a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0606131052400.15861@sbz-30.cs.Helsinki.FI>
+References: <20060611111815.8641.7879.stgit@localhost.localdomain> 
+ <20060611112156.8641.94787.stgit@localhost.localdomain> 
+ <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com> 
+ <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com> 
+ <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>  <20060612105345.GA8418@elte.hu>
+  <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com> 
+ <20060612192227.GA5497@elte.hu>  <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
+ <b0943d9e0606122359q6ffabdbdqada9a6c79642cf2a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Markus Biermaier <mbier@office-m.at>
-Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
-Date: Tue, 13 Jun 2006 09:47:39 +0200
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Catalin,
 
-Am 12.06.2006 um 21:09 schrieb Jan Engelhardt:
+On Tue, 13 Jun 2006, Catalin Marinas wrote:
+> The gc roots are the data and bss sections (and maybe task kernel
+> stacks) and all the slab-allocated blocks are scanned if a link to
+> them is found from the roots (and all of them are usually scanned). If
+> no link is found, they would be reported as memory leaks (and not
+> scanned). You can't really avoid the scanning of allocated blocks
+> since they may contain pointers to other blocks.
 
-> Hm. Maybe http://lkml.org/lkml/2005/2/26/92 (updated version for
-> 2.6.16/.17 below) can help you.
->
-> diff --fast -Ndpru linux-2.6.17-rc6~/block/genhd.c linux-2.6.17-rc6 
-> +/block/genhd.c
-> --- linux-2.6.17-rc6~/block/genhd.c	2006-06-06 02:57:02.000000000  
-> +0200
-> +++ linux-2.6.17-rc6+/block/genhd.c	2006-06-08 22:29:16.607058000  
-> +0200
-> @@ -214,6 +214,52 @@ struct gendisk *get_gendisk(dev_t dev, i
->  	return  kobj ? to_disk(kobj) : NULL;
->  }
->
-> +/*
-> + * printk a full list of all partitions - intended for
-> + * places where the root filesystem can't be mounted and thus
-> + * to give the victim some idea of what went wrong
-> + */
-> +void printk_all_partitions(void)
-> +{
-[snip]
+I am not sure you're agreeing or disagreeing :-).  As far as I understood, 
+Ingo is worried about:
 
-Am 13.06.2006 um 08:44 schrieb Markus Biermaier:
-> make targz-pkg
-> block/genhd.c: In function `printk_all_partitions':
-> block/genhd.c:240: Warnung: implicit declaration of function  
-> `mutex_lock'
-> block/genhd.c:240: error: `block_subsys_lock' undeclared (first use  
-> in this function)
-> block/genhd.c:240: error: (Each undeclared identifier is reported  
-> only once
-> block/genhd.c:240: error: for each function it appears in.)
-> block/genhd.c:273: Warnung: implicit declaration of function  
-> `mutex_unlock'
-> make[3]: *** [block/genhd.o] Error 1
-> make[2]: *** [block] Error 2
-> make[1]: *** [targz-pkg] Error 2
-> make: *** [targz-pkg] Error 2
+	struct s { /* some fields */; char *buf; };
 
-Hello Jan,
+	struct s *p = kmalloc(sizeof(struct s) + BUF_SIZE);
+	p->buf = p + sizeof(struct s);
 
-to get the function "printk_all_partitions" compiled I simply  
-commented out "mutex_lock" and "mutex_unlock"...
+Which could lead to false negative due to p->buf pointing to p.  However, 
+for us to even _find_ p->buf, we would need an incoming pointer _to_ p 
+which makes me think this is not a problem in practice.  Hmm?
 
-So the result before the boot-panic is:
-
-...
-here are the partitions available:
-2100     500472 hde driver: ide-disk
-   2101     500440 hde1
-...
-What does this mean?
-
-Markus
-
+					Pekka

@@ -1,129 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWFMXDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWFMXIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWFMXDx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 19:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWFMXDx
+	id S1751185AbWFMXIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 19:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWFMXIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 19:03:53 -0400
-Received: from father.pmc-sierra.com ([216.241.224.13]:59875 "HELO
-	father.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
-	id S1751223AbWFMXDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 19:03:52 -0400
-Message-ID: <478F19F21671F04298A2116393EEC3D531CEA4@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-From: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
-To: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Mike Galbraith <efault@gmx.de>,
-       Radjendirane Codandaramane 
-	<Radjendirane_Codandaramane@pmc-sierra.com>
-Subject: RE: process starvation with 2.6 scheduler
-Date: Tue, 13 Jun 2006 16:03:37 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
+	Tue, 13 Jun 2006 19:08:21 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:47298 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751185AbWFMXIV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 19:08:21 -0400
+Subject: Re: [RFC][PATCH] Avoid race w/ posix-cpu-timer and exiting tasks
+From: john stultz <johnstul@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>
+In-Reply-To: <20060614024909.GA563@oleg>
+References: <20060614024909.GA563@oleg>
 Content-Type: text/plain
+Date: Tue, 13 Jun 2006 16:05:45 -0700
+Message-Id: <1150239945.5799.14.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that with the priority set to 19 the netserver processes do not starve but still we have unfair scheduling issue. The netperf clients do not timeout now but one of the servers runs much less than the other. It seems that thorough understanding of scheduling algorithm is essential at this point.
-
------Original Message-----
-From: Kallol Biswas 
-Sent: Tuesday, June 06, 2006 2:58 PM
-To: Kallol Biswas; 'Stephen Hemminger'; 'linux-kernel@vger.kernel.org'
-Cc: 'Mike Galbraith'
-Subject: RE: process starvation with 2.6 scheduler
-
-Thanks for help. We do not see the issue if every netserver's priority is set to 19 with setpriority() call.
-
------Original Message-----
-From: Kallol Biswas 
-Sent: Tuesday, June 06, 2006 10:56 AM
-To: 'Stephen Hemminger'; linux-kernel@vger.kernel.org
-Cc: 'Mike Galbraith'
-Subject: RE: process starvation with 2.6 scheduler
-
-
-I have verified that the starved tasks are in the runqueue (prio_array_t 
-array[0], active points to array[0]), the timestamp and last_ran 
-indicate that they have not run for a while.
-
-The network traffic is of request response type.
-
-Client (on an external box)3 ports ---- 3 cables ----3 ports Emulated Host
- 
-The netperf clients run on an external box, the emulated host (ppc440) runs 
-the servers. A client sends request to a server, the server returns the 
-reply, then the next request from the client goes to the server. There are 3
-clients and 3 servers, one client-server pair for each connection 
-(3 connections: 3 ports on external box  --3 connection 
- -- 3 ports on emulated host).
-
-Since traffic is of request/response in nature and the packets reach
-user space (to netserver) before turning around I do not think slow CPU is an issue.
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Stephen Hemminger
-Sent: Tuesday, June 06, 2006 9:56 AM
-To: linux-kernel@vger.kernel.org
-Subject: Re: process starvation with 2.6 scheduler
-
-On Tue, 06 Jun 2006 10:01:58 +0200
-Mike Galbraith <efault@gmx.de> wrote:
-
-> (please line wrap)
+On Wed, 2006-06-14 at 06:49 +0400, Oleg Nesterov wrote:
+> john stultz wrote:
+> >
+> > Hey Ingo,
+> > 	We've occasionally come across OOPSes in posix-cpu-timer thread (as
+> > well as tripping over the BUG_ON(tsk->exit_state there) where it appears
+> > the task we're processing exits out on us while we're using it. 
+> >
+> > Thus this fix tries to avoid running the posix-cpu-timers on a task that
+> > is exiting.
+> >
+> > --- 2.6-rt/kernel/posix-cpu-timers.c	2006-06-11 15:38:58.000000000 -0500
+> > +++ devrt/kernel/posix-cpu-timers.c	2006-06-12 10:52:20.000000000 -0500
+> > @@ -1290,12 +1290,15 @@
+> >
+> >  #undef	UNEXPIRED
+> >
+> > -	BUG_ON(tsk->exit_state);
+> > -
+> >  	/*
+> >  	 * Double-check with locks held.
+> >  	 */
+> >  	read_lock(&tasklist_lock);
+> > +	/* Make sure the task doesn't exit under us. */
+> > +	if(unlikely(tsk->exit_state)) {
+> > +		read_unlock(&tasklist_lock);
+> > +		return;
+> > +	}
+> >  	spin_lock(&tsk->sighand->siglock);
 > 
-> On Mon, 2006-06-05 at 12:48 -0700, Kallol Biswas wrote:
-> > Hello,
-> >        We have a process starvation problem with our 2.6.11 kernel running on a ppc-440 based system.
-> > 
-> > We have a storage SOC based on PPC-440. The SOC is emulated on a system emulator called Palladium. It is from Cadence. The system runs at 400KHz speed. It has three Ethernet ports; they are connected to outside lab network with a speed bridge.
-> > 
-> > The netperf server netserver runs on the emulated system (2.6.11 kernel on Palladium). There are netperf linux clients running on a x86 box.
-> > 
-> > If netperf request response (TCP_RR) traffic is run on all three ports; after sometime only one port remains active, the application (netperf client) on other two ports wait for a long time and eventually time out.
-> > 
-> > The netserver code has been instrumented. For one of the starved netserver processes it has been found that the TCP_RR request from the netperf client on linux x86 box has been received by the server, it has issued send() call to send back reply but send() never returns.
-> > 
-> > With an ICE connected to the Palladium (emulator) I have dumped the kernel data structures of the starved process and the active process. 
-> > 
-> > 
-> > For Active  Process:
-> >   Time_slice 84
-> >   Policy : SCHED_NORMAL
-> >   Dynamic priority: 118
-> >   Static priority: 120
-> >   Preempt_count: 0x20100
-> >   Flags = 0
-> >   State = 0 (TASK_RUNNING)
-> > 
-> > For Starved Process:
-> >   Time slice: 77
-> >   Policy: SCHED_NORMAL
-> >   Dynamic priority: 120
-> >   Static priority: 120
-> >   Preempt_count: 0x10000000 (PREEMPT_ACTIVE is set)
-> >   Flags = 0 
-> >   State = 0 (TASK_RUNNING)
-> > 
-> > Any help to debug the problem is welcome. 
+> I strongly believe this BUG_ON() is indeed wrong, and I did a similar patch
+> a long ago:
 > 
-> I'm having difficulty understanding.  Are you saying that the "starved"
-> tasks are runnable, but receiving _zero_ cpu?  That's impossible with
-> only one other SCHED_NORMAL task afaik, which makes me think you may
-> mean they're not receiving cpu frequently enough to keep clients from
-> timing out?  One task which has slept enough to acquire interactive
-> status (as above) can hold others off the cpu for quite a while if it
-> starts a burst of heavy cpu burning.  If your netperf clients are
-> choking on this latency, running the servers at nice 19 should prevent
-> the problem.
-> 
+> 	[PATCH] posix-timers: remove false BUG_ON() from run_posix_cpu_timers()
+> 	Commit 3de463c7d9d58f8cf3395268230cb20a4c15bffa
+
+Thanks for the pointer! Hmm.  That patch is very similar to what I'm
+trying to avoid. 
+
+Just to be clear for everyone else, that commit id is for Linus' git
+tree. The patch I'm proposing is against the -rt tree, where the
+run_posix_timers() function has been converted to a kthread instead of
+being run from the timer interrupt context.
+
+This allows the possibility of the the run_posix_timers_thread racing
+against the task its running on behalf and the task exiting, and I hope
+that is what my patch resolves (although I'm not confident its 100%).
+
+The tsk->signal check from the patch above looks like it would avoid
+this as well. Is there a specific benefit to checking that over
+exit_state?
+
+If anyone has further feedback or info about why the above was reverted
+it would be appreciated.
+
+thanks
+-john
 
 
-Is the processor getting consumed by network traffic in soft irq?
-If you are using non NAPI device driver, then it is easy to get soft irq
-overwhelmed with packets.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

@@ -1,84 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWFMSJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWFMSUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWFMSJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 14:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWFMSJ7
+	id S932208AbWFMSUS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 14:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWFMSUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 14:09:59 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:39467 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932199AbWFMSJ6
-	(ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 14:09:58 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=H7k7oZarZKp96S93V/5vPO+J6K0Jp3lrPgudMb6hx7adsv2zjgMBcsC40jbz+pjOe
-	xHsmX1Urc6wPuo0zN6E5A==
-Subject: Re: [PATCH]: Adding a counter in vma to indicate the number of
-	physical pages backing it
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>, Linux-mm@kvack.org,
-       Linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0606131814110.4501@blonde.wat.veritas.com>
-References: <1149903235.31417.84.camel@galaxy.corp.google.com>
-	 <200606121958.41127.ak@suse.de>
-	 <1150141369.9576.43.camel@galaxy.corp.google.com>
-	 <200606130551.23825.ak@suse.de>
-	 <1150217948.9576.67.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0606131814110.4501@blonde.wat.veritas.com>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Tue, 13 Jun 2006 11:09:28 -0700
-Message-Id: <1150222169.17423.21.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jun 2006 14:20:18 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:6465 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S932208AbWFMSUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 14:20:15 -0400
+X-IronPort-AV: i="4.06,128,1149490800"; 
+   d="scan'208"; a="293977423:sNHT35215176"
+To: torvalds@osdl.org
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: [git pull] please pull infiniband.git
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 13 Jun 2006 11:19:13 -0700
+Message-ID: <aday7w03om6.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 13 Jun 2006 18:19:14.0500 (UTC) FILETIME=[E0308840:01C68F15]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 18:28 +0100, Hugh Dickins wrote:
-> On Tue, 13 Jun 2006, Rohit Seth wrote:
-> > On Tue, 2006-06-13 at 05:51 +0200, Andi Kleen wrote:
-> > > 
-> > > I think we first need to identify the basic need.
-> > > Don't see why we even need per VMA information so far.
-> > 
-> > This information is for user land applications to have the knowledge of
-> > which virtual ranges are getting actively used and which are not.
-> > This information then can be fed into a new system call
-> > sys_change_page_activation(pid, start_va, len, flag).  The purpose of
-> > this system call would be to give hints to kernel that certain physical
-> > pages are okay to be inactivated (or vice versa).   
-> 
-> Then perhaps you want a sys_report_page_activation(pid, start_va, len, ...)
-> which would examine and report on the range in question, instead of adding
-> your count to so many vmas on which this will never be used.
-> 
+Linus, please pull from
 
-That will reduce the cost of not traversing the whole process address
-space.  But still for a given length, we will need to traverse the PTs.
-On a positive side, this interface can give more specific information to
-user in terms of page attributes.  I'm fine with this interface if
-others are okay.  Andi?
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-> Though your syscall sounds like pid_madvise: perhaps the call name
-> should be less specific and left to the flags (come, gentle syscall
-> multiplexing flames, and warm me).
-> 
+This tree is also available from kernel.org mirrors at:
 
-Agreed.  
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-> Looking through the existing fields of a vma, it seems a vm_area_struct
-> would commonly be on clean cachelines: your count making one of them
-> now commonly and bouncily dirty.
+This has a couple of mthca driver bug fixes:
 
-The additional cost of this counter will be long size of extra memory
-per segment, an atomic operation when ptl is used and dirtying an
-additional cache line.  I overlooked the last two cost factors earlier.
+Michael S. Tsirkin:
+      IB/mthca: restore missing PCI registers after reset
+      IB/mthca: memfree completion with error FW bug workaround
+
+ drivers/infiniband/hw/mthca/mthca_cq.c    |   11 +++++
+ drivers/infiniband/hw/mthca/mthca_reset.c |   59 +++++++++++++++++++++++++++++
+ 2 files changed, 69 insertions(+), 1 deletions(-)
 
 
--rohit
-
+diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+index 205854e..87a8f11 100644
+--- a/drivers/infiniband/hw/mthca/mthca_cq.c
++++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+@@ -540,8 +540,17 @@ static inline int mthca_poll_one(struct 
+ 		entry->wr_id = srq->wrid[wqe_index];
+ 		mthca_free_srq_wqe(srq, wqe);
+ 	} else {
++		s32 wqe;
+ 		wq = &(*cur_qp)->rq;
+-		wqe_index = be32_to_cpu(cqe->wqe) >> wq->wqe_shift;
++		wqe = be32_to_cpu(cqe->wqe);
++		wqe_index = wqe >> wq->wqe_shift;
++               /*
++		* WQE addr == base - 1 might be reported in receive completion
++		* with error instead of (rq size - 1) by Sinai FW 1.0.800 and
++		* Arbel FW 5.1.400.  This bug should be fixed in later FW revs.
++		*/
++		if (unlikely(wqe_index < 0))
++			wqe_index = wq->max - 1;
+ 		entry->wr_id = (*cur_qp)->wrid[wqe_index];
+ 	}
+ 
+diff --git a/drivers/infiniband/hw/mthca/mthca_reset.c b/drivers/infiniband/hw/mthca/mthca_reset.c
+index df5e494..f4fddd5 100644
+--- a/drivers/infiniband/hw/mthca/mthca_reset.c
++++ b/drivers/infiniband/hw/mthca/mthca_reset.c
+@@ -49,6 +49,12 @@ int mthca_reset(struct mthca_dev *mdev)
+ 	u32 *hca_header    = NULL;
+ 	u32 *bridge_header = NULL;
+ 	struct pci_dev *bridge = NULL;
++	int bridge_pcix_cap = 0;
++	int hca_pcie_cap = 0;
++	int hca_pcix_cap = 0;
++
++	u16 devctl;
++	u16 linkctl;
+ 
+ #define MTHCA_RESET_OFFSET 0xf0010
+ #define MTHCA_RESET_VALUE  swab32(1)
+@@ -110,6 +116,9 @@ #define MTHCA_RESET_VALUE  swab32(1)
+ 		}
+ 	}
+ 
++	hca_pcix_cap = pci_find_capability(mdev->pdev, PCI_CAP_ID_PCIX);
++	hca_pcie_cap = pci_find_capability(mdev->pdev, PCI_CAP_ID_EXP);
++
+ 	if (bridge) {
+ 		bridge_header = kmalloc(256, GFP_KERNEL);
+ 		if (!bridge_header) {
+@@ -129,6 +138,13 @@ #define MTHCA_RESET_VALUE  swab32(1)
+ 				goto out;
+ 			}
+ 		}
++		bridge_pcix_cap = pci_find_capability(bridge, PCI_CAP_ID_PCIX);
++		if (!bridge_pcix_cap) {
++				err = -ENODEV;
++				mthca_err(mdev, "Couldn't locate HCA bridge "
++					  "PCI-X capability, aborting.\n");
++				goto out;
++		}
+ 	}
+ 
+ 	/* actually hit reset */
+@@ -178,6 +194,20 @@ #define MTHCA_RESET_VALUE  swab32(1)
+ good:
+ 	/* Now restore the PCI headers */
+ 	if (bridge) {
++		if (pci_write_config_dword(bridge, bridge_pcix_cap + 0x8,
++				 bridge_header[(bridge_pcix_cap + 0x8) / 4])) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA bridge Upstream "
++				  "split transaction control, aborting.\n");
++			goto out;
++		}
++		if (pci_write_config_dword(bridge, bridge_pcix_cap + 0xc,
++				 bridge_header[(bridge_pcix_cap + 0xc) / 4])) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA bridge Downstream "
++				  "split transaction control, aborting.\n");
++			goto out;
++		}
+ 		/*
+ 		 * Bridge control register is at 0x3e, so we'll
+ 		 * naturally restore it last in this loop.
+@@ -203,6 +233,35 @@ good:
+ 		}
+ 	}
+ 
++	if (hca_pcix_cap) {
++		if (pci_write_config_dword(mdev->pdev, hca_pcix_cap,
++				 hca_header[hca_pcix_cap / 4])) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA PCI-X "
++				  "command register, aborting.\n");
++			goto out;
++		}
++	}
++
++	if (hca_pcie_cap) {
++		devctl = hca_header[(hca_pcie_cap + PCI_EXP_DEVCTL) / 4];
++		if (pci_write_config_word(mdev->pdev, hca_pcie_cap + PCI_EXP_DEVCTL,
++					   devctl)) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA PCI Express "
++				  "Device Control register, aborting.\n");
++			goto out;
++		}
++		linkctl = hca_header[(hca_pcie_cap + PCI_EXP_LNKCTL) / 4];
++		if (pci_write_config_word(mdev->pdev, hca_pcie_cap + PCI_EXP_LNKCTL,
++					   linkctl)) {
++			err = -ENODEV;
++			mthca_err(mdev, "Couldn't restore HCA PCI Express "
++				  "Link control register, aborting.\n");
++			goto out;
++		}
++	}
++
+ 	for (i = 0; i < 16; ++i) {
+ 		if (i * 4 == PCI_COMMAND)
+ 			continue;

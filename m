@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWFMQdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWFMQfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbWFMQdT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 12:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWFMQdT
+	id S932181AbWFMQfH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 12:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWFMQfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 12:33:19 -0400
-Received: from mail.suse.de ([195.135.220.2]:23011 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932187AbWFMQdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 12:33:18 -0400
-Date: Tue, 13 Jun 2006 09:30:43 -0700
-From: Greg KH <gregkh@suse.de>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       NetDEV list <netdev@vger.kernel.org>
-Subject: Re: [PATCH 03/16] 64bit resource: fix up printks for resources in networks drivers
-Message-ID: <20060613163043.GA22588@suse.de>
-References: <20060613003033.GA10717@kroah.com> <11501586781628-git-send-email-greg@kroah.com> <1150158683636-git-send-email-greg@kroah.com> <11501586871870-git-send-email-greg@kroah.com> <4807377b0606130924i4b5ea36aq83b8db050831bea4@mail.gmail.com>
-Mime-Version: 1.0
+	Tue, 13 Jun 2006 12:35:07 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56518 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932181AbWFMQfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 12:35:05 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+Subject: The i386 and x86_64 genirq patches are wrong!
+Date: Tue, 13 Jun 2006 10:34:31 -0600
+Message-ID: <m1r71t2ew8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4807377b0606130924i4b5ea36aq83b8db050831bea4@mail.gmail.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 13, 2006 at 09:24:55AM -0700, Jesse Brandeburg wrote:
-> First, added netdev,
-> 
-> On 6/12/06, Greg KH <greg@kroah.com> wrote:
-> >From: Greg Kroah-Hartman <gregkh@suse.de>
-> >
-> >This is needed if we wish to change the size of the resource structures.
-> >
-> >Based on an original patch from Vivek Goyal <vgoyal@in.ibm.com>
-> >
-> >Cc: Vivek Goyal <vgoyal@in.ibm.com>
-> >Cc: Andrew Morton <akpm@osdl.org>
-> >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> >---
-> > drivers/net/3c59x.c            |    6 ++++--
-> > drivers/net/8139cp.c           |    9 +++++----
-> > drivers/net/8139too.c          |    6 +++---
-> > drivers/net/e100.c             |    4 ++--
-> > drivers/net/skge.c             |    4 ++--
-> > drivers/net/sky2.c             |    6 +++---
-> > drivers/net/tulip/de2104x.c    |    9 +++++----
-> > drivers/net/tulip/tulip_core.c |    6 +++---
-> > drivers/net/typhoon.c          |    5 +++--
-> > drivers/net/wan/dscc4.c        |   12 ++++++------
-> > drivers/net/wan/pc300_drv.c    |    4 ++--
-> > 11 files changed, 38 insertions(+), 33 deletions(-)
-> >
-> >diff --git a/drivers/net/e100.c b/drivers/net/e100.c
-> >index 31ac001..0c0bd67 100644
-> >--- a/drivers/net/e100.c
-> >+++ b/drivers/net/e100.c
-> >@@ -2678,9 +2678,9 @@ #endif
-> >                goto err_out_free;
-> >        }
-> >
-> >-       DPRINTK(PROBE, INFO, "addr 0x%lx, irq %d, "
-> >+       DPRINTK(PROBE, INFO, "addr 0x%llx, irq %d, "
-> >                "MAC addr %02X:%02X:%02X:%02X:%02X:%02X\n",
-> >-               pci_resource_start(pdev, 0), pdev->irq,
-> >+               (unsigned long long)pci_resource_start(pdev, 0), pdev->irq,
-> >                netdev->dev_addr[0], netdev->dev_addr[1], 
-> >                netdev->dev_addr[2],
-> >                netdev->dev_addr[3], netdev->dev_addr[4], 
-> >                netdev->dev_addr[5]);
-> 
-> color me confused, but why is this change necessary for e100?  e100
-> can not support 64 bit BARs, so it seems to me to make little sense to
-> cast to unsigned long long.  e100 is 32 bit the whole way through.
 
-Because the result of pci_resource_start() just became either u32 or u64
-depending on a config option, and so, to keep everything sane, we just
-always cast it to unsigned long long, which makes everyone happy.
+A little while ago I worked up some patches to that made
+x86 vectors per cpu.  Allowing x86 to handle more than
+256 irqs, which significantly cleaned up the code.
 
-Hope this helps,
+The big stumbling block there was msi and it's totally
+backwards way of allocating interrupts.  Getting msi
+to work with irqs and not vectors is a lot of work,
+and very hard to make a clean patchset out of.
 
-greg k-h
+Since there has been a lot of irq work, I decided to rebase
+my changes on the -mm tree so that I could catch all of
+the relevant patches and be in a better shape for merging
+when I am done.
+
+The work on msi in the -mm tree while still woefully
+short of making it a general piece of code seemed
+to be in the right direction.
+
+When I got to io_apic.c I screamed, things had gotten worse.
+
+I currently have a pending bug fix that puts move_irq in
+the correct place for edge and level triggered interrupts.
+
+For edge triggered interrupts you must move the irq before
+you acknowledge the interrupt, or else it can reoccur.  
+
+For level triggered interrupts you must acknowledge the irq
+before you move it, or else the acknowledgement will never
+find it's way back to the irq source.
+
+I can no longer implement that bug fix in io_apic.c because
+the two interrupt handling paths have been smushed together.
+
+Previously in io_apic.c the hacks that the msi code imposed on
+it were clear, and many of them were enclosed in #ifdef CONFIG_PCI_MSI.
+Now that ifdefs are gone, and the logic in io_apic.h that
+selected between the versions of the irq handlers to use (vector or irq)
+has not been updated.
+
+I don't know if the latter is actually a bug.  But it definitely makes
+it harder to remove the msi hacks, and io_apic.h should definitely
+have been updated.
+
+The fact that you I now can't put move_irq where it needs to be is definitely
+a bug.
+
+So could we please get a version the genirq patches that don't simultaneously
+convert the x86 code to the new infrastructure and try and clean it up
+simultaneously.
+
+Eric

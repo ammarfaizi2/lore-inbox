@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWFMDGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWFMDOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbWFMDGE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 23:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932806AbWFMDGD
+	id S1751150AbWFMDOr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 23:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFMDOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 23:06:03 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:7141 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932593AbWFMDGC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 23:06:02 -0400
-Message-Id: <200606130305.k5D35YhA004268@laptop11.inf.utfsm.cl>
-To: Bernd Petrovitsch <bernd@firmix.at>
-cc: marty fouts <mf.danger@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter) 
-In-Reply-To: Message from Bernd Petrovitsch <bernd@firmix.at> 
-   of "Mon, 12 Jun 2006 23:43:11 +0200." <1150148591.3107.16.camel@gimli.at.home> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Mon, 12 Jun 2006 23:05:34 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 12 Jun 2006 23:05:40 -0400 (CLT)
+	Mon, 12 Jun 2006 23:14:47 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:35241 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751150AbWFMDOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 23:14:46 -0400
+Message-Id: <200606130314.k5D3Ei09008886@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH] UML - Fix wall_to_monotonic initialization
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 12 Jun 2006 23:14:44 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch <bernd@firmix.at> wrote:
+This is 2.6.17 material.
 
-[...]
+Change a variable from unsigned to signed in order to get sign-extension
+when the thing is negated.  Without this, uptime is horribly confused.
 
-> Use secure authenticated mail submission on a known good MTA of said
-> domain (and even the smallest ISP should be able to set that up).
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-So what? What should me make me trust some domain that I've never before
-heard of is correctly set up? No, "package it up so the dumbest admin on
-Earth can set it up" helps not an iota, they sure will.
+Index: linux-2.6.16/arch/um/kernel/time_kern.c
+===================================================================
+--- linux-2.6.16.orig/arch/um/kernel/time_kern.c	2006-06-12 22:57:34.000000000 -0400
++++ linux-2.6.16/arch/um/kernel/time_kern.c	2006-06-12 23:01:48.000000000 -0400
+@@ -87,7 +87,7 @@ void timer_irq(union uml_pt_regs *regs)
+ 
+ void time_init_kern(void)
+ {
+-	unsigned long long nsecs;
++	long long nsecs;
+ 
+ 	nsecs = os_nsecs();
+ 	set_normalized_timespec(&wall_to_monotonic, -nsecs / BILLION,
 
-[...]
-
-> Apparently spammers are faster to adopt new developments and standards
-> than others. SCNR ...
-
-Bingo! It is their /bussiness/ you are killing, after all...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

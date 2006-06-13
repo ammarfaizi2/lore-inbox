@@ -1,51 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbWFMAgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932703AbWFMAgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbWFMAgh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 20:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbWFMAgR
+	id S932703AbWFMAgi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 20:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWFMAfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 20:36:17 -0400
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:20413 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932690AbWFMAgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 20:36:12 -0400
-Date: Mon, 12 Jun 2006 20:31:35 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: PROBLEM: 2.6.16.20 kernel oops
-To: Petr Sebor <petr@scssoft.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606122034_MC3-1-C243-3BA4@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Mon, 12 Jun 2006 20:35:01 -0400
+Received: from cantor.suse.de ([195.135.220.2]:47566 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932703AbWFMAeo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 20:34:44 -0400
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 15/16] 64bit Resource: convert a few remaining drivers to use resource_size_t where needed
+Reply-To: Greg KH <greg@kroah.com>
+Date: Mon, 12 Jun 2006 17:31:17 -0700
+Message-Id: <11501587303683-git-send-email-greg@kroah.com>
+X-Mailer: git-send-email 1.4.0
+In-Reply-To: <11501587273612-git-send-email-greg@kroah.com>
+References: <20060613003033.GA10717@kroah.com> <11501586781628-git-send-email-greg@kroah.com> <1150158683636-git-send-email-greg@kroah.com> <11501586871870-git-send-email-greg@kroah.com> <11501586902008-git-send-email-greg@kroah.com> <11501586942938-git-send-email-greg@kroah.com> <11501586982289-git-send-email-greg@kroah.com> <11501587011194-git-send-email-greg@kroah.com> <11501587043722-git-send-email-greg@kroah.com> <11501587082203-git-send-email-greg@kroah.com> <11501587122736-git-send-email-greg@kroah.com> <11501587153872-git-send-email-greg@kroah.com> <11501587193060-git-send-email-greg@kroah.com> <11501587223213-git-send-email-greg@kroah.com> <11501587273612-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <448DE077.1040900@scssoft.com>
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-On Mon, 12 Jun 2006 23:45:27 +0200, Petr Sebor wrote:
+Based on a patch series originally from Vivek Goyal <vgoyal@in.ibm.com>
 
-> Jun 12 18:53:42 server kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000008
-> Jun 12 18:53:42 server kernel:  printing eip:
-> Jun 12 18:53:42 server kernel: c0237744
-> Jun 12 18:53:42 server kernel: *pde = 00000000
-> Jun 12 18:53:42 server kernel: Oops: 0002 [#1]
+Cc: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/ieee1394/ohci1394.c     |    2 +-
+ drivers/isdn/hisax/hfc_pci.c    |    2 +-
+ drivers/net/8139cp.c            |    2 +-
+ drivers/pcmcia/rsrc_nonstatic.c |   14 +++++++-------
+ drivers/serial/8250_pci.c       |    4 ++--
+ drivers/usb/host/sl811-hcd.c    |   10 +++++++---
+ 6 files changed, 19 insertions(+), 15 deletions(-)
 
-Looks like your hardware is failing.
-
-Disassembly shows:
-
-Code;  c0237744 No symbols available   <=====
-   0:   ba 08 00 00 00            mov    $0x8,%edx   <=====
-
-...and there is no way this instruction can cause that fault.
-
-Your previous bug looked flakey too.
-
-Run memtest86 overnight to see if it finds anything.  Also
-check the CPU temperature.
-
+diff --git a/drivers/ieee1394/ohci1394.c b/drivers/ieee1394/ohci1394.c
+index 744b66c..4ebc530 100644
+--- a/drivers/ieee1394/ohci1394.c
++++ b/drivers/ieee1394/ohci1394.c
+@@ -3210,7 +3210,7 @@ static int __devinit ohci1394_pci_probe(
+ {
+ 	struct hpsb_host *host;
+ 	struct ti_ohci *ohci;	/* shortcut to currently handled device */
+-	unsigned long ohci_base;
++	resource_size_t ohci_base;
+ 
+         if (pci_enable_device(dev))
+ 		FAIL(-ENXIO, "Failed to enable OHCI hardware");
+diff --git a/drivers/isdn/hisax/hfc_pci.c b/drivers/isdn/hisax/hfc_pci.c
+index 91d25ac..3622720 100644
+--- a/drivers/isdn/hisax/hfc_pci.c
++++ b/drivers/isdn/hisax/hfc_pci.c
+@@ -1688,7 +1688,7 @@ #ifdef CONFIG_PCI
+ 				printk(KERN_WARNING "HFC-PCI: No IRQ for PCI card found\n");
+ 				return (0);
+ 			}
+-			cs->hw.hfcpci.pci_io = (char *) dev_hfcpci->resource[ 1].start;
++			cs->hw.hfcpci.pci_io = (char *)(unsigned long)dev_hfcpci->resource[1].start;
+ 			printk(KERN_INFO "HiSax: HFC-PCI card manufacturer: %s card name: %s\n", id_list[i].vendor_name, id_list[i].card_name);
+ 		} else {
+ 			printk(KERN_WARNING "HFC-PCI: No PCI card found\n");
+diff --git a/drivers/net/8139cp.c b/drivers/net/8139cp.c
+index e74e20a..1eaf0a4 100644
+--- a/drivers/net/8139cp.c
++++ b/drivers/net/8139cp.c
+@@ -1668,7 +1668,7 @@ static int cp_init_one (struct pci_dev *
+ 	struct cp_private *cp;
+ 	int rc;
+ 	void __iomem *regs;
+-	long pciaddr;
++	resource_size_t pciaddr;
+ 	unsigned int addr_len, i, pci_using_dac;
+ 	u8 pci_rev;
+ 
+diff --git a/drivers/pcmcia/rsrc_nonstatic.c b/drivers/pcmcia/rsrc_nonstatic.c
+index cc03130..c3176b1 100644
+--- a/drivers/pcmcia/rsrc_nonstatic.c
++++ b/drivers/pcmcia/rsrc_nonstatic.c
+@@ -72,7 +72,7 @@ #define MEM_PROBE_HIGH	(1 << 1)
+ ======================================================================*/
+ 
+ static struct resource *
+-make_resource(unsigned long b, unsigned long n, int flags, char *name)
++make_resource(resource_size_t b, resource_size_t n, int flags, char *name)
+ {
+ 	struct resource *res = kzalloc(sizeof(*res), GFP_KERNEL);
+ 
+@@ -86,8 +86,8 @@ make_resource(unsigned long b, unsigned 
+ }
+ 
+ static struct resource *
+-claim_region(struct pcmcia_socket *s, unsigned long base, unsigned long size,
+-	     int type, char *name)
++claim_region(struct pcmcia_socket *s, resource_size_t base,
++		resource_size_t size, int type, char *name)
+ {
+ 	struct resource *res, *parent;
+ 
+@@ -519,10 +519,10 @@ struct pcmcia_align_data {
+ 
+ static void
+ pcmcia_common_align(void *align_data, struct resource *res,
+-		    unsigned long size, unsigned long align)
++			resource_size_t size, resource_size_t align)
+ {
+ 	struct pcmcia_align_data *data = align_data;
+-	unsigned long start;
++	resource_size_t start;
+ 	/*
+ 	 * Ensure that we have the correct start address
+ 	 */
+@@ -533,8 +533,8 @@ pcmcia_common_align(void *align_data, st
+ }
+ 
+ static void
+-pcmcia_align(void *align_data, struct resource *res,
+-	     unsigned long size, unsigned long align)
++pcmcia_align(void *align_data, struct resource *res, resource_size_t size,
++		resource_size_t align)
+ {
+ 	struct pcmcia_align_data *data = align_data;
+ 	struct resource_map *m;
+diff --git a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
+index 94886c0..864ef85 100644
+--- a/drivers/serial/8250_pci.c
++++ b/drivers/serial/8250_pci.c
+@@ -594,8 +594,8 @@ pci_default_setup(struct serial_private 
+ 	else
+ 		offset += idx * board->uart_offset;
+ 
+-	maxnr = (pci_resource_len(priv->dev, bar) - board->first_offset) /
+-		(8 << board->reg_shift);
++	maxnr = (pci_resource_len(priv->dev, bar) - board->first_offset) >>
++		(board->reg_shift + 3);
+ 
+ 	if (board->flags & FL_REGION_SZ_CAP && idx >= maxnr)
+ 		return 1;
+diff --git a/drivers/usb/host/sl811-hcd.c b/drivers/usb/host/sl811-hcd.c
+index a923430..658f570 100644
+--- a/drivers/usb/host/sl811-hcd.c
++++ b/drivers/usb/host/sl811-hcd.c
+@@ -1684,9 +1684,13 @@ sl811h_probe(struct platform_device *dev
+ 		if (!addr || !data)
+ 			return -ENODEV;
+ 		ioaddr = 1;
+-
+-		addr_reg = (void __iomem *) addr->start;
+-		data_reg = (void __iomem *) data->start;
++		/*
++		 * NOTE: 64-bit resource->start is getting truncated
++		 * to avoid compiler warning, assuming that ->start
++		 * is always 32-bit for this case
++		 */
++		addr_reg = (void __iomem *) (unsigned long) addr->start;
++		data_reg = (void __iomem *) (unsigned long) data->start;
+ 	} else {
+ 		addr_reg = ioremap(addr->start, 1);
+ 		if (addr_reg == NULL) {
 -- 
-Chuck
+1.4.0
+

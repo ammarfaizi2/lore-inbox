@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWFMR5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWFMSIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWFMR5j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 13:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWFMR5j
+	id S932153AbWFMSIm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 14:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWFMSIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 13:57:39 -0400
-Received: from mail.gmx.net ([213.165.64.21]:32729 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750936AbWFMR5i (ORCPT
+	Tue, 13 Jun 2006 14:08:42 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:57101 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S932153AbWFMSIl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 13:57:38 -0400
-X-Authenticated: #5598835
-Content-Disposition: inline
-From: Christian =?iso-8859-1?q?H=E4rtwig?= <christian.haertwig@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: Re: How does RAID work with IT8212 RAID PCI card?
-Date: Tue, 13 Jun 2006 19:57:34 +0200
-User-Agent: KMail/1.9.3
+	Tue, 13 Jun 2006 14:08:41 -0400
+Message-ID: <448EFF23.6070703@argo.co.il>
+Date: Tue, 13 Jun 2006 21:08:35 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+To: Theodore Tso <tytso@mit.edu>
+CC: Nathan Scott <nathans@sgi.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC]  Slimming down struct inode
+References: <20060613174407.GA6561@thunk.org>
+In-Reply-To: <20060613174407.GA6561@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606131957.34942.christian.haertwig@gmx.de>
-X-Y-GMX-Trusted: 0
+X-OriginalArrivalTime: 13 Jun 2006 18:08:40.0105 (UTC) FILETIME=[660F8990:01C68F14]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No not true, i have this card and its a true hardware raid card. The
-> thing is, this card has both a raid and a passthru mode, you should
-> check which bios is flashed into it. Google is your friend.
+Theodore Tso wrote:
+>
+> On Tue, Jun 13, 2006 at 05:00:59PM +0300, Avi Kivity wrote:
+> >
+> > It can be made into an inode operation:
+> >
+> >    if (inode->i_ops->getblksize)
+> >         return inode->i_ops->getblksize(inode);
+> >    else
+> >         return inode->i_sb->s_blksize;
+> >
+> > Trading some efficiency for space.
+>
+> Yep, that was what I was planning on doing....
+>
 
-Wow, this really has helped it seems!
+Maybe
 
-I gave the card to a friend who flashed a different BIOS version into it
- (BIOS 1.4.1.6). This BIOS is old, but even newer than the one which was
- installed before. I had to recreate the RAID array and now dmesg shows me:
+    if (inode->i_sb->s_blksize)
+        return inode->i_sb->s_blksize;
+    else
+        ...
 
-hde: Integrated Technology Express Inc, ATA DISK drive
-hde: IT8212 Bootable RAID 1 volume.
+is a tiny little bit faster...
 
-... and no hdg anymore. I guess that was what i wanted :)
-Thank you!
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-Yours sincerely,
-Christian Haertwig

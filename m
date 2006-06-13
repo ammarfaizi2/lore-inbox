@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932669AbWFMCkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932794AbWFMCqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932669AbWFMCkB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 22:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932791AbWFMCkA
+	id S932794AbWFMCqD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 22:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWFMCqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 22:40:00 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:50638 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932669AbWFMCkA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 22:40:00 -0400
-Subject: Replace kmalloc and memset in get_undo_list with kzalloc
-From: Matt Helsley <matthltc@us.ibm.com>
-To: trivial@kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 19:31:05 -0700
-Message-Id: <1150165865.21787.85.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jun 2006 22:46:03 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14525 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932794AbWFMCqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 22:46:02 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Kirill Korotaev <dev@openvz.org>
+Cc: Andrew Morton <akpm@osdl.org>, devel@openvz.org, xemul@openvz.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       herbert@13thfloor.at, saw@sw.ru, serue@us.ibm.com, sfrench@us.ibm.com,
+       sam@vilain.net, haveblue@us.ibm.com, clg@fr.ibm.com
+Subject: Re: [PATCH] IPC namespace
+References: <44898BF4.4060509@openvz.org>
+Date: Mon, 12 Jun 2006 20:44:52 -0600
+In-Reply-To: <44898BF4.4060509@openvz.org> (Kirill Korotaev's message of "Fri,
+	09 Jun 2006 18:55:48 +0400")
+Message-ID: <m1bqsx4vvf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch simplifies get_undo_list() by dropping the unnecessary cast,
-removing the size variable, and switching to kzalloc() instead of a
-kmalloc() followed by a memset().
+Kirill Korotaev <dev@openvz.org> writes:
 
-This cleanup was split then modified from Jes Sorenson's Task Notifiers
-patches.
+> The patches in this thread add IPC namespace functionality
+> additionally to already included in -mm tree UTS namespace.
+>
+> This patch set allows to unshare IPCs and have a private set
+> of IPC objects (sem, shm, msg) inside namespace. Basically, it is another
+> building block of containers functionality.
+>
+> Tested with LTP inside namespaces.
+>
+> Signed-Off-By: Pavel Emelianiov <xemul@openvz.org>
+> Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+>
+> P.S. patches are against linux-2.6.17-rc6-mm1
 
-Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
-Cc: Jes Sorensen <jes@sgi.com>
---
+Minor nit.  These patches are not git-bisect safe.
+So if you have to apply them all to get a kernel
+that builds.
 
-Compiles, boots.
+Anyone trying to narrow down breakage is likely to land
+in the middle and hit a compile error.
 
- ipc/sem.c |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
-
-Index: linux-2.6.17-rc6/ipc/sem.c
-===================================================================
---- linux-2.6.17-rc6.orig/ipc/sem.c
-+++ linux-2.6.17-rc6/ipc/sem.c
-@@ -1002,19 +1002,16 @@ static inline void unlock_semundo(void)
-  * This can block, so callers must hold no locks.
-  */
- static inline int get_undo_list(struct sem_undo_list **undo_listp)
- {
- 	struct sem_undo_list *undo_list;
--	int size;
- 
- 	undo_list = current->sysvsem.undo_list;
- 	if (!undo_list) {
--		size = sizeof(struct sem_undo_list);
--		undo_list = (struct sem_undo_list *) kmalloc(size, GFP_KERNEL);
-+		undo_list = kzalloc(sizeof(*undo_list), GFP_KERNEL);
- 		if (undo_list == NULL)
- 			return -ENOMEM;
--		memset(undo_list, 0, size);
- 		spin_lock_init(&undo_list->lock);
- 		atomic_set(&undo_list->refcnt, 1);
- 		current->sysvsem.undo_list = undo_list;
- 	}
- 	*undo_listp = undo_list;
-
+Eric
 

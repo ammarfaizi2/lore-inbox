@@ -1,84 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWFMUeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWFMUjC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWFMUeg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 16:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWFMUeg
+	id S932229AbWFMUjC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 16:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWFMUjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 16:34:36 -0400
-Received: from es335.com ([67.65.19.105]:34667 "EHLO mail.es335.com")
-	by vger.kernel.org with ESMTP id S932096AbWFMUef (ORCPT
+	Tue, 13 Jun 2006 16:39:01 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:26563 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932229AbWFMUjA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 16:34:35 -0400
-Subject: Re: [PATCH v2 1/2] iWARP Connection Manager.
-From: Steve Wise <swise@opengridcomputing.com>
-To: Tom Tucker <tom@opengridcomputing.com>
-Cc: Andrew Morton <akpm@osdl.org>, rdreier@cisco.com, mshefty@ichips.intel.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <1150127698.22704.9.camel@trinity.ogc.int>
-References: <20060607200600.9003.56328.stgit@stevo-desktop>
-	 <20060607200605.9003.25830.stgit@stevo-desktop>
-	 <20060608005452.087b34db.akpm@osdl.org>
-	 <1150127698.22704.9.camel@trinity.ogc.int>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 15:34:31 -0500
-Message-Id: <1150230871.17394.68.camel@stevo-desktop>
+	Tue, 13 Jun 2006 16:39:00 -0400
+Date: Tue, 13 Jun 2006 22:38:28 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, rdunlap@xenotime.net, akpm@osdl.org,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] [2.6.17-rc6] Section mismatch in drivers/net/ne.o during modpost
+Message-ID: <20060613203828.GA26690@mars.ravnborg.org>
+References: <200606110051.k5B0pLBI010621@harpo.it.uu.se> <10735.1150176929@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10735.1150176929@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
+ 
+> Probably over enthusiastic gcc inlining.  gcc 4 will inline functions
+> that are not declared as inline.  That is not so bad, except that some
+> versions of gcc will ignore a mismatch in function attributes and
+> inline a __init function into normal text, generating additional
+> section mismatches.
+When using -ffunction-sections (or similar) then we ask gcc to put each
+function in separate sections. In this case it is OK to mix sections.
+But I agree, gcc should not mix user specified sections.
 
-> > > +static void cm_event_handler(struct iw_cm_id *cm_id,
-> > > +			     struct iw_cm_event *iw_event) 
-> > > +{
-> > > +	struct iwcm_work *work;
-> > > +	struct iwcm_id_private *cm_id_priv;
-> > > +	unsigned long flags;
-> > > +
-> > > +	work = kmalloc(sizeof(*work), GFP_ATOMIC);
-> > > +	if (!work)
-> > > +		return;
-> > 
-> > This allocation _will_ fail sometimes.  The driver must recover from it. 
-> > Will it do so?
+> For a specific example, see
 > 
-> Er...no. It will lose this event. Depending on the event...the carnage
-> varies. We'll take a look at this.
-> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=113824309203482&w=2
+That's a good example - thanks!
 
-This behavior is consistent with the Infiniband CM (see
-drivers/infiniband/core/cm.c function cm_recv_handler()).  But I think
-we should at least log an error because a lost event will usually stall
-the rdma connection.
-
-> > 
-> > > +EXPORT_SYMBOL(iw_cm_init_qp_attr);
-> > 
-> > This file exports a ton of symbols.  It's usual to provide some justifying
-> > commentary in the changelog when this happens.
-> 
-> This module is a logical instance of the xx_cm where xx is the transport
-> type. I think there is some discussion warranted on whether or not these
-> should all be built into and exported by rdma_cm. One rationale would be
-> that the rdma_cm is the only client for many of these functions (this
-> being a particularly good example) and doing so would reduce the export
-> count. Others would be reasonably needed for any application (connect,
-> etc...)
-> 
-
-Transport-dependent ULPs, in theory, are able to use the
-transport-specific CM directly if they don't wish to use the RDMA CM.  I
-think that's the rationale for have the xx_cm modules seperate from the
-rdma_cm module and exporting the various functions.   
-
-> All that said, we'll be sure to document the exported symbols in a
-> follow-up patch.
-> 
-
-I'll add commentary explaining this.
-
-Steve.
-
+	Sam

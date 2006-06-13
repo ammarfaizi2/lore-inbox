@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWFMVuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWFMWA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWFMVuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWFMVuY
+	id S932356AbWFMWA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWFMWA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:50:24 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:18145 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932348AbWFMVuW (ORCPT
+	Tue, 13 Jun 2006 18:00:57 -0400
+Received: from relay02.pair.com ([209.68.5.16]:2057 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S932356AbWFMWA4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:50:22 -0400
-Message-ID: <448F331B.8060404@fr.ibm.com>
-Date: Tue, 13 Jun 2006 23:50:19 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 13 Jun 2006 18:00:56 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Tue, 13 Jun 2006 17:00:53 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: "Brian F. G. Bidulock" <bidulock@openss7.org>
+cc: Daniel Phillips <phillips@google.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+In-Reply-To: <20060613154031.A6276@openss7.org>
+Message-ID: <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com>
+ <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org>
+ <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: 2.6.16-rc6-mm2
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com> <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com> <448E6798.3020104@fr.ibm.com> <Pine.LNX.4.64.0606131049270.29947@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0606131234010.31186@schroedinger.engr.sgi.com> <448F1E8A.3030202@fr.ibm.com> <Pine.LNX.4.64.0606131412290.31769@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606131412290.31769@schroedinger.engr.sgi.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Tue, 13 Jun 2006, Cedric Le Goater wrote:
-> 
->> NFS write seems to work fine with that patch. No more oops.
-> 
-> Sigh. There is another issue that the NR_DIRTY count is not decremented. 
-> 
-> Which brings us to this fix:
-> 
-> Index: linux-2.6.17-rc6-mm2/fs/nfs/write.c
-> ===================================================================
-> --- linux-2.6.17-rc6-mm2.orig/fs/nfs/write.c	2006-06-10 11:11:53.051397816 -0700
-> +++ linux-2.6.17-rc6-mm2/fs/nfs/write.c	2006-06-13 10:52:04.428456013 -0700
-> @@ -1418,8 +1418,9 @@ static void nfs_commit_done(struct rpc_t
->  		dprintk(" mismatch\n");
->  		nfs_mark_request_dirty(req);
->  	next:
-> +		if (req->wb_page)
-> +			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
->  		nfs_clear_page_writeback(req);
-> -		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
->  	}
->  }
->  
-> Index: linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c
-> ===================================================================
-> --- linux-2.6.17-rc6-mm2.orig/fs/nfs/pagelist.c	2006-06-10 11:11:53.049444812 -0700
-> +++ linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c	2006-06-13 14:12:17.963198388 -0700
-> @@ -154,6 +154,7 @@ void nfs_clear_request(struct nfs_page *
->  {
->  	struct page *page = req->wb_page;
->  	if (page != NULL) {
-> +		dec_zone_page_state(page, NR_UNSTABLE);
->  		page_cache_release(page);
->  		req->wb_page = NULL;
->  	}
-> @@ -315,7 +316,7 @@ nfs_scan_lock_dirty(struct nfs_inode *nf
->  						req->wb_index, NFS_PAGE_TAG_DIRTY);
->  				nfs_list_remove_request(req);
->  				nfs_list_add_request(req, dst);
-> -				inc_zone_page_state(req->wb_page, NR_DIRTY);
-> +				dec_zone_page_state(req->wb_page, NR_DIRTY);
->  				res++;
->  			}
->  		}
+On Tue, 13 Jun 2006, Brian F. G. Bidulock wrote:
 
-still doing fine.
+> Daniel,
+>
+> On Tue, 13 Jun 2006, Daniel Phillips wrote:
+>>
+>> This has the makings of a nice stable internal kernel api.  Why do we want
+>> to provide this nice stable internal api to proprietary modules?
+>
+> Why not?  Not all non-GPL modules are proprietary.  Do we lose
+> something by making a nice stable api available to non-derived
+> modules?
 
-C.
+Look out for that word (stable). Judging from history (and sanity), 
+arguing /in favor of/ any kind of stable module API is asking for it.
+
+At least some of us feel like stable module APIs should be explicitly 
+discouraged, because we don't want to offer comfort for code 
+that refuses to live in the tree (since getting said code into the tree is 
+often a goal).
+
+I'm curious now too - can you name some non-GPL non-proprietary modules we 
+should be concerned about? I'd think most of the possible examples (not 
+sure what they are) would be better off dual-licensed (one license 
+being GPL) and in-kernel.
+
+Thanks,
+Chase

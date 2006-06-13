@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWFMWhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWFMWk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWFMWhW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWFMWhW
+	id S964785AbWFMWk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWFMWk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:37:22 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:16848 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932318AbWFMWhV (ORCPT
+	Tue, 13 Jun 2006 18:40:58 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:21996 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S932318AbWFMWk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:37:21 -0400
-Subject: Re: 2.6.16-rc6-mm2
-From: Steve Fox <drfickle@us.ibm.com>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1150235502.28414.52.camel@dyn9047017100.beaverton.ibm.com>
-References: <20060609214024.2f7dd72c.akpm@osdl.org>
-	 <pan.2006.06.12.22.09.47.855327@us.ibm.com>
-	 <20060613065443.7f302319.akpm@osdl.org>  <448EC74F.30104@ru.mvista.com>
-	 <1150235502.28414.52.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain
+	Tue, 13 Jun 2006 18:40:57 -0400
+Message-ID: <448F3EF5.50701@hp.com>
+Date: Tue, 13 Jun 2006 15:40:53 -0700
+From: Rick Jones <rick.jones2@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.6) Gecko/20040304
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+Cc: lkml@rtr.ca, jheffner@psc.edu, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.17: networking bug??
+References: <448F0D4B.30201@rtr.ca>	<20060613.142603.48825062.davem@davemloft.net>	<448F32E1.8080002@rtr.ca> <20060613.152301.26928146.davem@davemloft.net>
+In-Reply-To: <20060613.152301.26928146.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 13 Jun 2006 17:36:17 -0500
-Message-Id: <1150238178.4721.4.camel@flooterbu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 14:51 -0700, Badari Pulavarty wrote:
+> One final word about window sizes.  If you have a connection whose
+> bandwidth-delay-product needs an N byte buffer to fill, you actually
+> have to have an "N * 2" sized buffer available in order for fast
+> retransmit to work.
 
-> Okay. Here is the fix Anton did - which helped my machine.
-> 
-> http://patchwork.ozlabs.org/linuxppc/patch?id=5713
+Is that as important in the presence of SACK?
 
-That fixed the IDE adapter error on this machine too. Thanks!
-
--- 
-
-Steve Fox
-IBM Linux Technology Center
+rick jones

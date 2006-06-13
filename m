@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWFMUKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWFMUK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWFMUKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 16:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWFMUKk
+	id S932188AbWFMUK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 16:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWFMUK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 16:10:40 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:22198 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932185AbWFMUKj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 16:10:39 -0400
-Date: Tue, 13 Jun 2006 22:10:31 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Avi Kivity <avi@argo.co.il>
-cc: Theodore Tso <tytso@mit.edu>, Nathan Scott <nathans@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC]  Slimming down struct inode
-In-Reply-To: <448EFF23.6070703@argo.co.il>
-Message-ID: <Pine.LNX.4.61.0606132209420.11918@yvahk01.tjqt.qr>
-References: <20060613174407.GA6561@thunk.org> <448EFF23.6070703@argo.co.il>
+	Tue, 13 Jun 2006 16:10:59 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:34760 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932188AbWFMUK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 16:10:58 -0400
+Message-ID: <448F1B97.3070207@linux.intel.com>
+Date: Tue, 13 Jun 2006 13:09:59 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+CC: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] i386 syscall opcode reordering (pipelining)
+References: <20060613195446.GD24167@rhlx01.fht-esslingen.de>
+In-Reply-To: <20060613195446.GD24167@rhlx01.fht-esslingen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > if (inode->i_ops->getblksize)
->> >     return inode->i_ops->getblksize(inode);
->> > else
->> > return inode->i_sb->s_blksize;
->> > 
->> > Trading some efficiency for space.
->> 
->> Yep, that was what I was planning on doing....
->> 
->
-> Maybe
->
-> if (inode->i_sb->s_blksize)
->   return inode->i_sb->s_blksize;
-> else
-> ...
->
-> is a tiny little bit faster...
->
+Andreas Mohr wrote:
+> Hi all,
+> 
+> I'd guess that this version features improved pipeline parallelism,
+> since we isolate competing %ebx accesses (_syscall4()) and
+> stack push operations (_syscall5()), right?
 
-The compiler will anyway pick the one it thinks is better by itself.
-Influence can be taken using likely/unlikely of course.
-
-
-Jan Engelhardt
--- 
+is anybody actually EVER using those???
+I would think not....

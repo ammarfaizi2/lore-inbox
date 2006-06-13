@@ -1,22 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWFMQZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWFMQ1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWFMQZT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 12:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWFMQZT
+	id S932177AbWFMQ1A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 12:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWFMQ1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 12:25:19 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:6874 "EHLO
+	Tue, 13 Jun 2006 12:27:00 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:32730 "EHLO
 	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932177AbWFMQZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 12:25:16 -0400
-Date: Tue, 13 Jun 2006 13:25:12 -0300
+	id S932177AbWFMQ07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 12:26:59 -0400
+Date: Tue, 13 Jun 2006 13:26:55 -0300
 From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCSBRK(1) on pl2303 USB/serial returns prematurely
-Message-ID: <20060613132512.3b7def2d@doriath.conectiva>
-In-Reply-To: <20060612145750.GA19338@kestrel.barix.local>
-References: <20060612145750.GA19338@kestrel.barix.local>
+To: Frank Gevaerts <frank.gevaerts@fks.be>
+Cc: Mark Lord <lkml@rtr.ca>, Greg KH <gregkh@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
+ error -28
+Message-ID: <20060613132655.03bcc1d3@doriath.conectiva>
+In-Reply-To: <20060613114604.GB10834@fks.be>
+References: <448DC93E.9050200@rtr.ca>
+	<20060612204918.GA16898@suse.de>
+	<448DD50F.3060002@rtr.ca>
+	<448DC93E.9050200@rtr.ca>
+	<20060612204918.GA16898@suse.de>
+	<448DD968.2010000@rtr.ca>
+	<20060612212812.GA17458@suse.de>
+	<448DE28D.3040708@rtr.ca>
+	<448DF6F6.2050803@rtr.ca>
+	<20060613114604.GB10834@fks.be>
 Organization: Mandriva
 X-Mailer: Sylpheed-Claws 2.2.3 (GTK+ 2.9.2; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
@@ -25,25 +37,39 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Jun 2006 13:46:06 +0200
+Frank Gevaerts <frank.gevaerts@fks.be> wrote:
 
- Hi Karel,
-
-On Mon, 12 Jun 2006 16:57:50 +0200
-Karel Kulhavy <clock@twibright.com> wrote:
-
-| Hello
+| On Mon, Jun 12, 2006 at 07:21:26PM -0400, Mark Lord wrote:
+| > Mark Lord wrote:
+| > >Greg KH wrote:
+| > >>So we should have finally covered both of them now.
+| > >
+| > >Yes, agreed.
+| > >
+| > >So if modify pl2303_open() to have it simulate -ENOMEM from 
+| > >usb_submit_urb(),
+| > >then this should not crash the entire USB subsystem.  Right?
+| > >
+| > >Ditto if it happens due to low-memory, rather than me hacking the code 
+| > >to test it?
+| > 
+| > Mmmm.. looks like it's still buggy, but we manage to avoid the bug
+| > under *most* circumstances.   Which is good!
+| > 
+| > But the bug will still need to be fixed.  A failure from usb_submit_urb()
+| > should not require a reboot to recover.
+| > Here's the results of a simulated -ENOMEM test:
+| > 
+| > kernel BUG at kernel/workqueue.c:110!
 | 
-| TCSBRK(1) ioctl system call on pl2303 USB/serial converter on 2.6.16.19
-| returns prematurely. Additional 53ms delay is necessary to work this
-| around at speed of 57600. TCSBRK(1) is translation of the tcdrain()
-| function by glibc. With ordinary serial port the TCSBRK(1) seems to work
-| correctly.
+| We had the exact same error here with ipaq.ko. Our problems only went
+| away once we applied the following (the first part might already be
+| applied).
 
- If you have some time to spend on it, could you please try the
-patches at:
+ Interesting, I couldn't reproduce this with ftdio_sio.
 
-http://distro2.conectiva.com.br/~lcapitulino/patches/usbserial/2.6.17-rc5/serialcore-port-V0/
-
+ (and unfortunatally I'm w/o my pl2303 device).
 
 -- 
 Luiz Fernando N. Capitulino

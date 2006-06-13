@@ -1,108 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWFMVAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWFMVKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWFMVAf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWFMVAe
+	id S932249AbWFMVKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWFMVKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:00:34 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:9153 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932252AbWFMVAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:00:34 -0400
-Message-ID: <448F2602.2030402@comcast.net>
-Date: Tue, 13 Jun 2006 16:54:26 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060522)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: Packing data in kernel memory
-References: <448F0893.1080706@comcast.net>	<Pine.LNX.4.61.0606132217110.11918@yvahk01.tjqt.qr> <20060613133227.1eee4578.rdunlap@xenotime.net>
-In-Reply-To: <20060613133227.1eee4578.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+	Tue, 13 Jun 2006 17:10:08 -0400
+Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:3217
+	"HELO office-m.at") by vger.kernel.org with SMTP id S932249AbWFMVKH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 17:10:07 -0400
+Mime-Version: 1.0 (Apple Message framework v750)
 Content-Transfer-Encoding: 7bit
+Message-Id: <6137A58D-963C-4379-A836-DCD28C3E88EE@office-m.at>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Markus Biermaier <mbier@office-m.at>
+Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
+Date: Tue, 13 Jun 2006 23:10:04 +0200
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+
+Am 12.06.2006 um 21:09 schrieb Jan Engelhardt:
 
 
-
-Randy.Dunlap wrote:
-> On Tue, 13 Jun 2006 22:18:55 +0200 (MEST) Jan Engelhardt wrote:
-> 
->>> Subject: Packing data in kernel memory
->>>
->> Can't you just use mlock(), if you want to keep it in RAM?
->>
->> Or do you need it in kernel memory, because you need it in the lowmem area? 
->> Or for interaction with other kernel code?
->>
->>> Is there a way to pack and store arbitrary data in the kernel, or do I
->>> need to roll my own?
-> 
-> Sounds a bit like a slab cache to me.
-> 
-
-OK cool, can I make that non-swappable?  I'm going to be trying to do
-this between where kernel swaps a page out and swapped page actually is
-written to disk.  The result will be a "Swap Zone," in-memory storage of
-pages that the rest of the kernel thinks have been swapped to disk.
-(Code here will use the swap interface, so the rest of the kernel thinks
-it's just swapping; I'll handle whether to pull it out of memory or off
-disk behind that)
-
-The need for packing pages comes because eventually (using above
-infrastructure) I'll be taking sets of 32KiB of data and compressing it;
-I don't want to pad up to 4095 excess unused bytes if that stuff
-compresses to 28KiB+1 :)  (more likely 16KiB+1 +/-8KiB)
-
-This is all, of course, assuming I ever figure out how the heck to get
-in the middle of the swapping process.  I'm looking at mm/page_io.c
-swap_writepage() and friends and scratching my head.  I have no idea wtf...
+> Hm. Maybe http://lkml.org/lkml/2005/2/26/92 (updated version for
+> 2.6.16/.17 below) can help you.
+>
+> diff --fast -Ndpru linux-2.6.17-rc6~/block/genhd.c linux-2.6.17-rc6 
+> +/block/genhd.c
+> --- linux-2.6.17-rc6~/block/genhd.c	2006-06-06 02:57:02.000000000  
+> +0200
+> +++ linux-2.6.17-rc6+/block/genhd.c	2006-06-08 22:29:16.607058000  
+> +0200
+> @@ -214,6 +214,52 @@ struct gendisk *get_gendisk(dev_t dev, i
+>  	return  kobj ? to_disk(kobj) : NULL;
+>  }
+>
+> +/*
+> + * printk a full list of all partitions - intended for
+> + * places where the root filesystem can't be mounted and thus
+> + * to give the victim some idea of what went wrong
+> + */
+> +void printk_all_partitions(void)
+>
 
 
->> Write a device driver, kmalloc some buffer, and copy data via a write 
->> function from userspace to that buffer. Should be trivial.
->>
->>> 1 excess pages, 4 units wasted memory.
->> Of course, kmalloc only works up to some boundary AFIACS.
-> 
-> 128 KB on some arches.  More on a few IIRC.
-> 
-> ---
-> ~Randy
-> 
+Am 13.06.2006 um 09:47 schrieb Markus Biermaier:
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+> to get the function "printk_all_partitions" compiled I simply  
+> commented out "mutex_lock" and "mutex_unlock"...
+>
+> So the result before the boot-panic is:
+>
+> ...
+> here are the partitions available:
+> 2100     500472 hde driver: ide-disk
+>   2101     500440 hde1
+> ...
+> What does this mean?
+>
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+This holds the solution:
+                         /* Note, unlike /proc/partitions I'm showing  
+the numbers in hex
+                            in the same format as the root= option */
+                         printk("%02x%02x %10llu %s",
+                                sgp->major, sgp->first_minor,
+                                (unsigned long long)get_capacity(sgp)  
+ >> 1,
+                                disk_name(sgp, 0, buf));
 
-iQIVAwUBRI8mAAs1xW0HCTEFAQJa4w/+Jrhnnp+DyOmuuQPL0A2QbydRlhvyeK6g
-mixAd41AJPN8CmMqFZzWTPFbhN65BiM3oaKv+5YX8kvzJiKfhi8BabLlkapUgljx
-qlFr2yOSTIBEkPiPaUTjjYSLFfVBqca1kAAcjO7qJGjcrCJK0AkVp11XKvF8xiLI
-Hg8kEV1GzQKtMo65s+HQQR8XDTDRPuyTpGgWbVSwHyZnJY1pwFd2gVNpW63y52QM
-pJw7WyLBa4NNDLLNRvX8/DbSjvaN3fYy223GItS67QaSOv5G9MNXQnhmUQV8dV0J
-k4xiOhPBRoV1tDpIbdFTWajPp5facVZfLklsNv1uPyDUxdsrMDa8ETNsd6Kn3A5V
-8Zp6EQWScyqoDa8u7aL2IZ0BCm69aJnaAXLm3miNheW1vUPmKYOZJn3+lmEX1vMh
-JuXZzUYjgFgIss3djrpC2GoWqlMYgQ92ZBxecBoMQowPGkLwtcbz4J3qfwBalr1+
-q9Ho85mH7eFUyod7ftWS8r6SQ1WtxCGTl9aPnwqlroq2RG1a/3bhJ2NIHyoLc+zt
-y4IpzZ7B1JzTpBVKKkksOMv7B3XmxCwNzr4Qc1ilx+cLlqwsChiiAzv0IFXz6cBT
-LVeTTHGyQOk7Yd5jO+Wi/s+9XsXEPFQGLDIimxqjqhXitcErAWOodg7tidYgMgFW
-snfgQan4PZI=
-=B4VW
------END PGP SIGNATURE-----
+So my "/tftpboot/pxelinux.cfg/Cxxxxxx" is:
+------------------------- [ BEGIN Cxxxxxx ] -------------------------
+DEFAULT standard
+LABEL standard
+KERNEL vmlinuz
+# APPEND initrd=initrd ramdisk_size=32768 root=/dev/hde1 udev  
+acpi=off rootdelay=5
+APPEND initrd=initrd ramdisk_size=32768 root=2101 udev acpi=off  
+rootdelay=5
+------------------------- [ END   Cxxxxxx ] -------------------------
+
+so the right root-string is: "root=2101".
+
+But can anyone tell me how "root=/dev/hde1" translates to "root=2101"???
+
+Thank you very much, Jan.
+
+You brought me the solution.
+
+Thanks
+Markus
+

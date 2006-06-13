@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWFMP6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWFMQB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWFMP6y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 11:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWFMP6y
+	id S932155AbWFMQB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 12:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWFMQB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 11:58:54 -0400
-Received: from mail.gmx.net ([213.165.64.21]:35043 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932162AbWFMP6y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 11:58:54 -0400
-X-Authenticated: #5598835
-From: Christian =?iso-8859-1?q?H=E4rtwig?= <christian.haertwig@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: How does RAID work with IT8212 RAID PCI card?
-Date: Tue, 13 Jun 2006 17:58:45 +0200
-User-Agent: KMail/1.9.3
+	Tue, 13 Jun 2006 12:01:29 -0400
+Received: from mga05.intel.com ([192.55.52.89]:4277 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932155AbWFMQB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 12:01:28 -0400
+X-IronPort-AV: i="4.06,128,1149490800"; 
+   d="scan'208"; a="51395443:sNHT2184824425"
+Message-ID: <448EE057.6010101@foo-projects.org>
+Date: Tue, 13 Jun 2006 08:57:11 -0700
+From: Auke Kok <sofar@foo-projects.org>
+User-Agent: Mail/News 1.5.0.4 (X11/20060601)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Marc Perkel <marc@perkel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+References: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl> <1150189506.11159.93.camel@shinybook.infradead.org> <20060613104557.GA13597@merlin.emma.line.org> <1150201475.12423.12.camel@hades.cambridge.redhat.com> <20060613124944.GA16171@merlin.emma.line.org> <448ED798.2080706@perkel.com>
+In-Reply-To: <448ED798.2080706@perkel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606131758.45704.christian.haertwig@gmx.de>
-X-Y-GMX-Trusted: 0
+X-OriginalArrivalTime: 13 Jun 2006 15:57:43.0391 (UTC) FILETIME=[1B181EF0:01C68F02]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
+Marc Perkel wrote:
+> Here's a cheap trick that I use to get rid of a lot of spam. What I do 
+> is set my highest MX record to a nonworking IP address. Spammers often 
+> start at the highest MX rather than the lowest figuring the highest has 
+> less spam filtering. And the spammers never retry. IO get rid of about 
+> 120,000 spams a day with this trick.
 
-i need some advise regarding the usage of the above kernel module. Today i 
-have plugged a PCI RAID card into my computer, IT8212 chip on it, and two 
-identical hard drives on the primary and secondary master of that controller. 
-In the controller BIOS i defined a mirror set out of those both disks and 
-booted linux afterwards.
+and this will also get you blacklisted - it is not allowed to have non-working 
+or bogus MX records. See http://www.rfc-ignorant.org/policy-bogusmx.php
 
-Loading the kernel module dmesg showed that the controller was found and that 
-2 harddiscs are attached to it.
-
-The thing that i wonder about is, that i still can "see" both harddisks 
-independently, but i would expect to see only one harddisk at all, that 
-represents the RAID set. Udev also registers /dev/hde and /dev/hdg, but (as 
-far as i can see) no further device.
-
-Is there anything wrong about my setup? Is this i driver issue? Or is this the 
-normal and expected behaviour and its me who doesn't "use" the module 
-properly? How to i access the RAID set instead of the two seperate disks?
-
-Thanks in advance. Yours sincerely,
-Christian Haertwig
+Auke

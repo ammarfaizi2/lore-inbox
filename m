@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWFMVak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWFMVd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWFMVak (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWFMVak
+	id S932240AbWFMVd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWFMVd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:30:40 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:30968 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932245AbWFMVaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:30:39 -0400
-From: Oliver Bock <o.bock@fh-wolfenbuettel.de>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH 1/1] usb: new driver for Cypress CY7C63xxx mirco controllers
-Date: Tue, 13 Jun 2006 23:30:24 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <200606100042.19441.o.bock@fh-wolfenbuettel.de> <200606121934.05619.o.bock@fh-wolfenbuettel.de> <20060613192304.GG27312@elf.ucw.cz>
-In-Reply-To: <20060613192304.GG27312@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 13 Jun 2006 17:33:29 -0400
+Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:5777
+	"HELO office-m.at") by vger.kernel.org with SMTP id S932240AbWFMVd3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 17:33:29 -0400
+In-Reply-To: <20060613142229.5072b657.rdunlap@xenotime.net>
+References: <6137A58D-963C-4379-A836-DCD28C3E88EE@office-m.at> <20060613142229.5072b657.rdunlap@xenotime.net>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <1A2AB079-32AC-40F2-AFB4-422A9FF2E86B@office-m.at>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606132330.24677.o.bock@fh-wolfenbuettel.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:dd33dd6c1d5f49fc970db4042b12446b
+From: Markus Biermaier <mbier@office-m.at>
+Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
+Date: Tue, 13 Jun 2006 23:33:26 +0200
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
 
-> > Hm, the chipset family is just called like that and there're at least
-> > three other Cypress related drivers (cypress, cypress_m8 and cytherm)
-> > with generic names. I think this name shows clearly what kind of device
-> > it supports, doesn't it?
+Am 13.06.2006 um 23:22 schrieb Randy.Dunlap:
+
+> On Tue, 13 Jun 2006 23:10:04 +0200 Markus Biermaier wrote:
+>>> So the result before the boot-panic is:
+>>>
+>>> ...
+>>> here are the partitions available:
+>>> 2100     500472 hde driver: ide-disk
+>>>   2101     500440 hde1
+>>> ...
+
+[snip]
+
+>> But can anyone tell me how "root=/dev/hde1" translates to  
+>> "root=2101"???
 >
-> cypress_63 might be unique and still easier to pronounce?
-
-Hm, what about something related to the vendor "AK Modul-Bus Computer GmbH"?
-I think my driver might (!) only work for their firmware implementations...
-
-cypress_akmb
-cypress_akmodbus
-cypress_akmodulbus
-
-The third would be my favourite. Are there any length restrictions for 
-driver/files names? Is it a problem to use parts of company names for this 
-purpose (I saw lego, rio, auerswald, etc.) or does one need to ask them for 
-permission in this case?
-
-> > You mean the whole string (line) one character to the right, correct?
+> That's (hex) 0x2101.  In Documentation /devices.txt, we see:
 >
-> Yes. It should be
+>  33 block	Third IDE hard disk/CD-ROM interface
+> 		  0 = /dev/hde		Master: whole disk (or CD-ROM)
+> 		 64 = /dev/hdf		Slave: whole disk (or CD-ROM)
 >
-> foo(BAR,
->     BAZ).
+> 		Partitions are handled the same way as for the first
+> 		interface (see major number 3)
 >
-> (You have it at few more places).
+> So device 33 (hex 21) is /dev/hde and 0x01 is partition 1 == hde1.
 
-I changed it. I had the rule "only tabs for indentation" on my mind and tried 
-to choose the closest ;-) Now I first use tabs followed by spaces for 
-fine-tuning (if needed).
+Aaargh:
+Its HEX and I tried always in my "linuxrc":
+------------------------- [ BEGIN linuxrc ] -------------------------
+...
+# brw-rw----    1 root     disk      33,   1 Jan 19  2001 /dev/hde1
+echo 0x3301 > /proc/sys/kernel/real-root-dev
+...
+------------------------- [ END   linuxrc ] -------------------------
+So it would have probably worked if I would have written "echo  
+0x2101 ..."
 
-What about the macro discussion?
-If there's any convention I'm happy to follow it...
+Thank you, Randy.
 
-
-Thanks,
-Oliver
+Markus
 

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWFMJ1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWFMJik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWFMJ1N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 05:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWFMJ1N
+	id S1750836AbWFMJik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 05:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWFMJik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 05:27:13 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:18697 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1750818AbWFMJ1N (ORCPT
+	Tue, 13 Jun 2006 05:38:40 -0400
+Received: from wehq.winbond.com.tw ([202.39.229.15]:15776 "EHLO
+	wehq.winbond.com.tw") by vger.kernel.org with ESMTP
+	id S1750836AbWFMJik convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 05:27:13 -0400
-Message-ID: <448E84EE.9000503@argo.co.il>
-Date: Tue, 13 Jun 2006 12:27:10 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 13 Jun 2006 05:38:40 -0400
+thread-index: AcaOzP76pQvDt4NERIuh4YQ+Sm52ew==
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.326
+Message-ID: <448E875A.40805@winbond.com>
+Date: Tue, 13 Jun 2006 17:37:30 +0800
+From: "dezheng shen" <dzshen@winbond.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Emmanuel Fleury <emmanuel.fleury@labri.fr>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] i386: use C code for current_thread_info()
-References: <20060613064311.GA27543@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060613064311.GA27543@rhlx01.fht-esslingen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Jun 2006 09:27:11.0189 (UTC) FILETIME=[8C69D850:01C68ECB]
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "PI14 SJIN" <SJin@winbond.com>
+Subject: [Winbond] flash memory reader SCSI device drivers
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+X-OriginalArrivalTime: 13 Jun 2006 09:37:31.0048 (UTC) FILETIME=[FDE0D280:01C68ECC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr wrote:
->
-> An entirely different way would be to store the stack base value in a
-> global variable and update that on each context switch, but it would 
-> increase
-> context switch overhead and have >= 2 cycles access time for L1 cache 
-> (which
-> would be the best memory access case!), which would most likely be more
-> combined overhead than an AGI stall (I was mistaken in declaring the 
-> stall
-> a pipeline flush - it's only a stall for a couple cycles, not a full 
-> flush
-> wasting ~ 15 cycles).
->
 
-That wouldn't work on SMP.  You'd need per-cpu variables, which are 
-likely even slower.
 
-[One way around that would be to use a segment register for the per-cpu 
-areas]
+Dear all:
+  We first posted this message to linux-scsi list but it seems no one is 
+monitoring that list at this moment. We tried twice but didn't get any 
+reply yet. So, we decided to post it again here. If this is not the 
+right place, could someone lead us to the right one? Thank you.
 
--- 
-error compiling committee.c: too many arguments to function
 
+ We would like to contribute our flash memory device drivers to Linux 
+community and would like to post to a public list for review first.
+
+ Since our drivers are implemented using SCSI subsystem so that our 
+driver sources should go to ./drivers/scsi. If possible, can we create a 
+subdirectory in ./drivers/scsi named "winbond" because we have drivers 
+for SD/MMC/MS/MSPRO/xD/SM for various Winbond chips. It might be easier 
+for us to maintain our own subdirectory.
+
+ This is the first we send this request to this mailing list and we are 
+not sure this is the right way to do. If any of you is interested in 
+reviewing our sources for Memory Stick driver for Winbond w518 chip, 
+please let me know so that we can post our sources.
+
+thank you,
+
+dz
+
+
+
+===========================================================================================
+The privileged confidential information contained in this email is intended for use only by the addressees as indicated by the original sender of this email. If you are not the addressee indicated in this email or are not responsible for delivery of the email to such  a person, please kindly reply to the sender indicating this fact and delete all copies of it from your computer and network server immediately. Your cooperation is highly appreciated. It is advised that any unauthorized use of confidential information of Winbond is strictly prohibited; and any information in this email irrelevant to the official business of Winbond shall be deemed as neither given nor endorsed by Winbond.

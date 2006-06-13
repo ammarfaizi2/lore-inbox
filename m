@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWFMVUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWFMVWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWFMVUA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWFMVUA
+	id S932262AbWFMVWg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWFMVWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:20:00 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:52658 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932277AbWFMVT7 (ORCPT
+	Tue, 13 Jun 2006 17:22:36 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:19035 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932262AbWFMVWg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:19:59 -0400
-Date: Tue, 13 Jun 2006 23:18:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.17-rc6-mm1 -- BUG: possible circular locking deadlock detected!
-Message-ID: <20060613211858.GA31051@elte.hu>
-References: <20060610075954.GA30119@elte.hu> <Pine.LNX.4.64.0606100916050.25777@hermes-1.csi.cam.ac.uk> <20060611053154.GA8581@elte.hu> <Pine.LNX.4.64.0606110739310.3726@hermes-1.csi.cam.ac.uk> <20060612083117.GA29026@elte.hu> <1150102041.24273.15.camel@imp.csi.cam.ac.uk> <20060612094011.GA32640@elte.hu> <1150107897.24273.25.camel@imp.csi.cam.ac.uk> <20060612105621.GA10887@elte.hu> <a44ae5cd0606122241nd24a83as9c4ff10d3539260b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a44ae5cd0606122241nd24a83as9c4ff10d3539260b@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 13 Jun 2006 17:22:36 -0400
+Message-ID: <448F2C97.2090103@tls.msk.ru>
+Date: Wed, 14 Jun 2006 01:22:31 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+CC: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm] constify sched.c stat_nam strings
+References: <20060613195509.GF24167@rhlx01.fht-esslingen.de>
+In-Reply-To: <20060613195509.GF24167@rhlx01.fht-esslingen.de>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Miles Lane <miles.lane@gmail.com> wrote:
+Andreas Mohr wrote:
+> Hi all,
+> 
+> Signed-off-by: Andreas Mohr <andi@lisas.de>
+> 
+> 
+> diff -urN linux-2.6.17-rc6-mm2.orig/kernel/sched.c linux-2.6.17-rc6-mm2.my/kernel/sched.c
+> --- linux-2.6.17-rc6-mm2.orig/kernel/sched.c	2006-06-13 19:28:17.000000000 +0200
+> +++ linux-2.6.17-rc6-mm2.my/kernel/sched.c	2006-06-13 19:32:03.000000000 +0200
+> @@ -4662,7 +4662,7 @@
+>  	task_t *relative;
+>  	unsigned state;
+>  	unsigned long free = 0;
+> -	static const char *stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
+> +	static const char * const stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
+>  
+>  	printk("%-13.13s ", p->comm);
+>  	state = p->state ? __ffs(p->state) + 1 : 0;
 
-> if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
-> System.map  2.6.17-rc6-mm2-lockdep; fi
-> WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/fs/ntfs/ntfs.ko
-> needs unknown symbol lockdep_on
-> WARNING: /lib/modules/2.6.17-rc6-mm2-lockdep/kernel/fs/ntfs/ntfs.ko
-> needs unknown symbol lockdep_off
+How about the following instead:
 
-oops - please re-download the combo patch, i fixed this one.
+--- kernel/sched.c.orig 2006-05-31 22:23:53.000000000 +0400
++++ kernel/sched.c      2006-06-14 01:19:17.000000000 +0400
+@@ -5287,14 +5287,11 @@ static void show_task(task_t *p)
+ 	task_t *relative;
+ 	unsigned state;
+ 	unsigned long free = 0;
+-	static const char *stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
++	static const char stat_nam[] = "RSDTtZX";
 
-	Ingo
+-	printk("%-13.13s ", p->comm);
+ 	state = p->state ? __ffs(p->state) + 1 : 0;
+-	if (state < ARRAY_SIZE(stat_nam))
+-		printk(stat_nam[state]);
+-	else
+-		printk("?");
++	printk("%-13.13s %c", p->comm,
++		state < sizeof(stat_nam) - 1 ? stat_nam[state] : '?');
+ #if (BITS_PER_LONG == 32)
+ 	printk(" %08lX ", (unsigned long)p);
+ #else
+
+?
+
+/mjt

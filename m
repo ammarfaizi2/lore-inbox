@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWFMWA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWFMWAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWFMWA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWFMWA5
+	id S932302AbWFMWAV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWFMWAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:00:57 -0400
-Received: from relay02.pair.com ([209.68.5.16]:2057 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S932356AbWFMWA4 (ORCPT
+	Tue, 13 Jun 2006 18:00:21 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:58833 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932302AbWFMWAU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:00:56 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Tue, 13 Jun 2006 17:00:53 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: "Brian F. G. Bidulock" <bidulock@openss7.org>
-cc: Daniel Phillips <phillips@google.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-In-Reply-To: <20060613154031.A6276@openss7.org>
-Message-ID: <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com>
- <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org>
- <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 13 Jun 2006 18:00:20 -0400
+Date: Tue, 13 Jun 2006 14:52:51 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfmon@napali.hpl.hp.com
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       oprofile-list@lists.sourceforge.net,
+       perfctr-devel@lists.sourceforge.net
+Subject: 2.6.17-rc6 new perfmon code base + libpfm available
+Message-ID: <20060613215251.GB5407@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006, Brian F. G. Bidulock wrote:
+Hello,
 
-> Daniel,
->
-> On Tue, 13 Jun 2006, Daniel Phillips wrote:
->>
->> This has the makings of a nice stable internal kernel api.  Why do we want
->> to provide this nice stable internal api to proprietary modules?
->
-> Why not?  Not all non-GPL modules are proprietary.  Do we lose
-> something by making a nice stable api available to non-derived
-> modules?
+I have released another version of the perfmon new code base package.
+This version of the kernel patch is relative to 2.6.17-rc6.
 
-Look out for that word (stable). Judging from history (and sanity), 
-arguing /in favor of/ any kind of stable module API is asking for it.
+The patch includes:
+	- moved all set/multiplexing related code into a dedicated file,
+	  name perfmon_sets.c.
 
-At least some of us feel like stable module APIs should be explicitly 
-discouraged, because we don't want to offer comfort for code 
-that refuses to live in the tree (since getting said code into the tree is 
-often a goal).
+	- cleaned a lot of code (for style, dead code)
 
-I'm curious now too - can you name some non-GPL non-proprietary modules we 
-should be concerned about? I'd think most of the possible examples (not 
-sure what they are) would be better off dual-licensed (one license 
-being GPL) and in-kernel.
+	- switch all lists to use list.h 
 
-Thanks,
-Chase
+	- fix locking bugs in perfmon_syscalls.c
+
+	- simplified PMU description tables with macros to improve
+	  readability and extensibility
+
+	- updated Kconfig structure as per Roman's feedback
+
+	- changed the pfarg_setinfo structure to include 2 new
+	  bitfields to report list of available PMU registers
+
+As a consequence of the small API change, you need to update to
+libpfm-3.2-060613.
+
+Also new in libpfm-3.2-060613:
+	- integrated common code to manage separate event unit masks
+	  by Kevin Corry (IBM). With this code we now have an API to
+	  handle complicated unit mask combinations on processors such
+	  as P4, for instance.
+
+	- updated detect_pmcs.c to use the new pfm_getinfo_evtsets()
+	  to retrieve the list of unavalaible pmc registers.
+
+	- updated all examples to use the new detect_pmcs code.
+
+This version of the library ONLY works with 2.6.17-rc6 and higher.
+
+
+You can grab the new packages at our web site:
+
+	 http://perfmon2.sf.net
+-- 
+-Stephane

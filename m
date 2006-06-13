@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWFMOBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWFMOHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWFMOBF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 10:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWFMOBF
+	id S932107AbWFMOHt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 10:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWFMOHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 10:01:05 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:22532 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1751130AbWFMOBE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 10:01:04 -0400
-Message-ID: <448EC51B.6040404@argo.co.il>
-Date: Tue, 13 Jun 2006 17:00:59 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 13 Jun 2006 10:07:49 -0400
+Received: from mail8.sea5.speakeasy.net ([69.17.117.10]:26255 "EHLO
+	mail8.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751130AbWFMOHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 10:07:48 -0400
+Date: Tue, 13 Jun 2006 10:07:45 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Sridhar Samudrala <sri@us.ibm.com>
+cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 2/2] update sunrpc to use in-kernel sockets API
+In-Reply-To: <448E42AE.1010901@us.ibm.com>
+Message-ID: <Pine.LNX.4.64.0606131006250.3553@d.namei>
+References: <1150156564.19929.33.camel@w-sridhar2.beaverton.ibm.com>
+ <Pine.LNX.4.64.0606122320010.31627@d.namei> <448E42AE.1010901@us.ibm.com>
 MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC]  Slimming down struct inode
-References: <20060613143230.A867599@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060613143230.A867599@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Jun 2006 14:01:01.0840 (UTC) FILETIME=[CDD83900:01C68EF1]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
->
-> Such a change would would indeed break XFS, in exactly the way you
-> suggest Jan - the realtime subvolume does typically use a different
-> blocksize from the data subvolume (the realtime extent size is used,
-> and this can be set per-inode too), and there would now be no way to
-> distinguish this preferred IO size difference.
->
+On Mon, 12 Jun 2006, Sridhar Samudrala wrote:
 
-It can be made into an inode operation:
+> > > -	sendpage = sock->ops->sendpage ? : sock_no_sendpage;
+> > > +	sendpage = kernel_sendpage ? : sock_no_sendpage;
+> > >     
+> > 
+> > This is not equivalent.
+> > 
+> >   
+> Actually, we could make this a simple assignment as we check for
+> sock->ops->sendpage in
+> kernel_sendpage().
+>    sendpage = kernel_sendpage;
 
-    if (inode->i_ops->getblksize)
-         return inode->i_ops->getblksize(inode);
-    else
-         return inode->i_sb->s_blksize;
+No, the code there is setting different values for sendpage depending on 
+whether the page is in high memory or not.
 
-Trading some efficiency for space.
 
+- James
 -- 
-error compiling committee.c: too many arguments to function
-
+James Morris
+<jmorris@namei.org>

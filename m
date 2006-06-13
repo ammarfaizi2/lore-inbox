@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWFMIsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWFMIvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWFMIsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 04:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFMIsa
+	id S1750794AbWFMIvM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 04:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWFMIvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 04:48:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14016 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750791AbWFMIs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 04:48:29 -0400
-Date: Tue, 13 Jun 2006 04:48:19 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Sebastien Dugue <sebastien.dugue@bull.net>
-Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-       Pierre PEIFFER <pierre.peiffer@bull.net>
-Subject: Re: NPTL mutex and the scheduling priority
-Message-ID: <20060613084819.GL3115@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20060612.171035.108739746.nemoto@toshiba-tops.co.jp> <1150115008.3131.106.camel@laptopd505.fenrus.org> <20060612124406.GZ3115@devserv.devel.redhat.com> <1150125869.3835.12.camel@frecb000686>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jun 2006 04:51:12 -0400
+Received: from wr-out-0506.google.com ([64.233.184.225]:20337 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750794AbWFMIvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 04:51:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q+m7W03v2Sy4HuA3icjYOlwdm8MbqTebGgVQ3g794VrLby0zW7Mm408ijCC1pbDCwwY874hPMYaRlMOOWlqn9b35NipiO89eFRTeluztaIWMjQ0vEFM3OSM8ALY/ADZX3a6GheYyzTgS23oc1aSd00YUuxxTqv7AKPH1QT4TnK0=
+Message-ID: <cda58cb80606130151k3d5eac15u163a6bf9eb5dfbcb@mail.gmail.com>
+Date: Tue, 13 Jun 2006 10:51:11 +0200
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "Dave Hansen" <haveblue@us.ibm.com>
+Subject: Re: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
+Cc: apw@shadowen.org,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1150128603.13644.28.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1150125869.3835.12.camel@frecb000686>
-User-Agent: Mutt/1.4.1i
+References: <448D1117.8010407@innova-card.com>
+	 <1150128603.13644.28.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 05:24:28PM +0200, S?bastien Dugu? wrote:
->   The patch you refer to is at
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114725326712391&w=2
-> 
->   But maybe a better solution for condvars would be to implement
-> something like a futex_requeue_pi() to handle the broadcast and
-> only use PI futexes all along in glibc.
+Hi Dave,
 
-FUTEX_REQUEUE certainly should be able to requeue from normal futex
-to a PI futex or vice versa, I don't think it is desirable to create
-a separate futex cmds for that.
-Now not sure what do you mean by "use PI futexes all along in glibc",
-certainly you don't mean using them for normal mutexes, right? 
-FUTEX_LOCK_PI has effects the normal futexes shouldn't have.
-The condvars can be also used with PP mutexes and using PI for the cv
-internal lock unconditionally wouldn't be the right thing either.
+2006/6/12, Dave Hansen <haveblue@us.ibm.com>:
+> On Mon, 2006-06-12 at 09:00 +0200, Franck Bui-Huu wrote:
+> > Is it me or the use of CONFIG_SPARSEMEM_EXTREME is really confusing in
+> > mm/sparce.c ? Shouldn't we use CONFIG_SPARSEMEM_STATIC instead like
+> > the following patch suggests ?
+>
+> I'll take positive config options over negative ones any day.  I find it
+> easier to read things that say what they *are* rather than what they are
+> *not*.
+>
+> In any case, STATIC is really there as an override for architectures to
+> say, "I know what I am doing, I use gcc 3.4 and above, or, I don't want
+> to use bootmem".  Extreme is really there to say, "I want two-level
+> lookups because my memory is extremely sparse."
+>
+> Make sense?
 
-	Jakub
+yes and that's what the patch is trying to show...please take a look
+to it and show me what part of the code, used by SPARSEMEM_STATIC
+config, is dealing with the two-level lookups.
+
+thanks
+-- 
+               Franck

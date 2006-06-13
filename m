@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWFMIh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWFMIk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWFMIh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 04:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWFMIh3
+	id S1750774AbWFMIk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 04:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWFMIk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 04:37:29 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:17029 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750772AbWFMIh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 04:37:28 -0400
-Message-ID: <448E79DA.8050704@bull.net>
-Date: Tue, 13 Jun 2006 10:39:54 +0200
-From: Pierre Peiffer <pierre.peiffer@bull.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: =?ISO-8859-15?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: Jakub Jelinek <jakub@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-       linux-kernel@vger.kernel.org
-Subject: Re: NPTL mutex and the scheduling priority
-References: <20060612.171035.108739746.nemoto@toshiba-tops.co.jp>	 <1150115008.3131.106.camel@laptopd505.fenrus.org>	 <20060612124406.GZ3115@devserv.devel.redhat.com> <1150125869.3835.12.camel@frecb000686>
-In-Reply-To: <1150125869.3835.12.camel@frecb000686>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 13/06/2006 10:41:10,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 13/06/2006 10:41:11,
-	Serialize complete at 13/06/2006 10:41:11
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Tue, 13 Jun 2006 04:40:28 -0400
+Received: from ns.firmix.at ([62.141.48.66]:5537 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1750774AbWFMIk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 04:40:27 -0400
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: jdow <jdow@earthlink.net>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jesper Juhl <jesper.juhl@gmail.com>, nick@linicks.net,
+       marty fouts <mf.danger@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <02f401c68ead$c69815a0$0225a8c0@Wednesday>
+References: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl>
+	 <02f401c68ead$c69815a0$0225a8c0@Wednesday>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Tue, 13 Jun 2006 10:36:06 +0200
+Message-Id: <1150187766.28123.13.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.126 () AWL,BAYES_00,FORGED_RCVD_HELO,FUZZY_AMBIEN
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sébastien Dugué a écrit :
->   But maybe a better solution for condvars would be to implement
-> something like a futex_requeue_pi() to handle the broadcast and
-> only use PI futexes all along in glibc.
-> 
->   Any ideas?
+On Mon, 2006-06-12 at 22:54 -0700, jdow wrote:
+> From: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+> > jdow <jdow@earthlink.net> wrote:
+[...]
+> >> Greylist those who have not subscribed.
+[...]
+> >>                                         Let their email server try
+> >> again in 30 minutes. For those who are not subscribed it should not
+> >> matter if their message is delayed 30 minutes. And so far spammers
+> >> never try again.
+> > 
+> > Wrong. Greylisting does stop an immense amount of spam here, but a lot
+> > comes through.
 
-I'm currently thinking about it, and as far as I can see, it should be
-technically feasible but not obvious.
-In fact, PI-futex adds a rt-mutex behind each futex, when there are some
-waiters. Each waiter is then queued two times: once in the chain list of
-the hash-bucket, once in the (ordered) wait_list of the rt-mutex.
+On one low traffic domain, we perceived 50% less spam with greylisting.
+But spam is rising.
 
-What we want, with a futex_requeue_pi, is a requeue of some tasks from
-(futex1, rt_mutex1) to (futex2, rt_mutex2), respecting the wait_list
-order of rt_mutex1.wait-list.
-=> this needs something like a rt_mutex_requeue, and given an element of
-rt_mutex1.wait_list, we need to retrieve its futex_q to requeue it to
-the second hash-bucket chain (of futex2).
+> So if it's not perfect it's not worth doing at all, eh? Yet you think
 
-Moreover, we must take care of the case where the futex2 is not yet
-locked (i.e. has no owner): there is not yet a pi_state nor a rt_mutex
-associated with the futex2 ...
+It works now but the next generation viruses/trojans/.... will have real
+MTA functionality (i.e. SMTP 100% correct) and it is not a problem since
+the zombie nets are large enough that that won't hurt anyone really.
 
-And during all of this, we must take care of several race conditions in
-several places.
+> SPF, which is FAR less suited as a spam preventative, is a single
 
-I'll continue my investigation, but I really wonder if futex_requeue_pi
-will still be an "optimization" as it should be.
+No means alone will kill spam (except making email as such as expensive
+as snail mail). So comparing different means makes no sense.
 
-So comments from the experts are welcome ;-)
-
+	Bernd
 -- 
-Pierre
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

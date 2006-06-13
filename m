@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWFMNPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWFMN3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWFMNPw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 09:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWFMNPw
+	id S932092AbWFMN3R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 09:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWFMN3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 09:15:52 -0400
-Received: from lucidpixels.com ([66.45.37.187]:23705 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932089AbWFMNPv (ORCPT
+	Tue, 13 Jun 2006 09:29:17 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:64951 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932092AbWFMN3Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 09:15:51 -0400
-Date: Tue, 13 Jun 2006 09:15:50 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Bernd Petrovitsch <bernd@firmix.at>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       marty fouts <mf.danger@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-In-Reply-To: <20060613105021.GB13597@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.64.0606130915090.8834@p34.internal.lan>
-References: <200606130305.k5D35YhA004268@laptop11.inf.utfsm.cl>
- <1150187478.28123.7.camel@tara.firmix.at> <20060613105021.GB13597@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 13 Jun 2006 09:29:16 -0400
+Message-Id: <200606131328.k5DDSRd4003689@laptop11.inf.utfsm.cl>
+To: "jdow" <jdow@earthlink.net>
+cc: "Jesper Juhl" <jesper.juhl@gmail.com>, nick@linicks.net,
+       "Bernd Petrovitsch" <bernd@firmix.at>,
+       "marty fouts" <mf.danger@gmail.com>,
+       "David Woodhouse" <dwmw2@infradead.org>,
+       "Matti Aarnio" <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter) 
+In-Reply-To: Message from "jdow" <jdow@earthlink.net> 
+   of "Mon, 12 Jun 2006 22:54:02 MST." <02f401c68ead$c69815a0$0225a8c0@Wednesday> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Tue, 13 Jun 2006 09:28:27 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 13 Jun 2006 09:28:27 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jdow <jdow@earthlink.net> wrote:
+> From: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+> > jdow <jdow@earthlink.net> wrote:
 
+> > [...]
 
-On Tue, 13 Jun 2006, Matthias Andree wrote:
+> >> Greylist those who have not subscribed.
+> > That is not easy to do.
 
-> Bernd Petrovitsch schrieb am 2006-06-13:
->
->> On Mon, 2006-06-12 at 23:05 -0400, Horst von Brand wrote:
->>> Bernd Petrovitsch <bernd@firmix.at> wrote:
->> [...]
->>>> Use secure authenticated mail submission on a known good MTA of said
->>>> domain (and even the smallest ISP should be able to set that up).
->>>
->>> So what? What should me make me trust some domain that I've never before
->>
->> Well, so everyone can send email through an MTA (the email accounts
->> "home MTA") covered in the SPF records.
->
-> As (1) SPF this is demonstrably useless to establish trust and (2) the
-> argument that SPF doesn't provide the required blacklist information
-> hasn't been countered yet, it follows that
-> SPF just makes life harder for everyone without real benefits in return.
->
-> SPF also prefers end-to-end mailings and falls short when relays are
-> used - but these are advocated by the SPF disciples.
->
-> Can this SPF madness please be buried now?
->
-> -- 
-> Matthias Andree
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Somebody needs to write the code to make it easy to do for a list
+> server. It should not be hard to do.
 
-SPF can be useful though, as a lot of Asian spam, for example says they 
-are hotmail.com and they are not, SPF can reject much faster than sender 
-address verification.
+Great! Show us how. I'd be delighted to use it here.
 
+> >>                                         Let their email server try
+> >> again in 30 minutes. For those who are not subscribed it should not
+> >> matter if their message is delayed 30 minutes. And so far spammers
+> >> never try again.
 
+> > Wrong. Greylisting does stop an immense amount of spam here, but a
+> > lot comes through.
+
+> So if it's not perfect it's not worth doing at all, eh?
+
+Didn't say that. Spammers /are/ finding ways to fool greylisting, that is
+all.
+
+>                                                         Yet you think
+> SPF, which is FAR less suited as a spam preventative, is a single
+> point solution.
+
+I don't know where you got the idea I consider SPF a "single point
+solution". FYI, here we use greylisting, spamassassin, ClamAV (much junk is
+malware), and blacklists (both local ones and via DNS). We analyzed SPF and
+rejected it a while ago as unfixably broken. No "single point solution" in
+sight, sadly.
+
+>                 Double think was supposed to have come and gone in
+> 1984, I thought.
+
+Double think is alive and well, thank you very much.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

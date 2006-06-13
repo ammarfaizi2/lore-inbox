@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbWFMAZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWFMA0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932681AbWFMAZN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 20:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWFMAZN
+	id S932411AbWFMA0O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 20:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932682AbWFMA0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 20:25:13 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:37513 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932681AbWFMAZK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 20:25:10 -0400
-Subject: [RFC][PATCH] Avoid race w/ posix-cpu-timer and exiting tasks
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 12 Jun 2006 17:25:08 -0700
-Message-Id: <1150158308.10006.68.camel@localhost.localdomain>
+	Mon, 12 Jun 2006 20:26:14 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40658
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932411AbWFMA0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 20:26:13 -0400
+Date: Mon, 12 Jun 2006 17:26:23 -0700 (PDT)
+Message-Id: <20060612.172623.35354043.davem@davemloft.net>
+To: kernel@linuxace.com
+Cc: jesper.juhl@gmail.com, nick@linicks.net, vonbrand@inf.utfsm.cl,
+       bernd@firmix.at, mf.danger@gmail.com, dwmw2@infradead.org,
+       matti.aarnio@zmailer.org, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060613001101.GA24852@linuxace.com>
+References: <7c3341450606121410y7f2349e1y7d8ecf3f3873732@mail.gmail.com>
+	<9a8748490606121506w43c8a45yf44d0c4120ae80c@mail.gmail.com>
+	<20060613001101.GA24852@linuxace.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Ingo,
-	We've occasionally come across OOPSes in posix-cpu-timer thread (as
-well as tripping over the BUG_ON(tsk->exit_state there) where it appears
-the task we're processing exits out on us while we're using it. 
+From: Phil Oester <kernel@linuxace.com>
+Date: Mon, 12 Jun 2006 17:11:01 -0700
 
-Thus this fix tries to avoid running the posix-cpu-timers on a task that
-is exiting.
+> On Tue, Jun 13, 2006 at 12:06:52AM +0200, Jesper Juhl wrote:
+> > Making subscription to LKML a requirement would be a major barier for
+> > people who just want to shoot off a bug report or similar but who do
+> > not want to be subscribed (nor can be botherd to go through the
+> > motions to subscribe, or perhaps can't work out how to subscribe)...
+> > We want users to be able to submit bugreports to the list easily.
+> 
+> The rejection sent to non-subscribers could point them to a website
+> where they could submit a message via a webform (after correctly
+> entering the contents of a CAPTCHA).  
 
-I'm not sure if it is the proper fix, so I wanted some extra eyes to
-look it over. We're testing it to see if we can still trigger any of the
-OOPSes (the BUG_ON is removed, so that won't catch us anymore), but if
-you have any thoughts I'd be interested in them.
-
-thanks
--john
-
---- 2.6-rt/kernel/posix-cpu-timers.c	2006-06-11 15:38:58.000000000 -0500
-+++ devrt/kernel/posix-cpu-timers.c	2006-06-12 10:52:20.000000000 -0500
-@@ -1290,12 +1290,15 @@
- 
- #undef	UNEXPIRED
- 
--	BUG_ON(tsk->exit_state);
--
- 	/*
- 	 * Double-check with locks held.
- 	 */
- 	read_lock(&tasklist_lock);
-+	/* Make sure the task doesn't exit under us. */
-+	if(unlikely(tsk->exit_state)) {
-+		read_unlock(&tasklist_lock);
-+		return;
-+	}
- 	spin_lock(&tsk->sighand->siglock);
- 
- 	/*
-
-
-
+No way, too much work.  If plain email doesn't work, people will
+throw up their hands and say "why bother?"  We don't want to do
+one iota of something which will even possibly deter a bug report
+because we need as much information about bugs as possible.

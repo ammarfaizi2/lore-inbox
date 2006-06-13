@@ -1,37 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932844AbWFMDyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932856AbWFMEEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932844AbWFMDyo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 23:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932845AbWFMDyo
+	id S932856AbWFMEEG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 00:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932857AbWFMEEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 23:54:44 -0400
-Received: from 8.ctyme.com ([69.50.231.8]:39326 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S932844AbWFMDyn (ORCPT
+	Tue, 13 Jun 2006 00:04:05 -0400
+Received: from mx2.suse.de ([195.135.220.15]:10131 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932856AbWFMEED (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 23:54:43 -0400
-Message-ID: <448E36DE.1000906@perkel.com>
-Date: Mon, 12 Jun 2006 20:54:06 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Tue, 13 Jun 2006 00:04:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: Doug Thompson <norsk5@yahoo.com>
+Subject: Re: [BUG] safe_smp_process_id() uses apicid which exceeds NR_CPUs in array
+Date: Tue, 13 Jun 2006 06:03:32 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060612223827.33255.qmail@web50103.mail.yahoo.com>
+In-Reply-To: <20060612223827.33255.qmail@web50103.mail.yahoo.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-CC: David Miller <davem@davemloft.net>, matti.aarnio@zmailer.org,
-       rlrevell@joe-job.com, folkert@vanheusden.com
-Subject: Re: VGER does gradual SPF activation (FAQ matter) - Alternative
-References: <20060610222734.GZ27502@mea-ext.zmailer.org>	<20060611160243.GH20700@vanheusden.com>	<1150048497.14253.140.camel@mindpipe> <20060611.115430.112290058.davem@davemloft.net> <448D7FB0.9070604@garzik.org>
-In-Reply-To: <448D7FB0.9070604@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Message-Id: <200606130603.32958.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For what it's worth, I do front end spam filtering for domains and I 
-will volunteer to filter the spam for this list.
 
-Here's my reference:
-http://www.junkemailfilter.com/dvorak.mp3
-It's an MP3 from This Week in technology.
+> 
+> I noticed the:   if (x86_cpu_to_apicid[apicid] == apicid)
+> above.
 
-However - the spam problem on this list isn't too bad.
+You're right - the fast check should either check for >= NR_CPUS 
+or just be removed and let it be done by the loop. I came up
+with this patch.
 
+Thanks.
 
+-Andi
+
+Fix fast check in safe_smp_processor_id
+
+The APIC ID returned by hard_smp_processor_id can be beyond
+NR_CPUS and then overflow the x86_cpu_to_apic[] array.
+
+Add a check for overflow. If it happens then the slow loop below
+will catch.
+
+Bug pointed out by Doug Thompson
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/x86_64/kernel/smp.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/smp.c
++++ linux/arch/x86_64/kernel/smp.c
+@@ -520,13 +520,13 @@ asmlinkage void smp_call_function_interr
+ 
+ int safe_smp_processor_id(void)
+ {
+-	int apicid, i;
++	unsigned apicid, i;
+ 
+ 	if (disable_apic)
+ 		return 0;
+ 
+ 	apicid = hard_smp_processor_id();
+-	if (x86_cpu_to_apicid[apicid] == apicid)
++	if (apicid < NR_CPUS && x86_cpu_to_apicid[apicid] == apicid)
+ 		return apicid;
+ 
+ 	for (i = 0; i < NR_CPUS; ++i) {

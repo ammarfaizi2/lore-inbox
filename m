@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWFMVNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWFMVQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWFMVNu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWFMVNu
+	id S932260AbWFMVQW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWFMVQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:13:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2195 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932270AbWFMVNs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:13:48 -0400
-Date: Tue, 13 Jun 2006 14:13:36 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Cedric Le Goater <clg@fr.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: 2.6.16-rc6-mm2
-In-Reply-To: <448F1E8A.3030202@fr.ibm.com>
-Message-ID: <Pine.LNX.4.64.0606131412290.31769@schroedinger.engr.sgi.com>
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com>
- <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
- <448E6798.3020104@fr.ibm.com> <Pine.LNX.4.64.0606131049270.29947@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0606131234010.31186@schroedinger.engr.sgi.com>
- <448F1E8A.3030202@fr.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Jun 2006 17:16:22 -0400
+Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:3729
+	"HELO office-m.at") by vger.kernel.org with SMTP id S932260AbWFMVQV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 17:16:21 -0400
+In-Reply-To: <Pine.LNX.4.61.0606131648390.14789@yvahk01.tjqt.qr>
+References: <0CB396BB-A11B-4191-982F-8C0B89F848D6@office-m.at> <Pine.LNX.4.61.0606122003190.7959@yvahk01.tjqt.qr> <6988083B-3A0E-41F2-A1E4-B4A953B88705@office-m.at> <Pine.LNX.4.61.0606122105490.27755@yvahk01.tjqt.qr> <2F9A5649-92B3-439A-83E4-39FC6C5B7BB7@office-m.at> <Pine.LNX.4.61.0606131648390.14789@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B264F301-A682-437B-A2EF-DBDEA97149FA@office-m.at>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Markus Biermaier <mbier@office-m.at>
+Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
+Date: Tue, 13 Jun 2006 23:16:18 +0200
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006, Cedric Le Goater wrote:
 
-> NFS write seems to work fine with that patch. No more oops.
+Am 13.06.2006 um 16:49 schrieb Jan Engelhardt:
 
-Sigh. There is another issue that the NR_DIRTY count is not decremented. 
+>> So the result before the boot-panic is:
+>>
+>> ...
+>> here are the partitions available:
+>> 2100     500472 hde driver: ide-disk
+>>  2101     500440 hde1
+>> ...
+>> What does this mean?
+>>
+> It means the partitions are there.
+> Which leads us to the next question:
+>  Can you mount hde1 using -t auto within your initrd shell?
 
-Which brings us to this fix:
+What do you mean with this?
+I checked it (after I found the solution in providing "root=2101" as  
+kernel-cmd-string) and it failed again.
+I typed: "mount -t auto /dev/hde1 /mnt".
+BTW I have an "/etc/fstab" with the entry
+"/dev/hde1       /mnt    ext2    defaults 1 1"
 
-Index: linux-2.6.17-rc6-mm2/fs/nfs/write.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/fs/nfs/write.c	2006-06-10 11:11:53.051397816 -0700
-+++ linux-2.6.17-rc6-mm2/fs/nfs/write.c	2006-06-13 10:52:04.428456013 -0700
-@@ -1418,8 +1418,9 @@ static void nfs_commit_done(struct rpc_t
- 		dprintk(" mismatch\n");
- 		nfs_mark_request_dirty(req);
- 	next:
-+		if (req->wb_page)
-+			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
- 		nfs_clear_page_writeback(req);
--		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
- 	}
- }
- 
-Index: linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/fs/nfs/pagelist.c	2006-06-10 11:11:53.049444812 -0700
-+++ linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c	2006-06-13 14:12:17.963198388 -0700
-@@ -154,6 +154,7 @@ void nfs_clear_request(struct nfs_page *
- {
- 	struct page *page = req->wb_page;
- 	if (page != NULL) {
-+		dec_zone_page_state(page, NR_UNSTABLE);
- 		page_cache_release(page);
- 		req->wb_page = NULL;
- 	}
-@@ -315,7 +316,7 @@ nfs_scan_lock_dirty(struct nfs_inode *nf
- 						req->wb_index, NFS_PAGE_TAG_DIRTY);
- 				nfs_list_remove_request(req);
- 				nfs_list_add_request(req, dst);
--				inc_zone_page_state(req->wb_page, NR_DIRTY);
-+				dec_zone_page_state(req->wb_page, NR_DIRTY);
- 				res++;
- 			}
- 		}
+Thanks again for your tip with "printk_all_partitions" ...
+
+Markus
+

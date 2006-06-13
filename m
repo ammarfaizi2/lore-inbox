@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWFMWan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWFMWb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWFMWan (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWFMWam
+	id S932342AbWFMWb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWFMWb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:30:42 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:39314 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932324AbWFMWal
+	Tue, 13 Jun 2006 18:31:26 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56491 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932342AbWFMWb0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:30:41 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=oNsGBoZACre37JS6XxPvY+vg2cF8V4yXqJ9/SSeghDTU6W7iApdL+irVzltLJfm3n
-	WAGMNKGqN3sriB+X9xuKQ==
-Message-ID: <448F3C83.9080606@google.com>
-Date: Tue, 13 Jun 2006 15:30:27 -0700
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: "Brian F. G. Bidulock" <bidulock@openss7.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
+	Tue, 13 Jun 2006 18:31:26 -0400
+Subject: Re: How does RAID work with IT8212 RAID PCI card?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Christian H?rtwig <christian.haertwig@gmx.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org> <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
-In-Reply-To: <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <20060613160138.GC560@csclub.uwaterloo.ca>
+References: <200606131758.45704.christian.haertwig@gmx.de>
+	 <20060613160138.GC560@csclub.uwaterloo.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 13 Jun 2006 23:47:27 +0100
+Message-Id: <1150238847.2232.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters wrote:
-> can you name some non-GPL non-proprietary modules we should be concerned
-> about?
+Ar Maw, 2006-06-13 am 12:01 -0400, ysgrifennodd Lennart Sorensen:
+> Congratulations.  You have a fake raid card by the sound of it.  A
+> hardware raid card would have only shown one drive, while a fake raid
+> card expects the driver to work with the bios to find out the setup (and
+> handle booting), and then the driver does all the raid work in software.
 
-You probably meant "non-GPL-compatible non-proprietary".  If so, then by
-definition there are none.
+The IT8212 is not a fake raid card - it depends on the firmware whether
+you see a drive per raid volume (hardware raid mode) or not (ATAPI
+capable firmware). We've found the raid firmware seems quite
+temperamental and there is little performance gain from raid 1 in
+hardware over software so using md or device mapper is recommended for
+that reason.
 
-Regards,
 
-Daniel

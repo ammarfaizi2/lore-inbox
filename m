@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752316AbWFMF0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932895AbWFMFgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752316AbWFMF0b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 01:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752317AbWFMF0b
+	id S932895AbWFMFgS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 01:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752322AbWFMFgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 01:26:31 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:1675 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752315AbWFMF0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 01:26:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=rk0FDw5MuXID2EyjZXu0zGSYAIwn60VdPaoMcnYsvgU79/phMtWY4TIntKPIgWXD4RxwWIz8DwIzdwGCjci/0BMo/BCkgWzKhSKHmi386pDCEnJIXZMb2AlbBrKivS3Tq14eSkkn91fLLU7v95BBFkCs/QfGfizeeBiR0kqHhfs=
-Message-ID: <787b0d920606122226h1febfb45pd8ec1a6b7a8a59ed@mail.gmail.com>
-Date: Tue, 13 Jun 2006 01:26:29 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: linux-kernel@vger.kernel.org, emmanuel.fleury@labri.fr, torvalds@osdl.org,
-       s0348365@sms.ed.ac.uk, jengelh@linux01.gwdg.de,
-       76306.1226@compuserve.com, akpm@osdl.org
-Subject: Re: [patch] i386: use C code for current_thread_info()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 13 Jun 2006 01:36:18 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58091 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1752320AbWFMFgR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 01:36:17 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: Mikael Pettersson <mikpe@it.uu.se>
+cc: rdunlap@xenotime.net, akpm@osdl.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] [2.6.17-rc6] Section mismatch in drivers/net/ne.o during modpost 
+In-reply-to: Your message of "Sun, 11 Jun 2006 02:51:21 +0200."
+             <200606110051.k5B0pLBI010621@harpo.it.uu.se> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Jun 2006 15:35:29 +1000
+Message-ID: <10735.1150176929@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert writes:
+Mikael Pettersson (on Sun, 11 Jun 2006 02:51:21 +0200 (MEST)) wrote:
+>On Sat, 10 Jun 2006 12:13:35 -0700, Randy.Dunlap wrote:
+>>On Sat, 10 Jun 2006 14:11:42 +0200 (MEST) Mikael Pettersson wrote:
+>>
+>>> While compiling 2.6.17-rc6 for a 486 with an NE2000 ISA ethernet card, I got:
+>>> 
+>>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x158) and 'ne_block_input'
+>>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x176) and 'ne_block_input'
+>>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x183) and 'ne_block_input'
+>>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x1ea) and 'ne_block_input'
+>>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x251) and 'ne_block_input'
+>>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x266) and 'ne_block_input'
+>>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x29b) and 'ne_block_input'
+>>> 
+>>> Not sure how serious this is; the driver seems to work fine later on.
+>>
+>>Doesn't look serious.  init_module() is not __init, but it calls
+>>some __init functions and touches some __initdata.
+>>
+>>BTW, I would be happy to see some consistent results from modpost
+>>section checking.  I don't see all of these warnings (I see only 1)
+>>when using gcc 3.3.6.  What gcc version are you using?
+>>Does that matter?  (not directed at anyone in particular)
+>
+>The messages above are from when I used gcc-4.1.1.
+>With gcc-3.2.3 I only see a single warning.
 
-> Using C code for current_thread_info() lets the compiler optimize it.
-> With gcc 4.0.2, kernel is smaller:
+Probably over enthusiastic gcc inlining.  gcc 4 will inline functions
+that are not declared as inline.  That is not so bad, except that some
+versions of gcc will ignore a mismatch in function attributes and
+inline a __init function into normal text, generating additional
+section mismatches.  For a specific example, see
 
-The often-forgotten __attribute__((const)) might do the job.
-The function is indeed const as far as gcc can see, except
-perhaps near the schedular code that switches stacks.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113824309203482&w=2
 
-This applies to many similar functions, like the ones used
-to get current. It should work for the C code too.

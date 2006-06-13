@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932886AbWFMFDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932889AbWFMFJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932886AbWFMFDh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 01:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932887AbWFMFDh
+	id S932889AbWFMFJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 01:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbWFMFJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 01:03:37 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49025
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932885AbWFMFDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 01:03:36 -0400
-Date: Mon, 12 Jun 2006 22:03:46 -0700 (PDT)
-Message-Id: <20060612.220346.71553967.davem@davemloft.net>
-To: ak@suse.de
-Cc: jeremy@goop.org, lkml@rtr.ca, mpm@selenic.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Using netconsole for debugging suspend/resume
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200606130654.14477.ak@suse.de>
-References: <200606130547.49624.ak@suse.de>
-	<20060612.214948.124554804.davem@davemloft.net>
-	<200606130654.14477.ak@suse.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 13 Jun 2006 01:09:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63720 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932889AbWFMFJY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 01:09:24 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2 
+In-reply-to: Your message of "Tue, 13 Jun 2006 06:56:45 +0200."
+             <200606130656.45511.ak@suse.de> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Jun 2006 15:08:40 +1000
+Message-ID: <10021.1150175320@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
-Date: Tue, 13 Jun 2006 06:54:14 +0200
+Andi Kleen (on Tue, 13 Jun 2006 06:56:45 +0200) wrote:
+>
+>> I have previously suggested a lightweight solution that pins a process
+>> to a cpu 
+>
+>That is preempt_disable()/preempt_enable() effectively
+>It's also light weight as much as these things can be.
 
-> I guess if you use 1394 with remote DMA for other protocols (like
-> video etc.) there must be some way for the subsystem to map
-> the memory even on IOMMU systems. I admit I haven't dived that
-> deeply into the 1394 subsystem so I don't know how that works.
-
-Video-1394 has it's own driver, which does a consistent DMA
-allocation, and then maps that into userspace using remap_pfn_range().
-Entirely portable.
-
-Strangely I don't even see any bus_to_virt() etc. calls in
-the raw1394 driver, just these ptr2int() things...
+The difference being that preempt_disable() does not allow the code to
+sleep.  There are some places where we want to use cpu local data and
+the code can tolerate preemption and even sleeping, as long as the
+process schedules back on the same cpu.
 

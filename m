@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWFMPzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWFMP6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWFMPzr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 11:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWFMPzr
+	id S932162AbWFMP6y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 11:58:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWFMP6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 11:55:47 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51623 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932152AbWFMPzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 11:55:47 -0400
-Date: Tue, 13 Jun 2006 08:55:33 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Hugh Dickins <hugh@veritas.com>, Con Kolivas <kernel@kolivas.org>,
-       Marcelo Tosatti <marcelo@kvack.org>, linux-mm@kvack.org,
-       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
-Subject: Re: zoned vm counters: per zone counter functionality
-In-Reply-To: <448E4F05.9040804@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0606130854480.29796@schroedinger.engr.sgi.com>
-References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
- <20060612211255.20862.39044.sendpatchset@schroedinger.engr.sgi.com>
- <448E4F05.9040804@yahoo.com.au>
+	Tue, 13 Jun 2006 11:58:54 -0400
+Received: from mail.gmx.net ([213.165.64.21]:35043 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932162AbWFMP6y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 11:58:54 -0400
+X-Authenticated: #5598835
+From: Christian =?iso-8859-1?q?H=E4rtwig?= <christian.haertwig@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: How does RAID work with IT8212 RAID PCI card?
+Date: Tue, 13 Jun 2006 17:58:45 +0200
+User-Agent: KMail/1.9.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606131758.45704.christian.haertwig@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006, Nick Piggin wrote:
+Hello everybody,
 
-> Is there any point in using a more meaningful namespace prefix than NR_
-> for the zone_stat_items?
-> 
-> 
-> > +enum zone_stat_item {
-> > +	NR_STAT_ITEMS };
-> > +
+i need some advise regarding the usage of the above kernel module. Today i 
+have plugged a PCI RAID card into my computer, IT8212 chip on it, and two 
+identical hard drives on the primary and secondary master of that controller. 
+In the controller BIOS i defined a mirror set out of those both disks and 
+booted linux afterwards.
 
-How about
+Loading the kernel module dmesg showed that the controller was found and that 
+2 harddiscs are attached to it.
 
-NR_VM_ZONE_STAT_ITEMS ?
+The thing that i wonder about is, that i still can "see" both harddisks 
+independently, but i would expect to see only one harddisk at all, that 
+represents the RAID set. Udev also registers /dev/hde and /dev/hdg, but (as 
+far as i can see) no further device.
 
+Is there anything wrong about my setup? Is this i driver issue? Or is this the 
+normal and expected behaviour and its me who doesn't "use" the module 
+properly? How to i access the RAID set instead of the two seperate disks?
+
+Thanks in advance. Yours sincerely,
+Christian Haertwig

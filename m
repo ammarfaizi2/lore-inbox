@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWFMMYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWFMMYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWFMMYD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 08:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWFMMYD
+	id S932082AbWFMMYo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 08:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWFMMYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 08:24:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43433 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932081AbWFMMYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 08:24:01 -0400
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, jdow <jdow@earthlink.net>,
-       Jesper Juhl <jesper.juhl@gmail.com>, nick@linicks.net,
-       Bernd Petrovitsch <bernd@firmix.at>, marty fouts <mf.danger@gmail.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060613104557.GA13597@merlin.emma.line.org>
-References: <200606130300.k5D302rc004233@laptop11.inf.utfsm.cl>
-	 <1150189506.11159.93.camel@shinybook.infradead.org>
-	 <20060613104557.GA13597@merlin.emma.line.org>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 13:24:34 +0100
-Message-Id: <1150201475.12423.12.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+	Tue, 13 Jun 2006 08:24:44 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:122 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932082AbWFMMYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 08:24:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=c62cYCXhncJecZ4WIRomddM4PDkOYd/VeIkdU05IyEihUikGCAvxMTrLgIC0Vj/GyuBqWUyLSMOWhbRItdgt6tj9hmP3WnFcD3TaSXjwYIGFq3WP2lSQZ3BuHR9DY2Sg43vXLdfxdzfGDzL0P1O6/eAd/5DKj1OvlMeXMREcoww=  ;
+Message-ID: <448EAE85.3090807@yahoo.com.au>
+Date: Tue, 13 Jun 2006 22:24:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: Andi Kleen <ak@suse.de>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] mm: tracking shared dirty pages
+References: <20060613112120.27913.71986.sendpatchset@lappy>	 <20060613112131.27913.43169.sendpatchset@lappy>	 <p73zmghqn2z.fsf@verdi.suse.de> <1150200914.20886.135.camel@lappy>
+In-Reply-To: <1150200914.20886.135.camel@lappy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 12:45 +0200, Matthias Andree wrote:
-> > It's fairly trivial with a decent MTA. I use all kinds of conditions to
-> > trigger greylisting -- HTML mail, 'Re:' in subject with no References:,
-> > lack of reverse DNS or CSA on the sending host, >=0.1 SA points, etc.
-> > Adding "is not subscribed to the mailing list they're trying to post to"
-> > should be trivial.
+Peter Zijlstra wrote:
+> On Tue, 2006-06-13 at 14:03 +0200, Andi Kleen wrote:
 > 
-> Given that list drivers are separate from the MTA (and that's good),
+>>Peter Zijlstra <a.p.zijlstra@chello.nl> writes:
+>>
+>>
+>>>From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+>>>
+>>>People expressed the need to track dirty pages in shared mappings.
+>>
+>>Why only shared mappings? Anonymous pages can be dirty too
+>>and would need to be written to swap then before making progress.
+> 
+> 
+> Anonymous pages are per definition dirty, as they don't have a
+> persistent backing store.
 
-I'm unconvinced of the goodness of that. With a suitably capable MTA,
-there isn't a huge reason not to have the basic receive-and-resend mail
-path handled _entirely_ by the MTA, rather than pawning it off to
-separate software. Obviously the interface to subscribers, be it through
-email or http, wants to be separate -- but receiving and sending email
-is what an MTA does best. And I've learned to hate mailman with a
-vengeance -- I've been meaning to investigate exilist for some time now,
-for my mailing lists.
+They can be clean.
 
-http://duncanthrax.net/exilist-distro/
+> Each eviction of an anonymous page requires IO
+> to swap space. On swap-in pages are removed from the swap space to make
+> place for other pages.
 
-> it's less trivial than simple looking at message headers or DNS info
-> that the MTA shuffles around anyways. The MTA doesn't need the
-> subscription list however, since "exploding" the subscriber list is a
-> separate problem handled by Majordomo, Mailman, Sympa, whatever. 
+No they can remain in swap too.
 
-Even if you have a cron job which extracts the subscriber list into a
-text file or other database which is used by the MTA, it isn't
-particularly hard. In many cases, Exim should probably be able to read
-the subscriber database directly, anyway.
-
-Actually, just tagging _all_ posts to the list for greylisting is
-probably OK as long as you're doing your greylisting sensibly. The thing
-about greylisting is that you're checking to see if it's a dump-and-run
-spammer, or whether it's a real mail host with a queue. Once a given
-host is observed to actually retry and get past the greylisting, there's
-little point in _ever_ greylisting mail from that host again anyway.
-
-If you get that right, it doesn't matter if you tag every incoming mail
-to the list for greylisting; it doesn't keep causing delays to people
-who've got mail through before.
+Swap is a bit different because the memory usage patters are going
+to be much different. There is no reason why something similar couldn't
+be done for swap as well, however I don't think there is so much need
+for it that has been demonstrated.
 
 -- 
-dwmw2
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

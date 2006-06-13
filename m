@@ -1,99 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWFMTn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWFMTyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWFMTn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 15:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWFMTn2
+	id S932141AbWFMTyY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 15:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWFMTyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 15:43:28 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:37570 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751197AbWFMTn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 15:43:27 -0400
-Date: Tue, 13 Jun 2006 14:43:22 -0500
-To: discuss@x86-64.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] (resend) x86_64 stack overflow debugging
-User-Agent: nail 11.25 7/29/05
-MIME-Version: 1.0
+	Tue, 13 Jun 2006 15:54:23 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:991 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932127AbWFMTyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 15:54:20 -0400
+Date: Tue, 13 Jun 2006 21:54:18 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] ACPI lock: cpu_relax() (was: [RFC -mm] more cpu_relax() places?)
+Message-ID: <20060613195418.GB24167@rhlx01.fht-esslingen.de>
+References: <20060612183743.GA28610@rhlx01.fht-esslingen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20060613194322.D0CDC10CC671@attica.americas.sgi.com>
-From: sandeen@sgi.com (Eric Sandeen)
+Content-Disposition: inline
+In-Reply-To: <20060612183743.GA28610@rhlx01.fht-esslingen.de>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Take two, now without spurious whitespace :(  Applies to git & 2.6.17-rc6
+Hi all,
 
-CONFIG_DEBUG_STACKOVERFLOW existed for x86_64 in 2.4, but seems to have gone AWOL in 2.6.
+On Mon, Jun 12, 2006 at 08:37:43PM +0200, Andreas Mohr wrote:
+> Hi all,
+> 
+> while reviewing 2.6.17-rc6-mm1, I found some places that might
+> want to make use of cpu_relax() in order to not block secondary
+> pipelines while busy-polling (probably especially useful on SMT CPUs):
 
-I've pretty much just copied this over from the 2.4 code, with appropriate tweaks for the 2.6 kernel, plus a bugfix.  I'd personally rather see it printed out the way other arches do it, i.e. bytes-remaining-until-overflow, rather than having to do the subtraction yourself.  Also, only 128 bytes remaining seems awfully late to issue a warning.  But I'll start here :)
+Patch no. 2 of 3.
 
-Thanks,
+This could be considered overkill given the previous unlikely(),
+but it is busy-looping on failure after all...
 
--Eric 
+Signed-off-by: Andreas Mohr <andi@lisas.de>
 
-Signed-off-by: Eric Sandeen <sandeen@sgi.com>
 
-Index: linux/arch/x86_64/Kconfig.debug
-===================================================================
---- linux.orig/arch/x86_64/Kconfig.debug	2006-03-19 23:53:29.000000000 -0600
-+++ linux/arch/x86_64/Kconfig.debug	2006-06-13 08:54:36.923001750 -0500
-@@ -35,6 +35,13 @@
-          Add a simple leak tracer to the IOMMU code. This is useful when you
- 	 are debugging a buggy device driver that leaks IOMMU mappings.
- 
-+config DEBUG_STACKOVERFLOW
-+        bool "Check for stack overflows"
-+        depends on DEBUG_KERNEL
-+        help
-+	  This option will cause messages to be printed if free stack space
-+	  drops below a certain limit.
-+
- #config X86_REMOTE_DEBUG
- #       bool "kgdb debugging stub"
- 
-Index: linux/arch/x86_64/kernel/irq.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/irq.c	2006-06-09 16:14:55.991440250 -0500
-+++ linux/arch/x86_64/kernel/irq.c	2006-06-13 08:55:22.485849250 -0500
-@@ -26,6 +26,30 @@
- #endif
- #endif
- 
-+#ifdef CONFIG_DEBUG_STACKOVERFLOW
-+/*
-+ * Probabilistic stack overflow check:
-+ *
-+ * Only check the stack in process context, because everything else
-+ * runs on the big interrupt stacks. Checking reliably is too expensive,
-+ * so we just check from interrupts.
-+ */
-+static inline void stack_overflow_check(struct pt_regs *regs)
-+{
-+	u64 curbase = (u64) current->thread_info;
-+	static unsigned long warned = -60*HZ;
-+
-+	if (regs->rsp >= curbase && regs->rsp <= curbase + THREAD_SIZE &&
-+	    regs->rsp <  curbase + sizeof(struct thread_info) + 128 &&
-+	    time_after(jiffies, warned + 60*HZ)) {
-+		printk("do_IRQ: %s near stack overflow (cur:%Lx,rsp:%lx)\n",
-+		       current->comm, curbase, regs->rsp);
-+		show_stack(NULL,NULL);
-+		warned = jiffies;
+diff -urN linux-2.6.17-rc6-mm2.orig/include/asm-i386/acpi.h linux-2.6.17-rc6-mm2.my/include/asm-i386/acpi.h
+--- linux-2.6.17-rc6-mm2.orig/include/asm-i386/acpi.h	2006-06-08 10:38:10.000000000 +0200
++++ linux-2.6.17-rc6-mm2.my/include/asm-i386/acpi.h	2006-06-13 19:35:41.000000000 +0200
+@@ -61,11 +61,14 @@
+ __acpi_acquire_global_lock (unsigned int *lock)
+ {
+ 	unsigned int old, new, val;
+-	do {
++	while (1) {
+ 		old = *lock;
+ 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
+ 		val = cmpxchg(lock, old, new);
+-	} while (unlikely (val != old));
++		if (likely(val == old))
++			break;
++		cpu_relax();
 +	}
-+}
-+#endif
-+
- /*
-  * Generic, controller-independent functions:
-  */
-@@ -96,7 +120,9 @@
+ 	return (new < 3) ? -1 : 0;
+ }
  
- 	exit_idle();
- 	irq_enter();
--
-+#ifdef CONFIG_DEBUG_STACKOVERFLOW
-+	stack_overflow_check(regs);
-+#endif
- 	__do_IRQ(irq, regs);
- 	irq_exit();
+@@ -73,11 +76,14 @@
+ __acpi_release_global_lock (unsigned int *lock)
+ {
+ 	unsigned int old, new, val;
+-	do {
++	while (1) {
+ 		old = *lock;
+ 		new = old & ~0x3;
+ 		val = cmpxchg(lock, old, new);
+-	} while (unlikely (val != old));
++		if (likely(val == old))
++			break;
++		cpu_relax();
++	}
+ 	return old & 0x1;
+ }
  

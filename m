@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932678AbWFMAYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbWFMAZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932678AbWFMAYv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 20:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbWFMAYv
+	id S932681AbWFMAZN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 20:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWFMAZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 20:24:51 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26823 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932678AbWFMAYu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 20:24:50 -0400
-Date: Mon, 12 Jun 2006 17:24:38 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Cedric Le Goater <clg@fr.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm2
-In-Reply-To: <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0606121723480.22389@schroedinger.engr.sgi.com>
-References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com>
- <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jun 2006 20:25:13 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:37513 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932681AbWFMAZK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 20:25:10 -0400
+Subject: [RFC][PATCH] Avoid race w/ posix-cpu-timer and exiting tasks
+From: john stultz <johnstul@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 12 Jun 2006 17:25:08 -0700
+Message-Id: <1150158308.10006.68.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess this is correct. nfs_clear_page_writeback also ignores the page 
-if req->wb_page == NULL. Trond?
+Hey Ingo,
+	We've occasionally come across OOPSes in posix-cpu-timer thread (as
+well as tripping over the BUG_ON(tsk->exit_state there) where it appears
+the task we're processing exits out on us while we're using it. 
 
-On Mon, 12 Jun 2006, Christoph Lameter wrote:
+Thus this fix tries to avoid running the posix-cpu-timers on a task that
+is exiting.
 
-> On Mon, 12 Jun 2006, Cedric Le Goater wrote:
-> 
-> > Unable to handle kernel NULL pointer dereference at 0000000000000007 RIP:
-> >  [<ffffffff8025b017>] dec_zone_page_state+0x1/0x5b
-> 
-> Seems that req->wb_page may be NULL.
-> 
-> This patch may fix it but we may miss an unstable page then. We may 
-> have to move the decrement of NR_UNSTABLE to a different location when
-> wb_page is still valid.
-> 
-> Index: linux-2.6.17-rc6-cl/fs/nfs/write.c
-> ===================================================================
-> --- linux-2.6.17-rc6-cl.orig/fs/nfs/write.c	2006-06-12 13:37:47.321243148 -0700
-> +++ linux-2.6.17-rc6-cl/fs/nfs/write.c	2006-06-12 15:13:48.020908204 -0700
-> @@ -1419,7 +1419,8 @@ static void nfs_commit_done(struct rpc_t
->  		nfs_mark_request_dirty(req);
->  	next:
->  		nfs_clear_page_writeback(req);
-> -		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
-> +		if (req->wb_page)
-> +			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
->  	}
->  }
->  
-> 
-> 
+I'm not sure if it is the proper fix, so I wanted some extra eyes to
+look it over. We're testing it to see if we can still trigger any of the
+OOPSes (the BUG_ON is removed, so that won't catch us anymore), but if
+you have any thoughts I'd be interested in them.
+
+thanks
+-john
+
+--- 2.6-rt/kernel/posix-cpu-timers.c	2006-06-11 15:38:58.000000000 -0500
++++ devrt/kernel/posix-cpu-timers.c	2006-06-12 10:52:20.000000000 -0500
+@@ -1290,12 +1290,15 @@
+ 
+ #undef	UNEXPIRED
+ 
+-	BUG_ON(tsk->exit_state);
+-
+ 	/*
+ 	 * Double-check with locks held.
+ 	 */
+ 	read_lock(&tasklist_lock);
++	/* Make sure the task doesn't exit under us. */
++	if(unlikely(tsk->exit_state)) {
++		read_unlock(&tasklist_lock);
++		return;
++	}
+ 	spin_lock(&tsk->sighand->siglock);
+ 
+ 	/*
+
+
+

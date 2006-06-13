@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWFMPhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWFMPls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWFMPhg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 11:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWFMPhg
+	id S932148AbWFMPls (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 11:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWFMPls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 11:37:36 -0400
-Received: from the-doors.enix.org ([193.19.211.1]:56493 "EHLO
-	the-doors.enix.org") by vger.kernel.org with ESMTP id S932140AbWFMPhf
+	Tue, 13 Jun 2006 11:41:48 -0400
+Received: from ns.sick.de ([62.180.123.243]:12813 "EHLO csmailwak.sick.de")
+	by vger.kernel.org with ESMTP id S932148AbWFMPlr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 11:37:35 -0400
-Date: Tue, 13 Jun 2006 17:37:33 +0200
-From: Thomas Petazzoni <thomas.petazzoni@enix.org>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Use of spinlock after free with CFQ scheduler
-Message-ID: <20060613173733.618192bf@thomas.toulouse>
-X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.3; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jun 2006 11:41:47 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] com20020_cs, kernel 2.6.17-rc6
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
+Message-ID: <OF865DF58A.2630C431-ONC125718C.0054E44A-C125718C.00563612@sick.de>
+From: Marc Sowen <Marc.Sowen@ibeo-as.de>
+Date: Tue, 13 Jun 2006 17:40:45 +0200
+X-MIMETrack: Serialize by Router on IBAMF01.iba.de.internal/SRV/SICK(Release 6.5.4|March
+ 27, 2005) at 06/13/2006 05:40:46 PM,
+	Serialize complete at 06/13/2006 05:40:46 PM
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello everybody,
 
-While developing a block device driver, we stumbled upon the kernel
-panic reported at
-http://www.ussg.iu.edu/hypermail/linux/kernel/0512.3/0297.html.
-According to the mail and your answer, it seems that the CFQ scheduler
-uses the queue lock after blk_cleanup_queue(). At this time, the
-spinlock might have been freed. I can confirm that the bug doesn't
-appear with other I/O schedulers.
+this patch enables the com20020_cs arcnet driver to see the SoHard (now 
+Mercury Computer Systems Inc.) SH ARC-PCMCIA card. I haven't tested it 
+thoroughly yet, though. Hopefully, Lotus Notes doesn't screw up this 
+patch. Otherwise I will try to send it at home with my private email 
+account.
 
-However, the proposed fix for "ub" looks quite strange to me. It uses
-a static array of spinlocks, so that they remain in memory after
-blk_cleanup_queue(). However, "ub" can be compiled as a module, so I
-don't see what prevent the use of the queue spinlocks by the CFQ
-scheduler once the module has been unloaded. I do not understand how the
-provided patch correctly fixes the bug.
+Marc
 
-The bug was reported on a pre-2.6.15 kernel, but we're still seeing
-this bug with a 2.6.16 FedoraCore-hacked kernel.
+--- a/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-06 
+02:57:02.000000000 +0200
++++ b/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-13 
+17:10:03.000000000 +0200
+@@ -388,6 +388,7 @@
 
-To me, the bug seems to be in the CFQ scheduler itself, isn't it ?
-Maybe we should use the internal queue lock (by passing NULL as the
-lock parameter to the blk_init_queue() call), and then modify the CFQ
-scheduler so that it correctly increments/decrements the queue->refcnt ?
+ static struct pcmcia_device_id com20020_ids[] = {
+        PCMCIA_DEVICE_PROD_ID12("Contemporary Control Systems, Inc.", 
+"PCM20 Arcnet Adapter", 0x59991666, 0x95dfffaf),
++       PCMCIA_DEVICE_PROD_ID12("SoHard AG", "SH ARC PCMCIA", 0xf8991729, 
+0x69dff0c7),
+        PCMCIA_DEVICE_NULL
+ };
+ MODULE_DEVICE_TABLE(pcmcia, com20020_ids);
 
-What do you think about it ?
-
-Thanks!
-
-Thomas
 -- 
-Thomas Petazzoni - thomas.petazzoni@enix.org
-http://{thomas,sos,kos}.enix.org - http://www.toulibre.org
-http://www.{livret,agenda}dulibre.org
+Marc Sowen
+Research Department
+
+Ibeo Automobile Sensor GmbH
+Fahrenkrön 125
+22179 Hamburg, Germany
+
+Phone: +49 (0)40 64587-224
+Facsimile: +49 (0)40 64587-109
+
+EMail: marc.sowen@ibeo-as.de

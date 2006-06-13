@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWFMNiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWFMNlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWFMNiH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 09:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWFMNiH
+	id S1751123AbWFMNlM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 09:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWFMNlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 09:38:07 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:4251 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750742AbWFMNiF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 09:38:05 -0400
-Message-ID: <448EBEF9.9040808@aitel.hist.no>
-Date: Tue, 13 Jun 2006 15:34:49 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Gerrit Huizenga <gh@us.ibm.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Alex Tomas <alex@clusterfs.com>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <E1FolFA-0007RU-Ab@w-gerrit.beaverton.ibm.com>
-In-Reply-To: <E1FolFA-0007RU-Ab@w-gerrit.beaverton.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jun 2006 09:41:12 -0400
+Received: from fysh.org ([83.170.75.51]:11695 "EHLO bowl.fysh.org")
+	by vger.kernel.org with ESMTP id S1751123AbWFMNlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 09:41:11 -0400
+Date: Tue, 13 Jun 2006 14:41:09 +0100
+From: Athanasius <link@miggy.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: David Miller <davem@davemloft.net>, matti.aarnio@zmailer.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+Message-ID: <20060613134109.GF32313@miggy.org>
+Mail-Followup-To: Athanasius <link@miggy.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	David Miller <davem@davemloft.net>, matti.aarnio@zmailer.org
+References: <20060610222734.GZ27502@mea-ext.zmailer.org> <20060611160243.GH20700@vanheusden.com> <1150048497.14253.140.camel@mindpipe> <20060611.115430.112290058.davem@davemloft.net> <448D7FB0.9070604@garzik.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="z0eOaCaDLjvTGF2l"
+Content-Disposition: inline
+In-Reply-To: <20060611.115430.112290058.davem@davemloft.net>
+X-gpg-fingerprint: B34E4BC3
+X-gpg-key: http://www.fysh.org/~athan/gpg-key
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerrit Huizenga wrote:
-> On Fri, 09 Jun 2006 09:09:01 PDT, Linus Torvalds wrote:
->   
->> On Fri, 9 Jun 2006, Gerrit Huizenga wrote:
->>     
->>> Jeff's approach taken to the rediculous would mean that we'd have
->>> ext versions 1-40 by now at least.  I don't think that helps much,
->>> either.
->>>       
->> On the other hand, I _guarantee_ you that it helps that we have ext2-3, 
->> and not just ext2 (nobody even tried to keep ext1 compatible, thank the 
->> Gods).
->>     
->  
-> I had originally argued for ext4 as well based on the fact that it would
-> allow lots of potential cleanups & simplifications and at the same time
-> would allow a break in the on disk filesystems layout.
->
-> These changes don't yet change the actual on-disk layout and that might
-> be something that would be done if ext4 were a real, new filesystem.
->
-> But then how long until ext4 is used enough to be put into production?
->   
-No problem.  It didn't take long for ext3 - it won't take long for ext4.
-First, you have developers and some enthusiasts using it.
-Then, you get the thousands of people who like living
-on the edge using ext4. As soon as it doesn't have bad known bugs.
-Then some distros pick it up, wanting to be first with
-large-disk support.
-After that, it is considered "harmless".
 
-If a break in on-disk layout is useful, then the time is now while
-a new fs is introduced anyway.  It could be 7 years to the next chance.
+--z0eOaCaDLjvTGF2l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Helge Hafting
+David Miller wrote:
+>To be honest I'm all for some kind of bayesian filter at vger as long
+>as the rejected postings go somewhere into a folder I can scan every
+>couple of days looking for false positives.
 
+  For what it's worth, there's an awful lot of spam that makes it past
+vger's filters to me that also then goes on to not get caught by my
+(very well trained) bogofilter.  In other words, I'm not sure how much
+this would add.
 
+  Of course if it's instead of some of the current vger filtering it
+will almost certainly be worthwhile.
+
+-Ath
+--=20
+- Athanasius =3D Athanasius(at)miggy.org / http://www.miggy.org/
+                  Finger athan(at)fysh.org for PGP key
+	   "And it's me who is my enemy. Me who beats me up.
+Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
+
+--z0eOaCaDLjvTGF2l
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEjsB1Ir2uvLNOS8MRAuShAJ9IposvFdJIMSvBFuVUzLP+8yGrNwCfRvrG
+bv03ooq1uh8hM+PoFuef/Ik=
+=LkT2
+-----END PGP SIGNATURE-----
+
+--z0eOaCaDLjvTGF2l--

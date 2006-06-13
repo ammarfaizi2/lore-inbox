@@ -1,107 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWFMRln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWFMRpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWFMRln (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 13:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWFMRln
+	id S1750904AbWFMRpU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 13:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWFMRpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 13:41:43 -0400
-Received: from z2.cat.iki.fi ([212.16.98.133]:62600 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S1750824AbWFMRlm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 13:41:42 -0400
-Date: Tue, 13 Jun 2006 20:41:40 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation  (FAQ matter)
-Message-ID: <20060613174140.GC27502@mea-ext.zmailer.org>
-References: <20060610222734.GZ27502@mea-ext.zmailer.org> <20060611072223.GA16150@flint.arm.linux.org.uk> <20060612083239.GA27502@mea-ext.zmailer.org> <448D8B2F.8060405@ti-wmc.nl>
+	Tue, 13 Jun 2006 13:45:19 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:57244 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1750904AbWFMRpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 13:45:17 -0400
+Date: Tue, 13 Jun 2006 14:45:12 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Mark Lord <lkml@rtr.ca>,
+       Greg KH <gregkh@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: pl2303 ttyUSB0: pl2303_open - failed submitting interrupt urb,
+ error -28
+Message-ID: <20060613144512.22526797@doriath.conectiva>
+In-Reply-To: <20060613132655.03bcc1d3@doriath.conectiva>
+References: <448DC93E.9050200@rtr.ca>
+	<20060612204918.GA16898@suse.de>
+	<448DD50F.3060002@rtr.ca>
+	<448DC93E.9050200@rtr.ca>
+	<20060612204918.GA16898@suse.de>
+	<448DD968.2010000@rtr.ca>
+	<20060612212812.GA17458@suse.de>
+	<448DE28D.3040708@rtr.ca>
+	<448DF6F6.2050803@rtr.ca>
+	<20060613114604.GB10834@fks.be>
+	<20060613132655.03bcc1d3@doriath.conectiva>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.2.3 (GTK+ 2.9.2; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448D8B2F.8060405@ti-wmc.nl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 05:41:35PM +0200, Simon Oosthoek wrote:
-> Hi Matti
+On Tue, 13 Jun 2006 13:26:55 -0300
+"Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
 
-Hello Simon,  for a change somebody who gets my name correctly :-)
-(Just today I did teach a Londoner to pronounce that double-t properly,
-it did sound weird...)
+| On Tue, 13 Jun 2006 13:46:06 +0200
+| Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+| 
+| | On Mon, Jun 12, 2006 at 07:21:26PM -0400, Mark Lord wrote:
+| | > Mark Lord wrote:
+| | > >Greg KH wrote:
+| | > >>So we should have finally covered both of them now.
+| | > >
+| | > >Yes, agreed.
+| | > >
+| | > >So if modify pl2303_open() to have it simulate -ENOMEM from 
+| | > >usb_submit_urb(),
+| | > >then this should not crash the entire USB subsystem.  Right?
+| | > >
+| | > >Ditto if it happens due to low-memory, rather than me hacking the code 
+| | > >to test it?
+| | > 
+| | > Mmmm.. looks like it's still buggy, but we manage to avoid the bug
+| | > under *most* circumstances.   Which is good!
+| | > 
+| | > But the bug will still need to be fixed.  A failure from usb_submit_urb()
+| | > should not require a reboot to recover.
+| | > Here's the results of a simulated -ENOMEM test:
+| | > 
+| | > kernel BUG at kernel/workqueue.c:110!
+| | 
+| | We had the exact same error here with ipaq.ko. Our problems only went
+| | away once we applied the following (the first part might already be
+| | applied).
+| 
+|  Interesting, I couldn't reproduce this with ftdio_sio.
 
-> Matti Aarnio wrote:
-> >
-> >For a very long time (like 20 years or so) I used to think like that.
-> >
-> >Doing email services in big ISP environments for about 10 years did
-> >cure me of that thinking.  Ordinary Janes and Joes (and grannies
-> >and granpas) must not be allowed to send email in similar ways that
-> >we used to do in happy 1980es when the internet was engineer playground.
-> 
-> This is so against the spirit and meaning of the Internet, you're not 
-> talking about the network we call Internet. You're talking about two 
-> tiered internet, which is bad too.
+ Ok, managed to reproduce it (in fact it happens at disconnection
+time).
 
-Yes, I agree.  Surprisingly by calling it "security enhanced" or something,
-ISPs can  _charge_more_,  and users are happy to buy it!  (I have seen this
-happening in Finland.)
+ Frank, the second hunk of your patch fixes it, but the right
+label is bailout_mutex_unlock. Like this:
 
-I have also seen compartementalisation(sp?) failures resulting from
-"these customer networks can send email via those SMTP servers" - and
-then a user changes access provider, but not email provider (or does
-not know how to change OE configurations to match..)
-There a widely adopted SMTP SUBMISSION protocol (SMTP on TCP port 587
-and _requiring_ at least sender authentication before _any_ sort of
-sending is allowed - preferrably under TLS) would make that subset
-of users isp-change problems moot.
-Also the server configuration is simple: "user did authenticate ok,
-let it send that email" - no network ACLs to keep up at all.
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+index 9c36f0e..0b7bc20 100644
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -230,6 +230,7 @@ bailout_module_put:
+ 	module_put(serial->type->driver.owner);
+ bailout_mutex_unlock:
+ 	port->open_count = 0;
++	tty->driver_data = port->tty = NULL;
+ 	mutex_unlock(&port->mutex);
+ bailout_kref_put:
+ 	kref_put(&serial->kref, destroy_serial);
 
-With authentication done, ISP can even verify source address validity
-on the submission, or perhaps choose not to verify..  It might again
-be a positive sales argument.
+ Could you redo and submit please?
 
-Travellers would have _easy_ access to their "home postoffice" over
-the network, and be able to send email authenticated no matter where
-they are, and in whose network _without_need_to_find_ that local SMTP
-server that lets them send their email...
-
-Of course ISPs would need to  a)  enable the service (and do it
-correctly),  b)  educate their users to use it.
-
-
-And this, by the way, is something that I do think that people SHOULD
-use, no matter if SPF (or its likes) ever makes it mandatory.
-
-It will block tons of email viruses from sending themselves around,
-until they learn to pick user's submission authentication data.
-.. and when they do, service provider can block that USER whose
-account is misused.
-
-
-> >The Internet needs to be segregated into two kinds of users - those that
-> >must not be allowed to do much of anything ( = common man to whom the
-> >internet equals anyway to IE web-browser ) and to first-class citizens
-> >with their own email servers...
-> 
-> Why don't you go fork the Internet then? Go see if that will work?
-> 
-> This whole discussion is kind of ridiculous for an open source project 
-> like the linux kernel. If you're so keen on fixing e-mail, you should 
-> work closely with the IETF working groups to create a new standard that 
-> works.
-
-Do read RFC 2821/2822 credits section.
-
-I have been on this business quite a while :-)
-
-> Finally, if you consider doing this, why not consider closing the 
-> mailinglist to a subscription only list, that will work so much better 
-> than this "free lunch" (to quote someone else)
-> 
-> Cheers
-> Simon
-
-Cheers from London,
-  Matti Aarnio
+-- 
+Luiz Fernando N. Capitulino

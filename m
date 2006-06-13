@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932906AbWFMFxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932905AbWFMFxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932906AbWFMFxG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 01:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932905AbWFMFxG
+	id S932905AbWFMFxu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 01:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932907AbWFMFxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 01:53:06 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:33415 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932906AbWFMFxE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 01:53:04 -0400
-Date: Tue, 13 Jun 2006 08:53:03 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Catalin Marinas <catalin.marinas@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-In-Reply-To: <20060612192227.GA5497@elte.hu>
-Message-ID: <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
- <20060611112156.8641.94787.stgit@localhost.localdomain>
- <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
- <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
- <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI> <20060612105345.GA8418@elte.hu>
- <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
- <20060612192227.GA5497@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jun 2006 01:53:50 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:33987 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932905AbWFMFxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 01:53:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rv76+YgKqv1kYgmnFdvMo2rXiS4SrECOGWEaKZdArKXQxKWV+agV4AdbDgahvgaiiHAsro+rJs1yDdlMpcLughTPI8DtwihohbPQZ9kheakF9OfgCkXNsT58GpbGGlojYYlHp4hDutIWmYkO/Hsj5HlAedMnKAPMSgjGou7S30o=
+Message-ID: <787b0d920606122253o4f1a9e18x1ca49c3ce005696f@mail.gmail.com>
+Date: Tue, 13 Jun 2006 01:53:48 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: linux-kernel@vger.kernel.org, ak@suse.de, rohitseth@google.com,
+       akpm@osdl.org, Linux-mm@kvack.org, arjan@infradead.org,
+       jengelh@linux01.gwdg.de
+Subject: Re: [PATCH]: Adding a counter in vma to indicate the number of physical_pages_backing it
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Quoting two different people:
 
-On Mon, 12 Jun 2006, Ingo Molnar wrote:
-> i dont know - i feel uneasy about the 'any pointer' method - it has a 
-> high potential for false negatives, especially for structures that 
-> contain strings (or other random data), etc.
+> BTW, what is smaps used for (who uses it), anyway?
+...
+> smaps is only a debugging kludge anyways and it's
+> not a good idea to we bloat core data structures for it.
 
-Is that a problem in practice?  Structures that contain data are usually 
-allocated from the slab.  There needs to be a link to that struct from the 
-gc roots to get a false negative.  Or am I missing something here?
+I'd be using it in procps for the pmap command if it
+were not so horribly nasty. I may eventually get around
+to using it, but maybe it's just too gross to tolerate.
+That mess should never have slipped into the kernel.
+Just take a look at /proc/self/smaps some time. Wow.
 
-				Pekka
+A month or two ago I supplied a patch to replace smaps
+with something sanely parsable. I was essentially told
+that we already have this lovely smaps dungheap that I
+should just use, but a couple people were eager to see
+the patch go in.
+
+Anyway, I need smaps stuff plus info about locked memory
+and page sizes. Solaris provides this. People seem to
+like it. I guess it's for performance tuning of app code or
+maybe for scalibility predictions.

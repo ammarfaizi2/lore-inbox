@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWFMUHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWFMUKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWFMUHK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 16:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWFMUHJ
+	id S932185AbWFMUKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 16:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWFMUKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 16:07:09 -0400
-Received: from mail.gmx.net ([213.165.64.21]:59539 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932176AbWFMUHI (ORCPT
+	Tue, 13 Jun 2006 16:10:40 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:22198 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932185AbWFMUKj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 16:07:08 -0400
-X-Authenticated: #704063
-Subject: [Patch] Remove needless checks in fs/9p/vfs_inode.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: ericvh@gmail.com
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 22:07:02 +0200
-Message-Id: <1150229222.15006.2.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Tue, 13 Jun 2006 16:10:39 -0400
+Date: Tue, 13 Jun 2006 22:10:31 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Avi Kivity <avi@argo.co.il>
+cc: Theodore Tso <tytso@mit.edu>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC]  Slimming down struct inode
+In-Reply-To: <448EFF23.6070703@argo.co.il>
+Message-ID: <Pine.LNX.4.61.0606132209420.11918@yvahk01.tjqt.qr>
+References: <20060613174407.GA6561@thunk.org> <448EFF23.6070703@argo.co.il>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+>> > if (inode->i_ops->getblksize)
+>> >     return inode->i_ops->getblksize(inode);
+>> > else
+>> > return inode->i_sb->s_blksize;
+>> > 
+>> > Trading some efficiency for space.
+>> 
+>> Yep, that was what I was planning on doing....
+>> 
+>
+> Maybe
+>
+> if (inode->i_sb->s_blksize)
+>   return inode->i_sb->s_blksize;
+> else
+> ...
+>
+> is a tiny little bit faster...
+>
 
-coverity found two needless checks in vfs_inode.c (cid #1165 and #1164)
-In both cases inode is always NULL when we goto error; either because it
-is still initialized to NULL or is set to NULL explicitly. This patch
-simply removes these checks to save some code.
-
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
-
---- linux-2.6.17-rc5/fs/9p/vfs_inode.c.orig	2006-06-13 22:01:56.000000000 +0200
-+++ linux-2.6.17-rc5/fs/9p/vfs_inode.c	2006-06-13 22:02:18.000000000 +0200
-@@ -530,9 +530,6 @@ error:
- 	if (vfid)
- 		v9fs_fid_destroy(vfid);
- 
--	if (inode)
--		iput(inode);
--
- 	return err;
- }
- 
-@@ -1171,9 +1168,6 @@ error:
- 	if (vfid)
- 		v9fs_fid_destroy(vfid);
- 
--	if (inode)
--		iput(inode);
--
- 	return err;
- 
- }
+The compiler will anyway pick the one it thinks is better by itself.
+Influence can be taken using likely/unlikely of course.
 
 
+Jan Engelhardt
+-- 

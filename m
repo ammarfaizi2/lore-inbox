@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWFMVnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWFMVqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWFMVnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWFMVnR
+	id S932344AbWFMVqn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWFMVqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:43:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44428 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932337AbWFMVnQ (ORCPT
+	Tue, 13 Jun 2006 17:46:42 -0400
+Received: from es335.com ([67.65.19.105]:40994 "EHLO mail.es335.com")
+	by vger.kernel.org with ESMTP id S932344AbWFMVql (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:43:16 -0400
-Date: Tue, 13 Jun 2006 14:43:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: drfickle@us.ibm.com, pbadari@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm2
-Message-Id: <20060613144304.2e846fb1.akpm@osdl.org>
-In-Reply-To: <448EC74F.30104@ru.mvista.com>
-References: <20060609214024.2f7dd72c.akpm@osdl.org>
-	<pan.2006.06.12.22.09.47.855327@us.ibm.com>
-	<20060613065443.7f302319.akpm@osdl.org>
-	<448EC74F.30104@ru.mvista.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 13 Jun 2006 17:46:41 -0400
+Subject: RE: [openib-general] [PATCH v2 1/2] iWARP Connection Manager.
+From: Steve Wise <swise@opengridcomputing.com>
+To: Sean Hefty <sean.hefty@intel.com>
+Cc: Tom Tucker <tom@opengridcomputing.com>, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <000001c68f31$78910fe0$24268686@amr.corp.intel.com>
+References: <000001c68f31$78910fe0$24268686@amr.corp.intel.com>
+Content-Type: text/plain
+Date: Tue, 13 Jun 2006 16:46:36 -0500
+Message-Id: <1150235196.17394.91.camel@stevo-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006 18:10:23 +0400
-Sergei Shtylyov <sshtylyov@ru.mvista.com> wrote:
+On Tue, 2006-06-13 at 14:36 -0700, Sean Hefty wrote:
+> >> Er...no. It will lose this event. Depending on the event...the carnage
+> >> varies. We'll take a look at this.
+> >>
+> >
+> >This behavior is consistent with the Infiniband CM (see
+> >drivers/infiniband/core/cm.c function cm_recv_handler()).  But I think
+> >we should at least log an error because a lost event will usually stall
+> >the rdma connection.
+> 
+> I believe that there's a difference here.  For the Infiniband CM, an allocation
+> error behaves the same as if the received MAD were lost or dropped.  Since MADs
+> are unreliable anyway, it's not so much that an IB CM event gets lost, as it
+> doesn't ever occur.  A remote CM should retry the send, which hopefully allows
+> the connection to make forward progress.
+> 
 
-> 
-> > Thanks.   Reverting the below might fix it.
-> 
->     Frankly speaking, I don't see how that can be possible. I haven't touched 
-> any *real* checks in ide_allocate_dma_engine(), so it should fail regardless 
-> of my patch. I'd rather supposed that pci_alloc_consistent() had failed...
-> 
+hmm.  Ok.  I see.  I misunderstood the code in cm_recv_handler().
 
-Oh, OK, yes, sorry, you're right, I forgot.  pci_alloc_consistent() is
-broken on powerpc in that kernel.
+Tom and I have been talking about what we can do to not drop the event.
+Stay tuned.
+
+Steve.
+

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWFMVke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWFMVnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWFMVke (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWFMVke
+	id S932337AbWFMVnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWFMVnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:40:34 -0400
-Received: from gw.openss7.com ([142.179.199.224]:41648 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S932329AbWFMVkd (ORCPT
+	Tue, 13 Jun 2006 17:43:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44428 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932337AbWFMVnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:40:33 -0400
-Date: Tue, 13 Jun 2006 15:40:31 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Daniel Phillips <phillips@google.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Message-ID: <20060613154031.A6276@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Daniel Phillips <phillips@google.com>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com>
+	Tue, 13 Jun 2006 17:43:16 -0400
+Date: Tue, 13 Jun 2006 14:43:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: drfickle@us.ibm.com, pbadari@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2
+Message-Id: <20060613144304.2e846fb1.akpm@osdl.org>
+In-Reply-To: <448EC74F.30104@ru.mvista.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org>
+	<pan.2006.06.12.22.09.47.855327@us.ibm.com>
+	<20060613065443.7f302319.akpm@osdl.org>
+	<448EC74F.30104@ru.mvista.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <448F2A49.5020809@google.com>; from phillips@google.com on Tue, Jun 13, 2006 at 02:12:41PM -0700
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel,
+On Tue, 13 Jun 2006 18:10:23 +0400
+Sergei Shtylyov <sshtylyov@ru.mvista.com> wrote:
 
-On Tue, 13 Jun 2006, Daniel Phillips wrote:
 > 
-> This has the makings of a nice stable internal kernel api.  Why do we want
-> to provide this nice stable internal api to proprietary modules?
+> > Thanks.   Reverting the below might fix it.
+> 
+>     Frankly speaking, I don't see how that can be possible. I haven't touched 
+> any *real* checks in ide_allocate_dma_engine(), so it should fail regardless 
+> of my patch. I'd rather supposed that pci_alloc_consistent() had failed...
+> 
 
-Why not?  Not all non-GPL modules are proprietary.  Do we lose
-something by making a nice stable api available to non-derived
-modules?
+Oh, OK, yes, sorry, you're right, I forgot.  pci_alloc_consistent() is
+broken on powerpc in that kernel.

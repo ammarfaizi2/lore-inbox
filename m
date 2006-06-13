@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWFMN62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWFMOBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWFMN62 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 09:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWFMN61
+	id S1751131AbWFMOBF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 10:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWFMOBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 09:58:27 -0400
-Received: from 220-137-108-193.dynamic.hinet.net ([220.137.108.193]:20240 "HELO
-	digilink.net") by vger.kernel.org with SMTP id S1751128AbWFMN6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 09:58:25 -0400
-Message-ID: <44218B3C.BC06B02@digilink.net>
-Date: Tue, 13 Jun 2006 09:36:50 -0500
-Reply-To: "gaucipaul" <TeresaParker@digilink.net>
-From: "gax1977" <TeresaParker@digilink.net>
-User-Agent: Mozilla 4.75 [en] (Win98; U)
+	Tue, 13 Jun 2006 10:01:05 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:22532 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751130AbWFMOBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 10:01:04 -0400
+Message-ID: <448EC51B.6040404@argo.co.il>
+Date: Tue, 13 Jun 2006 17:00:59 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: "Lou" <linux-kernel@vger.kernel.org>,
-       "Maribel Black" <linux-raid@vger.kernel.org>,
-       "gbfbassfreak" <linux-smp@vger.kernel.org>,
-       "Susanne V Jackson" <linux-ipx@vger.kernel.org>,
-       "Bette" <linux-tape@vger.kernel.org>
-Subject: Payless for a replica fttayder
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+To: Nathan Scott <nathans@sgi.com>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC]  Slimming down struct inode
+References: <20060613143230.A867599@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060613143230.A867599@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Jun 2006 14:01:01.0840 (UTC) FILETIME=[CDD83900:01C68EF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get the Finest Cartier Watch Replica!  All watches are of the finest
-quality.  http://www.selectreplik.com/
+Nathan Scott wrote:
+>
+> Such a change would would indeed break XFS, in exactly the way you
+> suggest Jan - the realtime subvolume does typically use a different
+> blocksize from the data subvolume (the realtime extent size is used,
+> and this can be set per-inode too), and there would now be no way to
+> distinguish this preferred IO size difference.
+>
 
--We're going with you. -No, you're not. My salad days Now I command you to
-proceed at once! Nail your colours to the mast Well, what do you know about
-that? Neither a borrower nor a lender be
+It can be made into an inode operation:
 
+    if (inode->i_ops->getblksize)
+         return inode->i_ops->getblksize(inode);
+    else
+         return inode->i_sb->s_blksize;
+
+Trading some efficiency for space.
+
+-- 
+error compiling committee.c: too many arguments to function
 

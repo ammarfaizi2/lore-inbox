@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932882AbWFMEvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752296AbWFME4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932882AbWFMEvW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 00:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932883AbWFMEvW
+	id S1752296AbWFME4y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 00:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752297AbWFME4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 00:51:22 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:33515
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932882AbWFMEvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 00:51:21 -0400
-Date: Mon, 12 Jun 2006 21:51:32 -0700 (PDT)
-Message-Id: <20060612.215132.42773560.davem@davemloft.net>
-To: marc@perkel.com
-Cc: jeff@garzik.org, linux-kernel@vger.kernel.org, matti.aarnio@zmailer.org,
-       rlrevell@joe-job.com, folkert@vanheusden.com
-Subject: Re: VGER does gradual SPF activation (FAQ matter) - Alternative
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <448E36DE.1000906@perkel.com>
-References: <20060611.115430.112290058.davem@davemloft.net>
-	<448D7FB0.9070604@garzik.org>
-	<448E36DE.1000906@perkel.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 13 Jun 2006 00:56:53 -0400
+Received: from cantor.suse.de ([195.135.220.2]:29568 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1752294AbWFME4x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 00:56:53 -0400
+From: Andi Kleen <ak@suse.de>
+To: Keith Owens <kaos@sgi.com>
+Subject: Re: 2.6.16-rc6-mm2
+Date: Tue, 13 Jun 2006 06:56:45 +0200
+User-Agent: KMail/1.9.3
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <7384.1150169326@kao2.melbourne.sgi.com>
+In-Reply-To: <7384.1150169326@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200606130656.45511.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Marc Perkel <marc@perkel.com>
-Date: Mon, 12 Jun 2006 20:54:06 -0700
 
-> For what it's worth, I do front end spam filtering for domains and I 
-> will volunteer to filter the spam for this list.
+> I have previously suggested a lightweight solution that pins a process
+> to a cpu 
 
-I don't know... the track record for your the email address
-subscriptions for perkel.com on vger.kernel.org isn't all that great
-:-)
+That is preempt_disable()/preempt_enable() effectively
+It's also light weight as much as these things can be.
 
-! egrep perkel.com /var/log/del-log 
-1126508199 davem marc@perkel.com linux-kernel user unknown
-1127412390 davem marc@perkel.com linux-kernel redhat@perkel.com: Unrouteable address
-1128312934 davem marc@perkel.com linux-kernel redhat@perkel.com: 550 REJECTED - User not found
-1128627445 davem marc@perkel.com linux-kernel redhat@perkel.com: unrouteable address
-1129247390 davem marc@perkel.com linux-kernel user unknown
-1130807755 davem marc@perkel.com linux-kernel redhat@perkel.com: 550 REJECTED - User not found
-1131385740 davem marc@perkel.com linux-kernel user unknown
-1136501663 davem marc@perkel.com linux-kernel 421 Lost incoming connection: The error was detected in line 3.
+-Andi (who idly wonders if the P4 designers ever realized what
+software wrenches they caused with their performance choices for
+some instructions)

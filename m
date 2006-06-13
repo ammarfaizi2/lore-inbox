@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWFMMYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWFMMm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWFMMYo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 08:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWFMMYo
+	id S1750746AbWFMMm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 08:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWFMMm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 08:24:44 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:122 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932082AbWFMMYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 08:24:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=c62cYCXhncJecZ4WIRomddM4PDkOYd/VeIkdU05IyEihUikGCAvxMTrLgIC0Vj/GyuBqWUyLSMOWhbRItdgt6tj9hmP3WnFcD3TaSXjwYIGFq3WP2lSQZ3BuHR9DY2Sg43vXLdfxdzfGDzL0P1O6/eAd/5DKj1OvlMeXMREcoww=  ;
-Message-ID: <448EAE85.3090807@yahoo.com.au>
-Date: Tue, 13 Jun 2006 22:24:37 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Andi Kleen <ak@suse.de>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] mm: tracking shared dirty pages
-References: <20060613112120.27913.71986.sendpatchset@lappy>	 <20060613112131.27913.43169.sendpatchset@lappy>	 <p73zmghqn2z.fsf@verdi.suse.de> <1150200914.20886.135.camel@lappy>
-In-Reply-To: <1150200914.20886.135.camel@lappy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jun 2006 08:42:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7344 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750746AbWFMMm1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 08:42:27 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.2
+From: Keith Owens <kaos@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: ak@suse.de, mingo@elte.hu, michal.k.k.piotrowski@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm2 
+In-reply-to: Your message of "Tue, 13 Jun 2006 04:45:32 MST."
+             <20060613044532.29e10a31.akpm@osdl.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Jun 2006 22:41:33 +1000
+Message-ID: <21427.1150202493@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> On Tue, 2006-06-13 at 14:03 +0200, Andi Kleen wrote:
-> 
->>Peter Zijlstra <a.p.zijlstra@chello.nl> writes:
->>
->>
->>>From: Peter Zijlstra <a.p.zijlstra@chello.nl>
->>>
->>>People expressed the need to track dirty pages in shared mappings.
->>
->>Why only shared mappings? Anonymous pages can be dirty too
->>and would need to be written to swap then before making progress.
-> 
-> 
-> Anonymous pages are per definition dirty, as they don't have a
-> persistent backing store.
+Andrew Morton (on Tue, 13 Jun 2006 04:45:32 -0700) wrote:
+>On Tue, 13 Jun 2006 15:08:40 +1000
+>Keith Owens <kaos@sgi.com> wrote:
+>
+>> Andi Kleen (on Tue, 13 Jun 2006 06:56:45 +0200) wrote:
+>> >
+>> >> I have previously suggested a lightweight solution that pins a process
+>> >> to a cpu 
+>> >
+>> >That is preempt_disable()/preempt_enable() effectively
+>> >It's also light weight as much as these things can be.
+>> 
+>> The difference being that preempt_disable() does not allow the code to
+>> sleep.  There are some places where we want to use cpu local data and
+>> the code can tolerate preemption and even sleeping, as long as the
+>> process schedules back on the same cpu.
+>
+>It would be easy to use this mechanism wrongly:
 
-They can be clean.
+Agreed.
 
-> Each eviction of an anonymous page requires IO
-> to swap space. On swap-in pages are removed from the swap space to make
-> place for other pages.
+>	thread 1 on CPU N		thread 2 on CPU N
+>
+>	foo = per_cpu(...)
+>	<preempt>
+>					foo = per_cpu(...);
+>					foo++;
+>					per_cpu(...) = foo;
+>					<unpreempt>
+>	foo++;
+>	per_cpu(...) = foo;	// whoops
+>
+>
+>In which scenarios did you envisage it being used?
 
-No they can remain in swap too.
+There are not many scenarios where this makes any sense.  One is where
+the code is working on a collection of related cpu data and the whole
+collection is protected by a per cpu mutex.  Taking the mutex stops
+your race.  I doubt if we have any code like that yet.
 
-Swap is a bit different because the memory usage patters are going
-to be much different. There is no reason why something similar couldn't
-be done for swap as well, however I don't think there is so much need
-for it that has been demonstrated.
+The other possibility is to allow work to preempt the current process
+while it spins in udelay().  This is a problem on systems that use the
+cycle counter (TSC, ITC) and different cpus run at different rates.
+See http://marc.theaimsgroup.com/?l=linux-ia64&m=113460274218885&w=2
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+I am not going to be too persistent about this facility.  If it seems
+too risky or of too little use, then forget it.
+

@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932889AbWFMFJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932890AbWFMFI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932889AbWFMFJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 01:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbWFMFJZ
+	id S932890AbWFMFI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 01:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932889AbWFMFI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 01:09:25 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63720 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932889AbWFMFJY (ORCPT
+	Tue, 13 Jun 2006 01:08:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23735 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932877AbWFMFI5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 01:09:24 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm2 
-In-reply-to: Your message of "Tue, 13 Jun 2006 06:56:45 +0200."
-             <200606130656.45511.ak@suse.de> 
+	Tue, 13 Jun 2006 01:08:57 -0400
+Date: Tue, 13 Jun 2006 14:07:16 +0900
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Sridhar Samudrala <sri@us.ibm.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+Message-ID: <20060613140716.6af45bec@localhost.localdomain>
+In-Reply-To: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com>
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com>
+X-Mailer: Sylpheed-Claws 2.1.1 (GTK+ 2.8.17; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Jun 2006 15:08:40 +1000
-Message-ID: <10021.1150175320@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen (on Tue, 13 Jun 2006 06:56:45 +0200) wrote:
->
->> I have previously suggested a lightweight solution that pins a process
->> to a cpu 
->
->That is preempt_disable()/preempt_enable() effectively
->It's also light weight as much as these things can be.
+On Mon, 12 Jun 2006 16:56:01 -0700
+Sridhar Samudrala <sri@us.ibm.com> wrote:
 
-The difference being that preempt_disable() does not allow the code to
-sleep.  There are some places where we want to use cpu local data and
-the code can tolerate preemption and even sleeping, as long as the
-process schedules back on the same cpu.
+> This patch makes it convenient to use the sockets API by the in-kernel
+> users like sunrpc, cifs & ocfs2 etc and any future users.
+> Currently they get to this API by directly accesing the function pointers
+> in the sock structure.
+> 
+> Most of these functions are pretty simple and can be made inline and moved
+> to linux/net.h.
 
+...
+
+> @@ -2176,3 +2279,13 @@ EXPORT_SYMBOL(sock_wake_async);
+>  EXPORT_SYMBOL(sockfd_lookup);
+>  EXPORT_SYMBOL(kernel_sendmsg);
+>  EXPORT_SYMBOL(kernel_recvmsg);
+> +EXPORT_SYMBOL(kernel_bind);
+> +EXPORT_SYMBOL(kernel_listen);
+> +EXPORT_SYMBOL(kernel_accept);
+> +EXPORT_SYMBOL(kernel_connect);
+> +EXPORT_SYMBOL(kernel_getsockname);
+> +EXPORT_SYMBOL(kernel_getpeername);
+> +EXPORT_SYMBOL(kernel_getsockopt);
+> +EXPORT_SYMBOL(kernel_setsockopt);
+> +EXPORT_SYMBOL(kernel_sendpage);
+> +EXPORT_SYMBOL(kernel_ioctl);
+
+Don't we want to restrict this to GPL code with EXPORT_SYMBOL_GPL?

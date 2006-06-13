@@ -1,62 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWFMKu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWFMKta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbWFMKu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 06:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWFMKu1
+	id S932066AbWFMKta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 06:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWFMKta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 06:50:27 -0400
-Received: from mail.gmx.net ([213.165.64.21]:20973 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750926AbWFMKu0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 06:50:26 -0400
-X-Authenticated: #428038
-Date: Tue, 13 Jun 2006 12:50:21 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, marty fouts <mf.danger@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Message-ID: <20060613105021.GB13597@merlin.emma.line.org>
-Mail-Followup-To: Bernd Petrovitsch <bernd@firmix.at>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	marty fouts <mf.danger@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	linux-kernel@vger.kernel.org
-References: <200606130305.k5D35YhA004268@laptop11.inf.utfsm.cl> <1150187478.28123.7.camel@tara.firmix.at>
+	Tue, 13 Jun 2006 06:49:30 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:23677 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750926AbWFMKt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 06:49:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MHvV7gmnNBlNx2xunQvisCaPjCfV8eY5q7ZfW3JsYf+Z+3oBdMFFuX1uwe1dBmM4rTT9iwPY+vej4ka2GAPGJIqinajdo0km08lscx50y0uSDy5rSnoZFrO+rGQ1N0RVaLw0rRLql9yWG+dTCC86zo9qMKc2C5RqQOBKI5De8lU=
+Message-ID: <b0943d9e0606130349s24614bbcia6a650342437d3d1@mail.gmail.com>
+Date: Tue, 13 Jun 2006 11:49:28 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+Cc: "Pekka J Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060613072646.GA17978@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1150187478.28123.7.camel@tara.firmix.at>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11-2006-06-08
-X-Y-GMX-Trusted: 0
+References: <20060611111815.8641.7879.stgit@localhost.localdomain>
+	 <20060611112156.8641.94787.stgit@localhost.localdomain>
+	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
+	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
+	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
+	 <20060612105345.GA8418@elte.hu>
+	 <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
+	 <20060612192227.GA5497@elte.hu>
+	 <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
+	 <20060613072646.GA17978@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch schrieb am 2006-06-13:
+On 13/06/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>
+> > Hi Ingo,
+> >
+> > On Mon, 12 Jun 2006, Ingo Molnar wrote:
+> > > i dont know - i feel uneasy about the 'any pointer' method - it has a
+> > > high potential for false negatives, especially for structures that
+> > > contain strings (or other random data), etc.
+> >
+> > Is that a problem in practice?  Structures that contain data are
+> > usually allocated from the slab.  There needs to be a link to that
+> > struct from the gc roots to get a false negative.  Or am I missing
+> > something here?
+>
+> you should think of this in terms of a 'graph of data', where each node
+> is a block of memory. The edges between nodes are represented by
+> pointers. The graph roots from .data/bss, but it may go indefinitely
+> into dynamically allocated blocks as well - just think of a hash-list
+> where the hash list table is in .data, but all the chain entries are in
+> allocated blocks and the chaining can be arbitrarily deep.
+[...]
 
-> On Mon, 2006-06-12 at 23:05 -0400, Horst von Brand wrote:
-> > Bernd Petrovitsch <bernd@firmix.at> wrote:
-> [...]
-> > > Use secure authenticated mail submission on a known good MTA of said
-> > > domain (and even the smallest ISP should be able to set that up).
-> > 
-> > So what? What should me make me trust some domain that I've never before
-> 
-> Well, so everyone can send email through an MTA (the email accounts
-> "home MTA") covered in the SPF records.
+Nice description, I should add it to the kmemleak doc :-)
 
-As (1) SPF this is demonstrably useless to establish trust and (2) the
-argument that SPF doesn't provide the required blacklist information
-hasn't been countered yet, it follows that
-SPF just makes life harder for everyone without real benefits in return.
+> Currently kmemleak does not track the per-block position of 'outgoing
+> pointers': it assumes that all fields within a block may be an outgoing
+> pointer. This is a source of false negatives. (fields that do not
+> contain a real pointer might accidentally contain a value that is
+> interpreted as a false edge - falsely connecting a leaked block to the
+> graph.)
 
-SPF also prefers end-to-end mailings and falls short when relays are
-used - but these are advocated by the SPF disciples.
+That's correct but it might not be a real issue in practice. Many
+people use the Boehm's GC and haven't complained about the amount of
+false negatives (AFAIK, there is even a proposal to include it in the
+next C++ standard).
 
-Can this SPF madness please be buried now?
+> Kmemleak does recognize 'incoming pointers' via the offsetof tracking
+> method, but it's limited in that it is not a type-accurate method
+> either: it tracks per-size offsets, so two types accidentally having the
+> same size merges their 'possible incoming pointer offset' lists, which
+> introduces false negatives. (a pointer may be considered an incoming
+> edge while in reality the pointer is not validly pointing into this
+> structure)
+
+The number of collisions would need to be investigated. On my system,
+there are 158 distinct sizeof values generated by container_of. Of
+this, 90 have at least two aliases (incoming pointer offsets). I'm not
+sure how many different structures are in the kernel but I can't find
+an easy (gcc magic) way to get a unique id for a type (apart from
+modifying all the container_of calls and add a 4th argument - maybe a
+string with the name of the type).
+
+> The full matching that was suggested before would further weaken the
+> 'incoming pointers' logic and would introduce yet another source of
+> false negatives: we'd match every block pointer against every possible
+> target address that points to within another block.
+
+That's correct.
+
+> My suggestion would be to attempt to achieve perfect matches: annotate
+> structures to figure out the offset of pointers, and thus to figure out
+> the precise source addresses and a precise list of valid target
+> addresses. This is a quite elaborate task to pull off though, and i'm
+> not sure it's possible without intolerable maintainance overhead, but we
+> should consider it nevertheless. It will also be _much_ faster, because
+> per block we'd only have to scan a handful of outgoing pointers.
+
+The problem would be simpler if you get a reliable typeid. If we
+consider the sizeof method, a script could scan the kernel and
+generate a list of sizeof-pointer_offset pairs which is added to a
+radix tree (similar to the aliases tree we have) at boot time. But
+this would assume adding the memleak_padding() call not only for
+incoming pointers but also for outgoing ones. The method, however,
+would eliminate the need for annotating each structure in the kernel.
+
+> This also means that by default we'd have no false positives at all,
+
+You can still have a scenario like this - a pointer is freed but the
+value remains in a valid member; it is afterwards re-allocated and
+leaks but the value is found in a previous allocation. I think it's a
+very low risk for this to happen and not worth the hassle.
+
+> but
+> that there is a capable annotation method to reduce the amount of false
+> negatives, in a gradual and managable way - down to zero if everything
+> is annotated.
+
+I'm not sure this could be achieved in a maintainable way, at least
+not without support from the compiler.
 
 -- 
-Matthias Andree
+Catalin

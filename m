@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWFMTzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWFMTz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWFMTzq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 15:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWFMTzp
+	id S932186AbWFMTz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 15:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWFMTz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 15:55:45 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:5343 "EHLO
+	Tue, 13 Jun 2006 15:55:58 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:4319 "EHLO
 	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932175AbWFMTzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 15:55:16 -0400
-Date: Tue, 13 Jun 2006 21:55:16 +0200
+	id S932074AbWFMTzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 15:55:10 -0400
+Date: Tue, 13 Jun 2006 21:55:09 +0200
 From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH -mm] constify mm/page_alloc.c strings
-Message-ID: <20060613195516.GG24167@rhlx01.fht-esslingen.de>
+Subject: [PATCH -mm] constify sched.c stat_nam strings
+Message-ID: <20060613195509.GF24167@rhlx01.fht-esslingen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -28,15 +28,15 @@ Hi all,
 Signed-off-by: Andreas Mohr <andi@lisas.de>
 
 
-diff -urN linux-2.6.17-rc6-mm2.orig/mm/page_alloc.c linux-2.6.17-rc6-mm2.my/mm/page_alloc.c
---- linux-2.6.17-rc6-mm2.orig/mm/page_alloc.c	2006-06-13 19:28:17.000000000 +0200
-+++ linux-2.6.17-rc6-mm2.my/mm/page_alloc.c	2006-06-13 19:32:18.000000000 +0200
-@@ -2743,7 +2743,7 @@
- 	.show	= zoneinfo_show,
- };
+diff -urN linux-2.6.17-rc6-mm2.orig/kernel/sched.c linux-2.6.17-rc6-mm2.my/kernel/sched.c
+--- linux-2.6.17-rc6-mm2.orig/kernel/sched.c	2006-06-13 19:28:17.000000000 +0200
++++ linux-2.6.17-rc6-mm2.my/kernel/sched.c	2006-06-13 19:32:03.000000000 +0200
+@@ -4662,7 +4662,7 @@
+ 	task_t *relative;
+ 	unsigned state;
+ 	unsigned long free = 0;
+-	static const char *stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
++	static const char * const stat_nam[] = { "R", "S", "D", "T", "t", "Z", "X" };
  
--static char *vmstat_text[] = {
-+static const char * const vmstat_text[] = {
- 	/* Zoned VM counters */
- 	"nr_anon",
- 	"nr_mapped",
+ 	printk("%-13.13s ", p->comm);
+ 	state = p->state ? __ffs(p->state) + 1 : 0;

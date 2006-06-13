@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWFMLW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWFMLXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWFMLW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 07:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWFMLW3
+	id S1751073AbWFMLXG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 07:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWFMLWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 07:22:29 -0400
-Received: from gw.openss7.com ([142.179.199.224]:12200 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1750989AbWFMLWU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 07:22:20 -0400
-Date: Tue, 13 Jun 2006 05:22:15 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Message-ID: <20060613052215.B27858@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Stephen Hemminger <shemminger@osdl.org>,
-	Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060613140716.6af45bec@localhost.localdomain>; from shemminger@osdl.org on Tue, Jun 13, 2006 at 02:07:16PM +0900
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	Tue, 13 Jun 2006 07:22:48 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:10235 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1750990AbWFMLWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 07:22:37 -0400
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+Date: Tue, 13 Jun 2006 13:22:13 +0200
+Message-Id: <20060613112213.27913.71168.sendpatchset@lappy>
+In-Reply-To: <20060613112120.27913.71986.sendpatchset@lappy>
+References: <20060613112120.27913.71986.sendpatchset@lappy>
+Subject: [PATCH 5/6] mm: small cleanup of install_page()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen,
 
-On Tue, 13 Jun 2006, Stephen Hemminger wrote:
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-> > @@ -2176,3 +2279,13 @@ EXPORT_SYMBOL(sock_wake_async);
-> >  EXPORT_SYMBOL(sockfd_lookup);
-> >  EXPORT_SYMBOL(kernel_sendmsg);
-> >  EXPORT_SYMBOL(kernel_recvmsg);
-> > +EXPORT_SYMBOL(kernel_bind);
-> > +EXPORT_SYMBOL(kernel_listen);
-> > +EXPORT_SYMBOL(kernel_accept);
-> > +EXPORT_SYMBOL(kernel_connect);
-> > +EXPORT_SYMBOL(kernel_getsockname);
-> > +EXPORT_SYMBOL(kernel_getpeername);
-> > +EXPORT_SYMBOL(kernel_getsockopt);
-> > +EXPORT_SYMBOL(kernel_setsockopt);
-> > +EXPORT_SYMBOL(kernel_sendpage);
-> > +EXPORT_SYMBOL(kernel_ioctl);
-> 
-> Don't we want to restrict this to GPL code with EXPORT_SYMBOL_GPL?
+Smallish cleanup to install_page(), could save a memory read
+(haven't checked the asm output) and sure looks nicer.
 
-There are direct derivatives of the BSD/POSIX system call
-interface.  The protocol function pointers within the socket
-structure are not GPL only.  Why make this wrappered access to
-them GPL only?  It will only encourange the reverse of what they
-were intended to do: be used instead of the protocol function
-pointers within the socket structure, that currently carry no
-such restriction.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
 
+Index: linux-2.6/mm/fremap.c
+===================================================================
+--- linux-2.6.orig/mm/fremap.c	2006-06-08 13:47:29.000000000 +0200
++++ linux-2.6/mm/fremap.c	2006-06-08 13:50:44.000000000 +0200
+@@ -79,9 +79,9 @@ int install_page(struct mm_struct *mm, s
+ 		inc_mm_counter(mm, file_rss);
+ 
+ 	flush_icache_page(vma, page);
+-	set_pte_at(mm, addr, pte, mk_pte(page, prot));
++	pte_val = mk_pte(page, prot);
++	set_pte_at(mm, addr, pte, pte_val);
+ 	page_add_file_rmap(page);
+-	pte_val = *pte;
+ 	update_mmu_cache(vma, addr, pte_val);
+ 	err = 0;
+ unlock:

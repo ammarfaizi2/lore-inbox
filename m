@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWFMPI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWFMPRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWFMPI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 11:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWFMPI5
+	id S932124AbWFMPRT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 11:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWFMPRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 11:08:57 -0400
-Received: from xenotime.net ([66.160.160.81]:29619 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751168AbWFMPI4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 11:08:56 -0400
-Date: Tue, 13 Jun 2006 08:11:39 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: mikpe@it.uu.se, akpm@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] [2.6.17-rc6] Section mismatch in drivers/net/ne.o
- during modpost
-Message-Id: <20060613081139.ea605d64.rdunlap@xenotime.net>
-In-Reply-To: <10735.1150176929@kao2.melbourne.sgi.com>
-References: <200606110051.k5B0pLBI010621@harpo.it.uu.se>
-	<10735.1150176929@kao2.melbourne.sgi.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 13 Jun 2006 11:17:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47495 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932124AbWFMPRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 11:17:18 -0400
+Subject: Re: [patch] s390: missing ifdef in bitops.h
+From: David Woodhouse <dwmw2@infradead.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+In-Reply-To: <20060613120916.GA9405@osiris.boeblingen.de.ibm.com>
+References: <20060613120916.GA9405@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Date: Tue, 13 Jun 2006 16:17:07 +0100
+Message-Id: <1150211828.2844.20.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006 15:35:29 +1000 Keith Owens wrote:
+On Tue, 2006-06-13 at 14:09 +0200, Heiko Carstens wrote:
+> Add missing #ifdef __KERNEL__ to asm-s390/bitops.h
 
-> Mikael Pettersson (on Sun, 11 Jun 2006 02:51:21 +0200 (MEST)) wrote:
-> >On Sat, 10 Jun 2006 12:13:35 -0700, Randy.Dunlap wrote:
-> >>On Sat, 10 Jun 2006 14:11:42 +0200 (MEST) Mikael Pettersson wrote:
-> >>
-> >>> While compiling 2.6.17-rc6 for a 486 with an NE2000 ISA ethernet card, I got:
-> >>> 
-> >>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x158) and 'ne_block_input'
-> >>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x176) and 'ne_block_input'
-> >>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x183) and 'ne_block_input'
-> >>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x1ea) and 'ne_block_input'
-> >>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.data:isapnp_clone_list from .text between 'init_module' (at offset 0x251) and 'ne_block_input'
-> >>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x266) and 'ne_block_input'
-> >>> WARNING: drivers/net/ne.o - Section mismatch: reference to .init.text: from .text between 'init_module' (at offset 0x29b) and 'ne_block_input'
-> >>> 
-> >>> Not sure how serious this is; the driver seems to work fine later on.
-> >>
-> >>Doesn't look serious.  init_module() is not __init, but it calls
-> >>some __init functions and touches some __initdata.
-> >>
-> >>BTW, I would be happy to see some consistent results from modpost
-> >>section checking.  I don't see all of these warnings (I see only 1)
-> >>when using gcc 3.3.6.  What gcc version are you using?
-> >>Does that matter?  (not directed at anyone in particular)
-> >
-> >The messages above are from when I used gcc-4.1.1.
-> >With gcc-3.2.3 I only see a single warning.
-> 
-> Probably over enthusiastic gcc inlining.  gcc 4 will inline functions
-> that are not declared as inline.  That is not so bad, except that some
-> versions of gcc will ignore a mismatch in function attributes and
-> inline a __init function into normal text, generating additional
-> section mismatches.  For a specific example, see
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=113824309203482&w=2
+But asm/bitops.h isn't suitable for userspace _anyway_, is it?
+We should be able to drop all instances of __KERNEL__ from it.
 
-Yes, I am seeing lots of that.  :(
+Which means that asm-s390/posix_types.h probably ought never to be
+trying to include asm/bitops.h in the !__KERNEL__ case... we never had
+libc5 on S390 anyway, did we?
 
----
-~Randy
+Martin, is it OK for me to add this to the hdrcleanup-2.6.git tree?
+
+diff --git a/include/asm-s390/posix_types.h b/include/asm-s390/posix_types.h
+index 61788de..18344dc 100644
+--- a/include/asm-s390/posix_types.h
++++ b/include/asm-s390/posix_types.h
+@@ -76,7 +76,7 @@ #endif                       /* !defined
+ } __kernel_fsid_t;
+ 
+ 
+-#if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
++#ifdef __KERNEL__
+ 
+ #ifndef _S390_BITOPS_H
+ #include <asm/bitops.h>
+@@ -94,6 +94,6 @@ #define __FD_ISSET(fd,fdsetp)  test_bit(
+ #undef  __FD_ZERO
+ #define __FD_ZERO(fdsetp) (memset ((fdsetp), 0, sizeof(*(fd_set *)(fdsetp))))
+ 
+-#endif     /* defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)*/
++#endif     /* __KERNEL__ */
+ 
+ #endif
+
+
+ 
+
+-- 
+dwmw2
+

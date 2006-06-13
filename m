@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752328AbWFMFpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWFMFsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752328AbWFMFpp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 01:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752329AbWFMFpo
+	id S932521AbWFMFsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 01:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWFMFsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 01:45:44 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18485 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1752327AbWFMFpo (ORCPT
+	Tue, 13 Jun 2006 01:48:09 -0400
+Received: from ns1.suse.de ([195.135.220.2]:12678 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932521AbWFMFsH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 01:45:44 -0400
-Date: Tue, 13 Jun 2006 07:46:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Vishal Patil <vishpat@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: CSCAN vs CFQ I/O scheduler benchmark results
-Message-ID: <20060613054609.GR4420@suse.de>
-References: <4745278c0606091230g1cff8514vc6ad154acb62e341@mail.gmail.com> <4745278c0606091915n3ed7563do505664c4f8070f81@mail.gmail.com> <20060611185854.GF13556@suse.de> <4745278c0606111647g7ca1392bjb46936f69d6b668d@mail.gmail.com> <20060612064136.GB4420@suse.de> <4745278c0606121038y7fcdab2q33a9065e9071938b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jun 2006 01:48:07 -0400
+From: Andi Kleen <ak@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.16-rc6-mm2
+Date: Tue, 13 Jun 2006 07:48:02 +0200
+User-Agent: KMail/1.9.3
+Cc: Keith Owens <kaos@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <10021.1150175320@kao2.melbourne.sgi.com> <200606130718.35498.ak@suse.de> <448E5070.90003@yahoo.com.au>
+In-Reply-To: <448E5070.90003@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4745278c0606121038y7fcdab2q33a9065e9071938b@mail.gmail.com>
+Message-Id: <200606130748.02832.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12 2006, Vishal Patil wrote:
-> Jens
+
+> You can't do this in general, because CPU hotplug will reset the
+> affinity mask if the CPU is unplugged. I'd just say: don't do that.
+
+Good point.
 > 
-> Could you let me know what tests would be fair to make comparsion
-> between the I/O schedulers? Thanks.
+> However you can get some similar functionality by putting stuff in
+> task_struct.
 
-Depends on what you want to test, of course! I can't give you an answer
-on that.
+Or better don't do it at all. per cpu data and sleeping just doesn't mix.
 
-The thing about IO schedulers is that it's easy to provide good
-throughput or good latency, but hard to do both. The tests you did so
-far have x processes doing the same thing. Try something that has eg an
-async writer going full throttle, and then a/some sync readers.
-
--- 
-Jens Axboe
-
+-Andi

@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWFMWAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWFMWJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWFMWAV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWFMWAV
+	id S964773AbWFMWJU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWFMWJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:00:21 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:58833 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S932302AbWFMWAU (ORCPT
+	Tue, 13 Jun 2006 18:09:20 -0400
+Received: from relay02.pair.com ([209.68.5.16]:34316 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S932365AbWFMWJS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:00:20 -0400
-Date: Tue, 13 Jun 2006 14:52:51 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: perfmon@napali.hpl.hp.com
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       oprofile-list@lists.sourceforge.net,
-       perfctr-devel@lists.sourceforge.net
-Subject: 2.6.17-rc6 new perfmon code base + libpfm available
-Message-ID: <20060613215251.GB5407@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Tue, 13 Jun 2006 18:09:18 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Tue, 13 Jun 2006 17:09:16 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: John Heffner <jheffner@psc.edu>
+cc: Linus Torvalds <torvalds@osdl.org>, Mark Lord <lkml@rtr.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       davem@davemloft.net
+Subject: Re: 2.6.17: networking bug??
+In-Reply-To: <448F03B3.5040501@psc.edu>
+Message-ID: <Pine.LNX.4.64.0606131706040.4856@turbotaz.ourhouse>
+References: <448EC6F3.3060002@rtr.ca> <448ECB09.3010308@rtr.ca>
+ <448ED2FC.2040704@rtr.ca> <448ED9B3.8050506@rtr.ca> <448EEE9D.10105@rtr.ca>
+ <448EF45B.2080601@rtr.ca> <448EF85E.50405@psc.edu> <Pine.LNX.4.64.0606131048550.5498@g5.osdl.org>
+ <448F03B3.5040501@psc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 13 Jun 2006, John Heffner wrote:
 
-I have released another version of the perfmon new code base package.
-This version of the kernel patch is relative to 2.6.17-rc6.
+>
+> In the last couple years, we've added code that can automatically size the 
+> buffers as appropriate for each connection, but it's completely crippled 
+> unless you use a window scale.  Personally, I think it's not a question of 
+> *whether* we have to start using a window scale by default, but *when*.  I 
+> don't know that we want to let a small number of unambiguously broken 
+> middleboxes kill our forward progress.
 
-The patch includes:
-	- moved all set/multiplexing related code into a dedicated file,
-	  name perfmon_sets.c.
+Another example - Same thing happened with ECN. I recall setting up a mail 
+server at the time and noticing that I had to disable ECN because some 
+dumbass PIX routers out there were dropping packets with a _reserved bit_ 
+set! Sure, there was a firmware upgrade, but the dingbat admins I tried to 
+alert didn't seem (at the time) too interested in fixing their problem.
 
-	- cleaned a lot of code (for style, dead code)
+Does anyone have any interesting statistics on how often end-users are 
+likely to run into this crap? It really is a shame when you have to suck just 
+because someone else does.
 
-	- switch all lists to use list.h 
+>
+> Thanks,
+>  -John
 
-	- fix locking bugs in perfmon_syscalls.c
-
-	- simplified PMU description tables with macros to improve
-	  readability and extensibility
-
-	- updated Kconfig structure as per Roman's feedback
-
-	- changed the pfarg_setinfo structure to include 2 new
-	  bitfields to report list of available PMU registers
-
-As a consequence of the small API change, you need to update to
-libpfm-3.2-060613.
-
-Also new in libpfm-3.2-060613:
-	- integrated common code to manage separate event unit masks
-	  by Kevin Corry (IBM). With this code we now have an API to
-	  handle complicated unit mask combinations on processors such
-	  as P4, for instance.
-
-	- updated detect_pmcs.c to use the new pfm_getinfo_evtsets()
-	  to retrieve the list of unavalaible pmc registers.
-
-	- updated all examples to use the new detect_pmcs code.
-
-This version of the library ONLY works with 2.6.17-rc6 and higher.
-
-
-You can grab the new packages at our web site:
-
-	 http://perfmon2.sf.net
--- 
--Stephane
+Cheers,
+Chase

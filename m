@@ -1,71 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWFMKE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWFMKFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbWFMKE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 06:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWFMKE1
+	id S1750897AbWFMKFj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 06:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWFMKFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 06:04:27 -0400
-Received: from wx-out-0102.google.com ([66.249.82.200]:26465 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750852AbWFMKE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 06:04:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=cGzHxNwclF2UixC2kpVvm4NDcv9kLzyBMkTdjKDxki7wS4L2meTC13+GbEWqMEk5/oDeXt2L00jDzUEoghCb6LKa2AoHGPOVkLzBye8Smf/7BClEgNk+xL3meF2401yaA4Pkwpw+fRKo0C9rgBHly4iwt/g1RKdGtPPoqlG3JR8=
-Message-ID: <84144f020606130304s7420c642wababc4ce40edbcec@mail.gmail.com>
-Date: Tue, 13 Jun 2006 13:04:26 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <b0943d9e0606130245me8ff210h672a8c3360ad6944@mail.gmail.com>
+	Tue, 13 Jun 2006 06:05:39 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:34323 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750895AbWFMKFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 06:05:39 -0400
+Message-ID: <448E8DE7.4080003@shadowen.org>
+Date: Tue, 13 Jun 2006 11:05:27 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Franck Bui-Huu <vagabon.xyz@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [SPARSEMEM] confusing uses of SPARSEM_EXTREME (try #2)
+References: <448D1117.8010407@innova-card.com> <448D9577.3040903@shadowen.org>	 <cda58cb80606121021w22207ef6yf6dfcbf428b144c3@mail.gmail.com>	 <448DA530.7050604@shadowen.org> <cda58cb80606130134h4f74a4b8ndd977a89942c8933@mail.gmail.com>
+In-Reply-To: <cda58cb80606130134h4f74a4b8ndd977a89942c8933@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
-	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
-	 <20060612105345.GA8418@elte.hu>
-	 <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-	 <20060612192227.GA5497@elte.hu>
-	 <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
-	 <b0943d9e0606122359q6ffabdbdqada9a6c79642cf2a@mail.gmail.com>
-	 <Pine.LNX.4.58.0606131052400.15861@sbz-30.cs.Helsinki.FI>
-	 <b0943d9e0606130245me8ff210h672a8c3360ad6944@mail.gmail.com>
-X-Google-Sender-Auth: 5a17dd9fd95a4bb3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13/06/06, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
-> > As far as I understood, Ingo is worried about:
-> >
-> >         struct s { /* some fields */; char *buf; };
-> >
-> >         struct s *p = kmalloc(sizeof(struct s) + BUF_SIZE);
-> >         p->buf = p + sizeof(struct s);
-> >
-> > Which could lead to false negative due to p->buf pointing to p.  However,
-> > for us to even _find_ p->buf, we would need an incoming pointer _to_ p
-> > which makes me think this is not a problem in practice.  Hmm?
+Franck Bui-Huu wrote:
+> 2006/6/12, Andy Whitcroft <apw@shadowen.org>:
+> 
+>> Franck Bui-Huu wrote:
+>> > Hi Andy
+>> >
+>> > 2006/6/12, Andy Whitcroft <apw@shadowen.org>:
+>> >
+>> >>
+>> >> In my mind the positive option is selecting for code supporting
+>> EXTREME
+>> >> so it seems to make sense to use that option.
+>> >
+>> >
+>> > well I find it confusing because in my mind, something like this seems
+>> > more logical.
+>> >
+>> > #ifndef CONFIG_SPARSEMEM_STATIC
+>> > static struct mem_section *sparse_index_alloc(int nid)
+>> > {
+>> >        return alloc_bootmem_node(...);
+>> > }
+>> > #else
+>> > static struct mem_section *sparse_index_alloc(int nid)
+>> > {
+>> >        /* nothing to do here, since it has been statically allocated */
+>> >        return 0;
+>> > }
+>> > #endif
+>>
+>> But also in this case the code in the first stanza is only applicable to
+>> SPARSEMEM EXTREME, therefore its also logical to say
+>>
+> 
+> Well I don't think so. Please show me which part of this code is
+> _only_ applicable to EXTREME.
+> 
+> The only thing that makes it applicable to EXTREME is not in the code
+> but rather in the Kconfig script:
+> 
+>        config SPARSEMEM_EXTREME
+>                def_bool y
+>                depends on SPARSEMEM && !SPARSEMEM_STATIC
+> 
 
-On 6/13/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> Not exactly. In the above case, Ingo (and me) is worried about having
-> a incoming pointer (from other block) equal to p->buf and therefore
-> inside the block allocated with kmalloc.
+I think you have missed the point of the code here.  There are two
+SPARSEMEM variants; STATIC and EXTREME.  The key point is that STATIC
+was the original and only variant.  EXTREME is a later variant.
 
-Ah, right, I overlooked that case. But, is it really a leak? That is,
-even though we currently don't have a pointer to the beginning fo the
-block, we don't know for sure it was a leak. You're now allowed to do:
+In the static case the section map is defined as:
 
-    p = kmalloc(...);
-    p = p + HDR_SIZE;
+  struct mem_section mem_section[NR_SECTION_ROOTS][SECTIONS_PER_ROOT]
 
-    /* ... */
+Where the NR_SECTION_ROOTS is always 1 allowing greater code sharing
+between the two modes.  This the the primary and default variant.
 
-    kfree(p - HDR_SIZE);
+In the extreme case it is defined as:
 
-Do you think we should ban the above?
+  struct mem_section *mem_section[NR_SECTION_ROOTS]
 
-                                     Pekka
+The key difference is that in EXTREME the second level is not allocated
+statically, they are allocated as sections are discovered and
+initialised.  The sparse_index_alloc routine is a SPARSEMEM hook to give
+ variants the oppotunity to prepare for an area of sections to be used.
+The EXTREME variant is using this hook to allocate the second levels as
+it goes thus only populating those it is using; which is its key feature.
+
+If we look at the definition in question, this is describing this
+relationship exactly.  If we have EXTREME variant turned on then use the
+alloc_bootmem_node to init the section root, else use the default
+behaviour from the default variant STATIC.
+
+  #ifdef CONFIG_SPARSEMEM_EXTREME
+  static struct mem_section *sparse_index_alloc(int nid)
+  {
+         return alloc_bootmem_node(...);
+  }
+  #else
+  static struct mem_section *sparse_index_alloc(int nid)
+  {
+         return 0;
+  }
+  #endif
+
+This would be even more clear should a third variant MAGIC be added
+where we would have:
+
+  #ifdef CONFIG_SPARSEMEM_MAGIC
+  static struct mem_section *sparse_index_alloc(int nid)
+  {
+         return wave_wand();
+  }
+  #elif defined(CONFIG_SPARSEMEM_EXTREME)
+  static struct mem_section *sparse_index_alloc(int nid)
+  {
+         return alloc_bootmem_node(...);
+  }
+  #else
+  static struct mem_section *sparse_index_alloc(int nid)
+  {
+         return 0;
+  }
+  #endif
+
+If this was changed to an #ifndef we would be talking about something like:
+
+  #if !defined(SPARSEMEM_EXTREME) && !defined(SPARSEMEM_STATIC)
+  ... magic case
+  #elif !defined(SPARSMEM_MAGIC) && !defined(SPARSMEM_STATIC)
+  ... extreme case
+  #else
+  ... default case
+  #endif
+
+I think we can agree this is not clearer.
+
+-apw

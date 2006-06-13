@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWFMWMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWFMWNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964770AbWFMWMg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWFMWMg
+	id S964776AbWFMWNl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWFMWNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:12:36 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:41687 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S932286AbWFMWMf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:12:35 -0400
-Message-ID: <448F384F.8050207@hp.com>
-Date: Tue, 13 Jun 2006 15:12:31 -0700
-From: Rick Jones <rick.jones2@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.6) Gecko/20040304
-X-Accept-Language: en-us, en
+	Tue, 13 Jun 2006 18:13:41 -0400
+Received: from mail8.sea5.speakeasy.net ([69.17.117.10]:59820 "EHLO
+	mail8.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S932286AbWFMWNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 18:13:40 -0400
+Date: Tue, 13 Jun 2006 18:13:38 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Sridhar Samudrala <sri@us.ibm.com>
+cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 2/2] update sunrpc to use in-kernel sockets API
+In-Reply-To: <1150215626.31720.9.camel@w-sridhar2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.64.0606131812070.6488@d.namei>
+References: <1150156564.19929.33.camel@w-sridhar2.beaverton.ibm.com> 
+ <Pine.LNX.4.64.0606122320010.31627@d.namei> <448E42AE.1010901@us.ibm.com> 
+ <Pine.LNX.4.64.0606131006250.3553@d.namei> <1150215626.31720.9.camel@w-sridhar2.beaverton.ibm.com>
 MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-Cc: David Miller <davem@davemloft.net>, jheffner@psc.edu, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.17: networking bug??
-References: <Pine.LNX.4.64.0606131048550.5498@g5.osdl.org>	<448F0344.9000008@rtr.ca>	<448F0D4B.30201@rtr.ca>	<20060613.142603.48825062.davem@davemloft.net> <448F32E1.8080002@rtr.ca>
-In-Reply-To: <448F32E1.8080002@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark
+On Tue, 13 Jun 2006, Sridhar Samudrala wrote:
 
- From everything I have read so far (which admittedly hasn't been 
-everything) it sounds like the firewall in question was a ticking 
-timebomb.  If 2.6.17 hadn't set it off, something else might very well 
-have done so.
+> My patch doesn't touch this section of the code and this is called 
+> after the assignment we are talking about. So we should be using the
+> right sendpage in the actual call.
 
-Or, if you prefer another metaphore, 2.6.17 was simply the last in a 
-series of straws on the back of the camel what was the firewall.  Meta 
-issues of whether or not the camel that is firewalls should have ever 
-been allowed to poke its nose in the Internet Tent notwithstanding :)
+Ok.
 
-At the very least, the firewall, if it is going to be "stateless," has 
-to strip the window scaling option from the SYN's that go past. 
-Otherwise,  I would be inclined to agree with David that the firewall is 
-fundamentally broken.
+Acked-by: James Morris <jmorris@namei.org>
 
-rick jones
+(for both patches).
+
+-- 
+James Morris
+<jmorris@namei.org>

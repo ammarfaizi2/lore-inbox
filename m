@@ -1,174 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932695AbWFMAeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbWFMAea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932695AbWFMAeU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jun 2006 20:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbWFMAeU
+	id S932701AbWFMAea (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jun 2006 20:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932698AbWFMAe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jun 2006 20:34:20 -0400
-Received: from ns2.suse.de ([195.135.220.15]:61419 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932695AbWFMAeP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jun 2006 20:34:15 -0400
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 07/16] 64bit resource: fix up printks for resources in video drivers
-Reply-To: Greg KH <greg@kroah.com>
-Date: Mon, 12 Jun 2006 17:31:09 -0700
-Message-Id: <11501587011194-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11501586982289-git-send-email-greg@kroah.com>
-References: <20060613003033.GA10717@kroah.com> <11501586781628-git-send-email-greg@kroah.com> <1150158683636-git-send-email-greg@kroah.com> <11501586871870-git-send-email-greg@kroah.com> <11501586902008-git-send-email-greg@kroah.com> <11501586942938-git-send-email-greg@kroah.com> <11501586982289-git-send-email-greg@kroah.com>
+	Mon, 12 Jun 2006 20:34:29 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:10948 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932691AbWFMAeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jun 2006 20:34:06 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: x86_64: x86-64 mailing lists / posting patchkits / x86-64 releases
+Date: Tue, 13 Jun 2006 10:35:32 +1000
+User-Agent: KMail/1.9.1
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+References: <200606121307.54556.ak@suse.de>
+In-Reply-To: <200606121307.54556.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1699024.JkuRJrM6Ck";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200606131035.36012.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+--nextPart1699024.JkuRJrM6Ck
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is needed if we wish to change the size of the resource structures.
+Hi Andi et al.
 
-Based on an original patch from Vivek Goyal <vgoyal@in.ibm.com>
+On Monday 12 June 2006 21:07, Andi Kleen wrote:
+> Hallo,
+>
+> Some administrativa.
+>
+> In the last time I've posted all patches I sent to Linus
+> at discuss@x86-64.org at least once. I did this because this list is
+> relatively low volume and I tended to get some useful feedback from the
+> people subscribed here.
+>
+> However I heard some rumours that I scared people away
+> from the list with the many patches.
+>
+> I also planned to post patches more often to get better
+> turnaround for reviews on changed patches.
+>
+> We still have a patches@x86-64 mailing list on x86-64.org which
+> is mostly unused. If I moved the big patch floods over there,
+> would the people who do reviews subscribe there? Please comment.
 
-Cc: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/media/video/bt8xx/bttv-driver.c    |   10 ++++++----
- drivers/media/video/cx88/cx88-alsa.c       |    8 ++++----
- drivers/media/video/cx88/cx88-core.c       |    4 ++--
- drivers/media/video/cx88/cx88-mpeg.c       |    4 ++--
- drivers/media/video/cx88/cx88-video.c      |    4 ++--
- drivers/media/video/saa7134/saa7134-core.c |    8 ++++----
- 6 files changed, 20 insertions(+), 18 deletions(-)
+I'll subscribe. (As in reply to the comment below...) I didn't know this si=
+te=20
+or these lists existed.
 
-diff --git a/drivers/media/video/bt8xx/bttv-driver.c b/drivers/media/video/bt8xx/bttv-driver.c
-index 423e954..aa3203a 100644
---- a/drivers/media/video/bt8xx/bttv-driver.c
-+++ b/drivers/media/video/bt8xx/bttv-driver.c
-@@ -4019,8 +4019,9 @@ static int __devinit bttv_probe(struct p
- 	if (!request_mem_region(pci_resource_start(dev,0),
- 				pci_resource_len(dev,0),
- 				btv->c.name)) {
--		printk(KERN_WARNING "bttv%d: can't request iomem (0x%lx).\n",
--		       btv->c.nr, pci_resource_start(dev,0));
-+		printk(KERN_WARNING "bttv%d: can't request iomem (0x%llx).\n",
-+		       btv->c.nr,
-+		       (unsigned long long)pci_resource_start(dev,0));
- 		return -EBUSY;
- 	}
- 	pci_set_master(dev);
-@@ -4031,8 +4032,9 @@ static int __devinit bttv_probe(struct p
- 	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &lat);
- 	printk(KERN_INFO "bttv%d: Bt%d (rev %d) at %s, ",
- 	       bttv_num,btv->id, btv->revision, pci_name(dev));
--	printk("irq: %d, latency: %d, mmio: 0x%lx\n",
--	       btv->c.pci->irq, lat, pci_resource_start(dev,0));
-+	printk("irq: %d, latency: %d, mmio: 0x%llx\n",
-+	       btv->c.pci->irq, lat,
-+	       (unsigned long long)pci_resource_start(dev,0));
- 	schedule();
- 
- 	btv->bt848_mmio=ioremap(pci_resource_start(dev,0), 0x1000);
-diff --git a/drivers/media/video/cx88/cx88-alsa.c b/drivers/media/video/cx88/cx88-alsa.c
-index 320b3d9..db2e307 100644
---- a/drivers/media/video/cx88/cx88-alsa.c
-+++ b/drivers/media/video/cx88/cx88-alsa.c
-@@ -713,9 +713,9 @@ static int __devinit snd_cx88_create(str
- 	pci_read_config_byte(pci, PCI_LATENCY_TIMER,  &chip->pci_lat);
- 
- 	dprintk(1,"ALSA %s/%i: found at %s, rev: %d, irq: %d, "
--	       "latency: %d, mmio: 0x%lx\n", core->name, devno,
-+	       "latency: %d, mmio: 0x%llx\n", core->name, devno,
- 	       pci_name(pci), chip->pci_rev, pci->irq,
--	       chip->pci_lat,pci_resource_start(pci,0));
-+	       chip->pci_lat,(unsigned long long)pci_resource_start(pci,0));
- 
- 	chip->irq = pci->irq;
- 	synchronize_irq(chip->irq);
-@@ -767,8 +767,8 @@ static int __devinit cx88_audio_initdev(
- 
- 	strcpy (card->driver, "CX88x");
- 	sprintf(card->shortname, "Conexant CX%x", pci->device);
--	sprintf(card->longname, "%s at %#lx",
--		card->shortname, pci_resource_start(pci, 0));
-+	sprintf(card->longname, "%s at %#llx",
-+		card->shortname,(unsigned long long)pci_resource_start(pci, 0));
- 	strcpy (card->mixername, "CX88");
- 
- 	dprintk (0, "%s/%i: ALSA support for cx2388x boards\n",
-diff --git a/drivers/media/video/cx88/cx88-core.c b/drivers/media/video/cx88/cx88-core.c
-index e1092d5..d8ac14b 100644
---- a/drivers/media/video/cx88/cx88-core.c
-+++ b/drivers/media/video/cx88/cx88-core.c
-@@ -1031,8 +1031,8 @@ static int get_ressources(struct cx88_co
- 			       pci_resource_len(pci,0),
- 			       core->name))
- 		return 0;
--	printk(KERN_ERR "%s: can't get MMIO memory @ 0x%lx\n",
--	       core->name,pci_resource_start(pci,0));
-+	printk(KERN_ERR "%s: can't get MMIO memory @ 0x%llx\n",
-+	       core->name,(unsigned long long)pci_resource_start(pci,0));
- 	return -EBUSY;
- }
- 
-diff --git a/drivers/media/video/cx88/cx88-mpeg.c b/drivers/media/video/cx88/cx88-mpeg.c
-index 7d16888..c107264 100644
---- a/drivers/media/video/cx88/cx88-mpeg.c
-+++ b/drivers/media/video/cx88/cx88-mpeg.c
-@@ -386,9 +386,9 @@ int cx8802_init_common(struct cx8802_dev
- 	pci_read_config_byte(dev->pci, PCI_CLASS_REVISION, &dev->pci_rev);
- 	pci_read_config_byte(dev->pci, PCI_LATENCY_TIMER,  &dev->pci_lat);
- 	printk(KERN_INFO "%s/2: found at %s, rev: %d, irq: %d, "
--	       "latency: %d, mmio: 0x%lx\n", dev->core->name,
-+	       "latency: %d, mmio: 0x%llx\n", dev->core->name,
- 	       pci_name(dev->pci), dev->pci_rev, dev->pci->irq,
--	       dev->pci_lat,pci_resource_start(dev->pci,0));
-+	       dev->pci_lat,(unsigned long long)pci_resource_start(dev->pci,0));
- 
- 	/* initialize driver struct */
- 	spin_lock_init(&dev->slock);
-diff --git a/drivers/media/video/cx88/cx88-video.c b/drivers/media/video/cx88/cx88-video.c
-index 694d1d8..095e5ef 100644
---- a/drivers/media/video/cx88/cx88-video.c
-+++ b/drivers/media/video/cx88/cx88-video.c
-@@ -1849,9 +1849,9 @@ static int __devinit cx8800_initdev(stru
- 	pci_read_config_byte(pci_dev, PCI_CLASS_REVISION, &dev->pci_rev);
- 	pci_read_config_byte(pci_dev, PCI_LATENCY_TIMER,  &dev->pci_lat);
- 	printk(KERN_INFO "%s/0: found at %s, rev: %d, irq: %d, "
--	       "latency: %d, mmio: 0x%lx\n", core->name,
-+	       "latency: %d, mmio: 0x%llx\n", core->name,
- 	       pci_name(pci_dev), dev->pci_rev, pci_dev->irq,
--	       dev->pci_lat,pci_resource_start(pci_dev,0));
-+	       dev->pci_lat,(unsigned long long)pci_resource_start(pci_dev,0));
- 
- 	pci_set_master(pci_dev);
- 	if (!pci_dma_supported(pci_dev,0xffffffff)) {
-diff --git a/drivers/media/video/saa7134/saa7134-core.c b/drivers/media/video/saa7134/saa7134-core.c
-index f0c2111..da3007d 100644
---- a/drivers/media/video/saa7134/saa7134-core.c
-+++ b/drivers/media/video/saa7134/saa7134-core.c
-@@ -871,9 +871,9 @@ #endif
- 	pci_read_config_byte(pci_dev, PCI_CLASS_REVISION, &dev->pci_rev);
- 	pci_read_config_byte(pci_dev, PCI_LATENCY_TIMER,  &dev->pci_lat);
- 	printk(KERN_INFO "%s: found at %s, rev: %d, irq: %d, "
--	       "latency: %d, mmio: 0x%lx\n", dev->name,
-+	       "latency: %d, mmio: 0x%llx\n", dev->name,
- 	       pci_name(pci_dev), dev->pci_rev, pci_dev->irq,
--	       dev->pci_lat,pci_resource_start(pci_dev,0));
-+	       dev->pci_lat,(unsigned long long)pci_resource_start(pci_dev,0));
- 	pci_set_master(pci_dev);
- 	if (!pci_dma_supported(pci_dev, DMA_32BIT_MASK)) {
- 		printk("%s: Oops: no 32bit PCI DMA ???\n",dev->name);
-@@ -905,8 +905,8 @@ #endif
- 				pci_resource_len(pci_dev,0),
- 				dev->name)) {
- 		err = -EBUSY;
--		printk(KERN_ERR "%s: can't get MMIO memory @ 0x%lx\n",
--		       dev->name,pci_resource_start(pci_dev,0));
-+		printk(KERN_ERR "%s: can't get MMIO memory @ 0x%llx\n",
-+		       dev->name,(unsigned long long)pci_resource_start(pci_dev,0));
- 		goto fail1;
- 	}
- 	dev->lmmio = ioremap(pci_resource_start(pci_dev,0), 0x1000);
--- 
-1.4.0
+Regards,
 
+Nigel
+
+> Also I'll probably start x86_64-* patchkit releases again. Currently
+> my working dir on ftp.firstfloor.org is directly going into -mm* and
+> that sometimes causes problems because it is not as well tested as it wou=
+ld
+> be if a larger audience has run it. Also there are often non trivial
+> interactions with the many patches in -mm* and it's hard to figure
+> out where a problem comes from. So it looks like some separate
+> testing would be better.
+>
+> I hope people would be still interested in running x86_64-* patchkits.
+>
+> Also my feeling is that I need to involve linux-kernel more. It seems
+> the majority of x86-64 users don't even know now this mailing list
+> exists, so they don't review or test the latest releases. Also
+> the traffic here seems to be less and less now except for me
+> (or do I just imagine that?)
+>
+> I suppose posting all patches there would be too much though, but
+> at least the announcements should be going there. I still think
+> it's valuable to have some kind of separate x86-64 list because
+> linux-kernel is just too much to keep up with and it would
+> drown valuable bug reports etc. in the general noise.
+>
+> Any feedback from x86-64 contributors on how to organize this better
+> welcome.
+>
+> -Andi
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart1699024.JkuRJrM6Ck
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEjghXN0y+n1M3mo0RAkyRAJ43DmUTsZgReYRzSn4ruZMJ9UjCUwCfdbHe
+xgAUipSLUC9Y0+ZznIMPMxk=
+=Fu28
+-----END PGP SIGNATURE-----
+
+--nextPart1699024.JkuRJrM6Ck--

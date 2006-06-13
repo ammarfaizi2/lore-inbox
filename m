@@ -1,74 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWFMVt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWFMVuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWFMVt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 17:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWFMVtz
+	id S932348AbWFMVuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 17:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWFMVuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 17:49:55 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:40336 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932348AbWFMVty
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 17:49:54 -0400
+	Tue, 13 Jun 2006 17:50:24 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:18145 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932348AbWFMVuW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 17:50:22 -0400
+Message-ID: <448F331B.8060404@fr.ibm.com>
+Date: Tue, 13 Jun 2006 23:50:19 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
 Subject: Re: 2.6.16-rc6-mm2
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: Andrew Morton <akpm@osdl.org>, Steve Fox <drfickle@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <448EC74F.30104@ru.mvista.com>
-References: <20060609214024.2f7dd72c.akpm@osdl.org>
-	 <pan.2006.06.12.22.09.47.855327@us.ibm.com>
-	 <20060613065443.7f302319.akpm@osdl.org>  <448EC74F.30104@ru.mvista.com>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 14:51:42 -0700
-Message-Id: <1150235502.28414.52.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+References: <20060609214024.2f7dd72c.akpm@osdl.org> <448DA5DD.203@fr.ibm.com> <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com> <448E6798.3020104@fr.ibm.com> <Pine.LNX.4.64.0606131049270.29947@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0606131234010.31186@schroedinger.engr.sgi.com> <448F1E8A.3030202@fr.ibm.com> <Pine.LNX.4.64.0606131412290.31769@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0606131412290.31769@schroedinger.engr.sgi.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 18:10 +0400, Sergei Shtylyov wrote:
-> Hello.
+Christoph Lameter wrote:
+> On Tue, 13 Jun 2006, Cedric Le Goater wrote:
 > 
-> Andrew Morton wrote:
-> > On Mon, 12 Jun 2006 17:09:52 -0500
-> > Steve Fox <drfickle@us.ibm.com> wrote:
+>> NFS write seems to work fine with that patch. No more oops.
 > 
-> >>On Fri, 09 Jun 2006 21:40:24 -0700, Andrew Morton wrote:
+> Sigh. There is another issue that the NR_DIRTY count is not decremented. 
 > 
-> >>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm2/
+> Which brings us to this fix:
 > 
-> >>Boot fails on a ppc64 machine.
-> >>
-> >>[snip]
-> >>Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> >>ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> >>AMD8111: IDE controller at PCI slot 0000:00:04.1
-> >>AMD8111: chipset revision 3
-> >>AMD8111: 0000:00:04.1 (rev 03) UDMA133 controller
-> >>AMD8111: 100% native mode on irq 32
-> >>    ide0: BM-DMA at 0x7c00-0x7c07<3>AMD8111: -- Error, unable to allocate DMA table.
-> >>    ide1: BM-DMA at 0x7c08-0x7c0f<3>AMD8111: -- Error, unable to allocate DMA table.
-> >>hda: TOSHIBA MK4019GAXB, ATA DISK drive
+> Index: linux-2.6.17-rc6-mm2/fs/nfs/write.c
+> ===================================================================
+> --- linux-2.6.17-rc6-mm2.orig/fs/nfs/write.c	2006-06-10 11:11:53.051397816 -0700
+> +++ linux-2.6.17-rc6-mm2/fs/nfs/write.c	2006-06-13 10:52:04.428456013 -0700
+> @@ -1418,8 +1418,9 @@ static void nfs_commit_done(struct rpc_t
+>  		dprintk(" mismatch\n");
+>  		nfs_mark_request_dirty(req);
+>  	next:
+> +		if (req->wb_page)
+> +			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+>  		nfs_clear_page_writeback(req);
+> -		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+>  	}
+>  }
+>  
+> Index: linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c
+> ===================================================================
+> --- linux-2.6.17-rc6-mm2.orig/fs/nfs/pagelist.c	2006-06-10 11:11:53.049444812 -0700
+> +++ linux-2.6.17-rc6-mm2/fs/nfs/pagelist.c	2006-06-13 14:12:17.963198388 -0700
+> @@ -154,6 +154,7 @@ void nfs_clear_request(struct nfs_page *
+>  {
+>  	struct page *page = req->wb_page;
+>  	if (page != NULL) {
+> +		dec_zone_page_state(page, NR_UNSTABLE);
+>  		page_cache_release(page);
+>  		req->wb_page = NULL;
+>  	}
+> @@ -315,7 +316,7 @@ nfs_scan_lock_dirty(struct nfs_inode *nf
+>  						req->wb_index, NFS_PAGE_TAG_DIRTY);
+>  				nfs_list_remove_request(req);
+>  				nfs_list_add_request(req, dst);
+> -				inc_zone_page_state(req->wb_page, NR_DIRTY);
+> +				dec_zone_page_state(req->wb_page, NR_DIRTY);
+>  				res++;
+>  			}
+>  		}
 
-Okay. Here is the fix Anton did - which helped my machine.
+still doing fine.
 
-http://patchwork.ozlabs.org/linuxppc/patch?id=5713
-
-Thanks,
-Badari
-
-Index: build/arch/powerpc/kernel/iommu.c
-===================================================================
---- build.orig/arch/powerpc/kernel/iommu.c	2006-06-10 19:49:51.000000000 +1000
-+++ build/arch/powerpc/kernel/iommu.c	2006-06-10 19:52:12.000000000 +1000
-@@ -561,7 +561,7 @@ void *iommu_alloc_coherent(struct iommu_
- 		return NULL;
- 
- 	/* Alloc enough pages (and possibly more) */
--	page = alloc_pages_node(flag, order, node);
-+	page = alloc_pages_node(node, flag, order);
- 	if (!page)
- 		return NULL;
- 	ret = page_address(page);
-
+C.

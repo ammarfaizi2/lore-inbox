@@ -1,98 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932927AbWFMGnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932929AbWFMGo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932927AbWFMGnN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 02:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932929AbWFMGnN
+	id S932929AbWFMGo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 02:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932930AbWFMGo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 02:43:13 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:59795 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932927AbWFMGnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 02:43:13 -0400
-Date: Tue, 13 Jun 2006 08:43:11 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Emmanuel Fleury <emmanuel.fleury@labri.fr>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] i386: use C code for current_thread_info()
-Message-ID: <20060613064311.GA27543@rhlx01.fht-esslingen.de>
-References: <200606122152_MC3-1-C240-D8AE@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606122152_MC3-1-C240-D8AE@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Tue, 13 Jun 2006 02:44:29 -0400
+Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:64911
+	"HELO office-m.at") by vger.kernel.org with SMTP id S932929AbWFMGo2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 02:44:28 -0400
+In-Reply-To: <Pine.LNX.4.61.0606122105490.27755@yvahk01.tjqt.qr>
+References: <0CB396BB-A11B-4191-982F-8C0B89F848D6@office-m.at> <Pine.LNX.4.61.0606122003190.7959@yvahk01.tjqt.qr> <6988083B-3A0E-41F2-A1E4-B4A953B88705@office-m.at> <Pine.LNX.4.61.0606122105490.27755@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <43E144F5-768B-4710-A4CA-5D49242600F8@office-m.at>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Markus Biermaier <mbier@office-m.at>
+Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
+Date: Tue, 13 Jun 2006 08:44:25 +0200
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, Jun 12, 2006 at 09:50:17PM -0400, Chuck Ebbert wrote:
-> In-Reply-To: <20060612184833.GA29177@rhlx01.fht-esslingen.de>
-> 
-> On Mon, 12 Jun 2006 20:48:33 +0200, Andreas Mohr wrote:
-> 
-> > > Kernel code starts out ~30K bytes smaller with gcc 4.1 and using C
-> > > for current_thread_info() helps even more than with 4.0.  Nice...
-> > 
-> > Especially since current_thread_info() often has an AGI stall (read:
-> > severe pipeline stall) since it often cannot properly intermingle
-> > with nearby opcodes due to lack of suitable ones, e.g. at a
-> > function prologue.
-> > mov    $0xffffe000,%eax
-> > and    %esp,%eax
-> > are fundamentally incompatible due to having to wait for the address
-> > generation before the "and" can be executed.
-> > This shows up during profiling quite noticeably (IIRC 8 hits vs. 1 to 2
-> > hits on other places), which really hurts since this function is used
-> > basically *everywhere*.
-> 
-> Hmmm.  The compiler does it this way:
-> 
->   mov    %esp,%eax
->   and    $0xffffe000,%eax
+Am 12.06.2006 um 21:09 schrieb Jan Engelhardt:
 
-Well, not here, since mine was a live example of the old asm version
-compiled with gcc 3.2.3 (but I doubt the gcc version matters in this case
-since a compiler wouldn't decide to create completely different asm
-opcodes from a hand-coded asm version...).
+> Hm. Maybe http://lkml.org/lkml/2005/2/26/92 (updated version for
+> 2.6.16/.17 below) can help you.
+>
+> diff --fast -Ndpru linux-2.6.17-rc6~/block/genhd.c linux-2.6.17-rc6 
+> +/block/genhd.c
+> --- linux-2.6.17-rc6~/block/genhd.c	2006-06-06 02:57:02.000000000  
+> +0200
+> +++ linux-2.6.17-rc6+/block/genhd.c	2006-06-08 22:29:16.607058000  
+> +0200
+> @@ -214,6 +214,52 @@ struct gendisk *get_gendisk(dev_t dev, i
+>  	return  kobj ? to_disk(kobj) : NULL;
+>  }
+>
+> +/*
+> + * printk a full list of all partitions - intended for
+> + * places where the root filesystem can't be mounted and thus
+> + * to give the victim some idea of what went wrong
+> + */
+> +void printk_all_partitions(void)
+> +{
+> +	int n;
+> +        struct gendisk* sgp;
+> +	mutex_lock(&block_subsys_lock);
+> +
+> +        /* For each block device... */
+[snip]
 
-> which could be faster because esp can be moved to eax while the mask
-> is being fetched.
+Thank you for the patch.
+Compiling yields:
 
-That might be true, but it could easily happen to not be (an AGI stall
-stalls both pipelines, IIRC, so in one case you can have good instruction
-parallelism before the 0xffffe000 address and in the other case after it).
-It would be very interesting to run some well-known kernel benchmarks,
-since given the very wide-spread use of the function this could easily make
-a noticeable difference.
-Hmm, in fact I'm afraid that your version may be slower since it has the esp
-operation first which doesn't mix at all with function prologues due to
-heavy esp modification (i.e. waiting for esp to settle down) in the function
-stack frame generation. And as said before, current_thread_info() is heavily
-used near prologues since in many functions we're basically doing
-"which cpu are we on? get cpu data! now get to work...".
-This could be so bad as to disallow any and all attempt at making the compiler
-guess it since a hand-coded version would account for this (but a compiler
-certainly should, too!).
-Come to think of it, did you check whether the compiler also did those opcodes
-the other way around at some places depending on environment?
+make targz-pkg
+block/genhd.c: In function `printk_all_partitions':
+block/genhd.c:240: Warnung: implicit declaration of function  
+`mutex_lock'
+block/genhd.c:240: error: `block_subsys_lock' undeclared (first use  
+in this function)
+block/genhd.c:240: error: (Each undeclared identifier is reported  
+only once
+block/genhd.c:240: error: for each function it appears in.)
+block/genhd.c:273: Warnung: implicit declaration of function  
+`mutex_unlock'
+make[3]: *** [block/genhd.o] Error 1
+make[2]: *** [block] Error 2
+make[1]: *** [targz-pkg] Error 2
+make: *** [targz-pkg] Error 2
 
-Since this important function sucks on x86 (due to braindead lack of registers
-on this architecture, to possibly permanently store the calculated stack
-base value inside), I'm thinking of investigating it again.
+Can you please help me pointing to "mutex_lock" and  
+"block_subsys_lock". Sorry.
 
-An entirely different way would be to store the stack base value in a
-global variable and update that on each context switch, but it would increase
-context switch overhead and have >= 2 cycles access time for L1 cache (which
-would be the best memory access case!), which would most likely be more
-combined overhead than an AGI stall (I was mistaken in declaring the stall
-a pipeline flush - it's only a stall for a couple cycles, not a full flush
-wasting ~ 15 cycles).
-And I wouldn't be too astonished to learn that this has exactly been the
-previous solution and then deprecated for modernization or performance
-reasons...
+Kind regards
 
-Andreas Mohr
+Markus
+

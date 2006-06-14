@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWFNFL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWFNFMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWFNFL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWFNFL1
+	id S964872AbWFNFMd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWFNFMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:11:27 -0400
-Received: from 066-241-084-054.bus.ashlandfiber.net ([66.241.84.54]:50315 "EHLO
-	bigred.russwhit.org") by vger.kernel.org with ESMTP id S964873AbWFNFL0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:11:26 -0400
-Date: Tue, 13 Jun 2006 22:09:19 -0700 (PDT)
-From: Russell Whitaker <russ@ashlandhome.net>
-X-X-Sender: russ@bigred.russwhit.org
-To: Willy Tarreau <w@1wt.eu>
-cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, Avuton Olrich <avuton@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16.19 + gcc-4.1.1
-In-Reply-To: <20060614042007.GD13255@w.ods.org>
-Message-ID: <Pine.LNX.4.63.0606132153100.2373@bigred.russwhit.org>
-References: <Pine.LNX.4.63.0606131906230.2368@bigred.russwhit.org>
- <3aa654a40606132049u43f81ee1m263ee15666246152@mail.gmail.com>
- <448F8C53.5010406@ens-lyon.org> <20060614042007.GD13255@w.ods.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 14 Jun 2006 01:12:33 -0400
+Received: from brain.cel.usyd.edu.au ([129.78.24.68]:55271 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S964872AbWFNFMd (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 01:12:33 -0400
+Message-Id: <5.1.1.5.2.20060614150410.0465ceb0@brain.sedal.usyd.edu.au>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 14 Jun 2006 15:12:29 +1000
+To: linux-Kernel@vger.kernel.org
+From: sena seneviratne <auntvini@cel.usyd.edu.au>
+Subject: Introduce a New Metrics to measure Load average.
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Friends,
+Please give us your valuable comments on this important change to introduce 
+a new Metric to measure Load average.
+Currently /proc/loadavg reports only the resultant value.
 
+We are doing a scheduling in the Grid project. As a part of that we had to 
+do some changes to the kernel
 
-On Wed, 14 Jun 2006, Willy Tarreau wrote:
+The  problem with the load metric of current Linux/Unix is that it measures 
+CPU load and Disk load without indicating the true nature of the load, 
+thereby creating some confusion among the readers. For example, if a CPU 
+bound task switches on to read a large chunk of disk data, then the load 
+average value would still continue to indicate this activity as a load, yet 
+the true CPU load during this period would have been zero. This situation 
+triggered us to make necessary additions to the kernel so that CPU load and 
+Disk load could be reported separately. Further the specialisation of load 
+helped our model to perform predictions when there is interference between 
+CPU and Disk IO loads.
 
-> On Wed, Jun 14, 2006 at 12:10:59AM -0400, Brice Goglin wrote:
->> Avuton Olrich wrote:
->>> On 6/13/06, Russell Whitaker <russ@ashlandhome.net> wrote:
->>>> Then, after mrproper, rebuilt with gcc-4.1.1, no other changes.
->>>>    compiles ok, installs ok. But, when attempting to load a module, get
->>>>    the following message:  version magic '2.6.16.19via K6 gcc-4.1',
->>>>    should be '2.6.16.19via 486 gcc-3.3'
->>>
->>> You may have forgotten to "make modules modules_install"
->>
->> Actually, "make modules" does not exist anymore with 2.6. Both built-in
->> and modular stuff are built at the same time.
->> Only "make modules_install" is still required.
->
-> What's this bullshit ?
->
-> $ grep ^modules: Makefile
-> modules: $(vmlinux-dirs) $(if $(KBUILD_BUILTIN),vmlinux)
-> modules: $(module-dirs)
->
-> Avuton is right, you *have* forgotten to make modules.
->
->> Brice
->
-> Willy
->
-After found the above problem, did it all again to be sure:
+In the user mode, a new proc file called /proc/loadavgus would collect the 
+new data according to a new format which would look like the following,
 
-   make mrproper
-   rm -r /lib/modules/*
-   cp ../config-2.6.16.19 .config
-   make menuconfig    ( made sure it's same config, then saved without
-                        changes )
-   make
-   make modules
-   make modules_install
-   make bzlilo
+                 CPU    Disk
+Root            0.7     0
+User1   0.9     1
+User2   0.9     0
+User3   1.03    1
+User4   0.93    0
+User5   1.0     0
 
-Same result.
-   russ
+What do you think about this change?
+
+Thanks
+Sena Seneviratne
+Computer Engineering Lab
+School of Electrical and Information Engineering
+Sydney University
+Australia
+

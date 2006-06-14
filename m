@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWFNPDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWFNPLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbWFNPDK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 11:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWFNPDK
+	id S964997AbWFNPLp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 11:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbWFNPLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 11:03:10 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:29906 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751292AbWFNPDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 11:03:08 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: loop devices removable
-To: Pablo Barbachano <pablobarbachano@yahoo.es>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 14 Jun 2006 17:02:10 +0200
-References: <6nDUZ-4vk-17@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1FqWt5-0001Ro-8q@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+	Wed, 14 Jun 2006 11:11:45 -0400
+Received: from mail.humboldt.co.uk ([80.68.93.146]:60938 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S964997AbWFNPLo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 11:11:44 -0400
+Subject: RE: [PATCH/2.6.17-rc4 8/10]  Add  tsi108 8250 serial support
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Alexandre.Bounine@tundra.com,
+       linux-kernel@vger.kernel.org,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>, linux-serial@vger.kernel.org,
+       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>
+In-Reply-To: <9FCDBA58F226D911B202000BDBAD4673069C3C3D@zch01exm40.ap.freescale.net>
+References: <9FCDBA58F226D911B202000BDBAD4673069C3C3D@zch01exm40.ap.freescale.net>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 15:25:28 +0100
+Message-Id: <1150295128.6552.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pablo Barbachano <pablobarbachano@yahoo.es> wrote:
+On Tue, 2006-06-13 at 13:39 +0800, Zang Roy-r61911 wrote:
 
-[loop devices]
+> The reason is that the serial port on tsi108/9 is a bit difference with the 
+> standard 8250 serial port. the patch deal with the difference.
+> The prefixed ">" is caused by "Fw" the email. Sorry for that. The following 
+> is the original patch.
 
-> The (probably broken) reason I want to do that is so I can use (my
-> modified) pmount to mount them.
+The problem I see is that the code uses a CONFIG option, to change the
+behaviour of the generic 8250 driver. What happens if somebody adds a
+PCI serial card to a tsi108 based machine?
 
-I'm wondering if fuse would be suited better. I did not yet experiment
-with that, but it seems it has everything you need.
+Perhaps you should define a new value for uart_8250_port.port.iotype,
+and add code to serial_in and serial_out to handle the IIR register.
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Adrian Cox <adrian@humboldt.co.uk>
 
-http://david.woodhou.se/why-not-spf.html

@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWFNVJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWFNVRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWFNVJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 17:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWFNVJ5
+	id S932334AbWFNVRm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 17:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWFNVRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 17:09:57 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:7640 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932329AbWFNVJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 17:09:56 -0400
-Message-ID: <44907B13.2030402@linux.intel.com>
-Date: Wed, 14 Jun 2006 14:09:39 -0700
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Brice Goglin <brice@myri.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] PCI extended conf space when MMCONFIG disabled because
- of e820
-References: <44907A8E.1080308@myri.com>
-In-Reply-To: <44907A8E.1080308@myri.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Jun 2006 17:17:42 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:56983 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932334AbWFNVRl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 17:17:41 -0400
+Subject: Re: [RFC] the /proc/filecache interface
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Fengguang Wu <fengguang.wu@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Lubos Lunak <l.lunak@suse.cz>,
+       Dirk Mueller <dmueller@suse.de>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060612075130.GA5432@mail.ustc.edu.cn>
+References: <20060612075130.GA5432@mail.ustc.edu.cn>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 14:19:30 -0700
+Message-Id: <1150319970.12768.58.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin wrote:er.
+On Mon, 2006-06-12 at 15:51 +0800, Fengguang Wu wrote:
+> Hello,
 > 
-> What would you think of a patch implementing the following strategy:
-> 1) if MMCONFIG works, always use it (no change)
-> 2) if MMCONFIG is disabled and we are accessing the regular config
-> space, use direct conf (no change, should ensure that any machine will
-> still boot fine)
-> 3) if MMCONFIG is disabled but we are accessing the _extended_ config
-> space, try mmconfig anyway since there's no other way to do it.
+> The /proc/filecache support has been half done. And I'd like to hear
+> early comments on the interface.
+> 
 
-an OS isn't allowed to mix old and new access methods realistically so I don't think
-this is a viable good solution...
+Wu,
+
+Interesting work. But I am worried that, this is getting over-designed.
+Lets go back to basics - what is the actual problem we are trying to
+solve here ? What are mininum requirements ? How does it help solve
+the problem ? Who & How one uses this ? Yes. I understand - these
+just provide stats on filecache, but we can provide all the nitty
+details - which are not really relevant or useful.
+
+Don't get me wrong - I really need better understanding of whats there
+in pagecache. Infact, I need a better way to control how much filecache
+in pagecache. 
+
+(BTW, I like your patch for "educational" purposes - but I am not
+sure how useful it is for practical purpose).
+
+Thanks,
+Badari
+

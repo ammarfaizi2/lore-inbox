@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWFNFDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWFNFEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbWFNFDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWFNFDQ
+	id S964869AbWFNFEk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWFNFEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:03:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5332 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964854AbWFNFDQ (ORCPT
+	Wed, 14 Jun 2006 01:04:40 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:34240 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964869AbWFNFEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:03:16 -0400
-Date: Wed, 14 Jun 2006 01:03:01 -0400
-From: Dave Jones <davej@redhat.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Message-ID: <20060614050301.GA10140@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Brice Goglin <Brice.Goglin@ens-lyon.org>,
-	Chase Venters <chase.venters@clientec.com>,
-	linux-kernel@vger.kernel.org
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org> <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse> <448F967A.8070801@ens-lyon.org>
-Mime-Version: 1.0
+	Wed, 14 Jun 2006 01:04:39 -0400
+To: Greg KH <greg@kroah.com>, mp3@de.ibm.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: statistics infrastructure (in -mm tree) review
+References: <20060613232131.GA30196@kroah.com>
+	<20060613234739.GA30534@kroah.com>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Jun 2006 07:04:35 +0200
+In-Reply-To: <20060613234739.GA30534@kroah.com>
+Message-ID: <p73slm8qqe4.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <448F967A.8070801@ens-lyon.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 14, 2006 at 12:54:18AM -0400, Brice Goglin wrote:
+Greg KH <greg@kroah.com> writes:
+> > + * exploiters don't update several statistics of the same entity in one go.
+> > + */
+> > +static inline void statistic_add(struct statistic *stat, int i,
+> > +				 s64 value, u64 incr)
+> > +{
+> > +	unsigned long flags;
+> > +	local_irq_save(flags);
+> > +	if (stat[i].state == STATISTIC_STATE_ON)
+> > +		stat[i].add(&stat[i], smp_processor_id(), value, incr);
 
- > What about GPL modules that don't want to get merged ? I don't know any
- > such module that could use this API. But at least there are some webcam
- > drivers that don't seem to want to be merged (I don't know why).
 
-AIUI, many modern webcams export their data as jpeg streams.
-Existing userspace expects the kernel to feed it raw data.
-To keep existing userspace working, the out-of-tree drivers (such as ov5xx)
-are doing format conversion in kernelspace so that the stream now goes..
+Indirect call in statistics hotpath?  You know how slow this is 
+on IA64 and even on other architectures it tends to disrupt 
+the pipeline.
 
-camera -> jpeg -> kernel -> raw -> userspace
+Also on i386 the u64s generate quite bad code.
 
-in-kernel format conversion is somewhat nasty however, so the
-out-of-tree drivers seem to be staying that way.
+That looks like a really bad implementation that shouldn't be used
+anywhere.
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+-Andi

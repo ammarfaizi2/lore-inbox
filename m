@@ -1,38 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWFNMJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWFNMIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWFNMJH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 08:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWFNMJH
+	id S1751285AbWFNMIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 08:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWFNMIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 08:09:07 -0400
-Received: from relay.rinet.ru ([195.54.192.35]:17094 "EHLO relay.rinet.ru")
-	by vger.kernel.org with ESMTP id S1751278AbWFNMJF (ORCPT
+	Wed, 14 Jun 2006 08:08:52 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:64206 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751285AbWFNMIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 08:09:05 -0400
-Message-ID: <448FFCAD.8010205@mail.ru>
-Date: Wed, 14 Jun 2006 16:10:21 +0400
-From: Michael Raskin <a1d23ab4@mail.ru>
-User-Agent: Mail/News 3.0a1 (X11/20060409)
-MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Visionary ideas for SQL file systems
-References: <448F8F18.4030200@perkel.com>
-In-Reply-To: <448F8F18.4030200@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0 (relay.rinet.ru [195.54.192.35]); Wed, 14 Jun 2006 16:08:53 +0400 (MSD)
+	Wed, 14 Jun 2006 08:08:50 -0400
+Date: Wed, 14 Jun 2006 07:07:07 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: schwidefsky@de.ibm.com, linux390@de.ibm.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kthread: convert s390mach.c from kernel_thread
+Message-ID: <20060614120707.GE15061@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
-> I'm going to throw this idea out there just to get people thinking. 
-> There's nothing in reality that is like this except maybe some of the 
-> ReiserFS ideas, but I want to take the idea farther. the idea is ......
-> 
-> Why not put an SQL filesystem directly on a block devices where files 
-> are really blobs within the filesystem and file names and file 
-> attributes are all indexed data withing the SQL database. The operating 
-> system will have SQL built in.
-Maybe it is better done by fuse? So, did you consider contributing to 
-RelFS or something like it? Try FUSE.sf.net to find out the present 
-fs-in-usermode projects.
+Convert s390_collect_crw_info() in s390mach.c frombeing started
+as a deprecated kernel_thread to a kthread.
+
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+
+---
+
+ drivers/s390/s390mach.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+6708b02cfa48139f4ef915026bf62db0c6b5d395
+diff --git a/drivers/s390/s390mach.c b/drivers/s390/s390mach.c
+index f99e553..8dc7500 100644
+--- a/drivers/s390/s390mach.c
++++ b/drivers/s390/s390mach.c
+@@ -14,6 +14,7 @@
+ #include <linux/errno.h>
+ #include <linux/workqueue.h>
+ #include <linux/time.h>
++#include <linux/kthread.h>
+ 
+ #include <asm/lowcore.h>
+ 
+@@ -56,8 +57,6 @@ s390_collect_crw_info(void *param)
+ 	unsigned int chain;
+ 
+ 	sem = (struct semaphore *)param;
+-	/* Set a nice name. */
+-	daemonize("kmcheck");
+ repeat:
+ 	down_interruptible(sem);
+ 	slow = 0;
+@@ -516,7 +515,7 @@ arch_initcall(machine_check_init);
+ static int __init
+ machine_check_crw_init (void)
+ {
+-	kernel_thread(s390_collect_crw_info, &m_sem, CLONE_FS|CLONE_FILES);
++	kthread_run(s390_collect_crw_info, &m_sem, "kmcheck");
+ 	ctl_set_bit(14, 28);	/* enable channel report MCH */
+ 	return 0;
+ }
+-- 
+1.1.6

@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWFNTWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWFNTWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWFNTWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 15:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWFNTWm
+	id S1750902AbWFNTWl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 15:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWFNTWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 15:22:42 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:44434 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750816AbWFNTWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 15:22:42 -0400
-Date: Wed, 14 Jun 2006 15:22:31 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Paolo Giarrusso <blaisorblade@yahoo.it>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [UML] Problems building and running 2.6.17-rc4 on x86-64
-Message-ID: <20060614192231.GA5325@ccure.user-mode-linux.org>
-References: <20060613182129.GA4619@ccure.user-mode-linux.org> <20060613234551.69651.qmail@web25218.mail.ukl.yahoo.com>
+	Wed, 14 Jun 2006 15:22:41 -0400
+Received: from mail.gmx.de ([213.165.64.21]:63651 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750816AbWFNTWk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 15:22:40 -0400
+X-Authenticated: #14349625
+Subject: RE: process starvation with 2.6 scheduler
+From: Mike Galbraith <efault@gmx.de>
+To: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Radjendirane Codandaramane 
+	<Radjendirane_Codandaramane@pmc-sierra.com>
+In-Reply-To: <478F19F21671F04298A2116393EEC3D531CF15@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+References: <478F19F21671F04298A2116393EEC3D531CF15@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 21:26:19 +0200
+Message-Id: <1150313179.7674.25.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060613234551.69651.qmail@web25218.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 14, 2006 at 01:45:51AM +0200, Paolo Giarrusso wrote:
-> If that problem has been fixed, this would imply that SKAS should
-> work on x86-64... or not? 
+On Wed, 2006-06-14 at 10:56 -0700, Kallol Biswas wrote:
+> Yes, all 3 clients run on a Redhat 9 box.
 
-No, this has nothing to do with skas or ia32 emulation.  It was a
-straightforward register corruption bug.
+Ok, what do the priorities and cpu distribution look like?
 
-				Jeff
+	-Mike
+

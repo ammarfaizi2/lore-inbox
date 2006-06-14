@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWFNFYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWFNFZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbWFNFYI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWFNFYI
+	id S964880AbWFNFZA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWFNFZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:24:08 -0400
-Received: from eazy.amigager.de ([213.239.192.238]:60397 "EHLO
-	eazy.amigager.de") by vger.kernel.org with ESMTP id S964884AbWFNFYG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:24:06 -0400
-Date: Wed, 14 Jun 2006 07:24:10 +0200
-From: Tino Keitel <tino.keitel@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16.19 + gcc-4.1.1
-Message-ID: <20060614052410.GA4281@dose.home.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.63.0606131906230.2368@bigred.russwhit.org>
+	Wed, 14 Jun 2006 01:25:00 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:33474 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964880AbWFNFY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 01:24:59 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: Athlon CPU detection/fixup is broken in 2.6.2-rc2
+Date: Wed, 14 Jun 2006 07:24:55 +0200
+User-Agent: KMail/1.9.3
+Cc: tadavis@lbl.gov, linux-kernel@vger.kernel.org
+References: <401ACA49.8070002@lbl.gov> <p73odwwqq7c.fsf@verdi.suse.de> <20060613221552.6ab46ac6.rdunlap@xenotime.net>
+In-Reply-To: <20060613221552.6ab46ac6.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0606131906230.2368@bigred.russwhit.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200606140724.55081.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 13, 2006 at 19:23:30 -0700, Russell Whitaker wrote:
-> hi
+On Wednesday 14 June 2006 07:15, Randy.Dunlap wrote:
+> On 14 Jun 2006 07:08:39 +0200 Andi Kleen wrote:
 > 
-> First, I did this:
->   made kernel with cpu=486, gcc-3.3.6
->   worked fine.
+> > Thomas Davis <tadavis@lbl.gov> writes:
+> > 
+> > > I looked in the Changelog - who changed it?
+> > > 
+> > > It doesn't work on my dual athlon 2200 MP system - kills it dead.
+> > > 
+> > > I can get 2.6.2-rc1 to boot.
+> > 
+> > Very vague report. Modern kernel like 2.6.16 doesn't work? And where
+> > does it crash exactly and in what way?
+> > 
+> > If you got it down to that release with binary search can you identify the
+> > exact changeset that caused the problem? 
 > 
-> Next, changed cpu to k6, all else same.
->   worked fine.
-> 
-> Then, after mrproper, rebuilt with gcc-4.1.1, no other changes.
->   compiles ok, installs ok. But, when attempting to load a module, get
->   the following message:  version magic '2.6.16.19via K6 gcc-4.1',
->   should be '2.6.16.19via 486 gcc-3.3'
+> Uhm, I admit that I ignored it given the kernel version and
+> date:
+> Date:	Fri, 30 Jan 2004 13:19:05 -0800
 
-Did you reboot with the kernel built with gcc 4.1.1? The gcc version in
-/proc/version has to match the gcc version of the module you want to
-load..
+Hehe. I assumed he really did a binary search down to 2.6.2 ...
+But didn't look at the date.
 
-Regards,
-Tino
+-Andi

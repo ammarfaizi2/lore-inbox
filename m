@@ -1,41 +1,34 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWFNBFa (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 13 Jun 2006 21:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWFNBFH
+	id S932395AbWFNBrY (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 13 Jun 2006 21:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWFNBrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 21:05:07 -0400
-Received: from ev1s-216-127-70-58.ev1servers.net ([216.127.70.58]:11139 "EHLO
-	palprofit.com") by vger.kernel.org with ESMTP id S964855AbWFNBFA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 21:05:00 -0400
-Date: 13 Jun 2006 09:51:03 -0500
-Message-ID: <20060613145103.23948.qmail@palprofit.com>
-To: linux-kernel@vger.kernel.org
-Subject: Hi
-FROM: suma latha <sumak_86@yahoo.com>
+	Tue, 13 Jun 2006 21:47:23 -0400
+Received: from c-69-141-32-159.hsd1.nj.comcast.net ([69.141.32.159]:4627 "HELO
+	c-69-141-32-159.hsd1.nj.comcast.net") by vger.kernel.org with SMTP
+	id S932395AbWFNBrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 21:47:22 -0400
+From: "Noe Small" <maryfspn@orangecoastrebuilding.com>
+Reply-To: "Noe Small" <maryfspn@orangecoastrebuilding.com>
+Message-ID: <9742554161.7776726408@orangecoastrebuilding.com>
+Date: Tue, 13 Jun 2006 20:48:59 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Younyg Natasha outdjoor serie just
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964855AbWFNBFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932395AbWFNBrY@vger.kernel.org>
 
-Hello, 
+RErAL FAmRM GgIRLS. THE ULTIMbATE EXPERgIENCE! :)
+http://flocculable.fgrwew.com/?freshonline
 
-I never send out these things, but I thought you may want to see
-this website. Here, you can earn money while you make new friends.
-It's different. 
 
-View it at http://www.palprofit.com/?51008 
+wanna hard online   really world, link very , twice out the  online?
+more have drive  sell that italian ; made zero, single will real.
+job  dream link,  offer get?
 
-Cheers,
-
-suma latha
-sumak_86@yahoo.com
-
----------------------------------------------------
-
-UNSUBSCRIBE 
-
-If you don't want to recieve any further invitations for
-PalProfit.com
-Go to
-http://www.palprofit.com/unsubscribe.php?em=linux-kernel@vger.kernel.org
+bye
+Noe Small
 

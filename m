@@ -1,112 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWFNXfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWFNXfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbWFNXfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 19:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWFNXfQ
+	id S965034AbWFNXfM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 19:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWFNXfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 19:35:16 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:18894 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965035AbWFNXfO (ORCPT
+	Wed, 14 Jun 2006 19:35:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55475 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965034AbWFNXfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 19:35:14 -0400
-Subject: Re: [PATCH 06/11] Task watchers:  Register audit task watcher
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Alexander Viro <aviro@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       John T Kohl <jtk@us.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
-       Jes Sorensen <jes@sgi.com>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       linux-audit@redhat.com, Alan Stern <stern@rowland.harvard.edu>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       David Woodhouse <dwmw2@infradead.org>
-In-Reply-To: <20060614144625.GB18305@devserv.devel.redhat.com>
-References: <20060613235122.130021000@localhost.localdomain>
-	 <1150242886.21787.146.camel@stark>
-	 <20060614144625.GB18305@devserv.devel.redhat.com>
-Content-Type: text/plain
-Date: Wed, 14 Jun 2006 16:28:25 -0700
-Message-Id: <1150327705.21787.330.camel@stark>
+	Wed, 14 Jun 2006 19:35:11 -0400
+Date: Wed, 14 Jun 2006 16:35:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, vgoyal@in.ibm.com
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 16/16] 64bit Resource: finally enable 64bit resource sizes
+Message-ID: <20060614233507.GA23629@kroah.com>
+References: <11501587043722-git-send-email-greg@kroah.com> <11501587082203-git-send-email-greg@kroah.com> <11501587122736-git-send-email-greg@kroah.com> <11501587153872-git-send-email-greg@kroah.com> <11501587193060-git-send-email-greg@kroah.com> <11501587223213-git-send-email-greg@kroah.com> <11501587273612-git-send-email-greg@kroah.com> <11501587303683-git-send-email-greg@kroah.com> <11501587343689-git-send-email-greg@kroah.com> <Pine.LNX.4.62.0606141417430.1886@pademelon.sonytel.be>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0606141417430.1886@pademelon.sonytel.be>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-14 at 10:46 -0400, Alexander Viro wrote:
-> On Tue, Jun 13, 2006 at 04:54:46PM -0700, Matt Helsley wrote:
-> > Adapt audit to use task watchers.
+On Wed, Jun 14, 2006 at 02:20:06PM +0200, Geert Uytterhoeven wrote:
+> On Mon, 12 Jun 2006, Greg KH wrote:
+> > From: Greg Kroah-Hartman <gregkh@suse.de>
+> > 
+> > Introduce the Kconfig entry and actually switch to a 64bit value, if
+> > wanted, for resource_size_t.
 > 
-> audit_free(p) really expects that either p is a stillborn (never ran)
-> *or* that p == current.
+> > diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+> > index 805b81f..22dcaa5 100644
+> > --- a/arch/m68k/Kconfig
+> > +++ b/arch/m68k/Kconfig
+> > @@ -368,6 +368,13 @@ config 060_WRITETHROUGH
+> >  
+> >  source "mm/Kconfig"
+> >  
+> > +config RESOURCES_32BIT
+> > +	bool "32 bit Memory and IO resources (EXPERIMENTAL)"
+> > +	depends on EXPERIMENTAL
+> > +	help
+> > +	  By default resources are 64 bit. This option allows memory and IO
+> > +	  resources to be 32 bit to optimize code size.
+> > +
+> >  endmenu
+> 
+> Why is the default 64 bit? Because 32 bit became experimental?
 
-	Makes sense. I think the task watcher patches are consistent with this.
-I think the first patch of this series helps explain how this patch
-remains consistent with the above. I should have cc'd linux-audit when
-posting that patch -- here's a link for now:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0606.1/1800.html
+That's a really good question.  Vivek, why did you change it to be this
+way?  In thinking about it some more, this should be a 64bit option
+instead.
 
-	In copy_process() and do_exit() notify_watchers() passes the same
-pointers as audit_alloc() and audit_free() used before. The patches also
-do not introduce or remove calls to audit_alloc() or audit_free(). The
-patches trigger these calls with notify_watchers() while passing
-WATCH_TASK_INIT and WATCH_TASK_FREE for audit_alloc() and audit_free()
-respectively. WATCH_TASK_INIT (and hence audit_alloc()) only happens in
-copy_process(). WATCH_TASK_FREE (and hence audit_free()) happens in
-copy_process()'s error recovery path and in do_exit().
+thanks,
 
-	This results in the same calls to audit_alloc() and audit_free() except
-with an additional function call preceding them on the stack.
-
-	Are you concerned that future modifications of task watchers would pass
-in task structs that violate these expectations? I can alter the patches
-to incorporate these restrictions:
-
-copy_process()
-{
-	...
-	notify_watchers(WATCH_TASK_INIT, p);
-	...
-	if (<succeeding>)
-		notify_watchers(WATCH_TASK_CLONE, p);
-	...
-bad_foo:
-	...
-- 	notify_watchers(WATCH_TASK_FREE, p);
-+ 	notify_watchers(WATCH_TASK_ABORT, p);
-	...
-}
-
-<change all other notify_watchers() invocations to pass NULL as
-the second parameter, e.g.>
-
-do_exit()
-{
-	...
-	notify_watchers(WATCH_TSK_FREE, NULL); /* callees must use current */
-}
-
-However this requires that I modify each user of task watchers with
-something like:
-
-int foo (struct notifier_block *nb, unsigned long val, void *v)
-{
--	struct task_struct *tsk = v;
-+	struct task_struct *tsk = current;
-	...
-	switch(get_watch_event(val)) {
-	case WATCH_TASK_INIT:
-+ 		tsk = v; /* INIT and ABORT use v, the rest use current */
-	...
-+ 	case WATCH_TASK_ABORT:
-+ 		tsk = v; /* fall through */
-	case WATCH_TASK_FREE:
-		...
-	}
-	...
-}
-
-Which seems a bit more complicated. Is this worth it?
-
-Cheers,
-	-Matt Helsley
-
+greg k-h

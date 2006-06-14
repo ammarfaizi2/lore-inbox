@@ -1,71 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWFNX3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWFNXfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWFNX3H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 19:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWFNX3H
+	id S965035AbWFNXfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 19:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbWFNXfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 19:29:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15593 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965033AbWFNX3F (ORCPT
+	Wed, 14 Jun 2006 19:35:16 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:18894 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965035AbWFNXfO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 19:29:05 -0400
-Date: Thu, 15 Jun 2006 01:28:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       metan@seznam.cz, arminlitzel@web.de
-Subject: Re: sharp zaurus sl-5500 (collie): touchscreen now works
-Message-ID: <20060614232814.GJ7751@elf.ucw.cz>
-References: <20060610202541.GA26697@elf.ucw.cz> <1150139307.5376.56.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150139307.5376.56.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 14 Jun 2006 19:35:14 -0400
+Subject: Re: [PATCH 06/11] Task watchers:  Register audit task watcher
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Alexander Viro <aviro@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       John T Kohl <jtk@us.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Jes Sorensen <jes@sgi.com>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       linux-audit@redhat.com, Alan Stern <stern@rowland.harvard.edu>,
+       LSE-Tech <lse-tech@lists.sourceforge.net>,
+       David Woodhouse <dwmw2@infradead.org>
+In-Reply-To: <20060614144625.GB18305@devserv.devel.redhat.com>
+References: <20060613235122.130021000@localhost.localdomain>
+	 <1150242886.21787.146.camel@stark>
+	 <20060614144625.GB18305@devserv.devel.redhat.com>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 16:28:25 -0700
+Message-Id: <1150327705.21787.330.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I hacked touchscreen driver a bit (with great help from metan) and it
-> > is now actually usable, without much filtering in userland.
+On Wed, 2006-06-14 at 10:46 -0400, Alexander Viro wrote:
+> On Tue, Jun 13, 2006 at 04:54:46PM -0700, Matt Helsley wrote:
+> > Adapt audit to use task watchers.
 > 
-> That's good to know! :)
+> audit_free(p) really expects that either p is a stillborn (never ran)
+> *or* that p == current.
 
-Yep, it makes collie usable.
+	Makes sense. I think the task watcher patches are consistent with this.
+I think the first patch of this series helps explain how this patch
+remains consistent with the above. I should have cc'd linux-audit when
+posting that patch -- here's a link for now:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0606.1/1800.html
 
-> > (Very) dirty bigdiff is attached. Proper battery charging (very slow
-> > charging is done even without software help) and MMC/SD support are
-> > two biggest issues now -- on the kernel front.
-> 
-> As far as I can see, we should be able to use the existing driver once
-> we adapt the code for the SA1100 features. The charging circuitry is
-> very similar to the other models as far as I can tell.
+	In copy_process() and do_exit() notify_watchers() passes the same
+pointers as audit_alloc() and audit_free() used before. The patches also
+do not introduce or remove calls to audit_alloc() or audit_free(). The
+patches trigger these calls with notify_watchers() while passing
+WATCH_TASK_INIT and WATCH_TASK_FREE for audit_alloc() and audit_free()
+respectively. WATCH_TASK_INIT (and hence audit_alloc()) only happens in
+copy_process(). WATCH_TASK_FREE (and hence audit_free()) happens in
+copy_process()'s error recovery path and in do_exit().
 
-Agreed. I just need to find out why ADCs seem to return random values.
+	This results in the same calls to audit_alloc() and audit_free() except
+with an additional function call preceding them on the stack.
 
-> MMC/SD is more of a problem. There is one person with the specs who
-> could write the driver but he can't pass them to anyone else :-(.
+	Are you concerned that future modifications of task watchers would pass
+in task structs that violate these expectations? I can alter the patches
+to incorporate these restrictions:
 
-Did we ever have working MMC with open-source drivers (on collie)? I
-thought we had MMC but not SD...
+copy_process()
+{
+	...
+	notify_watchers(WATCH_TASK_INIT, p);
+	...
+	if (<succeeding>)
+		notify_watchers(WATCH_TASK_CLONE, p);
+	...
+bad_foo:
+	...
+- 	notify_watchers(WATCH_TASK_FREE, p);
++ 	notify_watchers(WATCH_TASK_ABORT, p);
+	...
+}
 
-> > On the userland front... any ideas where to get 2.6-compatible GPE
-> > environment? It would be nice to see X running :-). Bluetooth support
-> > would be nice bonus ;-).
-> 
-> You can build such an image with OpenEmbedded easily enough ;-). I guess
-> you're going to have to run it from the CF card though as the internal
-> flash isn't big enough and MMC/SD doesn't work?
+<change all other notify_watchers() invocations to pass NULL as
+the second parameter, e.g.>
 
-Well, provided I can get bitbake to work :-).
+do_exit()
+{
+	...
+	notify_watchers(WATCH_TSK_FREE, NULL); /* callees must use current */
+}
 
-But I sense problems... I need CF slot for bluetooth card -- irda is
-not really usable. I thought I seen some 16MB gpe images... and then,
-there's RAM, too.
+However this requires that I modify each user of task watchers with
+something like:
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+int foo (struct notifier_block *nb, unsigned long val, void *v)
+{
+-	struct task_struct *tsk = v;
++	struct task_struct *tsk = current;
+	...
+	switch(get_watch_event(val)) {
+	case WATCH_TASK_INIT:
++ 		tsk = v; /* INIT and ABORT use v, the rest use current */
+	...
++ 	case WATCH_TASK_ABORT:
++ 		tsk = v; /* fall through */
+	case WATCH_TASK_FREE:
+		...
+	}
+	...
+}
+
+Which seems a bit more complicated. Is this worth it?
+
+Cheers,
+	-Matt Helsley
+

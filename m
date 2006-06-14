@@ -1,87 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWFNBYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWFNB0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWFNBYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 21:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWFNBYs
+	id S964868AbWFNB0h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 21:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWFNB0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 21:24:48 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:20122 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932355AbWFNBYq
+	Tue, 13 Jun 2006 21:26:37 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:15511 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964868AbWFNB0g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 21:24:46 -0400
-Subject: Re: [Lse-tech] [PATCH 08/11] Task watchers: Register profile as a
-	task watcher
+	Tue, 13 Jun 2006 21:26:36 -0400
+Subject: Re: [Lse-tech] [PATCH 04/11] Task watchers: Make process events
+	configurable as a module
 From: Matt Helsley <matthltc@us.ibm.com>
 To: Chase Venters <chase.venters@clientec.com>
 Cc: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
        Chandra S Seetharaman <sekharan@us.ibm.com>,
        John T Kohl <jtk@us.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
        Jes Sorensen <jes@sgi.com>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
        Alan Stern <stern@rowland.harvard.edu>,
-       Philippe Elie <phil.el@wanadoo.fr>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       oprofile-list@lists.sourceforge.net
-In-Reply-To: <200606131959.47635.chase.venters@clientec.com>
+       LSE-Tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <200606131955.04554.chase.venters@clientec.com>
 References: <20060613235122.130021000@localhost.localdomain>
-	 <1150242897.21787.148.camel@stark>
-	 <200606131959.47635.chase.venters@clientec.com>
+	 <1150242882.21787.144.camel@stark>
+	 <200606131955.04554.chase.venters@clientec.com>
 Content-Type: text/plain
-Date: Tue, 13 Jun 2006 18:16:44 -0700
-Message-Id: <1150247804.21787.212.camel@stark>
+Date: Tue, 13 Jun 2006 18:18:32 -0700
+Message-Id: <1150247912.21787.215.camel@stark>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 19:59 -0500, Chase Venters wrote:
+On Tue, 2006-06-13 at 19:54 -0500, Chase Venters wrote:
 > On Tuesday 13 June 2006 18:54, Matt Helsley wrote:
 > 
-> >  	switch (type) {
-> > -		case PROFILE_TASK_EXIT:
-> > -			err = blocking_notifier_chain_register(
-> > -					&task_exit_notifier, n);
-> > -			break;
-> >  		case PROFILE_MUNMAP:
-> >  			err = blocking_notifier_chain_register(
-> >  					&munmap_notifier, n);
-> >  			break;
-> >  	}
+> > +static void cn_proc_fini(void)
+> > +{
+> > +	int err;
+> > +
+> > +	err = unregister_task_watcher(&cn_proc_nb);
+> > +	if (err != 0)
+> > +		printk(KERN_WARNING
+> > +		       "cn_proc failed to unregister its task notify block\n");
 > 
-> 	if (type == PROFILE_MUNMAP)
-> 
-> ?
->
-> > @@ -140,14 +130,10 @@ int profile_event_register(enum profile_
-> >  int profile_event_unregister(enum profile_type type, struct notifier_block
-> > * n) {
-> >  	int err = -EINVAL;
-> >
-> >  	switch (type) {
-> > -		case PROFILE_TASK_EXIT:
-> > -			err = blocking_notifier_chain_unregister(
-> > -					&task_exit_notifier, n);
-> > -			break;
-> >  		case PROFILE_MUNMAP:
-> >  			err = blocking_notifier_chain_unregister(
-> >  					&munmap_notifier, n);
-> >  			break;
-> >  	}
-> 
-> Same...
+> How about if (err), or if (unregister_task_watcher(&cn_proc_nb))?
+
+I don't see any worthwhile benefit to the former and I've seen feedback
+that the latter is less readable.
+
+> > +	cn_del_callback(&cn_proc_event_id);
+> > +}
+> > +
+> >  module_init(cn_proc_init);
+> > +module_exit(cn_proc_fini);
 > 
 > Thanks,
 > Chase
 
-Hmm. Perhaps I ought to get rid of the condition and enum entirely then
-change the names of the functions to profile_mmmap() and
-profile_munmap().
-
-	It really depends on what additional changes, if any, are expected
-here. Since I don't have any plans to further modify profiling beyond
-what I've outlined in these patches I'm not sure what the best course is
-here.
-
-Thanks,
-	-Matt Helsley
 

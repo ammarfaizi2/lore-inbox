@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWFNP2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbWFNPeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWFNP2S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 11:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWFNP2S
+	id S965005AbWFNPeA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 11:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWFNPeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 11:28:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39945 "EHLO
+	Wed, 14 Jun 2006 11:34:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1293 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964930AbWFNP2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 11:28:17 -0400
-Date: Wed, 14 Jun 2006 16:28:09 +0100
+	id S965005AbWFNPd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 11:33:59 -0400
+Date: Wed, 14 Jun 2006 16:33:53 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: gregkh@suse.de, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Serial-Core: USB-Serial port current issues.
-Message-ID: <20060614152809.GA17432@flint.arm.linux.org.uk>
-Mail-Followup-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
-	gregkh@suse.de, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <20060613192829.3f4b7c34@home.brethil>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: serial_core: verify_port() in wrong spot?
+Message-ID: <20060614153353.GB17432@flint.arm.linux.org.uk>
+Mail-Followup-To: Stuart MacDonald <stuartm@connecttech.com>,
+	linux-kernel@vger.kernel.org
+References: <20060609162320.GA11997@flint.arm.linux.org.uk> <093501c68bee$6aef1ad0$294b82ce@stuartm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060613192829.3f4b7c34@home.brethil>
+In-Reply-To: <093501c68bee$6aef1ad0$294b82ce@stuartm>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 13, 2006 at 07:28:29PM -0300, Luiz Fernando N. Capitulino wrote:
->  I took a look in the Serial Core code and didn't see why set_termios()
-> and break_ctl() (plus tx_empty()) are not allowed to sleep: they doesn't
-> seem to run in atomic context. So, are they allowed to sleep? Isn't the
-> documentation out of date? I've even submitted a patch to fix it [2].
+On Fri, Jun 09, 2006 at 01:59:13PM -0400, Stuart MacDonald wrote:
+> From: Russell King [rmk@arm.linux.org.uk]
+> > I'd rather verify_port didn't get used for that - it's purpose is to
+> > validate changes the admin makes to the port.
+> 
+> I did figure out that's what it's currently used as, but I didn't want
+> to introduce a whole new call just to verify that the UART has 9bit
+> capability.
+> 
+> Why aren't user changes validated?
 
-You are correct - and I will eventually apply your patch.  At the
-moment, I'm throttling back on applying patches so that 2.6.17 can
-finally appear (I don't want to be responsible for Linus saying
-again "too many changes for -final, let's do another -rc".)
+The only things which users can change is low latency, the alternative
+(deprecated) "38400-baud" baud rates, and the custom divisor.  None of
+these depend on the low level driver, so there's no point asking the
+low level driver to validate them.
 
->  For get_mctrl() and set_mctrl() it seems possible to switch from a
-> spinlock to a mutex, as they are not called from an interrupt context.
-> Is this really possible? Would you agree with this change?
+> 9bit mode is much more than just words of 9 bit length. Parity is
+> gone, replaced by the 9th bit; reads and writes have to treat the
+> buffers driver-side buffers as 16 bit-wide instead of 8-bit; reads and
+> writes to the hardware are correspondingly different; there are new
+> interrupts; software flow control is gone; there's special address
+> matching and a new ioctl to set that up.
 
-I don't know - that depends whether the throttle/unthrottle driver
-methods are ever called from interrupt context or not.
-
-What we could do is put a WARN_ON() or might_sleep() in there and
-find out over time if they are called from non-process context.
+Well, I'll have to read up on this before I can comment any further.
+At the moment I don't feel qualified to answer your questions.
 
 -- 
 Russell King

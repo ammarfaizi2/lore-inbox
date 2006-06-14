@@ -1,97 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWFNNVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWFNN3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbWFNNVv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 09:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWFNNVv
+	id S964913AbWFNN3F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 09:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWFNN3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 09:21:51 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:32283 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964912AbWFNNVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 09:21:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m9A2y+OtSTsauOh8qePzXaeGGysXjfdB3Cp4eme7oWVwTPekbmldCMQotXBlYHjdfgdZFiwFZS9W1j+nHbYU5rgqxxa4DY0UvqBsa6bowiVQY85l5GJ2ThZzIRrsA69eiqsg407wGoyYRG6Wb8DH2urzRXgsvT3StcfkC56ezNE=
-Message-ID: <b0943d9e0606140621xabfba05t8445ce549697064@mail.gmail.com>
-Date: Wed, 14 Jun 2006 14:21:49 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Cc: "Pekka J Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060614040707.GA7503@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jun 2006 09:29:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19418 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964913AbWFNN3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 09:29:04 -0400
+Date: Wed, 14 Jun 2006 09:28:56 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Sebastien Dugue <sebastien.dugue@bull.net>
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+       Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
+       Pierre PEIFFER <pierre.peiffer@bull.net>
+Subject: Re: NPTL mutex and the scheduling priority
+Message-ID: <20060614132856.GA3115@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20060612.171035.108739746.nemoto@toshiba-tops.co.jp> <1150115008.3131.106.camel@laptopd505.fenrus.org> <20060612124406.GZ3115@devserv.devel.redhat.com> <1150125869.3835.12.camel@frecb000686> <20060613084819.GL3115@devserv.devel.redhat.com> <1150200272.3835.33.camel@frecb000686> <20060613125603.GQ3115@devserv.devel.redhat.com> <1150291180.3835.59.camel@frecb000686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060611112156.8641.94787.stgit@localhost.localdomain>
-	 <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com>
-	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
-	 <20060612105345.GA8418@elte.hu>
-	 <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-	 <20060612192227.GA5497@elte.hu>
-	 <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
-	 <20060613072646.GA17978@elte.hu>
-	 <b0943d9e0606130349s24614bbcia6a650342437d3d1@mail.gmail.com>
-	 <20060614040707.GA7503@elte.hu>
+In-Reply-To: <1150291180.3835.59.camel@frecb000686>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14/06/06, Ingo Molnar <mingo@elte.hu> wrote:
-> * Catalin Marinas <catalin.marinas@gmail.com> wrote:
->
-> But it's not just about the amount of false negatives, but also about
-> the overhead of scanning. You are concentrated on embedded systems with
-> small RAM - but most of the testers will be running this with at last
-> 1GB of RAM - which is _alot_ of memory to scan.
+On Wed, Jun 14, 2006 at 03:19:40PM +0200, S?bastien Dugu? wrote:
+> > FUTEX_REQUEUE is used by pthread_cond_signal to requeue the __data.__futex
+> > onto __data.__lock.
+> 
+>   You meant FUTEX_WAKE_OP, I guess. I could not find any place still 
+> using FUTEX_REQUEUE in glibc 2.4.
 
-As Andi mentioned, it might not be a big issue since the page cache is
-not scanned.
+glibc 2.4 uses FUTEX_CMP_REQUEUE, true, but both FUTEX_REQUEUE and
+FUTEX_CMP_REQUEUE should behave the same in this regard (after all, they are
+implemented using the same futex_requeue routine in the kernel).
+FUTEX_CMP_REQUEUE is used in pthread_cond_broadcast, FUTEX_WAKE_OP is used in
+pthread_cond_signal.  E.g. nptl/sysdeps/pthread/pthread_cond_broadcast.c:
+...
+      /* Wake everybody.  */
+      pthread_mutex_t *mut = (pthread_mutex_t *) cond->__data.__mutex;
+      /* lll_futex_requeue returns 0 for success and non-zero
+         for errors.  */
+      if (__builtin_expect (lll_futex_requeue (&cond->__data.__futex, 1,
+                                               INT_MAX, &mut->__data.__lock,
+                                               futex_val), 0))
+        {
+          /* The requeue functionality is not available.  */
+        wake_all:
+          lll_futex_wake (&cond->__data.__futex, INT_MAX);
+        }
+and nptl/sysdeps/pthread/pthread_cond_signal.c:
+...
+      /* Wake one.  */
+      if (! __builtin_expect (lll_futex_wake_unlock (&cond->__data.__futex, 1,
+                                                     1, &cond->__data.__lock),
+                                                     0))
+        return 0;
 
-> > The number of collisions would need to be investigated. On my system,
-> > there are 158 distinct sizeof values generated by container_of. Of
-> > this, 90 have at least two aliases (incoming pointer offsets). I'm not
-> > sure how many different structures are in the kernel but I can't find
-> > an easy (gcc magic) way to get a unique id for a type (apart from
-> > modifying all the container_of calls and add a 4th argument - maybe a
-> > string with the name of the type).
+      lll_futex_wake (&cond->__data.__futex, 1);
+    }
 
-Looking at these collisions in more detail, from the above 90 only
-about 40 are real collisions that introduce new aliases. The others
-are container_of() usages on other members (task_struct has about 4
-different aliases).
+  /* We are done.  */
+  lll_mutex_unlock (cond->__data.__lock);
 
-> If the ID is string based then you dont even have to touch containr_of()
-> calls - just generate the typename string via the "#y" stringification
-> preprocessor directive, where 'y' is the second parameter of
-> container_of().
-
-Since the linker seems to be smart enough to eliminate string
-duplicates, a "const char *" can be used as a unique id (assuming that
-the container_of is always called with the type name and not
-"typeof").
-
-> there's another, much faster solution as well that assigns IDs
-> build-time for globally visible types: the __builtin_types_compatible_p
-> gcc extension to match the type against a global registry of types. I.e.
-> here's what i use in PREEMPT_RT:
-[...]
-> it needs some thought, but this way it's quite possible to build-time
-> map types to IDs.
-
-That's an interesting approach and it would work even with "typeof()"
-constructs.
-
-Anyway, in both the incoming and outgoing pointers case, the type
-information needs to be associated with the allocated memory block.
-This would mean that all the kmalloc/kmem_cache_alloc etc. calls in
-the kernel have to be modified to pass the type information. Would
-such a (big) patch be acceptable for the kernel? The sizeof is the
-only information that could get close to type identification and is
-passed to these functions, though it has its risks.
-
-Is it also worth the effort? With the large number of platforms Linux
-runs on, a leak would be spotted sooner or later.
-
--- 
-Catalin
+	Jakub

@@ -1,48 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWFMWrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWFMWtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWFMWrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 18:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWFMWrQ
+	id S1751082AbWFMWtL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 18:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWFMWtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 18:47:16 -0400
-Received: from gw.openss7.com ([142.179.199.224]:21937 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S964791AbWFMWrP (ORCPT
+	Tue, 13 Jun 2006 18:49:11 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:43178 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751082AbWFMWtK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 18:47:15 -0400
-Date: Tue, 13 Jun 2006 16:47:14 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Daniel Phillips <phillips@google.com>
-Cc: Chase Venters <chase.venters@clientec.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Message-ID: <20060613164714.B7232@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Daniel Phillips <phillips@google.com>,
-	Chase Venters <chase.venters@clientec.com>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org> <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse> <448F3C83.9080606@google.com>
+	Tue, 13 Jun 2006 18:49:10 -0400
+Date: Wed, 14 Jun 2006 06:49:09 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [RFC][PATCH] Avoid race w/ posix-cpu-timer and exiting tasks
+Message-ID: <20060614024909.GA563@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <448F3C83.9080606@google.com>; from phillips@google.com on Tue, Jun 13, 2006 at 03:30:27PM -0700
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel,
+john stultz wrote:
+>
+> Hey Ingo,
+> 	We've occasionally come across OOPSes in posix-cpu-timer thread (as
+> well as tripping over the BUG_ON(tsk->exit_state there) where it appears
+> the task we're processing exits out on us while we're using it. 
+>
+> Thus this fix tries to avoid running the posix-cpu-timers on a task that
+> is exiting.
+>
+> --- 2.6-rt/kernel/posix-cpu-timers.c	2006-06-11 15:38:58.000000000 -0500
+> +++ devrt/kernel/posix-cpu-timers.c	2006-06-12 10:52:20.000000000 -0500
+> @@ -1290,12 +1290,15 @@
+>
+>  #undef	UNEXPIRED
+>
+> -	BUG_ON(tsk->exit_state);
+> -
+>  	/*
+>  	 * Double-check with locks held.
+>  	 */
+>  	read_lock(&tasklist_lock);
+> +	/* Make sure the task doesn't exit under us. */
+> +	if(unlikely(tsk->exit_state)) {
+> +		read_unlock(&tasklist_lock);
+> +		return;
+> +	}
+>  	spin_lock(&tsk->sighand->siglock);
 
-On Tue, 13 Jun 2006, Daniel Phillips wrote:
-> 
-> You probably meant "non-GPL-compatible non-proprietary".  If so, then by
-> definition there are none.
+I strongly believe this BUG_ON() is indeed wrong, and I did a similar patch
+a long ago:
 
-Well, being GPL compatible is not a requirement for an open source license.
+	[PATCH] posix-timers: remove false BUG_ON() from run_posix_cpu_timers()
+	Commit 3de463c7d9d58f8cf3395268230cb20a4c15bffa
 
-IANAL, but last I checked, pure-BSD is not compatible with GPL (it actually
-has to be dual-licensed BSD/GPL).
+However it was reverted due to some unclear problems (I think those problems
+were not related to this patch).
+
+Instead this patch was added:
+
+	[PATCH] Yet more posix-cpu-timer fixes
+	Commit 3de463c7d9d58f8cf3395268230cb20a4c15bffa
+
+and I still think this patch is not correct.
+
+Quoting myself:
+>
+> Roland McGrath wrote:
+> >
+> > @@ -566,6 +566,9 @@ static void arm_timer(struct k_itimer *t
+> >         struct cpu_timer_list *next;
+> >         unsigned long i;
+> >
+> > +       if (CPUCLOCK_PERTHREAD(timer->it_clock) && (p->flags & PF_EXITING))
+> > +               return;
+> > +
+>
+> Why CPUCLOCK_PERTHREAD() ?.
+>
+> Also, this is racy, no? Why should arm_timer() see PF_EXITING which is
+> set on another cpu without any barriers/locking? After all, arm_timer()
+> can test PF_EXITING before do_exit() sets this flag, but set ->it_xxx_expires
+> after do_exit() resets it.
+
+Oleg.
+

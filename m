@@ -1,44 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWFND7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWFNEIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWFND7S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 23:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWFND7S
+	id S932403AbWFNEIM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 00:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWFNEIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 23:59:18 -0400
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:195 "EHLO
-	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751184AbWFND7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 23:59:17 -0400
-Date: Tue, 13 Jun 2006 23:59:14 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Badari Pulavarty <pbadari@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH 3/4] Core aio changes to support vectored AIO
-In-Reply-To: <1150241734.7369.0.camel@dyn9047017100.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.64.0606132354580.8414@d.namei>
-References: <1150241520.28414.59.camel@dyn9047017100.beaverton.ibm.com>
- <1150241734.7369.0.camel@dyn9047017100.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Jun 2006 00:08:12 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:63932 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751218AbWFNEIL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 00:08:11 -0400
+Date: Wed, 14 Jun 2006 06:07:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Catalin Marinas <catalin.marinas@gmail.com>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
+Message-ID: <20060614040707.GA7503@elte.hu>
+References: <20060611112156.8641.94787.stgit@localhost.localdomain> <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com> <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com> <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI> <20060612105345.GA8418@elte.hu> <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com> <20060612192227.GA5497@elte.hu> <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI> <20060613072646.GA17978@elte.hu> <b0943d9e0606130349s24614bbcia6a650342437d3d1@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b0943d9e0606130349s24614bbcia6a650342437d3d1@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5014]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jun 2006, Badari Pulavarty wrote:
 
-> This work is initially done by Zach Brown to add support for
-> vectored aio. These are the core changes for AIO to support
-> IOCB_CMD_PREADV/IOCB_CMD_PWRITEV. 
+* Catalin Marinas <catalin.marinas@gmail.com> wrote:
 
-The LSM hooksfor this look ok to me.  Certainly worth some SELinux testing 
-while in -mm.
+> On 13/06/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> >you should think of this in terms of a 'graph of data', where each node
+> >is a block of memory. The edges between nodes are represented by
+> >pointers. The graph roots from .data/bss, but it may go indefinitely
+> >into dynamically allocated blocks as well - just think of a hash-list
+> >where the hash list table is in .data, but all the chain entries are in
+> >allocated blocks and the chaining can be arbitrarily deep.
+> [...]
+> 
+> Nice description, I should add it to the kmemleak doc :-)
 
+feel free :-)
 
-Acked-by: James Morris <jmorris@namei.org>
+> >Currently kmemleak does not track the per-block position of 'outgoing
+> >pointers': it assumes that all fields within a block may be an outgoing
+> >pointer. This is a source of false negatives. (fields that do not
+> >contain a real pointer might accidentally contain a value that is
+> >interpreted as a false edge - falsely connecting a leaked block to the
+> >graph.)
+> 
+> That's correct but it might not be a real issue in practice. Many 
+> people use the Boehm's GC and haven't complained about the amount of 
+> false negatives (AFAIK, there is even a proposal to include it in the 
+> next C++ standard).
 
+For a GC a false negative is no big problem - it will reduce the 
+efficiency of the GC a bit, but that's all. For leak detection, if we 
+happen to have a persistent false pointer in .data (or any other 
+persistently allocated memory), it may prevent the detection of a leak 
+permanently - at least for that bootup. Statistically it could still be 
+found on other systems, but it would be better to have a design that 
+will eventually lead to having no false negatives.
 
--- 
-James Morris
-<jmorris@namei.org>
+But it's not just about the amount of false negatives, but also about 
+the overhead of scanning. You are concentrated on embedded systems with 
+small RAM - but most of the testers will be running this with at last 
+1GB of RAM - which is _alot_ of memory to scan.
+
+(But, if it's not possible to implement it in a sane manner then that's 
+not an issue either - it's rather the false positives that must be 
+avoided.)
+
+> >Kmemleak does recognize 'incoming pointers' via the offsetof tracking
+> >method, but it's limited in that it is not a type-accurate method
+> >either: it tracks per-size offsets, so two types accidentally having the
+> >same size merges their 'possible incoming pointer offset' lists, which
+> >introduces false negatives. (a pointer may be considered an incoming
+> >edge while in reality the pointer is not validly pointing into this
+> >structure)
+> 
+> The number of collisions would need to be investigated. On my system, 
+> there are 158 distinct sizeof values generated by container_of. Of 
+> this, 90 have at least two aliases (incoming pointer offsets). I'm not 
+> sure how many different structures are in the kernel but I can't find 
+> an easy (gcc magic) way to get a unique id for a type (apart from 
+> modifying all the container_of calls and add a 4th argument - maybe a 
+> string with the name of the type).
+
+there are a couple of possibilities.
+
+If the ID is string based then you dont even have to touch containr_of() 
+calls - just generate the typename string via the "#y" stringification 
+preprocessor directive, where 'y' is the second parameter of 
+container_of().
+
+there's another, much faster solution as well that assigns IDs 
+build-time for globally visible types: the __builtin_types_compatible_p 
+gcc extension to match the type against a global registry of types. I.e.
+here's what i use in PREEMPT_RT:
+
+#undef TYPE_EQUAL
+#define TYPE_EQUAL(lock, type) \
+                __builtin_types_compatible_p(typeof(lock), type *)
+
+#define PICK_OP(type, optype, op, lock)                         \
+do {                                                            \
+        if (TYPE_EQUAL((lock), type))                           \
+                _raw_##optype##op((type *)(lock));              \
+        else if (TYPE_EQUAL(lock, spinlock_t))                  \
+                _spin##op((spinlock_t *)(lock));                \
+        else __bad_spinlock_type();                             \
+} while (0)
+
+so you can generate a (really) long branch that checks every known type 
+that assigns an ID to a type build-time:
+
+	if (TYPE_EQUAL(type, struct skb_head))
+		type_id = 1;
+	else if (TYPE_EQUAL(type, struct ))
+		type_id = 2;
+	...
+	else
+		type_id = UNKNOWN_TYPE;
+
+despite this branch having hundreds of checks, the compiler will 
+eliminate it at build time and only a single static type ID assignment 
+remains.
+
+this long branch could be auto-generated build-time (just like 
+asm-offsets.c) in a maintainable way by putting a single "register type" 
+line after every structure definition in global .h files:
+
+REGISTER_TYPE(struct skb_head)
+
+where REGISTER_TYPE(x) maps to nothing during normal kernel builds, but 
+if a special flag is set it generates the type string into a special 
+section:
+
+#ifdef GENERATE_TYPE_REGISTRY
+# define REGISTER_TYPE(x) \
+	static char x __attribute__((section(".type.registry")) = #x;
+#endif
+
+so you can build and execute a special utility early during kernel build 
+that prints out the generated code. (again, like asm-offsets.c)
+
+it needs some thought, but this way it's quite possible to build-time 
+map types to IDs.
+
+> >but that there is a capable annotation method to reduce the amount of 
+> >false negatives, in a gradual and managable way - down to zero if 
+> >everything is annotated.
+> 
+> I'm not sure this could be achieved in a maintainable way, at least 
+> not without support from the compiler.
+
+it's possible with gcc (for global types), just hidden a bit :-)
+
+	Ingo

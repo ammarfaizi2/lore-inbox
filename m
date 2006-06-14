@@ -1,85 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWFNEWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWFNE1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932409AbWFNEWu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 00:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWFNEWt
+	id S1751184AbWFNE1y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 00:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWFNE1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 00:22:49 -0400
-Received: from 8.ctyme.com ([69.50.231.8]:23458 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S932409AbWFNEWt (ORCPT
+	Wed, 14 Jun 2006 00:27:54 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:14210 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1751184AbWFNE1y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 00:22:49 -0400
-Message-ID: <448F8F18.4030200@perkel.com>
-Date: Tue, 13 Jun 2006 21:22:48 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Wed, 14 Jun 2006 00:27:54 -0400
+Message-ID: <448F903F.9070108@ens-lyon.org>
+Date: Wed, 14 Jun 2006 00:27:43 -0400
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Visionary ideas for SQL file systems
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Willy Tarreau <w@1wt.eu>
+CC: Avuton Olrich <avuton@gmail.com>, Russell Whitaker <russ@ashlandhome.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16.19 + gcc-4.1.1
+References: <Pine.LNX.4.63.0606131906230.2368@bigred.russwhit.org> <3aa654a40606132049u43f81ee1m263ee15666246152@mail.gmail.com> <448F8C53.5010406@ens-lyon.org> <20060614042007.GD13255@w.ods.org>
+In-Reply-To: <20060614042007.GD13255@w.ods.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm going to throw this idea out there just to get people thinking. 
-There's nothing in reality that is like this except maybe some of the 
-ReiserFS ideas, but I want to take the idea farther. the idea is ......
+Willy Tarreau wrote:
+> On Wed, Jun 14, 2006 at 12:10:59AM -0400, Brice Goglin wrote:
+>   
+>> Avuton Olrich wrote:
+>>     
+>>> On 6/13/06, Russell Whitaker <russ@ashlandhome.net> wrote:
+>>>       
+>>>> Then, after mrproper, rebuilt with gcc-4.1.1, no other changes.
+>>>>    compiles ok, installs ok. But, when attempting to load a module, get
+>>>>    the following message:  version magic '2.6.16.19via K6 gcc-4.1',
+>>>>    should be '2.6.16.19via 486 gcc-3.3'
+>>>>         
+>>> You may have forgotten to "make modules modules_install"
+>>>       
+>> Actually, "make modules" does not exist anymore with 2.6. Both built-in
+>> and modular stuff are built at the same time.
+>> Only "make modules_install" is still required.
+>>     
+>
+> What's this bullshit ?
+>
+> $ grep ^modules: Makefile
+> modules: $(vmlinux-dirs) $(if $(KBUILD_BUILTIN),vmlinux)
+> modules: $(module-dirs)
+>   
 
-Why not put an SQL filesystem directly on a block devices where files 
-are really blobs within the filesystem and file names and file 
-attributes are all indexed data withing the SQL database. The operating 
-system will have SQL built in.
+Sorry, my mistake. Didn't know the target still existed. Anyway, "make"
+now implies "make modules" so the latter is not required anymore as long
+as you fully rebuild your kernel using the former (which I assume
+Russell did since he changed his compiler).
 
-Right now we have a variety of name spaces, file attributes, cluster 
-sises, inodes and other nasty stuff that are too exposed. Suppose that 
-you could add any fileds you want, any keys you want. Suppose that users 
-and groups could have any number of fields. Suppose you wanted to add 
-more levels like "managers" and some of the fancy Novell stuff. With a 
-database the user could create any kind of an interface to access files 
-that they want.
-
-Picture this. When listing a directory how do we determine who gets to 
-see what file names? I siggest that the rule be an SQL query that the 
-system owner can configure anyway they want. That way you can set it up 
-so that the users only see the file names that they have access to and 
-you could emulate Linux, or you could emulate Windows, or you could 
-emulate Netware, or each directory could have it's own embedded rules 
-that are itself stored within the database.
-
-Now - we hav files that we can read, write, lock, create, delete, etc. 
-The file appear to be a colection of bytes, but what if they aren't 
-really a collection of bytes? Suppose what appeard as a text file was 
-really the output of a query that created what looks like a file but 
-eack line was a record in an SQL database? Writing the file might not be 
-storing bytes but rather storing rows in a database. The reading and 
-writing of the file would be controlled by the files read query and 
-write query, So if you want it to work like today's files then you are 
-reading and writing a blob. But that would be just one of many options.
-
-For example, if you are using an embedded query to read and write files 
-the lines of one file might also be lines in a different file that has a 
-query that intersects the same data. So if you write a line in one file 
-you could change the corisponding line in another file that includes the 
-same data element. So if your writing a program and you change the name 
-of an include file then everything that references that file changes the 
-moment you rename it.
-
-A tar file wouldn't be a separate file. It might just be a query that 
-creates a tar file view of other existing files. By creating a name with 
-a .tar extension and pointing it to a directory makes a tar view of an 
-existing directory. But you can edit the contents of the tar file by 
-editing the files withing the directory that the tar query points to.
-
-So - this is totally outside the bix thinking but use you imagination 
-and envision what could be done if we lose the file system paradyme and 
-embrace the SQL based data paradhyme.
-
-Will it be faster? Doing only what we are limited to today, no. Doing 
-what we would be able to do, yes. This is a radically new concept and 
-you should be very stoned to fully appreciate it. I just wanted to throw 
-the idea out there so that people can start rolling it around and 
-thinking about it. It's an idea that is similar in some ways to the 
-/proc filesystem where things appear as files that aren't
-
-My 2 cents ....
+Brice
 

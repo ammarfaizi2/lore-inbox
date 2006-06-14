@@ -1,87 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWFNP0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWFNP2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbWFNP0V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 11:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWFNP0U
+	id S964930AbWFNP2S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 11:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWFNP2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 11:26:20 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:20692 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S965010AbWFNP0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 11:26:19 -0400
-Date: Wed, 14 Jun 2006 17:26:06 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Daniel Phillips <phillips@google.com>, bidulock@openss7.org,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Message-ID: <20060614152606.GB29312@sunbeam.de.gnumonks.org>
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060614133022.GU11863@sunbeam.de.gnumonks.org> <20060614142903.GI11542@harddisk-recovery.com>
+	Wed, 14 Jun 2006 11:28:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39945 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964930AbWFNP2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 11:28:17 -0400
+Date: Wed, 14 Jun 2006 16:28:09 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Cc: gregkh@suse.de, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Serial-Core: USB-Serial port current issues.
+Message-ID: <20060614152809.GA17432@flint.arm.linux.org.uk>
+Mail-Followup-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
+	gregkh@suse.de, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <20060613192829.3f4b7c34@home.brethil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xXmbgvnjoT4axfJE"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060614142903.GI11542@harddisk-recovery.com>
-User-Agent: mutt-ng devel-20050619 (Debian)
+In-Reply-To: <20060613192829.3f4b7c34@home.brethil>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 13, 2006 at 07:28:29PM -0300, Luiz Fernando N. Capitulino wrote:
+>  I took a look in the Serial Core code and didn't see why set_termios()
+> and break_ctl() (plus tx_empty()) are not allowed to sleep: they doesn't
+> seem to run in atomic context. So, are they allowed to sleep? Isn't the
+> documentation out of date? I've even submitted a patch to fix it [2].
 
---xXmbgvnjoT4axfJE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You are correct - and I will eventually apply your patch.  At the
+moment, I'm throttling back on applying patches so that 2.6.17 can
+finally appear (I don't want to be responsible for Linus saying
+again "too many changes for -final, let's do another -rc".)
 
-On Wed, Jun 14, 2006 at 04:29:04PM +0200, Erik Mouw wrote:
-> On Wed, Jun 14, 2006 at 03:30:22PM +0200, Harald Welte wrote:
-> > On Tue, Jun 13, 2006 at 02:12:41PM -0700, Daniel Phillips wrote:
-> > =20
-> > > This has the makings of a nice stable internal kernel api.  Why do we=
- want
-> > > to provide this nice stable internal api to proprietary modules?
-> >=20
-> > because there is IMHO legally nothing we can do about it anyway.  Use of
-> > an industry-standard API that is provided in multiple operating system
-> > is one of the clearest idnication of some program _not_ being a
-> > derivative work.
->=20
-> IMHO there is no industry-standard API for in-kernel use of sockets.
-> There is however one for user space.
+>  For get_mctrl() and set_mctrl() it seems possible to switch from a
+> spinlock to a mutex, as they are not called from an interrupt context.
+> Is this really possible? Would you agree with this change?
 
-it doesn't matter in what space you are.  If the API really is similar
-enough, then any piece of code (no matter where it was originally
-intended to run) will be able to work with any such socket API.
+I don't know - that depends whether the throttle/unthrottle driver
+methods are ever called from interrupt context or not.
 
-The whole point of this is: Where is the derivation of an existing work?
-I can write a program against some BSD socket api somewhere, and I can
-easily make it use the proposed in-kernel sockets API.  No derivation of
-anything that is inside the kernel and GPL licensed.
+What we could do is put a WARN_ON() or might_sleep() in there and
+find out over time if they are called from non-process context.
 
-> (IANAL, etc)
-
-Neither am I, but I'm constantly dealing with legal questions related to
-the GPL while running gpl-violations.org.
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-We all know Linux is great...it does infinite loops in 5 seconds. -- Linus
-
---xXmbgvnjoT4axfJE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFEkCqOXaXGVTD0i/8RAhMhAJ41CdPR23ZpDwcXE9rfawmgR7gmXwCfdNGa
-WyULyg2u040CL7LKxQLkMBI=
-=pDwl
------END PGP SIGNATURE-----
-
---xXmbgvnjoT4axfJE--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

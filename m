@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWFNKyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWFNLIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWFNKyg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 06:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWFNKyg
+	id S932335AbWFNLIG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 07:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWFNLIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 06:54:36 -0400
-Received: from gw.openss7.com ([142.179.199.224]:26041 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S932329AbWFNKyf (ORCPT
+	Wed, 14 Jun 2006 07:08:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6568 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932335AbWFNLIE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 06:54:35 -0400
-Date: Wed, 14 Jun 2006 04:54:23 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Message-ID: <20060614045423.A18812@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <200606131859.43695.chase.venters@clientec.com> <20060613183112.B8460@openss7.org> <200606131953.42002.chase.venters@clientec.com> <20060614000710.C7232@openss7.org> <1150281823.3490.14.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Wed, 14 Jun 2006 07:08:04 -0400
+Date: Wed, 14 Jun 2006 13:07:15 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PC card RS-232 freezes the computer
+Message-ID: <20060614110715.GF28536@elf.ucw.cz>
+References: <20060612130841.GA16993@kestrel.barix.local>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1150281823.3490.14.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Wed, Jun 14, 2006 at 11:43:43AM +0100
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+In-Reply-To: <20060612130841.GA16993@kestrel.barix.local>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Po 12-06-06 15:08:41, Karel Kulhavy wrote:
+> Hello
+> 
+> When I insert "2 port RS-232" PC card/PCMCIA/carbus/whatever card
+> (86x53x6mm with a golden strip with 8 nipples and 2x34 connector) into my
+> Dell Inspiron 510m notebook with 2.6.16.19, the computer freezes and
+> continues working when I remove it.
+> 
+> The card label says "2 port RS-232 SUNIX Plug Into A Brand-new World
+> S/N: CB 0077996 Made in Taiwan"
+> 
+> XMMS before freezing plays last 300ms 3 times again.
+> 
+> dmesg shows
+> pccard: CardBus card inserted into slot 0
+> pccard: card ejected from slot 0
+> MCE: The hardware reports a non fatal, correctable incident occurred on
+> CPU 0.
+> Bank 0: b200004000000800
+> 
+> Is the kernel intended to behave this way? If yes, is there a way how
+> to configure up the kernel so the computer doesn't freeze and the card
+> can be examined with lspci?
 
-On Wed, 14 Jun 2006, Alan Cox wrote:
-
-> It isn't "policy" its called copyright law.
-
-I know that I said I'd shut up, but I missed in TRIPS where it said
-that symbols must be EXPORT_SYMBOL_GPL...  Could you point that out?
-(Just kidding.)
-
-> You don't seem to understand copyright law either. The GPL like all
-> copyright licenses deals with the right to make copies and to create and
-> control derivative works. It's not "defeated" by four lines of code.
-
-The 3 or 4 lines of code that I wrote as an original expression before
-the patch was submitted.
-
-> Is that a confession ;)
-
-No, just a declaration: the code in question was released under GPL
-Version 2.
-
-> Copyright is not about novelty, you have it confused with the
-> theoretical (not actual) role of patents. Wrong kind of intellectual
-> monopoly right.
-
-Yes, perhaps I should have said "original" instead of "novel".  The patch
-is not "original" as it was predated by equivalent (machine translatable)
-original expressions.
+MCE means hardware problem. Perhaps kernel could do something to
+prevent it, but...
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWFNQsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWFNQ5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWFNQsN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 12:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWFNQsN
+	id S932091AbWFNQ5K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 12:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWFNQ5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 12:48:13 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:33182 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932099AbWFNQsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 12:48:12 -0400
-Date: Wed, 14 Jun 2006 09:45:33 -0700
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: mp3@de.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: statistics infrastructure (in -mm tree) review
-Message-ID: <20060614164533.GA4238@kroah.com>
-References: <20060613232131.GA30196@kroah.com> <20060613234739.GA30534@kroah.com> <20060613171827.73cd0688.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Jun 2006 12:57:10 -0400
+Received: from wr-out-0506.google.com ([64.233.184.239]:25178 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932091AbWFNQ5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 12:57:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=HjXSRzbTBsgSu783fj67+tl8sdIkOSZtExwh/MCXMoZLv5xNCZvXCsBxQz7nk4OlehPpeY7sVD36mUmlmHjOY/xwlKSZFlY+VJTKs3F62xXU/T7tMm4EtVl877OIyJb+x4yuSt+Nlc6K7hE+6Oc5n56RfvdrC8kB1QfuacGML3k=
+Message-ID: <6f6293f10606140957t18545deetf3f75bba09eafa3d@mail.gmail.com>
+Date: Wed, 14 Jun 2006 18:57:07 +0200
+From: "Felipe Alfaro Solana" <felipe.alfaro@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel-level IP autoconfiguration and nodename
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060613171827.73cd0688.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 13, 2006 at 05:18:27PM -0700, Randy.Dunlap wrote:
-> On Tue, 13 Jun 2006 16:47:39 -0700 Greg KH wrote:
-> > > +/**
-> > > + * struct statistic_info - description of a class of statistics
-> > > + * @name: pointer to name name string
-> > > + * @x_unit: pointer to string describing unit of X of (X, Y) data pair
-> > > + * @y_unit: pointer to string describing unit of Y of (X, Y) data pair
-> > > + * @flags: only flag so far (distinction of incremental and other statistic)
-> > > + * @defaults: pointer to string describing defaults setting for attributes
-> > > + *
-> > > + * Exploiters must setup an array of struct statistic_info for a
-> > > + * corresponding array of struct statistic, which are then pointed to
-> > > + * by struct statistic_interface.
-> > > + *
-> > > + * Struct statistic_info and all members and addressed strings must stay for
-> > > + * the lifetime of corresponding statistics created with statistic_create().
-> > > + *
-> > > + * Except for the name string, all other members may be left blank.
-> > > + * It would be nice of exploiters to fill it out completely, though.
-> > > + */
-> > > +struct statistic_info {
-> > > +/* public: */
-> > > +	char *name;
-> > > +	char *x_unit;
-> > > +	char *y_unit;
-> > > +	int  flags;
-> > > +	char *defaults;
-> > > +};
-> > 
-> > The whole "public:" and "private:" thing in these structures is not
-> > needed.  Just document it in the kernel-doc comments and you should be
-> > fine.  This isn't C++ :)
-> 
-> but public: and private: are kernel-doc comments...
-> Using "private:" causes those fields to be omitted from the
-> generated documentation because those fields are for internal/private
-> use of the (statistics) infrastructure code, not to be used by
-> its clients (er, ugh, exploiters) etc.
+Hi there!
 
-Oh, I didn't realize that kerneldoc could do that now, nice.  And look,
-it's even documented that it can support that, I'll shut up now :)
+I'm trying to deploy several diskless workstations using Ubuntu
+Dapper. I've followed the steps highlighted in the Wiki
+https://wiki.ubuntu.com/DisklessUbuntuHowto (plus some additional
+modifications to get it working fine).
 
-thanks,
+However, I'm unable to get the client machine get its hostname from
+the DHCP server. What is really strange is that the kernel itself is
+able to autoconfigure itself using DHCP, and I can see during boot
+that a hostname is assigned to the client, as shown before:
 
-greg k-h
+IP-Config: eth0 complete (from 10.0.0.2):
+ address: 10.0.0.10        broadcast: 10.255.255.255   netmask: 255.0.0.0
+ gateway: 10.0.0.2         dns0     : 10.0.0.2         dns1   : 0.0.0.0
+ host   : client1
+ domain : lan
+ rootserver: 10.0.0.2 rootpath:
+
+However, both "uname -n" and hostname return "(none)". I have tried
+hacking the initram, but I have been unable to guess why, although the
+kernel is receiving a hostname via DHCP, hostname ends up being
+"(none)".
+
+I've been reading net/ipv4/ipconfig.c and seems like
+system_utsname.nodename is being set to the host name received via
+DHCP, but I can't guess why /proc/sys/kernel/hostname keeps returning
+"(none)".
+
+Any ideas?
+
+Thank you very much.

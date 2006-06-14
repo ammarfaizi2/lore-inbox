@@ -1,150 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWFNMGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWFNMG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWFNMGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 08:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFNMGQ
+	id S1751264AbWFNMG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 08:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWFNMG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 08:06:16 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:32455 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751146AbWFNMGP (ORCPT
+	Wed, 14 Jun 2006 08:06:29 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:28817 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S1751264AbWFNMG1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 08:06:15 -0400
-Date: Wed, 14 Jun 2006 07:04:32 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] kthread: update loop.c to use kthread
-Message-ID: <20060614120432.GA15061@sergelap.austin.ibm.com>
+	Wed, 14 Jun 2006 08:06:27 -0400
+Date: Wed, 14 Jun 2006 14:05:52 +0200
+From: Frank Gevaerts <frank.gevaerts@fks.be>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <gregkh@suse.de>, Pete Zaitcev <zaitcev@redhat.com>,
+       lcapitulino@mandriva.com.br, linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] ipaq.c connection open timing parameters
+Message-ID: <20060614120551.GC20751@fks.be>
+References: <20060530113801.22c71afe@doriath.conectiva> <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com> <20060531213828.GA17711@fks.be> <20060531215523.GA13745@suse.de> <20060531224245.GB17711@fks.be> <20060531224624.GA17667@suse.de> <20060601191840.GB1757@fks.be> <20060614115822.GB20751@fks.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060614115822.GB20751@fks.be>
+User-Agent: Mutt/1.5.9i
+X-FKS-MailScanner: Found to be clean
+X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-103.513,
+	vereist 5, ALL_TRUSTED -3.30, AWL -2.21, BAYES_50 2.00,
+	USER_IN_WHITELIST -100.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update loop.c to use a kthread instead of a deprecated
-kernel_thread for loop devices.
+Adds configurable waiting periods to the ipaq connection code. These are
+not needed when the pocketpc device is running normally when plugged in,
+but they need extra delays if they are physically connected while
+rebooting.
+There are two parameters :
+* initial_wait : this is the delay before the driver attemts to start the
+  connection. This is needed because the pocktpc device takes much
+  longer to boot if the driver starts sending control packets too soon.
+* connect_retries : this is the number of times the control urb is
+  retried before finally giving up. The patch also adds a 1 second delay
+  between retries.
+I'm not sure if the cases where this patch is useful are general enough
+to include this in the kernel.
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
 
----
-
- drivers/block/loop.c |   24 +++++++++++-------------
- include/linux/loop.h |    2 +-
- 2 files changed, 12 insertions(+), 14 deletions(-)
-
-63e791e7ed0191bada674e7e0eb4782e584c7e34
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 9c3b94e..1f34faf 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -74,6 +74,7 @@ #include <linux/buffer_head.h>		/* for i
- #include <linux/completion.h>
- #include <linux/highmem.h>
- #include <linux/gfp.h>
-+#include <linux/kthread.h>
+diff -urp linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c
+--- linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c	2006-06-14 13:22:57.000000000 +0200
++++ linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c	2006-06-14 13:29:40.000000000 +0200
+@@ -71,6 +71,8 @@
  
- #include <asm/uaccess.h>
+ static __u16 product, vendor;
+ static int debug;
++static int connect_retries = KP_RETRIES;
++static int initial_wait;
  
-@@ -578,8 +579,6 @@ static int loop_thread(void *data)
- 	struct loop_device *lo = data;
- 	struct bio *bio;
+ /* Function prototypes for an ipaq */
+ static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
+@@ -583,7 +585,7 @@ static int ipaq_open(struct usb_serial_p
+ 	struct ipaq_private	*priv;
+ 	struct ipaq_packet	*pkt;
+ 	int			i, result = 0;
+-	int			retries = KP_RETRIES;
++	int			retries = connect_retries;
  
--	daemonize("loop%d", lo->lo_number);
--
- 	/*
- 	 * loop can be used in an encrypted device,
- 	 * hence, it mustn't be stopped at all
-@@ -592,11 +591,6 @@ static int loop_thread(void *data)
- 	lo->lo_state = Lo_bound;
- 	lo->lo_pending = 1;
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
  
--	/*
--	 * complete it, we are running
--	 */
--	complete(&lo->lo_done);
--
- 	for (;;) {
- 		int pending;
- 
-@@ -629,7 +623,6 @@ static int loop_thread(void *data)
- 			break;
+@@ -647,6 +649,7 @@ static int ipaq_open(struct usb_serial_p
+ 	port->read_urb->transfer_buffer_length = URBDATA_SIZE;
+ 	port->bulk_out_size = port->write_urb->transfer_buffer_length = URBDATA_SIZE;
+ 	
++	msleep(1000*initial_wait);
+ 	/* Start reading from the device */
+ 	usb_fill_bulk_urb(port->read_urb, serial->dev, 
+ 		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
+@@ -673,6 +676,7 @@ static int ipaq_open(struct usb_serial_p
+ 			result = usb_submit_urb(port->read_urb, GFP_KERNEL);
+ 			return 0;
+ 		}
++		msleep(1000);
  	}
+ 	err("%s - failed doing control urb, error %d", __FUNCTION__, result);
+ 	goto error;
+@@ -968,3 +972,9 @@ MODULE_PARM_DESC(vendor, "User specified
  
--	complete(&lo->lo_done);
- 	return 0;
- }
- 
-@@ -746,6 +739,7 @@ static int loop_set_fd(struct loop_devic
- 	unsigned lo_blocksize;
- 	int		lo_flags = 0;
- 	int		error;
-+	struct task_struct *tsk;
- 	loff_t		size;
- 
- 	/* This is safe, since we have a reference from open(). */
-@@ -839,10 +833,11 @@ static int loop_set_fd(struct loop_devic
- 
- 	set_blocksize(bdev, lo_blocksize);
- 
--	error = kernel_thread(loop_thread, lo, CLONE_KERNEL);
--	if (error < 0)
-+	tsk = kthread_run(loop_thread, lo, "loop_%d", lo->lo_number);
-+	if (IS_ERR(tsk)) {
-+		error = PTR_ERR(tsk);
- 		goto out_putf;
--	wait_for_completion(&lo->lo_done);
-+	}
- 	return 0;
- 
-  out_putf:
-@@ -898,6 +893,9 @@ static int loop_clr_fd(struct loop_devic
- 	if (lo->lo_state != Lo_bound)
- 		return -ENXIO;
- 
-+	if (!lo->lo_thread)
-+		return -EINVAL;
+ module_param(product, ushort, 0);
+ MODULE_PARM_DESC(product, "User specified USB idProduct");
 +
- 	if (lo->lo_refcnt > 1)	/* we needed one fd for the ioctl */
- 		return -EBUSY;
- 
-@@ -911,7 +909,7 @@ static int loop_clr_fd(struct loop_devic
- 		complete(&lo->lo_bh_done);
- 	spin_unlock_irq(&lo->lo_lock);
- 
--	wait_for_completion(&lo->lo_done);
-+	kthread_stop(lo->lo_thread);
- 
- 	lo->lo_backing_file = NULL;
- 
-@@ -924,6 +922,7 @@ static int loop_clr_fd(struct loop_devic
- 	lo->lo_sizelimit = 0;
- 	lo->lo_encrypt_key_size = 0;
- 	lo->lo_flags = 0;
-+	lo->lo_thread = NULL;
- 	memset(lo->lo_encrypt_key, 0, LO_KEY_SIZE);
- 	memset(lo->lo_crypt_name, 0, LO_NAME_SIZE);
- 	memset(lo->lo_file_name, 0, LO_NAME_SIZE);
-@@ -1288,7 +1287,6 @@ static int __init loop_init(void)
- 		if (!lo->lo_queue)
- 			goto out_mem4;
- 		mutex_init(&lo->lo_ctl_mutex);
--		init_completion(&lo->lo_done);
- 		init_completion(&lo->lo_bh_done);
- 		lo->lo_number = i;
- 		spin_lock_init(&lo->lo_lock);
-diff --git a/include/linux/loop.h b/include/linux/loop.h
-index e76c761..bf3d234 100644
---- a/include/linux/loop.h
-+++ b/include/linux/loop.h
-@@ -59,7 +59,7 @@ struct loop_device {
- 	struct bio 		*lo_bio;
- 	struct bio		*lo_biotail;
- 	int			lo_state;
--	struct completion	lo_done;
-+	struct task_struct	*lo_thread;
- 	struct completion	lo_bh_done;
- 	struct mutex		lo_ctl_mutex;
- 	int			lo_pending;
--- 
-1.3.3
++module_param(connect_retries, int, S_IRUGO|S_IWUSR);
++MODULE_PARM_DESC(connect_retries, "Maximum number of connect retries (1 second each)");
++
++module_param(initial_wait, int, S_IRUGO|S_IWUSR);
++MODULE_PARM_DESC(initial_wait, "Time to wait before attempting a connection (in seconds)");
 
+-- 
+Frank Gevaerts                                 frank.gevaerts@fks.be
+fks bvba - Formal and Knowledge Systems        http://www.fks.be/
+Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
+B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19

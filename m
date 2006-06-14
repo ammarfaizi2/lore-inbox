@@ -1,98 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWFNO1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWFNO23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbWFNO1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 10:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbWFNO1M
+	id S964982AbWFNO23 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 10:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWFNO22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 10:27:12 -0400
-Received: from relay2.uli.it ([62.212.1.5]:13782 "EHLO relay2.uli.it")
-	by vger.kernel.org with ESMTP id S964978AbWFNO1K convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 10:27:10 -0400
-From: Daniele orlandi <daniele@orlandi.com>
-Organization: VoiSmart
-To: linux-kernel@vger.kernel.org
-Subject: Passing references to kobjects between userland and kernel
-Date: Wed, 14 Jun 2006 16:26:38 +0200
-User-Agent: KMail/1.9.1
+	Wed, 14 Jun 2006 10:28:28 -0400
+Received: from iriserv.iradimed.com ([69.44.168.233]:34164 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S964978AbWFNO21 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 10:28:27 -0400
+Message-ID: <44901CC1.60403@cfl.rr.com>
+Date: Wed, 14 Jun 2006 10:27:13 -0400
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200606141626.39273.daniele@orlandi.com>
+To: Jesper Dangaard Brouer <hawk@comx.dk>
+CC: Stephen Hemminger <shemminger@osdl.org>,
+       Jamal Hadi Salim <hadi@cyberus.ca>, netdev@vger.kernel.org,
+       lartc@mailman.ds9a.nl, russell-tcatm@stuart.id.au, hawk@diku.dk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] NET: Accurate packet scheduling for ATM/ADSL
+References: <1150278004.26181.35.camel@localhost.localdomain>
+In-Reply-To: <1150278004.26181.35.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Jun 2006 14:28:31.0509 (UTC) FILETIME=[CF897C50:01C68FBE]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14506.003
+X-TM-AS-Result: No--1.900000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Dangaard Brouer wrote:
+> The Linux traffic's control engine inaccurately calculates
+> transmission times for packets sent over ADSL links.  For
+> some packet sizes the error rises to over 50%.  This occurs
+> because ADSL uses ATM as its link layer transport, and ATM
+> transmits packets in fixed sized 53 byte cells.
+> 
 
-Hello,
+I could have sworn that DSL uses its own framing protocol that is 
+similar to the frame/superframe structure of HDSL ( T1 ) lines and over 
+that you can run ATM or ethernet.  Or is it typically ethernet -> ATM -> 
+HDSL?
 
-I'm trying to figure out what is the correct way to pass references to 
-kobjects between userland and kernel space.
+In any case, why does the kernel care about the exact time that the IP 
+packet has been received and reassembled on the headend?
 
-I have my big object hierarchy of kobjects representing a TDM interconnect 
-graph with channels, crossconnectors, physical ports and so on.
-The main objects are nodes and archs; archs connect two nodes together.
 
-The hierarchy is exported to sysfs.
-
->From userland I want to tell the kernel "Connect node X to node Y".
-
-The first problem is deciding what interface to use; currently I'm using an 
-ioctl() but I'm open to suggestions.
-
-The other issue is how to identify objects X and Y in the ioctl() request, 
-here are the possible ways I've examined:
-
-1- Path
--------
-
-Every kobject registered in sysfs has its own path. I can use path_lookup() 
-and lookup the object by its kobj.dentry.
-
-Pros: In userland it's easy to identify kobjects by their path in sysfs. The 
-path is unambiguous and already available.
-
-Cons: Passing the pathname to the kernel requires a big ioctl() body 
-(theoretically at least 2*MAX_PATH using a fixed-length structure).
-
-Doing the reverse mapping (from kernel to userspace) is not easy since you 
-need to know from which vfsmount to generate the path with d_path().
-
-2- Relative path
-----------------
-
-Pros: No need to consider where sysfs is mounted and would also work if the 
-kobjects are not registeres in sysfs.
-
-Cons: There should be specific functions to parse/generate a pathname that is 
-specific to kobject hierarchy.
-
-3- Unique ID
-------------
-
-A unique ID, probably a integer value can be assigned to each object.
-
-Pros: much more compact, do not need parsing
-
-Cons: Needs an 'id' attribute in sysfs for every object and a reverse mapping 
-(done with symlinks?) to allow an userland application to map IDs to paths 
-and vice-versa. Unique ID allocation needs an allocator (list, bitmap, etc) 
-either global or for every namespace.
-
-4- kobject's pointer
-------------------
-The kobject's pointer could opaquely be seen as a unique identifier.
-
-Pros: Compact, no need for storage.
-
-Cons: Probably insane, exposes kernel internals to the userland, a developer 
-may be tempted to deference the user-provided value directly :)
-
-So, are there any other ways? If not, which one would be advisable among 
-these?
-
-Bye,
-
--- 
-  Daniele "Vihai" Orlandi

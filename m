@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWFNFeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWFNFh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWFNFeS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWFNFeR
+	id S964886AbWFNFh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWFNFh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:34:17 -0400
-Received: from mx2.suse.de ([195.135.220.15]:12483 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964876AbWFNFeR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:34:17 -0400
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] x86_64 apic.h cpu_relax() (was: [RFC -mm] more cpu_relax() places?)
-References: <20060612183743.GA28610@rhlx01.fht-esslingen.de>
-	<20060613195430.GC24167@rhlx01.fht-esslingen.de>
-From: Andi Kleen <ak@suse.de>
-Date: 14 Jun 2006 07:34:07 +0200
-In-Reply-To: <20060613195430.GC24167@rhlx01.fht-esslingen.de>
-Message-ID: <p73k67kqp0w.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 14 Jun 2006 01:37:58 -0400
+Received: from silver.veritas.com ([143.127.12.111]:47746 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S964886AbWFNFh5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 01:37:57 -0400
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.06,129,1149490800"; 
+   d="scan'208"; a="39193114:sNHT24897532"
+Date: Wed, 14 Jun 2006 06:37:41 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Con Kolivas <kernel@kolivas.org>,
+       Marcelo Tosatti <marcelo@kvack.org>, linux-mm@kvack.org,
+       Andi Kleen <ak@suse.de>, Dave Chinner <dgc@sgi.com>
+Subject: Re: zoned vm counters: per zone counter functionality
+In-Reply-To: <448F64A0.9090705@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0606140636130.780@blonde.wat.veritas.com>
+References: <20060612211244.20862.41106.sendpatchset@schroedinger.engr.sgi.com>
+ <20060612211255.20862.39044.sendpatchset@schroedinger.engr.sgi.com>
+ <448E4F05.9040804@yahoo.com.au> <Pine.LNX.4.64.0606130854480.29796@schroedinger.engr.sgi.com>
+ <448F64A0.9090705@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 14 Jun 2006 05:37:57.0457 (UTC) FILETIME=[B0F6A410:01C68F74]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
+On Wed, 14 Jun 2006, Nick Piggin wrote:
+> 
+> Hmm, then NR_ANON would become VM_ZONE_STAT_NR_ANON? That might be a bit
+> long for your tastes, maybe the prefix could be hidden by "clever" macros?
 
-> Hi all,
-> 
-> On Mon, Jun 12, 2006 at 08:37:43PM +0200, Andreas Mohr wrote:
-> > Hi all,
-> > 
-> > while reviewing 2.6.17-rc6-mm1, I found some places that might
-> > want to make use of cpu_relax() in order to not block secondary
-> > pipelines while busy-polling (probably especially useful on SMT CPUs):
-> 
-> Patch no. 3 of 3.
-> 
-> This one is adding a cpu_relax() that already existed in the i386 version.
-> Any reason this wasn't there, too?
-> 
-> Signed-off-by: Andreas Mohr <andi@lisas.de>
+Don't even begin to think of "clever" macros.
 
-I merged the patch thanks.
-
--Andi
+Hugh

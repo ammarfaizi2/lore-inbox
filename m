@@ -1,88 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWFNBDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWFNBDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWFNBDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 21:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWFNBDf
+	id S964844AbWFNBDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 21:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWFNBDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 21:03:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2533 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964836AbWFNBDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 21:03:16 -0400
-Date: Tue, 13 Jun 2006 18:03:09 -0700 (PDT)
+	Tue, 13 Jun 2006 21:03:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57031 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964838AbWFNBDI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 21:03:08 -0400
+Date: Tue, 13 Jun 2006 18:02:59 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Con Kolivas <kernel@kolivas.org>,
        Christoph Lameter <clameter@sgi.com>, Dave Chinner <dgc@sgi.com>
-Message-Id: <20060614010309.859.82694.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20060614010259.859.25586.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20060614010238.859.4228.sendpatchset@schroedinger.engr.sgi.com>
 References: <20060614010238.859.4228.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 06/21] Remove nr_mapped from scan controls structure
+Subject: [PATCH 04/21] swap_prefetch: Convert nr_mapped to ZVC
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: zoned VM stats: Remove nr_mapped from scan control
-From: Christoph Lameter <clameter@sgi.com>
+swap_prefetch: nr_mapped conversion
 
-We can now access the number of pages in a mapped state in an inexpensive
-way in shrink_active_list.  So drop the nr_mapped field from scan_control.
+This is separate on request by Andrew.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-Index: linux-2.6.17-rc6-cl/mm/vmscan.c
+Index: linux-2.6.17-rc6-cl/mm/swap_prefetch.c
 ===================================================================
---- linux-2.6.17-rc6-cl.orig/mm/vmscan.c	2006-06-13 10:16:55.059956905 -0700
-+++ linux-2.6.17-rc6-cl/mm/vmscan.c	2006-06-13 10:17:36.276157024 -0700
-@@ -48,8 +48,6 @@ struct scan_control {
- 	/* Incremented by the number of inactive pages that were scanned */
- 	unsigned long nr_scanned;
- 
--	unsigned long nr_mapped;	/* From page_state */
--
- 	/* This context's GFP mask */
- 	gfp_t gfp_mask;
- 
-@@ -749,7 +747,8 @@ static void shrink_active_list(unsigned 
- 		 * how much memory
- 		 * is mapped.
+--- linux-2.6.17-rc6-cl.orig/mm/swap_prefetch.c	2006-06-10 22:04:26.763047220 -0700
++++ linux-2.6.17-rc6-cl/mm/swap_prefetch.c	2006-06-12 11:29:47.664697453 -0700
+@@ -394,7 +394,8 @@ static int prefetch_suitable(void)
+ 		 * even if the slab is being allocated on a remote node. This
+ 		 * would be expensive to fix and not of great significance.
  		 */
--		mapped_ratio = (sc->nr_mapped * 100) / vm_total_pages;
-+		mapped_ratio = (global_page_state(NR_MAPPED) * 100) /
-+					vm_total_pages;
- 
- 		/*
- 		 * Now decide how much we really want to unmap some pages.  The
-@@ -996,7 +995,6 @@ unsigned long try_to_free_pages(struct z
- 	}
- 
- 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
--		sc.nr_mapped = global_page_state(NR_MAPPED);
- 		sc.nr_scanned = 0;
- 		if (!priority)
- 			disable_swap_token();
-@@ -1081,8 +1079,6 @@ loop_again:
- 	total_scanned = 0;
- 	nr_reclaimed = 0;
- 	sc.may_writepage = !laptop_mode;
--	sc.nr_mapped = global_page_state(NR_MAPPED);
--
- 	inc_page_state(pageoutrun);
- 
- 	for (i = 0; i < pgdat->nr_zones; i++) {
-@@ -1416,7 +1412,6 @@ unsigned long shrink_all_memory(unsigned
- 		for (prio = DEF_PRIORITY; prio >= 0; prio--) {
- 			unsigned long nr_to_scan = nr_pages - ret;
- 
--			sc.nr_mapped = global_page_state(NR_MAPPED);
- 			sc.nr_scanned = 0;
- 
- 			ret += shrink_all_zones(nr_to_scan, prio, pass, &sc);
-@@ -1558,7 +1553,6 @@ static int __zone_reclaim(struct zone *z
- 	struct scan_control sc = {
- 		.may_writepage = !!(zone_reclaim_mode & RECLAIM_WRITE),
- 		.may_swap = !!(zone_reclaim_mode & RECLAIM_SWAP),
--		.nr_mapped = global_page_state(NR_MAPPED),
- 		.swap_cluster_max = max_t(unsigned long, nr_pages,
- 					SWAP_CLUSTER_MAX),
- 		.gfp_mask = gfp_mask,
+-		limit = ps.nr_mapped + ps.nr_slab + ps.nr_dirty +
++		limit = node_page_state(node, NR_MAPPED) +
++			ps.nr_slab + ps.nr_dirty +
+ 			ps.nr_unstable + total_swapcache_pages;
+ 		if (limit > ns->prefetch_watermark) {
+ 			node_clear(node, sp_stat.prefetch_nodes);

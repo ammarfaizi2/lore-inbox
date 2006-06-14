@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWFNFIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWFNFJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWFNFIm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWFNFIl
+	id S964865AbWFNFJu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWFNFJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:08:41 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:705 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964870AbWFNFIl (ORCPT
+	Wed, 14 Jun 2006 01:09:50 -0400
+Received: from mail.gmx.de ([213.165.64.21]:41190 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964865AbWFNFJt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:08:41 -0400
-To: Thomas Davis <tadavis@lbl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon CPU detection/fixup is broken in 2.6.2-rc2
-References: <401ACA49.8070002@lbl.gov>
-From: Andi Kleen <ak@suse.de>
-Date: 14 Jun 2006 07:08:39 +0200
-In-Reply-To: <401ACA49.8070002@lbl.gov>
-Message-ID: <p73odwwqq7c.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Jun 2006 01:09:49 -0400
+X-Authenticated: #14349625
+Subject: RE: process starvation with 2.6 scheduler
+From: Mike Galbraith <efault@gmx.de>
+To: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Radjendirane Codandaramane 
+	<Radjendirane_Codandaramane@pmc-sierra.com>
+In-Reply-To: <478F19F21671F04298A2116393EEC3D531CEA4@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+References: <478F19F21671F04298A2116393EEC3D531CEA4@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 07:13:17 +0200
+Message-Id: <1150261998.8611.14.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Davis <tadavis@lbl.gov> writes:
+On Tue, 2006-06-13 at 16:03 -0700, Kallol Biswas wrote:
+> It seems that with the priority set to 19 the netserver processes do not starve but still we have unfair scheduling issue. The netperf clients do not timeout now but one of the servers runs much less than the other. It seems that thorough understanding of scheduling algorithm is essential at this point.
 
-> I looked in the Changelog - who changed it?
-> 
-> It doesn't work on my dual athlon 2200 MP system - kills it dead.
-> 
-> I can get 2.6.2-rc1 to boot.
+Are the clients all on one box?
 
-Very vague report. Modern kernel like 2.6.16 doesn't work? And where
-does it crash exactly and in what way?
+	-Mike
 
-If you got it down to that release with binary search can you identify the
-exact changeset that caused the problem? 
-
--Andi

@@ -1,46 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWFNPPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbWFNPTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbWFNPPl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 11:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWFNPPk
+	id S965004AbWFNPTk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 11:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWFNPTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 11:15:40 -0400
-Received: from mail.gmx.de ([213.165.64.21]:5340 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964991AbWFNPPk (ORCPT
+	Wed, 14 Jun 2006 11:19:40 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:60380 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965004AbWFNPTk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 11:15:40 -0400
-X-Authenticated: #20022210
-Message-ID: <4490281B.5060801@gmx.net>
-Date: Wed, 14 Jun 2006 17:15:39 +0200
-From: Marc Sowen <marc.sowen@gmx.net>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] com20020_cs, kernel 2.6.17-rc6, 3rd try
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 14 Jun 2006 11:19:40 -0400
+Date: Wed, 14 Jun 2006 10:18:40 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 -mm merge plans
+Message-ID: <20060614151840.GB12648@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20060604135011.decdc7c9.akpm@osdl.org> <20060610102211.GE20526@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060610102211.GE20526@infradead.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
+On Sat, Jun 10, 2006 at 11:22:11AM +0100, Christoph Hellwig wrote:
+> > ecryptfs-crypto-functions.patch
+> > ecryptfs-debug-functions.patch
+> > ecryptfs-alpha-build-fix.patch
+> > ecryptfs-convert-assert-to-bug_on.patch
+> > ecryptfs-remove-unnecessary-null-checks.patch
+> > ecryptfs-rewrite-ecryptfs_fsync.patch
+> > ecryptfs-overhaul-file-locking.patch
+> > 
+> >  Christoph has half-reviewed this and all the issues arising from
+> >  that have, I believe, been addressed.  With the exception of the
+> >  "we should have a generic stacking layer" issue.  Which is true.
+> >  Michael's take is "yes, but that's not my job".  Which also is
+> >  true.
 
-this patch enables the com20020_cs arcnet driver to see the SoHard (now Mercury Computer Systems Inc.) SH ARC-PCMCIA card. Added signed off line.
+We are looking into how this can be best accomplished, given the
+requirements of the various stackable filesystems out there.
 
-Regards,
-  Marc
+> It's far from ready.  There's various things that simply can't be
+> done properly in a lowlevel fs or abosulutely shouldn't.  And I
+> think a few uniqueue gems in there.
 
-Signed-off-by: Marc Sowen <marc.sowen@ibeo-as.de>
+We will work on fixes for any such issues brought to our attention. Up
+to this point, we have provided fixes for all but two of the items
+Christoph brought up in his initial analysis of eCryptfs. The
+setlk/getlk code is redundant with the existing VFS implementations,
+and so we are working on a fix for that.
 
---- a/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-06 02:57:02.000000000 +0200
-+++ b/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-13 17:10:03.000000000 +0200
-@@ -388,6 +388,7 @@
+> Most urgent thing of course is that we somehow need to deal with the
+> idiocy of the nameidata passed into most namespace methods.
 
-  static struct pcmcia_device_id com20020_ids[] = {
-         PCMCIA_DEVICE_PROD_ID12("Contemporary Control Systems, Inc.", "PCM20 Arcnet Adapter", 0x59991666, 0x95dfffaf),
-+       PCMCIA_DEVICE_PROD_ID12("SoHard AG", "SH ARC PCMCIA", 0xf8991729, 0x69dff0c7),
-         PCMCIA_DEVICE_NULL
-  };
-  MODULE_DEVICE_TABLE(pcmcia, com20020_ids);
+We would appreciate any suggestions folks in the community could give
+on this.
 
+Until then, is this patch a reasonable approach to address the problem
+of just replacing the vfsmount and dentry in the existing nameidata
+struct?
+
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+
+---
+
+Don't muck with the existing nameidata structures.
+
+---
+
+ fs/ecryptfs/dentry.c |   18 +++++++-----------
+ fs/ecryptfs/inode.c  |   14 +++++---------
+ 2 files changed, 12 insertions(+), 20 deletions(-)
+
+5f0a8c57f8b51ba87cc950d1d2bac6873f73a8b3
+diff --git a/fs/ecryptfs/dentry.c b/fs/ecryptfs/dentry.c
+index 7b1018a..6f19fc4 100644
+--- a/fs/ecryptfs/dentry.c
++++ b/fs/ecryptfs/dentry.c
+@@ -41,23 +41,19 @@ #include "ecryptfs_kernel.h"
+  */
+ static int ecryptfs_d_revalidate(struct dentry *dentry, struct nameidata *nd)
+ {
+-	int err = 1;
++	int rc = 1;
+ 	struct dentry *lower_dentry;
+-	struct dentry *saved_dentry;
+-	struct vfsmount *saved_vfsmount;
++	struct nameidata lower_nd;
+ 
+ 	lower_dentry = ecryptfs_dentry_to_lower(dentry);
+ 	if (!lower_dentry->d_op || !lower_dentry->d_op->d_revalidate)
+ 		goto out;
+-	saved_dentry = nd->dentry;
+-	saved_vfsmount = nd->mnt;
+-	nd->dentry = lower_dentry;
+-	nd->mnt = ecryptfs_superblock_to_private(dentry->d_sb)->lower_mnt;
+-	err = lower_dentry->d_op->d_revalidate(lower_dentry, nd);
+-	nd->dentry = saved_dentry;
+-	nd->mnt = saved_vfsmount;
++	memcpy(&lower_nd, nd, sizeof(struct nameidata));
++	lower_nd.dentry = lower_dentry;
++	lower_nd.mnt = ecryptfs_superblock_to_private(dentry->d_sb)->lower_mnt;
++	rc = lower_dentry->d_op->d_revalidate(lower_dentry, &lower_nd);
+ out:
+-	return err;
++	return rc;
+ }
+ 
+ struct kmem_cache *ecryptfs_dentry_info_cache;
+diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
+index 47e4202..342b0fa 100644
+--- a/fs/ecryptfs/inode.c
++++ b/fs/ecryptfs/inode.c
+@@ -122,17 +122,13 @@ ecryptfs_create_underlying_file(struct i
+ 				struct nameidata *nd)
+ {
+ 	int rc;
+-	struct dentry *saved_dentry = NULL;
+-	struct vfsmount *saved_vfsmount = NULL;
++	struct nameidata lower_nd;
+ 
+-	saved_dentry = nd->dentry;
+-	saved_vfsmount = nd->mnt;
+-	nd->dentry = lower_dentry;
+-	nd->mnt = ecryptfs_superblock_to_private(
++	memcpy(&lower_nd, nd, sizeof(struct nameidata));
++	lower_nd.dentry = lower_dentry;
++	lower_nd.mnt = ecryptfs_superblock_to_private(
+ 		ecryptfs_dentry->d_sb)->lower_mnt;
+-	rc = vfs_create(lower_dir_inode, lower_dentry, mode, nd);
+-	nd->dentry = saved_dentry;
+-	nd->mnt = saved_vfsmount;
++	rc = vfs_create(lower_dir_inode, lower_dentry, mode, &lower_nd);
+ 	return rc;
+ }
+ 
+-- 
+1.3.3
 

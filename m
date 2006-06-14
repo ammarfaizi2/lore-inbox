@@ -1,55 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWFNME3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWFNMGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWFNME3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 08:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWFNME3
+	id S1751260AbWFNMGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 08:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFNMGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 08:04:29 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:58808 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751245AbWFNME3 (ORCPT
+	Wed, 14 Jun 2006 08:06:16 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:32455 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751146AbWFNMGP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 08:04:29 -0400
-Date: Wed, 14 Jun 2006 14:03:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Catalin Marinas <catalin.marinas@gmail.com>,
-       Pekka J Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Message-ID: <20060614120326.GA23337@elte.hu>
-References: <b0943d9e0606120111v310f8556k30b6939d520d56d8@mail.gmail.com> <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI> <20060612105345.GA8418@elte.hu> <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com> <20060612192227.GA5497@elte.hu> <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI> <20060613072646.GA17978@elte.hu> <b0943d9e0606130349s24614bbcia6a650342437d3d1@mail.gmail.com> <20060614040707.GA7503@elte.hu> <448FA476.8000705@goop.org>
+	Wed, 14 Jun 2006 08:06:15 -0400
+Date: Wed, 14 Jun 2006 07:04:32 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] kthread: update loop.c to use kthread
+Message-ID: <20060614120432.GA15061@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <448FA476.8000705@goop.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Update loop.c to use a kthread instead of a deprecated
+kernel_thread for loop devices.
 
-* Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 
-> This seems pretty over-engineered.  I wouldn't go this far unless 
-> you're actually seeing performance/correctness problems, and a simple 
-> with/without pointers flag isn't enough.  It also doesn't address the 
-> most troublesome source of false pointers: stacks.  There is all sorts 
-> of junk lying around on stacks, and you can have an old dead pointer 
-> sitting there pinning old dead memory for a long time.
+---
 
-in an earlier thread i suggested to not scan kernel stacks at all, but 
-to delay the registration of new blocks to return-from-syscall time (via 
-having a per-task list of newly allocated but not yet registered 
-blocks). That way we dont get false positives for stuff that is on the 
-kernel stack temporarily and then freed, and we correctly register newly 
-allocated blocks as well.
+ drivers/block/loop.c |   24 +++++++++++-------------
+ include/linux/loop.h |    2 +-
+ 2 files changed, 12 insertions(+), 14 deletions(-)
 
-	Ingo
+63e791e7ed0191bada674e7e0eb4782e584c7e34
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 9c3b94e..1f34faf 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -74,6 +74,7 @@ #include <linux/buffer_head.h>		/* for i
+ #include <linux/completion.h>
+ #include <linux/highmem.h>
+ #include <linux/gfp.h>
++#include <linux/kthread.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -578,8 +579,6 @@ static int loop_thread(void *data)
+ 	struct loop_device *lo = data;
+ 	struct bio *bio;
+ 
+-	daemonize("loop%d", lo->lo_number);
+-
+ 	/*
+ 	 * loop can be used in an encrypted device,
+ 	 * hence, it mustn't be stopped at all
+@@ -592,11 +591,6 @@ static int loop_thread(void *data)
+ 	lo->lo_state = Lo_bound;
+ 	lo->lo_pending = 1;
+ 
+-	/*
+-	 * complete it, we are running
+-	 */
+-	complete(&lo->lo_done);
+-
+ 	for (;;) {
+ 		int pending;
+ 
+@@ -629,7 +623,6 @@ static int loop_thread(void *data)
+ 			break;
+ 	}
+ 
+-	complete(&lo->lo_done);
+ 	return 0;
+ }
+ 
+@@ -746,6 +739,7 @@ static int loop_set_fd(struct loop_devic
+ 	unsigned lo_blocksize;
+ 	int		lo_flags = 0;
+ 	int		error;
++	struct task_struct *tsk;
+ 	loff_t		size;
+ 
+ 	/* This is safe, since we have a reference from open(). */
+@@ -839,10 +833,11 @@ static int loop_set_fd(struct loop_devic
+ 
+ 	set_blocksize(bdev, lo_blocksize);
+ 
+-	error = kernel_thread(loop_thread, lo, CLONE_KERNEL);
+-	if (error < 0)
++	tsk = kthread_run(loop_thread, lo, "loop_%d", lo->lo_number);
++	if (IS_ERR(tsk)) {
++		error = PTR_ERR(tsk);
+ 		goto out_putf;
+-	wait_for_completion(&lo->lo_done);
++	}
+ 	return 0;
+ 
+  out_putf:
+@@ -898,6 +893,9 @@ static int loop_clr_fd(struct loop_devic
+ 	if (lo->lo_state != Lo_bound)
+ 		return -ENXIO;
+ 
++	if (!lo->lo_thread)
++		return -EINVAL;
++
+ 	if (lo->lo_refcnt > 1)	/* we needed one fd for the ioctl */
+ 		return -EBUSY;
+ 
+@@ -911,7 +909,7 @@ static int loop_clr_fd(struct loop_devic
+ 		complete(&lo->lo_bh_done);
+ 	spin_unlock_irq(&lo->lo_lock);
+ 
+-	wait_for_completion(&lo->lo_done);
++	kthread_stop(lo->lo_thread);
+ 
+ 	lo->lo_backing_file = NULL;
+ 
+@@ -924,6 +922,7 @@ static int loop_clr_fd(struct loop_devic
+ 	lo->lo_sizelimit = 0;
+ 	lo->lo_encrypt_key_size = 0;
+ 	lo->lo_flags = 0;
++	lo->lo_thread = NULL;
+ 	memset(lo->lo_encrypt_key, 0, LO_KEY_SIZE);
+ 	memset(lo->lo_crypt_name, 0, LO_NAME_SIZE);
+ 	memset(lo->lo_file_name, 0, LO_NAME_SIZE);
+@@ -1288,7 +1287,6 @@ static int __init loop_init(void)
+ 		if (!lo->lo_queue)
+ 			goto out_mem4;
+ 		mutex_init(&lo->lo_ctl_mutex);
+-		init_completion(&lo->lo_done);
+ 		init_completion(&lo->lo_bh_done);
+ 		lo->lo_number = i;
+ 		spin_lock_init(&lo->lo_lock);
+diff --git a/include/linux/loop.h b/include/linux/loop.h
+index e76c761..bf3d234 100644
+--- a/include/linux/loop.h
++++ b/include/linux/loop.h
+@@ -59,7 +59,7 @@ struct loop_device {
+ 	struct bio 		*lo_bio;
+ 	struct bio		*lo_biotail;
+ 	int			lo_state;
+-	struct completion	lo_done;
++	struct task_struct	*lo_thread;
+ 	struct completion	lo_bh_done;
+ 	struct mutex		lo_ctl_mutex;
+ 	int			lo_pending;
+-- 
+1.3.3
+

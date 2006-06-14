@@ -1,150 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWFNACd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWFNAGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbWFNACd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 20:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWFNAC2
+	id S964822AbWFNAGU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 20:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWFNAGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 20:02:28 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:57022 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964821AbWFNACO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 20:02:14 -0400
-Subject: [PATCH 10/11] Task watchers:  Register semundo task watcher
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
-References: <20060613235122.130021000@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 16:55:03 -0700
-Message-Id: <1150242903.21787.150.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 13 Jun 2006 20:06:20 -0400
+Received: from relay01.pair.com ([209.68.5.15]:34821 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S964823AbWFNAGS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 20:06:18 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: Ben Greear <greearb@candelatech.com>
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+Date: Tue, 13 Jun 2006 19:05:54 -0500
+User-Agent: KMail/1.9.3
+Cc: "Brian F. G. Bidulock" <bidulock@openss7.org>,
+       Daniel Phillips <phillips@google.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse> <448F4D6F.9070601@candelatech.com>
+In-Reply-To: <448F4D6F.9070601@candelatech.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606131906.16683.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch uses the task_watcher notifier chain to invoke exit_sem() at
-appropriate times.
+On Tuesday 13 June 2006 18:42, Ben Greear wrote:
+> Chase Venters wrote:
+> > At least some of us feel like stable module APIs should be explicitly
+> > discouraged, because we don't want to offer comfort for code that
+> > refuses to live in the tree (since getting said code into the tree is
+> > often a goal).
+>
+> Some of us write modules for specific features that are not wanted in
+> the mainline kernel, even though they are pure GPL.  Our life is hard
+> enough with out people setting out to deliberately make things more
+> difficult!
 
-Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
-Cc: Jes Sorensen <jes@sgi.com>
---
+Fair enough, but if you are doing out of tree, pure GPL modules, 
+EXPORT_SYMBOL_GPL() isn't a bad thing, is it?
 
- ipc/sem.c     |   23 +++++++++++++++++++++++
- kernel/exit.c |    1 -
- kernel/fork.c |    4 +---
- 3 files changed, 24 insertions(+), 4 deletions(-)
+Don't mistake me for actually having a big opinion specifically about this 
+socket API's usage of EXPORT_SYMBOL()... just raising some points that I 
+think apply to these decisions in general. I don't really see a compelling 
+reason for EXPORT_SYMBOL() over EXPORT_SYMBOL_GPL() on the socket APIs 
+though... I'm trying to imagine what kind of legitimate non-GPL modules might 
+use them.
 
-Index: linux-2.6.17-rc6-mm2/ipc/sem.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/ipc/sem.c
-+++ linux-2.6.17-rc6-mm2/ipc/sem.c
-@@ -82,10 +82,11 @@
- #include <linux/audit.h>
- #include <linux/capability.h>
- #include <linux/seq_file.h>
- #include <linux/mutex.h>
- #include <linux/nsproxy.h>
-+#include <linux/notifier.h>
- 
- #include <asm/uaccess.h>
- #include "util.h"
- 
- #define sem_ids(ns)	(*((ns)->ids[IPC_SEM_IDS]))
-@@ -121,10 +122,31 @@ static int sysvipc_sem_proc_show(struct 
- #define sc_semmsl	sem_ctls[0]
- #define sc_semmns	sem_ctls[1]
- #define sc_semopm	sem_ctls[2]
- #define sc_semmni	sem_ctls[3]
- 
-+static int sem_undo_task_exit(struct notifier_block *nb, unsigned long val,
-+			      void *t)
-+{
-+	switch(get_watch_event(val)) {
-+	/*
-+	 * If it weren't for the fact that we need clone flags to call
-+	 * it we could also implement the copy_semundo portion of
-+	 * copy_process inside case WATCH_TASK_INIT
-+	 */
-+	case WATCH_TASK_FREE:
-+		exit_sem(t);
-+		return NOTIFY_OK;
-+	default: /* Don't care */
-+		return NOTIFY_DONE;
-+	}
-+}
-+
-+static struct notifier_block sem_watch_tasks_nb = {
-+	.notifier_call = sem_undo_task_exit
-+};
-+
- static void __ipc_init __sem_init_ns(struct ipc_namespace *ns, struct ipc_ids *ids)
- {
- 	ns->ids[IPC_SEM_IDS] = ids;
- 	ns->sc_semmsl = SEMMSL;
- 	ns->sc_semmns = SEMMNS;
-@@ -171,10 +193,11 @@ void __init sem_init (void)
- {
- 	__sem_init_ns(&init_ipc_ns, &init_sem_ids);
- 	ipc_init_proc_interface("sysvipc/sem",
- 				"       key      semid perms      nsems   uid   gid  cuid  cgid      otime      ctime\n",
- 				IPC_SEM_IDS, sysvipc_sem_proc_show);
-+	register_task_watcher(&sem_watch_tasks_nb);
- }
- 
- /*
-  * Lockless wakeup algorithm:
-  * Without the check/retry algorithm a lockless wakeup is possible:
-Index: linux-2.6.17-rc6-mm2/kernel/exit.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/kernel/exit.c
-+++ linux-2.6.17-rc6-mm2/kernel/exit.c
-@@ -919,11 +919,10 @@ fastcall NORET_TYPE void do_exit(long co
- 	notify_result = notify_watchers(WATCH_TASK_FREE, tsk);
- 	WARN_ON(notify_result & NOTIFY_STOP_MASK);
- 
- 	exit_mm(tsk);
- 
--	exit_sem(tsk);
- 	__exit_files(tsk);
- 	__exit_fs(tsk);
- 	exit_task_namespaces(tsk);
- 	exit_thread();
- 	cpuset_exit(tsk);
-Index: linux-2.6.17-rc6-mm2/kernel/fork.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/kernel/fork.c
-+++ linux-2.6.17-rc6-mm2/kernel/fork.c
-@@ -1089,11 +1089,11 @@ static task_t *copy_process(unsigned lon
- 		goto bad_fork_cleanup_policy;
- 	/* copy all the process information */
- 	if ((retval = copy_semundo(clone_flags, p)))
- 		goto bad_fork_cleanup_security;
- 	if ((retval = copy_files(clone_flags, p)))
--		goto bad_fork_cleanup_semundo;
-+		goto bad_fork_cleanup_security;
- 	if ((retval = copy_fs(clone_flags, p)))
- 		goto bad_fork_cleanup_files;
- 	if ((retval = copy_sighand(clone_flags, p)))
- 		goto bad_fork_cleanup_fs;
- 	if ((retval = copy_signal(clone_flags, p)))
-@@ -1263,12 +1263,10 @@ bad_fork_cleanup_sighand:
- 	__cleanup_sighand(p->sighand);
- bad_fork_cleanup_fs:
- 	exit_fs(p); /* blocking */
- bad_fork_cleanup_files:
- 	exit_files(p); /* blocking */
--bad_fork_cleanup_semundo:
--	exit_sem(p);
- bad_fork_cleanup_security:
- 	security_task_free(p);
- 	notify_result = notify_watchers(WATCH_TASK_FREE, p);
- 	WARN_ON(notify_result & NOTIFY_STOP_MASK);
- bad_fork_cleanup_policy:
+> Ben
 
---
-
+Thanks,
+Chase

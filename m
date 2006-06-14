@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWFNOQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWFNORs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbWFNOQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 10:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWFNOQ4
+	id S964971AbWFNORs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 10:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWFNORr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 10:16:56 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:48690 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S964924AbWFNOQz
+	Wed, 14 Jun 2006 10:17:47 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:17841 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S964967AbWFNORq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 10:16:55 -0400
-Date: Wed, 14 Jun 2006 16:16:40 +0200
+	Wed, 14 Jun 2006 10:17:46 -0400
+Date: Wed, 14 Jun 2006 16:17:33 +0200
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
        Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch 1/8] lock validator: s390 stacktrace interface
-Message-ID: <20060614141640.GB1241@osiris.boeblingen.de.ibm.com>
+Subject: [patch 2/8] lock validator: s390 CONFIG_FRAME_POINTER support
+Message-ID: <20060614141733.GC1241@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,118 +25,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-stacktrace interface for s390 as needed by lock validator.
+CONFIG_FRAME_POINTER support for s390.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
 
- arch/s390/kernel/Makefile     |    2 
- arch/s390/kernel/stacktrace.c |   90 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 91 insertions(+), 1 deletion(-)
+ arch/s390/Makefile |    5 +++++
+ lib/Kconfig.debug  |    2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff -purN a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
---- a/arch/s390/kernel/Makefile	2006-06-06 02:57:02.000000000 +0200
-+++ b/arch/s390/kernel/Makefile	2006-06-14 12:42:13.000000000 +0200
-@@ -4,7 +4,7 @@
+diff -purN a/arch/s390/Makefile b/arch/s390/Makefile
+--- a/arch/s390/Makefile	2006-06-14 10:56:55.000000000 +0200
++++ b/arch/s390/Makefile	2006-06-14 12:51:12.000000000 +0200
+@@ -38,6 +38,11 @@ cflags-$(CONFIG_MARCH_G5)   += $(call cc
+ cflags-$(CONFIG_MARCH_Z900) += $(call cc-option,-march=z900)
+ cflags-$(CONFIG_MARCH_Z990) += $(call cc-option,-march=z990)
  
- EXTRA_AFLAGS	:= -traditional
++#
++# Prevent tail-call optimizations, to get clearer backtraces:
++#
++cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
++
+ # old style option for packed stacks
+ ifeq ($(call cc-option-yn,-mkernel-backchain),y)
+ cflags-$(CONFIG_PACK_STACK)  += -mkernel-backchain -D__PACK_STACK
+diff -purN a/lib/Kconfig.debug b/lib/Kconfig.debug
+--- a/lib/Kconfig.debug	2006-06-14 10:57:14.000000000 +0200
++++ b/lib/Kconfig.debug	2006-06-14 12:51:51.000000000 +0200
+@@ -503,7 +503,7 @@ config DEBUG_VM
  
--obj-y	:=  bitmap.o traps.o time.o process.o \
-+obj-y	:=  bitmap.o traps.o time.o process.o stacktrace.o \
-             setup.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o \
-             semaphore.o s390_ext.o debug.o profile.o irq.o reipl_diag.o
- 
-diff -purN a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
---- a/arch/s390/kernel/stacktrace.c	1970-01-01 01:00:00.000000000 +0100
-+++ b/arch/s390/kernel/stacktrace.c	2006-06-14 12:42:13.000000000 +0200
-@@ -0,0 +1,90 @@
-+/*
-+ * arch/s390/kernel/stacktrace.c
-+ *
-+ * Stack trace management functions
-+ *
-+ *  Copyright (C) IBM Corp. 2006
-+ *  Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/stacktrace.h>
-+#include <linux/kallsyms.h>
-+
-+static inline unsigned long save_context_stack(struct stack_trace *trace,
-+					       unsigned int *skip,
-+					       unsigned long sp,
-+					       unsigned long low,
-+					       unsigned long high)
-+{
-+	struct stack_frame *sf;
-+	struct pt_regs *regs;
-+	unsigned long addr;
-+
-+	while(1) {
-+		sp &= PSW_ADDR_INSN;
-+		if (sp < low || sp > high)
-+			return sp;
-+		sf = (struct stack_frame *)sp;
-+		while(1) {
-+			addr = sf->gprs[8] & PSW_ADDR_INSN;
-+			if (!(*skip))
-+				trace->entries[trace->nr_entries++] = addr;
-+			else
-+				(*skip)--;
-+			if (trace->nr_entries >= trace->max_entries)
-+				return sp;
-+			low = sp;
-+			sp = sf->back_chain & PSW_ADDR_INSN;
-+			if (!sp)
-+				break;
-+			if (sp <= low || sp > high - sizeof(*sf))
-+				return sp;
-+			sf = (struct stack_frame *)sp;
-+		}
-+		/* Zero backchain detected, check for interrupt frame. */
-+		sp = (unsigned long)(sf + 1);
-+		if (sp <= low || sp > high - sizeof(*regs))
-+			return sp;
-+		regs = (struct pt_regs *)sp;
-+		addr = regs->psw.addr & PSW_ADDR_INSN;
-+		if (!(*skip))
-+			trace->entries[trace->nr_entries++] = addr;
-+		else
-+			(*skip)--;
-+		if (trace->nr_entries >= trace->max_entries)
-+			return sp;
-+		low = sp;
-+		sp = regs->gprs[15];
-+	}
-+}
-+
-+void save_stack_trace(struct stack_trace *trace,
-+		      struct task_struct *task, int all_contexts,
-+		      unsigned int skip)
-+{
-+	register unsigned long sp asm ("15");
-+	unsigned long orig_sp;
-+
-+	sp &= PSW_ADDR_INSN;
-+	orig_sp = sp;
-+
-+	sp = save_context_stack(trace, &skip, sp,
-+				S390_lowcore.panic_stack - PAGE_SIZE,
-+				S390_lowcore.panic_stack);
-+	if ((sp != orig_sp) && !all_contexts)
-+		return;
-+	sp = save_context_stack(trace, &skip, sp,
-+				S390_lowcore.async_stack - ASYNC_SIZE,
-+				S390_lowcore.async_stack);
-+	if ((sp != orig_sp) && !all_contexts)
-+		return;
-+	if (task)
-+		save_context_stack(trace, &skip, sp,
-+				   (unsigned long) task_stack_page(task),
-+				   (unsigned long) task_stack_page(task) + THREAD_SIZE);
-+	else
-+		save_context_stack(trace, &skip, sp, S390_lowcore.thread_info,
-+				   S390_lowcore.thread_info + THREAD_SIZE);
-+	return;
-+}
+ config FRAME_POINTER
+ 	bool "Compile the kernel with frame pointers"
+-	depends on DEBUG_KERNEL && (X86 || CRIS || M68K || M68KNOMMU || FRV || UML)
++	depends on DEBUG_KERNEL && (X86 || CRIS || M68K || M68KNOMMU || FRV || UML || S390)
+ 	default y
+ 	help
+ 	  If you say Y here the resulting kernel image will be slightly larger

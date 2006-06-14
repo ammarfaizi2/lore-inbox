@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWFNOHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWFNOHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbWFNOHS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 10:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbWFNOHS
+	id S964964AbWFNOHv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 10:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWFNOHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 10:07:18 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:34421 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S964955AbWFNOHQ
+	Wed, 14 Jun 2006 10:07:51 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:61101 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S964959AbWFNOHi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 10:07:16 -0400
-Date: Wed, 14 Jun 2006 16:07:17 +0200
+	Wed, 14 Jun 2006 10:07:38 -0400
+Date: Wed, 14 Jun 2006 16:02:15 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, wein@de.ibm.com
-Subject: [patch 22/24] s390: dasd eer data format.
-Message-ID: <20060614140717.GW9475@skybase>
+Subject: [patch 11/24] s390: missing check in dasd_eer_open.
+Message-ID: <20060614140215.GL9475@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,28 +23,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Stefan Weinhuber <wein@de.ibm.com>
 
-[S390] dasd eer data format.
+[S390] missing check in dasd_eer_open.
 
-The struct dasd_eer_header needs the packed attribute, or there will
-be 6 additional bytes of random data between the fixed header and
-the variable length part of the eer data.
+Check the return value of kzalloc in dasd_eer_open.
 
 Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_eer.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/block/dasd_eer.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
 diff -urpN linux-2.6/drivers/s390/block/dasd_eer.c linux-2.6-patched/drivers/s390/block/dasd_eer.c
---- linux-2.6/drivers/s390/block/dasd_eer.c	2006-06-14 14:29:47.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd_eer.c	2006-06-14 14:30:02.000000000 +0200
-@@ -276,7 +276,7 @@ struct dasd_eer_header {
- 	__u64 tv_sec;
- 	__u64 tv_usec;
- 	char busid[DASD_EER_BUSID_SIZE];
--};
-+} __attribute__ ((packed));
+--- linux-2.6/drivers/s390/block/dasd_eer.c	2006-06-14 14:29:18.000000000 +0200
++++ linux-2.6-patched/drivers/s390/block/dasd_eer.c	2006-06-14 14:29:45.000000000 +0200
+@@ -521,6 +521,8 @@ static int dasd_eer_open(struct inode *i
+ 	unsigned long flags;
  
- /*
-  * The following function can be used for those triggers that have
+ 	eerb = kzalloc(sizeof(struct eerbuffer), GFP_KERNEL);
++	if (!eerb)
++		return -ENOMEM;
+ 	eerb->buffer_page_count = eer_pages;
+ 	if (eerb->buffer_page_count < 1 ||
+ 	    eerb->buffer_page_count > INT_MAX / PAGE_SIZE) {

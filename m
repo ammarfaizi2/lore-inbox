@@ -1,96 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWFNGDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWFNGHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWFNGDb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 02:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWFNGDb
+	id S964891AbWFNGHP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 02:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWFNGHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 02:03:31 -0400
-Received: from wehq.winbond.com.tw ([202.39.229.15]:17383 "EHLO
-	wehq.winbond.com.tw") by vger.kernel.org with ESMTP id S932405AbWFNGDa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 02:03:30 -0400
-thread-index: AcaPeDRqKOEsSnAST1uFWgHwJ2Pqhg==
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.326
-Message-ID: <448FA698.201@winbond.com>
-Date: Wed, 14 Jun 2006 14:03:04 +0800
-From: "dezheng shen" <dzshen@winbond.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "PI14 SJIN" <SJin@winbond.com>
-Subject: Re: [Winbond] flash memory reader SCSI device drivers
-References: <448E875A.40805@winbond.com> <9a8748490606130258k60cdf429n89b1d1d017af60fe@mail.gmail.com>
-In-Reply-To: <9a8748490606130258k60cdf429n89b1d1d017af60fe@mail.gmail.com>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 14 Jun 2006 06:03:04.0224 (UTC) FILETIME=[33110A00:01C68F78]
+	Wed, 14 Jun 2006 02:07:15 -0400
+Received: from gw.openss7.com ([142.179.199.224]:4022 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S932405AbWFNGHN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 02:07:13 -0400
+Date: Wed, 14 Jun 2006 00:07:10 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+Message-ID: <20060614000710.C7232@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Chase Venters <chase.venters@clientec.com>,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <200606131859.43695.chase.venters@clientec.com> <20060613183112.B8460@openss7.org> <200606131953.42002.chase.venters@clientec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200606131953.42002.chase.venters@clientec.com>; from chase.venters@clientec.com on Tue, Jun 13, 2006 at 07:53:19PM -0500
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+Chase,
 
-> Please review the following files before posting the patches :
->
->  Documentation/CodingStyle
+On Tue, 13 Jun 2006, Chase Venters wrote:
+> 
+> > I don't think that it is fair to say that an unstable API/ABI, in of
+> > itself, provides an incentive to open an existing proprietary driver.
+> 
+> Sure it does, depending on your perspective and what you're willing to 
+> consider. The lack of a stable API/ABI means that if you don't want to have 
+> to do work tracking the kernel, you should push to have your drivers merged.
+> 
 
-   right now, we are working on this one. However, I spotted one 
-statement in coding style
+More work must be done to track the kernel before they are merged, thus
+purposeless API changes, or unnecessary use of EXPORT_SYMBOL_GPL impedes
+merging
 
-GLOBAL variables (to be used only if you _really_ need them) need to
-have descriptive names, as do global functions.  If you have a function
-that counts the number of active users, you should call that
-"count_active_users()" or similar, you should _not_ call it "cntusr()".
+Not all useful kernel modules will nor should be merged GPL or not.
 
-  we used global variables in our codes to make coding easier. For 
-example, we placed some variable on stack so that spaces are 
-automatically allocated once our driver is loaded into memory and it is 
-also automatically deallocated once our driver is unloaded. Thus, we 
-don't have to consider WHAT IF situations in our codes. Of course, we 
-can use dynamically allocated kernel memory but it just makes our codes 
-a little complex.
+I think that a policy that intentionally makes it hard for proprietary
+modules to be developed defeats the purpose of ultimate opening and merging.
+It might end up causing something like iBCS, LinuxABI, SVR D3DK, or ODI to
+flourish obviating the principal goal.
 
-  My question is -- could we use global variables if they are NOT 
-absolutely necessary?
+The interface currently under discussion is ultimately derived from the BSD
+socket-protocol interface, and IMHO should be EXPORT_SYMBOL instead of
+EXPORT_SYMBOL_GPL, if only because using _GPL serves no purpose here and can
+be defeated with 3 or 4 obvious (and probably existing) lines of code.  I
+wrote similar wrappers for STREAMS TPI to Linux NET4 interface instead of
+using pointers directly quite a few years ago.  I doubt I was the first.
+There is nothing really so novel here that it deserves _GPL.
 
-thank you,
-
-dz
-
-
-
-
->  Documentation/SubmittingDrivers
->  Documentation/SubmittingPatches
->
-> and make sure you've cleaned up the code to follow CodingStyle -
-> otherwise that's just going to be the first thing people will tell you
-> to fix :-)
->
-> Also make sure you include appropriate "Signed-off-by:" lines on the
-> patches and please post patches inline, not as attachments (and please
-> test send those mails to yourself first and check that the patches
-> apply and have not been mangled by your email client).
->
->
->>  This is the first we send this request to this mailing list and we are
->> not sure this is the right way to do. If any of you is interested in
->> reviewing our sources for Memory Stick driver for Winbond w518 chip,
->> please let me know so that we can post our sources.
->>
-> I don't have the appropriate hardware, but I'd still be interrested in
-> taking a look at the patches, and I'm sure many other people feel the
-> same way.
-> I'd say posting the patches on LKML and adding relevant people/lists
-> from the MAINTAINERS file to Cc would be the way to do it.
->
->
-
-
-
-===========================================================================================
-The privileged confidential information contained in this email is intended for use only by the addressees as indicated by the original sender of this email. If you are not the addressee indicated in this email or are not responsible for delivery of the email to such  a person, please kindly reply to the sender indicating this fact and delete all copies of it from your computer and network server immediately. Your cooperation is highly appreciated. It is advised that any unauthorized use of confidential information of Winbond is strictly prohibited; and any information in this email irrelevant to the official business of Winbond shall be deemed as neither given nor endorsed by Winbond.

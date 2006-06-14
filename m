@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWFNSDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWFNSEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWFNSDG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 14:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWFNSDG
+	id S1751253AbWFNSEu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 14:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWFNSEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 14:03:06 -0400
-Received: from gw.openss7.com ([142.179.199.224]:52157 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1751194AbWFNSDE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 14:03:04 -0400
-Date: Wed, 14 Jun 2006 12:03:02 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Daniel Phillips <phillips@google.com>
-Cc: Harald Welte <laforge@gnumonks.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Message-ID: <20060614120302.A24700@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Daniel Phillips <phillips@google.com>,
-	Harald Welte <laforge@gnumonks.org>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060614133022.GU11863@sunbeam.de.gnumonks.org> <44904C08.6020307@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <44904C08.6020307@google.com>; from phillips@google.com on Wed, Jun 14, 2006 at 10:48:56AM -0700
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	Wed, 14 Jun 2006 14:04:50 -0400
+Received: from web53605.mail.yahoo.com ([206.190.37.38]:30906 "HELO
+	web53605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751253AbWFNSEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 14:04:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=S1KCot+8MXtAtfMB81NeJtLnkisyqXUDi4Z8Mpe252Cuh5ewAZwlRzWamIMqzKOesEgF3RpAeufXYydOJqzGprWXZfxhkuyW2N93I1QhCw7FIc8OkgAioJFZgF2bZU8zMO5QsCbv/sBTYWWSFhkZxwDiV5M/IDi84mfKagy846U=  ;
+Message-ID: <20060614180448.13830.qmail@web53605.mail.yahoo.com>
+Date: Wed, 14 Jun 2006 11:04:47 -0700 (PDT)
+From: Jason <bofh1234567@yahoo.com>
+Subject: Re: SO_REUSEPORT and multicasting
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44901FC2.7040600@superbug.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel,
-
-On Wed, 14 Jun 2006, Daniel Phillips wrote:
+--- James Courtier-Dutton <James@superbug.co.uk>
+wrote:
+> That address is a multicast address, and therefore
+> needs to go in the 
+> multicast routing table, and not the unicast one.
+> You are using a command that only modifies the
+> unicast table.
 > 
-> Speaking as a former member of a "grey market" binary module vendor that
-> came in from the cold I can assure you that the distinction between EXPORT
-> and EXPORT_GPL _is_ meaningful.  That tainted flag makes it extremely
-> difficult to do deals with mainstream Linux companies and there is always
-> the fear that it will turn into a legal problem.  The latter bit tends to
-> make venture capitalists nervous.
-> 
+> James
 
-EXPORT_SYMBOL_GPL and the Tainted flag have nothing to do with each other.
+The broadcasts don't have to leave my PC so I
+shouldn't need a multicast router, do I?  The client
+is running in one terminal window and the server in a
+second terminal window.
 
+I checked the router man page and found the following:
+route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+This is an obscure one documented so people know how
+to do it. This sets all of the class D (multicast) IP
+routes to go via "eth0".  This is the correct normal
+configuration line with a multicasting kernel.
+
+If there is another command, will you please tell me
+what it is?
+
+Thanks,
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

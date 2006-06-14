@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbWFNXhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWFNXjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965037AbWFNXhu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 19:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWFNXhu
+	id S965041AbWFNXjR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 19:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWFNXjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 19:37:50 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:62674 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965037AbWFNXht (ORCPT
+	Wed, 14 Jun 2006 19:39:17 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:22466 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S965041AbWFNXjQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 19:37:49 -0400
-Message-ID: <44909DCB.8070300@garzik.org>
-Date: Wed, 14 Jun 2006 19:37:47 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Wed, 14 Jun 2006 19:39:16 -0400
+Date: Thu, 15 Jun 2006 01:39:03 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel-level IP autoconfiguration and nodename
+In-Reply-To: <6f6293f10606140957t18545deetf3f75bba09eafa3d@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0606150135020.14257@yvahk01.tjqt.qr>
+References: <6f6293f10606140957t18545deetf3f75bba09eafa3d@mail.gmail.com>
 MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: Mike Miller <mike.miller@hp.com>, iss_storagedev@hp.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 3/7] CCISS: announce cciss%d devices with PCI address/IRQ/DAC
- info
-References: <200606141707.27404.bjorn.helgaas@hp.com> <200606141710.12182.bjorn.helgaas@hp.com>
-In-Reply-To: <200606141710.12182.bjorn.helgaas@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
-> We already print "cciss: using DAC cycles" or similar for every
-> adapter found: why not just identify the device we're talking
-> about and include other useful information?
-> 
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> 
-> Index: rc6-mm2/drivers/block/cciss.c
-> ===================================================================
-> --- rc6-mm2.orig/drivers/block/cciss.c	2006-06-14 16:18:20.000000000 -0600
-> +++ rc6-mm2/drivers/block/cciss.c	2006-06-14 16:18:29.000000000 -0600
-> @@ -3086,11 +3086,8 @@
->  	int i;
->  	int j;
->  	int rc;
-> +	int dac;
->  
-> -	printk(KERN_DEBUG "cciss: Device 0x%x has been found at"
-> -			" bus %d dev %d func %d\n",
-> -		pdev->device, pdev->bus->number, PCI_SLOT(pdev->devfn),
-> -			PCI_FUNC(pdev->devfn));
->  	i = alloc_cciss_hba();
->  	if(i < 0)
->  		return (-1);
-> @@ -3106,11 +3103,11 @@
->  
->  	/* configure PCI DMA stuff */
->  	if (!pci_set_dma_mask(pdev, DMA_64BIT_MASK))
-> -		printk("cciss: using DAC cycles\n");
-> +		dac = 1;
->  	else if (!pci_set_dma_mask(pdev, DMA_32BIT_MASK))
-> -		printk("cciss: not using DAC cycles\n");
-> +		dac = 0;
->  	else {
-> -		printk("cciss: no suitable DMA available\n");
-> +		printk(KERN_ERR "cciss: no suitable DMA available\n");
->  		goto clean1;
->  	}
->  
-> @@ -3141,6 +3138,11 @@
->  			hba[i]->intr[SIMPLE_MODE_INT], hba[i]->devname);
->  		goto clean2;
->  	}
-> +
-> +	printk(KERN_INFO "%s: <0x%x> at PCI %s IRQ %d%s using DAC\n",
-> +		hba[i]->devname, pdev->device, pci_name(pdev),
-> +		hba[i]->intr[SIMPLE_MODE_INT], dac ? "" : " not");
+>
+> However, I'm unable to get the client machine get its hostname from
+> the DHCP server. What is really strange is that the kernel itself is
+> able to autoconfigure itself using DHCP, and I can see during boot
 
-Although this patch is correct, I would consider using dev_printk() 
-rather than referencing pci_name() in printk() arguments.
+I think that's obsolete since you can do it from initrd/initramfs for a 
+looong time.
+BTW, if so, why has not this been removed yet?
 
-	Jeff
+> that a hostname is assigned to the client, as shown before:
+>
+> IP-Config: eth0 complete (from 10.0.0.2):
+> address: 10.0.0.10        broadcast: 10.255.255.255   netmask: 255.0.0.0
+> gateway: 10.0.0.2         dns0     : 10.0.0.2         dns1   : 0.0.0.0
+> host   : client1
+> domain : lan
+> rootserver: 10.0.0.2 rootpath:
+>
+> However, both "uname -n" and hostname return "(none)". I have tried
 
+It is only a very simple dhcp client that only requests the lease 
+once in a boot lifetime, even if the server will drop the lease when 
+it expired.
+Well, it does not explain your problem below, but IMO it's not worth 
+looking into any further.
 
+> hacking the initram, but I have been unable to guess why, although the
+> kernel is receiving a hostname via DHCP, hostname ends up being
+> "(none)".
+>
+> I've been reading net/ipv4/ipconfig.c and seems like
+> system_utsname.nodename is being set to the host name received via
+> DHCP, but I can't guess why /proc/sys/kernel/hostname keeps returning
+> "(none)".
+>
+> Any ideas?
+>
+> Thank you very much.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
+Jan Engelhardt
+-- 

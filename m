@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWFNIKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWFNIee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWFNIKB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 04:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWFNIKB
+	id S1751180AbWFNIee (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 04:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWFNIee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 04:10:01 -0400
-Received: from relay03.pair.com ([209.68.5.17]:24080 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1751175AbWFNIKA (ORCPT
+	Wed, 14 Jun 2006 04:34:34 -0400
+Received: from mx-3.csfb.com ([198.240.130.80]:63195 "EHLO ny-bas07.csfb.com")
+	by vger.kernel.org with ESMTP id S1751180AbWFNIed (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 04:10:00 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Matt Helsley <matthltc@us.ibm.com>
-Subject: Re: [PATCH 03/11] Task watchers:  Refactor process events
-Date: Wed, 14 Jun 2006 03:09:34 -0500
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-References: <20060613235122.130021000@localhost.localdomain> <200606131943.34800.chase.venters@clientec.com> <1150247482.21787.206.camel@stark>
-In-Reply-To: <1150247482.21787.206.camel@stark>
+	Wed, 14 Jun 2006 04:34:33 -0400
+X-Server-Uuid: 6BE1D2C2-03E1-4EE2-8B18-93F153C930CE
+Message-ID: <F444CAE5E62A714C9F45AA292785BED30EB971C4@esng11p33001.sg.csfb.com>
+From: "Majumder, Rajib" <rajib.majumder@credit-suisse.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Cc: "Majumder, Rajib" <rajib.majumder@credit-suisse.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: binary portability
+Date: Wed, 14 Jun 2006 16:34:16 +0800
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+X-WSS-ID: 68911584104139467-01-03
 Content-Type: text/plain;
-  charset="iso-8859-6"
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606140309.57413.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 June 2006 20:11, Matt Helsley wrote:
-> On Tue, 2006-06-13 at 19:43 -0500, Chase Venters wrote:
-> > On Tuesday 13 June 2006 18:54, Matt Helsley wrote:
-> > > +	WARN_ON((which_id != PROC_EVENT_UID) && (which_id !=
-> > > PROC_EVENT_GID)); }
+Hi,
+
+Thanks for the clarifications. Just had 1 more question. Can I port binaries built on RHEL 3/Opteron(2.4.21) to SLES 9/Opteron (2.6.5-7.252) and run without any issues?  
+
+Thanks
+
+Rajib
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: 08 June 2006 22:51
+To: Jan Engelhardt
+Cc: Majumder, Rajib; 'linux-kernel@vger.kernel.org'
+Subject: Re: binary portability
+
+
+Ar Iau, 2006-06-08 am 12:42 +0200, ysgrifennodd Jan Engelhardt:
+> >I know that EM64T and AMD64 are ISA compatible, but there could be some 
+> >differences in ELF32 between these 2 processor architectures. 
 > >
-> > How about WARN_ON(!(which_id & (PROC_EVENT_UID | PROC_EVENT_GID))) to
-> > save a cmp?
-> >
-> > Thanks,
-> > Chase
->
-> I think the compiler is capable of making such optimizations. I also
-> think what I have now is clearer to anyone skimming the code.
+> What differences? (Apart from MMXEXT and SSE2,SSE3)
 
-Can the compiler test that (which_id != PROC_EVENT_UID) && (which_id != 
-PROC_EVENT_GID) merely by masking? Since they're bits, one mask testing both 
-could technically match both (true result), which would not happen in the != 
-case (false result). It is a small point though.
+There are multiple ISA differences that affect ring 0 (kernel code), but
+only one nasty that hit user code with early Intel clones. The early
+Intel clones didn't implement the prefetch instructions that are
+mandatory in x86-64. This broke a few apps early on but they got
+workarounds very fast.
 
-> Cheers,
-> 	-Matt Helsley
+If the code is built for the generic instruction set (as is the case
+unless you try very hard) then it should be perfect on both.
 
-Thanks,
-Chase
+Alan
+
+
+==============================================================================
+Please access the attached hyperlink for an important electronic communications disclaimer: 
+
+http://www.credit-suisse.com/legal/en/disclaimer_email_ib.html
+==============================================================================
+

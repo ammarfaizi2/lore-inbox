@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWFNXLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWFNXL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWFNXLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 19:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWFNXLR
+	id S965011AbWFNXL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 19:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbWFNXL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 19:11:17 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:47566 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S965006AbWFNXLQ (ORCPT
+	Wed, 14 Jun 2006 19:11:58 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:646 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S965011AbWFNXL5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 19:11:16 -0400
+	Wed, 14 Jun 2006 19:11:57 -0400
 From: Bjorn Helgaas <bjorn.helgaas@hp.com>
 To: Mike Miller <mike.miller@hp.com>
-Subject: [PATCH 4/7] CCISS: use ARRAY_SIZE without intermediates
-Date: Wed, 14 Jun 2006 17:10:57 -0600
+Subject: [PATCH 5/7] CCISS: fix a few spelling errors
+Date: Wed, 14 Jun 2006 17:11:38 -0600
 User-Agent: KMail/1.8.3
 Cc: iss_storagedev@hp.com, linux-kernel@vger.kernel.org,
        Andrew Morton <akpm@osdl.org>
@@ -23,42 +23,81 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606141710.58041.bjorn.helgaas@hp.com>
+Message-Id: <200606141711.38975.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's easier to verify loop bounds if the array name is mentioned
-the for() statement that steps through the array.
+Fix a few spelling errors.
 
 Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
 Index: rc5-mm3/drivers/block/cciss.c
 ===================================================================
---- rc5-mm3.orig/drivers/block/cciss.c	2006-06-14 15:15:28.000000000 -0600
-+++ rc5-mm3/drivers/block/cciss.c	2006-06-14 15:16:13.000000000 -0600
-@@ -104,8 +104,6 @@
+--- rc5-mm3.orig/drivers/block/cciss.c	2006-06-14 15:16:13.000000000 -0600
++++ rc5-mm3/drivers/block/cciss.c	2006-06-14 15:16:44.000000000 -0600
+@@ -129,7 +129,7 @@
+ 	{ 0x3215103C, "Smart Array E200i", &SA5_access},
  };
- MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
  
--#define NR_PRODUCTS ARRAY_SIZE(products)
--
- /*  board_id = Subsystem Device ID & Vendor ID
-  *  product = Marketing Name for the board
-  *  access = Address of the struct of function pointers 
-@@ -2831,14 +2829,14 @@
- 	print_cfg_table(c->cfgtable);
- #endif /* CCISS_DEBUG */
+-/* How long to wait (in millesconds) for board to go into simple mode */
++/* How long to wait (in milliseconds) for board to go into simple mode */
+ #define MAX_CONFIG_WAIT 30000 
+ #define MAX_IOCTL_CONFIG_WAIT 1000
  
--	for(i=0; i<NR_PRODUCTS; i++) {
-+	for(i=0; i<ARRAY_SIZE(products); i++) {
- 		if (board_id == products[i].board_id) {
- 			c->product_name = products[i].product_name;
- 			c->access = *(products[i].access);
- 			break;
- 		}
- 	}
--	if (i == NR_PRODUCTS) {
-+	if (i == ARRAY_SIZE(products)) {
- 		printk(KERN_WARNING "cciss: Sorry, I don't know how"
- 			" to access the Smart Array controller %08lx\n", 
- 				(unsigned long)board_id);
+@@ -1117,7 +1117,7 @@
+  *
+  * Right now I'm using the getgeometry() function to do this, but this
+  * function should probably be finer grained and allow you to revalidate one
+- * particualar logical volume (instead of all of them on a particular
++ * particular logical volume (instead of all of them on a particular
+  * controller).
+  */
+ static int revalidate_allvol(ctlr_info_t *host)
+@@ -1260,7 +1260,7 @@
+ 		return;
+ 
+ 
+-	/* Get information about the disk and modify the driver sturcture */
++	/* Get information about the disk and modify the driver structure */
+ 	size_buff = kmalloc(sizeof( ReadCapdata_struct), GFP_KERNEL);
+         if (size_buff == NULL)
+ 		goto mem_msg;
+@@ -1335,7 +1335,7 @@
+ }
+ 
+ /* This function will add and remove logical drives from the Logical
+- * drive array of the controller and maintain persistancy of ordering
++ * drive array of the controller and maintain persistency of ordering
+  * so that mount points are preserved until the next reboot.  This allows
+  * for the removal of logical drives in the middle of the drive array
+  * without a re-ordering of those drives.
+@@ -1482,7 +1482,7 @@
+  * clear_all = This flag determines whether or not the disk information
+  *             is going to be completely cleared out and the highest_lun
+  *             reset.  Sometimes we want to clear out information about
+- *             the disk in preperation for re-adding it.  In this case
++ *             the disk in preparation for re-adding it.  In this case
+  *             the highest_lun should be left unchanged and the LunID
+  *             should not be cleared.
+ */
+@@ -2597,7 +2597,7 @@
+ 	return IRQ_HANDLED;
+ }
+ /* 
+- *  We cannot read the structure directly, for portablity we must use 
++ *  We cannot read the structure directly, for portability we must use 
+  *   the io functions.
+  *   This is for debug only. 
+  */
+@@ -2620,9 +2620,9 @@
+ 				readl(&(tb->TransportActive)));
+ 	printk("   Requested transport Method = 0x%x\n", 
+ 			readl(&(tb->HostWrite.TransportRequest)));
+-	printk("   Coalese Interrupt Delay = 0x%x\n", 
++	printk("   Coalesce Interrupt Delay = 0x%x\n", 
+ 			readl(&(tb->HostWrite.CoalIntDelay)));
+-	printk("   Coalese Interrupt Count = 0x%x\n", 
++	printk("   Coalesce Interrupt Count = 0x%x\n", 
+ 			readl(&(tb->HostWrite.CoalIntCount)));
+ 	printk("   Max outstanding commands = 0x%d\n", 
+ 			readl(&(tb->CmdsOutMax)));

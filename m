@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWFNMJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWFNMU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWFNMJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 08:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWFNMJV
+	id S1751258AbWFNMU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 08:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWFNMU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 08:09:21 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:5002 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751281AbWFNMJQ (ORCPT
+	Wed, 14 Jun 2006 08:20:28 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:49864 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751258AbWFNMU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 08:09:16 -0400
-Date: Wed, 14 Jun 2006 07:07:33 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: fpavlic@de.ibm.com, linux390@de.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] s390: move var declarations behind ifdef
-Message-ID: <20060614120733.GF15061@sergelap.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 14 Jun 2006 08:20:28 -0400
+Date: Wed, 14 Jun 2006 14:20:06 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Greg KH <greg@kroah.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 16/16] 64bit Resource: finally enable 64bit resource
+ sizes
+In-Reply-To: <11501587343689-git-send-email-greg@kroah.com>
+Message-ID: <Pine.LNX.4.62.0606141417430.1886@pademelon.sonytel.be>
+References: <20060613003033.GA10717@kroah.com> <11501586781628-git-send-email-greg@kroah.com>
+ <1150158683636-git-send-email-greg@kroah.com> <11501586871870-git-send-email-greg@kroah.com>
+ <11501586902008-git-send-email-greg@kroah.com> <11501586942938-git-send-email-greg@kroah.com>
+ <11501586982289-git-send-email-greg@kroah.com> <11501587011194-git-send-email-greg@kroah.com>
+ <11501587043722-git-send-email-greg@kroah.com> <11501587082203-git-send-email-greg@kroah.com>
+ <11501587122736-git-send-email-greg@kroah.com> <11501587153872-git-send-email-greg@kroah.com>
+ <11501587193060-git-send-email-greg@kroah.com> <11501587223213-git-send-email-greg@kroah.com>
+ <11501587273612-git-send-email-greg@kroah.com> <11501587303683-git-send-email-greg@kroah.com>
+ <11501587343689-git-send-email-greg@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two variables in drivers/s390/net/qeth_main.c:qeth_send_packet()
-are only used if CONFIG_QETH_PERF_STATS.  Move their definition
-under the same ifdef to remove compiler warning.
+On Mon, 12 Jun 2006, Greg KH wrote:
+> From: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> Introduce the Kconfig entry and actually switch to a 64bit value, if
+> wanted, for resource_size_t.
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+> diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+> index 805b81f..22dcaa5 100644
+> --- a/arch/m68k/Kconfig
+> +++ b/arch/m68k/Kconfig
+> @@ -368,6 +368,13 @@ config 060_WRITETHROUGH
+>  
+>  source "mm/Kconfig"
+>  
+> +config RESOURCES_32BIT
+> +	bool "32 bit Memory and IO resources (EXPERIMENTAL)"
+> +	depends on EXPERIMENTAL
+> +	help
+> +	  By default resources are 64 bit. This option allows memory and IO
+> +	  resources to be 32 bit to optimize code size.
+> +
+>  endmenu
 
----
+Why is the default 64 bit? Because 32 bit became experimental?
 
- drivers/s390/net/qeth_main.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+Gr{oetje,eeting}s,
 
-74bcd2e9461534ccd39ec84455b0b2c07c7f24a5
-diff --git a/drivers/s390/net/qeth_main.c b/drivers/s390/net/qeth_main.c
-index 9e671a4..8f8c0f4 100644
---- a/drivers/s390/net/qeth_main.c
-+++ b/drivers/s390/net/qeth_main.c
-@@ -4416,8 +4416,10 @@ qeth_send_packet(struct qeth_card *card,
- 	enum qeth_large_send_types large_send = QETH_LARGE_SEND_NO;
- 	struct qeth_eddp_context *ctx = NULL;
- 	int tx_bytes = skb->len;
-+#ifdef CONFIG_QETH_PERF_STATS
- 	unsigned short nr_frags = skb_shinfo(skb)->nr_frags;
- 	unsigned short tso_size = skb_shinfo(skb)->tso_size;
-+#endif
- 	int rc;
- 
- 	QETH_DBF_TEXT(trace, 6, "sendpkt");
--- 
-1.1.6
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

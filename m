@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbWFNPLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWFNPPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbWFNPLp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 11:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbWFNPLp
+	id S964991AbWFNPPl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 11:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbWFNPPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 11:11:45 -0400
-Received: from mail.humboldt.co.uk ([80.68.93.146]:60938 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S964997AbWFNPLo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 11:11:44 -0400
-Subject: RE: [PATCH/2.6.17-rc4 8/10]  Add  tsi108 8250 serial support
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Alexandre.Bounine@tundra.com,
-       linux-kernel@vger.kernel.org,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>, linux-serial@vger.kernel.org,
-       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>
-In-Reply-To: <9FCDBA58F226D911B202000BDBAD4673069C3C3D@zch01exm40.ap.freescale.net>
-References: <9FCDBA58F226D911B202000BDBAD4673069C3C3D@zch01exm40.ap.freescale.net>
-Content-Type: text/plain
-Date: Wed, 14 Jun 2006 15:25:28 +0100
-Message-Id: <1150295128.6552.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 14 Jun 2006 11:15:40 -0400
+Received: from mail.gmx.de ([213.165.64.21]:5340 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964991AbWFNPPk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 11:15:40 -0400
+X-Authenticated: #20022210
+Message-ID: <4490281B.5060801@gmx.net>
+Date: Wed, 14 Jun 2006 17:15:39 +0200
+From: Marc Sowen <marc.sowen@gmx.net>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] com20020_cs, kernel 2.6.17-rc6, 3rd try
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 13:39 +0800, Zang Roy-r61911 wrote:
+Hello everybody,
 
-> The reason is that the serial port on tsi108/9 is a bit difference with the 
-> standard 8250 serial port. the patch deal with the difference.
-> The prefixed ">" is caused by "Fw" the email. Sorry for that. The following 
-> is the original patch.
+this patch enables the com20020_cs arcnet driver to see the SoHard (now Mercury Computer Systems Inc.) SH ARC-PCMCIA card. Added signed off line.
 
-The problem I see is that the code uses a CONFIG option, to change the
-behaviour of the generic 8250 driver. What happens if somebody adds a
-PCI serial card to a tsi108 based machine?
+Regards,
+  Marc
 
-Perhaps you should define a new value for uart_8250_port.port.iotype,
-and add code to serial_in and serial_out to handle the IIR register.
+Signed-off-by: Marc Sowen <marc.sowen@ibeo-as.de>
 
--- 
-Adrian Cox <adrian@humboldt.co.uk>
+--- a/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-06 02:57:02.000000000 +0200
++++ b/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-13 17:10:03.000000000 +0200
+@@ -388,6 +388,7 @@
+
+  static struct pcmcia_device_id com20020_ids[] = {
+         PCMCIA_DEVICE_PROD_ID12("Contemporary Control Systems, Inc.", "PCM20 Arcnet Adapter", 0x59991666, 0x95dfffaf),
++       PCMCIA_DEVICE_PROD_ID12("SoHard AG", "SH ARC PCMCIA", 0xf8991729, 0x69dff0c7),
+         PCMCIA_DEVICE_NULL
+  };
+  MODULE_DEVICE_TABLE(pcmcia, com20020_ids);
+
 

@@ -1,103 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWFNBA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWFNBCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWFNBA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 21:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWFNBA0
+	id S964829AbWFNBCu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 21:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWFNBCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 21:00:26 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:46269 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932345AbWFNBAY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 21:00:24 -0400
-Subject: Re: [PATCH 02/11] Task watchers:  Register process events task
-	watcher
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-In-Reply-To: <200606131940.00539.chase.venters@clientec.com>
-References: <20060613235122.130021000@localhost.localdomain>
-	 <1150242874.21787.142.camel@stark>
-	 <200606131940.00539.chase.venters@clientec.com>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 17:52:37 -0700
-Message-Id: <1150246357.21787.187.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jun 2006 21:02:49 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:60900 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964829AbWFNBCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 21:02:49 -0400
+Date: Tue, 13 Jun 2006 18:02:38 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Con Kolivas <kernel@kolivas.org>,
+       Christoph Lameter <clameter@sgi.com>, Dave Chinner <dgc@sgi.com>
+Message-Id: <20060614010238.859.4228.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 00/21] Zoned VM counters V4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 19:39 -0500, Chase Venters wrote:
-> On Tuesday 13 June 2006 18:54, Matt Helsley wrote:
-> 
-> > +static int cn_proc_watch_task(struct notifier_block *nb, unsigned long
-> > val, +			      void *t)
-> > +{
-> > +	struct task_struct *task = t;
-> 
-> Why the copy?
+NOTE: ZVC are *not* the lightweight event counters. ZVCs are
+reliable whereas event counters do not need to be.
 
-	It shouldn't result in a copy. Since t is a void* I don't think any
-additional instructions or stack space are required. This should have
-zero runtime cost while improving clarity of the code. It's also needed
-in the next patch.
+Zone based VM statistics are necessary to be able to determine what the state
+of memory in one zone is. In a NUMA system this can be helpful for local
+reclaim and other memory optimizations that may be able to shift VM load
+in order to get more balanced memory use.
 
-> > +	int rc = NOTIFY_OK;
-> > +
-> > +	switch (get_watch_event(val)) {
-> > +	case WATCH_TASK_CLONE:
-> > +		proc_fork_connector(task);
-> > +		break;
-> > +	case WATCH_TASK_EXEC:
-> > +		proc_exec_connector(task);
-> > +		break;
-> > +	case WATCH_TASK_UID:
-> > +		proc_id_connector(task, PROC_EVENT_UID);
-> > +		break;
-> > +	case WATCH_TASK_GID:
-> > +		proc_id_connector(task, PROC_EVENT_GID);
-> > +		break;
-> > +	case WATCH_TASK_EXIT:
-> > +		proc_exit_connector(task);
-> > +		break;
-> > +	default: /* we don't care about WATCH_TASK_INIT|FREE because we
-> > +		    don't keep per-task info */
-> > +		rc = NOTIFY_DONE; /* ignore all other notifications */
-> > +		break;
-> > +	}
-> > +	return rc;
-> > +}
-> > +
-> 
-> >  /*
-> >   * cn_proc_init - initialization entry point
-> >   *
-> >   * Adds the connector callback to the connector driver.
-> >   */
-> > @@ -219,11 +259,16 @@ static int __init cn_proc_init(void)
-> >  	int err;
-> >
-> >  	if ((err = cn_add_callback(&cn_proc_event_id, "cn_proc",
-> >  	 			   &cn_proc_mcast_ctl))) {
-> >  		printk(KERN_WARNING "cn_proc failed to register\n");
-> > -		return err;
-> > +		goto out;
-> >  	}
-> > -	return 0;
-> > +
-> > +	err = register_task_watcher(&cn_proc_nb);
-> > +	if (err != 0)
-> 
-> if (err)
+It is also useful to know how the computing load affects the memory
+allocations on various zones. This patchset allows the retrieval of that
+data from userspace.
 
-I don't see any benefit to changing this. Care to elaborate on why this
-is important?
+The patchset introduces a framework for counters that is a cross between the
+existing page_stats --which are simply global counters split per cpu-- and
+the approach of deferred incremental updates implemented for nr_pagecache.
 
-> Thanks,
-> Chase
+Small per cpu 8 bit counters are added to struct zone. If the counter
+exceeds certain thresholds then the counters are accumulated in an array of
+atomic_long in the zone and in a global array that sums up all
+zone values. The small 8 bit counters are next to the per cpu page pointers
+and so they will be in high in the cpu cache when pages are allocated and
+freed.
+
+Access to VM counter information for a zone and for the whole machine
+is then possible by simply indexing an array (Thanks to Nick Piggin for
+pointing out that approach). The access to the total number of pages of
+various types does no longer require the summing up of all per cpu counters.
+
+Benefits of this patchset right now:
+
+- Ability for UP and SMP configuration to determine how memory
+  is balanced between the DMA, NORMAL and HIGHMEM zones.
+
+- loops over all processors are avoided in writeback and
+  reclaim paths. We can avoid caching the writeback information
+  because the needed information is directly accessible.
+
+- Special handling for nr_pagecache removed.
+
+- zone_reclaim_interval vanishes since VM stats can now determine
+  when it is worth to do local reclaim.
+
+- Fast inline per node page state determination.
+
+- Accurate counters in /sys/devices/system/node/node*/meminfo. Current
+  counters are counting simply which processor allocated a page somewhere
+  and guestimate based on that. So the counters were not useful to show
+  the actual distribution of page use on a specific zone.
+
+- The swap_prefetch patch requires per node statistics in order to
+  figure out when processors of a node can prefetch. This patch provides
+  some of the needed numbers.
+
+- Detailed VM counters available in more /proc and /sys status files.
+
+References to earlier discussions:
+V1 http://marc.theaimsgroup.com/?l=linux-kernel&m=113511649910826&w=2
+V2 http://marc.theaimsgroup.com/?l=linux-kernel&m=114980851924230&w=2
+V3 http://marc.theaimsgroup.com/?l=linux-kernel&m=115014697910351&w=2
+
+Performance tests with AIM7 did not show any regressions. Seems to be a tad
+faster even. Tested on ia64/NUMA. Builds fine on i386, SMP / UP. Includes
+fixes for s390/arm/uml arch code.
+
+Changelog
+
+V1->V2:
+- Cleanup code, resequence and base patches on 2.6.17-rc6-mm1
+- Reduce interrupt holdoffs
+- Add zone reclaim interval removal patch
+
+V2->V3:
+- Against temp tree by Andrew. (2.6.17-rc6-mm2 - old patches)
+  Temp patch at http://www.zip.com.au/~akpm/linux/patches/stuff/cl.bz2
+- Incorporate additional fixes for arch code.
+- Create vmstat.c/h from pieces of page_alloc.c.
+- Do the swap prefetch support patches the right way.
+- Reorganize patchset so that the tree compiles after each
+  patch (However, swap prefetch/reiser4 patches are separate.
+  So if a swap prefetch patch follows then two patches must
+  be applied for the kernel to compile again).
+- Do various prescribed tests. Make sure that there is no remaining
+  reference to page state in some arch code.
+- Optimize the node_page_state function so that it can be used inline.
+
+V3->V4:
+- nr_pagecache definition was not cleaned up in V3.
+- Fix nfs issues with NR_UNSTABLE where the page reference was not valid
+  and with NR_DIRTY.
+- Update swap_prefetch patches after feedback from Colin.
+- Rename NR_STAT_ITEMS to NR_VM_ZONE_STAT_ITEMS.
+- IA64: Make CONFIG_DMA_IS_NORMAL depend on SGI_SN2. Others
+  may be added in the future.
+- Fix order issues with vmstat
+- Limit crossposting
+
+
+The patchset consists of 21 patches that are following this one and is
+against a temp patch against 2.6.17-rc6 at
+http://www.zip.com.au/~akpm/linux/patches/stuff/cl.bz2
+plus a small fix from http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff_plain;h=440a733fe2e9ea3d1374d4fd72e7bba60e268e05;hp=4649a63a8cb6f9c3892e92538b394f754295a90e
 

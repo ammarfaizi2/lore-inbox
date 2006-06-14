@@ -1,84 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWFNCKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWFNCVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWFNCKY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 22:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWFNCKX
+	id S964921AbWFNCVu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 22:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWFNCVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 22:10:23 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:30363 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964893AbWFNCKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 22:10:23 -0400
+	Tue, 13 Jun 2006 22:21:50 -0400
+Received: from web50208.mail.yahoo.com ([206.190.38.49]:53667 "HELO
+	web50208.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S964919AbWFNCVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 22:21:49 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=dnmvpWe4aXts8khK9mtaP5+/meuDTuVV1gzGwBBTOiZ7JMjVQwpxr/vkAIs9e3aeLxMtzMD+TLcT8MGqaRibHIt3N9Bw+X/yMpdZmjYxdD9aYwXEAAXKg82xs+Pkzc2GtvXJM0gcfyknxBXGsxBhs0KFMMU+DfI/Z0gT2LB33Z0=  ;
-Message-ID: <448F7008.3010702@yahoo.com.au>
-Date: Wed, 14 Jun 2006 12:10:16 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bCKatAMGFycJGL51Jb+TdJhBzVEckFnsGLwVNdGEwkYzBvUSHnaOyNHt7xkSBW7KHzU+BS118jXuKBUg3ftERT/GRtKRUNASonDIsIEnMaASshpb9Qou+UgBCISxSDVfHEkpZR0pSfwynBbKOoeO6fp4sIZNIZFkZhKUD+kxpGo=  ;
+Message-ID: <20060614022139.21737.qmail@web50208.mail.yahoo.com>
+Date: Tue, 13 Jun 2006 19:21:39 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: Kernel panic when re-inserting Adaptec PCMCIA card
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] i386: cpu_relax() smp.c
-References: <20060612183743.GA28610@rhlx01.fht-esslingen.de> <20060613195352.GA24167@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060613195352.GA24167@rhlx01.fht-esslingen.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr wrote:
 
->Hi,
->
->On Mon, Jun 12, 2006 at 08:37:43PM +0200, Andreas Mohr wrote:
->
->>Hi all,
->>
->>while reviewing 2.6.17-rc6-mm1, I found some places that might
->>want to make use of cpu_relax() in order to not block secondary
->>pipelines while busy-polling (probably especially useful on SMT CPUs):
->>
->
->OK, no replies arguing against anything, thus patch follow-up. ;)
->(no. 1 of 3)
->
 
-The other two look fine. This one should remove the mb(). cpu_relax
-IIRC already includes a barrier(), and we are not concerned about
-consistency here, only coherency, which the hardware takes care of
-for us.
-
-The flush_cpumask is guaranteed to be cleared *after* all other
-variables (eg. flush_mm) have been used... that happens in the IPI
-handler of course.
-
-Aside, if we *were* worried about consistency here, smp_mb would
-have been the more correct barrier to use.
-
->
->Signed-off-by: Andreas Mohr <andi@lisas.de>
->
->
->diff -urN linux-2.6.17-rc6-mm2.orig/arch/i386/kernel/smp.c linux-2.6.17-rc6-mm2.my/arch/i386/kernel/smp.c
->--- linux-2.6.17-rc6-mm2.orig/arch/i386/kernel/smp.c	2006-06-08 10:38:04.000000000 +0200
->+++ linux-2.6.17-rc6-mm2.my/arch/i386/kernel/smp.c	2006-06-13 19:33:22.000000000 +0200
->@@ -388,9 +388,11 @@
-> 	 */
-> 	send_IPI_mask(cpumask, INVALIDATE_TLB_VECTOR);
+--- Alex Davis <alex14641@yahoo.com> wrote:
 > 
->-	while (!cpus_empty(flush_cpumask))
->+	while (!cpus_empty(flush_cpumask)) {
->+		cpu_relax();
-> 		/* nothing. lockup detection does not belong here */
-> 		mb();
->+	}
+> The card is an Adaptec SlimSCSI 1460D Fast SCSI card.
+> I frequently get this panic when re-inserting the card:
 > 
-> 	flush_mm = NULL;
-> 	flush_va = 0;
->
+> Jun 13 17:53:29 siafu kernel: [4364313.475000] pccard: PCMCIA card inserted into slot 0
+> Jun 13 17:53:29 siafu kernel: [4364313.475000] pcmcia: registering new device pcmcia0.0
+> Jun 13 17:53:30 siafu kernel: [4364313.526000] aha152x: resetting bus...
+> Jun 13 17:53:30 siafu kernel: [4364313.882000] aha152x2: vital data: rev=1, io=0xd340
+> (0xd340/0xd340), irq=3, scsiid=7, reconnect=enabled, parity=enabled, synchronous=enabled,
+> delay=100, extended translation=disabled
+> Jun 13 17:53:30 siafu kernel: [4364313.882000] aha152x2: trying software interrupt, ok.
+> Jun 13 17:53:30 siafu kernel: [4364314.883000] scsi2 : Adaptec 152x SCSI driver; $Revision: 2.7
+> $
+> Jun 13 17:53:30 siafu kernel: [4364314.895000]
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] aha152x0: bottom-half already running!?
+> Jun 13 17:53:30 siafu kernel: [4364314.895000]
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] queue status:
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] issue_SC:
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] BUG: unable to handle kernel NULL pointer
+> dereference at virtual address 00000066
+> Jun 13 17:53:30 siafu kernel: [4364314.895000]  printing eip:
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] e0a71e0c
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] *pde = 00000000
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] Oops: 0000 [#1]
+> Jun 13 17:53:30 siafu kernel: [4364314.895000] Modules linked in: ide_cd cdrom radeon drm
+[snip]
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Same panic occurs in 2.6.17rc6:
+
+Jun 13 17:50:36 siafu kernel: [4295220.230000] pccard: PCMCIA card inserted into slot 0
+Jun 13 17:50:36 siafu kernel: [4295220.230000] pcmcia: registering new device pcmcia0.0
+Jun 13 17:50:37 siafu kernel: [4295220.281000] aha152x: resetting bus...
+Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: vital data: rev=1, io=0xd340
+(0xd340/0xd340), irq=3, scsiid=7, reconnect=enabled,
+ parity=enabled, synchronous=enabled, delay=100, extended translation=disabled
+Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: trying software interrupt, ok.
+Jun 13 17:50:37 siafu kernel: [4295221.638000] scsi13 : Adaptec 152x SCSI driver; $Revision: 2.7 $
+Jun 13 17:50:37 siafu kernel: [4295221.650000]
+Jun 13 17:50:37 siafu kernel: [4295221.650000] aha152x22856: bottom-half already running!?
+Jun 13 17:50:37 siafu kernel: [4295221.650000]
+Jun 13 17:50:37 siafu kernel: [4295221.650000] queue status:
+Jun 13 17:50:37 siafu kernel: [4295221.650000] issue_SC:
+Jun 13 17:50:37 siafu kernel: [4295221.650000] current_SC:
+Jun 13 17:50:37 siafu kernel: [4295221.650000] BUG: unable to handle kernel paging request at
+virtual address 00020016
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  printing eip:
+Jun 13 17:50:37 siafu kernel: [4295221.650000] e0a64e0c
+Jun 13 17:50:37 siafu kernel: [4295221.650000] *pde = 00000000
+Jun 13 17:50:37 siafu kernel: [4295221.650000] Oops: 0000 [#1]
+Jun 13 17:50:37 siafu kernel: [4295221.650000] Modules linked in: aha152x_cs ide_cd cdrom radeon
+drm scsi_transport_spi snd_pcm_oss snd_mix
+er_oss ohci_hcd usbhid intel_agp uhci_hcd generic snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm
+snd_timer snd soundcore snd_page_alloc 8
+250_pci 8250 serial_core tg3 yenta_socket rsrc_nonstatic pcmcia firmware_class crc32 pcmcia_core
+nls_iso8859_1 ntfs usbkbd usbmouse agpgart
+ usb_storage sd_mod scsi_mod ehci_hcd
+Jun 13 17:50:37 siafu kernel: [4295221.650000] CPU:    0
+Jun 13 17:50:37 siafu kernel: [4295221.650000] EIP:    0060:[<e0a64e0c>]    Not tainted VLI
+Jun 13 17:50:37 siafu kernel: [4295221.650000] EFLAGS: 00010286   (2.6.17-rc6debug #1)
+Jun 13 17:50:37 siafu kernel: [4295221.650000] EIP is at show_command+0xc/0x1a0 [aha152x_cs]
+Jun 13 17:50:37 siafu kernel: [4295221.650000] eax: 00020012   ebx: 00020012   ecx: 00000000  
+edx: 00000000
+Jun 13 17:50:37 siafu kernel: [4295221.650000] esi: d77aa800   edi: 00000296   ebp: 00000000  
+esp: dff07eb4
+Jun 13 17:50:37 siafu kernel: [4295221.650000] ds: 007b   es: 007b   ss: 0068
+Jun 13 17:50:37 siafu kernel: [4295221.650000] Process events/0 (pid: 4, threadinfo=dff06000
+task=dff63a50)
+Jun 13 17:50:37 siafu kernel: [4295221.650000] Stack: 00000296 00000000 c011a947 00020012 00000000
+e0a65004 00020012 d77aa800
+Jun 13 17:50:37 siafu kernel: [4295221.650000]        d77aa800 dffa2700 e0a64c4f d77aa800 00005948
+e0a66aa7 00000286 e0a64c10
+Jun 13 17:50:37 siafu kernel: [4295221.650000]        d77aa800 e0a66aa7 c0294667 dff07f4c dff63a50
+00000001 00000296 dffa2700
+Jun 13 17:50:37 siafu kernel: [4295221.650000] Call Trace:
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <c011a947> printk+0x17/0x20  <e0a65004>
+show_queues+0x64/0xc0 [aha152x_cs]
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <e0a64c4f> aha152x_error+0x2f/0x40 [aha152x_cs] 
+<e0a64c10> is_complete+0x280/0x290 [aha152x_cs]
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <c0294667> schedule+0x317/0x5d0  <e0a62619>
+run+0x19/0x30 [aha152x_cs]
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <c012926f> run_workqueue+0x6f/0xe0  <e0a62600>
+run+0x0/0x30 [aha152x_cs]
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <c012942b> worker_thread+0x14b/0x170  <c0116b60>
+default_wake_function+0x0/0x20
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <c0116b60> default_wake_function+0x0/0x20 
+<c01292e0> worker_thread+0x0/0x170
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <c012c7ea> kthread+0xba/0xc0  <c012c730>
+kthread+0x0/0xc0
+Jun 13 17:50:37 siafu kernel: [4295221.650000]  <c01013bd> kernel_thread_helper+0x5/0x18
+Jun 13 17:50:37 siafu kernel: [4295221.650000] Code: 6b df e9 bc fe ff ff c7 04 24 8f 6b a6 e0 e8
+3c 5b 6b df e9 a2 fe ff ff 8d b4 26 00 00
+ 00 00 53 83 ec 10 8b 5c 24 18 89 5c 24 0c <8b> 53 04 8d 82 34 01 00 00 89 44 24 08 8b 82 70 01 00
+00 ba 09
+Jun 13 17:50:37 siafu kernel: [4295221.650000] EIP: [<e0a64e0c>] show_command+0xc/0x1a0
+[aha152x_cs] SS:ESP 0068:dff07eb4
+Jun 13 17:50:53 siafu kernel: [4295221.650000]  <3>(scsi13:0:0) cannot reuse command
+
+
+I code, therefore I am
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

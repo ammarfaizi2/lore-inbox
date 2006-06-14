@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWFNRs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWFNRtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWFNRs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 13:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWFNRs1
+	id S932350AbWFNRtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 13:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWFNRtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 13:48:27 -0400
-Received: from web53612.mail.yahoo.com ([206.190.39.179]:35755 "HELO
-	web53612.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932138AbWFNRs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 13:48:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=36ogpU9TPBP+0AfTTL3yx4sJNysLuQzFwNxcKoZ32THmJ7xW4TeEf4ZAOFqNueUlyAoxZ7HTLoWc+kMT05+0VFXPDPKuNauTy+x0BjScQRBP413RB9nKqy17SEzGyIHg/xjHJrnF5VMZcrQ8qG5WarNCFFC6NlKejcz0B7qkPSM=  ;
-Message-ID: <20060614174825.94383.qmail@web53612.mail.yahoo.com>
-Date: Wed, 14 Jun 2006 10:48:25 -0700 (PDT)
-From: Jason <bofh1234567@yahoo.com>
-Subject: Re: SO_REUSEPORT and multicasting
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1150296668.3490.46.camel@localhost.localdomain>
+	Wed, 14 Jun 2006 13:49:25 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:9957 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932235AbWFNRtY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 13:49:24 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=V8O9HZlHc+JK3Y3L8I6k8Q8+Cb/enT1I7V+cTzLpBsYSP4KUrnXr0fsadk0vVlpOE
+	QUCvmbm88k+svuoDyzlYw==
+Message-ID: <44904C08.6020307@google.com>
+Date: Wed, 14 Jun 2006 10:48:56 -0700
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Harald Welte <laforge@gnumonks.org>
+CC: bidulock@openss7.org, Stephen Hemminger <shemminger@osdl.org>,
+       Sridhar Samudrala <sri@us.ibm.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060614133022.GU11863@sunbeam.de.gnumonks.org>
+In-Reply-To: <20060614133022.GU11863@sunbeam.de.gnumonks.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Linux follows the standards draft.  SO_REUSEPORT is
-> a fairly obscure BSDism.
+Hi Harald,
 
-Standards are good.  I like standards.  I was not
-aware that SO_REUSEPORT was that obscure.  My
-programming instructor made it sound like every OS
-supports it.  I guess he was wrong.  Is there a Linux
-equivalent to SO_REUSEPORT?
-
-> > Yes.  My code works great on HP-UX but does
-> > nothing on Linux.  
+You wrote:
+> On Tue, Jun 13, 2006 at 02:12:41PM -0700, I wrote:
 > 
-> That doesn't actually prove very much. Its very easy
-> to write incorrect
-> code that only works on one system, especially when
-> endian-ness gets
-> involved with network code.
+>>This has the makings of a nice stable internal kernel api.  Why do we want
+>>to provide this nice stable internal api to proprietary modules?
+> 
+> because there is IMHO legally nothing we can do about it anyway.
 
-I have written other unicast programs on Linux and
-sftp'd them to HP-UX, compiled, and they ran great. 
-The only change I have to make between Linux and HP-UX
-is in the Makefile.  I have change the following line:
-INCS= -I. -include /usr/include/errno.h #to use fedora
+Speaking as a former member of a "grey market" binary module vendor that
+came in from the cold I can assure you that the distinction between EXPORT
+and EXPORT_GPL _is_ meaningful.  That tainted flag makes it extremely
+difficult to do deals with mainstream Linux companies and there is always
+the fear that it will turn into a legal problem.  The latter bit tends to
+make venture capitalists nervous.
 
-I comment out the -include on the HP-UX and everything
-is great.
+That said, the EXPORT_GPL issue is not about black and white legal issues,
+it is about gentle encouragement.  In this case we are offering a clumsy,
+on-the-metal, guaranteed-to-change-and-make-you-edit-code interface to
+non-GPL-compatible modules and a decent, stable (in the deserves to live
+sense) interface for the pure of heart.  Gentle encouragement at exactly
+the right level.
 
-This multicast application was based on its TCP
-brother.  The only difference is removing TCP and
-installing multicast support.
+Did we settle the question of whether these particular exports should be
+EXPORT_SYMBOL_GPL?
 
-> In particular if writing portable code you must
-> remember to join the
-> group. You must also remember that the various
-> htons/htonl macros need
-> to be correctly used or your code will break on
-> little-endian systems.
+Regards,
 
-All of those macros are used in the multicast.c file I
-was given.
-
-> The default IP_MULTICAST_LOOP value is probably also
-> worth overriding if
-> you are being fairly paranoid.
- 
-The wrapper I used has a function to set the TTL and
-the loop values.  I set the TTL to 3 and the loop to
-0.
-
-Thanks,
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Daniel

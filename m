@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWFNVjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWFNVuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWFNVjK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 17:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWFNVjK
+	id S932385AbWFNVuz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 17:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWFNVuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 17:39:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:63458 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932373AbWFNVjJ (ORCPT
+	Wed, 14 Jun 2006 17:50:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13220 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932380AbWFNVuz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 17:39:09 -0400
-Date: Tue, 13 Jun 2006 22:22:24 -0700
-From: Greg KH <greg@kroah.com>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Incorrect speed at Palm 100 serial adapter
-Message-ID: <20060614052224.GA19140@kroah.com>
-References: <20060612112309.GA14262@kestrel.barix.local>
+	Wed, 14 Jun 2006 17:50:55 -0400
+Date: Thu, 15 Jun 2006 07:50:19 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC]  Slimming down struct inode
+Message-ID: <20060615075018.B884384@wobbly.melbourne.sgi.com>
+References: <20060613143230.A867599@wobbly.melbourne.sgi.com> <448EC51B.6040404@argo.co.il> <20060614084155.C888012@wobbly.melbourne.sgi.com> <17551.58643.704359.815153@gargle.gargle.HOWL>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060612112309.GA14262@kestrel.barix.local>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <17551.58643.704359.815153@gargle.gargle.HOWL>; from nikita@clusterfs.com on Wed, Jun 14, 2006 at 02:29:39PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 12, 2006 at 01:23:09PM +0200, Karel Kulhavy wrote:
-> Hello
-> 
-> If I set 57600 speed on Palm 100 USB/serial adapter (USB IDs 0x830, 0x80),
-> the speed is according to oscilloscope at 19200, but the tcsetattr
-> doesn't fail and subsequent tcgetattr returns 115200.
-> 
-> If the hardware supports it, the speed should be set to 115200. If it
-> doesn't, tcgetattr should then indicate 19200.
-> 
-> Linux kernel is 2.6.16.19.
+Hi Nikita,
 
-Please send a patch to us for this, as this driver was reverse
-engineered by watching the data stream and might be wrong in places.
+On Wed, Jun 14, 2006 at 02:29:39PM +0400, Nikita Danilov wrote:
+> Sorry, but why this operation is needed? Generic code (in fs/*.c)
+> doesn't use ->i_blksize at all. If XFS wants to provide per-inode
+> st_blksize, all it has to do is to store preferred buffer size in its
+> file system specific inode (struct xfs_inode), and use something
+> different from generic_fillattr() as its ->i_op->getattr() callback
+> (xfs_vn_getattr()).
 
-thanks,
+We already do this.  The original questions were related to whether
+i_blksize and i_blkbits need to be per-inode or per-filesystem, and
+thats what I was trying to answer...
 
-greg k-h
+| 1) Move i_blksize (optimal size for I/O, reported by the stat system
+|   call).  Is there any reason why this needs to be per-inode, instead
+|   of per-filesystem?
+| 2) Move i_blkbits (blocksize for doing direct I/O in bits) to struct
+|    super.  Again, why is this per-inode?
+
+As to whether a new inode operation is useful/needed - *shrug* - not
+really my call, I was saying we can work with whatever ends up being
+the final solution, provided it keeps per-inode granularity.
+
+cheers.
+
+-- 
+Nathan

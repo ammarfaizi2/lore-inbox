@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWFNHEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWFNHZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWFNHEz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 03:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWFNHEy
+	id S1750947AbWFNHZE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 03:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWFNHZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 03:04:54 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:31677 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750940AbWFNHEy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 03:04:54 -0400
-Date: Wed, 14 Jun 2006 09:03:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: The i386 and x86_64 genirq patches are wrong!
-Message-ID: <20060614070353.GA11896@elte.hu>
-References: <m1r71t2ew8.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r71t2ew8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5820]
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 14 Jun 2006 03:25:04 -0400
+Received: from 62-99-178-133.static.adsl-line.inode.at ([62.99.178.133]:39569
+	"HELO office-m.at") by vger.kernel.org with SMTP id S1750947AbWFNHZD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 03:25:03 -0400
+In-Reply-To: <6137A58D-963C-4379-A836-DCD28C3E88EE@office-m.at>
+References: <6137A58D-963C-4379-A836-DCD28C3E88EE@office-m.at>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <24986DCE-B4DF-4A43-B6B4-C3FE2BE477F0@office-m.at>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Markus Biermaier <mbier@office-m.at>
+Subject: Re: Can't Mount CF-Card on boot of 2.6.15 Kernel on EPIA - VFS: Cannot open root device
+Date: Wed, 14 Jun 2006 09:25:00 +0200
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Eric W. Biederman <ebiederm@xmission.com> wrote:
+Am 13.06.2006 um 23:10 schrieb Markus Biermaier:
 
-> A little while ago I worked up some patches to that made x86 vectors 
-> per cpu.  Allowing x86 to handle more than 256 irqs, which 
-> significantly cleaned up the code.
-> 
-> The big stumbling block there was msi and it's totally backwards way 
-> of allocating interrupts.  Getting msi to work with irqs and not 
-> vectors is a lot of work, and very hard to make a clean patchset out 
-> of.
-
-yeah. The whole MSI irq remapping business is a total mess anyway: all 
-that trouble we do to compensate a +32 mapping offset of vectors vs. 
-irqs? Why dont we simply fix up all IRQ entry stubs to have +32, and 
-thus we'd standardize on vector metrics and be done with it. In 
-/proc/interrupts we could subtract 32 perhaps. Then MSI would be always 
-enabled and there would be no MSI #ifdefs anywhere. Am i missing 
-something?
-
-> I currently have a pending bug fix that puts move_irq in the correct 
-> place for edge and level triggered interrupts.
-> 
-> For edge triggered interrupts you must move the irq before you 
-> acknowledge the interrupt, or else it can reoccur.
+> So my "/tftpboot/pxelinux.cfg/Cxxxxxx" is:
+> ------------------------- [ BEGIN Cxxxxxx ] -------------------------
+> DEFAULT standard
+> LABEL standard
+> KERNEL vmlinuz
+> # APPEND initrd=initrd ramdisk_size=32768 root=/dev/hde1 udev  
+> acpi=off rootdelay=5
+> APPEND initrd=initrd ramdisk_size=32768 root=2101 udev acpi=off  
+> rootdelay=5
+> ------------------------- [ END   Cxxxxxx ] -------------------------
 >
-> For level triggered interrupts you must acknowledge the irq before you 
-> move it, or else the acknowledgement will never find it's way back to 
-> the irq source.
+> so the right root-string is: "root=2101".
 
-could you please send that fix to me, against whatever base you have it 
-tested on, and i'll merge it to genirq/irqchips [and fix up genirq if 
-needed]. Please also include a description of the problem. How common is 
-that edge retrigger problem, and how come this has never been seen in 
-the past years since we had irqbalance?
+Ok, the solution for *this problem* seems to be to write "root=2101".
+But why can't I write "root=/dev/hde1" as in kernel 2.4.25?
+Is this a kernel bug?
+Or have I done an error somewhere?
 
-> Previously in io_apic.c the hacks that the msi code imposed on it were 
-> clear, and many of them were enclosed in #ifdef CONFIG_PCI_MSI. Now 
-> that ifdefs are gone, and the logic in io_apic.h that selected between 
-> the versions of the irq handlers to use (vector or irq) has not been 
-> updated.
-> 
-> I don't know if the latter is actually a bug.  But it definitely makes 
-> it harder to remove the msi hacks, and io_apic.h should definitely 
-> have been updated.
+Markus
 
-here too it's hard for me to give an answer without seeing your specific 
-changes (against whatever base is most convenient to you). MSI certainly 
-works fine on current -mm. (at least on my box)
-
-	Ingo

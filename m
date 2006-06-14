@@ -1,166 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWFNADH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWFNAEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWFNADH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 20:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWFNACe
+	id S964825AbWFNAEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 20:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWFNAER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 13 Jun 2006 20:04:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:3748 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964823AbWFNACe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 13 Jun 2006 20:02:34 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:19883 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964817AbWFNACG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 20:02:06 -0400
-Subject: [PATCH 09/11] Task watchers:  Add support for per-task watchers
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
-References: <20060613235122.130021000@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 13 Jun 2006 16:55:00 -0700
-Message-Id: <1150242901.21787.149.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+From: Neil Brown <neilb@suse.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Date: Wed, 14 Jun 2006 10:02:16 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17551.21000.94210.883031@cse.unsw.edu.au>
+Cc: Bernd Petrovitsch <bernd@firmix.at>, David Schwartz <davids@webmaster.com>,
+       LKML Kernel <linux-kernel@vger.kernel.org>, jdow <jdow@earthlink.net>
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+In-Reply-To: message from Kyle Moffett on Monday June 12
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com>
+	<193701c68d16$54cac690$0225a8c0@Wednesday>
+	<1150100286.26402.13.camel@tara.firmix.at>
+	<AC44C19E-109F-4DD4-933E-B641BF3BF9CB@mac.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This introduces a second, per-task, blocking notifier chain. The per-task
-chain offers watchers the chance to register with a specific task nstead of
-all tasks. It also allows the watcher to associate a block of data with the task
-by wrapping the notifier block using containerof().
+On Monday June 12, mrmacman_g4@mac.com wrote:
+> On Jun 12, 2006, at 04:18:06, Bernd Petrovitsch wrote:
+> > No. SPF simply defines legitimate outgoing MTAs for a given domain.
+> 
+> I'm sorry, but the internet just doesn't work that way.  I have 3  
+> email accounts (mac.com, vt.edu, and cox.net).  Both my college and  
+> my house deny all SMTP to anyone but their local servers.  If mac.com  
+> published an SPF filter and VGER used the SPF filter, I would have no  
+> way at all to send mail via this account, simply for the reason that  
+> neither of my local ISPs will allow my to directly send email to  
+> mac.com.  Likewise for my vt.edu account while at home or my cox.net  
+> account while at college.
 
-Both the global, all-tasks chain and the per-task chain are called from the samefunction. The two types of chains share the same set of notification
-values, however registration functions and the registered notifier blocks must
-be separate.
+But I'm sure if that happened you could find a way.
+The 'best' way would be for mac.com (and everyone else) to accept mail
+submission (and only authenticated mail submission) on the
+'submission' port (which is an IETF standard RFC2476).
+Then port-25 blocking wouldn't be a problem for you.
 
-These notifiers are only safe if notifier blocks are registered with the current
-task while in the context of the current task. This ensures that there are no
-races between registration, unregistration, and notification.
+Now, it could be that SPF might become a standards-track RFC.  And if
+it did (may not be likely, but should be seen as possible as a lot of
+people are pushing despite the fact that many push back) then people
+would feel justified in implementing it and you might start to find
+your mail isn't getting through.
 
-Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
-Cc: Jes Sorensen <jes@sgi.com>
-Cc: Chandra S. Seetharaman <sekharan@us.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
---
+So if you want to be sure of continued access to your mac.com mail
+address, I would suggest you try lobbying the mac.com admins to
+support 'submission' (I notice it doesn't currently).  Then you can
+start using 'submission' to submit mail.  And you can use exactly the
+same mail configuration no matter what ISP you are talking through,
+and you will be ready in case the crazy loons out there do manage to
+convince IETF to move SPF to the standards-track.
 
- include/linux/init_task.h |    2 ++
- include/linux/notifier.h  |    2 ++
- include/linux/sched.h     |    2 ++
- kernel/sys.c              |   30 +++++++++++++++++++++++++++++-
- 4 files changed, 35 insertions(+), 1 deletion(-)
+		  Don't be held hostage by your ISP.
+	   Insist on using 'submission' for mail submission.
 
-Index: linux-2.6.17-rc6-mm2/include/linux/sched.h
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/include/linux/sched.h
-+++ linux-2.6.17-rc6-mm2/include/linux/sched.h
-@@ -996,10 +996,12 @@ struct task_struct {
- 	struct futex_pi_state *pi_state_cache;
- 
- 	atomic_t fs_excl;	/* holding fs exclusive resources */
- 	struct rcu_head rcu;
- 
-+	struct raw_notifier_head notify; /* generic per-task notifications */
-+
- 	/*
- 	 * cache last used pipe for splice
- 	 */
- 	struct pipe_inode_info *splice_pipe;
- #ifdef	CONFIG_TASK_DELAY_ACCT
-Index: linux-2.6.17-rc6-mm2/include/linux/init_task.h
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/include/linux/init_task.h
-+++ linux-2.6.17-rc6-mm2/include/linux/init_task.h
-@@ -3,10 +3,11 @@
- 
- #include <linux/file.h>
- #include <linux/rcupdate.h>
- #include <linux/utsname.h>
- #include <linux/interrupt.h>
-+#include <linux/notifier.h>
- 
- #define INIT_FDTABLE \
- {							\
- 	.max_fds	= NR_OPEN_DEFAULT, 		\
- 	.max_fdset	= EMBEDDED_FD_SET_SIZE,		\
-@@ -134,10 +135,11 @@ extern struct group_info init_groups;
- 	.alloc_lock	= __SPIN_LOCK_UNLOCKED(tsk.alloc_lock),		\
- 	.journal_info	= NULL,						\
- 	.cpu_timers	= INIT_CPU_TIMERS(tsk.cpu_timers),		\
- 	.fs_excl	= ATOMIC_INIT(0),				\
- 	.pi_lock	= SPIN_LOCK_UNLOCKED,				\
-+	.notify		= RAW_NOTIFIER_INIT(tsk.notify),		\
-  	INIT_TRACE_IRQFLAGS						\
-  	INIT_LOCKDEP							\
- }
- 
-
-Index: linux-2.6.17-rc6-mm2/kernel/sys.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/kernel/sys.c
-+++ linux-2.6.17-rc6-mm2/kernel/sys.c
-@@ -450,13 +450,41 @@ int unregister_task_watcher(struct notif
- 	return blocking_notifier_chain_unregister(&task_watchers, nb);
- }
- 
- EXPORT_SYMBOL_GPL(unregister_task_watcher);
- 
-+static inline int notify_per_task_watchers(unsigned int val,
-+					   struct task_struct *task)
-+{
-+	if (get_watch_event(val) != WATCH_TASK_INIT)
-+		return raw_notifier_call_chain(&task->notify, val, task);
-+	RAW_INIT_NOTIFIER_HEAD(&task->notify);
-+	if (task->real_parent)
-+		return raw_notifier_call_chain(&task->real_parent->notify,
-+		   			       val, task);
-+}
-+
-+int register_per_task_watcher(struct notifier_block *nb)
-+{
-+	return raw_notifier_chain_register(&current->notify, nb);
-+}
-+EXPORT_SYMBOL_GPL(register_per_task_watcher);
-+
-+int unregister_per_task_watcher(struct notifier_block *nb)
-+{
-+	return raw_notifier_chain_unregister(&current->notify, nb);
-+}
-+EXPORT_SYMBOL_GPL(unregister_per_task_watcher);
-+
- int notify_watchers(unsigned long val, void *v)
- {
--	return blocking_notifier_call_chain(&task_watchers, val, v);
-+	int retval;
-+
-+	retval = blocking_notifier_call_chain(&task_watchers, val, v);
-+	if (retval & NOTIFY_STOP_MASK)
-+		return retval;
-+	return notify_per_task_watchers(val, v);
- }
- 
-
- static int set_one_prio(struct task_struct *p, int niceval, int error)
- {
-Index: linux-2.6.17-rc6-mm2/include/linux/notifier.h
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/include/linux/notifier.h
-+++ linux-2.6.17-rc6-mm2/include/linux/notifier.h
-@@ -154,10 +154,12 @@ extern int raw_notifier_call_chain(struc
- #define CPU_DOWN_FAILED		0x0006 /* CPU (unsigned)v NOT going down */
- #define CPU_DEAD		0x0007 /* CPU (unsigned)v dead */
- 
- extern int register_task_watcher(struct notifier_block *nb);
- extern int unregister_task_watcher(struct notifier_block *nb);
-+extern int register_per_task_watcher(struct notifier_block *nb);
-+extern int unregister_per_task_watcher(struct notifier_block *nb);
- #define WATCH_FLAGS_MASK		((-1) ^ 0x0FFFFUL)
- #define get_watch_event(v)		({ ((v) & ~WATCH_FLAGS_MASK); })
- #define get_watch_flags(v) 		({ ((v) & WATCH_FLAGS_MASK); })
- 
- #define WATCH_TASK_INIT			0x00000001 /* initialize task_struct */
-
---
-
+NeilBrown

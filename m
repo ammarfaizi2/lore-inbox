@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWFNUZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWFNUi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWFNUZE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 16:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWFNUZE
+	id S932255AbWFNUi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 16:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWFNUi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 16:25:04 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:8122 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751145AbWFNUZC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 16:25:02 -0400
-Date: Wed, 14 Jun 2006 22:24:26 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: =?iso-8859-1?q?Pablo=20Barb=E1chano?= <pablobarbachano@yahoo.es>
-cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: loop devices removable
-In-Reply-To: <20060614152232.17933.qmail@web26012.mail.ukl.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0606142117001.16397@be1.lrz>
-References: <20060614152232.17933.qmail@web26012.mail.ukl.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+	Wed, 14 Jun 2006 16:38:29 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:63897 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932255AbWFNUi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 16:38:29 -0400
+Date: Wed, 14 Jun 2006 17:38:24 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: gregkh@suse.de, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Serial-Core: USB-Serial port current issues.
+Message-ID: <20060614173824.60d1bc2e@doriath.conectiva>
+In-Reply-To: <20060614152809.GA17432@flint.arm.linux.org.uk>
+References: <20060613192829.3f4b7c34@home.brethil>
+	<20060614152809.GA17432@flint.arm.linux.org.uk>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.2.3 (GTK+ 2.9.2; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jun 2006, Pablo Barbáchano wrote:
->  --- Bodo Eggert <7eggert@elstempel.de> escribió:
-> > Pablo Barbachano <pablobarbachano@yahoo.es> wrote:
+On Wed, 14 Jun 2006 16:28:09 +0100
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-> > [loop devices]
-> > 
-> > > The (probably broken) reason I want to do that is so I can use (my
-> > > modified) pmount to mount them.
-> > 
-> > I'm wondering if fuse would be suited better. I did not yet experiment
-> > with that, but it seems it has everything you need.
-> 
-> There is something based on FUSE:
-> http://lwn.net/Articles/173617/
-> 
-> Which involves UML... doesn't seem a good option to me...
+| On Tue, Jun 13, 2006 at 07:28:29PM -0300, Luiz Fernando N. Capitulino wrote:
+| >  I took a look in the Serial Core code and didn't see why set_termios()
+| > and break_ctl() (plus tx_empty()) are not allowed to sleep: they doesn't
+| > seem to run in atomic context. So, are they allowed to sleep? Isn't the
+| > documentation out of date? I've even submitted a patch to fix it [2].
+| 
+| You are correct - and I will eventually apply your patch.  At the
+| moment, I'm throttling back on applying patches so that 2.6.17 can
+| finally appear (I don't want to be responsible for Linus saying
+| again "too many changes for -final, let's do another -rc".)
 
-I just tried it out, and fuse/uml seems it works out-of-the-box (using a
-simple mount-like command) while preventing the user from crashing the
-kernel "using" a corrupt fs image. If you rename the mountlo program to 
-"mount" and put it un the user's path, they won't notice they're using 
-fuse at all, except for not honoring fstab. (Off cause /sbin must come 
-before /usr/local/bin in root's path!)
+ Oh, ok, no worries.
+
+| >  For get_mctrl() and set_mctrl() it seems possible to switch from a
+| > spinlock to a mutex, as they are not called from an interrupt context.
+| > Is this really possible? Would you agree with this change?
+| 
+| I don't know - that depends whether the throttle/unthrottle driver
+| methods are ever called from interrupt context or not.
+| 
+| What we could do is put a WARN_ON() or might_sleep() in there and
+| find out over time if they are called from non-process context.
+
+ I think BUG_ON(in_interrupt()) does the job. I'll try it here, and
+if it doesn't trigger I'll submit a patch to Andrew only for
+testing porpuses (ie, not for mainline).
+
+ Thanks a lot for the feedback, Russell.
 
 -- 
-Top 100 things you don't want the sysadmin to say:
-39. It is only a minor upgrade, the system should be back up in
-    a few hours.  ( This is said on a monday afternoon.)
+Luiz Fernando N. Capitulino

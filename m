@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWFNFNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWFNFO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbWFNFNI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWFNFNI
+	id S964873AbWFNFO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWFNFO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:13:08 -0400
-Received: from xenotime.net ([66.160.160.81]:23700 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964877AbWFNFNG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:13:06 -0400
-Date: Tue, 13 Jun 2006 22:15:52 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andi Kleen <ak@suse.de>
-Cc: tadavis@lbl.gov, linux-kernel@vger.kernel.org
-Subject: Re: Athlon CPU detection/fixup is broken in 2.6.2-rc2
-Message-Id: <20060613221552.6ab46ac6.rdunlap@xenotime.net>
-In-Reply-To: <p73odwwqq7c.fsf@verdi.suse.de>
-References: <401ACA49.8070002@lbl.gov>
-	<p73odwwqq7c.fsf@verdi.suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jun 2006 01:14:57 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:34779 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S964873AbWFNFO4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 01:14:56 -0400
+Date: Wed, 14 Jun 2006 07:14:27 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: [patch] s390: missing ifdef in bitops.h
+Message-ID: <20060614051427.GA9442@osiris.boeblingen.de.ibm.com>
+References: <20060613120916.GA9405@osiris.boeblingen.de.ibm.com> <1150211828.2844.20.camel@hades.cambridge.redhat.com> <200606132233.07830.arnd@arndb.de> <1150231176.11159.110.camel@shinybook.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150231176.11159.110.camel@shinybook.infradead.org>
+User-Agent: mutt-ng/devel-r802 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Jun 2006 07:08:39 +0200 Andi Kleen wrote:
-
-> Thomas Davis <tadavis@lbl.gov> writes:
+On Tue, Jun 13, 2006 at 10:39:36PM +0100, David Woodhouse wrote:
+> On Tue, 2006-06-13 at 22:33 +0200, Arnd Bergmann wrote:
+> > I'd suggest using only one version. In doubt, I would move the parisc
+> > version to asm-generic/fd_set.h or similar and include that from
+> > everywhere. 
 > 
-> > I looked in the Changelog - who changed it?
-> > 
-> > It doesn't work on my dual athlon 2200 MP system - kills it dead.
-> > 
-> > I can get 2.6.2-rc1 to boot.
-> 
-> Very vague report. Modern kernel like 2.6.16 doesn't work? And where
-> does it crash exactly and in what way?
-> 
-> If you got it down to that release with binary search can you identify the
-> exact changeset that caused the problem? 
+> That makes sense. It's not _entirely_ trivial though, so I don't want to
+> do it in my hdrcleanup-2.6.git tree. I'll leave it for later.
 
-Uhm, I admit that I ignored it given the kernel version and
-date:
-Date:	Fri, 30 Jan 2004 13:19:05 -0800
-
----
-~Randy
+In that case it would be good to get Cedric's bitops patch merged, since it
+fixes compilation.

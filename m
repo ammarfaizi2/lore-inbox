@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWFNF2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWFNFeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWFNF2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWFNF2x
+	id S964876AbWFNFeS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWFNFeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:28:53 -0400
-Received: from zcars04e.nortel.com ([47.129.242.56]:59618 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S964889AbWFNF2v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:28:51 -0400
-Message-ID: <448F9E8A.1070608@nortel.com>
-Date: Tue, 13 Jun 2006 23:28:42 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
+	Wed, 14 Jun 2006 01:34:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:12483 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964876AbWFNFeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 01:34:17 -0400
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] x86_64 apic.h cpu_relax() (was: [RFC -mm] more cpu_relax() places?)
+References: <20060612183743.GA28610@rhlx01.fht-esslingen.de>
+	<20060613195430.GC24167@rhlx01.fht-esslingen.de>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Jun 2006 07:34:07 +0200
+In-Reply-To: <20060613195430.GC24167@rhlx01.fht-esslingen.de>
+Message-ID: <p73k67kqp0w.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-CC: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <20060613140716.6af45bec@localhost.localdomain> <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com> <20060613154031.A6276@openss7.org> <Pine.LNX.4.64.0606131655580.4856@turbotaz.ourhouse> <448F967A.8070801@ens-lyon.org>
-In-Reply-To: <448F967A.8070801@ens-lyon.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jun 2006 05:28:46.0544 (UTC) FILETIME=[6897FD00:01C68F73]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin wrote:
+Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
 
-> What about GPL modules that don't want to get merged ? I don't know any
-> such module that could use this API. But at least there are some webcam
-> drivers that don't seem to want to be merged (I don't know why).
+> Hi all,
+> 
+> On Mon, Jun 12, 2006 at 08:37:43PM +0200, Andreas Mohr wrote:
+> > Hi all,
+> > 
+> > while reviewing 2.6.17-rc6-mm1, I found some places that might
+> > want to make use of cpu_relax() in order to not block secondary
+> > pipelines while busy-polling (probably especially useful on SMT CPUs):
+> 
+> Patch no. 3 of 3.
+> 
+> This one is adding a cpu_relax() that already existed in the i386 version.
+> Any reason this wasn't there, too?
+> 
+> Signed-off-by: Andreas Mohr <andi@lisas.de>
 
-There are valid reasons for GPL code to not be merged into mainline.
+I merged the patch thanks.
 
-I (and I'm sure there are others) work on GPL modules/patches that have 
-no hope of making it into mainline because they're too specialized. 
-Custom netfilter modules, drivers for special hardware, scheduler 
-changes, additional instrumentation, etc.
-
-Plus, we're usually working on a stabilized older version, so it's a lot 
-of extra work to regenerate it against current versions to even try and 
-merge it.
-
-The source all goes to the customer but it just wouldn't make sense to 
-have it in mainline.
-
-So the "churn mainline to punish out-of-tree code" argument doesn't make 
-sense to me.  If there's a good reason for the change, then go for 
-it--but change just to make it hard for out of tree code is simply annoying.
-
-Chris
+-Andi

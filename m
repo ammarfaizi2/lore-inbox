@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWFNVeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWFNVjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWFNVeu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 17:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWFNVeu
+	id S932373AbWFNVjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 17:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWFNVjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 17:34:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3345 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S932362AbWFNVet (ORCPT
+	Wed, 14 Jun 2006 17:39:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63458 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932373AbWFNVjJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 17:34:49 -0400
-Date: Wed, 14 Jun 2006 21:34:31 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Matthew Frost <artusemrys@sbcglobal.net>,
-       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060614213431.GF4950@ucw.cz>
-References: <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org> <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org> <20060612220605.GD4950@ucw.cz> <986ed62e0606140731u4c42a2adv42c072bf270e4874@mail.gmail.com>
+	Wed, 14 Jun 2006 17:39:09 -0400
+Date: Tue, 13 Jun 2006 22:22:24 -0700
+From: Greg KH <greg@kroah.com>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Incorrect speed at Palm 100 serial adapter
+Message-ID: <20060614052224.GA19140@kroah.com>
+References: <20060612112309.GA14262@kestrel.barix.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <986ed62e0606140731u4c42a2adv42c072bf270e4874@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060612112309.GA14262@kestrel.barix.local>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >Please don't. AFAIK, ext2/3 is only filesystem with 
-> >working fsck
-> >(because that fsck was actually needed in the old 
-> >days). Starting from
-> >xfs/jfs/reiser/??? means we no longer have working 
-> >fsck...
+On Mon, Jun 12, 2006 at 01:23:09PM +0200, Karel Kulhavy wrote:
+> Hello
 > 
-> Er, what do you mean by "working fsck"?
+> If I set 57600 speed on Palm 100 USB/serial adapter (USB IDs 0x830, 0x80),
+> the speed is according to oscilloscope at 19200, but the tcsetattr
+> doesn't fail and subsequent tcgetattr returns 115200.
+> 
+> If the hardware supports it, the speed should be set to 115200. If it
+> doesn't, tcgetattr should then indicate 19200.
+> 
+> Linux kernel is 2.6.16.19.
 
-Passes 8 hours of me trying to intentionally break it with weird,
-artifical disk corruption.
+Please send a patch to us for this, as this driver was reverse
+engineered by watching the data stream and might be wrong in places.
 
-I even have script somewhere.
+thanks,
 
-> Unless I'm misunderstanding something, JFS also has a 
-> working fsck
-> (which has actually performed successful repair of 
-> real-world
-> filesystem corruption for me, although I haven't used it 
-> as much as
-> e2fsck or xfs_repair).
-
-...like, if it repaired 100 different, non-trivial corruptions, that
-would be argument.
-
-fsck.ext2 survives my torture (in some versions). fsck.vfat never
-worked for me (likes to segfault), fsck.reiser never worked for me.
-
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+greg k-h

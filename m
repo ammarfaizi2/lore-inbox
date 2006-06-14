@@ -1,37 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWFNFJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWFNFL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWFNFJu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWFNFJu
+	id S964871AbWFNFL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWFNFL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:09:50 -0400
-Received: from mail.gmx.de ([213.165.64.21]:41190 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964865AbWFNFJt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:09:49 -0400
-X-Authenticated: #14349625
-Subject: RE: process starvation with 2.6 scheduler
-From: Mike Galbraith <efault@gmx.de>
-To: Kallol Biswas <Kallol_Biswas@pmc-sierra.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       Radjendirane Codandaramane 
-	<Radjendirane_Codandaramane@pmc-sierra.com>
-In-Reply-To: <478F19F21671F04298A2116393EEC3D531CEA4@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-References: <478F19F21671F04298A2116393EEC3D531CEA4@sjc1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-Content-Type: text/plain
-Date: Wed, 14 Jun 2006 07:13:17 +0200
-Message-Id: <1150261998.8611.14.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 14 Jun 2006 01:11:27 -0400
+Received: from 066-241-084-054.bus.ashlandfiber.net ([66.241.84.54]:50315 "EHLO
+	bigred.russwhit.org") by vger.kernel.org with ESMTP id S964873AbWFNFL0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 01:11:26 -0400
+Date: Tue, 13 Jun 2006 22:09:19 -0700 (PDT)
+From: Russell Whitaker <russ@ashlandhome.net>
+X-X-Sender: russ@bigred.russwhit.org
+To: Willy Tarreau <w@1wt.eu>
+cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, Avuton Olrich <avuton@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16.19 + gcc-4.1.1
+In-Reply-To: <20060614042007.GD13255@w.ods.org>
+Message-ID: <Pine.LNX.4.63.0606132153100.2373@bigred.russwhit.org>
+References: <Pine.LNX.4.63.0606131906230.2368@bigred.russwhit.org>
+ <3aa654a40606132049u43f81ee1m263ee15666246152@mail.gmail.com>
+ <448F8C53.5010406@ens-lyon.org> <20060614042007.GD13255@w.ods.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-13 at 16:03 -0700, Kallol Biswas wrote:
-> It seems that with the priority set to 19 the netserver processes do not starve but still we have unfair scheduling issue. The netperf clients do not timeout now but one of the servers runs much less than the other. It seems that thorough understanding of scheduling algorithm is essential at this point.
 
-Are the clients all on one box?
 
-	-Mike
+On Wed, 14 Jun 2006, Willy Tarreau wrote:
 
+> On Wed, Jun 14, 2006 at 12:10:59AM -0400, Brice Goglin wrote:
+>> Avuton Olrich wrote:
+>>> On 6/13/06, Russell Whitaker <russ@ashlandhome.net> wrote:
+>>>> Then, after mrproper, rebuilt with gcc-4.1.1, no other changes.
+>>>>    compiles ok, installs ok. But, when attempting to load a module, get
+>>>>    the following message:  version magic '2.6.16.19via K6 gcc-4.1',
+>>>>    should be '2.6.16.19via 486 gcc-3.3'
+>>>
+>>> You may have forgotten to "make modules modules_install"
+>>
+>> Actually, "make modules" does not exist anymore with 2.6. Both built-in
+>> and modular stuff are built at the same time.
+>> Only "make modules_install" is still required.
+>
+> What's this bullshit ?
+>
+> $ grep ^modules: Makefile
+> modules: $(vmlinux-dirs) $(if $(KBUILD_BUILTIN),vmlinux)
+> modules: $(module-dirs)
+>
+> Avuton is right, you *have* forgotten to make modules.
+>
+>> Brice
+>
+> Willy
+>
+After found the above problem, did it all again to be sure:
+
+   make mrproper
+   rm -r /lib/modules/*
+   cp ../config-2.6.16.19 .config
+   make menuconfig    ( made sure it's same config, then saved without
+                        changes )
+   make
+   make modules
+   make modules_install
+   make bzlilo
+
+Same result.
+   russ

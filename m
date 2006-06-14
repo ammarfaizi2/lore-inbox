@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWFNUi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWFNUxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWFNUi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 16:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWFNUi3
+	id S932300AbWFNUxF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 16:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWFNUxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 16:38:29 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:63897 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932255AbWFNUi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 16:38:29 -0400
-Date: Wed, 14 Jun 2006 17:38:24 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: gregkh@suse.de, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Serial-Core: USB-Serial port current issues.
-Message-ID: <20060614173824.60d1bc2e@doriath.conectiva>
-In-Reply-To: <20060614152809.GA17432@flint.arm.linux.org.uk>
-References: <20060613192829.3f4b7c34@home.brethil>
-	<20060614152809.GA17432@flint.arm.linux.org.uk>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.2.3 (GTK+ 2.9.2; i586-mandriva-linux-gnu)
+	Wed, 14 Jun 2006 16:53:05 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:31439 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932292AbWFNUxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 16:53:04 -0400
+Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
+From: Sridhar Samudrala <sri@us.ibm.com>
+To: Daniel Phillips <phillips@google.com>, davem@davemloft.net
+Cc: Harald Welte <laforge@gnumonks.org>, bidulock@openss7.org,
+       Stephen Hemminger <shemminger@osdl.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44904C08.6020307@google.com>
+References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com>
+	 <20060613140716.6af45bec@localhost.localdomain>
+	 <20060613052215.B27858@openss7.org> <448F2A49.5020809@google.com>
+	 <20060614133022.GU11863@sunbeam.de.gnumonks.org>
+	 <44904C08.6020307@google.com>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 13:52:16 -0700
+Message-Id: <1150318336.20846.22.camel@w-sridhar2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jun 2006 16:28:09 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Wed, 2006-06-14 at 10:48 -0700, Daniel Phillips wrote:
 
-| On Tue, Jun 13, 2006 at 07:28:29PM -0300, Luiz Fernando N. Capitulino wrote:
-| >  I took a look in the Serial Core code and didn't see why set_termios()
-| > and break_ctl() (plus tx_empty()) are not allowed to sleep: they doesn't
-| > seem to run in atomic context. So, are they allowed to sleep? Isn't the
-| > documentation out of date? I've even submitted a patch to fix it [2].
-| 
-| You are correct - and I will eventually apply your patch.  At the
-| moment, I'm throttling back on applying patches so that 2.6.17 can
-| finally appear (I don't want to be responsible for Linus saying
-| again "too many changes for -final, let's do another -rc".)
+> 
+> Did we settle the question of whether these particular exports should be
+> EXPORT_SYMBOL_GPL?
 
- Oh, ok, no worries.
+When i submitted this patch, i didn't really think about the different
+ways to export these symbols. I simply used the EXPORT_SYMBOL() that is 
+used by all the other exports in net/socket.c including kernel_sendmsg()
+and kernel_recvmsg().
 
-| >  For get_mctrl() and set_mctrl() it seems possible to switch from a
-| > spinlock to a mutex, as they are not called from an interrupt context.
-| > Is this really possible? Would you agree with this change?
-| 
-| I don't know - that depends whether the throttle/unthrottle driver
-| methods are ever called from interrupt context or not.
-| 
-| What we could do is put a WARN_ON() or might_sleep() in there and
-| find out over time if they are called from non-process context.
+I am OK with either option(EXPORT_SYMBOL or EXPORT_SYMBOL_GPL) and i will
+leave it to David Miller to make that decision at this point.
 
- I think BUG_ON(in_interrupt()) does the job. I'll try it here, and
-if it doesn't trigger I'll submit a patch to Andrew only for
-testing porpuses (ie, not for mainline).
+Thanks
+Sridhar
 
- Thanks a lot for the feedback, Russell.
-
--- 
-Luiz Fernando N. Capitulino

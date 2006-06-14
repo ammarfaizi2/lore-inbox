@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWFNN7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWFNOAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWFNN7n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 09:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWFNN7n
+	id S964948AbWFNOAk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 10:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWFNOAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 09:59:43 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:41012 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964947AbWFNN7m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 09:59:42 -0400
-Message-ID: <44901647.4030205@openvz.org>
-Date: Wed, 14 Jun 2006 17:59:35 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Wed, 14 Jun 2006 10:00:40 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:8237 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S964950AbWFNOAi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 10:00:38 -0400
+Date: Wed, 14 Jun 2006 16:00:38 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [patch 8/24] s390: __syscall_return error check.
+Message-ID: <20060614140038.GI9475@skybase>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Return error in case flock_lock_file failure
-Content-Type: multipart/mixed;
- boundary="------------080502020109030409080308"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080502020109030409080308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-If flock_lock_file() failed to allocate flock with locks_alloc_lock()
-then "error = 0" is returned. Need to return some non-zero.
+[S390] __syscall_return error check.
 
-Signed-Off-By: Pavel Emelianov <xemul@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+Fix __syscall_return macro: valid error numbers are in the range
+of -1..-4095.
 
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
 
---------------080502020109030409080308
-Content-Type: text/plain;
- name="diff-ms-flock-lock-file-err-20060605"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ms-flock-lock-file-err-20060605"
+ include/asm-s390/unistd.h |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
 
---- ./fs/locks.c.flfix	2006-06-05 12:09:42.000000000 +0400
-+++ ./fs/locks.c	2006-06-05 12:27:20.000000000 +0400
-@@ -705,6 +705,7 @@ static int flock_lock_file(struct file *
- 	if (request->fl_type == F_UNLCK)
- 		goto out;
+diff -urpN linux-2.6/include/asm-s390/unistd.h linux-2.6-patched/include/asm-s390/unistd.h
+--- linux-2.6/include/asm-s390/unistd.h	2006-06-14 14:29:24.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/unistd.h	2006-06-14 14:29:41.000000000 +0200
+@@ -392,11 +392,9 @@
  
-+	error = -ENOMEM;
- 	new_fl = locks_alloc_lock();
- 	if (new_fl == NULL)
- 		goto out;
-@@ -731,6 +732,7 @@ static int flock_lock_file(struct file *
- 	locks_copy_lock(new_fl, request);
- 	locks_insert_lock(&inode->i_flock, new_fl);
- 	new_fl = NULL;
-+	error = 0;
+ #endif
  
- out:
- 	unlock_kernel();
-
-
---------------080502020109030409080308--
+-/* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
+-
+ #define __syscall_return(type, res)			     \
+ do {							     \
+-	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
++	if ((unsigned long)(res) >= (unsigned long)(-4095)) {\
+ 		errno = -(res);				     \
+ 		res = -1;				     \
+ 	}						     \

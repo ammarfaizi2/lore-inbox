@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWFNXwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbWFNXz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbWFNXwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 19:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWFNXwN
+	id S965046AbWFNXz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 19:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWFNXz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 19:52:13 -0400
-Received: from tomts22.bellnexxia.net ([209.226.175.184]:51330 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S965043AbWFNXwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 19:52:12 -0400
-Mime-Version: 1.0 (Apple Message framework v750)
+	Wed, 14 Jun 2006 19:55:58 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:28638 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S965046AbWFNXz5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 19:55:57 -0400
+Subject: Re: sharp zaurus sl-5500 (collie): touchscreen now works
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       metan@seznam.cz, arminlitzel@web.de
+In-Reply-To: <20060614232814.GJ7751@elf.ucw.cz>
+References: <20060610202541.GA26697@elf.ucw.cz>
+	 <1150139307.5376.56.camel@localhost.localdomain>
+	 <20060614232814.GJ7751@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 15 Jun 2006 00:55:41 +0100
+Message-Id: <1150329342.9240.38.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <A6F7DE24-36C7-4FDB-AB2A-2C63478F0D0A@smarttech.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Gord Peters <GordPeters@smarttech.com>
-Subject: SATA: Marvell 88SE6141 support?
-Date: Wed, 14 Jun 2006 19:52:10 -0400
-X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2006-06-15 at 01:28 +0200, Pavel Machek wrote:
+> > MMC/SD is more of a problem. There is one person with the specs who
+> > could write the driver but he can't pass them to anyone else :-(.
+> 
+> Did we ever have working MMC with open-source drivers (on collie)? I
+> thought we had MMC but not SD...
 
-I was just wondering what the status of development is in regard to  
-support for the Marvell 88SE6141 (ie. mv61xx) SATA-II controller is?   
-This particular controller is included on the Asus P5WD2-E Premium  
-motherboard.
+No open source driver for MMC or SD exists for collie and never has.
 
-I checked the mailing list archives, linux-ata.org, and also grepped  
-through drivers/scsi/sata_mv.c in the 2.6.16 source (and the latest  
-2.6.17 patches), but I could not find any mention of this particular  
-chipset anywhere, so I'm hoping that this isn't a redundant question.
-
-Thanks,
-	Gord
-
-PS. I'm not subscribed to the Linux kernel mailing list, so please CC  
-me directly on any responses.
+Richard
 

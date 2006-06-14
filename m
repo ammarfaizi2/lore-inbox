@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWFNVY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWFNVeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWFNVY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 17:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWFNVY3
+	id S932376AbWFNVeu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 17:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWFNVeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 17:24:29 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:64713 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932357AbWFNVY2 (ORCPT
+	Wed, 14 Jun 2006 17:34:50 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3345 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S932362AbWFNVet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 17:24:28 -0400
-Date: Thu, 15 Jun 2006 05:24:29 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [RFC][PATCH] Avoid race w/ posix-cpu-timer and exiting tasks
-Message-ID: <20060615012429.GA16951@oleg>
-References: <20060614024909.GA563@oleg> <1150239945.5799.14.camel@cog.beaverton.ibm.com>
+	Wed, 14 Jun 2006 17:34:49 -0400
+Date: Wed, 14 Jun 2006 21:34:31 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Matthew Frost <artusemrys@sbcglobal.net>,
+       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060614213431.GF4950@ucw.cz>
+References: <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org> <448997FA.50109@garzik.org> <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org> <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org> <20060612220605.GD4950@ucw.cz> <986ed62e0606140731u4c42a2adv42c072bf270e4874@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1150239945.5799.14.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <986ed62e0606140731u4c42a2adv42c072bf270e4874@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/13, john stultz wrote:
->
-> The tsk->signal check from the patch above looks like it would avoid
-> this as well. Is there a specific benefit to checking that over
-> exit_state?
+Hi!
 
-->exit_state is protected by tasklist_lock, and it would be nice to
-avoid it in run_posix_cpu_timers(). (I guess we could remove it right
-now, but I forgot the code). Yes, currently it doesn't matter because
-tsk == current.
+> >Please don't. AFAIK, ext2/3 is only filesystem with 
+> >working fsck
+> >(because that fsck was actually needed in the old 
+> >days). Starting from
+> >xfs/jfs/reiser/??? means we no longer have working 
+> >fsck...
+> 
+> Er, what do you mean by "working fsck"?
 
-Personally I dislike the testing of ->exit_state != 0 because unlike
-PF_EXITING or ->sighand/->signal it is changed from 0 to 1 in the middle
-of do_exit() path. Imho it should be used only by do_exit/do_wait path,
-but maybe this is just me.
+Passes 8 hours of me trying to intentionally break it with weird,
+artifical disk corruption.
 
-Btw, I think there is another problem,
+I even have script somewhere.
 
-	check_process_timers:
+> Unless I'm misunderstanding something, JFS also has a 
+> working fsck
+> (which has actually performed successful repair of 
+> real-world
+> filesystem corruption for me, although I haven't used it 
+> as much as
+> e2fsck or xfs_repair).
 
-			t = tsk;
-			do {
+...like, if it repaired 100 different, non-trivial corruptions, that
+would be argument.
 
-				...
-				
-				do {
-					t = next_thread(t);
-				} while (unlikely(t->flags & PF_EXITING));
-			} while (t != tsk);
+fsck.ext2 survives my torture (in some versions). fsck.vfat never
+worked for me (likes to segfault), fsck.reiser never worked for me.
 
-
-This can hang if the local timer interrupt happens right after do_exit()
-sets PF_EXITING ?
-
-Oleg.
-
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

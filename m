@@ -1,194 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWFNBqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWFNCFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWFNBqz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 21:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWFNBqy
+	id S964890AbWFNCFG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 22:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWFNCFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 21:46:54 -0400
-Received: from xenotime.net ([66.160.160.81]:39873 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932394AbWFNBqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 21:46:54 -0400
-Date: Tue, 13 Jun 2006 18:49:39 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, Matt_Domsch@dell.com
-Subject: [PATCH 3/3] kernel-doc for lib//crc*.c
-Message-Id: <20060613184939.9ff70040.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 13 Jun 2006 22:05:06 -0400
+Received: from brain.cel.usyd.edu.au ([129.78.24.68]:43742 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S964890AbWFNCFE (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 22:05:04 -0400
+Message-Id: <5.1.1.5.2.20060614120412.04756d50@brain.sedal.usyd.edu.au>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 14 Jun 2006 12:04:59 +1000
+To: linux-Kernel@vger.kernel.org
+From: sena seneviratne <auntvini@cel.usyd.edu.au>
+Subject: Testing the Performance of the Linux kernel 2.4.19
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Dear Friends,
+Robin Holt,
 
-Make kernel-doc corrections & additions to lib/crc*.c.
-Add crc functions to kernel-api.tmpl in DocBook.
+I have changed the linux 2.4.19 kernel by few lines.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/DocBook/kernel-api.tmpl |    6 +++
- lib/crc-ccitt.c                       |    6 +--
- lib/crc16.c                           |   10 +++---
- lib/crc32.c                           |   54 +++++++++++++---------------------
- 4 files changed, 36 insertions(+), 40 deletions(-)
+This has been done as part of a large research project in grid computing.
 
---- linux-2617-rc6.orig/lib/crc16.c
-+++ linux-2617-rc6/lib/crc16.c
-@@ -47,12 +47,12 @@ u16 const crc16_table[256] = {
- EXPORT_SYMBOL(crc16_table);
- 
- /**
-- * Compute the CRC-16 for the data buffer
-+ * crc16 - compute the CRC-16 for the data buffer
-+ * @crc:	previous CRC value
-+ * @buffer:	data pointer
-+ * @len:	number of bytes in the buffer
-  *
-- * @param crc     previous CRC value
-- * @param buffer  data pointer
-- * @param len     number of bytes in the buffer
-- * @return        the updated CRC value
-+ * Returns the updated CRC value.
-  */
- u16 crc16(u16 crc, u8 const *buffer, size_t len)
- {
---- linux-2617-rc6.orig/Documentation/DocBook/kernel-api.tmpl
-+++ linux-2617-rc6/Documentation/DocBook/kernel-api.tmpl
-@@ -129,6 +129,12 @@ X!Ilib/string.c
-      <sect1><title>Command-line Parsing</title>
- !Elib/cmdline.c
-      </sect1>
-+
-+     <sect1><title>CRC Functions</title>
-+!Elib/crc16.c
-+!Elib/crc32.c
-+!Elib/crc-ccitt.c
-+     </sect1>
-   </chapter>
- 
-   <chapter id="mm">
---- linux-2617-rc6.orig/lib/crc32.c
-+++ linux-2617-rc6/lib/crc32.c
-@@ -42,20 +42,21 @@ MODULE_AUTHOR("Matt Domsch <Matt_Domsch@
- MODULE_DESCRIPTION("Ethernet CRC32 calculations");
- MODULE_LICENSE("GPL");
- 
-+/**
-+ * crc32_le() - Calculate bitwise little-endian Ethernet AUTODIN II CRC32
-+ * @crc: seed value for computation.  ~0 for Ethernet, sometimes 0 for
-+ *	other uses, or the previous crc32 value if computing incrementally.
-+ * @p: pointer to buffer over which CRC is run
-+ * @len: length of buffer @p
-+ */
-+u32 __attribute_pure__ crc32_le(u32 crc, unsigned char const *p, size_t len);
-+
- #if CRC_LE_BITS == 1
- /*
-  * In fact, the table-based code will work in this case, but it can be
-  * simplified by inlining the table in ?: form.
-  */
- 
--/**
-- * crc32_le() - Calculate bitwise little-endian Ethernet AUTODIN II CRC32
-- * @crc - seed value for computation.  ~0 for Ethernet, sometimes 0 for
-- *        other uses, or the previous crc32 value if computing incrementally.
-- * @p   - pointer to buffer over which CRC is run
-- * @len - length of buffer @p
-- * 
-- */
- u32 __attribute_pure__ crc32_le(u32 crc, unsigned char const *p, size_t len)
- {
- 	int i;
-@@ -68,14 +69,6 @@ u32 __attribute_pure__ crc32_le(u32 crc,
- }
- #else				/* Table-based approach */
- 
--/**
-- * crc32_le() - Calculate bitwise little-endian Ethernet AUTODIN II CRC32
-- * @crc - seed value for computation.  ~0 for Ethernet, sometimes 0 for
-- *        other uses, or the previous crc32 value if computing incrementally.
-- * @p   - pointer to buffer over which CRC is run
-- * @len - length of buffer @p
-- * 
-- */
- u32 __attribute_pure__ crc32_le(u32 crc, unsigned char const *p, size_t len)
- {
- # if CRC_LE_BITS == 8
-@@ -145,20 +138,21 @@ u32 __attribute_pure__ crc32_le(u32 crc,
- }
- #endif
- 
-+/**
-+ * crc32_be() - Calculate bitwise big-endian Ethernet AUTODIN II CRC32
-+ * @crc: seed value for computation.  ~0 for Ethernet, sometimes 0 for
-+ *	other uses, or the previous crc32 value if computing incrementally.
-+ * @p: pointer to buffer over which CRC is run
-+ * @len: length of buffer @p
-+ */
-+u32 __attribute_pure__ crc32_be(u32 crc, unsigned char const *p, size_t len);
-+
- #if CRC_BE_BITS == 1
- /*
-  * In fact, the table-based code will work in this case, but it can be
-  * simplified by inlining the table in ?: form.
-  */
- 
--/**
-- * crc32_be() - Calculate bitwise big-endian Ethernet AUTODIN II CRC32
-- * @crc - seed value for computation.  ~0 for Ethernet, sometimes 0 for
-- *        other uses, or the previous crc32 value if computing incrementally.
-- * @p   - pointer to buffer over which CRC is run
-- * @len - length of buffer @p
-- * 
-- */
- u32 __attribute_pure__ crc32_be(u32 crc, unsigned char const *p, size_t len)
- {
- 	int i;
-@@ -173,14 +167,6 @@ u32 __attribute_pure__ crc32_be(u32 crc,
- }
- 
- #else				/* Table-based approach */
--/**
-- * crc32_be() - Calculate bitwise big-endian Ethernet AUTODIN II CRC32
-- * @crc - seed value for computation.  ~0 for Ethernet, sometimes 0 for
-- *        other uses, or the previous crc32 value if computing incrementally.
-- * @p   - pointer to buffer over which CRC is run
-- * @len - length of buffer @p
-- * 
-- */
- u32 __attribute_pure__ crc32_be(u32 crc, unsigned char const *p, size_t len)
- {
- # if CRC_BE_BITS == 8
-@@ -249,6 +235,10 @@ u32 __attribute_pure__ crc32_be(u32 crc,
- }
- #endif
- 
-+/**
-+ * bitreverse - reverse the order of bits in a u32 value
-+ * @x: value to be bit-reversed
-+ */
- u32 bitreverse(u32 x)
- {
- 	x = (x >> 16) | (x << 16);
---- linux-2617-rc6.orig/lib/crc-ccitt.c
-+++ linux-2617-rc6/lib/crc-ccitt.c
-@@ -53,9 +53,9 @@ EXPORT_SYMBOL(crc_ccitt_table);
- 
- /**
-  *	crc_ccitt - recompute the CRC for the data buffer
-- *	@crc - previous CRC value
-- *	@buffer - data pointer
-- *	@len - number of bytes in the buffer
-+ *	@crc: previous CRC value
-+ *	@buffer: data pointer
-+ *	@len: number of bytes in the buffer
-  */
- u16 crc_ccitt(u16 crc, u8 const *buffer, size_t len)
- {
+Normal Linux kernel samples the runnable queue and calculate the load 
+average as a whole number
 
+I have changed that to calculate load average separately for each login user.
+Apart from that there is a new /proc/loadavgus file created to record this 
+metrics.
 
----
+Now I want to do some performance tests and show that this change did not 
+have any bad implications on the performance of the kernel.
+
+In fact after the changes we have been using the system very effectively 
+yet it is good if I can show that it is still in compliance with the 
+standards.
+
+(1) Someone has suggested to run  the tests that are context switching 
+heavy, like re-aim7, lmbench.
+
+(2) Also I can run some software tasks and show that there is no change of 
+performance of the tasks before and after the change.
+
+I would be keen to ask for your advice on planning few performance tests.
+
+Thanks
+Sena Seneviratne
+Computer Engineering Lab
+School of Electrical and Information Engineering
+Sydney University
+Australia
+

@@ -1,94 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWFNNfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWFNNgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbWFNNfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 09:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWFNNfa
+	id S964925AbWFNNgG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 09:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWFNNgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 09:35:30 -0400
-Received: from nz-out-0102.google.com ([64.233.162.198]:33928 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964920AbWFNNf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 09:35:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CP2wMj/d4bptUN7Uz4yXgZ8b0W8UBhEvVtZXO93iG8yzo2dBsuOtGZq8Iy9bQBanUcOrO41+/peEfAX62ilZj0G7AQuDOrHOYXeDqhuEQUZRTlLxSaVZvgKji3uLJb8BLROAz7aUSXIhkojbm6N9/XsQ7ZMAq9Ml6Z0E5RfTD4U=
-Message-ID: <b0943d9e0606140635u2268c457rb82281a8587368e4@mail.gmail.com>
-Date: Wed, 14 Jun 2006 14:35:25 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Jeremy Fitzhardinge" <jeremy@goop.org>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Pekka J Enberg" <penberg@cs.helsinki.fi>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <448FA476.8000705@goop.org>
+	Wed, 14 Jun 2006 09:36:06 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:52388 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S964925AbWFNNgE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 09:36:04 -0400
+Message-ID: <44901159.30502@bull.net>
+Date: Wed, 14 Jun 2006 15:38:33 +0200
+From: Pierre Peiffer <pierre.peiffer@bull.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060611112156.8641.94787.stgit@localhost.localdomain>
-	 <Pine.LNX.4.58.0606121111440.7129@sbz-30.cs.Helsinki.FI>
-	 <20060612105345.GA8418@elte.hu>
-	 <b0943d9e0606120556h185f2079x6d5a893ed3c5cd0f@mail.gmail.com>
-	 <20060612192227.GA5497@elte.hu>
-	 <Pine.LNX.4.58.0606130850430.15861@sbz-30.cs.Helsinki.FI>
-	 <20060613072646.GA17978@elte.hu>
-	 <b0943d9e0606130349s24614bbcia6a650342437d3d1@mail.gmail.com>
-	 <20060614040707.GA7503@elte.hu> <448FA476.8000705@goop.org>
+To: =?ISO-8859-15?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+Cc: Jakub Jelinek <jakub@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+       Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: NPTL mutex and the scheduling priority
+References: <20060612.171035.108739746.nemoto@toshiba-tops.co.jp>	 <1150115008.3131.106.camel@laptopd505.fenrus.org>	 <20060612124406.GZ3115@devserv.devel.redhat.com>	 <1150125869.3835.12.camel@frecb000686>	 <20060613084819.GL3115@devserv.devel.redhat.com>	 <1150200272.3835.33.camel@frecb000686>	 <20060613125603.GQ3115@devserv.devel.redhat.com> <1150291180.3835.59.camel@frecb000686>
+In-Reply-To: <1150291180.3835.59.camel@frecb000686>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 14/06/2006 15:39:49,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 14/06/2006 15:39:49,
+	Serialize complete at 14/06/2006 15:39:49
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeremy,
+Sébastien Dugué a écrit :
 
-It's good to hear some experience from the Valgrind world :-)
+> 
+>> FUTEX_REQUEUE is used by pthread_cond_signal to requeue the __data.__futex
+>> onto __data.__lock.
+> 
+>   You meant FUTEX_WAKE_OP, I guess. I could not find any place still 
+> using FUTEX_REQUEUE in glibc 2.4.
 
-On 14/06/06, Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-> Ingo Molnar wrote:
-> > But it's not just about the amount of false negatives, but also about
-> > the overhead of scanning. You are concentrated on embedded systems with
-> > small RAM - but most of the testers will be running this with at last
-> > 1GB of RAM - which is _alot_ of memory to scan.
-> >
-> It seems to me that most types with any pointers are fairly
-> pointer-dense.
+... FUTEX_CMP_REQUEUE ... ;-)
 
-There seem to be many structures containing mostly data and only one
-or two list_head structures with pointers. Here only the list_head
-member would need to be scanned.
-
-> False pointers in kernel allocations can be avoided in a few ways.  The
-> first, obviously, is the make sure all memory is initialized to a known
-> non-pointer value.
-
-This is done already by the DEBUG_SLAB configuration.
-
-> The second is to ignore pointers which don't point
-> near the start of an allocated region (possibly unsafe in the kernel,
-> depending on the definition of "near").
-
-Kmemleak only accepts values that point to either the beginning of the
-allocated block or to one of its aliases (a offset from the beginning
-which is determined from the container_of() usages on that
-structure/member - most of the list usages). There is a discussion one
-whether to allow a value to point anywhere inside a block but I would
-need to investigate the risks.
-
-> You can get more sophisticated
-> from there; the Boehm GC keeps tracks of things which look like pointers
-> but turn out not to be (they don't point to allocated memory); it marks
-> that memory as being unusable, so that the false pointer won't get
-> mistaken for one later on, with the obvious risk that lots of false
-> pointers can render large parts of your heap address space unusable.
-
-This would increase the overhead as in my tests around 15% of all the
-values scanned look like pointers (i.e. between PAGE_OFFSET and
-PAGE_OFFSET + ram_size).
-
-> There's some risk of false positives.  You can imagine cases where the
-> last reference to a block is transformed into a bus address, and in
-> effect a piece of hardware holds it.  You don't get to know about the
-> pointer until the hardware gives it back.
-
-This is pretty rare and you can easily tell kmemleak to ignore it.
+FUTEX_REQUEUE is obsolote ...
 
 -- 
-Catalin
+Pierre P.

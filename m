@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWFNFMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWFNFNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbWFNFMd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 01:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWFNFMd
+	id S964877AbWFNFNI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 01:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWFNFNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 01:12:33 -0400
-Received: from brain.cel.usyd.edu.au ([129.78.24.68]:55271 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S964872AbWFNFMd (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 01:12:33 -0400
-Message-Id: <5.1.1.5.2.20060614150410.0465ceb0@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Wed, 14 Jun 2006 15:12:29 +1000
-To: linux-Kernel@vger.kernel.org
-From: sena seneviratne <auntvini@cel.usyd.edu.au>
-Subject: Introduce a New Metrics to measure Load average.
+	Wed, 14 Jun 2006 01:13:08 -0400
+Received: from xenotime.net ([66.160.160.81]:23700 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964877AbWFNFNG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 01:13:06 -0400
+Date: Tue, 13 Jun 2006 22:15:52 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andi Kleen <ak@suse.de>
+Cc: tadavis@lbl.gov, linux-kernel@vger.kernel.org
+Subject: Re: Athlon CPU detection/fixup is broken in 2.6.2-rc2
+Message-Id: <20060613221552.6ab46ac6.rdunlap@xenotime.net>
+In-Reply-To: <p73odwwqq7c.fsf@verdi.suse.de>
+References: <401ACA49.8070002@lbl.gov>
+	<p73odwwqq7c.fsf@verdi.suse.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friends,
-Please give us your valuable comments on this important change to introduce 
-a new Metric to measure Load average.
-Currently /proc/loadavg reports only the resultant value.
+On 14 Jun 2006 07:08:39 +0200 Andi Kleen wrote:
 
-We are doing a scheduling in the Grid project. As a part of that we had to 
-do some changes to the kernel
+> Thomas Davis <tadavis@lbl.gov> writes:
+> 
+> > I looked in the Changelog - who changed it?
+> > 
+> > It doesn't work on my dual athlon 2200 MP system - kills it dead.
+> > 
+> > I can get 2.6.2-rc1 to boot.
+> 
+> Very vague report. Modern kernel like 2.6.16 doesn't work? And where
+> does it crash exactly and in what way?
+> 
+> If you got it down to that release with binary search can you identify the
+> exact changeset that caused the problem? 
 
-The  problem with the load metric of current Linux/Unix is that it measures 
-CPU load and Disk load without indicating the true nature of the load, 
-thereby creating some confusion among the readers. For example, if a CPU 
-bound task switches on to read a large chunk of disk data, then the load 
-average value would still continue to indicate this activity as a load, yet 
-the true CPU load during this period would have been zero. This situation 
-triggered us to make necessary additions to the kernel so that CPU load and 
-Disk load could be reported separately. Further the specialisation of load 
-helped our model to perform predictions when there is interference between 
-CPU and Disk IO loads.
+Uhm, I admit that I ignored it given the kernel version and
+date:
+Date:	Fri, 30 Jan 2004 13:19:05 -0800
 
-In the user mode, a new proc file called /proc/loadavgus would collect the 
-new data according to a new format which would look like the following,
-
-                 CPU    Disk
-Root            0.7     0
-User1   0.9     1
-User2   0.9     0
-User3   1.03    1
-User4   0.93    0
-User5   1.0     0
-
-What do you think about this change?
-
-Thanks
-Sena Seneviratne
-Computer Engineering Lab
-School of Electrical and Information Engineering
-Sydney University
-Australia
-
+---
+~Randy

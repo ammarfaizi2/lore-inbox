@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWFNIHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWFNIKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWFNIHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 04:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWFNIHY
+	id S1751175AbWFNIKB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 04:10:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWFNIKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 04:07:24 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:17763 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751091AbWFNIHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 04:07:23 -0400
-Message-ID: <448FC429.4060004@gentoo.org>
-Date: Wed, 14 Jun 2006 09:09:13 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+	Wed, 14 Jun 2006 04:10:01 -0400
+Received: from relay03.pair.com ([209.68.5.17]:24080 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1751175AbWFNIKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 04:10:00 -0400
+X-pair-Authenticated: 71.197.50.189
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: Matt Helsley <matthltc@us.ibm.com>
+Subject: Re: [PATCH 03/11] Task watchers:  Refactor process events
+Date: Wed, 14 Jun 2006 03:09:34 -0500
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+References: <20060613235122.130021000@localhost.localdomain> <200606131943.34800.chase.venters@clientec.com> <1150247482.21787.206.camel@stark>
+In-Reply-To: <1150247482.21787.206.camel@stark>
 MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: John Heffner <jheffner@psc.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: 2.6.17: networking bug??
-References: <448EC6F3.3060002@rtr.ca> <448ECB09.3010308@rtr.ca> <448ED2FC.2040704@rtr.ca> <448ED9B3.8050506@rtr.ca> <448EEE9D.10105@rtr.ca> <448EF45B.2080601@rtr.ca> <448EF85E.50405@psc.edu> <Pine.LNX.4.64.0606131048550.5498@g5.osdl.org> <448F0344.9000008@rtr.ca> <448F0D4B.30201@rtr.ca>
-In-Reply-To: <448F0D4B.30201@rtr.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606140309.57413.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Further to this, the current behaviour is badly unpredictable.
-> 
-> A machine could be working perfectly, not (noticeably) affected
-> by this bug.  And then the user adds another stick of RAM to it.
+On Tuesday 13 June 2006 20:11, Matt Helsley wrote:
+> On Tue, 2006-06-13 at 19:43 -0500, Chase Venters wrote:
+> > On Tuesday 13 June 2006 18:54, Matt Helsley wrote:
+> > > +	WARN_ON((which_id != PROC_EVENT_UID) && (which_id !=
+> > > PROC_EVENT_GID)); }
+> >
+> > How about WARN_ON(!(which_id & (PROC_EVENT_UID | PROC_EVENT_GID))) to
+> > save a cmp?
+> >
+> > Thanks,
+> > Chase
+>
+> I think the compiler is capable of making such optimizations. I also
+> think what I have now is clearer to anyone skimming the code.
 
-This "bug" already existed in 2.6.16 to a certain extent: you were 
-losing out on a lot of TCP performance. Go back to 2.6.7, measure TCP 
-performance, and you'll probably find it was significantly better.
+Can the compiler test that (which_id != PROC_EVENT_UID) && (which_id != 
+PROC_EVENT_GID) merely by masking? Since they're bits, one mask testing both 
+could technically match both (true result), which would not happen in the != 
+case (false result). It is a small point though.
 
-Also, there aren't that many broken end-points out there. 
-www.everymac.com loads fine for me and does not ignore the window scale 
-factor.
+> Cheers,
+> 	-Matt Helsley
 
-The problem in your case is a broken router in the middle. I had the 
-same problem: certain sites would not load, but there is absolutely 
-nothing wrong with the servers that run these sites:
-
-http://marc.theaimsgroup.com/?l=linux-netdev&m=114478312100641&w=2
-
-I contacted my ISP and informed them of the issue. They fixed it 
-nationwide within a few weeks. You might try confirming that your 
-problem only applies to HTTP like mine did (ISP runs some lame 
-transparent webcaches), and it was a bug in the software there (NetApp).
-
-We already had the "some routers are broken, should we do anything" 
-discussion back at the time of 2.6.8:
-
-http://lwn.net/Articles/92727/
-
-Daniel
-
+Thanks,
+Chase

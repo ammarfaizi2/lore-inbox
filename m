@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWFNVuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWFNV4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbWFNVuz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 17:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWFNVuz
+	id S932380AbWFNV4l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 17:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWFNV4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 17:50:55 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13220 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932380AbWFNVuz (ORCPT
+	Wed, 14 Jun 2006 17:56:41 -0400
+Received: from pat.uio.no ([129.240.10.4]:18425 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932380AbWFNV4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 17:50:55 -0400
-Date: Thu, 15 Jun 2006 07:50:19 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Wed, 14 Jun 2006 17:56:40 -0400
+Subject: Re: 2.6.16-rc6-mm2
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC]  Slimming down struct inode
-Message-ID: <20060615075018.B884384@wobbly.melbourne.sgi.com>
-References: <20060613143230.A867599@wobbly.melbourne.sgi.com> <448EC51B.6040404@argo.co.il> <20060614084155.C888012@wobbly.melbourne.sgi.com> <17551.58643.704359.815153@gargle.gargle.HOWL>
+In-Reply-To: <Pine.LNX.4.64.0606121723480.22389@schroedinger.engr.sgi.com>
+References: <20060609214024.2f7dd72c.akpm@osdl.org>
+	 <448DA5DD.203@fr.ibm.com>
+	 <Pine.LNX.4.64.0606121511090.21172@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.64.0606121723480.22389@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Wed, 14 Jun 2006 17:56:25 -0400
+Message-Id: <1150322185.18449.4.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <17551.58643.704359.815153@gargle.gargle.HOWL>; from nikita@clusterfs.com on Wed, Jun 14, 2006 at 02:29:39PM +0400
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
+	autolearn=disabled, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nikita,
+On Mon, 2006-06-12 at 17:24 -0700, Christoph Lameter wrote:
+> I guess this is correct. nfs_clear_page_writeback also ignores the page 
+> if req->wb_page == NULL. Trond?
 
-On Wed, Jun 14, 2006 at 02:29:39PM +0400, Nikita Danilov wrote:
-> Sorry, but why this operation is needed? Generic code (in fs/*.c)
-> doesn't use ->i_blksize at all. If XFS wants to provide per-inode
-> st_blksize, all it has to do is to store preferred buffer size in its
-> file system specific inode (struct xfs_inode), and use something
-> different from generic_fillattr() as its ->i_op->getattr() callback
-> (xfs_vn_getattr()).
+Sorry I'm late in responding. I'm currently on vacation in Iceland.
 
-We already do this.  The original questions were related to whether
-i_blksize and i_blkbits need to be per-inode or per-filesystem, and
-thats what I was trying to answer...
+This is most probably an issue with nfs_cancel_requests(). We shouldn't
+be calling nfs_clear_page_writeback() without _first_ decrementing
+NR_UNSTABLE. I'll have a look, but I may be a bit unresponsive until I
+get to a new place with an internet connection.
 
-| 1) Move i_blksize (optimal size for I/O, reported by the stat system
-|   call).  Is there any reason why this needs to be per-inode, instead
-|   of per-filesystem?
-| 2) Move i_blkbits (blocksize for doing direct I/O in bits) to struct
-|    super.  Again, why is this per-inode?
+Cheers,
+  Trond
 
-As to whether a new inode operation is useful/needed - *shrug* - not
-really my call, I was saying we can work with whatever ends up being
-the final solution, provided it keeps per-inode granularity.
+> On Mon, 12 Jun 2006, Christoph Lameter wrote:
+> 
+> > On Mon, 12 Jun 2006, Cedric Le Goater wrote:
+> > 
+> > > Unable to handle kernel NULL pointer dereference at 0000000000000007 RIP:
+> > >  [<ffffffff8025b017>] dec_zone_page_state+0x1/0x5b
+> > 
+> > Seems that req->wb_page may be NULL.
+> > 
+> > This patch may fix it but we may miss an unstable page then. We may 
+> > have to move the decrement of NR_UNSTABLE to a different location when
+> > wb_page is still valid.
+> > 
+> > Index: linux-2.6.17-rc6-cl/fs/nfs/write.c
+> > ===================================================================
+> > --- linux-2.6.17-rc6-cl.orig/fs/nfs/write.c	2006-06-12 13:37:47.321243148 -0700
+> > +++ linux-2.6.17-rc6-cl/fs/nfs/write.c	2006-06-12 15:13:48.020908204 -0700
+> > @@ -1419,7 +1419,8 @@ static void nfs_commit_done(struct rpc_t
+> >  		nfs_mark_request_dirty(req);
+> >  	next:
+> >  		nfs_clear_page_writeback(req);
+> > -		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+> > +		if (req->wb_page)
+> > +			dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+> >  	}
+> >  }
+> >  
+> > 
+> > 
 
-cheers.
-
--- 
-Nathan

@@ -1,80 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWFNWee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWFNWsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWFNWee (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 18:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWFNWee
+	id S964950AbWFNWsl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 18:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbWFNWsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 18:34:34 -0400
-Received: from wx-out-0102.google.com ([66.249.82.196]:52945 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964911AbWFNWee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 18:34:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=P+jRYc7JzQRU690eTRzphJoLHO7BawmN0Wp/C5H6d7birvaHMYq/uVHEnmyfHpItFkOsPj0FOE7hAzgHBEYSIJQkRohf1gP54++arl3n7DJOx3LKu2PUlD+0iIS2MOYKcIm1EIKcMpEcEntTfiQ24F/c3of9qX4aSNceUgB4KPA=
-Message-ID: <5c49b0ed0606141534o45c75699n490f4accbfee028d@mail.gmail.com>
-Date: Wed, 14 Jun 2006 15:34:33 -0700
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Marc Perkel" <marc@perkel.com>
-Subject: Re: Visionary ideas for SQL file systems
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <448F8F18.4030200@perkel.com>
+	Wed, 14 Jun 2006 18:48:41 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:38105 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP id S964950AbWFNWsk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 18:48:40 -0400
+Message-ID: <4490923D.10904@de.ibm.com>
+Date: Thu, 15 Jun 2006 00:48:29 +0200
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
+       akpm@osdl.org, Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: statistics infrastructure (in -mm tree) review
+References: <20060613232131.GA30196@kroah.com>	<20060613234739.GA30534@kroah.com> <20060613171827.73cd0688.rdunlap@xenotime.net>
+In-Reply-To: <20060613171827.73cd0688.rdunlap@xenotime.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <448F8F18.4030200@perkel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/13/06, Marc Perkel <marc@perkel.com> wrote:
-> I'm going to throw this idea out there just to get people thinking.
-> There's nothing in reality that is like this except maybe some of the
-> ReiserFS ideas, but I want to take the idea farther. the idea is ......
+Randy.Dunlap wrote:
+> On Tue, 13 Jun 2006 16:47:39 -0700 Greg KH wrote:
+> 
+>> First cut at reviewing this code.
+>>
+>> Initial impression is, "damm, that's a complex interface".  I'd really
+>> like to see some other, real-world usages of this.  Like perhaps the
+>> io-schedular statistics?  Some other /proc stats that have nothing to do
+>> with processes?
+> 
+> Agreed with complexity.
 
-recommend reading hans' future_vision.html paper at namesys.com, as
-well as dominic's "FS design with the Be file system" which is a pdf
-somewhere online now.  some intense study of ADT's is also recommended
+Well, roughly 1500 lines of code is sort of complex, even if already
+being reviewed and cleaned up several times.
 
-> Why not put an SQL filesystem directly on a block devices where files
-> are really blobs within the filesystem and file names and file
-> attributes are all indexed data withing the SQL database. The operating
-> system will have SQL built in.
+Please, let's try to break it down into design details that add
+their measure of complexity. A flat "too comlex" doesn't help on.
 
-after going over the suggested reading above, you'll see why SQL is
-less than ideal
+Could you ACK / NACK the following assumptions, so that we can
+figure out how far our (dis)agreement goes and how to continue?
 
-> Right now we have a variety of name spaces, file attributes, cluster
-> sises, inodes and other nasty stuff that are too exposed. Suppose that
-> you could add any fileds you want, any keys you want. Suppose that users
-> and groups could have any number of fields. Suppose you wanted to add
-> more levels like "managers" and some of the fancy Novell stuff. With a
-> database the user could create any kind of an interface to access files
-> that they want.
 
-this goal is very worthwhile, but it's a lot harder than you imagine,
-because of compatability, performance, security, and backwards
-compatability.
+1) There are various kernel components that gather statistical data.
+(kernel/profile.c, network stack, genhd, memory management, taskstats,
+S390 DASD driver, zfcp driver, ...). Requirements for other statistics
+aren't unusual.
 
-<snip examples of nifty applications of the above>
+2) Basically, they all implement similar things (smp-safe and efficient
+data structures used for data gathering, implement algorithms for
+on-the-fly data preprocessing, delivery of data through some user
+interface, sometimes a switch for turning statistics on/off)
 
-> So - this is totally outside the bix thinking but use you imagination
-> and envision what could be done if we lose the file system paradyme and
-> embrace the SQL based data paradhyme.
->
-> Will it be faster? Doing only what we are limited to today, no. Doing
-> what we would be able to do, yes. This is a radically new concept and
-> you should be very stoned to fully appreciate it. I just wanted to throw
+3) They all introduce their own macros / functions, resulting in code
+duplication (bad), while they usually have their unique way to show
+data to users (bad, too).
 
-lol
+4) Possible ways to aggregate statistics data include plain counters,
+histograms, a utilisation indicator (min, max, average etc.), and
+potentially other algorithms people might come up with.
 
-> the idea out there so that people can start rolling it around and
-> thinking about it. It's an idea that is similar in some ways to the
-> /proc filesystem where things appear as files that aren't
+5) Statistics counters should be maintained in kernel. That's cheapest.
+No bursts of zillions of incremental updates relayed to user space.
+(please see also other comment at bottom of message)
 
-others have suggested that all this belongs in user-space.  hans and i
-argue that point every once in a while still.  i think it comes down
-to -ENOPATCH
+6) Some library routines would suffice to take over data gathering
+and preprocessing. Avoids further code duplication, avoids bugs,
+speeds up development and test.
 
-NATE
+7) With regard to the delivery of statistic data to user land,
+a library maintaining statistic counters, histograms or whatever
+on behalf of exploiters doesn't need any help from the exploiter.
+We can avoid the usual callbacks and code bloat in exploiters
+this way.
+
+8) If some library functions are responsible for showing data, and the
+exploiter is not, we can achieve a common format for statistics data.
+For example, a histogram about block I/O has the same format as
+a histogram about network I/O.
+This provides ease of use and minimises the effort of writing
+scripts that could do further processing (e.g. formatting as
+spreadsheats or bar charts, comparison and summarisation of
+statistics, ...)
+
+9) For performance reasons, per-cpu data and minimal locking
+(local_irq_save/restore) should be used.
+Adds to complexity, though.
+
+10) If data is per-cpu, we want to be very careful with regard to
+memory footprint. That is why, memory is only allocated for online
+cpus (requires cpu hot(un)plug handling, which adds to complexity),
+
+11) At least for data processing modes more expensive than plain
+counters, like histograms, an on/off state makes sense.
+
+12) In order to minimise the memory footprint, a released/allocated
+state makes sense.
+
+13) Unconfigured/released/off/on states should be handled by a tiny
+state machine and a single check on statistic updates.
+
+14) Kernel code delivering statistics data through library routines
+can, at best, guess whether a user wants incremental updates be
+aggregated in a single counter, a set of counters (histograms), or
+in the form of other results. Users might want to change how much
+detail is retained in aggregated statistic results.
+Adds to complexity.
+
+15) Nonetheless, exploiters are kindly requested to provide some
+default settings that are a good starting point for general
+purpose use.
+
+16) Aggregated statistic results, in many cases, don't need to be
+pushed to user space through a high-speed, high-volume interface.
+Debugfs, for example, is fine for this purpose.
+
+17) If the requirement for pushing data comes up anyway, we could,
+for example, add relay-entries in debugfs anytime.
+(For example, we could implement forwarding of incremental
+updates to user space. Just another conceivable data processing
+mode that fits into the current design.)
+
+18) The programming interface of a statistics library can be rougly as
+simple as statistic_create(), statistics_remove(), statistic_add().
+
+19) Statistic_add() should come in different flavours:
+statistic_add/inc() (just for convenience), and
+statistic_*_nolock() (more efficient locking for a bundle of updates)
+
+20) Statistic_add() takes a (X, Y) pair, with X being the main
+characteristics of the statistics (e.g. a request size) and with
+Y quantifying the update reported for a particular X (e.g. number
+of observed requests of a particular request size).
+
+21) Processing of (X, Y) according to abstract rules imposed by
+counters, histograms etc. doesn't require any knowledge about the
+semantics of X or Y.
+
+22) There might be statistic counters that exploiters want to use and
+maintain on their own, and which users still may want to have a look at
+along with other statistics. Statistic_set() fits in here nicely.
+
+>> And what does this mean for relayfs?  Those developers tuned that code
+>> to the nth degree to get speed and other goodness, and here you go just
+>> ignoring that stuff and add yet another way to get stats out of the
+>> kernel.  Why should I use this instead of my own code with relayfs?
+ >
+ > Good questions.
+
+Relayfs is a nice feature, but not appropriate here.
+
+For example, during a performance measurements I have seen
+SCSI I/O related statistics being updated millions of times while
+I was just having a short lunch break. Some of them just increased
+a counter, which is pretty fast if done immediately in the kernel.
+If all these updates update would have to be relayed to user space
+to just increase a counter maintained in user space.. urgh, surely
+more expensive and not the way to go.
+
+And what if user space isn't interested at all? Would we keep
+pumping zillions of unused updates into buffers instead of
+discarding them right away?
+
+Profile.c, taskstats, genhd and all the other statistics listed
+above... they all maintain their counters in the kernel and
+show aggregated statistics to users.
+
+>> And is the need for the in-kernel parser really necessary?  I know it
+>> makes the userspace tools simpler (cat and echo), but should we be
+>> telling the kernel how to filter and adjust the data?  Shouldn't we just
+>> dump it all to userspace and use tools there to manipulate it?
+> 
+> I agree again.
+
+Assumimg we can agree on in-kernel counters, histograms etc.
+allowing for attributes being adjusted by users makes sense.
+
+The parser stuff required for these attributes is implemented
+using match_token() & friends, which should be acceptible.
+But, I think that the standard way of using match_token() and
+strsep() needs improvement (strsep is destructive to strings
+parsed, which is painful).
+
+Thanks, Martin
+

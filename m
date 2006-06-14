@@ -1,93 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWFNOTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWFNOUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964967AbWFNOTG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 10:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWFNOTG
+	id S964969AbWFNOUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 10:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWFNOUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 10:19:06 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:31390 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S964967AbWFNOTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 10:19:02 -0400
-Date: Wed, 14 Jun 2006 16:18:45 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, Greg KH <gregkh@suse.de>,
-       Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] ipaq.c bugfixes
-Message-ID: <20060614141844.GB5814@fks.be>
-References: <20060530115329.30184aa0@doriath.conectiva> <20060530174821.GA15969@fks.be> <20060530113327.297aceb7.zaitcev@redhat.com> <20060531213828.GA17711@fks.be> <20060531215523.GA13745@suse.de> <20060531224245.GB17711@fks.be> <20060531224624.GA17667@suse.de> <20060601191840.GB1757@fks.be> <20060614115822.GB20751@fks.be> <20060614105849.14b4026a@doriath.conectiva>
-Mime-Version: 1.0
+	Wed, 14 Jun 2006 10:20:05 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:17440 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964969AbWFNOUC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 10:20:02 -0400
+Date: Wed, 14 Jun 2006 16:19:48 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch 4/8] lock validator: early_init_irq_lock_type / console_init
+Message-ID: <20060614141948.GE1241@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060614105849.14b4026a@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-103.51,
-	vereist 5, ALL_TRUSTED -3.30, AWL -2.21, BAYES_50 2.00,
-	USER_IN_WHITELIST -100.00)
+User-Agent: mutt-ng/devel-r802 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 14, 2006 at 10:58:49AM -0300, Luiz Fernando N. Capitulino wrote:
->  I think you forgot to move the 'result' checking after the urb is
-> submitted.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Sorry about that. The running version is correct. I apparently
-overlooked that while splitting the patch. Here's the correct version:
+Two changes:
+ - let the kernel compile for architectures that support TRACE_IRQ_FLAGS but
+   don't support GENERIC_HARDIRQS.
+ - s390's console_init must enable interrupts, but early_boot_irqs_on() gets
+   called later. To avoid problems move console_init() after local_irq_enable().
+   Hope this works on all architectures?!
 
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-This patch fixes several problems in the ipaq.c driver with connecting
-and disconnecting pocketpc devices:
-* The read urb stayed active if the connect failed, causing nullpointer
-  dereferences later on.
-* If a write failed, the driver continued as if nothing happened. Now it
-  handles that case the same way as other usb serial devices (fix by
-  "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>)
+ include/linux/lockdep.h |    8 ++++++--
+ init/main.c             |    6 +++---
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
-Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
-
-diff -urp linux-2.6.17-rc6/drivers/usb/serial/ipaq.c linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c
---- linux-2.6.17-rc6/drivers/usb/serial/ipaq.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c	2006-06-14 16:02:03.000000000 +0200
-@@ -652,11 +652,6 @@ static int ipaq_open(struct usb_serial_p
- 		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
- 		      port->read_urb->transfer_buffer, port->read_urb->transfer_buffer_length,
- 		      ipaq_read_bulk_callback, port);
--	result = usb_submit_urb(port->read_urb, GFP_KERNEL);
--	if (result) {
--		err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
--		goto error;
--	}
+diff -purN a/include/linux/lockdep.h b/include/linux/lockdep.h
+--- a/include/linux/lockdep.h	2006-06-14 10:57:14.000000000 +0200
++++ b/include/linux/lockdep.h	2006-06-14 13:02:19.000000000 +0200
+@@ -265,12 +265,16 @@ static inline void lockdep_on(void)
+ struct lockdep_type_key { };
+ #endif /* !LOCKDEP */
+ 
+-#ifdef CONFIG_TRACE_IRQFLAGS
++#if defined(CONFIG_TRACE_IRQFLAGS) && defined(CONFIG_GENERIC_HARDIRQS)
+ extern void early_init_irq_lock_type(void);
++#else
++# define early_init_irq_lock_type()		do { } while (0)
++#endif
++
++#ifdef CONFIG_TRACE_IRQFLAGS
+ extern void early_boot_irqs_off(void);
+ extern void early_boot_irqs_on(void);
+ #else
+-# define early_init_irq_lock_type()		do { } while (0)
+ # define early_boot_irqs_off()			do { } while (0)
+ # define early_boot_irqs_on()			do { } while (0)
+ #endif
+diff -purN a/init/main.c b/init/main.c
+--- a/init/main.c	2006-06-14 10:57:04.000000000 +0200
++++ b/init/main.c	2006-06-14 13:02:19.000000000 +0200
+@@ -516,6 +516,9 @@ asmlinkage void __init start_kernel(void
+ 	softirq_init();
+ 	time_init();
+ 	timekeeping_init();
++	profile_init();
++	early_boot_irqs_on();
++	local_irq_enable();
  
  	/*
- 	 * Send out control message observed in win98 sniffs. Not sure what
-@@ -671,6 +666,11 @@ static int ipaq_open(struct usb_serial_p
- 				usb_sndctrlpipe(serial->dev, 0), 0x22, 0x21,
- 				0x1, 0, NULL, 0, 100);
- 		if (result == 0) {
-+			result = usb_submit_urb(port->read_urb, GFP_KERNEL);
-+			if (result) {
-+				err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
-+				goto error;
-+			}
- 			return 0;
- 		}
- 	}
-@@ -855,6 +855,7 @@ static void ipaq_write_bulk_callback(str
- 	
- 	if (urb->status) {
- 		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);
-+		return;
- 	}
+ 	 * HACK ALERT! This is early. We're enabling the console before
+@@ -525,9 +528,6 @@ asmlinkage void __init start_kernel(void
+ 	console_init();
+ 	if (panic_later)
+ 		panic(panic_later, panic_param);
+-	profile_init();
+-	early_boot_irqs_on();
+-	local_irq_enable();
  
- 	spin_lock_irqsave(&write_list_lock, flags);
-
-
-
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+ 	lockdep_info();
+ 

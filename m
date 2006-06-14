@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWFNN3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWFNN3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWFNN3F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 09:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWFNN3F
+	id S964915AbWFNN3N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 09:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWFNN3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 09:29:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19418 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964913AbWFNN3E (ORCPT
+	Wed, 14 Jun 2006 09:29:13 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:25788 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S964915AbWFNN3M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 09:29:04 -0400
-Date: Wed, 14 Jun 2006 09:28:56 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Sebastien Dugue <sebastien.dugue@bull.net>
-Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-       Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
-       Pierre PEIFFER <pierre.peiffer@bull.net>
-Subject: Re: NPTL mutex and the scheduling priority
-Message-ID: <20060614132856.GA3115@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20060612.171035.108739746.nemoto@toshiba-tops.co.jp> <1150115008.3131.106.camel@laptopd505.fenrus.org> <20060612124406.GZ3115@devserv.devel.redhat.com> <1150125869.3835.12.camel@frecb000686> <20060613084819.GL3115@devserv.devel.redhat.com> <1150200272.3835.33.camel@frecb000686> <20060613125603.GQ3115@devserv.devel.redhat.com> <1150291180.3835.59.camel@frecb000686>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150291180.3835.59.camel@frecb000686>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Jun 2006 09:29:12 -0400
+Message-ID: <44900F27.7010103@perkel.com>
+Date: Wed, 14 Jun 2006 06:29:11 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Visionary ideas for SQL file systems
+References: <448F8F18.4030200@perkel.com> <448FFCAD.8010205@mail.ru>
+In-Reply-To: <448FFCAD.8010205@mail.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 14, 2006 at 03:19:40PM +0200, S?bastien Dugu? wrote:
-> > FUTEX_REQUEUE is used by pthread_cond_signal to requeue the __data.__futex
-> > onto __data.__lock.
-> 
->   You meant FUTEX_WAKE_OP, I guess. I could not find any place still 
-> using FUTEX_REQUEUE in glibc 2.4.
 
-glibc 2.4 uses FUTEX_CMP_REQUEUE, true, but both FUTEX_REQUEUE and
-FUTEX_CMP_REQUEUE should behave the same in this regard (after all, they are
-implemented using the same futex_requeue routine in the kernel).
-FUTEX_CMP_REQUEUE is used in pthread_cond_broadcast, FUTEX_WAKE_OP is used in
-pthread_cond_signal.  E.g. nptl/sysdeps/pthread/pthread_cond_broadcast.c:
-...
-      /* Wake everybody.  */
-      pthread_mutex_t *mut = (pthread_mutex_t *) cond->__data.__mutex;
-      /* lll_futex_requeue returns 0 for success and non-zero
-         for errors.  */
-      if (__builtin_expect (lll_futex_requeue (&cond->__data.__futex, 1,
-                                               INT_MAX, &mut->__data.__lock,
-                                               futex_val), 0))
-        {
-          /* The requeue functionality is not available.  */
-        wake_all:
-          lll_futex_wake (&cond->__data.__futex, INT_MAX);
-        }
-and nptl/sysdeps/pthread/pthread_cond_signal.c:
-...
-      /* Wake one.  */
-      if (! __builtin_expect (lll_futex_wake_unlock (&cond->__data.__futex, 1,
-                                                     1, &cond->__data.__lock),
-                                                     0))
-        return 0;
 
-      lll_futex_wake (&cond->__data.__futex, 1);
-    }
+Michael Raskin wrote:
+> Marc Perkel wrote:
+>> I'm going to throw this idea out there just to get people thinking. 
+>> There's nothing in reality that is like this except maybe some of the 
+>> ReiserFS ideas, but I want to take the idea farther. the idea is ......
+>>
+>> Why not put an SQL filesystem directly on a block devices where files 
+>> are really blobs within the filesystem and file names and file 
+>> attributes are all indexed data withing the SQL database. The 
+>> operating system will have SQL built in.
+> Maybe it is better done by fuse? So, did you consider contributing to 
+> RelFS or something like it? Try FUSE.sf.net to find out the present 
+> fs-in-usermode projects.
+>
 
-  /* We are done.  */
-  lll_mutex_unlock (cond->__data.__lock);
+That certianly looks like a good tool to start experimenting with.
 
-	Jakub

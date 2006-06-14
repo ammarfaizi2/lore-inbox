@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWFNRGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWFNR2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWFNRGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 13:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWFNRGZ
+	id S932145AbWFNR2X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 13:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWFNR2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 13:06:25 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:42504 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1750707AbWFNRGZ
+	Wed, 14 Jun 2006 13:28:23 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:55479 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932125AbWFNR2W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 13:06:25 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: 2.6.16.19 + gcc-4.1.1
-Date: Wed, 14 Jun 2006 18:06:25 +0100
-User-Agent: KMail/1.9.3
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, Avuton Olrich <avuton@gmail.com>,
-       Russell Whitaker <russ@ashlandhome.net>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.63.0606131906230.2368@bigred.russwhit.org> <448F8C53.5010406@ens-lyon.org> <Pine.LNX.4.61.0606141132190.5349@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0606141132190.5349@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jun 2006 13:28:22 -0400
+Date: Wed, 14 Jun 2006 11:28:29 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: 7eggert@gmx.de
+Cc: grundig <grundig@teleline.es>, jeff@garzik.org, alex@clusterfs.com,
+       alan@lxorguk.ukuu.org.uk, chase.venters@clientec.com, torvalds@osdl.org,
+       akpm@osdl.org, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+Message-ID: <20060614172829.GM5964@schatzie.adilger.int>
+Mail-Followup-To: 7eggert@gmx.de, grundig <grundig@teleline.es>,
+	jeff@garzik.org, alex@clusterfs.com, alan@lxorguk.ukuu.org.uk,
+	chase.venters@clientec.com, torvalds@osdl.org, akpm@osdl.org,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	cmm@us.ibm.com, linux-fsdevel@vger.kernel.org
+References: <6lTUf-54A-17@gated-at.bofh.it> <6lU3S-5h5-11@gated-at.bofh.it> <6lU3X-5h5-35@gated-at.bofh.it> <6lUnl-5GL-5@gated-at.bofh.it> <6lUwX-66U-25@gated-at.bofh.it> <6lUQo-6w3-29@gated-at.bofh.it> <6lUQp-6w3-35@gated-at.bofh.it> <6lUZT-6HS-3@gated-at.bofh.it> <6nE4Z-4If-55@gated-at.bofh.it> <E1FqYV5-00047Z-A6@be1.lrz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606141806.25124.s0348365@sms.ed.ac.uk>
+In-Reply-To: <E1FqYV5-00047Z-A6@be1.lrz>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 June 2006 10:33, Jan Engelhardt wrote:
-> >Actually, "make modules" does not exist anymore with 2.6. Both built-in
-> >and modular stuff are built at the same time.
-> >Only "make modules_install" is still required.
->
-> You can _still_ build bzImage and modules separately.
->
-> The _default_ kernel Makefile target though reads (sth. like)
->
-> all: bzImage modules
+On Jun 14, 2006  18:45 +0200, Bodo Eggert wrote:
+> BTW: Upgrading a filesystem by using mount options _and_ forcing that
+> option to be supplied on subsequent mounts is a BUG. If should be what
+> current code demands, it should be fixed ASAP. I hope that's not what
+> the current code does.
 
-Maybe for consistency with other packages, the default "make install" should 
-imply modules_install too.
+If you don't remount with "-o extents" all it (currently) means is that
+new files will not be created with extents.  Existing extent-mapped files
+will continue to work.  It was done this way so that if some serious
+problem was found with extents there was a fallback position to "normal"
+block mapped files and the damage would be limited to files created while
+mounted with "-o extents".
 
-I know you can hack around this with /sbin/installkernel (on at least x86 and 
-x86_64), but it's counterintuitive. I guess the reason is that 'install' has 
-always meant "just the bzImage please", and sometimes it's valid to install 
-only a bzImage without reinstalling modules. However, it just leads to 
-problems such at the original poster's.
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
--- 
-Cheers,
-Alistair.
-
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

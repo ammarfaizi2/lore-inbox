@@ -1,88 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWFNDbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWFNDmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWFNDbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jun 2006 23:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWFNDbT
+	id S932389AbWFNDmS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jun 2006 23:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWFNDmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jun 2006 23:31:19 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:63666 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751085AbWFNDbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jun 2006 23:31:18 -0400
-Message-ID: <448F8302.3030706@watson.ibm.com>
-Date: Tue, 13 Jun 2006 23:31:14 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Helsley <matthltc@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>
-Subject: Re: [PATCH 07/11] Task watchers:  Register per-task delay accounting
- task watcher
-References: <20060613235122.130021000@localhost.localdomain> <1150242889.21787.147.camel@stark>
-In-Reply-To: <1150242889.21787.147.camel@stark>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 13 Jun 2006 23:42:17 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9931
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932389AbWFNDmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jun 2006 23:42:17 -0400
+Date: Tue, 13 Jun 2006 20:42:32 -0700 (PDT)
+Message-Id: <20060613.204232.127674264.davem@davemloft.net>
+To: luke.adi@gmail.com
+Cc: samuel@sortiz.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix an inproper alignment accessing in irda protocol
+ stack
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <489ecd0c0606131929l5311bdb9g1e903904f0d8fb2b@mail.gmail.com>
+References: <489ecd0c0606080015v4815d0f3wa3d28c564eaf6885@mail.gmail.com>
+	<489ecd0c0606131929l5311bdb9g1e903904f0d8fb2b@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Luke Yang" <luke.adi@gmail.com>
+Date: Wed, 14 Jun 2006 10:29:19 +0800
 
-
-
-Matt Helsley wrote:
-
->Adapts delayacct to use Task Watchers. Does not adapt taskstats to use Task
->Watchers.
->
->Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
->Cc: Shailabh Nagar <nagar@watson.ibm.com>
->Cc: Balbir Singh <balbir@in.ibm.com>
->Cc: Chandra S. Seetharaman <sekharan@us.ibm.com>
->--
->
-> include/linux/delayacct.h |    2 +-
-> kernel/delayacct.c        |   23 +++++++++++++++++++++++
-> kernel/exit.c             |    2 --
-> kernel/fork.c             |    2 --
-> 4 files changed, 24 insertions(+), 5 deletions(-)
->
->
->  
->
-<snip>
-
->Index: linux-2.6.17-rc5-mm2/include/linux/delayacct.h
->===================================================================
->--- linux-2.6.17-rc5-mm2.orig/include/linux/delayacct.h
->+++ linux-2.6.17-rc5-mm2/include/linux/delayacct.h
->@@ -59,11 +59,11 @@ static inline void delayacct_tsk_init(st
-> 		__delayacct_tsk_init(tsk);
-> }
+>  For "struct irda_device_info" in irda.h:
+> struct irda_device_info {
+>        __u32       saddr;    /* Address of local interface */
+>        __u32       daddr;    /* Address of remote device */
+>        char        info[22]; /* Description */
+>        __u8        charset;  /* Charset used for description */
+>        __u8        hints[2]; /* Hint bits */
+> };
+>   The "hints" member aligns at the third byte of a word, an odd
+> address. So if we visit "hints" as a short in irlmp.c:
 > 
-> static inline void delayacct_tsk_exit(struct task_struct *tsk)
-> {
->-	if (tsk->delays)
->+	if (unlikely(tsk->delays))
-> 		__delayacct_tsk_exit(tsk);
-> }
->  
->
+>    u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
+> 
+>  will cause alignment problem on some machines. Architectures with
+> strict alignment rules do not allow 16-bit read on an odd address. I
+> use le16_to_cpu to do the converting.
+> 
+> Signed-off-by: Luke Yang <luke.adi@gmail.com>
 
-This snippet does not belong to this patchset...since the same check 
-(for tsk->delays) is
-being used elsewhere in the delay accounting code, changes to use of 
-likely/unlikely should
-be done elsewhere too, if deemed necesssary.
-
-Otherwise patch looks good though I've not tested whether delay 
-accounting works unaffected
-(don't see any reason why it shouldn't).
-
-
---Shailabh
-
-
+This looks good, I will apply it, thanks a lot.

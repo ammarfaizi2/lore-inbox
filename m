@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWFNOIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWFNOKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWFNOIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 10:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbWFNOI3
+	id S964963AbWFNOKA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 10:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWFNOJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 10:08:29 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:17838 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S964972AbWFNOIW
+	Wed, 14 Jun 2006 10:09:59 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:8111 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S964963AbWFNOJ5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 10:08:22 -0400
-Date: Wed, 14 Jun 2006 16:08:24 +0200
+	Wed, 14 Jun 2006 10:09:57 -0400
+Date: Wed, 14 Jun 2006 16:04:52 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, cornelia.huck@de.ibm.com
-Subject: [patch 23/24] s390: rework of channel measurement facility.
-Message-ID: <20060614140824.GX9475@skybase>
+To: linux-kernel@vger.kernel.org, edrossma@us.ibm.com
+Subject: [patch 17/24] s390: move z90crypt.h to include/asm.
+Message-ID: <20060614140452.GR9475@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,1048 +21,698 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Eric Rossman <edrossma@us.ibm.com>
 
-[S390] rework of channel measurement facility.
+[S390] move z90crypt.h to include/asm.
 
-Fixes for several channel measurement facility bugs:
-* Blocks copied from the hardware might not be consistent. Solve this
-  by moving the copying into idle state and repeating the copying.
-* avg_sample_interval changed with every read, even though no new block
-  was available. Solve this by storing a timestamp when the last new
-  block was received.
-* Several locking issues.
-* Measurements were not reenabled after a disconnected device became
-  available again.
-* Remove #defines for ioctls that were never implemented.
-
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Eric Rossman <edrossma@us.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/cmf.c        |  623 ++++++++++++++++++++++++++++++------------
- drivers/s390/cio/device.h     |    4 
- drivers/s390/cio/device_fsm.c |   18 +
- include/asm-s390/cmb.h        |    4 
- 4 files changed, 468 insertions(+), 181 deletions(-)
+ drivers/s390/crypto/z90crypt.h    |  252 --------------------------------------
+ drivers/s390/crypto/z90hardware.c |    6 
+ drivers/s390/crypto/z90main.c     |   48 +------
+ include/asm-s390/z90crypt.h       |  227 ++++++++++++++++++++++++++++++++++
+ 4 files changed, 242 insertions(+), 291 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/cmf.c linux-2.6-patched/drivers/s390/cio/cmf.c
---- linux-2.6/drivers/s390/cio/cmf.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/cmf.c	2006-06-14 14:30:04.000000000 +0200
-@@ -3,9 +3,10 @@
-  *
-  * Linux on zSeries Channel Measurement Facility support
-  *
-- * Copyright 2000,2003 IBM Corporation
-+ * Copyright 2000,2006 IBM Corporation
-  *
-- * Author: Arnd Bergmann <arndb@de.ibm.com>
-+ * Authors: Arnd Bergmann <arndb@de.ibm.com>
-+ *	    Cornelia Huck <cornelia.huck@de.ibm.com>
-  *
-  * original idea from Natarajan Krishnaswami <nkrishna@us.ibm.com>
-  *
-@@ -96,9 +97,9 @@ module_param(format, bool, 0444);
- /**
-  * struct cmb_operations - functions to use depending on cmb_format
-  *
-- * all these functions operate on a struct cmf_device. There is only
-- * one instance of struct cmb_operations because all cmf_device
-- * objects are guaranteed to be of the same type.
-+ * Most of these functions operate on a struct ccw_device. There is only
-+ * one instance of struct cmb_operations because the format of the measurement
-+ * data is guaranteed to be the same for every ccw_device.
-  *
-  * @alloc:	allocate memory for a channel measurement block,
-  *		either with the help of a special pool or with kmalloc
-@@ -107,6 +108,7 @@ module_param(format, bool, 0444);
-  * @readall:	read a measurement block in a common format
-  * @reset:	clear the data in the associated measurement block and
-  *		reset its time stamp
-+ * @align:	align an allocated block so that the hardware can use it
-  */
- struct cmb_operations {
- 	int (*alloc)  (struct ccw_device*);
-@@ -115,11 +117,19 @@ struct cmb_operations {
- 	u64 (*read)   (struct ccw_device*, int);
- 	int (*readall)(struct ccw_device*, struct cmbdata *);
- 	void (*reset) (struct ccw_device*);
-+	void * (*align) (void *);
- 
- 	struct attribute_group *attr_group;
- };
- static struct cmb_operations *cmbops;
- 
-+struct cmb_data {
-+	void *hw_block;   /* Pointer to block updated by hardware */
-+	void *last_block; /* Last changed block copied from hardware block */
-+	int size;	  /* Size of hw_block and last_block */
-+	unsigned long long last_update;  /* when last_block was updated */
-+};
-+
- /* our user interface is designed in terms of nanoseconds,
-  * while the hardware measures total times in its own
-  * unit.*/
-@@ -226,63 +236,229 @@ struct set_schib_struct {
- 	unsigned long address;
- 	wait_queue_head_t wait;
- 	int ret;
-+	struct kref kref;
- };
- 
-+static void cmf_set_schib_release(struct kref *kref)
-+{
-+	struct set_schib_struct *set_data;
-+
-+	set_data = container_of(kref, struct set_schib_struct, kref);
-+	kfree(set_data);
-+}
-+
-+#define CMF_PENDING 1
-+
- static int set_schib_wait(struct ccw_device *cdev, u32 mme,
- 				int mbfc, unsigned long address)
- {
--	struct set_schib_struct s = {
--		.mme = mme,
--		.mbfc = mbfc,
--		.address = address,
--		.wait = __WAIT_QUEUE_HEAD_INITIALIZER(s.wait),
--	};
-+	struct set_schib_struct *set_data;
-+	int ret;
- 
- 	spin_lock_irq(cdev->ccwlock);
--	s.ret = set_schib(cdev, mme, mbfc, address);
--	if (s.ret != -EBUSY) {
--		goto out_nowait;
-+	if (!cdev->private->cmb) {
-+		ret = -ENODEV;
-+		goto out;
- 	}
-+	set_data = kzalloc(sizeof(struct set_schib_struct), GFP_ATOMIC);
-+	if (!set_data) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	init_waitqueue_head(&set_data->wait);
-+	kref_init(&set_data->kref);
-+	set_data->mme = mme;
-+	set_data->mbfc = mbfc;
-+	set_data->address = address;
-+
-+	ret = set_schib(cdev, mme, mbfc, address);
-+	if (ret != -EBUSY)
-+		goto out_put;
- 
- 	if (cdev->private->state != DEV_STATE_ONLINE) {
--		s.ret = -EBUSY;
- 		/* if the device is not online, don't even try again */
--		goto out_nowait;
-+		ret = -EBUSY;
-+		goto out_put;
- 	}
-+
- 	cdev->private->state = DEV_STATE_CMFCHANGE;
--	cdev->private->cmb_wait = &s;
--	s.ret = 1;
-+	set_data->ret = CMF_PENDING;
-+	cdev->private->cmb_wait = set_data;
- 
- 	spin_unlock_irq(cdev->ccwlock);
--	if (wait_event_interruptible(s.wait, s.ret != 1)) {
-+	if (wait_event_interruptible(set_data->wait,
-+				     set_data->ret != CMF_PENDING)) {
- 		spin_lock_irq(cdev->ccwlock);
--		if (s.ret == 1) {
--			s.ret = -ERESTARTSYS;
--			cdev->private->cmb_wait = 0;
-+		if (set_data->ret == CMF_PENDING) {
-+			set_data->ret = -ERESTARTSYS;
- 			if (cdev->private->state == DEV_STATE_CMFCHANGE)
- 				cdev->private->state = DEV_STATE_ONLINE;
- 		}
- 		spin_unlock_irq(cdev->ccwlock);
- 	}
--	return s.ret;
+diff -urpN linux-2.6/drivers/s390/crypto/z90crypt.h linux-2.6-patched/drivers/s390/crypto/z90crypt.h
+--- linux-2.6/drivers/s390/crypto/z90crypt.h	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/crypto/z90crypt.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,252 +0,0 @@
+-/*
+- *  linux/drivers/s390/crypto/z90crypt.h
+- *
+- *  z90crypt 1.3.3
+- *
+- *  Copyright (C)  2001, 2005 IBM Corporation
+- *  Author(s): Robert Burroughs (burrough@us.ibm.com)
+- *             Eric Rossman (edrossma@us.ibm.com)
+- *
+- *  Hotplug & misc device support: Jochen Roehrig (roehrig@de.ibm.com)
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2, or (at your option)
+- * any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- */
 -
--out_nowait:
-+	spin_lock_irq(cdev->ccwlock);
-+	cdev->private->cmb_wait = NULL;
-+	ret = set_data->ret;
-+out_put:
-+	kref_put(&set_data->kref, cmf_set_schib_release);
-+out:
- 	spin_unlock_irq(cdev->ccwlock);
--	return s.ret;
-+	return ret;
- }
+-#ifndef _Z90CRYPT_H_
+-#define _Z90CRYPT_H_
+-
+-#include <linux/ioctl.h>
+-
+-#define z90crypt_VERSION 1
+-#define z90crypt_RELEASE 3	// 2 = PCIXCC, 3 = rewrite for coding standards
+-#define z90crypt_VARIANT 3	// 3 = CEX2A support
+-
+-/**
+- * struct ica_rsa_modexpo
+- *
+- * Requirements:
+- * - outputdatalength is at least as large as inputdatalength.
+- * - All key parts are right justified in their fields, padded on
+- *   the left with zeroes.
+- * - length(b_key) = inputdatalength
+- * - length(n_modulus) = inputdatalength
+- */
+-struct ica_rsa_modexpo {
+-	char __user *	inputdata;
+-	unsigned int	inputdatalength;
+-	char __user *	outputdata;
+-	unsigned int	outputdatalength;
+-	char __user *	b_key;
+-	char __user *	n_modulus;
+-};
+-
+-/**
+- * struct ica_rsa_modexpo_crt
+- *
+- * Requirements:
+- * - inputdatalength is even.
+- * - outputdatalength is at least as large as inputdatalength.
+- * - All key parts are right justified in their fields, padded on
+- *   the left with zeroes.
+- * - length(bp_key)	= inputdatalength/2 + 8
+- * - length(bq_key)	= inputdatalength/2
+- * - length(np_key)	= inputdatalength/2 + 8
+- * - length(nq_key)	= inputdatalength/2
+- * - length(u_mult_inv) = inputdatalength/2 + 8
+- */
+-struct ica_rsa_modexpo_crt {
+-	char __user *	inputdata;
+-	unsigned int	inputdatalength;
+-	char __user *	outputdata;
+-	unsigned int	outputdatalength;
+-	char __user *	bp_key;
+-	char __user *	bq_key;
+-	char __user *	np_prime;
+-	char __user *	nq_prime;
+-	char __user *	u_mult_inv;
+-};
+-
+-#define Z90_IOCTL_MAGIC 'z'  // NOTE:  Need to allocate from linux folks
+-
+-/**
+- * Interface notes:
+- *
+- * The ioctl()s which are implemented (along with relevant details)
+- * are:
+- *
+- *   ICARSAMODEXPO
+- *     Perform an RSA operation using a Modulus-Exponent pair
+- *     This takes an ica_rsa_modexpo struct as its arg.
+- *
+- *     NOTE: please refer to the comments preceding this structure
+- *           for the implementation details for the contents of the
+- *           block
+- *
+- *   ICARSACRT
+- *     Perform an RSA operation using a Chinese-Remainder Theorem key
+- *     This takes an ica_rsa_modexpo_crt struct as its arg.
+- *
+- *     NOTE: please refer to the comments preceding this structure
+- *           for the implementation details for the contents of the
+- *           block
+- *
+- *   Z90STAT_TOTALCOUNT
+- *     Return an integer count of all device types together.
+- *
+- *   Z90STAT_PCICACOUNT
+- *     Return an integer count of all PCICAs.
+- *
+- *   Z90STAT_PCICCCOUNT
+- *     Return an integer count of all PCICCs.
+- *
+- *   Z90STAT_PCIXCCMCL2COUNT
+- *     Return an integer count of all MCL2 PCIXCCs.
+- *
+- *   Z90STAT_PCIXCCMCL3COUNT
+- *     Return an integer count of all MCL3 PCIXCCs.
+- *
+- *   Z90STAT_CEX2CCOUNT
+- *     Return an integer count of all CEX2Cs.
+- *
+- *   Z90STAT_CEX2ACOUNT
+- *     Return an integer count of all CEX2As.
+- *
+- *   Z90STAT_REQUESTQ_COUNT
+- *     Return an integer count of the number of entries waiting to be
+- *     sent to a device.
+- *
+- *   Z90STAT_PENDINGQ_COUNT
+- *     Return an integer count of the number of entries sent to a
+- *     device awaiting the reply.
+- *
+- *   Z90STAT_TOTALOPEN_COUNT
+- *     Return an integer count of the number of open file handles.
+- *
+- *   Z90STAT_DOMAIN_INDEX
+- *     Return the integer value of the Cryptographic Domain.
+- *
+- *   Z90STAT_STATUS_MASK
+- *     Return an 64 element array of unsigned chars for the status of
+- *     all devices.
+- *       0x01: PCICA
+- *       0x02: PCICC
+- *       0x03: PCIXCC_MCL2
+- *       0x04: PCIXCC_MCL3
+- *       0x05: CEX2C
+- *       0x06: CEX2A
+- *       0x0d: device is disabled via the proc filesystem
+- *
+- *   Z90STAT_QDEPTH_MASK
+- *     Return an 64 element array of unsigned chars for the queue
+- *     depth of all devices.
+- *
+- *   Z90STAT_PERDEV_REQCNT
+- *     Return an 64 element array of unsigned integers for the number
+- *     of successfully completed requests per device since the device
+- *     was detected and made available.
+- *
+- *   ICAZ90STATUS (deprecated)
+- *     Return some device driver status in a ica_z90_status struct
+- *     This takes an ica_z90_status struct as its arg.
+- *
+- *     NOTE: this ioctl() is deprecated, and has been replaced with
+- *           single ioctl()s for each type of status being requested
+- *
+- *   Z90STAT_PCIXCCCOUNT (deprecated)
+- *     Return an integer count of all PCIXCCs (MCL2 + MCL3).
+- *     This is DEPRECATED now that MCL3 PCIXCCs are treated differently from
+- *     MCL2 PCIXCCs.
+- *
+- *   Z90QUIESCE (not recommended)
+- *     Quiesce the driver.  This is intended to stop all new
+- *     requests from being processed.  Its use is NOT recommended,
+- *     except in circumstances where there is no other way to stop
+- *     callers from accessing the driver.  Its original use was to
+- *     allow the driver to be "drained" of work in preparation for
+- *     a system shutdown.
+- *
+- *     NOTE: once issued, this ban on new work cannot be undone
+- *           except by unloading and reloading the driver.
+- */
+-
+-/**
+- * Supported ioctl calls
+- */
+-#define ICARSAMODEXPO	_IOC(_IOC_READ|_IOC_WRITE, Z90_IOCTL_MAGIC, 0x05, 0)
+-#define ICARSACRT	_IOC(_IOC_READ|_IOC_WRITE, Z90_IOCTL_MAGIC, 0x06, 0)
+-
+-/* DEPRECATED status calls (bound for removal at some point) */
+-#define ICAZ90STATUS	_IOR(Z90_IOCTL_MAGIC, 0x10, struct ica_z90_status)
+-#define Z90STAT_PCIXCCCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x43, int)
+-
+-/* unrelated to ICA callers */
+-#define Z90QUIESCE	_IO(Z90_IOCTL_MAGIC, 0x11)
+-
+-/* New status calls */
+-#define Z90STAT_TOTALCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x40, int)
+-#define Z90STAT_PCICACOUNT	_IOR(Z90_IOCTL_MAGIC, 0x41, int)
+-#define Z90STAT_PCICCCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x42, int)
+-#define Z90STAT_PCIXCCMCL2COUNT	_IOR(Z90_IOCTL_MAGIC, 0x4b, int)
+-#define Z90STAT_PCIXCCMCL3COUNT	_IOR(Z90_IOCTL_MAGIC, 0x4c, int)
+-#define Z90STAT_CEX2CCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x4d, int)
+-#define Z90STAT_CEX2ACOUNT	_IOR(Z90_IOCTL_MAGIC, 0x4e, int)
+-#define Z90STAT_REQUESTQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x44, int)
+-#define Z90STAT_PENDINGQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x45, int)
+-#define Z90STAT_TOTALOPEN_COUNT _IOR(Z90_IOCTL_MAGIC, 0x46, int)
+-#define Z90STAT_DOMAIN_INDEX	_IOR(Z90_IOCTL_MAGIC, 0x47, int)
+-#define Z90STAT_STATUS_MASK	_IOR(Z90_IOCTL_MAGIC, 0x48, char[64])
+-#define Z90STAT_QDEPTH_MASK	_IOR(Z90_IOCTL_MAGIC, 0x49, char[64])
+-#define Z90STAT_PERDEV_REQCNT	_IOR(Z90_IOCTL_MAGIC, 0x4a, int[64])
+-
+-/**
+- * local errno definitions
+- */
+-#define ENOBUFF	  129	// filp->private_data->...>work_elem_p->buffer is NULL
+-#define EWORKPEND 130	// user issues ioctl while another pending
+-#define ERELEASED 131	// user released while ioctl pending
+-#define EQUIESCE  132	// z90crypt quiescing (no more work allowed)
+-#define ETIMEOUT  133	// request timed out
+-#define EUNKNOWN  134	// some unrecognized error occured (retry may succeed)
+-#define EGETBUFF  135	// Error getting buffer or hardware lacks capability
+-			// (retry in software)
+-
+-/**
+- * DEPRECATED STRUCTURES
+- */
+-
+-/**
+- * This structure is DEPRECATED and the corresponding ioctl() has been
+- * replaced with individual ioctl()s for each piece of data!
+- * This structure will NOT survive past version 1.3.1, so switch to the
+- * new ioctl()s.
+- */
+-#define MASK_LENGTH 64 // mask length
+-struct ica_z90_status {
+-	int totalcount;
+-	int leedslitecount; // PCICA
+-	int leeds2count;    // PCICC
+-	// int PCIXCCCount; is not in struct for backward compatibility
+-	int requestqWaitCount;
+-	int pendingqWaitCount;
+-	int totalOpenCount;
+-	int cryptoDomain;
+-	// status: 0=not there, 1=PCICA, 2=PCICC, 3=PCIXCC_MCL2, 4=PCIXCC_MCL3,
+-	//         5=CEX2C
+-	unsigned char status[MASK_LENGTH];
+-	// qdepth: # work elements waiting for each device
+-	unsigned char qdepth[MASK_LENGTH];
+-};
+-
+-#endif /* _Z90CRYPT_H_ */
+diff -urpN linux-2.6/drivers/s390/crypto/z90hardware.c linux-2.6-patched/drivers/s390/crypto/z90hardware.c
+--- linux-2.6/drivers/s390/crypto/z90hardware.c	2006-06-14 14:29:18.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90hardware.c	2006-06-14 14:29:54.000000000 +0200
+@@ -29,7 +29,7 @@
+ #include <linux/delay.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+-#include "z90crypt.h"
++#include <asm/z90crypt.h>
+ #include "z90common.h"
  
- void retry_set_schib(struct ccw_device *cdev)
- {
--	struct set_schib_struct *s;
-+	struct set_schib_struct *set_data;
+ struct cca_token_hdr {
+@@ -1688,7 +1688,7 @@ ICAMEX_msg_to_type6MEX_en_msg(struct ica
  
--	s = cdev->private->cmb_wait;
--	cdev->private->cmb_wait = 0;
--	if (!s) {
-+	set_data = cdev->private->cmb_wait;
-+	if (!set_data) {
- 		WARN_ON(1);
- 		return;
- 	}
--	s->ret = set_schib(cdev, s->mme, s->mbfc, s->address);
--	wake_up(&s->wait);
-+	kref_get(&set_data->kref);
-+	set_data->ret = set_schib(cdev, set_data->mme, set_data->mbfc,
-+				  set_data->address);
-+	wake_up(&set_data->wait);
-+	kref_put(&set_data->kref, cmf_set_schib_release);
-+}
-+
-+static int cmf_copy_block(struct ccw_device *cdev)
-+{
-+	struct subchannel *sch;
-+	void *reference_buf;
-+	void *hw_block;
-+	struct cmb_data *cmb_data;
-+
-+	sch = to_subchannel(cdev->dev.parent);
-+
-+	if (stsch(sch->schid, &sch->schib))
-+		return -ENODEV;
-+
-+	if (sch->schib.scsw.fctl & SCSW_FCTL_START_FUNC) {
-+		/* Don't copy if a start function is in progress. */
-+		if ((!sch->schib.scsw.actl & SCSW_ACTL_SUSPENDED) &&
-+		    (sch->schib.scsw.actl &
-+		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT)) &&
-+		    (!sch->schib.scsw.stctl & SCSW_STCTL_SEC_STATUS))
-+			return -EBUSY;
-+	}
-+	cmb_data = cdev->private->cmb;
-+	hw_block = cmbops->align(cmb_data->hw_block);
-+	if (!memcmp(cmb_data->last_block, hw_block, cmb_data->size))
-+		/* No need to copy. */
-+		return 0;
-+	reference_buf = kzalloc(cmb_data->size, GFP_ATOMIC);
-+	if (!reference_buf)
-+		return -ENOMEM;
-+	/* Ensure consistency of block copied from hardware. */
-+	do {
-+		memcpy(cmb_data->last_block, hw_block, cmb_data->size);
-+		memcpy(reference_buf, hw_block, cmb_data->size);
-+	} while (memcmp(cmb_data->last_block, reference_buf, cmb_data->size));
-+	cmb_data->last_update = get_clock();
-+	kfree(reference_buf);
-+	return 0;
-+}
-+
-+struct copy_block_struct {
-+	wait_queue_head_t wait;
-+	int ret;
-+	struct kref kref;
-+};
-+
-+static void cmf_copy_block_release(struct kref *kref)
-+{
-+	struct copy_block_struct *copy_block;
-+
-+	copy_block = container_of(kref, struct copy_block_struct, kref);
-+	kfree(copy_block);
-+}
-+
-+static int cmf_cmb_copy_wait(struct ccw_device *cdev)
-+{
-+	struct copy_block_struct *copy_block;
-+	int ret;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(cdev->ccwlock, flags);
-+	if (!cdev->private->cmb) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+	copy_block = kzalloc(sizeof(struct copy_block_struct), GFP_ATOMIC);
-+	if (!copy_block) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	init_waitqueue_head(&copy_block->wait);
-+	kref_init(&copy_block->kref);
-+
-+	ret = cmf_copy_block(cdev);
-+	if (ret != -EBUSY)
-+		goto out_put;
-+
-+	if (cdev->private->state != DEV_STATE_ONLINE) {
-+		ret = -EBUSY;
-+		goto out_put;
-+	}
-+
-+	cdev->private->state = DEV_STATE_CMFUPDATE;
-+	copy_block->ret = CMF_PENDING;
-+	cdev->private->cmb_wait = copy_block;
-+
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	if (wait_event_interruptible(copy_block->wait,
-+				     copy_block->ret != CMF_PENDING)) {
-+		spin_lock_irqsave(cdev->ccwlock, flags);
-+		if (copy_block->ret == CMF_PENDING) {
-+			copy_block->ret = -ERESTARTSYS;
-+			if (cdev->private->state == DEV_STATE_CMFUPDATE)
-+				cdev->private->state = DEV_STATE_ONLINE;
-+		}
-+		spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	}
-+	spin_lock_irqsave(cdev->ccwlock, flags);
-+	cdev->private->cmb_wait = NULL;
-+	ret = copy_block->ret;
-+out_put:
-+	kref_put(&copy_block->kref, cmf_copy_block_release);
-+out:
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	return ret;
-+}
-+
-+void cmf_retry_copy_block(struct ccw_device *cdev)
-+{
-+	struct copy_block_struct *copy_block;
-+
-+	copy_block = cdev->private->cmb_wait;
-+	if (!copy_block) {
-+		WARN_ON(1);
-+		return;
-+	}
-+	kref_get(&copy_block->kref);
-+	copy_block->ret = cmf_copy_block(cdev);
-+	wake_up(&copy_block->wait);
-+	kref_put(&copy_block->kref, cmf_copy_block_release);
-+}
-+
-+static void cmf_generic_reset(struct ccw_device *cdev)
-+{
-+	struct cmb_data *cmb_data;
-+
-+	spin_lock_irq(cdev->ccwlock);
-+	cmb_data = cdev->private->cmb;
-+	if (cmb_data) {
-+		memset(cmb_data->last_block, 0, cmb_data->size);
-+		/*
-+		 * Need to reset hw block as well to make the hardware start
-+		 * from 0 again.
-+		 */
-+		memset(cmbops->align(cmb_data->hw_block), 0, cmb_data->size);
-+		cmb_data->last_update = 0;
-+	}
-+	cdev->private->cmb_start_time = get_clock();
-+	spin_unlock_irq(cdev->ccwlock);
- }
+ 	temp_exp = kmalloc(256, GFP_KERNEL);
+ 	if (!temp_exp)
+-		return EGETBUFF;
++		return ENOMEM;
+ 	mod_len = icaMsg_p->inputdatalength;
+ 	if (copy_from_user(temp_exp, icaMsg_p->b_key, mod_len)) {
+ 		kfree(temp_exp);
+@@ -1918,7 +1918,7 @@ ICAMEX_msg_to_type6MEX_msgX(struct ica_r
+ 
+ 	temp_exp = kmalloc(256, GFP_KERNEL);
+ 	if (!temp_exp)
+-		return EGETBUFF;
++		return ENOMEM;
+ 	mod_len = icaMsg_p->inputdatalength;
+ 	if (copy_from_user(temp_exp, icaMsg_p->b_key, mod_len)) {
+ 		kfree(temp_exp);
+diff -urpN linux-2.6/drivers/s390/crypto/z90main.c linux-2.6-patched/drivers/s390/crypto/z90main.c
+--- linux-2.6/drivers/s390/crypto/z90main.c	2006-06-14 14:29:18.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90main.c	2006-06-14 14:29:54.000000000 +0200
+@@ -35,7 +35,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/proc_fs.h>
+ #include <linux/syscalls.h>
+-#include "z90crypt.h"
++#include <asm/z90crypt.h>
+ #include "z90common.h"
  
  /**
-@@ -343,8 +519,8 @@ struct cmb {
- /* insert a single device into the cmb_area list
-  * called with cmb_area.lock held from alloc_cmb
+@@ -381,7 +381,6 @@ static int z90crypt_status_write(struct 
   */
--static inline int
--alloc_cmb_single (struct ccw_device *cdev)
-+static inline int alloc_cmb_single (struct ccw_device *cdev,
-+				    struct cmb_data *cmb_data)
- {
- 	struct cmb *cmb;
- 	struct ccw_device_private *node;
-@@ -358,10 +534,12 @@ alloc_cmb_single (struct ccw_device *cde
+ static int domain = DOMAIN_INDEX;
+ static struct z90crypt z90crypt;
+-static int quiesce_z90crypt;
+ static spinlock_t queuespinlock;
+ static struct list_head request_list;
+ static int requestq_count;
+@@ -600,8 +599,6 @@ z90crypt_init_module(void)
+ 	INIT_LIST_HEAD(&request_list);
+ 	requestq_count = 0;
  
- 	/* find first unused cmb in cmb_area.mem.
- 	 * this is a little tricky: cmb_area.list
--	 * remains sorted by ->cmb pointers */
-+	 * remains sorted by ->cmb->hw_data pointers */
- 	cmb = cmb_area.mem;
- 	list_for_each_entry(node, &cmb_area.list, cmb_list) {
--		if ((struct cmb*)node->cmb > cmb)
-+		struct cmb_data *data;
-+		data = node->cmb;
-+		if ((struct cmb*)data->hw_block > cmb)
+-	quiesce_z90crypt = 0;
+-
+ 	atomic_set(&total_open, 0);
+ 	atomic_set(&z90crypt_step, 0);
+ 
+@@ -704,9 +701,6 @@ z90crypt_open(struct inode *inode, struc
+ {
+ 	struct priv_data *private_data_p;
+ 
+-	if (quiesce_z90crypt)
+-		return -EQUIESCE;
+-
+ 	private_data_p = kzalloc(sizeof(struct priv_data), GFP_KERNEL);
+ 	if (!private_data_p) {
+ 		PRINTK("Memory allocate failed\n");
+@@ -767,8 +761,6 @@ z90crypt_read(struct file *filp, char __
+ 
+ 	PDEBUG("filp %p (PID %d)\n", filp, PID());
+ 
+-	if (quiesce_z90crypt)
+-		return -EQUIESCE;
+ 	if (count < 0) {
+ 		PRINTK("Requested random byte count negative: %ld\n", count);
+ 		return -EINVAL;
+@@ -1227,7 +1219,7 @@ z90crypt_send(struct work_element *we_p,
+ 	if (CHK_RDWRMASK(we_p->status[0]) != STAT_NOWORK) {
+ 		PDEBUG("PID %d tried to send more work but has outstanding "
+ 		       "work.\n", PID());
+-		return -EWORKPEND;
++		return -EBUSY;
+ 	}
+ 	we_p->devindex = -1; // Reset device number
+ 	spin_lock_irq(&queuespinlock);
+@@ -1294,7 +1286,7 @@ z90crypt_process_results(struct work_ele
+ 	if (!we_p->buffer) {
+ 		PRINTK("we_p %p PID %d in STAT_READPEND: buffer NULL.\n",
+ 			we_p, PID());
+-		rv = -ENOBUFF;
++		rv = -ENOMEM;
+ 	}
+ 
+ 	if (!rv)
+@@ -1607,12 +1599,12 @@ z90crypt_prepare(struct work_element *we
+ 		rv = -ENODEV;
+ 		break;
+ 	case SEN_NOT_AVAIL:
+-	case EGETBUFF:
+-		rv = -EGETBUFF;
++	case ENOMEM:
++		rv = -ENODEV;
+ 		break;
+ 	default:
+ 		PRINTK("rv = %d\n", rv);
+-		rv = -EGETBUFF;
++		rv = -ENODEV;
+ 		break;
+ 	}
+ 	if (CHK_RDWRMASK(we_p->status[0]) == STAT_WRITTEN)
+@@ -1676,22 +1668,21 @@ z90crypt_rsa(struct priv_data *private_d
+ 		/**
+ 		 * EINVAL *after* receive is almost always a padding error or
+ 		 * length error issued by a coprocessor (not an accelerator).
+-		 * We convert this return value to -EGETBUFF which should
++		 * We convert this return value to -ENODEV which should
+ 		 * trigger a fallback to software.
+ 		 */
+ 		case -EINVAL:
+ 			if ((we_p->devtype != PCICA) &&
+ 			    (we_p->devtype != CEX2A))
+-				rv = -EGETBUFF;
++				rv = -ENODEV;
  			break;
- 		cmb++;
- 	}
-@@ -372,7 +550,8 @@ alloc_cmb_single (struct ccw_device *cde
+-		case -ETIMEOUT:
++		case -EIO:
+ 			if (z90crypt.mask.st_count > 0)
+ 				rv = -ERESTARTSYS; // retry with another
+ 			else
+ 				rv = -ENODEV; // no cards left
+ 		/* fall through to clean up request queue */
+ 		case -ERESTARTSYS:
+-		case -ERELEASED:
+ 			switch (CHK_RDWRMASK(we_p->status[0])) {
+ 			case STAT_WRITTEN:
+ 				purge_work_element(we_p);
+@@ -1745,10 +1736,6 @@ z90crypt_unlocked_ioctl(struct file *fil
+ 	switch (cmd) {
+ 	case ICARSAMODEXPO:
+ 	case ICARSACRT:
+-		if (quiesce_z90crypt) {
+-			ret = -EQUIESCE;
+-			break;
+-		}
+ 		ret = -ENODEV; // Default if no devices
+ 		loopLim = z90crypt.hdware_info->hdware_mask.st_count -
+ 			(z90crypt.hdware_info->hdware_mask.disabled_count +
+@@ -1917,17 +1904,6 @@ z90crypt_unlocked_ioctl(struct file *fil
+ 			ret = -EFAULT;
+ 		break;
  
- 	/* insert new cmb */
- 	list_add_tail(&cdev->private->cmb_list, &node->cmb_list);
--	cdev->private->cmb = cmb;
-+	cmb_data->hw_block = cmb;
-+	cdev->private->cmb = cmb_data;
- 	ret = 0;
- out:
- 	spin_unlock_irq(cdev->ccwlock);
-@@ -385,7 +564,19 @@ alloc_cmb (struct ccw_device *cdev)
- 	int ret;
- 	struct cmb *mem;
- 	ssize_t size;
-+	struct cmb_data *cmb_data;
-+
-+	/* Allocate private cmb_data. */
-+	cmb_data = kzalloc(sizeof(struct cmb_data), GFP_KERNEL);
-+	if (!cmb_data)
-+		return -ENOMEM;
- 
-+	cmb_data->last_block = kzalloc(sizeof(struct cmb), GFP_KERNEL);
-+	if (!cmb_data->last_block) {
-+		kfree(cmb_data);
-+		return -ENOMEM;
-+	}
-+	cmb_data->size = sizeof(struct cmb);
- 	spin_lock(&cmb_area.lock);
- 
- 	if (!cmb_area.mem) {
-@@ -414,29 +605,36 @@ alloc_cmb (struct ccw_device *cdev)
- 	}
- 
- 	/* do the actual allocation */
--	ret = alloc_cmb_single(cdev);
-+	ret = alloc_cmb_single(cdev, cmb_data);
- out:
- 	spin_unlock(&cmb_area.lock);
+-	case Z90QUIESCE:
+-		if (current->euid != 0) {
+-			PRINTK("QUIESCE fails: euid %d\n",
+-			       current->euid);
+-			ret = -EACCES;
+-		} else {
+-			PRINTK("QUIESCE device from PID %d\n", PID());
+-			quiesce_z90crypt = 1;
+-		}
+-		break;
 -
-+	if (ret) {
-+		kfree(cmb_data->last_block);
-+		kfree(cmb_data);
-+	}
- 	return ret;
- }
- 
--static void
--free_cmb(struct ccw_device *cdev)
-+static void free_cmb(struct ccw_device *cdev)
- {
- 	struct ccw_device_private *priv;
--
--	priv = cdev->private;
-+	struct cmb_data *cmb_data;
- 
- 	spin_lock(&cmb_area.lock);
- 	spin_lock_irq(cdev->ccwlock);
- 
-+	priv = cdev->private;
-+
- 	if (list_empty(&priv->cmb_list)) {
- 		/* already freed */
- 		goto out;
- 	}
- 
-+	cmb_data = priv->cmb;
- 	priv->cmb = NULL;
-+	if (cmb_data)
-+		kfree(cmb_data->last_block);
-+	kfree(cmb_data);
- 	list_del_init(&priv->cmb_list);
- 
- 	if (list_empty(&cmb_area.list)) {
-@@ -451,83 +649,97 @@ out:
- 	spin_unlock(&cmb_area.lock);
- }
- 
--static int
--set_cmb(struct ccw_device *cdev, u32 mme)
-+static int set_cmb(struct ccw_device *cdev, u32 mme)
- {
- 	u16 offset;
-+	struct cmb_data *cmb_data;
-+	unsigned long flags;
- 
--	if (!cdev->private->cmb)
-+	spin_lock_irqsave(cdev->ccwlock, flags);
-+	if (!cdev->private->cmb) {
-+		spin_unlock_irqrestore(cdev->ccwlock, flags);
- 		return -EINVAL;
--
--	offset = mme ? (struct cmb *)cdev->private->cmb - cmb_area.mem : 0;
-+	}
-+	cmb_data = cdev->private->cmb;
-+	offset = mme ? (struct cmb *)cmb_data->hw_block - cmb_area.mem : 0;
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
- 
- 	return set_schib_wait(cdev, mme, 0, offset);
- }
- 
--static u64
--read_cmb (struct ccw_device *cdev, int index)
-+static u64 read_cmb (struct ccw_device *cdev, int index)
- {
--	/* yes, we have to put it on the stack
--	 * because the cmb must only be accessed
--	 * atomically, e.g. with mvc */
--	struct cmb cmb;
--	unsigned long flags;
-+	struct cmb *cmb;
- 	u32 val;
-+	int ret;
-+	unsigned long flags;
-+
-+	ret = cmf_cmb_copy_wait(cdev);
-+	if (ret < 0)
-+		return 0;
- 
- 	spin_lock_irqsave(cdev->ccwlock, flags);
- 	if (!cdev->private->cmb) {
--		spin_unlock_irqrestore(cdev->ccwlock, flags);
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
--
--	cmb = *(struct cmb*)cdev->private->cmb;
--	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	cmb = ((struct cmb_data *)cdev->private->cmb)->last_block;
- 
- 	switch (index) {
- 	case cmb_ssch_rsch_count:
--		return cmb.ssch_rsch_count;
-+		ret = cmb->ssch_rsch_count;
-+		goto out;
- 	case cmb_sample_count:
--		return cmb.sample_count;
-+		ret = cmb->sample_count;
-+		goto out;
- 	case cmb_device_connect_time:
--		val = cmb.device_connect_time;
-+		val = cmb->device_connect_time;
- 		break;
- 	case cmb_function_pending_time:
--		val = cmb.function_pending_time;
-+		val = cmb->function_pending_time;
- 		break;
- 	case cmb_device_disconnect_time:
--		val = cmb.device_disconnect_time;
-+		val = cmb->device_disconnect_time;
- 		break;
- 	case cmb_control_unit_queuing_time:
--		val = cmb.control_unit_queuing_time;
-+		val = cmb->control_unit_queuing_time;
- 		break;
- 	case cmb_device_active_only_time:
--		val = cmb.device_active_only_time;
-+		val = cmb->device_active_only_time;
- 		break;
  	default:
--		return 0;
-+		ret = 0;
-+		goto out;
+ 		/* user passed an invalid IOCTL number */
+ 		PDEBUG("cmd 0x%08X contains invalid ioctl code\n", cmd);
+@@ -2456,7 +2432,7 @@ helper_handle_work_element(int index, un
+ 			pq_p->status[0] |= STAT_FAILED;
+ 			break;
  	}
--	return time_to_avg_nsec(val, cmb.sample_count);
-+	ret = time_to_avg_nsec(val, cmb->sample_count);
-+out:
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	return ret;
- }
- 
--static int
--readall_cmb (struct ccw_device *cdev, struct cmbdata *data)
-+static int readall_cmb (struct ccw_device *cdev, struct cmbdata *data)
- {
--	/* yes, we have to put it on the stack
--	 * because the cmb must only be accessed
--	 * atomically, e.g. with mvc */
--	struct cmb cmb;
--	unsigned long flags;
-+	struct cmb *cmb;
-+	struct cmb_data *cmb_data;
- 	u64 time;
-+	unsigned long flags;
-+	int ret;
- 
-+	ret = cmf_cmb_copy_wait(cdev);
-+	if (ret < 0)
-+		return ret;
- 	spin_lock_irqsave(cdev->ccwlock, flags);
--	if (!cdev->private->cmb) {
--		spin_unlock_irqrestore(cdev->ccwlock, flags);
--		return -ENODEV;
-+	cmb_data = cdev->private->cmb;
-+	if (!cmb_data) {
-+		ret = -ENODEV;
-+		goto out;
- 	}
--
--	cmb = *(struct cmb*)cdev->private->cmb;
--	time = get_clock() - cdev->private->cmb_start_time;
--	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	if (cmb_data->last_update == 0) {
-+		ret = -EAGAIN;
-+		goto out;
-+	}
-+	cmb = cmb_data->last_block;
-+	time = cmb_data->last_update - cdev->private->cmb_start_time;
- 
- 	memset(data, 0, sizeof(struct cmbdata));
- 
-@@ -538,31 +750,32 @@ readall_cmb (struct ccw_device *cdev, st
- 	data->elapsed_time = (time * 1000) >> 12;
- 
- 	/* copy data to new structure */
--	data->ssch_rsch_count = cmb.ssch_rsch_count;
--	data->sample_count = cmb.sample_count;
-+	data->ssch_rsch_count = cmb->ssch_rsch_count;
-+	data->sample_count = cmb->sample_count;
- 
- 	/* time fields are converted to nanoseconds while copying */
--	data->device_connect_time = time_to_nsec(cmb.device_connect_time);
--	data->function_pending_time = time_to_nsec(cmb.function_pending_time);
--	data->device_disconnect_time = time_to_nsec(cmb.device_disconnect_time);
-+	data->device_connect_time = time_to_nsec(cmb->device_connect_time);
-+	data->function_pending_time = time_to_nsec(cmb->function_pending_time);
-+	data->device_disconnect_time =
-+		time_to_nsec(cmb->device_disconnect_time);
- 	data->control_unit_queuing_time
--		= time_to_nsec(cmb.control_unit_queuing_time);
-+		= time_to_nsec(cmb->control_unit_queuing_time);
- 	data->device_active_only_time
--		= time_to_nsec(cmb.device_active_only_time);
-+		= time_to_nsec(cmb->device_active_only_time);
-+	ret = 0;
-+out:
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	return ret;
-+}
- 
--	return 0;
-+static void reset_cmb(struct ccw_device *cdev)
-+{
-+	cmf_generic_reset(cdev);
- }
- 
--static void
--reset_cmb(struct ccw_device *cdev)
-+static void * align_cmb(void *area)
- {
--	struct cmb *cmb;
--	spin_lock_irq(cdev->ccwlock);
--	cmb = cdev->private->cmb;
--	if (cmb)
--		memset (cmb, 0, sizeof (*cmb));
--	cdev->private->cmb_start_time = get_clock();
--	spin_unlock_irq(cdev->ccwlock);
-+	return area;
- }
- 
- static struct attribute_group cmf_attr_group;
-@@ -574,6 +787,7 @@ static struct cmb_operations cmbops_basi
- 	.read	= read_cmb,
- 	.readall    = readall_cmb,
- 	.reset	    = reset_cmb,
-+	.align	    = align_cmb,
- 	.attr_group = &cmf_attr_group,
- };
- 
-@@ -610,22 +824,34 @@ static inline struct cmbe* cmbe_align(st
- 	return (struct cmbe*)addr;
- }
- 
--static int
--alloc_cmbe (struct ccw_device *cdev)
-+static int alloc_cmbe (struct ccw_device *cdev)
- {
- 	struct cmbe *cmbe;
--	cmbe = kmalloc (sizeof (*cmbe) * 2, GFP_KERNEL);
-+	struct cmb_data *cmb_data;
-+	int ret;
+-	if ((pq_p->status[0] != STAT_FAILED) || (pq_p->retcode != -ERELEASED)) {
++	if (pq_p->status[0] != STAT_FAILED) {
+ 		pq_p->audit[1] |= FP_AWAKENING;
+ 		atomic_set(&pq_p->alarmrung, 1);
+ 		wake_up(&pq_p->waitq);
+@@ -2647,7 +2623,7 @@ helper_timeout_requests(void)
+ 		       ((struct caller *)pq_p->requestptr)->caller_id[5],
+ 		       ((struct caller *)pq_p->requestptr)->caller_id[6],
+ 		       ((struct caller *)pq_p->requestptr)->caller_id[7]);
+-		pq_p->retcode = -ETIMEOUT;
++		pq_p->retcode = -EIO;
+ 		pq_p->status[0] |= STAT_FAILED;
+ 		/* get this off any caller queue it may be on */
+ 		unbuild_caller(LONG2DEVPTR(pq_p->devindex),
+@@ -2679,7 +2655,7 @@ helper_timeout_requests(void)
+ 		       ((struct caller *)pq_p->requestptr)->caller_id[5],
+ 		       ((struct caller *)pq_p->requestptr)->caller_id[6],
+ 		       ((struct caller *)pq_p->requestptr)->caller_id[7]);
+-			pq_p->retcode = -ETIMEOUT;
++			pq_p->retcode = -EIO;
+ 			pq_p->status[0] |= STAT_FAILED;
+ 			list_del_init(lptr);
+ 			requestq_count--;
+diff -urpN linux-2.6/include/asm-s390/z90crypt.h linux-2.6-patched/include/asm-s390/z90crypt.h
+--- linux-2.6/include/asm-s390/z90crypt.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/z90crypt.h	2006-06-14 14:29:54.000000000 +0200
+@@ -0,0 +1,227 @@
++/*
++ *  linux/drivers/s390/crypto/z90crypt.h
++ *
++ *  z90crypt 1.3.3
++ *
++ *  Copyright (C)  2001, 2005 IBM Corporation
++ *  Author(s): Robert Burroughs (burrough@us.ibm.com)
++ *	       Eric Rossman (edrossma@us.ibm.com)
++ *
++ *  Hotplug & misc device support: Jochen Roehrig (roehrig@de.ibm.com)
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
 +
-+	cmbe = kzalloc (sizeof (*cmbe) * 2, GFP_KERNEL);
- 	if (!cmbe)
- 		return -ENOMEM;
--
-+	cmb_data = kzalloc(sizeof(struct cmb_data), GFP_KERNEL);
-+	if (!cmb_data) {
-+		ret = -ENOMEM;
-+		goto out_free;
-+	}
-+	cmb_data->last_block = kzalloc(sizeof(struct cmbe), GFP_KERNEL);
-+	if (!cmb_data->last_block) {
-+		ret = -ENOMEM;
-+		goto out_free;
-+	}
-+	cmb_data->size = sizeof(struct cmbe);
- 	spin_lock_irq(cdev->ccwlock);
- 	if (cdev->private->cmb) {
--		kfree(cmbe);
- 		spin_unlock_irq(cdev->ccwlock);
--		return -EBUSY;
-+		ret = -EBUSY;
-+		goto out_free;
- 	}
--
--	cdev->private->cmb = cmbe;
-+	cmb_data->hw_block = cmbe;
-+	cdev->private->cmb = cmb_data;
- 	spin_unlock_irq(cdev->ccwlock);
- 
- 	/* activate global measurement if this is the first channel */
-@@ -636,14 +862,24 @@ alloc_cmbe (struct ccw_device *cdev)
- 	spin_unlock(&cmb_area.lock);
- 
- 	return 0;
-+out_free:
-+	if (cmb_data)
-+		kfree(cmb_data->last_block);
-+	kfree(cmb_data);
-+	kfree(cmbe);
-+	return ret;
- }
- 
--static void
--free_cmbe (struct ccw_device *cdev)
-+static void free_cmbe (struct ccw_device *cdev)
- {
-+	struct cmb_data *cmb_data;
++#ifndef _ASM_S390_Z90CRYPT_H
++#define _ASM_S390_Z90CRYPT_H
 +
- 	spin_lock_irq(cdev->ccwlock);
--	kfree(cdev->private->cmb);
-+	cmb_data = cdev->private->cmb;
- 	cdev->private->cmb = NULL;
-+	if (cmb_data)
-+		kfree(cmb_data->last_block);
-+	kfree(cmb_data);
- 	spin_unlock_irq(cdev->ccwlock);
- 
- 	/* deactivate global measurement if this is the last channel */
-@@ -654,89 +890,105 @@ free_cmbe (struct ccw_device *cdev)
- 	spin_unlock(&cmb_area.lock);
- }
- 
--static int
--set_cmbe(struct ccw_device *cdev, u32 mme)
-+static int set_cmbe(struct ccw_device *cdev, u32 mme)
- {
- 	unsigned long mba;
-+	struct cmb_data *cmb_data;
-+	unsigned long flags;
- 
--	if (!cdev->private->cmb)
-+	spin_lock_irqsave(cdev->ccwlock, flags);
-+	if (!cdev->private->cmb) {
-+		spin_unlock_irqrestore(cdev->ccwlock, flags);
- 		return -EINVAL;
--	mba = mme ? (unsigned long) cmbe_align(cdev->private->cmb) : 0;
-+	}
-+	cmb_data = cdev->private->cmb;
-+	mba = mme ? (unsigned long) cmbe_align(cmb_data->hw_block) : 0;
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
- 
- 	return set_schib_wait(cdev, mme, 1, mba);
- }
- 
- 
--u64
--read_cmbe (struct ccw_device *cdev, int index)
-+static u64 read_cmbe (struct ccw_device *cdev, int index)
- {
--	/* yes, we have to put it on the stack
--	 * because the cmb must only be accessed
--	 * atomically, e.g. with mvc */
--	struct cmbe cmb;
--	unsigned long flags;
-+	struct cmbe *cmb;
-+	struct cmb_data *cmb_data;
- 	u32 val;
-+	int ret;
-+	unsigned long flags;
- 
--	spin_lock_irqsave(cdev->ccwlock, flags);
--	if (!cdev->private->cmb) {
--		spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	ret = cmf_cmb_copy_wait(cdev);
-+	if (ret < 0)
- 		return 0;
--	}
- 
--	cmb = *cmbe_align(cdev->private->cmb);
--	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	spin_lock_irqsave(cdev->ccwlock, flags);
-+	cmb_data = cdev->private->cmb;
-+	if (!cmb_data) {
-+		ret = 0;
-+		goto out;
-+	}
-+	cmb = cmb_data->last_block;
- 
- 	switch (index) {
- 	case cmb_ssch_rsch_count:
--		return cmb.ssch_rsch_count;
-+		ret = cmb->ssch_rsch_count;
-+		goto out;
- 	case cmb_sample_count:
--		return cmb.sample_count;
-+		ret = cmb->sample_count;
-+		goto out;
- 	case cmb_device_connect_time:
--		val = cmb.device_connect_time;
-+		val = cmb->device_connect_time;
- 		break;
- 	case cmb_function_pending_time:
--		val = cmb.function_pending_time;
-+		val = cmb->function_pending_time;
- 		break;
- 	case cmb_device_disconnect_time:
--		val = cmb.device_disconnect_time;
-+		val = cmb->device_disconnect_time;
- 		break;
- 	case cmb_control_unit_queuing_time:
--		val = cmb.control_unit_queuing_time;
-+		val = cmb->control_unit_queuing_time;
- 		break;
- 	case cmb_device_active_only_time:
--		val = cmb.device_active_only_time;
-+		val = cmb->device_active_only_time;
- 		break;
- 	case cmb_device_busy_time:
--		val = cmb.device_busy_time;
-+		val = cmb->device_busy_time;
- 		break;
- 	case cmb_initial_command_response_time:
--		val = cmb.initial_command_response_time;
-+		val = cmb->initial_command_response_time;
- 		break;
- 	default:
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
--	return time_to_avg_nsec(val, cmb.sample_count);
-+	ret = time_to_avg_nsec(val, cmb->sample_count);
-+out:
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	return ret;
- }
- 
--static int
--readall_cmbe (struct ccw_device *cdev, struct cmbdata *data)
-+static int readall_cmbe (struct ccw_device *cdev, struct cmbdata *data)
- {
--	/* yes, we have to put it on the stack
--	 * because the cmb must only be accessed
--	 * atomically, e.g. with mvc */
--	struct cmbe cmb;
--	unsigned long flags;
-+	struct cmbe *cmb;
-+	struct cmb_data *cmb_data;
- 	u64 time;
-+	unsigned long flags;
-+	int ret;
- 
-+	ret = cmf_cmb_copy_wait(cdev);
-+	if (ret < 0)
-+		return ret;
- 	spin_lock_irqsave(cdev->ccwlock, flags);
--	if (!cdev->private->cmb) {
--		spin_unlock_irqrestore(cdev->ccwlock, flags);
--		return -ENODEV;
-+	cmb_data = cdev->private->cmb;
-+	if (!cmb_data) {
-+		ret = -ENODEV;
-+		goto out;
- 	}
--
--	cmb = *cmbe_align(cdev->private->cmb);
--	time = get_clock() - cdev->private->cmb_start_time;
--	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	if (cmb_data->last_update == 0) {
-+		ret = -EAGAIN;
-+		goto out;
-+	}
-+	time = cmb_data->last_update - cdev->private->cmb_start_time;
- 
- 	memset (data, 0, sizeof(struct cmbdata));
- 
-@@ -746,35 +998,38 @@ readall_cmbe (struct ccw_device *cdev, s
- 	/* conver to nanoseconds */
- 	data->elapsed_time = (time * 1000) >> 12;
- 
-+	cmb = cmb_data->last_block;
- 	/* copy data to new structure */
--	data->ssch_rsch_count = cmb.ssch_rsch_count;
--	data->sample_count = cmb.sample_count;
-+	data->ssch_rsch_count = cmb->ssch_rsch_count;
-+	data->sample_count = cmb->sample_count;
- 
- 	/* time fields are converted to nanoseconds while copying */
--	data->device_connect_time = time_to_nsec(cmb.device_connect_time);
--	data->function_pending_time = time_to_nsec(cmb.function_pending_time);
--	data->device_disconnect_time = time_to_nsec(cmb.device_disconnect_time);
-+	data->device_connect_time = time_to_nsec(cmb->device_connect_time);
-+	data->function_pending_time = time_to_nsec(cmb->function_pending_time);
-+	data->device_disconnect_time =
-+		time_to_nsec(cmb->device_disconnect_time);
- 	data->control_unit_queuing_time
--		= time_to_nsec(cmb.control_unit_queuing_time);
-+		= time_to_nsec(cmb->control_unit_queuing_time);
- 	data->device_active_only_time
--		= time_to_nsec(cmb.device_active_only_time);
--	data->device_busy_time = time_to_nsec(cmb.device_busy_time);
-+		= time_to_nsec(cmb->device_active_only_time);
-+	data->device_busy_time = time_to_nsec(cmb->device_busy_time);
- 	data->initial_command_response_time
--		= time_to_nsec(cmb.initial_command_response_time);
-+		= time_to_nsec(cmb->initial_command_response_time);
- 
--	return 0;
-+	ret = 0;
-+out:
-+	spin_unlock_irqrestore(cdev->ccwlock, flags);
-+	return ret;
- }
- 
--static void
--reset_cmbe(struct ccw_device *cdev)
-+static void reset_cmbe(struct ccw_device *cdev)
- {
--	struct cmbe *cmb;
--	spin_lock_irq(cdev->ccwlock);
--	cmb = cmbe_align(cdev->private->cmb);
--	if (cmb)
--		memset (cmb, 0, sizeof (*cmb));
--	cdev->private->cmb_start_time = get_clock();
--	spin_unlock_irq(cdev->ccwlock);
-+	cmf_generic_reset(cdev);
-+}
++#include <linux/ioctl.h>
++#include <linux/compiler.h>
 +
-+static void * align_cmbe(void *area)
-+{
-+	return cmbe_align(area);
- }
- 
- static struct attribute_group cmf_attr_group_ext;
-@@ -786,6 +1041,7 @@ static struct cmb_operations cmbops_exte
- 	.read	    = read_cmbe,
- 	.readall    = readall_cmbe,
- 	.reset	    = reset_cmbe,
-+	.align	    = align_cmbe,
- 	.attr_group = &cmf_attr_group_ext,
- };
- 
-@@ -803,14 +1059,19 @@ cmb_show_avg_sample_interval(struct devi
- 	struct ccw_device *cdev;
- 	long interval;
- 	unsigned long count;
-+	struct cmb_data *cmb_data;
- 
- 	cdev = to_ccwdev(dev);
--	interval  = get_clock() - cdev->private->cmb_start_time;
- 	count = cmf_read(cdev, cmb_sample_count);
--	if (count)
-+	spin_lock_irq(cdev->ccwlock);
-+	cmb_data = cdev->private->cmb;
-+	if (count) {
-+		interval = cmb_data->last_update -
-+			cdev->private->cmb_start_time;
- 		interval /= count;
--	else
-+	} else
- 		interval = -1;
-+	spin_unlock_irq(cdev->ccwlock);
- 	return sprintf(buf, "%ld\n", interval);
- }
- 
-@@ -823,7 +1084,10 @@ cmb_show_avg_utilization(struct device *
- 	int ret;
- 
- 	ret = cmf_readall(to_ccwdev(dev), &data);
--	if (ret)
-+	if (ret == -EAGAIN || ret == -ENODEV)
-+		/* No data (yet/currently) available to use for calculation. */
-+		return sprintf(buf, "n/a\n");
-+	else if (ret)
- 		return ret;
- 
- 	utilization = data.device_connect_time +
-@@ -982,6 +1246,13 @@ cmf_readall(struct ccw_device *cdev, str
- 	return cmbops->readall(cdev, data);
- }
- 
-+/* Reenable cmf when a disconnected device becomes available again. */
-+int cmf_reenable(struct ccw_device *cdev)
-+{
-+	cmbops->reset(cdev);
-+	return cmbops->set(cdev, 2);
-+}
++#define z90crypt_VERSION 1
++#define z90crypt_RELEASE 3	// 2 = PCIXCC, 3 = rewrite for coding standards
++#define z90crypt_VARIANT 3	// 3 = CEX2A support, cleanup, sysfs interface
 +
- static int __init
- init_cmf(void)
- {
-diff -urpN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-patched/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	2006-06-14 14:29:18.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/device_fsm.c	2006-06-14 14:30:04.000000000 +0200
-@@ -336,8 +336,11 @@ ccw_device_oper_notify(void *data)
- 	if (!ret)
- 		/* Driver doesn't want device back. */
- 		ccw_device_do_unreg_rereg((void *)cdev);
--	else
-+	else {
-+		/* Reenable channel measurements, if needed. */
-+		cmf_reenable(cdev);
- 		wake_up(&cdev->private->wait_q);
-+	}
- }
- 
- /*
-@@ -1093,6 +1096,13 @@ ccw_device_change_cmfstate(struct ccw_de
- 	dev_fsm_event(cdev, dev_event);
- }
- 
-+static void ccw_device_update_cmfblock(struct ccw_device *cdev,
-+				       enum dev_event dev_event)
-+{
-+	cmf_retry_copy_block(cdev);
-+	cdev->private->state = DEV_STATE_ONLINE;
-+	dev_fsm_event(cdev, dev_event);
-+}
- 
- static void
- ccw_device_quiesce_done(struct ccw_device *cdev, enum dev_event dev_event)
-@@ -1247,6 +1257,12 @@ fsm_func_t *dev_jumptable[NR_DEV_STATES]
- 		[DEV_EVENT_TIMEOUT]	= ccw_device_change_cmfstate,
- 		[DEV_EVENT_VERIFY]	= ccw_device_change_cmfstate,
- 	},
-+	[DEV_STATE_CMFUPDATE] = {
-+		[DEV_EVENT_NOTOPER]	= ccw_device_update_cmfblock,
-+		[DEV_EVENT_INTERRUPT]	= ccw_device_update_cmfblock,
-+		[DEV_EVENT_TIMEOUT]	= ccw_device_update_cmfblock,
-+		[DEV_EVENT_VERIFY]	= ccw_device_update_cmfblock,
-+	},
- };
- 
- /*
-diff -urpN linux-2.6/drivers/s390/cio/device.h linux-2.6-patched/drivers/s390/cio/device.h
---- linux-2.6/drivers/s390/cio/device.h	2006-06-14 14:29:41.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/device.h	2006-06-14 14:30:04.000000000 +0200
-@@ -27,6 +27,7 @@ enum dev_state {
- 	DEV_STATE_DISCONNECTED,
- 	DEV_STATE_DISCONNECTED_SENSE_ID,
- 	DEV_STATE_CMFCHANGE,
-+	DEV_STATE_CMFUPDATE,
- 	/* last element! */
- 	NR_DEV_STATES
- };
-@@ -118,5 +119,8 @@ int ccw_device_stlck(struct ccw_device *
- void ccw_device_set_timeout(struct ccw_device *, int);
- extern struct subchannel_id ccw_device_get_subchannel_id(struct ccw_device *);
- 
-+/* Channel measurement facility related */
- void retry_set_schib(struct ccw_device *cdev);
-+void cmf_retry_copy_block(struct ccw_device *);
-+int cmf_reenable(struct ccw_device *);
- #endif
-diff -urpN linux-2.6/include/asm-s390/cmb.h linux-2.6-patched/include/asm-s390/cmb.h
---- linux-2.6/include/asm-s390/cmb.h	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/include/asm-s390/cmb.h	2006-06-14 14:30:04.000000000 +0200
-@@ -44,10 +44,6 @@ struct cmbdata {
- #define BIODASDCMFENABLE	_IO(DASD_IOCTL_LETTER,32)
- /* enable channel measurement */
- #define BIODASDCMFDISABLE	_IO(DASD_IOCTL_LETTER,33)
--/* reset channel measurement block */
--#define BIODASDRESETCMB		_IO(DASD_IOCTL_LETTER,34)
--/* read channel measurement data */
--#define BIODASDREADCMB		_IOWR(DASD_IOCTL_LETTER,32,u64)
- /* read channel measurement data */
- #define BIODASDREADALLCMB	_IOWR(DASD_IOCTL_LETTER,33,struct cmbdata)
- 
++/**
++ * struct ica_rsa_modexpo
++ *
++ * Requirements:
++ * - outputdatalength is at least as large as inputdatalength.
++ * - All key parts are right justified in their fields, padded on
++ *   the left with zeroes.
++ * - length(b_key) = inputdatalength
++ * - length(n_modulus) = inputdatalength
++ */
++struct ica_rsa_modexpo {
++	char __user *	inputdata;
++	unsigned int	inputdatalength;
++	char __user *	outputdata;
++	unsigned int	outputdatalength;
++	char __user *	b_key;
++	char __user *	n_modulus;
++};
++
++/**
++ * struct ica_rsa_modexpo_crt
++ *
++ * Requirements:
++ * - inputdatalength is even.
++ * - outputdatalength is at least as large as inputdatalength.
++ * - All key parts are right justified in their fields, padded on
++ *   the left with zeroes.
++ * - length(bp_key)	= inputdatalength/2 + 8
++ * - length(bq_key)	= inputdatalength/2
++ * - length(np_key)	= inputdatalength/2 + 8
++ * - length(nq_key)	= inputdatalength/2
++ * - length(u_mult_inv) = inputdatalength/2 + 8
++ */
++struct ica_rsa_modexpo_crt {
++	char __user *	inputdata;
++	unsigned int	inputdatalength;
++	char __user *	outputdata;
++	unsigned int	outputdatalength;
++	char __user *	bp_key;
++	char __user *	bq_key;
++	char __user *	np_prime;
++	char __user *	nq_prime;
++	char __user *	u_mult_inv;
++};
++
++#define Z90_IOCTL_MAGIC 'z'  // NOTE:  Need to allocate from linux folks
++
++/**
++ * Interface notes:
++ *
++ * The ioctl()s which are implemented (along with relevant details)
++ * are:
++ *
++ *   ICARSAMODEXPO
++ *     Perform an RSA operation using a Modulus-Exponent pair
++ *     This takes an ica_rsa_modexpo struct as its arg.
++ *
++ *     NOTE: please refer to the comments preceding this structure
++ *	     for the implementation details for the contents of the
++ *	     block
++ *
++ *   ICARSACRT
++ *     Perform an RSA operation using a Chinese-Remainder Theorem key
++ *     This takes an ica_rsa_modexpo_crt struct as its arg.
++ *
++ *     NOTE: please refer to the comments preceding this structure
++ *	     for the implementation details for the contents of the
++ *	     block
++ *
++ *   Z90STAT_TOTALCOUNT
++ *     Return an integer count of all device types together.
++ *
++ *   Z90STAT_PCICACOUNT
++ *     Return an integer count of all PCICAs.
++ *
++ *   Z90STAT_PCICCCOUNT
++ *     Return an integer count of all PCICCs.
++ *
++ *   Z90STAT_PCIXCCMCL2COUNT
++ *     Return an integer count of all MCL2 PCIXCCs.
++ *
++ *   Z90STAT_PCIXCCMCL3COUNT
++ *     Return an integer count of all MCL3 PCIXCCs.
++ *
++ *   Z90STAT_CEX2CCOUNT
++ *     Return an integer count of all CEX2Cs.
++ *
++ *   Z90STAT_CEX2ACOUNT
++ *     Return an integer count of all CEX2As.
++ *
++ *   Z90STAT_REQUESTQ_COUNT
++ *     Return an integer count of the number of entries waiting to be
++ *     sent to a device.
++ *
++ *   Z90STAT_PENDINGQ_COUNT
++ *     Return an integer count of the number of entries sent to a
++ *     device awaiting the reply.
++ *
++ *   Z90STAT_TOTALOPEN_COUNT
++ *     Return an integer count of the number of open file handles.
++ *
++ *   Z90STAT_DOMAIN_INDEX
++ *     Return the integer value of the Cryptographic Domain.
++ *
++ *   Z90STAT_STATUS_MASK
++ *     Return an 64 element array of unsigned chars for the status of
++ *     all devices.
++ *	 0x01: PCICA
++ *	 0x02: PCICC
++ *	 0x03: PCIXCC_MCL2
++ *	 0x04: PCIXCC_MCL3
++ *	 0x05: CEX2C
++ *	 0x06: CEX2A
++ *	 0x0d: device is disabled via the proc filesystem
++ *
++ *   Z90STAT_QDEPTH_MASK
++ *     Return an 64 element array of unsigned chars for the queue
++ *     depth of all devices.
++ *
++ *   Z90STAT_PERDEV_REQCNT
++ *     Return an 64 element array of unsigned integers for the number
++ *     of successfully completed requests per device since the device
++ *     was detected and made available.
++ *
++ *   ICAZ90STATUS (deprecated)
++ *     Return some device driver status in a ica_z90_status struct
++ *     This takes an ica_z90_status struct as its arg.
++ *
++ *     NOTE: this ioctl() is deprecated, and has been replaced with
++ *	     single ioctl()s for each type of status being requested
++ *
++ *   Z90STAT_PCIXCCCOUNT (deprecated)
++ *     Return an integer count of all PCIXCCs (MCL2 + MCL3).
++ *     This is DEPRECATED now that MCL3 PCIXCCs are treated differently from
++ *     MCL2 PCIXCCs.
++ */
++
++/**
++ * Supported ioctl calls
++ */
++#define ICARSAMODEXPO	_IOC(_IOC_READ|_IOC_WRITE, Z90_IOCTL_MAGIC, 0x05, 0)
++#define ICARSACRT	_IOC(_IOC_READ|_IOC_WRITE, Z90_IOCTL_MAGIC, 0x06, 0)
++
++/* DEPRECATED status calls (bound for removal at some point) */
++#define ICAZ90STATUS	_IOR(Z90_IOCTL_MAGIC, 0x10, struct ica_z90_status)
++#define Z90STAT_PCIXCCCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x43, int)
++
++/* New status calls */
++#define Z90STAT_TOTALCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x40, int)
++#define Z90STAT_PCICACOUNT	_IOR(Z90_IOCTL_MAGIC, 0x41, int)
++#define Z90STAT_PCICCCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x42, int)
++#define Z90STAT_PCIXCCMCL2COUNT	_IOR(Z90_IOCTL_MAGIC, 0x4b, int)
++#define Z90STAT_PCIXCCMCL3COUNT	_IOR(Z90_IOCTL_MAGIC, 0x4c, int)
++#define Z90STAT_CEX2CCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x4d, int)
++#define Z90STAT_CEX2ACOUNT	_IOR(Z90_IOCTL_MAGIC, 0x4e, int)
++#define Z90STAT_REQUESTQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x44, int)
++#define Z90STAT_PENDINGQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x45, int)
++#define Z90STAT_TOTALOPEN_COUNT _IOR(Z90_IOCTL_MAGIC, 0x46, int)
++#define Z90STAT_DOMAIN_INDEX	_IOR(Z90_IOCTL_MAGIC, 0x47, int)
++#define Z90STAT_STATUS_MASK	_IOR(Z90_IOCTL_MAGIC, 0x48, char[64])
++#define Z90STAT_QDEPTH_MASK	_IOR(Z90_IOCTL_MAGIC, 0x49, char[64])
++#define Z90STAT_PERDEV_REQCNT	_IOR(Z90_IOCTL_MAGIC, 0x4a, int[64])
++
++/**
++ * DEPRECATED STRUCTURES
++ */
++
++/**
++ * This structure is DEPRECATED and the corresponding ioctl() has been
++ * replaced with individual ioctl()s for each piece of data!
++ * This structure will NOT survive past version 1.3.1, so switch to the
++ * new ioctl()s.
++ */
++#define MASK_LENGTH 64 // mask length
++struct ica_z90_status {
++	int totalcount;
++	int leedslitecount; // PCICA
++	int leeds2count;    // PCICC
++	// int PCIXCCCount; is not in struct for backward compatibility
++	int requestqWaitCount;
++	int pendingqWaitCount;
++	int totalOpenCount;
++	int cryptoDomain;
++	// status: 0=not there, 1=PCICA, 2=PCICC, 3=PCIXCC_MCL2, 4=PCIXCC_MCL3,
++	//	   5=CEX2C
++	unsigned char status[MASK_LENGTH];
++	// qdepth: # work elements waiting for each device
++	unsigned char qdepth[MASK_LENGTH];
++};
++
++#endif /* _ASM_S390_Z90CRYPT_H */

@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWFNQqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWFNQsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWFNQqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 12:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWFNQqT
+	id S932099AbWFNQsN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 12:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWFNQsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 12:46:19 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:27294 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750854AbWFNQqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 12:46:18 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-To: grundig <grundig@teleline.es>, jeff@garzik.org, alex@clusterfs.com,
-       alan@lxorguk.ukuu.org.uk, chase.venters@clientec.com, torvalds@osdl.org,
-       adilger@clusterfs.com, akpm@osdl.org, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 14 Jun 2006 18:45:31 +0200
-References: <6lDZ6-6Hg-11@gated-at.bofh.it> <6lFet-8vZ-1@gated-at.bofh.it> <6lKHf-84q-19@gated-at.bofh.it> <6lQMJ-sm-13@gated-at.bofh.it> <6lR6f-Rx-33@gated-at.bofh.it> <6lRpH-1h2-51@gated-at.bofh.it> <6lRIT-1T1-23@gated-at.bofh.it> <6lS26-2ho-7@gated-at.bofh.it> <6lSvd-2Sh-15@gated-at.bofh.it> <6lTKz-4Ru-9@gated-at.bofh.it> <6lTUf-54A-17@gated-at.bofh.it> <6lU3S-5h5-11@gated-at.bofh.it> <6lU3X-5h5-35@gated-at.bofh.it> <6lUnl-5GL-5@gated-at.bofh.it> <6lUwX-66U-25@gated-at.bofh.it> <6lUQo-6w3-29@gated-at.bofh.it> <6lUQp-6w3-35@gated-at.bofh.it> <6lUZT-6HS-3@gated-at.bofh.it> <6nE4Z-4If-55@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1FqYV5-00047Z-A6@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+	Wed, 14 Jun 2006 12:48:13 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:33182 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932099AbWFNQsM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 12:48:12 -0400
+Date: Wed, 14 Jun 2006 09:45:33 -0700
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: mp3@de.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: statistics infrastructure (in -mm tree) review
+Message-ID: <20060614164533.GA4238@kroah.com>
+References: <20060613232131.GA30196@kroah.com> <20060613234739.GA30534@kroah.com> <20060613171827.73cd0688.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060613171827.73cd0688.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-grundig <grundig@teleline.es> wrote:
-> Alex Tomas <alex@clusterfs.com> escribió:
-
->> that's your point of view. mine is that this option (and code)
->> to be used only when needed.
+On Tue, Jun 13, 2006 at 05:18:27PM -0700, Randy.Dunlap wrote:
+> On Tue, 13 Jun 2006 16:47:39 -0700 Greg KH wrote:
+> > > +/**
+> > > + * struct statistic_info - description of a class of statistics
+> > > + * @name: pointer to name name string
+> > > + * @x_unit: pointer to string describing unit of X of (X, Y) data pair
+> > > + * @y_unit: pointer to string describing unit of Y of (X, Y) data pair
+> > > + * @flags: only flag so far (distinction of incremental and other statistic)
+> > > + * @defaults: pointer to string describing defaults setting for attributes
+> > > + *
+> > > + * Exploiters must setup an array of struct statistic_info for a
+> > > + * corresponding array of struct statistic, which are then pointed to
+> > > + * by struct statistic_interface.
+> > > + *
+> > > + * Struct statistic_info and all members and addressed strings must stay for
+> > > + * the lifetime of corresponding statistics created with statistic_create().
+> > > + *
+> > > + * Except for the name string, all other members may be left blank.
+> > > + * It would be nice of exploiters to fill it out completely, though.
+> > > + */
+> > > +struct statistic_info {
+> > > +/* public: */
+> > > +	char *name;
+> > > +	char *x_unit;
+> > > +	char *y_unit;
+> > > +	int  flags;
+> > > +	char *defaults;
+> > > +};
+> > 
+> > The whole "public:" and "private:" thing in these structures is not
+> > needed.  Just document it in the kernel-doc comments and you should be
+> > fine.  This isn't C++ :)
 > 
-> Distros may ignore your opinion and may enable it, and users won't know
-> that it's enabled or even if such feature exist - until they try to run
-> an older kernel. If almost nobody needs this feature, why not avoid
-> problems by not merging it and maintaining it separated from the
-> main tree?
+> but public: and private: are kernel-doc comments...
+> Using "private:" causes those fields to be omitted from the
+> generated documentation because those fields are for internal/private
+> use of the (statistics) infrastructure code, not to be used by
+> its clients (er, ugh, exploiters) etc.
 
-Distros might patch their kernel to support this feature and enable it,
-therefore you MUST NOT release new features AT ALL!!!1 - NOT
+Oh, I didn't realize that kerneldoc could do that now, nice.  And look,
+it's even documented that it can support that, I'll shut up now :)
 
-If a distro decides to enable a non-backward-compatible feature without
-warning, it's their fault.
+thanks,
 
-BTW: Upgrading a filesystem by using mount options _and_ forcing that
-option to be supplied on subsequent mounts is a BUG. If should be what
-current code demands, it should be fixed ASAP. I hope that's not what
-the current code does.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html
+greg k-h

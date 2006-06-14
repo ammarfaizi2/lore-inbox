@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWFNH6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWFNH7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWFNH6e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 03:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWFNH6d
+	id S1751208AbWFNH7P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 03:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWFNH7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 03:58:33 -0400
-Received: from relay03.pair.com ([209.68.5.17]:27662 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1751230AbWFNH6c (ORCPT
+	Wed, 14 Jun 2006 03:59:15 -0400
+Received: from cool.dworf.com ([193.189.190.81]:31555 "EHLO cool.dworf.com")
+	by vger.kernel.org with ESMTP id S1751208AbWFNH7O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 03:58:32 -0400
-X-pair-Authenticated: 71.197.50.189
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: bidulock@openss7.org
-Subject: Re: [RFC/PATCH 1/2] in-kernel sockets API
-Date: Wed, 14 Jun 2006 02:58:08 -0500
-User-Agent: KMail/1.9.3
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1150156562.19929.32.camel@w-sridhar2.beaverton.ibm.com> <200606131953.42002.chase.venters@clientec.com> <20060614000710.C7232@openss7.org>
-In-Reply-To: <20060614000710.C7232@openss7.org>
+	Wed, 14 Jun 2006 03:59:14 -0400
+Message-ID: <448FC1CE.9090108@dworf.com>
+Date: Wed, 14 Jun 2006 09:59:10 +0200
+From: David Osojnik <david@dworf.com>
+Reply-To: david@dworf.com
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: bad command responsiveness Proliant DL 585
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606140258.30302.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 June 2006 01:06, Brian F. G. Bidulock wrote:
->
-> The interface currently under discussion is ultimately derived from the BSD
-> socket-protocol interface, and IMHO should be EXPORT_SYMBOL instead of
-> EXPORT_SYMBOL_GPL, if only because using _GPL serves no purpose here and
-> can be defeated with 3 or 4 obvious (and probably existing) lines of code. 
-> I wrote similar wrappers for STREAMS TPI to Linux NET4 interface instead of
-> using pointers directly quite a few years ago.  I doubt I was the first.
-> There is nothing really so novel here that it deserves _GPL.
+Hello,
 
-I mentioned that I don't have any particular opinion on the BSD socket API in 
-this discussion. All that I'm speaking of here is a property of licensing. 
+We have a problem with four HP Proliant DL 585 servers with 4 AMD
+Opteron processors and 16Gb of memory and 3x 300Gb U320 SCSI disks and
+with all the latest firmware. we noticed bad command responsiveness in
+an production environment and poor performance (web server and mysql)
+The problem is good reproducible if creating a large file 30Gb in size with:
 
-I've watched a lot of what has happened with binary drivers. You'll find in 
-the LKML archives plenty of lengthy discussions about whether or not binary 
-drivers are allowed under the GPL. If I were to guess, there is still 
-disagreement. Although some hardware support could improve, we thankfully 
-seem to have some kind of an equilibrium capable of supporting lots of users.
+time dd if=/dev/zero of=test.file bs=3072 count=10240000
 
-One point I remember coming up in the discussion was that the 
-EXPORT_SYMBOL()/EXPORT_SYMBOL_GPL() split was a compromise of sorts. 
-Interfaces that were needed to support users would reasonably be placed under 
-EXPORT_SYMBOL(). By contrast, EXPORT_SYMBOL_GPL() would indicate 
-functionality that would only seem to be used by derived works. It implies 
-that any code using it should probably be GPL as well.
+on the root partition no matter which one reiserfs, ext3
 
-I don't raise this in an attempt to belittle anything people are working on. 
-It's an observation about the ecosystem - Linux in the 2.6 series has seen a 
-great amount of corporate contribution in terms of enhancing what the kernel 
-is capable of doing. GPL, I believe, encourages this.
+what happens is I open three more console windows and do random commands
+like: "ls, w, route -n, ifconfig" but the commands freezes for random
+time (this time is from 1 minute to 15minutes!! per command execution
+time) when the command starts working (after 5minutes) i try it again
+and the command freezes again for a random time... the strange thing is
+that if one command freezes all other commands freeze too when one
+starts to work others work too. (if running top it stops refreshing for
+the lockup period)
 
-Thanks,
-Chase
+we tried raid0, raid1, raid5 its the same and we even tried some other
+raid controllers other then default onboard Smart Array 5i we tried
+Smart Array 6402 and MegaRAID SCSI 320-2X. The problem is still there
+the only difference is writing speed but the lockups are still there!
+
+and we tried this on four different DL 585 servers with all the same
+problem!
+
+load when creating 32Gb file was around 10 (starting creation of the
+file with load 0.05) and the system did not run any services except the
+default (after a fresh minimum install of more then one distribution) we
+tried it too with all services shutdown and as much modules unloaded as
+we could remove.
+
+we tried lots of kernels and cciss modules but all have the problem
+including 2.6.16.20
+
+only the kernel 2.4 was working better there were still the lockups but
+were less often and commands executed faster around 50%.
+
+why am i writing to kernel list because it looks like a kernel problem
+to me since the kernel 2.4 looks much better.
+
+hope someone can help because we are getting really desperate
+
+thanks

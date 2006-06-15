@@ -1,65 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWFOXMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWFOXQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWFOXMe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 19:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWFOXMe
+	id S1750739AbWFOXQT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 19:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWFOXQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 19:12:34 -0400
-Received: from animx.eu.org ([216.98.75.249]:31143 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S1750738AbWFOXMd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 19:12:33 -0400
-Date: Thu, 15 Jun 2006 19:14:01 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: jdow <jdow@earthlink.net>, Jesper Juhl <jesper.juhl@gmail.com>,
-       nick@linicks.net, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Bernd Petrovitsch <bernd@firmix.at>, marty fouts <mf.danger@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Message-ID: <20060615231401.GA21203@animx.eu.org>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>, jdow <jdow@earthlink.net>,
-	Jesper Juhl <jesper.juhl@gmail.com>, nick@linicks.net,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Bernd Petrovitsch <bernd@firmix.at>,
-	marty fouts <mf.danger@gmail.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
+	Thu, 15 Jun 2006 19:16:19 -0400
+Received: from spock.bluecherry.net ([66.138.159.248]:39120 "EHLO
+	spock.bluecherry.net") by vger.kernel.org with ESMTP
+	id S1750739AbWFOXQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 19:16:18 -0400
+Date: Thu, 15 Jun 2006 19:16:14 -0400
+From: "Zephaniah E. Hull" <warp@aehallh.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16.20 build failure.
+Message-ID: <20060615231613.GR6154@aehallh.com>
+Mail-Followup-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
 	linux-kernel@vger.kernel.org
-References: <027e01c68e74$76875910$0225a8c0@Wednesday> <30592.1150391118@ocs3.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20060615184635.GA6370@aehallh.com> <20060615124922.56e3b76b.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Content-Disposition: inline
-In-Reply-To: <30592.1150391118@ocs3.ocs.com.au>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20060615124922.56e3b76b.rdunlap@xenotime.net>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> "jdow" (on Mon, 12 Jun 2006 16:03:46 -0700) wrote:
-> >Greylist those who have not subscribed. Let their email server try
-> >again in 30 minutes. For those who are not subscribed it should not
-> >matter if their message is delayed 30 minutes. And so far spammers
-> >never try again.
+
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Thu, Jun 15, 2006 at 12:49:22PM -0700, Randy.Dunlap wrote:
+> On Thu, 15 Jun 2006 14:46:35 -0400 Zephaniah E. Hull wrote:
 > 
-> Not true.  I greylist and my recent logs show a pattern of spam code
-> that tries 5 times at exactly 5 minute intervals, before finally giving
-> up.  Other spam code tries two or three times at one hour intervals.
-> All designed by spammers to bypass greylist systems.
+> > I got this while trying to prune the kernel down to fit into a zImage
+> > for testing (have a box that's being stubborn about getting to even the
+> > 'Uncompressing Linux...' message).
+> > 
+> >   LD      vmlinux
+> > lib/lib.a(kobject_uevent.o): In function
+> > `kobject_uevent':kobject_uevent.c:(.text+0x25b): undefined reference to
+> > `uevent_seqnum'
+> > :kobject_uevent.c:(.text+0x261): undefined reference to `uevent_seqnum'
+> > :kobject_uevent.c:(.text+0x26d): undefined reference to `uevent_seqnum'
+> > :kobject_uevent.c:(.text+0x273): undefined reference to `uevent_seqnum'
+> > :kobject_uevent.c:(.text+0x3bf): undefined reference to `uevent_helper'
+> > :kobject_uevent.c:(.text+0x3ce): undefined reference to `uevent_helper'
+> > :kobject_uevent.c:(.text+0x3ed): undefined reference to `uevent_helper'
+> > make[1]: *** [vmlinux] Error 1
+> > 
+> > 
+> > The .config is attached.
+> 
+> There is a fix with the bugzilla for this bug.
+> See http://bugzilla.kernel.org/show_bug.cgi?id=6306
+> and the patch: http://bugzilla.kernel.org/attachment.cgi?id=7754&action=view
+> 
+> 2.6.16.20 is 10 days old, probably time for a new one with fixes. :)
 
-I have yet to setup any greylisting for any of my systems yet, but I would
-greylist, and if they came back an hour later and was in blacklists, I
-wouldn't allow it.  This is one thing greylisting can do for you, defer it
-until they are in blacklists.
+NAK, the patch doesn't apply to 2.6.16.20, I'll see if I can figure out
+why and get a working patch.
 
-Of course all rules need to be weighed for the server they are placed on.  I
-would do the above on my domain since I'm the only user, I might not on big
-ISP.
-
-I have noticed spam from zombies that were not in RBLs when it came in and 5
-minutes later, they are in RBLs.
+Zephaniah E. Hull.
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???
+	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+lba32 requires bios support - which is common, and working bios support
+which is slightly less common on older boxes
+  -- Alan Cox
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEkeo9RFMAi+ZaeAERAk/bAKChIbNv3gszFsdRP+B4IlA02kF7HQCg66om
+Yj8FW9TS389yi+LVo9fUAq8=
+=Xp3q
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--

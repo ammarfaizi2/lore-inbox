@@ -1,88 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWFOODe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWFOOIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWFOODe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 10:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWFOODe
+	id S965031AbWFOOIz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 10:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWFOOIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 10:03:34 -0400
-Received: from es335.com ([67.65.19.105]:23637 "EHLO mail.es335.com")
-	by vger.kernel.org with ESMTP id S1751422AbWFOODd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 10:03:33 -0400
-Subject: RE: [openib-general] [PATCH v2 1/7] AMSO1100 Low Level Driver.
-From: Steve Wise <swise@opengridcomputing.com>
-To: Bob Sharp <bsharp@NetEffect.com>
-Cc: openib-general <openib-general@openib.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <1150378863.22603.12.camel@stevo-desktop>
-References: <5E701717F2B2ED4EA60F87C8AA57B7CC05D4E2D8@venom2>
-	 <1150378863.22603.12.camel@stevo-desktop>
-Content-Type: text/plain
-Date: Thu, 15 Jun 2006 09:03:31 -0500
-Message-Id: <1150380211.22603.17.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 15 Jun 2006 10:08:53 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:25802
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751431AbWFOOIu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 10:08:50 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: andreas@rittershofer.de
+Subject: Re: bcm43xx in 2.6.17-rc6
+Date: Thu, 15 Jun 2006 16:08:21 +0200
+User-Agent: KMail/1.9.1
+References: <1150130676.3820.26.camel@coredump> <200606121849.12542.mb@bu3sch.de> <1150281975.4006.6.camel@coredump>
+In-Reply-To: <1150281975.4006.6.camel@coredump>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606151608.21705.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-15 at 08:41 -0500, Steve Wise wrote:
-> On Wed, 2006-06-14 at 20:35 -0500, Bob Sharp wrote:
-> 
-> > > +void c2_ae_event(struct c2_dev *c2dev, u32 mq_index)
-> > > +{
-> > > +
-> 
-> <snip>
-> 
-> > > +	case C2_RES_IND_EP:{
-> > > +
-> > > +		struct c2wr_ae_connection_request *req =
-> > > +			&wr->ae.ae_connection_request;
-> > > +		struct iw_cm_id *cm_id =
-> > > +			(struct iw_cm_id *)resource_user_context;
-> > > +
-> > > +		pr_debug("C2_RES_IND_EP event_id=%d\n", event_id);
-> > > +		if (event_id != CCAE_CONNECTION_REQUEST) {
-> > > +			pr_debug("%s: Invalid event_id: %d\n",
-> > > +				__FUNCTION__, event_id);
-> > > +			break;
-> > > +		}
-> > > +		cm_event.event = IW_CM_EVENT_CONNECT_REQUEST;
-> > > +		cm_event.provider_data = (void*)(unsigned
-> > long)req->cr_handle;
-> > > +		cm_event.local_addr.sin_addr.s_addr = req->laddr;
-> > > +		cm_event.remote_addr.sin_addr.s_addr = req->raddr;
-> > > +		cm_event.local_addr.sin_port = req->lport;
-> > > +		cm_event.remote_addr.sin_port = req->rport;
-> > > +		cm_event.private_data_len =
-> > > +			be32_to_cpu(req->private_data_length);
-> > > +
-> > > +		if (cm_event.private_data_len) {
+On Wednesday 14 June 2006 12:46, Andreas Rittershofer wrote:
+> Am Montag, den 12.06.2006, 18:49 +0200 schrieb Michael Buesch:
+> > On Monday 12 June 2006 18:44, Andreas Rittershofer wrote:
+> > > 00:0c.0 Network controller: Broadcom Corporation BCM4303 802.11b
+> > > Wireless LAN Controller (rev 02)
 > > 
-> > 
-> > It looks to me as if pdata is leaking here since it is not tracked and
-> > the upper layers do not free it.  Also, if pdata is freed after the call
-> > to cm_id->event_handler returns, it exposes an issue in user space where
-> > the private data is garbage.  I suspect the iwarp cm should be copying
-> > this data before it returns.
+> > bcm43xx is hardly tested on B-only hardware.
+> > Does it work without encryption?
 > > 
 > 
-> Good catch.  
+> I don't know since I cannot deactivate encryption on my AP - I must use
+> encryption.
+
+Why can't you deactivate it for the sake of testing?
+
+> I just tested the following Card-Bus-Card:
+> 02:00.0 Network controller: Broadcom Corporation BCM4318 [AirForce One
+> 54g] 802.11g Wireless LAN Controller (rev 02)
 > 
-> Yes, I think the IWCM should copy the private data in the upcall.  If it
-> does, then the amso driver doesn't need to kmalloc()/copy at all.  It
-> can pass a ptr to its MQ entry directly...
+> It's also a broadcom-chip in another version, but the driver also says:
+> ioctl[SIOCSIWENCODEEXT]: Invalid argument
+> Driver did not support SIOCSIWENCODEEXT
+> WPA: Failed to set PTK to the driver.
 > 
+> The driver really seems to have a problem: wpa_supplicant wants to do
+> something and the driver does not understands it.
+> 
+> 
+> mfg ar
 
-Now that I've looked more into this, I'm not sure there's a simple way
-for the IWCM to copy the pdata on the upcall.  Currently, the IWCM's
-event upcall, cm_event_handler(), simply queues the work for processing
-on a workqueue thread.  So there's no per-event logic at all there.
-Lemme think on this more.  Stay tuned.  
-
-Either way, the amso driver has a memory leak...
-
-Steve.
-
-
+-- 
+Greetings Michael.

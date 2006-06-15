@@ -1,275 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWFOOmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWFOOmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030460AbWFOOmG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 10:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWFOOmF
+	id S1030452AbWFOOmk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 10:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWFOOmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 10:42:05 -0400
-Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:29898 "EHLO
-	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1030460AbWFOOmE convert rfc822-to-8bit (ORCPT
+	Thu, 15 Jun 2006 10:42:40 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:52611 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030452AbWFOOmj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 10:42:04 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 6/7] CCISS: remove parens around return values
-Date: Thu, 15 Jun 2006 09:42:02 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF10C5249EE@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <200606141712.52532.bjorn.helgaas@hp.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 6/7] CCISS: remove parens around return values
-Thread-Index: AcaQCBpy79Fv76rNTKexwkb0mHUqKwAgaxDQ
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Helgaas, Bjorn" <bjorn.helgaas@hp.com>
-Cc: "ISS StorageDev" <iss_storagedev@hp.com>, <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 15 Jun 2006 14:42:03.0405 (UTC) FILETIME=[DDE0BBD0:01C69089]
+	Thu, 15 Jun 2006 10:42:39 -0400
+Date: Thu, 15 Jun 2006 09:42:33 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/2] kthread: convert kswapd from kernel_thread
+Message-ID: <20060615144233.GA16046@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Convert kswapd from a (deprecated) kernel_thread to a kthread.
+
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+
+---
+
+ mm/vmscan.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
+
+fa35014607fbf5c98cd291abfc0e80ff149440f9
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 440a733..cc66dfe 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -34,6 +34,7 @@ #include <linux/cpuset.h>
+ #include <linux/notifier.h>
+ #include <linux/rwsem.h>
+ #include <linux/delay.h>
++#include <linux/kthread.h>
  
+ #include <asm/tlbflush.h>
+ #include <asm/div64.h>
+@@ -1220,7 +1221,6 @@ static int kswapd(void *p)
+ 	};
+ 	cpumask_t cpumask;
+ 
+-	daemonize("kswapd%d", pgdat->node_id);
+ 	cpumask = node_to_cpumask(pgdat->node_id);
+ 	if (!cpus_empty(cpumask))
+ 		set_cpus_allowed(tsk, cpumask);
+@@ -1352,13 +1352,9 @@ static int __init kswapd_init(void)
+ 
+ 	swap_setup();
+ 	for_each_online_pgdat(pgdat) {
+-		pid_t pid;
+-
+-		pid = kernel_thread(kswapd, pgdat, CLONE_KERNEL);
+-		BUG_ON(pid < 0);
+-		read_lock(&tasklist_lock);
+-		pgdat->kswapd = find_task_by_pid(pid);
+-		read_unlock(&tasklist_lock);
++		pgdat->kswapd = kthread_run(kswapd, pgdat, "kswapd%d",
++						pgdat->node_id);
++		BUG_ON(IS_ERR(pgdat->kswapd));
+ 	}
+ 	total_memory = nr_free_pagecache_pages();
+ 	hotcpu_notifier(cpu_callback, 0);
+-- 
+1.3.3
 
-> -----Original Message-----
-> From: Helgaas, Bjorn 
-> Sent: Wednesday, June 14, 2006 6:13 PM
-> To: Miller, Mike (OS Dev)
-> Cc: ISS StorageDev; linux-kernel@vger.kernel.org; Andrew Morton
-> Subject: [PATCH 6/7] CCISS: remove parens around return values
-> 
-> Typical Linux style is "return -EINVAL", not "return(-EINVAL)".
-> 
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
-Acked-by: Mike Miller <mike.miller@hp.com>
-
-> 
-> Index: rc6-mm2/drivers/block/cciss.c
-> ===================================================================
-> --- rc6-mm2.orig/drivers/block/cciss.c	2006-06-14 
-> 16:18:37.000000000 -0600
-> +++ rc6-mm2/drivers/block/cciss.c	2006-06-14 
-> 16:18:39.000000000 -0600
-> @@ -677,7 +677,7 @@
->  		pciinfo.board_id = host->board_id;
->  		if (copy_to_user(argp, &pciinfo,  sizeof( 
-> cciss_pci_info_struct )))
->  			return  -EFAULT;
-> -		return(0);
-> +		return 0;
->  	}	
->  	case CCISS_GETINTINFO:
->  	{
-> @@ -687,7 +687,7 @@
->  		intinfo.count = 
-> readl(&host->cfgtable->HostWrite.CoalIntCount);
->  		if (copy_to_user(argp, &intinfo, sizeof( 
-> cciss_coalint_struct )))
->  			return -EFAULT;
-> -                return(0);
-> +                return 0;
->          }
->  	case CCISS_SETINTINFO:
->          {
-> @@ -703,7 +703,7 @@
->  
->  		{
->  //			printk("cciss_ioctl: delay and count 
-> cannot be 0\n");
-> -			return( -EINVAL);
-> +			return -EINVAL;
->  		}
->  		spin_lock_irqsave(CCISS_LOCK(ctlr), flags);
->  		/* Update the field, and then ring the doorbell 
-> */ @@ -723,7 +723,7 @@
->  		spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
->  		if (i >= MAX_IOCTL_CONFIG_WAIT)
->  			return -EAGAIN;
-> -                return(0);
-> +                return 0;
->          }
->  	case CCISS_GETNODENAME:
->          {
-> @@ -735,7 +735,7 @@
->  			NodeName[i] = 
-> readb(&host->cfgtable->ServerName[i]);
->                  if (copy_to_user(argp, NodeName, sizeof( 
-> NodeName_type)))
->                  	return  -EFAULT;
-> -                return(0);
-> +                return 0;
->          }
->  	case CCISS_SETNODENAME:
->  	{
-> @@ -767,7 +767,7 @@
->  		spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
->  		if (i >= MAX_IOCTL_CONFIG_WAIT)
->  			return -EAGAIN;
-> -                return(0);
-> +                return 0;
->          }
->  
->  	case CCISS_GETHEARTBEAT:
-> @@ -778,7 +778,7 @@
->                  heartbeat = readl(&host->cfgtable->HeartBeat);
->                  if (copy_to_user(argp, &heartbeat, sizeof( 
-> Heartbeat_type)))
->                  	return -EFAULT;
-> -                return(0);
-> +                return 0;
->          }
->  	case CCISS_GETBUSTYPES:
->          {
-> @@ -788,7 +788,7 @@
->                  BusTypes = readl(&host->cfgtable->BusTypes);
->                  if (copy_to_user(argp, &BusTypes, sizeof( 
-> BusTypes_type) ))
->                  	return  -EFAULT;
-> -                return(0);
-> +                return 0;
->          }
->  	case CCISS_GETFIRMVER:
->          {
-> @@ -799,7 +799,7 @@
->  
->                  if (copy_to_user(argp, firmware, sizeof( 
-> FirmwareVer_type)))
->                  	return -EFAULT;
-> -                return(0);
-> +                return 0;
->          }
->          case CCISS_GETDRIVVER:
->          {
-> @@ -809,7 +809,7 @@
->  
->                  if (copy_to_user(argp, &DriverVer, sizeof( 
-> DriverVer_type) ))
->                  	return -EFAULT;
-> -                return(0);
-> +                return 0;
->          }
->  
->  	case CCISS_REVALIDVOLS:
-> @@ -826,7 +826,7 @@
->   		if (copy_to_user(argp, &luninfo,
->   				sizeof(LogvolInfo_struct)))
->   			return -EFAULT;
-> - 		return(0);
-> + 		return 0;
->   	}
->  	case CCISS_DEREGDISK:
->  		return rebuild_lun_table(host, disk); @@ -934,7 
-> +934,7 @@
->  		{
->  			kfree(buff);
->  			cmd_free(host, c, 0);
-> -			return( -EFAULT);	
-> +			return -EFAULT;	
->  		} 	
->  
->  		if (iocommand.Request.Type.Direction == 
-> XFER_READ) @@ -949,7 +949,7 @@
->                  }
->                  kfree(buff);
->  		cmd_free(host, c, 0);
-> -                return(0);
-> +                return 0;
->  	} 
->  	case CCISS_BIG_PASSTHRU: {
->  		BIG_IOCTL_Command_struct *ioc;
-> @@ -1101,7 +1101,7 @@
->  		}
->  		kfree(buff_size);
->  		kfree(ioc);
-> -		return(status);
-> +		return status;
->  	}
->  	default:
->  		return -ENOTTY;
-> @@ -1546,7 +1546,7 @@
->  
->  	drv->LunID = 0;
->  	}
-> -	return(0);
-> +	return 0;
->  }
->  
->  static int fill_cmd(CommandList_struct *c, __u8 cmd, int 
-> ctlr, void *buff, @@ -1639,7 +1639,7 @@
->  		default:
->  			printk(KERN_WARNING
->  				"cciss%d:  Unknown Command 
-> 0x%c\n", ctlr, cmd);
-> -			return(IO_ERROR);
-> +			return IO_ERROR;
->  		}
->  	} else if (cmd_type == TYPE_MSG) {
->  		switch (cmd) {
-> @@ -1807,7 +1807,7 @@
->  	pci_unmap_single( h->pdev, (dma_addr_t) buff_dma_handle.val,
->  			c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
->  	cmd_free(h, c, 0);
-> -        return(return_status);
-> +        return return_status;
->  
->  }
->  static void cciss_geometry_inquiry(int ctlr, int logvol, @@ 
-> -1942,7 +1942,7 @@
->  		if (done == FIFO_EMPTY)
->  			schedule_timeout_uninterruptible(1);
->  		else
-> -			return (done);
-> +			return done;
->  	}
->  	/* Invalid address to tell caller we ran out of time */
->  	return 1;
-> @@ -2019,7 +2019,7 @@
->  
->  	if ((c = cmd_alloc(info_p, 1)) == NULL) {
->  		printk(KERN_WARNING "cciss: unable to get memory");
-> -		return(IO_ERROR);
-> +		return IO_ERROR;
->  	}
->  	status = fill_cmd(c, cmd, ctlr, buff, size, use_unit_num,
->  		log_unit, page_code, scsi3addr, cmd_type); @@ 
-> -2154,7 +2154,7 @@
->  		do_cciss_intr(0, info_p, NULL);
->  #endif
->  	cmd_free(info_p, c, 1);
-> -	return (status);
-> +	return status;
->  }
->  /*
->   * Map (physical) PCI mem into (virtual) kernel space @@ 
-> -3088,7 +3088,7 @@
->  
->  	i = alloc_cciss_hba();
->  	if(i < 0)
-> -		return (-1);
-> +		return -1;
->  
->  	hba[i]->busy_initializing = 1;
->  
-> @@ -3230,7 +3230,7 @@
->  		add_disk(disk);
->  	}
->  
-> -	return(1);
-> +	return 1;
->  
->  clean4:
->  #ifdef CONFIG_CISS_SCSI_TAPE
-> @@ -3252,7 +3252,7 @@
->  clean1:
->  	hba[i]->busy_initializing = 0;
->  	free_hba(i);
-> -	return(-1);
-> +	return -1;
->  }
->  
->  static void __devexit cciss_remove_one (struct pci_dev *pdev)
-> 

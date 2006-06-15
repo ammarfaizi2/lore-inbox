@@ -1,181 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWFOHMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWFOHSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWFOHMs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 03:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWFOHMr
+	id S1751202AbWFOHSv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 03:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFOHSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 03:12:47 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:57237 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750936AbWFOHMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 03:12:47 -0400
-Subject: [RFC/PATCH 2/2] slab: consolidate allocation paths
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: christoph@lameter.com, manfred@colorfullife.com
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 15 Jun 2006 10:12:45 +0300
-Message-Id: <1150355565.4633.8.camel@ubuntu>
+	Thu, 15 Jun 2006 03:18:51 -0400
+Received: from z06.nvidia.com ([209.213.198.25]:53673 "EHLO thelma.nvidia.com")
+	by vger.kernel.org with ESMTP id S1751202AbWFOHSu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 03:18:50 -0400
+Subject: [PATCH] Add MCP65 support for amd74xx, sata_nv, and ahci drivers
+	(and device ids in pci_ids)
+From: Andrew Chew <achew@nvidia.com>
+To: linux-kernel@vger.kernel.org
+Cc: jeff@garzik.org
+Content-Type: multipart/mixed; boundary="=-BLz6wjzfnENyckTBWGHl"
+Date: Thu, 15 Jun 2006 02:00:19 -0700
+Message-Id: <1150362019.5044.7.camel@achew-linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-This patch consolidates the UMA and NUMA memory allocation paths in the
-slab allocator. This is accomplished by making the UMA-path look like
-we are on NUMA but always allocating from the current node.
+--=-BLz6wjzfnENyckTBWGHl
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-There is a slight increase in NUMA kernel text size with this patch:
+Adds MCP65 device IDs to the amd74xx IDE driver, the sata_nv SATA driver
+(for MCP65 SATA in legacy SATA mode), and ahci driver (for MCP65 in AHCI mode).
+Also added MCP65 device IDs in pci_ids.h.
 
-   text    data     bss     dec     hex filename
-  17019    2520      20   19559    4c67 mm/slab.o (before)
-  17034    2520      20   19574    4c76 mm/slab.o (after)
+Signed-off-by: Andrew Chew <achew@nvidia.com>
 
-However, bloatometer says it's even less:
 
-  add/remove: 0/0 grow/shrink: 1/1 up/down: 4/-1 (3)
-  function                                     old     new   delta
-  kmem_cache_alloc_node                        161     165      +4
-  kmem_cache_create                           1512    1511      -1
 
-UMA text size is unchanged.
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c linux-2.6.16.19/drivers/ide/pci/amd74xx.c
+--- linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/drivers/ide/pci/amd74xx.c	2006-06-05 17:20:15.000000000 -0700
+@@ -74,6 +74,7 @@ static struct amd_ide_chip {
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_AMD_CS5536_IDE,			0x40, AMD_UDMA_100 },
+ 	{ 0 }
+ };
+@@ -492,7 +493,8 @@ static ide_pci_device_t amd74xx_chipsets
+ 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
+ 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
+ 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
+-	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
++	/* 17 */ DECLARE_NV_DEV("NFORCE-MCP65"),
++	/* 18 */ DECLARE_AMD_DEV("AMD5536"),
+ };
+ 
+ static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
+@@ -529,7 +531,8 @@ static struct pci_device_id amd74xx_pci_
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
+-	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
++	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18 },
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/ahci.c linux-2.6.16.19/drivers/scsi/ahci.c
+--- linux-2.6.16.19.original/drivers/scsi/ahci.c	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/drivers/scsi/ahci.c	2006-06-05 17:17:57.000000000 -0700
+@@ -290,6 +290,18 @@ static const struct pci_device_id ahci_p
+ 	  board_ahci }, /* JMicron JMB360 */
+ 	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* JMicron JMB363 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
+ 	{ }	/* terminate list */
+ };
+ 
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/sata_nv.c linux-2.6.16.19/drivers/scsi/sata_nv.c
+--- linux-2.6.16.19.original/drivers/scsi/sata_nv.c	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/drivers/scsi/sata_nv.c	2006-06-05 17:20:48.000000000 -0700
+@@ -166,12 +166,17 @@ static const struct pci_device_id nv_pci
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+ 		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
+-	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+-		PCI_ANY_ID, PCI_ANY_ID,
+-		PCI_CLASS_STORAGE_RAID<<8, 0xffff00, GENERIC },
+ 	{ 0, } /* terminate list */
+ };
+ 
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/include/linux/pci_ids.h linux-2.6.16.19/include/linux/pci_ids.h
+--- linux-2.6.16.19.original/include/linux/pci_ids.h	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/include/linux/pci_ids.h	2006-06-05 17:14:47.000000000 -0700
+@@ -1171,6 +1171,15 @@
+ #define PCI_DEVICE_ID_NVIDIA_QUADRO_FX_1100         0x034E
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_14              0x0372
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_15              0x0373
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE       0x0448
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI      0x044C
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2     0x044D
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3     0x044E
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4     0x044F
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA      0x045C
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2     0x045D
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3     0x045E
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4     0x045F
+ 
+ #define PCI_VENDOR_ID_IMS		0x10e0
+ #define PCI_DEVICE_ID_IMS_TT128		0x9128
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
----
+--=-BLz6wjzfnENyckTBWGHl
+Content-Disposition: attachment; filename=mcp65.diff
+Content-Type: text/x-patch; name=mcp65.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
- mm/slab.c |   52 +++++++++++++++++++++-------------------------------
- 1 files changed, 21 insertions(+), 31 deletions(-)
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c linux-2.6.16.19/drivers/ide/pci/amd74xx.c
+--- linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/drivers/ide/pci/amd74xx.c	2006-06-05 17:20:15.000000000 -0700
+@@ -74,6 +74,7 @@ static struct amd_ide_chip {
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_AMD_CS5536_IDE,			0x40, AMD_UDMA_100 },
+ 	{ 0 }
+ };
+@@ -492,7 +493,8 @@ static ide_pci_device_t amd74xx_chipsets
+ 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
+ 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
+ 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
+-	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
++	/* 17 */ DECLARE_NV_DEV("NFORCE-MCP65"),
++	/* 18 */ DECLARE_AMD_DEV("AMD5536"),
+ };
+ 
+ static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
+@@ -529,7 +531,8 @@ static struct pci_device_id amd74xx_pci_
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
+-	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
++	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18 },
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/ahci.c linux-2.6.16.19/drivers/scsi/ahci.c
+--- linux-2.6.16.19.original/drivers/scsi/ahci.c	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/drivers/scsi/ahci.c	2006-06-05 17:17:57.000000000 -0700
+@@ -290,6 +290,18 @@ static const struct pci_device_id ahci_p
+ 	  board_ahci }, /* JMicron JMB360 */
+ 	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* JMicron JMB363 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* MCP65 */
+ 	{ }	/* terminate list */
+ };
+ 
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/sata_nv.c linux-2.6.16.19/drivers/scsi/sata_nv.c
+--- linux-2.6.16.19.original/drivers/scsi/sata_nv.c	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/drivers/scsi/sata_nv.c	2006-06-05 17:20:48.000000000 -0700
+@@ -166,12 +166,17 @@ static const struct pci_device_id nv_pci
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
++	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+ 		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
+-	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+-		PCI_ANY_ID, PCI_ANY_ID,
+-		PCI_CLASS_STORAGE_RAID<<8, 0xffff00, GENERIC },
+ 	{ 0, } /* terminate list */
+ };
+ 
+diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/include/linux/pci_ids.h linux-2.6.16.19/include/linux/pci_ids.h
+--- linux-2.6.16.19.original/include/linux/pci_ids.h	2006-05-30 17:31:44.000000000 -0700
++++ linux-2.6.16.19/include/linux/pci_ids.h	2006-06-05 17:14:47.000000000 -0700
+@@ -1171,6 +1171,15 @@
+ #define PCI_DEVICE_ID_NVIDIA_QUADRO_FX_1100         0x034E
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_14              0x0372
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_15              0x0373
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE       0x0448
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI      0x044C
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2     0x044D
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3     0x044E
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4     0x044F
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA      0x045C
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2     0x045D
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3     0x045E
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4     0x045F
+ 
+ #define PCI_VENDOR_ID_IMS		0x10e0
+ #define PCI_DEVICE_ID_IMS_TT128		0x9128
 
-3b92d48f346b46b3a050f4195497c96f5eb6bb59
-diff --git a/mm/slab.c b/mm/slab.c
-index 579cff3..83a3394 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -2855,8 +2855,8 @@ static void *cache_alloc_debugcheck_afte
- #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
- #endif
- 
--static __always_inline void *__cache_alloc_cpucache(struct kmem_cache *cachep,
--						    gfp_t flags)
-+static __always_inline void *cache_alloc_cpucache(struct kmem_cache *cachep,
-+						  gfp_t flags)
- {
- 	void *objp;
- 	struct array_cache *ac;
-@@ -2959,14 +2959,19 @@ done:
- 	return obj;
- }
- 
--static inline void *cache_alloc_cpucache(struct kmem_cache *cache, gfp_t flags)
-+static inline void *__cache_alloc(struct kmem_cache *cache, gfp_t flags,
-+				  int nodeid)
- {
-+	if (nodeid != -1 && nodeid != numa_node_id() &&
-+	    cache->nodelists[nodeid])
-+		return __cache_alloc_node(cache, flags, nodeid);
-+
- 	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
- 		void *objp = alternate_node_alloc(cache, flags);
- 		if (objp != NULL)
- 			return objp;
- 	}
--	return __cache_alloc_cpucache(cache, flags);
-+	return cache_alloc_cpucache(cache, flags);
- }
- 
- #else
-@@ -2975,15 +2980,17 @@ static inline void *cache_alloc_cpucache
-  * On UMA, we always allocate directly drom the per-CPU cache.
-  */
- 
--static inline void *cache_alloc_cpucache(struct kmem_cache *cache, gfp_t flags)
-+static __always_inline void *__cache_alloc(struct kmem_cache *cache,
-+					   gfp_t flags, int nodeid)
- {
--	return __cache_alloc_cpucache(cache, flags);
-+	return cache_alloc_cpucache(cache, flags);
- }
- 
- #endif
- 
--static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
--						gfp_t flags, void *caller)
-+static __always_inline void *cache_alloc(struct kmem_cache *cachep,
-+					 gfp_t flags, int nodeid,
-+					 void *caller)
- {
- 	unsigned long save_flags;
- 	void *objp;
-@@ -2991,10 +2998,9 @@ static __always_inline void *__cache_all
- 	cache_alloc_debugcheck_before(cachep, flags);
- 
- 	local_irq_save(save_flags);
--	objp = cache_alloc_cpucache(cachep, flags);
-+	objp = __cache_alloc(cachep, flags, nodeid);
- 	local_irq_restore(save_flags);
--	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
--					    caller);
-+	objp = cache_alloc_debugcheck_after(cachep, flags, objp, caller);
- 	prefetchw(objp);
- 	return objp;
- }
-@@ -3158,7 +3164,7 @@ static inline void __cache_free(struct k
-  */
- void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
- {
--	return __cache_alloc(cachep, flags, __builtin_return_address(0));
-+	return cache_alloc(cachep, flags, -1, __builtin_return_address(0));
- }
- EXPORT_SYMBOL(kmem_cache_alloc);
- 
-@@ -3172,7 +3178,7 @@ EXPORT_SYMBOL(kmem_cache_alloc);
-  */
- void *kmem_cache_zalloc(struct kmem_cache *cache, gfp_t flags)
- {
--	void *ret = __cache_alloc(cache, flags, __builtin_return_address(0));
-+	void *ret = cache_alloc(cache, flags, -1, __builtin_return_address(0));
- 	if (ret)
- 		memset(ret, 0, obj_size(cache));
- 	return ret;
-@@ -3236,23 +3242,7 @@ out:
-  */
- void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
- {
--	unsigned long save_flags;
--	void *ptr;
--
--	cache_alloc_debugcheck_before(cachep, flags);
--	local_irq_save(save_flags);
--
--	if (nodeid == -1 || nodeid == numa_node_id() ||
--			!cachep->nodelists[nodeid])
--		ptr = cache_alloc_cpucache(cachep, flags);
--	else
--		ptr = __cache_alloc_node(cachep, flags, nodeid);
--	local_irq_restore(save_flags);
--
--	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr,
--					   __builtin_return_address(0));
--
--	return ptr;
-+	return cache_alloc(cachep, flags, nodeid, __builtin_return_address(0));
- }
- EXPORT_SYMBOL(kmem_cache_alloc_node);
- 
-@@ -3303,7 +3293,7 @@ static __always_inline void *__do_kmallo
- 	cachep = __find_general_cachep(size, flags);
- 	if (unlikely(cachep == NULL))
- 		return NULL;
--	return __cache_alloc(cachep, flags, caller);
-+	return cache_alloc(cachep, flags, -1, caller);
- }
- 
- 
--- 
-1.1.3
-
+--=-BLz6wjzfnENyckTBWGHl--
 

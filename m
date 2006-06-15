@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWFOKa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWFOKrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWFOKa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 06:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWFOKa1
+	id S1030191AbWFOKrG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 06:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWFOKrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 06:30:27 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:52966 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751348AbWFOKa0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 06:30:26 -0400
-Subject: Re: [Ubuntu PATCH] Make btsco headset (a bluetooth device) work
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-In-Reply-To: <44909A48.905@oracle.com>
-References: <44909A48.905@oracle.com>
-Content-Type: text/plain
-Date: Thu, 15 Jun 2006 12:27:40 +0200
-Message-Id: <1150367260.6565.1.camel@aeonflux.holtmann.net>
+	Thu, 15 Jun 2006 06:47:06 -0400
+Received: from tougher.kangaroot.net ([62.213.203.135]:17837 "EHLO
+	tougher.kangaroot.net") by vger.kernel.org with ESMTP
+	id S1030191AbWFOKrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 06:47:04 -0400
+Date: Thu, 15 Jun 2006 12:47:02 +0200
+From: Wouter Paesen <wouter@kangaroot.net>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH 2.6.17-rc6] input/mouse/sermouse: fix memleak and potential buffer overflow
+Message-ID: <20060615104702.GA4866@tougher.kangaroot.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy,
+While strolling trough the sermouse driver for some example code, I
+noticed 2 strange things happening there :
 
-> Make btsco headset (a bluetooth device) work.
-> Reference: https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/48910
-> 
-> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=e9cb99036e650dabc5e9d7037d5a728176b42aca
+* In the sermouse_connect function an input device structure is
+  allocated (input_allocate_device), which is not deallocated 
+  in the sermouse_disconnect function.  
+  
+  If I understand this correctly someone repeatedly connecting and 
+  disconnecting the mouse would leak input_dev structures.
 
-this patch is not ready for mainline. The -mm kernel contains a more
-better patch to address this problem, but even that should not end up in
-mainline. I am working on a real solution for this issue.
+* In the sermouse_connect function the phys member of the sermouse 
+  structure (32 characters) is initialised with :
 
-Regards
+     sprintf(sermouse->phys, "%s/input0", serio->phys);
 
-Marcel
+  Because serio->phys is also a 32 character field the sprintf could
+  result in 39 characters being written to the sermouse->phys.
 
+If my understanding of both these concepts is correct, this is a patch
+to fix the problems.
 
+Signed-off-by: Wouter Paesen <wouter@kangaroot.net>
+
+--- a/drivers/input/mouse/sermouse.c	2006-06-15 08:47:47.000000000 +0200
++++ b/drivers/input/mouse/sermouse.c	2006-06-15 08:52:13.000000000 +0200
+@@ -53,7 +53,7 @@
+ 	unsigned char count;
+ 	unsigned char type;
+ 	unsigned long last;
+-	char phys[32];
++	char phys[39];
+ };
+ 
+ /*
+@@ -233,6 +233,7 @@
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
+ 	input_unregister_device(sermouse->dev);
++	input_free_device(sermouse->dev);
+ 	kfree(sermouse);
+ }

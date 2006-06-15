@@ -1,302 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWFOLSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWFOLXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWFOLSr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 07:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWFOLSr
+	id S1030221AbWFOLXb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 07:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWFOLXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 07:18:47 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:16548 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030205AbWFOLSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 07:18:46 -0400
-Date: Thu, 15 Jun 2006 20:16:21 +0900
-From: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>
-To: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] kdump: add a missing notifier before crashing
-Message-Id: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-mingw32)
+	Thu, 15 Jun 2006 07:23:30 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:52189 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030221AbWFOLXa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 07:23:30 -0400
+Date: Thu, 15 Jun 2006 12:23:29 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: [PATCH] m68k: windfarm is powerpc-only, don't do it on m68k macs
+Message-ID: <20060615112329.GL27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-The attached patch adds a missing notifier before crashing.
-This patch is remade to follow the former discussions.
-The change is that a notifier calling becomes optional.
-Please refer to the following thread for details:
-
-http://lists.osdl.org/pipermail/fastboot/2006-May/003018.html
-
-Description:
-We don't have a simple and light weight way to know the kernel dies.
-The panic notifier does not be called if kdump is activated
-because crash_kexec() does not return, and there is no mechanism to
-notify of a crash before crashing by SysRq-c.
-Although notify_die() exists, the function depends on architecture.
-If notify_die() is added in panic and SysRq respectively like
-existing implementation, the code will be ugly.
-I think that adding a generic hook in crash_kexec() is better to
-simplify the code.
-
-This new notifier is useful, especially for a clustering system.
-On a mission critical system, failover need to start within a few
-milli-second. The notifier could be called on 2nd kernel, but it is
-no use because it takes the time of second order to boot up.
-
-The attached patch is against 2.6.17-rc6-git5.
-I tested on i386-box.
-
-Thanks,
-
-Akiyama, Nobuyuki
-
-Signed-off-by: Akiyama, Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>
 ---
 
- Documentation/filesystems/proc.txt |   11 +++++++++++
- arch/i386/kernel/traps.c           |    4 ++--
- arch/powerpc/kernel/traps.c        |    2 +-
- arch/x86_64/kernel/traps.c         |    4 ++--
- drivers/char/sysrq.c               |    2 +-
- include/linux/kexec.h              |   12 ++++++++++--
- include/linux/sysctl.h             |    1 +
- kernel/kexec.c                     |   18 +++++++++++++++++-
- kernel/panic.c                     |    2 +-
- kernel/sysctl.c                    |   11 +++++++++++
- 10 files changed, 57 insertions(+), 10 deletions(-)
+ drivers/macintosh/Kconfig |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff -Nurp linux-2.6.17-rc6-git5/Documentation/filesystems/proc.txt linux-2.6.17-rc6-git5.mod/Documentation/filesystems/proc.txt
---- linux-2.6.17-rc6-git5/Documentation/filesystems/proc.txt	2006-06-14 16:25:26.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/Documentation/filesystems/proc.txt	2006-06-15 14:48:59.000000000 +0900
-@@ -1130,6 +1130,17 @@ If a system hangs up, try pressing the N
-    And NMI watchdog will be disabled when the value in this file is set to
-    non-zero.
+c3d6ecc77e8e5d4ac82c3bf27ed02b8c0d83d41d
+diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
+index 12ad462..ccf5df4 100644
+--- a/drivers/macintosh/Kconfig
++++ b/drivers/macintosh/Kconfig
+@@ -171,6 +171,7 @@ config THERM_PM72
  
-+kdump_safe
-+----------
-+
-+The value in this file affects behavior of a notifier before kdump. When the
-+value is non-zero(default), the notifier is not called before crashing. If the
-+notifier is expected to be called before crashing, set zero.
-+
-+[NOTE]
-+   The notifier may be hung and kdump may be stalled because the notifier is
-+   usually called under panic state. The value of this file should be decided
-+   by the policy of system usage.  
+ config WINDFARM
+ 	tristate "New PowerMac thermal control infrastructure"
++	depends on PPC
  
- 2.4 /proc/sys/vm - The virtual memory subsystem
- -----------------------------------------------
-diff -Nurp linux-2.6.17-rc6-git5/arch/i386/kernel/traps.c linux-2.6.17-rc6-git5.mod/arch/i386/kernel/traps.c
---- linux-2.6.17-rc6-git5/arch/i386/kernel/traps.c	2006-06-14 16:25:26.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/arch/i386/kernel/traps.c	2006-06-14 16:02:46.000000000 +0900
-@@ -414,7 +414,7 @@ void die(const char * str, struct pt_reg
- 		return;
- 
- 	if (kexec_should_crash(current))
--		crash_kexec(regs);
-+		crash_kexec(CRASH_ON_DIE, regs, NULL);
- 
- 	if (in_interrupt())
- 		panic("Fatal exception in interrupt");
-@@ -665,7 +665,7 @@ void die_nmi (struct pt_regs *regs, cons
- 	*/
- 	if (!user_mode_vm(regs)) {
- 		current->thread.trap_no = 2;
--		crash_kexec(regs);
-+		crash_kexec(CRASH_ON_DIE, regs, NULL);
- 	}
- 
- 	do_exit(SIGSEGV);
-diff -Nurp linux-2.6.17-rc6-git5/arch/powerpc/kernel/traps.c linux-2.6.17-rc6-git5.mod/arch/powerpc/kernel/traps.c
---- linux-2.6.17-rc6-git5/arch/powerpc/kernel/traps.c	2006-06-14 16:25:27.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/arch/powerpc/kernel/traps.c	2006-06-14 16:02:46.000000000 +0900
-@@ -132,7 +132,7 @@ int die(const char *str, struct pt_regs 
- 	if (!crash_dump_start && kexec_should_crash(current)) {
- 		crash_dump_start = 1;
- 		spin_unlock_irq(&die_lock);
--		crash_kexec(regs);
-+		crash_kexec(CRASH_ON_DIE, regs, NULL);
- 		/* NOTREACHED */
- 	}
- 	spin_unlock_irq(&die_lock);
-diff -Nurp linux-2.6.17-rc6-git5/arch/x86_64/kernel/traps.c linux-2.6.17-rc6-git5.mod/arch/x86_64/kernel/traps.c
---- linux-2.6.17-rc6-git5/arch/x86_64/kernel/traps.c	2006-06-14 16:25:27.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/arch/x86_64/kernel/traps.c	2006-06-14 16:02:46.000000000 +0900
-@@ -445,7 +445,7 @@ void __kprobes __die(const char * str, s
- 	printk_address(regs->rip); 
- 	printk(" RSP <%016lx>\n", regs->rsp); 
- 	if (kexec_should_crash(current))
--		crash_kexec(regs);
-+		crash_kexec(CRASH_ON_DIE, regs, NULL);
- }
- 
- void die(const char * str, struct pt_regs * regs, long err)
-@@ -469,7 +469,7 @@ void __kprobes die_nmi(char *str, struct
- 	printk(str, safe_smp_processor_id());
- 	show_registers(regs);
- 	if (kexec_should_crash(current))
--		crash_kexec(regs);
-+		crash_kexec(CRASH_ON_DIE, regs, NULL);
- 	if (panic_on_timeout || panic_on_oops)
- 		panic("nmi watchdog");
- 	printk("console shuts up ...\n");
-diff -Nurp linux-2.6.17-rc6-git5/drivers/char/sysrq.c linux-2.6.17-rc6-git5.mod/drivers/char/sysrq.c
---- linux-2.6.17-rc6-git5/drivers/char/sysrq.c	2006-06-14 16:25:28.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/drivers/char/sysrq.c	2006-06-14 16:02:46.000000000 +0900
-@@ -99,7 +99,7 @@ static struct sysrq_key_op sysrq_unraw_o
- static void sysrq_handle_crashdump(int key, struct pt_regs *pt_regs,
- 				struct tty_struct *tty)
- {
--	crash_kexec(pt_regs);
-+	crash_kexec(CRASH_ON_SYSRQ, pt_regs, NULL);
- }
- static struct sysrq_key_op sysrq_crashdump_op = {
- 	.handler	= sysrq_handle_crashdump,
-diff -Nurp linux-2.6.17-rc6-git5/include/linux/kexec.h linux-2.6.17-rc6-git5.mod/include/linux/kexec.h
---- linux-2.6.17-rc6-git5/include/linux/kexec.h	2006-03-20 14:53:29.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/include/linux/kexec.h	2006-06-14 16:02:46.000000000 +0900
-@@ -1,12 +1,18 @@
- #ifndef LINUX_KEXEC_H
- #define LINUX_KEXEC_H
- 
-+/* crash type for notifier */
-+#define CRASH_ON_PANIC		1
-+#define CRASH_ON_DIE		2
-+#define CRASH_ON_SYSRQ		3
-+
- #ifdef CONFIG_KEXEC
- #include <linux/types.h>
- #include <linux/list.h>
- #include <linux/linkage.h>
- #include <linux/compat.h>
- #include <linux/ioport.h>
-+#include <linux/notifier.h>
- #include <asm/kexec.h>
- 
- /* Verify architecture specific macros are defined */
-@@ -103,9 +109,11 @@ extern asmlinkage long compat_sys_kexec_
- #endif
- extern struct page *kimage_alloc_control_pages(struct kimage *image,
- 						unsigned int order);
--extern void crash_kexec(struct pt_regs *);
-+extern void crash_kexec(int, struct pt_regs *, void *);
- int kexec_should_crash(struct task_struct *);
- extern struct kimage *kexec_image;
-+extern struct raw_notifier_head crash_notifier_list;
-+extern int kdump_safe;
- 
- #define KEXEC_ON_CRASH  0x00000001
- #define KEXEC_ARCH_MASK 0xffff0000
-@@ -133,7 +141,7 @@ extern note_buf_t *crash_notes;
- #else /* !CONFIG_KEXEC */
- struct pt_regs;
- struct task_struct;
--static inline void crash_kexec(struct pt_regs *regs) { }
-+static inline void crash_kexec(int type, struct pt_regs *regs, void *v) { }
- static inline int kexec_should_crash(struct task_struct *p) { return 0; }
- #endif /* CONFIG_KEXEC */
- #endif /* LINUX_KEXEC_H */
-diff -Nurp linux-2.6.17-rc6-git5/include/linux/sysctl.h linux-2.6.17-rc6-git5.mod/include/linux/sysctl.h
---- linux-2.6.17-rc6-git5/include/linux/sysctl.h	2006-06-14 16:25:35.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/include/linux/sysctl.h	2006-06-14 16:02:46.000000000 +0900
-@@ -148,6 +148,7 @@ enum
- 	KERN_SPIN_RETRY=70,	/* int: number of spinlock retries */
- 	KERN_ACPI_VIDEO_FLAGS=71, /* int: flags for setting up video after ACPI sleep */
- 	KERN_IA64_UNALIGNED=72, /* int: ia64 unaligned userland trap enable */
-+	KERN_KDUMP_SAFE=73,	/* int: crash notifier flag */
- };
- 
- 
-diff -Nurp linux-2.6.17-rc6-git5/kernel/kexec.c linux-2.6.17-rc6-git5.mod/kernel/kexec.c
---- linux-2.6.17-rc6-git5/kernel/kexec.c	2006-03-20 14:53:29.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/kernel/kexec.c	2006-06-14 16:02:46.000000000 +0900
-@@ -20,6 +20,8 @@
- #include <linux/syscalls.h>
- #include <linux/ioport.h>
- #include <linux/hardirq.h>
-+#include <linux/module.h>
-+#include <linux/notifier.h>
- 
- #include <asm/page.h>
- #include <asm/uaccess.h>
-@@ -27,6 +29,11 @@
- #include <asm/system.h>
- #include <asm/semaphore.h>
- 
-+
-+RAW_NOTIFIER_HEAD(crash_notifier_list);
-+EXPORT_SYMBOL(crash_notifier_list);
-+int kdump_safe = 1;
-+
- /* Per cpu memory for storing cpu states in case of system crash. */
- note_buf_t* crash_notes;
- 
-@@ -1040,7 +1047,15 @@ asmlinkage long compat_sys_kexec_load(un
- }
- #endif
- 
--void crash_kexec(struct pt_regs *regs)
-+static inline void notify_crash(int type, void *v)
-+{
-+#ifdef CONFIG_SYSCTL
-+	if (!kdump_safe)
-+		raw_notifier_call_chain(&crash_notifier_list, type, v);
-+#endif
-+}
-+
-+void crash_kexec(int type, struct pt_regs *regs, void *v)
- {
- 	struct kimage *image;
- 	int locked;
-@@ -1061,6 +1076,7 @@ void crash_kexec(struct pt_regs *regs)
- 			struct pt_regs fixed_regs;
- 			crash_setup_regs(&fixed_regs, regs);
- 			machine_crash_shutdown(&fixed_regs);
-+			notify_crash(type, v);
- 			machine_kexec(image);
- 		}
- 		xchg(&kexec_lock, 0);
-diff -Nurp linux-2.6.17-rc6-git5/kernel/panic.c linux-2.6.17-rc6-git5.mod/kernel/panic.c
---- linux-2.6.17-rc6-git5/kernel/panic.c	2006-06-14 16:25:35.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/kernel/panic.c	2006-06-14 16:02:46.000000000 +0900
-@@ -85,7 +85,7 @@ NORET_TYPE void panic(const char * fmt, 
- 	 * everything else.
- 	 * Do we want to call this before we try to display a message?
- 	 */
--	crash_kexec(NULL);
-+	crash_kexec(CRASH_ON_PANIC, NULL, buf);
- 
- #ifdef CONFIG_SMP
- 	/*
-diff -Nurp linux-2.6.17-rc6-git5/kernel/sysctl.c linux-2.6.17-rc6-git5.mod/kernel/sysctl.c
---- linux-2.6.17-rc6-git5/kernel/sysctl.c	2006-06-14 16:25:35.000000000 +0900
-+++ linux-2.6.17-rc6-git5.mod/kernel/sysctl.c	2006-06-14 16:02:46.000000000 +0900
-@@ -46,6 +46,7 @@
- #include <linux/syscalls.h>
- #include <linux/nfs_fs.h>
- #include <linux/acpi.h>
-+#include <linux/kexec.h>
- 
- #include <asm/uaccess.h>
- #include <asm/processor.h>
-@@ -683,6 +684,16 @@ static ctl_table kern_table[] = {
- 		.proc_handler	= &proc_dointvec,
- 	},
- #endif
-+#if defined(CONFIG_KEXEC)
-+	{
-+		.ctl_name       = KERN_KDUMP_SAFE,
-+		.procname       = "kdump_safe",
-+		.data           = &kdump_safe,
-+		.maxlen         = sizeof (int),
-+		.mode           = 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+#endif
- 	{ .ctl_name = 0 }
- };
- 
+ config WINDFARM_PM81
+ 	tristate "Support for thermal management on iMac G5"
+-- 
+1.3.GIT
 

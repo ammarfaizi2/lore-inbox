@@ -1,85 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWFOIZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWFOI1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWFOIZk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 04:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWFOIZk
+	id S1751364AbWFOI1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 04:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWFOI1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 04:25:40 -0400
-Received: from ozlabs.org ([203.10.76.45]:28815 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751323AbWFOIZj (ORCPT
+	Thu, 15 Jun 2006 04:27:19 -0400
+Received: from gw.openss7.com ([142.179.199.224]:18376 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1751364AbWFOI1T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 04:25:39 -0400
-MIME-Version: 1.0
+	Thu, 15 Jun 2006 04:27:19 -0400
+Date: Thu, 15 Jun 2006 02:27:15 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Theodore Tso <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC]  Slimming down struct inode
+Message-ID: <20060615022715.A5168@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	linux-kernel@vger.kernel.org
+References: <E1Foqjw-00010e-Ln@candygram.thunk.org> <20060614181627.B28144@openss7.org> <20060615044302.GA7318@thunk.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17552.56810.818694.995923@cargo.ozlabs.ibm.com>
-Date: Thu, 15 Jun 2006 14:11:22 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] powerpc: Fix mdelay badness on shared processor partitions
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060615044302.GA7318@thunk.org>; from tytso@mit.edu on Thu, Jun 15, 2006 at 12:43:02AM -0400
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Anton Blanchard <anton@samba.org>
+Theodore,
 
-On partitioned PPC64 systems where a partition is given 1/10 of a
-processor, we have seen mdelay() delaying for 10 times longer than it
-should.  The reason is that the generic mdelay(n) does n delays of 1
-millisecond each.  However, with 1/10 of a processor, we only get a
-one-millisecond timeslice every 10ms.  Thus each 1 millisecond delay
-loop ends up taking 10ms elapsed time.
+On Thu, 15 Jun 2006, Theodore Tso wrote:
+> 
+> I'm not particularly sympathetic to out of tree implementations,
 
-The solution is just to use the PPC64 udelay function, which uses the
-timebase to ensure that the delay is based on elapsed time rather than
-how much processing time the partition has been given.  (Yes, the
-generic mdelay uses the PPC64 udelay, but the problem is that the
-start time gets reset every millisecond, and each time it gets reset
-we lose another 9ms.)
+I believe you asked for comments; not proposed to offer sympathy.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
----
-Andrew, if you are OK with this patch, send me an Acked-by and I'll
-push it via the powerpc.git tree.
+> especially one which is as (NOT!) likely to be merged as STREAMS
+> support.  Out of tree patches can always patch struct inode to add all
+> the bloat they want.
 
-Index: build/include/asm-powerpc/delay.h
-===================================================================
---- build.orig/include/asm-powerpc/delay.h	2006-06-08 10:57:41.000000000 +1000
-+++ build/include/asm-powerpc/delay.h	2006-06-10 21:15:02.000000000 +1000
-@@ -17,5 +17,18 @@
- extern void __delay(unsigned long loops);
- extern void udelay(unsigned long usecs);
- 
-+/*
-+ * On shared processor machines the generic implementation of mdelay can
-+ * result in large errors. While each iteration of the loop inside mdelay
-+ * is supposed to take 1ms, the hypervisor could sleep our partition for
-+ * longer (eg 10ms). With the right timing these errors can add up.
-+ *
-+ * Since there is no 32bit overflow issue on 64bit kernels, just call
-+ * udelay directly.
-+ */
-+#ifdef CONFIG_PPC64
-+#define mdelay(n)	udelay((n) * 1000)
-+#endif
-+
- #endif /* __KERNEL__ */
- #endif /* _ASM_POWERPC_DELAY_H */
-Index: build/include/linux/delay.h
-===================================================================
---- build.orig/include/linux/delay.h	2006-06-08 10:57:41.000000000 +1000
-+++ build/include/linux/delay.h	2006-06-10 21:04:58.000000000 +1000
-@@ -25,10 +25,7 @@ extern unsigned long loops_per_jiffy;
- #define MAX_UDELAY_MS	5
- #endif
- 
--#ifdef notdef
--#define mdelay(n) (\
--	{unsigned long __ms=(n); while (__ms--) udelay(1000);})
--#else
-+#ifndef mdelay
- #define mdelay(n) (\
- 	(__builtin_constant_p(n) && (n)<=MAX_UDELAY_MS) ? udelay((n)*1000) : \
- 	({unsigned long __ms=(n); while (__ms--) udelay(1000);}))
+Bloat that nobody complained about for 10 years or so...  Sounds pretty
+antagonistic to me.  Streams are pretty basic character devices.
+
+> Also, it souinds like you're not usually using
+> i_pipe as a true pointer to a struct pipe_inode_info, but rather as
+> kludged location to stash your v_str pointer.
+
+It points to a STREAMS-based FIFO which, of course, uses a Stream head
+structure instead of a pipe_inode_info structure.  Is is used in the
+same fashion as Linux FIFOs use the pointer: to attach information to
+an inode in a foreign filesystem.  generic_ip and such does not help
+here because they are already used by the foreign filesystem.
+
+The cdev structure used to have a private pointer (cd_private) that
+could be used to the same effect, but it disappeared some time ago when
+char_device was reworked into cdev.  block_device still has a bd_private
+pointer.  Merging i_pipe will remove the ability for a character
+device driver to association a private pointer with the inode at open
+to obtain FIFO-like behaviour (where the device is associated with the
+specific inode rather than the device number), reducing the flexibility
+of the Linux VFS.
+
+i_pipe is not necessary for Unnamed FIFOs or pipes in Linux (those
+inodes are allocated from the pipefs and could very well use the
+generic_ip pointer.  i_pipe is only necessary for named FIFOs because
+these are attached to inodes belonging to filesystems foreign to the
+pipefs.  It is a slim special case of file on file mounting.  Regardless
+of STREAMS I think that it deserves to be separate from i_cdev and
+i_bdev.
+
+All other basic character device mechanisms either allocate their own
+inodes or hang their private data off of the open file pointer.  As
+do STREAMS, which, aside from STREAMS-based FIFOs are basic character
+devices.
+
+
+> Why not just have your
+> STREAMS implementation patch include/linux/fs.h to add a v_str pointer?
+
+Because it does not patch the kernel but simply loads as a set of
+GPL'ed kernel modules.

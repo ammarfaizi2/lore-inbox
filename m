@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWFOHh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWFOHjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWFOHh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 03:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWFOHh2
+	id S1751313AbWFOHjD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 03:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWFOHjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 03:37:28 -0400
-Received: from gw.goop.org ([64.81.55.164]:30903 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751310AbWFOHh1 (ORCPT
+	Thu, 15 Jun 2006 03:39:03 -0400
+Received: from cool.dworf.com ([193.189.190.81]:44856 "EHLO cool.dworf.com")
+	by vger.kernel.org with ESMTP id S1751313AbWFOHjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 03:37:27 -0400
-Message-ID: <44910E2A.5090205@goop.org>
-Date: Thu, 15 Jun 2006 00:37:14 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 15 Jun 2006 03:39:01 -0400
+Message-ID: <44910E87.3050200@dworf.com>
+Date: Thu, 15 Jun 2006 09:38:47 +0200
+From: David Osojnik <david@dworf.com>
+Reply-To: david@dworf.com
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: George Nychis <gnychis@cmu.edu>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cdrom support with thinkpad x6 ultrabay
-References: <4490E776.7080000@cmu.edu> <4490F4BC.1040300@goop.org> <44910B54.8000408@cmu.edu>
-In-Reply-To: <44910B54.8000408@cmu.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Mike Galbraith <efault@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bad command responsiveness Proliant DL 585
+References: <448FC1CE.9090108@dworf.com>	 <1150278161.7994.13.camel@Homer.TheSimpsons.net> <449060EE.60608@dworf.com> <1150353862.8097.61.camel@Homer.TheSimpsons.net>
+In-Reply-To: <1150353862.8097.61.camel@Homer.TheSimpsons.net>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Nychis wrote:
-> it successfully is applied, and i notice that CONFIG_ACPI_DOCK needs to
-> be set, so I did a "make oldconfig" after applying the patch, expecting
-> it to ask me whether or not i wanted to support it... it didn't.  So
-> then I manually added "CONFIG_ACPI_DOCK=y" to the .config and built the
-> kernel, but dock.o is never built... what else do i need to do?
->   
+Hello,
 
-Make sure you disable the (obsolete?) ACPI_IBM_DOCK stuff.
+IT Works perfect when setting noatime,nodiratime on the partition!!
 
-> If i can't get hot swappable support yet, I might as well get what is
-> supported for now so I can atleast use it sometimes :)
+can i try anything else? what does this actually mean?
+
+thanks!!
+
+David
+
+Mike Galbraith wrote:
+
+>On Wed, 2006-06-14 at 21:18 +0200, David Osojnik wrote:
+>  
 >
-> Maybe this cry for help will spark someone to finish off the work on hot
-> swapping the optical drive.
->   
-
-Yeah, I'm hoping all the work on power management in libata will make 
-things "just work" soon, but I think there's more to it.  When you press 
-the dock eject button, it really needs to go out to acpid, activate a 
-script to unmount any filesystems mounted off the device, and then poke 
-the ata layer to remove the device, before OKing the dock eject so the 
-hardware's "don't do that" light goes out.
-
-But in the meantime I'm having enough trouble getting plain old 
-suspend/resume reliable.
-
-    J
+>>here is the output of SysRq-T and SysRq-M:
+>>
+>>http://www.dworf.com/sysrq.txt
+>>
+>>any ideas?
+>>    
+>>
+>
+>Not really.
+>
+>I see I/O jammed up on reiserfs:.text.lock.journal, but you said
+>reiserfs and ext3 both stall the same way.  If the journal is in the
+>raid, I'd try moving it, but I can't really imagine seek troubles
+>leading to 15 minutes of grinding.  I noticed that those last two
+>instances of bash got nailed because of atime.  Do things get any better
+>if mounted noatime, nodiratime?
+>
+>	-Mike
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>

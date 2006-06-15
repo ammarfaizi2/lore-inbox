@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWFOFpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWFOFs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWFOFpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 01:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWFOFpI
+	id S932436AbWFOFs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 01:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWFOFs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 01:45:08 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:26666 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S932440AbWFOFpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 01:45:07 -0400
-X-IronPort-AV: i="4.06,134,1149490800"; 
-   d="scan'208"; a="1825977090:sNHT31549832"
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Voluspa <lista1@comhem.se>, linux-kernel@vger.kernel.org,
-       akpm <akpm@osdl.org>, len.brown@intel.com
-Subject: Re: [UBUNTU:acpi/ec] Use semaphore instead of spinlock
-X-Message-Flag: Warning: May contain useful information
-References: <20060615010850.3d375fa9.lista1@comhem.se>
-	<4490B48E.5060304@oracle.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 14 Jun 2006 22:45:03 -0700
-In-Reply-To: <4490B48E.5060304@oracle.com> (Randy Dunlap's message of "Wed, 14 Jun 2006 18:14:54 -0700")
-Message-ID: <adaslm7ynts.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 15 Jun 2006 01:48:56 -0400
+Received: from gw.goop.org ([64.81.55.164]:61673 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932436AbWFOFs4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 01:48:56 -0400
+Message-ID: <4490F4BC.1040300@goop.org>
+Date: Wed, 14 Jun 2006 22:48:44 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 Jun 2006 05:45:05.0482 (UTC) FILETIME=[DA7FD2A0:01C6903E]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: George Nychis <gnychis@cmu.edu>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: cdrom support with thinkpad x6 ultrabay
+References: <4490E776.7080000@cmu.edu>
+In-Reply-To: <4490E776.7080000@cmu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > [UBUNTU:acpi/ec] Use semaphore instead of spinlock to get rid of missed
- > interrupts on ACPI EC (embedded controller)
+George Nychis wrote:
+> I am looking for support somewhere in the kernel for my thinkpad x6
+> ultrabay's cdrom drive.  Whenever I attach the ultrabay it picks up the
+> extra usb ports, seems to pick up the ethernet port, but it fails to
+> pick up anything about the dvd/cd-writer.  Nothing shows up in dmesg
+> about the drive at all... anyone know what I might need in the kernel?
+> I am using 2.6.17-rc6
+-mm has some support for the dock, but there isn't support for hot 
+add/remove of the optical device yet.  I think that's waiting on some 
+support in libata, but I'm not exactly sure what's needed.
 
- > -		spinlock_t lock;
- > +		struct semaphore sem;
+At the moment, you either get the dock optical if you boot the machine 
+in the dock, and you can never eject the dock, or you get no optical and 
+eject works fine.
 
- > +	init_MUTEX(&ec->poll.sem);
-
-I think nowadays this should be a struct mutex...
+    J

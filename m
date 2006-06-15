@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWFODke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWFODl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbWFODke (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 23:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWFODke
+	id S932424AbWFODl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 23:41:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWFODl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 23:40:34 -0400
-Received: from wr-out-0506.google.com ([64.233.184.227]:34008 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932422AbWFODkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 23:40:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nIgVzkEYr9Dns6mx+sgkRnCbiCmBecfoiSxdkkOGnub89IptGiGV6K38w5Njdok8XPiMG11Ij5d/wjsE9WaDoYIM5HrRCJN9gl0e1IGcPOgLfFn+g6aY9AiGQ0Yg7W61buVJZLbojOuLjL45PS03t7CqAz5xmA9T4/vGG/hGz0o=
-Message-ID: <ef5305790606142040r5912ce58kf9f889c3d61b2cc0@mail.gmail.com>
-Date: Thu, 15 Jun 2006 15:40:32 +1200
-From: "Goo GGooo" <googgooo@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc6-mm2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Jun 2006 23:41:28 -0400
+Received: from mga02.intel.com ([134.134.136.20]:47242 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932424AbWFODl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 23:41:27 -0400
+X-IronPort-AV: i="4.06,134,1149490800"; 
+   d="scan'208"; a="51058191:sNHT30442622"
+Subject: [PATCH] move do_suspend_lowlevel to correct segment
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 15 Jun 2006 11:39:26 +0800
+Message-Id: <1150342766.21189.14.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
-> - To fetch an -mm tree using git, use (for example)
->
->  git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git v2.6.16-rc2-mm1
+Move do_suspend_lowlevel to correct segment. If it is in the same hugepage
+with ro data, mark_rodata_ro will make it unexecutable.
 
-I'm not able to get -mm tree from GIT. In
-http://git.kernel.org/.../smurf/linux-trees.git/refs/tags/ I can see
-the most recent tags like v2.6.17-rc6-mm2 but cg-clone
-http://git.kernel.org/.../smurf/linux-trees.git gives me only
-2.6.16-rc3 :(
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---
 
-I tried "cg-fetch v2.6.17-rc6-mm2" which seemed to fetch some more
-tags, then played with git-checkout & friends but still can't get the
-most recent source tree.
+ linux-2.6.17-rc5-root/arch/i386/kernel/acpi/wakeup.S |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
 
-How do I do that? Best if I could still fetch updates in the same tree later.
-
-RTFM is all right if followed by a link to TFM ;-)
-
-Thanks
-
-Goo
+diff -puN arch/i386/kernel/acpi/wakeup.S~wakeup arch/i386/kernel/acpi/wakeup.S
+--- linux-2.6.17-rc5/arch/i386/kernel/acpi/wakeup.S~wakeup	2006-06-14 09:21:26.000000000 +0800
++++ linux-2.6.17-rc5-root/arch/i386/kernel/acpi/wakeup.S	2006-06-14 09:21:57.000000000 +0800
+@@ -265,11 +265,6 @@ ENTRY(acpi_copy_wakeup_routine)
+ 	movl	$0x12345678, saved_magic
+ 	ret
+ 
+-.data
+-ALIGN
+-ENTRY(saved_magic)	.long	0
+-ENTRY(saved_eip)	.long	0
+-
+ save_registers:
+ 	leal	4(%esp), %eax
+ 	movl	%eax, saved_context_esp
+@@ -304,7 +299,11 @@ ret_point:
+ 	call	restore_processor_state
+ 	ret
+ 
++.data
+ ALIGN
++ENTRY(saved_magic)	.long	0
++ENTRY(saved_eip)	.long	0
++
+ # saved registers
+ saved_gdt:	.long	0,0
+ saved_idt:	.long	0,0
+_

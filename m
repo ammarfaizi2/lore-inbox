@@ -1,86 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWFOOkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWFOOkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbWFOOkF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 10:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWFOOkE
+	id S1030459AbWFOOkm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 10:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWFOOkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 10:40:04 -0400
-Received: from smtp3-g19.free.fr ([212.27.42.29]:59008 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1030451AbWFOOkC (ORCPT
+	Thu, 15 Jun 2006 10:40:42 -0400
+Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:34758 "EHLO
+	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1030452AbWFOOkl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 10:40:02 -0400
-Message-ID: <1150382401.449171412bdfe@imp1-g19.free.fr>
-Date: Thu, 15 Jun 2006 16:40:01 +0200
-From: deweerdt@free.fr
-To: linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com, greearb@candelatech.com
-Subject: lock validator: false positive in vlan_dev.c
+	Thu, 15 Jun 2006 10:40:41 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 195.167.234.130
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 5/7] CCISS: fix a few spelling errors
+Date: Thu, 15 Jun 2006 09:40:39 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10C5249E4@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <200606141711.38975.bjorn.helgaas@hp.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 5/7] CCISS: fix a few spelling errors
+Thread-Index: AcaQB/EbN93/DG0MTVuscOGIOHhtxwAgaxjA
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Helgaas, Bjorn" <bjorn.helgaas@hp.com>
+Cc: "ISS StorageDev" <iss_storagedev@hp.com>, <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 15 Jun 2006 14:40:40.0606 (UTC) FILETIME=[AC869BE0:01C69089]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ 
 
-Assigning an inet address to a vlanized interface triggered the following BUG
-from the lock validator (kernel is 2.6.17-rc6-mm2):
+> -----Original Message-----
+> From: Helgaas, Bjorn 
+> Sent: Wednesday, June 14, 2006 6:12 PM
+> To: Miller, Mike (OS Dev)
+> Cc: ISS StorageDev; linux-kernel@vger.kernel.org; Andrew Morton
+> Subject: [PATCH 5/7] CCISS: fix a few spelling errors
+> 
+> Fix a few spelling errors.
+> 
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-[176619.872000] ====================================
-[176619.872000] [ BUG: possible deadlock detected! ]
-[176619.872000] ------------------------------------
-[176619.872000] ifconfig/13283 is trying to acquire lock:
-[176619.872000]  (&dev->xmit_lock){-+..}, at: [<c02f7471>] dev_mc_add+0x31/0x11d
-[176619.872000]
-[176619.872000] but task is already holding lock:
-[176619.872000]  (&dev->xmit_lock){-+..}, at: [<c02f7471>] dev_mc_add+0x31/0x11d
-[176619.872000]
-[176619.872000] which could potentially lead to deadlocks!
-[176619.872000]
-[176619.872000] other info that might help us debug this:
-[176619.872000] 2 locks held by ifconfig/13283:
-[176619.872000]  #0:  (rtnl_mutex){--..}, at: [<c036c722>] mutex_lock+0x8/0xa
-[176619.872000]  #1:  (&dev->xmit_lock){-+..}, at: [<c02f7471>]
-dev_mc_add+0x31/0x11d
-[176619.872000]
-[176619.872000] stack backtrace:
-[176619.872000]  [<c0103da1>] show_trace_log_lvl+0x136/0x150
-[176619.872000]  [<c0104f12>] show_trace+0x1b/0x1d
-[176619.872000]  [<c0104f3a>] dump_stack+0x26/0x28
-[176619.872000]  [<c0137823>] __lock_acquire+0x2ea/0xd37
-[176619.872000]  [<c0138684>] lock_acquire+0x60/0x75
-[176619.872000]  [<c036dc5d>] _spin_lock_bh+0x4a/0x58
-[176619.872000]  [<c02f7471>] dev_mc_add+0x31/0x11d
-[176619.872000]  [<f8b5ed9e>] vlan_dev_set_multicast_list+0xf5/0x309 [8021q]
-[176619.872000]  [<c02f7346>] __dev_mc_upload+0x26/0x28
-[176619.872000]  [<c02f7504>] dev_mc_add+0xc4/0x11d
-[176619.872000]  [<c033cd14>] igmp_group_added+0x10c/0x111
-[176619.872000]  [<c033d5ff>] ip_mc_inc_group+0x1a2/0x234
-[176619.872000]  [<c033d6b4>] ip_mc_up+0x23/0x66
-[176619.872000]  [<c0339392>] inetdev_init+0x117/0x158
-[176619.872000]  [<c033ae6f>] devinet_ioctl+0x5db/0x67c
-[176619.872000]  [<c033b1cb>] inet_ioctl+0x7b/0x95
-[176619.872000]  [<c02e8caa>] sock_ioctl+0xb1/0x252
-[176619.872000]  [<c018561a>] do_ioctl+0x2a/0x80
-[176619.872000]  [<c01856c2>] vfs_ioctl+0x52/0x2db
-[176619.872000]  [<c01859b7>] sys_ioctl+0x6c/0x79
-[176619.872000]  [<c036e80d>] sysenter_past_esp+0x56/0x8d
-[176619.872000]  [<b7f76410>] 0xb7f76410
+Acked-by: Mike Miller <mike.miller@hp.com>
 
-The following steps are needed to reproduce the BUG:
-vconfig add eth0 2
-ifconfig eth0.2 172.31.23.22
-
-This seels to be a false positive because the first dev->xmit_lock held is the
-one from the vlan interface and the second is the one belonging to the real
-interface.
-
-I considered adding dev_mc_add(..., int nesting) ->net_tx_lock_bh(..., int
-nesting) -> spin_lock_bh_nested(..., int nesting) but the number of calling
-places is important, so I wondered if someone would come up with a better
-solution.
-
-Thanks,
-Frederik
+> 
+> Index: rc5-mm3/drivers/block/cciss.c
+> ===================================================================
+> --- rc5-mm3.orig/drivers/block/cciss.c	2006-06-14 
+> 15:16:13.000000000 -0600
+> +++ rc5-mm3/drivers/block/cciss.c	2006-06-14 
+> 15:16:44.000000000 -0600
+> @@ -129,7 +129,7 @@
+>  	{ 0x3215103C, "Smart Array E200i", &SA5_access},  };
+>  
+> -/* How long to wait (in millesconds) for board to go into 
+> simple mode */
+> +/* How long to wait (in milliseconds) for board to go into 
+> simple mode 
+> +*/
+>  #define MAX_CONFIG_WAIT 30000
+>  #define MAX_IOCTL_CONFIG_WAIT 1000
+>  
+> @@ -1117,7 +1117,7 @@
+>   *
+>   * Right now I'm using the getgeometry() function to do 
+> this, but this
+>   * function should probably be finer grained and allow you 
+> to revalidate one
+> - * particualar logical volume (instead of all of them on a particular
+> + * particular logical volume (instead of all of them on a particular
+>   * controller).
+>   */
+>  static int revalidate_allvol(ctlr_info_t *host) @@ -1260,7 +1260,7 @@
+>  		return;
+>  
+>  
+> -	/* Get information about the disk and modify the driver 
+> sturcture */
+> +	/* Get information about the disk and modify the driver 
+> structure */
+>  	size_buff = kmalloc(sizeof( ReadCapdata_struct), GFP_KERNEL);
+>          if (size_buff == NULL)
+>  		goto mem_msg;
+> @@ -1335,7 +1335,7 @@
+>  }
+>  
+>  /* This function will add and remove logical drives from the Logical
+> - * drive array of the controller and maintain persistancy of ordering
+> + * drive array of the controller and maintain persistency of ordering
+>   * so that mount points are preserved until the next reboot. 
+>  This allows
+>   * for the removal of logical drives in the middle of the drive array
+>   * without a re-ordering of those drives.
+> @@ -1482,7 +1482,7 @@
+>   * clear_all = This flag determines whether or not the disk 
+> information
+>   *             is going to be completely cleared out and the 
+> highest_lun
+>   *             reset.  Sometimes we want to clear out 
+> information about
+> - *             the disk in preperation for re-adding it.  In 
+> this case
+> + *             the disk in preparation for re-adding it.  In 
+> this case
+>   *             the highest_lun should be left unchanged and the LunID
+>   *             should not be cleared.
+>  */
+> @@ -2597,7 +2597,7 @@
+>  	return IRQ_HANDLED;
+>  }
+>  /*
+> - *  We cannot read the structure directly, for portablity we 
+> must use 
+> + *  We cannot read the structure directly, for portability 
+> we must use
+>   *   the io functions.
+>   *   This is for debug only. 
+>   */
+> @@ -2620,9 +2620,9 @@
+>  				readl(&(tb->TransportActive)));
+>  	printk("   Requested transport Method = 0x%x\n", 
+>  			readl(&(tb->HostWrite.TransportRequest)));
+> -	printk("   Coalese Interrupt Delay = 0x%x\n", 
+> +	printk("   Coalesce Interrupt Delay = 0x%x\n", 
+>  			readl(&(tb->HostWrite.CoalIntDelay)));
+> -	printk("   Coalese Interrupt Count = 0x%x\n", 
+> +	printk("   Coalesce Interrupt Count = 0x%x\n", 
+>  			readl(&(tb->HostWrite.CoalIntCount)));
+>  	printk("   Max outstanding commands = 0x%d\n", 
+>  			readl(&(tb->CmdsOutMax)));
+> 

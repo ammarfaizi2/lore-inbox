@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWFOD1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWFODdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWFOD1n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 23:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWFOD1n
+	id S1751311AbWFODdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 23:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWFODdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 23:27:43 -0400
-Received: from de01egw01.freescale.net ([192.88.165.102]:53180 "EHLO
-	de01egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S1750838AbWFOD1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 23:27:42 -0400
-Message-ID: <9FCDBA58F226D911B202000BDBAD467306A5F987@zch01exm40.ap.freescale.net>
-From: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-To: Adrian Cox <adrian@humboldt.co.uk>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Alexandre.Bounine@tundra.com,
-       linux-kernel@vger.kernel.org,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>, linux-serial@vger.kernel.org,
-       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>
-Subject: RE: [PATCH/2.6.17-rc4 8/10]  Add  tsi108 8250 serial support
-Date: Thu, 15 Jun 2006 11:27:30 +0800
+	Wed, 14 Jun 2006 23:33:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9354 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751311AbWFODdl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 23:33:41 -0400
+Message-ID: <4490D515.8070308@engr.sgi.com>
+Date: Wed, 14 Jun 2006 20:33:41 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Balbir Singh <balbir@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Sturtivant <csturtiv@sgi.com>
+Subject: Re: ON/OFF control of taskstats accounting data at do_exit
+References: <449093D6.6000806@engr.sgi.com> <4490CDC2.3090009@watson.ibm.com>
+In-Reply-To: <4490CDC2.3090009@watson.ibm.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2006-06-13 at 13:39 +0800, Zang Roy-r61911 wrote:
-> 
-> > The reason is that the serial port on tsi108/9 is a bit difference 
-> > with the standard 8250 serial port. the patch deal with the 
-> difference.
-> > The prefixed ">" is caused by "Fw" the email. Sorry for that. The 
-> > following is the original patch.
-> 
-> The problem I see is that the code uses a CONFIG option, to 
-> change the behaviour of the generic 8250 driver. What happens 
-> if somebody adds a PCI serial card to a tsi108 based machine?
+Shailabh Nagar wrote:
+> Jay Lan wrote:
+>
+>> Hi Balbir and Shailabh,
+>>
+>> I propose we add the capability to turn ON/OFF the multicase of
+>> taskstats accounting data at do_exit().
+>>  
+>>
+>
+>> This would allow 'chkconfig taskstats' like of control similar
+>> to 'chkconfig acct' for BSD accounting. Sometimes sysadmins would
+>> wish to turn off sending accounting data to the multicast socket.
+>> We have seen many situations that our CSA customers need to turn
+>> off CSA for a period of time.
+>>
+>
+>
+> What happens to other clients listening to the data ? This sort of
+> configuration option would
+> again be along the lines of a systemwide change prompted by needs of
+> one subsystem but affecting
+> all others - something Andrew had recommended against doing while we
+> were discussing the per-tgid
+> turnoff.
+>
+> The existing way to solve this is for the listeners to close the
+> socket and reopen again later when they
+> are interested.  If there are no listeners at all, data won't be sent
+> by the kernel anyway. Won't that work
+> for you ?
 
-I do not like CONFIG option:). It might be a problem in the environment you suggesting.
+I was talking about turning off system-wise taskstats data preparation and
+delivery when every task exits. Sometimes customers like to do some
+benchmarking and need to turn off nonessential features.
 
-> 
-> Perhaps you should define a new value for 
-> uart_8250_port.port.iotype, and add code to serial_in and 
-> serial_out to handle the IIR register.
-I will consider it.
-> 
-> --
-> Adrian Cox <adrian@humboldt.co.uk>
-> 
+Are you saying if there is no listener, data will not be assembled and sent
+by the kernel? I thought kernel would always send no matter whether there
+is listener? I apologize for the noise if i made a mistake.
+
+Regards,
+ - jay
+
+>
+> --Shailabh
+>
+

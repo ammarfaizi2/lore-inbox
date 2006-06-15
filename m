@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWFNVRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWFNVY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWFNVRm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 17:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWFNVRm
+	id S932357AbWFNVY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 17:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWFNVY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 17:17:42 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:56983 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932334AbWFNVRl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 17:17:41 -0400
-Subject: Re: [RFC] the /proc/filecache interface
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Fengguang Wu <fengguang.wu@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Lubos Lunak <l.lunak@suse.cz>,
-       Dirk Mueller <dmueller@suse.de>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060612075130.GA5432@mail.ustc.edu.cn>
-References: <20060612075130.GA5432@mail.ustc.edu.cn>
-Content-Type: text/plain
-Date: Wed, 14 Jun 2006 14:19:30 -0700
-Message-Id: <1150319970.12768.58.camel@dyn9047017100.beaverton.ibm.com>
+	Wed, 14 Jun 2006 17:24:29 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:64713 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932357AbWFNVY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 17:24:28 -0400
+Date: Thu, 15 Jun 2006 05:24:29 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: [RFC][PATCH] Avoid race w/ posix-cpu-timer and exiting tasks
+Message-ID: <20060615012429.GA16951@oleg>
+References: <20060614024909.GA563@oleg> <1150239945.5799.14.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150239945.5799.14.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-12 at 15:51 +0800, Fengguang Wu wrote:
-> Hello,
-> 
-> The /proc/filecache support has been half done. And I'd like to hear
-> early comments on the interface.
-> 
+On 06/13, john stultz wrote:
+>
+> The tsk->signal check from the patch above looks like it would avoid
+> this as well. Is there a specific benefit to checking that over
+> exit_state?
 
-Wu,
+->exit_state is protected by tasklist_lock, and it would be nice to
+avoid it in run_posix_cpu_timers(). (I guess we could remove it right
+now, but I forgot the code). Yes, currently it doesn't matter because
+tsk == current.
 
-Interesting work. But I am worried that, this is getting over-designed.
-Lets go back to basics - what is the actual problem we are trying to
-solve here ? What are mininum requirements ? How does it help solve
-the problem ? Who & How one uses this ? Yes. I understand - these
-just provide stats on filecache, but we can provide all the nitty
-details - which are not really relevant or useful.
+Personally I dislike the testing of ->exit_state != 0 because unlike
+PF_EXITING or ->sighand/->signal it is changed from 0 to 1 in the middle
+of do_exit() path. Imho it should be used only by do_exit/do_wait path,
+but maybe this is just me.
 
-Don't get me wrong - I really need better understanding of whats there
-in pagecache. Infact, I need a better way to control how much filecache
-in pagecache. 
+Btw, I think there is another problem,
 
-(BTW, I like your patch for "educational" purposes - but I am not
-sure how useful it is for practical purpose).
+	check_process_timers:
 
-Thanks,
-Badari
+			t = tsk;
+			do {
+
+				...
+				
+				do {
+					t = next_thread(t);
+				} while (unlikely(t->flags & PF_EXITING));
+			} while (t != tsk);
+
+
+This can hang if the local timer interrupt happens right after do_exit()
+sets PF_EXITING ?
+
+Oleg.
 

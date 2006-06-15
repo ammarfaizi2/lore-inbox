@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWFOKU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWFOKa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbWFOKU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 06:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWFOKU7
+	id S1751348AbWFOKa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 06:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWFOKa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 06:20:59 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:10039 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932460AbWFOKU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 06:20:58 -0400
-Subject: Re: [RFC][PATCH] binfmt: turn MAX_ARG_PAGES into a sysctl tunable
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4490310C.9010601@linux.intel.com>
-References: <1150297122.31522.54.camel@lappy>
-	 <4490310C.9010601@linux.intel.com>
+	Thu, 15 Jun 2006 06:30:27 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:52966 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751348AbWFOKa0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 06:30:26 -0400
+Subject: Re: [Ubuntu PATCH] Make btsco headset (a bluetooth device) work
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <44909A48.905@oracle.com>
+References: <44909A48.905@oracle.com>
 Content-Type: text/plain
-Date: Thu, 15 Jun 2006 12:20:52 +0200
-Message-Id: <1150366852.22475.19.camel@lappy>
+Date: Thu, 15 Jun 2006 12:27:40 +0200
+Message-Id: <1150367260.6565.1.camel@aeonflux.holtmann.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-14 at 08:53 -0700, Arjan van de Ven wrote:
-> Peter Zijlstra wrote:
-> > From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > 
-> > Some folks find 128KB of env+arg space too little. Solaris provides them with
-> > 1MB. Manually changing MAX_ARG_PAGES worked for them so far, however they
-> > would like to run the supported vendor kernel.
+Hi Randy,
+
+> Make btsco headset (a bluetooth device) work.
+> Reference: https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/48910
 > 
-> then this patch should go to the vendors maybe ;)
+> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=e9cb99036e650dabc5e9d7037d5a728176b42aca
 
-You know it comes from one :-)
+this patch is not ready for mainline. The -mm kernel contains a more
+better patch to address this problem, but even that should not end up in
+mainline. I am working on a real solution for this issue.
 
-But as Randy said, there is interrest to not deviate too much and esp.
-wrt. interfaces.
+Regards
 
-> > 
-> > In the interrest of not penalizing everybody with the overhead of just
-> > setting it larger, provide a sysctl to change it.
-> > 
-> 
-> why not go all the way and make it truely dynamic ?
+Marcel
 
-Looking at the code again even this change feels heavy, making it
-dynamic would only bloat it more.
-
-If you really think we'll gain anything by having this dynamic please
-tell me and I'll make an honest effort, but for now I'd like to stick
-with this approach.
-
-Peter
 

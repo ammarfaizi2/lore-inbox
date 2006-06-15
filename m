@@ -1,33 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWFOJPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWFOJRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWFOJPk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 05:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWFOJPM
+	id S932447AbWFOJRa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 05:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWFOJQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 05:15:12 -0400
-Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:28072 "EHLO
-	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
-	id S932434AbWFOJPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 05:15:05 -0400
-Date: Thu, 15 Jun 2006 02:07:34 -0700
+	Thu, 15 Jun 2006 05:16:07 -0400
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:60902 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932458AbWFOJPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 05:15:15 -0400
+Date: Thu, 15 Jun 2006 02:07:36 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200606150907.k5F97YtU008130@frankl.hpl.hp.com>
+Message-Id: <200606150907.k5F97aww008156@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/16] 2.6.17-rc6 perfmon2 patch for review: new sysfs support
+Subject: [PATCH 7/16] 2.6.17-rc6 perfmon2 patch for review: interruption support
 Cc: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the sysfs support.
+This patch contains the PMU interruption support.
 
 
 
 
---- linux-2.6.17-rc6.orig/perfmon/perfmon_sysfs.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-rc6/perfmon/perfmon_sysfs.c	2006-06-08 05:36:31.000000000 -0700
-@@ -0,0 +1,636 @@
+--- linux-2.6.17-rc6.orig/perfmon/perfmon_intr.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17-rc6/perfmon/perfmon_intr.c	2006-06-12 04:40:38.000000000 -0700
+@@ -0,0 +1,517 @@
 +/*
-+ * perfmon_proc.c: perfmon2 /proc interface
++ * perfmon_intr.c: perfmon2 interrupt handling
 + *
 + * This file implements the perfmon2 interface which
 + * provides access to the hardware performance counters
@@ -49,616 +49,497 @@ This patch contains the sysfs support.
 + * More information about perfmon available at:
 + * 	http://www.hpl.hp.com/research/linux/perfmon
 + */
-+#include <linux/config.h>
-+#include <linux/module.h>
 +#include <linux/kernel.h>
-+#include <linux/smp_lock.h>
-+#include <linux/proc_fs.h>
-+#include <linux/list.h>
-+#include <linux/version.h>
 +#include <linux/perfmon.h>
-+#include <linux/device.h>
-+#include <linux/cpu.h>
 +
-+#include <asm/bitops.h>
-+#include <asm/errno.h>
-+#include <asm/processor.h>
-+
-+struct pfm_attribute {
-+	struct attribute attr;
-+	ssize_t (*show)(void *, char *);
-+	ssize_t (*store)(void *, const char *, size_t);
-+};
-+#define to_attr(n) container_of(n, struct pfm_attribute, attr);
-+
-+#define PFM_RO_ATTR(_name) \
-+struct pfm_attribute attr_##_name = __ATTR_RO(_name)
-+
-+#define PFM_RW_ATTR(_name,_mode,_show,_store) 			\
-+struct pfm_attribute attr_##_name = __ATTR(_name,_mode,_show,_store);
-+
-+static int pfm_sysfs_init_done;	/* true when pfm_sysfs_init() completed */
-+
-+static void pfm_sysfs_init_percpu(int i);
-+
-+int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu);
-+
-+struct pfm_controls pfm_controls = {
-+	.sys_group = PFM_GROUP_PERM_ANY,
-+	.task_group = PFM_GROUP_PERM_ANY,
-+	.arg_size_max = PAGE_SIZE,
-+	.smpl_buf_size_max = ~0,
-+};
-+EXPORT_SYMBOL(pfm_controls);
-+
-+DECLARE_PER_CPU(struct pfm_stats, pfm_stats);
-+
-+static struct kobject pfm_kernel_kobj, pfm_kernel_fmt_kobj;
-+
-+static void pfm_reset_stats(void)
++/*
++ * main overflow processing routine.
++ *
++ * set->num_ovfl_pmds is 0 when returning from this function even though
++ * set->ovfl_pmds[] may have bits set. When leaving set->num_ovfl_pmds
++ * must never be used to determine if there was a pending overflow.
++ */
++static void pfm_overflow_handler(struct pfm_context *ctx, struct pfm_event_set *set,
++				 struct pt_regs *regs)
 +{
-+	struct pfm_stats *st;
-+	int m;
++	struct pfm_ovfl_arg *ovfl_arg;
++	struct pfm_event_set *set_orig;
++	void *hdr;
++	u64 old_val, ovfl_mask, new_val, ovfl_thres;
++	u64 *ovfl_notify, *ovfl_pmds, *pend_ovfls;
++	u64 *smpl_pmds, *reset_pmds;
++	u64 now_itc, *pmds, time_phase;
++	unsigned long ip;
++	struct thread_info *th_info;
++	u32 ovfl_ctrl, num_ovfl, num_ovfl_orig;
++	u16 i, max_pmd, max_cnt_pmd, first_cnt_pmd;
++	u8 use_ovfl_switch, must_switch, has_64b_ovfl;
++	u8 ctx_block, has_notify;
 +
-+	for_each_online_cpu(m) {
++	now_itc = pfm_arch_get_itc();
++	ovfl_mask = pfm_pmu_conf->ovfl_mask;
++	max_pmd = pfm_pmu_conf->max_pmd;
++	first_cnt_pmd = pfm_pmu_conf->first_cnt_pmd;
++	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
++	ovfl_pmds = set->ovfl_pmds;
++	set_orig = set;
 +
-+		st = &per_cpu(pfm_stats,m);
++	ip = instruction_pointer(regs);
++
++	if (unlikely(ctx->state == PFM_CTX_ZOMBIE))
++		goto stop_monitoring;
++
++	/*
++	 * initialized in caller function
++	 */
++	use_ovfl_switch = set->flags & PFM_SETFL_OVFL_SWITCH;
++	must_switch = 0;
++	num_ovfl = num_ovfl_orig = set->npend_ovfls;
++	has_64b_ovfl = 0;
++	pend_ovfls = set->povfl_pmds;
++
++	hdr = ctx->smpl_addr;
++
++	PFM_DBG_ovfl("ovfl_pmds=0x%llx ip=%p, blocking=%d "
++		     "u_pmds=0x%llx use_fmt=%u",
++		     (unsigned long long)pend_ovfls[0],
++		     (void *)ip,
++		     ctx->flags.block,
++		     (unsigned long long)set->used_pmds[0],
++		     hdr != NULL);
++
++	/*
++	 * initialize temporary bitvectors
++	 * we allocate bitvectors in the context
++	 * rather than on the stack to minimize stack
++	 * space consumption. PMU interrupt is very high
++	 * which implies possible deep nesting of interrupt
++	 * hence limited kernel stack space.
++	 *
++	 * This is safe because a context can only be in the
++	 * overflow handler once at a time
++	 */
++	reset_pmds = set->reset_pmds;
++	ovfl_notify = ctx->ovfl_ovfl_notify;
++	pmds = set->view->set_pmds;
++	bitmap_zero(ulp(reset_pmds), max_pmd);
++
++	pfm_modview_begin(set);
++
++	set->last_iip = ip;
++	/*
++	 * first we update the virtual counters
++	 *
++	 * we leverage num_ovfl to minimize number of
++	 * iterations of the loop.
++	 *
++	 * The i < max_cnt_pmd is just a sanity check
++	 */
++	for (i = first_cnt_pmd; num_ovfl && i < max_cnt_pmd; i++) {
 +		/*
-+		 * cannot use memset because of kobj member
++		 * skip pmd which did not overflow
 +		 */
-+		st->pfm_ovfl_intr_replay_count = 0;
-+		st->pfm_ovfl_intr_regular_count = 0;
-+		st->pfm_ovfl_intr_all_count = 0;
-+		st->pfm_ovfl_intr_cycles = 0;
-+		st->pfm_ovfl_intr_phase1 = 0;
-+		st->pfm_ovfl_intr_phase2 = 0;
-+		st->pfm_ovfl_intr_phase3 = 0;
-+		st->pfm_fmt_handler_calls = 0;
-+		st->pfm_fmt_handler_cycles = 0;
-+		st->pfm_set_switch_count = 0;
-+		st->pfm_set_switch_cycles = 0;
-+		st->pfm_handle_timeout_count = 0;
++		if (pfm_bv_isset(pend_ovfls, i) == 0)
++			continue;
++
++		num_ovfl--;
++
++		/*
++		 * Note that the pmd is not necessarily 0 at this point as
++		 * qualified events may have happened before the PMU was
++		 * frozen. The residual count is not taken into consideration
++		 * here but will be with any read of the pmd via pfm_read_pmds().
++		 */
++		old_val = new_val = pmds[i];
++		ovfl_thres = set->pmds[i].ovflsw_thres;
++		new_val += 1 + ovfl_mask;
++		pmds[i] = new_val;
++
++		/*
++		 * on some PMU, it may be necessary to re-arm the PMD
++		 */
++		pfm_arch_ovfl_reset_pmd(ctx, i);
++
++		/*
++		 * check for overflow condition
++		 */
++		if (likely(old_val > new_val)) {
++
++			if (has_64b_ovfl == 0) {
++				set->last_ovfl_pmd = i;
++				set->last_ovfl_pmd_reset = set->pmds[i].lval;
++			}
++
++			has_64b_ovfl = 1;
++
++			if (use_ovfl_switch && ovfl_thres > 0) {
++				if (ovfl_thres == 1)
++					must_switch = 1;
++				set->pmds[i].ovflsw_thres = ovfl_thres - 1;
++			}
++
++			/*
++			 * what to reset because of this overflow
++			 */
++			pfm_bv_set(reset_pmds, i);
++
++			bitmap_or(ulp(reset_pmds),
++				  ulp(reset_pmds),
++				  ulp(set->pmds[i].reset_pmds),
++				  max_pmd);
++
++		} else {
++			/* only keep track of 64-bit overflows */
++			pfm_bv_clear(pend_ovfls, i);
++		}
++
++		PFM_DBG_ovfl("pmd%u=0x%llx old_val=0x%llx "
++			     "hw_pmd=0x%llx o_pmds=0x%llx must_switch=%u "
++			     "o_thres=%llu o_thres_ref=%llu",
++			     i,
++			     (unsigned long long)new_val,
++			     (unsigned long long)old_val,
++			     (unsigned long long)(pfm_read_pmd(ctx, i) & ovfl_mask),
++			     (unsigned long long)ovfl_pmds[0],
++			     must_switch,
++			     (unsigned long long)set->pmds[i].ovflsw_thres,
++			     (unsigned long long)set->pmds[i].ovflsw_ref_thres);
 +	}
-+}
++	pfm_modview_end(set);
 +
-+
-+static ssize_t pfm_fmt_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct pfm_smpl_fmt *fmt = to_smpl_fmt(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(fmt, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_pmu_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct _pfm_pmu_config *pmu= to_pmu(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(pmu, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_stats_attr_show(struct kobject *kobj,
-+		struct attribute *attr, char *buf)
-+{
-+	struct pfm_stats *st = to_stats(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->show ? attribute->show(st, buf) : -EIO;
-+}
-+
-+static ssize_t pfm_stats_attr_store(struct kobject *kobj,
-+		struct attribute *attr, const char *buf, size_t count)
-+{
-+	struct pfm_stats *st = to_stats(kobj);
-+	struct pfm_attribute *attribute = to_attr(attr);
-+	return attribute->store ? attribute->store(st, buf, count) : -EIO;
-+}
-+
-+static struct sysfs_ops pfm_fmt_sysfs_ops = {
-+	.show = pfm_fmt_attr_show,
-+};
-+
-+static struct sysfs_ops pfm_pmu_sysfs_ops = {
-+	.show = pfm_pmu_attr_show,
-+};
-+
-+static struct sysfs_ops pfm_stats_sysfs_ops = {
-+	.show  = pfm_stats_attr_show,
-+	.store = pfm_stats_attr_store,
-+};
-+
-+static struct kobj_type pfm_fmt_ktype = {
-+	.sysfs_ops = &pfm_fmt_sysfs_ops,
-+};
-+
-+static struct kobj_type pfm_pmu_ktype = {
-+	.sysfs_ops = &pfm_pmu_sysfs_ops,
-+};
-+
-+static struct kobj_type pfm_stats_ktype = {
-+	.sysfs_ops = &pfm_stats_sysfs_ops,
-+};
-+
-+decl_subsys_name(pfm_fmt, pfm_fmt, &pfm_fmt_ktype, NULL);
-+decl_subsys_name(pfm_pmu, pfm_pmu, &pfm_pmu_ktype, NULL);
-+decl_subsys_name(pfm_stats, pfm_stats, &pfm_stats_ktype, NULL);
-+
-+static ssize_t version_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%u.%u\n",  PFM_VERSION_MAJ, PFM_VERSION_MIN);
-+}
-+
-+static ssize_t pmu_model_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 0);
-+}
-+
-+static ssize_t counter_width_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 1);
-+}
-+
-+static ssize_t task_sessions_count_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 2);
-+}
-+
-+static ssize_t sys_sessions_count_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 3);
-+}
-+
-+static ssize_t smpl_buffer_mem_show(void *info, char *buf)
-+{
-+	return pfm_sysfs_session_show(buf, PAGE_SIZE, 4);
-+}
-+
-+static ssize_t debug_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug);
-+}
-+
-+static ssize_t debug_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.debug = d;
-+
-+	if (d == 0)
-+		pfm_reset_stats();
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t debug_ovfl_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.debug_ovfl);
-+}
-+
-+static ssize_t debug_ovfl_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.debug_ovfl = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t reset_stats_show(void *info, char *buf)
-+{
-+	buf[0]='0';
-+	buf[1]='\0';
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t reset_stats_store(void *info, const char *buf, size_t count)
-+{
-+	pfm_reset_stats();
-+	return count;
-+}
-+
-+static ssize_t expert_mode_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
-+}
-+
-+static ssize_t expert_mode_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.expert_mode = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t sys_group_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.sys_group);
-+}
-+
-+static ssize_t sys_group_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.sys_group = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t task_group_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.task_group);
-+}
-+
-+static ssize_t task_group_store(void *info, const char *buf, size_t sz)
-+{
-+	int d;
-+
-+	if (sscanf(buf,"%d", &d) != 1)
-+		return -EINVAL;
-+
-+	pfm_controls.task_group = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t buf_size_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
-+}
-+
-+static ssize_t buf_size_store(void *info, const char *buf, size_t sz)
-+{
-+	size_t d;
-+
-+	if (sscanf(buf,"%zu", &d) != 1)
-+		return -EINVAL;
++	time_phase = pfm_arch_get_itc();
 +	/*
-+	 * we impose a page as the minimum
++	 * ensure we do not come back twice for the same overflow
 +	 */
-+	if (d < PAGE_SIZE)
-+		return -EINVAL;
++	set->npend_ovfls = 0;
 +
-+	pfm_controls.smpl_buf_size_max = d;
++	ctx_block = ctx->flags.block;
 +
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+static ssize_t arg_size_show(void *info, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pfm_controls.expert_mode);
-+}
-+
-+static ssize_t arg_size_store(void *info, const char *buf, size_t sz)
-+{
-+	size_t d;
-+
-+	if (sscanf(buf,"%zu", &d) != 1)
-+		return -EINVAL;
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_phase1 += time_phase - now_itc;
 +
 +	/*
-+	 * we impose a page as the minimum
++	 * there was no 64-bit overflow, nothing else to do
 +	 */
-+	if (d < PAGE_SIZE)
-+		return -EINVAL;
-+
-+	pfm_controls.arg_size_max = d;
-+
-+	return strnlen(buf, PAGE_SIZE);
-+}
-+
-+/*
-+ * /sys/kernel/perfmon attributes
-+ */
-+static PFM_RO_ATTR(version);
-+static PFM_RO_ATTR(pmu_model);
-+static PFM_RO_ATTR(counter_width);
-+static PFM_RO_ATTR(task_sessions_count);
-+static PFM_RO_ATTR(sys_sessions_count);
-+static PFM_RO_ATTR(smpl_buffer_mem);
-+
-+static PFM_RW_ATTR(debug, 0644, debug_show, debug_store);
-+static PFM_RW_ATTR(debug_ovfl, 0644, debug_ovfl_show, debug_ovfl_store);
-+static PFM_RW_ATTR(reset_stats, 0644, reset_stats_show, reset_stats_store);
-+static PFM_RW_ATTR(expert_mode, 0644, expert_mode_show, expert_mode_store);
-+static PFM_RW_ATTR(sys_group, 0644, sys_group_show, sys_group_store);
-+static PFM_RW_ATTR(task_group, 0644, task_group_show, task_group_store);
-+static PFM_RW_ATTR(buf_size_max, 0644, buf_size_show, buf_size_store);
-+static PFM_RW_ATTR(arg_size_max, 0644, arg_size_show, arg_size_store);
-+
-+static struct attribute *pfm_kernel_attrs[] = {
-+	&attr_version.attr,
-+	&attr_pmu_model.attr,
-+	&attr_counter_width.attr,
-+	&attr_task_sessions_count.attr,
-+	&attr_sys_sessions_count.attr,
-+	&attr_smpl_buffer_mem.attr,
-+	&attr_debug.attr,
-+	&attr_debug_ovfl.attr,
-+	&attr_reset_stats.attr,
-+	&attr_expert_mode.attr,
-+	&attr_sys_group.attr,
-+	&attr_task_group.attr,
-+	&attr_buf_size_max.attr,
-+	&attr_arg_size_max.attr,
-+	NULL
-+};
-+
-+static struct attribute_group pfm_kernel_attr_group = {
-+	.attrs = pfm_kernel_attrs,
-+};
-+
-+
-+int pfm_sysfs_init(void)
-+{
-+	int i, ret;
-+	
-+	ret = subsystem_register(&pfm_fmt_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_fmt_subsys: %d", ret);
-+		return ret;
-+	}
-+
-+	ret = subsystem_register(&pfm_pmu_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_pmu_subsys: %d", ret);
-+		subsystem_unregister(&pfm_fmt_subsys);
-+		return ret;
-+	}
-+
-+	ret = subsystem_register(&pfm_stats_subsys);
-+	if (ret) {
-+		PFM_INFO("cannot register pfm_statssubsys: %d", ret);
-+		subsystem_unregister(&pfm_fmt_subsys);
-+		subsystem_unregister(&pfm_pmu_subsys);
-+		return ret;
-+	}
-+
-+	kobject_init(&pfm_kernel_kobj);
-+	kobject_init(&pfm_kernel_fmt_kobj);
-+
-+	pfm_kernel_kobj.parent = &kernel_subsys.kset.kobj;
-+	kobject_set_name(&pfm_kernel_kobj, "perfmon");
-+
-+	pfm_kernel_fmt_kobj.parent = &pfm_kernel_kobj;
-+	kobject_set_name(&pfm_kernel_fmt_kobj, "formats");
-+
-+	kobject_add(&pfm_kernel_kobj);
-+	kobject_add(&pfm_kernel_fmt_kobj);
-+
-+	sysfs_create_group(&pfm_kernel_kobj, &pfm_kernel_attr_group);
-+
-+	for_each_online_cpu(i) {
-+		pfm_sysfs_init_percpu(i);
-+	}
-+
-+	pfm_sysfs_init_done = 1;
-+
-+	pfm_builtin_fmt_sysfs_add();
-+
-+	if (pfm_pmu_conf)
-+		pfm_sysfs_add_pmu(pfm_pmu_conf);
-+
-+	return 0;
-+}
-+
-+#define PFM_DECL_ATTR(name) \
-+static ssize_t name##_show(void *info, char *buf) \
-+{ \
-+	struct pfm_stats *st = info;\
-+	return snprintf(buf, PAGE_SIZE, "%llu\n", \
-+			(unsigned long long)st->pfm_##name); \
-+} \
-+static PFM_RO_ATTR(name)
-+
-+/*
-+ * per-cpu perfmon stats attributes
-+ */
-+PFM_DECL_ATTR(ovfl_intr_replay_count);
-+PFM_DECL_ATTR(ovfl_intr_all_count);
-+PFM_DECL_ATTR(ovfl_intr_cycles);
-+PFM_DECL_ATTR(fmt_handler_calls);
-+PFM_DECL_ATTR(fmt_handler_cycles);
-+PFM_DECL_ATTR(set_switch_count);
-+PFM_DECL_ATTR(set_switch_cycles);
-+PFM_DECL_ATTR(handle_timeout_count);
-+
-+static ssize_t ovfl_intr_spurious_count_show(void *info, char *buf)
-+{
-+	struct pfm_stats *st = info;
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)(st->pfm_ovfl_intr_all_count
-+					     - st->pfm_ovfl_intr_regular_count));
-+}
-+
-+static ssize_t ovfl_intr_regular_count_show(void *info, char *buf)
-+{
-+	struct pfm_stats *st = info;
-+	return snprintf(buf, PAGE_SIZE, "%llu\n",
-+			(unsigned long long)(st->pfm_ovfl_intr_regular_count
-+					     - st->pfm_ovfl_intr_replay_count));
-+}
-+
-+static PFM_RO_ATTR(ovfl_intr_spurious_count);
-+static PFM_RO_ATTR(ovfl_intr_regular_count);
-+
-+static struct attribute *pfm_cpu_attrs[] = {
-+	&attr_ovfl_intr_spurious_count.attr,
-+	&attr_ovfl_intr_replay_count.attr,
-+	&attr_ovfl_intr_regular_count.attr,
-+	&attr_ovfl_intr_all_count.attr,
-+	&attr_ovfl_intr_cycles.attr,
-+	&attr_fmt_handler_calls.attr,
-+	&attr_fmt_handler_cycles.attr,
-+	&attr_set_switch_count.attr,
-+	&attr_set_switch_cycles.attr,
-+	&attr_handle_timeout_count.attr,
-+	NULL
-+};
-+
-+static struct attribute_group pfm_cpu_attr_group = {
-+	.attrs = pfm_cpu_attrs,
-+};
-+
-+static void pfm_sysfs_init_percpu(int i)
-+{
-+	struct sys_device *cpudev;
-+	struct pfm_stats *st;
-+
-+	cpudev = get_cpu_sysdev(i);
-+	if (!cpudev)
++	if (has_64b_ovfl == 0)
 +		return;
 +
-+	st = &per_cpu(pfm_stats, i);
 +
-+	kobject_init(&st->kobj);
++	/*
++	 * copy pending_ovfls to ovfl_pmd. It is used in
++	 * the notification message or getinfo_evtsets().
++	 *
++	 * pend_ovfls modified to reflect only 64-bit overflows
++	 */
++	bitmap_copy(ulp(ovfl_pmds),
++		    ulp(pend_ovfls),
++		    max_cnt_pmd);
 +
-+	st->kobj.parent = &cpudev->kobj;
-+	kobject_set_name(&st->kobj, "perfmon");
-+	kobj_set_kset_s(st, pfm_stats_subsys);
++	/*
++	 * build ovfl_notify bitmask from ovfl_pmds
++	 */
++	bitmap_and(ulp(ovfl_notify),
++		   ulp(pend_ovfls),
++		   ulp(set->ovfl_notify),
++		   max_cnt_pmd);
 +
-+	kobject_add(&st->kobj);
++	has_notify = bitmap_empty(ulp(ovfl_notify), max_cnt_pmd) == 0;
++	/*
++	 * must reset for next set of overflows
++	 */
++	bitmap_zero(ulp(pend_ovfls), max_cnt_pmd);
 +
-+	sysfs_create_group(&st->kobj, &pfm_cpu_attr_group);
++	/*
++	 * check for format
++	 */
++	if (likely(ctx->smpl_fmt)) {
++		u64 start_cycles, end_cycles;
++		u64 *cnt_pmds;
++		int j, k, ret = 0;
++
++		ovfl_ctrl = 0;
++		num_ovfl = num_ovfl_orig;
++		ovfl_arg = &ctx->ovfl_arg;
++		cnt_pmds = pfm_pmu_conf->cnt_pmds;
++
++		ovfl_arg->active_set = set->id;
++
++		for (i = first_cnt_pmd; num_ovfl && ret == 0; i++) {
++
++			if (pfm_bv_isset(ovfl_pmds, i) == 0)
++				continue;
++
++			num_ovfl--;
++
++			ovfl_arg->ovfl_pmd = i;
++			ovfl_arg->ovfl_ctrl = 0;
++
++			ovfl_arg->pmd_last_reset = set->pmds[i].lval;
++			ovfl_arg->pmd_eventid = set->pmds[i].eventid;
++
++			/*
++		 	 * copy values of pmds of interest.
++			 * Sampling format may use them
++			 * We do not initialize the unused smpl_pmds_values
++		 	 */
++			k = 0;
++			smpl_pmds = set->pmds[i].smpl_pmds;
++			if (bitmap_empty(ulp(smpl_pmds), max_pmd) == 0) {
++
++				for (j = 0; j < max_pmd; j++) {
++
++					if (pfm_bv_isset(smpl_pmds, j) == 0)
++						continue;
++
++					new_val = pfm_read_pmd(ctx, j);
++
++					/* for counters, build 64-bit value */
++					if (pfm_bv_isset(cnt_pmds, j)) {
++						new_val = (set->view->set_pmds[j] & ~ovfl_mask)
++							| (new_val & ovfl_mask);
++					}
++					ovfl_arg->smpl_pmds_values[k++] = new_val;
++
++					PFM_DBG_ovfl("s_pmd_val[%u]="
++						     "pmd%u=0x%llx",
++						     k, j,
++						     (unsigned long long)new_val);
++				}
++			}
++			ovfl_arg->num_smpl_pmds = k;
++
++			__get_cpu_var(pfm_stats).pfm_fmt_handler_calls++;
++
++			start_cycles = pfm_arch_get_itc();
++
++			/*
++		 	 * call custom buffer format record (handler) routine
++		 	 */
++			ret = (*ctx->smpl_fmt->fmt_handler)(hdr,
++							    ovfl_arg,
++							    ip,
++							    now_itc,
++							    regs);
++
++			end_cycles = pfm_arch_get_itc();
++
++			/*
++			 * for PFM_OVFL_CTRL_MASK and PFM_OVFL_CTRL_NOTIFY
++			 * we take the union
++			 *
++			 * PFM_OVFL_CTRL_RESET is ignored here
++			 *
++			 * The reset_pmds mask is constructed automatically
++			 * on overflow. When the actual reset takes place
++			 * depends on the masking, switch and notification
++			 * status. It may may deferred until pfm_restart().
++			 */
++			ovfl_ctrl |= ovfl_arg->ovfl_ctrl
++				   & (PFM_OVFL_CTRL_NOTIFY|PFM_OVFL_CTRL_MASK);
++
++			__get_cpu_var(pfm_stats).pfm_fmt_handler_cycles += end_cycles
++									  - start_cycles;
++		}
++		/*
++		 * when the format cannot handle the rest of the overflow,
++		 * we abort right here
++		 */
++		if (ret) {
++			PFM_DBG_ovfl("handler aborted at PMD%u ret=%d",
++				     i, ret);
++		}
++	} else {
++		/*
++		 * When no sampling format is used, the default
++		 * is:
++		 * 	- mask monitoring
++		 * 	- notify user if requested
++		 *
++		 * If notification is not requested, monitoring is masked
++		 * and overflowed counters are not reset (saturation).
++		 * This mimics the behavior of the default sampling format.
++		 */
++		ovfl_ctrl = PFM_OVFL_CTRL_NOTIFY;
++
++		if (must_switch == 0 || has_notify)
++			ovfl_ctrl |= PFM_OVFL_CTRL_MASK;
++	}
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_phase2 += pfm_arch_get_itc() - now_itc;
++
++	PFM_DBG_ovfl("o_notify=0x%llx o_pmds=0x%llx "
++		     "r_pmds=0x%llx masking=%d notify=%d",
++		     (unsigned long long)ovfl_notify[0],
++		     (unsigned long long)ovfl_pmds[0],
++		     (unsigned long long)reset_pmds[0],
++		     (ovfl_ctrl & PFM_OVFL_CTRL_MASK)  != 0,
++		     (ovfl_ctrl & PFM_OVFL_CTRL_NOTIFY)!= 0);
++
++	/*
++	 * we only reset (short reset) when we are not masking. Otherwise
++	 * the reset is postponed until restart.
++	 */
++	if (likely((ovfl_ctrl & PFM_OVFL_CTRL_MASK) == 0)) {
++		/*
++		 * masking has priority over switching
++	 	 */
++		if (must_switch) {
++			/*
++			 * pfm_switch_sets() takes care
++			 * of resetting new set if needed
++			 */
++			pfm_switch_sets(ctx, NULL, PFM_PMD_RESET_SHORT, 0);
++
++			/*
++		 	 * update our view of the active set
++		 	 */
++			set = ctx->active_set;
++
++			must_switch = 0;
++		} else
++			pfm_reset_pmds(ctx, set, PFM_PMD_RESET_SHORT);
++		/*
++		 * do not block if not masked
++		 */
++		ctx_block = 0;
++	} else {
++		pfm_mask_monitoring(ctx);
++		ctx->state = PFM_CTX_MASKED;
++		ctx->flags.can_restart = 1;
++	}
++	/*
++	 * if we have not switched here, then remember for the
++	 * time monitoring is resumed
++	 */
++	if (must_switch)
++		set->priv_flags |= PFM_SETFL_PRIV_SWITCH;
++
++	/*
++	 * block only if CTRL_NOTIFY+CTRL_MASK and requested by user
++	 *
++	 * Defer notification until last operation in the handler
++	 * to avoid spinlock contention
++	 */
++	if (has_notify && (ovfl_ctrl & PFM_OVFL_CTRL_NOTIFY)) {
++		if (ctx_block) {
++			ctx->flags.trap_reason = PFM_TRAP_REASON_BLOCK;
++			th_info = current_thread_info();
++			set_bit(TIF_NOTIFY_RESUME, &th_info->flags);
++		}
++		pfm_ovfl_notify_user(ctx, set_orig, ip);
++	}
++
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_phase3 += pfm_arch_get_itc() - now_itc;
++
++	return;
++
++stop_monitoring:
++	PFM_DBG_ovfl("ctx is zombie, converted to spurious");
++
++	__pfm_stop(ctx);
++
++	ctx->flags.trap_reason = PFM_TRAP_REASON_ZOMBIE;
++	th_info = current_thread_info();
++	set_bit(TIF_NOTIFY_RESUME, &th_info->flags);
 +}
-+
-+static ssize_t uuid_show(void *data, char *buf)
++/*
++ *
++ * It is safe to access the ctx outside of the lock because:
++ * either:
++ * 	- per-thread: ctx attached to current thread, so LOADED,
++ * 	  and cannot be unloaded or modified without current being
++ * 	  stopped or not in the interrupt handler (self)
++ *
++ * 	- system-wide: is controlled either by current thread, or remote
++ * 	  but then needs IPI to this CPU to unload or modify state and
++ * 	  interrupts are masked by virtue of SA_INTERRUPT. Furthermore,
++ * 	  the PMU interrupt is in the same priority class as IPI, so even
++ * 	  with interrupt unmasked, there is no race.
++ */
++static void __pfm_interrupt_handler(struct pt_regs *regs)
 +{
-+	struct pfm_smpl_fmt *fmt = data;
++	struct task_struct *task;
++	struct pfm_context *ctx;
++	struct pfm_event_set *set;
 +
-+	return snprintf(buf, PAGE_SIZE, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x"
-+			   "-%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x\n",
-+			fmt->fmt_uuid[0],
-+			fmt->fmt_uuid[1],
-+			fmt->fmt_uuid[2],
-+			fmt->fmt_uuid[3],
-+			fmt->fmt_uuid[4],
-+			fmt->fmt_uuid[5],
-+			fmt->fmt_uuid[6],
-+			fmt->fmt_uuid[7],
-+			fmt->fmt_uuid[8],
-+			fmt->fmt_uuid[9],
-+			fmt->fmt_uuid[10],
-+			fmt->fmt_uuid[11],
-+			fmt->fmt_uuid[12],
-+			fmt->fmt_uuid[13],
-+			fmt->fmt_uuid[14],
-+			fmt->fmt_uuid[15]);
-+}
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_all_count++;
 +
-+PFM_RO_ATTR(uuid);
++	task = __get_cpu_var(pmu_owner);
++	ctx = __get_cpu_var(pmu_ctx);
 +
-+int pfm_sysfs_add_fmt(struct pfm_smpl_fmt *fmt)
-+{
-+	int ret;
++	if (unlikely(ctx == NULL))
++		goto spurious;
 +
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
++	set = ctx->active_set;
 +
-+	kobject_init(&fmt->kobj);
-+	kobject_set_name(&fmt->kobj, fmt->fmt_name);
-+	kobj_set_kset_s(fmt, pfm_fmt_subsys);
-+	fmt->kobj.parent = &pfm_kernel_fmt_kobj;
++	/*
++	 * For SMP per-thread, it is not possible to have
++	 * owner != NULL && task != current.
++	 *
++	 * For UP per-thread, because of lazy save, it
++	 * is possible to receive an interrupt in another task
++	 * which is not using the PMU. This means
++	 * that the interrupt was in-flight at the
++	 * time of pfm_ctxswout_thread(). In that
++	 * case it will be replayed when the task
++	 * if scheduled again. Hence we convert to spurious.
++	 *
++	 * The basic rule is that an overflow is always
++	 * processed in the context of the task that
++	 * generated it for all per-thread context.
++	 *
++	 * for system-wide, task is always NULL
++	 */
++	if (unlikely(task && current->pfm_context != ctx)) {
++		PFM_DBG_ovfl("spurious: task is [%d]", task->pid);
++		goto spurious;
++	}
 +
-+	ret = kobject_add(&fmt->kobj);
++	/*
++	 * freeze PMU and collect overflowed PMD registers
++	 * into povfl_pmds. Number of overflowed PMDs reported
++	 * in npend_ovfls
++	 */
++	pfm_arch_intr_freeze_pmu(ctx);
 +
-+	return sysfs_create_file(&fmt->kobj, &attr_uuid.attr);
-+}
++	/*
++	 * check if we already have some overflows pending
++	 * from pfm_ctxswout_thread(). If so process those.
++	 * Otherwise, inspect PMU again to check for new
++	 * overflows.
++	 */
++	if (unlikely(set->npend_ovfls == 0))
++		goto spurious;
 +
-+int pfm_sysfs_remove_fmt(struct pfm_smpl_fmt *fmt)
-+{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_regular_count++;
 +
-+	sysfs_remove_file(&fmt->kobj, &attr_uuid.attr);
++	pfm_overflow_handler(ctx, set, regs);
 +
-+	kobject_del(&fmt->kobj);
++	pfm_arch_intr_unfreeze_pmu(ctx);
 +
-+	return 0;
++	return;
++
++spurious:
++	/* ctx may be NULL */
++	pfm_arch_intr_unfreeze_pmu(ctx);
 +}
 +
 +/*
-+ * because the mappings can vary between one PMU and the other, we cannot really
-+ * use an attribute per PMC to describe a mapping. Instead we have a single
-+ * mappings attribute per PMU.
++ * irq and arg requried because of IA-64 using this function directly
++ * for irqaction.handler().
 + */
-+static ssize_t mappings_show(void *data, char *buf)
++irqreturn_t pfm_interrupt_handler(int irq, void *arg, struct pt_regs *regs)
 +{
-+	struct _pfm_pmu_config *pmu = data;
-+	size_t s = PAGE_SIZE;
-+	u32 n = 0, i;
++	u64 start_cycles, total_cycles;
 +
-+	for (i = 0; i < PFM_MAX_PMCS;  i++) {
++	get_cpu();
 +
-+		if ((pmu->pmc_desc[i].type & PFM_REG_I) == 0)
-+			continue;
++	start_cycles = pfm_arch_get_itc();
 +
-+		n = snprintf(buf, s, "PMC%u:0x%llx:0x%llx:%s\n",
-+			     i,
-+			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].dfl_val,
-+			     (unsigned long long)pfm_pmu_conf->pmc_desc[i].rsvd_msk,
-+			     pfm_pmu_conf->pmc_desc[i].desc);
-+		buf += n;
-+		if (n > s)
-+			goto skip;
-+		s -= n;
-+	}
++	__pfm_interrupt_handler(regs);
 +
-+	for (i = 0; i < PFM_MAX_PMDS;  i++) {
++	total_cycles = pfm_arch_get_itc();
 +
-+		if ((pmu->pmd_desc[i].type & PFM_REG_I) == 0)
-+			continue;
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_cycles += total_cycles - start_cycles;
 +
-+		n = snprintf(buf, s, "PMD%u:0x%llx:0x%llx:%s\n",
-+			     i,
-+			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].dfl_val,
-+			     (unsigned long long)pfm_pmu_conf->pmd_desc[i].rsvd_msk,
-+			     pfm_pmu_conf->pmd_desc[i].desc);
-+		buf += n;
-+		if (n > s)
-+			break;
-+		s -= n;
-+	}
-+skip:
-+	return PAGE_SIZE - s;
-+}
-+
-+PFM_RO_ATTR(mappings);
-+
-+int pfm_sysfs_add_pmu(struct _pfm_pmu_config *pmu)
-+{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
-+
-+	kobject_init(&pmu->kobj);
-+	kobject_set_name(&pmu->kobj, "pmu_desc");
-+	kobj_set_kset_s(pmu, pfm_pmu_subsys);
-+	pmu->kobj.parent = &pfm_kernel_kobj;
-+
-+	kobject_add(&pmu->kobj);
-+
-+	return sysfs_create_file(&pmu->kobj, &attr_mappings.attr);
-+}
-+
-+int pfm_sysfs_remove_pmu(struct _pfm_pmu_config *pmu)
-+{
-+	if (pfm_sysfs_init_done == 0)
-+		return 0;
-+
-+	sysfs_remove_file(&pmu->kobj, &attr_mappings.attr);
-+
-+	kobject_del(&pmu->kobj);
-+
-+	return 0;
++	put_cpu_no_resched();
++	return IRQ_HANDLED;
 +}

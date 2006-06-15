@@ -1,68 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWFOLEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWFOLEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWFOLEI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 07:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWFOLEI
+	id S965007AbWFOLEz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 07:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWFOLEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 07:04:08 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:18657 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S964992AbWFOLEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 07:04:06 -0400
-Date: Thu, 15 Jun 2006 13:03:36 +0200
-From: Voluspa <lista1@comhem.se>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, len.brown@intel.com,
-       rdreier@cisco.com
-Subject: Re: [UBUNTU:acpi/ec] Use semaphore instead of spinlock
-Message-Id: <20060615130336.176f527c.lista1@comhem.se>
-In-Reply-To: <4490B48E.5060304@oracle.com>
-References: <20060615010850.3d375fa9.lista1@comhem.se>
-	<4490B48E.5060304@oracle.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jun 2006 07:04:54 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:58816 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S965010AbWFOLEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 07:04:53 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD467306AB01E4@zch01exm40.ap.freescale.net>
+From: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+To: Adrian Cox <adrian@humboldt.co.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Alexandre.Bounine@tundra.com, linux-kernel@vger.kernel.org,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>, linux-serial@vger.kernel.org,
+       Yang Xin-Xin-r48390 <Xin-Xin.Yang@freescale.com>
+Subject: RE: [PATCH/2.6.17-rc4 8/10]  Add  tsi108 8250 serial support
+Date: Thu, 15 Jun 2006 19:04:48 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jun 2006 18:14:54 -0700 Randy Dunlap wrote:
-> updated version:
 
-As a user, it's great if this fixes people's keyboards and mice. But it's
-not a panacea. Gkrellm reads CPU temperatures from
-/proc/acpi/thermal_zone/*/temperature and that disturbs a time-critical
-application like mplayer, both when reading normal video and hacked mms:
-sound streams (ogg sound is OK, though):
+> 
+> Perhaps you should define a new value for 
+> uart_8250_port.port.iotype, and add code to serial_in and 
+> serial_out to handle the IIR register.
+> 
+> --
+> Adrian Cox <adrian@humboldt.co.uk>
+> 
+The following patch gets rid of CONFIG_TSI108_BRIDGE.
+I add UPIO_TSI  to handle IIR and IER register in serial_in and
+serial_out.
 
-rtc: lost some interrupts at 1024Hz.
-rtc: lost some interrupts at 1024Hz.
+(1) the reason to rewrite serial_in:
+TSI108 rev Z1 version ERRATA. Reading the UART's Interrupt Identification Register (IIR) clears the Transmit 
+Holding Register Empty (THRE) and Transmit buffer Empty (TEMP) interrupts even if they are not enabled in
+ the Interrupt Enable Register (IER). This leads to loss of the interrupts. Interrupts are not cleared
+ when reading UART registers as 32-bit word.
 
-The loss frequency is much lower with this patch, by something like an
-estimated 5-10 times.
+(2) the reason to rewrite serial_out:
+Check for UART_IER_UUE bit in the autoconfig routine. This section of autoconfig is excluded for 
+Tsi108/109 because bits 7 and 6 are reserved for internal use. They are R/W bits. In addition to 
+incorrect identification, changing these bits (from 00) will make Tsi108/109 UART non-functional.  
 
-Also, here the notebook's touchpad gets clobbered by temperature reads
-when dragging a small xterm window around:
 
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: issuing reconnect request
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
-
-So, here temperature reading stays off even if this patch hits mainline.
-Battery reading is fine, strangely enough. Perhaps because I've set
-a period of 30 seconds between updates.
-
-Or it might be that a lot of work has gone in regarding acpi BAT...
-
-Mvh
-Mats Johannesson
---
+diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+index bbf78aa..6343d7a 100644
+--- a/drivers/serial/8250.c
++++ b/drivers/serial/8250.c
+@@ -300,6 +300,7 @@ #endif
+ 
+ static unsigned int serial_in(struct uart_8250_port *up, int offset)
+ {
++	unsigned int tmp;
+ 	offset = map_8250_in_reg(up, offset) << up->port.regshift;
+ 
+ 	switch (up->port.iotype) {
+@@ -317,6 +318,13 @@ #ifdef CONFIG_SERIAL_8250_AU1X00
+ 	case UPIO_AU:
+ 		return __raw_readl(up->port.membase + offset);
+ #endif
++		
++	case UPIO_TSI:
++		if (offset == UART_IIR){
++			tmp = readl((u32 *)(up->port.membase + UART_RX)) ;
++			return (cpu_to_le32(tmp)>> 8) & 0xff;
++		}else
++			return readb(up->port.membase + offset);
+ 
+ 	default:
+ 		return inb(up->port.iobase + offset);
+@@ -347,6 +355,10 @@ #ifdef CONFIG_SERIAL_8250_AU1X00
+ 		__raw_writel(value, up->port.membase + offset);
+ 		break;
+ #endif
++	case UPIO_TSI:
++		if (!((offset == UART_IER) && (value & UART_IER_UUE)))
++			writeb(value, up->port.membase + offset);
++		break;
+ 
+ 	default:
+ 		outb(value, up->port.iobase + offset);
+diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+index bd14858..fcf48d3 100644
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -224,6 +224,7 @@ #define UPIO_HUB6		(1)
+ #define UPIO_MEM		(2)
+ #define UPIO_MEM32		(3)
+ #define UPIO_AU			(4)			/* Au1x00 type IO */
++#define UPIO_TSI		(5)			/* Tsi108/109 type IO */
+ 
+ 	unsigned int		read_status_mask;	/* driver specific */
+ 	unsigned int		ignore_status_mask;	/* driver specific */

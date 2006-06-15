@@ -1,81 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWFOJQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWFOJRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWFOJQy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 05:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWFOJQx
+	id S932450AbWFOJRz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 05:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWFOJQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 05:16:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31665 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932384AbWFOJQq (ORCPT
+	Thu, 15 Jun 2006 05:16:01 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:41434 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S932455AbWFOJPO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 05:16:46 -0400
-Date: Thu, 15 Jun 2006 11:15:39 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Matthew Frost <artusemrys@sbcglobal.net>,
-       Alex Tomas <alex@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Message-ID: <20060615091539.GF9423@elf.ucw.cz>
-References: <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org> <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net> <20060609181426.GC5964@schatzie.adilger.int> <4489C34B.1080806@garzik.org> <20060612220605.GD4950@ucw.cz> <986ed62e0606140731u4c42a2adv42c072bf270e4874@mail.gmail.com> <20060614213431.GF4950@ucw.cz> <986ed62e0606141728m6e5b6dbbw7cfb5bd4b82052c1@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <986ed62e0606141728m6e5b6dbbw7cfb5bd4b82052c1@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 15 Jun 2006 05:15:14 -0400
+Date: Thu, 15 Jun 2006 02:07:44 -0700
+From: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Message-Id: <200606150907.k5F97iT3008240@frankl.hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 14/16] 2.6.17-rc6 perfmon2 patch for review: modified powerpc files
+Cc: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This patch contains the modified powerpc files
 
-> >Passes 8 hours of me trying to intentionally break it with weird,
-> >artifical disk corruption.
-> >
-> >I even have script somewhere.
-> 
-> Ok, thanks for clarifying.
 
-You can get a copy, it would be interesting to know how JFS/XFS does.
 
-> >> Unless I'm misunderstanding something, JFS also has a
-> >> working fsck
-> >> (which has actually performed successful repair of
-> >> real-world
-> >> filesystem corruption for me, although I haven't used it
-> >> as much as
-> >> e2fsck or xfs_repair).
-> >
-> >...like, if it repaired 100 different, non-trivial corruptions, that
-> >would be argument.
-> 
-> In the case of XFS, I've repaired maybe two dozen (or so) corruptions
-> that might be non-trivial (in most of the cases, the filesystem
-> wouldn't even mount before the repair).
-> 
-> >fsck.ext2 survives my torture (in some versions). fsck.vfat never
-> >worked for me (likes to segfault), fsck.reiser never worked for me.
-> 
-> BTW, I actually have a test filesystem here (an e2image from an actual
-> filesystem I encountered once) that used to cause e2fsck 1.36/1.37 to
-> segfault. Strangely, more ancient versions (like what ships in Red Hat
-> 7.2) were able to repair it without segfaulting. In a few days, once
-> other stuff calms down for me, I need to revisit that and see if the
-> bug still exists with 1.39.
 
-It varies a bit bitween versions, but at least e2fsck has regression
-test suite... I had nasty e2 corruption in past (suspend wrote 0 onto
-strategic place in bitmaps) where it put filesystem in self-destruct
-mode. e2fsck reported fixing the corruption, but did not really fix
-it... e2fsck was fixed in the meantime.
-
-(I also have way to corrupt ext2 in a way that basically can't be
-repaired automatically. Deallocating free block bitmap and putting
-data in freed space is an evil way to corrupt filesystem).
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+diff -ur linux-2.6.17-rc6.orig/arch/powerpc/Kconfig linux-2.6.17-rc6/arch/powerpc/Kconfig
+--- linux-2.6.17-rc6.orig/arch/powerpc/Kconfig	2006-06-08 01:42:30.000000000 -0700
++++ linux-2.6.17-rc6/arch/powerpc/Kconfig	2006-06-13 07:00:26.000000000 -0700
+@@ -299,6 +299,9 @@
+ 	bool
+ 	depends on 4xx || 8xx || E200
+ 	default y
++
++source "arch/powerpc/perfmon/Kconfig"
++
+ endmenu
+ 
+ source "init/Kconfig"
+diff -ur linux-2.6.17-rc6.orig/arch/powerpc/Makefile linux-2.6.17-rc6/arch/powerpc/Makefile
+--- linux-2.6.17-rc6.orig/arch/powerpc/Makefile	2006-06-08 01:42:30.000000000 -0700
++++ linux-2.6.17-rc6/arch/powerpc/Makefile	2006-06-08 01:49:22.000000000 -0700
+@@ -135,6 +135,7 @@
+ 				   arch/powerpc/platforms/
+ core-$(CONFIG_MATH_EMULATION)	+= arch/powerpc/math-emu/
+ core-$(CONFIG_XMON)		+= arch/powerpc/xmon/
++core-$(CONFIG_PERFMON)		+= arch/powerpc/perfmon/
+ 
+ drivers-$(CONFIG_OPROFILE)	+= arch/powerpc/oprofile/
+ 
+diff -ur linux-2.6.17-rc6.orig/arch/powerpc/kernel/entry_64.S linux-2.6.17-rc6/arch/powerpc/kernel/entry_64.S
+--- linux-2.6.17-rc6.orig/arch/powerpc/kernel/entry_64.S	2006-06-08 01:42:30.000000000 -0700
++++ linux-2.6.17-rc6/arch/powerpc/kernel/entry_64.S	2006-06-08 01:49:22.000000000 -0700
+@@ -569,6 +569,9 @@
+ 	b	.ret_from_except_lite
+ 
+ 1:	bl	.save_nvgprs
++#ifdef CONFIG_PERFMON
++	bl	.ppc64_pfm_handle_work
++#endif /* CONFIG_PERFMON */
+ 	li	r3,0
+ 	addi	r4,r1,STACK_FRAME_OVERHEAD
+ 	bl	.do_signal
+diff -ur linux-2.6.17-rc6.orig/arch/powerpc/kernel/process.c linux-2.6.17-rc6/arch/powerpc/kernel/process.c
+--- linux-2.6.17-rc6.orig/arch/powerpc/kernel/process.c	2006-06-08 01:42:30.000000000 -0700
++++ linux-2.6.17-rc6/arch/powerpc/kernel/process.c	2006-06-08 01:49:22.000000000 -0700
+@@ -35,6 +35,7 @@
+ #include <linux/mqueue.h>
+ #include <linux/hardirq.h>
+ #include <linux/utsname.h>
++#include <linux/perfmon.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+@@ -465,6 +466,7 @@
+ void exit_thread(void)
+ {
+ 	discard_lazy_cpu_state();
++	pfm_exit_thread(current);
+ }
+ 
+ void flush_thread(void)
+@@ -576,6 +578,7 @@
+ 	kregs->nip = (unsigned long)ret_from_fork;
+ 	p->thread.last_syscall = -1;
+ #endif
++	pfm_copy_thread(p, childregs);
+ 
+ 	return 0;
+ }
+diff -ur linux-2.6.17-rc6.orig/arch/powerpc/kernel/systbl.S linux-2.6.17-rc6/arch/powerpc/kernel/systbl.S
+--- linux-2.6.17-rc6.orig/arch/powerpc/kernel/systbl.S	2006-06-08 01:42:30.000000000 -0700
++++ linux-2.6.17-rc6/arch/powerpc/kernel/systbl.S	2006-06-08 01:49:22.000000000 -0700
+@@ -340,7 +340,19 @@
+ SYSCALL(faccessat)
+ COMPAT_SYS(get_robust_list)
+ COMPAT_SYS(set_robust_list)
+-
++SYSCALL(pfm_create_context)
++SYSCALL(pfm_write_pmcs)
++SYSCALL(pfm_write_pmds)
++SYSCALL(pfm_read_pmds)
++SYSCALL(pfm_load_context)
++SYSCALL(pfm_start)
++SYSCALL(pfm_stop)
++SYSCALL(pfm_restart)
++SYSCALL(pfm_create_evtsets)
++SYSCALL(pfm_getinfo_evtsets)
++SYSCALL(pfm_delete_evtsets)
++SYSCALL(pfm_unload_context)
++ 
+ /*
+  * please add new calls to arch/powerpc/platforms/cell/spu_callbacks.c
+  * as well when appropriate.
+Only in linux-2.6.17-rc6/arch/powerpc: perfmon
+Only in linux-2.6.17-rc6/include/asm-powerpc: perfmon.h
+diff -ur linux-2.6.17-rc6.orig/include/asm-powerpc/processor.h linux-2.6.17-rc6/include/asm-powerpc/processor.h
+--- linux-2.6.17-rc6.orig/include/asm-powerpc/processor.h	2006-06-08 01:42:35.000000000 -0700
++++ linux-2.6.17-rc6/include/asm-powerpc/processor.h	2006-06-08 01:49:22.000000000 -0700
+@@ -169,6 +169,7 @@
+ 	unsigned long	spefscr;	/* SPE & eFP status */
+ 	int		used_spe;	/* set if process has used spe */
+ #endif /* CONFIG_SPE */
++	void *pfm_context;
+ };
+ 
+ #define ARCH_MIN_TASKALIGN 16
+diff -ur linux-2.6.17-rc6.orig/include/asm-powerpc/unistd.h linux-2.6.17-rc6/include/asm-powerpc/unistd.h
+--- linux-2.6.17-rc6.orig/include/asm-powerpc/unistd.h	2006-06-08 01:42:35.000000000 -0700
++++ linux-2.6.17-rc6/include/asm-powerpc/unistd.h	2006-06-08 01:49:22.000000000 -0700
+@@ -323,8 +323,20 @@
+ #define __NR_faccessat		298
+ #define __NR_get_robust_list	299
+ #define __NR_set_robust_list	300
++#define __NR_pfm_create_context	301
++#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
++#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
++#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
++#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
++#define __NR_pfm_start		(__NR_pfm_create_context+5)
++#define __NR_pfm_stop		(__NR_pfm_create_context+6)
++#define __NR_pfm_restart	(__NR_pfm_create_context+7)
++#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
++#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
++#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
++#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
+ 
+-#define __NR_syscalls		301
++#define __NR_syscalls		312
+ 
+ #ifdef __KERNEL__
+ #define __NR__exit __NR_exit

@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWFOKNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWFOKVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWFOKNv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 06:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWFOKNv
+	id S932463AbWFOKVC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 06:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWFOKVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 06:13:51 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:43914 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932132AbWFOKNt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 06:13:49 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17553.12734.272321.820052@gargle.gargle.HOWL>
-Date: Thu, 15 Jun 2006 14:09:02 +0400
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Nathan Scott <nathans@sgi.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 15 Jun 2006 06:21:01 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58314 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932463AbWFOKVA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 06:21:00 -0400
+Date: Thu, 15 Jun 2006 20:20:49 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [RFC]  Slimming down struct inode
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <Pine.LNX.4.61.0606150127080.14257@yvahk01.tjqt.qr>
-References: <20060613143230.A867599@wobbly.melbourne.sgi.com>
-	<448EC51B.6040404@argo.co.il>
-	<20060614084155.C888012@wobbly.melbourne.sgi.com>
-	<17551.58643.704359.815153@gargle.gargle.HOWL>
-	<Pine.LNX.4.61.0606150127080.14257@yvahk01.tjqt.qr>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Message-ID: <20060615202049.E898607@wobbly.melbourne.sgi.com>
+References: <20060613143230.A867599@wobbly.melbourne.sgi.com> <448EC51B.6040404@argo.co.il> <20060614084155.C888012@wobbly.melbourne.sgi.com> <17551.58643.704359.815153@gargle.gargle.HOWL> <20060615075018.B884384@wobbly.melbourne.sgi.com> <20060615054931.GC7318@thunk.org> <20060615170136.D898607@wobbly.melbourne.sgi.com> <20060615024606.B5168@openss7.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060615024606.B5168@openss7.org>; from bidulock@openss7.org on Thu, Jun 15, 2006 at 02:46:06AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt writes:
- > >
- > >Sorry, but why this operation is needed? Generic code (in fs/*.c)
- > >doesn't use ->i_blksize at all. If XFS wants to provide per-inode
- > >st_blksize, all it has to do is to store preferred buffer size in its
- > >file system specific inode (struct xfs_inode), and use something
- > >different from generic_fillattr() as its ->i_op->getattr() callback
- > >(xfs_vn_getattr()).
- > >
- > By the way, are there any significant userspace applications that use 
- > i_blksize/i_blkbits?
- > 
+On Thu, Jun 15, 2006 at 02:46:06AM -0600, Brian F. G. Bidulock wrote:
+> On Thu, 15 Jun 2006, Nathan Scott wrote:
+> > There is no IRIX/Linux compatibility layer, you're misunderstanding
+> > the code (which is understandable, its erm a bit crufty in places).
+> 
+> You gotta be kidding.
 
-cp(1), db(3) or any other using st_blksize field of struct statbuf to
-select the size of IO buffer.
+No, go look at some IRIX headers, instead of just believing what
+people tell you...
 
- > 
- > Jan Engelhardt
- > -- 
+cheers.
 
-Nikita.
+-- 
+Nathan

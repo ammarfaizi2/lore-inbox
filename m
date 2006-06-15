@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031418AbWFOVX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031420AbWFOV1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031418AbWFOVX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 17:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031427AbWFOVX6
+	id S1031420AbWFOV1H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 17:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031426AbWFOV1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 17:23:58 -0400
-Received: from adsl-71-128-175-242.dsl.pltn13.pacbell.net ([71.128.175.242]:10413
-	"EHLO build.embeddedalley.com") by vger.kernel.org with ESMTP
-	id S1031418AbWFOVX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 17:23:57 -0400
-Subject: Re: i2c-algo-ite and i2c-ite planned for removal
-From: Pete Popov <ppopov@embeddedalley.com>
-Reply-To: ppopov@embeddedalley.com
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-mips@linux-mips.org, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060615225723.012c82be.khali@linux-fr.org>
-References: <20060615225723.012c82be.khali@linux-fr.org>
-Content-Type: text/plain
-Organization: Embedded Alley Solutions, Inc
-Date: Fri, 16 Jun 2006 00:23:17 +0300
-Message-Id: <1150406598.1193.73.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jun 2006 17:27:07 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:26329 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1031420AbWFOV1F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 17:27:05 -0400
+Date: Thu, 15 Jun 2006 14:26:43 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: frode isaksen <frode.isaksen@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fs: sys_poll with timeout -1 bug fix
+Message-ID: <20060615212643.GZ11131@us.ibm.com>
+References: <383D1CA3-E74C-4530-A8C8-D0B9608A1970@gmail.com> <1150406009.21787.375.camel@stark>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150406009.21787.375.camel@stark>
+X-Operating-System: Linux 2.6.17-rc6 (x86_64)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-15 at 22:57 +0200, Jean Delvare wrote:
-> Hi all,
+On 15.06.2006 [14:13:29 -0700], Matt Helsley wrote:
+> On Thu, 2006-06-15 at 17:33 +0200, frode isaksen wrote:
+> > From: Frode Isaksen <frode.isaksen@gmail.com>
+> > 
+> > If you do a poll() call with timeout -1, the wait will be a big  
+> > number (depending on HZ)  instead of infinite wait, since -1 is  
+> > passed to the msecs_to_jiffies function.
+> > 
+> > Signed-off-by: Frode Isaksen <frode.isaksen@gmail.com>
+> > 
+> > ---
+> > --- linux-2.6.16.20/fs/select.c.orig.c	2006-06-05 19:18:23.000000000  
+> > +0200
+> > +++ linux-2.6.16.20/fs/select.c	2006-06-15 14:20:47.000000000 +0200
+> > @@ -699,9 +699,9 @@ out_fds:
+> >   asmlinkage long sys_poll(struct pollfd __user *ufds, unsigned int  
+> > nfds,
+> >   			long timeout_msecs)
+> >   {
+> > -	s64 timeout_jiffies = 0;
+> > +	s64 timeout_jiffies;
+> > 
+> > -	if (timeout_msecs) {
+> > +	if (timeout_msecs > 0) {
+> >   #if HZ > 1000
+> >   		/* We can only overflow if HZ > 1000 */
+> >   		if (timeout_msecs / 1000 > (s64)0x7fffffffffffffffULL / (s64)HZ)
+> > @@ -709,6 +709,9 @@ asmlinkage long sys_poll(struct pollfd _
+> >   		else
+> >   #endif
+> >   			timeout_jiffies = msecs_to_jiffies(timeout_msecs);
+> > +	} else {
+> > +		/* Infinite (-1) or no (0) timeout */
+> > +		timeout_jiffies = timeout_msecs;
 > 
-> I noticed today that we have an i2c bus driver named i2c-ite,
-> supposedly useful on some MIPS systems which have an ITE8172 chip,
-> which doesn't compile. It is based on an i2c algorithm driver named
-> i2c-algo-ite, which doesn't compile either, due to some changes made to
-> the i2c core which weren't properly reflected there. Going back trough
-> the versions, I found that the bus driver was previously named
-> i2c-adap-ite, and was introduced in 2.4.10. And I don't think it even
-> compiled back then either, as it uses a structure (iic_ite) which isn't
-> defined anywhere.
+> nit: The comment isn't quite right according to the poll manpage. Any
+> negative number represents an infinite timeout. I think you want:
 > 
-> So basically we have two drivers in the kernel tree for 5 years or so,
-> which never were usable, and nobody seemed to care. 
+> + 		/* Infinite (< 0) or no (0) timeout */
 
-For historical correctness, this driver was once upon a time usable,
-though it was a few years ago. It was written by MV for some ref board
-that had the ITE chip and it did work. That ref board is no longer
-around so it's probably safe to nuke the driver. 
+Err, true.
 
-Pete
+Thanks,
+Nish
 
-> It's about time to
-> get rid of these 1296 lines of code, don't you think? So, unless someone
-> volunteers to take care of these drivers, or otherwise has a very
-> strong reason to object, I'm going to delete them from the tree soon.
-> 
-> Thanks,
-
+-- 
+Nishanth Aravamudan <nacc@us.ibm.com>
+IBM Linux Technology Center

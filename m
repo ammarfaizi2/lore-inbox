@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWFODxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWFOEIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWFODxF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 23:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWFODxF
+	id S932431AbWFOEIV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 00:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWFOEIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 23:53:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:21696 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932425AbWFODxE (ORCPT
+	Thu, 15 Jun 2006 00:08:21 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:61621 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932431AbWFOEIV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 23:53:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: patch for "bizarre read bug" in klibc dash
-Date: Thu, 15 Jun 2006 09:53:05 +0600
-Message-ID: <4490D9A1.8010405@ums.usu.ru>
-References: <bda6d13a0606142019m439c8eavca9afd955930d324@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 15 Jun 2006 00:08:21 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Mike Miller <mike.miller@hp.com>
+Subject: Re: [PATCH 7/7] CCISS: run through Lindent
+Date: Wed, 14 Jun 2006 22:08:01 -0600
+User-Agent: KMail/1.8.3
+Cc: iss_storagedev@hp.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <200606141707.27404.bjorn.helgaas@hp.com> <200606141713.46497.bjorn.helgaas@hp.com>
+In-Reply-To: <200606141713.46497.bjorn.helgaas@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 212.220.94.56
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
-In-Reply-To: <bda6d13a0606142019m439c8eavca9afd955930d324@mail.gmail.com>
+Content-Disposition: inline
+Message-Id: <200606142208.01631.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Hudson wrote:
-> I had forked ash awhile back, patched up a few things to behave the
-> way I wanted them.
-> While I was at it, I fixed the "echo X | read X ; echo $X" bug that
-> echoed a blank line.
-> I tried awhile ago to raise who was responsible for the code and got 
-> nowhere.
+On Wednesday 14 June 2006 17:13, Bjorn Helgaas wrote:
+> cciss is full of inconsistent style ("for (" vs. "for(", lines that
+> end with whitespace, lines beginning with a mix of spaces & tabs, etc).
+> 
+> This patch changes only whitespace.
 
-Have you tested your line with bash? Here it prints an empty line. You really 
-should use "echo X | ( read X ; echo $X )".
+This patch was too big for the linux-kernel list.   You can get
+the whole thing here:
 
-So I don't think that ash is broken, and thus cannot acknowledge the patch.
-
--- 
-Alexander E. Patrakov
-
+$ wget ftp://ftp.kernel.org/pub/linux/kernel/people/helgaas/cciss-indent

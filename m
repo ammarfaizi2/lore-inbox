@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWFOOIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWFOOTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbWFOOIt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 10:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWFOOIt
+	id S932218AbWFOOTL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 10:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWFOOTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 10:08:49 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:22986
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751427AbWFOOIs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 10:08:48 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Stefano Brivio <stefano.brivio@polimi.it>
-Subject: Re: [Ubuntu PATCH] Broadcom wireless patch, PCIE/Mactel support
-Date: Thu, 15 Jun 2006 16:07:15 +0200
-User-Agent: KMail/1.9.1
-References: <44909A3F.4090905@oracle.com> <20060615133220.57d8dd26@localhost>
-In-Reply-To: <20060615133220.57d8dd26@localhost>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
-       mb@bu3sch.de, akpm <akpm@osdl.org>
+	Thu, 15 Jun 2006 10:19:11 -0400
+Received: from rtr.ca ([64.26.128.89]:3028 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932218AbWFOOTJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 10:19:09 -0400
+Message-ID: <44916C5B.5000402@rtr.ca>
+Date: Thu, 15 Jun 2006 10:19:07 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Gord Peters <GordPeters@smarttech.com>
+Cc: linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: SATA: Marvell 88SE6141 support?
+References: <A6F7DE24-36C7-4FDB-AB2A-2C63478F0D0A@smarttech.com>
+In-Reply-To: <A6F7DE24-36C7-4FDB-AB2A-2C63478F0D0A@smarttech.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606151607.15570.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 June 2006 13:32, Stefano Brivio wrote:
-> On Wed, 14 Jun 2006 16:22:39 -0700
-> Randy Dunlap <randy.dunlap@oracle.com> wrote:
+Gord Peters wrote:
+> Hi,
 > 
-> > From: Matthew Garrett <mjg59@srcf.ucam.org>
-> > 
-> > Broadcom wireless patch, PCIE/Mactel support
-> > 
-> > http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=1373a8487e911b5ee204f4422ddea00929c8a4cc
-> > 
-> > This patch adds support for PCIE cores to the bcm43xx driver. This is
-> > needed for wireless to work on the Intel imacs. I've submitted it to
-> > bcm43xx upstream.
-> 
-> NACK.
-> This has been superseded by my patchset:
-> http://www.mail-archive.com/bcm43xx-dev@lists.berlios.de/msg01267.html
-> 
-> I'm still waiting for more testing so I didn't request merging to mainline
-> yet. Plus, this patch is copied from this one:
-> http://www.mail-archive.com/bcm43xx-dev@lists.berlios.de/msg00919.html
-> which is wrong. Please see my patchset and new specs for reference.
+> I was just wondering what the status of development is in regard to 
+> support for the Marvell 88SE6141 (ie. mv61xx) SATA-II controller is?  
+> This particular controller is included on the Asus P5WD2-E Premium 
+> motherboard.
 
-I told by local computer stuff distributor to order a PCIe card.
-He was not able to find one, yet. But I would like to test the patch
-first. Well, if someone could tell me the exact name of a bcm43xx PCIe
-card, it would be easier, perhaps.
+First I've heard of it.  Can you find docs for it?
+If so, post a link to them, and we'll have a look to 
+see what is different from the 60xx series.
 
--- 
-Greetings Michael.
+Thanks
+

@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030537AbWFOOwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030560AbWFOOyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030537AbWFOOwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 10:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbWFOOwt
+	id S1030560AbWFOOyg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 10:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030561AbWFOOyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 10:52:49 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:63080 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1030537AbWFOOws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 10:52:48 -0400
-Message-ID: <44917421.4070508@watson.ibm.com>
-Date: Thu, 15 Jun 2006 10:52:17 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Thu, 15 Jun 2006 10:54:36 -0400
+Received: from fep32-0.kolumbus.fi ([193.229.0.63]:60806 "EHLO
+	fep32-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1030560AbWFOOyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 10:54:35 -0400
+From: Janne Karhunen <Janne.Karhunen@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: NFSv3 client reordering RENAMEs
+Date: Thu, 15 Jun 2006 17:54:33 +0300
+User-Agent: KMail/1.9.3
+References: <200606151638.15792.Janne.Karhunen@gmail.com> <4491644E.8000506@redhat.com>
+In-Reply-To: <4491644E.8000506@redhat.com>
 MIME-Version: 1.0
-To: Jay Lan <jlan@engr.sgi.com>
-CC: Balbir Singh <balbir@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Sturtivant <csturtiv@sgi.com>,
-       Jamal <hadi@cyberus.ca>, Thomas Graf <tgraf@suug.ch>
-Subject: Re: ON/OFF control of taskstats accounting data at do_exit
-References: <449093D6.6000806@engr.sgi.com> <4490CDC2.3090009@watson.ibm.com> <4490D515.8070308@engr.sgi.com>
-In-Reply-To: <4490D515.8070308@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606151754.33384.Janne.Karhunen@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
-> 
-> Are you saying if there is no listener, data will not be assembled and sent
-> by the kernel?  I thought kernel would always send no matter whether there
-> is listener? I apologize for the noise if i made a mistake.
+On Thursday 15 June 2006 16:44, Peter Staubach wrote:
 
-It will be assembled by taskstats. But afaict, the sending of data by the netlink layer will
-be halted within netlink_broadcast(), which is a couple of calls down the call path from
-genlmsg_multicast(), which is used by taskstats uses to send data out.
+> >really expect RENAME to be reordered as mv is generally considered
+> >atomic. That, and RFC 1813 mandates RENAME to be atomic. Is this a
+> >known thing and do you guys consider this feature or a bug?
+>
+> Can you construct a testcase which exhibits this behavior?
 
-Lets discuss turning off of taskstats assembly separately.
-
-
-Jamal, Thomas,
-
-If there are no listeners on a genetlink socket, do you think overhead of kernel paths that
-continue to attempt sending multicast data on genetlink sockets is an issue ?
+Possibly .. if someone first acks that this indeed would be
+considered as bug and not as a feature :/ 
 
 
---Shailabh
-
+-- 
+// Janne

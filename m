@@ -1,171 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWFOXaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWFOXlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWFOXaI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 19:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWFOXaH
+	id S1750777AbWFOXlf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 19:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWFOXle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 19:30:07 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:37335 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750768AbWFOXaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 19:30:06 -0400
-Message-ID: <4491ED7B.2000003@bigpond.net.au>
-Date: Fri, 16 Jun 2006 09:30:03 +1000
+	Thu, 15 Jun 2006 19:41:34 -0400
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:13376 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750777AbWFOXle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 19:41:34 -0400
+Message-ID: <4491F02B.5020003@bigpond.net.au>
+Date: Fri, 16 Jun 2006 09:41:31 +1000
 From: Peter Williams <pwil3058@bigpond.net.au>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Sam Vilain <sam@vilain.net>, Kirill Korotaev <dev@openvz.org>,
-       Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       sekharan@us.ibm.com, Balbir Singh <balbir@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] CPU controllers?
-References: <20060615134632.GA22033@in.ibm.com>
-In-Reply-To: <20060615134632.GA22033@in.ibm.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Jay Lan <jlan@engr.sgi.com>, Balbir Singh <balbir@in.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Chris Sturtivant <csturtiv@sgi.com>
+Subject: Re: ON/OFF control of taskstats accounting data at do_exit
+References: <449093D6.6000806@engr.sgi.com> <4490CDC2.3090009@watson.ibm.com> <4490D515.8070308@engr.sgi.com> <449182FB.6020907@watson.ibm.com>
+In-Reply-To: <449182FB.6020907@watson.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 15 Jun 2006 23:30:03 +0000
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 15 Jun 2006 23:41:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> Hello,
-> 	There have been several proposals so far on this subject and no
-> consensus seems to have been reached on what an acceptable CPU controller
-> for Linux needs to provide. I am hoping this mail will trigger some
-> discussions in that regard. In particular I am keen to know what the
-> various maintainers think about this subject.
+Shailabh Nagar wrote:
+> Jay Lan wrote:
 > 
-> The various approaches proposed so far are:
 > 
-> 	- CPU rate-cap (limit CPU execution rate per-task)
-> 		http://lkml.org/lkml/2006/5/26/7	
+>> I was talking about turning off system-wise taskstats data preparation and
+>> delivery when every task exits. Sometimes customers like to do some
+>> benchmarking and need to turn off nonessential features.
 > 
-> 	- f-series CKRM controller (CPU usage guarantee for a task-group)
-> 		http://lkml.org/lkml/2006/4/27/399
+> Lets go through the implications of turning on/off collection, assembly and delivery
+> of the per-task accounting data.
 > 
-> 	- e-series CKRM controller (CPU usage guarantee/limit for a task-group)
-> 		http://prdownloads.sourceforge.net/ckrm/cpu.ckrm-e18.v10.patch.gz?download
+> Collection is defined by different subsystems using taskstats.
+> For atleast one of these (delay accounting), turning on/off dynamically has been tried
+> and deemed to cause a lot of overhead (due to accumalated nature of data) and also be
+> prone to races. Complexity of code added did not justify the value so on/off was restricted
+> to a boot time decision.
 > 
-> 	- OpenVZ controller (CPU usage guarantee/hard-limit for a task-group)
-> 		http://openvz.org/
+> Assembly and delivery of data is done by the taskstats code, calling subsystem-specific functions to fill
+> the commonly used struct taskstats and relying on genetlink to do the delivery.
+> This can be turned on/off using a dynamic parameter such as /sys/kernel/taskstats_enable which sets
+> some internal variable that is used to do early exits from relevant functions (mainly taskstats_send_stats
+> and taskstats_exit_send)
+> Doing so will have impact on
+> a) queries sent to the kernel by monitoring applications
+> b) task exit data sent by kernel to apps listening on the multicast socket
 > 
-> 	- vserver controller (CPU usage guarantee(?)/limit for a task-group)
-> 		http://linux-vserver.org/
+> For consistency, I'm assuming both a) and b) will have to be affected when taskstats is turned off.
+> Also, I'm assuming monitoring applications aren't aware of the turn off.
 > 
-> (I apologize if I have missed any other significant proposal for Linux)
+> What happens to case a) ? Apps will need to get some error message as a reply. Some assembly overhead
+> is saved (since such an error reply can be sent right away as soon as a query command is seen) but no
+> substantial saving on the delivery part.
 > 
-> Their salient features and limitations/drawbacks, as I could gather, are 
-> summarized later below. To note is each controller varies in degree of 
-> complexity and addresses its own set of requirements. 
+> For case b), we can save on assembly and delivery by exiting early from taskstats_exit_send(). But won't
+> we need to send some message (if not periodically, atleast once) to listening apps that they shouldn't
+> expect any exit data ? Semantics of suddenly not seeing any exit data could be misinterpreted ?
 > 
-> In going forward for an acceptable controller in mainline it would help, IMHO, 
-> if we put together the set of requirements which the Linux CPU controller 
-> should support. Some questions that arise in this regard are:
+> Its easy enough to implement...just concerned about the semantics of doing so (as far as userspace
+> apps are concerned) and utility in general settings. Utility in case where only CSA is running (delay
+> accounting and other users turned off) is clear.
 > 
-> 	- Do we need mechanisms to control CPU usage of tasks, further to what
-> 	  already exists (like nice)?  IMO yes.
-> 
-> 	- What are the requirements of such a CPU controller? Some of them to
-> 	  consider are:
-> 
-> 		- Should it operate on a per-task basis or on a per-task-group
-> 	  	  basis?
-> 		- Should it support more than one level of task-groups?
-> 		- If we want to allow on a per-task-group basis, which mechanism
-> 		  do we use for grouping tasks (Resource Groups, PAGG,
-> 		  uid/session id ..)?
-> 		- Should it support limit and guarantee both? In case of limit,
-> 		  should it support both soft and hard limit?
-> 		- What interface do we choose for user to specify
-> 		  limit/guarantee? system call or filesystem based (ex: /proc or
-> 		  Resource Group's rcfs)?
-> 		- Over what interval should guarantee/limit be monitored and
-> 		  controlled?
-> 		- With what accuracy should we allow the limit/guarantee to be
-> 		  expressed?
-> 		- Co-existence with CPUset - should guarantee/limit be 
-> 		  enforced only on the set of CPUs attached to the cpuset?
-> 		- Should real-time tasks be outside the purview of this control?
-> 		- Load balance to be made aware of the guarantee/limit of tasks
-> 		  (or task-groups)? Ofcourse yes!
-> 
-> One possibility is to add a basic controller, that addresses some minimal
-> requirements, to begin with and progressively enhance it capabilities.
+> Thoughts ?
 
-I would amend this to say "provide the basic controllers and let more 
-complex management mechanisms use them (from outside the scheduler) to 
-provide higher level control.  An essential part of this will be the 
-provision of statistics for these external controllers to use.
+I would have thought that it was obvious that turning on/off the 
+collection of statistics concerning the ACCRUED time that tasks spend in 
+various states (which is what we're talking about) would cause the data 
+to be horribly corrupted.
 
-> From this
-> pov, both the f-series resource group controller and cpu rate-cap seem to be 
-> good candidates for a minimal controller to begin with.
-> 
-> Thoughts?
-> 
-> Salient features of various CPU controllers that have been proposed so far are
-> summarized below. I have not captured OpenVZ and Vserver controller aspects
-> well. Request the maintainers to fill-in!
-> 
-> 1. CPU Rate Cap	(by Peter Williams)
-> 
-> Features:
-> 
-> 	* Limit CPU execution rate on a per-task basis.
-> 	* Limit specified in terms of parts-per-thousand. Limit set thr' /proc
-> 	  interface.
-
-The /proc interface is not an essential part of this patch and the 
-reason that it was implemented is that it was simple, easy and useful 
-for testing.  The patch "proper" provides four functions for 
-setting/getting the soft/hard caps an exports these so that they can be 
-used from modules.
-
-I.e. it would be very easy to replace the /proc interface with another 
-one (or more) or to keep it and make another interface as well.  All the 
-essential testing/processing required for setting the caps properly is 
-inside the functions NOT the /proc interface.
-
-> 	* Supports hard limit and soft limit
-> 	* Introduces new task priorities where tasks that have exceeded their 
-> 	  soft limit can be "parked" until the O(1) scheduler picks them for
->  	  execution
-> 	* Load balancing on SMP systems made aware of tasks whose execution
-> 	  rate is limited by this feature
-> 	* Patch is simple
-> 
-> Limitations:
-> 	* Does not support guarantee
-
-Why would a capping mechanism support guarantees?  The two mechanisms 
-can be implemented separately.  The only interaction between them that 
-is required is a statement about which has precedence.  I.e. if a cap is 
-less than a guarantee is it enforced?  I would opine that it should be.
-
-BTW if "nice" works properly, guarantees can be implemented by suitable 
-fiddling of task "nice" values.
-
-> 
-> Drawbacks:
-> 	* Limiting CPU execution rate of a group of tasks has to be tackled from
-> 	  an external module (user or kernel space) which may make this approach
-> 	  somewhat inconvenient to implement for task-groups.
-
-Nevertheless it can be done and it has the advantage that the cost is 
-only borne by those who wish to use such high level controls.
-
-The caps provided by this (simple) patch provide functionality that 
-ordinary can find useful.  In particular, the use of a soft cap of zero 
-to effectively put a task (and all of its children) in the background is 
-very useful for doing software builds on a work station.  Con Kolivas's 
-SCHED_IDLE scheduling class in his staircase scheduler provides the same 
-functionality and is (from all reports) very popular.
-
-The key difference between soft caps and the SCHED_IDLE mechanism is 
-that it is more general in that limits other than zero can be specified. 
-  This provides more flexibility.
+I also suspect that the overhead of the tests associated with checking 
+whether the mechanism is on or off is probably almost as big as the 
+overhead of gathering the statistics anyway.  Assuming that the clock 
+time is already available (true for most places in the CPU scheduler 
+where you'd want to gather stats, for one) the cost of gathering the 
+stats is a subtraction, an addition and (possibly) an assignment to a 
+time stamp (I say possibly here as you may get the time stamp updated 
+for free as well).
 
 Peter
 -- 

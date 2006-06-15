@@ -1,102 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030878AbWFORYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030927AbWFOR72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030878AbWFORYo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 13:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030885AbWFORYo
+	id S1030927AbWFOR72 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 13:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030928AbWFOR72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 13:24:44 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46745 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030878AbWFORYn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 13:24:43 -0400
-Message-ID: <449197D3.3090109@sgi.com>
-Date: Thu, 15 Jun 2006 10:24:35 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Thu, 15 Jun 2006 13:59:28 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:37242 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030927AbWFOR71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 13:59:27 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-pm@lists.osdl.org
+Subject: Re: [PATCH/RFC 2.6.17-rc4-git] clk_must_disable()
+Date: Thu, 15 Jun 2006 10:13:48 -0700
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Victor <andrew@sanpeople.com>
+References: <200605161739.17059.david-b@pacbell.net>
+In-Reply-To: <200605161739.17059.david-b@pacbell.net>
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Balbir Singh <balbir@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Sturtivant <csturtiv@sgi.com>
-Subject: Re: ON/OFF control of taskstats accounting data at do_exit
-References: <449093D6.6000806@engr.sgi.com> <4490CDC2.3090009@watson.ibm.com> <4490D515.8070308@engr.sgi.com> <449182FB.6020907@watson.ibm.com>
-In-Reply-To: <449182FB.6020907@watson.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606151013.48846.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Jay Lan wrote:
-> 
-> 
-> 
->>I was talking about turning off system-wise taskstats data preparation and
->>delivery when every task exits. Sometimes customers like to do some
->>benchmarking and need to turn off nonessential features.
-> 
-> 
-> Lets go through the implications of turning on/off collection, assembly and delivery
-> of the per-task accounting data.
-> 
-> Collection is defined by different subsystems using taskstats.
-> For atleast one of these (delay accounting), turning on/off dynamically has been tried
-> and deemed to cause a lot of overhead (due to accumalated nature of data) and also be
-> prone to races. Complexity of code added did not justify the value so on/off was restricted
-> to a boot time decision.
+On Tuesday 16 May 2006 5:39 pm, David Brownell wrote:
+> This defines a new optional clock API ... comments?
 
-Agreed.
+Well, nobody reported any down-side to this, and the up-side is that
+having this kind of API (and a platform's implementation thereof)
+finally makes it possible to let USB controllers properly issue
+wakeup events on typical embedded hardware.
 
-> 
-> Assembly and delivery of data is done by the taskstats code, calling subsystem-specific functions to fill
-> the commonly used struct taskstats and relying on genetlink to do the delivery.
-> This can be turned on/off using a dynamic parameter such as /sys/kernel/taskstats_enable which sets
-> some internal variable that is used to do early exits from relevant functions (mainly taskstats_send_stats
-> and taskstats_exit_send)
-> Doing so will have impact on
-> a) queries sent to the kernel by monitoring applications
-> b) task exit data sent by kernel to apps listening on the multicast socket
-> 
-> For consistency, I'm assuming both a) and b) will have to be affected when taskstats is turned off.
-> Also, I'm assuming monitoring applications aren't aware of the turn off.
+So I'll be submitting this for 2.6.18 soon, and at91rm9200 platform
+updates to make clk_must_disable(clk32k) replace the current platform
+private at91_suspend_entering_slow_clock() call in the USB and serial
+drivers.  When other platforms add support for more of their different
+hardware sleep states, and implement, their USB host and peripheral
+controller drivers can be updated accordingly.
 
-I do not see impacts of both cases above since it would not happen.
-I expect the event of turning off taskstats feature is coordidated
-by the system adminstrator, so all users are notified in advance.
+- Dave
 
-For that reason, i think exposing the switch at sysfs is not a good
-idea. Instead, /etc/init.d/taskstats script would be right for
-this purpose. At kernel side, we would need to make this possible.
 
-What do you think?
 
-Regards,
-  - jay
-
+> In implementation terms, the platform's pm_ops.prepare() can record the
+> target system state, and its implementation of this method would know
+> thinks like "STR turns off those two PLLs and their derived clocks",
+> while "standby leaves those PLLs on".
 > 
-> What happens to case a) ? Apps will need to get some error message as a reply. Some assembly overhead
-> is saved (since such an error reply can be sent right away as soon as a query command is seen) but no
-> substantial saving on the delivery part.
+> Alternate PM approaches -- DPM, operating points, whatever -- could have
+> their own internal representations of these constraints, but drivers would
+> only need this one API call to check them from suspend() callbacks.
 > 
-> For case b), we can save on assembly and delivery by exiting early from taskstats_exit_send(). But won't
-> we need to send some message (if not periodically, atleast once) to listening apps that they shouldn't
-> expect any exit data ? Semantics of suddenly not seeing any exit data could be misinterpreted ?
-> 
-> Its easy enough to implement...just concerned about the semantics of doing so (as far as userspace
-> apps are concerned) and utility in general settings. Utility in case where only CSA is running (delay
-> accounting and other users turned off) is clear.
-> 
-> Thoughts ?
-> 
-> --Shailabh
+> - Dave
 > 
 > 
+> -------------------------	SNIP!
+> 
+> This patch adds a clk_must_disable() operation, exposing clock constraints
+> that often distinguish system power states.  Systems with such constraints
+> include ones using ARM-based AT91, OMAP, and PXA chips.  The new operation
+> lets driver methods check those constraints.
+> 
+> A common benefit to leaving some device clocks enabled is that a suspended
+> device may then be able to issue system wakeup events.  RS232, USB, Ethernet,
+> and other drivers can use driver model wakeup flags to trade off between the
+> lowest power "full off" states and more functional wakeup-enabled states,
+> as configured through sysfs.
+> 
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 > 
 > 
+> --- at91-pre2.orig/include/linux/clk.h	2006-05-15 10:07:24.000000000 -0700
+> +++ at91-pre2/include/linux/clk.h	2006-05-15 10:41:15.000000000 -0700
+> @@ -121,4 +121,24 @@ int clk_set_parent(struct clk *clk, stru
+>   */
+>  struct clk *clk_get_parent(struct clk *clk);
+>  
+> +/**
+> + * clk_must_disable - report whether a clock's users must disable it
+> + * @clk: one node in the clock tree
+> + *
+> + * This routine returns true only if the upcoming system state requires
+> + * disabling the specified clock.
+> + *
+> + * It's common for platform power states to constrain certain clocks (and
+> + * their descendants) to be unavailable, while other states allow that
+> + * clock to be active.  A platform's power states often include an "all on"
+> + * mode; system wide sleep states like "standby" or "suspend-to-RAM"; and
+> + * operating states which sacrifice functionality for lower power usage.
+> + *
+> + * The constraint value is commonly tested in device driver suspend(), to
+> + * leave clocks active if they are needed for features like wakeup events.
+> + * On platforms that support reduced functionality operating states, the
+> + * constraint may also need to be tested during resume() and probe() calls.
+> + */
+> +int clk_must_disable(struct clk *clk);
+> +
+>  #endif
 > 
-> 
-> 
-> 
-

@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWFPAzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWFPA4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWFPAzq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 20:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWFPAzq
+	id S1750851AbWFPA4U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 20:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWFPAz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 20:55:46 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:59095 "EHLO
+	Thu, 15 Jun 2006 20:55:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61399 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750820AbWFPAzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 20:55:44 -0400
-Subject: Re: [UBUNTU:acpi/ec] Use semaphore instead of spinlock
+	id S1750822AbWFPAzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 20:55:53 -0400
+Subject: Re: reviewing Ubuntu kernel patches
 From: Arjan van de Ven <arjan@infradead.org>
 To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Voluspa <lista1@comhem.se>, linux-kernel@vger.kernel.org,
-       akpm <akpm@osdl.org>, len.brown@intel.com
-In-Reply-To: <4490B48E.5060304@oracle.com>
-References: <20060615010850.3d375fa9.lista1@comhem.se>
-	 <4490B48E.5060304@oracle.com>
+Cc: linux-kernel@vger.kernel.org, bcollins@ubuntu.com, akpm@osdl.org
+In-Reply-To: <44909A1D.3030404@oracle.com>
+References: <44909A1D.3030404@oracle.com>
 Content-Type: text/plain
-Date: Thu, 15 Jun 2006 17:40:59 +0200
-Message-Id: <1150386059.2987.5.camel@laptopd505.fenrus.org>
+Date: Thu, 15 Jun 2006 17:42:30 +0200
+Message-Id: <1150386150.2987.9.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -28,21 +26,17 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-14 at 18:14 -0700, Randy Dunlap wrote:
-> updated version:
+On Wed, 2006-06-14 at 16:22 -0700, Randy Dunlap wrote:
+> Hi,
 > 
-> From: Ben Collins <bcollins@ubuntu.com>
+> A few of us at Oracle have been reviewing the Ubuntu kernel git tree
+> to see what "extra" patches they are using that might make sense in
+> the mainline kernel.
 > 
-> [UBUNTU:acpi/ec] Use semaphore instead of spinlock to get rid of missed
-> interrupts on ACPI EC (embedded controller)
+> I'll be posting these for comments/consideration etc. in no particular
+> order (over a period of days, not all at one time).
 
+while I highly applaud this effort this does put the interesting
+question of "who puts his signed-off-by on these patches".....
 
-that is odd.
-
-first of all this should use a mutex not a semaphore.
-
-Second, if this isn't used in irq context, then just dropping the
-"_irqsave" from the spinlocks should be enough to actually get rid of
-the missed interrupts.... and if it is used there then I highly question
-your use of semaphores etc...
 

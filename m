@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWFOJBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWFOJPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWFOJBs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 05:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWFOJBs
+	id S932090AbWFOJPD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 05:15:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWFOJPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 05:01:48 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:34095 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751284AbWFOJBs (ORCPT
+	Thu, 15 Jun 2006 05:15:01 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:2537 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932090AbWFOJPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 05:01:48 -0400
-Message-ID: <449121F5.7040706@openvz.org>
-Date: Thu, 15 Jun 2006 13:01:41 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] printk() should not be called under zone->lock
-Content-Type: multipart/mixed;
- boundary="------------070003010709060304000301"
+	Thu, 15 Jun 2006 05:15:01 -0400
+Date: Thu, 15 Jun 2006 02:07:30 -0700
+From: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Message-Id: <200606150907.k5F97UkF008084@frankl.hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/16] 2.6.17-rc6 perfmon2 patch for review: introduction
+Cc: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070003010709060304000301
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello,
 
-This patch fixes printk() under zone->lock in show_free_areas().
-It can be unsafe to call printk() under this lock, since
-caller can try to allocate/free some memory and selfdeadlock
-on this lock.
-I found allocations/freeing mem both in netconsole and serial console.
+The following series of patches includes the generic perfmon2
+subsystem and the support for i386, x86_64, and powerpc. The perfmon2
+subsystem also works on MIPS and all Itanium processors. The Itanium support
+is not posted because it does not easily accomodate the 100k message
+limit of lkml. The powerpc support is still very preliminary.
 
-This issue was faced in reallity when meminfo was periodically
-printed for debug purposes and netconsole was used.
+The patches are relative to 2.6.17-rc6.
 
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+I have already posted on the list about this subsystem. I am submitting 
+today to get reviews and make progress towards getting the subsystem
+merged into the mainline kernel.
 
+The patches are split up between common and arch-specific. Each part
+is further decomposed into new files and modified files. The generic
+code is now split up by functionality to make reading easier.
 
---------------070003010709060304000301
-Content-Type: text/plain;
- name="diff-show-free-areas"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-show-free-areas"
+This patch includes (compared to previous patch for 2.6.17-rc5):
+	- moved all set/multiplexing related code into a dedicated file,
+	  name perfmon_sets.c.
 
---- linux-2.6.17-rc6-mm1s.orig/mm/page_alloc.c	2006-06-09 15:37:09.000000000 +0400
-+++ linux-2.6.16-rc6-mm1/mm/page_alloc.c	2006-06-15 12:42:31.000000000 +0400
-@@ -1580,7 +1580,7 @@ void show_free_areas(void)
- 	}
- 
- 	for_each_zone(zone) {
-- 		unsigned long nr, flags, order, total = 0;
-+ 		unsigned long nr[MAX_ORDER], flags, order, total = 0;
- 
- 		show_node(zone);
- 		printk("%s: ", zone->name);
-@@ -1591,11 +1591,12 @@ void show_free_areas(void)
- 
- 		spin_lock_irqsave(&zone->lock, flags);
- 		for (order = 0; order < MAX_ORDER; order++) {
--			nr = zone->free_area[order].nr_free;
--			total += nr << order;
--			printk("%lu*%lukB ", nr, K(1UL) << order);
-+			nr[order] = zone->free_area[order].nr_free;
-+			total += nr[order] << order;
- 		}
- 		spin_unlock_irqrestore(&zone->lock, flags);
-+		for (order = 0; order < MAX_ORDER; order++)
-+			printk("%lu*%lukB ", nr[order], K(1UL) << order);
- 		printk("= %lukB\n", K(total));
- 	}
- 
+	- cleaned a lot of code (for style, dead code)
 
---------------070003010709060304000301--
+	- switch all lists to use list.h 
+
+	- fix locking bugs in perfmon_syscalls.c
+
+	- simplified PMU description tables with macros to improve
+	  readability and extensibility
+
+	- updated Kconfig structure as per Roman's feedback
+
+	- changed the pfarg_setinfo structure to include 2 new
+	  bitfields to report list of available PMU registers
+
+Thanks.

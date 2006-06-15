@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWFOA2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWFOAkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbWFOA2f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 20:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWFOA2f
+	id S1751262AbWFOAkO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 20:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWFOAkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 20:28:35 -0400
-Received: from nz-out-0102.google.com ([64.233.162.199]:34692 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750838AbWFOA2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 20:28:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=FGiK4oJdaBOxxH3lGRyIo2L5s/0kgNCWPH73xRg81iL+6v0fsGtJNP/ZxdCV/IC0NxpuZvHMJArFHP2EU/fTVi9dunz6nsbsEdtFhj4u6AjNUygEdq1Ztl5TbGW+mEgHjkkaB8HL1PRLlxuZqvUaqfwj9YtcZOxClw3zdkWT5zM=
-Message-ID: <986ed62e0606141728m6e5b6dbbw7cfb5bd4b82052c1@mail.gmail.com>
-Date: Wed, 14 Jun 2006 17:28:31 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-Cc: "Jeff Garzik" <jeff@garzik.org>,
-       "Matthew Frost" <artusemrys@sbcglobal.net>,
-       "Alex Tomas" <alex@clusterfs.com>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, cmm@us.ibm.com,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060614213431.GF4950@ucw.cz>
+	Wed, 14 Jun 2006 20:40:14 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:41098 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751262AbWFOAkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 20:40:12 -0400
+Message-ID: <350332007.09368@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 15 Jun 2006 08:40:34 +0800
+From: Fengguang Wu <fengguang.wu@gmail.com>
+To: Bernard Blackham <b-lkml@blackham.com.au>
+Cc: linux-kernel@vger.kernel.org, Lubos Lunak <l.lunak@suse.cz>,
+       Dirk Mueller <dmueller@suse.de>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] the /proc/filecache interface
+Message-ID: <20060615004034.GA5013@mail.ustc.edu.cn>
+Mail-Followup-To: Fengguang Wu <fengguang.wu@gmail.com>,
+	Bernard Blackham <b-lkml@blackham.com.au>,
+	linux-kernel@vger.kernel.org, Lubos Lunak <l.lunak@suse.cz>,
+	Dirk Mueller <dmueller@suse.de>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Andrew Morton <akpm@osdl.org>
+References: <20060612075130.GA5432@mail.ustc.edu.cn> <20060614153837.GA16601@ucc.gu.uwa.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0606090836160.5498@g5.osdl.org>
-	 <m3irnacohp.fsf@bzzz.home.net> <44899A1C.7000207@garzik.org>
-	 <m3ac8mcnye.fsf@bzzz.home.net> <4489B83E.9090104@sbcglobal.net>
-	 <20060609181426.GC5964@schatzie.adilger.int>
-	 <4489C34B.1080806@garzik.org> <20060612220605.GD4950@ucw.cz>
-	 <986ed62e0606140731u4c42a2adv42c072bf270e4874@mail.gmail.com>
-	 <20060614213431.GF4950@ucw.cz>
-X-Google-Sender-Auth: 68ee01c9a03825db
+In-Reply-To: <20060614153837.GA16601@ucc.gu.uwa.edu.au>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/14/06, Pavel Machek <pavel@ucw.cz> wrote:
-> Passes 8 hours of me trying to intentionally break it with weird,
-> artifical disk corruption.
->
-> I even have script somewhere.
+Hi Bernard,
 
-Ok, thanks for clarifying.
+On Wed, Jun 14, 2006 at 11:38:37PM +0800, Bernard Blackham wrote:
+> I haven't been following this closely, so I apologise if I'm out of
+> my depth. It would be a useful add-on to be able to use this
+> interface to force something _out_ of the page cache also. For
+> example, for performance tests, or selectively ditching pages before
+> software suspending.
 
-> > Unless I'm misunderstanding something, JFS also has a
-> > working fsck
-> > (which has actually performed successful repair of
-> > real-world
-> > filesystem corruption for me, although I haven't used it
-> > as much as
-> > e2fsck or xfs_repair).
->
-> ...like, if it repaired 100 different, non-trivial corruptions, that
-> would be argument.
+Sure we can add more related commands into it.
 
-In the case of XFS, I've repaired maybe two dozen (or so) corruptions
-that might be non-trivial (in most of the cases, the filesystem
-wouldn't even mount before the repair).
+For example, the functions in fs/drop_caches.c are well suited for
+this interface. The current sysctl interface is a quick hacking:
 
-> fsck.ext2 survives my torture (in some versions). fsck.vfat never
-> worked for me (likes to segfault), fsck.reiser never worked for me.
+/* A global variable is a bit ugly, but it keeps the code simple */
+int sysctl_drop_caches;
 
-BTW, I actually have a test filesystem here (an e2image from an actual
-filesystem I encountered once) that used to cause e2fsck 1.36/1.37 to
-segfault. Strangely, more ancient versions (like what ships in Red Hat
-7.2) were able to repair it without segfaulting. In a few days, once
-other stuff calms down for me, I need to revisit that and see if the
-bug still exists with 1.39.
--- 
--Barry K. Nathan <barryn@pobox.com>
+The following scheme may be more reasonable:
+
+# echo -n "drop files" > /proc/filecache
+# echo -n "drop slabs" > /proc/filecache
+
+As for the "selectively ditching pages" function, my original scheme
+is to
+        - query /proc/filecache to answer the question of "which pages
+          are cached, and their status(referenced/active etc.)"
+        - run "fadvise filename page-offset pages" to ditch pages
+Do you think it as convenient?
+
+Thanks,
+Wu

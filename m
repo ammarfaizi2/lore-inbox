@@ -1,239 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWFOHSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWFOHZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWFOHSv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 03:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFOHSv
+	id S1751238AbWFOHZT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 03:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWFOHZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 03:18:51 -0400
-Received: from z06.nvidia.com ([209.213.198.25]:53673 "EHLO thelma.nvidia.com")
-	by vger.kernel.org with ESMTP id S1751202AbWFOHSu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 03:18:50 -0400
-Subject: [PATCH] Add MCP65 support for amd74xx, sata_nv, and ahci drivers
-	(and device ids in pci_ids)
-From: Andrew Chew <achew@nvidia.com>
-To: linux-kernel@vger.kernel.org
-Cc: jeff@garzik.org
-Content-Type: multipart/mixed; boundary="=-BLz6wjzfnENyckTBWGHl"
-Date: Thu, 15 Jun 2006 02:00:19 -0700
-Message-Id: <1150362019.5044.7.camel@achew-linux>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 15 Jun 2006 03:25:19 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:50589 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1751238AbWFOHZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 03:25:18 -0400
+Message-ID: <44910B54.8000408@cmu.edu>
+Date: Thu, 15 Jun 2006 03:25:08 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: cdrom support with thinkpad x6 ultrabay
+References: <4490E776.7080000@cmu.edu> <4490F4BC.1040300@goop.org>
+In-Reply-To: <4490F4BC.1040300@goop.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-BLz6wjzfnENyckTBWGHl
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-Adds MCP65 device IDs to the amd74xx IDE driver, the sata_nv SATA driver
-(for MCP65 SATA in legacy SATA mode), and ahci driver (for MCP65 in AHCI mode).
-Also added MCP65 device IDs in pci_ids.h.
+Jeremy Fitzhardinge wrote:
+> George Nychis wrote:
+>> I am looking for support somewhere in the kernel for my thinkpad x6
+>> ultrabay's cdrom drive.  Whenever I attach the ultrabay it picks up the
+>> extra usb ports, seems to pick up the ethernet port, but it fails to
+>> pick up anything about the dvd/cd-writer.  Nothing shows up in dmesg
+>> about the drive at all... anyone know what I might need in the kernel?
+>> I am using 2.6.17-rc6
+> -mm has some support for the dock, but there isn't support for hot
+> add/remove of the optical device yet.  I think that's waiting on some
+> support in libata, but I'm not exactly sure what's needed.
+> 
+> At the moment, you either get the dock optical if you boot the machine
+> in the dock, and you can never eject the dock, or you get no optical and
+> eject works fine.
+> 
+>    J
+> 
 
-Signed-off-by: Andrew Chew <achew@nvidia.com>
+Thanks for the responses Jeremy and Randy.
 
+I tried taking the acpi dock patch seperately out of the mm patchset by
+applying this patch:
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/broken-out/acpi-dock-driver.patch
 
+it successfully is applied, and i notice that CONFIG_ACPI_DOCK needs to
+be set, so I did a "make oldconfig" after applying the patch, expecting
+it to ask me whether or not i wanted to support it... it didn't.  So
+then I manually added "CONFIG_ACPI_DOCK=y" to the .config and built the
+kernel, but dock.o is never built... what else do i need to do?
 
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c linux-2.6.16.19/drivers/ide/pci/amd74xx.c
---- linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/drivers/ide/pci/amd74xx.c	2006-06-05 17:20:15.000000000 -0700
-@@ -74,6 +74,7 @@ static struct amd_ide_chip {
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
-+	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_AMD_CS5536_IDE,			0x40, AMD_UDMA_100 },
- 	{ 0 }
- };
-@@ -492,7 +493,8 @@ static ide_pci_device_t amd74xx_chipsets
- 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
- 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
- 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
--	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
-+	/* 17 */ DECLARE_NV_DEV("NFORCE-MCP65"),
-+	/* 18 */ DECLARE_AMD_DEV("AMD5536"),
- };
- 
- static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
-@@ -529,7 +531,8 @@ static struct pci_device_id amd74xx_pci_
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
--	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
-+	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18 },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/ahci.c linux-2.6.16.19/drivers/scsi/ahci.c
---- linux-2.6.16.19.original/drivers/scsi/ahci.c	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/drivers/scsi/ahci.c	2006-06-05 17:17:57.000000000 -0700
-@@ -290,6 +290,18 @@ static const struct pci_device_id ahci_p
- 	  board_ahci }, /* JMicron JMB360 */
- 	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 	  board_ahci }, /* JMicron JMB363 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
- 	{ }	/* terminate list */
- };
- 
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/sata_nv.c linux-2.6.16.19/drivers/scsi/sata_nv.c
---- linux-2.6.16.19.original/drivers/scsi/sata_nv.c	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/drivers/scsi/sata_nv.c	2006-06-05 17:20:48.000000000 -0700
-@@ -166,12 +166,17 @@ static const struct pci_device_id nv_pci
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 		PCI_ANY_ID, PCI_ANY_ID,
- 		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
--		PCI_ANY_ID, PCI_ANY_ID,
--		PCI_CLASS_STORAGE_RAID<<8, 0xffff00, GENERIC },
- 	{ 0, } /* terminate list */
- };
- 
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/include/linux/pci_ids.h linux-2.6.16.19/include/linux/pci_ids.h
---- linux-2.6.16.19.original/include/linux/pci_ids.h	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/include/linux/pci_ids.h	2006-06-05 17:14:47.000000000 -0700
-@@ -1171,6 +1171,15 @@
- #define PCI_DEVICE_ID_NVIDIA_QUADRO_FX_1100         0x034E
- #define PCI_DEVICE_ID_NVIDIA_NVENET_14              0x0372
- #define PCI_DEVICE_ID_NVIDIA_NVENET_15              0x0373
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE       0x0448
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI      0x044C
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2     0x044D
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3     0x044E
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4     0x044F
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA      0x045C
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2     0x045D
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3     0x045E
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4     0x045F
- 
- #define PCI_VENDOR_ID_IMS		0x10e0
- #define PCI_DEVICE_ID_IMS_TT128		0x9128
+If i can't get hot swappable support yet, I might as well get what is
+supported for now so I can atleast use it sometimes :)
 
+Maybe this cry for help will spark someone to finish off the work on hot
+swapping the optical drive.
 
---=-BLz6wjzfnENyckTBWGHl
-Content-Disposition: attachment; filename=mcp65.diff
-Content-Type: text/x-patch; name=mcp65.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c linux-2.6.16.19/drivers/ide/pci/amd74xx.c
---- linux-2.6.16.19.original/drivers/ide/pci/amd74xx.c	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/drivers/ide/pci/amd74xx.c	2006-06-05 17:20:15.000000000 -0700
-@@ -74,6 +74,7 @@ static struct amd_ide_chip {
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
-+	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_AMD_CS5536_IDE,			0x40, AMD_UDMA_100 },
- 	{ 0 }
- };
-@@ -492,7 +493,8 @@ static ide_pci_device_t amd74xx_chipsets
- 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
- 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
- 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
--	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
-+	/* 17 */ DECLARE_NV_DEV("NFORCE-MCP65"),
-+	/* 18 */ DECLARE_AMD_DEV("AMD5536"),
- };
- 
- static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
-@@ -529,7 +531,8 @@ static struct pci_device_id amd74xx_pci_
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
--	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
-+	{ PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_CS5536_IDE,		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18 },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/ahci.c linux-2.6.16.19/drivers/scsi/ahci.c
---- linux-2.6.16.19.original/drivers/scsi/ahci.c	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/drivers/scsi/ahci.c	2006-06-05 17:17:57.000000000 -0700
-@@ -290,6 +290,18 @@ static const struct pci_device_id ahci_p
- 	  board_ahci }, /* JMicron JMB360 */
- 	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 	  board_ahci }, /* JMicron JMB363 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* MCP65 */
- 	{ }	/* terminate list */
- };
- 
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/drivers/scsi/sata_nv.c linux-2.6.16.19/drivers/scsi/sata_nv.c
---- linux-2.6.16.19.original/drivers/scsi/sata_nv.c	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/drivers/scsi/sata_nv.c	2006-06-05 17:20:48.000000000 -0700
-@@ -166,12 +166,17 @@ static const struct pci_device_id nv_pci
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 		PCI_ANY_ID, PCI_ANY_ID,
- 		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
--		PCI_ANY_ID, PCI_ANY_ID,
--		PCI_CLASS_STORAGE_RAID<<8, 0xffff00, GENERIC },
- 	{ 0, } /* terminate list */
- };
- 
-diff -uprN -X linux-2.6.16.19/Documentation/dontdiff linux-2.6.16.19.original/include/linux/pci_ids.h linux-2.6.16.19/include/linux/pci_ids.h
---- linux-2.6.16.19.original/include/linux/pci_ids.h	2006-05-30 17:31:44.000000000 -0700
-+++ linux-2.6.16.19/include/linux/pci_ids.h	2006-06-05 17:14:47.000000000 -0700
-@@ -1171,6 +1171,15 @@
- #define PCI_DEVICE_ID_NVIDIA_QUADRO_FX_1100         0x034E
- #define PCI_DEVICE_ID_NVIDIA_NVENET_14              0x0372
- #define PCI_DEVICE_ID_NVIDIA_NVENET_15              0x0373
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_IDE       0x0448
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI      0x044C
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI2     0x044D
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI3     0x044E
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_AHCI4     0x044F
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA      0x045C
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA2     0x045D
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA3     0x045E
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SATA4     0x045F
- 
- #define PCI_VENDOR_ID_IMS		0x10e0
- #define PCI_DEVICE_ID_IMS_TT128		0x9128
-
---=-BLz6wjzfnENyckTBWGHl--
-
+Thanks!
+George

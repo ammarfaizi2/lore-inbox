@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031139AbWFOTCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031135AbWFOTFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031139AbWFOTCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 15:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031138AbWFOTCJ
+	id S1031135AbWFOTFa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 15:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031140AbWFOTFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 15:02:09 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:24718 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1031136AbWFOTCH
+	Thu, 15 Jun 2006 15:05:30 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:25998 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1031135AbWFOTF3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 15:02:07 -0400
-Message-ID: <4491AEAC.5030606@drzeus.cx>
-Date: Thu, 15 Jun 2006 21:02:04 +0200
+	Thu, 15 Jun 2006 15:05:29 -0400
+Message-ID: <4491AF77.6010902@drzeus.cx>
+Date: Thu, 15 Jun 2006 21:05:27 +0200
 From: Pierre Ossman <drzeus-list@drzeus.cx>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: dezheng shen <dzshen@winbond.com>
-CC: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PI14 SJIN <SJin@winbond.com>
-Subject: Re: [Winbond] flash memory reader SCSI device drivers
-References: <448E875A.40805@winbond.com> <9a8748490606130258k60cdf429n89b1d1d017af60fe@mail.gmail.com> <448FC0C1.90205@winbond.com>
-In-Reply-To: <448FC0C1.90205@winbond.com>
-Content-Type: text/plain; charset=US-ASCII
+To: Daniel Drake <dsd@gentoo.org>
+CC: sdhci-devel@list.drzeus.cx, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Sdhci-devel] PATCH: Fix 32bitism in SDHCI
+References: <1150385605.3490.85.camel@localhost.localdomain>	<449191EE.2090309@drzeus.cx> <4491AE02.4070008@gentoo.org>
+In-Reply-To: <4491AE02.4070008@gentoo.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dezheng shen wrote:
-> Hi Jesper and all others:
-> 
->>  please post patches inline, not as attachments (and please
->> test send those mails to yourself first and check that the patches
->> apply and have not been mangled by your email client).
-> 
-> 
->  We are submittting patches; instead, we are submit the original sources
-> for Winbond SD/MMC/MS/MSPro/xD/SM devicers. There are too many files and
-> I am afraid once we copy and paste using plain text then the whole
-> things do'nt look clear to you guys.
+Daniel Drake wrote:
+> Is your queue publicised anywhere? I have a new laptop, which has a card 
+> reader supposedly supported by sdhci, but it doesn't work. I would like 
+> to confirm that I am running the latest code before I start diagnosing it...
+>
+>   
 
-People are quite used to reading diffs, so it's not that much of a bother.
+Not in a git format as I use StGIT and it tends to be incompatible with
+pulls. My patches usually circulate a bit on the sdhci-devel list before
+I pass them on to Russell. This time the set is rather large though:
 
-> 
->  Can we pack our sources then send them in one large attachment?
-> 
-
-Uncompressed attachments, or inline inclusions, are usually preferred as
-it allows you to read the stuff in your mail application.
-
-I have one reservation with your driver though. The Linux kernel already
-has a generic SD/MMC layer. So if your hardware is a bus interface, then
-it should use that layer. There is even a driver there for your
-W83L518/9 devices. :)
-
-For the other buses, a generic layer would be preferable, but as you
-would be the only user, that isn't required quite yet. I would suggest
-contacting Andrew Morton as he is the overall 2.6 maintainer.
+http://list.drzeus.cx/pipermail/sdhci-devel/2006-May/000809.html
 
 Rgds
 Pierre
 
-PS. I have a question regarding the W83L518 hardware, but haven't been
-able to get in touch with the right people. Perhaps you have some pointers?

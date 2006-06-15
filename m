@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWFOLOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWFOLSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWFOLOW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 07:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWFOLOW
+	id S1030201AbWFOLSX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 07:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWFOLSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 07:14:22 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:57298 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030204AbWFOLOV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 07:14:21 -0400
-Date: Thu, 15 Jun 2006 12:14:20 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Subject: [PATCH] m68k traps.c constraints
-Message-ID: <20060615111420.GK27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Jun 2006 07:18:23 -0400
+Received: from cool.dworf.com ([193.189.190.81]:1640 "EHLO cool.dworf.com")
+	by vger.kernel.org with ESMTP id S1030201AbWFOLSX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 07:18:23 -0400
+Message-ID: <449141F6.3090902@dworf.com>
+Date: Thu, 15 Jun 2006 13:18:14 +0200
+From: David Osojnik <david@dworf.com>
+Reply-To: david@dworf.com
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bad command responsiveness Proliant DL 585
+References: <448FC1CE.9090108@dworf.com>	 <1150278161.7994.13.camel@Homer.TheSimpsons.net> <449060EE.60608@dworf.com>	 <1150353862.8097.61.camel@Homer.TheSimpsons.net> <44910E5B.50704@dworf.com> <1150358450.8638.12.camel@Homer.TheSimpsons.net>
+In-Reply-To: <1150358450.8638.12.camel@Homer.TheSimpsons.net>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cast is not an lvalue; =r constraint wants an lvalue and really couldn't care
-whether it's void * or other pointer type.
+Well i tired cfq,anticipatory,deadline,no-op schedulers/elevators with
+atime but none worked the only difference is when I use noatime and
+nodiratime
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+could this be an kernel problem?
 
----
+David
 
- arch/m68k/kernel/traps.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Mike Galbraith wrote:
 
-bdc7b61b5412460e1c6d8c723e7744807d23131b
-diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
-index c640d0f..efc704e 100644
---- a/arch/m68k/kernel/traps.c
-+++ b/arch/m68k/kernel/traps.c
-@@ -114,7 +114,7 @@ void __init base_trap_init(void)
- 	if(MACH_IS_SUN3X) {
- 		extern e_vector *sun3x_prom_vbr;
- 
--		__asm__ volatile ("movec %%vbr, %0" : "=r" ((void*)sun3x_prom_vbr));
-+		__asm__ volatile ("movec %%vbr, %0" : "=r" (sun3x_prom_vbr));
- 	}
- 
- 	/* setup the exception vector table */
--- 
-1.3.GIT
-
+>On Thu, 2006-06-15 at 09:38 +0200, David Osojnik wrote:
+>  
+>
+>>Hello,
+>>
+>>IT Works perfect when setting noatime,nodiratime on the partition!!
+>>    
+>>
+>
+>That's good to hear... sort of.
+>  
+>
+>>can i try anything else? what does this actually mean?
+>>    
+>>
+>
+>Besides having a constipated journal sucks rocks? ;-)  Dunno.  You could
+>try a different elevator as a shot in the dark - eliminate something.
+>
+>	-Mike
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>

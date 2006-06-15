@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWFOHn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWFOHvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWFOHn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 03:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWFOHn1
+	id S1751325AbWFOHvf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 03:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWFOHvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 03:43:27 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:53601 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751044AbWFOHn0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 03:43:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=SqwdodUGCGpBWHeolOLOkJ8Aa4ABR2h3vjp01bEy7xpPgs71PROoPGkbuuaHkTwiw7pLEXYdVZv/UAb8Os7p/fWKDCRDv/40Chdu1Wh5wZFYZKKAovWJJITIRKDluYaMB9ynyWC7HNSW//waDRT1hA/JhBMJC8rImkJR0TnBxyg=
-Message-ID: <986ed62e0606150043i71b37d0am3acc18697db4760c@mail.gmail.com>
-Date: Thu, 15 Jun 2006 00:43:25 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Theodore Tso" <tytso@mit.edu>, "Barry K. Nathan" <barryn@pobox.com>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-In-Reply-To: <20060615045550.GB7318@thunk.org>
+	Thu, 15 Jun 2006 03:51:35 -0400
+Received: from 190-48-99-68.speedy.com.ar ([190.48.99.68]:18361 "HELO speedy")
+	by vger.kernel.org with SMTP id S1751325AbWFOHvf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 03:51:35 -0400
+From: "Curso Buscadores" <meridionalht@fullzero.com.ar>
+To: "Linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: curso gratis para Linux-kernel
+Date: Thu, 15 Jun 2006 04:51:37 -0300
+Reply-To: "Curso Buscadores" <meridionalht@fullzero.com.ar>
+Message-ID: <27406635.20060615045137@fullzero.com.ar>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <m3irnacohp.fsf@bzzz.home.net> <m3ac8mcnye.fsf@bzzz.home.net>
-	 <4489B83E.9090104@sbcglobal.net>
-	 <20060609181426.GC5964@schatzie.adilger.int>
-	 <4489C34B.1080806@garzik.org> <20060612220605.GD4950@ucw.cz>
-	 <986ed62e0606140731u4c42a2adv42c072bf270e4874@mail.gmail.com>
-	 <20060614213431.GF4950@ucw.cz>
-	 <986ed62e0606141728m6e5b6dbbw7cfb5bd4b82052c1@mail.gmail.com>
-	 <20060615045550.GB7318@thunk.org>
-X-Google-Sender-Auth: 35394457af048d70
+X-Priority: 3 (Normal)
+Importance: Normal
+X-Mailer: EM: 4.40.0.600
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/14/06, Theodore Tso <tytso@mit.edu> wrote:
-> Please try it with 1.39; if it still crashes, let me know --- I treat
-[snip]
+Todo propietario de un sitio web sabe que conseguir visitantes para el mismo es una tarea dura, y 
+difícil, pero importantísima.
+El estar bien ubicado en los buscadores es una parte fundamental de la promoción de cualquier sitio 
+web.
+Hoy en día hay tantas opciones para promover un sitio web en internet, que para quien es novato en el 
+tema, pueden crearse confusiones y desconciertos. 
+Muchos se preguntan qué opción elegir, un alta en buscadores, un intercambio de links, alquilar 
+banners, un resultado patrocinado, las opciones son muchas cada una con su ventaja y su 
+desventaja.
 
-1.39 fixes it. Cool!
+Por ésa razón, y para asesorar a nuestros clientes hemos creado un curso gratuito de 12 lecciones 
+que le enseña al propietario de un sitio web las mejores opciones para promover su sitio mediante los 
+buscadores de internet. 
+Este curso se diseñó originalmente en forma exclusiva para nuestros clientes, pero en esta ocasión, y 
+por tiempo limitado, le damos a usted la posibilidad de tomarlo, es totalmente gratuito.
 
-However, http://e2fsprogs.sourceforge.net/ is still touting the "NEW"
-e2fsprogs 1.38 release. I think it would be a good idea to update the
-page...
--- 
--Barry K. Nathan <barryn@pobox.com>
+Este curso gratuito consta de 12 lecciones, que le serán enviadas por e-mail, una al día. 
+Cada lección trata en un lenguaje ameno y simple, un tema en particular.
+
+Este curso le enseñará sobre las diversas opciones actualmente disponibles en el mercado de 
+promoción mediante internet
+
+Si usted está interesado en aprovechar al máximo las opciones que le dan los diferentes métodos de 
+promoción en internet, en especial el alta en buscadores, sus variantes, y sus complementos, no 
+puede dejar pasar esta oportunidad. 
+Cupo limitado a los 100 primeros suscriptos.
+
+Para suscribirse al curso envíe un e-mail en blanco a la casilla de correo supercurso@fullzero.com.ar
+MUY IMPORTANTE > PARA QUE LA SUSCRIPCIÓN AL CURSO SEA EXITOSA DEBE COLOCAR EN 
+EL ASUNTO DEL E-MAIL QUE ENVÍA LA PALABRA "SUSCRIBIR". 
+Esto es muy importante, ya que si no coloca la palabra "SUSCRIBIR" en el asunto o subjet del e-mail 
+que envía no recibirá el curso.
+la suscripcion de sealiza UNICAMENTE DE LA FORMA ANTEDICHA >> NO (no) ES 
+RESPONDIENDO ESTE EMAIL
+
+Si conoce a alguien que esté interesado en este tema, por favor reenvíele este e-mail.
+
+Gracias
+
+

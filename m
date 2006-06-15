@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWFOGsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWFOGta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWFOGsP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 02:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWFOGsP
+	id S1750854AbWFOGta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 02:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWFOGta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 02:48:15 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:56986 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750707AbWFOGsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 02:48:15 -0400
-Message-ID: <4491029D.4060002@linux.intel.com>
-Date: Wed, 14 Jun 2006 23:47:57 -0700
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Brice Goglin <brice@myri.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC] PCI extended conf space when MMCONFIG disabled because
- of e820
-References: <44907A8E.1080308@myri.com> <44907B13.2030402@linux.intel.com> <4490BE76.6040008@myri.com>
-In-Reply-To: <4490BE76.6040008@myri.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jun 2006 02:49:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:25625 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750728AbWFOGt3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 02:49:29 -0400
+Date: Thu, 15 Jun 2006 08:50:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cfq_update_io_seektime oops
+Message-ID: <20060615065006.GM1522@suse.de>
+References: <20060615152131.A898607@wobbly.melbourne.sgi.com> <20060615060152.GK1522@suse.de> <20060615162107.B898607@wobbly.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060615162107.B898607@wobbly.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 15 2006, Nathan Scott wrote:
+> On Thu, Jun 15, 2006 at 08:01:53AM +0200, Jens Axboe wrote:
+> > The patch for this was just merged in 2.6.17-rc6-git last night, so it
 > 
-> Well, we are talking about using a different method to access the
-> extended config space only. This space is independent from the legacy
-> config space.
+> Ah, great - thanks.
+> 
+> > should be fine now. Just curious - did you have any slab debugging
+> > features enabled?
+> 
+> Hmm, lemme see - no, not slab for this particular build - here's
+> my CONFIG_DEBUG_* list:
 
-not really. In many ways it's the same space.
+Ok, thanks for checking. Just wondering what the likelyhood of
+->seek_samples being -36 initially, which will cause this crash. You're
+now the 2nd person to have hit this bug.
 
-> I don't see how mixing the old and new methods like this could lead to
-> any problem, we are not going to mix them to access the same registers.
-
-the spec simply doesn't allow it. Sure it may work on your machine today,
-but that doesn't make it a good idea ;)
-
-> We need to improve this "mmconfig disabled" anyhow. Having the extended
-> config space unavailable on lots of machines is also far from a viable
-> solution :)
-
-it's unlikely to be many machines though.
-
-  If you still do not like this first proposal, what do you
-> think of my other one ? (having chipset-specific checks in
-> pci_mmcfg_init to find out for sure whether mmconfig will work)
-
-I'm all in favor of a more detailed test; just we HAVE to have a test
-for this since it's simply broken too often. What the test needs to do
-is check if the MCFG entry actually points to a working mmconfig area,
-so 1) that it actually points to an mmconfig area and not to garbage, and 2)
-that accesses to it actually work ;)
-
-the current approach doesn't test 2) realistically, only 1), but if you weaken
-the 1) test as you propose you really ought to substitute it with a 2) test...
+-- 
+Jens Axboe
 

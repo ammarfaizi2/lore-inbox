@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031220AbWFOTs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031227AbWFOTta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031220AbWFOTs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 15:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031225AbWFOTs1
+	id S1031227AbWFOTta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 15:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031228AbWFOTta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 15:48:27 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:54164 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1031220AbWFOTs0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 15:48:26 -0400
-Subject: Re: [PATCH 0/3] posix cpu timers fixes
-From: john stultz <johnstul@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Roland McGrath <roland@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060615160931.GA21450@oleg>
-References: <20060615160931.GA21450@oleg>
-Content-Type: text/plain
-Date: Thu, 15 Jun 2006 12:48:14 -0700
-Message-Id: <1150400894.15267.16.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Thu, 15 Jun 2006 15:49:30 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:23521 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1031227AbWFOTt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 15:49:29 -0400
+Message-ID: <4491C7EE.9040303@oracle.com>
+Date: Thu, 15 Jun 2006 13:49:50 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Randy Dunlap <randy.dunlap@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [Ubuntu PATCH] 8250_pnp:  Add support for other Wacom tablets
+References: <4491BC77.4040804@oracle.com> <20060615190604.GD8694@flint.arm.linux.org.uk>
+In-Reply-To: <20060615190604.GD8694@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-15 at 20:09 +0400, Oleg Nesterov wrote:
-> John Stultz hit run_posix_cpu_timers()->BUG_ON(tsk->exit_state), see
+Russell King wrote:
+> On Thu, Jun 15, 2006 at 01:00:55PM -0700, Randy Dunlap wrote:
+>> From: Ben Collins <bcollins@ubuntu.com>
+>>
+>> [UBUNTU:8250_pnp] Add support for other Wacom tablets that are around
+>>
+>> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=6a242b6c279af7805a6cca8f39dbc5bfe1f78cd1
+>>
+>> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 > 
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=115015841413687
+> Is there a way to "pick" this change from that git tree and throw it
+> directly into another git tree, preserving all the metadata?
 > 
-> This was fixed by
-> 
-> 	Commit 3de463c7d9d58f8cf3395268230cb20a4c15bffa
-> 	[PATCH] posix-timers: remove false BUG_ON() from run_posix_cpu_timers()
-> 	(now re-sended as [PATCH 2/3])
-> 
-> but it was reverted because it triggered a problem,
 
-Again, just to be clear, I only hit the BUG_ON when using the -RT tree,
-which is likely due to the fact that run_posix_cpu_timers() runs from a
-kernel thread rather then interrupt context (thus tsk is not current and
-you're more likely to race against an exiting task).
+I would expect Yes, but I don't know it...
 
-It may very well be the issue applies to mainline as well, but I just
-want to make sure the proper caution is taken.
+Maybe git cherry-pick ...
 
-
-> With these patches applied Chris's program exits without any problems.
-> 
-> John, could you please try these patches while you are testing posix
-> cpu timers?
-
-I will give them a go. Some of them are already in the -rt tree, as they
-were triggered early on.
-
-thanks
--john
+~Randy
 

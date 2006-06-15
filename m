@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWFOH3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWFOHh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWFOH3M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 03:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWFOH3L
+	id S1751310AbWFOHh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 03:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWFOHh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 03:29:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:48810 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751266AbWFOH3K (ORCPT
+	Thu, 15 Jun 2006 03:37:28 -0400
+Received: from gw.goop.org ([64.81.55.164]:30903 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751310AbWFOHh1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 03:29:10 -0400
-Date: Thu, 15 Jun 2006 00:28:54 -0700
-From: Greg KH <greg@kroah.com>
-To: Sergej Pupykin <ps@lx-ltd.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: resubmitting intr urb in 2.4 and 2.6 kernels
-Message-ID: <20060615072854.GA29713@kroah.com>
-References: <m3lkrzq3zj.fsf@lx-ltd.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3lkrzq3zj.fsf@lx-ltd.ru>
-User-Agent: Mutt/1.5.11
+	Thu, 15 Jun 2006 03:37:27 -0400
+Message-ID: <44910E2A.5090205@goop.org>
+Date: Thu, 15 Jun 2006 00:37:14 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: George Nychis <gnychis@cmu.edu>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: cdrom support with thinkpad x6 ultrabay
+References: <4490E776.7080000@cmu.edu> <4490F4BC.1040300@goop.org> <44910B54.8000408@cmu.edu>
+In-Reply-To: <44910B54.8000408@cmu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 14, 2006 at 05:08:32PM +0400, Sergej Pupykin wrote:
-> 
-> Hi!
-> 
-> Could anybody explain the reason why intr urb auto resubmitting was removed
-> from 2.6 kernels?
-> 
-> Or just tell me, it was removed because of some technical problems in it
-> or only for better architecure?
-> 
-> If it was architecure cleanup, why autoresubmitting was implemented in 2.4?
+George Nychis wrote:
+> it successfully is applied, and i notice that CONFIG_ACPI_DOCK needs to
+> be set, so I did a "make oldconfig" after applying the patch, expecting
+> it to ask me whether or not i wanted to support it... it didn't.  So
+> then I manually added "CONFIG_ACPI_DOCK=y" to the .config and built the
+> kernel, but dock.o is never built... what else do i need to do?
+>   
 
-Consistancy, now all urbs work the same way, and you don't have to
-remember special things depending on the type of the endpoint.  Search
-the archives of the linux-usb-devel mailing list early in the 2.5
-development series for the details if you are curious.
+Make sure you disable the (obsolete?) ACPI_IBM_DOCK stuff.
 
+> If i can't get hot swappable support yet, I might as well get what is
+> supported for now so I can atleast use it sometimes :)
+>
+> Maybe this cry for help will spark someone to finish off the work on hot
+> swapping the optical drive.
+>   
 
-thanks,
+Yeah, I'm hoping all the work on power management in libata will make 
+things "just work" soon, but I think there's more to it.  When you press 
+the dock eject button, it really needs to go out to acpid, activate a 
+script to unmount any filesystems mounted off the device, and then poke 
+the ata layer to remove the device, before OKing the dock eject so the 
+hardware's "don't do that" light goes out.
 
-greg k-h
+But in the meantime I'm having enough trouble getting plain old 
+suspend/resume reliable.
+
+    J

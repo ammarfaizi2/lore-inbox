@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWFOMbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbWFOMfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbWFOMbK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 08:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWFOMbK
+	id S1030331AbWFOMfY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 08:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWFOMfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 08:31:10 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:4075 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030337AbWFOMbJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 08:31:09 -0400
-Date: Thu, 15 Jun 2006 14:31:05 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] affs_fill_super() %s abuses
-In-Reply-To: <20060615110355.GH27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0606151427290.17704@scrub.home>
-References: <20060615110355.GH27946@ftp.linux.org.uk>
+	Thu, 15 Jun 2006 08:35:24 -0400
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:11277 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1030331AbWFOMfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 08:35:23 -0400
+Message-ID: <4491540A.6050806@onelan.co.uk>
+Date: Thu, 15 Jun 2006 13:35:22 +0100
+From: Barry Scott <barry.scott@onelan.co.uk>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc6 No volume groups found
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On my HP dc7600U having patch around the MCG problem
+I now get a bit further. Previous working kernel was 2.6.16
+from Fedora Code 4.
 
-On Thu, 15 Jun 2006, Al Viro wrote:
+I see:
 
-> @@ -420,11 +422,17 @@ got_root:
->  	}
->  
->  	if (mount_flags & SF_VERBOSE) {
-> -		chksum = cpu_to_be32(chksum);
-> -		printk(KERN_NOTICE "AFFS: Mounting volume \"%*s\": Type=%.3s\\%c, Blocksize=%d\n",
-> -			AFFS_ROOT_TAIL(sb, root_bh)->disk_name[0],
-> -			AFFS_ROOT_TAIL(sb, root_bh)->disk_name + 1,
-> -			(char *)&chksum,((char *)&chksum)[3] + '0',blocksize);
-> +		int len = AFFS_ROOT_TAIL(sb, root_bh)->disk_name[0];
-> +		char name[32];
-> +
-> +		if (len > 31)
-> +			len = 31;
+Uncompressing Linux... Ok, botinh the kernel.
+Red Hat nash version 4.2.15 starting
+  Reading all physical volumes.  This may take a while...
+  No volume groups found
+  Unable to find volume group "VolGroup00"
+ERROR: /bin/lvm exited abnormally with value 5 ! (pid 351)
 
-You get the same effect by changing it above into "min(AFFS_ROOT_TAIL(sb, 
-root_bh)->disk_name[0], 31)" and makes the copying unnecessary.
-BTW since this is only active with SF_VERBOSE, I don't think it's critical 
-enough for 2.6.17 at this point.
+Then a few more errors and Kernel panic
 
-bye, Roman
+Where would the problem be?
+
+Barry
+

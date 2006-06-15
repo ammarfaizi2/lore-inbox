@@ -1,65 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWFOIfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWFOIqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWFOIfz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 04:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWFOIfz
+	id S1751337AbWFOIqO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 04:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWFOIqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 04:35:55 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:64495 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751419AbWFOIfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 04:35:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=nBimiz7b1eq2Wy0rkbFVYxf+5pTYFk37/xHa42Mwlm9+hingvLaPrpvrpHqB8Sc1wTdqZSPKn8xdpmF+7/ox7fLMjtnl9jq72o3Yh/0e8hG5I1uTvr74DnRDVemSeCEYDPGK5X96JJdP2OgPRVvyMmGakVZPeihrb3QBy7XiiYI=
-Date: Thu, 15 Jun 2006 10:35:25 +0200
-From: Laura Garcia <nevola@gmail.com>
-To: "Laura Garcia" <laura.linux@gmail.com>, bjorn.helgaas@hp.com
+	Thu, 15 Jun 2006 04:46:14 -0400
+Received: from gw.openss7.com ([142.179.199.224]:32456 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1751337AbWFOIqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 04:46:13 -0400
+Date: Thu, 15 Jun 2006 02:46:06 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Nathan Scott <nathans@sgi.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] CCISS cleanups
-Message-ID: <20060615103525.5ebc42c4@enano>
-In-Reply-To: <c6b285c60606150114h273f5ceue19bcea43937e86c@mail.gmail.com>
-References: <200606141707.27404.bjorn.helgaas@hp.com>
-	<c6b285c60606150114h273f5ceue19bcea43937e86c@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Subject: Re: [RFC]  Slimming down struct inode
+Message-ID: <20060615024606.B5168@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
+	linux-kernel@vger.kernel.org
+References: <20060613143230.A867599@wobbly.melbourne.sgi.com> <448EC51B.6040404@argo.co.il> <20060614084155.C888012@wobbly.melbourne.sgi.com> <17551.58643.704359.815153@gargle.gargle.HOWL> <20060615075018.B884384@wobbly.melbourne.sgi.com> <20060615054931.GC7318@thunk.org> <20060615170136.D898607@wobbly.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060615170136.D898607@wobbly.melbourne.sgi.com>; from nathans@sgi.com on Thu, Jun 15, 2006 at 05:01:36PM +1000
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bjorn,
+Nathan,
 
-	Reading cciss and cpqarray driver code, I've noticed that both have very similar structure so, could it be useful to merge both drivers in only one?
-
-
-Best regards.
-
-
-"Bjorn Helgaas" <bjorn.helgaas@hp.com> wrote:
-
-> From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> Date: 15-jun-2006 1:07
-> Subject: [PATCH 0/7] CCISS cleanups
-> To: Mike Miller <mike.miller@hp.com>
-> Cc: iss_storagedev@hp.com, linux-kernel@vger.kernel.org, Andrew Morton
-> <akpm@osdl.org>
+On Thu, 15 Jun 2006, Nathan Scott wrote:
 > 
-> 
-> This is a series of minor cleanups to the cciss (HP Smart Array) driver:
-> 
->   1  disable device before returning failure
->   2  claim all resources the device decodes, not just I/O ports
->   3  print more useful identification when driver claims device
->   4  remove intermediate #define for ARRAY_SIZE
->   5  fix spelling errors
->   6  unparenthesize "return" statements
->   7  Lindent (warning, huge diff, but changes whitespace only)
-> 
-> They're in order of usefulness.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> There is no IRIX/Linux compatibility layer, you're misunderstanding
+> the code (which is understandable, its erm a bit crufty in places).
+
+You gotta be kidding.  It does everything in terms of an SVR 4 VFS
+vnode and then converts that to Linux VFS on dentries/inodes.  It was
+obviously built by stuffing the Linux VFS under SVR 4 VFS code and
+even documents the code as such.  Things like:
+
+| /*
+|  * XFS arguments structure, constructed from the arguments we
+|  * are passed via the mount system call.
+|  *
+|  * NOTE: The mount system call is handled differently between
+|  * Linux and IRIX.  In IRIX we worked work with a binary data
+|  * structure coming in across the syscall interface from user
+|  * space (the mount userspace knows about each filesystem type
+|  * and the set of valid options for it, and converts the users
+|  * argument string into a binary structure _before_ making the
+|  * system call), and the ABI issues that this implies.
+|  *
+|  * In Linux, we are passed a comma separated set of options;
+|  * ie. a NULL terminated string of characters.  Userspace mount
+|  * code does not have any knowledge of mount options expected by
+|  * each filesystem type and so each filesystem parses its mount
+|  * options in kernel space.
+|  *
+|  * For the Linux port, we kept this structure pretty much intact
+|  * and use it internally (because the existing code groks it).
+|  */
+| struct xfs_mount_args {
+| 	int	flags;		/* flags -> see XFSMNT_... macros below */
+| 	int	flags2;		/* flags -> see XFSMNT2_... macros below */
+| 	int	logbufs;	/* Number of log buffers, -1 to default */
+| 	int	logbufsize;	/* Size of log buffers, -1 to default */
+| 	char	fsname[MAXNAMELEN+1];	/* data device name */
+| 	char	rtname[MAXNAMELEN+1];	/* realtime device filename */
+| 	char	logname[MAXNAMELEN+1];	/* journal device filename */
+| 	char	mtpt[MAXNAMELEN+1];	/* filesystem mount point */
+| 	int	sunit;		/* stripe unit (BBs) */
+| 	int	swidth;		/* stripe width (BBs), multiple of sunit */
+| 	uchar_t iosizelog;	/* log2 of the preferred I/O size */
+| 	int	ihashsize;	/* inode hash table size (buckets) */
+| };
+
+No... No compatibility layer there.
+

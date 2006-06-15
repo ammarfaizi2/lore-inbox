@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWFOL3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWFOLct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWFOL3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 07:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030234AbWFOL3N
+	id S1030244AbWFOLct (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 07:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWFOLct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 07:29:13 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:60349 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030226AbWFOL3N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 07:29:13 -0400
-Date: Thu, 15 Jun 2006 12:29:12 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: [PATCH] sparc build breakage
-Message-ID: <20060615112912.GN27946@ftp.linux.org.uk>
+	Thu, 15 Jun 2006 07:32:49 -0400
+Received: from mail.polimi.it ([131.175.12.3]:41903 "EHLO polimi.it")
+	by vger.kernel.org with ESMTP id S1030240AbWFOLcs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 07:32:48 -0400
+Date: Thu, 15 Jun 2006 13:32:20 +0200
+From: Stefano Brivio <stefano.brivio@polimi.it>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
+       mb@bu3sch.de, akpm <akpm@osdl.org>
+Subject: Re: [Ubuntu PATCH] Broadcom wireless patch, PCIE/Mactel support
+Message-ID: <20060615133220.57d8dd26@localhost>
+In-Reply-To: <44909A3F.4090905@oracle.com>
+References: <44909A3F.4090905@oracle.com>
+X-Mailer: Sylpheed-Claws 2.2.0 (GTK+ 2.8.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 5.2.0.264296, Antispam-Engine: 2.4.0.264935, Antispam-Data: 2006.6.15.41933
+X-PerlMx-Spam: Gauge=I, Probability=81%, Report='RELAY_IN_CBL 8, __CP_URI_IN_BODY 0, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Score: ***** (Spam Prob: 81% GAuge: XXXXXXXX)
+X-Probable-Spam: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rd_prompt et.al. depend on CONFIG_BLK_DEV_RAM, not CONFIG_BLK_INITRD; now
-that those are independent, setup.c blows with INITRD on and BLK_DEV_RAM
-off.
+On Wed, 14 Jun 2006 16:22:39 -0700
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> From: Matthew Garrett <mjg59@srcf.ucam.org>
+> 
+> Broadcom wireless patch, PCIE/Mactel support
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=1373a8487e911b5ee204f4422ddea00929c8a4cc
+> 
+> This patch adds support for PCIE cores to the bcm43xx driver. This is
+> needed for wireless to work on the Intel imacs. I've submitted it to
+> bcm43xx upstream.
 
----
+NACK.
+This has been superseded by my patchset:
+http://www.mail-archive.com/bcm43xx-dev@lists.berlios.de/msg01267.html
 
- arch/sparc/kernel/setup.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I'm still waiting for more testing so I didn't request merging to mainline
+yet. Plus, this patch is copied from this one:
+http://www.mail-archive.com/bcm43xx-dev@lists.berlios.de/msg00919.html
+which is wrong. Please see my patchset and new specs for reference.
 
-863c76a6fe8c5d4e42b03a255f67739402e25c0d
-diff --git a/arch/sparc/kernel/setup.c b/arch/sparc/kernel/setup.c
-index 3509e43..0da5789 100644
---- a/arch/sparc/kernel/setup.c
-+++ b/arch/sparc/kernel/setup.c
-@@ -331,7 +331,7 @@ #endif
- 	if (!root_flags)
- 		root_mountflags &= ~MS_RDONLY;
- 	ROOT_DEV = old_decode_dev(root_dev);
--#ifdef CONFIG_BLK_DEV_INITRD
-+#ifdef CONFIG_BLK_DEV_RAM
- 	rd_image_start = ram_flags & RAMDISK_IMAGE_START_MASK;
- 	rd_prompt = ((ram_flags & RAMDISK_PROMPT_FLAG) != 0);
- 	rd_doload = ((ram_flags & RAMDISK_LOAD_FLAG) != 0);	
+PS: Next time, don't be rude and send patches to the maintainers.
+
+
 -- 
-1.3.GIT
-
+Ciao
+Stefano

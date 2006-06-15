@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWFOKrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWFOKxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWFOKrG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 06:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWFOKrG
+	id S964772AbWFOKxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 06:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWFOKxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 06:47:06 -0400
-Received: from tougher.kangaroot.net ([62.213.203.135]:17837 "EHLO
-	tougher.kangaroot.net") by vger.kernel.org with ESMTP
-	id S1030191AbWFOKrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 06:47:04 -0400
-Date: Thu, 15 Jun 2006 12:47:02 +0200
-From: Wouter Paesen <wouter@kangaroot.net>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 2.6.17-rc6] input/mouse/sermouse: fix memleak and potential buffer overflow
-Message-ID: <20060615104702.GA4866@tougher.kangaroot.net>
+	Thu, 15 Jun 2006 06:53:44 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:40621 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964772AbWFOKxn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 06:53:43 -0400
+Date: Thu, 15 Jun 2006 12:52:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+       jgarzik@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, fpavlic@de.ibm.com
+Subject: Re: [patch] ipv4: fix lock usage in udp_ioctl
+Message-ID: <20060615105208.GA2934@elte.hu>
+References: <20060614194305.GB10391@osiris.ibm.com> <E1FqeXX-0008OE-00@gondolin.me.apana.org.au> <20060615052806.GA19803@elte.hu> <20060615065531.GA10411@osiris.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060615065531.GA10411@osiris.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While strolling trough the sermouse driver for some example code, I
-noticed 2 strange things happening there :
 
-* In the sermouse_connect function an input device structure is
-  allocated (input_allocate_device), which is not deallocated 
-  in the sermouse_disconnect function.  
-  
-  If I understand this correctly someone repeatedly connecting and 
-  disconnecting the mouse would leak input_dev structures.
+* Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 
-* In the sermouse_connect function the phys member of the sermouse 
-  structure (32 characters) is initialised with :
+> How about the patch below? The warning goes away and I assume 
+> "tmp_list" needs lockdep_reinit_key too, since it should have the same 
+> locking rules as the rest of qeth's skb-queue management.
 
-     sprintf(sermouse->phys, "%s/input0", serio->phys);
+yeah, looks good.
 
-  Because serio->phys is also a 32 character field the sprintf could
-  result in 39 characters being written to the sermouse->phys.
-
-If my understanding of both these concepts is correct, this is a patch
-to fix the problems.
-
-Signed-off-by: Wouter Paesen <wouter@kangaroot.net>
-
---- a/drivers/input/mouse/sermouse.c	2006-06-15 08:47:47.000000000 +0200
-+++ b/drivers/input/mouse/sermouse.c	2006-06-15 08:52:13.000000000 +0200
-@@ -53,7 +53,7 @@
- 	unsigned char count;
- 	unsigned char type;
- 	unsigned long last;
--	char phys[32];
-+	char phys[39];
- };
- 
- /*
-@@ -233,6 +233,7 @@
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
- 	input_unregister_device(sermouse->dev);
-+	input_free_device(sermouse->dev);
- 	kfree(sermouse);
- }
+	Ingo

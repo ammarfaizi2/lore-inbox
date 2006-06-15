@@ -1,34 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWFOOkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWFOOmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030459AbWFOOkm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 10:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWFOOkm
+	id S1030460AbWFOOmG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 10:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWFOOmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 10:40:42 -0400
-Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:34758 "EHLO
+	Thu, 15 Jun 2006 10:42:05 -0400
+Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:29898 "EHLO
 	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1030452AbWFOOkl convert rfc822-to-8bit (ORCPT
+	id S1030460AbWFOOmE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 10:40:41 -0400
+	Thu, 15 Jun 2006 10:42:04 -0400
 X-MimeOLE: Produced By Microsoft Exchange V6.5
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 5/7] CCISS: fix a few spelling errors
-Date: Thu, 15 Jun 2006 09:40:39 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF10C5249E4@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <200606141711.38975.bjorn.helgaas@hp.com>
+Subject: RE: [PATCH 6/7] CCISS: remove parens around return values
+Date: Thu, 15 Jun 2006 09:42:02 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10C5249EE@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <200606141712.52532.bjorn.helgaas@hp.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 5/7] CCISS: fix a few spelling errors
-Thread-Index: AcaQB/EbN93/DG0MTVuscOGIOHhtxwAgaxjA
+Thread-Topic: [PATCH 6/7] CCISS: remove parens around return values
+Thread-Index: AcaQCBpy79Fv76rNTKexwkb0mHUqKwAgaxDQ
 From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
 To: "Helgaas, Bjorn" <bjorn.helgaas@hp.com>
 Cc: "ISS StorageDev" <iss_storagedev@hp.com>, <linux-kernel@vger.kernel.org>,
        "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 15 Jun 2006 14:40:40.0606 (UTC) FILETIME=[AC869BE0:01C69089]
+X-OriginalArrivalTime: 15 Jun 2006 14:42:03.0405 (UTC) FILETIME=[DDE0BBD0:01C69089]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -36,101 +36,240 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 > -----Original Message-----
 > From: Helgaas, Bjorn 
-> Sent: Wednesday, June 14, 2006 6:12 PM
+> Sent: Wednesday, June 14, 2006 6:13 PM
 > To: Miller, Mike (OS Dev)
 > Cc: ISS StorageDev; linux-kernel@vger.kernel.org; Andrew Morton
-> Subject: [PATCH 5/7] CCISS: fix a few spelling errors
+> Subject: [PATCH 6/7] CCISS: remove parens around return values
 > 
-> Fix a few spelling errors.
+> Typical Linux style is "return -EINVAL", not "return(-EINVAL)".
 > 
 > Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
 Acked-by: Mike Miller <mike.miller@hp.com>
 
 > 
-> Index: rc5-mm3/drivers/block/cciss.c
+> Index: rc6-mm2/drivers/block/cciss.c
 > ===================================================================
-> --- rc5-mm3.orig/drivers/block/cciss.c	2006-06-14 
-> 15:16:13.000000000 -0600
-> +++ rc5-mm3/drivers/block/cciss.c	2006-06-14 
-> 15:16:44.000000000 -0600
-> @@ -129,7 +129,7 @@
->  	{ 0x3215103C, "Smart Array E200i", &SA5_access},  };
+> --- rc6-mm2.orig/drivers/block/cciss.c	2006-06-14 
+> 16:18:37.000000000 -0600
+> +++ rc6-mm2/drivers/block/cciss.c	2006-06-14 
+> 16:18:39.000000000 -0600
+> @@ -677,7 +677,7 @@
+>  		pciinfo.board_id = host->board_id;
+>  		if (copy_to_user(argp, &pciinfo,  sizeof( 
+> cciss_pci_info_struct )))
+>  			return  -EFAULT;
+> -		return(0);
+> +		return 0;
+>  	}	
+>  	case CCISS_GETINTINFO:
+>  	{
+> @@ -687,7 +687,7 @@
+>  		intinfo.count = 
+> readl(&host->cfgtable->HostWrite.CoalIntCount);
+>  		if (copy_to_user(argp, &intinfo, sizeof( 
+> cciss_coalint_struct )))
+>  			return -EFAULT;
+> -                return(0);
+> +                return 0;
+>          }
+>  	case CCISS_SETINTINFO:
+>          {
+> @@ -703,7 +703,7 @@
 >  
-> -/* How long to wait (in millesconds) for board to go into 
-> simple mode */
-> +/* How long to wait (in milliseconds) for board to go into 
-> simple mode 
-> +*/
->  #define MAX_CONFIG_WAIT 30000
->  #define MAX_IOCTL_CONFIG_WAIT 1000
+>  		{
+>  //			printk("cciss_ioctl: delay and count 
+> cannot be 0\n");
+> -			return( -EINVAL);
+> +			return -EINVAL;
+>  		}
+>  		spin_lock_irqsave(CCISS_LOCK(ctlr), flags);
+>  		/* Update the field, and then ring the doorbell 
+> */ @@ -723,7 +723,7 @@
+>  		spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
+>  		if (i >= MAX_IOCTL_CONFIG_WAIT)
+>  			return -EAGAIN;
+> -                return(0);
+> +                return 0;
+>          }
+>  	case CCISS_GETNODENAME:
+>          {
+> @@ -735,7 +735,7 @@
+>  			NodeName[i] = 
+> readb(&host->cfgtable->ServerName[i]);
+>                  if (copy_to_user(argp, NodeName, sizeof( 
+> NodeName_type)))
+>                  	return  -EFAULT;
+> -                return(0);
+> +                return 0;
+>          }
+>  	case CCISS_SETNODENAME:
+>  	{
+> @@ -767,7 +767,7 @@
+>  		spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
+>  		if (i >= MAX_IOCTL_CONFIG_WAIT)
+>  			return -EAGAIN;
+> -                return(0);
+> +                return 0;
+>          }
 >  
-> @@ -1117,7 +1117,7 @@
->   *
->   * Right now I'm using the getgeometry() function to do 
-> this, but this
->   * function should probably be finer grained and allow you 
-> to revalidate one
-> - * particualar logical volume (instead of all of them on a particular
-> + * particular logical volume (instead of all of them on a particular
->   * controller).
->   */
->  static int revalidate_allvol(ctlr_info_t *host) @@ -1260,7 +1260,7 @@
->  		return;
+>  	case CCISS_GETHEARTBEAT:
+> @@ -778,7 +778,7 @@
+>                  heartbeat = readl(&host->cfgtable->HeartBeat);
+>                  if (copy_to_user(argp, &heartbeat, sizeof( 
+> Heartbeat_type)))
+>                  	return -EFAULT;
+> -                return(0);
+> +                return 0;
+>          }
+>  	case CCISS_GETBUSTYPES:
+>          {
+> @@ -788,7 +788,7 @@
+>                  BusTypes = readl(&host->cfgtable->BusTypes);
+>                  if (copy_to_user(argp, &BusTypes, sizeof( 
+> BusTypes_type) ))
+>                  	return  -EFAULT;
+> -                return(0);
+> +                return 0;
+>          }
+>  	case CCISS_GETFIRMVER:
+>          {
+> @@ -799,7 +799,7 @@
 >  
+>                  if (copy_to_user(argp, firmware, sizeof( 
+> FirmwareVer_type)))
+>                  	return -EFAULT;
+> -                return(0);
+> +                return 0;
+>          }
+>          case CCISS_GETDRIVVER:
+>          {
+> @@ -809,7 +809,7 @@
 >  
-> -	/* Get information about the disk and modify the driver 
-> sturcture */
-> +	/* Get information about the disk and modify the driver 
-> structure */
->  	size_buff = kmalloc(sizeof( ReadCapdata_struct), GFP_KERNEL);
->          if (size_buff == NULL)
->  		goto mem_msg;
-> @@ -1335,7 +1335,7 @@
+>                  if (copy_to_user(argp, &DriverVer, sizeof( 
+> DriverVer_type) ))
+>                  	return -EFAULT;
+> -                return(0);
+> +                return 0;
+>          }
+>  
+>  	case CCISS_REVALIDVOLS:
+> @@ -826,7 +826,7 @@
+>   		if (copy_to_user(argp, &luninfo,
+>   				sizeof(LogvolInfo_struct)))
+>   			return -EFAULT;
+> - 		return(0);
+> + 		return 0;
+>   	}
+>  	case CCISS_DEREGDISK:
+>  		return rebuild_lun_table(host, disk); @@ -934,7 
+> +934,7 @@
+>  		{
+>  			kfree(buff);
+>  			cmd_free(host, c, 0);
+> -			return( -EFAULT);	
+> +			return -EFAULT;	
+>  		} 	
+>  
+>  		if (iocommand.Request.Type.Direction == 
+> XFER_READ) @@ -949,7 +949,7 @@
+>                  }
+>                  kfree(buff);
+>  		cmd_free(host, c, 0);
+> -                return(0);
+> +                return 0;
+>  	} 
+>  	case CCISS_BIG_PASSTHRU: {
+>  		BIG_IOCTL_Command_struct *ioc;
+> @@ -1101,7 +1101,7 @@
+>  		}
+>  		kfree(buff_size);
+>  		kfree(ioc);
+> -		return(status);
+> +		return status;
+>  	}
+>  	default:
+>  		return -ENOTTY;
+> @@ -1546,7 +1546,7 @@
+>  
+>  	drv->LunID = 0;
+>  	}
+> -	return(0);
+> +	return 0;
 >  }
 >  
->  /* This function will add and remove logical drives from the Logical
-> - * drive array of the controller and maintain persistancy of ordering
-> + * drive array of the controller and maintain persistency of ordering
->   * so that mount points are preserved until the next reboot. 
->  This allows
->   * for the removal of logical drives in the middle of the drive array
->   * without a re-ordering of those drives.
-> @@ -1482,7 +1482,7 @@
->   * clear_all = This flag determines whether or not the disk 
-> information
->   *             is going to be completely cleared out and the 
-> highest_lun
->   *             reset.  Sometimes we want to clear out 
-> information about
-> - *             the disk in preperation for re-adding it.  In 
-> this case
-> + *             the disk in preparation for re-adding it.  In 
-> this case
->   *             the highest_lun should be left unchanged and the LunID
->   *             should not be cleared.
->  */
-> @@ -2597,7 +2597,7 @@
->  	return IRQ_HANDLED;
+>  static int fill_cmd(CommandList_struct *c, __u8 cmd, int 
+> ctlr, void *buff, @@ -1639,7 +1639,7 @@
+>  		default:
+>  			printk(KERN_WARNING
+>  				"cciss%d:  Unknown Command 
+> 0x%c\n", ctlr, cmd);
+> -			return(IO_ERROR);
+> +			return IO_ERROR;
+>  		}
+>  	} else if (cmd_type == TYPE_MSG) {
+>  		switch (cmd) {
+> @@ -1807,7 +1807,7 @@
+>  	pci_unmap_single( h->pdev, (dma_addr_t) buff_dma_handle.val,
+>  			c->SG[0].Len, PCI_DMA_BIDIRECTIONAL);
+>  	cmd_free(h, c, 0);
+> -        return(return_status);
+> +        return return_status;
+>  
+>  }
+>  static void cciss_geometry_inquiry(int ctlr, int logvol, @@ 
+> -1942,7 +1942,7 @@
+>  		if (done == FIFO_EMPTY)
+>  			schedule_timeout_uninterruptible(1);
+>  		else
+> -			return (done);
+> +			return done;
+>  	}
+>  	/* Invalid address to tell caller we ran out of time */
+>  	return 1;
+> @@ -2019,7 +2019,7 @@
+>  
+>  	if ((c = cmd_alloc(info_p, 1)) == NULL) {
+>  		printk(KERN_WARNING "cciss: unable to get memory");
+> -		return(IO_ERROR);
+> +		return IO_ERROR;
+>  	}
+>  	status = fill_cmd(c, cmd, ctlr, buff, size, use_unit_num,
+>  		log_unit, page_code, scsi3addr, cmd_type); @@ 
+> -2154,7 +2154,7 @@
+>  		do_cciss_intr(0, info_p, NULL);
+>  #endif
+>  	cmd_free(info_p, c, 1);
+> -	return (status);
+> +	return status;
 >  }
 >  /*
-> - *  We cannot read the structure directly, for portablity we 
-> must use 
-> + *  We cannot read the structure directly, for portability 
-> we must use
->   *   the io functions.
->   *   This is for debug only. 
->   */
-> @@ -2620,9 +2620,9 @@
->  				readl(&(tb->TransportActive)));
->  	printk("   Requested transport Method = 0x%x\n", 
->  			readl(&(tb->HostWrite.TransportRequest)));
-> -	printk("   Coalese Interrupt Delay = 0x%x\n", 
-> +	printk("   Coalesce Interrupt Delay = 0x%x\n", 
->  			readl(&(tb->HostWrite.CoalIntDelay)));
-> -	printk("   Coalese Interrupt Count = 0x%x\n", 
-> +	printk("   Coalesce Interrupt Count = 0x%x\n", 
->  			readl(&(tb->HostWrite.CoalIntCount)));
->  	printk("   Max outstanding commands = 0x%d\n", 
->  			readl(&(tb->CmdsOutMax)));
+>   * Map (physical) PCI mem into (virtual) kernel space @@ 
+> -3088,7 +3088,7 @@
+>  
+>  	i = alloc_cciss_hba();
+>  	if(i < 0)
+> -		return (-1);
+> +		return -1;
+>  
+>  	hba[i]->busy_initializing = 1;
+>  
+> @@ -3230,7 +3230,7 @@
+>  		add_disk(disk);
+>  	}
+>  
+> -	return(1);
+> +	return 1;
+>  
+>  clean4:
+>  #ifdef CONFIG_CISS_SCSI_TAPE
+> @@ -3252,7 +3252,7 @@
+>  clean1:
+>  	hba[i]->busy_initializing = 0;
+>  	free_hba(i);
+> -	return(-1);
+> +	return -1;
+>  }
+>  
+>  static void __devexit cciss_remove_one (struct pci_dev *pdev)
 > 

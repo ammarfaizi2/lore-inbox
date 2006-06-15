@@ -1,554 +1,868 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWFOJRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWFOJQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWFOJRa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 05:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWFOJQE
+	id S964989AbWFOJQy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 05:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWFOJQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 05:16:04 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:24222 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S932457AbWFOJPO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 05:15:14 -0400
-Date: Thu, 15 Jun 2006 02:07:45 -0700
+	Thu, 15 Jun 2006 05:16:11 -0400
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:1255 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932437AbWFOJPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 05:15:16 -0400
+Date: Thu, 15 Jun 2006 02:07:37 -0700
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200606150907.k5F97jR5008252@frankl.hpl.hp.com>
+Message-Id: <200606150907.k5F97bKv008168@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 15/16] 2.6.17-rc6 perfmon2 patch for review: new x86_64 files
+Subject: [PATCH 8/16] 2.6.17-rc6 perfmon2 patch for review: event set and multiplexing support
 Cc: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the new files for x86_64 (AMD and Intel EM64T).
+This patch contains the event set and multiplexing support.
 
 
 
 
---- linux-2.6.17-rc6.orig/arch/x86_64/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-rc6/arch/x86_64/perfmon/Kconfig	2006-06-13 06:58:44.000000000 -0700
-@@ -0,0 +1,39 @@
-+menu "Hardware Performance Monitoring support"
-+config PERFMON
-+ 	bool "Perfmon2 performance monitoring interface"
-+	select X86_LOCAL_APIC
-+	default y
-+ 	help
-+ 	  include the perfmon2 performance monitoring interface
-+	  in the kernel.  See <http://www.hpl.hp.com/research/linux/perfmon> for
-+	  more details.  If you're unsure, say Y.
-+
-+config X86_64_PERFMON_AMD
-+	tristate "Support AMD X86-64 generic hardware performance counters"
-+	depends on PERFMON
-+	default m
-+	help
-+	Enables support for the generic AMD X86-64 hardware performance
-+	counters. Does not work with Intel EM64T processors.
-+	If unsure, say m.
-+
-+config X86_64_PERFMON_EM64T
-+	tristate "Support Intel EM64T hardware performance counters"
-+	depends on PERFMON
-+	default m
-+	help
-+	Enables support for the Intel EM64T hardware performance
-+	counters. Does not work with AMD X86-64 processors.
-+	If unsure, say m.
-+
-+config X86_64_PERFMON_EM64T_PEBS
-+	tristate "Support for Intel EM64T PEBS sampling format"
-+	depends on X86_64_PERFMON_EM64T
-+	default m
-+	help
-+	Enables support for Precise Event-Based Sampling (PEBS) on the Intel
-+	EM64T processors which support it.  Does not work with AMD X86-64
-+	processors.
-+	If unsure, say m.
-+
-+endmenu
---- linux-2.6.17-rc6.orig/arch/x86_64/perfmon/Makefile	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-rc6/arch/x86_64/perfmon/Makefile	2006-06-08 01:49:22.000000000 -0700
-@@ -0,0 +1,11 @@
-+#
-+# Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+# Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+#
-+
-+obj-$(CONFIG_PERFMON)			+= perfmon.o
-+obj-$(CONFIG_X86_64_PERFMON_AMD)	+= perfmon_amd.o
-+obj-$(CONFIG_X86_64_PERFMON_EM64T)	+= ../../i386/perfmon/perfmon_p4.o
-+obj-$(CONFIG_X86_64_PERFMON_EM64T_PEBS)	+= perfmon_em64t_pebs_smpl.o
-+
-+perfmon-$(subst m,y,$(CONFIG_PERFMON)) += ../../i386/perfmon/perfmon.o
---- linux-2.6.17-rc6.orig/arch/x86_64/perfmon/perfmon_amd.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-rc6/arch/x86_64/perfmon/perfmon_amd.c	2006-06-08 02:35:42.000000000 -0700
-@@ -0,0 +1,127 @@
+--- linux-2.6.17-rc6.orig/perfmon/perfmon_sets.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17-rc6/perfmon/perfmon_sets.c	2006-06-13 05:56:21.000000000 -0700
+@@ -0,0 +1,840 @@
 +/*
-+ * This file contains the AMD generic X86-64 PMU register
-+ * description tables and pmc checker used by perfmon.c.
++ * perfmon_sets.c: perfmon2 event sets and multiplexing functions
 + *
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ * This file implements the perfmon2 interface which
++ * provides access to the hardware performance counters
++ * of the host processor.
++ *
++ * The initial version of perfmon.c was written by
++ * Ganesh Venkitachalam, IBM Corp.
++ *
++ * Then it was modified for perfmon-1.x by Stephane Eranian and
++ * David Mosberger, Hewlett Packard Co.
++ *
++ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
++ * by Stephane Eranian, Hewlett Packard Co.
++ *
++ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
 + * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ *                David Mosberger-Tang <davidm@hpl.hp.com>
++ *
++ * More information about perfmon available at:
++ * 	http://www.hpl.hp.com/research/linux/perfmon
 + */
 +#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/vmalloc.h>
 +#include <linux/perfmon.h>
++#include <linux/pagemap.h>
 +
-+MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
-+MODULE_DESCRIPTION("AMD X86-64 PMU description table");
-+MODULE_LICENSE("GPL");
-+
-+static struct pfm_arch_pmu_info pfm_x86_64_pmu_info={
-+	.pmc_addrs = {
-+		{{MSR_K7_EVNTSEL0, 0}, 0, PFM_REGT_PERFSEL},
-+		{{MSR_K7_EVNTSEL1, 0}, 1, PFM_REGT_PERFSEL},
-+		{{MSR_K7_EVNTSEL2, 0}, 2, PFM_REGT_PERFSEL},
-+		{{MSR_K7_EVNTSEL3, 0}, 3, PFM_REGT_PERFSEL},
-+	},
-+	.pmd_addrs = {
-+		{{MSR_K7_PERFCTR0, 0}, 0, PFM_REGT_CTR},
-+		{{MSR_K7_PERFCTR1, 0}, 0, PFM_REGT_CTR},
-+		{{MSR_K7_PERFCTR2, 0}, 0, PFM_REGT_CTR},
-+		{{MSR_K7_PERFCTR3, 0}, 0, PFM_REGT_CTR},
-+	},
-+	.pmu_style = PFM_X86_PMU_P6,
-+	.lps_per_core = 1
-+};
++static kmem_cache_t		*pfm_set_cachep;
++static kmem_cache_t		*pfm_lg_set_cachep;
 +
 +/*
-+ * reserved bits must be zero
-+ *
-+ * - upper 32 bits are reserved
-+ * - APIC enable bit is reserved (forced to 1)
-+ * - bit 21 is reserved
++ * reload reference overflow switch thresholds
 + */
-+#define PFM_X86_64_RSVD	~((0xffffffffULL<<32)	\
-+				| (PFM_ONE_64<<20)	\
-+				| (PFM_ONE_64<<21))
-+
-+/*
-+ * force Local APIC interrupt on overflow
-+ */
-+#define PFM_X86_64_VAL  (PFM_ONE_64<<20)
-+#define PFM_X86_64_NO64	    (PFM_ONE_64<<20)
-+
-+static struct pfm_reg_desc pfm_x86_64_pmc_desc[]={
-+/* pmc0  */ PMC_D(PFM_REG_I64, "PERFSEL0", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64),
-+/* pmc1  */ PMC_D(PFM_REG_I64, "PERFSEL1", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64),
-+/* pmc2  */ PMC_D(PFM_REG_I64, "PERFSEL2", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64),
-+/* pmc3  */ PMC_D(PFM_REG_I64, "PERFSEL3", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64),
-+};
-+#define PFM_AMD_NUM_PMCS ARRAY_SIZE(pfm_x86_64_pmc_desc)
-+
-+static struct pfm_reg_desc pfm_x86_64_pmd_desc[]={
-+/* pmd0  */ PMD_D(PFM_REG_C, "PERFCTR0"),
-+/* pmd1  */ PMD_D(PFM_REG_C, "PERFCTR1"),
-+/* pmd2  */ PMD_D(PFM_REG_C, "PERFCTR2"),
-+/* pmd3  */ PMD_D(PFM_REG_C, "PERFCTR3")
-+};
-+#define PFM_AMD_NUM_PMDS ARRAY_SIZE(pfm_x86_64_pmd_desc)
-+
-+static int pfm_x86_64_probe_pmu(void)
++static void pfm_reload_switch_thresholds(struct pfm_event_set *set)
 +{
-+	PFM_INFO("family=%d x86_model=%d",
-+		 cpu_data->x86, cpu_data->x86_model);
++	u64 *mask;
++	u16 i, max_cnt_pmd, first_cnt_pmd;
 +
-+	if (cpu_data->x86 != 15) {
-+		PFM_INFO("unsupported family=%d", cpu_data->x86);
-+		return -1;
-+	}
++	mask = set->used_pmds;
++	first_cnt_pmd = pfm_pmu_conf->first_cnt_pmd;
++	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
 +
-+	if (cpu_data->x86_vendor != X86_VENDOR_AMD) {
-+		PFM_INFO("not an AMD processor");
-+		return -1;
-+	}
-+
-+	/*
-+	 * check for local APIC (required)
-+	 */
-+	if (!cpu_has_apic) {
-+		PFM_INFO("no local APIC, unsupported");
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+static struct pfm_pmu_config pfm_x86_64_pmu_conf={
-+	.pmu_name = "AMD X86-64",
-+	.counter_width = 47,
-+	.pmd_desc = pfm_x86_64_pmd_desc,
-+	.pmc_desc = pfm_x86_64_pmc_desc,
-+	.num_pmc_entries = PFM_AMD_NUM_PMCS,
-+	.num_pmd_entries = PFM_AMD_NUM_PMDS,
-+	.probe_pmu = pfm_x86_64_probe_pmu,
-+	.version = "1.0",
-+	.arch_info = &pfm_x86_64_pmu_info,
-+	.flags = PFM_PMU_BUILTIN_FLAG,
-+	.owner = THIS_MODULE
-+};
-+	
-+static int __init pfm_x86_64_pmu_init_module(void)
-+{
-+	unsigned int i;
-+
-+	/*
-+	 * XXX: could be hardcoded for this PMU model
-+	 */
-+	bitmap_zero(ulp(pfm_x86_64_pmu_info.enable_mask), PFM_MAX_HW_PMCS);
-+	for(i=0; i < PFM_MAX_HW_PMCS; i++) {
-+		if (pfm_x86_64_pmu_info.pmc_addrs[i].reg_type &
-+		    PFM_REGT_PERFSEL) {
-+			pfm_bv_set(pfm_x86_64_pmu_info.enable_mask, i);
++	for (i = first_cnt_pmd; i< max_cnt_pmd; i++) {
++		if (pfm_bv_isset(mask, i)) {
++			set->pmds[i].ovflsw_thres = set->pmds[i].ovflsw_ref_thres;
++			PFM_DBG("pmd%u set=%u ovflsw_thres=%llu",
++				i,
++				set->id,
++				(unsigned long long)set->pmds[i].ovflsw_thres);
 +		}
 +	}
-+	return pfm_register_pmu_config(&pfm_x86_64_pmu_conf);
 +}
 +
-+static void __exit pfm_x86_64_pmu_cleanup_module(void)
-+{
-+	pfm_unregister_pmu_config(&pfm_x86_64_pmu_conf);
-+}
 +
-+module_init(pfm_x86_64_pmu_init_module);
-+module_exit(pfm_x86_64_pmu_cleanup_module);
---- linux-2.6.17-rc6.orig/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-rc6/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c	2006-06-08 02:24:56.000000000 -0700
-@@ -0,0 +1,218 @@
 +/*
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *
-+ * This file implements the PEBS sampling format for Intel
-+ * EM64T Intel Pentium 4/Xeon processors. It does not work
-+ * with Intel 32-bit P4/Xeon processors.
++ * ensures that all id_next sets exists such that the round-robin
++ * will work correctly, i.e., next dangling references.
 + */
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/module.h>
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <linux/sysctl.h>
-+#include <asm/msr.h>
-+
-+#include <linux/perfmon.h>
-+#include <asm/perfmon_em64t_pebs_smpl.h>
-+
-+#ifndef __x86_64__
-+#error "this module is for the Intel EM64T processors"
-+#endif
-+
-+MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
-+MODULE_DESCRIPTION("Intel 64-bit P4/Xeon PEBS sampling");
-+MODULE_LICENSE("GPL");
-+
-+static int pfm_pebs_fmt_validate(u32 flags, u16 npmds, void *data)
++int pfm_prepare_sets(struct pfm_context *ctx, struct pfm_event_set *act_set)
 +{
-+	struct pfm_arch_pmu_info *arch_info = pfm_pmu_conf->arch_info;
-+	struct pfm_em64t_pebs_smpl_arg *arg = data;
-+	size_t min_buf_size;
++	struct pfm_event_set *set1, *set2;
++	u16 max_cnt_pmd;
++#define is_last_set(s, c)	((s)->list.next == &(c)->list)
++
++	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
++
++	list_for_each_entry(set1, &ctx->list, list) {
++
++		if (is_last_set(set1, ctx))
++			set2 = list_entry(ctx->list.next,
++					  struct pfm_event_set, list);
++		else
++			set2 = list_entry(set1->list.next,
++					  struct pfm_event_set, list);
++		/*
++		 * switch_next is used during actual switching
++		 * so we prepare its value here. When no explicit next
++		 * is requested, the field is initialized with the address
++		 * of the next element in the ordered list
++		 */
++		if (set1->flags & PFM_SETFL_EXPL_NEXT) {
++			list_for_each_entry(set2, &ctx->list, list) {
++				if (set2->id == set1->id_next)
++					break;
++			}
++			if (set2 == NULL) {
++				PFM_DBG("set%u points to set%u "
++					"which does not exist",
++					set1->id,
++					set1->id_next);
++				return -EINVAL;
++			}
++		}
++		/*
++		 * update field used during actual switching
++		 */
++		set1->sw_next = set2;
++
++		PFM_DBG("set%u sw_next=%u", set1->id, set2->id);
++
++		/*
++		 * cleanup bitvectors
++		 */
++		bitmap_zero(ulp(set1->ovfl_pmds), max_cnt_pmd);
++		bitmap_zero(ulp(set1->povfl_pmds), max_cnt_pmd);
++		set1->npend_ovfls = 0;
++		/*
++		 * we cannot just use plain clear because of arch-specific flags
++		 */
++		set1->priv_flags &= ~(PFM_SETFL_PRIV_MOD_BOTH|PFM_SETFL_PRIV_SWITCH);
++
++		/*
++		 * reset activation and elapsed cycles
++		 */
++		set1->duration = 0;
++
++		pfm_modview_begin(set1);
++
++		set1->view->set_runs = 0;
++
++		pfm_modview_end(set1);
++	}
++	/*
++	 * setting PFM_CPUINFO_TIME_SWITCH, triggers
++	 * further checking if __pfm_handle_switch_timeout().
++	 * switch timeout is effectively decremented only when
++	 * monitoring has been activated via pfm_start() or
++	 * any user level equivalent.
++	 */
++	if (act_set->flags & PFM_SETFL_OVFL_SWITCH) {
++		pfm_reload_switch_thresholds(act_set);
++	} else if (act_set->flags & PFM_SETFL_TIME_SWITCH) {
++		act_set->timeout = act_set->switch_timeout;
++		PFM_DBG("arming timeout for set%u", act_set->id);
++		if (ctx->flags.system)
++			__get_cpu_var(pfm_syst_info) = PFM_CPUINFO_TIME_SWITCH;
++	}
++
++	return 0;
++}
++
++/*
++ * called from *_timer_interrupt(). task == current
++ */
++void __pfm_handle_switch_timeout(void)
++{
++	struct pfm_event_set *set;
++	struct pfm_context *ctx;
++	unsigned long flags;
 +
 +	/*
-+	 * host CPU does not have PEBS support
++	 * The timer tick check is operating on each
++	 * CPU. Not all CPUs have time switching enabled
++	 * hence we need to check.
 +	 */
-+	if ((arch_info->flags & PFM_X86_PMU_PEBS) == 0) {
-+		PFM_DBG("host PMU does not support PEBS sampling");
++	ctx  = __get_cpu_var(pmu_ctx);
++	if (ctx == NULL)
++		return;
++
++	spin_lock_irqsave(&ctx->lock, flags);
++
++	set = ctx->active_set;
++	BUG_ON(set == NULL);
++
++	/*
++	 * we decrement only when attached and not masked or zombie
++	 */
++	if (ctx->state != PFM_CTX_LOADED)
++		goto done;
++
++	/*
++	 * do not decrement timeout unless monitoring is active.
++	 */
++	if (ctx->flags.started == 0 && pfm_arch_is_active(ctx) == 0)
++		goto done;
++
++	set->timeout--;
++
++	__get_cpu_var(pfm_stats).pfm_handle_timeout_count++;
++
++	if (set->timeout == 0)
++		pfm_switch_sets(ctx, NULL, PFM_PMD_RESET_SHORT, 0);
++done:
++	spin_unlock_irqrestore(&ctx->lock, flags);
++}
++
++/*
++ *
++ * always operating on the current task
++ *
++ * input:
++ * 	- new_set: new set to switch to, if NULL follow normal chain
++ */
++void pfm_switch_sets(struct pfm_context *ctx,
++		    struct pfm_event_set *new_set,
++		    int reset_mode,
++		    int no_restart)
++{
++	struct pfm_event_set *set;
++	u64 switch_count;
++	u64 now_itc, end_itc;
++	unsigned long info = 0;
++	u32 new_flags;
++	int is_system, state, is_active;
++
++	now_itc = pfm_arch_get_itc();
++	set = ctx->active_set;
++	is_active = ctx->flags.started || pfm_arch_is_active(ctx);
++
++	BUG_ON(ctx->flags.system == 0 && ctx->task != current);
++
++	/*
++	 * if no set is explicitely requested,
++	 * use the set_switch_next field
++	 */
++	if (new_set == NULL) {
++		/*
++	 	 * we use round-robin unless the user specified
++		 * a particular set to go to.
++	 	 */
++		new_set = set->sw_next;
++		BUG_ON(new_set == NULL);
++	}
++
++	PFM_DBG("state=%d prev_set=%u prev_runs=%llu new_set=%u "
++		  "new_runs=%llu reset_mode=%d",
++		  ctx->state,
++		  set->id,
++		  (unsigned long long)set->view->set_runs,
++		  new_set->id,
++		  (unsigned long long)new_set->view->set_runs,
++		  reset_mode);
++
++	/*
++	 * nothing more to do
++	 */
++	if (new_set == set)
++		return;
++
++	is_system = ctx->flags.system;
++	state = ctx->state;
++	new_flags = new_set->flags;
++	switch_count = __get_cpu_var(pfm_stats).pfm_set_switch_count;
++
++	pfm_modview_begin(set);
++
++	new_set->view->set_runs++;
++
++	if (is_active) {
++		/*
++		 * stop current set
++		 */
++		if (is_system)
++			info = __get_cpu_var(pfm_syst_info);
++
++		pfm_arch_stop(current, ctx, set);
++
++		pfm_arch_save_pmds(ctx, set);
++
++		/*
++	 	 * compute elapsed cycles for active set
++	 	 */
++		set->duration += now_itc - set->duration_start;
++		set->view->set_status &= ~PFM_SETVFL_ACTIVE;
++
++	}
++	pfm_modview_end(set);
++
++	switch_count++;
++
++	pfm_arch_restore_pmds(ctx, new_set);
++
++	/*
++	 * if masked, we must restore the pmcs such that they
++	 * do not capture anything.
++	 */
++	pfm_arch_restore_pmcs(ctx, new_set);
++
++	new_set->priv_flags &= ~PFM_SETFL_PRIV_MOD_BOTH;
++
++	/*
++	 * reload switch threshold
++	 */
++	if (new_flags & PFM_SETFL_OVFL_SWITCH)
++		pfm_reload_switch_thresholds(new_set);
++
++	/*
++	 * reset timeout for new set
++	 */
++	if (new_flags & PFM_SETFL_TIME_SWITCH)
++		new_set->timeout = new_set->switch_timeout;
++
++	/*
++	 * reset overflowed PMD registers
++	 */
++	if (reset_mode != PFM_PMD_RESET_NONE)
++		pfm_reset_pmds(ctx, new_set, reset_mode);
++
++	/*
++	 * this is needed when coming from pfm_start()
++	 */
++	if (no_restart)
++		goto skip_restart;
++
++	/*
++	 * reactivate monitoring
++	 */
++	if (is_system) {
++		info  &= ~PFM_CPUINFO_TIME_SWITCH;
++
++		if (new_flags & PFM_SETFL_TIME_SWITCH)
++			info |= PFM_CPUINFO_TIME_SWITCH;
++
++		__get_cpu_var(pfm_syst_info) = info;
++
++		PFM_DBG("new_set=%u info=0x%lx flags=0x%x",
++			new_set->id,
++			info,
++			new_flags);
++
++		if (is_active && (current->pid != 0 || (new_flags & PFM_SETFL_EXCL_IDLE) == 0))
++			pfm_arch_start(current, ctx, new_set);
++	} else {
++		if (is_active)
++			pfm_arch_start(current, ctx, new_set);
++	}
++
++	if (is_active)
++		new_set->duration_start = now_itc;
++
++skip_restart:
++	end_itc = pfm_arch_get_itc();
++	ctx->active_set = new_set;
++	new_set->view->set_status |= PFM_SETVFL_ACTIVE;
++
++	__get_cpu_var(pfm_stats).pfm_set_switch_count   = switch_count;
++	__get_cpu_var(pfm_stats).pfm_set_switch_cycles += end_itc - now_itc;
++}
++
++static int pfm_setfl_sane(struct pfm_context *ctx, u32 flags)
++{
++#define PFM_SETFL_BOTH_SWITCH	(PFM_SETFL_OVFL_SWITCH|PFM_SETFL_TIME_SWITCH)
++	int ret;
++
++	ret = pfm_arch_setfl_sane(ctx, flags);
++	if (ret)
++		return ret;
++
++	if ((flags & PFM_SETFL_BOTH_SWITCH) == PFM_SETFL_BOTH_SWITCH) {
++		PFM_DBG("both switch ovfl and switch time are set");
++		return -EINVAL;
++	}
++
++	if ((flags & PFM_SETFL_EXCL_IDLE) != 0 && ctx->flags.system == 0) {
++		PFM_DBG("excl idle is for system wide only");
++		return -EINVAL;
++	}
++	return 0;
++}
++
++/*
++ * it is never possible to change the identification of an existing set
++ */
++static int __pfm_change_evtset(struct pfm_context *ctx,
++				  struct pfm_event_set *set,
++				  struct pfarg_setdesc *req)
++{
++	u32 flags;
++	u16 set_id, set_id_next;
++	unsigned long ji;
++	int ret;
++
++	BUG_ON(ctx->state == PFM_CTX_LOADED);
++
++	set_id = req->set_id;
++	set_id_next = req->set_id_next;
++	flags = req->set_flags;
++
++	ret = pfm_setfl_sane(ctx, flags);
++	if (ret) {
++		PFM_DBG("invalid flags 0x%x set %u", flags, set_id);
 +		return -EINVAL;
 +	}
 +
 +	/*
-+	 * need to define at least the size of the buffer
++	 * commit changes
++	 *
++	 * note that we defer checking the validity of set_id_next until the
++	 * context is actually attached. This is the only moment where we can
++	 * safely assess the sanity of the sets because sets cannot be changed
++	 * or deleted once the context is attached
 +	 */
-+	if (data == NULL) {
-+		PFM_DBG("no argument passed");
++	set->id = set_id;
++	set->id_next = set_id_next;
++	set->flags = flags;
++	set->priv_flags = 0;
++	set->sw_next = NULL;
++
++	/*
++	 * XXX: what about set_priv_flags
++	 */
++
++	/*
++	 * reset pointer to next set
++	 */
++	set->sw_next = NULL;
++
++	ji = usecs_to_jiffies(req->set_timeout);
++
++	/*
++	 * verify that timeout is not 0
++	 */
++	if (ji == 0 && (flags & PFM_SETFL_TIME_SWITCH) != 0) {
++		PFM_DBG("invalid timeout=0");
 +		return -EINVAL;
 +	}
 +
-+	/*
-+	 * compute min buf size. npmds is the maximum number
-+	 * of implemented PMD registers.
-+	 */
-+	min_buf_size = sizeof(struct pfm_em64t_pebs_smpl_hdr) + sizeof(struct pfm_em64t_pebs_smpl_entry);
-+
-+	PFM_DBG("validate flags=0x%x min_buf_size=%zu buf_size=%zu",
-+		  flags,
-+		  min_buf_size,
-+		  arg->buf_size);
++	set->switch_timeout = set->timeout = ji;
 +
 +	/*
-+	 * must hold at least the buffer header + one minimally sized entry
++	 * return actual timeout in usecs
 +	 */
-+	if (arg->buf_size < min_buf_size)
++	req->set_timeout = jiffies_to_usecs(ji);
++
++	PFM_DBG("set %u flags=0x%x id_next=%u req_usec=%u"
++		"jiffies=%lu runs=%llu HZ=%u TICK_NSEC=%lu eff_usec=%u",
++		set_id,
++		flags,
++		set_id_next,
++		req->set_timeout,
++		ji,
++		(unsigned long long)set->view->set_runs,
++		HZ, TICK_NSEC,
++		req->set_timeout);
++
++	return 0;
++}
++
++/*
++ * this function does not modify the next field
++ */
++void pfm_init_evtset(struct pfm_event_set *set)
++{
++	u64 *impl_pmcs;
++	u16 i, max_pmc;
++
++	max_pmc = pfm_pmu_conf->max_pmc;
++	impl_pmcs =  pfm_pmu_conf->impl_pmcs;
++
++	/*
++	 * install default values for all PMC  registers
++	 */
++	for (i=0; i < max_pmc;  i++) {
++		if (pfm_bv_isset(impl_pmcs, i)) {
++			set->pmcs[i] = pfm_pmu_conf->pmc_desc[i].dfl_val;
++			PFM_DBG("set%u pmc%u=0x%llx",
++				set->id,
++				i,
++				(unsigned long long)set->pmcs[i]);
++		}
++	}
++
++	/*
++	 * PMD registers are set to 0 when the event set is allocated,
++	 * hence we do not need to explicitely initialize them.
++	 *
++	 * For virtual PMD registers (i.e., those tied to a SW resource)
++	 * their value becomes meaningful once the context is attached.
++	 */
++}
++
++struct pfm_event_set *pfm_find_set(struct pfm_context *ctx, u16 set_id,
++					  int alloc)
++{
++	kmem_cache_t *cachep;
++	struct pfm_event_set *set, *new_set, *prev;
++	unsigned long offs;
++	size_t view_size;
++	void *view;
++
++	PFM_DBG("looking for set=%u", set_id);
++
++	/*
++	 * shortcut for set 0: always exist, cannot be removed
++	 */
++	if (set_id == 0 && alloc == 0)
++		return list_entry(ctx->list.next, struct pfm_event_set, list);
++
++	prev = NULL;
++	list_for_each_entry(set, &ctx->list, list) {
++		if (set->id == set_id)
++			return set;
++		if (set->id > set_id)
++			break;
++		prev = set;
++	}
++
++	if (alloc == 0)
++		return NULL;
++
++	cachep = ctx->flags.mapset ? pfm_set_cachep : pfm_lg_set_cachep;
++
++	new_set = kmem_cache_alloc(cachep, SLAB_ATOMIC);
++	if (new_set) {
++		memset(new_set, 0, sizeof(*set));
++
++		if (ctx->flags.mapset) {
++			view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
++			view      = vmalloc(view_size);
++			if (view == NULL) {
++				PFM_DBG("cannot allocate set view");
++				kmem_cache_free(cachep, new_set);
++				return NULL;
++			}
++			offs = PFM_SET_REMAP_BASE
++			     + (set_id*PFM_SET_REMAP_SCALAR);
++		} else {
++			view_size = sizeof(struct pfm_set_view);
++			view = (struct pfm_set_view *)(new_set+1);
++			offs = 0;
++		}
++		
++		memset(view, 0, sizeof(struct pfm_set_view));
++
++		new_set->id = set_id;
++		new_set->view = view;
++		new_set->mmap_offset = offs;
++
++		INIT_LIST_HEAD(&new_set->list);
++
++		if (prev == NULL) {
++			list_add(&(new_set->list), &ctx->list);
++		} else {
++			PFM_DBG("add after set=%u", prev->id);
++			list_add(&(new_set->list), &prev->list);
++		}
++		PFM_DBG("set_id=%u size=%zu view=%p remap=%d mmap_offs=%lu",
++			set_id,
++			view_size,
++			view,
++			ctx->flags.mapset,
++			new_set->mmap_offset);
++	}
++	return new_set;
++}
++
++
++/*
++ * context is unloaded for this command. Interrupts are enabled
++ */
++int __pfm_create_evtsets(struct pfm_context *ctx, struct pfarg_setdesc *req,
++			int count)
++{
++	struct pfm_event_set *set;
++	u16 set_id;
++	int i, ret;
++
++	for (i = 0; i < count; i++, req++) {
++		set_id = req->set_id;
++
++		PFM_DBG("set_id=%u", set_id);
++
++		set = pfm_find_set(ctx, set_id, 1);
++		if (set == NULL)
++			goto error_mem;
++
++		ret = __pfm_change_evtset(ctx, set, req);
++		if (ret)
++			goto error_params;
++
++		pfm_init_evtset(set);
++	}
++	return 0;
++error_mem:
++	PFM_DBG("cannot allocate set %u", set_id);
++	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
++	return -ENOMEM;
++error_params:
++	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
++	return ret;
++}
++
++int __pfm_getinfo_evtsets(struct pfm_context *ctx, struct pfarg_setinfo *req,
++				 int count)
++{
++	struct pfm_event_set *set;
++	int i, is_system, is_loaded;
++	u16 set_id;
++	int max_cnt_pmd;
++	u64 end_cycles;
++
++	end_cycles = pfm_arch_get_itc();
++	is_system = ctx->flags.system;
++	is_loaded = ctx->state == PFM_CTX_LOADED;
++	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
++
++	for (i = 0; i < count; i++, req++) {
++
++		set_id = req->set_id;
++
++		PFM_DBG("set_id=%u", set_id);
++
++		list_for_each_entry(set, &ctx->list, list) {
++			if (set->id == set_id)
++				goto found;
++			if (set->id > set_id)
++				goto error;
++		}
++found:
++		/*
++		 * compute leftover timeout
++		 */
++
++		req->set_flags = set->flags;
++		req->set_timeout = jiffies_to_usecs(set->timeout);
++		req->set_runs = set->view->set_runs;
++		req->set_act_duration = set->duration;
++		req->set_mmap_offset = set->mmap_offset;
++
++		/*
++		 * adjust for active set if needed
++		 */
++		if (is_system && is_loaded && ctx->flags.started
++		    && set == ctx->active_set)
++			req->set_act_duration  += end_cycles
++						- set->duration_start;
++
++		/*
++		 * copy the list of pmds which last overflowed for
++		 * the set
++		 */
++		bitmap_copy(ulp(req->set_ovfl_pmds),
++			    ulp(set->ovfl_pmds),
++			    max_cnt_pmd);
++
++		/*
++		 * copy bitmask of available PMU registers
++		 */
++		bitmap_copy(ulp(req->set_avail_pmcs),
++			    ulp(pfm_pmu_conf->impl_pmcs),
++			    pfm_pmu_conf->max_pmc);
++
++		bitmap_copy(ulp(req->set_avail_pmds),
++			    ulp(pfm_pmu_conf->impl_pmds),
++			    pfm_pmu_conf->max_pmd);
++
++		pfm_retflag_set(req->set_flags, 0);
++
++		PFM_DBG("set %u flags=0x%x eff_usec=%u runs=%llu",
++			set_id,
++			set->flags,
++			req->set_timeout,
++			(unsigned long long)set->view->set_runs);
++	}
++	return 0;
++error:
++	PFM_DBG("set %u not found", set_id);
++	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
++	return -EINVAL;
++}
++
++/*
++ * context is unloaded for this command. Interrupts are enabled
++ */
++int __pfm_delete_evtsets(struct pfm_context *ctx, void *arg, int count)
++{
++	struct pfarg_setdesc *req = arg;
++	struct pfm_event_set *set;
++	kmem_cache_t *cachep;
++	u16 set_id;
++	size_t view_size;
++	int i;
++
++	/* delete operation only works when context is detached */
++	BUG_ON(ctx->state != PFM_CTX_UNLOADED);
++
++	view_size = PAGE_ALIGN(sizeof(struct pfm_set_view));
++
++	if (ctx->flags.mapset)
++		cachep = pfm_set_cachep;
++	else
++		cachep = pfm_lg_set_cachep;
++
++	for (i = 0; i < count; i++, req++) {
++		set_id = req->set_id;
++
++		/*
++		 * cannot remove set 0
++		 */
++		if (set_id == 0)
++			goto error;
++
++		list_for_each_entry(set, &ctx->list, list) {
++			if (set->id == set_id)
++				goto found;
++			if (set->id > set_id)
++				goto error;
++		}
++		goto error;
++found:
++		/*
++		 * clear active set if necessary.
++		 * will be updated when context is loaded
++		 */
++		if (set == ctx->active_set)
++			ctx->active_set = NULL;
++
++		list_del(&set->list);
++
++		vfree(set->view);
++		kmem_cache_free(cachep, set);
++
++		pfm_retflag_set(req->set_flags, 0);
++
++		PFM_DBG("deleted set_id=%u", set_id);
++	}
++	return 0;
++error:
++	PFM_DBG("set_id=%u not found or invalid", set_id);
++	pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
++	return -EINVAL;
++}
++
++/*
++ * called from pfm_context_free() to free all sets
++ */
++void pfm_free_sets(struct pfm_context *ctx)
++{
++	struct pfm_event_set *set, *tmp;
++	kmem_cache_t *cachep;
++	int use_remap;
++
++	use_remap = ctx->flags.mapset;
++
++	if (use_remap)
++		cachep = pfm_set_cachep;
++	else
++		cachep = pfm_lg_set_cachep;
++
++	list_for_each_entry_safe(set, tmp, &ctx->list, list) {
++		list_del(&set->list);
++		if (use_remap)
++			vfree(set->view);
++		kmem_cache_free(cachep, set);
++	}
++}
++
++int pfm_sets_init(void)
++{
++
++	pfm_lg_set_cachep = kmem_cache_create("pfm_large_event_set",
++			sizeof(struct pfm_event_set)+sizeof(struct pfm_set_view),
++			SLAB_HWCACHE_ALIGN, 0, NULL, NULL);
++	if (pfm_lg_set_cachep == NULL) {
++		PFM_ERR("cannot initialize large event set slab");
++		return -ENOMEM;
++	}
++
++	pfm_set_cachep = kmem_cache_create("pfm_event_set",
++			sizeof(struct pfm_event_set),
++			SLAB_HWCACHE_ALIGN, 0, NULL, NULL);
++	if (pfm_set_cachep == NULL) {
++		PFM_ERR("cannot initialize event set slab");
++		return -ENOMEM;
++	}
++	return 0;
++}
++
++static struct page *pfm_view_map_pagefault(struct vm_area_struct *vma,
++					   unsigned long address, int *type)
++{
++	void *kaddr;
++	struct page *page;
++
++	kaddr = vma->vm_private_data;
++	if (kaddr == NULL) {
++		PFM_DBG("no view");
++		return NOPAGE_SIGBUS;
++	}
++
++	if ( (address < (unsigned long) vma->vm_start) ||
++	     (address > (unsigned long) (vma->vm_start + PAGE_SIZE)) )
++		return NOPAGE_SIGBUS;
++
++	kaddr += (address - vma->vm_start);
++
++	if (type)
++		*type = VM_FAULT_MINOR;
++
++	page = vmalloc_to_page(kaddr);
++	get_page(page);
++
++	PFM_DBG("[%d] start=%p ref_count=%d",
++		  current->pid,
++		  kaddr, page_count(page));
++
++	return page;
++}
++struct vm_operations_struct pfm_view_map_vm_ops = {
++	.nopage	= pfm_view_map_pagefault,
++};
++
++int pfm_mmap_set(struct pfm_context *ctx, struct vm_area_struct *vma,
++		 size_t size)
++{
++	struct pfm_event_set *set;
++	u16 set_id;
++
++	if (ctx->flags.mapset == 0) {
++		PFM_DBG("context does not use set remapping");
 +		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int pfm_pebs_fmt_get_size(unsigned int flags, void *data, size_t *size)
-+{
-+	struct pfm_em64t_pebs_smpl_arg *arg = data;
-+
-+	/*
-+	 * size has been validated in pebs_fmt_validate()
-+	 */
-+	*size = arg->buf_size + 256;
-+
-+	return 0;
-+}
-+
-+static int pfm_pebs_fmt_init(struct pfm_context *ctx, void *buf,
-+			     u32 flags, u16 npmds, void *data)
-+{
-+	struct pfm_arch_context *ctx_arch;
-+	struct pfm_em64t_pebs_smpl_hdr *hdr;
-+	struct pfm_em64t_pebs_smpl_arg *arg = data;
-+	unsigned long base;
-+	struct pfm_em64t_ds_area *ds;
-+
-+	ctx_arch = pfm_ctx_arch(ctx);
-+
-+	hdr = buf;
-+	ds = &hdr->hdr_ds;
-+
-+	hdr->hdr_version = PFM_EM64T_PEBS_SMPL_VERSION;
-+	hdr->hdr_buf_size = arg->buf_size;
-+	hdr->hdr_overflows = 0;
-+
-+	/*
-+	 * align base
-+	 */
-+	base = ((unsigned long)(hdr+1) + 256) & ~0xffUL;
-+	hdr->hdr_start_offs = base - (unsigned long)(hdr+1);
-+	ds->pebs_buf_base = base;
-+	ds->pebs_abs_max = base + arg->buf_size + 1;
-+	ds->pebs_intr_thres = base + arg->intr_thres*sizeof(struct pfm_em64t_pebs_smpl_entry);
-+	ds->pebs_index = base;
-+
-+	/*
-+	 * save counter reset value for IQ_CCCR4 (thread0) or IQ_CCCR5 (thread1)
-+	 */
-+	ds->pebs_cnt_reset = arg->cnt_reset;
-+
-+	/*
-+	 * Keep track of DS Area
-+	 */
-+	ctx_arch->ds_area = ds;
-+
-+	PFM_DBG("buffer=%p buf_size=%zu  ctx_flags=0x%x"
-+		  "pebs_base=0x%llx pebs_max=0x%llx "
-+		  "pebs_thres=0x%llx cnt_reset=0x%llx",
-+		  buf,
-+		  hdr->hdr_buf_size,
-+		  ctx_arch->flags,
-+		  ds->pebs_buf_base,
-+		  ds->pebs_abs_max,
-+		  ds->pebs_intr_thres,
-+		  ds->pebs_cnt_reset);
-+ 
-+	return 0;
-+}
-+
-+static int pfm_pebs_fmt_handler(void *buf, struct pfm_ovfl_arg *arg,
-+			       unsigned long ip, u64 tstamp, void *data)
-+{
-+	struct pfm_em64t_pebs_smpl_hdr *hdr;
-+
-+	hdr = buf;
-+
-+	PFM_DBG_ovfl("buffer full");
-+	/*
-+	 * increment number of buffer overflows.
-+	 * important to detect duplicate set of samples.
-+	 */
-+	hdr->hdr_overflows++;
-+
-+	/*
-+	 * request notification and masking of monitoring.
-+	 * Notification is still subject to the overflowed
-+	 * register having the FL_NOTIFY flag set.
-+	 */
-+	arg->ovfl_ctrl = PFM_OVFL_CTRL_NOTIFY| PFM_OVFL_CTRL_MASK;
-+
-+	return -ENOBUFS; /* we are full, sorry */
-+}
-+
-+static int pfm_pebs_fmt_restart(int is_active, pfm_flags_t  *ovfl_ctrl, void *buf)
-+{
-+	struct pfm_em64t_pebs_smpl_hdr *hdr = buf;
-+
-+	/*
-+	 * reset index to base of buffer
-+	 */
-+	hdr->hdr_ds.pebs_index = hdr->hdr_ds.pebs_buf_base;
-+
-+	*ovfl_ctrl = PFM_OVFL_CTRL_RESET;
-+
-+	return 0;
-+}
-+
-+static int pfm_pebs_fmt_exit(void *buf)
-+{
-+	return 0;
-+}
-+
-+static struct pfm_smpl_fmt pebs_fmt={
-+	.fmt_name = "Xeon-PEBS-em64t",
-+	.fmt_uuid = PFM_EM64T_PEBS_SMPL_UUID,
-+	.fmt_arg_size = sizeof(struct pfm_em64t_pebs_smpl_arg),
-+	.fmt_validate = pfm_pebs_fmt_validate,
-+	.fmt_getsize = pfm_pebs_fmt_get_size,
-+	.fmt_init = pfm_pebs_fmt_init,
-+	.fmt_handler = pfm_pebs_fmt_handler,
-+	.fmt_restart = pfm_pebs_fmt_restart,
-+	.fmt_exit = pfm_pebs_fmt_exit,
-+	.fmt_flags = PFM_FMT_BUILTIN_FLAG,
-+	.owner = THIS_MODULE
-+};
-+
-+#define MSR_IA32_MISC_ENABLE_PEBS_UNAVAIL (1<<12) /* PEBS unavailable */
-+#define cpu_has_dts boot_cpu_has(X86_FEATURE_DTES)
-+
-+static int __init pfm_pebs_fmt_init_module(void)
-+{
-+	int low, high;
-+
-+	if (!cpu_has_dts) {
-+		PFM_INFO("processor does not have Data Save Area (DS)");
-+		return -1;
 +	}
-+	rdmsr(MSR_IA32_MISC_ENABLE, low, high);
 +
-+	if (low & MSR_IA32_MISC_ENABLE_PEBS_UNAVAIL) {
-+		PFM_INFO("processor does not support PEBS");
-+		return -1;
++	if (vma->vm_pgoff < PFM_SET_REMAP_OFFS
++			|| vma->vm_pgoff >= PFM_SET_REMAP_OFFS_MAX) {
++		PFM_DBG("invalid offset %lu", vma->vm_pgoff);
++		return -EINVAL;
 +	}
-+	return pfm_register_smpl_fmt(&pebs_fmt);
++
++	if (size != PAGE_SIZE) {
++		PFM_DBG("size %zu must be page size", size);
++		return -EINVAL;
++	}
++
++	set_id = (u16)(vma->vm_pgoff - PFM_SET_REMAP_OFFS);
++	set = pfm_find_set(ctx, set_id, 0);
++	if (set == NULL) {
++		PFM_DBG("set=%u is undefined", set_id);
++		return -EINVAL;
++	}
++
++	PFM_DBG("mmaping set_id=%u", set_id);
++
++	vma->vm_ops = &pfm_view_map_vm_ops;
++	vma->vm_private_data = set->view;
++
++	return 0;
 +}
-+
-+static void __exit pfm_pebs_fmt_cleanup_module(void)
-+{
-+	pfm_unregister_smpl_fmt(pebs_fmt.fmt_uuid);
-+}
-+
-+module_init(pfm_pebs_fmt_init_module);
-+module_exit(pfm_pebs_fmt_cleanup_module);
---- linux-2.6.17-rc6.orig/include/asm-x86_64/perfmon.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-rc6/include/asm-x86_64/perfmon.h	2006-06-08 01:49:22.000000000 -0700
-@@ -0,0 +1,10 @@
-+/*
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *
-+ * This file contains X86-64 Processor Family specific definitions
-+ * for the perfmon interface.
-+ *
-+ * This file MUST never be included directly. Use linux/perfmon.h.
-+ */
-+#include <asm-i386/perfmon.h>
---- linux-2.6.17-rc6.orig/include/asm-x86_64/perfmon_em64t_pebs_smpl.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17-rc6/include/asm-x86_64/perfmon_em64t_pebs_smpl.h	2006-06-08 01:49:22.000000000 -0700
-@@ -0,0 +1,106 @@
-+/*
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *
-+ * This file implements the PEBS sampling format for 64-bit
-+ * Intel EM64T Pentium 4/Xeon processors. Not to be used with
-+ * 32-bit Intel processors.
-+ */
-+#ifndef __PERFMON_EM64T_PEBS_SMPL_H__
-+#define __PERFMON_EM64T_PEBS_SMPL_H__ 1
-+
-+#define PFM_EM64T_PEBS_SMPL_UUID { \
-+	0x36, 0xbe, 0x97, 0x94, 0x1f, 0xbf, 0x41, 0xdf,\
-+	0xb4, 0x63, 0x10, 0x62, 0xeb, 0x72, 0x9b, 0xad}
-+
-+/*
-+ * format specific parameters (passed at context creation)
-+ *
-+ * intr_thres: index from start of buffer of entry where the
-+ * PMU interrupt must be triggered. It must be several samples
-+ * short of the end of the buffer.
-+ */
-+struct pfm_em64t_pebs_smpl_arg {
-+	size_t	buf_size;	/* size of the buffer in bytes */
-+	size_t	intr_thres;	/* index of interrupt threshold entry */
-+	u32	flags;		/* buffer specific flags */
-+	u64	cnt_reset;	/* counter reset value */
-+	u32	res1;		/* for future use */
-+	u64	reserved[2];	/* for future use */
-+};
-+
-+/*
-+ * combined context+format specific structure. Can be passed
-+ * to pfm_context_create()
-+ */
-+struct pfm_em64t_pebs_smpl_ctx_arg {
-+	struct pfarg_ctx		ctx_arg;
-+	struct pfm_em64t_pebs_smpl_arg	buf_arg;
-+};
-+
-+/*
-+ * DS Save Area as described in section 15.10.5 for
-+ * 32-bit but extended to 64-bit
-+ */
-+struct pfm_em64t_ds_area {
-+	u64	bts_buf_base;
-+	u64	bts_index;
-+	u64	bts_abs_max;
-+	u64	bts_intr_thres;
-+	u64	pebs_buf_base;
-+	u64	pebs_index;
-+	u64	pebs_abs_max;
-+	u64	pebs_intr_thres;
-+	u64     pebs_cnt_reset;
-+};
-+
-+/*
-+ * This header is at the beginning of the sampling buffer returned to the user.
-+ *
-+ * Because of PEBS alignement constraints, the actual PEBS buffer area does
-+ * not necessarily begin right after the header. The hdr_start_offs must be
-+ * used to compute the first byte of the buffer. The offset is defined as
-+ * the number of bytes between the end of the header and the beginning of
-+ * the buffer. As such the formula is:
-+ * 	actual_buffer = (unsigned long)(hdr+1)+hdr->hdr_start_offs
-+ */
-+struct pfm_em64t_pebs_smpl_hdr {
-+	u64			hdr_overflows;	/* #overflows for buffer */
-+	size_t			hdr_buf_size;	/* bytes in the buffer */
-+	size_t			hdr_start_offs; /* actual buffer start offset */
-+	u32			hdr_version;	/* smpl format version */
-+	u64			hdr_res[3];	/* for future use */
-+	struct pfm_em64t_ds_area hdr_ds;	/* DS management Area */
-+};
-+
-+/*
-+ * EM64T PEBS record format as described in
-+ * http://www.intel.com/technology/64bitextensions/30083502.pdf
-+ */
-+struct pfm_em64t_pebs_smpl_entry {
-+	u64	eflags;
-+	u64	ip;
-+	u64	eax;
-+	u64	ebx;
-+	u64	ecx;
-+	u64	edx;
-+	u64	esi;
-+	u64	edi;
-+	u64	ebp;
-+	u64	esp;
-+	u64	r8;
-+	u64	r9;
-+	u64	r10;
-+	u64	r11;
-+	u64	r12;
-+	u64	r13;
-+	u64	r14;
-+	u64	r15;
-+};
-+
-+#define PFM_EM64T_PEBS_SMPL_VERSION_MAJ 1U
-+#define PFM_EM64T_PEBS_SMPL_VERSION_MIN 0U
-+#define PFM_EM64T_PEBS_SMPL_VERSION (((PFM_EM64T_PEBS_SMPL_VERSION_MAJ&0xffff)<<16)|\
-+				   (PFM_EM64T_PEBS_SMPL_VERSION_MIN & 0xffff))
-+
-+#endif /* __PERFMON_EM64T_PEBS_SMPL_H__ */

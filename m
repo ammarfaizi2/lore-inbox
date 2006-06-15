@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWFOMUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbWFOMWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbWFOMUn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 08:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWFOMUn
+	id S1030311AbWFOMWL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 08:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWFOMWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 08:20:43 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:51730 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1030307AbWFOMUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 08:20:42 -0400
-Message-ID: <44915098.3070404@onelan.co.uk>
-Date: Thu, 15 Jun 2006 13:20:40 +0100
-From: Barry Scott <barry.scott@onelan.co.uk>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
+	Thu, 15 Jun 2006 08:22:11 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:33994 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030311AbWFOMWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 08:22:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=gnjMq1hvjlmcHGRcKT0sq1ynJ9sfgKK6kwGdeaJNs3ND0lOuCHs790zEhwGMnuHsALb3GKH5F4Its2rqywmUqjCXX8dqrDynTZF/JysYrj20XKMrYO+MVjTSohAQxFOfEqVd1juG5c27I0lbeidzD/VHgxNB+d5jf0LtAItfvVw=
+Message-ID: <8bf247760606150522w6e66bbcfs8951dff00db8277a@mail.gmail.com>
+Date: Thu, 15 Jun 2006 17:52:09 +0530
+From: Ram <vshrirama@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.17-rc6 does not boot on HP dc7600u - MCFG area is not E820-reserved
+Subject: Network drivers - porting to 2.6 issues
+Cc: linux-arm-kernel@lists.arm.linux.org.uk
+MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to boot 2.6.17-rc6 with Mismatched section patches applied.
+Hi,
+  I have  ported a wlan driver from 2.4 to 2.6.
 
-On my HP dc7600U the last messages printed are:
+  I am referring to the porting article in lwn.net.
 
-PCI: BUIS Bug: MCFG area is not E820-reserved
-PCI: Not using MMCONFIG
 
-Googling I found a message about a IBM laptop reporting this message
-but that it did go on to boot. THere was a suggestion that the test 
-should be
-removed. I commented out the code and I can boot further.
+  The driver works fine for sometime. after which data transfer
+becomes very slow.
 
-Here is the code I patched.
 
---- arch/i386/pci/mmconfig.c~   2006-06-15 13:04:58.000000000 +0100
-+++ arch/i386/pci/mmconfig.c    2006-06-15 13:04:58.000000000 +0100
-@@ -194,17 +194,19 @@
-        if ((pci_mmcfg_config_num == 0) ||
-            (pci_mmcfg_config == NULL) ||
-            (pci_mmcfg_config[0].base_address == 0))
-                return;
+  i have telnet to a remote machine. i do ls -Rl /
 
-+/* qqq
-        if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
-                        pci_mmcfg_config[0].base_address + 
-MMCONFIG_APER_SIZE,
-                        E820_RESERVED)) {
-                printk(KERN_ERR "PCI: BIOS Bug: MCFG area is not 
-E820-reserved\n");
-                printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
-                return;
-        }
-+qqq */
+  data transfer is ok to start with, then it becomes very slow.
 
-        printk(KERN_INFO "PCI: Using MMCONFIG\n");
-        raw_pci_ops = &pci_mmcfg;
-        pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
+  also whatever i type on the shell prompt appears after a while.
 
-Barry
+  This happens - sometimes it is faster and then slow. this goes on in a cycle.
 
+
+  Is there any difference between a 2.4 and 2.6 kernel network stack?.
+
+
+  I have changed registeration, changing task queues to work queues
+and stuff like that.
+
+
+   am not sure if the network stack api's and thier meanings have changed.
+
+   is there anything i should watch out for?.
+
+
+  sometimes i do get : NETDEV WATCHDOG: eth1: transmit timed out
+
+
+   What does this mean?.
+
+
+ is there anything more i should watch out for?.
+
+Regards,
+sriram

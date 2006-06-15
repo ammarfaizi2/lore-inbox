@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWFOH5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFOIRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWFOH5O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 03:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWFOH5O
+	id S1751386AbWFOIRg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 04:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWFOIRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 03:57:14 -0400
-Received: from mail.gmx.net ([213.165.64.21]:31418 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751326AbWFOH5N (ORCPT
+	Thu, 15 Jun 2006 04:17:36 -0400
+Received: from [24.219.125.93] ([24.219.125.93]:54540 "EHLO USER.dy3fo.org")
+	by vger.kernel.org with ESMTP id S1751364AbWFOIRf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 03:57:13 -0400
-X-Authenticated: #14349625
-Subject: Re: bad command responsiveness Proliant DL 585
-From: Mike Galbraith <efault@gmx.de>
-To: david@dworf.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44910E5B.50704@dworf.com>
-References: <448FC1CE.9090108@dworf.com>
-	 <1150278161.7994.13.camel@Homer.TheSimpsons.net> <449060EE.60608@dworf.com>
-	 <1150353862.8097.61.camel@Homer.TheSimpsons.net> <44910E5B.50704@dworf.com>
-Content-Type: text/plain
-Date: Thu, 15 Jun 2006 10:00:50 +0200
-Message-Id: <1150358450.8638.12.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 15 Jun 2006 04:17:35 -0400
+Message-ID: <77803759108857.4557F35122@H8V2FK>
+From: "Nelda" <NeldaHerbert@legislator.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: New New  =?ISO-8859-1?Q?=20It=92s?= the best thing you had ever seen!
+Date: Thu, 15 Jun 2006 03:16:54 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+        charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-15 at 09:38 +0200, David Osojnik wrote:
-> Hello,
-> 
-> IT Works perfect when setting noatime,nodiratime on the partition!!
+How are you Sir,
 
-That's good to hear... sort of.
-> 
-> can i try anything else? what does this actually mean?
+Masculine performance has never been so easy to increase with these products 
 
-Besides having a constipated journal sucks rocks? ;-)  Dunno.  You could
-try a different elevator as a shot in the dark - eliminate something.
+Enjoy secure ordering, lowest possible prices and almost instant shipment.
 
-	-Mike
+ Hot deals on stuff produced by well-known brands from worldwide.
+
+ See our shop: http://www.kissyii.com
+ The quality is realt high and the prices are the cheapest on the market!
+
 

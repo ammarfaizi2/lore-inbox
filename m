@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWFOMUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWFOMUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWFOMUm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 08:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWFOMUm
+	id S1030307AbWFOMUn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 08:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWFOMUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 15 Jun 2006 08:20:43 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:51730 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1030307AbWFOMUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 15 Jun 2006 08:20:42 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:63978 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030302AbWFOMUm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 08:20:42 -0400
-Date: Thu, 15 Jun 2006 14:20:34 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-m68k@vger.kernel.org
-Subject: Re: [PATCH] m68k: bogus constraints in signal.h
-In-Reply-To: <20060615120336.GQ27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0606151420140.23732@scrub.home>
-References: <20060615111126.GJ27946@ftp.linux.org.uk>
- <Pine.LNX.4.64.0606151343200.17704@scrub.home> <20060615120336.GQ27946@ftp.linux.org.uk>
+Message-ID: <44915098.3070404@onelan.co.uk>
+Date: Thu, 15 Jun 2006 13:20:40 +0100
+From: Barry Scott <barry.scott@onelan.co.uk>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc6 does not boot on HP dc7600u - MCFG area is not E820-reserved
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm trying to boot 2.6.17-rc6 with Mismatched section patches applied.
 
-On Thu, 15 Jun 2006, Al Viro wrote:
+On my HP dc7600U the last messages printed are:
 
-> On Thu, Jun 15, 2006 at 01:46:55PM +0200, Roman Zippel wrote:
-> > Hi,
-> > 
-> > On Thu, 15 Jun 2006, Al Viro wrote:
-> > 
-> > > bfset and friends need "o", not "m" - they don't work with autodecrement
-> > > memory arguments.  bitops.h had it fixed, signal.h hadn't...
-> > 
-> > I have a better version for this one pending, which I have queued for 
-> > 2.6.18.
-> 
-> Could you post it?
+PCI: BUIS Bug: MCFG area is not E820-reserved
+PCI: Not using MMCONFIG
 
-http://marc.theaimsgroup.com/?l=linux-m68k-cvscommit&m=114954838727448&w=2
+Googling I found a message about a IBM laptop reporting this message
+but that it did go on to boot. THere was a suggestion that the test 
+should be
+removed. I commented out the code and I can boot further.
 
-bye, Roman
+Here is the code I patched.
+
+--- arch/i386/pci/mmconfig.c~   2006-06-15 13:04:58.000000000 +0100
++++ arch/i386/pci/mmconfig.c    2006-06-15 13:04:58.000000000 +0100
+@@ -194,17 +194,19 @@
+        if ((pci_mmcfg_config_num == 0) ||
+            (pci_mmcfg_config == NULL) ||
+            (pci_mmcfg_config[0].base_address == 0))
+                return;
+
++/* qqq
+        if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
+                        pci_mmcfg_config[0].base_address + 
+MMCONFIG_APER_SIZE,
+                        E820_RESERVED)) {
+                printk(KERN_ERR "PCI: BIOS Bug: MCFG area is not 
+E820-reserved\n");
+                printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
+                return;
+        }
++qqq */
+
+        printk(KERN_INFO "PCI: Using MMCONFIG\n");
+        raw_pci_ops = &pci_mmcfg;
+        pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
+
+Barry
+

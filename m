@@ -1,103 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031479AbWFOVqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbWFOVwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031479AbWFOVqS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 17:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031478AbWFOVqS
+	id S1030538AbWFOVwR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 17:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031490AbWFOVwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 17:46:18 -0400
-Received: from mms3.broadcom.com ([216.31.210.19]:13071 "EHLO
-	MMS3.broadcom.com") by vger.kernel.org with ESMTP id S1031474AbWFOVqR convert rfc822-to-8bit
+	Thu, 15 Jun 2006 17:52:17 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:37540 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1030538AbWFOVwR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 17:46:17 -0400
-X-Server-Uuid: B238DE4C-2139-4D32-96A8-DD564EF2313E
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 15 Jun 2006 17:52:17 -0400
+Message-ID: <4491D690.707@vilain.net>
+Date: Fri, 16 Jun 2006 09:52:16 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060521)
 MIME-Version: 1.0
-Subject: RE: [openib-general] [PATCH v2 1/7] AMSO1100 Low Level Driver.
-Date: Thu, 15 Jun 2006 14:45:57 -0700
-Message-ID: <54AD0F12E08D1541B826BE97C98F99F15767E3@NT-SJCA-0751.brcm.ad.broadcom.com>
-Thread-Topic: [openib-general] [PATCH v2 1/7] AMSO1100 Low Level Driver.
-Thread-Index: AcaQhIj1gwnLNrp3TP6UgzwGS1P1mgAQEfGQ
-From: "Caitlin Bestler" <caitlinb@broadcom.com>
-To: "Steve Wise" <swise@opengridcomputing.com>,
-       "Bob Sharp" <bsharp@NetEffect.com>
-cc: "openib-general" <openib-general@openib.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006061507; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413039303230372E34343931443339442E303036352D412D;
- ENG=IBF; TS=20060615214609; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006061507_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 688F0A9409K5967600-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+To: vatsa@in.ibm.com
+Cc: Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
+       sekharan@us.ibm.com, Balbir Singh <balbir@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] CPU controllers?
+References: <20060615134632.GA22033@in.ibm.com>
+In-Reply-To: <20060615134632.GA22033@in.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-netdev-owner@vger.kernel.org wrote:
-> On Thu, 2006-06-15 at 08:41 -0500, Steve Wise wrote:
->> On Wed, 2006-06-14 at 20:35 -0500, Bob Sharp wrote:
->> 
->>>> +void c2_ae_event(struct c2_dev *c2dev, u32 mq_index) {
->>>> +
->> 
->> <snip>
->> 
->>>> +	case C2_RES_IND_EP:{
->>>> +
->>>> +		struct c2wr_ae_connection_request *req =
->>>> +			&wr->ae.ae_connection_request;
->>>> +		struct iw_cm_id *cm_id =
->>>> +			(struct iw_cm_id *)resource_user_context;
->>>> +
->>>> +		pr_debug("C2_RES_IND_EP event_id=%d\n", event_id);
->>>> +		if (event_id != CCAE_CONNECTION_REQUEST) {
->>>> +			pr_debug("%s: Invalid event_id: %d\n",
->>>> +				__FUNCTION__, event_id);
->>>> +			break;
->>>> +		}
->>>> +		cm_event.event = IW_CM_EVENT_CONNECT_REQUEST;
->>>> +		cm_event.provider_data = (void*)(unsigned
-long)req->cr_handle;
->>>> +		cm_event.local_addr.sin_addr.s_addr = req->laddr;
->>>> +		cm_event.remote_addr.sin_addr.s_addr = req->raddr;
->>>> +		cm_event.local_addr.sin_port = req->lport;
->>>> +		cm_event.remote_addr.sin_port = req->rport;
->>>> +		cm_event.private_data_len =
->>>> +			be32_to_cpu(req->private_data_length);
->>>> +
->>>> +		if (cm_event.private_data_len) {
->>> 
->>> 
->>> It looks to me as if pdata is leaking here since it is not tracked
->>> and the upper layers do not free it.  Also, if pdata is freed after
->>> the call to cm_id->event_handler returns, it exposes an issue in
->>> user space where the private data is garbage.  I suspect the iwarp
->>> cm should be copying this data before it returns.
->>> 
->> 
->> Good catch.
->> 
->> Yes, I think the IWCM should copy the private data in the upcall.  If
->> it does, then the amso driver doesn't need to kmalloc()/copy at all.
->> It can pass a ptr to its MQ entry directly...
->> 
-> 
-> Now that I've looked more into this, I'm not sure there's a
-> simple way for the IWCM to copy the pdata on the upcall.
-> Currently, the IWCM's event upcall, cm_event_handler(),
-> simply queues the work for processing on a workqueue thread.
-> So there's no per-event logic at all there.
-> Lemme think on this more.  Stay tuned.
-> 
-> Either way, the amso driver has a memory leak...
-> 
+Srivatsa Vaddagiri wrote:
+> One possibility is to add a basic controller, that addresses some minimal
+> requirements, to begin with and progressively enhance it capabilities. From this
+> pov, both the f-series resource group controller and cpu rate-cap seem to be 
+> good candidates for a minimal controller to begin with.
+>
+> Thoughts?
+>   
 
-Having the IWCM copy the pdata during the upcall also leaves
-the greatest flexibility for the driver on how/where the pdata
-is captured. The IWCM has to deal with user-mode, indefinite
-delays waiting for a response and user-mode processes that die
-while holding a connection request. So it makes sense for that
-layer to do the allocating and copying.
+Sounds like you're on the right track, but I don't know whether we can
+truly be happy making the performance/guarantee trade-off decision for
+the user.
 
+You could grossly put the solutions into several camps;
+
+1. solutions which have very low impact and provide soft assurances only
+2. solutions which provide hard limits
+3. solutions which provide guarantees
+
+I think it's almost invariant that the latter solutions have more of a
+performance impact, and that it's quite important that normal system
+throughput does not suffer from the "scheduling namespace" solution that
+we come up with.
+
+> Salient features of various CPU controllers that have been proposed so far are
+> summarized below. I have not captured OpenVZ and Vserver controller aspects
+> well. Request the maintainers to fill-in!
+>   [...]
+> 2. Timeslice scaling (Maeda Naoaki and Kurosawa Takahiro)
+>
+> Features:
+> 	* Provide guaranteed CPU execution rate on a per-task-group basis
+> 	  Guarantee provided over an interval of 5 seconds.
+> 	* Hooked to Resource Group infrastructure currently and hence 
+> 	  guarantee/limit set thr' Resource Group's RCFS interface.
+> 	* Achieves guaranteed execution by scaling down timeslice of tasks
+> 	  who are above their guaranteed execution rate. Timeslice can be 
+> 	  scaled down only to a minimum of 1 slice.
+> 	* Does not scale down timeslice of interactive tasks (even if their
+> 	  CPU usage is beyond what is guaranteed) and does not avoid requeue
+> 	  of interactive tasks.
+> 	* Patch is quite simple
+>
+> Limitations:
+> 	* Does not support limiting task-group CPU execution rate
+>
+> Drawbacks:
+> 	(Some of the drawbacks listed are probably being addressed currently 
+> 	 with a redesign - which we are yet to see)
+>
+> 	* Interactive tasks (and their requeuing) can come in the way of
+> 	  providing guaranteed execution rate to other tasks
+> 	* SMP load balancing does not take into account guarantee provided to 
+> 	  task groups.
+> 	* It may not be possible to restrict CPU usage of a task group to only 
+> 	  its guaranteed usage if the task-group has large number of tasks 
+> 	  (each task is run for a minimum of 1 timeslice)
+> 	* May not handle bursty loads
+> 	
+>   [...]
+> 4. VServer CPU controller
+>
+> Features:
+> 	- Token-bucket based
+>   
+
+The VServer scheduler is also timeslice scaling - it just uses the token
+bucket to know how much to scale the timeslices. It doesn't care about
+interactive bonuses, although it does lessen the interactivity bonus a
+notch or two (to -5..+5).
+
+This means that it's performance neutral in the general case.
+
+> Drawbacks:
+> 	- ?
+>   
+
+It fits into category 1 (or, using Herbert Poetzl's enhancements, 2), so
+does not provide guarantees.
+
+> Limitations:
+> 	- ?
+
+Doesn't deal with huge numbers of processes; but with task group ulimits
+that problem goes away in practice.
+
+Sam.

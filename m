@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWFOXDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWFOXMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWFOXDw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 19:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWFOXDv
+	id S1750738AbWFOXMe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 19:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWFOXMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 19:03:51 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:49794 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750736AbWFOXDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 19:03:50 -0400
-Date: Thu, 15 Jun 2006 18:58:16 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [RFC PATCH 0/4] utrace: new modular infrastructure for
-  user debug/tracing
-To: Roland McGrath <roland@redhat.com>
-Cc: "Charles P. Wright" <cwright@cs.sunysb.edu>,
-       Renzo Davoli <renzo@cs.unibo.it>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Blaisorblade <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>
-Message-ID: <200606151900_MC3-1-C293-BD30@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 15 Jun 2006 19:12:34 -0400
+Received: from animx.eu.org ([216.98.75.249]:31143 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S1750738AbWFOXMd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 19:12:33 -0400
+Date: Thu, 15 Jun 2006 19:14:01 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: jdow <jdow@earthlink.net>, Jesper Juhl <jesper.juhl@gmail.com>,
+       nick@linicks.net, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Bernd Petrovitsch <bernd@firmix.at>, marty fouts <mf.danger@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: VGER does gradual SPF activation (FAQ matter)
+Message-ID: <20060615231401.GA21203@animx.eu.org>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>, jdow <jdow@earthlink.net>,
+	Jesper Juhl <jesper.juhl@gmail.com>, nick@linicks.net,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Bernd Petrovitsch <bernd@firmix.at>,
+	marty fouts <mf.danger@gmail.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Matti Aarnio <matti.aarnio@zmailer.org>,
+	linux-kernel@vger.kernel.org
+References: <027e01c68e74$76875910$0225a8c0@Wednesday> <30592.1150391118@ocs3.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <30592.1150391118@ocs3.ocs.com.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060613231000.38B76180072@magilla.sf.frob.com>
+Keith Owens wrote:
+> "jdow" (on Mon, 12 Jun 2006 16:03:46 -0700) wrote:
+> >Greylist those who have not subscribed. Let their email server try
+> >again in 30 minutes. For those who are not subscribed it should not
+> >matter if their message is delayed 30 minutes. And so far spammers
+> >never try again.
+> 
+> Not true.  I greylist and my recent logs show a pattern of spam code
+> that tries 5 times at exactly 5 minute intervals, before finally giving
+> up.  Other spam code tries two or three times at one hour intervals.
+> All designed by spammers to bypass greylist systems.
 
-On Tue, 13 Jun 2006 16:10:00 -0700, Roland McGrath wrote:
+I have yet to setup any greylisting for any of my systems yet, but I would
+greylist, and if they came back an hour later and was in blacklists, I
+wouldn't allow it.  This is one thing greylisting can do for you, defer it
+until they are in blacklists.
 
-> I have been working on for a while, and imagining for much longer,
-> replacing ptrace from the ground up.  This is what I've come up with so
-> far, and I'm looking for some reactions on the direction.
+Of course all rules need to be weighed for the server they are placed on.  I
+would do the above on my domain since I'm the only user, I might not on big
+ISP.
 
-At least three different sets of people want to extend the syscall
-tracing.  Jeff Dike posted a patch that lets you supply a bitmask of
-syscalls to trace.  Renzo Davoli posted one that lets you decide, after
-trapping entrance to a syscall, whether to skip the trap that would
-normally be done on exit from the same call.  Charles P. Wright also
-had a similar patch.  I think this needs to be done at the utrace
-level -- a tracing engine couldn't add that on its own (could it?)
-
-Renzo Davoli also posted a patch to allow "batching" of ptrace requests
-and Systemptap really needs this, too.  AFAICT this can be done by writing
-a custom engine.
-
-And BTW patches 1 and 2 never made it to the list.  The ones on your
-server (http://redhat.com/~roland/utrace/) don't apply cleanly due to
-whitespace damage but that can be fixed by stripping trailing whitespace
-from the kernel files patch(1) complains about.
+I have noticed spam from zombies that were not in RBLs when it came in and 5
+minutes later, they are in RBLs.
 
 -- 
-Chuck
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

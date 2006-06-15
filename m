@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031257AbWFOUKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031261AbWFOULn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031257AbWFOUKv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 16:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031252AbWFOUKv
+	id S1031261AbWFOULn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 16:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031259AbWFOULn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 16:10:51 -0400
-Received: from rrcs-70-61-120-52.midsouth.biz.rr.com ([70.61.120.52]:35588
-	"EHLO ra.tuxdriver.com") by vger.kernel.org with ESMTP
-	id S1031255AbWFOUKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 16:10:50 -0400
-Date: Thu, 15 Jun 2006 16:10:31 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Daniel Drake <dsd@gentoo.org>, Jiri Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: [patch] workaround zd1201 interference problem
-Message-ID: <20060615201024.GD32582@tuxdriver.com>
-References: <20060607140045.GB1936@elf.ucw.cz> <20060607160828.0045e7f5@griffin.suse.cz> <20060607141536.GD1936@elf.ucw.cz> <4486FD2F.8040205@gentoo.org> <20060608070525.GE3688@elf.ucw.cz> <4489ECD0.1030908@gentoo.org> <20060609223804.GB3252@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060609223804.GB3252@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Jun 2006 16:11:43 -0400
+Received: from tomts20.bellnexxia.net ([209.226.175.74]:36563 "EHLO
+	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1031256AbWFOULm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 16:11:42 -0400
+In-Reply-To: <4491A90E.8010702@rtr.ca>
+References: <A6F7DE24-36C7-4FDB-AB2A-2C63478F0D0A@smarttech.com> <44916C5B.5000402@rtr.ca> <44917BFE.1070604@garzik.org> <4491A90E.8010702@rtr.ca>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5351048D-59BA-4348-BB35-BDFFD3622BE8@smarttech.com>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Gord Peters <GordPeters@smarttech.com>
+Subject: Re: SATA: Marvell 88SE6141 support?
+Date: Thu, 15 Jun 2006 16:11:39 -0400
+To: Mark Lord <lkml@rtr.ca>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 10, 2006 at 12:38:04AM +0200, Pavel Machek wrote:
+On 15-Jun-06, at 2:38 PM, Mark Lord wrote:
 
-> > Which operation is the one which stops the interference, the enable or 
-> > the disable?
-> 
-> Disable alone was not enough to stop interference.
+> The motherboard description says something about it being Marvell's  
+> latest
+> chipset, with four SATA plus one PATA ports.  That'll be interesting..
 
-I'm going to drop this patch for now, in the hopes that with Daniel's
-ZyDas contacts you can devise a more palatable solution.
 
-Thanks,
+Yup, I can confirm this.  The Marvell chip appears to control 4 SATA  
++ 1 IDE connector.
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+Just to make things even weirder, there's also an Intel ICH7R chip on  
+the motherboard which controls a separate set of 4 SATA + 1 IDE  
+connector.
+
+At first I thought that only the Marvell SATA ports could be used for  
+a RAID (based on how they're labeled in the manual), but now I see  
+that either set of SATA ports can be used for RAID.  So I may be able  
+to set my RAID up using the ICH7R based ports until the Marvell chip  
+is supported.  Am I correct to believe that the Intel ICH7R chip is  
+supported in 2.6.16?
+
+	Gord
+

@@ -1,59 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWFOHCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWFOHMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWFOHCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 03:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWFOHCF
+	id S1750945AbWFOHMq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 03:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWFOHMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 03:02:05 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5296 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750786AbWFOHCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 03:02:04 -0400
-Date: Thu, 15 Jun 2006 17:01:36 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Theodore Tso <tytso@mit.edu>, Nikita Danilov <nikita@clusterfs.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC]  Slimming down struct inode
-Message-ID: <20060615170136.D898607@wobbly.melbourne.sgi.com>
-References: <20060613143230.A867599@wobbly.melbourne.sgi.com> <448EC51B.6040404@argo.co.il> <20060614084155.C888012@wobbly.melbourne.sgi.com> <17551.58643.704359.815153@gargle.gargle.HOWL> <20060615075018.B884384@wobbly.melbourne.sgi.com> <20060615054931.GC7318@thunk.org>
+	Thu, 15 Jun 2006 03:12:46 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:55957 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750838AbWFOHMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 03:12:46 -0400
+Subject: [RFC/PATCH 1/2] slab: cpucache allocation cleanup
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: christoph@lameter.com, manfred@colorfullife.com
+Cc: linux-kernel@vger.kernel.org
+Date: Thu, 15 Jun 2006 10:12:44 +0300
+Message-Id: <1150355564.4633.6.camel@ubuntu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060615054931.GC7318@thunk.org>; from tytso@mit.edu on Thu, Jun 15, 2006 at 01:49:31AM -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ted,
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-On Thu, Jun 15, 2006 at 01:49:31AM -0400, Theodore Tso wrote:
-> On Thu, Jun 15, 2006 at 07:50:19AM +1000, Nathan Scott wrote:
-> > As to whether a new inode operation is useful/needed - *shrug* - not
-> > really my call, I was saying we can work with whatever ends up being
-> > the final solution, provided it keeps per-inode granularity.
-> 
-> XFS should be return a per-inode value for st_blksize by simply setting
-> kstat->st_blksize in linvfs_getattr() found in fs/xfs/linux-2.6/xfs_iops.c.
+This patch cleans up allocation from the per-CPU cache by separating NUMA
+and UMA paths.
 
-Hmm, you're looking at an older kernel there I guess - that routine
-doesn't exist anymore.  Look at -mm, its the most recent version.
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
-> in the Irix/Linux compatibility layer (yuck, I still can't believe
-> this got into mainline),
+---
 
-There is no IRIX/Linux compatibility layer, you're misunderstanding
-the code (which is understandable, its erm a bit crufty in places).
-There's a fair bit of history there too - *shrug* - its on the improve
-but its a complex body of code and takes time to mutate.  We've tended
-to focus on real problems and needed features in the past, moreso than
-cosmetics, but thats getting attention nowadays too.
+ mm/slab.c |   69 +++++++++++++++++++++++++++++++++++++------------------------
+ 1 files changed, 42 insertions(+), 27 deletions(-)
 
-> I'll let the XFS maintainers decide how put in per-inode st_blksize
-> values --- but it is definitely doable.
-
-Yep, agreed.
-
-cheers.
-
+8658c94d24e3b97f2ad747182811713c52dffdcf
+diff --git a/mm/slab.c b/mm/slab.c
+index f1b644e..579cff3 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -2855,19 +2855,12 @@ static void *cache_alloc_debugcheck_afte
+ #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
+ #endif
+ 
+-static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
++static __always_inline void *__cache_alloc_cpucache(struct kmem_cache *cachep,
++						    gfp_t flags)
+ {
+ 	void *objp;
+ 	struct array_cache *ac;
+ 
+-#ifdef CONFIG_NUMA
+-	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
+-		objp = alternate_node_alloc(cachep, flags);
+-		if (objp != NULL)
+-			return objp;
+-	}
+-#endif
+-
+ 	check_irq_off();
+ 	ac = cpu_cache_get(cachep);
+ 	if (likely(ac->avail)) {
+@@ -2881,23 +2874,6 @@ static inline void *____cache_alloc(stru
+ 	return objp;
+ }
+ 
+-static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
+-						gfp_t flags, void *caller)
+-{
+-	unsigned long save_flags;
+-	void *objp;
+-
+-	cache_alloc_debugcheck_before(cachep, flags);
+-
+-	local_irq_save(save_flags);
+-	objp = ____cache_alloc(cachep, flags);
+-	local_irq_restore(save_flags);
+-	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
+-					    caller);
+-	prefetchw(objp);
+-	return objp;
+-}
+-
+ #ifdef CONFIG_NUMA
+ /*
+  * Try allocating on another node if PF_SPREAD_SLAB|PF_MEMPOLICY.
+@@ -2982,8 +2958,47 @@ must_grow:
+ done:
+ 	return obj;
+ }
++
++static inline void *cache_alloc_cpucache(struct kmem_cache *cache, gfp_t flags)
++{
++	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
++		void *objp = alternate_node_alloc(cache, flags);
++		if (objp != NULL)
++			return objp;
++	}
++	return __cache_alloc_cpucache(cache, flags);
++}
++
++#else
++
++/*
++ * On UMA, we always allocate directly drom the per-CPU cache.
++ */
++
++static inline void *cache_alloc_cpucache(struct kmem_cache *cache, gfp_t flags)
++{
++	return __cache_alloc_cpucache(cache, flags);
++}
++
+ #endif
+ 
++static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
++						gfp_t flags, void *caller)
++{
++	unsigned long save_flags;
++	void *objp;
++
++	cache_alloc_debugcheck_before(cachep, flags);
++
++	local_irq_save(save_flags);
++	objp = cache_alloc_cpucache(cachep, flags);
++	local_irq_restore(save_flags);
++	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
++					    caller);
++	prefetchw(objp);
++	return objp;
++}
++
+ /*
+  * Caller needs to acquire correct kmem_list's list_lock
+  */
+@@ -3229,7 +3244,7 @@ void *kmem_cache_alloc_node(struct kmem_
+ 
+ 	if (nodeid == -1 || nodeid == numa_node_id() ||
+ 			!cachep->nodelists[nodeid])
+-		ptr = ____cache_alloc(cachep, flags);
++		ptr = cache_alloc_cpucache(cachep, flags);
+ 	else
+ 		ptr = __cache_alloc_node(cachep, flags, nodeid);
+ 	local_irq_restore(save_flags);
 -- 
-Nathan
+1.1.3
+
+

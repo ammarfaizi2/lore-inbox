@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWFOKxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWFOLA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWFOKxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 06:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWFOKxo
+	id S1030184AbWFOLA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 07:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWFOLA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 06:53:44 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40621 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964772AbWFOKxn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 06:53:43 -0400
-Date: Thu, 15 Jun 2006 12:52:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-       jgarzik@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, fpavlic@de.ibm.com
-Subject: Re: [patch] ipv4: fix lock usage in udp_ioctl
-Message-ID: <20060615105208.GA2934@elte.hu>
-References: <20060614194305.GB10391@osiris.ibm.com> <E1FqeXX-0008OE-00@gondolin.me.apana.org.au> <20060615052806.GA19803@elte.hu> <20060615065531.GA10411@osiris.ibm.com>
+	Thu, 15 Jun 2006 07:00:26 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16326 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964783AbWFOLA0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 07:00:26 -0400
+Date: Thu, 15 Jun 2006 12:00:25 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sctp_unpack_cookie() fix
+Message-ID: <20060615110024.GG27946@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060615065531.GA10411@osiris.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+sizeof(pointer) != sizeof(array)...
 
-* Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-> How about the patch below? The warning goes away and I assume 
-> "tmp_list" needs lockdep_reinit_key too, since it should have the same 
-> locking rules as the rest of qeth's skb-queue management.
+---
 
-yeah, looks good.
+ net/sctp/sm_make_chunk.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-	Ingo
+ce06687e3f7fea0950ce36423349d113e9cd0d3a
+diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
+index 5e0de3c..2a87736 100644
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -1402,14 +1402,14 @@ struct sctp_association *sctp_unpack_coo
+ 	sg.length = bodysize;
+ 	key = (char *)ep->secret_key[ep->current_key];
+ 
+-	memset(digest, 0x00, sizeof(digest));
++	memset(digest, 0x00, SCTP_SIGNATURE_SIZE);
+ 	sctp_crypto_hmac(sctp_sk(ep->base.sk)->hmac, key, &keylen, &sg,
+ 			 1, digest);
+ 
+ 	if (memcmp(digest, cookie->signature, SCTP_SIGNATURE_SIZE)) {
+ 		/* Try the previous key. */
+ 		key = (char *)ep->secret_key[ep->last_key];
+-		memset(digest, 0x00, sizeof(digest));
++		memset(digest, 0x00, SCTP_SIGNATURE_SIZE);
+ 		sctp_crypto_hmac(sctp_sk(ep->base.sk)->hmac, key, &keylen,
+ 				 &sg, 1, digest);
+ 
+-- 
+1.3.GIT
+

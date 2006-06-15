@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWFODl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWFODxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWFODl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jun 2006 23:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWFODl2
+	id S932425AbWFODxF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jun 2006 23:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWFODxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jun 2006 23:41:28 -0400
-Received: from mga02.intel.com ([134.134.136.20]:47242 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932424AbWFODl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jun 2006 23:41:27 -0400
-X-IronPort-AV: i="4.06,134,1149490800"; 
-   d="scan'208"; a="51058191:sNHT30442622"
-Subject: [PATCH] move do_suspend_lowlevel to correct segment
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 15 Jun 2006 11:39:26 +0800
-Message-Id: <1150342766.21189.14.camel@sli10-desk.sh.intel.com>
+	Wed, 14 Jun 2006 23:53:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:21696 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932425AbWFODxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jun 2006 23:53:04 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: patch for "bizarre read bug" in klibc dash
+Date: Thu, 15 Jun 2006 09:53:05 +0600
+Message-ID: <4490D9A1.8010405@ums.usu.ru>
+References: <bda6d13a0606142019m439c8eavca9afd955930d324@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 212.220.94.56
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
+In-Reply-To: <bda6d13a0606142019m439c8eavca9afd955930d324@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joshua Hudson wrote:
+> I had forked ash awhile back, patched up a few things to behave the
+> way I wanted them.
+> While I was at it, I fixed the "echo X | read X ; echo $X" bug that
+> echoed a blank line.
+> I tried awhile ago to raise who was responsible for the code and got 
+> nowhere.
 
-Move do_suspend_lowlevel to correct segment. If it is in the same hugepage
-with ro data, mark_rodata_ro will make it unexecutable.
+Have you tested your line with bash? Here it prints an empty line. You really 
+should use "echo X | ( read X ; echo $X )".
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
+So I don't think that ash is broken, and thus cannot acknowledge the patch.
 
- linux-2.6.17-rc5-root/arch/i386/kernel/acpi/wakeup.S |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+-- 
+Alexander E. Patrakov
 
-diff -puN arch/i386/kernel/acpi/wakeup.S~wakeup arch/i386/kernel/acpi/wakeup.S
---- linux-2.6.17-rc5/arch/i386/kernel/acpi/wakeup.S~wakeup	2006-06-14 09:21:26.000000000 +0800
-+++ linux-2.6.17-rc5-root/arch/i386/kernel/acpi/wakeup.S	2006-06-14 09:21:57.000000000 +0800
-@@ -265,11 +265,6 @@ ENTRY(acpi_copy_wakeup_routine)
- 	movl	$0x12345678, saved_magic
- 	ret
- 
--.data
--ALIGN
--ENTRY(saved_magic)	.long	0
--ENTRY(saved_eip)	.long	0
--
- save_registers:
- 	leal	4(%esp), %eax
- 	movl	%eax, saved_context_esp
-@@ -304,7 +299,11 @@ ret_point:
- 	call	restore_processor_state
- 	ret
- 
-+.data
- ALIGN
-+ENTRY(saved_magic)	.long	0
-+ENTRY(saved_eip)	.long	0
-+
- # saved registers
- saved_gdt:	.long	0,0
- saved_idt:	.long	0,0
-_

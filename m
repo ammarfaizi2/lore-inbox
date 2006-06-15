@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030735AbWFOP4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030739AbWFOP4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030735AbWFOP4g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 11:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030736AbWFOP4g
+	id S1030739AbWFOP4y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 11:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030736AbWFOP4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 11:56:36 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:6861 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030735AbWFOP4f (ORCPT
+	Thu, 15 Jun 2006 11:56:53 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4748 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030737AbWFOP4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 11:56:35 -0400
-Date: Thu, 15 Jun 2006 08:56:11 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: frode isaksen <frode.isaksen@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs: sys_poll with timeout -1 bug fix
-Message-ID: <20060615155611.GO11131@us.ibm.com>
-References: <383D1CA3-E74C-4530-A8C8-D0B9608A1970@gmail.com>
+	Thu, 15 Jun 2006 11:56:52 -0400
+Date: Thu, 15 Jun 2006 08:56:42 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+cc: akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: light weight counters: race free through local_t?
+In-Reply-To: <44915110.2050100@bull.net>
+Message-ID: <Pine.LNX.4.64.0606150855410.9137@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0606092212200.4875@schroedinger.engr.sgi.com>
+ <449033B0.1020206@bull.net> <Pine.LNX.4.64.0606140928500.4030@schroedinger.engr.sgi.com>
+ <44915110.2050100@bull.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <383D1CA3-E74C-4530-A8C8-D0B9608A1970@gmail.com>
-X-Operating-System: Linux 2.6.17-rc6 (x86_64)
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15.06.2006 [17:33:05 +0200], frode isaksen wrote:
-> From: Frode Isaksen <frode.isaksen@gmail.com>
-> 
-> If you do a poll() call with timeout -1, the wait will be a big  
-> number (depending on HZ)  instead of infinite wait, since -1 is  
-> passed to the msecs_to_jiffies function.
-> 
-> Signed-off-by: Frode Isaksen <frode.isaksen@gmail.com>
-Acked-by: Nishanth Aravamudan <nacc@us.ibm.com>
+On Thu, 15 Jun 2006, Zoltan Menyhart wrote:
 
-Thanks,
-Nish
+> My conclusion: let's stick to atomic counters.
 
--- 
-Nishanth Aravamudan <nacc@us.ibm.com>
-IBM Linux Technology Center
+Good to know. But we would run into trouble if the atomic counters would 
+be contended.
+
+

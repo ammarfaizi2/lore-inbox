@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWFOGlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWFOGsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbWFOGlP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 02:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWFOGlP
+	id S1750707AbWFOGsP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 02:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWFOGsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 02:41:15 -0400
-Received: from thunk.org ([69.25.196.29]:9105 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932448AbWFOGlO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 02:41:14 -0400
-Date: Thu, 15 Jun 2006 00:43:02 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC]  Slimming down struct inode
-Message-ID: <20060615044302.GA7318@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	linux-kernel@vger.kernel.org
-References: <E1Foqjw-00010e-Ln@candygram.thunk.org> <20060614181627.B28144@openss7.org>
+	Thu, 15 Jun 2006 02:48:15 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:56986 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750707AbWFOGsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 02:48:15 -0400
+Message-ID: <4491029D.4060002@linux.intel.com>
+Date: Wed, 14 Jun 2006 23:47:57 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060614181627.B28144@openss7.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Brice Goglin <brice@myri.com>
+CC: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC] PCI extended conf space when MMCONFIG disabled because
+ of e820
+References: <44907A8E.1080308@myri.com> <44907B13.2030402@linux.intel.com> <4490BE76.6040008@myri.com>
+In-Reply-To: <4490BE76.6040008@myri.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 14, 2006 at 06:16:27PM -0600, Brian F. G. Bidulock wrote:
-> > 3) Move i_pipe, i_bdev, and i_cdev into a union.  An inode cannot
-> >     simultaneously be a pipe, block device, and character device at the
-> >     same time.
 > 
-> A STREAMS-based FIFO is both a (named) pipe and a character device at the
-> same time.  I would prefer if you did not merge i_pipe with i_cdev for this
-> reason.  In the current GPL'ed out of tree STREAMS implementation, i_pipe
-> is used to point to the Stream head (as the normal v_str pointer in the UNIX
-> vnode).  
+> Well, we are talking about using a different method to access the
+> extended config space only. This space is independent from the legacy
+> config space.
 
-I'm not particularly sympathetic to out of tree implementations,
-especially one which is as (NOT!) likely to be merged as STREAMS
-support.  Out of tree patches can always patch struct inode to add all
-the bloat they want.  Also, it souinds like you're not usually using
-i_pipe as a true pointer to a struct pipe_inode_info, but rather as
-kludged location to stash your v_str pointer.  Why not just have your
-STREAMS implementation patch include/linux/fs.h to add a v_str pointer?
+not really. In many ways it's the same space.
 
-						- Ted
+> I don't see how mixing the old and new methods like this could lead to
+> any problem, we are not going to mix them to access the same registers.
+
+the spec simply doesn't allow it. Sure it may work on your machine today,
+but that doesn't make it a good idea ;)
+
+> We need to improve this "mmconfig disabled" anyhow. Having the extended
+> config space unavailable on lots of machines is also far from a viable
+> solution :)
+
+it's unlikely to be many machines though.
+
+  If you still do not like this first proposal, what do you
+> think of my other one ? (having chipset-specific checks in
+> pci_mmcfg_init to find out for sure whether mmconfig will work)
+
+I'm all in favor of a more detailed test; just we HAVE to have a test
+for this since it's simply broken too often. What the test needs to do
+is check if the MCFG entry actually points to a working mmconfig area,
+so 1) that it actually points to an mmconfig area and not to garbage, and 2)
+that accesses to it actually work ;)
+
+the current approach doesn't test 2) realistically, only 1), but if you weaken
+the 1) test as you propose you really ought to substitute it with a 2) test...
+

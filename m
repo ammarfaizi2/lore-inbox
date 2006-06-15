@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWFOLp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWFOLrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbWFOLp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 07:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWFOLp7
+	id S1030265AbWFOLrT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 07:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWFOLrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 07:45:59 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:55783 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030257AbWFOLp6 (ORCPT
+	Thu, 15 Jun 2006 07:47:19 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:52714 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030258AbWFOLrS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 07:45:58 -0400
-Message-ID: <44914874.90905@garzik.org>
-Date: Thu, 15 Jun 2006 07:45:56 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Thu, 15 Jun 2006 07:47:18 -0400
+Date: Thu, 15 Jun 2006 13:46:55 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-m68k@vger.kernel.org
+Subject: Re: [PATCH] m68k: bogus constraints in signal.h
+In-Reply-To: <20060615111126.GJ27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0606151343200.17704@scrub.home>
+References: <20060615111126.GJ27946@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Andrew Chew <achew@nvidia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add MCP65 support for amd74xx, sata_nv, and ahci drivers
- (and device ids in pci_ids)
-References: <1150362019.5044.7.camel@achew-linux>
-In-Reply-To: <1150362019.5044.7.camel@achew-linux>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Chew wrote:
-> Adds MCP65 device IDs to the amd74xx IDE driver, the sata_nv SATA driver
-> (for MCP65 SATA in legacy SATA mode), and ahci driver (for MCP65 in AHCI mode).
-> Also added MCP65 device IDs in pci_ids.h.
-> 
-> Signed-off-by: Andrew Chew <achew@nvidia.com>
+Hi,
 
-Please split up your patches into libata and non-libata pieces...  I've 
-already applied your MCP61 patch, for example, but drivers/ide still 
-does not have it.
+On Thu, 15 Jun 2006, Al Viro wrote:
 
-	Jeff
+> bfset and friends need "o", not "m" - they don't work with autodecrement
+> memory arguments.  bitops.h had it fixed, signal.h hadn't...
 
+I have a better version for this one pending, which I have queued for 
+2.6.18.
 
-
+bye, Roman

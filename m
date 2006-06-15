@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWFONlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWFONos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbWFONlG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 09:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbWFONlG
+	id S1030440AbWFONos (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 09:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030443AbWFONos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 09:41:06 -0400
-Received: from es335.com ([67.65.19.105]:24373 "EHLO mail.es335.com")
-	by vger.kernel.org with ESMTP id S1030420AbWFONlE (ORCPT
+	Thu, 15 Jun 2006 09:44:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21712 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030440AbWFONor (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 09:41:04 -0400
-Subject: RE: [openib-general] [PATCH v2 1/7] AMSO1100 Low Level Driver.
-From: Steve Wise <swise@opengridcomputing.com>
-To: Bob Sharp <bsharp@NetEffect.com>
-Cc: openib-general <openib-general@openib.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <5E701717F2B2ED4EA60F87C8AA57B7CC05D4E2D8@venom2>
-References: <5E701717F2B2ED4EA60F87C8AA57B7CC05D4E2D8@venom2>
-Content-Type: text/plain
-Date: Thu, 15 Jun 2006 08:41:03 -0500
-Message-Id: <1150378863.22603.12.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Thu, 15 Jun 2006 09:44:47 -0400
+Message-ID: <4491644E.8000506@redhat.com>
+Date: Thu, 15 Jun 2006 09:44:46 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Janne Karhunen <Janne.Karhunen@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NFSv3 client reordering RENAMEs
+References: <200606151638.15792.Janne.Karhunen@gmail.com>
+In-Reply-To: <200606151638.15792.Janne.Karhunen@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-14 at 20:35 -0500, Bob Sharp wrote:
+Janne Karhunen wrote:
 
-> > +void c2_ae_event(struct c2_dev *c2dev, u32 mq_index)
-> > +{
-> > +
+>G'd day,
+>
+>Looks like that given async NFS mount Linux NFS client can reorder
+>RENAMEs as well. For me this caused several eaten files :/. Didn't
+>really expect RENAME to be reordered as mv is generally considered
+>atomic. That, and RFC 1813 mandates RENAME to be atomic. Is this a
+>known thing and do you guys consider this feature or a bug?
+>
 
-<snip>
+Can you construct a testcase which exhibits this behavior?
 
-> > +	case C2_RES_IND_EP:{
-> > +
-> > +		struct c2wr_ae_connection_request *req =
-> > +			&wr->ae.ae_connection_request;
-> > +		struct iw_cm_id *cm_id =
-> > +			(struct iw_cm_id *)resource_user_context;
-> > +
-> > +		pr_debug("C2_RES_IND_EP event_id=%d\n", event_id);
-> > +		if (event_id != CCAE_CONNECTION_REQUEST) {
-> > +			pr_debug("%s: Invalid event_id: %d\n",
-> > +				__FUNCTION__, event_id);
-> > +			break;
-> > +		}
-> > +		cm_event.event = IW_CM_EVENT_CONNECT_REQUEST;
-> > +		cm_event.provider_data = (void*)(unsigned
-> long)req->cr_handle;
-> > +		cm_event.local_addr.sin_addr.s_addr = req->laddr;
-> > +		cm_event.remote_addr.sin_addr.s_addr = req->raddr;
-> > +		cm_event.local_addr.sin_port = req->lport;
-> > +		cm_event.remote_addr.sin_port = req->rport;
-> > +		cm_event.private_data_len =
-> > +			be32_to_cpu(req->private_data_length);
-> > +
-> > +		if (cm_event.private_data_len) {
-> 
-> 
-> It looks to me as if pdata is leaking here since it is not tracked and
-> the upper layers do not free it.  Also, if pdata is freed after the call
-> to cm_id->event_handler returns, it exposes an issue in user space where
-> the private data is garbage.  I suspect the iwarp cm should be copying
-> this data before it returns.
-> 
+    Thanx...
 
-Good catch.  
-
-Yes, I think the IWCM should copy the private data in the upcall.  If it
-does, then the amso driver doesn't need to kmalloc()/copy at all.  It
-can pass a ptr to its MQ entry directly...
-
-Thanks,
-
-Steve.
-
+       ps

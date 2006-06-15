@@ -1,121 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030789AbWFOQ2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030796AbWFOQ3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030789AbWFOQ2d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 12:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030794AbWFOQ2d
+	id S1030796AbWFOQ3E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 12:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030794AbWFOQ3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 12:28:33 -0400
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:1976 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1030789AbWFOQ2d convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 12:28:33 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 7/7] CCISS: run through Lindent
-Date: Thu, 15 Jun 2006 11:28:29 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF10C524B1D@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <200606150942.37627.bjorn.helgaas@hp.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 7/7] CCISS: run through Lindent
-Thread-Index: AcaQknG8mwhgbtQyRJeURe9MCBNArAAAHPCw
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Helgaas, Bjorn" <bjorn.helgaas@hp.com>
-Cc: "ISS StorageDev" <iss_storagedev@hp.com>, <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 15 Jun 2006 16:28:30.0050 (UTC) FILETIME=[BC9D6C20:01C69098]
+	Thu, 15 Jun 2006 12:29:01 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:43100 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S1030795AbWFOQ3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 12:29:00 -0400
+Date: Thu, 15 Jun 2006 09:28:59 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc[56]-mm*: pcmcia "I/O resource not free"
+Message-ID: <20060615162859.GA1520@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+The PCMCIA slot on my Thinkpad X40 stopped working sometime between
+2.6.17-rc4-mm3 and 2.6.17-rc5-mm3, and is still not working as of
+2.6.17-rc6-mm2.  There's one diff early in dmesg that looks interesting:
 
-> -----Original Message-----
-> From: Helgaas, Bjorn 
-> Sent: Thursday, June 15, 2006 10:43 AM
-> To: Miller, Mike (OS Dev)
-> Cc: ISS StorageDev; linux-kernel@vger.kernel.org; Andrew Morton
-> Subject: Re: [PATCH 7/7] CCISS: run through Lindent
-> 
-> On Thursday 15 June 2006 08:49, Miller, Mike (OS Dev) wrote
-> > > -----Original Message-----
-> > > From: Helgaas, Bjorn
-> > > Sent: Wednesday, June 14, 2006 6:14 PM
-> > > To: Miller, Mike (OS Dev)
-> > > Cc: ISS StorageDev; linux-kernel@vger.kernel.org; Andrew Morton
-> > > Subject: [PATCH 7/7] CCISS: run through Lindent
-> > > 
-> > > cciss is full of inconsistent style ("for (" vs. "for(", 
-> lines that 
-> > > end with whitespace, lines beginning with a mix of spaces & tabs, 
-> > > etc).
-> > > 
-> > > This patch changes only whitespace.
-> > > 
-> > > Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> > 
-> > I agree that we had lots of whitespace garbage and 
-> inconsistent styles 
-> > in the driver but I'm not sure I like all the indentation being 
-> > removed from the product table. It makes it a bit harder to 
-> read, IMO.
-> 
-> If you are OK with the patch other than the product table, 
-> how about if you apply the patch as-is, and I post a 
-> follow-on patch to fix the indentation?
-> 
-> I'm contemplating more than just a white-space change, and 
-> it'd probably be better to keep the "indent" patch to be 
-> white-space changes only.
+ ACPI: PCI Interrupt 0000:00:1f.6[B] -> GSI 17 (level, low) -> IRQ 177
+ PCI: Setting latency timer of device 0000:00:1f.6 to 64
+ MC'97 1 converters and GPIO not ready (0xff00)
+ PM: Adding info for ac97:1-1:unknown codec
+-ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 169
+ Yenta: CardBus bridge found at 0000:02:00.0 [1014:0555]
+-Yenta: ISA IRQ mask 0x04b8, PCI irq 169
++Yenta: ISA IRQ mask 0x0cb8, PCI irq 169
+ Socket status: 30000006
+ pcmcia: parent PCI bridge I/O window: 0x3000 - 0x7fff
+ cs: IO port probe 0x3000-0x7fff: clean.
+ pcmcia: parent PCI bridge Memory window: 0xd0200000 - 0xdfffffff
+ pcmcia: parent PCI bridge Memory window: 0xf0000000 - 0xf7ffffff
 
-Yes, please submit a follow-on for the indentation.
+Then when I insert the card, instead of
 
-> 
-> The cciss_pci_device_id[] table lists a bunch of subvendor 
-> and subdevice IDs.  Is there any reason to check those 
-> sub-IDs explicitly?  In other words, we currently list:
-> 
->         {PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS,
->          0x0E11, 0x4070, 0, 0, 0},
-> 
-> Could we replace that with:
-> 
->         {PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS,
->          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-> 
-> This would potentially make the driver claim additional devices.
-> But do COMPAQ/CISS devices with sub-IDs other than the listed 
-> ones really exist anyway?
+ pccard: PCMCIA card inserted into slot 0
+ cs: memory probe 0xf0000000-0xf7ffffff: excluding 0xf0000000-0xf7ffffff
+ cs: memory probe 0xd0200000-0xdfffffff: excluding 0xd0200000-0xd11fffff
+    0xd1a00000-0xd41fffff 0xd4a00000-0xd51fffff 0xd5a00000-0xd61fffff
+    0xd6a00000-0xd71fffff 0xd7a00000-0xd81fffff 0xd8a00000-0xd91fffff
+    0xd9a00000-0xda1fffff 0xdaa00000-0xdb1fffff 0xdba00000-0xdc1fffff
+    0xdca00000-0xdd1fffff 0xdda00000-0xde1fffff 0xdea00000-0xdf1fffff
+    0xdfa00000-0xe01fffff
+ pcmcia: registering new device pcmcia0.0
+ PM: Adding info for pcmcia:0.0
+-Probing IDE interface ide2...
+-hde: CF Card, CFA DISK drive
+-PM: Adding info for No Bus:ide2
+-hdf: probing with STATUS(0x50) instead of ALTSTATUS(0x0a)
 
-Please note that we have several pci ids: 
+I get
 
-         {PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS[ABCD],
-          0x0E11, 0x4070, 0, 0, 0},
+ pccard: PCMCIA card inserted into slot 0
+ cs: memory probe 0xf0000000-0xf7ffffff: excluding 0xf0000000-0xf7ffffff
+ cs: memory probe 0xd0200000-0xdfffffff: excluding 0xd0200000-0xd11fffff
+     0xd1a00000-0xd41fffff 0xd4a00000-0xd51fffff 0xd5a00000-0xd61fffff
+     0xd6a00000-0xd71fffff 0xd7a00000-0xd81fffff 0xd8a00000-0xd91fffff
+     0xd9a00000-0xda1fffff 0xdaa00000-0xdb1fffff 0xdba00000-0xdc1fffff
+     0xdca00000-0xdd1fffff 0xdda00000-0xde1fffff 0xdea00000-0xdf1fffff
+     0xdfa00000-0xe01fffff
+ pcmcia: registering new device pcmcia0.0
+ PM: Adding info for pcmcia:0.0
++ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
++ide2: ports already in use, skipping probe
++ide2: I/O resource 0xF8A8A01E-0xF8A8A01E not free.
++ide2: ports already in use, skipping probe
++ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
++ide2: ports already in use, skipping probe
 
-The pci id identifies the controller family such as 53xx, 64xx, etc. We
-use the subsystem pci id to identify the particular controller like 641,
-642, etc.
+With 2.6.17-rc6-mm2 I have
 
-I had added this to the driver we release on hp.com:
+           CPU0       
+  0:     188343   IO-APIC-edge     timer
+  1:       2685   IO-APIC-edge     i8042
+  9:        393   IO-APIC-fasteoi  acpi
+ 12:      17840   IO-APIC-edge     i8042
+ 14:       4616   IO-APIC-edge     ide0
+169:          1   IO-APIC-fasteoi  uhci_hcd:usb1, yenta
+177:          0   IO-APIC-fasteoi  Intel 82801DB-ICH4, Intel 82801DB-ICH4 Modem
+185:          0   IO-APIC-fasteoi  uhci_hcd:usb3
+193:          0   IO-APIC-fasteoi  uhci_hcd:usb2
+201:          0   IO-APIC-fasteoi  ehci_hcd:usb4
+209:       2524   IO-APIC-fasteoi  eth0
+217:      43647   IO-APIC-fasteoi  ipw2200
+NMI:          0 
+LOC:     175985 
+ERR:          0
+MIS:          0
 
-       { PCI_VENDOR_ID_HP, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-                PCI_CLASS_STORAGE_RAID << 8, 0xffff << 8, 0},
+The card I'm trying to use is a "PQI Compact Flash Adapter", which
+appears to just be some wires connecting the PCMCIA pins to the CF pins.
+The CF card is a "TwinMOS Ultra-X 140X 1GB" card, part number
+FCF1GBUPS-K W543F5TM0832.
 
-to bind to Smart Array controllers for which I don't have an id. Seems
-to work okay but then I need another method for displaying product name,
-etc. There are also additional fields in the products struct on which we
-rely. Things like number of s/g's and number of outstanding commands,
-for instance. These are supposed to be in the firmware's config table
-but we find they lie to us most of the time. :)
+dmesgs at
 
-Lots of words, not much meaning.
+http://web.hexapodia.org/~adi/tmp/dmesg.2.6.17-rc4-mm3.txt
+http://web.hexapodia.org/~adi/tmp/dmesg.2.6.17-rc6-mm2.txt
 
-mikem
+(although the rc4-mm3 one is truncated, sorry.)
 
-> 
-> Bjorn
-> 
+-andy

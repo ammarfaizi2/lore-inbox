@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWFPMkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWFPMlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbWFPMkV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 08:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWFPMkU
+	id S1751382AbWFPMlE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 08:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWFPMlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 08:40:20 -0400
-Received: from wx-out-0102.google.com ([66.249.82.201]:13348 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751381AbWFPMkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 08:40:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=ok3UDXQug6wo7gVansfXdsQgzwyLag+e+nCTtvVEvnLPgW2dqCYzqol/m1OA20drGMfLd0G4QxPzze2hp6O6Mvguyk3uvTmW1+UyPgQua5ravB4Jbg+cgWErL+nVbNI3lAo9XX8Bw0qRy4G1maX5t6+A+FqFW7DQ26qyQk2e0mc=
-Message-ID: <84144f020606160540q20433601jd9b5331763a55dab@mail.gmail.com>
-Date: Fri, 16 Jun 2006 15:40:17 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Alessio Sangalli" <alesan@manoweb.com>
-Subject: Re: APM problem after 2.6.13.5
-Cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>
-In-Reply-To: <44929CF5.208@manoweb.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jun 2006 08:41:04 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:55169 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S1751382AbWFPMlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 08:41:03 -0400
+Date: Fri, 16 Jun 2006 14:41:57 +0200
+From: Petr Baudis <pasky@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RESEND][PATCH] Let even non-dumpable tasks access /proc/self/fd
+Message-ID: <20060616124157.GB24203@pasky.or.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44927F91.6050506@manoweb.com>
-	 <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>
-	 <44929CF5.208@manoweb.com>
-X-Google-Sender-Auth: 140082a8fc9612e9
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alessio,
+All tasks calling setuid() from root to non-root during their lifetime
+will not be able to access their /proc/self/fd.  This is troublesome
+because the fstatat() and other *at() routines are emulated by accessing
+/proc/self/fd/*/path and that will break with setuid()ing programs,
+leading to various weird consequences (e.g. with the latest glibc,
+nftw() does not work with setuid()ing programs on ppc and furthermore
+causes the LSB testsuite to fail because of this).
 
-On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
-> > > if I enable "APM support" I get a freeze at the very beginning of the
-> > > boot, without any explicit erro message, just after the PCI stuff. If
-> > > you need a transcript of the messages at boot, let me know, I will have
-> > > to write them by hand).
-> > > 2.6.13.5 is ok. I need APM support to let the "Fn" key and the battery
-> > > meter work!
+This kernel patch fixes the problem by letting the process access its
+own /proc/self/fd - as far as I can see, this should be reasonably safe
+since for the process, this does not reveal "anything new". Feel free to
+comment on this.
 
-Pekka Enberg wrote:
-> > There's a lot of changes between 2.6.13 and 2.6.14.  It would be
-> > helpful if you could narrow down the exact changeset that broke your
+Signed-off-by: Petr Baudis <pasky@suse.cz>
 
-On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
-> done:
->
-> 4196c3af25d98204216a5d6c37ad2cb303a1f2bf is first bad commit
-> diff-tree 4196c3af25d98204216a5d6c37ad2cb303a1f2bf (from
-> 9092b20803e4b3b3a480592794a73030f17370b3)
-> Author: Linus Torvalds <torvalds@g5.osdl.org>
-> Date:   Sun Oct 23 16:31:16 2005 -0700
->
->     cardbus: limit IO windows to 256 bytes
->
->     That's what we've always historically done, and bigger windows seem to
->     confuse some cardbus bridges. Or something.
->
->     Alan reports that this makes the ThinkPad 600x series work properly
->     again: the 4kB IO window for some reason made IDE DMA not work, which
->     makes IDE painfully slow even if it works after DMA timeouts.
->
->     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
->
-> :040000 040000 629d4d303048bffa610017e81e0e744bae08660d
-> 33e154ffe96822d09f37ae2d433de5152216501b M      drivers
->
->
-> let me know any other test I should do to help find a solution to this
-> problem, thank you!
+---
 
-So reverting the above commit from git head makes your box boot again?
-Linus, any thoughts?
+So far it's got one positive review on LKML and not much attention
+otherwise; Pavel Machek hinted me to steer it your way...
 
-                                      Pekka
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 6cc77dc..ea36a25 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1368,7 +1368,9 @@ static struct inode *proc_pid_make_inode
+ 	ei->type = ino;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+-	if (ino == PROC_TGID_INO || ino == PROC_TID_INO || task_dumpable(task)) {
++	if (ino == PROC_TGID_INO || ino == PROC_TID_INO ||
++	    ((ino == PROC_TGID_FD || ino == PROC_TID_FD || ino >= PROC_TID_FD_DIR) && task == current) ||
++	    task_dumpable(task)) {
+ 		inode->i_uid = task->euid;
+ 		inode->i_gid = task->egid;
+ 	}
+@@ -1398,7 +1400,9 @@ static int pid_revalidate(struct dentry 
+ 	struct inode *inode = dentry->d_inode;
+ 	struct task_struct *task = proc_task(inode);
+ 	if (pid_alive(task)) {
+-		if (proc_type(inode) == PROC_TGID_INO || proc_type(inode) == PROC_TID_INO || task_dumpable(task)) {
++		if (proc_type(inode) == PROC_TGID_INO || proc_type(inode) == PROC_TID_INO ||
++		    ((proc_type(inode) == PROC_TGID_FD || proc_type(inode) == PROC_TID_FD) && task == current) ||
++		     task_dumpable(task)) {
+ 			inode->i_uid = task->euid;
+ 			inode->i_gid = task->egid;
+ 		} else {
+@@ -1425,7 +1429,7 @@ static int tid_fd_revalidate(struct dent
+ 		if (fcheck_files(files, fd)) {
+ 			rcu_read_unlock();
+ 			put_files_struct(files);
+-			if (task_dumpable(task)) {
++			if (task_dumpable(task) || task == current) {
+ 				inode->i_uid = task->euid;
+ 				inode->i_gid = task->egid;
+ 			} else {
+
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+Right now I am having amnesia and deja-vu at the same time.  I think
+I have forgotten this before.

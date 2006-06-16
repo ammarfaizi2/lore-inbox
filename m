@@ -1,82 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWFPLn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWFPLzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWFPLn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 07:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWFPLn4
+	id S1750749AbWFPLzW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 07:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWFPLzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 07:43:56 -0400
-Received: from ip57.73.1311O-CUD12K-02.ish.de ([62.143.73.57]:48306 "EHLO
-	mocm.de") by vger.kernel.org with ESMTP id S1750732AbWFPLny (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 07:43:54 -0400
-From: Marcus Metzler <mocm@mocm.de>
+	Fri, 16 Jun 2006 07:55:22 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:49872 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750749AbWFPLzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 07:55:21 -0400
+Message-ID: <44929CF5.208@manoweb.com>
+Date: Fri, 16 Jun 2006 13:58:45 +0200
+From: Alessio Sangalli <alesan@manoweb.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APM problem after 2.6.13.5
+References: <44927F91.6050506@manoweb.com> <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>
+In-Reply-To: <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-ID: <17554.39454.563004.916138@mocm.de>
-Date: Fri, 16 Jun 2006 13:46:38 +0200
-To: "Salvatore Sanfilippo" <antirez@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: v4l device in userspace
-In-Reply-To: <c6114db60606160403g5e02becctbf2a67db7011ec9a@mail.gmail.com>
-References: <c6114db60606160403g5e02becctbf2a67db7011ec9a@mail.gmail.com>
-X-Mailer: VM 7.17 under 21.4 (patch 19) "Constant Variable" XEmacs Lucid
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:98b9443de46bd48dbf34b16449aa5d76
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Salvatore" == Salvatore Sanfilippo <antirez@gmail.com> writes:
+Pekka Enberg wrote:
+> Hi,
+> 
+> On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
+>> if I enable "APM support" I get a freeze at the very beginning of the
+>> boot, without any explicit erro message, just after the PCI stuff. If
+>> you need a transcript of the messages at boot, let me know, I will have
+>> to write them by hand).
+>> 2.6.13.5 is ok. I need APM support to let the "Fn" key and the battery
+>> meter work!
+> 
+> There's a lot of changes between 2.6.13 and 2.6.14.  It would be
+> helpful if you could narrow down the exact changeset that broke your
 
-    Salvatore> Hello, I'm trying to implement a v4l device driver for
-    Salvatore> symbian based smart phones. In theory it is very
-    Salvatore> simple:
 
-    Salvatore> I've a little program running in the phone, capturing
-    Salvatore> images from the camera and sending it to the linux box
-    Salvatore> via bluetooth.
+done:
 
-    Salvatore> In the linux box side, I've a deamon capturing this
-    Salvatore> images (via a bluetooth SP channel), and....  I've to
-    Salvatore> pass the images to a fake v4l device driver that
-    Salvatore> actually gets the images form userspace.
+4196c3af25d98204216a5d6c37ad2cb303a1f2bf is first bad commit
+diff-tree 4196c3af25d98204216a5d6c37ad2cb303a1f2bf (from
+9092b20803e4b3b3a480592794a73030f17370b3)
+Author: Linus Torvalds <torvalds@g5.osdl.org>
+Date:   Sun Oct 23 16:31:16 2005 -0700
 
-    Salvatore> Basically I've to pass by the kernel just for the
-    Salvatore> interface, and not to do real kernel-side work (like to
-    Salvatore> access to the some kind of hardware).
+    cardbus: limit IO windows to 256 bytes
 
-    Salvatore> So I've some questions ( thanks in advance for any
-    Salvatore> reply).
+    That's what we've always historically done, and bigger windows seem to
+    confuse some cardbus bridges. Or something.
 
-    Salvatore> 1) What's the best way to pass relatively high-band
-    Salvatore> data between the v4l fake driver and userspace? A char
-    Salvatore> device will do the work? ioctl?
+    Alan reports that this makes the ThinkPad 600x series work properly
+    again: the 4kB IO window for some reason made IDE DMA not work, which
+    makes IDE painfully slow even if it works after DMA timeouts.
 
-    Salvatore> 2) What about some way to handle ioctl directly from
-    Salvatore> userspace? Given this support I may implement the whole
-    Salvatore> code in userspace.  And I guess there are a lot of
-    Salvatore> other real world problems that can be handled in
-    Salvatore> userspace given the ability to handle ioctl from there.
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-    Salvatore> If you think 2) is reasonable I may actually implement
-    Salvatore> some simple form of generic char driver that just
-    Salvatore> allows userspace programs to handle read/write/ioctl
-    Salvatore> opreations, and then use this to fix my real issue.
+:040000 040000 629d4d303048bffa610017e81e0e744bae08660d
+33e154ffe96822d09f37ae2d433de5152216501b M      drivers
 
-    Salvatore> Thank you very much for the help, and sorry if there is
-    Salvatore> something conceptually wrong in my questions.
 
-Sounds like you should take a look at the v4l loopback device
-(http://www.lavrsen.dk/twiki/bin/view/Motion/VideoFourLinuxLoopbackDevice).
-Otherwise it may be better to ask the question on the v4l mailing list
-(https://listman.redhat.com/mailman/listinfo/video4linux-list).
+let me know any other test I should do to help find a solution to this
+problem, thank you!
 
-Anyway, since you already capture the video, why do you have to pipe
-it through a v4l device? 
+Alessio Sangalli
 
-Marcus
 
--- 
-/--------------------------------------------------------------------\
-| Dr. Marcus O.C. Metzler        |                                   |
-| mocm@metzlerbros.de            | http://www.metzlerbros.de/        |
-\--------------------------------------------------------------------/
- |>>>             Quis custodiet ipsos custodes                 <<<|

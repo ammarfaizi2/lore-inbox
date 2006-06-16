@@ -1,34 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWFPK2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWFPKhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWFPK2H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 06:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWFPK2G
+	id S1751263AbWFPKhD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 06:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWFPKhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 06:28:06 -0400
-Received: from [125.234.205.68] ([125.234.205.68]:8615 "EHLO MAY12.wcsgxp1.org")
-	by vger.kernel.org with ESMTP id S1751276AbWFPK2F (ORCPT
+	Fri, 16 Jun 2006 06:37:02 -0400
+Received: from cantor.suse.de ([195.135.220.2]:48040 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751263AbWFPKhA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 06:28:05 -0400
-Message-ID: <25975745966145.D307B94007@LZLD>
-From: "Stevie" <StevieMinor@samerica.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: The newest But without any  =?ISO-8859-1?Q?=20results=85?= Delight
-Date: Fri, 16 Jun 2006 17:27:31 +0700
+	Fri, 16 Jun 2006 06:37:00 -0400
+From: Andi Kleen <ak@suse.de>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT tasks.
+Date: Fri, 16 Jun 2006 12:36:50 +0200
+User-Agent: KMail/1.9.3
+Cc: ashok.raj@intel.com, linux-kernel@vger.kernel.org
+References: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com> <p7364j1qx66.fsf@verdi.suse.de> <20060616192654.50f4f6b7.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060616192654.50f4f6b7.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-        charset="Windows-1252"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606161236.50302.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 16 June 2006 12:26, KAMEZAWA Hiroyuki wrote:
+> On 16 Jun 2006 11:14:57 +0200
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+> > > 
+> > > This is a bit pessimistic. But forecd migration of RT task which is bounded
+> > > to the special cpu will cause unpredictable trouble, I think.
+> > 
+> > More trouble than running it on a CPU that is about to fail?
+> > Doubtful.
+> > 
+> With my patch, RT tasks will continute to run.
 
-Impress your girl with prolonged hardness, plentiful explosions and increased duration 
-You are just a couple of clicks away from our great prices and handy shipment
- Many people worldwide have been enjoying goods from these top brands for many years
+That's the problem - if the CPU is failing and you have to remove
+it the task will likely corrupt its data or fail in other ways
+if it doesn't allow it.
 
- Find what you need here: http://www.diomedeacb.com
+Better to let RT tasks run a little slower on another CPU.
 
- We thank you for being our customer!
+ 
+> Assume there are some multi-threaded tasks with SCHED_FIFO.
+> If they uses some kind of synchronization in user land and task is migrated to
+> other cpus, it will cause dead-lock.
 
+If its CPU fails much worse things than that will happen.
+
+One way might be to break affinity of all processes in the system on hot unplug
+- then your deadlock would be avoided - but it might be a bit radical.
+
+-Andi
 

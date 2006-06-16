@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWFPPtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWFPPvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWFPPtz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 11:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWFPPtz
+	id S1751467AbWFPPvX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 11:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWFPPvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 11:49:55 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:60426 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751303AbWFPPtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 11:49:55 -0400
-Message-ID: <4492D321.9020709@onelan.co.uk>
-Date: Fri, 16 Jun 2006 16:49:53 +0100
-From: Barry Scott <barry.scott@onelan.co.uk>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16.20 fails to boot on SATA system but works on IDE
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jun 2006 11:51:23 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:14046 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751467AbWFPPvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 11:51:22 -0400
+Date: Fri, 16 Jun 2006 17:51:20 +0200
+From: Jan Blunck <jblunck@suse.de>
+To: Neil Brown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, dgc@sgi.com, balbir@in.ibm.com
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
+Message-ID: <20060616155120.GA6824@hasse.suse.de>
+References: <20060601095125.773684000@hasse.suse.de> <17539.35118.103025.716435@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17539.35118.103025.716435@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After failing to get 2.6.17-rc6 working on a HP dc7600U I went back
-to 2.6.16.20. It also fails to find any volume group during boot.
+On Mon, Jun 05, Neil Brown wrote:
 
-I think this might be problem with SATA as I can boot the same build on
-two other systems that have IDE disks.
+> I understand that this is where problem is because the selected
+> dentries don't stay at the end of the list very long in some
+> circumstances. In particular, other filesystems' dentries get mixed
+> in. 
 
-I get success on VIA Epia M10000 and a P4 Shuttle systems that use
-IDE disks but fail on the HP dc7600U that uses a SATA disk. All three
-systems use LVM2.
+No. The problem is that the LRU list is too long and therefore unmounting
+seems to take ages.
 
-The Fedora build of 2.6.16 works on all three systems.
+> You have addressed this by having multiple unused lists so the
+> dentries of other filesystems don't get mixed in.
+> 
+> It seems to me that an alternate approach would be:
+> 
+>   - get select_parent and shrink_dcache_anon to move the selected
+>     dentries on to some new list.
+>   - pass this list to prune_dcache
+>   - splice any remainder back on to the global list when finished.
 
-I'm going to see if there are debug messages I can turn on it libata
-and md that might give more information.
+I had this idea too. At least select_parent could use something like that. But
+that wouldn't help in the umount situation.
 
-Any suggestions as to what I can do to track down this problem?
-
-Barry
-
+Jan

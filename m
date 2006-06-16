@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWFPDyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWFPD46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWFPDyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 23:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWFPDyI
+	id S1751023AbWFPD46 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 23:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWFPD46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 23:54:08 -0400
-Received: from smtpout.mac.com ([17.250.248.186]:29650 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751003AbWFPDyH (ORCPT
+	Thu, 15 Jun 2006 23:56:58 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:53484 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1751021AbWFPD45 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 23:54:07 -0400
-In-Reply-To: <20060614102018.GA22931@merlin.emma.line.org>
-References: <MDEHLPKNGKAHNMBLJOLKEEFGMHAB.davids@webmaster.com> <193701c68d16$54cac690$0225a8c0@Wednesday> <1150100286.26402.13.camel@tara.firmix.at> <AC44C19E-109F-4DD4-933E-B641BF3BF9CB@mac.com> <17551.21000.94210.883031@cse.unsw.edu.au> <20060614102018.GA22931@merlin.emma.line.org>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <87A8D21B-5534-4C26-974C-15BFEE16B82A@mac.com>
-Cc: Neil Brown <neilb@suse.de>, Bernd Petrovitsch <bernd@firmix.at>,
-       David Schwartz <davids@webmaster.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>, jdow <jdow@earthlink.net>
+	Thu, 15 Jun 2006 23:56:57 -0400
+Date: Fri, 16 Jun 2006 13:56:31 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Jens Axboe <axboe@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix cdrom open
+Message-Id: <20060616135631.146a24fe.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: VGER does gradual SPF activation (FAQ matter)
-Date: Thu, 15 Jun 2006 23:53:15 -0400
-To: Matthias Andree <matthias.andree@gmx.de>
-X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thinking more on this and looking for possible solutions:  One  
-(voluntary) technical solution to a mildly technical problem of lack  
-of authenticity would be to write a mail server (or just glue postfix  
-and apache with some perl CGIs) which stored the emails locally and  
-added a header like this:
-> X-Hosted-Email:  http://my.mail.server/hosted-email?id=$BASE64_HASH
+Hi Jens,
 
-Then replace the body with this:
-> You have received a hosted email from "John Doe"  
-> <jdoe@mail.server>.  Click the link below to view the email, or  
-> install a free hosted-email client from http:// 
-> oss.hosted.email.project/
->
-> http://my.mail.server/hosted-email?id=$BASE64_HASH
+Some time ago the cdrom open routine was changed so that we call the
+driver's open routine before checking to see if it is read only.  However,
+if we discovered that a read write open was not possible and the open
+flags required a writable open, we just returned -EROFS without calling
+the driver's release routine.   This seems to work for most cdrom drivers,
+but breaks the Powerpc iSeries virtual cdrom rather badly.  The following
+patch just inserts the release call in the error path.
 
-The templated message might start to get filtered by a few spam- 
-filters, but it makes blacklisting of abusers much easier so such  
-messages could easily be given a big +bonus in spamassassin or  
-similar.  If each compliant server along the way checked that the  
-host server was up and provided a compliant SMTP-over-HTTP email it  
-would be a trivial load for individual hosts but a quite considerable  
-load for spammers.  In addition it's possible to implement other  
-checks like wait-for-http-response-before-accepting-email, content  
-filters, digital signatures, and other processing steps.  Such a  
-system would be very reliable and easy to implement by relying on  
-existing proven technologies (SMTP and HTTP) in completely standards- 
-compliant ways.  Just some food for thought.
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 
+It would be good is this could go into 2.6.17 as it affects the new distro
+kernels.
+
+-- 
 Cheers,
-Kyle Moffett
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index a59876a..3170eaa 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -1009,9 +1009,9 @@ int cdrom_open(struct cdrom_device_info 
+ 		if (fp->f_mode & FMODE_WRITE) {
+ 			ret = -EROFS;
+ 			if (cdrom_open_write(cdi))
+-				goto err;
++				goto err_release;
+ 			if (!CDROM_CAN(CDC_RAM))
+-				goto err;
++				goto err_release;
+ 			ret = 0;
+ 			cdi->media_written = 0;
+ 		}
+@@ -1026,6 +1026,8 @@ int cdrom_open(struct cdrom_device_info 
+ 	    not be mounting, but opening with O_NONBLOCK */
+ 	check_disk_change(ip->i_bdev);
+ 	return 0;
++err_release:
++	cdi->ops->release(cdi);
+ err:
+ 	cdi->use_count--;
+ 	return ret;

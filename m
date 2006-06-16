@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWFPMhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWFPMkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWFPMhF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 08:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFPMhF
+	id S1751381AbWFPMkV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 08:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWFPMkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 08:37:05 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51660 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751000AbWFPMhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 08:37:01 -0400
-Message-ID: <4492A5E4.9050702@bull.net>
-Date: Fri, 16 Jun 2006 14:36:52 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
+	Fri, 16 Jun 2006 08:40:20 -0400
+Received: from wx-out-0102.google.com ([66.249.82.201]:13348 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751381AbWFPMkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 08:40:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=ok3UDXQug6wo7gVansfXdsQgzwyLag+e+nCTtvVEvnLPgW2dqCYzqol/m1OA20drGMfLd0G4QxPzze2hp6O6Mvguyk3uvTmW1+UyPgQua5ravB4Jbg+cgWErL+nVbNI3lAo9XX8Bw0qRy4G1maX5t6+A+FqFW7DQ26qyQk2e0mc=
+Message-ID: <84144f020606160540q20433601jd9b5331763a55dab@mail.gmail.com>
+Date: Fri, 16 Jun 2006 15:40:17 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Alessio Sangalli" <alesan@manoweb.com>
+Subject: Re: APM problem after 2.6.13.5
+Cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>
+In-Reply-To: <44929CF5.208@manoweb.com>
 MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Tony Luck <tony.luck@intel.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
-Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-References: <200606140942.31150.ak@suse.de> <200606161209.25266.ak@suse.de> <44928FB1.5070107@sgi.com> <200606161317.19296.ak@suse.de> <44929CE6.4@sgi.com>
-In-Reply-To: <44929CE6.4@sgi.com>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 14:40:45,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 14:40:46,
-	Serialize complete at 16/06/2006 14:40:46
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+References: <44927F91.6050506@manoweb.com>
+	 <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>
+	 <44929CF5.208@manoweb.com>
+X-Google-Sender-Auth: 140082a8fc9612e9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to make sure I understand it correctly...
-Assuming I have allocated per CPU data (numa control, etc.) pointed at by:
+Hi Alessio,
 
-	void *per_cpu[MAXCPUS];
+On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
+> > > if I enable "APM support" I get a freeze at the very beginning of the
+> > > boot, without any explicit erro message, just after the PCI stuff. If
+> > > you need a transcript of the messages at boot, let me know, I will have
+> > > to write them by hand).
+> > > 2.6.13.5 is ok. I need APM support to let the "Fn" key and the battery
+> > > meter work!
 
-Assuming a per CPU variable has got an "offset" in each per CPU data area.
-Accessing this variable can be done as follows:
+Pekka Enberg wrote:
+> > There's a lot of changes between 2.6.13 and 2.6.14.  It would be
+> > helpful if you could narrow down the exact changeset that broke your
 
-	err = vgetcpu(&my_cpu, ...);
-	if (err)
-		goto ....
-	pointer = (typeof pointer) (per_cpu[my_cpu] + offset);
-	// use "pointer"...
+On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
+> done:
+>
+> 4196c3af25d98204216a5d6c37ad2cb303a1f2bf is first bad commit
+> diff-tree 4196c3af25d98204216a5d6c37ad2cb303a1f2bf (from
+> 9092b20803e4b3b3a480592794a73030f17370b3)
+> Author: Linus Torvalds <torvalds@g5.osdl.org>
+> Date:   Sun Oct 23 16:31:16 2005 -0700
+>
+>     cardbus: limit IO windows to 256 bytes
+>
+>     That's what we've always historically done, and bigger windows seem to
+>     confuse some cardbus bridges. Or something.
+>
+>     Alan reports that this makes the ThinkPad 600x series work properly
+>     again: the 4kB IO window for some reason made IDE DMA not work, which
+>     makes IDE painfully slow even if it works after DMA timeouts.
+>
+>     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+>
+> :040000 040000 629d4d303048bffa610017e81e0e744bae08660d
+> 33e154ffe96822d09f37ae2d433de5152216501b M      drivers
+>
+>
+> let me know any other test I should do to help find a solution to this
+> problem, thank you!
 
-It is hundred times more long than "__get_per_cpu(var)++".
+So reverting the above commit from git head makes your box boot again?
+Linus, any thoughts?
 
-As we do not know when we can be moved to another CPU,
-"vgetcpu()" has to be called again after a "reasonable short" time.
-
-My idea is to map the current task structure at an arch. dependent
-virtual address into the user space (obviously in RO).
-
-	#define current	((struct task_struct *) 0x...)
-
-No more need to for "vgetcpu()" at all. The example above becomes:
-
-	pointer = (typeof pointer) (per_cpu[current->thread_info.cpu] + offset);
-	// use "pointer"...
-
-As obtaining "pointer" does not cost much, it can be re-calculated at
-each usage => no problem to know when to recheck it, there is less chance for
-using the data of a neighbor.
-
-Regards,
-
-Zoltan Menyhart
+                                      Pekka

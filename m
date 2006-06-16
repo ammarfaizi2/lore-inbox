@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751553AbWFPXpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWFPXrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751553AbWFPXpR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWFPXpR
+	id S932477AbWFPXrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWFPXrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:45:17 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:59546 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751553AbWFPXpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:45:15 -0400
-Date: Fri, 16 Jun 2006 16:42:18 -0700
-From: Greg KH <greg@kroah.com>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Takashi Iwai <tiwai@suse.de>,
-       Jaroslav Kysela <perex@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       ALSA devel <alsa-devel@alsa-project.org>
-Subject: Re: Driver model ISA bus
-Message-ID: <20060616234218.GC25127@kroah.com>
-References: <4485F97A.6020205@keyaccess.nl>
+	Fri, 16 Jun 2006 19:47:55 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53183 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932477AbWFPXry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 19:47:54 -0400
+Date: Sat, 17 Jun 2006 08:47:48 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: clameter@sgi.com, linux-kernel@vger.kernel.org, ashok.raj@intel.com,
+       ak@suse.de
+Subject: Re: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT
+ tasks.
+Message-Id: <20060617084748.a4c68977.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060616102934.A2940@unix-os.sc.intel.com>
+References: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0606160908120.14330@schroedinger.engr.sgi.com>
+	<20060617014623.8f820e8b.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060616102934.A2940@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4485F97A.6020205@keyaccess.nl>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 06, 2006 at 11:54:02PM +0200, Rene Herman wrote:
-> Hi Greg.
+On Fri, 16 Jun 2006 10:29:35 -0700
+Ashok Raj <ashok.raj@intel.com> wrote:
+> Should we have this flag on a per-task so we know if this task should be 
+> killed, or could be migrated without damage (assuming its going to run slow, 
+> but nothing critically bad will happen)
 > 
-> The below was sent a month ago and I haven't heard anything back. Saw 
-> you saying "it's getting there" about this thing on the kernelnewbies 
-> list but where's there?
+> Iam just worried if killing them globally without giving them a chance is 
+> any good and favorite apps such as databases will have probably have
+> ill effects.
 > 
+In the big servers which equips cpu-hotplug, apps should work as they designed.
+If not, apps are already in buggy state.
+IMHO, just stopping it is better than allowing execution in buggy state.
 
-Sorry for the delay.  It looks great to me so I've added it to my tree
-and will push it upstream when I can.
+I used SIGSTOP. If a system admin or SIGCONT handler can modify cpu_allowed of
+stopped thread, apps can go on. I think this is a realistic workaround.
+(if the process is stopped, parent process of it can catch it by waitpid.)
 
-thanks,
+p.s.
+I think prefer cpu + allowed cpu will help this kind of probem, but there is no
+interface..
 
-greg k-h
+-Kame
+

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWFPOml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWFPO4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbWFPOml (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 10:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWFPOmk
+	id S1751430AbWFPO4P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 10:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWFPO4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 10:42:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9356 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751431AbWFPOmk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 10:42:40 -0400
-To: Roland McGrath <roland@redhat.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       "Charles P. Wright" <cwright@cs.sunysb.edu>,
-       Renzo Davoli <renzo@cs.unibo.it>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Blaisorblade <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>
-Subject: Re: [RFC PATCH 0/4] utrace: new modular infrastructure for user debug/tracing
-References: <200606151900_MC3-1-C293-BD30@compuserve.com>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 16 Jun 2006 10:42:00 -0400
-In-Reply-To: <200606151900_MC3-1-C293-BD30@compuserve.com>
-Message-ID: <y0mlkrxupqf.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 16 Jun 2006 10:56:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61917 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751430AbWFPO4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 10:56:15 -0400
+Date: Fri, 16 Jun 2006 15:56:12 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com, wcohen@redhat.com,
+       perfmon@napali.hpl.hp.com
+Subject: Re: [PATCH 9/16] 2.6.17-rc6 perfmon2 patch for review: kernel-level API support (kapi)
+Message-ID: <20060616145612.GA24812@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stephane Eranian <eranian@hpl.hp.com>, linux-kernel@vger.kernel.org,
+	systemtap@sources.redhat.com, wcohen@redhat.com,
+	perfmon@napali.hpl.hp.com
+References: <200606150907.k5F97coF008178@frankl.hpl.hp.com> <20060616135014.GB12657@infradead.org> <20060616140234.GI10034@frankl.hpl.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060616140234.GI10034@frankl.hpl.hp.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 16, 2006 at 07:02:34AM -0700, Stephane Eranian wrote:
+> Well, that's what I initially thought too but there is a need from the SystemTap
+> people and given the way they set things up, it is hard to do it from user level.
 
-Chuck Ebbert <76306.1226@compuserve.com> writes:
+Systemtap doesn' matter.  Please don't put in useless stuff for their
+broken requirements - they're all clueless idiots.
 
-> [...]  Renzo Davoli also posted a patch to allow "batching" of
-> ptrace requests and Systemptap really needs this, too.  AFAICT this
-> can be done by writing a custom engine. [...]
-
-Indeed, I like what I see (at least those parts I understand) in
-roland's utrace code.  One missed opportunity bit appears to be any
-new support for something like per-thread breakpoints.
-
-If I correctly understand how gdb etc. work, a hit breakpoint involves
-stoppage of all other threads of a process, then the breakpoint
-instruction is replaced by the original one, then the thread is
-single-stepped, then the breakpoint is put back, then finally all
-threads are resumed.  Could utrace API provide short-lived per-thread
-page copies to execute the single-stepped original instruction out of,
-and avoid stopping & resuming all other threads?
-
-- FChE

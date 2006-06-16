@@ -1,25 +1,27 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWFOXhg (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 15 Jun 2006 19:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWFOXhg
+	id S1751423AbWFPOiH (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 16 Jun 2006 10:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWFPOiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 19:37:36 -0400
-Received: from [216.136.17.93] ([216.136.17.93]:24587 "EHLO [216.136.17.93]")
-	by vger.kernel.org with ESMTP id S1750766AbWFOXhe (ORCPT
+	Fri, 16 Jun 2006 10:38:06 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:6280 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751426AbWFPOiD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 19:37:34 -0400
-Message-ID: <87843845.20060615233621@chkd.com>
-Date: Thu, 15 Jun 2006 23:36:21 +0360
-From: "Toni Hedrick" <tkrumm@chkd.com>
-Reply-To: "Toni Hedrick" <tkrumm@chkd.com>
-To: linux-fsdevel@vger.kernel.org
-Subject: New Press for Infinex Ventures Inc.
+	Fri, 16 Jun 2006 10:38:03 -0400
+Date: Fri, 16 Jun 2006 14:37:58 -0060
+From: "Sammy Mclain" <tl.hkg@timemodule.com>
+X-Mailer: The Bat! (v7.49.2) RJP15RKY0L
+Reply-To: "Sammy Mclain" <tl.hkg@timemodule.com>
+X-Priority: 3 (Normal)
+Message-ID: <64812103.20060616143758@timemodule.com>
+To: linux-8086@vger.kernel.org
+Subject: Stock to Consider Right Now?
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750770AbWFOXhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751423AbWFPOiH@vger.kernel.org>
 
 Our weekly gift to you!
 Big Press Release just out.

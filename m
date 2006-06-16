@@ -1,85 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWFPG21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWFPGez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWFPG21 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 02:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWFPG21
+	id S1751093AbWFPGez (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 02:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWFPGez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 02:28:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5823 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751080AbWFPG21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 02:28:27 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>
-Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before crashing
-References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
-Date: Fri, 16 Jun 2006 00:28:08 -0600
-In-Reply-To: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
-	(Nobuyuki Akiyama's message of "Thu, 15 Jun 2006 20:16:21 +0900")
-Message-ID: <m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 16 Jun 2006 02:34:55 -0400
+Received: from fep32-0.kolumbus.fi ([193.229.0.63]:12233 "EHLO
+	fep32-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1751093AbWFPGey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 02:34:54 -0400
+From: Janne Karhunen <Janne.Karhunen@gmail.com>
+To: Peter Staubach <staubach@redhat.com>
+Subject: Re: NFSv3 client reordering RENAMEs
+Date: Fri, 16 Jun 2006 09:25:50 +0300
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <200606151638.15792.Janne.Karhunen@gmail.com> <200606151754.33384.Janne.Karhunen@gmail.com> <44918545.2090002@redhat.com>
+In-Reply-To: <44918545.2090002@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_v7kkEmvhe0RpBw7"
+Message-Id: <200606160925.51332.Janne.Karhunen@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com> writes:
+--Boundary-00=_v7kkEmvhe0RpBw7
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Hi all,
+On Thursday 15 June 2006 19:05, Peter Staubach wrote:
+
+> >Possibly .. if someone first acks that this indeed would be
+> >considered as bug and not as a feature :/
 >
-> The attached patch adds a missing notifier before crashing.
-> This patch is remade to follow the former discussions.
-> The change is that a notifier calling becomes optional.
-> Please refer to the following thread for details:
->
-> http://lists.osdl.org/pipermail/fastboot/2006-May/003018.html
->
-> Description:
-> We don't have a simple and light weight way to know the kernel dies.
-> The panic notifier does not be called if kdump is activated
-> because crash_kexec() does not return, and there is no mechanism to
-> notify of a crash before crashing by SysRq-c.
-> Although notify_die() exists, the function depends on architecture.
-> If notify_die() is added in panic and SysRq respectively like
-> existing implementation, the code will be ugly.
-> I think that adding a generic hook in crash_kexec() is better to
-> simplify the code.
->
-> This new notifier is useful, especially for a clustering system.
-> On a mission critical system, failover need to start within a few
-> milli-second. The notifier could be called on 2nd kernel, but it is
-> no use because it takes the time of second order to boot up.
->
-> The attached patch is against 2.6.17-rc6-git5.
-> I tested on i386-box.
+> Yes, I believe that this would be considered to be a bug...
 
-Please give a concrete example of a failure mode where this allows
-you to meet your timing constraint.
+Looks that this is a vendor kernel issue, couldn't get it to
+barf on mainline. Without any more knowledge of the extent 
+of the problem testcase attached. Given that you suffer from
+the problem you should occasionally see files vanishing.
 
-I have yet to be convinced that this actually solves a real world
-problem.
 
-What is the cost of the notifier you wish to implement?
-What is your guarantee that the system won't have wasted seconds
-detecting it can't allocate memory or other cases?
+-- 
+// Janne
 
-If we go this route the notifier should not be exported to modules.
-Only the most scrutinized of code paths should ever set this,
-and code like that should never be a module.
+--Boundary-00=_v7kkEmvhe0RpBw7
+Content-Type: text/x-csrc;
+  charset="iso-8859-1";
+  name="test.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="test.c"
 
-The patchset that adds the notifier call needs to include the notifier
-so people can look and see how sane this is.
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <pthread.h>
+#include <stdlib.h>
 
-So far what I have seen are hand waving arguments that failures
-that can never happen must be detected and reported within
-milliseconds to another machine in an unspecified manner.  Your kernel
-startup times are asserted to be to large to do this from the next
-kernel, but the code to do so is sufficiently complicated you can't do
-this in the kexec code stub that runs before it starts your next
-kernel.
+#ifndef ROTATION_CYCLE
+#define ROTATION_CYCLE 60
+#endif
 
-I am sympathetic but this interface seems to set expectations that
-we can the impossible, and it still appears unnecessary to me.
+char*     str = "Quick brown fox jumped over lazy dog %d\n";
+char      buf[50] = { 0 };
+int       rl=1;
+int       rr=1;
+pthread_t thr[2];
 
-Eric
+void* logger_thread ( void* ptr ) {
+  int i=0, r, fd;
+
+  fd = open ( "/mnt/nfs/file", O_RDWR|O_CREAT, 00600 );
+  printf ( "logger starting, fd %d\n", fd );
+
+  if ( fd <= 0 ) {
+    printf ("%s\n", strerror(errno));
+    return NULL;
+  }
+  while ( rl ) {
+    r = sprintf ( &buf[0], str, i );
+    r = write ( fd, &buf[0], strlen(&buf[0]) );
+    if ( r <= 0 ) {
+      printf ("\n\n%s\n", strerror(errno));
+      goto exit;
+    }
+    i++;
+    usleep ( 10000 );
+  }
+exit:
+  printf ("logger exiting\n");
+  close (fd);
+  return NULL;
+}
+
+void* logrotate_thread ( void* ptr ) {
+  int r;
+
+  printf ( "rotater starting\n" );
+  while ( rr ) {
+    sleep(ROTATION_CYCLE);
+
+    r = system ( "mv /mnt/nfs/file.4 /mnt/nfs/file.5" );
+    r = system ( "mv /mnt/nfs/file.3 /mnt/nfs/file.4" );
+    r = system ( "mv /mnt/nfs/file.2 /mnt/nfs/file.3" );
+    r = system ( "mv /mnt/nfs/file.1 /mnt/nfs/file.2" );
+    r = system ( "mv /mnt/nfs/file /mnt/nfs/file.1" );
+    rl=0;
+    sleep(2);
+    rl=1;
+    pthread_create ( &thr[1], 0, logger_thread, 0 );
+  }
+  printf ( "rotater exiting\n" );
+  return NULL;
+}
+
+int main ( int a, char** b ) {
+  pthread_create ( &thr[0], 0, logrotate_thread, 0 );
+  pthread_create ( &thr[0], 0, logger_thread, 0 );
+
+  while ( 1 )
+    usleep ( 100000 );
+  return 0;
+}
+
+
+--Boundary-00=_v7kkEmvhe0RpBw7--

@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWFPJWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWFPJY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWFPJWm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 05:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWFPJWm
+	id S1751157AbWFPJY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 05:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWFPJY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 05:22:42 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8083 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750839AbWFPJWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 05:22:41 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-Cc: serue@us.ibm.com, haveblue@us.ibm.com, clg@fr.ibm.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC] [patch 0/6] [Network namespace] introduction
-References: <20060609210202.215291000@localhost.localdomain>
-	<m1mzcdpw3i.fsf@ebiederm.dsl.xmission.com>
-	<449274A3.5050304@fr.ibm.com>
-Date: Fri, 16 Jun 2006 03:22:15 -0600
-In-Reply-To: <449274A3.5050304@fr.ibm.com> (Daniel Lezcano's message of "Fri,
-	16 Jun 2006 11:06:43 +0200")
-Message-ID: <m1zmgdo3p4.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jun 2006 05:24:28 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:46242 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1750839AbWFPJY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 05:24:27 -0400
+Date: Fri, 16 Jun 2006 11:23:46 +0200
+From: Voluspa <lista1@comhem.se>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: randy.dunlap@oracle.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       len.brown@intel.com, rdreier@cisco.com, mingo@elte.hu
+Subject: Re: [UBUNTU:acpi/ec] Use semaphore instead of spinlock
+Message-Id: <20060616112346.1d2050d0.lista1@comhem.se>
+In-Reply-To: <1150388824.2925.105.camel@mindpipe>
+References: <20060615010850.3d375fa9.lista1@comhem.se>
+	<4490B48E.5060304@oracle.com>
+	<20060615130336.176f527c.lista1@comhem.se>
+	<1150388824.2925.105.camel@mindpipe>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Lezcano <dlezcano@fr.ibm.com> writes:
+On Thu, 15 Jun 2006 12:27:03 -0400 Lee Revell wrote:
+> On Thu, 2006-06-15 at 13:03 +0200, Voluspa wrote:
+> > On Wed, 14 Jun 2006 18:14:54 -0700 Randy Dunlap wrote:
+> > > updated version:
+> > 
+> > As a user, it's great if this fixes people's keyboards and mice. But it's
+> > not a panacea. Gkrellm reads CPU temperatures from
+> > /proc/acpi/thermal_zone/*/temperature and that disturbs a time-critical
+> > application like mplayer, both when reading normal video and hacked mms:
+> > sound streams (ogg sound is OK, though):
+> > 
+> 
+> It would be helpful to analyze this with Ingo's latency tracing patch.
 
-> Eric W. Biederman wrote:
->
->  > Have you seen my previous work in this direction?
->> I know I had a much much more complete implementation.  The only part
->> I had not completed was iptables support and that was about a days
->> more work.
->
-> No, I didn't see your work, is it possible to send me a pointer on it or to have
-> a patchset of your code ?
+Do you mean proper in relation to ubuntu-patched, or just proper? And, hmmm,
+I do read a lot of archived lkml threads, but latency tracing patch... Is
+it buried in the -rt set?
 
-It is in my git tree up on kernel.org.  I think it is in my proof-of-concept
-branch.
-
-The individual commits tell a tangled tale that is definitely unacceptable
-for an upstream merge but the actual result is interesting.
-
-If that isn't enough to find it, tell me and I will track down the details.
-It has been a couple months since I posted it during the design discussion
-and I'm way overdue for being in bed, tonight.
-
-Eric
-
-
-
+Mvh
+Mats Johannesson
+--

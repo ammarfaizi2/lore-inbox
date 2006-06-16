@@ -1,151 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWFPSsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWFPSwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWFPSsW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 14:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWFPSsW
+	id S1750942AbWFPSwE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 14:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWFPSwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 14:48:22 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:9870 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751350AbWFPSsV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 14:48:21 -0400
-Subject: Re: clocksource
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0606161620190.32445@scrub.home>
-References: <20060604135011.decdc7c9.akpm@osdl.org>
-	 <Pine.LNX.4.64.0606050141120.17704@scrub.home>
-	 <1149538810.9226.29.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606052226150.32445@scrub.home>
-	 <1149622955.4266.84.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0606070005550.32445@scrub.home>
-	 <1149753904.2764.24.camel@leatherman>
-	 <Pine.LNX.4.64.0606151319440.32445@scrub.home>
-	 <1150428084.15267.74.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0606161620190.32445@scrub.home>
-Content-Type: text/plain
-Date: Fri, 16 Jun 2006 11:48:04 -0700
-Message-Id: <1150483684.5316.56.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 16 Jun 2006 14:52:04 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:8064 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750942AbWFPSwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 14:52:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Qpn8ab6XOsL7sPerHEwOTy8jlc3RP0WIqY1Z4Zp55oPQYiX0afpsZsEdarA4ThYZcCqw+q/I58czMFp5+J17xzcDEZYFOH4zDy7cgaOngMoL7tmhJaQEwmajqR7jqsnZlpjISJI/JFEFKaNPK1+UDWb8pwxdWZjtzxtBAoy/tGI=
+Message-ID: <4492FDCC.6040102@gmail.com>
+Date: Fri, 16 Jun 2006 11:51:56 -0700
+From: Bruce Eleniak <beleniak@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: "K.R. Foley" <kr@cybsft.com>
+CC: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc6-rt3
+References: <20060610082406.GA31985@elte.hu> <448D9F70.2040400@cybsft.com>	 <448DA21C.7090609@cybsft.com> <1150132934.5257.230.camel@localhost.localdomain> <448DA546.7070102@cybsft.com>
+In-Reply-To: <448DA546.7070102@cybsft.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-16 at 17:33 +0200, Roman Zippel wrote:
-> On Thu, 15 Jun 2006, john stultz wrote:
-> > I've also been working on improving the adjustment algorithm. Paul
-> > Mckenney enlightened me to the established concepts in control theory, I
-> > started reading up on PID control (see:
-> > http://en.wikipedia.org/wiki/PID_controller ). While I have understood
-> > the basic concept, it was useful to read up on it. I've tried to rework
-> > the adjustment code accordingly.
-> > 
-> > The method I came up with is really just P-D (proportional-derivative)
-> > control, but that should be ok since the adjustments are all linear so I
-> > don't think the integral control is necessary (control theorists can
-> > pipe in here).
-> 
-> This makes it more complex than necessary. AFAICT this controller 
-> calculates the adjustment solely based on the current error, but we have 
-> more information than this, which make the current error rather 
-> uninteresting.
+K.R. Foley wrote:
+> Thomas Gleixner wrote:
+>   
+>> On Mon, 2006-06-12 at 12:19 -0500, K.R. Foley wrote:
+>>     
+>>>> BUG: unable to handle kernel paging request at virtual address f3010000
+>>>>  printing eip:
+>>>> *pde = 00000000
+>>>> Oops: 0000 [#1]
+>>>> PREEMPT SMP
+>>>> Modules linked in:
+>>>> CPU:    1
+>>>> EIP:    0060:[<c0132f9c>]    Not tainted VLI
+>>>> EFLAGS: 00010297   (2.6.17-rc6-rt4 #10)
+>>>> EIP is at lookup_symbol+0x11/0x35
+>>>> eax: 00000001   ebx: e083185c   ecx: c02f20c4   edx: c02f0000
+>>>> esi: f3010000   edi: e083185c   ebp: df597e80   esp: df597e74
+>>>> ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+>>>> Process modprobe (pid: 1419, threadinfo=df596000 task=dec3ac90
+>>>> stack_left=7744 worst_left=-1)
+>>>> Stack: e083b580 00000bf0 e083185c df597e9c c0132fe5 df597eb4 df597eb0
+>>>> e083b580
+>>>>        00000bf0 e083185c df597ec4 c0133c93 00000001 00000012 e082dde8
+>>>> 00000000
+>>>>        df597ed8 e0839200 00000bf0 e082dde8 df597ee8 c01341fa e083b580
+>>>> 00000000
+>>>> Call Trace:
+>>>>  [<c01036a1>] show_stack_log_lvl+0x82/0x8a (36)
+>>>>  [<c0103821>] show_registers+0x139/0x1a1 (32)
+>>>>  [<c0103a15>] die+0x118/0x1df (60)
+>>>>  [<c0110cf3>] do_page_fault+0x45c/0x532 (76)
+>>>>  [<c010336b>] error_code+0x4f/0x54 (72)
+>>>>  [<c0132fe5>] __find_symbol+0x25/0x1b7 (28)
+>>>>  [<c0133c93>] resolve_symbol+0x27/0x5f (40)
+>>>>  [<c01341fa>] simplify_symbols+0x83/0xf3 (36)
+>>>>  [<c0134e31>] load_module+0x668/0x9e2 (184)
+>>>>  [<c0135210>] sys_init_module+0x42/0x1a4 (20)
+>>>>  [<c01027fb>] sysenter_past_esp+0x54/0x75 (-8116)
+>>>> Code: eb 11 8b 75 f0 41 83 c2 28 0f b7 46 30 39 c1 72 c9 31 c0 5a 59 5b
+>>>> 5e 5f 5d c3 55 89 e5 57 56 53 89 c3 39 ca 73 22 8b 72 04 89 df <ac> ae
+>>>> 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 04 89
+>>>> EIP: [<c0132f9c>] lookup_symbol+0x11/0x35 SS:ESP 0068:df597e74
+>>>>         
+>>> DOH! That was actually 2.6.17-rc6-rt4. Sorry.
+>>>       
+>> Which module is it trying to load ?
+>>
+>> 	tglx
+>>     
+>
+> Can't really say which it is trying to load when it dies. The lines
+> below are the lines that immediately preceed the oops.
+>
+> NET: Registered protocol family 1
+> input: AT Translated Set 2 keyboard as /class/input/input0
+> NET: Registered protocol family 17
+> NET: Registered protocol family 8
+> NET: Registered protocol family 20
+> Starting balanced_irq
+> Using IPI Shortcut mode
+> Time: tsc clocksource has been installed.
+> hrtimers: Switched to high resolution mode CPU 3
+> hrtimers: Switched to high resolution mode CPU 2
+> hrtimers: Switched to high resolution mode CPU 1
+> hrtimers: Switched to high resolution mode CPU 0
+> *****************************************************************************
+> *
+>     *
+> *  REMINDER, the following debugging option is turned on in your
+> .config:   *
+> *
+>     *
+> *        CONFIG_DEBUG_RT_MUTEXES
+>      *
+> *
+>     *
+> *  it may increase runtime overhead and latencies.
+>     *
+> *
+>     *
+> *****************************************************************************
+> Freeing unused kernel memory: 200k freed
+> input: ImExPS/2 Generic Explorer Mouse as /class/input/input1
+> kjournald starting.  Commit interval 5 seconds
+> EXT3-fs: mounted filesystem with ordered data mode.
+>
+>   
+Similar for me on a dual Xeon 3.2 with 2.6.17-rc6-rt4:
 
-Indeed it is the current error, but its also taking the change in error
-into account as well.
-
-> We know the clock frequency and the NTP frequency so we can easily 
-> precalculate, how the error will look like at the next few ticks. Based on 
-> this we can calculate how we have to adjust the clock frequency to reduce 
-> the error. Overshooting is also not a real problem as long as the absolute 
-> error gets smaller.
-
-I'm not sure I agree here. Using your patch series, if I re-enable the
-code that drops calls to update_wall_time (simulating lost ticks) the
-clock does not appear very stable. Robustness and features like
-dynamic/no_idle_hz are going to require that we can handle taking
-something close to only one tick per second, so overshoot is a big
-concern in my mind. Maybe I'm misunderstanding you?
-
-However, I need to forward port your patchset to the new simulator to
-really do a fair comparison as I know there were some issues w/ the
-simulator that I addressed in order to get the new features working. If
-you have already done this, let me know.
-
-> An important point about the last patch is not just robustness but also 
-> speed, it tries to keep the fast path small, which is basically:
-> 
-> 	interval = clock->cycle_interval;
-> 	if (error > interval / 2) {
-> 		adj = 1;
-> 		if (unlikely(error > interval * 2)) {
-> 			...
-> 		}
-> 	} else if (error < -interval / 2) {
-> 		adj = -1
-> 		interval = -interval;
-> 		offset = -offset;
-> 		if (unlikely(error < interval * 2)) {
-> 			...
-> 		}
-> 	} else
-> 		return;
-> 
-> 	clock->mult += adj;
-> 	clock->xtime_interval += interval;
-> 	clock->xtime_nsec -= offset;
-> 	clock->error -= interval - offset;
-> 
-> You'll need a very good reason to do anything more than this for small 
-> errors and I would suggest you start from something like this, as this is 
-> the very core of the error adjustment.
-
-I agree that the patch I sent could use some optimizations, and likely
-even some tweaking (supposedly I can get rid of the proportional
-adjustment limiter by using a gain value, but I need to test this a bit)
-to improve it further.  
-
-Now trying to compare it to your code:
-
-Looking at your description of the code above from your documentation
-email:
-1)	mult_adj = error / cycle_update;
-2)	mult += mult_adj;
-3)	xtime -= cycle_offset * mult_adj;
-4)	error -= (cycle_update - cycle_offset) * mult_adj;
-
-Lines 1 & 2 calculates the proportional error adjustment for the error
-at the next interval.
-
-Line 3 is also well understood, as it corrects the base for the new
-adjustment value if there is an offset value.
-
-So I see the proportional adjustment, but I don't see how the derivative
-is included. I suspect the density of the error adjustment bit is what
-makes this so opaque to me. Breaking line 4 apart for a moment:
-
-4a) error += cycle_offset * multadj;
-4b) error -= cycle_update * muladj
-
-Line 4a is also clear, since if the base had been changed in line 3, the
-error between the base and ntp has changed as well, so it must be
-changed by the negative amount the base was changed to stay in sync.
-
-Line 4b is a bit foggy. Just assuming cycle_offset is zero, we can
-ignore line 3 and 4a. So we're reducing the error by the change in
-length of the next interval. I see how this would in effect dampen the
-next adjustment, but I'm not sure how that then maps the error value to
-the actual distance from ntp_time.
-
-Abstractly I understand how looking at the next tick is good for when
-the NTP adjustment value changes, but I'm not sure I see how looking
-ahead makes the clock more stable when the NTP adjustment isn't
-changing.
-
-Is there a way you can map the math above to the terms of PID control
-(or maybe some other established concept that I can dig deeper on?).
-
-thanks
--john
+*****************************************************************************
+Time: tsc clocksource has been installed.
+hrtimers: Switched to high resolution mode CPU 0
+hrtimers: Switched to high resolution mode CPU 1
+*                                                                           
+*
+*  REMINDER, the following debugging option is turned on in your 
+.config:   *
+*                                                                           
+*
+*        
+CONFIG_DEBUG_RT_MUTEXES                                             *
+*                                                                           
+*
+*  it may increase runtime overhead and 
+latencies.                          *
+*                                                                           
+*
+*****************************************************************************
+Freeing unused kernel memory: 208k freed
+Red Hat nash version 4.1.18.1 starting
+Mounted /proc filesystem
+Mounting sysfs
+Creating /dev
+Starting udev
+Loading jbd.ko mBUG: unable to handle kernel paging request at virtual 
+address 75010000
+ printing eip:
+c0135679
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP
+Modules linked in:
+CPU:    1
+Eodule
+IP:    0060:[<c0135679>]    Not tainted VLI
+EFLAGS: 00010297   (2.6.17-rc6-rt5 #1)
+EIP is at lookup_symbol+0xe/0x31
+eax: ffffffff   ebx: f881a7d2   ecx: c0332f3c   edx: c03309d8
+esi: 75010000   edi: f881a7d2   ebp: f7f27ec0   esp: f7f27e8c
+ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+Process insmod (pid: 293, threadinfo=f7f27000 task=f7f360f0 
+stack_left=3672 worst_left=-1)
+Stack: f882e520 000010a0 f881a7d2 c01356bd f7f27ebc f882e520 000010a0 
+f881a7d2
+       00000012 c013630c 00000001 f881752c 00000000 c0334284 f882abc0 
+000010a0
+       f881752c 0000008f c0136859 f882e520 00000000 f881931c f882e52c 
+f882e52d
+Call Trace:
+ [<c01356bd>] __find_symbol+0x21/0x1b3 (16)
+ [<c013630c>] resolve_symbol+0x27/0x61 (24)
+ [<c0136859>] simplify_symbols+0x85/0xf7 (36)
+ [<c0137532>] load_module+0x73f/0xaf9 (32)
+ [<c013373e>] try_to_take_rt_mutex+0x165/0x172 (20)
+ [<c013792f>] sys_init_module+0x24/0x1a0 (16)
+ [<c013794d>] sys_init_module+0x42/0x1a0 (144)
+ [<c01032d3>] sysenter_past_esp+0x54/0x75 (16)
+Code: 01 85 c0 75 04 89 c8 eb 0e 0f b7 45 30 41 83 c2 28 39 c1 72 cb 31 
+c0 5a 5b 5e 5f 5d c3 57 56 53 89 c3 39 ca 73 22 8b 72 04 89 df <ac> ae 
+75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0
 

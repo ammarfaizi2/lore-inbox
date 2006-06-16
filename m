@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWFPGRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWFPG21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWFPGRL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 02:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWFPGRL
+	id S1751080AbWFPG21 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 02:28:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWFPG21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 02:17:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47514 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751067AbWFPGRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 02:17:11 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@kvack.org
-Subject: Older git hooks for linux-2.4
-Mime-Version: 1.0
+	Fri, 16 Jun 2006 02:28:27 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5823 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751080AbWFPG21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 02:28:27 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>
+Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before crashing
+References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
+Date: Fri, 16 Jun 2006 00:28:08 -0600
+In-Reply-To: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
+	(Nobuyuki Akiyama's message of "Thu, 15 Jun 2006 20:16:21 +0900")
+Message-ID: <m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 16 Jun 2006 16:16:37 +1000
-Message-ID: <26721.1150438597@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rsync rsync://rsync.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
+"Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com> writes:
 
-has hooks that do not match the current git template hooks.
+> Hi all,
+>
+> The attached patch adds a missing notifier before crashing.
+> This patch is remade to follow the former discussions.
+> The change is that a notifier calling becomes optional.
+> Please refer to the following thread for details:
+>
+> http://lists.osdl.org/pipermail/fastboot/2006-May/003018.html
+>
+> Description:
+> We don't have a simple and light weight way to know the kernel dies.
+> The panic notifier does not be called if kdump is activated
+> because crash_kexec() does not return, and there is no mechanism to
+> notify of a crash before crashing by SysRq-c.
+> Although notify_die() exists, the function depends on architecture.
+> If notify_die() is added in panic and SysRq respectively like
+> existing implementation, the code will be ugly.
+> I think that adding a generic hook in crash_kexec() is better to
+> simplify the code.
+>
+> This new notifier is useful, especially for a clustering system.
+> On a mission critical system, failover need to start within a few
+> milli-second. The notifier could be called on 2nd kernel, but it is
+> no use because it takes the time of second order to boot up.
+>
+> The attached patch is against 2.6.17-rc6-git5.
+> I tested on i386-box.
 
-git-clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
+Please give a concrete example of a failure mode where this allows
+you to meet your timing constraint.
 
-appears to install the hooks from the local template directory, rather
-than cloning from the remote repository.  Is the difference between the
-rsync and git-clone commands an expected behaviour?  And should the
-hooks in /pub/scm/linux/kernel/git/marcelo/linux-2.4.git be updated to
-match the current git templates?
+I have yet to be convinced that this actually solves a real world
+problem.
 
---- rsync/linux-2.4.git/hooks/pre-commit	2006-04-27 09:47:55.000000000 +1000
-+++ git-clone/.git/hooks/pre-commit	2006-06-16 14:46:21.408899146 +1000
-@@ -61,6 +61,9 @@
- 	    if (/^\s* 	/) {
- 		bad_line("indent SP followed by a TAB", $_);
- 	    }
-+	    if (/^(?:[<>=]){7}/) {
-+		bad_line("unresolved merge conflict", $_);
-+	    }
- 	}
-     }
-     exit($found_bad);
+What is the cost of the notifier you wish to implement?
+What is your guarantee that the system won't have wasted seconds
+detecting it can't allocate memory or other cases?
 
+If we go this route the notifier should not be exported to modules.
+Only the most scrutinized of code paths should ever set this,
+and code like that should never be a module.
+
+The patchset that adds the notifier call needs to include the notifier
+so people can look and see how sane this is.
+
+So far what I have seen are hand waving arguments that failures
+that can never happen must be detected and reported within
+milliseconds to another machine in an unspecified manner.  Your kernel
+startup times are asserted to be to large to do this from the next
+kernel, but the code to do so is sufficiently complicated you can't do
+this in the kexec code stub that runs before it starts your next
+kernel.
+
+I am sympathetic but this interface seems to set expectations that
+we can the impossible, and it still appears unnecessary to me.
+
+Eric

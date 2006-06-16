@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWFPODz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWFPOKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWFPODz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 10:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWFPODz
+	id S1751408AbWFPOKK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 10:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWFPOKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 10:03:55 -0400
-Received: from thunk.org ([69.25.196.29]:64483 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751405AbWFPODy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 10:03:54 -0400
-Date: Fri, 16 Jun 2006 10:03:34 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       bcollins@ubuntu.com, akpm@osdl.org
-Subject: Re: reviewing Ubuntu kernel patches
-Message-ID: <20060616140334.GA24491@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Randy Dunlap <randy.dunlap@oracle.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org, bcollins@ubuntu.com, akpm@osdl.org
-References: <44909A1D.3030404@oracle.com> <1150386150.2987.9.camel@laptopd505.fenrus.org> <44924425.1040501@oracle.com>
-MIME-Version: 1.0
+	Fri, 16 Jun 2006 10:10:10 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:13708 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1751408AbWFPOKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 10:10:08 -0400
+Date: Fri, 16 Jun 2006 07:02:34 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Cc: systemtap@sources.redhat.com, wcohen@redhat.com, perfmon@napali.hpl.hp.com
+Subject: Re: [PATCH 9/16] 2.6.17-rc6 perfmon2 patch for review: kernel-level API support (kapi)
+Message-ID: <20060616140234.GI10034@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200606150907.k5F97coF008178@frankl.hpl.hp.com> <20060616135014.GB12657@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44924425.1040501@oracle.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+In-Reply-To: <20060616135014.GB12657@infradead.org>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 15, 2006 at 10:39:49PM -0700, Randy Dunlap wrote:
-> Certainly a good question IMO.  If Andrew or Linus knows whether
-> I need to add my Signed-off-by, I'll be glad to listen.
-> (That's not a general call for opinions.)
+Hi,
 
-If you're submitting the patch, then surely you need to add your
-Signed-off-by:, since you're asserting either (b) or (c):
+On Fri, Jun 16, 2006 at 02:50:14PM +0100, Christoph Hellwig wrote:
+> On Thu, Jun 15, 2006 at 02:07:38AM -0700, Stephane Eranian wrote:
+> > This patch contains the kernel-level API support.
+> 
+> NACK.  No one should call this from kernel space.
+> 
 
-        (b) The contribution is based upon previous work that, to the best
-            of my knowledge, is covered under an appropriate open source
-            license and I have the right under that license to submit that
-            work with modifications, whether created in whole or in part
-            by me, under the same open source license (unless I am
-            permitted to submit under a different license), as indicated
-            in the file; or
+Well, that's what I initially thought too but there is a need from the SystemTap
+people and given the way they set things up, it is hard to do it from user level.
 
-        (c) The contribution was provided directly to me by some other
-            person who certified (a), (b) or (c) and I have not modified
-            it.
+> and apparently noting in your patchkit does either, so this is just dead code.
 
-We've gotten into the habit of assuming the Signed-off-by: also has
-the meaning of "I vouch for it from technical point of view", but
-really, that's presumably true since otherwise you wouldn't have
-e-mailed it to Andrew or Linus.  The original meaning of the
-Signed-off-by: is in the Developer's Certificate of Origin
-statement...
+I have not immediate need my self, but I have received several requests for
+this, systemtap being one of them.
 
-						- Ted
+-- 
+-Stephane

@@ -1,100 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWFPXP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWFPXMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWFPXP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWFPXP4
+	id S932104AbWFPXMb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWFPXM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:15:56 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:21180 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932106AbWFPXMc (ORCPT
+	Fri, 16 Jun 2006 19:12:26 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:13476 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751549AbWFPXMW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:12:32 -0400
-Subject: [RFC][PATCH 19/20] elevate writer count for custom 'struct file'
+	Fri, 16 Jun 2006 19:12:22 -0400
+Subject: [RFC][PATCH 05/20] elevate write count during entire ncp_ioctl()
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 16 Jun 2006 16:12:27 -0700
+Date: Fri, 16 Jun 2006 16:12:17 -0700
 References: <20060616231213.D4C5D6AF@localhost.localdomain>
 In-Reply-To: <20060616231213.D4C5D6AF@localhost.localdomain>
-Message-Id: <20060616231227.3DB969AB@localhost.localdomain>
+Message-Id: <20060616231217.9D5B7848@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Some filesystems forego the vfs and may_open() and create their
-own 'struct file's.  Any of these users which set the write flag
-on the file will cause an extra mnt_drop_write() on __fput(),
-thus dropping the reference count too low.
-
-These users tend to have artifical in-kernel vfsmounts which
-aren't really exposed to userspace and can't be remounted, but
-this patch is included for completeness and so that the warnings
-don't trip over these cases.
+Some ioctls need write access, but others don't.  Make a helper
+function to decide when write access is needed, and take it.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/hugetlbfs/inode.c |    2 ++
- lxc-dave/mm/shmem.c           |    2 ++
- lxc-dave/mm/tiny-shmem.c      |    2 ++
- lxc-dave/net/socket.c         |    3 +++
- 4 files changed, 9 insertions(+)
+ lxc-dave/fs/ncpfs/ioctl.c |   55 +++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 54 insertions(+), 1 deletion(-)
 
-diff -puN fs/hugetlbfs/inode.c~fix-__fput-rev2 fs/hugetlbfs/inode.c
---- lxc/fs/hugetlbfs/inode.c~fix-__fput-rev2	2006-06-16 15:58:11.000000000 -0700
-+++ lxc-dave/fs/hugetlbfs/inode.c	2006-06-16 15:58:11.000000000 -0700
-@@ -790,6 +790,8 @@ struct file *hugetlb_zero_setup(size_t s
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &hugetlbfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(hugetlbfs_vfsmount);
-+	WARN_ON(error);
- 	return file;
+diff -puN fs/ncpfs/ioctl.c~C-elevate-writers-file_permission-callers fs/ncpfs/ioctl.c
+--- lxc/fs/ncpfs/ioctl.c~C-elevate-writers-file_permission-callers	2006-06-16 15:58:02.000000000 -0700
++++ lxc-dave/fs/ncpfs/ioctl.c	2006-06-16 15:58:02.000000000 -0700
+@@ -16,6 +16,7 @@
+ #include <linux/ioctl.h>
+ #include <linux/time.h>
+ #include <linux/mm.h>
++#include <linux/mount.h>
+ #include <linux/highuid.h>
+ #include <linux/vmalloc.h>
  
- out_inode:
-diff -puN mm/shmem.c~fix-__fput-rev2 mm/shmem.c
---- lxc/mm/shmem.c~fix-__fput-rev2	2006-06-16 15:58:11.000000000 -0700
-+++ lxc-dave/mm/shmem.c	2006-06-16 15:58:11.000000000 -0700
-@@ -2324,6 +2324,8 @@ struct file *shmem_file_setup(char *name
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &shmem_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(shm_mnt);
-+	WARN_ON(error);
- 	return file;
- 
- close_file:
-diff -puN mm/tiny-shmem.c~fix-__fput-rev2 mm/tiny-shmem.c
---- lxc/mm/tiny-shmem.c~fix-__fput-rev2	2006-06-16 15:58:11.000000000 -0700
-+++ lxc-dave/mm/tiny-shmem.c	2006-06-16 15:58:11.000000000 -0700
-@@ -88,6 +88,8 @@ struct file *shmem_file_setup(char *name
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &ramfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(shm_mnt);
-+	WARN_ON(error);
- 
- 	/* notify everyone as to the change of file size */
- 	error = do_truncate(dentry, size, 0, file);
-diff -puN net/socket.c~fix-__fput-rev2 net/socket.c
---- lxc/net/socket.c~fix-__fput-rev2	2006-06-16 15:58:11.000000000 -0700
-+++ lxc-dave/net/socket.c	2006-06-16 15:58:11.000000000 -0700
-@@ -395,6 +395,7 @@ static int sock_attach_fd(struct socket 
- {
- 	struct qstr this;
- 	char name[32];
-+	int error;
- 
- 	this.len = sprintf(name, "[%lu]", SOCK_INODE(sock)->i_ino);
- 	this.name = name;
-@@ -415,6 +416,8 @@ static int sock_attach_fd(struct socket 
- 	file->f_flags = O_RDWR;
- 	file->f_pos = 0;
- 	file->private_data = sock;
-+	error = mnt_want_write(sock_mnt);
-+	WARN_ON(error);
- 
- 	return 0;
+@@ -183,7 +184,7 @@ ncp_get_charsets(struct ncp_server* serv
  }
+ #endif /* CONFIG_NCPFS_NLS */
+ 
+-int ncp_ioctl(struct inode *inode, struct file *filp,
++static int __ncp_ioctl(struct inode *inode, struct file *filp,
+ 	      unsigned int cmd, unsigned long arg)
+ {
+ 	struct ncp_server *server = NCP_SERVER(inode);
+@@ -654,3 +655,55 @@ outrel:			
+ /* #endif */
+ 	return -EINVAL;
+ }
++
++static int ncp_ioctl_need_write(unsigned int cmd)
++{
++	switch (cmd) {
++        case NCP_IOC_GET_FS_INFO:
++        case NCP_IOC_GET_FS_INFO_V2:
++        case NCP_IOC_NCPREQUEST:
++        case NCP_IOC_SETDENTRYTTL:
++        case NCP_IOC_SIGN_INIT:
++        case NCP_IOC_LOCKUNLOCK:
++        case NCP_IOC_SET_SIGN_WANTED:
++		return 1;
++        case NCP_IOC_GETOBJECTNAME:
++        case NCP_IOC_SETOBJECTNAME:
++        case NCP_IOC_GETPRIVATEDATA:
++        case NCP_IOC_SETPRIVATEDATA:
++        case NCP_IOC_SETCHARSETS:
++        case NCP_IOC_GETCHARSETS:
++        case NCP_IOC_CONN_LOGGED_IN:
++        case NCP_IOC_GETDENTRYTTL:
++        case NCP_IOC_GETMOUNTUID2:
++        case NCP_IOC_SIGN_WANTED:
++        case NCP_IOC_GETROOT:
++        case NCP_IOC_SETROOT:
++		return 0;
++	default:
++		/* unkown IOCTL command, assume write */
++		WARN_ON(1);
++	}
++	return 1;
++}
++
++int ncp_ioctl(struct inode *inode, struct file *filp,
++	      unsigned int cmd, unsigned long arg)
++{
++	int ret;
++
++	if (ncp_ioctl_need_write(cmd)) {
++		/*
++		 * inside the ioctl(), any failures which
++		 * are because of file_permission() are
++		 * -EACCESS, so it seems consistent to keep
++		 *  that here.
++		 */
++		if (mnt_want_write(filp->f_vfsmnt))
++			return -EACCES;
++	}
++	ret = __ncp_ioctl(inode, filp, cmd, arg);
++	if (ncp_ioctl_need_write(cmd))
++		mnt_drop_write(filp->f_vfsmnt);
++	return ret;
++}
 _

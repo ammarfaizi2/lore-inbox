@@ -1,62 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWFPPbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWFPPdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWFPPbU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 11:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWFPPbU
+	id S1751460AbWFPPdz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 11:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWFPPdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 11:31:20 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:45516 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751453AbWFPPbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 11:31:19 -0400
-Message-ID: <4492CEC0.2080102@bull.net>
-Date: Fri, 16 Jun 2006 17:31:12 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
+	Fri, 16 Jun 2006 11:33:53 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:7817 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751454AbWFPPdw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 11:33:52 -0400
+Date: Fri, 16 Jun 2006 17:33:39 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: clocksource
+In-Reply-To: <1150428084.15267.74.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.64.0606161620190.32445@scrub.home>
+References: <20060604135011.decdc7c9.akpm@osdl.org> 
+ <Pine.LNX.4.64.0606050141120.17704@scrub.home>  <1149538810.9226.29.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0606052226150.32445@scrub.home>  <1149622955.4266.84.camel@cog.beaverton.ibm.com>
+  <Pine.LNX.4.64.0606070005550.32445@scrub.home>  <1149753904.2764.24.camel@leatherman>
+  <Pine.LNX.4.64.0606151319440.32445@scrub.home> <1150428084.15267.74.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Jes Sorensen <jes@sgi.com>, Tony Luck <tony.luck@intel.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
-Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-References: <200606140942.31150.ak@suse.de> <44929CE6.4@sgi.com> <4492A5E4.9050702@bull.net> <200606161656.40930.ak@suse.de>
-In-Reply-To: <200606161656.40930.ak@suse.de>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 17:35:06,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 17:35:06,
-	Serialize complete at 16/06/2006 17:35:06
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+Hi,
 
-> That is not how user space TLS works. It usually has a base a register.
+On Thu, 15 Jun 2006, john stultz wrote:
 
-Can you please give me a real life (simplified) example?
+> I've also been working on improving the adjustment algorithm. Paul
+> Mckenney enlightened me to the established concepts in control theory, I
+> started reading up on PID control (see:
+> http://en.wikipedia.org/wiki/PID_controller ). While I have understood
+> the basic concept, it was useful to read up on it. I've tried to rework
+> the adjustment code accordingly.
+> 
+> The method I came up with is really just P-D (proportional-derivative)
+> control, but that should be ok since the adjustments are all linear so I
+> don't think the integral control is necessary (control theorists can
+> pipe in here).
 
-> This means it cannot be cache colored (because you would need a static
-> offset) and you couldn't share task_structs on a page.
+This makes it more complex than necessary. AFAICT this controller 
+calculates the adjustment solely based on the current error, but we have 
+more information than this, which make the current error rather 
+uninteresting.
+We know the clock frequency and the NTP frequency so we can easily 
+precalculate, how the error will look like at the next few ticks. Based on 
+this we can calculate how we have to adjust the clock frequency to reduce 
+the error. Overshooting is also not a real problem as long as the absolute 
+error gets smaller.
 
-I do not see the problem. Can you explain please?
-E.g. the scheduler pulls a task instead of the current one. The CPU
-will see "current->thread_info.cpu"-s of all the tasks at the same
-offset anyway.
+An important point about the last patch is not just robustness but also 
+speed, it tries to keep the fast path small, which is basically:
 
-> Also you would make task_struct part of the userland ABI which
-> seems like a very very bad idea to me. It means we couldn't change
-> it anymore.
+	interval = clock->cycle_interval;
+	if (error > interval / 2) {
+		adj = 1;
+		if (unlikely(error > interval * 2)) {
+			...
+		}
+	} else if (error < -interval / 2) {
+		adj = -1
+		interval = -interval;
+		offset = -offset;
+		if (unlikely(error < interval * 2)) {
+			...
+		}
+	} else
+		return;
 
-We can make some wrapper, e.g.:
+	clock->mult += adj;
+	clock->xtime_interval += interval;
+	clock->xtime_nsec -= offset;
+	clock->error -= interval - offset;
 
-	user_per_cpu_var(name, offset)
+You'll need a very good reason to do anything more than this for small 
+errors and I would suggest you start from something like this, as this is 
+the very core of the error adjustment.
 
-"vgetcpu()" would also be added to the ABI which we couldn't change
-easily either.
-
-Thanks,
-
-Zoltan
+bye, Roman

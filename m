@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWFPGH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWFPGRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWFPGH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 02:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWFPGH3
+	id S1751067AbWFPGRL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 02:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbWFPGRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 02:07:29 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:29838 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750953AbWFPGH2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 02:07:28 -0400
-Message-ID: <44924A9E.6060601@drzeus.cx>
-Date: Fri, 16 Jun 2006 08:07:26 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: dezheng shen <dzshen@winbond.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PI14 SJIN <SJin@winbond.com>
-Subject: Re: [Winbond] flash memory reader SCSI device drivers [headers]
-References: <448E875A.40805@winbond.com> 	<9a8748490606130258k60cdf429n89b1d1d017af60fe@mail.gmail.com> 	<448FC0C1.90205@winbond.com> <4491AEAC.5030606@drzeus.cx> <44920B22.4030507@winbond.com>
-In-Reply-To: <44920B22.4030507@winbond.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jun 2006 02:17:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47514 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751067AbWFPGRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 02:17:11 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@kvack.org
+Subject: Older git hooks for linux-2.4
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 16 Jun 2006 16:16:37 +1000
+Message-ID: <26721.1150438597@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dezheng shen wrote:
->> PS. I have a question regarding the W83L518 hardware, but haven't been
->> able to get in touch with the right people. Perhaps you have some
->> pointers?
->
->    anything about Winbond 518/528/528DA drivers, send email to
-> dzshen@winbond.com which is ME.....
->
+rsync rsync://rsync.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
 
-Well, this wasn't about this driver but about some other piece of
-Winbond hardware for which I have written a driver (drivers/mmc/wbsd.c).
+has hooks that do not match the current git template hooks.
 
-The things I need to know are:
+git-clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
 
- * How does the hardware determine which MMC commands are data
-transfers? It would seem it has a (incomplete) list of opcodes internally.
+appears to install the hooks from the local template directory, rather
+than cloning from the remote repository.  Is the difference between the
+rsync and git-clone commands an expected behaviour?  And should the
+hooks in /pub/scm/linux/kernel/git/marcelo/linux-2.4.git be updated to
+match the current git templates?
 
- * Is it a known hardware bug that the FIFO usage bits in the FSR
-register always read as zero?
-
-Rgds
-Pierre
+--- rsync/linux-2.4.git/hooks/pre-commit	2006-04-27 09:47:55.000000000 +1000
++++ git-clone/.git/hooks/pre-commit	2006-06-16 14:46:21.408899146 +1000
+@@ -61,6 +61,9 @@
+ 	    if (/^\s* 	/) {
+ 		bad_line("indent SP followed by a TAB", $_);
+ 	    }
++	    if (/^(?:[<>=]){7}/) {
++		bad_line("unresolved merge conflict", $_);
++	    }
+ 	}
+     }
+     exit($found_bad);
 

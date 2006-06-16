@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWFPMyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWFPNJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWFPMyL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 08:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWFPMyL
+	id S1751395AbWFPNJE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 09:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWFPNJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 08:54:11 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:28829 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751387AbWFPMyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 08:54:09 -0400
-Date: Fri, 16 Jun 2006 07:54:03 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Paul Mackerras <paulus@samba.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
-Message-ID: <20060616125403.GA16194@sergelap.austin.ibm.com>
-References: <17553.56625.612931.136018@cargo.ozlabs.ibm.com> <1150419895.10290.9.camel@localhost.localdomain> <20060616030432.GA18037@sergelap.austin.ibm.com> <1150430429.10290.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150430429.10290.23.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Fri, 16 Jun 2006 09:09:04 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:52449 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751398AbWFPNJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 09:09:02 -0400
+Message-ID: <4492AE3A.7070309@manoweb.com>
+Date: Fri, 16 Jun 2006 15:12:26 +0200
+From: Alessio Sangalli <alesan@manoweb.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: APM problem after 2.6.13.5
+References: <44927F91.6050506@manoweb.com>	 <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>	 <44929CF5.208@manoweb.com> <84144f020606160540q20433601jd9b5331763a55dab@mail.gmail.com>
+In-Reply-To: <84144f020606160540q20433601jd9b5331763a55dab@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:98b9443de46bd48dbf34b16449aa5d76
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Rusty Russell (rusty@rustcorp.com.au):
-> On Thu, 2006-06-15 at 22:04 -0500, Serge E. Hallyn wrote:
-> > Quoting Rusty Russell (rusty@rustcorp.com.au):
-> > > Seems like change for change's sake, to me, *and* it added more code
-> > > than it removed.
-> > 
-> > So if kernel_thread is really going to be removed, how else should this
-> > be done?  Just clone?
+Pekka Enberg wrote:
+> Hi Alessio,
 > 
-> Sorry, is kernel_thread going to be removed, or just not exported to
-> modules?  What's kthread going to use?
+> On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
+>>>> if I enable "APM support" I get a freeze at the very beginning of the
+>>>> boot, without any explicit erro message, just after the PCI stuff. If
+>>>> you need a transcript of the messages at boot, let me know, I will have
+>>>> to write them by hand).
+>>>> 2.6.13.5 is ok. I need APM support to let the "Fn" key and the battery
+>>>> meter work!
 > 
-> Confused,
-> Rusty.
+> Pekka Enberg wrote:
+>>> There's a lot of changes between 2.6.13 and 2.6.14.  It would be
+>>> helpful if you could narrow down the exact changeset that broke your
+> 
+> On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
+>> done:
+>>
+>> 4196c3af25d98204216a5d6c37ad2cb303a1f2bf is first bad commit
+>> diff-tree 4196c3af25d98204216a5d6c37ad2cb303a1f2bf (from
+>> 9092b20803e4b3b3a480592794a73030f17370b3)
+>> Author: Linus Torvalds <torvalds@g5.osdl.org>
+>> Date:   Sun Oct 23 16:31:16 2005 -0700
+>>
+>>     cardbus: limit IO windows to 256 bytes
+>>
+>>     That's what we've always historically done, and bigger windows seem to
+>>     confuse some cardbus bridges. Or something.
+>>
+>>     Alan reports that this makes the ThinkPad 600x series work properly
+>>     again: the 4kB IO window for some reason made IDE DMA not work, which
+>>     makes IDE painfully slow even if it works after DMA timeouts.
+>>
+>>     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+>>
+>> :040000 040000 629d4d303048bffa610017e81e0e744bae08660d
+>> 33e154ffe96822d09f37ae2d433de5152216501b M      drivers
+>>
+>>
+>> let me know any other test I should do to help find a solution to this
+>> problem, thank you!
+> 
+> So reverting the above commit from git head makes your box boot again?
+> Linus, any thoughts?
 
-Hah.
 
-Yes, I see.  I misread.  So I should be focusing on modules  :)
+Yes, exactly. I can run 2.6.17-rc6 with only that commit reverted.
 
-Really, all *I* care about is cases where the resulting pid is cached
-as a pointer to the thread, which it wasn't here anyway.  
+The mahcine is a notebook COMPAQ Presario 800 Model 80XL4
+Pentium3@700MHz 256MB ram etc
 
-thanks, sorry for the noise.
+Thank you
+ciao
+Alessio Sangalli
 
--serge
+

@@ -1,72 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWFPJO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWFPJVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWFPJO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 05:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWFPJO7
+	id S1751026AbWFPJVP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 05:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWFPJVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 05:14:59 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:53740 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750766AbWFPJO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 05:14:58 -0400
-Message-ID: <4492768C.1010703@bull.net>
-Date: Fri, 16 Jun 2006 11:14:52 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
+	Fri, 16 Jun 2006 05:21:15 -0400
+Received: from mail-gw3.adaptec.com ([216.52.22.36]:1744 "EHLO
+	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
+	id S1751021AbWFPJVO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 05:21:14 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: light weight counters: race free through local_t?
-References: <Pine.LNX.4.64.0606092212200.4875@schroedinger.engr.sgi.com> <449033B0.1020206@bull.net> <Pine.LNX.4.64.0606140928500.4030@schroedinger.engr.sgi.com> <44915110.2050100@bull.net> <Pine.LNX.4.64.0606150855410.9137@schroedinger.engr.sgi.com> <44918EE5.2060302@bull.net> <Pine.LNX.4.64.0606151110100.9618@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0606151110100.9618@schroedinger.engr.sgi.com>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 11:18:44,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 11:18:45,
-	Serialize complete at 16/06/2006 11:18:45
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: HEADS UP for gdth driver users
+Date: Fri, 16 Jun 2006 11:21:11 +0200
+Message-ID: <EF6AF37986D67948AD48624A3E5D93AFAA930A@mtce2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: HEADS UP for gdth driver users
+Thread-Index: AcaL80Ns+DR3EwZWTPqzo8NvQ+HBggFL5BrA
+From: "Leubner, Achim" <Achim_Leubner@adaptec.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <hch@lst.de>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let's put it in another way:
-Do the statistics need to be absolutely precise?
-I guess they do not.
-By the time you can display them, they have already been changed.
+Andrew,
 
-Let's take an example:
+Here is the changelog and signed-off-by for this patch. Of course I will
+follow the SubmittingPatches guideline for future patches, sorry for not
+doing it for that patch. 
+I don't send this mail in the recommended form because the patch is
+already added to the mm tree and I want to avoid a duplicate (or does it
+not happen?).
 
-zone_statistics(struct zonelist *zonelist, struct zone *z)
-{
-...
-//	local_irq_save(flags);		// No IRQ lock out
-	cpu = smp_processor_id();	// Can become another CPU
-	p = &z->pageset[cpu];		// Can count for someone else
-	if (pg == orig) {
-		stat_incr(&z->pageset[cpu].numa_hit);	// Unsafe
-	} else {
-...
-//	local_irq_restore(flags);
-}
+-----------------------------------------------------------------------
+[PATCH] gdth: remove the scsi_request interface from the gdth driver
 
-Where "stat_incr()" is arch. dependent and possibly unsafe routine.
+From: Achim Leubner <Achim_Leubner@adaptec.com>
 
-For IA64:
+I removed all scsi_allocate_request()/scsi_release_request() calls and
+all scsi_request structures from the driver and I replaced scsi_do_req()
+call with a direct call to gdth_queuecommand() to send the request.
+Furthermore I made some changes to preserve compatibility to the 2.4.x
+kernels.
 
-// Unsafe statistics
-static inline void stat_incr(int *addr){
-        int tmp;
+Signed-off-by: Achim Leubner <Achim_Leubner@adaptec.com>
 
-	// Obtain immediately the cache line exclusivity, do not touch L1
-        asm volatile ("ld4.bias.nt1 %0=[%1]" : "=r"(tmp) : "r" (addr));
-        tmp++;
-        asm volatile ("st4 [%1] = %0" :: "r"(tmp), "r"(addr) : "memory");
-}
+-----------------------------------------------------------------------
 
-It takes 10 clock cycles.
+Thanks,
+Achim
 
-Regards,
+=======================
+Achim Leubner
+Software Engineer / RAID drivers
+ICP vortex GmbH / Adaptec Inc.
+Phone: +49-351-8718291
+ 
 
-Zoltan
+
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org] 
+Sent: Freitag, 9. Juni 2006 20:34
+To: Leubner, Achim
+Cc: hch@lst.de; linux-kernel@vger.kernel.org
+Subject: Re: HEADS UP for gdth driver users
+
+On Fri, 9 Jun 2006 13:03:08 +0200
+"Leubner, Achim" <Achim_Leubner@adaptec.com> wrote:
+
+> Attached you find a patch to remove the scsi_request interface from
+the
+> gdth driver.
+
+Please send a changelog and a Signed-off-by: for this patch, as per
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt and
+Documentation/SubmittingPatches.
+
+Please ensure that future patches are prepared in `patch -p1' form, as
+per
+the same documents, thanks.
+
+

@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWFPRKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWFPRTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750914AbWFPRKq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 13:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWFPRKq
+	id S1751056AbWFPRTT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 13:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWFPRTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 13:10:46 -0400
-Received: from father.pmc-sierra.com ([216.241.224.13]:1438 "HELO
-	father.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
-	id S1750887AbWFPRKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 13:10:45 -0400
-Message-ID: <9328C220997E4E448CC833AF1AB402DA0344D906@bby1exm08.pmc_nt.nt.pmc-sierra.bc.ca>
-From: Shane McDonald <Shane_McDonald@pmc-sierra.com>
-To: "'Jean Delvare'" <khali@linux-fr.org>, linux-mips@linux-mips.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: RE: i2c-algo-ite and i2c-ite planned for removal
-Date: Fri, 16 Jun 2006 10:10:33 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain
+	Fri, 16 Jun 2006 13:19:19 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:59588 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751056AbWFPRTT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 13:19:19 -0400
+Date: Fri, 16 Jun 2006 14:20:02 -0300
+From: Marcelo Tosatti <marcelo@kvack.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Older git hooks for linux-2.4
+Message-ID: <20060616172002.GA3580@dmt>
+References: <26721.1150438597@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <26721.1150438597@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+On Fri, Jun 16, 2006 at 04:16:37PM +1000, Keith Owens wrote:
+> rsync rsync://rsync.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
+> 
+> has hooks that do not match the current git template hooks.
+> 
+> git-clone rsync://rsync.kernel.org/pub/scm/linux/kernel/git/marcelo/linux-2.4.git/
+> 
+> appears to install the hooks from the local template directory, rather
+> than cloning from the remote repository.  Is the difference between the
+> rsync and git-clone commands an expected behaviour?
 
-  PMC-Sierra has an eval board (the "Xiao Hu") that uses these files.  We haven't (yet) pushed out patches to add support for this board, but we hope to at some time.  The kernel we use on the board is based on 2.6.14, so I could generate a patch so that these files will compile against 2.6.14.  I'm guessing the patch will also apply to 2.6.16.20, since these files haven't changed for so long.
+Think so, git-clone does git-init-db, without specifying template directory.
 
-  I'll put together the patch and make sure it's still correct against 2.6.16.20, then submit it.
+       git-init-db [--template=<template_directory>] [--shared]
 
-Shane
+OPTIONS
+       --template=<template_directory>
+              Provide  the  directory  from  which templates will be used. The
+              default template directory is /usr/share/git-core/templates.
 
-> -----Original Message-----
-> From: linux-mips-bounce@linux-mips.org 
-> [mailto:linux-mips-bounce@linux-mips.org] On Behalf Of Jean Delvare
-> Sent: Thursday, June 15, 2006 2:57 PM
-> To: linux-mips@linux-mips.org; LKML
-> Subject: i2c-algo-ite and i2c-ite planned for removal
-> 
-> Hi all,
-> 
-> I noticed today that we have an i2c bus driver named i2c-ite,
-> supposedly useful on some MIPS systems which have an ITE8172 chip,
-> which doesn't compile. It is based on an i2c algorithm driver named
-> i2c-algo-ite, which doesn't compile either, due to some 
-> changes made to
-> the i2c core which weren't properly reflected there. Going back trough
-> the versions, I found that the bus driver was previously named
-> i2c-adap-ite, and was introduced in 2.4.10. And I don't think it even
-> compiled back then either, as it uses a structure (iic_ite) 
-> which isn't
-> defined anywhere.
-> 
-> So basically we have two drivers in the kernel tree for 5 years or so,
-> which never were usable, and nobody seemed to care. It's about time to
-> get rid of these 1296 lines of code, don't you think? So, 
-> unless someone
-> volunteers to take care of these drivers, or otherwise has a very
-> strong reason to object, I'm going to delete them from the tree soon.
-> 
-> Thanks,
-> -- 
-> Jean Delvare
-> 
+> And should the
+> hooks in /pub/scm/linux/kernel/git/marcelo/linux-2.4.git be updated to
+> match the current git templates?
+
+Yep.. thanks.

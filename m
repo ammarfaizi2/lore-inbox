@@ -1,345 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWFPSow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWFPSsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWFPSow (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 14:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFPSnz
+	id S1751350AbWFPSsW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 14:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWFPSsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 14:43:55 -0400
-Received: from ns2.suse.de ([195.135.220.15]:37250 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751371AbWFPSnt (ORCPT
+	Fri, 16 Jun 2006 14:48:22 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:9870 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751350AbWFPSsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 14:43:49 -0400
-Message-Id: <20060616104322.791595000@hasse.suse.de>
-References: <20060616104321.778718000@hasse.suse.de>
-User-Agent: quilt/0.44-17
-Date: Fri, 16 Jun 2006 12:43:26 +0200
-From: jblunck@suse.de
-To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       dgc@sgi.com, balbir@in.ibm.com, neilb@suse.de
-Subject: [PATCH 5/5] vfs: per superblock dentry unused list
-Content-Disposition: inline; filename=patches.jbl/vfs-per-sb-dentry_unused.diff
+	Fri, 16 Jun 2006 14:48:21 -0400
+Subject: Re: clocksource
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606161620190.32445@scrub.home>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	 <Pine.LNX.4.64.0606050141120.17704@scrub.home>
+	 <1149538810.9226.29.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0606052226150.32445@scrub.home>
+	 <1149622955.4266.84.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0606070005550.32445@scrub.home>
+	 <1149753904.2764.24.camel@leatherman>
+	 <Pine.LNX.4.64.0606151319440.32445@scrub.home>
+	 <1150428084.15267.74.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0606161620190.32445@scrub.home>
+Content-Type: text/plain
+Date: Fri, 16 Jun 2006 11:48:04 -0700
+Message-Id: <1150483684.5316.56.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds per superblock dentry unused lists. This should speedup the
-umounting/remounting of filesystems when there are a lot of dentries on the
-unused lists.
+On Fri, 2006-06-16 at 17:33 +0200, Roman Zippel wrote:
+> On Thu, 15 Jun 2006, john stultz wrote:
+> > I've also been working on improving the adjustment algorithm. Paul
+> > Mckenney enlightened me to the established concepts in control theory, I
+> > started reading up on PID control (see:
+> > http://en.wikipedia.org/wiki/PID_controller ). While I have understood
+> > the basic concept, it was useful to read up on it. I've tried to rework
+> > the adjustment code accordingly.
+> > 
+> > The method I came up with is really just P-D (proportional-derivative)
+> > control, but that should be ok since the adjustments are all linear so I
+> > don't think the integral control is necessary (control theorists can
+> > pipe in here).
+> 
+> This makes it more complex than necessary. AFAICT this controller 
+> calculates the adjustment solely based on the current error, but we have 
+> more information than this, which make the current error rather 
+> uninteresting.
 
-Signed-off-by: Jan Blunck <jblunck@suse.de>
----
- fs/dcache.c        |  170 +++++++++++++++++++++++++----------------------------
- fs/super.c         |    2 
- include/linux/fs.h |    2 
- 3 files changed, 86 insertions(+), 88 deletions(-)
+Indeed it is the current error, but its also taking the change in error
+into account as well.
 
-Index: work-2.6/fs/dcache.c
-===================================================================
---- work-2.6.orig/fs/dcache.c
-+++ work-2.6/fs/dcache.c
-@@ -61,7 +61,6 @@ static kmem_cache_t *dentry_cache __read
- static unsigned int d_hash_mask __read_mostly;
- static unsigned int d_hash_shift __read_mostly;
- static struct hlist_head *dentry_hashtable __read_mostly;
--static LIST_HEAD(dentry_unused);
- 
- /* Statistics gathering. */
- struct dentry_stat global_dentry_stat = {
-@@ -167,12 +166,15 @@ repeat:
- 		if (dentry->d_op->d_delete(dentry))
- 			goto unhash_it;
- 	}
-+	/* Kill dentry without superblock */
-+	if (unlikely(!dentry->d_sb))
-+		goto unhash_it;
- 	/* Unreachable? Get rid of it */
- 	if (d_unhashed(dentry))
- 		goto kill_it;
- 	if (list_empty(&dentry->d_lru)) {
- 		dentry->d_flags |= DCACHE_REFERENCED;
--		list_add(&dentry->d_lru, &dentry_unused);
-+		list_add(&dentry->d_lru, &dentry->d_sb->s_dentry_unused);
- 		dentry_stat_inc(dentry->d_sb, nr_unused);
- 	}
- 	spin_unlock(&dentry->d_lock);
-@@ -382,18 +384,20 @@ static inline void prune_one_dentry(stru
- }
- 
- /**
-- * prune_dcache - shrink the dcache
-+ * prune_dcache_sb - prune the dcache for a superblock
-+ * @sb: superblock
-  * @count: number of entries to try and free
-  *
-- * Shrink the dcache. This is done when we need
-- * more memory. When we need to unmount something
-- * we call shrink_dcache_sb().
-- *
-- * This function may fail to free any resources if
-- * all the dentries are in use.
-+ * Prune the dcache for the specified super block. This walks the dentry LRU
-+ * list backwards to free the @count oldest entries on it. If it finds entries
-+ * which were recently referenced (the DCACHE_REFERENCED d_flag is set) they
-+ * moved to the beginning of the dentry LRU list instead.
-+ *
-+ * You need to have a reference to the super block and should have
-+ * sb->s_umount locked. This function may fail to free any resources if all
-+ * the dentries are in use.
-  */
--
--static void prune_dcache(int count)
-+static void prune_dcache_sb(struct super_block *sb, int count)
- {
- 	spin_lock(&dcache_lock);
- 	for (; count ; count--) {
-@@ -402,10 +406,10 @@ static void prune_dcache(int count)
- 
- 		cond_resched_lock(&dcache_lock);
- 
--		tmp = dentry_unused.prev;
--		if (tmp == &dentry_unused)
-+		tmp = sb->s_dentry_unused.prev;
-+		if (tmp == &sb->s_dentry_unused)
- 			break;
--		prefetch(dentry_unused.prev);
-+		prefetch(sb->s_dentry_unused.prev);
- 		dentry = list_entry(tmp, struct dentry, d_lru);
- 		dentry_stat_dec(dentry->d_sb, nr_unused);
- 		list_del_init(&dentry->d_lru);
-@@ -413,7 +417,7 @@ static void prune_dcache(int count)
- 		spin_lock(&dentry->d_lock);
- 		/*
- 		 * We found an inuse dentry which was not removed from
--		 * dentry_unused because of laziness during lookup.  Do not free
-+		 * dentry_unused because of laziness during lookup. Do not free
- 		 * it - just keep it off the dentry_unused list.
- 		 */
- 		if (atomic_read(&dentry->d_count)) {
-@@ -423,7 +427,7 @@ static void prune_dcache(int count)
- 		/* If the dentry was recently referenced, don't free it. */
- 		if (dentry->d_flags & DCACHE_REFERENCED) {
- 			dentry->d_flags &= ~DCACHE_REFERENCED;
--			list_add(&dentry->d_lru, &dentry_unused);
-+			list_add(&dentry->d_lru, &sb->s_dentry_unused);
- 			dentry_stat_inc(dentry->d_sb, nr_unused);
- 			spin_unlock(&dentry->d_lock);
- 			continue;
-@@ -433,64 +437,68 @@ static void prune_dcache(int count)
- 	spin_unlock(&dcache_lock);
- }
- 
--
--/*
-- * parsing d_hash list does not hlist_for_each_entry_rcu() as it
-- * done under dcache_lock.
-+/**
-+ * prune_dcache - shrink the dcache
-+ * @count: number of entries to try and free
-+ *
-+ * Prune the dcache. This is done when we need more memory. We are walking the
-+ * list of superblocks and try to shrink their dentry LRU lists.
-+ *
-+ * This function may fail to free any resources if all the dentries are in use.
-  */
--static void select_anon(struct super_block *sb)
-+static void prune_dcache(int count)
- {
--	struct dentry *dentry;
--	struct hlist_node *lp;
-+	struct super_block *sb;
-+	int unused = global_dentry_stat.nr_unused;
- 
--	spin_lock(&dcache_lock);
--	hlist_for_each_entry(dentry, lp, &sb->s_anon, d_hash) {
--		if (!list_empty(&dentry->d_lru)) {
--			dentry_stat_dec(sb, nr_unused);
--			list_del_init(&dentry->d_lru);
--		}
-+	if (count <= 0)
-+		return;
- 
--		/*
--		 * move only zero ref count dentries to the beginning
--		 * (the most recent end) of the unused list
--		 */
--		spin_lock(&dentry->d_lock);
--		if (!atomic_read(&dentry->d_count)) {
--			list_add(&dentry->d_lru, &dentry_unused);
--			dentry_stat_inc(sb, nr_unused);
-+	spin_lock(&sb_lock);
-+ restart:
-+	list_for_each_entry(sb, &super_blocks, s_list) {
-+		sb->s_count++;
-+		spin_unlock(&sb_lock);
-+		if (down_read_trylock(&sb->s_umount)) {
-+			if (sb->s_root) {
-+				int tmp;
-+
-+				/*
-+				 * We try to be fair and distribute the amount
-+				 * of dentries to be pruned by the easy rule:
-+				 *
-+				 *   sb_count/sb_unused ~ count/global_unused
-+				 *
-+				 * This is not enough if the superblock has
-+				 * <= 128 unused dentries (this is always
-+				 * called via shrink_slab() with a count of
-+				 * 128) therefore we use the s_scan_count to
-+				 * artifically increase the dentry unused count
-+				 * if we haven't pruned any dentries lately (in
-+				 * the last runs of prune_dcache().
-+				 */
-+				tmp = sb->s_dentry_stat.nr_unused /
-+					((unused /
-+					  ((atomic_read(&sb->s_scan_count)+1) *
-+					   count))+1);
-+				if (tmp) {
-+					atomic_add_unless(
-+						&sb->s_scan_count, -1, 0);
-+					prune_dcache_sb(sb, tmp);
-+				} else
-+					atomic_inc(&sb->s_scan_count, 0);
-+				if (!sb->s_dentry_stat.nr_unused)
-+					atomic_set(&sb->s_scan_count, 0);
-+			}
-+			up_read(&sb->s_umount);
- 		}
--		spin_unlock(&dentry->d_lock);
--	}
--	spin_unlock(&dcache_lock);
--}
--
--static void select_sb(struct super_block *sb)
--{
--	struct dentry *dentry, *pos;
--
--	spin_lock(&dcache_lock);
--	list_for_each_entry_safe(dentry, pos, &dentry_unused, d_lru) {
--		if (dentry->d_sb != sb)
--			continue;
--		list_del(&dentry->d_lru);
--		list_add(&dentry->d_lru, &dentry_unused);
-+		spin_lock(&sb_lock);
-+		if (__put_super_and_need_restart(sb))
-+			goto restart;
- 	}
--	spin_unlock(&dcache_lock);
-+	spin_unlock(&sb_lock);
- }
- 
--/*
-- * Shrink the dcache for the specified super block.
-- * This allows us to unmount a device without disturbing
-- * the dcache for the other devices.
-- *
-- * This implementation makes just two traversals of the
-- * unused list.  On the first pass we move the selected
-- * dentries to the most recent end, and on the second
-- * pass we free them.  The second pass must restart after
-- * each dput(), but since the target dentries are all at
-- * the end, it's really just a single traversal.
-- */
--
- /**
-  * shrink_dcache_sb - shrink dcache for a superblock
-  * @sb: superblock
-@@ -499,30 +507,16 @@ static void select_sb(struct super_block
-  * is used to free the dcache before unmounting a file
-  * system
-  */
--
- void shrink_dcache_sb(struct super_block * sb)
- {
--	struct list_head *tmp, *next;
--	struct dentry *dentry;
--
--	/*
--	 * Pass one ... move the dentries for the specified
--	 * superblock to the most recent end of the unused list.
--	 */
--	select_anon(sb);
--	select_sb(sb);
-+	struct dentry *dentry, *pos;
- 
--	/*
--	 * Pass two ... free the dentries for this superblock.
--	 */
- 	spin_lock(&dcache_lock);
- repeat:
--	list_for_each_safe(tmp, next, &dentry_unused) {
--		dentry = list_entry(tmp, struct dentry, d_lru);
--		if (dentry->d_sb != sb)
--			continue;
-+	list_for_each_entry_safe(dentry, pos, &sb->s_dentry_unused, d_lru) {
-+		BUG_ON(dentry->d_sb != sb);
- 		dentry_stat_dec(sb, nr_unused);
--		list_del_init(tmp);
-+		list_del_init(&dentry->d_lru);
- 		spin_lock(&dentry->d_lock);
- 		if (atomic_read(&dentry->d_count)) {
- 			spin_unlock(&dentry->d_lock);
-@@ -625,7 +619,7 @@ resume:
- 		 * of the unused list for prune_dcache
- 		 */
- 		if (!atomic_read(&dentry->d_count)) {
--			list_add(&dentry->d_lru, dentry_unused.prev);
-+			list_add_tail(&dentry->d_lru, &dentry->d_sb->s_dentry_unused);
- 			dentry_stat_inc(dentry->d_sb, nr_unused);
- 			found++;
- 		}
-@@ -671,7 +665,7 @@ void shrink_dcache_parent(struct dentry 
- 	int found;
- 
- 	while ((found = select_parent(parent)) != 0)
--		prune_dcache(found);
-+		prune_dcache_sb(parent->d_sb, found);
- }
- 
- /*
-@@ -1622,7 +1616,7 @@ resume:
- 			list_del_init(&dentry->d_lru);
- 		}
- 		if (atomic_dec_and_test(&dentry->d_count)) {
--			list_add(&dentry->d_lru, dentry_unused.prev);
-+			list_add(&dentry->d_lru, &dentry->d_sb->s_dentry_unused);
- 			dentry_stat_inc(dentry->d_sb, nr_unused);
- 		}
- 	}
-@@ -1633,7 +1627,7 @@ resume:
- 			list_del_init(&this_parent->d_lru);
- 		}
- 		if (atomic_dec_and_test(&this_parent->d_count)) {
--			list_add(&this_parent->d_lru, dentry_unused.prev);
-+			list_add(&this_parent->d_lru, &this_parent->d_sb->s_dentry_unused);
- 			dentry_stat_inc(this_parent->d_sb, nr_unused);
- 		}
- 		this_parent = this_parent->d_parent;
-Index: work-2.6/fs/super.c
-===================================================================
---- work-2.6.orig/fs/super.c
-+++ work-2.6/fs/super.c
-@@ -71,7 +71,9 @@ static struct super_block *alloc_super(v
- 		INIT_LIST_HEAD(&s->s_instances);
- 		INIT_HLIST_HEAD(&s->s_anon);
- 		INIT_LIST_HEAD(&s->s_inodes);
-+		INIT_LIST_HEAD(&s->s_dentry_unused);
- 		s->s_dentry_stat.age_limit = 45;
-+		atomic_set(&s->s_scan_count, 0);
- 		init_rwsem(&s->s_umount);
- 		mutex_init(&s->s_lock);
- 		down_write(&s->s_umount);
-Index: work-2.6/include/linux/fs.h
-===================================================================
---- work-2.6.orig/include/linux/fs.h
-+++ work-2.6/include/linux/fs.h
-@@ -847,7 +847,9 @@ struct super_block {
- 	struct list_head	s_io;		/* parked for writeback */
- 	struct hlist_head	s_anon;		/* anonymous dentries for (nfs) exporting */
- 	struct list_head	s_files;
-+	struct list_head	s_dentry_unused;
- 	struct dentry_stat	s_dentry_stat;
-+	atomic_t		s_scan_count;
- 
- 	struct block_device	*s_bdev;
- 	struct list_head	s_instances;
+> We know the clock frequency and the NTP frequency so we can easily 
+> precalculate, how the error will look like at the next few ticks. Based on 
+> this we can calculate how we have to adjust the clock frequency to reduce 
+> the error. Overshooting is also not a real problem as long as the absolute 
+> error gets smaller.
+
+I'm not sure I agree here. Using your patch series, if I re-enable the
+code that drops calls to update_wall_time (simulating lost ticks) the
+clock does not appear very stable. Robustness and features like
+dynamic/no_idle_hz are going to require that we can handle taking
+something close to only one tick per second, so overshoot is a big
+concern in my mind. Maybe I'm misunderstanding you?
+
+However, I need to forward port your patchset to the new simulator to
+really do a fair comparison as I know there were some issues w/ the
+simulator that I addressed in order to get the new features working. If
+you have already done this, let me know.
+
+> An important point about the last patch is not just robustness but also 
+> speed, it tries to keep the fast path small, which is basically:
+> 
+> 	interval = clock->cycle_interval;
+> 	if (error > interval / 2) {
+> 		adj = 1;
+> 		if (unlikely(error > interval * 2)) {
+> 			...
+> 		}
+> 	} else if (error < -interval / 2) {
+> 		adj = -1
+> 		interval = -interval;
+> 		offset = -offset;
+> 		if (unlikely(error < interval * 2)) {
+> 			...
+> 		}
+> 	} else
+> 		return;
+> 
+> 	clock->mult += adj;
+> 	clock->xtime_interval += interval;
+> 	clock->xtime_nsec -= offset;
+> 	clock->error -= interval - offset;
+> 
+> You'll need a very good reason to do anything more than this for small 
+> errors and I would suggest you start from something like this, as this is 
+> the very core of the error adjustment.
+
+I agree that the patch I sent could use some optimizations, and likely
+even some tweaking (supposedly I can get rid of the proportional
+adjustment limiter by using a gain value, but I need to test this a bit)
+to improve it further.  
+
+Now trying to compare it to your code:
+
+Looking at your description of the code above from your documentation
+email:
+1)	mult_adj = error / cycle_update;
+2)	mult += mult_adj;
+3)	xtime -= cycle_offset * mult_adj;
+4)	error -= (cycle_update - cycle_offset) * mult_adj;
+
+Lines 1 & 2 calculates the proportional error adjustment for the error
+at the next interval.
+
+Line 3 is also well understood, as it corrects the base for the new
+adjustment value if there is an offset value.
+
+So I see the proportional adjustment, but I don't see how the derivative
+is included. I suspect the density of the error adjustment bit is what
+makes this so opaque to me. Breaking line 4 apart for a moment:
+
+4a) error += cycle_offset * multadj;
+4b) error -= cycle_update * muladj
+
+Line 4a is also clear, since if the base had been changed in line 3, the
+error between the base and ntp has changed as well, so it must be
+changed by the negative amount the base was changed to stay in sync.
+
+Line 4b is a bit foggy. Just assuming cycle_offset is zero, we can
+ignore line 3 and 4a. So we're reducing the error by the change in
+length of the next interval. I see how this would in effect dampen the
+next adjustment, but I'm not sure how that then maps the error value to
+the actual distance from ntp_time.
+
+Abstractly I understand how looking at the next tick is good for when
+the NTP adjustment value changes, but I'm not sure I see how looking
+ahead makes the clock more stable when the NTP adjustment isn't
+changing.
+
+Is there a way you can map the math above to the terms of PID control
+(or maybe some other established concept that I can dig deeper on?).
+
+thanks
+-john
 

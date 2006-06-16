@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWFPU4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWFPVEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWFPU4h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 16:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWFPU4h
+	id S1751361AbWFPVEk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 17:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFPVEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 16:56:37 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:14999 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751225AbWFPU4g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 16:56:36 -0400
-Message-ID: <44931AFD.4070809@zytor.com>
-Date: Fri, 16 Jun 2006 13:56:29 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Fri, 16 Jun 2006 17:04:40 -0400
+Received: from relay03.pair.com ([209.68.5.17]:60945 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1751341AbWFPVEj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 17:04:39 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Fri, 16 Jun 2006 16:04:36 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+cc: Jes Sorensen <jes@sgi.com>, Andi Kleen <ak@suse.de>,
+       Tony Luck <tony.luck@intel.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
+       vojtech@suse.cz, linux-ia64@vger.kernel.org
+Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
+In-Reply-To: <4492A8A1.5000101@bull.net>
+Message-ID: <Pine.LNX.4.64.0606161601590.23743@turbotaz.ourhouse>
+References: <200606140942.31150.ak@suse.de> <200606161209.25266.ak@suse.de>
+ <44928FB1.5070107@sgi.com> <200606161317.19296.ak@suse.de> <44929CE6.4@sgi.com>
+ <4492A5E4.9050702@bull.net> <4492A6E6.3090805@sgi.com> <4492A8A1.5000101@bull.net>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Goo GGooo <googgooo@gmail.com>, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-Subject: Re: 2.6.17-rc6-mm2
-References: <ef5305790606142040r5912ce58kf9f889c3d61b2cc0@mail.gmail.com>  <ef5305790606151814i252c37c4mdd005f11f06ceac@mail.gmail.com>  <Pine.LNX.4.64.0606151937360.5498@g5.osdl.org> <ef5305790606152249n2702873fy7b708d9c47c78470@mail.gmail.com> <Pine.LNX.4.64.0606152335130.5498@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606152335130.5498@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> Actually, the really irritating thing is that we actually generate all 
-> these nice status updates, which just makes pulling and cloning a lot more 
-> comfortable, because you actually see what is going on, and what to 
-> expect. 
-> 
-> Except they only work over ssh, where we have a separate channel (for 
-> stderr), and with the native git protocol all that nice status work just 
-> gets flushed to /dev/null :(
-> 
-> Dang. It's literally the most irritating part of the thing: the protocol 
-> itself is exactly the same whether you go over ssh:// or over git://, but 
-> that visual information about what is going on is missing, and it's 
-> surprisingly important from a usability standpoint.
-> 
+On Fri, 16 Jun 2006, Zoltan Menyhart wrote:
 
-Perhaps we shouldn't rely on stderr, and instead have a backchannel as part of the 
-protocol itself.  After all, the protocol already does packetization, so all it needs is a 
-reliable way to pick out the error/status packets; we could even combine that with a 
-machine-readable code (like SMTP et al) that could get interpreted by the other side as 
-needed.
+> Jes Sorensen wrote:
+>>  Zoltan Menyhart wrote:
+>> 
+>> > Just to make sure I understand it correctly...
+>> > Assuming I have allocated per CPU data (numa control, etc.) pointed at 
+>> > by:
+>>
+>>
+>>  I think you misunderstood - vgetcpu is for userland usage, not within
+>>  the kernel.
+>>
+>>  Cheers,
+>>  Jes
+>> 
+> I did understand it as a user land stuff.
+> This is why I want to map the current task structure into the user space.
+> In user code, we could see the actual value of the 
+> "current->thread_info.cpu".
+> My "#define current ((struct task_struct *) 0x...)" is not the same as
+> the kernel's one.
 
-	-hpa
+I think it's probably best to leave most of the stuff in task_struct 
+private (ie, mapped in kernel only).
+
+> Thanks,
+>
+> Zoltan
+
+Thanks,
+Chase

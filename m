@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWFPMPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWFPMhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWFPMPR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 08:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFPMPQ
+	id S1751000AbWFPMhF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 08:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFPMhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 08:15:16 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:25748 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751373AbWFPMPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 08:15:15 -0400
-Date: Fri, 16 Jun 2006 21:15:55 +0900
-From: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before
- crashing
-Message-Id: <20060616211555.1e5c4af0.akiyama.nobuyuk@jp.fujitsu.com>
-In-Reply-To: <m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
-References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Jun 2006 08:37:05 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51660 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751000AbWFPMhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 08:37:01 -0400
+Message-ID: <4492A5E4.9050702@bull.net>
+Date: Fri, 16 Jun 2006 14:36:52 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, fr, hu
+MIME-Version: 1.0
+To: Jes Sorensen <jes@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Tony Luck <tony.luck@intel.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
+Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
+References: <200606140942.31150.ak@suse.de> <200606161209.25266.ak@suse.de> <44928FB1.5070107@sgi.com> <200606161317.19296.ak@suse.de> <44929CE6.4@sgi.com>
+In-Reply-To: <44929CE6.4@sgi.com>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 16/06/2006 14:40:45,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 16/06/2006 14:40:46,
+	Serialize complete at 16/06/2006 14:40:46
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jun 2006 00:28:08 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+Just to make sure I understand it correctly...
+Assuming I have allocated per CPU data (numa control, etc.) pointed at by:
 
-> Please give a concrete example of a failure mode where this allows
-> you to meet your timing constraint.
-> 
-> I have yet to be convinced that this actually solves a real world
-> problem.
-> 
-> What is the cost of the notifier you wish to implement?
-> What is your guarantee that the system won't have wasted seconds
-> detecting it can't allocate memory or other cases?
-> 
-> If we go this route the notifier should not be exported to modules.
-> Only the most scrutinized of code paths should ever set this,
-> and code like that should never be a module.
-> 
-> The patchset that adds the notifier call needs to include the notifier
-> so people can look and see how sane this is.
-> 
-> So far what I have seen are hand waving arguments that failures
-> that can never happen must be detected and reported within
-> milliseconds to another machine in an unspecified manner.  Your kernel
-> startup times are asserted to be to large to do this from the next
-> kernel, but the code to do so is sufficiently complicated you can't do
-> this in the kexec code stub that runs before it starts your next
-> kernel.
-> 
-> I am sympathetic but this interface seems to set expectations that
-> we can the impossible, and it still appears unnecessary to me.
+	void *per_cpu[MAXCPUS];
 
-As I mentioned many times, this notifier is very effective in the
-clustering system. Actually the Red Hat's kernel has a notifier
-at the same point like this patch. I know a real system that failover
-of DB server is immediately done by using this notifier.
-It takes much cost to keep consistency of transaction processing
-on DB system. Therefore, to shorten down time, it is very important
-to immediately know that the system dies. In a mission critical system,
-millisecond order or less is demanded.
-The processing of the notifier is to make a SCSI adaptor power off to
-stop writing in the shared disk completely and then notify to standby-node.
-But as you think, it is sure not to necessarily become this scenario.
-For instance, if the kernel hangs, the failure can be detected only
-by heart-beat. In this case the detection time becomes longer.
+Assuming a per CPU variable has got an "offset" in each per CPU data area.
+Accessing this variable can be done as follows:
 
-Anyway this notifier is very effective and important in the actual world. 
-Another example is as follows:
+	err = vgetcpu(&my_cpu, ...);
+	if (err)
+		goto ....
+	pointer = (typeof pointer) (per_cpu[my_cpu] + offset);
+	// use "pointer"...
 
-http://lists.osdl.org/pipermail/fastboot/2006-June/003028.html
+It is hundred times more long than "__get_per_cpu(var)++".
 
-Thanks,
+As we do not know when we can be moved to another CPU,
+"vgetcpu()" has to be called again after a "reasonable short" time.
 
-Akiyama, Nobuyuki
+My idea is to map the current task structure at an arch. dependent
+virtual address into the user space (obviously in RO).
 
+	#define current	((struct task_struct *) 0x...)
+
+No more need to for "vgetcpu()" at all. The example above becomes:
+
+	pointer = (typeof pointer) (per_cpu[current->thread_info.cpu] + offset);
+	// use "pointer"...
+
+As obtaining "pointer" does not cost much, it can be re-calculated at
+each usage => no problem to know when to recheck it, there is less chance for
+using the data of a neighbor.
+
+Regards,
+
+Zoltan Menyhart

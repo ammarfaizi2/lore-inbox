@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWFPClF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWFPCqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWFPClF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 22:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWFPClF
+	id S1750822AbWFPCqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 22:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWFPCqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 22:41:05 -0400
-Received: from mo31.po.2iij.net ([210.128.50.54]:5914 "EHLO mo31.po.2iij.net")
-	by vger.kernel.org with ESMTP id S1750710AbWFPClE (ORCPT
+	Thu, 15 Jun 2006 22:46:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8678 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750712AbWFPCqX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 22:41:04 -0400
-Date: Fri, 16 Jun 2006 11:40:55 +0900
-From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yoichi_yuasa@tripeaks.co.jp, linux-kernel@vger.kernel.org
-Subject: [PATCH] add "select GPIO_VR41XX" for TANBAC_TB0229
-Message-Id: <20060616114055.3492e8d4.yoichi_yuasa@tripeaks.co.jp>
-Organization: TriPeaks Corporation
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jun 2006 22:46:23 -0400
+Date: Thu, 15 Jun 2006 19:46:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Goo GGooo <googgooo@gmail.com>
+cc: linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: 2.6.17-rc6-mm2
+In-Reply-To: <ef5305790606151814i252c37c4mdd005f11f06ceac@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0606151937360.5498@g5.osdl.org>
+References: <ef5305790606142040r5912ce58kf9f889c3d61b2cc0@mail.gmail.com>
+ <ef5305790606151814i252c37c4mdd005f11f06ceac@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-TANBAC_TB0229 requires GPIO_VR41XX.
-This patch adds "select GPIO_VR41XX" for TANBAC_TB0229.
 
-Yoichi
+On Fri, 16 Jun 2006, Goo GGooo wrote:
+> 
+> That's confusing - I believed all protocols should behave the same way...?
 
-Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+Not really. The primary protocol is the native git one, and the others try 
+to do a best effort, but the http protocol really can't do a very good 
+job unless the server side has run "git update-server-info" to help the 
+http client along.
 
-diff -pruN -X linux-2.6.17-rc6-mm2/Documentation/dontdiff linux-2.6.17-rc6-mm2-orig/drivers/char/Kconfig linux-2.6.17-rc6-mm2/drivers/char/Kconfig
---- linux-2.6.17-rc6-mm2-orig/drivers/char/Kconfig	2006-06-11 22:17:17.487656750 +0900
-+++ linux-2.6.17-rc6-mm2/drivers/char/Kconfig	2006-06-16 09:52:16.642990750 +0900
-@@ -852,6 +852,7 @@ config SONYPI
- config TANBAC_TB0219
- 	tristate "TANBAC TB0219 base board support"
- 	depends TANBAC_TB022X
-+	select GPIO_VR41XX
- 
- menu "Ftape, the floppy tape device driver"
- 
+I suspect that the -mm git tree simply doesn't do that. In fact, even the 
+main tree didn't use to do it, but I finally just broke down and added the 
+proper hook to make it always do it automatically when I push.
+
+(In case Andrew wants to do that, the way to do it is:
+
+	echo -e "#!/bin/sh\nexec git-update-server-info" > hooks/post-update
+	chmod +x hooks/post-update
+
+inside the git repository - all it will do is always execute that script, 
+and this "git-update-server-info", after you've updated the repo).
+
+Finally, the rsync protocol just copies all objects over, and since it 
+doesn't even know _which_ objects it is getting, it doesn't do the normal 
+tag following that the native git protocol does.
+
+So to recap:
+ - http is fundamentally weaker, and needs some server-side help to work
+ - rsync is fine for the initial clone, but doesn't actually know what 
+   it's doing, so the end result can actually even be a corrupted 
+   repository, because you happened to rsync just as it was updating.
+ - the native git protocol generally should be considered the golden 
+   standard, where the other ones are just fallbacks in case of problems 
+   (like firewalls that don't let git:// through, or more commonly hosted 
+   servers that don't do the git protocol at all).
+
+Which hopefully clarifies the issue a bit.
+
+		Linus

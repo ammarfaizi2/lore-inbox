@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWFPXrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWFQABF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWFPXrz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWFPXrz
+	id S932481AbWFQABF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 20:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWFQABF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:47:55 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53183 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932477AbWFPXry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:47:54 -0400
-Date: Sat, 17 Jun 2006 08:47:48 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: clameter@sgi.com, linux-kernel@vger.kernel.org, ashok.raj@intel.com,
-       ak@suse.de
-Subject: Re: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT
- tasks.
-Message-Id: <20060617084748.a4c68977.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060616102934.A2940@unix-os.sc.intel.com>
-References: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0606160908120.14330@schroedinger.engr.sgi.com>
-	<20060617014623.8f820e8b.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060616102934.A2940@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Fri, 16 Jun 2006 20:01:05 -0400
+Received: from mx1.suse.de ([195.135.220.2]:31394 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932481AbWFQABE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 20:01:04 -0400
+Date: Fri, 16 Jun 2006 16:58:00 -0700
+From: Greg KH <greg@kroah.com>
+To: Daniele orlandi <daniele@orlandi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Passing references to kobjects between userland and kernel
+Message-ID: <20060616235800.GA29573@kroah.com>
+References: <200606141626.39273.daniele@orlandi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606141626.39273.daniele@orlandi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jun 2006 10:29:35 -0700
-Ashok Raj <ashok.raj@intel.com> wrote:
-> Should we have this flag on a per-task so we know if this task should be 
-> killed, or could be migrated without damage (assuming its going to run slow, 
-> but nothing critically bad will happen)
+On Wed, Jun 14, 2006 at 04:26:38PM +0200, Daniele orlandi wrote:
 > 
-> Iam just worried if killing them globally without giving them a chance is 
-> any good and favorite apps such as databases will have probably have
-> ill effects.
+> Hello,
 > 
-In the big servers which equips cpu-hotplug, apps should work as they designed.
-If not, apps are already in buggy state.
-IMHO, just stopping it is better than allowing execution in buggy state.
+> I'm trying to figure out what is the correct way to pass references to 
+> kobjects between userland and kernel space.
 
-I used SIGSTOP. If a system admin or SIGCONT handler can modify cpu_allowed of
-stopped thread, apps can go on. I think this is a realistic workaround.
-(if the process is stopped, parent process of it can catch it by waitpid.)
+Use the kobject_uevent() call from kernelspace to let userspace know
+whatever you want it to.  That is what it is there for :)
 
-p.s.
-I think prefer cpu + allowed cpu will help this kind of probem, but there is no
-interface..
+> 
+> I have my big object hierarchy of kobjects representing a TDM interconnect 
+> graph with channels, crossconnectors, physical ports and so on.
+> The main objects are nodes and archs; archs connect two nodes together.
+> 
+> The hierarchy is exported to sysfs.
+> 
+> From userland I want to tell the kernel "Connect node X to node Y".
 
--Kame
+Then use the names of the kobjects within your subdirectory.  They have
+to be unique so you should be safe.
 
+Or use configfs :)
+
+thanks,
+
+greg k-h

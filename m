@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWFPBFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWFPBOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWFPBFK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 21:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWFPBFJ
+	id S1750943AbWFPBOL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 21:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWFPBOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 21:05:09 -0400
-Received: from ozlabs.org ([203.10.76.45]:20937 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750808AbWFPBFI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 21:05:08 -0400
-Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Paul Mackerras <paulus@samba.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <17553.56625.612931.136018@cargo.ozlabs.ibm.com>
-References: <17553.56625.612931.136018@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Fri, 16 Jun 2006 11:04:55 +1000
-Message-Id: <1150419895.10290.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 15 Jun 2006 21:14:11 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:8674 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750931AbWFPBOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 21:14:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ENv8IakfR6QzgBDzhGQbIUAQUFC5pK5W3NuZzobJvtM5NJ3sXdAKkA0K+HmCgxnHNasoIT0G1/PkU6MfJ2lo7MBxhgboDz9OtPoRzvJgdbbmLoh9wYwhfS66X8VxmFgWkSlj3ENqpw+L0oMFFg31edA/qhrzAOdl+4g5UhXS2Kw=
+Message-ID: <ef5305790606151814i252c37c4mdd005f11f06ceac@mail.gmail.com>
+Date: Fri, 16 Jun 2006 13:14:09 +1200
+From: "Goo GGooo" <googgooo@gmail.com>
+To: linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: 2.6.17-rc6-mm2
+In-Reply-To: <ef5305790606142040r5912ce58kf9f889c3d61b2cc0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <ef5305790606142040r5912ce58kf9f889c3d61b2cc0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-16 at 08:20 +1000, Paul Mackerras wrote:
-> Update stop_machine.c to spawn stop_machine as kthreads rather
-> than the deprecated kernel_threads.
-> 
-> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+On 6/15/06, Goo GGooo <googgooo@gmail.com> wrote:
+> Andrew Morton wrote:
+>
+> > - To fetch an -mm tree using git, use (for example)
+> >
+> >  git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git
+> > v2.6.16-rc2-mm1
+>
+> I'm not able to get -mm tree from GIT. In
+> http://git.kernel.org/.../smurf/linux-trees.git/refs/tags/ I can see
+> the most recent tags like v2.6.17-rc6-mm2 but cg-clone
+> http://git.kernel.org/.../smurf/linux-trees.git gives me only
+> 2.6.16-rc3 :(
+>
+> I tried "cg-fetch v2.6.17-rc6-mm2" which seemed to fetch some more
+> tags, then played with git-checkout & friends but still can't get the
+> most recent source tree.
 
-kthread does a lot of stuff we don't need, and stop_machine is fairly
-special, low-level interface.
+All right, finally this worked out:
+git pull rsync://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git \
+      tag v2.6.17-rc6-mm2
 
-Seems like change for change's sake, to me, *and* it added more code
-than it removed.
+Strange enough with http:// instead of rsync:// I got some message
+about nonexistent tag.
 
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+Now when I try git pull with http:// again it says the tree is up to
+date. However with git:// it started downloading more things and tags.
 
+That's confusing - I believed all protocols should behave the same way...?
+
+Goo

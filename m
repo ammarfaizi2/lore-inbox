@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWFPXNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWFPXMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWFPXNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWFPXMh
+	id S932396AbWFPXMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWFPXMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:12:37 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:47263 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751547AbWFPXM0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 19:12:43 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:58064 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751555AbWFPXM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 16 Jun 2006 19:12:26 -0400
-Subject: [RFC][PATCH 11/20] elevate write count over calls to vfs_rename()
+Subject: [RFC][PATCH 10/20] unix_find_other() elevate write count for touch_atime()
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
        Dave Hansen <haveblue@us.ibm.com>
@@ -17,7 +17,7 @@ From: Dave Hansen <haveblue@us.ibm.com>
 Date: Fri, 16 Jun 2006 16:12:21 -0700
 References: <20060616231213.D4C5D6AF@localhost.localdomain>
 In-Reply-To: <20060616231213.D4C5D6AF@localhost.localdomain>
-Message-Id: <20060616231221.C30C0D59@localhost.localdomain>
+Message-Id: <20060616231221.F146F36E@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -26,52 +26,52 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/namei.c    |    4 ++++
- lxc-dave/fs/nfsd/vfs.c |   12 +++++++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ lxc-dave/net/unix/af_unix.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
 
-diff -puN fs/namei.c~C-elevate-writers-vfs_rename-part1 fs/namei.c
---- lxc/fs/namei.c~C-elevate-writers-vfs_rename-part1	2006-06-16 15:58:06.000000000 -0700
-+++ lxc-dave/fs/namei.c	2006-06-16 15:58:06.000000000 -0700
-@@ -2520,8 +2520,12 @@ static int do_rename(int olddfd, const c
- 	if (new_dentry == trap)
- 		goto exit5;
+diff -puN net/unix/af_unix.c~C-elevate-writers-opens-part4 net/unix/af_unix.c
+--- lxc/net/unix/af_unix.c~C-elevate-writers-opens-part4	2006-06-16 15:58:05.000000000 -0700
++++ lxc-dave/net/unix/af_unix.c	2006-06-16 15:58:05.000000000 -0700
+@@ -676,21 +676,27 @@ static struct sock *unix_find_other(stru
+ 		err = path_lookup(sunname->sun_path, LOOKUP_FOLLOW, &nd);
+ 		if (err)
+ 			goto fail;
++
++		err = mnt_want_write(nd.mnt);
++		if (err)
++			goto put_path_fail;
++
+ 		err = vfs_permission(&nd, MAY_WRITE);
+ 		if (err)
+-			goto put_fail;
++			goto mnt_drop_write_fail;
  
-+	error = mnt_want_write(oldnd.mnt);
-+	if (error)
-+		goto exit5;
- 	error = vfs_rename(old_dir->d_inode, old_dentry,
- 				   new_dir->d_inode, new_dentry);
-+	mnt_drop_write(oldnd.mnt);
- exit5:
- 	dput(new_dentry);
- exit4:
-diff -puN fs/nfsd/vfs.c~C-elevate-writers-vfs_rename-part1 fs/nfsd/vfs.c
---- lxc/fs/nfsd/vfs.c~C-elevate-writers-vfs_rename-part1	2006-06-16 15:58:06.000000000 -0700
-+++ lxc-dave/fs/nfsd/vfs.c	2006-06-16 15:58:06.000000000 -0700
-@@ -1597,13 +1597,23 @@ nfsd_rename(struct svc_rqst *rqstp, stru
- 			err = -EPERM;
- 	} else
- #endif
-+	err = mnt_want_write(ffhp->fh_export->ex_mnt);
-+	if (err)
-+		goto out_dput_new;
-+
-+	err = mnt_want_write(tfhp->fh_export->ex_mnt);
-+	if (err)
-+		goto out_mnt_drop_write_old;
-+
- 	err = vfs_rename(fdir, odentry, tdir, ndentry);
- 	if (!err && EX_ISSYNC(tfhp->fh_export)) {
- 		err = nfsd_sync_dir(tdentry);
- 		if (!err)
- 			err = nfsd_sync_dir(fdentry);
+ 		err = -ECONNREFUSED;
+ 		if (!S_ISSOCK(nd.dentry->d_inode->i_mode))
+-			goto put_fail;
++			goto mnt_drop_write_fail;
+ 		u=unix_find_socket_byinode(nd.dentry->d_inode);
+ 		if (!u)
+-			goto put_fail;
++			goto mnt_drop_write_fail;
+ 
+ 		if (u->sk_type == type)
+ 			touch_atime(nd.mnt, nd.dentry);
+ 
+ 		path_release(&nd);
++		mnt_drop_write(nd.mnt);
+ 
+ 		err=-EPROTOTYPE;
+ 		if (u->sk_type != type) {
+@@ -710,7 +716,9 @@ static struct sock *unix_find_other(stru
  	}
--
-+	mnt_drop_write(tfhp->fh_export->ex_mnt);
-+ out_mnt_drop_write_old:
-+	mnt_drop_write(ffhp->fh_export->ex_mnt);
-  out_dput_new:
- 	dput(ndentry);
-  out_dput_old:
+ 	return u;
+ 
+-put_fail:
++mnt_drop_write_fail:
++	mnt_drop_write(nd.mnt);
++put_path_fail:
+ 	path_release(&nd);
+ fail:
+ 	*error=err;
 _

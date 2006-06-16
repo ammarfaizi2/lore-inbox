@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWFPMAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWFPMAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWFPMAW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 08:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWFPMAV
+	id S1751368AbWFPMAA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 08:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWFPMAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 08:00:21 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:49540 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S1751306AbWFPMAR (ORCPT
+	Fri, 16 Jun 2006 08:00:00 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:6382 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S1751251AbWFPL76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 08:00:17 -0400
+	Fri, 16 Jun 2006 07:59:58 -0400
 From: Joachim Fritschi <jfritschi@freenet.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-Date: Fri, 16 Jun 2006 14:00:14 +0200
+Subject: Re: [PATCH  3/4] Twofish cipher - i586 assembler
+Date: Fri, 16 Jun 2006 13:59:54 +0200
 User-Agent: KMail/1.9.1
 Cc: linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au, ak@suse.de
-References: <200606041516.46920.jfritschi@freenet.de>
-In-Reply-To: <200606041516.46920.jfritschi@freenet.de>
+References: <200606041516.38998.jfritschi@freenet.de> <200606072138.00251.jfritschi@freenet.de>
+In-Reply-To: <200606072138.00251.jfritschi@freenet.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606161400.14705.jfritschi@freenet.de>
+Message-Id: <200606161359.54603.jfritschi@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update patch for the x86_64 twofish assembler implementation.
+Update patch for the i586 twofish assembler implementation.
 
 Changes since last version:
 -Updated to the new twofish_common setup
--Complete rewrite of the code according to the feedback i recieved 
-(thanks linux@horizon.com)
+-Complete rewrite of the code  according to the feedback i recieved for the
+x86_64 patch (thanks linux@horizon.com)
 
 The patch passed the trycpt tests and automated filesystem tests.
 This rewrite resulted in some nice perfomance increase over my last patch.
@@ -39,50 +39,51 @@ This rewrite resulted in some nice perfomance increase over my last patch.
 Short summary of the tcrypt benchmarks:
 
 Twofish Assembler vs. Twofish C (256bit 8kb block CBC)
-encrypt: -27% Cycles
-decrypt: -23% Cycles
+encrypt: -33% Cycles
+decrypt: -45% Cycles
 
 Twofish Assembler vs. AES Assembler (128bit 8kb block CBC)
-encrypt: +18%  Cycles
-decrypt: +15% Cycles
+encrypt: +3%  Cycles
+decrypt: -22% Cycles
 
 Twofish Assembler vs. AES Assembler (256bit 8kb block CBC)
-encrypt: -9% Cycles
-decrypt: -8% Cycles
+encrypt: -20% Cycles
+decrypt: -36% Cycles
 
 Full Output:
-http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-twofish-c-x86_64.txt
-http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-twofish-asm-x86_64.txt
-http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-aes-asm-x86_64.txt
+http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-twofish-asm-i586.txt
+http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-twofish-c-i586.txt
+http://homepages.tu-darmstadt.de/~fritschi/twofish/tcrypt-speed-aes-asm-i586.txt
 
 
-Here is another bonnie++ benchmark with encrypted filesystems. Most runs maxed
-out the hd. It should give some idea what the module can do for encrypted filesystem
-performance even though you can't see the full numbers.
+Here is another bonnie++ benchmark with encrypted filesystems. All runs with
+the twofish assembler modules max out the drivespeed. It should give some
+idea what the module can do for encrypted filesystem performance even though
+you can't see the full numbers.
 
-http://homepages.tu-darmstadt.de/~fritschi/twofish/output_20060610_130806_x86_64.html
+http://homepages.tu-darmstadt.de/~fritschi/twofish/output_20060611_205432_x86.html
 
 
 Signed-off-by: Joachim Fritschi <jfritschi@freenet.de>
 
-diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/Makefile linux-2.6.17-rc5.twofish4/arch/x86_64/crypto/Makefile
---- linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/Makefile	2006-06-11 16:03:17.716764337 +0200
-+++ linux-2.6.17-rc5.twofish4/arch/x86_64/crypto/Makefile	2006-06-11 16:11:41.279630413 +0200
+diff -uprN linux-2.6.17-rc5.twofish2/arch/i386/crypto/Makefile linux-2.6.17-rc5.twofish3/arch/i386/crypto/Makefile
+--- linux-2.6.17-rc5.twofish2/arch/i386/crypto/Makefile	2006-06-11 15:58:36.991988374 +0200
++++ linux-2.6.17-rc5.twofish3/arch/i386/crypto/Makefile	2006-06-11 16:05:51.675813834 +0200
 @@ -5,5 +5,8 @@
  # 
  
- obj-$(CONFIG_CRYPTO_AES_X86_64) += aes-x86_64.o
-+obj-$(CONFIG_CRYPTO_TWOFISH_X86_64) += twofish-x86_64.o
+ obj-$(CONFIG_CRYPTO_AES_586) += aes-i586.o
++obj-$(CONFIG_CRYPTO_TWOFISH_586) += twofish-i586.o
  
- aes-x86_64-y := aes-x86_64-asm.o aes.o
-+twofish-x86_64-y := twofish-x86_64-asm.o twofish.o
+ aes-i586-y := aes-i586-asm.o aes.o
++twofish-i586-y := twofish-i586-asm.o twofish.o
 +
-diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish.c linux-2.6.17-rc5.twofish4/arch/x86_64/crypto/twofish.c
---- linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc5.twofish4/arch/x86_64/crypto/twofish.c	2006-06-11 16:10:49.426288180 +0200
-@@ -0,0 +1,86 @@
+diff -uprN linux-2.6.17-rc5.twofish2/arch/i386/crypto/twofish.c linux-2.6.17-rc5.twofish3/arch/i386/crypto/twofish.c
+--- linux-2.6.17-rc5.twofish2/arch/i386/crypto/twofish.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc5.twofish3/arch/i386/crypto/twofish.c	2006-06-11 16:03:56.669852049 +0200
+@@ -0,0 +1,88 @@
 +/*
-+ * Glue Code for optimized x86_64 assembler version of TWOFISH
++ *  Glue Code for optimized 586 assembler version of TWOFISH
 + *
 + * Originally Twofish for GPG
 + * By Matthew Skala <mskala@ansuz.sooke.bc.ca>, July 26, 1998
@@ -130,14 +131,16 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish.c linux-2.6.17-r
 +#include <linux/bitops.h>
 +#include <crypto/twofish.h>
 +
++
 +asmlinkage void twofish_enc_blk(void *ctx, u8 *dst, const u8 *src);
 +
 +asmlinkage void twofish_dec_blk(void *ctx, u8 *dst, const u8 *src);
 +
++
 +static struct crypto_alg alg = {
 +	.cra_name           =   "twofish",
-+	.cra_driver_name    =	"twofish-x86_64",
-+	.cra_priority       =	200,
++	.cra_driver_name    =	"twofish-i586",
++        .cra_priority       =   200,
 +	.cra_flags          =   CRYPTO_ALG_TYPE_CIPHER,
 +	.cra_blocksize      =   TF_BLOCK_SIZE,
 +	.cra_ctxsize        =   sizeof(struct twofish_ctx),
@@ -166,11 +169,11 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish.c linux-2.6.17-r
 +module_exit(fini);
 +
 +MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION ("Twofish Cipher Algorithm, x86_64 asm optimized");
-diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S linux-2.6.17-rc5.twofish4/arch/x86_64/crypto/twofish-x86_64-asm.S
---- linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc5.twofish4/arch/x86_64/crypto/twofish-x86_64-asm.S	2006-06-11 21:50:17.303085147 +0200
-@@ -0,0 +1,397 @@
++MODULE_DESCRIPTION ("Twofish Cipher Algorithm, i586 asm optimized");
+diff -uprN linux-2.6.17-rc5.twofish2/arch/i386/crypto/twofish-i586-asm.S linux-2.6.17-rc5.twofish3/arch/i386/crypto/twofish-i586-asm.S
+--- linux-2.6.17-rc5.twofish2/arch/i386/crypto/twofish-i586-asm.S	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc5.twofish3/arch/i386/crypto/twofish-i586-asm.S	2006-06-11 21:49:26.508548778 +0200
+@@ -0,0 +1,404 @@
 +/***************************************************************************
 +*   Copyright (C) 2006 by Joachim Fritschi, <jfritschi@freenet.de>        *
 +*                                                                         *
@@ -190,8 +193,14 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S lin
 +*   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 +***************************************************************************/
 +
-+.file "twofish-x86_64-asm.S"
++.file "twofish-i586-asm.S"
 +.text
++
++/* return adress at 0 */
++
++#define in_blk    12  /* input byte array address parameter*/
++#define out_blk   8  /* output byte array address parameter*/
++#define ctx       4  /* Twofish context structure */
 +
 +#define a_offset	0
 +#define b_offset	4
@@ -209,22 +218,18 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S lin
 +
 +/* define a few register aliases to allow macro substitution */
 +
-+#define R0     %rax
 +#define R0D    %eax
 +#define R0B    %al
 +#define R0H    %ah
 +
-+#define R1     %rbx
 +#define R1D    %ebx
 +#define R1B    %bl
 +#define R1H    %bh
 +
-+#define R2     %rcx
 +#define R2D    %ecx
 +#define R2B    %cl
 +#define R2H    %ch
 +
-+#define R3     %rdx
 +#define R3D    %edx
 +#define R3B    %dl
 +#define R3H    %dh
@@ -238,7 +243,6 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S lin
 +#define output_whitening(src,context,offset)\
 +	xor	w+16+offset(context),	src;
 +
-+
 +/*
 +a input register containing a (rotated 16)
 +b input register containing b
@@ -248,31 +252,33 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S lin
 +*/
 +#define encrypt_round(a,b,c,d,round)\
 +movzx	b ## B,		%edi;\
-+mov	s1(%r11,%rdi,4),%r8d;\
++mov	s1(%ebp,%edi,4),d ## D;\
 +movzx	a ## B,		%edi;\
-+mov	s2(%r11,%rdi,4),%r9d;\
++mov	s2(%ebp,%edi,4),%esi;\
 +movzx	b ## H,		%edi;\
 +ror	$16,		b ## D;\
-+xor	s2(%r11,%rdi,4),%r8d;\
++xor	s2(%ebp,%edi,4),d ## D;\
 +movzx	a ## H,		%edi;\
 +ror	$16,		a ## D;\
-+xor	s3(%r11,%rdi,4),%r9d;\
++xor	s3(%ebp,%edi,4),%esi;\
 +movzx	b ## B,		%edi;\
-+xor	s3(%r11,%rdi,4),%r8d;\
++xor	s3(%ebp,%edi,4),d ## D;\
 +movzx	a ## B,		%edi;\
-+xor	(%r11,%rdi,4),	%r9d;\
++xor	(%ebp,%edi,4),	%esi;\
 +movzx	b ## H,		%edi;\
 +ror	$15,		b ## D;\
-+xor	(%r11,%rdi,4),	%r8d;\
++xor	(%ebp,%edi,4),	d ## D;\
 +movzx	a ## H,		%edi;\
-+xor	s1(%r11,%rdi,4),%r9d;\
-+add	%r8d,		%r9d;\
-+add	%r9d,		%r8d;\
-+add	k+round(%r11),	%r9d;\
-+xor	%r9d,		c ## D;\
++xor	s1(%ebp,%edi,4),%esi;\
++add	d ## D,		%esi;\
++add	%esi,		d ## D;\
++add	k+round(%ebp),	%esi;\
++pop	%edi;\
++push	b ## D;\
++xor	%esi,		c ## D;\
 +rol	$15,		c ## D;\
-+add	k+4+round(%r11),%r8d;\
-+xor	%r8d,		d ## D;
++add	k+4+round(%ebp),d ## D;\
++xor	%edi,		d ## D;
 +
 +
 +/*
@@ -284,209 +290,203 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S lin
 +*/
 +#define encrypt_first_round(a,b,c,d,round)\
 +movzx	a ## B,		%edi;\
-+mov	(%r11,%rdi,4),	%r9d;\
++mov	(%ebp,%edi,4),	%esi;\
 +movzx	b ## B,		%edi;\
-+mov	s1(%r11,%rdi,4),%r8d;\
++mov	s1(%ebp,%edi,4),d ## D;\
 +movzx	a ## H,		%edi;\
 +ror	$16,		a ## D;\
-+xor	s1(%r11,%rdi,4),%r9d;\
++xor	s1(%ebp,%edi,4),%esi;\
 +movzx	b ## H,		%edi;\
 +ror	$16,		b ## D;\
-+xor	s2(%r11,%rdi,4),%r8d;\
-+movzx	b ## B,		%edi;\
-+xor	s3(%r11,%rdi,4),%r8d;\
++xor	s2(%ebp,%edi,4),d ## D;\
 +movzx	a ## B,		%edi;\
-+xor	s2(%r11,%rdi,4),%r9d;\
-+movzx	b ## H,		%edi;\
-+ror	$15,		b ## D;\
-+xor	(%r11,%rdi,4),	%r8d;\
++xor	s2(%ebp,%edi,4),%esi;\
++movzx	b ## B,		%edi;\
++xor	s3(%ebp,%edi,4),d ## D;\
 +movzx	a ## H,		%edi;\
 +ror	$16,		a ## D;\
-+xor	s3(%r11,%rdi,4),%r9d;\
-+add	%r8d,		%r9d;\
-+add	%r9d,		%r8d;\
-+add	k+round(%r11),	%r9d;\
-+add	k+4+round(%r11),%r8d;\
-+xor	%r9d,		c ## D;\
++xor	s3(%ebp,%edi,4),%esi;\
++movzx	b ## H,		%edi;\
++ror	$15,		b ## D;\
++xor	(%ebp,%edi,4),	d ## D;\
++pop	%edi;\
++add	d ## D,		%esi;\
++add	%esi,		d ## D;\
++add	k+round(%ebp),	%esi;\
++push	b ## D;\
++xor	%esi,		c ## D;\
 +rol	$15,		c ## D;\
-+xor	%r8d,		d ## D;
++add	k+4+round(%ebp),d ## D;\
++xor	%edi,		d ## D;
++
++#define encrypt_last_round(a,b,c,d,round)\
++movzx	b ## B,		%edi;\
++mov	s1(%ebp,%edi,4),d ## D;\
++movzx	a ## B,		%edi;\
++mov	s2(%ebp,%edi,4),%esi;\
++movzx	b ## H,		%edi;\
++ror	$16,		b ## D;\
++xor	s2(%ebp,%edi,4),d ## D;\
++movzx	a ## H,		%edi;\
++ror	$16,		a ## D;\
++xor	s3(%ebp,%edi,4),%esi;\
++movzx	b ## B,		%edi;\
++xor	s3(%ebp,%edi,4),d ## D;\
++movzx	a ## B,		%edi;\
++xor	(%ebp,%edi,4),	%esi;\
++movzx	b ## H,		%edi;\
++ror	$16,		b ## D;\
++xor	(%ebp,%edi,4),	d ## D;\
++movzx	a ## H,		%edi;\
++xor	s1(%ebp,%edi,4),%esi;\
++add	d ## D,		%esi;\
++add	%esi,		d ## D;\
++add	k+round(%ebp),	%esi;\
++pop	%edi;\
++xor	%esi,		c ## D;\
++ror	$1,		c ## D;\
++add	k+4+round(%ebp),d ## D;\
++xor	%edi,		d ## D;
 +
 +/*
-+a input register containing a(rotated 16)
++a input register containing a
++b input register containing b (rotated 16)
++c input register containing c
++d input register containing d (already rol $1)
++operations on a and b are interleaved to increase performance
++*/
++#define decrypt_round(a,b,c,d,round)\
++movzx	a ## B,		%edi;\
++mov	(%ebp,%edi,4),	%esi;\
++movzx	b ## B,		%edi;\
++mov	s3(%ebp,%edi,4),d ## D;\
++movzx	a ## H,		%edi;\
++ror	$16,		a ## D;\
++xor	s1(%ebp,%edi,4),%esi;\
++movzx	b ## H,		%edi;\
++ror	$16,		b ## D;\
++xor	(%ebp,%edi,4),	d ## D;\
++movzx	a ## B,		%edi;\
++xor	s2(%ebp,%edi,4),%esi;\
++movzx	b ## B,		%edi;\
++xor	s1(%ebp,%edi,4),d ## D;\
++movzx	a ## H,		%edi;\
++ror	$15,		a ## D;\
++xor	s3(%ebp,%edi,4),%esi;\
++movzx	b ## H,		%edi;\
++xor	s2(%ebp,%edi,4),d ## D;\
++add	d ## D,		%esi;\
++add	%esi,		d ## D;\
++add	k+4+round(%ebp),d ## D;\
++pop	%edi;\
++push	b ## D;\
++xor	%edi,		d ## D;\
++rol	$15,		d ## D;\
++add	k+round(%ebp),	%esi;\
++xor	%esi,		c ## D;
++
++
++/*
++a input register containing a
 +b input register containing b
 +c input register containing c
 +d input register containing d (already rol $1)
 +operations on a and b are interleaved to increase performance
-+durimg the round a and b are prepared for the output whitening
 +*/
-+#define encrypt_last_round(a,b,c,d,round)\
-+mov	b ## D,		%r10d;\
-+shl	$32,		%r10;\
-+movzx	b ## B,		%edi;\
-+mov	s1(%r11,%rdi,4),%r8d;\
++#define decrypt_first_round(a,b,c,d,round)\
 +movzx	a ## B,		%edi;\
-+mov	s2(%r11,%rdi,4),%r9d;\
-+movzx	b ## H,		%edi;\
-+ror	$16,		b ## D;\
-+xor	s2(%r11,%rdi,4),%r8d;\
++mov	(%ebp,%edi,4),	%esi;\
++movzx	b ## B,		%edi;\
++mov	s1(%ebp,%edi,4),d ## D;\
 +movzx	a ## H,		%edi;\
 +ror	$16,		a ## D;\
-+xor	s3(%r11,%rdi,4),%r9d;\
-+movzx	b ## B,		%edi;\
-+xor	s3(%r11,%rdi,4),%r8d;\
-+movzx	a ## B,		%edi;\
-+xor	(%r11,%rdi,4),	%r9d;\
-+xor	a,		%r10;\
++xor	s1(%ebp,%edi,4),%esi;\
 +movzx	b ## H,		%edi;\
-+xor	(%r11,%rdi,4),	%r8d;\
++ror	$16,		b ## D;\
++xor	s2(%ebp,%edi,4),d ## D;\
++movzx	a ## B,		%edi;\
++xor	s2(%ebp,%edi,4),%esi;\
++movzx	b ## B,		%edi;\
++xor	s3(%ebp,%edi,4),d ## D;\
 +movzx	a ## H,		%edi;\
-+xor	s1(%r11,%rdi,4),%r9d;\
-+add	%r8d,		%r9d;\
-+add	%r9d,		%r8d;\
-+add	k+round(%r11),	%r9d;\
-+xor	%r9d,		c ## D;\
-+ror	$1,		c ## D;\
-+add	k+4+round(%r11),%r8d;\
-+xor	%r8d,		d ## D
++ror	$15,		a ## D;\
++xor	s3(%ebp,%edi,4),%esi;\
++movzx	b ## H,		%edi;\
++ror	$16,		b ## D;\
++xor	(%ebp,%edi,4),d ## D;\
++pop	%edi;\
++add	d ## D,		%esi;\
++add	%esi,		d ## D;\
++add	k+4+round(%ebp),d ## D;\
++xor	%edi,		d ## D;\
++rol	$15,		d ## D;\
++push	b ## D;\
++add	k+round(%ebp),	%esi;\
++xor	%esi,		c ## D;
 +
 +
 +/*
 +a input register containing a
 +b input register containing b (rotated 16)
-+c input register containing c (already rol $1)
-+d input register containing d 
++c input register containing c
++d input register containing d (already rol $1)
 +operations on a and b are interleaved to increase performance
 +*/
-+#define decrypt_round(a,b,c,d,round)\
-+movzx	a ## B,		%edi;\
-+mov	(%r11,%rdi,4),	%r9d;\
-+movzx	b ## B,		%edi;\
-+mov	s3(%r11,%rdi,4),%r8d;\
-+movzx	a ## H,		%edi;\
-+ror	$16,		a ## D;\
-+xor	s1(%r11,%rdi,4),%r9d;\
-+movzx	b ## H,		%edi;\
-+ror	$16,		b ## D;\
-+xor	(%r11,%rdi,4),	%r8d;\
-+movzx	a ## B,		%edi;\
-+xor	s2(%r11,%rdi,4),%r9d;\
-+movzx	b ## B,		%edi;\
-+xor	s1(%r11,%rdi,4),%r8d;\
-+movzx	a ## H,		%edi;\
-+ror	$15,		a ## D;\
-+xor	s3(%r11,%rdi,4),%r9d;\
-+movzx	b ## H,		%edi;\
-+xor	s2(%r11,%rdi,4),%r8d;\
-+add	%r8d,		%r9d;\
-+add	%r9d,		%r8d;\
-+add	k+4+round(%r11),%r8d;\
-+xor	%r8d,		d ## D;\
-+rol	$15,		d ## D;\
-+add	k+round(%r11),	%r9d;\
-+xor	%r9d,		c ## D;
-+
-+/*
-+a input register containing a
-+b input register containing b
-+c input register containing c (already rol $1)
-+d input register containing d
-+operations on a and b are interleaved to increase performance
-+*/
-+#define decrypt_first_round(a,b,c,d,round)\
-+movzx	a ## B,		%edi;\
-+mov	(%r11,%rdi,4),	%r9d;\
-+movzx	b ## B,		%edi;\
-+mov	s1(%r11,%rdi,4),%r8d;\
-+movzx	a ## H,		%edi;\
-+ror	$16,		a ## D;\
-+xor	s1(%r11,%rdi,4),%r9d;\
-+movzx	b ## H,		%edi;\
-+ror	$16,		b ## D;\
-+xor	s2(%r11,%rdi,4),%r8d;\
-+movzx	b ## B,		%edi;\
-+xor	s3(%r11,%rdi,4),%r8d;\
-+movzx	a ## B,		%edi;\
-+xor	s2(%r11,%rdi,4),%r9d;\
-+movzx	b ## H,		%edi;\
-+ror	$16,		b ## D;\
-+xor	(%r11,%rdi,4),	%r8d;\
-+movzx	a ## H,		%edi;\
-+ror	$15,		a ## D;\
-+xor	s3(%r11,%rdi,4),%r9d;\
-+add	%r8d,		%r9d;\
-+add	%r9d,		%r8d;\
-+add	k+4+round(%r11),%r8d;\
-+xor	%r8d,		d ## D;\
-+rol	$15,		d ## D;\
-+add	k+round(%r11),	%r9d;\
-+xor	%r9d,		c ## D;
-+
-+/*
-+a input register containing a
-+b input register containing b
-+c input register containing c (already rol $1)
-+d input register containing d
-+operations on a and b are interleaved to increase performance
-+durimg the round a and b are prepared for the output whitening
-+@ */
 +#define decrypt_last_round(a,b,c,d,round)\
 +movzx	a ## B,		%edi;\
-+mov	(%r11,%rdi,4),	%r9d;\
++mov	(%ebp,%edi,4),	%esi;\
 +movzx	b ## B,		%edi;\
-+mov	s3(%r11,%rdi,4),%r8d;\
++mov	s3(%ebp,%edi,4),d ## D;\
++movzx	a ## H,		%edi;\
++ror	$16,		a ## D;\
++xor	s1(%ebp,%edi,4),%esi;\
 +movzx	b ## H,		%edi;\
 +ror	$16,		b ## D;\
-+xor	(%r11,%rdi,4),	%r8d;\
-+movzx	a ## H,		%edi;\
-+mov	b ## D,		%r10d;\
-+shl	$32,		%r10;\
-+xor	a,		%r10;\
-+ror	$16,		a ## D;\
-+xor	s1(%r11,%rdi,4),%r9d;\
-+movzx	b ## B,		%edi;\
-+xor	s1(%r11,%rdi,4),%r8d;\
++xor	(%ebp,%edi,4),	d ## D;\
 +movzx	a ## B,		%edi;\
-+xor	s2(%r11,%rdi,4),%r9d;\
-+movzx	b ## H,		%edi;\
-+xor	s2(%r11,%rdi,4),%r8d;\
++xor	s2(%ebp,%edi,4),%esi;\
++movzx	b ## B,		%edi;\
++xor	s1(%ebp,%edi,4),d ## D;\
 +movzx	a ## H,		%edi;\
-+xor	s3(%r11,%rdi,4),%r9d;\
-+add	%r8d,		%r9d;\
-+add	%r9d,		%r8d;\
-+add	k+4+round(%r11),%r8d;\
-+xor	%r8d,		d ## D;\
++ror	$16,		a ## D;\
++xor	s3(%ebp,%edi,4),%esi;\
++movzx	b ## H,		%edi;\
++xor	s2(%ebp,%edi,4),d ## D;\
++pop	%edi;\
++add	d ## D,		%esi;\
++add	%esi,		d ## D;\
++add	k+4+round(%ebp),d ## D;\
++xor	%edi,		d ## D;\
 +ror	$1,		d ## D;\
-+add	k+round(%r11),	%r9d;\
-+xor	%r9d,		c ## D;
-+
++add	k+round(%ebp),	%esi;\
++xor	%esi,		c ## D;
 +	
-+	
-+.align 8
++.align 4
 +.global twofish_enc_blk
 +.global twofish_dec_blk
 +
 +
 +
 +twofish_enc_blk:
-+	pushq    R1
-+	
-+	/* %rdi contains the crypto ctx adress */
-+	/* %rsi contains the output adress */
-+	/* %rdx contains the input adress */
-+	
-+	/* ctx adress is moved to free one non-rex register
-+	as target for the 8bit high operations */
-+	mov	%rdi,		%r11
++	push	%ebp			/* save registers according to calling convention*/
++	push    %ebx
++	push    %esi			
++	push    %edi
++		
++		
++	mov	ctx + 16(%esp),	%ebp	/* abuse the base pointer: set new base bointer to the crypto ctx */
++	mov     in_blk+16(%esp),%edi	/* input adress in edi */
 +
-+	movq	(R3),	R1
-+	movq	8(R3),	R3
-+	input_whitening(R1,%r11,a_offset)
-+	input_whitening(R3,%r11,c_offset)
-+	mov	R1D,	R0D
-+	shr	$32,	R1
-+	mov	R3D,	R2D
-+	shr	$32,	R3
-+	rol	$1,	R3D
++	mov	(%edi),		%eax
++	mov	b_offset(%edi),	%ebx
++	mov	c_offset(%edi),	%ecx
++	mov	d_offset(%edi),	%edx
++	input_whitening(%eax,%ebp,a_offset)
++	input_whitening(%ebx,%ebp,b_offset)
++	input_whitening(%ecx,%ebp,c_offset)
++	input_whitening(%edx,%ebp,d_offset)
++	rol	$1,	%edx
++	push	%edx
 +
 +	encrypt_first_round(R0,R1,R2,R3,0);
 +	encrypt_round(R2,R3,R0,R1,8);
@@ -506,38 +506,43 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S lin
 +	encrypt_last_round(R2,R3,R0,R1,15*8);
 +
 +
-+	output_whitening(%r10,%r11,a_offset)
-+	movq	%r10,	(%rsi)
++	output_whitening(%eax,%ebp,c_offset)
++	output_whitening(%ebx,%ebp,d_offset)
++	output_whitening(%ecx,%ebp,a_offset)
++	output_whitening(%edx,%ebp,b_offset)
++	mov	out_blk+16(%esp),%edi;
++	mov	%eax,		c_offset(%edi)
++	mov	%ebx,		d_offset(%edi)
++	mov	%ecx,		(%edi)
++	mov	%edx,		b_offset(%edi)
 +
-+	shl	$32,	R1
-+	xor	R0,	R1
-+
-+	output_whitening(R1,%r11,c_offset)
-+	movq	R1,	8(%rsi)
-+
-+	popq	R1
-+	movq	$1,%rax
++	pop	%edi
++	pop	%esi
++	pop	%ebx
++	pop	%ebp
++	mov	$1,	%eax
 +	ret
 +	
 +twofish_dec_blk:	
-+	pushq    R1
-+	
-+	/* %rdi contains the crypto ctx adress */
-+	/* %rsi contains the output adress */
-+	/* %rdx contains the input adress */
-+	/* ctx adress is moved to free one non-rex register
-+	as target for the 8bit high operations */
-+	mov	%rdi,		%r11
++	push	%ebp			/* save registers according to calling convention*/
++	push    %ebx
++	push    %esi			
++	push    %edi
++		
++		
++	mov	ctx + 16(%esp),	%ebp	/* abuse the base pointer: set new base bointer to the crypto ctx */
++	mov     in_blk+16(%esp),%edi	/* input adress in edi */
 +
-+	movq	(R3),	R1
-+	movq	8(R3),	R3
-+	output_whitening(R1,%r11,a_offset)
-+	output_whitening(R3,%r11,c_offset)
-+	mov	R1D,	R0D
-+	shr	$32,	R1
-+	mov	R3D,	R2D
-+	shr	$32,	R3
-+	rol	$1,	R2D
++	mov	(%edi),		%eax
++	mov	b_offset(%edi),	%ebx
++	mov	c_offset(%edi),	%ecx
++	mov	d_offset(%edi),	%edx
++	output_whitening(%eax,%ebp,a_offset)
++	output_whitening(%ebx,%ebp,b_offset)
++	output_whitening(%ecx,%ebp,c_offset)
++	output_whitening(%edx,%ebp,d_offset)
++	rol	$1,	%ecx
++	push	%edx
 +
 +	decrypt_first_round(R0,R1,R2,R3,15*8);
 +	decrypt_round(R2,R3,R0,R1,14*8);
@@ -556,39 +561,44 @@ diff -uprN linux-2.6.17-rc5.twofish3/arch/x86_64/crypto/twofish-x86_64-asm.S lin
 +	decrypt_round(R0,R1,R2,R3,1*8);
 +	decrypt_last_round(R2,R3,R0,R1,0);
 +
-+	input_whitening(%r10,%r11,a_offset)
-+	movq	%r10,	(%rsi)
 +
-+	shl	$32,	R1
-+	xor	R0,	R1
++	input_whitening(%eax,%ebp,c_offset)
++	input_whitening(%ebx,%ebp,d_offset)
++	input_whitening(%ecx,%ebp,a_offset)
++	input_whitening(%edx,%ebp,b_offset)
++	mov	out_blk+16(%esp),%edi;
++	mov	%eax,		c_offset(%edi)
++	mov	%ebx,		d_offset(%edi)
++	mov	%ecx,		(%edi)
++	mov	%edx,		b_offset(%edi)
 +
-+	input_whitening(R1,%r11,c_offset)
-+	movq	R1,	8(%rsi)
-+
-+	popq	R1
-+	movq	$1,%rax
++	pop	%edi
++	pop	%esi
++	pop	%ebx
++	pop	%ebp
++	mov	$1,	%eax
 +	ret
-diff -uprN linux-2.6.17-rc5.twofish3/crypto/Kconfig linux-2.6.17-rc5.twofish4/crypto/Kconfig
---- linux-2.6.17-rc5.twofish3/crypto/Kconfig	2006-06-11 16:05:19.938782275 +0200
-+++ linux-2.6.17-rc5.twofish4/crypto/Kconfig	2006-06-11 16:11:17.126755733 +0200
-@@ -165,6 +165,21 @@ config CRYPTO_TWOFISH_586
- 	  See also:
- 	  <http://www.schneier.com/twofish.html>
+diff -uprN linux-2.6.17-rc5.twofish2/crypto/Kconfig linux-2.6.17-rc5.twofish3/crypto/Kconfig
+--- linux-2.6.17-rc5.twofish2/crypto/Kconfig	2006-06-11 15:58:39.219982140 +0200
++++ linux-2.6.17-rc5.twofish3/crypto/Kconfig	2006-06-11 16:05:19.938782275 +0200
+@@ -150,6 +150,21 @@ config CRYPTO_TWOFISH_COMMON
+ 	  Common parts of the Twofish cipher algorithm.
+ 	  
  
-+config CRYPTO_TWOFISH_X86_64
-+        tristate "Twofish cipher algorithm (x86_64)"
-+        depends on CRYPTO && ((X86 || UML_X86) && 64BIT)
-+        select CRYPTO_TWOFISH_COMMON
++config CRYPTO_TWOFISH_586
++	tristate "Twofish cipher algorithms (i586)"
++	depends on CRYPTO && ((X86 || UML_X86) && !64BIT)
++	select CRYPTO_TWOFISH_COMMON
 +	help
-+          Twofish cipher algorithm (x86_64).
++	  Twofish cipher algorithm.
 +
-+          Twofish was submitted as an AES (Advanced Encryption Standard)
-+          candidate cipher by researchers at CounterPane Systems.  It is a
-+          16 round block cipher supporting key sizes of 128, 192, and 256
-+          bits.
++	  Twofish was submitted as an AES (Advanced Encryption Standard)
++	  candidate cipher by researchers at CounterPane Systems.  It is a
++	  16 round block cipher supporting key sizes of 128, 192, and 256
++	  bits.
 +
-+          See also:
-+          <http://www.schneier.com/twofish.html>
++	  See also:
++	  <http://www.schneier.com/twofish.html>
 +
  config CRYPTO_SERPENT
  	tristate "Serpent cipher algorithm"

@@ -1,34 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWFPQJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWFPQVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWFPQJc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 12:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWFPQJc
+	id S1751478AbWFPQVk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 12:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWFPQVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 12:09:32 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27075 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751477AbWFPQJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 12:09:31 -0400
-Date: Fri, 16 Jun 2006 09:09:22 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-cc: LKML <linux-kernel@vger.kernel.org>, ashok.raj@intel.com
-Subject: Re: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT
- tasks.
-In-Reply-To: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.64.0606160908120.14330@schroedinger.engr.sgi.com>
-References: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Jun 2006 12:21:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6354 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751478AbWFPQVj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 12:21:39 -0400
+Date: Fri, 16 Jun 2006 12:18:06 -0400
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>, eranian@hpl.hp.com,
+       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
+       wcohen@redhat.com, perfmon@napali.hpl.hp.com
+Subject: Re: [PATCH 9/16] 2.6.17-rc6 perfmon2 patch for review: kernel-level API support (kapi)
+Message-ID: <20060616161806.GI30867@redhat.com>
+References: <200606150907.k5F97coF008178@frankl.hpl.hp.com> <20060616135014.GB12657@infradead.org> <20060616140234.GI10034@frankl.hpl.hp.com> <y0mhd2lumz7.fsf@ton.toronto.redhat.com> <20060616154519.GA28931@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060616154519.GA28931@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jun 2006, KAMEZAWA Hiroyuki wrote:
+Hi -
 
-> When cpu hot remove happens, tasks on the target cpu will be migrated even if
-> no available cpus in tsk->cpus_allowed. (See: move_task_off_dead_cpu().)
+> > Whether one uses systemtap, raw kprobes, or some specialized
+> > tracing/stats-collecting patch surely forthcoming, kernel-level APIs
+> > would be needed to perform fine-grained kernel-scope measurements
+> > using these counters.
+> 
+> No, there's not need to add kernel bloat for performance monitoring.
+> This kind of stuff shoul dabsolutely be done from userspace.
 
-Could we kill the process instead? If a process has been forced to run on 
-a certain cpu then it is an error to migrate it to a different one. If a 
-system wiil do cpu hot remove then the system needs to be configured in 
-such a way as to allow processes to be migrated to other processors.
+Userspace measurements provide only large-grained quantities.  Can you
+argue convincingly that there is never a need to measure focused
+quantities such as cache behaviors of individual subsystems, branch
+prediction statistics of a new algorithm?  That running system-level
+benchmarks is the most efficient way for developers to assess their
+changes?  That the scheduler would not benefit from access to HT
+resource utilization statistics?  All these sorts of efforts seem
+to require a kernel-side perfmon API.
+
+- FChE

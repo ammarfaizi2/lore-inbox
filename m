@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWFPPka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWFPPpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbWFPPka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 11:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWFPPka
+	id S1751463AbWFPPpY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 11:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWFPPpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 11:40:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42972 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751462AbWFPPk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 11:40:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: Brent Casavant <bcasavan@sgi.com>
-Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-Date: Fri, 16 Jun 2006 17:40:18 +0200
-User-Agent: KMail/1.9.3
-Cc: Zoltan Menyhart <Zoltan.Menyhart@bull.net>, Jes Sorensen <jes@sgi.com>,
-       Tony Luck <tony.luck@intel.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
-       vojtech@suse.cz, linux-ia64@vger.kernel.org
-References: <200606140942.31150.ak@suse.de> <200606161656.40930.ak@suse.de> <20060616102516.A91827@pkunk.americas.sgi.com>
-In-Reply-To: <20060616102516.A91827@pkunk.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jun 2006 11:45:23 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:30176 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751463AbWFPPpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 11:45:22 -0400
+Date: Fri, 16 Jun 2006 16:45:19 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Frank Ch. Eigler" <fche@redhat.com>
+Cc: eranian@hpl.hp.com, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
+       wcohen@redhat.com, perfmon@napali.hpl.hp.com
+Subject: Re: [PATCH 9/16] 2.6.17-rc6 perfmon2 patch for review: kernel-level API support (kapi)
+Message-ID: <20060616154519.GA28931@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Frank Ch. Eigler" <fche@redhat.com>, eranian@hpl.hp.com,
+	linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
+	wcohen@redhat.com, perfmon@napali.hpl.hp.com
+References: <200606150907.k5F97coF008178@frankl.hpl.hp.com> <20060616135014.GB12657@infradead.org> <20060616140234.GI10034@frankl.hpl.hp.com> <y0mhd2lumz7.fsf@ton.toronto.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606161740.18611.ak@suse.de>
+In-Reply-To: <y0mhd2lumz7.fsf@ton.toronto.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 16, 2006 at 11:41:32AM -0400, Frank Ch. Eigler wrote:
+> Whether one uses systemtap, raw kprobes, or some specialized
+> tracing/stats-collecting patch surely forthcoming, kernel-level APIs
+> would be needed to perform fine-grained kernel-scope measurements
+> using these counters.
 
-> To this last point, it might be more reasonable to map in a page that
-> contained a new structure with a stable ABI, which mirrored some of
-> the task_struct information, and likely other useful information as
-> needs are identified in the future.  In any case, it would be hard
-> to beat a single memory read for performance.
+No, there's not need to add kernel bloat for performance monitoring.
+This kind of stuff shoul dabsolutely be done from userspace.
 
-That would mean making the context switch and possibly other
-things slower. 
-
-In general you would need to make a very good case first that all this 
-complexity is worth it.
-
-> Cache-coloring and kernel bookkeeping effects could be minimized if this 
-> was provided as an mmaped page from a device driver, used only by
-> applications which care.
-
-I don't see what difference that would make. You would still
-have the fixed offset problem and doing things on demand often tends 
-to be even more complex.
-
-
--Andi (who thinks these proposals all sound very messy) 

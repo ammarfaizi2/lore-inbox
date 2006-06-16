@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWFPO4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWFPO4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbWFPO4z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 10:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWFPO4z
+	id S1751437AbWFPO4v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 10:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWFPO4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 10:56:55 -0400
-Received: from ns2.suse.de ([195.135.220.15]:40151 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751444AbWFPO4x (ORCPT
+	Fri, 16 Jun 2006 10:56:51 -0400
+Received: from mx2.suse.de ([195.135.220.15]:37079 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751437AbWFPO4u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 10:56:53 -0400
+	Fri, 16 Jun 2006 10:56:50 -0400
 From: Andi Kleen <ak@suse.de>
-To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-Date: Fri, 16 Jun 2006 16:56:40 +0200
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
+Date: Fri, 16 Jun 2006 16:54:15 +0200
 User-Agent: KMail/1.9.3
 Cc: Jes Sorensen <jes@sgi.com>, Tony Luck <tony.luck@intel.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
-References: <200606140942.31150.ak@suse.de> <44929CE6.4@sgi.com> <4492A5E4.9050702@bull.net>
-In-Reply-To: <4492A5E4.9050702@bull.net>
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
+       vojtech@suse.cz, linux-ia64@vger.kernel.org
+References: <200606140942.31150.ak@suse.de> <200606161317.19296.ak@suse.de> <44929CE6.4@sgi.com>
+In-Reply-To: <44929CE6.4@sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606161656.40930.ak@suse.de>
+Message-Id: <200606161654.15881.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 June 2006 14:36, Zoltan Menyhart wrote:
-> Just to make sure I understand it correctly...
-> Assuming I have allocated per CPU data (numa control, etc.) pointed at by:
+
+> I really don't see the benefit here. malloc already gets pages handed
+> down from the kernel which are node local due to them being assigned at
+> a first touch basis. I am not sure about glibc's malloc internals, but
+> rather rely on a vgetcpu() call, all it really needs to do is to keep
+> a thread local pool which will automatically get it's thing locally
+> through first touch usage.
+
+That would add too much overhead on small systems. It's better to be 
+able to share the pools. vgetcpu allows that.
+ 
+> > Basically it is just for extending the existing already used proven etc.
+> > default local policy to sub pages. Also there might be other uses
+> > of it too (like per CPU data), although I expect most use of that
+> > in user space can be already done using TLS.
 > 
-> 	void *per_cpu[MAXCPUS];
+> The thread libraries already have their own thread local area which
+> should be allocated on the thread's own node if done right, which I
+> assume it is.
 
+- The heap for small allocations is shared (although this can be tuned) 
+- When another thread does free() you need special handling to keep
+the item in the correct free lists
+This is one of the tricky bits in the new kernel NUMA slab allocator
+too.
 
-That is not how user space TLS works. It usually has a base a register.
-
+> > But cpusets already does this kind of, even though it has a quite
+> > bad impact on fast paths.
+> >  Also what happens if the affinity mask is modified later?
+> > From the high semantics point it is also a little dubious to mesh
+> > them together. My feeling is that as a heuristic it is probably
+> > dubious.
 > 
-> Assuming a per CPU variable has got an "offset" in each per CPU data area.
-> Accessing this variable can be done as follows:
-> 
-> 	err = vgetcpu(&my_cpu, ...);
-> 	if (err)
-> 		goto ....
-> 	pointer = (typeof pointer) (per_cpu[my_cpu] + offset);
-> 	// use "pointer"...
-> 
-> It is hundred times more long than "__get_per_cpu(var)++".
+> If you migrate your app elsewhere, you should migrate the pages with it,
+> or not expect things to run with the local effect.
 
-14 cycles is not a 100 times longer.
+That's too costly to do by default and you have no guarantee that it will amortize.
+ 
+> I don't really see the point in solving something half way when it can
+> be done better. Maybe the "serious" databases should open up and let us
+> know what the problem is they are hitting.
 
-> My idea is to map the current task structure at an arch. dependent
-> virtual address into the user space (obviously in RO).
-> 
-> 	#define current	((struct task_struct *) 0x...)
-
-This means it cannot be cache colored (because you would need a static
-offset) and you couldn't share task_structs on a page.
-
-Also you would make task_struct part of the userland ABI which
-seems like a very very bad idea to me. It means we couldn't change
-it anymore.
-
+I see no indication of anything better so far from you. You only offered
+static configuration instead which while in some cases is better
+doesn't work in the general case.
 -Andi

@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWFPMsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWFPMyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbWFPMsu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 08:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWFPMsu
+	id S1751387AbWFPMyL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 08:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWFPMyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 08:48:50 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:29662 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751390AbWFPMst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 08:48:49 -0400
-Message-ID: <4492A8A1.5000101@bull.net>
-Date: Fri, 16 Jun 2006 14:48:33 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
-MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Tony Luck <tony.luck@intel.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
-Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-References: <200606140942.31150.ak@suse.de> <200606161209.25266.ak@suse.de> <44928FB1.5070107@sgi.com> <200606161317.19296.ak@suse.de> <44929CE6.4@sgi.com> <4492A5E4.9050702@bull.net> <4492A6E6.3090805@sgi.com>
-In-Reply-To: <4492A6E6.3090805@sgi.com>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 14:52:31,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/06/2006 14:52:32,
-	Serialize complete at 16/06/2006 14:52:32
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 16 Jun 2006 08:54:11 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:28829 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751387AbWFPMyJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 08:54:09 -0400
+Date: Fri, 16 Jun 2006 07:54:03 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Paul Mackerras <paulus@samba.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
+Message-ID: <20060616125403.GA16194@sergelap.austin.ibm.com>
+References: <17553.56625.612931.136018@cargo.ozlabs.ibm.com> <1150419895.10290.9.camel@localhost.localdomain> <20060616030432.GA18037@sergelap.austin.ibm.com> <1150430429.10290.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150430429.10290.23.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
-> Zoltan Menyhart wrote:
+Quoting Rusty Russell (rusty@rustcorp.com.au):
+> On Thu, 2006-06-15 at 22:04 -0500, Serge E. Hallyn wrote:
+> > Quoting Rusty Russell (rusty@rustcorp.com.au):
+> > > Seems like change for change's sake, to me, *and* it added more code
+> > > than it removed.
+> > 
+> > So if kernel_thread is really going to be removed, how else should this
+> > be done?  Just clone?
 > 
->>Just to make sure I understand it correctly...
->>Assuming I have allocated per CPU data (numa control, etc.) pointed at by:
+> Sorry, is kernel_thread going to be removed, or just not exported to
+> modules?  What's kthread going to use?
 > 
-> 
-> I think you misunderstood - vgetcpu is for userland usage, not within
-> the kernel.
-> 
-> Cheers,
-> Jes
-> 
-I did understand it as a user land stuff.
-This is why I want to map the current task structure into the user space.
-In user code, we could see the actual value of the "current->thread_info.cpu".
-My "#define current ((struct task_struct *) 0x...)" is not the same as
-the kernel's one.
+> Confused,
+> Rusty.
 
-Thanks,
+Hah.
 
-Zoltan
+Yes, I see.  I misread.  So I should be focusing on modules  :)
+
+Really, all *I* care about is cases where the resulting pid is cached
+as a pointer to the thread, which it wasn't here anyway.  
+
+thanks, sorry for the noise.
+
+-serge

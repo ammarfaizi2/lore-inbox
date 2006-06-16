@@ -1,163 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWFPWVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWFPWZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWFPWVv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 18:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWFPWVv
+	id S1750858AbWFPWZa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 18:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWFPWZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 18:21:51 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:31128 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751428AbWFPWVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 18:21:50 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Marcelo Tosatti <marcelo@kvack.org>
-Cc: linux-kernel@vger.kernel.org, Willy Tarreau <willy@w.ods.org>
-Subject: Re: Linux 2.4.33-rc1
-Date: Sat, 17 Jun 2006 08:21:44 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com>
-References: <20060616181419.GA15734@dmt>
-In-Reply-To: <20060616181419.GA15734@dmt>
-X-Mailer: Forte Agent 2.0/32.652
+	Fri, 16 Jun 2006 18:25:30 -0400
+Received: from ns1.suse.de ([195.135.220.2]:56983 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750848AbWFPWZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 18:25:29 -0400
+From: Neil Brown <neilb@suse.de>
+To: Jan Blunck <jblunck@suse.de>
+Date: Sat, 17 Jun 2006 08:25:14 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17555.12234.347353.670918@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, dgc@sgi.com, balbir@in.ibm.com
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
+In-Reply-To: message from Jan Blunck on Friday June 16
+References: <20060601095125.773684000@hasse.suse.de>
+	<17539.35118.103025.716435@cse.unsw.edu.au>
+	<20060616155120.GA6824@hasse.suse.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jun 2006 15:14:19 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
+On Friday June 16, jblunck@suse.de wrote:
+> On Mon, Jun 05, Neil Brown wrote:
+> 
+> > I understand that this is where problem is because the selected
+> > dentries don't stay at the end of the list very long in some
+> > circumstances. In particular, other filesystems' dentries get mixed
+> > in. 
+> 
+> No. The problem is that the LRU list is too long and therefore unmounting
+> seems to take ages.
+> 
 
->Here is 2.4.33-rc1.
+But I cannot see that the whole LRU list needs to be scanned during
+unmount.
+The only thing that does that is shrink_dcache_sb, which is used:
+  in do_remount_sb
+  in __invalidate_device
+  in a few filesystems (autofs, coda, smbfs)
+ and not when unmounting the filesystem (despite the comment).
 
-I provoked a network related oops as user 'grant', with this CLI input
-boo-boo on an ssh terminal:
+(This is in 2.6.17-ec6-mm2).
 
-grant@sempro:~$ rm /home/share/config-2.6.17-rc6-mm1a dmesg-2.6.17-rc6-mm1a
+I can see that shrink_dcache_sb could take a long time and should be
+fixed, which should be as simple as replacing it with
+shrink_dcache_parent; shrink_dcache_anon.
 
-/home/share is an NFS mounted directory
+But I'm still puzzled as to why a long dcache LRU slows down
+unmounting. 
 
-Was able to login direct as root and copy the oops info with mouse (gpm)
-copy/paste, but console locked up on localnet access, here's the guff:
+Can you give more details?
 
-ksymoops 2.4.11 on i686 2.4.33-rc1.  Options used
-     -v /home/grant/linux/linux-2.4.33-rc1/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.33-rc1/ (default)
-     -m /boot/System.map-2.4.33-rc1 (specified)
+Thanks,
+NeilBrown
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000088
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c013eeb4>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000000   ebx: 00000000   ecx: 00000088   edx: 00000088
-esi: f6e2fd08   edi: f5839ac0   ebp: f6e2fc80   esp: f5889f6c
-ds: 0018   es: 0018   ss: 0018
-Process rm (pid: 243, stackpage=f5889000)
-Stack: f6e2fc80 f5839ac0 f5839ac0 f7bdd000 f5889f90 f5839ac0 c013f066 f6e2fc80
-       f5839ac0 f6e36440 c19ac440 f7bdd00c 00000016 be8f2661 00000010 00000000
-       00000004 f5888000 bffff96b 08051050 bffff758 c0106eff bffff96b 00000002
-Call Trace:    [<c013f066>] [<c0106eff>]
-Code: ff 80 88 00 00 00 0f 8e 2e 16 00 00 85 db 74 16 89 d8 8b 5c
-
-
->>EIP; c013eeb4 <vfs_unlink+a4/1a0>   <=====
-
->>esi; f6e2fd08 <_end+36a9405c/386be3d4>
->>edi; f5839ac0 <_end+3549de14/386be3d4>
->>ebp; f6e2fc80 <_end+36a93fd4/386be3d4>
->>esp; f5889f6c <_end+354ee2c0/386be3d4>
-
-Trace; c013f066 <sys_unlink+b6/120>
-Trace; c0106eff <system_call+33/38>
-
-Code;  c013eeb4 <vfs_unlink+a4/1a0>
-00000000 <_EIP>:
-Code;  c013eeb4 <vfs_unlink+a4/1a0>   <=====
-   0:   ff 80 88 00 00 00         incl   0x88(%eax)   <=====
-Code;  c013eeba <vfs_unlink+aa/1a0>
-   6:   0f 8e 2e 16 00 00         jle    163a <_EIP+0x163a>
-Code;  c013eec0 <vfs_unlink+b0/1a0>
-   c:   85 db                     test   %ebx,%ebx
-Code;  c013eec2 <vfs_unlink+b2/1a0>
-   e:   74 16                     je     26 <_EIP+0x26>
-Code;  c013eec4 <vfs_unlink+b4/1a0>
-  10:   89 d8                     mov    %ebx,%eax
-Code;  c013eec6 <vfs_unlink+b6/1a0>
-  12:   8b 5c 00 00               mov    0x0(%eax,%eax,1),%ebx
-
-
-Just done it again, not my finger trouble at all, again via ssh terminal, 
-deleting a file from an NFS mounted directory:
-
-grant@sempro:~$ rm /home/share/dmesg-2.6.17-rc6-mm1a
-Segmentation fault
-
-Note: the file was successfully deleted.  No reboot for this one:
-
-root@sempro:~# ksymoops -v /home/grant/linux/linux-2.4.33-rc1/vmlinux -m /boot/System.map-2.4.33-rc1 oops2
-ksymoops 2.4.11 on i686 2.4.33-rc1.  Options used
-     -v /home/grant/linux/linux-2.4.33-rc1/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.33-rc1/ (default)
-     -m /boot/System.map-2.4.33-rc1 (specified)
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000088
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c013eeb4>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000000   ebx: 00000000   ecx: 00000088   edx: 00000088
-esi: f6e2cd08   edi: f56cf640   ebp: f6e2cc80   esp: f5715f6c
-ds: 0018   es: 0018   ss: 0018
-Process rm (pid: 311, stackpage=f5715000)
-Stack: f6e2cc80 f56cf640 f56cf640 f5d18000 f5715f90 f56cf640 c013f066 f6e2cc80
-       f56cf640 f6fdf440 c19ac440 f5d1800c 00000015 eab76344 00000010 00000000
-       00000004 f5714000 bffff982 08051050 bffff768 c0106eff bffff982 00000002
-Call Trace:    [<c013f066>] [<c0106eff>]
-Code: ff 80 88 00 00 00 0f 8e 2e 16 00 00 85 db 74 16 89 d8 8b 5c
-
-
->>EIP; c013eeb4 <vfs_unlink+a4/1a0>   <=====
-
->>esi; f6e2cd08 <_end+36a9105c/386be3d4>
->>edi; f56cf640 <_end+35333994/386be3d4>
->>ebp; f6e2cc80 <_end+36a90fd4/386be3d4>
->>esp; f5715f6c <_end+3537a2c0/386be3d4>
-
-Trace; c013f066 <sys_unlink+b6/120>
-Trace; c0106eff <system_call+33/38>
-
-Code;  c013eeb4 <vfs_unlink+a4/1a0>
-00000000 <_EIP>:
-Code;  c013eeb4 <vfs_unlink+a4/1a0>   <=====
-   0:   ff 80 88 00 00 00         incl   0x88(%eax)   <=====
-Code;  c013eeba <vfs_unlink+aa/1a0>
-   6:   0f 8e 2e 16 00 00         jle    163a <_EIP+0x163a>
-Code;  c013eec0 <vfs_unlink+b0/1a0>
-   c:   85 db                     test   %ebx,%ebx
-Code;  c013eec2 <vfs_unlink+b2/1a0>
-   e:   74 16                     je     26 <_EIP+0x26>
-Code;  c013eec4 <vfs_unlink+b4/1a0>
-  10:   89 d8                     mov    %ebx,%eax
-Code;  c013eec6 <vfs_unlink+b6/1a0>
-  12:   8b 5c 00 00               mov    0x0(%eax,%eax,1),%ebx
-
-
-Since I use NFS here, no further testing 33-rc1 on the other boxen.  
-More info, testing on request.  The server exporting the NFS share is 
-running 2.4.32-hf-latest:
-
-Now running: 	2.4.32-hf32.6 	
-Uptime:	08:19:43 up 16 days, 14:27, 1 user, load average: 0.00, 0.00, 0.00
-
-<http://bugsplatter.mine.nu/test/boxen/deltree/>
-
-Grant.

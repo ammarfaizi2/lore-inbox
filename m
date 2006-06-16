@@ -1,122 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWFPHzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWFPIbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWFPHzc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 03:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWFPHzc
+	id S1751152AbWFPIbW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 04:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWFPIbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 03:55:32 -0400
-Received: from tayrelbas03.tay.hp.com ([161.114.80.246]:20684 "EHLO
-	tayrelbas03.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1751153AbWFPHzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 03:55:32 -0400
-Date: Fri, 16 Jun 2006 00:47:56 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 12/16] 2.6.17-rc6 perfmon2 patch for review: modified i386 files
-Message-ID: <20060616074756.GB10034@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200606152301_MC3-1-C28E-ADE0@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jun 2006 04:31:22 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:9131 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751152AbWFPIbV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 04:31:21 -0400
+From: Andi Kleen <ak@suse.de>
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: The "Out of IOMMU space" error and the "Please enable the IOMMU option" option
+Date: Fri, 16 Jun 2006 10:31:16 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <a0623094bc0b77aaeba9a@[129.98.90.227]>
+In-Reply-To: <a0623094bc0b77aaeba9a@[129.98.90.227]>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200606152301_MC3-1-C28E-ADE0@compuserve.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+Message-Id: <200606161031.16554.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck,
+On Thursday 15 June 2006 23:17, Maurice Volaski wrote:
+> Occasionally,  we get errors like these:
+> 
+> Jun  9 00:56:35 [kernel] [18020.416620] PCI-DMA: Out of IOMMU space 
+> for 12288 bytes at device 0000:03:01.0
 
-On Thu, Jun 15, 2006 at 11:00:01PM -0400, Chuck Ebbert wrote:
-> >
-> > diff -ur linux-2.6.17-rc6.orig/arch/i386/kernel/apic.c linux-2.6.17-rc6/arch/i386/kernel/apic.c
-> > --- linux-2.6.17-rc6.orig/arch/i386/kernel/apic.c     2006-06-08 01:42:30.000000000 -0700
-> > +++ linux-2.6.17-rc6/arch/i386/kernel/apic.c  2006-06-08 01:49:22.000000000 -0700
-> > @@ -27,6 +27,7 @@
-> >  #include <linux/sysdev.h>
-> >  #include <linux/cpu.h>
-> >  #include <linux/module.h>
-> > +#include <linux/perfmon.h>
-> >  
-> >  #include <asm/atomic.h>
-> >  #include <asm/smp.h>
-> > @@ -1179,6 +1180,8 @@
-> >       update_process_times(user_mode_vm(regs));
-> >  #endif
-> >  
-> > +     pfm_handle_switch_timeout();
-> > +
-> >       /*
-> >        * We take the 'long' return path, and there every subsystem
-> >        * grabs the apropriate locks (kernel lock/ irq lock).
+ 
+> and it looks like it might have something to do with these messages 
+> (after updating and setting BIOS as below):
 > 
-> Please add '-p' to your diff options.  It makes it easier to see what is
-> happening.
+> Jun 15 16:38:54 [kernel] [    0.000000] Checking aperture...
+> Jun 15 16:38:54 [kernel] [    0.000000] CPU 0: aperture @ 0 size 256 MB
+> Jun 15 16:38:54 [kernel] [    0.000000] No AGP bridge found
+> Jun 15 16:38:54 [kernel] [    0.000000] Your BIOS doesn't leave a 
+> aperture memory hole
+> Jun 15 16:38:54 [kernel] [    0.000000] Please enable the IOMMU 
+> option in the BIOS setup
+> Jun 15 16:38:54 [kernel] [    0.000000] This costs you 64 MB of RAM
+> Jun 15 16:38:54 [kernel] [    0.000000] Mapping aperture over 65536 
+> KB of RAM @ 8000000
 > 
-Will do for next patch. This is indeed a very useful option I did not know about.
+> The box is a dual Opteron 250 with an Arima HDAMA Rev. D motherboard.
 
-> > diff -ur linux-2.6.17-rc6.orig/arch/i386/kernel/syscall_table.S linux-2.6.17-rc6/arch/i386/kernel/syscall_table.S
-> > --- linux-2.6.17-rc6.orig/arch/i386/kernel/syscall_table.S    2006-06-08 01:42:30.000000000 -0700
-> > +++ linux-2.6.17-rc6/arch/i386/kernel/syscall_table.S 2006-06-08 01:50:27.000000000 -0700
-> > @@ -316,3 +316,15 @@
-> >       .long sys_sync_file_range
-> >       .long sys_tee                   /* 315 */
-> >       .long sys_vmsplice
-> > +             .long sys_pfm_create_context
-> > +             .long sys_pfm_write_pmcs
-> > +             .long sys_pfm_write_pmds
-> > +             .long sys_pfm_read_pmds         /* 320 */
-> > +             .long sys_pfm_load_context
-> > +             .long sys_pfm_start
-> > +             .long sys_pfm_stop
-> > +             .long sys_pfm_restart
-> > +             .long sys_pfm_create_evtsets    /* 325 */
-> > +             .long sys_pfm_getinfo_evtsets
-> > +             .long sys_pfm_delete_evtsets
-> > +     .long sys_pfm_unload_context
-> 
-> I think there are seven spaces plus a tab here for the first 11 new
-> syscalls? (You won't be able to tell from my quote because my mail
-> program mangles quoted text.)
-> 
-I fixed that now.
+Not directly - the kernel will create a fallback aperture if it can't
+find one provided by the BIOS. The default is 64MB, but it can be
+enlarged with iommu=memaper=4 
 
-> >
-> > <...>
-> >
-> > --- linux-2.6.17-rc6.orig/include/asm-i386/unistd.h   2006-06-08 01:42:35.000000000 -0700
-> > +++ linux-2.6.17-rc6/include/asm-i386/unistd.h        2006-06-08 01:49:22.000000000 -0700
-> > @@ -322,8 +322,19 @@
-> >  #define __NR_sync_file_range 314
-> >  #define __NR_tee             315
-> >  #define __NR_vmsplice                316
-> > +#define __NR_pfm_create_context      317
-> > +#define __NR_pfm_write_pmcs  (__NR_pfm_create_context+1)
-> > +#define __NR_pfm_write_pmds  (__NR_pfm_create_context+2)
-> > +#define __NR_pfm_read_pmds   (__NR_pfm_create_context+3)
-> > +#define __NR_pfm_load_context        (__NR_pfm_create_context+4)
-> > +#define __NR_pfm_start               (__NR_pfm_create_context+5)
-> > +#define __NR_pfm_stop                (__NR_pfm_create_context+6)
-> > +#define __NR_pfm_restart     (__NR_pfm_create_context+7)
-> > +#define __NR_pfm_create_evtsets      (__NR_pfm_create_context+8)
-> > +#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
-> > +#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
-> >  
-> > -#define NR_syscalls 317
-> > +#define NR_syscalls 329
-> >  
-> >  /*
-> >   * user-visible error numbers are in the range -1 - -128: see
-> 
-> You missed __NR_pfm_unload_context.
-> 
-I think, I dropped the line when I edit the patch to make it fit lkml limitations. The line
-is there is the actual patch.
+There was also a bug that might have caused this over longer uptimes. 
+If you still see  it with latest 2.6.16.stable (19 or so). 
 
-Thanks for your review.
+If it still happens with those two changes then something is likely
+leaking mappings or your have a extreme workload that needs
+a lot of mappings.
 
--- 
--Stephane
+
+> First, am I correct to assume that I'm not getting the 256 MB?
+
+Yes you'll get 64MB fallback likely.
+
+> 
+> Second, is the the case the BIOS is lying?
+
+Probably yes.
+ 
+-Andi

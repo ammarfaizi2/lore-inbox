@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWFPXni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751553AbWFPXpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbWFPXni (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWFPXni
+	id S1751553AbWFPXpR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWFPXpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:43:38 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:16587 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751553AbWFPXnh (ORCPT
+	Fri, 16 Jun 2006 19:45:17 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:59546 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751553AbWFPXpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:43:37 -0400
-Subject: Re: [RFC][PATCH 00/20] Mount writer count and read-only bind
-	mounts (v2)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       herbert@13thfloor.at, viro@ftp.linux.org.uk
-In-Reply-To: <Pine.LNX.4.63.0606170125110.14464@alpha.polcom.net>
-References: <20060616231213.D4C5D6AF@localhost.localdomain>
-	 <Pine.LNX.4.63.0606170125110.14464@alpha.polcom.net>
-Content-Type: text/plain
-Date: Fri, 16 Jun 2006 16:41:58 -0700
-Message-Id: <1150501318.7926.22.camel@localhost.localdomain>
+	Fri, 16 Jun 2006 19:45:15 -0400
+Date: Fri, 16 Jun 2006 16:42:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Takashi Iwai <tiwai@suse.de>,
+       Jaroslav Kysela <perex@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       ALSA devel <alsa-devel@alsa-project.org>
+Subject: Re: Driver model ISA bus
+Message-ID: <20060616234218.GC25127@kroah.com>
+References: <4485F97A.6020205@keyaccess.nl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4485F97A.6020205@keyaccess.nl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-17 at 01:29 +0200, Grzegorz Kulewski wrote:
-> Isn't this some kind of security risk (at least in my planned use)? I mean 
-> - for a small fraction of second somebody seeing /dest can write 
-> /source... No? 
+On Tue, Jun 06, 2006 at 11:54:02PM +0200, Rene Herman wrote:
+> Hi Greg.
+> 
+> The below was sent a month ago and I haven't heard anything back. Saw 
+> you saying "it's getting there" about this thing on the kernelnewbies 
+> list but where's there?
+> 
 
-I assume you're talking about this kind of situation:
+Sorry for the delay.  It looks great to me so I've added it to my tree
+and will push it upstream when I can.
 
-mount --bind /local/writable/dir /chroot/untrusted/area/
-mount --o remount,ro /chroot/untrusted/area/
+thanks,
 
-Where there is a window where someone in the chroot can write into the
-local directory.  Yes.  There would be a race there.
-
-However, you can also do the following, which will have no window.  It
-has a few more steps, but it is a much simpler thing to deal with in the
-kernel.  Believe me, it starts to get ugly when you try to handle
-permission and flag changes at mount time.  Keeping --bind'ing as *just*
-a simple "copy the source mount" operation makes the implementation very
-much simpler.
-
-This has no r/w window in the chroot area:
-
-mount --bind /local/writable/dir /tmp/area/
-mount --o remount,ro /tmp/area/
-mount --bind /tmp/area/ /chroot/untrusted/area/
-umount /tmp/area/
-
--- Dave
-
+greg k-h

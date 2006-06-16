@@ -1,83 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWFPNJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWFPNVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWFPNJE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 09:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWFPNJE
+	id S1751385AbWFPNVT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 09:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWFPNVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 09:09:04 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:52449 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751398AbWFPNJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 09:09:02 -0400
-Message-ID: <4492AE3A.7070309@manoweb.com>
-Date: Fri, 16 Jun 2006 15:12:26 +0200
-From: Alessio Sangalli <alesan@manoweb.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Fri, 16 Jun 2006 09:21:19 -0400
+Received: from mkedef2.rockwellautomation.com ([63.161.86.254]:14901 "EHLO
+	ramilwsmtp01.ra.rockwell.com") by vger.kernel.org with ESMTP
+	id S1751385AbWFPNVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 09:21:19 -0400
+Message-ID: <4492CC61.1070800@ra.rockwell.com>
+Date: Fri, 16 Jun 2006 15:21:05 +0000
+From: Milan Svoboda <msvoboda@ra.rockwell.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: APM problem after 2.6.13.5
-References: <44927F91.6050506@manoweb.com>	 <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>	 <44929CF5.208@manoweb.com> <84144f020606160540q20433601jd9b5331763a55dab@mail.gmail.com>
-In-Reply-To: <84144f020606160540q20433601jd9b5331763a55dab@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:98b9443de46bd48dbf34b16449aa5d76
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] no_pci_mem
+X-MIMETrack: Itemize by SMTP Server on RAMilwSMTP01/Milwaukee/RA/Rockwell(Release
+ 6.5.4FP1|June 19, 2005) at 06/16/2006 08:21:19 AM,
+	Serialize by Router on RAMilwSMTP01/Milwaukee/RA/Rockwell(Release 6.5.4FP1|June
+ 19, 2005) at 06/16/2006 08:22:05 AM,
+	Serialize complete at 06/16/2006 08:22:05 AM
+Content-Type: multipart/mixed;
+ boundary="------------030009020605020302090702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> Hi Alessio,
-> 
-> On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
->>>> if I enable "APM support" I get a freeze at the very beginning of the
->>>> boot, without any explicit erro message, just after the PCI stuff. If
->>>> you need a transcript of the messages at boot, let me know, I will have
->>>> to write them by hand).
->>>> 2.6.13.5 is ok. I need APM support to let the "Fn" key and the battery
->>>> meter work!
-> 
-> Pekka Enberg wrote:
->>> There's a lot of changes between 2.6.13 and 2.6.14.  It would be
->>> helpful if you could narrow down the exact changeset that broke your
-> 
-> On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
->> done:
->>
->> 4196c3af25d98204216a5d6c37ad2cb303a1f2bf is first bad commit
->> diff-tree 4196c3af25d98204216a5d6c37ad2cb303a1f2bf (from
->> 9092b20803e4b3b3a480592794a73030f17370b3)
->> Author: Linus Torvalds <torvalds@g5.osdl.org>
->> Date:   Sun Oct 23 16:31:16 2005 -0700
->>
->>     cardbus: limit IO windows to 256 bytes
->>
->>     That's what we've always historically done, and bigger windows seem to
->>     confuse some cardbus bridges. Or something.
->>
->>     Alan reports that this makes the ThinkPad 600x series work properly
->>     again: the 4kB IO window for some reason made IDE DMA not work, which
->>     makes IDE painfully slow even if it works after DMA timeouts.
->>
->>     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
->>
->> :040000 040000 629d4d303048bffa610017e81e0e744bae08660d
->> 33e154ffe96822d09f37ae2d433de5152216501b M      drivers
->>
->>
->> let me know any other test I should do to help find a solution to this
->> problem, thank you!
-> 
-> So reverting the above commit from git head makes your box boot again?
-> Linus, any thoughts?
+This is a multi-part message in MIME format.
+--------------030009020605020302090702
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+
+From: Milan Svoboda <msvoboda@ra.rockwell.com>
+
+This patch disables port subdevice when pci or isa bus is not selected.
+Current behaviour is that port is disabled only when there is no isa bus.
+
+Feedback and comments are highly appreciated.
+
+This patch is against 2.6.17-rc5.
+
+Please CC me, I'm not subscribed to the mailing list.
+
+Signed-off-by: Milan Svoboda <msvoboda@ra.rockwell.com>
+---
 
 
-Yes, exactly. I can run 2.6.17-rc6 with only that commit reverted.
+--------------030009020605020302090702
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ name="no_pci_mem.patch"
+Content-Disposition: inline;
+ filename="no_pci_mem.patch"
 
-The mahcine is a notebook COMPAQ Presario 800 Model 80XL4
-Pentium3@700MHz 256MB ram etc
+diff -uprN -X orig.bak.never.touch/Documentation/dontdiff orig.bak.never.touch/drivers/char/mem.c new_gadget.newest/drivers/char/mem.c
+--- orig.bak.never.touch/drivers/char/mem.c	2006-05-30 09:37:37.000000000 +0000
++++ new_gadget.newest/drivers/char/mem.c	2006-06-14 12:14:42.000000000 +0000
+@@ -524,7 +524,7 @@ static ssize_t write_kmem(struct file * 
+  	return virtr + wrote;
+ }
+ 
+-#if defined(CONFIG_ISA) || !defined(__mc68000__)
++#if !defined(__mc68000__) && (defined(CONFIG_PCI) || defined(CONFIG_ISA)) 
+ static ssize_t read_port(struct file * file, char __user * buf,
+ 			 size_t count, loff_t *ppos)
+ {
+@@ -801,7 +801,7 @@ static struct file_operations null_fops 
+ 	.splice_write	= splice_write_null,
+ };
+ 
+-#if defined(CONFIG_ISA) || !defined(__mc68000__)
++#if !defined(__mc68000__) && (defined(CONFIG_PCI) || defined(CONFIG_ISA)) 
+ static struct file_operations port_fops = {
+ 	.llseek		= memory_lseek,
+ 	.read		= read_port,
+@@ -871,7 +871,7 @@ static int memory_open(struct inode * in
+ 		case 3:
+ 			filp->f_op = &null_fops;
+ 			break;
+-#if defined(CONFIG_ISA) || !defined(__mc68000__)
++#if !defined(__mc68000__) && (defined(CONFIG_PCI) || defined(CONFIG_ISA)) 
+ 		case 4:
+ 			filp->f_op = &port_fops;
+ 			break;
+@@ -918,7 +918,7 @@ static const struct {
+ 	{1, "mem",     S_IRUSR | S_IWUSR | S_IRGRP, &mem_fops},
+ 	{2, "kmem",    S_IRUSR | S_IWUSR | S_IRGRP, &kmem_fops},
+ 	{3, "null",    S_IRUGO | S_IWUGO,           &null_fops},
+-#if defined(CONFIG_ISA) || !defined(__mc68000__)
++#if !defined(__mc68000__) && (defined(CONFIG_PCI) || defined(CONFIG_ISA)) 
+ 	{4, "port",    S_IRUSR | S_IWUSR | S_IRGRP, &port_fops},
+ #endif
+ 	{5, "zero",    S_IRUGO | S_IWUGO,           &zero_fops},
 
-Thank you
-ciao
-Alessio Sangalli
 
-
+--------------030009020605020302090702--

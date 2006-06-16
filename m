@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWFPA4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWFPBFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWFPA4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 20:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWFPAz5
+	id S1750808AbWFPBFK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 21:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWFPBFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 20:55:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61399 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750822AbWFPAzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 20:55:53 -0400
-Subject: Re: reviewing Ubuntu kernel patches
-From: Arjan van de Ven <arjan@infradead.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: linux-kernel@vger.kernel.org, bcollins@ubuntu.com, akpm@osdl.org
-In-Reply-To: <44909A1D.3030404@oracle.com>
-References: <44909A1D.3030404@oracle.com>
+	Thu, 15 Jun 2006 21:05:09 -0400
+Received: from ozlabs.org ([203.10.76.45]:20937 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750808AbWFPBFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 21:05:08 -0400
+Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Mackerras <paulus@samba.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <17553.56625.612931.136018@cargo.ozlabs.ibm.com>
+References: <17553.56625.612931.136018@cargo.ozlabs.ibm.com>
 Content-Type: text/plain
-Date: Thu, 15 Jun 2006 17:42:30 +0200
-Message-Id: <1150386150.2987.9.camel@laptopd505.fenrus.org>
+Date: Fri, 16 Jun 2006 11:04:55 +1000
+Message-Id: <1150419895.10290.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-14 at 16:22 -0700, Randy Dunlap wrote:
-> Hi,
+On Fri, 2006-06-16 at 08:20 +1000, Paul Mackerras wrote:
+> Update stop_machine.c to spawn stop_machine as kthreads rather
+> than the deprecated kernel_threads.
 > 
-> A few of us at Oracle have been reviewing the Ubuntu kernel git tree
-> to see what "extra" patches they are using that might make sense in
-> the mainline kernel.
-> 
-> I'll be posting these for comments/consideration etc. in no particular
-> order (over a period of days, not all at one time).
+> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 
-while I highly applaud this effort this does put the interesting
-question of "who puts his signed-off-by on these patches".....
+kthread does a lot of stuff we don't need, and stop_machine is fairly
+special, low-level interface.
 
+Seems like change for change's sake, to me, *and* it added more code
+than it removed.
+
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

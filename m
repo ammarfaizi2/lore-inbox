@@ -1,131 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWFPGsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWFPHVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWFPGsn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 02:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWFPGsn
+	id S1751120AbWFPHVe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 03:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWFPHVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 02:48:43 -0400
-Received: from brain.cel.usyd.edu.au ([129.78.24.68]:49377 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S1751094AbWFPGsn (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 02:48:43 -0400
-Message-Id: <5.1.1.5.2.20060616160901.04554dc0@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Fri, 16 Jun 2006 16:48:38 +1000
-To: Peter Williams <pwil3058@bigpond.net.au>, linux-Kernel@vger.kernel.org
-From: sena seneviratne <auntvini@cel.usyd.edu.au>
-Subject: Re: New Metrics to measure Load average
-Cc: vatsa@in.ibm.com, Zoltan.Menyhart@bull.net, nagar@watson.ibm.com,
-       vlobanov@speakeasy.net, david@dworf.com, nacc@us.ibm.com,
-       balbir@in.ibm.com, akpm@osdl.org
-In-Reply-To: <449244D4.8000003@bigpond.net.au>
-References: <5.1.1.5.2.20060616110033.04483890@brain.sedal.usyd.edu.au>
- <5.1.1.5.2.20060616110033.04483890@brain.sedal.usyd.edu.au>
+	Fri, 16 Jun 2006 03:21:34 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:18601 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751120AbWFPHVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 03:21:33 -0400
+Date: Fri, 16 Jun 2006 16:23:43 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: ashok.raj@intel.com
+Subject: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT
+ tasks.
+Message-Id: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
+When cpu hot remove happens, tasks on the target cpu will be migrated even if
+no available cpus in tsk->cpus_allowed. (See: move_task_off_dead_cpu().)
 
-(1) Yes it would be a good idea to separate them for each CPU. The we have 
-that as an information too.
+Usually, it looks ok (I think not good but may be ok.) But forced migration
+should be avoided if there is RT task which is designed to run only on
+specified cpu.
 
-Out project is as follows:
+This patch checks there is no such RT task on the target cpu at CPU_DOWN_PREPARE.
+(Hot remove can fail at this point.) If found, cpu hot remove will fail.
+By printing messages, I expect system admin will do proper ops.
 
-Our project which is conducted as part of CEL(and CSIRO) requires to 
-separate the load along individual user lines.
-This project is a GRID computing project.
+This is a bit pessimistic. But forecd migration of RT task which is bounded
+to the special cpu will cause unpredictable trouble, I think.
 
-We have developed a prediction  model called "Free Load Profile Model for 
-Load Profile Prediction" for the purpose of scheduling in the Grid.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-Irrespective of number of CPUs in  the system we need to know the total 
-load which has been exerted on all CPUs (on the system) by individual users 
-and system/root.
+ kernel/sched.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 34 insertions(+)
 
-As  required by the prediction  model then we need to know the break down 
-of that load along the user lines.
-
-It is up to the prediction model to handle the issues with number CPUs as 
-it has such a capability.
-
-(2) I am working at Electrical Engineering. My number until next Tuesday 
-would be 93517227.
-IF you are living close to the Sydney Uni we will be able to discuss things 
-later.
-
-I had a discussion with Rusty Russel  and he had few suggestions for me too.
-
-Thanks
-Sena Seneviratne
-Computer Engineering Lab
-School of Electrical and Information Engineering
-Sydney University
-Australia
-
-
-At 03:42 PM 6/16/2006 +1000, you wrote:
->sena seneviratne wrote:
->>Hi Shailabh,Vadim,
->>Zoltan, Peter Williams,
->>David Osojnik, Nishanth Aravamudan,
->>Balbir Singh, Andrew Morton
->>
->>(1) Please give us your valuable comments on this important change to 
->>introduce a new Metric to measure Load average.
->>Currently /proc/loadavg reports only the resultant value.
->>We have done the scheduling in a Grid project. As a part of that we had 
->>to do some changes to the Linux kernel as well.
->>The  problem with the load metric of current Linux/Unix is that it 
->>measures CPU load and Disk load without indicating the true nature of the 
->>load, thereby creating some confusion among the readers. For example, if 
->>a CPU bound task switches on to read a large chunk of disk data, then the 
->>load average value would still continue to indicate this activity as a 
->>load, yet the true CPU load during this period would have been zero. This 
->>situation triggered us to make necessary additions to the kernel so that 
->>CPU load and Disk load could be reported separately. Further the 
->>specialisation of load helped our model to perform predictions when there 
->>is interference between CPU and Disk IO loads.
->>In the user mode, a new proc file called /proc/loadavgus would collect 
->>the new data according to a new format which would look like the following,
->>                 CPU    Disk
->>500             0.7     0
->>501             0.9     1
->>502             0.9     0
->>503             1.03    1
->>504             0.93    0
->>505             1.0     0
->>What do you think about this change?
->
->I think that it is useful to have the separate components (cpu and disk 
->I/O) of the load average available but, while I have no objection to the 
->data being made available on a per user basis, I think that it should 
->primarily be provided on a per CPU and total system basis.  This is 
->because most people are only interested in the loads for the system as a 
->whole while per CPU data is a good indication of how well load balancing 
->is working.
->
->This latter observation leads me to suggest that "weighted" CPU load per 
->CPU would also be useful.  So output like:
->
->CPU0  0.3 0.45 0.9
->CPU1  0.4 0.5 0.8
->TOTAL 0.7 0.95 1.7
->
->would be nice to have where the columns were raw CPU load, weighted CPU 
->load and disk I/O load respectively.
->
->In summary, I like the idea but think that you should do it properly and 
->provide the data that will interest most users and then add the per user 
->data that meets your specific needs as an optional extra.
->
->Peter
->PS I live very close to Sydney University if you want to discuss these 
->ideas in person.
->--
->Peter Williams                                   pwil3058@bigpond.net.au
->
->"Learning, n. The kind of ignorance distinguishing the studious."
->  -- Ambrose Bierce
+Index: linux-2.6.17-rc6-mm2/kernel/sched.c
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/kernel/sched.c
++++ linux-2.6.17-rc6-mm2/kernel/sched.c
+@@ -5006,6 +5006,36 @@ static void migrate_nr_uninterruptible(r
+ 	local_irq_restore(flags);
+ }
+ 
++/*
++ * Verify there is no RT tasks which is tightly bound to the cpu
++ * which is going to be removed.
++ */
++static int test_migratable_rt_tasks(int cpu)
++{
++	struct task_struct *tsk, *t;
++	int ret = 0;
++
++	read_lock_irq(&tasklist_lock);
++	do_each_thread(t, tsk) {
++		if (tsk == current)
++			continue;
++		if ((task_cpu(tsk) == cpu) &&
++		    rt_task(tsk) &&
++		    cpus_weight(tsk->cpus_allowed) == 1) {
++			ret = 1;
++			goto out;
++		}
++	} while_each_thread(t, tsk);
++out:
++	read_unlock_irq(&tasklist_lock);
++
++	if (ret)
++		printk("cpu hot remove: there are some cpu-bound rt tasks on"
++	        	"cpu%d\n",cpu);
++
++	return ret;
++}
++
+ /* Run through task list and migrate tasks from the dead cpu. */
+ static void migrate_live_tasks(int src_cpu)
+ {
+@@ -5257,6 +5287,10 @@ static int migration_call(struct notifie
+ 		kthread_stop(cpu_rq(cpu)->migration_thread);
+ 		cpu_rq(cpu)->migration_thread = NULL;
+ 		break;
++	case CPU_DOWN_PREPARE:
++		if (test_migratable_rt_tasks(cpu))
++			return NOTIFY_BAD;
++		break;
+ 	case CPU_DEAD:
+ 		migrate_live_tasks(cpu);
+ 		rq = cpu_rq(cpu);
 

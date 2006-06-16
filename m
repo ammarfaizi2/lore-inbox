@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWFPDEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWFPDDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWFPDEN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jun 2006 23:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWFPDEN
+	id S1750833AbWFPDDm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jun 2006 23:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWFPDDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jun 2006 23:04:13 -0400
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:49047 "EHLO
+	Thu, 15 Jun 2006 23:03:42 -0400
+Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:47255 "EHLO
 	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750837AbWFPDEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jun 2006 23:04:12 -0400
-Date: Thu, 15 Jun 2006 23:00:01 -0400
+	id S1750833AbWFPDDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jun 2006 23:03:42 -0400
+Date: Thu, 15 Jun 2006 23:00:03 -0400
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 12/16] 2.6.17-rc6 perfmon2 patch for review:
-  modified i386 files
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephane Eranian <eranian@hpl.hp.com>
-Message-ID: <200606152301_MC3-1-C28E-ADE0@compuserve.com>
+Subject: Re: 2.6.17-rc6 does not boot on HP dc7600u - MCFG area is not
+  E820-reserved
+To: Barry Scott <barry.scott@onelan.co.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200606152301_MC3-1-C28E-ADE1@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -25,95 +24,82 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200606150907.k5F97g7B008214@frankl.hpl.hp.com>
+In-Reply-To: <44915098.3070404@onelan.co.uk>
 
-On Thu, 15 Jun 2006 02:07:42 -0700, Stephane Eranian wrote:
+On Thu, 15 Jun 2006 13:20:40, Barry Scott wrote:
 
-> This patch contains the modified i386 files
->
-> <...>
->
-> diff -ur linux-2.6.17-rc6.orig/arch/i386/kernel/apic.c linux-2.6.17-rc6/arch/i386/kernel/apic.c
-> --- linux-2.6.17-rc6.orig/arch/i386/kernel/apic.c     2006-06-08 01:42:30.000000000 -0700
-> +++ linux-2.6.17-rc6/arch/i386/kernel/apic.c  2006-06-08 01:49:22.000000000 -0700
-> @@ -27,6 +27,7 @@
->  #include <linux/sysdev.h>
->  #include <linux/cpu.h>
->  #include <linux/module.h>
-> +#include <linux/perfmon.h>
->  
->  #include <asm/atomic.h>
->  #include <asm/smp.h>
-> @@ -1179,6 +1180,8 @@
->       update_process_times(user_mode_vm(regs));
->  #endif
->  
-> +     pfm_handle_switch_timeout();
-> +
->       /*
->        * We take the 'long' return path, and there every subsystem
->        * grabs the apropriate locks (kernel lock/ irq lock).
+> I'm trying to boot 2.6.17-rc6 with Mismatched section patches applied.
+> 
+> On my HP dc7600U the last messages printed are:
+> 
+> PCI: BUIS Bug: MCFG area is not E820-reserved
+> PCI: Not using MMCONFIG
 
-Please add '-p' to your diff options.  It makes it easier to see what is
-happening.
+I posted this today.  Please test.  It is less picky and will print
+the address of the MMCONFIG area if it fails.
 
->
-> <...>
->
-> diff -ur linux-2.6.17-rc6.orig/arch/i386/kernel/syscall_table.S linux-2.6.17-rc6/arch/i386/kernel/syscall_table.S
-> --- linux-2.6.17-rc6.orig/arch/i386/kernel/syscall_table.S    2006-06-08 01:42:30.000000000 -0700
-> +++ linux-2.6.17-rc6/arch/i386/kernel/syscall_table.S 2006-06-08 01:50:27.000000000 -0700
-> @@ -316,3 +316,15 @@
->       .long sys_sync_file_range
->       .long sys_tee                   /* 315 */
->       .long sys_vmsplice
-> +             .long sys_pfm_create_context
-> +             .long sys_pfm_write_pmcs
-> +             .long sys_pfm_write_pmds
-> +             .long sys_pfm_read_pmds         /* 320 */
-> +             .long sys_pfm_load_context
-> +             .long sys_pfm_start
-> +             .long sys_pfm_stop
-> +             .long sys_pfm_restart
-> +             .long sys_pfm_create_evtsets    /* 325 */
-> +             .long sys_pfm_getinfo_evtsets
-> +             .long sys_pfm_delete_evtsets
-> +     .long sys_pfm_unload_context
-
-I think there are seven spaces plus a tab here for the first 11 new
-syscalls? (You won't be able to tell from my quote because my mail
-program mangles quoted text.)
-
->
-> <...>
->
-> --- linux-2.6.17-rc6.orig/include/asm-i386/unistd.h   2006-06-08 01:42:35.000000000 -0700
-> +++ linux-2.6.17-rc6/include/asm-i386/unistd.h        2006-06-08 01:49:22.000000000 -0700
-> @@ -322,8 +322,19 @@
->  #define __NR_sync_file_range 314
->  #define __NR_tee             315
->  #define __NR_vmsplice                316
-> +#define __NR_pfm_create_context      317
-> +#define __NR_pfm_write_pmcs  (__NR_pfm_create_context+1)
-> +#define __NR_pfm_write_pmds  (__NR_pfm_create_context+2)
-> +#define __NR_pfm_read_pmds   (__NR_pfm_create_context+3)
-> +#define __NR_pfm_load_context        (__NR_pfm_create_context+4)
-> +#define __NR_pfm_start               (__NR_pfm_create_context+5)
-> +#define __NR_pfm_stop                (__NR_pfm_create_context+6)
-> +#define __NR_pfm_restart     (__NR_pfm_create_context+7)
-> +#define __NR_pfm_create_evtsets      (__NR_pfm_create_context+8)
-> +#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
-> +#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
->  
-> -#define NR_syscalls 317
-> +#define NR_syscalls 329
->  
->  /*
->   * user-visible error numbers are in the range -1 - -128: see
-
-You missed __NR_pfm_unload_context.
-
-
+--- 2.6.17-rc6-64.orig/arch/i386/pci/mmconfig.c
++++ 2.6.17-rc6-64/arch/i386/pci/mmconfig.c
+@@ -15,7 +15,9 @@
+ #include <asm/e820.h>
+ #include "pci.h"
+ 
+-#define MMCONFIG_APER_SIZE (256*1024*1024)
++/* aperture is up to 256MB but BIOS may reserve less */
++#define MMCONFIG_APER_MIN	(2 * 1024*1024)
++#define MMCONFIG_APER_MAX	(256 * 1024*1024)
+ 
+ /* Assume systems with more busses have correct MCFG */
+ #define MAX_CHECK_BUS 16
+@@ -197,9 +199,10 @@ void __init pci_mmcfg_init(void)
+ 		return;
+ 
+ 	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
+-			pci_mmcfg_config[0].base_address + MMCONFIG_APER_SIZE,
++			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
+ 			E820_RESERVED)) {
+-		printk(KERN_ERR "PCI: BIOS Bug: MCFG area is not E820-reserved\n");
++		printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
++				pci_mmcfg_config[0].base_address);
+ 		printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
+ 		return;
+ 	}
+--- 2.6.17-rc6-64.orig/arch/x86_64/pci/mmconfig.c
++++ 2.6.17-rc6-64/arch/x86_64/pci/mmconfig.c
+@@ -13,7 +13,10 @@
+ 
+ #include "pci.h"
+ 
+-#define MMCONFIG_APER_SIZE (256*1024*1024)
++/* aperture is up to 256MB but BIOS may reserve less */
++#define MMCONFIG_APER_MIN	(2 * 1024*1024)
++#define MMCONFIG_APER_MAX	(256 * 1024*1024)
++
+ /* Verify the first 16 busses. We assume that systems with more busses
+    get MCFG right. */
+ #define MAX_CHECK_BUS 16
+@@ -175,9 +178,10 @@ void __init pci_mmcfg_init(void)
+ 		return;
+ 
+ 	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
+-			pci_mmcfg_config[0].base_address + MMCONFIG_APER_SIZE,
++			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
+ 			E820_RESERVED)) {
+-		printk(KERN_ERR "PCI: BIOS Bug: MCFG area is not E820-reserved\n");
++		printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
++				pci_mmcfg_config[0].base_address);
+ 		printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
+ 		return;
+ 	}
+@@ -190,7 +194,8 @@ void __init pci_mmcfg_init(void)
+ 	}
+ 	for (i = 0; i < pci_mmcfg_config_num; ++i) {
+ 		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
+-		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address, MMCONFIG_APER_SIZE);
++		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address,
++							 MMCONFIG_APER_MAX);
+ 		if (!pci_mmcfg_virt[i].virt) {
+ 			printk("PCI: Cannot map mmconfig aperture for segment %d\n",
+ 			       pci_mmcfg_config[i].pci_segment_group_number);
 -- 
 Chuck
-

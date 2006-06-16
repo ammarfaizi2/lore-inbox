@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWFPVi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWFPVlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWFPVi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 17:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWFPVi2
+	id S1751517AbWFPVlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 17:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWFPVlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 17:38:28 -0400
-Received: from flexserv.de ([213.239.215.214]:21737 "EHLO lion.flexserv.de")
-	by vger.kernel.org with ESMTP id S1751341AbWFPVi1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 17:38:27 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bug: XFS internal error XFS_WANT_CORRUPTED_RETURN
-Organization: Flexserv
-In-Reply-To: <200606161835.26428.s0348365@sms.ed.ac.uk> (Alistair John
- Strachan's message of "Fri, 16 Jun 2006 18:35:26 +0100")
-References: <878xnx19bs.fsf@xserver.flexserv.de>
-	<200606161835.26428.s0348365@sms.ed.ac.uk>
-From: daniel+devel.linux.lkml@flexserv.de
-X-GPG-ID: 0x7B196671
-X-GPG-FP: A9CE 5788 44D3 A1A2 46B6  A727 53D8 DD4B 7B19 6671
-X-message-flag: Formating hard disk. please wait...   10%...   20%...
-Date: Fri, 16 Jun 2006 23:38:05 +0200
-Message-ID: <87irn0zsqq.fsf@xserver.flexserv.de>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 16 Jun 2006 17:41:51 -0400
+Received: from mms2.broadcom.com ([216.31.210.18]:62725 "EHLO
+	mms2.broadcom.com") by vger.kernel.org with ESMTP id S1751495AbWFPVlu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 17:41:50 -0400
+X-Server-Uuid: D9EB6F12-1469-4C1C-87A2-5E4C0D6F9D06
+Subject: Re: tg3 timeouts with 2.6.17-rc6
+From: "Michael Chan" <mchan@broadcom.com>
+To: "Juergen Kreileder" <jk@blackdown.de>
+cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <87k67glrvl.fsf@blackdown.de>
+References: <1551EAE59135BE47B544934E30FC4FC041BD16@NT-IRVA-0751.brcm.ad.broadcom.com>
+ <87k67glrvl.fsf@blackdown.de>
+Date: Fri, 16 Jun 2006 14:42:41 -0700
+Message-ID: <1150494161.26368.39.camel@rh4>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.0.2 (2.0.2-3)
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006061606; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413039303230322E34343933323430442E303032442D412D;
+ ENG=IBF; TS=20060616214144; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006061606_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 688DFA1D4I824581285-01-01
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+On Fri, 2006-06-16 at 23:20 +0200, Juergen Kreileder wrote:
+> Michael Chan <mchan@broadcom.com> writes:
+> 
+> >
+> > Did this use to work with an older kernel or older tg3 driver? If
+> > yes, what version?
+> 
+> Works fine with 2.6.16 and earlier.
+> 
+> > Please also provide the full tg3 probing output during modprobe and
+> > ifconfig up. Thanks.
+> 
+Looking at the patch history since 2.6.16, the only patch that could
+have an impact is the one that enables TSO by default.
 
-Alistair John Strachan <s0348365@sms.ed.ac.uk> writes:
+Please try turning TSO off to see if it makes a difference:
 
-> On Friday 16 June 2006 15:09, daniel+devel.linux.lkml@flexserv.de wrote:
->> What additional informatiuon can i get you?
-
-On a tmpfs or ext2/3  i dont get it.
-
-> Just make sure you've run memtest for at least a couple passes to elimina=
-te=20
-> bad RAM. This could still easily be an XFS bug, but it's worth checking.
-Its an full equiped E420R 4*450Mhz 4GB RAM.
-I dont know  a memtesttool for sparcs.
-If you know one please drop me a line.
-every test from obp runs fine.
-
-Daniel
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEkyTEU9jdS3sZZnERAj0tAJ0UWZTcFQEDILjauIR3MVmBnTxccwCgkMzl
-uH2dTrfSPBjOpF5VONcGxV0=
-=n9Yz
------END PGP SIGNATURE-----
---=-=-=--
+ethtool -K eth0 tso off
 

@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWFPVlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWFPWHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751517AbWFPVlv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 17:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWFPVlv
+	id S1751018AbWFPWHa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 18:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWFPWHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 17:41:51 -0400
-Received: from mms2.broadcom.com ([216.31.210.18]:62725 "EHLO
-	mms2.broadcom.com") by vger.kernel.org with ESMTP id S1751495AbWFPVlu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 17:41:50 -0400
-X-Server-Uuid: D9EB6F12-1469-4C1C-87A2-5E4C0D6F9D06
-Subject: Re: tg3 timeouts with 2.6.17-rc6
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Juergen Kreileder" <jk@blackdown.de>
-cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <87k67glrvl.fsf@blackdown.de>
-References: <1551EAE59135BE47B544934E30FC4FC041BD16@NT-IRVA-0751.brcm.ad.broadcom.com>
- <87k67glrvl.fsf@blackdown.de>
-Date: Fri, 16 Jun 2006 14:42:41 -0700
-Message-ID: <1150494161.26368.39.camel@rh4>
+	Fri, 16 Jun 2006 18:07:30 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:37092 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751018AbWFPWH3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 18:07:29 -0400
+Date: Sat, 17 Jun 2006 00:07:19 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: daniel+devel.linux.lkml@flexserv.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug: XFS internal error XFS_WANT_CORRUPTED_RETURN
+In-Reply-To: <87irn0zsqq.fsf@xserver.flexserv.de>
+Message-ID: <Pine.LNX.4.61.0606170005150.27136@yvahk01.tjqt.qr>
+References: <878xnx19bs.fsf@xserver.flexserv.de> <200606161835.26428.s0348365@sms.ed.ac.uk>
+ <87irn0zsqq.fsf@xserver.flexserv.de>
 MIME-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3)
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006061606; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413039303230322E34343933323430442E303032442D412D;
- ENG=IBF; TS=20060616214144; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006061606_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 688DFA1D4I824581285-01-01
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-16 at 23:20 +0200, Juergen Kreileder wrote:
-> Michael Chan <mchan@broadcom.com> writes:
-> 
-> >
-> > Did this use to work with an older kernel or older tg3 driver? If
-> > yes, what version?
-> 
-> Works fine with 2.6.16 and earlier.
-> 
-> > Please also provide the full tg3 probing output during modprobe and
-> > ifconfig up. Thanks.
-> 
-Looking at the patch history since 2.6.16, the only patch that could
-have an impact is the one that enables TSO by default.
 
-Please try turning TSO off to see if it makes a difference:
+>Its an full equiped E420R 4*450Mhz 4GB RAM.
+>I dont know  a memtesttool for sparcs.
 
-ethtool -K eth0 tso off
+Join the club, I am looking for one too.
 
+Too bad that the Forth interpreter can only address a little less than 
+640KB of memory (reminds me of DOS huh), otherwise I would have written a 
+memchecker.
+
+>If you know one please drop me a line.
+>every test from obp runs fine.
+
+There exists a userspace checker. It mlock()s a big chunk of memory and 
+pokes on it like memtest86. It does not catch the few megabytes required 
+for booting, but when you swap the upper half of the memory banks with the 
+lower ones and rerun, you should get the same results of memtest86 would 
+do.
+
+
+Jan Engelhardt
+-- 

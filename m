@@ -1,134 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWFPGez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWFPGj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWFPGez (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 02:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWFPGez
+	id S1751106AbWFPGj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 02:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWFPGj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 02:34:55 -0400
-Received: from fep32-0.kolumbus.fi ([193.229.0.63]:12233 "EHLO
-	fep32-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1751093AbWFPGey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 02:34:54 -0400
-From: Janne Karhunen <Janne.Karhunen@gmail.com>
-To: Peter Staubach <staubach@redhat.com>
-Subject: Re: NFSv3 client reordering RENAMEs
-Date: Fri, 16 Jun 2006 09:25:50 +0300
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200606151638.15792.Janne.Karhunen@gmail.com> <200606151754.33384.Janne.Karhunen@gmail.com> <44918545.2090002@redhat.com>
-In-Reply-To: <44918545.2090002@redhat.com>
+	Fri, 16 Jun 2006 02:39:56 -0400
+Received: from wehq.winbond.com.tw ([202.39.229.15]:7593 "EHLO
+	wehq.winbond.com.tw") by vger.kernel.org with ESMTP
+	id S1751106AbWFPGjz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 02:39:55 -0400
+thread-index: AcaRD5bDDlbnXEjDR8uXCtlhs1M5GQ==
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.326
+Message-ID: <44925211.1080901@winbond.com>
+Date: Fri, 16 Jun 2006 14:39:13 +0800
+From: "dezheng shen" <dzshen@winbond.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_v7kkEmvhe0RpBw7"
-Message-Id: <200606160925.51332.Janne.Karhunen@gmail.com>
+To: "Pierre Ossman" <drzeus-list@drzeus.cx>
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "PI14 SJIN" <SJin@winbond.com>
+Subject: Re: [Winbond] flash memory reader SCSI device drivers [headers]
+References: <448E875A.40805@winbond.com> 		<9a8748490606130258k60cdf429n89b1d1d017af60fe@mail.gmail.com> 		<448FC0C1.90205@winbond.com> <4491AEAC.5030606@drzeus.cx> 	<44920B22.4030507@winbond.com> <449249AC.1000207@drzeus.cx>
+In-Reply-To: <449249AC.1000207@drzeus.cx>
+Content-Type: text/plain;
+	format=flowed;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 16 Jun 2006 06:39:14.0192 (UTC) FILETIME=[954B6100:01C6910F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_v7kkEmvhe0RpBw7
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Thursday 15 June 2006 19:05, Peter Staubach wrote:
+> 
+> For testing, that should be fine. Note that it might not be accepted in
+> its current form though, so you'll probably have to put up a web site
+> where people can download patches for testing.
 
-> >Possibly .. if someone first acks that this indeed would be
-> >considered as bug and not as a feature :/
->
-> Yes, I believe that this would be considered to be a bug...
+could you recommend any public web page which allows us to post our sources?
 
-Looks that this is a vendor kernel issue, couldn't get it to
-barf on mainline. Without any more knowledge of the extent 
-of the problem testcase attached. Given that you suffer from
-the problem you should occasionally see files vanishing.
+thanks,
+
+dz
 
 
--- 
-// Janne
-
---Boundary-00=_v7kkEmvhe0RpBw7
-Content-Type: text/x-csrc;
-  charset="iso-8859-1";
-  name="test.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="test.c"
-
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <pthread.h>
-#include <stdlib.h>
-
-#ifndef ROTATION_CYCLE
-#define ROTATION_CYCLE 60
-#endif
-
-char*     str = "Quick brown fox jumped over lazy dog %d\n";
-char      buf[50] = { 0 };
-int       rl=1;
-int       rr=1;
-pthread_t thr[2];
-
-void* logger_thread ( void* ptr ) {
-  int i=0, r, fd;
-
-  fd = open ( "/mnt/nfs/file", O_RDWR|O_CREAT, 00600 );
-  printf ( "logger starting, fd %d\n", fd );
-
-  if ( fd <= 0 ) {
-    printf ("%s\n", strerror(errno));
-    return NULL;
-  }
-  while ( rl ) {
-    r = sprintf ( &buf[0], str, i );
-    r = write ( fd, &buf[0], strlen(&buf[0]) );
-    if ( r <= 0 ) {
-      printf ("\n\n%s\n", strerror(errno));
-      goto exit;
-    }
-    i++;
-    usleep ( 10000 );
-  }
-exit:
-  printf ("logger exiting\n");
-  close (fd);
-  return NULL;
-}
-
-void* logrotate_thread ( void* ptr ) {
-  int r;
-
-  printf ( "rotater starting\n" );
-  while ( rr ) {
-    sleep(ROTATION_CYCLE);
-
-    r = system ( "mv /mnt/nfs/file.4 /mnt/nfs/file.5" );
-    r = system ( "mv /mnt/nfs/file.3 /mnt/nfs/file.4" );
-    r = system ( "mv /mnt/nfs/file.2 /mnt/nfs/file.3" );
-    r = system ( "mv /mnt/nfs/file.1 /mnt/nfs/file.2" );
-    r = system ( "mv /mnt/nfs/file /mnt/nfs/file.1" );
-    rl=0;
-    sleep(2);
-    rl=1;
-    pthread_create ( &thr[1], 0, logger_thread, 0 );
-  }
-  printf ( "rotater exiting\n" );
-  return NULL;
-}
-
-int main ( int a, char** b ) {
-  pthread_create ( &thr[0], 0, logrotate_thread, 0 );
-  pthread_create ( &thr[0], 0, logger_thread, 0 );
-
-  while ( 1 )
-    usleep ( 100000 );
-  return 0;
-}
-
-
---Boundary-00=_v7kkEmvhe0RpBw7--
+===========================================================================================
+The privileged confidential information contained in this email is intended for use only by the addressees as indicated by the original sender of this email. If you are not the addressee indicated in this email or are not responsible for delivery of the email to such  a person, please kindly reply to the sender indicating this fact and delete all copies of it from your computer and network server immediately. Your cooperation is highly appreciated. It is advised that any unauthorized use of confidential information of Winbond is strictly prohibited; and any information in this email irrelevant to the official business of Winbond shall be deemed as neither given nor endorsed by Winbond.

@@ -1,64 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWFPXQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751555AbWFPXQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWFPXQo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWFPXQk
+	id S1751555AbWFPXQh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWFPXMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:16:40 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:2016 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932100AbWFPXMb (ORCPT
+	Fri, 16 Jun 2006 19:12:30 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:57531 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751567AbWFPXMX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:12:31 -0400
-Subject: [RFC][PATCH 17/20] elevate mnt writers for vfs_unlink() callers
+	Fri, 16 Jun 2006 19:12:23 -0400
+Subject: [RFC][PATCH 07/20] elevate mount count for extended attributes
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 16 Jun 2006 16:12:26 -0700
+Date: Fri, 16 Jun 2006 16:12:18 -0700
 References: <20060616231213.D4C5D6AF@localhost.localdomain>
 In-Reply-To: <20060616231213.D4C5D6AF@localhost.localdomain>
-Message-Id: <20060616231226.33108E61@localhost.localdomain>
+Message-Id: <20060616231218.E2A4D665@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+This basically audits the callers of xattr_permission(), which
+calls permission() and can perform writes to the filesystem.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/namei.c   |    4 ++++
- lxc-dave/ipc/mqueue.c |    5 ++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ lxc-dave/fs/nfsd/nfs4proc.c |    7 ++++++-
+ lxc-dave/fs/xattr.c         |   14 ++++++++++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
-diff -puN fs/namei.c~C-elevate-writers-vfs_unlink fs/namei.c
---- lxc/fs/namei.c~C-elevate-writers-vfs_unlink	2006-06-16 15:58:10.000000000 -0700
-+++ lxc-dave/fs/namei.c	2006-06-16 15:58:10.000000000 -0700
-@@ -2136,7 +2136,11 @@ static long do_unlinkat(int dfd, const c
- 		inode = dentry->d_inode;
- 		if (inode)
- 			atomic_inc(&inode->i_count);
-+		error = mnt_want_write(nd.mnt);
-+		if (error)
-+			goto exit2;
- 		error = vfs_unlink(nd.dentry->d_inode, dentry);
-+		mnt_drop_write(nd.mnt);
- 	exit2:
- 		dput(dentry);
+diff -puN fs/nfsd/nfs4proc.c~C-xattr fs/nfsd/nfs4proc.c
+--- lxc/fs/nfsd/nfs4proc.c~C-xattr	2006-06-16 15:58:03.000000000 -0700
++++ lxc-dave/fs/nfsd/nfs4proc.c	2006-06-16 15:58:03.000000000 -0700
+@@ -604,13 +604,18 @@ nfsd4_setattr(struct svc_rqst *rqstp, st
+ 			return status;
+ 		}
  	}
-diff -puN ipc/mqueue.c~C-elevate-writers-vfs_unlink ipc/mqueue.c
---- lxc/ipc/mqueue.c~C-elevate-writers-vfs_unlink	2006-06-16 15:58:10.000000000 -0700
-+++ lxc-dave/ipc/mqueue.c	2006-06-16 15:58:10.000000000 -0700
-@@ -741,8 +741,11 @@ asmlinkage long sys_mq_unlink(const char
- 	inode = dentry->d_inode;
- 	if (inode)
- 		atomic_inc(&inode->i_count);
--
-+	err = mnt_want_write(mqueue_mnt);
-+	if (err)
-+		goto out_err;
- 	err = vfs_unlink(dentry->d_parent->d_inode, dentry);
-+	mnt_drop_write(mqueue_mnt);
- out_err:
- 	dput(dentry);
++	status = mnt_want_write(current_fh->fh_export->ex_mnt);
++	if (status)
++		return status;
+ 	status = nfs_ok;
+ 	if (setattr->sa_acl != NULL)
+ 		status = nfsd4_set_nfs4_acl(rqstp, current_fh, setattr->sa_acl);
+ 	if (status)
+-		return status;
++		goto out;
+ 	status = nfsd_setattr(rqstp, current_fh, &setattr->sa_iattr,
+ 				0, (time_t)0);
++out:
++	mnt_drop_write(current_fh->fh_export->ex_mnt);
+ 	return status;
+ }
  
+diff -puN fs/xattr.c~C-xattr fs/xattr.c
+--- lxc/fs/xattr.c~C-xattr	2006-06-16 15:58:03.000000000 -0700
++++ lxc-dave/fs/xattr.c	2006-06-16 15:58:03.000000000 -0700
+@@ -12,6 +12,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/file.h>
+ #include <linux/xattr.h>
++#include <linux/mount.h>
+ #include <linux/namei.h>
+ #include <linux/security.h>
+ #include <linux/syscalls.h>
+@@ -210,7 +211,11 @@ sys_setxattr(char __user *path, char __u
+ 	error = user_path_walk(path, &nd);
+ 	if (error)
+ 		return error;
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		return error;
+ 	error = setxattr(nd.dentry, name, value, size, flags);
++	mnt_drop_write(nd.mnt);
+ 	path_release(&nd);
+ 	return error;
+ }
+@@ -225,7 +230,11 @@ sys_lsetxattr(char __user *path, char __
+ 	error = user_path_walk_link(path, &nd);
+ 	if (error)
+ 		return error;
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		return error;
+ 	error = setxattr(nd.dentry, name, value, size, flags);
++	mnt_drop_write(nd.mnt);
+ 	path_release(&nd);
+ 	return error;
+ }
+@@ -241,9 +250,14 @@ sys_fsetxattr(int fd, char __user *name,
+ 	f = fget(fd);
+ 	if (!f)
+ 		return error;
++	error = mnt_want_write(f->f_vfsmnt);
++	if (error)
++		goto out_fput;
+ 	dentry = f->f_dentry;
+ 	audit_inode(NULL, dentry->d_inode, 0);
+ 	error = setxattr(dentry, name, value, size, flags);
++	mnt_drop_write(f->f_vfsmnt);
++out_fput:
+ 	fput(f);
+ 	return error;
+ }
 _

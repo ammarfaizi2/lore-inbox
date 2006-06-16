@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWFPO4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWFPPJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWFPO4v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 10:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWFPO4v
+	id S1751442AbWFPPJd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 11:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWFPPJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 10:56:51 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37079 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751437AbWFPO4u (ORCPT
+	Fri, 16 Jun 2006 11:09:32 -0400
+Received: from lx-ltd.ru ([85.113.143.174]:31690 "EHLO iserver.lx.intercon.ru")
+	by vger.kernel.org with ESMTP id S1751442AbWFPPJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 10:56:50 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-Date: Fri, 16 Jun 2006 16:54:15 +0200
-User-Agent: KMail/1.9.3
-Cc: Jes Sorensen <jes@sgi.com>, Tony Luck <tony.luck@intel.com>,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
-       vojtech@suse.cz, linux-ia64@vger.kernel.org
-References: <200606140942.31150.ak@suse.de> <200606161317.19296.ak@suse.de> <44929CE6.4@sgi.com>
-In-Reply-To: <44929CE6.4@sgi.com>
+	Fri, 16 Jun 2006 11:09:32 -0400
+From: Sergej Pupykin <ps@lx-ltd.ru>
+To: linux-kernel@vger.kernel.org
+Subject: High CPU load and reading from usb intr bulk
+Date: Fri, 16 Jun 2006 19:09:30 +0400
+Message-ID: <m3y7vx2l3p.fsf@lx-ltd.ru>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606161654.15881.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I really don't see the benefit here. malloc already gets pages handed
-> down from the kernel which are node local due to them being assigned at
-> a first touch basis. I am not sure about glibc's malloc internals, but
-> rather rely on a vgetcpu() call, all it really needs to do is to keep
-> a thread local pool which will automatically get it's thing locally
-> through first touch usage.
+Hi!
 
-That would add too much overhead on small systems. It's better to be 
-able to share the pools. vgetcpu allows that.
- 
-> > Basically it is just for extending the existing already used proven etc.
-> > default local policy to sub pages. Also there might be other uses
-> > of it too (like per CPU data), although I expect most use of that
-> > in user space can be already done using TLS.
-> 
-> The thread libraries already have their own thread local area which
-> should be allocated on the thread's own node if done right, which I
-> assume it is.
+I write usb driver for embedded sh4 200MHz system (2.4.28 kernel) and added
+printk into rx_callback and it prints following.
+(this is just example)
 
-- The heap for small allocations is shared (although this can be tuned) 
-- When another thread does free() you need special handling to keep
-the item in the correct free lists
-This is one of the tricky bits in the new kernel NUMA slab allocator
-too.
+packet 1: length=14, data=02 02 02 02 02 02 02 02 02 02 01 01 01 01
+packet 2: length=10, data=02 02 02 02 02 02 02 02 02 02
 
-> > But cpusets already does this kind of, even though it has a quite
-> > bad impact on fast paths.
-> >  Also what happens if the affinity mask is modified later?
-> > From the high semantics point it is also a little dubious to mesh
-> > them together. My feeling is that as a heuristic it is probably
-> > dubious.
-> 
-> If you migrate your app elsewhere, you should migrate the pages with it,
-> or not expect things to run with the local effect.
+while right result must be
+packet 1: length=14, data=01 01 01 01 01 01 01 01 01 01 01 01 01 01
+packet 2: length=10, data=02 02 02 02 02 02 02 02 02 02
 
-That's too costly to do by default and you have no guarantee that it will amortize.
- 
-> I don't really see the point in solving something half way when it can
-> be done better. Maybe the "serious" databases should open up and let us
-> know what the problem is they are hitting.
+It seems that 2nd packet placed over 1st one.
+I submit single int urb and it happens often while high CPU usage.
 
-I see no indication of anything better so far from you. You only offered
-static configuration instead which while in some cases is better
-doesn't work in the general case.
--Andi
+As I understand it can not be fixed because of there is no HCI flow control
+between host and usb device. Am I right?
+
+(I use usb-skeleton.c as a template)
+

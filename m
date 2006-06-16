@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWFPVFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWFPVMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWFPVFN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 17:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFPVFN
+	id S1751001AbWFPVMK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 17:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWFPVMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 17:05:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10434 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751410AbWFPVFM (ORCPT
+	Fri, 16 Jun 2006 17:12:09 -0400
+Received: from relay03.pair.com ([209.68.5.17]:57092 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1751001AbWFPVMJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 17:05:12 -0400
-Date: Fri, 16 Jun 2006 13:40:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: Re: statistics infrastructure (in -mm tree) review
-Message-ID: <20060616204047.GB9445@kroah.com>
-References: <20060613232131.GA30196@kroah.com> <20060613234739.GA30534@kroah.com> <p73slm8qqe4.fsf@verdi.suse.de> <44909292.2080005@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44909292.2080005@de.ibm.com>
-User-Agent: Mutt/1.5.11
+	Fri, 16 Jun 2006 17:12:09 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Fri, 16 Jun 2006 16:12:05 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+cc: Andi Kleen <ak@suse.de>, Jes Sorensen <jes@sgi.com>,
+       Tony Luck <tony.luck@intel.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
+       vojtech@suse.cz, linux-ia64@vger.kernel.org
+Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
+In-Reply-To: <4492CEC0.2080102@bull.net>
+Message-ID: <Pine.LNX.4.64.0606161607240.23743@turbotaz.ourhouse>
+References: <200606140942.31150.ak@suse.de> <44929CE6.4@sgi.com>
+ <4492A5E4.9050702@bull.net> <200606161656.40930.ak@suse.de> <4492CEC0.2080102@bull.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 15, 2006 at 12:49:54AM +0200, Martin Peschke wrote:
+On Fri, 16 Jun 2006, Zoltan Menyhart wrote:
+
 > Andi Kleen wrote:
-> >Greg KH <greg@kroah.com> writes:
-> >>>+ * exploiters don't update several statistics of the same entity in one 
-> >>>go.
-> >>>+ */
-> >>>+static inline void statistic_add(struct statistic *stat, int i,
-> >>>+				 s64 value, u64 incr)
-> >>>+{
-> >>>+	unsigned long flags;
-> >>>+	local_irq_save(flags);
-> >>>+	if (stat[i].state == STATISTIC_STATE_ON)
-> >>>+		stat[i].add(&stat[i], smp_processor_id(), value, incr);
-> >
-> >
-> >Indirect call in statistics hotpath?  You know how slow this is 
-> >on IA64 and even on other architectures it tends to disrupt 
-> >the pipeline.
-> 
-> Okay, let's try to improve it then. The options here are:
-> 
-> a) Replace the indirect function call by a switch statement which directly
->    calls the add function of the data processing mode chosen by user.
->    (e.g. simple counter, histogram, utilisation indicator etc.).
-> 
->    No loss in functionality, slightly uglier code, acceptable 
->    performance(?).
->    This would be my choice.
+>
+>>  That is not how user space TLS works. It usually has a base a register.
+>
+> Can you please give me a real life (simplified) example?
+>
+>>  This means it cannot be cache colored (because you would need a static
+>>  offset) and you couldn't share task_structs on a page.
+>
+> I do not see the problem. Can you explain please?
+> E.g. the scheduler pulls a task instead of the current one. The CPU
+> will see "current->thread_info.cpu"-s of all the tasks at the same
+> offset anyway.
 
-Probably best.  Just don't make it an inline function :)
+Memory maps have to fall on page boundaries for lots of various reasons. 
+Assuming a 16-word cache line, you've got plenty of spots you could align 
+task_struct to within a page. (That number of spots is actually 
+constrained by either sizeof(task_struct) or the number of colors).
 
-thanks,
+The bottom line is that task_struct won't always be on a page boundary. If 
+it's not on a page boundary in the physical page frames, it's not going to 
+be on a page boundary in virtual memory either.
 
-greg k-h
+(Note also that if two task_structs shared a page, you'd have an 
+information leak. I'm not sure with sizeof(task_struct) and cache 
+alignment if task_structs are small enough for sharing, though. Definitely 
+on hugepages.)
+
+Thanks,
+Chase

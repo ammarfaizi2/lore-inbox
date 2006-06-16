@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWFPEjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWFPFpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWFPEjY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 00:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWFPEjY
+	id S1750788AbWFPFpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 01:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWFPFpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 00:39:24 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:58062 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1750749AbWFPEjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 00:39:23 -0400
-Message-ID: <4492441E.1020907@oracle.com>
-Date: Thu, 15 Jun 2006 22:39:42 -0700
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: lkml <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
-       mb@bu3sch.de, akpm <akpm@osdl.org>
-Subject: Re: [Ubuntu PATCH] Broadcom wireless patch, PCIE/Mactel support
-References: <44909A3F.4090905@oracle.com> <1150386115.2987.7.camel@laptopd505.fenrus.org>
-In-Reply-To: <1150386115.2987.7.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Fri, 16 Jun 2006 01:45:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37206 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750788AbWFPFpA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 01:45:00 -0400
+Date: Fri, 16 Jun 2006 07:45:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix cdrom open
+Message-ID: <20060616054531.GI3456@suse.de>
+References: <20060616135631.146a24fe.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060616135631.146a24fe.sfr@canb.auug.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2006-06-14 at 16:22 -0700, Randy Dunlap wrote:
->> From: Matthew Garrett <mjg59@srcf.ucam.org>
->>
->> Broadcom wireless patch, PCIE/Mactel support
->>
->> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=1373a8487e911b5ee204f4422ddea00929c8a4cc
->>
->> This patch adds support for PCIE cores to the bcm43xx driver. This is
->> needed for wireless to work on the Intel imacs. I've submitted it to
->> bcm43xx upstream.
+On Fri, Jun 16 2006, Stephen Rothwell wrote:
+> Hi Jens,
 > 
+> Some time ago the cdrom open routine was changed so that we call the
+> driver's open routine before checking to see if it is read only.  However,
+> if we discovered that a read write open was not possible and the open
+> flags required a writable open, we just returned -EROFS without calling
+> the driver's release routine.   This seems to work for most cdrom drivers,
+> but breaks the Powerpc iSeries virtual cdrom rather badly.  The following
+> patch just inserts the release call in the error path.
 > 
-> who's signing off on these patches??
+> Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> 
+> It would be good is this could go into 2.6.17 as it affects the new distro
+> kernels.
 
-Well, this particular one isn't going anywhere AFAIK, so it doesn't matter here.
-For most of them, Ben Collins or someone else at Ubuntu has signed-off on them
-(although not so on this one).
+Looks good, I'll forward it for 2.6.17 inclusion.
 
-Let's continue the general discussion on the "reviewing" thread.
-
-~Randy
-
+-- 
+Jens Axboe
 

@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWFPQuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWFPQxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWFPQuV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 12:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWFPQuV
+	id S1751498AbWFPQxF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 12:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWFPQxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 12:50:21 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:31131 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S1751491AbWFPQuT
+	Fri, 16 Jun 2006 12:53:04 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:4320 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S1751498AbWFPQxD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 12:50:19 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: linux-kernel@vger.kernel.org
-Cc: mchan@broadcom.com, netdev@vger.kernel.org
-Subject: tg3 timeouts with 2.6.17-rc6
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: linux-kernel@vger.kernel.org, mchan@broadcom.com,
-	netdev@vger.kernel.org
-Date: Fri, 16 Jun 2006 18:50:12 +0200
-Message-ID: <87psh9kptn.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 16 Jun 2006 12:53:03 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH} Enable OProfile on Pentium D
+Date: Fri, 16 Jun 2006 09:53:02 -0700
+Message-ID: <6C21311CEE34E049B74CC0EF339464B96A169D@cacexc12.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH} Enable OProfile on Pentium D
+Thread-Index: AcaRZVSmDQ4iAJ32SWu1dmixqYyuig==
+From: "Santos, Jose Renato G" <joserenato.santos@hp.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <alan@lxorguk.ukuu.org.uk>, <levon@movementarian.org>
+X-OriginalArrivalTime: 16 Jun 2006 16:53:03.0195 (UTC) FILETIME=[551742B0:01C69165]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi
 
-I'm seeing frequent network timeouts on my PowerMac G5 Quad with
-2.6.17-rc6.  The timeouts are easily reproducible with moderate
-network traffic, e.g. by using bittorrent.
+OProfile does not recognize Pentium D (Intel cpu model 6 for p4 family) 
+This prevents Oprofile from using hw performance counters on those CPUs
+This patch enables Oprofile on those CPUs.
 
-,----
-| NETDEV WATCHDOG: lan0: transmit timed out
-| tg3: lan0: transmit timed out, resetting
-| tg3: tg3_stop_block timed out, ofs=2c00 enable_bit=2
-| tg3: tg3_stop_block timed out, ofs=1400 enable_bit=2
-| tg3: lan0: Link is down.
-| [...]
-| tg3: lan0: Link is up at 1000 Mbps, full duplex.
-| tg3: lan0: Flow control is on for TX and on for RX.
-`----
+Please cc me on your response as I do not subscribe to the list
+Thanks
 
+Signed-off-by: Jose Renato Santos <jsantos@hpl.hp.com>
 
-        Juergen
+---------------------------
 
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
+diff -aur linux-2.6.16-orig/arch/i386/oprofile/nmi_int.c
+linux-2.6.16/arch/i386/oprofile/nmi_int.c
+--- linux-2.6.16-orig/arch/i386/oprofile/nmi_int.c	2006-06-16
+09:35:38.000000000 -0700
++++ linux-2.6.16/arch/i386/oprofile/nmi_int.c	2006-06-15
+17:03:42.000000000 -0700
+@@ -301,7 +301,7 @@
+ {
+ 	__u8 cpu_model = boot_cpu_data.x86_model;
+ 
+-	if (cpu_model > 4)
++	if ((cpu_model > 6) || (cpu_model == 5))
+ 		return 0;
+ 
+ #ifndef CONFIG_SMP
+

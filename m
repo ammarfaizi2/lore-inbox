@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWFPQxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWFPRCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWFPQxF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 12:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWFPQxE
+	id S1751500AbWFPRCt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 13:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWFPRCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 12:53:04 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:4320 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S1751498AbWFPQxD convert rfc822-to-8bit
+	Fri, 16 Jun 2006 13:02:49 -0400
+Received: from mms1.broadcom.com ([216.31.210.17]:53508 "EHLO
+	mms1.broadcom.com") by vger.kernel.org with ESMTP id S1751495AbWFPRCs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 12:53:03 -0400
+	Fri, 16 Jun 2006 13:02:48 -0400
+X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
 X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
+Subject: Re: tg3 timeouts with 2.6.17-rc6
+Date: Fri, 16 Jun 2006 10:02:32 -0700
+Message-ID: <1551EAE59135BE47B544934E30FC4FC041BD16@NT-IRVA-0751.brcm.ad.broadcom.com>
+Thread-Topic: tg3 timeouts with 2.6.17-rc6
+Thread-Index: AcaRZQAOJ8IKlXscQVWUDRbMoqZY+wAAN8RA
+From: "Michael Chan" <mchan@broadcom.com>
+To: "Juergen Kreileder" <jk@blackdown.de>, linux-kernel@vger.kernel.org
+cc: netdev@vger.kernel.org
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006061606; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413039303230352E34343932453241342E303030332D412D;
+ ENG=IBF; TS=20060616170239; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006061606_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 688C3BA60HW32563474-01-01
 Content-Type: text/plain;
-	charset="us-ascii"
+ charset=us-ascii
 Content-Transfer-Encoding: 8BIT
-Subject: [PATCH} Enable OProfile on Pentium D
-Date: Fri, 16 Jun 2006 09:53:02 -0700
-Message-ID: <6C21311CEE34E049B74CC0EF339464B96A169D@cacexc12.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH} Enable OProfile on Pentium D
-Thread-Index: AcaRZVSmDQ4iAJ32SWu1dmixqYyuig==
-From: "Santos, Jose Renato G" <joserenato.santos@hp.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <alan@lxorguk.ukuu.org.uk>, <levon@movementarian.org>
-X-OriginalArrivalTime: 16 Jun 2006 16:53:03.0195 (UTC) FILETIME=[551742B0:01C69165]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Juergen Kreileder
 
-OProfile does not recognize Pentium D (Intel cpu model 6 for p4 family) 
-This prevents Oprofile from using hw performance counters on those CPUs
-This patch enables Oprofile on those CPUs.
+> I'm seeing frequent network timeouts on my PowerMac G5 Quad with
+> 2.6.17-rc6.  The timeouts are easily reproducible with moderate
+> network traffic, e.g. by using bittorrent.
+> 
 
-Please cc me on your response as I do not subscribe to the list
-Thanks
+Did this use to work with an older kernel or older tg3 driver? If
+yes, what version?
 
-Signed-off-by: Jose Renato Santos <jsantos@hpl.hp.com>
-
----------------------------
-
-diff -aur linux-2.6.16-orig/arch/i386/oprofile/nmi_int.c
-linux-2.6.16/arch/i386/oprofile/nmi_int.c
---- linux-2.6.16-orig/arch/i386/oprofile/nmi_int.c	2006-06-16
-09:35:38.000000000 -0700
-+++ linux-2.6.16/arch/i386/oprofile/nmi_int.c	2006-06-15
-17:03:42.000000000 -0700
-@@ -301,7 +301,7 @@
- {
- 	__u8 cpu_model = boot_cpu_data.x86_model;
- 
--	if (cpu_model > 4)
-+	if ((cpu_model > 6) || (cpu_model == 5))
- 		return 0;
- 
- #ifndef CONFIG_SMP
+Please also provide the full tg3 probing output during modprobe and
+ifconfig up. Thanks.
 

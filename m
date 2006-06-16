@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWFPKVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWFPKZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWFPKVw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 06:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWFPKVw
+	id S1751127AbWFPKZB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 06:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWFPKZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 06:21:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:60356 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751191AbWFPKVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 06:21:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BQkLpAA5bVwfHe++D/PORO17Io0N6Baay9b62A2I0lmCGSaUGJO9ztgxGYwo8tNrhES2QvjZ5U1IqADCC0+AnMITI4rFc/iALRfqcyUMp82j5ZM5WzN7D1qt5Xx4SO32AtbKibz9JnX7vzrYm9OmoxW4gGP8VavpyrXlGAkXM9U=
-Message-ID: <9a8748490606160321j27db4b9cr7b62c4c1dfd05dd8@mail.gmail.com>
-Date: Fri, 16 Jun 2006 12:21:50 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "dezheng shen" <dzshen@winbond.com>
-Subject: Re: [Winbond] flash memory reader SCSI device drivers [headers]
-Cc: "Pierre Ossman" <drzeus-list@drzeus.cx>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "PI14 SJIN" <SJin@winbond.com>
-In-Reply-To: <44925211.1080901@winbond.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 16 Jun 2006 06:25:00 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:19865 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751127AbWFPKZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 06:25:00 -0400
+Date: Fri, 16 Jun 2006 19:26:54 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andi Kleen <ak@suse.de>
+Cc: ashok.raj@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT
+ tasks.
+Message-Id: <20060616192654.50f4f6b7.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <p7364j1qx66.fsf@verdi.suse.de>
+References: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
+	<p7364j1qx66.fsf@verdi.suse.de>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <448E875A.40805@winbond.com>
-	 <9a8748490606130258k60cdf429n89b1d1d017af60fe@mail.gmail.com>
-	 <448FC0C1.90205@winbond.com> <4491AEAC.5030606@drzeus.cx>
-	 <44920B22.4030507@winbond.com> <449249AC.1000207@drzeus.cx>
-	 <44925211.1080901@winbond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16/06/06, dezheng shen <dzshen@winbond.com> wrote:
->
-> >
-> > For testing, that should be fine. Note that it might not be accepted in
-> > its current form though, so you'll probably have to put up a web site
-> > where people can download patches for testing.
->
-> could you recommend any public web page which allows us to post our sources?
->
-Couldn't you just create a page at winbond.com ?
+On 16 Jun 2006 11:14:57 +0200
+Andi Kleen <ak@suse.de> wrote:
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> writes:
+> > 
+> > This is a bit pessimistic. But forecd migration of RT task which is bounded
+> > to the special cpu will cause unpredictable trouble, I think.
+> 
+> More trouble than running it on a CPU that is about to fail?
+> Doubtful.
+> 
+With my patch, RT tasks will continute to run.
+
+Assume there are some multi-threaded tasks with SCHED_FIFO.
+If they uses some kind of synchronization in user land and task is migrated to
+other cpus, it will cause dead-lock.
+
+
+> It seems like a case of "never check for an error you don't know
+> how to handle"
+> 
+
+"Dont' migrate a task which may fall in dead-lock if it run on another cpu."
+
+-Kame
+

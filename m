@@ -1,131 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWFPXNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWFPXOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWFPXNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWFPXMf
+	id S932287AbWFPXOS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWFPXNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:12:35 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:31908 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751560AbWFPXM1 (ORCPT
+	Fri, 16 Jun 2006 19:13:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:32408 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932287AbWFPXMg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:12:27 -0400
-Subject: [RFC][PATCH 12/20] tricky: elevate write count files are open()ed
-To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 16 Jun 2006 16:12:22 -0700
-References: <20060616231213.D4C5D6AF@localhost.localdomain>
-In-Reply-To: <20060616231213.D4C5D6AF@localhost.localdomain>
-Message-Id: <20060616231222.2B9C4BA4@localhost.localdomain>
+	Fri, 16 Jun 2006 19:12:36 -0400
+Date: Fri, 16 Jun 2006 16:09:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, aviro@www.linux.org.uk, axboe@suse.de,
+       nigel@suspend2.net
+Subject: Re: Sparse minor space in ub
+Message-ID: <20060616230929.GB31626@kroah.com>
+References: <20060614235404.31b70e00.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060614235404.31b70e00.zaitcev@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 14, 2006 at 11:54:04PM -0700, Pete Zaitcev wrote:
+> --- linux-2.6.17-rc5/Documentation/devices.txt	2006-05-25 14:02:59.000000000 -0700
+> +++ linux-2.6.17-rc5-lem/Documentation/devices.txt	2006-05-25 15:45:34.000000000 -0700
+> @@ -2552,10 +2552,10 @@ Your cooperation is appreciated.
+>  		 66 = /dev/usb/cpad0	Synaptics cPad (mouse/LCD)
+>  
+>  180 block	USB block devices
+> -		0 = /dev/uba		First USB block device
+> -		8 = /dev/ubb		Second USB block device
+> -		16 = /dev/ubc		Thrid USB block device
+> -		...
+> +		  0 = /dev/uba		First USB block device
+> +		 16 = /dev/ubb		Second USB block device
+> +		 32 = /dev/ubc		Third USB block device
+> +		    ...
 
-This is the first really tricky patch in the series.  It
-elevates the writer count on a mount each time a
-non-special file is opened for write.
+I don't think that distros that have a static /dev will like this change
+at all :(
 
-This is not completely apparent in the patch because the
-two if() conditions in may_open() above the
-mnt_want_write() call are, combined, equivalent to
-special_file().
+Anyway to put the extra partitions some where else in the minor range?
 
-There is also an elevated count around the vfs_create()
-call in open_namei().  The count needs to be kept elevated
-all the way into the may_open() call.  Otherwise, when the
-write is dropped, a ro->rw transisition could occur.  This
-would lead to having rw access on the newly created file,
-while the vfsmount is ro.  That is bad.
+thanks,
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
-
- lxc-dave/fs/file_table.c |    5 ++++-
- lxc-dave/fs/namei.c      |   22 ++++++++++++++++++----
- lxc-dave/ipc/mqueue.c    |    3 +++
- 3 files changed, 25 insertions(+), 5 deletions(-)
-
-diff -puN fs/file_table.c~C-elevate-writers-opens-part1 fs/file_table.c
---- lxc/fs/file_table.c~C-elevate-writers-opens-part1	2006-06-16 15:58:06.000000000 -0700
-+++ lxc-dave/fs/file_table.c	2006-06-16 15:58:06.000000000 -0700
-@@ -180,8 +180,11 @@ void fastcall __fput(struct file *file)
- 	if (unlikely(inode->i_cdev != NULL))
- 		cdev_put(inode->i_cdev);
- 	fops_put(file->f_op);
--	if (file->f_mode & FMODE_WRITE)
-+	if (file->f_mode & FMODE_WRITE) {
- 		put_write_access(inode);
-+		if(!special_file(inode->i_mode))
-+			mnt_drop_write(mnt);
-+	}
- 	file_kill(file);
- 	file->f_dentry = NULL;
- 	file->f_vfsmnt = NULL;
-diff -puN fs/namei.c~C-elevate-writers-opens-part1 fs/namei.c
---- lxc/fs/namei.c~C-elevate-writers-opens-part1	2006-06-16 15:58:06.000000000 -0700
-+++ lxc-dave/fs/namei.c	2006-06-16 15:58:06.000000000 -0700
-@@ -1512,8 +1512,17 @@ int may_open(struct nameidata *nd, int a
- 			return -EACCES;
- 
- 		flag &= ~O_TRUNC;
--	} else if (IS_RDONLY(inode) && (flag & FMODE_WRITE))
--		return -EROFS;
-+	} else if (flag & FMODE_WRITE) {
-+		/*
-+		 * effectively: !special_file()
-+		 * balanced by __fput()
-+		 */
-+		error = mnt_want_write(nd->mnt);
-+		if (error)
-+			return error;
-+		if (IS_RDONLY(inode))
-+			return -EROFS;
-+	}
- 	/*
- 	 * An append-only file must be opened in append mode for writing.
- 	 */
-@@ -1652,14 +1661,17 @@ do_last:
- 	}
- 
- 	if (IS_ERR(nd->intent.open.file)) {
--		mutex_unlock(&dir->d_inode->i_mutex);
- 		error = PTR_ERR(nd->intent.open.file);
--		goto exit_dput;
-+		goto exit_mutex_unlock;
- 	}
- 
- 	/* Negative dentry, just create the file */
- 	if (!path.dentry->d_inode) {
-+		error = mnt_want_write(nd->mnt);
-+		if (error)
-+			goto exit_mutex_unlock;
- 		error = open_namei_create(nd, &path, flag, mode);
-+		mnt_drop_write(nd->mnt);
- 		if (error)
- 			goto exit;
- 		return 0;
-@@ -1695,6 +1707,8 @@ ok:
- 		goto exit;
- 	return 0;
- 
-+exit_mutex_unlock:
-+	mutex_unlock(&dir->d_inode->i_mutex);
- exit_dput:
- 	dput_path(&path, nd);
- exit:
-diff -puN ipc/mqueue.c~C-elevate-writers-opens-part1 ipc/mqueue.c
---- lxc/ipc/mqueue.c~C-elevate-writers-opens-part1	2006-06-16 15:58:06.000000000 -0700
-+++ lxc-dave/ipc/mqueue.c	2006-06-16 15:58:06.000000000 -0700
-@@ -679,6 +679,9 @@ asmlinkage long sys_mq_open(const char _
- 				goto out;
- 			filp = do_open(dentry, oflag);
- 		} else {
-+			error = mnt_want_write(mqueue_mnt);
-+			if (error)
-+				goto out;
- 			filp = do_create(mqueue_mnt->mnt_root, dentry,
- 						oflag, mode, u_attr);
- 		}
-diff -L fs/namei.c. -puN /dev/null /dev/null
-_
+greg k-h

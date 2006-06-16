@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWFPVe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWFPVi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWFPVe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 17:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWFPVe6
+	id S1751341AbWFPVi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 17:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWFPVi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 17:34:58 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:9992 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750903AbWFPVe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 17:34:57 -0400
-Message-ID: <449323F6.6050301@de.ibm.com>
-Date: Fri, 16 Jun 2006 23:34:46 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Fri, 16 Jun 2006 17:38:28 -0400
+Received: from flexserv.de ([213.239.215.214]:21737 "EHLO lion.flexserv.de")
+	by vger.kernel.org with ESMTP id S1751341AbWFPVi1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 17:38:27 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bug: XFS internal error XFS_WANT_CORRUPTED_RETURN
+Organization: Flexserv
+In-Reply-To: <200606161835.26428.s0348365@sms.ed.ac.uk> (Alistair John
+ Strachan's message of "Fri, 16 Jun 2006 18:35:26 +0100")
+References: <878xnx19bs.fsf@xserver.flexserv.de>
+	<200606161835.26428.s0348365@sms.ed.ac.uk>
+From: daniel+devel.linux.lkml@flexserv.de
+X-GPG-ID: 0x7B196671
+X-GPG-FP: A9CE 5788 44D3 A1A2 46B6  A727 53D8 DD4B 7B19 6671
+X-message-flag: Formating hard disk. please wait...   10%...   20%...
+Date: Fri, 16 Jun 2006 23:38:05 +0200
+Message-ID: <87irn0zsqq.fsf@xserver.flexserv.de>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: Re: statistics infrastructure (in -mm tree) review
-References: <20060613232131.GA30196@kroah.com> <20060613234739.GA30534@kroah.com> <p73slm8qqe4.fsf@verdi.suse.de> <44909292.2080005@de.ibm.com> <20060616204047.GB9445@kroah.com>
-In-Reply-To: <20060616204047.GB9445@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Jun 15, 2006 at 12:49:54AM +0200, Martin Peschke wrote:
->> Andi Kleen wrote:
->>> Greg KH <greg@kroah.com> writes:
->>>>> + * exploiters don't update several statistics of the same entity in one 
->>>>> go.
->>>>> + */
->>>>> +static inline void statistic_add(struct statistic *stat, int i,
->>>>> +				 s64 value, u64 incr)
->>>>> +{
->>>>> +	unsigned long flags;
->>>>> +	local_irq_save(flags);
->>>>> +	if (stat[i].state == STATISTIC_STATE_ON)
->>>>> +		stat[i].add(&stat[i], smp_processor_id(), value, incr);
->>>
->>> Indirect call in statistics hotpath?  You know how slow this is 
->>> on IA64 and even on other architectures it tends to disrupt 
->>> the pipeline.
->> Okay, let's try to improve it then. The options here are:
->>
->> a) Replace the indirect function call by a switch statement which directly
->>    calls the add function of the data processing mode chosen by user.
->>    (e.g. simple counter, histogram, utilisation indicator etc.).
->>
->>    No loss in functionality, slightly uglier code, acceptable 
->>    performance(?).
->>    This would be my choice.
-> 
-> Probably best.  Just don't make it an inline function :)
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Andi, would this be fine with you?
+Alistair John Strachan <s0348365@sms.ed.ac.uk> writes:
 
-Thanks, Martin
+> On Friday 16 June 2006 15:09, daniel+devel.linux.lkml@flexserv.de wrote:
+>> What additional informatiuon can i get you?
+
+On a tmpfs or ext2/3  i dont get it.
+
+> Just make sure you've run memtest for at least a couple passes to elimina=
+te=20
+> bad RAM. This could still easily be an XFS bug, but it's worth checking.
+Its an full equiped E420R 4*450Mhz 4GB RAM.
+I dont know  a memtesttool for sparcs.
+If you know one please drop me a line.
+every test from obp runs fine.
+
+Daniel
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEkyTEU9jdS3sZZnERAj0tAJ0UWZTcFQEDILjauIR3MVmBnTxccwCgkMzl
+uH2dTrfSPBjOpF5VONcGxV0=
+=n9Yz
+-----END PGP SIGNATURE-----
+--=-=-=--
 

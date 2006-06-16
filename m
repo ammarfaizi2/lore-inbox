@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWFPLzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWFPL5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWFPLzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 07:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWFPLzW
+	id S1751124AbWFPL5O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 07:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWFPL5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 07:55:22 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:49872 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750749AbWFPLzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 07:55:21 -0400
-Message-ID: <44929CF5.208@manoweb.com>
-Date: Fri, 16 Jun 2006 13:58:45 +0200
-From: Alessio Sangalli <alesan@manoweb.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Fri, 16 Jun 2006 07:57:14 -0400
+Received: from wr-out-0506.google.com ([64.233.184.230]:35819 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751124AbWFPL5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 07:57:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MaIs0XRE+ZEJZrXVSBn3VPft/7bnI7aSecWE05s6xQWjYFi64RFgKg7jWKrAaddqusIlqovUAPfD0xnSOnwWKGRvrDZ1AsVbEt7ZOxlzhjQ4Mb4V303xWSeV9GRJJrrmYIRugshf/faNch2zLFfWfPT8JalyYphJT78TqmQu+Rg=
+Message-ID: <c6114db60606160457y556db534u920d044e7f6dab24@mail.gmail.com>
+Date: Fri, 16 Jun 2006 13:57:13 +0200
+From: "Salvatore Sanfilippo" <antirez@gmail.com>
+To: "Marcus Metzler" <mocm@mocm.de>
+Subject: Re: v4l device in userspace
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17554.39454.563004.916138@mocm.de>
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: APM problem after 2.6.13.5
-References: <44927F91.6050506@manoweb.com> <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>
-In-Reply-To: <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:98b9443de46bd48dbf34b16449aa5d76
+Content-Disposition: inline
+References: <c6114db60606160403g5e02becctbf2a67db7011ec9a@mail.gmail.com>
+	 <17554.39454.563004.916138@mocm.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> Hi,
-> 
-> On 6/16/06, Alessio Sangalli <alesan@manoweb.com> wrote:
->> if I enable "APM support" I get a freeze at the very beginning of the
->> boot, without any explicit erro message, just after the PCI stuff. If
->> you need a transcript of the messages at boot, let me know, I will have
->> to write them by hand).
->> 2.6.13.5 is ok. I need APM support to let the "Fn" key and the battery
->> meter work!
-> 
-> There's a lot of changes between 2.6.13 and 2.6.14.  It would be
-> helpful if you could narrow down the exact changeset that broke your
+On 6/16/06, Marcus Metzler <mocm@mocm.de> wrote:
 
+> Sounds like you should take a look at the v4l loopback device
 
-done:
+Thanks this may contain useful code indeed.
 
-4196c3af25d98204216a5d6c37ad2cb303a1f2bf is first bad commit
-diff-tree 4196c3af25d98204216a5d6c37ad2cb303a1f2bf (from
-9092b20803e4b3b3a480592794a73030f17370b3)
-Author: Linus Torvalds <torvalds@g5.osdl.org>
-Date:   Sun Oct 23 16:31:16 2005 -0700
+> Anyway, since you already capture the video, why do you have to pipe
+> it through a v4l device?
 
-    cardbus: limit IO windows to 256 bytes
+In order to make every application using the v4l API
+working with the phone cam without modifications.
 
-    That's what we've always historically done, and bigger windows seem to
-    confuse some cardbus bridges. Or something.
+Thanks,
+Salvatore
 
-    Alan reports that this makes the ThinkPad 600x series work properly
-    again: the 4kB IO window for some reason made IDE DMA not work, which
-    makes IDE painfully slow even if it works after DMA timeouts.
-
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-:040000 040000 629d4d303048bffa610017e81e0e744bae08660d
-33e154ffe96822d09f37ae2d433de5152216501b M      drivers
-
-
-let me know any other test I should do to help find a solution to this
-problem, thank you!
-
-Alessio Sangalli
-
-
+-- 
+Salvatore 'antirez' Sanfilippo
+We're programmers. Programmers are, in their hearts, architects -- Joel Spolsky
+http://www.invece.org

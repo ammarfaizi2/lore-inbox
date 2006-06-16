@@ -1,94 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWFPXMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWFPXLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751551AbWFPXMY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWFPXMW
+	id S1751543AbWFPXLN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWFPXLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:12:22 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:31967 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751549AbWFPXMT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:12:19 -0400
-Subject: [RFC][PATCH 02/20] r/o bind mount prepwork: move open_namei()'s vfs_create()
-To: linux-kernel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 16 Jun 2006 16:12:14 -0700
-References: <20060616231213.D4C5D6AF@localhost.localdomain>
-In-Reply-To: <20060616231213.D4C5D6AF@localhost.localdomain>
-Message-Id: <20060616231214.01AEF966@localhost.localdomain>
+	Fri, 16 Jun 2006 19:11:13 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:26785 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751537AbWFPXLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 19:11:12 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Johannes Stezenbach <js@linuxtv.org>
+Subject: Re: [PATCH] Page writeback broken after resume: wb_timer lost
+Date: Sat, 17 Jun 2006 09:12:51 +1000
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       p.lundkvist@telia.com, linux-kernel@vger.kernel.org, rjw@sisk.pl,
+       Mark Lord <lkml@rtr.ca>
+References: <20060520130326.GA6092@localhost> <20060520171244.4399bc54.akpm@osdl.org> <20060616212410.GA6821@linuxtv.org>
+In-Reply-To: <20060616212410.GA6821@linuxtv.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1268734.0ARVvHvgx7";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200606170912.55334.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1268734.0ARVvHvgx7
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The code around vfs_create() in open_namei() is getting a
-bit too complex.  Right now, there is at least the reference
-count on the dentry, and the i_mutex to worry about.  Soon,
-we'll also have mnt_writecount.
+Hi.
 
-So, break the vfs_create() call out of open_namei(), and
-into a helper function.  This duplicates the call to
-may_open(), but that isn't such a bad thing since the
-arguments (acc_mode and flag) were being heavily massaged
-anyway.
+Sorry for coming late to the party. I've only just seen this thread, and ha=
+ve=20
+had reports of it too.
 
-Later in the series, we'll add the mnt_writecount handling
-around this new function call.
+My concern is, shouldn't we be dealing with the cause rather than just one=
+=20
+symptom (and as Pavel rightly wondered, assuming there aren't more)? I'm no=
+t=20
+sure that I have a solution, but I think the point is worth raising again.
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+Do we want something like adding the process's task struct to timer data, a=
+nd=20
+get the timer code to delay firing timers for frozen processes?
 
- lxc-dave/fs/namei.c |   30 ++++++++++++++++++++----------
- 1 files changed, 20 insertions(+), 10 deletions(-)
+Regards,
 
-diff -puN fs/namei.c~C-prepwork-cleanup-open_namei fs/namei.c
---- lxc/fs/namei.c~C-prepwork-cleanup-open_namei	2006-06-16 15:58:00.000000000 -0700
-+++ lxc-dave/fs/namei.c	2006-06-16 15:58:00.000000000 -0700
-@@ -1560,6 +1560,24 @@ int may_open(struct nameidata *nd, int a
- 	return 0;
- }
- 
-+static int open_namei_create(struct nameidata *nd, struct path *path,
-+				int flag, int mode)
-+{
-+	int error;
-+	struct dentry *dir = nd->dentry;
-+
-+	if (!IS_POSIXACL(dir->d_inode))
-+		mode &= ~current->fs->umask;
-+	error = vfs_create(dir->d_inode, path->dentry, mode, nd);
-+	mutex_unlock(&dir->d_inode->i_mutex);
-+	dput(nd->dentry);
-+	nd->dentry = path->dentry;
-+	if (error)
-+		return error;
-+	/* Don't check for write permission, don't truncate */
-+	return may_open(nd, 0, flag & ~O_TRUNC);
-+}
-+
- /*
-  *	open_namei()
-  *
-@@ -1641,18 +1659,10 @@ do_last:
- 
- 	/* Negative dentry, just create the file */
- 	if (!path.dentry->d_inode) {
--		if (!IS_POSIXACL(dir->d_inode))
--			mode &= ~current->fs->umask;
--		error = vfs_create(dir->d_inode, path.dentry, mode, nd);
--		mutex_unlock(&dir->d_inode->i_mutex);
--		dput(nd->dentry);
--		nd->dentry = path.dentry;
-+		error = open_namei_create(nd, &path, flag, mode);
- 		if (error)
- 			goto exit;
--		/* Don't check for write permission, don't truncate */
--		acc_mode = 0;
--		flag &= ~O_TRUNC;
--		goto ok;
-+		return 0;
- 	}
- 
- 	/*
-_
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart1268734.0ARVvHvgx7
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEkzr3N0y+n1M3mo0RAg2OAKDeXstVOe9WvdD7NDtWiJFGx1o8dwCeJf8U
+GEQFVqI3ex/BzPb1IKXdMDU=
+=1Jy8
+-----END PGP SIGNATURE-----
+
+--nextPart1268734.0ARVvHvgx7--

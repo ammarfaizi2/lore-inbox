@@ -1,110 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWFPXMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWFPXQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWFPXMb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 19:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWFPXM0
+	id S932100AbWFPXQo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 19:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWFPXQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 19:12:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:13476 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751549AbWFPXMW (ORCPT
+	Fri, 16 Jun 2006 19:16:40 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:2016 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932100AbWFPXMb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 19:12:22 -0400
-Subject: [RFC][PATCH 05/20] elevate write count during entire ncp_ioctl()
+	Fri, 16 Jun 2006 19:12:31 -0400
+Subject: [RFC][PATCH 17/20] elevate mnt writers for vfs_unlink() callers
 To: linux-kernel@vger.kernel.org
 Cc: linux-fsdevel@vger.kernel.org, herbert@13thfloor.at, viro@ftp.linux.org.uk,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 16 Jun 2006 16:12:17 -0700
+Date: Fri, 16 Jun 2006 16:12:26 -0700
 References: <20060616231213.D4C5D6AF@localhost.localdomain>
 In-Reply-To: <20060616231213.D4C5D6AF@localhost.localdomain>
-Message-Id: <20060616231217.9D5B7848@localhost.localdomain>
+Message-Id: <20060616231226.33108E61@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Some ioctls need write access, but others don't.  Make a helper
-function to decide when write access is needed, and take it.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/ncpfs/ioctl.c |   55 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 54 insertions(+), 1 deletion(-)
+ lxc-dave/fs/namei.c   |    4 ++++
+ lxc-dave/ipc/mqueue.c |    5 ++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff -puN fs/ncpfs/ioctl.c~C-elevate-writers-file_permission-callers fs/ncpfs/ioctl.c
---- lxc/fs/ncpfs/ioctl.c~C-elevate-writers-file_permission-callers	2006-06-16 15:58:02.000000000 -0700
-+++ lxc-dave/fs/ncpfs/ioctl.c	2006-06-16 15:58:02.000000000 -0700
-@@ -16,6 +16,7 @@
- #include <linux/ioctl.h>
- #include <linux/time.h>
- #include <linux/mm.h>
-+#include <linux/mount.h>
- #include <linux/highuid.h>
- #include <linux/vmalloc.h>
+diff -puN fs/namei.c~C-elevate-writers-vfs_unlink fs/namei.c
+--- lxc/fs/namei.c~C-elevate-writers-vfs_unlink	2006-06-16 15:58:10.000000000 -0700
++++ lxc-dave/fs/namei.c	2006-06-16 15:58:10.000000000 -0700
+@@ -2136,7 +2136,11 @@ static long do_unlinkat(int dfd, const c
+ 		inode = dentry->d_inode;
+ 		if (inode)
+ 			atomic_inc(&inode->i_count);
++		error = mnt_want_write(nd.mnt);
++		if (error)
++			goto exit2;
+ 		error = vfs_unlink(nd.dentry->d_inode, dentry);
++		mnt_drop_write(nd.mnt);
+ 	exit2:
+ 		dput(dentry);
+ 	}
+diff -puN ipc/mqueue.c~C-elevate-writers-vfs_unlink ipc/mqueue.c
+--- lxc/ipc/mqueue.c~C-elevate-writers-vfs_unlink	2006-06-16 15:58:10.000000000 -0700
++++ lxc-dave/ipc/mqueue.c	2006-06-16 15:58:10.000000000 -0700
+@@ -741,8 +741,11 @@ asmlinkage long sys_mq_unlink(const char
+ 	inode = dentry->d_inode;
+ 	if (inode)
+ 		atomic_inc(&inode->i_count);
+-
++	err = mnt_want_write(mqueue_mnt);
++	if (err)
++		goto out_err;
+ 	err = vfs_unlink(dentry->d_parent->d_inode, dentry);
++	mnt_drop_write(mqueue_mnt);
+ out_err:
+ 	dput(dentry);
  
-@@ -183,7 +184,7 @@ ncp_get_charsets(struct ncp_server* serv
- }
- #endif /* CONFIG_NCPFS_NLS */
- 
--int ncp_ioctl(struct inode *inode, struct file *filp,
-+static int __ncp_ioctl(struct inode *inode, struct file *filp,
- 	      unsigned int cmd, unsigned long arg)
- {
- 	struct ncp_server *server = NCP_SERVER(inode);
-@@ -654,3 +655,55 @@ outrel:			
- /* #endif */
- 	return -EINVAL;
- }
-+
-+static int ncp_ioctl_need_write(unsigned int cmd)
-+{
-+	switch (cmd) {
-+        case NCP_IOC_GET_FS_INFO:
-+        case NCP_IOC_GET_FS_INFO_V2:
-+        case NCP_IOC_NCPREQUEST:
-+        case NCP_IOC_SETDENTRYTTL:
-+        case NCP_IOC_SIGN_INIT:
-+        case NCP_IOC_LOCKUNLOCK:
-+        case NCP_IOC_SET_SIGN_WANTED:
-+		return 1;
-+        case NCP_IOC_GETOBJECTNAME:
-+        case NCP_IOC_SETOBJECTNAME:
-+        case NCP_IOC_GETPRIVATEDATA:
-+        case NCP_IOC_SETPRIVATEDATA:
-+        case NCP_IOC_SETCHARSETS:
-+        case NCP_IOC_GETCHARSETS:
-+        case NCP_IOC_CONN_LOGGED_IN:
-+        case NCP_IOC_GETDENTRYTTL:
-+        case NCP_IOC_GETMOUNTUID2:
-+        case NCP_IOC_SIGN_WANTED:
-+        case NCP_IOC_GETROOT:
-+        case NCP_IOC_SETROOT:
-+		return 0;
-+	default:
-+		/* unkown IOCTL command, assume write */
-+		WARN_ON(1);
-+	}
-+	return 1;
-+}
-+
-+int ncp_ioctl(struct inode *inode, struct file *filp,
-+	      unsigned int cmd, unsigned long arg)
-+{
-+	int ret;
-+
-+	if (ncp_ioctl_need_write(cmd)) {
-+		/*
-+		 * inside the ioctl(), any failures which
-+		 * are because of file_permission() are
-+		 * -EACCESS, so it seems consistent to keep
-+		 *  that here.
-+		 */
-+		if (mnt_want_write(filp->f_vfsmnt))
-+			return -EACCES;
-+	}
-+	ret = __ncp_ioctl(inode, filp, cmd, arg);
-+	if (ncp_ioctl_need_write(cmd))
-+		mnt_drop_write(filp->f_vfsmnt);
-+	return ret;
-+}
 _

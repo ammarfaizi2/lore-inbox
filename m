@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWFQK6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWFQLDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWFQK6H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 06:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWFQK6H
+	id S1751581AbWFQLDe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 07:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751592AbWFQLDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 06:58:07 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:20104 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751336AbWFQK6F (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 06:58:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SOEEL6axQhdfbmibq2yRsCEKONCV5pMbudphfY9rSu1QcPeMH1FMRRJtE7GdaE6MBKYCijKYNETnvOT0bh245Zz5PsDKmh3wM2PR15DZxpSg79D3/KuPqwFeF10BFB28oMA/ye6rrTIAVH8eyuYJ5xdXgEIoKtcI7V2uVz4C6eA=
-Message-ID: <9a8748490606170358p4cf1068bh1ab6ba510c98f2d@mail.gmail.com>
-Date: Sat, 17 Jun 2006 12:58:04 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Alistair John Strachan" <s0348365@sms.ed.ac.uk>
-Subject: Re: a newbie with the kernel--a few questions
-Cc: "sena seneviratne" <auntvini@cel.usyd.edu.au>,
-       "Tyler Littlefield" <compgeek13@gmail.com>,
-       linux-Kernel@vger.kernel.org
-In-Reply-To: <200606161541.39498.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 17 Jun 2006 07:03:34 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:2376 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751581AbWFQLDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 07:03:33 -0400
+Subject: Re: statistics infrastructure (in -mm tree) review
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+In-Reply-To: <200606170851.22197.ak@suse.de>
+References: <20060613232131.GA30196@kroah.com>
+	 <p73slm8qqe4.fsf@verdi.suse.de> <44909292.2080005@de.ibm.com>
+	 <200606170851.22197.ak@suse.de>
+Content-Type: text/plain
+Date: Sat, 17 Jun 2006 13:03:22 +0200
+Message-Id: <1150542202.2924.73.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <5.1.1.5.2.20060616111106.04488d40@brain.sedal.usyd.edu.au>
-	 <5.1.1.5.2.20060616132151.04502988@brain.sedal.usyd.edu.au>
-	 <200606161541.39498.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16/06/06, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > At 09:12 PM 6/15/2006 -0600, you wrote:
-> > >OK, I am pretty good with c. My goal here is... Well, when a user types
-> > > who, I don't want it to work, unless its root. (easy to change) but I
-> > > want some security like that in the kernel. Also, I want to limit it to
-> > > when the user types ps, they can't get everyone's processes, but jsut
-> > > there own, unless of course, they are root.
-> > >Thanks,
->
-> Might also be worth looking at patches like GrSecurity which make general
-> policy changes (such as these) and are well tested and robust.
->
+On Sat, 2006-06-17 at 08:51 +0200, Andi Kleen wrote:
+> > b) Export statistic_add_counter(), statistic_add_histogram() and the like
+> >     as part of the programming API (maybe in addition to the flexible
+> >     statistic_add()) for those exploiters that definitively can't effort
+> >     branching into a function.
+> >
+> >     Loss in functionality (exploiting kernel code dictates how users see
+> > the data), a bit faster than option a).
+> 
+> (b) if anything.
 
-Isn't this already doable with SELinux ?
+Yes, I have anticipated this choice. I am looking into this option.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> But do we really need all these weird options anyways? 
+
+Which options?
+
+Assuming you refer to the distinction of counter, histogram, utilisation
+indicator etc. ... well, that's what I found when was looking into
+existing approaches: counters everywhere, histograms for example in the
+s390 DASD driver, some with linear scale, other with logarithmic scale,
+counters that only make sense if seen in combination (which made me come
+up with this utilisation indicator thing), ...
+
+I have just been trying to find a simple concept to reconcile various
+ways of preprocessing statistics data. This is reflected by
+struct statistic_discipline.
+
+> For me it seems you're far overdesigning.
+> I think your whole approach is about 10x too complicated.
+
+I disagree.
+The programing interface is simple.
+The modularisation of data processing modes is straight-forward.
+
+I have tried to break down my design into a dozen and a half
+assumptions in my other mail.
+I am happy to discuss which of them make sense, which of them
+might be overkill, which might be deferred, etc.
+
+But please understand that it is hard for me to guess which
+10th part of my design is okay for you, if you don't go into details.
+
+A fair share of complexity is caused by performance considerations
+(per-cpu data). Which should be fine.
+And, in that regard, my code isn't quite as complex yet as
+lib/profile.c.
+
+Thanks, Martin
+

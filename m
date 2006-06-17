@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWFQAFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWFQAGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932486AbWFQAFL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 20:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWFQAFL
+	id S1750917AbWFQAGO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 20:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWFQAGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 20:05:11 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:64404 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S932486AbWFQAFI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 20:05:08 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: "Michael Chan" <mchan@broadcom.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: tg3 timeouts with 2.6.17-rc6
-References: <1551EAE59135BE47B544934E30FC4FC041BD16@NT-IRVA-0751.brcm.ad.broadcom.com>
-	<87k67glrvl.fsf@blackdown.de> <1150494161.26368.39.camel@rh4>
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: "Michael Chan" <mchan@broadcom.com>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Date: Sat, 17 Jun 2006 02:05:01 +0200
-In-Reply-To: <1150494161.26368.39.camel@rh4> (Michael Chan's message of "Fri,
-	16 Jun 2006 14:42:41 -0700")
-Message-ID: <87bqsslk9e.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jun 2006 20:06:14 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:6827 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750909AbWFQAGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 20:06:13 -0400
+Subject: Re: [PATCH 9/16] 2.6.17-rc6 perfmon2 patch for review:
+	kernel-level API support (kapi)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Stephane Eranian <eranian@hpl.hp.com>, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com, wcohen@redhat.com,
+       perfmon@napali.hpl.hp.com
+In-Reply-To: <20060616145612.GA24812@infradead.org>
+References: <200606150907.k5F97coF008178@frankl.hpl.hp.com>
+	 <20060616135014.GB12657@infradead.org>
+	 <20060616140234.GI10034@frankl.hpl.hp.com>
+	 <20060616145612.GA24812@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 17 Jun 2006 01:15:51 +0100
+Message-Id: <1150503351.8604.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Chan <mchan@broadcom.com> writes:
+Ar Gwe, 2006-06-16 am 15:56 +0100, ysgrifennodd Christoph Hellwig:
+> On Fri, Jun 16, 2006 at 07:02:34AM -0700, Stephane Eranian wrote:
+> > Well, that's what I initially thought too but there is a need from the SystemTap
+> > people and given the way they set things up, it is hard to do it from user level.
+> 
+> Systemtap doesn' matter.  Please don't put in useless stuff for their
+> broken requirements - they're all clueless idiots.
 
-> On Fri, 2006-06-16 at 23:20 +0200, Juergen Kreileder wrote:
->> Michael Chan <mchan@broadcom.com> writes:
->>
->>>
->>> Did this use to work with an older kernel or older tg3 driver? If
->>> yes, what version?
->>
->> Works fine with 2.6.16 and earlier.
->>
->>> Please also provide the full tg3 probing output during modprobe
->>> and ifconfig up. Thanks.
->>
-> Looking at the patch history since 2.6.16, the only patch that could
-> have an impact is the one that enables TSO by default.
->
-> Please try turning TSO off to see if it makes a difference:
->
-> ethtool -K eth0 tso off
+Christoph, thank you for your detailed analytical analysis. The kernel
+list would not be the same without your detailed, well explanation and
+reasoned rational analyses
 
-Seems to work fine with TSO disabled.
-
-
-        Juergen
-
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
+Alan

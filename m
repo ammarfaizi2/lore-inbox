@@ -1,50 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWFQLaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWFQNV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751605AbWFQLaq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 07:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWFQLaq
+	id S1751629AbWFQNV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 09:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbWFQNV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 07:30:46 -0400
-Received: from mail33.syd.optusnet.com.au ([211.29.132.104]:63203 "EHLO
-	mail33.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751602AbWFQLap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 07:30:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org
-Subject: sound skips on 2.6.16.17
-Date: Sat, 17 Jun 2006 21:29:56 +1000
-User-Agent: KMail/1.9.3
-Cc: Hugo Vanwoerkom <rociobarroso@att.net.mx>, ocilent1@gmail.com,
-       linux list <linux-kernel@vger.kernel.org>, Chris Wedgwood <cw@f00f.org>
-References: <4487F942.3030601@att.net.mx> <200606161115.53716.ocilent1@gmail.com> <4493D24D.2010902@att.net.mx>
-In-Reply-To: <4493D24D.2010902@att.net.mx>
+	Sat, 17 Jun 2006 09:21:26 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:50106
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751577AbWFQNV0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 09:21:26 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: linville@tuxdriver.com
+Subject: [PATCH 2.6.17 fix] bcm43xx: workaround init_board vs. IRQ race
+Date: Sat, 17 Jun 2006 15:19:05 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606172129.56986.kernel@kolivas.org>
+Message-Id: <200606171519.05893.mb@bu3sch.de>
+Cc: bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 17 June 2006 19:58, Hugo Vanwoerkom wrote:
-> ocilent1 wrote:
-> > You don't happen to use a VIA chipset do you? For PCLinuxOS kernels, I
-> > found that a few people with VIA based mobos started experiencing
-> > sound problems (skipping / stuttering) once we hit 2.6.16.17. Backing out
-> > the following 2 patches added in 2.6.16.17 seem to fix the problems.
-> >
-> > 1)  PCI-VIA-quirk-fixup-additional-PCI-IDs.patch
-> > 2)  PCI-quirk-VIA-IRQ-fixup-should-only-run-for-VIA-southbridges.patch
-> >
-> > I have attached some patches you might want to try that reverse out the
-> > above patches. You will need to apply the patches in the correct order
-> > (as above)
+Hi John,
 
-> Works like a charm. End of the sound skips.
+Please try to push this for 2.6.17, as it is a crash fix.
 
-Not sure if this has been reported to lkml so I'm cc'ing it here and the 
-stable maintainer.
+--
 
--- 
--ck
+Place the Init-vs-IRQ workaround before any card register
+access, because we might not have the wireless core mapped
+at all times in init. So this will result in a Machine Check
+caused by a bus error.
+
+Signed-off-by: Michael Buesch <mb@bu3sch.de>
+
+Index: wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c
+===================================================================
+--- wireless-2.6.orig/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-06-17 15:06:38.000000000 +0200
++++ wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-06-17 15:17:49.000000000 +0200
+@@ -1885,6 +1885,15 @@
+ 
+ 	spin_lock(&bcm->irq_lock);
+ 
++	/* Only accept IRQs, if we are initialized properly.
++	 * This avoids an RX race while initializing.
++	 * We should probably not enable IRQs before we are initialized
++	 * completely, but some careful work is needed to fix this. I think it
++	 * is best to stay with this cheap workaround for now... .
++	 */
++	if (unlikely(bcm43xx_status(bcm) != BCM43xx_STAT_INITIALIZED))
++		goto out;
++
+ 	reason = bcm43xx_read32(bcm, BCM43xx_MMIO_GEN_IRQ_REASON);
+ 	if (reason == 0xffffffff) {
+ 		/* irq not for us (shared irq) */
+@@ -1906,19 +1915,11 @@
+ 
+ 	bcm43xx_interrupt_ack(bcm, reason);
+ 
+-	/* Only accept IRQs, if we are initialized properly.
+-	 * This avoids an RX race while initializing.
+-	 * We should probably not enable IRQs before we are initialized
+-	 * completely, but some careful work is needed to fix this. I think it
+-	 * is best to stay with this cheap workaround for now... .
+-	 */
+-	if (likely(bcm43xx_status(bcm) == BCM43xx_STAT_INITIALIZED)) {
+-		/* disable all IRQs. They are enabled again in the bottom half. */
+-		bcm->irq_savedstate = bcm43xx_interrupt_disable(bcm, BCM43xx_IRQ_ALL);
+-		/* save the reason code and call our bottom half. */
+-		bcm->irq_reason = reason;
+-		tasklet_schedule(&bcm->isr_tasklet);
+-	}
++	/* disable all IRQs. They are enabled again in the bottom half. */
++	bcm->irq_savedstate = bcm43xx_interrupt_disable(bcm, BCM43xx_IRQ_ALL);
++	/* save the reason code and call our bottom half. */
++	bcm->irq_reason = reason;
++	tasklet_schedule(&bcm->isr_tasklet);
+ 
+ out:
+ 	mmiowb();

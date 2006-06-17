@@ -1,94 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWFQSsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWFQTNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWFQSsp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 14:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWFQSsp
+	id S1750852AbWFQTNb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 15:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWFQTNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 14:48:45 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:41191 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1750793AbWFQSso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 14:48:44 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44944D8A.6090808@s5r6.in-berlin.de>
-Date: Sat, 17 Jun 2006 20:44:26 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Ben Collins <bcollins@ubuntu.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       weihs@ict.tuwien.ac.at, linux1394-devel@lists.sourceforge.net,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread conversion: convert ieee1394 from kernel_thread
-References: <20060610143100.GA15536@sergelap.austin.ibm.com> <20060610144205.GA13850@infradead.org> <448AE12E.5060002@s5r6.in-berlin.de> <20060610154213.GA19077@infradead.org> <1149957286.4448.542.camel@grayson> <20060610163859.GA24081@infradead.org> <1149962931.4448.557.camel@grayson> <20060610183703.GA1497@infradead.org>
-In-Reply-To: <20060610183703.GA1497@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.877) AWL,BAYES_50
+	Sat, 17 Jun 2006 15:13:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61913 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750852AbWFQTNb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 15:13:31 -0400
+Date: Sat, 17 Jun 2006 15:13:22 -0400
+From: Ulrich Drepper <drepper@redhat.com>
+Message-Id: <200606171913.k5HJDM3U021408@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Implement AT_SYMLINK_FOLLOW flag for linkat
+Cc: akpm@osdl.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote on 2006-06-17:
-> Below is a draft patch to convert it to the kthread API and replace the
-> reset_sem with a simple wake_up_process scheme.  I removed the down_trylock
-> loop there which I think should be fine because we get the wakeup again
-> ASAP, but please double-check.
-[...]
-[in nodemgr_host_thread(), top of event loop]
-> @@ -1579,15 +1573,14 @@
->  		unsigned int generation = 0;
->  		int i;
->  
-> -		if (down_interruptible(&hi->reset_sem) ||
-> -		    down_interruptible(&nodemgr_serialize)) {
-> +		if (down_interruptible(&nodemgr_serialize)) {
+When the linkat() syscall was added the flag parameter was added in the
+last minute but it wasn't used so far.  The following patch should
+change that.  My tests show that this is all that's needed.
 
-This won't work. "down_interruptible(&hi->reset_sem)" was there to put 
-the thread to sleep after it did its work, until the next bus reset. Now 
-the event loop would be entered continuously without an actual bus reset 
-event.
+If OLDNAME is a symlink setting the flag causes linkat to follow the
+symlink and create a hardlink with the target.  This is actually
+the behavior POSIX demands for link() as well but Linux wisely does
+not do this.  With this flag (which will most likely be in the next
+POSIX revision) the programmer can choose the behavior, defaulting
+to the safe variant.  As a side effect it is now possible to implement
+a POSIX-compliant link(2) function for those who are interested.
 
-(nodemgr_serialize is just a mutex disguised as a semaphore which 
-prevents multiple nodemgr host threads to enter their event loop 
-concurrently.)
+  touch file
+  ln -s file symlink
 
->  			if (try_to_freeze())
->  				continue;
->  			printk("NodeMgr: received unexpected signal?!\n" );
->  			break;
->  		}
->  
-> -		if (hi->kill_me) {
-> +		if (kthread_should_stop()) {
->  			up(&nodemgr_serialize);
->  			break;
->  		}
-> @@ -1608,13 +1601,8 @@
->  			 * returning bogus data. */
->  			generation = get_hpsb_generation(host);
->  
-> -			/* If we get a reset before we are done waiting, then
-> -			 * start the the waiting over again */
-> -			while (!down_trylock(&hi->reset_sem))
-> -				i = 0;
-[...]
+  linkat(fd, "symlink", fd, "newlink", 0)
+    -> newlink is hardlink of symlink
 
-Another minor issue: This check cannot be removed without replacement. 
-However we could implement this check easily without a counting 
-semaphore. (We could check the bus generation before and after the sleep.)
+  linkat(fd, "symlink", fd, "newlink", AT_SYMLINK_FOLLOW)
+    -> newlink is hardlink of file
 
-I will try to rework this patch and split it into more patches: One 
-which converts nodemgr to the kthread API but keeps the reset_sem, one 
-patch which gets rid of the counting semaphore reset_sem, one patch 
-which converts nodemgr_serialize to a mutex.
+The value of AT_SYMLINK_FOLLOW is determined by the definition we
+already use in glibc.
 
-BTW, it may be possible to remove nodemgr_serialize too. There are other 
-exclusion mechanisms in nodemgr.c which should already prevent most if 
-not all undesirable concurrency, notably the semaphores 
-dev->bus->subsys.rwsem and class->subsys.rwsem.
--- 
-Stefan Richter
--=====-=-==- -==- =---=
-http://arcgraph.de/sr/
+
+Signed-Off-By: Ulrich Drepper <drepper@redhat.com>
+
+
+ fs/namei.c            |    6 ++++--
+ include/linux/fcntl.h |    1 +
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+
+--- linux/fs/namei.c-follow	2006-06-17 11:22:39.000000000 -0700
++++ linux/fs/namei.c	2006-06-17 11:58:18.000000000 -0700
+@@ -2243,14 +2243,16 @@
+ 	int error;
+ 	char * to;
+ 
+-	if (flags != 0)
++	if ((flags & ~AT_SYMLINK_FOLLOW) != 0)
+ 		return -EINVAL;
+ 
+ 	to = getname(newname);
+ 	if (IS_ERR(to))
+ 		return PTR_ERR(to);
+ 
+-	error = __user_walk_fd(olddfd, oldname, 0, &old_nd);
++	error = __user_walk_fd(olddfd, oldname,
++			       flags & AT_SYMLINK_FOLLOW ? LOOKUP_FOLLOW : 0,
++			       &old_nd);
+ 	if (error)
+ 		goto exit;
+ 	error = do_path_lookup(newdfd, to, LOOKUP_PARENT, &nd);
+--- linux/include/linux/fcntl.h-follow	2006-06-17 11:24:21.000000000 -0700
++++ linux/include/linux/fcntl.h	2006-06-17 11:24:51.000000000 -0700
+@@ -29,6 +29,7 @@
+ #define AT_SYMLINK_NOFOLLOW	0x100   /* Do not follow symbolic links.  */
+ #define AT_REMOVEDIR		0x200   /* Remove directory instead of
+                                            unlinking file.  */
++#define AT_SYMLINK_FOLLOW	0x400   /* Follow symbolic links.  */
+ 
+ #ifdef __KERNEL__
+ 

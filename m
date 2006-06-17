@@ -1,84 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWFQGli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWFQGv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWFQGli (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 02:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWFQGli
+	id S1750872AbWFQGv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 02:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWFQGv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 02:41:38 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:57048 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932103AbWFQGli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 02:41:38 -0400
-Subject: Re: [RFC][PATCH] binfmt: turn MAX_ARG_PAGES into a sysctl tunable
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060616204024.GA7097@ucw.cz>
-References: <1150297122.31522.54.camel@lappy> <20060616204024.GA7097@ucw.cz>
-Content-Type: text/plain
-Date: Sat, 17 Jun 2006 08:41:31 +0200
-Message-Id: <1150526492.28517.26.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 17 Jun 2006 02:51:29 -0400
+Received: from ns1.suse.de ([195.135.220.2]:4292 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750872AbWFQGv2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 02:51:28 -0400
+From: Andi Kleen <ak@suse.de>
+To: Martin Peschke <mp3@de.ibm.com>
+Subject: Re: statistics infrastructure (in -mm tree) review
+Date: Sat, 17 Jun 2006 08:51:21 +0200
+User-Agent: KMail/1.8
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+References: <20060613232131.GA30196@kroah.com> <p73slm8qqe4.fsf@verdi.suse.de> <44909292.2080005@de.ibm.com>
+In-Reply-To: <44909292.2080005@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606170851.22197.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-16 at 20:40 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> > 
-> > Some folks find 128KB of env+arg space too little. Solaris provides them with
-> > 1MB. Manually changing MAX_ARG_PAGES worked for them so far, however they
-> > would like to run the supported vendor kernel.
-> > 
-> > In the interrest of not penalizing everybody with the overhead of just
-> > setting it larger, provide a sysctl to change it.
-> 
-> I very muh like that idea.
-> 
-> > Compiles and boots on i386.
-> > 
-> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> 
-> ....but does is also work if you keep changing that value in the tight
-> loop while trying to work with the system?
-> 
 
-Yes, I've added a bprm local copy of max_arg_pages:
+> b) Export statistic_add_counter(), statistic_add_histogram() and the like
+>     as part of the programming API (maybe in addition to the flexible
+>     statistic_add()) for those exploiters that definitively can't effort
+>     branching into a function.
+>
+>     Loss in functionality (exploiting kernel code dictates how users see
+> the data), a bit faster than option a).
 
-> @@ -20,9 +13,10 @@ struct pt_regs;
-> >  /*
-> >   * This structure is used to hold the arguments that are used when loading binaries.
-> >   */
-> > -struct linux_binprm{
-> > +struct linux_binprm {
-> >         char buf[BINPRM_BUF_SIZE];
-> > -       struct page *page[MAX_ARG_PAGES];
-> > +       struct page **page;
-> > +       int max_arg_pages;
-> >         struct mm_struct *mm;
-> >         unsigned long p; /* current top of mem */
-> >         int sh_bang;
+(b) if anything. But do we really need all these weird options anyways? 
+For me it seems you're far overdesigning.
 
-That is set once from the sysctl variable:
+> What do you think? Did I miss an option?
 
-> > @@ -1153,14 +1164,20 @@ int do_execve(char * filename,
-> >         if (!bprm)
-> >                 goto out_ret;
-> >  
-> > +       bprm->max_arg_pages = max_arg_pages;
-> > +       bprm->page = kzalloc(bprm->max_arg_pages*sizeof(struct page*),
-> > +                       GFP_KERNEL);
-> > +       if (!bprm->page)
-> > +               goto out_kfree;
-> > +
+I think your whole approach is about 10x too complicated.
+The normal approach in Linux is to start simple and add complexity later as 
+needed.
+You seem to try to do it the other way around.
 
-And is thereafter used and never again changed.
-
-This should be enough to guard against your scenario I recon.
-
-Peter
-
+-Andi
 

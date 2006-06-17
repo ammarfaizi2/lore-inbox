@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWFQSfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWFQSgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWFQSfr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 14:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWFQSfr
+	id S1750823AbWFQSgX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 14:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWFQSgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 14:35:47 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:22899 "EHLO
+	Sat, 17 Jun 2006 14:36:23 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:883 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750816AbWFQSfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 14:35:46 -0400
+	id S1750823AbWFQSgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 14:36:22 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=rBPa0HB3ksbIUZZXkhLS0bV52stHlyLZA286TidaIzFX1nwuuqZTT9Y65r9LW3QWRTIcVY55GJAiQ55ZBEnPodQ6XQRlTpzYKN1K9U/YfRlbBcHPtM7MfcMNRE8upr5qaXbkL5T/qESlWgyTPWI39kQyiOeGxOkfUdQneAoETdU=
-Message-ID: <44944B7F.8070104@gmail.com>
-Date: Sat, 17 Jun 2006 12:35:43 -0600
+        b=qW0c4xdhYK8xdmKg+ho4k3ClCfJFPcNwXC6JwrFZO4SVgCsRwQkpEr9Sujfh5fgqLnLWR3I15cZt/Me9pOLfJ0BBbI1eKbISZFOiXyzIpoIBfOytHZh3F29nSv9mZUXGAQfzCOQCA2fkYRpM/Gm/jbN/wdMp7jAAgy25xW5aV8w=
+Message-ID: <44944BA3.5090905@gmail.com>
+Date: Sat, 17 Jun 2006 12:36:19 -0600
 From: Jim Cromie <jim.cromie@gmail.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
 To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [patch -mm 14/20] chardev: GPIO for SCx200 & PC-8736x: add platform_device
- for use w dev_dbg
+Subject: [patch -mm 15/20] chardev: GPIO for SCx200 & PC-8736x: use dev_dbg
+ in common module
 References: <448DB57F.2050006@gmail.com> <cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>
 In-Reply-To: <cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -28,211 +28,204 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-14/20. patch.pdev-pc8736x
+15/20. patch.devdbg-nscgpio
 
-Adds platform-device to (just introduced) driver, and uses it to
-replace many printks with dev_dbg() etc.  This could trivially be
-merged into previous patch, but this way matches better with the
-corresponding patch that does the same change to scx200_gpio.
+Use of dev_dbg() and friends is considered good practice.  dev_dbg()
+needs a struct device *devp, but nsc_gpio is only a helper module, so
+it doesnt have/need its own.  To provide devp to the user-modules
+(scx200 & pc8736x _gpio), we add it to the vtable, and set it during
+init.
+
+Also squeeze nsc_gpio_dump()'s format a little.
+
+[  199.259879]  pc8736x_gpio.0: io09: 0x0044 TS OD PUE  EDGE LO DEBOUNCE
 
 
 Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
 
 ---
 
-diffstat gpio-scx/patch.pdev-pc8736x
- pc8736x_gpio.c |   76 +++++++++++++++++++++++++++++++++------------------------
- 1 files changed, 45 insertions(+), 31 deletions(-)
+diffstat gpio-scx/patch.devdbg-nscgpio
+ drivers/char/nsc_gpio.c     |   45 ++++++++++++++++++++++++--------------------
+ drivers/char/pc8736x_gpio.c |    3 +-
+ drivers/char/scx200_gpio.c  |   11 ++--------
+ include/linux/nsc_gpio.h    |    6 ++++-
+ 4 files changed, 35 insertions(+), 30 deletions(-)
 
-diff -ruNp -X dontdiff -X exclude-diffs ax-13/drivers/char/pc8736x_gpio.c ax-14/drivers/char/pc8736x_gpio.c
---- ax-13/drivers/char/pc8736x_gpio.c	2006-06-17 01:39:58.000000000 -0600
-+++ ax-14/drivers/char/pc8736x_gpio.c	2006-06-17 01:42:57.000000000 -0600
-@@ -17,13 +17,14 @@
+diff -ruNp -X dontdiff -X exclude-diffs ax-14/drivers/char/nsc_gpio.c ax-15/drivers/char/nsc_gpio.c
+--- ax-14/drivers/char/nsc_gpio.c	2006-06-17 01:39:58.000000000 -0600
++++ ax-15/drivers/char/nsc_gpio.c	2006-06-17 01:45:49.000000000 -0600
+@@ -14,22 +14,27 @@
+ #include <linux/kernel.h>
  #include <linux/init.h>
- #include <linux/ioport.h>
  #include <linux/nsc_gpio.h>
 +#include <linux/platform_device.h>
  #include <asm/uaccess.h>
  #include <asm/io.h>
  
--#define NAME "pc8736x_gpio"
-+#define DEVNAME "pc8736x_gpio"
+ #define NAME "nsc_gpio"
  
- MODULE_AUTHOR("Jim Cromie <jim.cromie@gmail.com>");
--MODULE_DESCRIPTION("NatSemi SCx200 GPIO Pin Driver");
-+MODULE_DESCRIPTION("NatSemi PC-8736x GPIO Pin Driver");
- MODULE_LICENSE("GPL");
- 
- static int major = 0;		/* default to dynamic major */
-@@ -42,6 +43,8 @@ static unsigned pc8736x_gpio_base;
- 
- #define SIO_CF1		0x21	/* chip config, bit0 is chip enable */
- 
-+#define PC8736X_GPIO_SIZE	16
-+
- #define SIO_UNIT_SEL	0x7	/* unit select reg */
- #define SIO_UNIT_ACT	0x30	/* unit enable */
- #define SIO_GPIO_UNIT	0x7	/* unit number of GPIO */
-@@ -69,6 +72,8 @@ static int port_offset[] = { 0, 4, 8, 10
- #define PORT_EVT_EN	2
- #define PORT_EVT_STST	3
- 
-+static struct platform_device *pdev;  /* use in dev_*() */
-+
- static inline void superio_outb(int addr, int val)
+-void nsc_gpio_dump(unsigned index, u32 config)
++void nsc_gpio_dump(struct nsc_gpio_ops *amp, unsigned index)
  {
- 	outb_p(addr, superio_cmd);
-@@ -148,9 +153,9 @@ static int pc8736x_gpio_get(unsigned min
- 	val >>= bit;
- 	val &= 1;
- 
--	printk(KERN_INFO NAME ": _gpio_get(%d from %x bit %d) == val %d\n",
--	       minor, pc8736x_gpio_base + port_offset[port] + PORT_IN, bit,
--	       val);
-+	dev_dbg(&pdev->dev, "_gpio_get(%d from %x bit %d) == val %d\n",
-+		minor, pc8736x_gpio_base + port_offset[port] + PORT_IN, bit,
-+		val);
- 
- 	return val;
- }
-@@ -164,22 +169,21 @@ static void pc8736x_gpio_set(unsigned mi
- 	bit = minor & 7;
- 	curval = inb_p(pc8736x_gpio_base + port_offset[port] + PORT_OUT);
- 
--	printk(KERN_INFO NAME
--	       ": addr:%x cur:%x bit-pos:%d cur-bit:%x + new:%d -> bit-new:%d\n",
--	       pc8736x_gpio_base + port_offset[port] + PORT_OUT,
--	       curval, bit, (curval & ~(1 << bit)), val, (val << bit));
-+	dev_dbg(&pdev->dev, "addr:%x cur:%x bit-pos:%d cur-bit:%x + new:%d -> bit-new:%d\n",
-+		pc8736x_gpio_base + port_offset[port] + PORT_OUT,
-+		curval, bit, (curval & ~(1 << bit)), val, (val << bit));
- 
- 	val = (curval & ~(1 << bit)) | (val << bit);
- 
--	printk(KERN_INFO NAME ": gpio_set(minor:%d port:%d bit:%d"
--	       ") %2x -> %2x\n", minor, port, bit, curval, val);
-+	dev_dbg(&pdev->dev, "gpio_set(minor:%d port:%d bit:%d)"
-+		" %2x -> %2x\n", minor, port, bit, curval, val);
- 
- 	outb_p(val, pc8736x_gpio_base + port_offset[port] + PORT_OUT);
- 
- 	curval = inb_p(pc8736x_gpio_base + port_offset[port] + PORT_OUT);
- 	val = inb_p(pc8736x_gpio_base + port_offset[port] + PORT_IN);
- 
--	printk(KERN_INFO NAME ": wrote %x, read: %x\n", curval, val);
-+	dev_dbg(&pdev->dev, "wrote %x, read: %x\n", curval, val);
+-	printk(KERN_INFO NAME ": GPIO-%02u: 0x%08lx %s %s %s %s %s %s %s\n",
+-	       index, (unsigned long)config,
+-	       (config & 1) ? "OE" : "TS",      /* output-enabled/tristate */
+-	       (config & 2) ? "PP" : "OD",      /* push pull / open drain */
+-	       (config & 4) ? "PUE" : "PUD",    /* pull up enabled/disabled */
+-	       (config & 8) ? "LOCKED" : "",    /* locked / unlocked */
+-	       (config & 16) ? "LEVEL" : "EDGE",/* level/edge input */
+-	       (config & 32) ? "HI" : "LO",     /* trigger on rise/fall edge */
+-               (config & 64) ? "DEBOUNCE" : "");        /* debounce */
++	/* retrieve current config w/o changing it */
++	u32 config = amp->gpio_config(index, ~0, 0);
++
++	/* user requested via 'v' command, so its INFO */
++	dev_info(amp->dev, "io%02u: 0x%04x %s %s %s %s %s %s %s\n",
++		 index, config,
++		 (config & 1) ? "OE" : "TS",      /* output-enabled/tristate */
++		 (config & 2) ? "PP" : "OD",      /* push pull / open drain */
++		 (config & 4) ? "PUE" : "PUD",    /* pull up enabled/disabled */
++		 (config & 8) ? "LOCKED" : "",    /* locked / unlocked */
++		 (config & 16) ? "LEVEL" : "EDGE",/* level/edge input */
++		 (config & 32) ? "HI" : "LO",     /* trigger on rise/fall edge */
++		 (config & 64) ? "DEBOUNCE" : "");        /* debounce */
  }
  
- static void pc8736x_gpio_set_high(unsigned index)
-@@ -194,7 +198,7 @@ static void pc8736x_gpio_set_low(unsigne
- 
- static int pc8736x_gpio_current(unsigned index)
+ ssize_t nsc_gpio_write(struct file *file, const char __user *data,
+@@ -37,6 +42,7 @@ ssize_t nsc_gpio_write(struct file *file
  {
--	printk(KERN_WARNING NAME ": pc8736x_gpio_current unimplemented\n");
-+	dev_warn(&pdev->dev, "pc8736x_gpio_current unimplemented\n");
- 	return 0;
+ 	unsigned m = iminor(file->f_dentry->d_inode);
+ 	struct nsc_gpio_ops *amp = file->private_data;
++	struct device *dev = amp->dev;
+ 	size_t i;
+ 	int err = 0;
+ 
+@@ -52,42 +58,41 @@ ssize_t nsc_gpio_write(struct file *file
+ 			amp->gpio_set(m, 1);
+ 			break;
+ 		case 'O':
+-			printk(KERN_INFO NAME ": GPIO%d output enabled\n", m);
++			dev_dbg(dev, "GPIO%d output enabled\n", m);
+ 			amp->gpio_config(m, ~1, 1);
+ 			break;
+ 		case 'o':
+-			printk(KERN_INFO NAME ": GPIO%d output disabled\n", m);
++			dev_dbg(dev, "GPIO%d output disabled\n", m);
+ 			amp->gpio_config(m, ~1, 0);
+ 			break;
+ 		case 'T':
+-			printk(KERN_INFO NAME ": GPIO%d output is push pull\n",
++			dev_dbg(dev, "GPIO%d output is push pull\n",
+ 			       m);
+ 			amp->gpio_config(m, ~2, 2);
+ 			break;
+ 		case 't':
+-			printk(KERN_INFO NAME ": GPIO%d output is open drain\n",
++			dev_dbg(dev, "GPIO%d output is open drain\n",
+ 			       m);
+ 			amp->gpio_config(m, ~2, 0);
+ 			break;
+ 		case 'P':
+-			printk(KERN_INFO NAME ": GPIO%d pull up enabled\n", m);
++			dev_dbg(dev, "GPIO%d pull up enabled\n", m);
+ 			amp->gpio_config(m, ~4, 4);
+ 			break;
+ 		case 'p':
+-			printk(KERN_INFO NAME ": GPIO%d pull up disabled\n", m);
++			dev_dbg(dev, "GPIO%d pull up disabled\n", m);
+ 			amp->gpio_config(m, ~4, 0);
+ 			break;
+ 		case 'v':
+ 			/* View Current pin settings */
+-			amp->gpio_dump(m);
++			amp->gpio_dump(amp, m);
+ 			break;
+ 		case '\n':
+ 			/* end of settings string, do nothing */
+ 			break;
+ 		default:
+-			printk(KERN_ERR NAME
+-			       ": GPIO-%2d bad setting: chr<0x%2x>\n", m,
+-			       (int)c);
++			dev_err(dev, "io%2d bad setting: chr<0x%2x>\n",
++				m, (int)c);
+ 			err++;
+ 		}
+ 	}
+diff -ruNp -X dontdiff -X exclude-diffs ax-14/drivers/char/pc8736x_gpio.c ax-15/drivers/char/pc8736x_gpio.c
+--- ax-14/drivers/char/pc8736x_gpio.c	2006-06-17 01:42:57.000000000 -0600
++++ ax-15/drivers/char/pc8736x_gpio.c	2006-06-17 01:45:49.000000000 -0600
+@@ -207,7 +207,7 @@ static void pc8736x_gpio_change(unsigned
+ 	pc8736x_gpio_set(index, !pc8736x_gpio_get(index));
  }
  
-@@ -222,7 +226,7 @@ static int pc8736x_gpio_open(struct inod
- 	unsigned m = iminor(inode);
- 	file->private_data = &pc8736x_access;
+-extern void nsc_gpio_dump(unsigned iminor);
++extern void nsc_gpio_dump(struct nsc_gpio_ops *amp, unsigned iminor);
  
--	printk(KERN_NOTICE NAME " open %d\n", m);
-+	dev_dbg(&pdev->dev, "open %d\n", m);
+ static struct nsc_gpio_ops pc8736x_access = {
+ 	.owner		= THIS_MODULE,
+@@ -260,6 +260,7 @@ static int __init pc8736x_gpio_init(void
+                 platform_device_put(pdev);
+ 		return -ENODEV;
+ 	}
++	pc8736x_access.dev = &pdev->dev;
  
- 	if (m > 63)
- 		return -EINVAL;
-@@ -230,20 +234,30 @@ static int pc8736x_gpio_open(struct inod
- }
+ 	/* Verify that chip and it's GPIO unit are both enabled.
+ 	   My BIOS does this, so I take minimum action here
+diff -ruNp -X dontdiff -X exclude-diffs ax-14/drivers/char/scx200_gpio.c ax-15/drivers/char/scx200_gpio.c
+--- ax-14/drivers/char/scx200_gpio.c	2006-06-17 01:36:56.000000000 -0600
++++ ax-15/drivers/char/scx200_gpio.c	2006-06-17 01:45:49.000000000 -0600
+@@ -35,14 +35,6 @@ static int major = 0;		/* default to dyn
+ module_param(major, int, 0);
+ MODULE_PARM_DESC(major, "Major device number");
  
- static struct file_operations pc8736x_gpio_fops = {
--	.owner = THIS_MODULE,
--	.open = pc8736x_gpio_open,
--	.write = nsc_gpio_write,
--	.read = nsc_gpio_read,
-+	.owner	= THIS_MODULE,
-+	.open	= pc8736x_gpio_open,
-+	.write	= nsc_gpio_write,
-+	.read	= nsc_gpio_read,
+-extern void nsc_gpio_dump(unsigned index);
+-
+-extern ssize_t nsc_gpio_write(struct file *file, const char __user *data,
+-			      size_t len, loff_t *ppos);
+-
+-extern ssize_t nsc_gpio_read(struct file *file, char __user *buf,
+-			     size_t len, loff_t *ppos);
+-
+ struct nsc_gpio_ops scx200_access = {
+ 	.owner		= THIS_MODULE,
+ 	.gpio_config	= scx200_gpio_configure,
+@@ -101,6 +93,9 @@ static int __init scx200_gpio_init(void)
+ 	if (rc)
+ 		goto undo_platform_device_add;
+ 
++	/* nsc_gpio uses dev_dbg(), so needs this */
++	scx200_access.dev = &pdev->dev;
++
+ 	if (major)
+ 		rc = register_chrdev_region(dev, num_devs, "scx200_gpio");
+ 	else {
+diff -ruNp -X dontdiff -X exclude-diffs ax-14/include/linux/nsc_gpio.h ax-15/include/linux/nsc_gpio.h
+--- ax-14/include/linux/nsc_gpio.h	2006-06-17 01:33:50.000000000 -0600
++++ ax-15/include/linux/nsc_gpio.h	2006-06-17 01:45:49.000000000 -0600
+@@ -22,13 +22,14 @@
+ struct nsc_gpio_ops {
+ 	struct module*	owner;
+ 	u32	(*gpio_config)	(unsigned iminor, u32 mask, u32 bits);
+-	void	(*gpio_dump)	(unsigned iminor);
++	void	(*gpio_dump)	(struct nsc_gpio_ops *amp, unsigned iminor);
+ 	int	(*gpio_get)	(unsigned iminor);
+ 	void	(*gpio_set)	(unsigned iminor, int state);
+ 	void	(*gpio_set_high)(unsigned iminor);
+ 	void	(*gpio_set_low)	(unsigned iminor);
+ 	void	(*gpio_change)	(unsigned iminor);
+ 	int	(*gpio_current)	(unsigned iminor);
++	struct device*	dev;	/* for dev_dbg() support, set in init  */
  };
  
- static int __init pc8736x_gpio_init(void)
- {
- 	int r, rc;
+ extern ssize_t nsc_gpio_write(struct file *file, const char __user *data,
+@@ -36,3 +37,6 @@ extern ssize_t nsc_gpio_write(struct fil
  
--	printk(KERN_DEBUG NAME " initializing\n");
-+        pdev = platform_device_alloc(DEVNAME, 0);
-+        if (!pdev)
-+                return -ENOMEM;
+ extern ssize_t nsc_gpio_read(struct file *file, char __user *buf,
+ 			     size_t len, loff_t *ppos);
 +
-+        rc = platform_device_add(pdev);
-+        if (rc) {
-+                platform_device_put(pdev);
-+                return -ENODEV;
-+        }
-+        dev_info(&pdev->dev, "NatSemi pc8736x GPIO Driver Initializing\n");
- 
- 	if (!pc8736x_superio_present()) {
--		printk(KERN_ERR NAME ": no device found\n");
-+		dev_err(&pdev->dev, "no device found\n");
-+                platform_device_put(pdev);
- 		return -ENODEV;
- 	}
- 
-@@ -252,31 +266,31 @@ static int __init pc8736x_gpio_init(void
- 	 */
- 	rc = superio_inb(SIO_CF1);
- 	if (!(rc & 0x01)) {
--		printk(KERN_ERR NAME ": device not enabled\n");
-+		dev_err(&pdev->dev, "device not enabled\n");
- 		return -ENODEV;
- 	}
- 	device_select(SIO_GPIO_UNIT);
- 	if (!superio_inb(SIO_UNIT_ACT)) {
--		printk(KERN_ERR NAME ": GPIO unit not enabled\n");
-+		dev_err(&pdev->dev, "GPIO unit not enabled\n");
- 		return -ENODEV;
- 	}
- 
--	/* read GPIO unit base address */
-+	/* read the GPIO unit base addr that chip responds to */
- 	pc8736x_gpio_base = (superio_inb(SIO_BASE_HADDR) << 8
- 			     | superio_inb(SIO_BASE_LADDR));
- 
--	if (request_region(pc8736x_gpio_base, 16, NAME))
--		printk(KERN_INFO NAME ": GPIO ioport %x reserved\n",
--		       pc8736x_gpio_base);
-+	if (request_region(pc8736x_gpio_base, 16, DEVNAME))
-+		dev_info(&pdev->dev, "GPIO ioport %x reserved\n",
-+			 pc8736x_gpio_base);
- 
--	r = register_chrdev(major, NAME, &pc8736x_gpio_fops);
-+	r = register_chrdev(major, DEVNAME, &pc8736x_gpio_fops);
- 	if (r < 0) {
--		printk(KERN_ERR NAME ": unable to register character device\n");
-+		dev_err(&pdev->dev, "unable to register character device\n");
- 		return r;
- 	}
- 	if (!major) {
- 		major = r;
--		printk(KERN_DEBUG NAME ": got dynamic major %d\n", major);
-+		dev_dbg(&pdev->dev, "got dynamic major %d\n", major);
- 	}
- 
- 	return 0;
-@@ -284,11 +298,11 @@ static int __init pc8736x_gpio_init(void
- 
- static void __exit pc8736x_gpio_cleanup(void)
- {
--	printk(KERN_DEBUG NAME " cleanup\n");
-+	dev_dbg(&pdev->dev, " cleanup\n");
- 
- 	release_region(pc8736x_gpio_base, 16);
- 
--	unregister_chrdev(major, NAME);
-+	unregister_chrdev(major, DEVNAME);
- }
- 
- module_init(pc8736x_gpio_init);
++extern void nsc_gpio_dump(struct nsc_gpio_ops *amp, unsigned index);
++
 
 

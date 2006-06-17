@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWFQW3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWFQWfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWFQW3k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 18:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWFQW3k
+	id S1751017AbWFQWfT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 18:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWFQWfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 18:29:40 -0400
-Received: from gate.crashing.org ([63.228.1.57]:64672 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751012AbWFQW3j (ORCPT
+	Sat, 17 Jun 2006 18:35:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48584 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751017AbWFQWfS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 18:29:39 -0400
-Subject: Re: [PATCH] powerpc: enable CPU_FTR_CI_LARGE_PAGE for cell
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200606171759.k5HHxkjG004420@hera.kernel.org>
-References: <200606171759.k5HHxkjG004420@hera.kernel.org>
-Content-Type: text/plain
-Date: Sun, 18 Jun 2006 08:29:10 +1000
-Message-Id: <1150583350.23600.117.camel@localhost.localdomain>
+	Sat, 17 Jun 2006 18:35:18 -0400
+Date: Sat, 17 Jun 2006 15:35:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Harry Edmon <harry@atmos.washington.edu>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Message-Id: <20060617153511.53a129a3.akpm@osdl.org>
+In-Reply-To: <4492D5D3.4000303@atmos.washington.edu>
+References: <4492D5D3.4000303@atmos.washington.edu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-17 at 17:59 +0000, Linux Kernel Mailing List wrote:
-> commit ce221982e0bef039d7047b0f667bb414efece5af
-> tree fa01b712522338d3f19ee5a6fedace7b7149c430
-> parent 19242b240793ac769f5b91b68a5e43dd39f0c530
-> author Arnd Bergmann <arnd.bergmann@de.ibm.com> Thu, 15 Jun 2006 15:09:16 +0200
-> committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 18 Jun 2006 00:56:24 -0700
+On Fri, 16 Jun 2006 09:01:23 -0700
+Harry Edmon <harry@atmos.washington.edu> wrote:
+
+> I have a system with a strange network performance degradation from 
+> 2.6.11.12 to most recent kernels including 2.6.16.20 and 2.6.17-rc6.   
+> The system is has Dual single core Xeons with hyperthreading on.   The 
+> application is the LDM system from UCAR/Unidata 
+> (http://www.unidata.ucar.edu/software/ldm).   This system requests 
+> weather data from a variety of systems using RPC calls over a reserved 
+> TCP port (388), puts them into a memory mapped queue file, and then 
+> sends the data out to a variety of downstream requesting systems, again 
+> using RPC calls.  When the load is heavy, the 2.6.16.20 kernel falls way 
+> behind with the data ingestion.  The 2.6.11.12 kernel does not.   I have 
+> tried an experiment with a 2.6.17-rc6 system where it just does the 
+> ingestion, and not the downstream distribution, and it is able to keep 
+> up.   I would really appreciate any pointers as to where the problem may 
+> be and how to diagnose it.  I have attached the config files from both 
+> kernels and the sysctl.conf file I am using.   I have also included the 
+> output from "netstat -s" on the 2.6.16.20 system during a time when it 
+> was having problems.
 > 
-> [PATCH] powerpc: enable CPU_FTR_CI_LARGE_PAGE for cell
-> 
-> Reflect the fact that the Cell Broadband Engine supports 64k
-> pages by adding the bit to the CPU features.
 
-Are you sure you want that in ? The SPU code upstream isn't ready for
-64k pages yet... I spotted at least:
+(added netdev)
 
-__spu_trap_data_seg() and get_kernel_slb()
+A quick grep indicates that it isn't using TCP_NODELAY - we've had problems
+with that in the past.
 
-Those need to encode the proper page size. I think you have patches for
-that already. I wouldn't enable 64k pages with the abvoe without these
-as you may end up with infinite hash fault loops due to the mismatch
-between page size encoding in the hash table an in the SLB.
-
-Ben.
-
-
+Perhaps a tcpdump of the net traffic will help to determine what's going on.

@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWFQAWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWFQAWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbWFQAWT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 20:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWFQAWT
+	id S1751572AbWFQAWG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 20:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWFQAWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 20:22:19 -0400
-Received: from ns2.suse.de ([195.135.220.15]:6301 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932492AbWFQAWS (ORCPT
+	Fri, 16 Jun 2006 20:22:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49558 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751568AbWFQAWE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 20:22:18 -0400
-Date: Fri, 16 Jun 2006 17:19:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Ram <vshrirama@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: procfs and sysfs changes?
-Message-ID: <20060617001908.GA30204@kroah.com>
-References: <8bf247760606160428s4070f543t329eee7fb44921c7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8bf247760606160428s4070f543t329eee7fb44921c7@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Fri, 16 Jun 2006 20:22:04 -0400
+Date: Fri, 16 Jun 2006 17:22:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Goo GGooo <googgooo@gmail.com>, linux-kernel@vger.kernel.org,
+       git@vger.kernel.org
+Subject: Re: 2.6.17-rc6-mm2
+In-Reply-To: <44931AFD.4070809@zytor.com>
+Message-ID: <Pine.LNX.4.64.0606161720590.5498@g5.osdl.org>
+References: <ef5305790606142040r5912ce58kf9f889c3d61b2cc0@mail.gmail.com> 
+ <ef5305790606151814i252c37c4mdd005f11f06ceac@mail.gmail.com> 
+ <Pine.LNX.4.64.0606151937360.5498@g5.osdl.org>
+ <ef5305790606152249n2702873fy7b708d9c47c78470@mail.gmail.com>
+ <Pine.LNX.4.64.0606152335130.5498@g5.osdl.org> <44931AFD.4070809@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 16, 2006 at 04:58:59PM +0530, Ram wrote:
-> Hi,
->  i am porting a driver from 2.4 to 2.6.
+
+
+On Fri, 16 Jun 2006, H. Peter Anvin wrote:
 > 
->   I went thru the porting guide available in lwn.net. some parts of
-> the document is difficult to follow for begineers.
-> 
-> 
->  am confused.
-> 
->  Could any one let me know what changes i need to make in a 2.4 driver
->  as far as /proc interface is concerned.
+> Perhaps we shouldn't rely on stderr, and instead have a backchannel as part of
+> the protocol itself.
 
-You should not put anything in /proc for a driver.
+Absolutely. I'm just irritated at myself for not going that way in the 
+first place, but when I originally wrote it, I had my eyes on other 
+issues, and the nice status updates got added later..
 
->  Should i make any new additions to support sysfs?.  am cofused
-> regarding the need
->  of sysfs when /proc is already there.
-
-What do you need to put in sysfs becides what is automatically created
-for you by the driver core?
-
-It really depends on what you are wanting to do.
-
->  Could anyone help me on this.
-> 
->  pointers will be very helpful.
-
-Take a look at the book, "Linux Device Drivers, third edition", online
-for free, for more details about sysfs and the driver core.
-
-hope this helps,
-
-greg k-h
+		Linus

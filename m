@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWFQHxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWFQIXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWFQHxe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 03:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWFQHxe
+	id S1750775AbWFQIXm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 04:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWFQIXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 03:53:34 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:9166 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932491AbWFQHxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 03:53:33 -0400
-Date: Sat, 17 Jun 2006 16:53:19 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ak@suse.de, ashok.raj@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT
- tasks.
-Message-Id: <20060617165319.458d913a.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <4493AF5C.4080600@yahoo.com.au>
-References: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
-	<p7364j1qx66.fsf@verdi.suse.de>
-	<20060616192654.50f4f6b7.kamezawa.hiroyu@jp.fujitsu.com>
-	<200606161236.50302.ak@suse.de>
-	<44937B16.3050204@yahoo.com.au>
-	<20060617141216.dba310af.kamezawa.hiroyu@jp.fujitsu.com>
-	<4493AF5C.4080600@yahoo.com.au>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Jun 2006 04:23:42 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49598 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750775AbWFQIXl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 04:23:41 -0400
+To: Brice Goglin <brice@myri.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>,
+       gregkh@suse.de, discuss@x86-64.org
+Subject: Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
+References: <4493709A.7050603@myri.com> <20060617062840.GD31645@kroah.com>
+	<4493AB39.7010409@myri.com>
+From: Andi Kleen <ak@suse.de>
+Date: 17 Jun 2006 10:23:38 +0200
+In-Reply-To: <4493AB39.7010409@myri.com>
+Message-ID: <p73ver0p4vp.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Jun 2006 17:29:32 +1000
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> > As SIGSTOP/KILL patch I posted, the apps shouldn't do unexpected
-> > work, I think.
+Brice Goglin <brice@myri.com> writes:
 > 
-> I don't quite understand you here... the kernel doesn't need to enforce
-> anything but a dumb fallback policy where userspace is otherwise capable
-> of handling it themselves.
+> Or we could enable MSI by default on PCI-E chipsets and disable by
+> default on non-PCI-E (ie we whitelist non-PCI-E only) ? PCI-E chipsets
+> seem to support MSI pretty well.
 
-If all things about apps are properly maintained/managed, it is reconfigured
-by the user/system admin *before* cpu hotremove.
+It looks like at least Serverworks HT1000 has trouble with MSI
+too, but it's PCI-Express. But I guess those can be black listed
 
-The case "the kernel have to move the task to other cpu which user doesn't want"
-means the application is already broken.
+Also I think Intel has supported it well for a long time so might
+want to white list all from VENDOR == Intel.
 
-So, I think "stop mis-configurated process" can be one way for handling  such apps.
+Blacklisting all old non PCI-E bridges non Intel seems reasonable
 
-For example)
-After exchanging broken cpu, the application can continue its work with the
-same # of cpus.
+It seems AMD 8132 can be made to work, but it needs a special
+quirk too and then it can be white listed.
 
--Kame
+The rules will be relatively complicated I guess, but should
+be doable.
 
+-Andi

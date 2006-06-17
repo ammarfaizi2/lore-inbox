@@ -1,166 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWFQGYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWFQGbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWFQGYH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 02:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWFQGYH
+	id S1750855AbWFQGbg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 02:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWFQGbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 02:24:07 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:53975 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750855AbWFQGYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 02:24:05 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.33-rc1
-Date: Sat, 17 Jun 2006 16:24:00 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <il57929b81lja4bb24sj77575vqibu19ev@4ax.com>
-References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <6bffcb0e0606161538w41036b4ajdb394ef5a36eebd2@mail.gmail.com> <q5f69219dre4fufq44jgo76msqe3btch1g@4ax.com> <20060617051356.GA23202@1wt.eu>
-In-Reply-To: <20060617051356.GA23202@1wt.eu>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Sat, 17 Jun 2006 02:31:36 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:28854 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750855AbWFQGbf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 02:31:35 -0400
+Date: Fri, 16 Jun 2006 23:28:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Brice Goglin <brice@myri.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
+Message-ID: <20060617062840.GD31645@kroah.com>
+References: <4493709A.7050603@myri.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <4493709A.7050603@myri.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Jun 2006 07:13:57 +0200, Willy Tarreau <w@1wt.eu> wrote:
+On Fri, Jun 16, 2006 at 11:01:46PM -0400, Brice Goglin wrote:
+> Several chipsets are known to not support MSI. Some support MSI but
+> disable it by default. Thus, several drivers implement their own way to
+> detect whether MSI works.
+> 
+> We introduce whitelisting of chipsets that are known to support MSI and
+> keep the existing backlisting to disable MSI for other chipsets. When it
+> is unknown whether the root chipset support MSI or not, we disable MSI
+> by default except if pci=forcemsi was passed.
+> 
+> Whitelisting is done by setting a new PCI_BUS_FLAGS_MSI in the chipset
+> subordinate bus. pci_enable_msi() thus starts by checking whether the
+> root chipset of the device has the MSI or NOMSI flag set.
 
->Hi Grant,
->
->On Sat, Jun 17, 2006 at 09:24:02AM +1000, Grant Coady wrote:
->> On Sat, 17 Jun 2006 00:38:10 +0200, "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->> 
->> >Can you revert 42cce987d63d3048595b8b00d74be786707d5e5d commit?
->> 
->> Only if you point me at the patch, that string seems not to be 
->> in the patch-2.4.33-rc1.gz file.
->
->First, revert this one :
->
->  http://kernel.org/git/?p=linux/kernel/git/marcelo/linux-2.4.git;a=commitdiff_plain;h=efc95599c0261dd7ab3a1d9071024ca140b4c644;hp=6601095e2de35f00325a33c8be6b548f81fe76d5
->
->--- a/fs/namei.c
->+++ b/fs/namei.c
->@@ -1479,19 +1479,20 @@ int vfs_unlink(struct inode *dir, struct
-> {
-> 	int error;
-> 
->-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
-> 	error = may_delete(dir, dentry, 0);
->-	if (!error) {
->-		error = -EPERM;
->-		if (dir->i_op && dir->i_op->unlink) {
->-			DQUOT_INIT(dir);
->-			if (d_mountpoint(dentry))
->-				error = -EBUSY;
->-			else {
->-				lock_kernel();
->-				error = dir->i_op->unlink(dir, dentry);
->-				unlock_kernel();
->-			}
->+	if (error)
->+		return error;
->+
->+	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
->+	error = -EPERM;
->+	if (dir->i_op && dir->i_op->unlink) {
->+		DQUOT_INIT(dir);
->+		if (d_mountpoint(dentry))
->+			error = -EBUSY;
->+		else {
->+			lock_kernel();
->+			error = dir->i_op->unlink(dir, dentry);
->+			unlock_kernel();
-> 		}
-> 	}
-> 	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
->
->
->It will put you back to the state where all your machines hanged at boot
->with -hf32.5, then revert this one :
->
->  http://kernel.org/git/?p=linux/kernel/git/marcelo/linux-2.4.git;a=commitdiff_plain;h=f41e0ce901260d3d1ae5bd8bae34266891b4a65d;hp=925c7ce0a2d9a676cd8e4a2baf411b23cf6762d6
->
->--- a/fs/namei.c
->+++ b/fs/namei.c
->@@ -1479,7 +1479,7 @@ int vfs_unlink(struct inode *dir, struct
-> {
-> 	int error;
-> 
->-	down(&dir->i_zombie);
->+	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
-> 	error = may_delete(dir, dentry, 0);
-> 	if (!error) {
-> 		error = -EPERM;
->@@ -1491,14 +1491,14 @@ int vfs_unlink(struct inode *dir, struct
-> 				lock_kernel();
-> 				error = dir->i_op->unlink(dir, dentry);
-> 				unlock_kernel();
->-				if (!error)
->-					d_delete(dentry);
-> 			}
-> 		}
-> 	}
->-	up(&dir->i_zombie);
->-	if (!error)
->+	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
->+	if (!error) {
->+		d_delete(dentry);
-> 		inode_dir_notify(dir, DN_DELETE);
->+	}
-> 	return error;
-> }
-> 
->@@ -1607,18 +1607,19 @@ int vfs_link(struct dentry *old_dentry, 
-> 	struct inode *inode;
-> 	int error;
-> 
->-	down(&dir->i_zombie);
-> 	error = -ENOENT;
-> 	inode = old_dentry->d_inode;
-> 	if (!inode)
->-		goto exit_lock;
->-
->-	error = may_create(dir, new_dentry);
->-	if (error)
->-		goto exit_lock;
->+		goto exit;
-> 
-> 	error = -EXDEV;
-> 	if (dir->i_dev != inode->i_dev)
->+		goto exit;
->+
->+	double_down(&dir->i_zombie, &old_dentry->d_inode->i_zombie);
->+
->+	error = may_create(dir, new_dentry);
->+	if (error)
-> 		goto exit_lock;
-> 
-> 	/*
->@@ -1636,9 +1637,10 @@ int vfs_link(struct dentry *old_dentry, 
-> 	unlock_kernel();
-> 
-> exit_lock:
->-	up(&dir->i_zombie);
->+	double_up(&dir->i_zombie, &old_dentry->d_inode->i_zombie);
-> 	if (!error)
-> 		inode_dir_notify(dir, DN_CREATE);
->+exit:
-> 	return error;
-> }
-> 
->
->And you will have something equivalent to -hf32.6 (you remember, I only
->reverted the fix in -hf32.6, and did not merge Marcelo's fix for the fix).
->Then we will have to decide whether we can fix it again or revert it
->completely. I would have liked to Cc: Vadim Egorov, but I cannot find his
->email.
->
+Whitelisting looks all well and good today, and maybe for the rest of
+the year.  But what about 3 years from now when everyone has shaken all
+of the MSI bugs out of their chipsets finally?  Do you really want to
+add a new quirk for _every_ new chipset that comes out?  I don't think
+that it is managable over the long run.
 
-Hi Willy, this worked.  
+I do like your checks to see if MSI is able to be enabled or not, and
+maybe we can just invert them to mark those chips that do not support
+MSI today?
 
-Grant.
+> I do not split this patch in multiple pieces since it is still small
+> and this is just a RFC. I will split it for the actual submission.
+
+Please do, you are doing a lot of different things in here.
+
+thanks,
+
+greg k-h

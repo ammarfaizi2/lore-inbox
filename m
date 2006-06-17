@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWFQFF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWFQFGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWFQFF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 01:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWFQFF0
+	id S1751334AbWFQFGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 01:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWFQFGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 01:05:26 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:25835 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S1750814AbWFQFFZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 01:05:25 -0400
-Date: Fri, 16 Jun 2006 23:05:24 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Brice Goglin <brice@myri.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
-Message-ID: <20060617050524.GX2387@parisc-linux.org>
-References: <4493709A.7050603@myri.com>
+	Sat, 17 Jun 2006 01:06:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16048 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750814AbWFQFGh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 01:06:37 -0400
+Date: Sat, 17 Jun 2006 00:46:25 -0400
+From: Dave Jones <davej@redhat.com>
+To: Ian Kent <raven@themaw.net>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: AGPGART: unable to get memory for graphics translation table.
+Message-ID: <20060617044625.GA8328@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ian Kent <raven@themaw.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0606171125390.2748@raven.themaw.net> <20060617034633.GC2893@redhat.com> <Pine.LNX.4.64.0606171201280.2812@raven.themaw.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4493709A.7050603@myri.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.64.0606171201280.2812@raven.themaw.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 16, 2006 at 11:01:46PM -0400, Brice Goglin wrote:
-> Several chipsets are known to not support MSI. Some support MSI but
-> disable it by default. Thus, several drivers implement their own way to
-> detect whether MSI works.
+On Sat, Jun 17, 2006 at 12:02:30PM +0800, Ian Kent wrote:
 
-Yes, and that needs to go away.  To be fair, we're in the early stages
-of introducing generic MSI support, so it's understandable that people
-have made expedient rather than architectural solutions to problems.
+ > >  > I've been having trouble with my Radeon card not working with X.
+ > >  > 
+ > >  > 01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AS [Radeon 
+ > >  > 9550]
+ > >  > 
+ > >  > The only thing I can find that may be a clue is:
+ > >  > 
+ > >  > Jun 17 11:12:48 raven kernel: agpgart: Detected AGP bridge 0
+ > >  > Jun 17 11:12:48 raven kernel: agpgart: unable to get memory for graphics 
+ > >  > translation table.
+ > >  > Jun 17 11:12:48 raven kernel: agpgart: agp_backend_initialize() failed.
+ > >  > Jun 17 11:12:48 raven kernel: agpgart-amd64: probe of 0000:00:00.0 failed 
+ > >  > with error -12
+ > >  
+ > > Is this with the free Xorg drivers, or the ATI fglx thing ?
+ > > I don't think I've ever seen agp_generic_create_gatt_table() fail before,
+ > > and that hasn't changed for a looong time.
+ > 
+ > xorg driver yep.
 
-> We introduce whitelisting of chipsets that are known to support MSI and
-> keep the existing backlisting to disable MSI for other chipsets. When it
-> is unknown whether the root chipset support MSI or not, we disable MSI
-> by default except if pci=forcemsi was passed.
+Bizarre, I have no ideas.
 
-I think that's a bad idea.  Blacklisting is the better idea in the long-term.
+full dmesg ? lspci ?
+This is running 64 bit mode or 32 ?
 
-> Bus flags inheritance is dropped since it has been reported to be broken.
+		Dave
 
-I must have missed that report.  Please elucidate.
 
+-- 
+http://www.codemonkey.org.uk

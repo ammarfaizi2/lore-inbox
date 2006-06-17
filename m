@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbWFQDfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWFQDha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751599AbWFQDfd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 23:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbWFQDfd
+	id S1751251AbWFQDha (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 23:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751587AbWFQDha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 23:35:33 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:55184 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751598AbWFQDfc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 23:35:32 -0400
-Date: Sat, 17 Jun 2006 05:35:31 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [RFC][PATCH 00/20] Mount writer count and read-only bind	mounts (v2)
-Message-ID: <20060617033531.GA25823@MAIL.13thfloor.at>
-Mail-Followup-To: Grzegorz Kulewski <kangur@polcom.net>,
-	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk
-References: <20060616231213.D4C5D6AF@localhost.localdomain> <Pine.LNX.4.63.0606170125110.14464@alpha.polcom.net> <1150501318.7926.22.camel@localhost.localdomain> <Pine.LNX.4.63.0606170202020.14464@alpha.polcom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0606170202020.14464@alpha.polcom.net>
-User-Agent: Mutt/1.5.6i
+	Fri, 16 Jun 2006 23:37:30 -0400
+Received: from mms1.broadcom.com ([216.31.210.17]:35080 "EHLO
+	mms1.broadcom.com") by vger.kernel.org with ESMTP id S1751586AbWFQDh3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 23:37:29 -0400
+X-Server-Uuid: F962EFE0-448C-40EE-8100-87DF498ED0EA
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: Re: tg3 timeouts with 2.6.17-rc6
+Date: Fri, 16 Jun 2006 20:37:17 -0700
+Message-ID: <1551EAE59135BE47B544934E30FC4FC041BD1E@NT-IRVA-0751.brcm.ad.broadcom.com>
+Thread-Topic: tg3 timeouts with 2.6.17-rc6
+Thread-Index: AcaRuPL9yhruNCIyT7mNLGFD6QPqewABfL2Q
+From: "Michael Chan" <mchan@broadcom.com>
+To: "David Miller" <davem@davemloft.net>
+cc: jk@blackdown.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006061610; IFV=2.0.6,4.0-7;
+ RPD=4.00.0004;
+ RPDID=303030312E30413039303230382E34343933373736372E303030372D412D;
+ ENG=IBF; TS=20060617033722; CAT=NONE; CON=NONE;
+X-MMS-Spam-Filter-ID: A2006061610_4.00.0004_2.0.6,4.0-7
+X-WSS-ID: 688DA7650HW32705029-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 17, 2006 at 02:10:17AM +0200, Grzegorz Kulewski wrote:
-> On Fri, 16 Jun 2006, Dave Hansen wrote:
-> >On Sat, 2006-06-17 at 01:29 +0200, Grzegorz Kulewski wrote:
-> >>Isn't this some kind of security risk (at least in my planned use)? I mean
-> >>- for a small fraction of second somebody seeing /dest can write
-> >>/source... No?
-> >
-> >I assume you're talking about this kind of situation:
-> >
-> >mount --bind /local/writable/dir /chroot/untrusted/area/
-> >mount --o remount,ro /chroot/untrusted/area/
+David Miller wrote:
+
+> From: "Michael Chan" <mchan@broadcom.com>
+> Date: Fri, 16 Jun 2006 18:27:32 -0700
 > 
-> Well, actually about some kind of VPS: openvz or something like that.
-> But yes, this is the same kind of scenario.
-
-yes, Linux-VServer provides this kind of ro --bind mounts
-without the race, as the the flags are passed on the actual
-mount
-
-> >This has no r/w window in the chroot area:
-> >
-> >mount --bind /local/writable/dir /tmp/area/
-> >mount --o remount,ro /tmp/area/
-> >mount --bind /tmp/area/ /chroot/untrusted/area/
-> >umount /tmp/area/
+> > In the meantime, I wonder if we should disable TSO by default on the
+> > 5780 chip for 2.6.17.
 > 
-> Well, it looks a little scarry and complicated at first. And probably
-> requires you to know that semantic of --bind lets you do the last
-> unmount. But if you are saying that this makes kernel smaller, faster
-> and less buggy then you are probably very right.
-
-well, it makes the kernel more consistant in it's behaviour,
-because especially for --rbind mounts, the logic what is
-changed where and when is not as well defined as one would
-wish ...
-
-btw, you could get the same result by simply doing:
-
-mount --bind /local/writable/dir /tmp/area/
-mount --o remount,ro /tmp/area/
-mount --move /tmp/area/ /chroot/untrusted/area/
-
-without the duplicate mount and the unmount
-
-HTH,
-Herbert
-
-> Thank you for your explanation,
+> Sounds reasonable.  Would we disable it for all chips that set
+> TG3_FLG2_5780_CLASS or a specific variant?
 > 
-> Grzegorz Kulewski
+Yes, let's disable it for all TG3_FLG2_5780_CLASS chips for now
+until we figure out what's going on.
+

@@ -1,32 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWFQUwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWFQVGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbWFQUwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 16:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWFQUwI
+	id S1750905AbWFQVGz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 17:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWFQVGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 16:52:08 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:46802 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1750889AbWFQUwI (ORCPT
+	Sat, 17 Jun 2006 17:06:55 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:24471 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750904AbWFQVGy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 16:52:08 -0400
-Date: Sat, 17 Jun 2006 22:52:05 +0200 (MEST)
-Message-Id: <200606172052.k5HKq5IX002958@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [patch 2.4.33-rc1] updated patch kit for gcc-4.1.1
+	Sat, 17 Jun 2006 17:06:54 -0400
+Date: Sat, 17 Jun 2006 23:06:50 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Greg KH <greg@kroah.com>
+Cc: Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org,
+       Ram Pai <linuxram@us.ibm.com>
+Subject: Re: GPL-only symbols issue
+Message-ID: <20060617210650.GA9243@mars.ravnborg.org>
+References: <445F0B6F.76E4.0078.0@novell.com> <20060509042500.GA4226@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060509042500.GA4226@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An updated patch kit allowing gcc-4.1.1 to compile the 2.4.33-rc1 kernel is now available:
-<http://user.it.uu.se/~mikpe/linux/patches/2.4/patch-gcc4-fixes-v15-2.4.33-rc1>
+On Mon, May 08, 2006 at 09:25:00PM -0700, Greg KH wrote:
+> On Mon, May 08, 2006 at 09:12:15AM +0200, Jan Beulich wrote:
+> > Sam,
+> > 
+> > would it seem reasonable a request to detect imports of GPL-only
+> > symbols by non-GPL modules also at build time rather than only at run
+> > time, and at least warn about such?
+> 
+> Ram has some tools that might catch this kind of thing.  He's posted his
+> scripts to lkml in the past, try looking in the archives.
 
-Changes since the previously announced version of the patch kit
-<http://marc.theaimsgroup.com/?l=linux-kernel&m=114149697417107&w=2>:
+Responding to an old post here.
 
-- Merged the fixes for gcc-4.1 into the baseline patch kit for gcc-4.0.
-- I previously reported that gcc-4.1.0 built ppc32 kernels that oopsed
-  in shrink_dcache_parent(). gcc-4.1.1 fixed this issue.
-- The architectures known to work in kernel 2.4.33-rc1 + this patch kit
-  with gcc-4.1.1 and gcc-4.0.3 are i386, x86-64, and ppc32.
+I have only recently integrated Ram's patches except for the kbuild
+integration bits. On top of this Andreas' license compatibility thing so
+in effect:
+building a GPL module (or compatible) => no change
+building a GPL-incompatible module =>
+                           warn if module uses EXPORT_SYMBOL_GPL_FUTURE
+                           error out if module uses EXPORT_SYMBOL_GPL
 
-/Mikael
+Patches are in kbuild.git.
+The script to show module export statistics is not yet merged, I've
+asked Ram to fix a few things first.
+
+	Sam

@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWFQVGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWFQVWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbWFQVGz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 17:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWFQVGz
+	id S1750925AbWFQVWO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 17:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWFQVWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 17:06:55 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:24471 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750904AbWFQVGy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 17:06:54 -0400
-Date: Sat, 17 Jun 2006 23:06:50 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Greg KH <greg@kroah.com>
-Cc: Jan Beulich <jbeulich@novell.com>, linux-kernel@vger.kernel.org,
-       Ram Pai <linuxram@us.ibm.com>
-Subject: Re: GPL-only symbols issue
-Message-ID: <20060617210650.GA9243@mars.ravnborg.org>
-References: <445F0B6F.76E4.0078.0@novell.com> <20060509042500.GA4226@kroah.com>
+	Sat, 17 Jun 2006 17:22:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:7916 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750921AbWFQVWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 17:22:13 -0400
+Subject: Re: header cleanup and install
+From: David Woodhouse <dwmw2@infradead.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200606172135.22944.s0348365@sms.ed.ac.uk>
+References: <20060604135011.decdc7c9.akpm@osdl.org>
+	 <20060605110928.35110000.akpm@osdl.org>
+	 <1149535171.30024.157.camel@pmac.infradead.org>
+	 <200606172135.22944.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Sat, 17 Jun 2006 22:20:57 +0100
+Message-Id: <1150579258.2584.22.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060509042500.GA4226@kroah.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 08, 2006 at 09:25:00PM -0700, Greg KH wrote:
-> On Mon, May 08, 2006 at 09:12:15AM +0200, Jan Beulich wrote:
-> > Sam,
-> > 
-> > would it seem reasonable a request to detect imports of GPL-only
-> > symbols by non-GPL modules also at build time rather than only at run
-> > time, and at least warn about such?
+On Sat, 2006-06-17 at 21:35 +0100, Alistair John Strachan wrote:
+> > > David, we now have a mixture of "color" and "colour" in the same piece of
+> > > code.  That's just dumb.
+> >
+> > I blame them damn Frenchies. Fixed in the git tree.
 > 
-> Ram has some tools that might catch this kind of thing.  He's posted his
-> scripts to lkml in the past, try looking in the archives.
+> To colour, I assume. ;-) 
 
-Responding to an old post here.
+No, to 'color' since rb_insert_color() was the public API and hasn't
+changed, while 'rb_parent_colour' is a new, internal field (now renamed
+to 'rb_parent_color').
 
-I have only recently integrated Ram's patches except for the kbuild
-integration bits. On top of this Andreas' license compatibility thing so
-in effect:
-building a GPL module (or compatible) => no change
-building a GPL-incompatible module =>
-                           warn if module uses EXPORT_SYMBOL_GPL_FUTURE
-                           error out if module uses EXPORT_SYMBOL_GPL
+-- 
+dwmw2
 
-Patches are in kbuild.git.
-The script to show module export statistics is not yet merged, I've
-asked Ram to fix a few things first.
-
-	Sam

@@ -1,53 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWFQVjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWFQVpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWFQVjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 17:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWFQVjx
+	id S1750963AbWFQVpR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 17:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWFQVpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 17:39:53 -0400
-Received: from 1wt.eu ([62.212.114.60]:48648 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1750955AbWFQVjx (ORCPT
+	Sat, 17 Jun 2006 17:45:16 -0400
+Received: from 1wt.eu ([62.212.114.60]:49416 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750963AbWFQVpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 17:39:53 -0400
-Date: Sat, 17 Jun 2006 23:38:24 +0200
+	Sat, 17 Jun 2006 17:45:15 -0400
+Date: Sat, 17 Jun 2006 23:45:07 +0200
 From: Willy Tarreau <w@1wt.eu>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.4.33-rc1] updated patch kit for gcc-4.1.1
-Message-ID: <20060617213824.GE13255@w.ods.org>
-References: <200606172052.k5HKq5IX002958@harpo.it.uu.se>
+To: marcelo@kvack.org
+Cc: jolivares@gigablast.com, linux-kernel@vger.kernel.org
+Subject: [PATCH-2.4] allow core files bigger than 2GB
+Message-ID: <20060617214507.GA1213@1wt.eu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606172052.k5HKq5IX002958@harpo.it.uu.se>
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mikael,
+Marcelo,
 
-On Sat, Jun 17, 2006 at 10:52:05PM +0200, Mikael Pettersson wrote:
-> An updated patch kit allowing gcc-4.1.1 to compile the 2.4.33-rc1 kernel is now available:
-> <http://user.it.uu.se/~mikpe/linux/patches/2.4/patch-gcc4-fixes-v15-2.4.33-rc1>
-> 
-> Changes since the previously announced version of the patch kit
-> <http://marc.theaimsgroup.com/?l=linux-kernel&m=114149697417107&w=2>:
-> 
-> - Merged the fixes for gcc-4.1 into the baseline patch kit for gcc-4.0.
-> - I previously reported that gcc-4.1.0 built ppc32 kernels that oopsed
->   in shrink_dcache_parent(). gcc-4.1.1 fixed this issue.
-> - The architectures known to work in kernel 2.4.33-rc1 + this patch kit
->   with gcc-4.1.1 and gcc-4.0.3 are i386, x86-64, and ppc32.
+I think I have not sent you this one. It looks valid to me.
+I can queue it in -upstream if you prefer to pull everything
+at once.
 
-Thanks for still maintaining this patchset. I sometimes have coworkers
-complain that they cannot build 2.4 anymore because they have let their
-distro automatically upgarde gcc to 4.x. I will be able to point your
-site to them. I was also thinking about updating my page on "linux
-kernel useful patches" with this last update, but noticed you still have
-a "patch-more-gcc4-fixes" file. Is it absolutely needed or just a cleanup ?
-
-> /Mikael
-
-Regards,
+Cheers,
 Willy
+--
+
+>From nobody Mon Sep 17 00:00:00 2001
+From: Javier Olivares <jolivares@gigablast.com>
+Date: Wed, 31 May 2006 00:32:59 +0200
+Subject: [PATCH] bug fix for 2GB core limit in 2.4
+
+We were having problems when running programs that used over 2GB of ram
+not being able to generate core files over 2GB, these are some very
+simple changes that fixed the problem.
+
+The changes have been running on many Debian systems for a couple of
+months.  Valid core files just over 3GB have been created without any
+problem.
+
+---
+
+ fs/binfmt_elf.c |    2 +-
+ fs/exec.c       |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+04d0e7780b49eeef578ceec8901c71ac356df504
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index b0ad905..6c2f357 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1026,7 +1026,7 @@ static int dump_write(struct file *file,
+ 	return file->f_op->write(file, addr, nr, &file->f_pos) == nr;
+ }
+ 
+-static int dump_seek(struct file *file, off_t off)
++static int dump_seek(struct file *file, loff_t off)
+ {
+ 	if (file->f_op->llseek) {
+ 		if (file->f_op->llseek(file, off, 0) != off)
+diff --git a/fs/exec.c b/fs/exec.c
+index f196e7e..aec92be 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1148,7 +1148,8 @@ int do_coredump(long signr, struct pt_re
+ 		goto fail;
+ 
+  	format_corename(corename, core_pattern, signr);
+-	file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW, 0600);
++	file = filp_open(corename,
++	                 O_CREAT | 2 | O_NOFOLLOW | O_LARGEFILE, 0600);
+ 	if (IS_ERR(file))
+ 		goto fail;
+ 	inode = file->f_dentry->d_inode;
+-- 
+1.3.3
+
 

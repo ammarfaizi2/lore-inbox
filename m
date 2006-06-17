@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751596AbWFQDcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbWFQDfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751596AbWFQDcq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jun 2006 23:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751594AbWFQDcq
+	id S1751599AbWFQDfd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jun 2006 23:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbWFQDfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jun 2006 23:32:46 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:23812 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1751236AbWFQDcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jun 2006 23:32:46 -0400
-Date: Sat, 17 Jun 2006 11:32:24 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: AGPGART: unable to get memory for graphics translation table.
-Message-ID: <Pine.LNX.4.64.0606171125390.2748@raven.themaw.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0,
-	required 5, autolearn=not spam)
-X-themaw-MailScanner-From: raven@themaw.net
+	Fri, 16 Jun 2006 23:35:33 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:55184 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751598AbWFQDfc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jun 2006 23:35:32 -0400
+Date: Sat, 17 Jun 2006 05:35:31 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: [RFC][PATCH 00/20] Mount writer count and read-only bind	mounts (v2)
+Message-ID: <20060617033531.GA25823@MAIL.13thfloor.at>
+Mail-Followup-To: Grzegorz Kulewski <kangur@polcom.net>,
+	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk
+References: <20060616231213.D4C5D6AF@localhost.localdomain> <Pine.LNX.4.63.0606170125110.14464@alpha.polcom.net> <1150501318.7926.22.camel@localhost.localdomain> <Pine.LNX.4.63.0606170202020.14464@alpha.polcom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0606170202020.14464@alpha.polcom.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 17, 2006 at 02:10:17AM +0200, Grzegorz Kulewski wrote:
+> On Fri, 16 Jun 2006, Dave Hansen wrote:
+> >On Sat, 2006-06-17 at 01:29 +0200, Grzegorz Kulewski wrote:
+> >>Isn't this some kind of security risk (at least in my planned use)? I mean
+> >>- for a small fraction of second somebody seeing /dest can write
+> >>/source... No?
+> >
+> >I assume you're talking about this kind of situation:
+> >
+> >mount --bind /local/writable/dir /chroot/untrusted/area/
+> >mount --o remount,ro /chroot/untrusted/area/
+> 
+> Well, actually about some kind of VPS: openvz or something like that.
+> But yes, this is the same kind of scenario.
 
-Hi all,
+yes, Linux-VServer provides this kind of ro --bind mounts
+without the race, as the the flags are passed on the actual
+mount
 
-I've been having trouble with my Radeon card not working with X.
+> >This has no r/w window in the chroot area:
+> >
+> >mount --bind /local/writable/dir /tmp/area/
+> >mount --o remount,ro /tmp/area/
+> >mount --bind /tmp/area/ /chroot/untrusted/area/
+> >umount /tmp/area/
+> 
+> Well, it looks a little scarry and complicated at first. And probably
+> requires you to know that semantic of --bind lets you do the last
+> unmount. But if you are saying that this makes kernel smaller, faster
+> and less buggy then you are probably very right.
 
-01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AS [Radeon 
-9550]
+well, it makes the kernel more consistant in it's behaviour,
+because especially for --rbind mounts, the logic what is
+changed where and when is not as well defined as one would
+wish ...
 
-The only thing I can find that may be a clue is:
+btw, you could get the same result by simply doing:
 
-Jun 17 11:12:48 raven kernel: agpgart: Detected AGP bridge 0
-Jun 17 11:12:48 raven kernel: agpgart: unable to get memory for graphics 
-translation table.
-Jun 17 11:12:48 raven kernel: agpgart: agp_backend_initialize() failed.
-Jun 17 11:12:48 raven kernel: agpgart-amd64: probe of 0000:00:00.0 failed 
-with error -12
+mount --bind /local/writable/dir /tmp/area/
+mount --o remount,ro /tmp/area/
+mount --move /tmp/area/ /chroot/untrusted/area/
 
-in the messages file.
+without the duplicate mount and the unmount
 
-I've seen this on a number of 2.6.17-rc kernels and just now on FC6 kernel 
-2.6.16-1..2289_FC6 which, from the changelog is quite recent:
+HTH,
+Herbert
 
-* Thu Jun 15 2006 Dave Jones <davej@redhat.com>
-- 2.6.17-rc6-git7
-
-Anyone have any suggestions or ideas on this?
-
-Ian
+> Thank you for your explanation,
+> 
+> Grzegorz Kulewski

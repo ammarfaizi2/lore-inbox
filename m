@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWFQECx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWFQEof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbWFQECx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 00:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWFQECx
+	id S1751317AbWFQEof (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 00:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWFQEof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 00:02:53 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:24580 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1751330AbWFQECw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 00:02:52 -0400
-Date: Sat, 17 Jun 2006 12:02:30 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Dave Jones <davej@redhat.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: AGPGART: unable to get memory for graphics translation table.
-In-Reply-To: <20060617034633.GC2893@redhat.com>
-Message-ID: <Pine.LNX.4.64.0606171201280.2812@raven.themaw.net>
-References: <Pine.LNX.4.64.0606171125390.2748@raven.themaw.net>
- <20060617034633.GC2893@redhat.com>
+	Sat, 17 Jun 2006 00:44:35 -0400
+Received: from wx-out-0102.google.com ([66.249.82.200]:37185 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750814AbWFQEoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 00:44:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=eoS3GUvEkz3D/R8fzVRXVijLAEFe2/jmDXMzgnJ8+i3bBbDoGn7RS28orQ0jYq6gxSTTRGbFA99sH68D4+mjsW0+pZGnfjm8E8munq2NoWKAc/YDj0sdPP/+QWsotSmvYy5bH9djEpHQqi/lgNn3VJyP88IZ9noO6aYgXTTsEME=
+Message-ID: <84144f020606162144tbd14081tdaae00a8e4af9c7f@mail.gmail.com>
+Date: Sat, 17 Jun 2006 07:44:34 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Christoph Lameter" <clameter@sgi.com>
+Subject: Re: [RFC/PATCH 2/2] slab: consolidate allocation paths
+Cc: christoph@lameter.com, manfred@colorfullife.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606161304400.16488@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-2.599,
-	required 5, autolearn=not spam, BAYES_00 -2.60)
-X-themaw-MailScanner-From: raven@themaw.net
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1150355565.4633.8.camel@ubuntu>
+	 <Pine.LNX.4.64.0606161304400.16488@schroedinger.engr.sgi.com>
+X-Google-Sender-Auth: 0d6382825c8ee828
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jun 2006, Dave Jones wrote:
+Hi,
 
-> On Sat, Jun 17, 2006 at 11:32:24AM +0800, Ian Kent wrote:
->  > 
->  > Hi all,
->  > 
->  > I've been having trouble with my Radeon card not working with X.
->  > 
->  > 01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AS [Radeon 
->  > 9550]
->  > 
->  > The only thing I can find that may be a clue is:
->  > 
->  > Jun 17 11:12:48 raven kernel: agpgart: Detected AGP bridge 0
->  > Jun 17 11:12:48 raven kernel: agpgart: unable to get memory for graphics 
->  > translation table.
->  > Jun 17 11:12:48 raven kernel: agpgart: agp_backend_initialize() failed.
->  > Jun 17 11:12:48 raven kernel: agpgart-amd64: probe of 0000:00:00.0 failed 
->  > with error -12
->  
-> Is this with the free Xorg drivers, or the ATI fglx thing ?
-> I don't think I've ever seen agp_generic_create_gatt_table() fail before,
-> and that hasn't changed for a looong time.
+On Thu, 15 Jun 2006, Pekka Enberg wrote:
+> > This patch consolidates the UMA and NUMA memory allocation paths in the
+> > slab allocator. This is accomplished by making the UMA-path look like
+> > we are on NUMA but always allocating from the current node.
 
-xorg driver yep.
+On 6/16/06, Christoph Lameter <clameter@sgi.com> wrote:
+> Which kernel does this apply to? Cannot find this in upstream nor in
+> Andrews tree.
 
-Works fine on FC5 kernels ??
+Applies on top of git head and 2.6.17-rc6 from www.kernel.org here.
+Did you apply both patches?
 
-Ian
-
+                                                       Pekka

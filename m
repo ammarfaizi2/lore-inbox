@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWGQUvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWGQUvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWGQUvL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 16:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWGQUvL
+	id S1751189AbWGQUvl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 16:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWGQUvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 16:51:11 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:4841 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S1751188AbWGQUvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 16:51:11 -0400
-Date: Mon, 17 Jul 2006 14:51:09 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, marcelo@kvack.org,
-       davem@davemloft.net, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Willy Tarreau <w@1wt.eu>,
-       Jeff Garzik <jeff@garzik.org>, Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 12/45] 2 oopses in ethtool
-Message-ID: <20060717205109.GB8479@parisc-linux.org>
-References: <20060717160652.408007000@blue.kroah.org> <20060717162645.GM4829@kroah.com>
+	Mon, 17 Jul 2006 16:51:41 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:55725 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751189AbWGQUvk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 16:51:40 -0400
+Message-ID: <6059251.1150584698920.NGMail.u146716317@h682110874>
+Date: Sat, 17 Jun 2006 15:51:38 -0700 (PDT)
+From: singles <xxxxxx@latinheart.de>
+Reply-To: singles <aca100@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: RE:: AW: hi singles   jajajajajajajaj :-)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060717162645.GM4829@kroah.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Newsletter Genius, v1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 17, 2006 at 09:26:45AM -0700, Greg KH wrote:
-> The function pointers which were checked were for their get_* counterparts.
-> Typically a copy-paste typo.
++++ SINGLES +++ SINGLES +++ SINGLES +++ SINGLES
 
-Yes, I'm sure that was a copy and pasto when I originally did it ;-)
-Thanks, I endorse this patch.
+- Don't loose time! Test it 100% for FREE
+
+- Win by flirting a travel to Acapulco/ Mexico for 2 persons
+
+http://engel.latin-heart.com 
+
++++ SINGLES +++ SINGLES +++ SINGLES +++ SINGLES
+
+- 100% Gratis Pruebale
+
+- Gana un viaje para 2 personas a Acapulco/México con flirtear
+
+http://engel.latin-heart.com 
+
++++ SINGLES +++ SINGLES +++ SINGLES +++ SINGLES
+
+-  Teste 100% GRATIS
+
+- Gewinne beim Flirten eine Reise für 2 Personen nach Acapulco/Mexiko
+
+http://engel.latin-heart.com
+
+
+Please excuse if your address has appeared in our distribution list.
+Send us a mail and we will delete your address soon.
+
+Disculpa por favor si tu correo email ha aparecido en nuestro
+servicio del repartidor. Mandanos un email y vamos a eliminar
+tu dirección enseguida.
+
+Falls deine Adresse in unseren Email- Verteiler gekommen ist,
+entschuldige bitte und sende uns eine Nachricht. Dann wird
+deine Adresse sofort gelöscht.
+...

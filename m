@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWFQQ1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWFQQeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWFQQ1p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 12:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWFQQ1p
+	id S1750703AbWFQQeD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 12:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWFQQeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 12:27:45 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:7558 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750706AbWFQQ1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 12:27:44 -0400
-Date: Sat, 17 Jun 2006 09:27:29 -0700 (PDT)
+	Sat, 17 Jun 2006 12:34:03 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44004 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750703AbWFQQeC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 12:34:02 -0400
+Date: Sat, 17 Jun 2006 09:33:52 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: christoph@lameter.com, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 2/2] slab: consolidate allocation paths
-In-Reply-To: <84144f020606162144tbd14081tdaae00a8e4af9c7f@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0606170927140.18882@schroedinger.engr.sgi.com>
-References: <1150355565.4633.8.camel@ubuntu> 
- <Pine.LNX.4.64.0606161304400.16488@schroedinger.engr.sgi.com>
- <84144f020606162144tbd14081tdaae00a8e4af9c7f@mail.gmail.com>
+cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 1/2] slab: cpucache allocation cleanup
+In-Reply-To: <1150355564.4633.6.camel@ubuntu>
+Message-ID: <Pine.LNX.4.64.0606170929490.18882@schroedinger.engr.sgi.com>
+References: <1150355564.4633.6.camel@ubuntu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Jun 2006, Pekka Enberg wrote:
+On Thu, 15 Jun 2006, Pekka Enberg wrote:
 
-> On 6/16/06, Christoph Lameter <clameter@sgi.com> wrote:
-> > Which kernel does this apply to? Cannot find this in upstream nor in
-> > Andrews tree.
-> 
-> Applies on top of git head and 2.6.17-rc6 from www.kernel.org here.
-> Did you apply both patches?
+> -static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+> +static __always_inline void *__cache_alloc_cpucache(struct kmem_cache *cachep,
 
-Got them in wrong order it seems.
+The new name is confusing because __cache_alloc_cpucache suggests that we 
+are only allocating from the cpucache and that this be something special. 
+However, we always allocate from the cpucache for local allocations and we 
+refill the cpucache in the __cpucache function from the shared cache and 
+the per node lists. So we do much more there.
+
+Maybe call this __cache_alloc_local ?
 

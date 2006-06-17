@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWFQEof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWFQFF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWFQEof (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 00:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWFQEof
+	id S1751315AbWFQFF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 01:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWFQFF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 00:44:35 -0400
-Received: from wx-out-0102.google.com ([66.249.82.200]:37185 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750814AbWFQEoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 00:44:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=eoS3GUvEkz3D/R8fzVRXVijLAEFe2/jmDXMzgnJ8+i3bBbDoGn7RS28orQ0jYq6gxSTTRGbFA99sH68D4+mjsW0+pZGnfjm8E8munq2NoWKAc/YDj0sdPP/+QWsotSmvYy5bH9djEpHQqi/lgNn3VJyP88IZ9noO6aYgXTTsEME=
-Message-ID: <84144f020606162144tbd14081tdaae00a8e4af9c7f@mail.gmail.com>
-Date: Sat, 17 Jun 2006 07:44:34 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: [RFC/PATCH 2/2] slab: consolidate allocation paths
-Cc: christoph@lameter.com, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0606161304400.16488@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Jun 2006 01:05:26 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:25835 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1750814AbWFQFFZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 01:05:25 -0400
+Date: Fri, 16 Jun 2006 23:05:24 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Brice Goglin <brice@myri.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
+Message-ID: <20060617050524.GX2387@parisc-linux.org>
+References: <4493709A.7050603@myri.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1150355565.4633.8.camel@ubuntu>
-	 <Pine.LNX.4.64.0606161304400.16488@schroedinger.engr.sgi.com>
-X-Google-Sender-Auth: 0d6382825c8ee828
+In-Reply-To: <4493709A.7050603@myri.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jun 16, 2006 at 11:01:46PM -0400, Brice Goglin wrote:
+> Several chipsets are known to not support MSI. Some support MSI but
+> disable it by default. Thus, several drivers implement their own way to
+> detect whether MSI works.
 
-On Thu, 15 Jun 2006, Pekka Enberg wrote:
-> > This patch consolidates the UMA and NUMA memory allocation paths in the
-> > slab allocator. This is accomplished by making the UMA-path look like
-> > we are on NUMA but always allocating from the current node.
+Yes, and that needs to go away.  To be fair, we're in the early stages
+of introducing generic MSI support, so it's understandable that people
+have made expedient rather than architectural solutions to problems.
 
-On 6/16/06, Christoph Lameter <clameter@sgi.com> wrote:
-> Which kernel does this apply to? Cannot find this in upstream nor in
-> Andrews tree.
+> We introduce whitelisting of chipsets that are known to support MSI and
+> keep the existing backlisting to disable MSI for other chipsets. When it
+> is unknown whether the root chipset support MSI or not, we disable MSI
+> by default except if pci=forcemsi was passed.
 
-Applies on top of git head and 2.6.17-rc6 from www.kernel.org here.
-Did you apply both patches?
+I think that's a bad idea.  Blacklisting is the better idea in the long-term.
 
-                                                       Pekka
+> Bus flags inheritance is dropped since it has been reported to be broken.
+
+I must have missed that report.  Please elucidate.
+

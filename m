@@ -1,53 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWFQFMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWFQFOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbWFQFMa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 01:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWFQFMa
+	id S1751546AbWFQFOi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 01:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWFQFOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 01:12:30 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:7821 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751536AbWFQFMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 01:12:30 -0400
-Date: Sat, 17 Jun 2006 14:12:16 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ak@suse.de, ashok.raj@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] avoid cpu hot remove of cpus which have special RT
- tasks.
-Message-Id: <20060617141216.dba310af.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <44937B16.3050204@yahoo.com.au>
-References: <20060616162343.02c3ce62.kamezawa.hiroyu@jp.fujitsu.com>
-	<p7364j1qx66.fsf@verdi.suse.de>
-	<20060616192654.50f4f6b7.kamezawa.hiroyu@jp.fujitsu.com>
-	<200606161236.50302.ak@suse.de>
-	<44937B16.3050204@yahoo.com.au>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Sat, 17 Jun 2006 01:14:38 -0400
+Received: from 1wt.eu ([62.212.114.60]:44040 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1750814AbWFQFOi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 01:14:38 -0400
+Date: Sat, 17 Jun 2006 07:13:57 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.33-rc1
+Message-ID: <20060617051356.GA23202@1wt.eu>
+References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <6bffcb0e0606161538w41036b4ajdb394ef5a36eebd2@mail.gmail.com> <q5f69219dre4fufq44jgo76msqe3btch1g@4ax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <q5f69219dre4fufq44jgo76msqe3btch1g@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Jun 2006 13:46:30 +1000
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Hi Grant,
 
-> > If its CPU fails much worse things than that will happen.
-> > 
-> > One way might be to break affinity of all processes in the system on hot unplug
-> > - then your deadlock would be avoided - but it might be a bit radical.
+On Sat, Jun 17, 2006 at 09:24:02AM +1000, Grant Coady wrote:
+> On Sat, 17 Jun 2006 00:38:10 +0200, "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
 > 
-> Agreed. The kernel is just doing some basic fallback behaviour. If you
-> actually have a critical RT system, you probably need to have much more
-> sophisticated handling of CPU unplug anyway. So it doesn't make much
-> sense to complicate the kernel for this.
+> >Can you revert 42cce987d63d3048595b8b00d74be786707d5e5d commit?
 > 
-But it seems the kernel does what users doesn't want.
-threads which is tightly coupled to some cpu has some important meanings for
-the userk.
-If the apps are sophisticated as you say, cpus_allowed containes other cpus
-before hotplug. As SIGSTOP/KILL patch I posted, the apps shouldn't do unexpected
-work, I think.
+> Only if you point me at the patch, that string seems not to be 
+> in the patch-2.4.33-rc1.gz file.
 
--Kame
+First, revert this one :
+
+  http://kernel.org/git/?p=linux/kernel/git/marcelo/linux-2.4.git;a=commitdiff_plain;h=efc95599c0261dd7ab3a1d9071024ca140b4c644;hp=6601095e2de35f00325a33c8be6b548f81fe76d5
+
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1479,19 +1479,20 @@ int vfs_unlink(struct inode *dir, struct
+ {
+ 	int error;
+ 
+-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
+ 	error = may_delete(dir, dentry, 0);
+-	if (!error) {
+-		error = -EPERM;
+-		if (dir->i_op && dir->i_op->unlink) {
+-			DQUOT_INIT(dir);
+-			if (d_mountpoint(dentry))
+-				error = -EBUSY;
+-			else {
+-				lock_kernel();
+-				error = dir->i_op->unlink(dir, dentry);
+-				unlock_kernel();
+-			}
++	if (error)
++		return error;
++
++	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
++	error = -EPERM;
++	if (dir->i_op && dir->i_op->unlink) {
++		DQUOT_INIT(dir);
++		if (d_mountpoint(dentry))
++			error = -EBUSY;
++		else {
++			lock_kernel();
++			error = dir->i_op->unlink(dir, dentry);
++			unlock_kernel();
+ 		}
+ 	}
+ 	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
+
+
+It will put you back to the state where all your machines hanged at boot
+with -hf32.5, then revert this one :
+
+  http://kernel.org/git/?p=linux/kernel/git/marcelo/linux-2.4.git;a=commitdiff_plain;h=f41e0ce901260d3d1ae5bd8bae34266891b4a65d;hp=925c7ce0a2d9a676cd8e4a2baf411b23cf6762d6
+
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1479,7 +1479,7 @@ int vfs_unlink(struct inode *dir, struct
+ {
+ 	int error;
+ 
+-	down(&dir->i_zombie);
++	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
+ 	error = may_delete(dir, dentry, 0);
+ 	if (!error) {
+ 		error = -EPERM;
+@@ -1491,14 +1491,14 @@ int vfs_unlink(struct inode *dir, struct
+ 				lock_kernel();
+ 				error = dir->i_op->unlink(dir, dentry);
+ 				unlock_kernel();
+-				if (!error)
+-					d_delete(dentry);
+ 			}
+ 		}
+ 	}
+-	up(&dir->i_zombie);
+-	if (!error)
++	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
++	if (!error) {
++		d_delete(dentry);
+ 		inode_dir_notify(dir, DN_DELETE);
++	}
+ 	return error;
+ }
+ 
+@@ -1607,18 +1607,19 @@ int vfs_link(struct dentry *old_dentry, 
+ 	struct inode *inode;
+ 	int error;
+ 
+-	down(&dir->i_zombie);
+ 	error = -ENOENT;
+ 	inode = old_dentry->d_inode;
+ 	if (!inode)
+-		goto exit_lock;
+-
+-	error = may_create(dir, new_dentry);
+-	if (error)
+-		goto exit_lock;
++		goto exit;
+ 
+ 	error = -EXDEV;
+ 	if (dir->i_dev != inode->i_dev)
++		goto exit;
++
++	double_down(&dir->i_zombie, &old_dentry->d_inode->i_zombie);
++
++	error = may_create(dir, new_dentry);
++	if (error)
+ 		goto exit_lock;
+ 
+ 	/*
+@@ -1636,9 +1637,10 @@ int vfs_link(struct dentry *old_dentry, 
+ 	unlock_kernel();
+ 
+ exit_lock:
+-	up(&dir->i_zombie);
++	double_up(&dir->i_zombie, &old_dentry->d_inode->i_zombie);
+ 	if (!error)
+ 		inode_dir_notify(dir, DN_CREATE);
++exit:
+ 	return error;
+ }
+ 
+
+And you will have something equivalent to -hf32.6 (you remember, I only
+reverted the fix in -hf32.6, and did not merge Marcelo's fix for the fix).
+Then we will have to decide whether we can fix it again or revert it
+completely. I would have liked to Cc: Vadim Egorov, but I cannot find his
+email.
+
+> Grant.
+
+Cheers,
+Willy
 

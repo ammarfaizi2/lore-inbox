@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWFRXjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWFRXri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWFRXjz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 19:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWFRXjz
+	id S1751032AbWFRXri (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 19:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWFRXri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 19:39:55 -0400
-Received: from ns.dynamicweb.hu ([195.228.155.139]:39555 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1751113AbWFRXjy (ORCPT
+	Sun, 18 Jun 2006 19:47:38 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:2975 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751032AbWFRXri (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 19:39:54 -0400
-Message-ID: <050201c69330$7bb30180$1800a8c0@dcccs>
-From: "Janos Haar" <djani22@netcenter.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: ATA Over Ethernet & elevator
-Date: Mon, 19 Jun 2006 01:39:44 +0200
+	Sun, 18 Jun 2006 19:47:38 -0400
+Date: Mon, 19 Jun 2006 01:47:22 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@timesys.com>
+cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and
+ dynamic HZ
+In-Reply-To: <1150643426.27073.17.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606190144560.17704@scrub.home>
+References: <1150643426.27073.17.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, list,
+Hi,
 
-I have 2 simple question:
+On Sun, 18 Jun 2006, Thomas Gleixner wrote:
 
-AoE have an elevator or not neccessary?
+> Bugreports and suggestions are welcome,
 
-It will be possible to change/tune in the future?
+Could you please document the patches? I know it sucks compared to 
+hacking, but it would make a review a lot simpler.
 
-Thanks,
-Janos
+bye, Roman

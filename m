@@ -1,112 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWFRJmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWFRJqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWFRJmA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 05:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWFRJmA
+	id S1750774AbWFRJqF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 05:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWFRJqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 05:42:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26342 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750754AbWFRJl7 (ORCPT
+	Sun, 18 Jun 2006 05:46:05 -0400
+Received: from mail.gmx.de ([213.165.64.21]:5102 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750774AbWFRJqE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 05:41:59 -0400
-Date: Sun, 18 Jun 2006 11:41:57 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@engr.sgi.com>, Jens Axboe <axboe@suse.de>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: [patch] rfc: fix splice mapping race?
-Message-ID: <20060618094157.GD14452@wotan.suse.de>
+	Sun, 18 Jun 2006 05:46:04 -0400
+X-Authenticated: #14349625
+Subject: Re: [RFC] CPU controllers?
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org,
+       mingo@elte.hu, pwil3058@bigpond.net.au, sekharan@us.ibm.com,
+       balbir@in.ibm.com, linux-kernel@vger.kernel.org,
+       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
+In-Reply-To: <20060618020932.5947a7dc.akpm@osdl.org>
+References: <20060615134632.GA22033@in.ibm.com>
+	 <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com>
+	 <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net>
+	 <4494EE86.7090209@yahoo.com.au> <20060617234259.dc34a20c.akpm@osdl.org>
+	 <1150616176.7985.50.camel@Homer.TheSimpsons.net>
+	 <20060618020932.5947a7dc.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 18 Jun 2006 11:49:29 +0200
+Message-Id: <1150624169.9324.12.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I would be interested in confirmation/comments for this patch.
+On Sun, 2006-06-18 at 02:09 -0700, Andrew Morton wrote:
+> On Sun, 18 Jun 2006 09:36:16 +0200
+> Mike Galbraith <efault@gmx.de> wrote:
+> 
+> > as
+> > evolution mail demonstrates to me every time it's GUI hangs and I see
+> > that a nice 19 find is running, eating very little CPU, but effectively
+> > DoSing evolution nonetheless (journal).
+> 
+> eh?  That would be an io scheduler bug, wouldn't it?
+> 
+> Tell us more.
 
-I believe splice is unsafe to access the page mapping obtained
-when the page was unlocked: the page could subsequently be truncated
-and the mapping reclaimed (see set_page_dirty_lock comments).
+The trace below was done with a nice -n 19 bonnie -s 2047 running, but
+the same happens with the find that SuSE starts at annoying times.
+Scheduler is cfq, but changing schedulers doesn't help.
 
-Modify the remove_mapping precondition to ensure the caller has
-locked the page and obtained the correct mapping. Modify callers to
-ensure the mapping is the correct one.
+Place a shell window over the evolution window, start io, then click on
+the evolution window, and see how long it takes to be able to read mail.
+Here, it's a couple forevers.
 
-In page migration, detect the missing mapping early and bail out if
-that is the case: the page is not going to get un-truncated, so
-retrying is just a waste of time.
+evolution     D 00000001     0  9324   6938          9333  7851 (NOTLB)
+       ef322dec 00000000 00000000 00000001 00000003 93a3f580 000f44c2 ef322000 
+       ef322000 ef314030 93a3f580 000f44c2 ef322000 001fb058 ef24d980 ef322000 
+       ef322e50 b10bcb57 00000000 b1399998 ef322e3c 00000001 ef24d9c0 ef24d9d0 
+Call Trace:
+ [<b10bcb57>] log_wait_commit+0x139/0x1f1
+ [<b10b6000>] journal_stop+0x239/0x350
+ [<b10b6dc8>] journal_force_commit+0x1d/0x1f
+ [<b10ae32a>] ext3_force_commit+0x24/0x26
+ [<b10a83a0>] ext3_write_inode+0x34/0x7b
+ [<b107fa79>] __writeback_single_inode+0x2e8/0x3c9
+ [<b10803f1>] sync_inode+0x15/0x2f
+ [<b10a426b>] ext3_sync_file+0xc3/0xc8
+ [<b10600fc>] do_fsync+0x68/0xb3
+ [<b1060167>] __do_fsync+0x20/0x2f
+ [<b1060195>] sys_fsync+0xd/0xf
+ [<b1002e1b>] syscall_call+0x7/0xb
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
- 
 
-Index: linux-2.6/fs/splice.c
-===================================================================
---- linux-2.6.orig/fs/splice.c
-+++ linux-2.6/fs/splice.c
-@@ -55,9 +55,12 @@ static int page_cache_pipe_buf_steal(str
- 				     struct pipe_buffer *buf)
- {
- 	struct page *page = buf->page;
--	struct address_space *mapping = page_mapping(page);
-+	struct address_space *mapping;
- 
- 	lock_page(page);
-+	mapping = page_mapping(page);
-+	if (!mapping)
-+		goto out_failed;
- 
- 	WARN_ON(!PageUptodate(page));
- 
-@@ -74,6 +77,7 @@ static int page_cache_pipe_buf_steal(str
- 		try_to_release_page(page, mapping_gfp_mask(mapping));
- 
- 	if (!remove_mapping(mapping, page)) {
-+out_failed:
- 		unlock_page(page);
- 		return 1;
- 	}
-Index: linux-2.6/mm/migrate.c
-===================================================================
---- linux-2.6.orig/mm/migrate.c
-+++ linux-2.6/mm/migrate.c
-@@ -136,9 +136,13 @@ static int swap_page(struct page *page)
- {
- 	struct address_space *mapping = page_mapping(page);
- 
--	if (page_mapped(page) && mapping)
-+	if (!mapping)
-+		return -EINVAL; /* page truncated. signal permanent failure */
-+
-+	if (page_mapped(page)) {
- 		if (try_to_unmap(page, 1) != SWAP_SUCCESS)
- 			goto unlock_retry;
-+	}
- 
- 	if (PageDirty(page)) {
- 		/* Page is dirty, try to write it out here */
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c
-+++ linux-2.6/mm/vmscan.c
-@@ -362,8 +362,8 @@ pageout_t pageout(struct page *page, str
- 
- int remove_mapping(struct address_space *mapping, struct page *page)
- {
--	if (!mapping)
--		return 0;		/* truncate got there first */
-+	BUG_ON(!PageLocked(page));
-+	BUG_ON(mapping != page->mapping);
- 
- 	write_lock_irq(&mapping->tree_lock);
- 
-@@ -532,7 +532,7 @@ static unsigned long shrink_page_list(st
- 				goto free_it;
- 		}
- 
--		if (!remove_mapping(mapping, page))
-+		if (!mapping || !remove_mapping(mapping, page))
- 			goto keep_locked;
- 
- free_it:

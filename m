@@ -1,46 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWFRNyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWFRPD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWFRNyp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 09:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWFRNyp
+	id S932225AbWFRPD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 11:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWFRPD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 09:54:45 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:42395 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932234AbWFRNyo (ORCPT
+	Sun, 18 Jun 2006 11:03:27 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:38037 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932225AbWFRPD1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 09:54:44 -0400
-Date: Sun, 18 Jun 2006 15:53:36 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Herbert Xu <herbert@gondor.apana.org.au>
-cc: Joachim Fritschi <jfritschi@freenet.de>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH  1/4] Twofish cipher - split out common c code
-In-Reply-To: <20060618113138.GA22097@gondor.apana.org.au>
-Message-ID: <Pine.LNX.4.64.0606181551580.17704@scrub.home>
-References: <200606041516.21967.jfritschi@freenet.de> <200606080920.04480.jfritschi@freenet.de>
- <20060608072735.GA10613@gondor.apana.org.au> <200606161358.53036.jfritschi@freenet.de>
- <20060618113138.GA22097@gondor.apana.org.au>
+	Sun, 18 Jun 2006 11:03:27 -0400
+Date: Sun, 18 Jun 2006 17:03:09 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Con Kolivas <kernel@kolivas.org>
+cc: Willy Tarreau <w@1wt.eu>, linux list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+Subject: Re: [ckpatch][15/29] hz-no_default_250.patch
+In-Reply-To: <200606182008.31788.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.61.0606181702030.8787@yvahk01.tjqt.qr>
+References: <200606181732.48952.kernel@kolivas.org> <20060618074247.GF13255@w.ods.org>
+ <200606182008.31788.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>
+>Thanks for your perspective. I found performance hits on computational tasks 
+>with 250 vs 100 but your finer precision makes perfect sense.
+>
 
-On Sun, 18 Jun 2006, Herbert Xu wrote:
+Or this one so every user can set any value s/he wants. :)
 
-> > +config CRYPTO_TWOFISH_COMMON
-> > +        tristate	
-> > +        depends on CRYPTO
-> > +        help
-> > +	  Common parts of the Twofish cipher algorithm shared by the 
-> > +	  generic c and the assembler implementations.
-> 
-> Please drop the help (it's not meant to be visible) and add a 'default n'
-> instead.
+Done-by: Me.
 
-The help text is also useful as documentation and doesn't hurt.
-'n' is the default already, so it's not needed.
+diff --fast -Ndpru linux-2.6.17-rc6~/kernel/Kconfig.hz linux-2.6.17-rc6+/kernel/Kconfig.hz
+--- linux-2.6.17-rc6~/kernel/Kconfig.hz	2006-06-06 02:57:02.000000000 +0200
++++ linux-2.6.17-rc6+/kernel/Kconfig.hz	2006-06-16 17:15:46.884794000 +0200
+@@ -2,45 +2,26 @@
+ # Timer Interrupt Frequency Configuration
+ #
+ 
+-choice
+-	prompt "Timer frequency"
+-	default HZ_250
+-	help
+-	 Allows the configuration of the timer frequency. It is customary
+-	 to have the timer interrupt run at 1000 HZ but 100 HZ may be more
+-	 beneficial for servers and NUMA systems that do not need to have
+-	 a fast response for user interaction and that may experience bus
+-	 contention and cacheline bounces as a result of timer interrupts.
+-	 Note that the timer interrupt occurs on each processor in an SMP
+-	 environment leading to NR_CPUS * HZ number of timer interrupts
+-	 per second.
+-
+-
+-	config HZ_100
+-		bool "100 HZ"
+-	help
+-	  100 HZ is a typical choice for servers, SMP and NUMA systems
+-	  with lots of processors that may show reduced performance if
+-	  too many timer interrupts are occurring.
+-
+-	config HZ_250
+-		bool "250 HZ"
+-	help
+-	 250 HZ is a good compromise choice allowing server performance
+-	 while also showing good interactive responsiveness even
+-	 on SMP and NUMA systems.
+-
+-	config HZ_1000
+-		bool "1000 HZ"
+-	help
+-	 1000 HZ is the preferred choice for desktop systems and other
+-	 systems requiring fast interactive responses to events.
++config HZ
++    int "Timer frequency"
++    default 100
++    ---help---
++        Allows the configuration of the timer frequency. It is
++        customary to have the timer interrupt run at 1000 HZ but 100 HZ
++        may be more beneficial for servers and NUMA systems that do not
++        need to have a fast response for user interaction and that may
++        experience bus contention and cacheline bounces as a result of
++        timer interrupts.  Note that the timer interrupt occurs on each
++        processor in an SMP environment leading to NR_CPUS * HZ number
++        of timer interrupts per second.
+ 
+-endchoice
++        100 HZ is a typical choice for servers, SMP and NUMA systems
++        with lots of processors that may show reduced performance if
++        too many timer interrupts are occurring.
+ 
+-config HZ
+-	int
+-	default 100 if HZ_100
+-	default 250 if HZ_250
+-	default 1000 if HZ_1000
++        250 HZ is a good compromise choice allowing server performance
++        while also showing good interactive responsiveness even on SMP
++        and NUMA systems.
+ 
++        1000 HZ is the preferred choice for desktop systems and other
++        systems requiring fast interactive responses to events.
+#<<eof>>
 
-bye, Roman
+
+
+Jan Engelhardt
+-- 

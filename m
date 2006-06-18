@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWFRDnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWFRDrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWFRDnP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 23:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFRDnP
+	id S1751090AbWFRDrc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 23:47:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFRDrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 23:43:15 -0400
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:40389 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751076AbWFRDnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 23:43:15 -0400
-Date: Sat, 17 Jun 2006 23:36:36 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 5/16] 2.6.17-rc6 perfmon2 patch for review: new
-  sysfs support
-To: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephane Eranian <eranian@hpl.hp.com>
-Message-ID: <200606172339_MC3-1-C2C6-D2C3@compuserve.com>
+	Sat, 17 Jun 2006 23:47:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10392 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751090AbWFRDrb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 23:47:31 -0400
+Date: Sat, 17 Jun 2006 20:47:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.17
+In-Reply-To: <4494C8E7.3080700@ens-lyon.org>
+Message-ID: <Pine.LNX.4.64.0606172036360.5498@g5.osdl.org>
+References: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org>
+ <Pine.LNX.4.64.0606171902040.5498@g5.osdl.org> <4494C8E7.3080700@ens-lyon.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200606150907.k5F97YtU008130@frankl.hpl.hp.com>
 
-On Thu, 15 Jun 2006 02:07:34 -0700, Stephane Eranian wrote:
 
-> --- linux-2.6.17-rc6.orig/perfmon/perfmon_sysfs.c     1969-12-31 16:00:00.000000000 -0800
-> +++ linux-2.6.17-rc6/perfmon/perfmon_sysfs.c  2006-06-08 05:36:31.000000000 -0700
- ...
-> +struct pfm_controls pfm_controls = {
-> +     .sys_group = PFM_GROUP_PERM_ANY,
-> +     .task_group = PFM_GROUP_PERM_ANY,
-> +     .arg_size_max = PAGE_SIZE,
-> +     .smpl_buf_size_max = ~0,
-> +};
+On Sat, 17 Jun 2006, Brice Goglin wrote:
+>
+> I guess I could use git to generate the full changelog once a new
+> release and keep it for later...
 
-This means that by default anyone can create monitoring sessions.
-It should start out as restrictive as possible; the admin can relax
-permissions as needed.
+Well, if you are already a git user (or willing to become one), there's no 
+point in even keeping it for later.
 
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+	[torvalds@g5 linux]$ time git log v2.6.16..v2.6.17 > /dev/null 
+	
+	real    0m0.484s
+	user    0m0.448s
+	sys     0m0.036s
+
+ie the logfile generation really is almost free. And yes, that's the 
+_full_ big log (all 92 _thousand_ lines of it, from the 6113 commits in 
+the 2.6.16->17 case) being generated in under half a second.
+
+Doing the shortlog (which sort and group by author in perl) is only 
+fractionally more expensive.
+
+The added benefit of doing it with git and generating it each time is that 
+then you can also ask for logs just for a specific subsystem.
+
+I don't know of anything but git that can efficiently do things like
+
+	git log v2.6.16..v2.6.17 drivers/usb/
+
+and it will show the log for all the commits that changed things under 
+drivers/usb. And yeah, that can be slightly more expensive, but usually 
+it's not noticeably so (history pruning at least in that case makes up for 
+the extra work it has to do to figure out which commits changed that 
+subsystem).
+
+The point being that the dynamically generated data is often a lot more 
+useful and readable. 
+
+			Linus

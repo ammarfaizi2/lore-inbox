@@ -1,146 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWFRQNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWFRQQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWFRQNs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 12:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWFRQNs
+	id S932234AbWFRQQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 12:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWFRQQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 12:13:48 -0400
-Received: from nz-out-0102.google.com ([64.233.162.198]:40987 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932194AbWFRQNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 12:13:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=erdoc7TRU0Uwvyjc0C1gXvSM6ot3i+T3HwFGezzXn56hWi/vcJN5aKFdbbGwidKulheI45Pi5+1TS3s+bWOkv9DWLJ0KOa1S//ysQWJXyqzg24faSYkS7WG1JLxjSkrbxlumf8JC0X6AExh6oR4mMhbN8QjXb7iA8YZQ+/UdQJc=
-Message-ID: <6bffcb0e0606180913o5826a928gb7e8d0a6dc4f461c@mail.gmail.com>
-Date: Sun, 18 Jun 2006 18:13:46 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.17-rt1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060618070641.GA6759@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 18 Jun 2006 12:16:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53734 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932234AbWFRQQR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 12:16:17 -0400
+Message-ID: <1364850.1150647367930.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Date: Sun, 18 Jun 2006 18:16:07 +0200 (CEST)
+From: Andreas Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.16-rc6-mm2] x86: add NUMA to oops messages
+Cc: Arjan van de Ven <arjan@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200606180815_MC3-1-C2CC-41A5@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060618070641.GA6759@elte.hu>
+X-Priority: 3 (normal)
+X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
+X-Operating-System: Linux 2.4.21-309-smp i386 (JVM 1.3.1_18)
+Organization: SuSE Linux AG
+References: <200606180815_MC3-1-C2CC-41A5@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Am So 18.06.2006 14:13 schrieb Chuck Ebbert <76306.1226@compuserve.com>:
 
-On 18/06/06, Ingo Molnar <mingo@elte.hu> wrote:
-> i have released the 2.6.17-rt1 tree, which can be downloaded from the
-> usual place:
+> In-Reply-To: <200606181059.44576.ak@suse.de>
 >
->    http://redhat.com/~mingo/realtime-preempt/
+> On Sun, 18 Jun 2006 10:59:44 +0200, Andi Kleen wrote:
 >
+> > On Sunday 18 June 2006 10:13, Chuck Ebbert wrote:
+> > > Add "NUMA" to x86 oops printouts to help with debugging. Use
+> > > vermagic.h
+> > > defines to clean up the code, suggested by Arjan van de Ven.
+> >
+> > I don't see any particular value in printing NUMA here,
+>
+> It helps a lot when trying to decode oopses posted to the list, as the
+> NUMA kernel is very different now that the slab allocator and
+> scheduler
+> are NUMA-aware.
 
-I get this when I reboot my system.
+And there are a thousand other things that change with other
+CONFIG_* options. I also can't remember a bug where
+this wasn't clear.
 
-Jun 18 17:59:26 ltg01-fedora kernel: skge eth0: disabling interface
-Jun 18 17:59:27 ltg01-fedora kernel: BUG: using smp_processor_id() in
-preemptible [00000000] code: modprobe/20325
-Jun 18 17:59:27 ltg01-fedora kernel: caller is drain_array+0x15/0xe5
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c0104647>] show_trace+0xd/0xf (8)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c010470c>] dump_stack+0x17/0x19 (12)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c01da50f>]
-debug_smp_processor_id+0x7b/0x8c (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015e044>] drain_array+0x15/0xe5 (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015e26e>] __cache_shrink+0x35/0xab (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015fac1>]
-kmem_cache_destroy+0x76/0x12e (16)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<fdc6d23e>]
-ip_conntrack_cleanup+0x80/0xad [ip_conntrack] (12)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<fdc7030e>]
-ip_conntrack_standalone_fini+0x56/0x85 [ip_conntrack] (8)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c013a7c5>]
-sys_delete_module+0x18f/0x1b6 (96)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c0102e73>]
-sysenter_past_esp+0x54/0x75 (-4020)
-Jun 18 17:59:27 ltg01-fedora kernel: ---------------------------
-Jun 18 17:59:27 ltg01-fedora kernel: | preempt count: 00000001 ]
-Jun 18 17:59:27 ltg01-fedora kernel: | 1-level deep critical section nesting:
-Jun 18 17:59:27 ltg01-fedora kernel: ----------------------------------------
-Jun 18 17:59:27 ltg01-fedora kernel: .. [<c01da4d5>] ....
-debug_smp_processor_id+0x41/0x8c
-Jun 18 17:59:27 ltg01-fedora kernel: .....[<c015e044>] ..   ( <=
-drain_array+0x15/0xe5)
-Jun 18 17:59:27 ltg01-fedora kernel:
-Jun 18 17:59:27 ltg01-fedora kernel: ------------------------------
-Jun 18 17:59:27 ltg01-fedora kernel: | showing all locks held by: |
-(modprobe/20325 [f72380b0, 117]):
-Jun 18 17:59:27 ltg01-fedora kernel: ------------------------------
-Jun 18 17:59:27 ltg01-fedora kernel:
-Jun 18 17:59:27 ltg01-fedora kernel: #001:             [c0313d04]
-{cpucontrol.lock}
-Jun 18 17:59:27 ltg01-fedora kernel: ... acquired at:
-rt_down+0x11/0x28
-Jun 18 17:59:27 ltg01-fedora kernel:
-Jun 18 17:59:27 ltg01-fedora kernel: BUG: modprobe:20325 task might
-have lost a preemption check!
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c0104647>] show_trace+0xd/0xf (8)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c010470c>] dump_stack+0x17/0x19 (12)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c011a884>]
-preempt_enable_no_resched+0x4c/0x51 (20)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c01da517>]
-debug_smp_processor_id+0x83/0x8c (16)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015e044>] drain_array+0x15/0xe5 (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015e26e>] __cache_shrink+0x35/0xab (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015fac1>]
-kmem_cache_destroy+0x76/0x12e (16)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<fdc6d23e>]
-ip_conntrack_cleanup+0x80/0xad [ip_conntrack] (12)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<fdc7030e>]
-ip_conntrack_standalone_fini+0x56/0x85 [ip_conntrack] (8)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c013a7c5>]
-sys_delete_module+0x18f/0x1b6 (96)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c0102e73>]
-sysenter_past_esp+0x54/0x75 (-4020)
-Jun 18 17:59:27 ltg01-fedora kernel: ---------------------------
-Jun 18 17:59:27 ltg01-fedora kernel: | preempt count: 00000000 ]
-Jun 18 17:59:27 ltg01-fedora kernel: | 0-level deep critical section nesting:
-Jun 18 17:59:27 ltg01-fedora kernel: ----------------------------------------
-Jun 18 17:59:27 ltg01-fedora kernel:
-Jun 18 17:59:27 ltg01-fedora kernel: ------------------------------
-Jun 18 17:59:27 ltg01-fedora kernel: | showing all locks held by: |
-(modprobe/20325 [f72380b0, 117]):
-Jun 18 17:59:27 ltg01-fedora kernel: ------------------------------
-Jun 18 17:59:27 ltg01-fedora kernel:
-Jun 18 17:59:27 ltg01-fedora kernel: #001:             [c0313d04]
-{cpucontrol.lock}
-Jun 18 17:59:27 ltg01-fedora kernel: ... acquired at:
-rt_down+0x11/0x28
-Jun 18 17:59:27 ltg01-fedora kernel:
-Jun 18 17:59:27 ltg01-fedora kernel: BUG: using smp_processor_id() in
-preemptible [00000000] code: modprobe/20325
-Jun 18 17:59:27 ltg01-fedora kernel: BUG: using smp_processor_id() in
-preemptible [00000000] code: modprobe/20325
-Jun 18 17:59:27 ltg01-fedora kernel: caller is drain_array+0x15/0xe5
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c0104647>] show_trace+0xd/0xf (8)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c010470c>] dump_stack+0x17/0x19 (12)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c01da50f>]
-debug_smp_processor_id+0x7b/0x8c (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015e044>] drain_array+0x15/0xe5 (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015e26e>] __cache_shrink+0x35/0xab (32)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c015fac1>]
-kmem_cache_destroy+0x76/0x12e (16)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<fdc6d248>]
-ip_conntrack_cleanup+0x8a/0xad [ip_conntrack] (12)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<fdc7030e>]
-ip_conntrack_standalone_fini+0x56/0x85 [ip_conntrack] (8)
-Jun 18 17:59:27 ltg01-fedora kernel:  [<c013a7c5>]
-sys_delete_module+0x18f/0x1b6 (96)
-Jun 18 17:59:27 ltg01-fedora kernel: Kernel logging (proc) stopped.
+In general the rule of thumb is: i386: NUMA is not
+used and x86-64 SMP: NUMA is used.
 
-Here is a config file
-http://www.stardust.webpages.pl/files/rt/2.6.17-rt1/rt-config
+-Andi
 
-Regards,
-Michal
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)

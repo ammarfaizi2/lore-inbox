@@ -1,87 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWFRXAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWFRXHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWFRXAs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 19:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWFRXAs
+	id S1751063AbWFRXHK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 19:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWFRXHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 19:00:48 -0400
-Received: from mailfe08.tele2.fr ([212.247.154.236]:52420 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1750727AbWFRXAr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 19:00:47 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-X-Cloudmark-Score: 0.000000 []
-Date: Mon, 19 Jun 2006 01:00:41 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
-Message-ID: <20060618230041.GG4744@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	greg@kroah.com
-References: <20060618221343.GA20277@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060618221343.GA20277@kroah.com>
-User-Agent: Mutt/1.5.9i-nntp
+	Sun, 18 Jun 2006 19:07:10 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:57834 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751063AbWFRXHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 19:07:09 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Linux 2.4.33-rc1
+Date: Mon, 19 Jun 2006 09:07:03 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com>
+References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu>
+In-Reply-To: <20060618223736.GA4965@1wt.eu>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH, le Sun 18 Jun 2006 15:13:43 -0700, a écrit :
-> Since 2.6.13 came out, I have seen no complaints about the fact that
-> devfs was not able to be enabled anymore,
+On Mon, 19 Jun 2006 00:37:36 +0200, Willy Tarreau <w@1wt.eu> wrote:
 
-There has been at least my complaint about udev not being able to
-auto-load modules on /dev entry lookup (28th March 2006):
+>Hi Grant,
+>
+>On Mon, Jun 19, 2006 at 08:25:06AM +1000, Grant Coady wrote:
+>> On Sun, 18 Jun 2006 10:37:18 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
+>> 
+>> >Can you please try the attached patch.
+>> >
+>> >Grab a reference to the victim inode before calling vfs_unlink() to avoid
+>> >it vanishing under us.
+>> >
+>> >diff --git a/fs/namei.c b/fs/namei.c
+>> >index 42cce98..7993283 100644
+>> >--- a/fs/namei.c
+>> >+++ b/fs/namei.c
+>> >@@ -1509,6 +1509,7 @@ asmlinkage long sys_unlink(const char * 
+>> > 	char * name;
+>> > 	struct dentry *dentry;
+>> > 	struct nameidata nd;
+>> >+	struct inode *inode = NULL;
+>> > 
+>> > 	name = getname(pathname);
+>> > 	if(IS_ERR(name))
+>> >@@ -1527,11 +1528,16 @@ asmlinkage long sys_unlink(const char * 
+>> > 		/* Why not before? Because we want correct error value */
+>> > 		if (nd.last.name[nd.last.len])
+>> > 			goto slashes;
+>> >+		inode = dentry->d_inode;
+>> >+		if (inode)
+>> >+			atomic_inc(&inode->i_count);
+>> > 		error = vfs_unlink(nd.dentry->d_inode, dentry);
+>> > 	exit2:
+>> > 		dput(dentry);
+>> > 	}
+>
+>Could you add this line here, because your oops still looks like the NULL
+>is close to this area :
+>
+>+       printk(KERN_DEBUG "nd.dentry->d_inode = %p\n", nd.dentry->d_inode);
 
-« Given a freshly booted linux box, hence uinput is not loaded (why
-would it be, it doesn't drive any real hardware) ; what is the right
-way(tm) for an application to have the uinput module loaded, so that it
-can open /dev/input/uinput for emulating keypresses?
+It didn't get there for the segfault case, gets there for local file 
+delete 
 
-- With good-old static /dev, we could just open /dev/input/uinput
-  (installed by the distribution), and thanks to a
-  alias char-major-10-223 uinput
-  line somewhere in /etc/modprobe.d, uinput gets auto-loaded.
+After:
+grant@sempro:~$ dmesg >dmesg
+grant@sempro:~$ rm dmesg
 
-- With devfs, it doesn't look like it works (/dev/misc/uinput is not
-  present and opening it just like if it existed doesn't work). But I
-  read in archives that it could be feasible.
+Jun 19 08:49:17 sempro kernel: nd.dentry->d_inode = f73f4b80
 
-- With udev, this just cannot work. As explained in an earlier thread,
-  even using a special filesystem that would report the opening attempt
-  to udevd wouldn't work fine since udevd takes time for creating the
-  device, and hence the original program needs to be notified ; this
-  becomes racy.
+After:
+grant@sempro:~$ dmesg >/home/share/dmesg-test
+grant@sempro:~$ rm /home/share/dmesg-test
+Segmentation fault
 
-So what is the correct way to do it? I can see two approaches:
+Nothing reported by debug or syslog, oops in messages.
 
-Using modprobe:
-- try to use /dev/input/uinput ; if it succeeds, fine.
-- else, if errno != ENOENT, fail
-- else, (ENOENT)
-  - try to call `cat /proc/sys/kernel/modprobe` uinput
-  - try to use /dev/input/uinput again ; if it succeeds, fine
-    - else, assume that it really wasn't compiled, and hence fail.
-
-Triggering auto-load by creating one's own node.
-- try to use /dev/input/uinput ; if it suceeds, fine.
-- else, if errno != ENOENT, fail
-- else, (ENOENT)
-  - mknod /somewhere/safe/uinput c 10 223
-  - use /somewhere/safe/uinput ; if it succeeds, fine
-    - else, assume that it really wasn't compiled, and hence fail.
-»
-
-Neither solution looks good to me... Just opening /dev/input/uinput
-should be sufficient, and udev doesn't let that for now.
-
-The same situation holds for other virtual devices (loop, snd-seq-dummy,
-...).
-
-Samuel
+Cheers,
+Grant.

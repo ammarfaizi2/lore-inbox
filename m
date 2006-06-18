@@ -1,73 +1,1071 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWFRHeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWFRHeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWFRHeH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 03:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWFRHdj
+	id S932149AbWFRHeq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 03:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWFRHeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 03:33:39 -0400
-Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:21148 "EHLO
-	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932145AbWFRHdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 03:33:24 -0400
+	Sun, 18 Jun 2006 03:34:15 -0400
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:18340 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932141AbWFRHdp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 03:33:45 -0400
 From: Con Kolivas <kernel@kolivas.org>
 To: linux list <linux-kernel@vger.kernel.org>
-Subject: [ckpatch][16/29] sched-add-above-background-load-function.patch
-Date: Sun, 18 Jun 2006 17:33:16 +1000
+Subject: [ckpatch][17/29] mm-swap_prefetch-32.patch
+Date: Sun, 18 Jun 2006 17:33:40 +1000
 User-Agent: KMail/1.9.3
 Cc: ck list <ck@vds.kolivas.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-X-Length: 2018
+X-Length: 35298
 Content-Type: text/plain;
   charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606181733.16477.kernel@kolivas.org>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200606181733.40581.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Implement swap prefetching when the vm is relatively idle and there is free
+ram available.  The code is based on some preliminary code by Thomas
+Schlichter.
 
-From: Con Kolivas <kernel@kolivas.org>
+This stores a list of swapped entries in a list ordered most recently used
+and a radix tree.  It generates a low priority kernel thread running at
+nice 19 to do the prefetching at a later stage.
 
-Add an above_background_load() function which can be used by other
-subsystems to detect if there is anything besides niced tasks running. 
-Place it in sched.h to allow it to be compiled out if not used.
+Once pages have been added to the swapped list, a timer is started, testing
+for conditions suitable to prefetch swap pages every 5 seconds.  Suitable
+conditions are defined as lack of swapping out or in any pages, and no
+watermark tests failing.  Significant amounts of dirtied ram and changes in
+free ram representing disk writes or reads also prevent prefetching.
+
+It then checks that we have spare ram looking for at least 3* pages_high
+free per zone and if it succeeds that will prefetch pages from swap into
+the swap cache.  The pages are added to the tail of the inactive list to
+preserve LRU ordering.
+
+Pages are prefetched until the list is empty or the vm is seen as busy
+according to the previously described criteria.  Node data on numa is
+stored with the entries and an appropriate zonelist based on this is used
+when allocating ram.
+
+The pages are copied to swap cache and kept on backing store.  This allows
+pressure on either physical ram or swap to readily find free pages without
+further I/O.
+
+Prefetching can be enabled/disabled via the tunable in
+/proc/sys/vm/swap_prefetch initially set to 1 (enabled).
+
+Enabling laptop_mode disables swap prefetching to prevent unnecessary spin
+ups.
+
+In testing on modern pc hardware this results in wall-clock time activation
+of the firefox browser to speed up 5 fold after a worst case complete
+swap-out of the browser on a static web page.
+
+From: Ingo Molnar <mingo@elte.hu>
+
+  Fix potential swap-prefetch deadlock, found by the locking correctness
+  validator.
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
-Acked-by: Ingo Molnar <mingo@elte.hu>
-Cc: Peter Williams <pwil3058@bigpond.net.au>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
----
 
- include/linux/sched.h |   16 ++++++++++++++++
- 1 files changed, 16 insertions(+)
+ Documentation/sysctl/vm.txt   |   11 
+ include/linux/mm_inline.h     |    7 
+ include/linux/swap-prefetch.h |   55 +++
+ include/linux/swap.h          |    2 
+ include/linux/sysctl.h        |    1 
+ init/Kconfig                  |   22 +
+ kernel/sysctl.c               |   11 
+ mm/Makefile                   |    1 
+ mm/swap.c                     |   48 +++
+ mm/swap_prefetch.c            |  579 ++++++++++++++++++++++++++++++++++++++++++
+ mm/swap_state.c               |   11 
+ mm/vmscan.c                   |    6 
+ 12 files changed, 753 insertions(+), 1 deletion(-)
 
-Index: linux-ck-dev/include/linux/sched.h
+Index: linux-ck-dev/Documentation/sysctl/vm.txt
 ===================================================================
---- linux-ck-dev.orig/include/linux/sched.h	2006-06-18 15:23:46.000000000 +1000
-+++ linux-ck-dev/include/linux/sched.h	2006-06-18 15:24:45.000000000 +1000
-@@ -653,6 +653,22 @@ extern unsigned int max_cache_size;
+--- linux-ck-dev.orig/Documentation/sysctl/vm.txt	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/Documentation/sysctl/vm.txt	2006-06-18 15:24:48.000000000 +1000
+@@ -29,6 +29,7 @@ Currently, these files are in /proc/sys/
+ - drop-caches
+ - zone_reclaim_mode
+ - zone_reclaim_interval
++- swap_prefetch
  
- #endif	/* CONFIG_SMP */
+ ==============================================================
  
-+/*
-+ * A runqueue laden with a single nice 0 task scores a weighted_cpuload of
-+ * SCHED_LOAD_SCALE. This function returns 1 if any cpu is laden with a
-+ * task of nice 0 or enough lower priority tasks to bring up the
-+ * weighted_cpuload
-+ */
-+static inline int above_background_load(void)
-+{
-+	unsigned long cpu;
+@@ -178,3 +179,13 @@ Time is set in seconds and set by defaul
+ Reduce the interval if undesired off node allocations occur. However, too
+ frequent scans will have a negative impact onoff node allocation performance.
+ 
++==============================================================
 +
-+	for_each_online_cpu(cpu) {
-+		if (weighted_cpuload(cpu) >= SCHED_LOAD_SCALE)
-+			return 1;
++swap_prefetch
++
++This enables or disables the swap prefetching feature. When the virtual
++memory subsystem has been extremely idle for at least 5 seconds it will start
++copying back pages from swap into the swapcache and keep a copy in swap. In
++practice it can take many minutes before the vm is idle enough.
++
++The default value is 1.
+Index: linux-ck-dev/include/linux/swap.h
+===================================================================
+--- linux-ck-dev.orig/include/linux/swap.h	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/include/linux/swap.h	2006-06-18 15:24:48.000000000 +1000
+@@ -165,6 +165,7 @@ extern unsigned int nr_free_pagecache_pa
+ /* linux/mm/swap.c */
+ extern void FASTCALL(lru_cache_add(struct page *));
+ extern void FASTCALL(lru_cache_add_active(struct page *));
++extern void FASTCALL(lru_cache_add_tail(struct page *));
+ extern void FASTCALL(activate_page(struct page *));
+ extern void FASTCALL(mark_page_accessed(struct page *));
+ extern void lru_add_drain(void);
+@@ -232,6 +233,7 @@ extern void free_pages_and_swap_cache(st
+ extern struct page * lookup_swap_cache(swp_entry_t);
+ extern struct page * read_swap_cache_async(swp_entry_t, struct vm_area_struct *vma,
+ 					   unsigned long addr);
++extern int add_to_swap_cache(struct page *page, swp_entry_t entry);
+ /* linux/mm/swapfile.c */
+ extern long total_swap_pages;
+ extern unsigned int nr_swapfiles;
+Index: linux-ck-dev/include/linux/sysctl.h
+===================================================================
+--- linux-ck-dev.orig/include/linux/sysctl.h	2006-06-18 15:23:38.000000000 +1000
++++ linux-ck-dev/include/linux/sysctl.h	2006-06-18 15:24:48.000000000 +1000
+@@ -189,6 +189,7 @@ enum
+ 	VM_PERCPU_PAGELIST_FRACTION=30,/* int: fraction of pages in each percpu_pagelist */
+ 	VM_ZONE_RECLAIM_MODE=31, /* reclaim local zone memory before going off node */
+ 	VM_ZONE_RECLAIM_INTERVAL=32, /* time period to wait after reclaim failure */
++	VM_SWAP_PREFETCH=33,	/* swap prefetch */
+ };
+ 
+ 
+Index: linux-ck-dev/init/Kconfig
+===================================================================
+--- linux-ck-dev.orig/init/Kconfig	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/init/Kconfig	2006-06-18 15:24:48.000000000 +1000
+@@ -92,6 +92,28 @@ config SWAP
+ 	  used to provide more virtual memory than the actual RAM present
+ 	  in your computer.  If unsure say Y.
+ 
++config SWAP_PREFETCH
++	bool "Support for prefetching swapped memory"
++	depends on SWAP
++	default y
++	---help---
++	  This option will allow the kernel to prefetch swapped memory pages
++	  when idle. The pages will be kept on both swap and in swap_cache
++	  thus avoiding the need for further I/O if either ram or swap space
++	  is required.
++
++	  What this will do on workstations is slowly bring back applications
++	  that have swapped out after memory intensive workloads back into
++	  physical ram if you have free ram at a later stage and the machine
++	  is relatively idle. This means that when you come back to your
++	  computer after leaving it idle for a while, applications will come
++	  to life faster. Note that your swap usage will appear to increase
++	  but these are cached pages, can be dropped freely by the vm, and it
++	  should stabilise around 50% swap usage maximum.
++
++	  Workstations and multiuser workstation servers will most likely want
++	  to say Y.
++
+ config SYSVIPC
+ 	bool "System V IPC"
+ 	---help---
+Index: linux-ck-dev/kernel/sysctl.c
+===================================================================
+--- linux-ck-dev.orig/kernel/sysctl.c	2006-06-18 15:23:38.000000000 +1000
++++ linux-ck-dev/kernel/sysctl.c	2006-06-18 15:24:48.000000000 +1000
+@@ -23,6 +23,7 @@
+ #include <linux/mm.h>
+ #include <linux/swap.h>
+ #include <linux/slab.h>
++#include <linux/swap-prefetch.h>
+ #include <linux/sysctl.h>
+ #include <linux/proc_fs.h>
+ #include <linux/capability.h>
+@@ -941,6 +942,16 @@ static ctl_table vm_table[] = {
+ 		.strategy	= &sysctl_jiffies,
+ 	},
+ #endif
++#ifdef CONFIG_SWAP_PREFETCH
++	{
++		.ctl_name	= VM_SWAP_PREFETCH,
++		.procname	= "swap_prefetch",
++		.data		= &swap_prefetch,
++		.maxlen		= sizeof(swap_prefetch),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++#endif
+ 	{ .ctl_name = 0 }
+ };
+ 
+Index: linux-ck-dev/mm/Makefile
+===================================================================
+--- linux-ck-dev.orig/mm/Makefile	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/mm/Makefile	2006-06-18 15:24:48.000000000 +1000
+@@ -13,6 +13,7 @@ obj-y			:= bootmem.o filemap.o mempool.o
+ 			   prio_tree.o util.o mmzone.o $(mmu-y)
+ 
+ obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
++obj-$(CONFIG_SWAP_PREFETCH) += swap_prefetch.o
+ obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
+ obj-$(CONFIG_NUMA) 	+= mempolicy.o
+ obj-$(CONFIG_SPARSEMEM)	+= sparse.o
+Index: linux-ck-dev/mm/swap.c
+===================================================================
+--- linux-ck-dev.orig/mm/swap.c	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/mm/swap.c	2006-06-18 15:24:48.000000000 +1000
+@@ -17,6 +17,7 @@
+ #include <linux/sched.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/swap.h>
++#include <linux/swap-prefetch.h>
+ #include <linux/mman.h>
+ #include <linux/pagemap.h>
+ #include <linux/pagevec.h>
+@@ -138,6 +139,7 @@ EXPORT_SYMBOL(mark_page_accessed);
+  */
+ static DEFINE_PER_CPU(struct pagevec, lru_add_pvecs) = { 0, };
+ static DEFINE_PER_CPU(struct pagevec, lru_add_active_pvecs) = { 0, };
++static DEFINE_PER_CPU(struct pagevec, lru_add_tail_pvecs) = { 0, };
+ 
+ void fastcall lru_cache_add(struct page *page)
+ {
+@@ -159,6 +161,31 @@ void fastcall lru_cache_add_active(struc
+ 	put_cpu_var(lru_add_active_pvecs);
+ }
+ 
++static void __pagevec_lru_add_tail(struct pagevec *pvec)
++{
++	int i;
++	struct zone *zone = NULL;
++
++	for (i = 0; i < pagevec_count(pvec); i++) {
++		struct page *page = pvec->pages[i];
++		struct zone *pagezone = page_zone(page);
++
++		if (pagezone != zone) {
++			if (zone)
++				spin_unlock_irq(&zone->lru_lock);
++			zone = pagezone;
++			spin_lock_irq(&zone->lru_lock);
++		}
++		BUG_ON(PageLRU(page));
++		SetPageLRU(page);
++		add_page_to_inactive_list_tail(zone, page);
 +	}
++	if (zone)
++		spin_unlock_irq(&zone->lru_lock);
++	release_pages(pvec->pages, pvec->nr, pvec->cold);
++	pagevec_reinit(pvec);
++}
++
+ static void __lru_add_drain(int cpu)
+ {
+ 	struct pagevec *pvec = &per_cpu(lru_add_pvecs, cpu);
+@@ -169,6 +196,9 @@ static void __lru_add_drain(int cpu)
+ 	pvec = &per_cpu(lru_add_active_pvecs, cpu);
+ 	if (pagevec_count(pvec))
+ 		__pagevec_lru_add_active(pvec);
++	pvec = &per_cpu(lru_add_tail_pvecs, cpu);
++	if (pagevec_count(pvec))
++		__pagevec_lru_add_tail(pvec);
+ }
+ 
+ void lru_add_drain(void)
+@@ -385,6 +415,21 @@ void __pagevec_lru_add_active(struct pag
+ }
+ 
+ /*
++ * Function used uniquely to put pages back to the lru at the end of the
++ * inactive list to preserve the lru order. Currently only used by swap
++ * prefetch.
++ */
++void fastcall lru_cache_add_tail(struct page *page)
++{
++	struct pagevec *pvec = &get_cpu_var(lru_add_tail_pvecs);
++
++	page_cache_get(page);
++	if (!pagevec_add(pvec, page))
++		__pagevec_lru_add_tail(pvec);
++	put_cpu_var(lru_add_pvecs);
++}
++
++/*
+  * Try to drop buffers from the pages in a pagevec
+  */
+ void pagevec_strip(struct pagevec *pvec)
+@@ -538,5 +583,8 @@ void __init swap_setup(void)
+ 	 * Right now other parts of the system means that we
+ 	 * _really_ don't want to cluster much more
+ 	 */
++
++	prepare_swap_prefetch();
++
+ 	hotcpu_notifier(cpu_swap_callback, 0);
+ }
+Index: linux-ck-dev/mm/swap_prefetch.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-ck-dev/mm/swap_prefetch.c	2006-06-18 15:24:48.000000000 +1000
+@@ -0,0 +1,579 @@
++/*
++ * linux/mm/swap_prefetch.c
++ *
++ * Copyright (C) 2005-2006 Con Kolivas
++ *
++ * Written by Con Kolivas <kernel@kolivas.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/fs.h>
++#include <linux/mm.h>
++#include <linux/swap.h>
++#include <linux/swap-prefetch.h>
++#include <linux/ioprio.h>
++#include <linux/kthread.h>
++#include <linux/pagemap.h>
++#include <linux/syscalls.h>
++#include <linux/writeback.h>
++
++/*
++ * Time to delay prefetching if vm is busy or prefetching unsuccessful. There
++ * needs to be at least this duration of idle time meaning in practice it can
++ * be much longer
++ */
++#define PREFETCH_DELAY	(HZ * 5)
++
++/* sysctl - enable/disable swap prefetching */
++int swap_prefetch __read_mostly = 1;
++
++struct swapped_root {
++	unsigned long		busy;		/* vm busy */
++	spinlock_t		lock;		/* protects all data */
++	struct list_head	list;		/* MRU list of swapped pages */
++	struct radix_tree_root	swap_tree;	/* Lookup tree of pages */
++	unsigned int		count;		/* Number of entries */
++	unsigned int		maxcount;	/* Maximum entries allowed */
++	kmem_cache_t		*cache;		/* Of struct swapped_entry */
++};
++
++static struct swapped_root swapped = {
++	.lock		= SPIN_LOCK_UNLOCKED,
++	.list  		= LIST_HEAD_INIT(swapped.list),
++	.swap_tree	= RADIX_TREE_INIT(GFP_ATOMIC),
++};
++
++static task_t *kprefetchd_task;
++
++/*
++ * We check to see no part of the vm is busy. If it is this will interrupt
++ * trickle_swap and wait another PREFETCH_DELAY. Purposefully racy.
++ */
++inline void delay_swap_prefetch(void)
++{
++	if (!test_bit(0, &swapped.busy))
++		__set_bit(0, &swapped.busy);
++}
++
++/*
++ * Drop behind accounting which keeps a list of the most recently used swap
++ * entries.
++ */
++void add_to_swapped_list(struct page *page)
++{
++	struct swapped_entry *entry;
++	unsigned long index, flags;
++	int wakeup;
++
++	if (!swap_prefetch)
++		return;
++
++	wakeup = 0;
++
++	spin_lock_irqsave(&swapped.lock, flags);
++	if (swapped.count >= swapped.maxcount) {
++		/*
++		 * We limit the number of entries to 2/3 of physical ram.
++		 * Once the number of entries exceeds this we start removing
++		 * the least recently used entries.
++		 */
++		entry = list_entry(swapped.list.next,
++			struct swapped_entry, swapped_list);
++		radix_tree_delete(&swapped.swap_tree, entry->swp_entry.val);
++		list_del(&entry->swapped_list);
++		swapped.count--;
++	} else {
++		entry = kmem_cache_alloc(swapped.cache, GFP_ATOMIC);
++		if (unlikely(!entry))
++			/* bad, can't allocate more mem */
++			goto out_locked;
++	}
++
++	index = page_private(page);
++	entry->swp_entry.val = index;
++	/*
++	 * On numa we need to store the node id to ensure that we prefetch to
++	 * the same node it came from.
++	 */
++	store_swap_entry_node(entry, page);
++
++	if (likely(!radix_tree_insert(&swapped.swap_tree, index, entry))) {
++		/*
++		 * If this is the first entry, kprefetchd needs to be
++		 * (re)started.
++		 */
++		if (!swapped.count)
++			wakeup = 1;
++		list_add(&entry->swapped_list, &swapped.list);
++		swapped.count++;
++	}
++
++out_locked:
++	spin_unlock_irqrestore(&swapped.lock, flags);
++
++	/* Do the wakeup outside the lock to shorten lock hold time. */
++	if (wakeup)
++		wake_up_process(kprefetchd_task);
++
++	return;
++}
++
++/*
++ * Removes entries from the swapped_list. The radix tree allows us to quickly
++ * look up the entry from the index without having to iterate over the whole
++ * list.
++ */
++void remove_from_swapped_list(const unsigned long index)
++{
++	struct swapped_entry *entry;
++	unsigned long flags;
++
++	if (list_empty(&swapped.list))
++		return;
++
++	spin_lock_irqsave(&swapped.lock, flags);
++	entry = radix_tree_delete(&swapped.swap_tree, index);
++	if (likely(entry)) {
++		list_del_init(&entry->swapped_list);
++		swapped.count--;
++		kmem_cache_free(swapped.cache, entry);
++	}
++	spin_unlock_irqrestore(&swapped.lock, flags);
++}
++
++enum trickle_return {
++	TRICKLE_SUCCESS,
++	TRICKLE_FAILED,
++	TRICKLE_DELAY,
++};
++
++struct node_stats {
++	unsigned long	last_free;
++	/* Free ram after a cycle of prefetching */
++	unsigned long	current_free;
++	/* Free ram on this cycle of checking prefetch_suitable */
++	unsigned long	prefetch_watermark;
++	/* Maximum amount we will prefetch to */
++	unsigned long	highfree[MAX_NR_ZONES];
++	/* The amount of free ram before we start prefetching */
++	unsigned long	lowfree[MAX_NR_ZONES];
++	/* The amount of free ram where we will stop prefetching */
++	unsigned long	*pointfree[MAX_NR_ZONES];
++	/* highfree or lowfree depending on whether we've hit a watermark */
++};
++
++/*
++ * prefetch_stats stores the free ram data of each node and this is used to
++ * determine if a node is suitable for prefetching into.
++ */
++struct prefetch_stats {
++	nodemask_t	prefetch_nodes;
++	/* Which nodes are currently suited to prefetching */
++	unsigned long	prefetched_pages;
++	/* Total pages we've prefetched on this wakeup of kprefetchd */
++	struct node_stats node[MAX_NUMNODES];
++};
++
++static struct prefetch_stats sp_stat;
++
++/*
++ * This tries to read a swp_entry_t into swap cache for swap prefetching.
++ * If it returns TRICKLE_DELAY we should delay further prefetching.
++ */
++static enum trickle_return trickle_swap_cache_async(const swp_entry_t entry,
++	const int node)
++{
++	enum trickle_return ret = TRICKLE_FAILED;
++	struct page *page;
++
++	read_lock_irq(&swapper_space.tree_lock);
++	/* Entry may already exist */
++	page = radix_tree_lookup(&swapper_space.page_tree, entry.val);
++	read_unlock_irq(&swapper_space.tree_lock);
++	if (page) {
++		remove_from_swapped_list(entry.val);
++		goto out;
++	}
++
++	/*
++	 * Get a new page to read from swap. We have already checked the
++	 * watermarks so __alloc_pages will not call on reclaim.
++	 */
++	page = alloc_pages_node(node, GFP_HIGHUSER & ~__GFP_WAIT, 0);
++	if (unlikely(!page)) {
++		ret = TRICKLE_DELAY;
++		goto out;
++	}
++
++	if (add_to_swap_cache(page, entry)) {
++		/* Failed to add to swap cache */
++		goto out_release;
++	}
++
++	/* Add them to the tail of the inactive list to preserve LRU order */
++	lru_cache_add_tail(page);
++	if (unlikely(swap_readpage(NULL, page))) {
++		ret = TRICKLE_DELAY;
++		goto out_release;
++	}
++
++	sp_stat.prefetched_pages++;
++	sp_stat.node[node].last_free--;
++
++	ret = TRICKLE_SUCCESS;
++out_release:
++	page_cache_release(page);
++out:
++	return ret;
++}
++
++static void clear_last_prefetch_free(void)
++{
++	int node;
++
++	/*
++	 * Reset the nodes suitable for prefetching to all nodes. We could
++	 * update the data to take into account memory hotplug if desired..
++	 */
++	sp_stat.prefetch_nodes = node_online_map;
++	for_each_node_mask(node, sp_stat.prefetch_nodes) {
++		struct node_stats *ns = &sp_stat.node[node];
++
++		ns->last_free = 0;
++	}
++}
++
++static void clear_current_prefetch_free(void)
++{
++	int node;
++
++	sp_stat.prefetch_nodes = node_online_map;
++	for_each_node_mask(node, sp_stat.prefetch_nodes) {
++		struct node_stats *ns = &sp_stat.node[node];
++
++		ns->current_free = 0;
++	}
++}
++
++/*
++ * This updates the high and low watermarks of amount of free ram in each
++ * node used to start and stop prefetching. We prefetch from pages_high * 4
++ * down to pages_high * 3.
++ */
++static void examine_free_limits(void)
++{
++	struct zone *z;
++
++	for_each_zone(z) {
++		struct node_stats *ns;
++		int idx;
++
++		if (!populated_zone(z))
++			continue;
++
++		ns = &sp_stat.node[z->zone_pgdat->node_id];
++		idx = zone_idx(z);
++		ns->lowfree[idx] = z->pages_high * 3 +
++			z->lowmem_reserve[ZONE_HIGHMEM];
++		ns->highfree[idx] = ns->lowfree[idx] + z->pages_high;
++
++		if (z->free_pages > ns->highfree[idx]) {
++			/*
++			 * We've gotten above the high watermark of free pages
++			 * so we can start prefetching till we get to the low
++			 * watermark.
++			 */
++			ns->pointfree[idx] = &ns->lowfree[idx];
++		}
++	}
++}
++
++/*
++ * We want to be absolutely certain it's ok to start prefetching.
++ */
++static int prefetch_suitable(void)
++{
++	unsigned long limit;
++	struct zone *z;
++	int node, ret = 0, test_pagestate = 0;
++
++	/* Purposefully racy */
++	if (test_bit(0, &swapped.busy)) {
++		__clear_bit(0, &swapped.busy);
++		goto out;
++	}
++
++	/*
++	 * get_page_state and above_background_load are expensive so we only
++	 * perform them every SWAP_CLUSTER_MAX prefetched_pages.
++	 * We test to see if we're above_background_load as disk activity
++	 * even at low priority can cause interrupt induced scheduling
++	 * latencies.
++	 */
++	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX)) {
++		if (above_background_load())
++			goto out;
++		test_pagestate = 1;
++	}
++
++	clear_current_prefetch_free();
++
++	/*
++	 * Have some hysteresis between where page reclaiming and prefetching
++	 * will occur to prevent ping-ponging between them.
++	 */
++	for_each_zone(z) {
++		struct node_stats *ns;
++		unsigned long free;
++		int idx;
++
++		if (!populated_zone(z))
++			continue;
++
++		node = z->zone_pgdat->node_id;
++		ns = &sp_stat.node[node];
++		idx = zone_idx(z);
++
++		free = z->free_pages;
++		if (free < *ns->pointfree[idx]) {
++			/*
++			 * Free pages have dropped below the low watermark so
++			 * we won't start prefetching again till we hit the
++			 * high watermark of free pages.
++			 */
++			ns->pointfree[idx] = &ns->highfree[idx];
++			node_clear(node, sp_stat.prefetch_nodes);
++			continue;
++		}
++		ns->current_free += free;
++	}
++
++	/*
++	 * We iterate over each node testing to see if it is suitable for
++	 * prefetching and clear the nodemask if it is not.
++	 */
++	for_each_node_mask(node, sp_stat.prefetch_nodes) {
++		struct node_stats *ns = &sp_stat.node[node];
++		struct page_state ps;
++
++		/*
++		 * We check to see that pages are not being allocated
++		 * elsewhere at any significant rate implying any
++		 * degree of memory pressure (eg during file reads)
++		 */
++		if (ns->last_free) {
++			if (ns->current_free + SWAP_CLUSTER_MAX <
++			    ns->last_free) {
++				ns->last_free = ns->current_free;
++				node_clear(node,
++					sp_stat.prefetch_nodes);
++				continue;
++			}
++		} else
++			ns->last_free = ns->current_free;
++
++		if (!test_pagestate)
++			continue;
++
++		get_page_state_node(&ps, node);
++
++		/* We shouldn't prefetch when we are doing writeback */
++		if (ps.nr_writeback) {
++			node_clear(node, sp_stat.prefetch_nodes);
++			continue;
++		}
++
++		/*
++		 * >2/3 of the ram on this node is mapped, slab, swapcache or
++		 * dirty, we need to leave some free for pagecache.
++		 * Note that currently nr_slab is innacurate on numa because
++		 * nr_slab is incremented on the node doing the accounting
++		 * even if the slab is being allocated on a remote node. This
++		 * would be expensive to fix and not of great significance.
++		 */
++		limit = ps.nr_mapped + ps.nr_slab + ps.nr_dirty +
++			ps.nr_unstable + total_swapcache_pages;
++		if (limit > ns->prefetch_watermark) {
++			node_clear(node, sp_stat.prefetch_nodes);
++			continue;
++		}
++	}
++
++	if (nodes_empty(sp_stat.prefetch_nodes))
++		goto out;
++
++	/* Survived all that? Hooray we can prefetch! */
++	ret = 1;
++out:
++	return ret;
++}
++
++/*
++ * Get previous swapped entry when iterating over all entries. swapped.lock
++ * should be held and we should already ensure that entry exists.
++ */
++static inline struct swapped_entry *prev_swapped_entry
++	(struct swapped_entry *entry)
++{
++	return list_entry(entry->swapped_list.prev->prev,
++		struct swapped_entry, swapped_list);
++}
++
++/*
++ * trickle_swap is the main function that initiates the swap prefetching. It
++ * first checks to see if the busy flag is set, and does not prefetch if it
++ * is, as the flag implied we are low on memory or swapping in currently.
++ * Otherwise it runs until prefetch_suitable fails which occurs when the
++ * vm is busy, we prefetch to the watermark, or the list is empty or we have
++ * iterated over all entries
++ */
++static enum trickle_return trickle_swap(void)
++{
++	enum trickle_return ret = TRICKLE_DELAY;
++	struct swapped_entry *entry;
++	unsigned long flags;
++
++	/*
++	 * If laptop_mode is enabled don't prefetch to avoid hard drives
++	 * doing unnecessary spin-ups
++	 */
++	if (!swap_prefetch || laptop_mode)
++		return ret;
++
++	examine_free_limits();
++	entry = NULL;
++
++	for ( ; ; ) {
++		swp_entry_t swp_entry;
++		int node;
++
++		if (!prefetch_suitable())
++			break;
++
++		spin_lock_irqsave(&swapped.lock, flags);
++		if (list_empty(&swapped.list)) {
++			ret = TRICKLE_FAILED;
++			spin_unlock_irqrestore(&swapped.lock, flags);
++			break;
++		}
++
++		if (!entry) {
++			/*
++			 * This sets the entry for the first iteration. It
++			 * also is a safeguard against the entry disappearing
++			 * while the lock is not held.
++			 */
++			entry = list_entry(swapped.list.prev,
++				struct swapped_entry, swapped_list);
++		} else if (entry->swapped_list.prev == swapped.list.next) {
++			/*
++			 * If we have iterated over all entries and there are
++			 * still entries that weren't swapped out there may
++			 * be a reason we could not swap them back in so
++			 * delay attempting further prefetching.
++			 */
++			spin_unlock_irqrestore(&swapped.lock, flags);
++			break;
++		}
++
++		node = get_swap_entry_node(entry);
++		if (!node_isset(node, sp_stat.prefetch_nodes)) {
++			/*
++			 * We found an entry that belongs to a node that is
++			 * not suitable for prefetching so skip it.
++			 */
++			entry = prev_swapped_entry(entry);
++			spin_unlock_irqrestore(&swapped.lock, flags);
++			continue;
++		}
++		swp_entry = entry->swp_entry;
++		entry = prev_swapped_entry(entry);
++		spin_unlock_irqrestore(&swapped.lock, flags);
++
++		if (trickle_swap_cache_async(swp_entry, node) == TRICKLE_DELAY)
++			break;
++	}
++
++	if (sp_stat.prefetched_pages) {
++		lru_add_drain();
++		sp_stat.prefetched_pages = 0;
++	}
++	return ret;
++}
++
++static int kprefetchd(void *__unused)
++{
++	struct sched_param param = { .sched_priority = 0 };
++
++	sched_setscheduler(current, SCHED_BATCH, &param);
++	set_user_nice(current, 19);
++	/* Set ioprio to lowest if supported by i/o scheduler */
++	sys_ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_CLASS_IDLE);
++
++	do {
++		try_to_freeze();
++
++		/*
++		 * TRICKLE_FAILED implies no entries left - we do not schedule
++		 * a wakeup, and further delay the next one.
++		 */
++		if (trickle_swap() == TRICKLE_FAILED) {
++			set_current_state(TASK_INTERRUPTIBLE);
++			schedule();
++		}
++		clear_last_prefetch_free();
++		schedule_timeout_interruptible(PREFETCH_DELAY);
++	} while (!kthread_should_stop());
++
 +	return 0;
 +}
++
++/*
++ * Create kmem cache for swapped entries
++ */
++void __init prepare_swap_prefetch(void)
++{
++	struct zone *zone;
++
++	swapped.cache = kmem_cache_create("swapped_entry",
++		sizeof(struct swapped_entry), 0, SLAB_PANIC, NULL, NULL);
++
++	/*
++	 * Set max number of entries to 2/3 the size of physical ram  as we
++	 * only ever prefetch to consume 2/3 of the ram.
++	 */
++	swapped.maxcount = nr_free_pagecache_pages() / 3 * 2;
++
++	for_each_zone(zone) {
++		unsigned long present;
++		struct node_stats *ns;
++		int idx;
++
++		present = zone->present_pages;
++		if (!present)
++			continue;
++
++		ns = &sp_stat.node[zone->zone_pgdat->node_id];
++		ns->prefetch_watermark += present / 3 * 2;
++		idx = zone_idx(zone);
++		ns->pointfree[idx] = &ns->highfree[idx];
++	}
++}
++
++static int __init kprefetchd_init(void)
++{
++	kprefetchd_task = kthread_run(kprefetchd, NULL, "kprefetchd");
++
++	return 0;
++}
++
++static void __exit kprefetchd_exit(void)
++{
++	kthread_stop(kprefetchd_task);
++}
++
++module_init(kprefetchd_init);
++module_exit(kprefetchd_exit);
+Index: linux-ck-dev/mm/swap_state.c
+===================================================================
+--- linux-ck-dev.orig/mm/swap_state.c	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/mm/swap_state.c	2006-06-18 15:24:48.000000000 +1000
+@@ -10,6 +10,7 @@
+ #include <linux/mm.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/swap.h>
++#include <linux/swap-prefetch.h>
+ #include <linux/init.h>
+ #include <linux/pagemap.h>
+ #include <linux/buffer_head.h>
+@@ -82,6 +83,7 @@ static int __add_to_swap_cache(struct pa
+ 		error = radix_tree_insert(&swapper_space.page_tree,
+ 						entry.val, page);
+ 		if (!error) {
++			remove_from_swapped_list(entry.val);
+ 			page_cache_get(page);
+ 			SetPageLocked(page);
+ 			SetPageSwapCache(page);
+@@ -95,11 +97,12 @@ static int __add_to_swap_cache(struct pa
+ 	return error;
+ }
  
- struct io_context;			/* See blkdev.h */
- void exit_io_context(void);
+-static int add_to_swap_cache(struct page *page, swp_entry_t entry)
++int add_to_swap_cache(struct page *page, swp_entry_t entry)
+ {
+ 	int error;
+ 
+ 	if (!swap_duplicate(entry)) {
++		remove_from_swapped_list(entry.val);
+ 		INC_CACHE_INFO(noent_race);
+ 		return -ENOENT;
+ 	}
+@@ -148,6 +151,9 @@ int add_to_swap(struct page * page, gfp_
+ 	swp_entry_t entry;
+ 	int err;
+ 
++	/* Swap prefetching is delayed if we're swapping pages */
++	delay_swap_prefetch();
++
+ 	BUG_ON(!PageLocked(page));
+ 
+ 	for (;;) {
+@@ -320,6 +326,9 @@ struct page *read_swap_cache_async(swp_e
+ 	struct page *found_page, *new_page = NULL;
+ 	int err;
+ 
++	/* Swap prefetching is delayed if we're already reading from swap */
++	delay_swap_prefetch();
++
+ 	do {
+ 		/*
+ 		 * First check the swap cache.  Since this is normally
+Index: linux-ck-dev/mm/vmscan.c
+===================================================================
+--- linux-ck-dev.orig/mm/vmscan.c	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/mm/vmscan.c	2006-06-18 15:24:48.000000000 +1000
+@@ -16,6 +16,7 @@
+ #include <linux/slab.h>
+ #include <linux/kernel_stat.h>
+ #include <linux/swap.h>
++#include <linux/swap-prefetch.h>
+ #include <linux/pagemap.h>
+ #include <linux/init.h>
+ #include <linux/highmem.h>
+@@ -380,6 +381,7 @@ int remove_mapping(struct address_space 
+ 
+ 	if (PageSwapCache(page)) {
+ 		swp_entry_t swap = { .val = page_private(page) };
++		add_to_swapped_list(page);
+ 		__delete_from_swap_cache(page);
+ 		write_unlock_irq(&mapping->tree_lock);
+ 		swap_free(swap);
+@@ -959,6 +961,8 @@ unsigned long try_to_free_pages(struct z
+ 		.may_swap = 1,
+ 	};
+ 
++	delay_swap_prefetch();
++
+ 	inc_page_state(allocstall);
+ 
+ 	for (i = 0; zones[i] != NULL; i++) {
+@@ -1303,6 +1307,8 @@ unsigned long shrink_all_memory(unsigned
+ 		.reclaimed_slab = 0,
+ 	};
+ 
++	delay_swap_prefetch();
++
+ 	current->reclaim_state = &reclaim_state;
+ repeat:
+ 	for_each_online_pgdat(pgdat) {
+Index: linux-ck-dev/include/linux/mm_inline.h
+===================================================================
+--- linux-ck-dev.orig/include/linux/mm_inline.h	2006-06-18 15:20:12.000000000 +1000
++++ linux-ck-dev/include/linux/mm_inline.h	2006-06-18 15:24:48.000000000 +1000
+@@ -14,6 +14,13 @@ add_page_to_inactive_list(struct zone *z
+ }
+ 
+ static inline void
++add_page_to_inactive_list_tail(struct zone *zone, struct page *page)
++{
++	list_add_tail(&page->lru, &zone->inactive_list);
++	zone->nr_inactive++;
++}
++
++static inline void
+ del_page_from_active_list(struct zone *zone, struct page *page)
+ {
+ 	list_del(&page->lru);
+Index: linux-ck-dev/include/linux/swap-prefetch.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-ck-dev/include/linux/swap-prefetch.h	2006-06-18 15:24:48.000000000 +1000
+@@ -0,0 +1,55 @@
++#ifndef SWAP_PREFETCH_H_INCLUDED
++#define SWAP_PREFETCH_H_INCLUDED
++
++#ifdef CONFIG_SWAP_PREFETCH
++/* mm/swap_prefetch.c */
++extern int swap_prefetch;
++struct swapped_entry {
++	swp_entry_t		swp_entry;	/* The actual swap entry */
++	struct list_head	swapped_list;	/* Linked list of entries */
++#if MAX_NUMNODES > 1
++	int			node;		/* Node id */
++#endif
++} __attribute__((packed));
++
++static inline void store_swap_entry_node(struct swapped_entry *entry,
++	struct page *page)
++{
++#if MAX_NUMNODES > 1
++	entry->node = page_to_nid(page);
++#endif
++}
++
++static inline int get_swap_entry_node(struct swapped_entry *entry)
++{
++#if MAX_NUMNODES > 1
++	return entry->node;
++#else
++	return 0;
++#endif
++}
++
++extern void add_to_swapped_list(struct page *page);
++extern void remove_from_swapped_list(const unsigned long index);
++extern void delay_swap_prefetch(void);
++extern void prepare_swap_prefetch(void);
++
++#else	/* CONFIG_SWAP_PREFETCH */
++static inline void add_to_swapped_list(struct page *__unused)
++{
++}
++
++static inline void prepare_swap_prefetch(void)
++{
++}
++
++static inline void remove_from_swapped_list(const unsigned long __unused)
++{
++}
++
++static inline void delay_swap_prefetch(void)
++{
++}
++#endif	/* CONFIG_SWAP_PREFETCH */
++
++#endif		/* SWAP_PREFETCH_H_INCLUDED */
 
 -- 
 -ck

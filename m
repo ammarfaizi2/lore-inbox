@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWFRHt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWFRIQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWFRHt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 03:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWFRHt1
+	id S932144AbWFRIQM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 04:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWFRIQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 03:49:27 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:50367 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932118AbWFRHt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 03:49:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=go7X00r7xWzlKKvIKon0MN5aRMiMwxe+TowsUiLfdE/erKApVMCWuAvEb3hSdnMqQxLgPTuqJbiUhWuyS9pLgOOwPg1l/+hU1hKgaTqL0puIDkQAADy5vvJ3siMDbTtlACfdQkXZ94JEw0PUvAW/FdvKRfDo3m6fwPfYizH6Mu0=  ;
-Message-ID: <44950580.5080003@yahoo.com.au>
-Date: Sun, 18 Jun 2006 17:49:20 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sun, 18 Jun 2006 04:16:12 -0400
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:29129 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932144AbWFRIQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 04:16:12 -0400
+Date: Sun, 18 Jun 2006 04:13:15 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.17-rc6-mm2
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200606180415_MC3-1-C2C5-AF79@compuserve.com>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Andrew Morton <akpm@osdl.org>, sam@vilain.net, vatsa@in.ibm.com,
-       dev@openvz.org, mingo@elte.hu, pwil3058@bigpond.net.au,
-       sekharan@us.ibm.com, balbir@in.ibm.com, linux-kernel@vger.kernel.org,
-       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
-Subject: Re: [RFC] CPU controllers?
-References: <20060615134632.GA22033@in.ibm.com>	 <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com>	 <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net>	 <4494EE86.7090209@yahoo.com.au>  <20060617234259.dc34a20c.akpm@osdl.org> <1150616176.7985.50.camel@Homer.TheSimpsons.net>
-In-Reply-To: <1150616176.7985.50.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Sat, 2006-06-17 at 23:42 -0700, Andrew Morton wrote:
-> 
->>On Sun, 18 Jun 2006 16:11:18 +1000
->>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> 
->>>Again, I don't care about the solutions at this stage. I want to know
->>>what the problem is. Please?
->>
->>Isolation.  To prevent one group of processes from damaging the performance
->>of other groups, by providing manageability of the resource consumption of
->>each group.  There are plenty of applications of this, not just
->>server-consolidation-via-server-virtualisation.
-> 
-> 
-> Scheduling contexts do sound useful.  They're easily defeated though, as
-> evolution mail demonstrates to me every time it's GUI hangs and I see
-> that a nice 19 find is running, eating very little CPU, but effectively
-> DoSing evolution nonetheless (journal).  I wonder how often people who
-> tried to distribute CPU would likewise be stymied by other resources.
+Finally got around to downloading the broken-out 2.6.17-rc6-mm2 and when
+I applied it a bunch of these came out:
 
-Not entirely infrequently. Which is why it really doesn't seem like
-it could be useful from a security point of view without a *huge*
-amount of work and complexity... and even from a guaranteed-service
-point of view, it still seems (to me) like a pretty big and complex
-problem.
+  Applying patch documentation-ioctl-messtxt-start-tree-wide-ioctl-registry.patch
+  missing header for unified diff at line 4854 of patch
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Applying patch post-halloween-doc.patch
+  Applying patch kgdb-core-lite.patch
+  missing header for unified diff at line 2614 of patch
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Applying patch lock-validator-special-locking-kgdb.patch
+  Applying patch kgdb-core-lite-add-reboot-command.patch
+  Applying patch kgdb-8250.patch
+  Applying patch kgdb-8250-fix.patch
+  Applying patch kgdb-netpoll_pass_skb_to_rx_hook.patch
+  Applying patch kgdb-eth.patch
+  Applying patch kgdb-i386-lite.patch
+  Applying patch kgdb-cfi_annotations.patch
+  missing header for unified diff at line 1423 of patch
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As a check box for marketing it sounds pretty cool though, I admit ;)
+Seems mostly harmless, as the changes applied anyway, but those headers do
+look strange: the '---' lines are missing a directory name:
+
+  diff -puN Makefile~kgdb-cfi_annotations Makefile
+  --- Makefile~kgdb-cfi_annotations       2006-06-09 15:18:45.000000000 -0700
+  +++ devel-akpm/Makefile 2006-06-09 15:18:45.000000000 -0700
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

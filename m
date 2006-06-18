@@ -1,88 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWFRXHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWFRXJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751063AbWFRXHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 19:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWFRXHK
+	id S1751181AbWFRXJF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 19:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWFRXJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 19:07:10 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:57834 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751063AbWFRXHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 19:07:09 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: Linux 2.4.33-rc1
-Date: Mon, 19 Jun 2006 09:07:03 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com>
-References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu>
-In-Reply-To: <20060618223736.GA4965@1wt.eu>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Sun, 18 Jun 2006 19:09:05 -0400
+Received: from mail.suse.de ([195.135.220.2]:1995 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751181AbWFRXJE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 19:09:04 -0400
+Date: Sun, 18 Jun 2006 16:06:08 -0700
+From: Greg KH <gregkh@suse.de>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
+Message-ID: <20060618230608.GA2212@suse.de>
+References: <20060618221343.GA20277@kroah.com> <6bffcb0e0606181545v72926ffas88561f9532030cfb@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <6bffcb0e0606181545v72926ffas88561f9532030cfb@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 00:37:36 +0200, Willy Tarreau <w@1wt.eu> wrote:
+On Mon, Jun 19, 2006 at 12:45:16AM +0200, Michal Piotrowski wrote:
+> Hi Greg,
+> 
+> On 19/06/06, Greg KH <gregkh@suse.de> wrote:
+> [snip]
+> >I've posted all of these patches before, but if people really want to look 
+> >at them, they can be found at:
+> >        http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-devfs/
+> >
+> 
+> devfs-remove-devfs_fs_kernel.h.patch doesn't apply clean.
+> 
+> [michal@ltg01-fedora linux-work2]$ quilt push devfs-feature-removal.patch
+> Applying patch patches/devfs-die-die-die.patch
+> patching file fs/Makefile
+> patching file fs/compat_ioctl.c
+> [..]
+> patching file drivers/video/fbmem.c
+> patching file fs/coda/psdev.c
+> patching file fs/partitions/check.c
+> Hunk #1 FAILED at 320.
+> 1 out of 1 hunk FAILED -- rejects in file fs/partitions/check.c
+> patching file include/linux/devfs_fs_kernel.h
+> Patch patches/devfs-remove-devfs_remove.patch does not apply (enforce with 
+> -f)
 
->Hi Grant,
->
->On Mon, Jun 19, 2006 at 08:25:06AM +1000, Grant Coady wrote:
->> On Sun, 18 Jun 2006 10:37:18 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
->> 
->> >Can you please try the attached patch.
->> >
->> >Grab a reference to the victim inode before calling vfs_unlink() to avoid
->> >it vanishing under us.
->> >
->> >diff --git a/fs/namei.c b/fs/namei.c
->> >index 42cce98..7993283 100644
->> >--- a/fs/namei.c
->> >+++ b/fs/namei.c
->> >@@ -1509,6 +1509,7 @@ asmlinkage long sys_unlink(const char * 
->> > 	char * name;
->> > 	struct dentry *dentry;
->> > 	struct nameidata nd;
->> >+	struct inode *inode = NULL;
->> > 
->> > 	name = getname(pathname);
->> > 	if(IS_ERR(name))
->> >@@ -1527,11 +1528,16 @@ asmlinkage long sys_unlink(const char * 
->> > 		/* Why not before? Because we want correct error value */
->> > 		if (nd.last.name[nd.last.len])
->> > 			goto slashes;
->> >+		inode = dentry->d_inode;
->> >+		if (inode)
->> >+			atomic_inc(&inode->i_count);
->> > 		error = vfs_unlink(nd.dentry->d_inode, dentry);
->> > 	exit2:
->> > 		dput(dentry);
->> > 	}
->
->Could you add this line here, because your oops still looks like the NULL
->is close to this area :
->
->+       printk(KERN_DEBUG "nd.dentry->d_inode = %p\n", nd.dentry->d_inode);
+You need to have the other patches in my quilt tree in order to be able
+to apply this one from the kernel.org directory.  I fixed this up by
+hand for the git tree that I pointed Linus at.
 
-It didn't get there for the segfault case, gets there for local file 
-delete 
+thanks,
 
-After:
-grant@sempro:~$ dmesg >dmesg
-grant@sempro:~$ rm dmesg
-
-Jun 19 08:49:17 sempro kernel: nd.dentry->d_inode = f73f4b80
-
-After:
-grant@sempro:~$ dmesg >/home/share/dmesg-test
-grant@sempro:~$ rm /home/share/dmesg-test
-Segmentation fault
-
-Nothing reported by debug or syslog, oops in messages.
-
-Cheers,
-Grant.
+greg k-h

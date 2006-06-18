@@ -1,103 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWFRHiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWFRHhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWFRHiO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 03:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWFRHgt
+	id S932157AbWFRHhY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 03:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWFRHgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 03:36:49 -0400
-Received: from mail29.syd.optusnet.com.au ([211.29.132.171]:14547 "EHLO
-	mail29.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932156AbWFRHgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 03:36:41 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-ck1
-Date: Sun, 18 Jun 2006 17:36:35 +1000
-User-Agent: KMail/1.9.1
+	Sun, 18 Jun 2006 03:36:53 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:18617 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932158AbWFRHgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 03:36:25 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: x86_64: x86-64 mailing lists / posting patchkits / x86-64 releases
+Date: Sun, 18 Jun 2006 09:35:35 +0200
+User-Agent: KMail/1.9.3
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+References: <200606121307.54556.ak@suse.de> <20060617100543.ae21d6d9.akpm@osdl.org>
+In-Reply-To: <20060617100543.ae21d6d9.akpm@osdl.org>
 MIME-Version: 1.0
-Message-Id: <200606181736.38768.kernel@kolivas.org>
-X-Length: 1201
-Content-Type: multipart/signed;
-  boundary="nextPart1235253.5jfCETAboX";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606180935.35977.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1235253.5jfCETAboX
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck patch is aimed at the=
-=20
-desktop and cks is available with more emphasis on serverspace.
+> >From the below, a lot of the problems I'm having to fix are simply x86
+> build/link/depmod breakage.
 
-Apply to 2.6.17
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.17/2.6.17-=
-ck1/patch-2.6.17-ck1.bz2
+It's unfortunate - my testing is definitely focussed on x86-64, but
+often the same problem(s) exist in i386 too and of course it has 
+to be changed there too.
 
-or server version
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.17-c=
-ks1.bz2
+> So more careful build checking on x86-32 would 
+> improve things quite a lot.
 
-web:
-http://kernel.kolivas.org
+I'm already doing it a bit, but one problem is that i386 has a lot 
+more build variants than x86-64. I'll try to do better.
 
-all patches:
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/
+BTW I've been actually considering to reduce the variants a bit - e.g. I think
+it doesn't make sense anymore to allow x86 kernels without APIC support
+(it can be still disabled at runtime with default set by a config).  
 
-Split patches available.
-
-=46ull patchlist:
-
-sched-implement-smpnice-2.6.17.patch
-sched-revise_smt_nice_locking.patch
-2.6.17-smpnice-staircase-16.patch
-sched-staircase16_interactive_tunable.patch
-sched-staircase16_compute_tunable.patch
-sched-range.patch
-sched-iso-4.5.patch
-track_mutexes-1.patch
-sched-idleprio-1.9.patch
-sched-limit_policy_changes.patch
-defaultcfq.diff
-cfq-ioprio_inherit_rt_class.patch
-cfq-iso_idleprio_ionice.patch
-hz-default_1000.patch
-hz-no_default_250.patch
-sched-add-above-background-load-function.patch
-mm-swap_prefetch-32.patch
-swsusp-rework-memory-shrinker-rev-2.patch
-mm-convert_swappiness_to_mapped.patch
-mm-lots_watermark.diff
-mm-kswapd_inherit_prio-1.patch
-mm-prio_dependant_scan-1.patch
-mm-background_scan-1.patch
-mm-idleprio_prio.patch
-mm-decrease_minimum_dirty_ratio.patch
-mm-set_zero_dirty_ratio.patch
-mm-filesize_dependant_lru_cache_add.patch
-fs-fcache-v2.1.patch
-kconfig-expose_vmsplit_option.patch
-2.6.17-ck1-version.patch
-
-=2D-=20
-=2Dck
-
---nextPart1235253.5jfCETAboX
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBElQKGZUg7+tp6mRURAtNgAJ9d0rAQ77u8pjoGISTdHNjv4NHKdgCfZa+C
-Vexbwcfz9Ol+V+pQa12X5XQ=
-=qdZL
------END PGP SIGNATURE-----
-
---nextPart1235253.5jfCETAboX--
+-Andi

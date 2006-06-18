@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWFREYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWFREkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWFREYh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 00:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWFREYh
+	id S932085AbWFREkv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 00:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWFREku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 00:24:37 -0400
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:4771 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932083AbWFREYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 00:24:37 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Wouter Paesen <wouter@kangaroot.net>
-Subject: Re: [RFC][PATCH 2.6.17-rc6] input/mouse/sermouse: fix memleak and potential buffer overflow
-Date: Sun, 18 Jun 2006 00:24:31 -0400
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060615104702.GA4866@tougher.kangaroot.net>
-In-Reply-To: <20060615104702.GA4866@tougher.kangaroot.net>
+	Sun, 18 Jun 2006 00:40:50 -0400
+Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:57954 "HELO
+	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932085AbWFREku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 00:40:50 -0400
+Date: Sat, 17 Jun 2006 21:40:47 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: ocilent1 <ocilent1@gmail.com>
+Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
+       Hugo Vanwoerkom <rociobarroso@att.net.mx>,
+       linux list <linux-kernel@vger.kernel.org>
+Subject: Re: sound skips on 2.6.16.17
+Message-ID: <20060618044047.GA1261@tuatara.stupidest.org>
+References: <4487F942.3030601@att.net.mx> <200606172129.56986.kernel@kolivas.org> <20060618024130.GA32399@tuatara.stupidest.org> <200606181204.29626.ocilent1@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606180024.32759.dtor_core@ameritech.net>
+In-Reply-To: <200606181204.29626.ocilent1@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 June 2006 06:47, Wouter Paesen wrote:
-> While strolling trough the sermouse driver for some example code, I
-> noticed 2 strange things happening there :
-> 
-> * In the sermouse_connect function an input device structure is
->   allocated (input_allocate_device), which is not deallocated 
->   in the sermouse_disconnect function.  
->   
->   If I understand this correctly someone repeatedly connecting and 
->   disconnecting the mouse would leak input_dev structures.
->
+On Sun, Jun 18, 2006 at 12:04:29PM +0800, ocilent1 wrote:
 
-No, input_free_device() should not be called after input_register_device()
-returns successfully because input_dev will be freed automatically once
-last reference to it is dropped.
+> (PCI-quirk-VIA-IRQ-fixup-should-only-run-for-VIA-southbridges.patch)
+> that is causing the sound stuttering/skipping problems for our users
+> with VIA chipsets. Backing out the first patch alone did not fix the
+> problem (PCI-VIA-quirk-fixup-additional-PCI-IDs.patch) but to back
+> out the 2nd patch, you need to have initially backed out the first
+> patch, due to the way the patches apply in series.
 
-> * In the sermouse_connect function the phys member of the sermouse 
->   structure (32 characters) is initialised with :
-> 
->      sprintf(sermouse->phys, "%s/input0", serio->phys);
-> 
->   Because serio->phys is also a 32 character field the sprintf could
->   result in 39 characters being written to the sermouse->phys.
->
+what mainboard/CPU do you have there?
 
-Right, we need to change it to use snprintf.
-
--- 
-Dmitry
+what does 'lspci -n' say?

@@ -1,76 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWFRTjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWFRTlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWFRTjv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 15:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWFRTjv
+	id S932303AbWFRTlR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 15:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWFRTlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 15:39:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40071 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932281AbWFRTju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 15:39:50 -0400
-Message-ID: <4495AC3B.4020508@redhat.com>
-Date: Sun, 18 Jun 2006 12:40:43 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 18 Jun 2006 15:41:17 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:37844 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932303AbWFRTlP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 15:41:15 -0400
+Message-ID: <4495AABE.6090007@in.ibm.com>
+Date: Mon, 19 Jun 2006 01:04:22 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Implement AT_SYMLINK_FOLLOW flag for linkat
-References: <200606171913.k5HJDM3U021408@devserv.devel.redhat.com> <20060618191629.GE27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606181220590.5498@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606181220590.5498@g5.osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig588665742129F7A0D9CC4241"
+To: jblunck@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, dgc@sgi.com, neilb@suse.de
+Subject: Re: [PATCH 2/5] vfs: d_genocide() doesnt add dentries to unused list
+References: <20060616104321.778718000@hasse.suse.de> <20060616104322.204073000@hasse.suse.de>
+In-Reply-To: <20060616104322.204073000@hasse.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig588665742129F7A0D9CC4241
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+jblunck@suse.de wrote:
+> Calling d_genocide() is only lowering the reference count of the dentries but
+> doesn't add them to the unused list.
+> 
+> Signed-off-by: Jan Blunck <jblunck@suse.de>
+> ---
+>  fs/dcache.c |   18 ++++++++++++++++--
+>  1 file changed, 16 insertions(+), 2 deletions(-)
+> 
+> Index: work-2.6/fs/dcache.c
+> ===================================================================
+> --- work-2.6.orig/fs/dcache.c
+> +++ work-2.6/fs/dcache.c
+> @@ -1612,11 +1612,25 @@ resume:
+>  			this_parent = dentry;
+>  			goto repeat;
+>  		}
+> -		atomic_dec(&dentry->d_count);
+> +		if (!list_empty(&dentry->d_lru)) {
+> +			dentry_stat.nr_unused--;
+> +			list_del_init(&dentry->d_lru);
+> +		}
+> +		if (atomic_dec_and_test(&dentry->d_count)) {
+> +			list_add(&dentry->d_lru, dentry_unused.prev);
+> +			dentry_stat.nr_unused++;
+> +		}
 
-Linus Torvalds wrote:
-> Well, the patch as sent in does seem sane, as long as glibc doesn't sta=
-rt=20
-> defaulting to the insane behaviour. Giving users the _ability_ to link =
-to=20
-> the symlink target is certainly not wrong, regardless of any standard. =
+We could have dentries on the LRU list with non-zero d_count. If
+we have a dentry on the LRU list with a count of 1, then the code
+will remove it from LRU list and then add it back subsequently.
 
-> Doing it by default is another matter.
+I think the condition below should be an else if
 
-I do not intend to change the link implementation in glibc.  That would
-be majorly stupid, it'd break the ABI.
+>  	}
+>  	if (this_parent != root) {
+>  		next = this_parent->d_u.d_child.next;
+> -		atomic_dec(&this_parent->d_count);
+> +		if (!list_empty(&this_parent->d_lru)) {
+> +			dentry_stat.nr_unused--;
+> +			list_del_init(&this_parent->d_lru);
+> +		}
+> +		if (atomic_dec_and_test(&this_parent->d_count)) {
+> +			list_add(&this_parent->d_lru, dentry_unused.prev);
+> +			dentry_stat.nr_unused++;
+> +		}
 
-The AT_SYMLINK_FOLLOW flag to linkat was the result of the discussion
-how to resolve the issue of the conflict between POSIX and the Linux
-implementation of link (BTW: the Solaris link syscall behaves the same
-as Linux's).  This is an easy an non-intrusive way to help people who
-depend on the questionable POSIx-mandated behavior to work around the
-incompatiblity.  Nothing more.  Don't change the link syscall, don't
-assume the glibc will be changed.  This is only one little extra bit of
-new functionality.
+Ditto
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+>  		this_parent = this_parent->d_parent;
+>  		goto resume;
+>  	}
+> 
 
+d_genocide() now almost looks like select_parent(). I think we can share a lot
+of code between the two.
 
---------------enig588665742129F7A0D9CC4241
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFElaw72ijCOnn/RHQRAu8IAKCCA4tpmmE0WCUgRJEeGHSzKHwsTwCfTmMA
-JirmQs3TT9+k6WuDvG0GSJ4=
-=1gRv
------END PGP SIGNATURE-----
-
---------------enig588665742129F7A0D9CC4241--
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

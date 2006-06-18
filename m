@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWFRTcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWFRTeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWFRTcX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 15:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWFRTcX
+	id S932307AbWFRTeF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 15:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWFRTeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 15:32:23 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:19361 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932306AbWFRTcW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 15:32:22 -0400
-Date: Sun, 18 Jun 2006 20:32:19 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Implement AT_SYMLINK_FOLLOW flag for linkat
-Message-ID: <20060618193219.GF27946@ftp.linux.org.uk>
-References: <200606171913.k5HJDM3U021408@devserv.devel.redhat.com> <20060618191629.GE27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606181220590.5498@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606181220590.5498@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 18 Jun 2006 15:34:05 -0400
+Received: from pat.uio.no ([129.240.10.4]:42714 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932307AbWFRTeE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 15:34:04 -0400
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <181A24DA-7B74-4829-BB81-FFAF921DEE7D@usit.uio.no>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+From: Hans A Eide <haeide@usit.uio.no>
+Subject: Re: Sparse minor space in ub
+Date: Sun, 18 Jun 2006 21:33:40 +0200
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.750)
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.333, required 12,
+	autolearn=disabled, AWL 1.67, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 18, 2006 at 12:22:14PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 18 Jun 2006, Al Viro wrote:
-> > 
-> > Where does POSIX require that?  IIRC, it was along the lines of "application
-> > can't rely on kernel doing the right thing", not "kernel must do the
-> > wrong thing"...
-> 
-> Well, the patch as sent in does seem sane, as long as glibc doesn't start 
-> defaulting to the insane behaviour. Giving users the _ability_ to link to 
-> the symlink target is certainly not wrong, regardless of any standard. 
-> Doing it by default is another matter.
 
-As long as it doesn't get tied to overloaded environment variable that
-might be needed for other purposes...
+On Wed, Jun 14, 2006 at 11:54:04PM -0700, Pete Zaitcev wrote:
+ > I wrote a patch which allows to expand the number of partitions in ub
+ > without breaking compatibility with the existing non-udev based
+ > distributions.
+
+FWIW, I can confirm this patch works with 2.6.17 and udev (Gentoo).
+Sorry, no non-udev boxes around to test with.
+
+Thanks!
+
+
+HansA
+
+

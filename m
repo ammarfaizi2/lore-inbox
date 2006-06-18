@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWFRLL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWFRLUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWFRLL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 07:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWFRLL2
+	id S1751150AbWFRLUq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 07:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWFRLUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 07:11:28 -0400
-Received: from mail-ale01.alestra.net.mx ([207.248.224.149]:61403 "EHLO
-	mail-ale01.alestra.net.mx") by vger.kernel.org with ESMTP
-	id S1751146AbWFRLL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 07:11:27 -0400
-Message-ID: <449534DA.8040103@att.net.mx>
-Date: Sun, 18 Jun 2006 06:11:22 -0500
-From: Hugo Vanwoerkom <rociobarroso@att.net.mx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Sun, 18 Jun 2006 07:20:46 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:40708 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751147AbWFRLUp
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 07:20:45 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Vladimir V. Saveliev" <vs@namesys.com>,
+       hch@infradead.org, Reiserfs-Dev@namesys.com,
+       Linux-Kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: batched write
+References: <44736D3E.8090808@namesys.com> <20060524175312.GA3579@zero>
+	<44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de>
+	<1149766000.6336.29.camel@tribesman.namesys.com>
+	<20060608121006.GA8474@infradead.org>
+	<1150322912.6322.129.camel@tribesman.namesys.com>
+	<20060617100458.0be18073.akpm@osdl.org> <4494411B.4010706@namesys.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: don't cry -- it won't help.
+Date: Sun, 18 Jun 2006 12:20:00 +0100
+In-Reply-To: <4494411B.4010706@namesys.com> (Hans Reiser's message of "17 Jun 2006 18:51:46 +0100")
+Message-ID: <87ac8an21r.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: ck@vds.kolivas.org, linux list <linux-kernel@vger.kernel.org>
-Subject: Re: sound skips on 2.6.16.17
-References: <4487F942.3030601@att.net.mx> <200606172129.56986.kernel@kolivas.org> <20060618024130.GA32399@tuatara.stupidest.org> <200606181204.29626.ocilent1@gmail.com> <20060618044047.GA1261@tuatara.stupidest.org>
-In-Reply-To: <20060618044047.GA1261@tuatara.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> On Sun, Jun 18, 2006 at 12:04:29PM +0800, ocilent1 wrote:
->
->   
->> (PCI-quirk-VIA-IRQ-fixup-should-only-run-for-VIA-southbridges.patch)
->> that is causing the sound stuttering/skipping problems for our users
->> with VIA chipsets. Backing out the first patch alone did not fix the
->> problem (PCI-VIA-quirk-fixup-additional-PCI-IDs.patch) but to back
->> out the 2nd patch, you need to have initially backed out the first
->> patch, due to the way the patches apply in series.
->>     
->
-> what mainboard/CPU do you have there?
->
-> what does 'lspci -n' say?
->
->   
+On 17 Jun 2006, Hans Reiser prattled cheerily:
+> If the FS is called per page, then it turns out that 3) costs more than
+> 1) and 2) for sophisticated filesystems.  As we develop fancier and
+> fancier plugins this will just get more and more true.  It decreases CPU
+> usage by 2x to use per sys_write calls into reiser4 rather than per page
+> calls into reiser4.
 
-/home/hugoSun Jun 18-06:08:30HDC1# lspci -n
-0000:00:00.0 0600: 1106:0269
-0000:00:00.1 0600: 1106:1269
-0000:00:00.2 0600: 1106:2269
-0000:00:00.3 0600: 1106:3269
-0000:00:00.4 0600: 1106:4269
-0000:00:00.7 0600: 1106:7269
-0000:00:01.0 0604: 1106:b198
-0000:00:0a.0 0300: 10de:0181 (rev a2)
-0000:00:0b.0 0104: 1095:3112 (rev 02)
-0000:00:0c.0 0401: 1102:0007
-0000:00:0f.0 0101: 1106:0571 (rev 06)
-0000:00:10.0 0c03: 1106:3038 (rev 81)
-0000:00:10.1 0c03: 1106:3038 (rev 81)
-0000:00:10.2 0c03: 1106:3038 (rev 81)
-0000:00:10.3 0c03: 1106:3038 (rev 81)
-0000:00:10.4 0c03: 1106:3104 (rev 86)
-0000:00:11.0 0601: 1106:3227
-0000:00:11.5 0401: 1106:3059 (rev 60)
-0000:00:12.0 0200: 1106:3065 (rev 78)
-0000:01:00.0 0300: 10de:0185 (rev c1)
+This seems to me to be something that FUSE filesystems might well like,
+too: I know one I'm working on would like to know the real size of the
+original write request (so that it can optimize layout appropriately
+for things frequently written in large chunks; the assumption being that
+if it's written in large chunks it's likely to be read in large chunks
+too).
 
-
+-- 
+`Voting for any American political party is fundamentally
+ incomprehensible.' --- Vadik

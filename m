@@ -1,51 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWFRTsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWFRUJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWFRTsq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 15:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWFRTsq
+	id S932312AbWFRUJR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 16:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWFRUJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 15:48:46 -0400
-Received: from mail.timesys.com ([65.117.135.102]:3557 "EHLO
-	postfix.timesys.com") by vger.kernel.org with ESMTP id S932297AbWFRTsp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 15:48:45 -0400
-Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and
-	dynamic HZ
-From: Thomas Gleixner <tglx@timesys.com>
-Reply-To: tglx@timesys.com
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <449580CA.2060704@gmail.com>
-References: <1150643426.27073.17.camel@localhost.localdomain>
-	 <449580CA.2060704@gmail.com>
-Content-Type: text/plain
-Date: Sun, 18 Jun 2006 21:50:02 +0200
-Message-Id: <1150660202.27073.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sun, 18 Jun 2006 16:09:17 -0400
+Received: from wx-out-0102.google.com ([66.249.82.205]:19573 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932312AbWFRUJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 16:09:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=buLT5KxSbuOaASe73KVRyDi41X9Y/+eeeEWBtnlZ4UjDW+PRVL0yL/ILso8I7ruFT44PxprMkysJHBr4/Sbekw0AXHF13KTF+OPlcBnqxuPoSqzSIB6whTIuiSapfnCCMf4eoEf0kJGkeozYO12gtynlThYR0VaSyE5E9AW1Djs=
+Message-ID: <32124b660606181309o78bf2527s89a451c342e7fbe7@mail.gmail.com>
+Date: Sun, 18 Jun 2006 22:09:16 +0200
+From: "Ojciec Rydzyk" <69rydzyk69@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: problems with "different security models"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal,
-
-On Sun, 2006-06-18 at 18:35 +0200, Michal Piotrowski wrote:
-> HARNING: /lib/modules/2.6.17-hrt-dyntick1/kernel/sound/pci/ac97/snd-ac97-codec.ko needs unknown symbol msecs_to_jiffies
-> WARNING: /lib/modules/2.6.17-hrt-dyntick1/kernel/drivers/net/skge.ko needs unknown symbol jiffies_to_msecs
-> WARNING: /lib/modules/2.6.17-hrt-dyntick1/kernel/drivers/cpufreq/cpufreq_ondemand.ko needs unknown symbol jiffies_to_usecs
-> 
-> Here is fix small fix.
-
-Applied, thanks. 
-
-New patch available at:
-
-http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick2.patch
-
-http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick2.patches.tar.bz2
-
-	tglx
-
-
+Hi!
+I noticed today that there is a problem with option "Security options
+-> Enable different security models". When this option is enabled, X
+starts but when I log in to kde or gnome, X restarts. There is no
+trace in any logs.
+Greetings,
+Jacek Jablonski

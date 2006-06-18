@@ -1,70 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWFRMFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWFRMND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWFRMFv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 08:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWFRMFv
+	id S932070AbWFRMND (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 08:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWFRMND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 08:05:51 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32531 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932189AbWFRMFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 08:05:51 -0400
-Date: Sun, 18 Jun 2006 13:05:43 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17: CONFIG_PARPORT_SERIAL should require CONFIG_SERIAL_8250_PCI?
-Message-ID: <20060618120542.GA4833@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrey Borzenkov <arvidjaar@mail.ru>,
-	linux-kernel@vger.kernel.org
-References: <200606181423.17884.arvidjaar@mail.ru>
-Mime-Version: 1.0
+	Sun, 18 Jun 2006 08:13:03 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49365 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932070AbWFRMNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 08:13:01 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Paul Mackerras <paulus@samba.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
+References: <17553.56625.612931.136018@cargo.ozlabs.ibm.com>
+	<1150419895.10290.9.camel@localhost.localdomain>
+	<20060616030432.GA18037@sergelap.austin.ibm.com>
+	<1150430429.10290.23.camel@localhost.localdomain>
+	<20060616125403.GA16194@sergelap.austin.ibm.com>
+Date: Sun, 18 Jun 2006 06:12:15 -0600
+In-Reply-To: <20060616125403.GA16194@sergelap.austin.ibm.com> (Serge
+	E. Hallyn's message of "Fri, 16 Jun 2006 07:54:03 -0500")
+Message-ID: <m1wtbek6hs.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606181423.17884.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 18, 2006 at 02:23:07PM +0400, Andrey Borzenkov wrote:
-> Just rebuilt 2.6.17 from older config and disabling 8250 PCI (I do not have 
-> any on notebook) and got:
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-Thanks for reporting this.  The patch below should fix this - please
-test so it can be submitted for the stable branch, thanks.
+> Quoting Rusty Russell (rusty@rustcorp.com.au):
+>> On Thu, 2006-06-15 at 22:04 -0500, Serge E. Hallyn wrote:
+>> > Quoting Rusty Russell (rusty@rustcorp.com.au):
+>> > > Seems like change for change's sake, to me, *and* it added more code
+>> > > than it removed.
+>> > 
+>> > So if kernel_thread is really going to be removed, how else should this
+>> > be done?  Just clone?
+>> 
+>> Sorry, is kernel_thread going to be removed, or just not exported to
+>> modules?  What's kthread going to use?
+>> 
+>> Confused,
+>> Rusty.
+>
+> Hah.
+>
+> Yes, I see.  I misread.  So I should be focusing on modules  :)
+>
+> Really, all *I* care about is cases where the resulting pid is cached
+> as a pointer to the thread, which it wasn't here anyway.  
 
-# Base git commit: 427abfa28afedffadfca9dd8b067eb6d36bac53f
-#	(Linux v2.6.17)
-#
-# Author:    Russell King (Sun Jun 18 13:00:48 BST 2006)
-# Committer: Russell King (Sun Jun 18 13:00:48 BST 2006)
-#	
-#	[SERIAL] PARPORT_SERIAL should depend on SERIAL_8250_PCI
-#	
-#	Since parport_serial uses symbols from 8250_pci, there should
-#	be a dependency between the configuration symbols for these
-#	two modules.  Problem reported by Andrey Borzenkov
-#	
-#	Signed-off-by: Russell King
-#
-#	 drivers/parport/Kconfig |    2 +-
-#	 1 files changed, 1 insertions(+), 1 deletions(-)
-#
-diff --git a/drivers/parport/Kconfig b/drivers/parport/Kconfig
---- a/drivers/parport/Kconfig
-+++ b/drivers/parport/Kconfig
-@@ -48,7 +48,7 @@ config PARPORT_PC
- 
- config PARPORT_SERIAL
- 	tristate "Multi-IO cards (parallel and serial)"
--	depends on SERIAL_8250 && PARPORT_PC && PCI
-+	depends on SERIAL_8250_PCI && PARPORT_PC && PCI
- 	help
- 	  This adds support for multi-IO PCI cards that have parallel and
- 	  serial ports.  You should say Y or M here.  If you say M, the module
+There is one other piece we care about as well.
 
+We don't want to capture user space context like a non-default fs namespace
+in a kernel thread as well.  Since the kthread api calls kernel_thread
+from keventd non of the threads that it spawns can capture any user
+space context, by accident.  There was a very nasty bug a while ago
+when the fs namespace was captured by a kernel thread and then it was
+impossible to unmount your filesystem because no one had access to
+that filesystem mount tree.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+In this instance the kstopmachine is stared using the kthread api so
+it is safe, and then forking children is safe as well. 
+
+Once everything that we can convert to the kthread api is converted we
+need to audit all of the remaining kernel_thread instances to ensure
+they don't capture user space context.
+
+The basic rule is that is only safe to use kernel_thread directly if
+it is coming from another kernel thread.
+
+So while the conversion was overkill in this context and we certainly
+want to concentrate on modules, where it is much less likely to be
+correct.  We want to convert as many instances as we can away from
+the raw kernel_thread api.
+
+All that is ultimately going away is the export of kernel_thread to
+modules, because there are so very few instances when using
+kernel_thread directly can be justified.
+
+Eric

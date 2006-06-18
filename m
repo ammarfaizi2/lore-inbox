@@ -1,90 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWFRRje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWFRRur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWFRRje (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 13:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWFRRje
+	id S932278AbWFRRur (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 13:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWFRRur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 13:39:34 -0400
-Received: from xenotime.net ([66.160.160.81]:58510 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932216AbWFRRjd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 13:39:33 -0400
-Date: Sun, 18 Jun 2006 10:42:18 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: sturmflut@lieberbiber.de
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/3] vdso: improve print_fatal_signals support by adding
- memory maps
-Message-Id: <20060618104218.b07fb540.rdunlap@xenotime.net>
-In-Reply-To: <200606181525.42199.sturmflut@lieberbiber.de>
-References: <200606171614.58610.sturmflut@lieberbiber.de>
-	<20060617215818.7bc728af.rdunlap@xenotime.net>
-	<20060617225813.1f0fbe15.akpm@osdl.org>
-	<200606181525.42199.sturmflut@lieberbiber.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 18 Jun 2006 13:50:47 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16565 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932275AbWFRRuq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 13:50:46 -0400
+Date: Sun, 18 Jun 2006 18:50:45 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/5]: ufs: missed brelse and wrong baseblk
+Message-ID: <20060618175045.GX27946@ftp.linux.org.uk>
+References: <20060617101403.GA22098@rain.homenetwork> <20060618162054.GW27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060618162054.GW27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Jun 2006 15:25:35 +0200 Simon Raffeiner wrote:
+On Sun, Jun 18, 2006 at 05:20:54PM +0100, Al Viro wrote:
+> Comment more on the entire series than on this patch: scenario that causes
+> trouble
+> 	* foo is a sparse file on ufs with 8Kb block/1Kb fragment
+> 	* process opens it writable and mmaps it shared
+> 	* it proceeds to dirty the pages
+> 	* fork
+> 	* parent and child do msync() on pages next to each other
+> 
+> I.e. we try to write adjacent pages that sit in the same block.  At the
+> same time.  Each will trigger an allocation and we'd better be very
+> careful, or we'll end up allocating the same block twice.
 
-> Am Sonntag, 18. Juni 2006 07:58 schrieben Sie:
-> > On Sat, 17 Jun 2006 21:58:18 -0700
-> >
-> > "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> > > On Sat, 17 Jun 2006 16:14:52 +0200 Simon Raffeiner wrote:
-> > > > When compiling 2.6.17-rc6-mm2 (which contains this patch) my gcc 4.0.3
-> > > > (Ubuntu 4.0.3-1ubuntu5) complains about "int len;" being used
-> > > > uninitialized in print_vma(). AFAICS len is not initialized and then
-> > > > passed to
-> > > > pad_len_spaces(int len), which uses it for some calculations.
-> > > >
-> > > > I also noticed that similar code is used in fs/proc/task_mmu.c, where
-> > > > show_map_internal() passes an uninitialised int len; to
-> > > > pad_len_spaces(struct seq_file *m, int len).
-> > >
-> > > Ack both of those.  And both of them pass &len as a parameter to
-> > > printk/seq_printf where it looks as though they want just <len>
-> > > (after it has been initialized).
-> >
-> > printk("%n", &len) will initialise `len'.  gcc is being wrong again.
-> 
-> pad_len_spaces() is called in the following way:
-> 
-> 
-> static int print_vma(struct vm_area_struct *vma)
-> {
-> 	int len;
-> 
-> 	(...)
-> 
-> 	pad_len_spaces(len);
-> 
-> 	(...)
-> 
-> 
-> and is defined as:
-> 
-> 
-> static void pad_len_spaces(int len)
-> {
->        len = 25 + sizeof(void*) * 6 - len;
-> 
->        if (len < 1)
->                len = 1;
-> 
->        printk("%*c", len, ' ');
-> }
-> 
-> 
-> len is passed to pad_len_spaces() without initialization and is used for 
-> calculations BEFORE printk() is called.
+FWIW, for folks who are not familiar with UFS: the important differences
+between it and ext2 are
+	* directory chunk size is fixed to 512, instead of being fs parameter
+as in ext2
+	* names in directory entries are NUL-terminated
+	* there are two allocation units: fragment and block.  Each block
+consists of 2^{parameter} fragments.  ext2 is what you get when parameter
+is 0 (block == fragment).  UFS tends to use block:fragment == 8, but
+1, 2 and 4 are also allowed.
+	* equivalent of ext2 free block bitmap has bit per fragment.
+	* "block" in "direct block", "indirect block", etc. is actually
+a group of fragments.  The number of first fragment in group is stored
+where ext2 would store the block number.
+	* if there are indirect blocks, all those groups are simply full
+blocks; they are aligned to block boundary and consist of block:fragment
+ratio fragments.
+	* if file is shorter than 12 * block size, we have no indirects and
+all but the last direct one are full blocks.  I.e. the numbers we have
+there are multiples of block:fragment ration and a full block is allocated
+for each.   The last one consists of just enough fragments to reach the
+end of file and may be not aligned.
 
-Nope, len is used after printk(..., &len) is called.
-But I don't see how printk() inits len... ?  :(  Magic?
+IOW, it's _almost_ as if we had ext2 with all block numbers (in inode and
+in indirect blocks) multiplied by block:fragment ratio.  The only exception
+is for the last direct block of small files - these span fewer fragments
+and may be unaligned.
 
----
-~Randy
+The only subtle part is when we extend a small file; the last direct block
+needs to be expanded and that may require relocation.
+
+	* block may be bigger than page.  That can cause all sorts of fun
+problems in interaction with our VM, since allocation can affect more than
+one page and that has to be taken into account.
+
+	* UFS2 supports ext.attributes; it has two fragment numbers in
+inode; they refer to up to 2 blocks worth of data.  As with the data
+of small files, the partial block doesn't have to be aligned.

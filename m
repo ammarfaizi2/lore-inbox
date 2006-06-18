@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWFRP2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWFRPsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWFRP2y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 11:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWFRP2y
+	id S1751197AbWFRPsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 11:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWFRPsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 11:28:54 -0400
-Received: from mx5.mail.ru ([194.67.23.25]:18468 "EHLO mx5.mail.ru")
-	by vger.kernel.org with ESMTP id S1751184AbWFRP2y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 11:28:54 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: 2.6.17: CONFIG_PARPORT_SERIAL should require CONFIG_SERIAL_8250_PCI?
-Date: Sun, 18 Jun 2006 19:28:50 +0400
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200606181423.17884.arvidjaar@mail.ru> <20060618120542.GA4833@flint.arm.linux.org.uk>
-In-Reply-To: <20060618120542.GA4833@flint.arm.linux.org.uk>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 18 Jun 2006 11:48:19 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:3219 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751197AbWFRPsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 11:48:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=ATmM/MOav7KtrKCU3XGfch2jOE72WX7VfUwNSeAQF/FRIu49K8jzTA41oG5zin3YDAZBF61gbU1F4Sjd2PCiLQxqdgojR63k1SSTi5EJpwRKt7WHEc3DJj8zpj46GPh+fVUwuEyecB4IsM7bN4RUsc380z+rvHC/Hx1UA+6bLpY=
+Message-ID: <4495708A.70409@gmail.com>
+Date: Sun, 18 Jun 2006 23:26:02 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+Subject: [PATCH 4/9] VT binding: Do not create a device file for class device
+ 'fbcon'
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606181928.51560.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The class device "fbcon" does not need to be a device file.  Do not create
+one by passing a major and minor number of zero to
+class_device_create()/destroy().
 
-On Sunday 18 June 2006 16:05, Russell King wrote:
-> On Sun, Jun 18, 2006 at 02:23:07PM +0400, Andrey Borzenkov wrote:
-> > Just rebuilt 2.6.17 from older config and disabling 8250 PCI (I do not
-> > have any on notebook) and got:
->
-> Thanks for reporting this.  The patch below should fix this - please
-> test so it can be submitted for the stable branch, thanks.
->
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
 
-I confirm that with this patch doing oldconfig and deselecting SERIAL_8250_PCI 
-also deselects PARPORT_SERIAL.
+ drivers/video/console/fbcon.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
 
-regards
+diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+index 839f414..6e813a1 100644
+--- a/drivers/video/console/fbcon.c
++++ b/drivers/video/console/fbcon.c
+@@ -3244,9 +3244,7 @@ static int __init fb_console_init(void)
+ 	acquire_console_sem();
+ 	fb_register_client(&fbcon_event_notifier);
+ 	fbcon_class_device =
+-	    class_device_create(fb_class, NULL,
+-				MKDEV(FB_MAJOR, FB_MAX), NULL,
+-				"fbcon");
++	    class_device_create(fb_class, NULL, MKDEV(0, 0), NULL, "fbcon");
+ 
+ 	if (IS_ERR(fbcon_class_device)) {
+ 		printk(KERN_WARNING "Unable to create class_device "
+@@ -3282,7 +3280,7 @@ static void __exit fb_console_exit(void)
+ 	acquire_console_sem();
+ 	fb_unregister_client(&fbcon_event_notifier);
+ 	fbcon_deinit_class_device();
+-	class_device_destroy(fb_class, MKDEV(FB_MAJOR, FB_MAX));
++	class_device_destroy(fb_class, MKDEV(0, 0));
+ 	fbcon_exit();
+ 	release_console_sem();
+ 	unregister_con_driver(&fb_con);
 
-- -andrey
-
-> # Base git commit: 427abfa28afedffadfca9dd8b067eb6d36bac53f
-> #	(Linux v2.6.17)
-> #
-> # Author:    Russell King (Sun Jun 18 13:00:48 BST 2006)
-> # Committer: Russell King (Sun Jun 18 13:00:48 BST 2006)
-> #
-> #	[SERIAL] PARPORT_SERIAL should depend on SERIAL_8250_PCI
-> #
-> #	Since parport_serial uses symbols from 8250_pci, there should
-> #	be a dependency between the configuration symbols for these
-> #	two modules.  Problem reported by Andrey Borzenkov
-> #
-> #	Signed-off-by: Russell King
-> #
-> #	 drivers/parport/Kconfig |    2 +-
-> #	 1 files changed, 1 insertions(+), 1 deletions(-)
-> #
-> diff --git a/drivers/parport/Kconfig b/drivers/parport/Kconfig
-> --- a/drivers/parport/Kconfig
-> +++ b/drivers/parport/Kconfig
-> @@ -48,7 +48,7 @@ config PARPORT_PC
->
->  config PARPORT_SERIAL
->  	tristate "Multi-IO cards (parallel and serial)"
-> -	depends on SERIAL_8250 && PARPORT_PC && PCI
-> +	depends on SERIAL_8250_PCI && PARPORT_PC && PCI
->  	help
->  	  This adds support for multi-IO PCI cards that have parallel and
->  	  serial ports.  You should say Y or M here.  If you say M, the module
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFElXEzR6LMutpd94wRAh5PAKC7rNyFMqogQPGgYYixgK14M6hwcgCgs8h8
-IqQIn2z447RBjQGLXM00iog=
-=Tisv
------END PGP SIGNATURE-----

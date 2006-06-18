@@ -1,86 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWFRMTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWFRMZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWFRMTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 08:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWFRMTK
+	id S932196AbWFRMZe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 08:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWFRMZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 08:19:10 -0400
-Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:8597 "EHLO
-	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932197AbWFRMTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 08:19:08 -0400
-Message-ID: <449544B9.7030501@bigpond.net.au>
-Date: Sun, 18 Jun 2006 22:19:05 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Sun, 18 Jun 2006 08:25:33 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:38054 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932196AbWFRMZd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 08:25:33 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+Organization: IBM
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/16] 2.6.17-rc6 perfmon2 patch for review: new i386 files
+Date: Sun, 18 Jun 2006 07:24:07 -0500
+User-Agent: KMail/1.8.3
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Stephane Eranian <eranian@frankl.hpl.hp.com>
+References: <200606180210_MC3-1-C2BF-E5CE@compuserve.com>
+In-Reply-To: <200606180210_MC3-1-C2BF-E5CE@compuserve.com>
 MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, kernel@kolivas.org, sam@vilain.net,
-       bsingharora@gmail.com, dev@openvz.org, linux-kernel@vger.kernel.org,
-       efault@gmx.de, kingsley@aurema.com, ckrm-tech@lists.sourceforge.net,
-       mingo@elte.hu, rene.herman@keyaccess.nl
-Subject: Re: [PATCH 0/4] sched: Add CPU rate caps
-References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest> <20060618025046.77b0cecf.akpm@osdl.org> <449529FE.1040008@bigpond.net.au> <20060618114246.GA17386@in.ibm.com>
-In-Reply-To: <20060618114246.GA17386@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 18 Jun 2006 12:19:06 +0000
+Content-Disposition: inline
+Message-Id: <200606180724.08069.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> On Sun, Jun 18, 2006 at 08:25:02PM +1000, Peter Williams wrote:
->>> People are going to want to extend this to capping a *group* of tasks, with
->>> some yet-to-be-determined means of tying those tasks together.  How well
->>> suited is this code to that extension?
->> Quite good.  It can be used from outside the scheduler to impose caps on 
->> arbitrary groups of tasks.  Were the PAGG interface available I could 
->> knock up a module to demonstrate this.  When/if the "task watchers" 
-> 
-> For demonstration purpose, maybe you could use tsk->uid to group tasks and 
-> and see how capping at group level works out? Basically cap the per-user cpu
-> usage.
+On Sun June 18 2006 1:07 am, Chuck Ebbert wrote:
+> In-Reply-To: <200606150907.k5F97e7A008202@frankl.hpl.hp.com>
+> On Thu, 15 Jun 2006 02:07:40 -0700, Stephane Eranian wrote:
+> > --- linux-2.6.17-rc6.orig/arch/i386/perfmon/Kconfig   1969-12-31
+> > 16:00:00.000000000 -0800 +++ linux-2.6.17-rc6/arch/i386/perfmon/Kconfig  
+> >      2006-06-13 06:58:08.000000000 -0700 @@ -0,0 +1,48 @@
+> > +menu "Hardware Performance Monitoring support"
+> > +config PERFMON
+> > +     bool "Perfmon2 performance monitoring interface"
+> > +     select X86_LOCAL_APIC
+> > +     default y
+> > +     help
+> > +       include the perfmon2 performance monitoring interface
+> > +       in the kernel. See <http://perfmon2.sf.net/> for
+> > +       more details. If you're unsure, say Y.
+> > +
+> > + config PERFMON_P6
+> > +     tristate "Support for P6/Pentium M processor hardware performance
+> > counters" +     depends on PERFMON
+> > +     default m
+> > +     help
+> > +     Enables support for the P6-style hardware performance counters.
+> > +     To be used for P6 processors (Pentium III, PentiumPro) and also
+> > +     for Pentium M.
+> > +     If unsure, say M.
+> > +
+> > +config PERFMON_P4
+> > +     tristate "Support for 32-bit P4/Xeon hardware performance counters"
+> > +     depends on PERFMON
+> > +     default m
+> > +     help
+> > +     Enables support for the 32-bit P4/Xeon style hardware performance
+> > +     counters.
+> > +     If unsure, say M.
+> > +
+> > +config PERFMON_GEN_IA32
+> > +     tristate "Support for the architected IA-32 PMU"
+> > +     depends on PERFMON
+> > +     default m
+> > +     help
+> > +     Enables support for the architected IA-32 hardware performance
+> > counters. +     You need a Core Duo/Solo processor or newer for this
+> > work. +     If unsure, say M.
+> > +
+> > +config PERFMON_P4_PEBS
+> > +     tristate "Support for Intel P4 PEBS sampling format"
+> > +     depends on PERFMON_P4
+> > +     default m
+> > +     help
+> > +     Enables support for Precise Event-Based Sampling (PEBS) on the
+> > Intel P4 +     processors which support it.  Does not work with P6
+> > processors. +     If unsure, say m.
+> > +
+> > +endmenu
+>
+> What do I pick for i386 kernel on Athlon64 hardware?  P6?  There's no help
+> for that (or Athlon/Sempron processors.)
 
-I was thinking of doing the group of tasks that represent a process's 
-threads as a first example as that will be more useful to ordinary users 
-as well as demonstrating the technique.
+P6 is only for Intel Pentium-Pro, Pentium-II, Pentium-III, and Pentium-M.
 
-> 
->> patch is included I will try and implement a higher level mechanism 
->> using that.  The general technique is to get an estimate of the 
->> "effective number" of tasks in the group (similar to load) and give each 
->> task in the group a cap which is the group's cap divided by the 
->> effective number of tasks (or the group cap whichever is smaller -- i.e. 
->> the effective number of tasks could be less than one).
-> 
-> For "effective number" do you include only runnable tasks?
+See arch/x86_64/perfmon/Kconfig for the config options for AMD Athlon64 and 
+Intel EM64T.
 
-It would be roughly equivalent to a smoothed smoothed estimate of the 
-number of runnable tasks in the group.
-
-> As and when
-> this number changes, you would need to go and change the per-task cap of
-> all tasks in the group. Any idea what the cost of that operation would
-> be? Or do you intend to do it lazily to amortize some of that cost?
-
-Yes.  It would be some form of periodical sampling mechanism.  It could 
-be done from user space or from a module.
-
-The costs can also be reduced by realizing that it is only necessary to 
-do anything at all if the number of tasks in the group is greater than 
-the group's cap.  I.e. if a group has a cap of 3000 but only two tasks 
-there is no way the group can exceed its cap so that group can be ignored.
-
-> 
->> Doing it inside the scheduler is also doable but would have some locking 
->> issues.  The run queue lock could no longer be used to protect the data 
->> as there's no guarantee that all the tasks in the group are associated 
->> with the same queue.
-> 
-
+I'm not sure if 32-bit Athlons are supported yet.
 
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Kevin Corry
+kevcorry@us.ibm.com
+http://www.ibm.com/linux/
+http://evms.sourceforge.net/

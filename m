@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWFRMAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWFRMDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWFRMAx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 08:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWFRMAx
+	id S932182AbWFRMDq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 08:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWFRMDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 08:00:53 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:402 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932188AbWFRMAw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 08:00:52 -0400
-Subject: Re: smp problems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ojciec Rydzyk <69rydzyk69@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <32124b660606180356k3ebf7791h40a979b40253210d@mail.gmail.com>
-References: <32124b660606180356k3ebf7791h40a979b40253210d@mail.gmail.com>
-Content-Type: text/plain
+	Sun, 18 Jun 2006 08:03:46 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:62629 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932182AbWFRMDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 08:03:45 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44954102.3090901@s5r6.in-berlin.de>
+Date: Sun, 18 Jun 2006 14:03:14 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Subject: [git pull] ieee1394 tree for 2.6.18
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 18 Jun 2006 13:17:32 +0100
-Message-Id: <1150633052.11780.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Spam-Score: (-0.736) AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-06-18 am 12:56 +0200, ysgrifennodd Ojciec Rydzyk:
-> Hello!
-> There is a bug (I suppose) in file linux/boot/i386/kernel/mpparse.c. I
-> have laptop Amilo L 7300 and during the kernel boot, I get:
-> SMP mptable: bad table version
-> BIOS bug, MP table errors detectd!...
+Linus,
 
+the IEEE 1394 subsystem updates for Linux 2.6.18 are now staged in Ben's 
+revived linux1394 git tree. I guess the URL to pull from is
+git://git.kernel.org/pub/scm/linux/kernel/git/bcollins/linux1394-2.6.git
 
-What kernel version are you using. This should only occur on 2.4.x
-unless the table is checksummed correctly
+The updates in there are basically identical to the ieee1394 subsystem 
+patches in 2.6.17-rc6-mm2. The essence:
+  - a few fixes which did not seem important enough for 2.6.17
+  - a performance tweak in the DMA routines
+  - enhanced hardware compatibility (with 1394b PHYs when running at
+    S100...S400, and with devices with link speed < phy speed)
+  - minor coding updates, e.g. partial sem2mutex and kthread conversion
 
+Thanks,
+-- 
+Stefan Richter
+-=====-=-==- -==- =--=-
+http://arcgraph.de/sr/

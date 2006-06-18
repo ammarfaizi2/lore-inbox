@@ -1,84 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWFRUyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWFRVFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWFRUyi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 16:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWFRUyi
+	id S932076AbWFRVFY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 17:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWFRVFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 16:54:38 -0400
-Received: from wx-out-0102.google.com ([66.249.82.199]:28470 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750743AbWFRUyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 16:54:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=dN8xSebsMYr55Zn6vqa9MaF9qZUdzKnhzwpAu2Za1k/5L5pUAk4kNjjE1gQw32R8S1GnX8OV4UyDYBe6YEh5oBaipIYEE+2ht1mrXIoWP9X2PdjrHaI0lTmKTynaW0yMkA2TsHSzbdcQ1rP5+w/vPIVv7XBH5+IRb5Y0cDeKWKA=
-Message-ID: <32124b660606181354w1c57f733l211af48cd37f988e@mail.gmail.com>
-Date: Sun, 18 Jun 2006 22:54:36 +0200
-From: "Ojciec Rydzyk" <69rydzyk69@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Several errors in kernel
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 18 Jun 2006 17:05:24 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:5822
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S932076AbWFRVFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 17:05:24 -0400
+Subject: [PATCH] fix memory leak in rocketport rp_do_receive
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 18 Jun 2006 16:05:32 -0500
+Message-Id: <1150664732.2606.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-I have compiled new kernel to my laptop and I found several errors.
-Please help me to solve them:
-*****
-PCI: Using configuration type 1
-ACPI: Subsystem revision 20060127
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI Error (nsxfeval-0242): Handle is NULL and Pathname is relative [20060127]
-ACPI Error (nsxfeval-0242): Handle is NULL and Pathname is relative [20060127]
-ACPI Error (nsxfeval-0242): Handle is NULL and Pathname is relative [20060127]
-ACPI Error (nsxfeval-0242): Handle is NULL and Pathname is relative [20060127]
-ACPI: PCI Root Bridge [PCI0] (0000:00)
-*****
+Fix memory leak caused by incorrect use of tty
+buffer facility. tty buffers are allocated but never
+processed by call to tty_flip_buffer_push so they
+accumulate on the full buffer list. Current code
+uses the buffers as a temporary storage for data before
+passing it directly to the line discipline.
 
-and also:
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
-*****
-PCI: Using ACPI for IRQ routing
-PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-PCI: Failed to allocate mem resource #6:10000@f4000000 for 0000:01:00.0
-PCI: Bridge: 0000:00:01.0
-******
+--- linux-2.6.16/drivers/char/rocket.c	2006-06-04 10:22:24.000000000 -0500
++++ b/drivers/char/rocket.c	2006-06-04 10:45:35.000000000 -0500
+@@ -324,35 +324,15 @@ static void rp_do_receive(struct r_port 
+ 			  CHANNEL_t * cp, unsigned int ChanStatus)
+ {
+ 	unsigned int CharNStat;
+-	int ToRecv, wRecv, space = 0, count;
+-	unsigned char *cbuf, *chead;
+-	char *fbuf, *fhead;
+-	struct tty_ldisc *ld;
+-
+-	ld = tty_ldisc_ref(tty);
++	int ToRecv, wRecv, space;
++	unsigned char *cbuf;
+ 
+ 	ToRecv = sGetRxCnt(cp);
+-	space = tty->receive_room;
+-	if (space > 2 * TTY_FLIPBUF_SIZE)
+-		space = 2 * TTY_FLIPBUF_SIZE;
+-	count = 0;
+ #ifdef ROCKET_DEBUG_INTR
+-	printk(KERN_INFO "rp_do_receive(%d, %d)...", ToRecv, space);
++	printk(KERN_INFO "rp_do_receive(%d)...", ToRecv);
+ #endif
+-
+-	/*
+-	 * determine how many we can actually read in.  If we can't
+-	 * read any in then we have a software overrun condition.
+-	 */
+-	if (ToRecv > space)
+-		ToRecv = space;
+-
+-	ToRecv = tty_prepare_flip_string_flags(tty, &chead, &fhead, ToRecv);
+-	if (ToRecv <= 0)
+-		goto done;
+-
+-	cbuf = chead;
+-	fbuf = fhead;
++	if (ToRecv == 0)
++		return;
+ 
+ 	/*
+ 	 * if status indicates there are errored characters in the
+@@ -380,6 +360,8 @@ static void rp_do_receive(struct r_port 
+ 		       info->read_status_mask);
+ #endif
+ 		while (ToRecv) {
++			char flag;
++
+ 			CharNStat = sInW(sGetTxRxDataIO(cp));
+ #ifdef ROCKET_DEBUG_RECEIVE
+ 			printk(KERN_INFO "%x...", CharNStat);
+@@ -392,17 +374,16 @@ static void rp_do_receive(struct r_port 
+ 			}
+ 			CharNStat &= info->read_status_mask;
+ 			if (CharNStat & STMBREAKH)
+-				*fbuf++ = TTY_BREAK;
++				flag = TTY_BREAK;
+ 			else if (CharNStat & STMPARITYH)
+-				*fbuf++ = TTY_PARITY;
++				flag = TTY_PARITY;
+ 			else if (CharNStat & STMFRAMEH)
+-				*fbuf++ = TTY_FRAME;
++				flag = TTY_FRAME;
+ 			else if (CharNStat & STMRCVROVRH)
+-				*fbuf++ = TTY_OVERRUN;
++				flag = TTY_OVERRUN;
+ 			else
+-				*fbuf++ = TTY_NORMAL;
+-			*cbuf++ = CharNStat & 0xff;
+-			count++;
++				flag = TTY_NORMAL;
++			tty_insert_flip_char(tty, CharNStat & 0xff, flag);
+ 			ToRecv--;
+ 		}
+ 
+@@ -422,20 +403,23 @@ static void rp_do_receive(struct r_port 
+ 		 * characters at time by doing repeated word IO
+ 		 * transfer.
+ 		 */
++		space = tty_prepare_flip_string(tty, &cbuf, ToRecv);
++		if (space < ToRecv) {
++#ifdef ROCKET_DEBUG_RECEIVE
++			printk(KERN_INFO "rp_do_receive:insufficient space ToRecv=%d space=%d\n", ToRecv, space);
++#endif
++			if (space <= 0)
++				return;
++			ToRecv = space;
++		}
+ 		wRecv = ToRecv >> 1;
+ 		if (wRecv)
+ 			sInStrW(sGetTxRxDataIO(cp), (unsigned short *) cbuf, wRecv);
+ 		if (ToRecv & 1)
+ 			cbuf[ToRecv - 1] = sInB(sGetTxRxDataIO(cp));
+-		memset(fbuf, TTY_NORMAL, ToRecv);
+-		cbuf += ToRecv;
+-		fbuf += ToRecv;
+-		count += ToRecv;
+ 	}
+ 	/*  Push the data up to the tty layer */
+-	ld->receive_buf(tty, chead, fhead, count);
+-done:
+-	tty_ldisc_deref(ld);
++	tty_flip_buffer_push(tty);
+ }
+ 
+ /*
 
-and my lspci:
 
-*****
-00:00.0 Host bridge: VIA Technologies, Inc. CN400/PM880 Host Bridge
-00:00.1 Host bridge: VIA Technologies, Inc. CN400/PM880 Host Bridge
-00:00.2 Host bridge: VIA Technologies, Inc. CN400/PM880 Host Bridge
-00:00.3 Host bridge: VIA Technologies, Inc. CN400/PM880 Host Bridge
-00:00.4 Host bridge: VIA Technologies, Inc. CN400/PM880 Host Bridge
-00:00.7 Host bridge: VIA Technologies, Inc. CN400/PM880 Host Bridge
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
-00:06.0 Network controller: RaLink Ralink RT2500 802.11G
-Cardbus/mini-PCI (rev 01)
-00:0c.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller (rev 01)
-00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 80)
-00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 80)
-00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc.
-VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-00:11.5 Multimedia audio controller: VIA Technologies, Inc.
-VT8233/A/8235/8237 AC97 Audio Controller (rev 50)
-00:11.6 Communication controller: VIA Technologies, Inc. AC'97 Modem
-Controller (rev 80)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
-01:00.0 VGA compatible controller: VIA Technologies, Inc. S3 Unichrome
-Pro VGA Adapter (rev 02)
-*****
-
-Please help.
-Greetings,
-Jacek Jablonski

@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWFRHou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWFRHtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWFRHou (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 03:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWFRHot
+	id S932131AbWFRHtU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 03:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWFRHtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 03:44:49 -0400
-Received: from 1wt.eu ([62.212.114.60]:51720 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932127AbWFRHos (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 03:44:48 -0400
-Date: Sun, 18 Jun 2006 09:42:48 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>
-Subject: Re: [ckpatch][15/29] hz-no_default_250.patch
-Message-ID: <20060618074247.GF13255@w.ods.org>
-References: <200606181732.48952.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606181732.48952.kernel@kolivas.org>
-User-Agent: Mutt/1.5.10i
+	Sun, 18 Jun 2006 03:49:20 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:8832 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932131AbWFRHtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 03:49:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ApEv7CJ6EsMLXyk6J2tKWnLLv/gLpbkrBP9qV1aJX3zFWa6lLf6DFqQK2NVcv3YWM7XtVcgp+mo8kXnB0hr9aKV83NjmXjDr66QVoZS6NGXBn/qq/srsB3jKHRjLH2Zn93h8yPGoiXcDMgIMOZ3NVU9xmil8tsgP4FP1199WgHg=  ;
+Message-ID: <44950578.1070800@yahoo.com.au>
+Date: Sun, 18 Jun 2006 17:49:12 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Andrew Morton <akpm@osdl.org>, sam@vilain.net, vatsa@in.ibm.com,
+       dev@openvz.org, mingo@elte.hu, pwil3058@bigpond.net.au,
+       sekharan@us.ibm.com, balbir@in.ibm.com, linux-kernel@vger.kernel.org,
+       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
+Subject: Re: [RFC] CPU controllers?
+References: <20060615134632.GA22033@in.ibm.com>	 <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com>	 <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net>	 <4494EE86.7090209@yahoo.com.au>  <20060617234259.dc34a20c.akpm@osdl.org> <1150616176.7985.50.camel@Homer.TheSimpsons.net>
+In-Reply-To: <1150616176.7985.50.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Con,
-
-On Sun, Jun 18, 2006 at 05:32:48PM +1000, Con Kolivas wrote:
-> Make 250 HZ a value that is not selected by default and give some better
-> recommendations in help.
+Mike Galbraith wrote:
+> On Sat, 2006-06-17 at 23:42 -0700, Andrew Morton wrote:
 > 
-> Signed-off-by: Con Kolivas <kernel@kolivas.org>
+>>On Sun, 18 Jun 2006 16:11:18 +1000
+>>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
->  kernel/Kconfig.hz |   15 +++++++++------
->  1 files changed, 9 insertions(+), 6 deletions(-)
 > 
-> Index: linux-ck-dev/kernel/Kconfig.hz
-> ===================================================================
-> --- linux-ck-dev.orig/kernel/Kconfig.hz	2006-06-18 15:23:58.000000000 +1000
-> +++ linux-ck-dev/kernel/Kconfig.hz	2006-06-18 15:24:28.000000000 +1000
-> @@ -21,14 +21,17 @@ choice
->  	help
->  	  100 HZ is a typical choice for servers, SMP and NUMA systems
->  	  with lots of processors that may show reduced performance if
-> -	  too many timer interrupts are occurring.
-> +	  too many timer interrupts are occurring. Laptops may also show
-> +	  improved battery life.
->  
-> -	config HZ_250
-> +	config HZ_250_NODEFAULT
->  		bool "250 HZ"
->  	help
-> -	 250 HZ is a good compromise choice allowing server performance
-> -	 while also showing good interactive responsiveness even
-> -	 on SMP and NUMA systems.
-> +	 250 HZ is a lousy compromise choice allowing server interactivity
-> +	 while also showing desktop throughput and no extra power saving on
-> +	 laptops. Good for when you can't make up your mind.
-> +
-> +	 Recommend 100 or 1000 instead.
+>>>Again, I don't care about the solutions at this stage. I want to know
+>>>what the problem is. Please?
+>>
+>>Isolation.  To prevent one group of processes from damaging the performance
+>>of other groups, by providing manageability of the resource consumption of
+>>each group.  There are plenty of applications of this, not just
+>>server-consolidation-via-server-virtualisation.
+> 
+> 
+> Scheduling contexts do sound useful.  They're easily defeated though, as
+> evolution mail demonstrates to me every time it's GUI hangs and I see
+> that a nice 19 find is running, eating very little CPU, but effectively
+> DoSing evolution nonetheless (journal).  I wonder how often people who
+> tried to distribute CPU would likewise be stymied by other resources.
 
-In fact, I use this value (250 Hz) on servers because it provides slightly
-finer scheduling precision than 100 Hz without the performance impact of
-1000 Hz. It also has the advantage that conversions between ms<->jiffies
-are performed by bit shifts only and no divide nor multiply. I really do
-not notice any performance hit between 100 and 250 Hz, while I do between
-250 and 1000.
+Not entirely infrequently. Which is why it really doesn't seem like
+it could be useful from a security point of view without a *huge*
+amount of work and complexity... and even from a guaranteed-service
+point of view, it still seems (to me) like a pretty big and complex
+problem.
 
-Cheers,
-Willy
+As a check box for marketing it sounds pretty cool though, I admit ;)
 
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,97 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWFRNXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWFRN05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWFRNXw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 09:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWFRNXw
+	id S932222AbWFRN05 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 09:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWFRN04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 09:23:52 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:12175 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932203AbWFRNXw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 09:23:52 -0400
-Message-ID: <449553E5.9030004@drzeus.cx>
-Date: Sun, 18 Jun 2006 15:23:49 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 18 Jun 2006 09:26:56 -0400
+Received: from hosting-agency.de ([194.145.226.10]:49033 "EHLO mailagency.de")
+	by vger.kernel.org with ESMTP id S932222AbWFRN04 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 09:26:56 -0400
+From: Simon Raffeiner <sturmflut@lieberbiber.de>
+Reply-To: sturmflut@lieberbiber.de
+Organization: Lieberbiber, Inc.
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] vdso: improve print_fatal_signals support by adding memory maps
+Date: Sun, 18 Jun 2006 15:25:35 +0200
+User-Agent: KMail/1.9.3
+References: <200606171614.58610.sturmflut@lieberbiber.de> <20060617215818.7bc728af.rdunlap@xenotime.net> <20060617225813.1f0fbe15.akpm@osdl.org>
+In-Reply-To: <20060617225813.1f0fbe15.akpm@osdl.org>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Marcel Holtmann <marcel@holtmann.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [RFC] New MMC driver model
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed;
+  boundary="nextPart2806721.4ZgOjkFUAu";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200606181525.42199.sturmflut@lieberbiber.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been looking at how we can support SDIO cards and how we need to
-adapt our driver model for it.
+--nextPart2806721.4ZgOjkFUAu
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Functions
-=========
+Am Sonntag, 18. Juni 2006 07:58 schrieben Sie:
+> On Sat, 17 Jun 2006 21:58:18 -0700
+>
+> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> > On Sat, 17 Jun 2006 16:14:52 +0200 Simon Raffeiner wrote:
+> > > When compiling 2.6.17-rc6-mm2 (which contains this patch) my gcc 4.0.3
+> > > (Ubuntu 4.0.3-1ubuntu5) complains about "int len;" being used
+> > > uninitialized in print_vma(). AFAICS len is not initialized and then
+> > > passed to
+> > > pad_len_spaces(int len), which uses it for some calculations.
+> > >
+> > > I also noticed that similar code is used in fs/proc/task_mmu.c, where
+> > > show_map_internal() passes an uninitialised int len; to
+> > > pad_len_spaces(struct seq_file *m, int len).
+> >
+> > Ack both of those.  And both of them pass &len as a parameter to
+> > printk/seq_printf where it looks as though they want just <len>
+> > (after it has been initialized).
+>
+> printk("%n", &len) will initialise `len'.  gcc is being wrong again.
 
-First of all, we need to have multiple drivers for one physical card.
-This is needed to handle both "combo cards" (mem and I/O) and because
-SDIO cards can have seven distinct functions in one card.
-
-For this I propose we add the concept of "function" and that each "card"
-has 1 to 8 of these. The drivers then bind to these functions, not to
-the card.
-
-Identification
-==============
-
-SDIO uses the PCMCIA CIS structure for its generic fields. This includes
-the CISTPL_MANFID tuple, which has one 16-bit value for manufacturer and
-one 16-bit value for card id. The standard also has a special field for
-"standard" interfaces, which are similar to PCI classes.
-
-This scheme would allow us to handle storage cards quite nicely:
-
-#define SDIO_ID_ANY                  0xFFFFFFFF
-
-#define SDIO_VENDOR_STORAGE          0xFFFFFFFE
-#define SDIO_DEVICE_ID_STORAGE_MMC   0x00000000
-#define SDIO_DEVICE_ID_STORAGE_SD    0x00000001
-
-(If the prefix makes the MMC layer a bit SDIO centric, feel free to come
-with other suggestions)
-
-Interrupts
-==========
-
-SDIO has generic interrupts that cards can use how they damn well
-please. The interrupts are also level triggered and have the nice
-"feature" of being active when there is no card in the slot.
-
-So I propose the following:
-
- * We add a "interrupt enable" field to the ios structure so that hosts
-know when a SDIO card has been inserted and card interrupts should be
-caught.
-
- * When a interrupt is caught, the host driver masks it and tells the
-MMC layer that a interrupt is pending. The MMC layer then calls a card
-interrupt handler in some deferred manner (suggestions welcome).
-
- * When the card driver feels that it has handled the interrupt, it
-calls a special acknowledge command that removes the mask the host has set.
-
-Since SDIO cards can have seven distinct functions, there is a generic
-register that tells which of the seven that currently has a pending
-interrupt. This allows us to call only the relevant handlers.
-
-The "interrupt pending" register also allows us to do a polled solution
-for non-SDIO capable hosts. I'm unsure how to get a good balance between
-latency and resource usage though.
-
-Register functions
-==================
-
-I also intend to write a couple of register functions (sdio_read[bwl])
-so that card drivers doesn't have to deal with MMC requests more than
-necessary. Endianness can also be handled there (SDIO are always LE).
+pad_len_spaces() is called in the following way:
 
 
-Comment away! :)
+static int print_vma(struct vm_area_struct *vma)
+{
+	int len;
 
-Rgds
-Pierre
+	(...)
+
+	pad_len_spaces(len);
+
+	(...)
+
+
+and is defined as:
+
+
+static void pad_len_spaces(int len)
+{
+       len =3D 25 + sizeof(void*) * 6 - len;
+
+       if (len < 1)
+               len =3D 1;
+
+       printk("%*c", len, ' ');
+}
+
+
+len is passed to pad_len_spaces() without initialization and is used for=20
+calculations BEFORE printk() is called.
+
+=2D-=20
+OpenPGP/GnuPG Key: 0xB2204FA0 @ subkeys.pgp.net
+
+"There is no point in having Linux on the Desktop if it's at the cost of it=
+=20
+being the same crap that Windows is."
+  - Benjamin Herrenschmidt
+
+--nextPart2806721.4ZgOjkFUAu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBElVRWd2q78rIgT6ARAs99AJ9L3yvuv8HLHH0ej9n9pRV1v5BlQwCfR115
+sVfxCJQVazyxSyEL6VmQ/ss=
+=T1Wx
+-----END PGP SIGNATURE-----
+
+--nextPart2806721.4ZgOjkFUAu--

@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWFRHgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWFRHgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWFRHgI (ORCPT <rfc822;willy@w.ods.org>);
+	id S932141AbWFRHgI (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 18 Jun 2006 03:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWFRHfU
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWFRHgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 03:35:20 -0400
-Received: from mail33.syd.optusnet.com.au ([211.29.132.104]:61630 "EHLO
-	mail33.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932156AbWFRHfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 03:35:07 -0400
+	Sun, 18 Jun 2006 03:36:07 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:26602 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932162AbWFRHfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 03:35:48 -0400
 From: Con Kolivas <kernel@kolivas.org>
 To: linux list <linux-kernel@vger.kernel.org>
-Subject: [ckpatch][25/29] mm-decrease_minimum_dirty_ratio.patch
-Date: Sun, 18 Jun 2006 17:35:04 +1000
+Subject: [ckpatch][29/29] kconfig-expose_vmsplit_option.patch
+Date: Sun, 18 Jun 2006 17:35:43 +1000
 User-Agent: KMail/1.9.3
 Cc: ck list <ck@vds.kolivas.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-X-Length: 2160
+X-Length: 1986
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200606181735.05219.kernel@kolivas.org>
+Message-Id: <200606181735.44232.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make it possible to set dirty_ratio to 0, setting it to MAX_WRITEBACK_PAGES
-when the value is ultra low, and set background to 0 when that is the case.
+The options to alter the vmsplit to enable more lowmem are hidden behind the
+embedded option. Make it more exposed for -ck users and make the help menu
+more explicit about what each option means.
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
 ---
- mm/page-writeback.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+ arch/i386/Kconfig |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-Index: linux-ck-dev/mm/page-writeback.c
+Index: linux-ck-dev/arch/i386/Kconfig
 ===================================================================
---- linux-ck-dev.orig/mm/page-writeback.c	2006-06-18 15:20:11.000000000 +1000
-+++ linux-ck-dev/mm/page-writeback.c	2006-06-18 15:25:16.000000000 +1000
-@@ -126,9 +126,6 @@ static void get_writeback_state(struct w
-  *
-  * We only allow 1/2 of the currently-unmapped memory to be dirtied.
-  *
-- * We don't permit the clamping level to fall below 5% - that is getting rather
-- * excessive.
-- *
-  * We make sure that the background writeout level is below the adjusted
-  * clamping level.
-  */
-@@ -162,15 +159,16 @@ get_dirty_limits(struct writeback_state 
- 	if (dirty_ratio > unmapped_ratio / 2)
- 		dirty_ratio = unmapped_ratio / 2;
+--- linux-ck-dev.orig/arch/i386/Kconfig	2006-06-18 15:20:10.000000000 +1000
++++ linux-ck-dev/arch/i386/Kconfig	2006-06-18 15:26:41.000000000 +1000
+@@ -467,7 +467,7 @@ endchoice
  
--	if (dirty_ratio < 5)
--		dirty_ratio = 5;
--
- 	background_ratio = dirty_background_ratio;
- 	if (background_ratio >= dirty_ratio)
- 		background_ratio = dirty_ratio / 2;
+ choice
+ 	depends on EXPERIMENTAL && !X86_PAE
+-	prompt "Memory split" if EMBEDDED
++	prompt "Memory split"
+ 	default VMSPLIT_3G
+ 	help
+ 	  Select the desired split between kernel and user memory.
+@@ -486,13 +486,13 @@ choice
+ 	  option alone!
  
- 	background = (background_ratio * available_memory) / 100;
- 	dirty = (dirty_ratio * available_memory) / 100;
-+	if (dirty < MAX_WRITEBACK_PAGES) {
-+		dirty = MAX_WRITEBACK_PAGES;
-+		background = 0;
-+	}
- 	tsk = current;
- 	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk)) {
- 		background += background / 4;
+ 	config VMSPLIT_3G
+-		bool "3G/1G user/kernel split"
++		bool "Default 896MB lowmem (3G/1G user/kernel split)"
+ 	config VMSPLIT_3G_OPT
+-		bool "3G/1G user/kernel split (for full 1G low memory)"
++		bool "1GB lowmem (3G/1G user/kernel split)"
+ 	config VMSPLIT_2G
+-		bool "2G/2G user/kernel split"
++		bool "2GB lowmem (2G/2G user/kernel split)"
+ 	config VMSPLIT_1G
+-		bool "1G/3G user/kernel split"
++		bool "3GB lowmem (1G/3G user/kernel split)"
+ endchoice
+ 
+ config PAGE_OFFSET
 
 -- 
 -ck

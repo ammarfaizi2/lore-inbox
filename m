@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWFRI7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWFRJKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWFRI7z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 04:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWFRI7z
+	id S932176AbWFRJKj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 05:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWFRJKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 04:59:55 -0400
-Received: from ns1.suse.de ([195.135.220.2]:47074 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932172AbWFRI7y (ORCPT
+	Sun, 18 Jun 2006 05:10:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7132 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932176AbWFRJKj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 04:59:54 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 2.6.16-rc6-mm2] x86: add NUMA to oops messages
-Date: Sun, 18 Jun 2006 10:59:44 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@linux.intel.com>
-References: <200606180415_MC3-1-C2C5-AF7A@compuserve.com>
-In-Reply-To: <200606180415_MC3-1-C2C5-AF7A@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 18 Jun 2006 05:10:39 -0400
+Date: Sun, 18 Jun 2006 02:09:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: nickpiggin@yahoo.com.au, sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org,
+       mingo@elte.hu, pwil3058@bigpond.net.au, sekharan@us.ibm.com,
+       balbir@in.ibm.com, linux-kernel@vger.kernel.org,
+       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
+Subject: Re: [RFC] CPU controllers?
+Message-Id: <20060618020932.5947a7dc.akpm@osdl.org>
+In-Reply-To: <1150616176.7985.50.camel@Homer.TheSimpsons.net>
+References: <20060615134632.GA22033@in.ibm.com>
+	<4493C1D1.4020801@yahoo.com.au>
+	<20060617164812.GB4643@in.ibm.com>
+	<4494DF50.2070509@yahoo.com.au>
+	<4494EA66.8030305@vilain.net>
+	<4494EE86.7090209@yahoo.com.au>
+	<20060617234259.dc34a20c.akpm@osdl.org>
+	<1150616176.7985.50.camel@Homer.TheSimpsons.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606181059.44576.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 June 2006 10:13, Chuck Ebbert wrote:
-> Add "NUMA" to x86 oops printouts to help with debugging.  Use vermagic.h
-> defines to clean up the code, suggested by Arjan van de Ven.
+On Sun, 18 Jun 2006 09:36:16 +0200
+Mike Galbraith <efault@gmx.de> wrote:
 
-I don't see any particular value in printing NUMA here,
-and putting half of .config into the oops doesn't seem
-like a good long term strategy.
+> as
+> evolution mail demonstrates to me every time it's GUI hangs and I see
+> that a nice 19 find is running, eating very little CPU, but effectively
+> DoSing evolution nonetheless (journal).
 
--Andi
+eh?  That would be an io scheduler bug, wouldn't it?
 
-  
+Tell us more.

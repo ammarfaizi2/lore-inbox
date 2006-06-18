@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWFRGlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWFRGng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWFRGlT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 02:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWFRGlT
+	id S932108AbWFRGng (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 02:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWFRGnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 02:41:19 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:36517 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1751104AbWFRGlT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 02:41:19 -0400
-Message-ID: <4494F549.7040605@vilain.net>
-Date: Sun, 18 Jun 2006 18:40:09 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
-MIME-Version: 1.0
+	Sun, 18 Jun 2006 02:43:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37051 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932108AbWFRGnf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 02:43:35 -0400
+Date: Sat, 17 Jun 2006 23:42:59 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: vatsa@in.ibm.com, Kirill Korotaev <dev@openvz.org>,
-       Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@elte.hu>,
-       Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
-       sekharan@us.ibm.com, Balbir Singh <balbir@in.ibm.com>,
-       linux-kernel@vger.kernel.org, maeda.naoaki@jp.fujitsu.com,
-       kurosawa@valinux.co.jp
+Cc: sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org, efault@gmx.de,
+       mingo@elte.hu, pwil3058@bigpond.net.au, sekharan@us.ibm.com,
+       balbir@in.ibm.com, linux-kernel@vger.kernel.org,
+       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
 Subject: Re: [RFC] CPU controllers?
-References: <20060615134632.GA22033@in.ibm.com> <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com> <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net> <4494EE86.7090209@yahoo.com.au>
+Message-Id: <20060617234259.dc34a20c.akpm@osdl.org>
 In-Reply-To: <4494EE86.7090209@yahoo.com.au>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <20060615134632.GA22033@in.ibm.com>
+	<4493C1D1.4020801@yahoo.com.au>
+	<20060617164812.GB4643@in.ibm.com>
+	<4494DF50.2070509@yahoo.com.au>
+	<4494EA66.8030305@vilain.net>
+	<4494EE86.7090209@yahoo.com.au>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
->> The answer is quite simple, people who are consolidating systems and 
->> working with fewer, larger systems, want to mark processes, groups of 
->> processes or entire containers into CPU scheduling classes, then 
->> either fair balance between them, limit them or reserve them a 
->> portion of the CPU - depending on the user and what their 
->> requirements are. What is unclear about that?
->>
->
-> It is unclear whether we should have hard limits, or just nice like
-> priority levels. Whether virtualisation (+/- containers) could be a
-> good solution, etc.
-
-Look, that was actually answered in the paragraph you're responding to. 
-Once again, give me a set of possible requirements and I'll find you a 
-set of users that have them. I am finding this sub-thread quite redundant.
+On Sun, 18 Jun 2006 16:11:18 +1000
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
 > If you want to *completely* isolate N groups of users, surely you
-> have to use virtualisation, unless you are willing to isolate memory
+> have to use virtualisation,
+
+I'd view this as a kludge.  If one group of tasks is trashing the
+performance of another group of tasks the user is forced to use hardware
+virtualisation to work around it.
+
+I mean, is this our answer to the updatedb problem?  Instantiate a separate
+copy of the kernel just to run updatedb?
+
+> unless you are willing to isolate memory
 > management, pagecache, slab caches, network and disk IO, etc.
 
-No, you have to use separate hardware. Try to claim otherwise and you're 
-glossing over the corner cases.
+Well yes.  Ideally and ultimately.  People have done this, and it's in
+production.  We need to see (and work upon) the patches before we can judge
+whether we want to do this, and how far we want to go.
 
-Sam.
+> Again, I don't care about the solutions at this stage. I want to know
+> what the problem is. Please?
+
+Isolation.  To prevent one group of processes from damaging the performance
+of other groups, by providing manageability of the resource consumption of
+each group.  There are plenty of applications of this, not just
+server-consolidation-via-server-virtualisation.
 

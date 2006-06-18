@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWFRDrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWFRDwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWFRDrc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 23:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFRDrc
+	id S932080AbWFRDwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 23:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWFRDwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 23:47:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10392 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751090AbWFRDrb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 23:47:31 -0400
-Date: Sat, 17 Jun 2006 20:47:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.17
-In-Reply-To: <4494C8E7.3080700@ens-lyon.org>
-Message-ID: <Pine.LNX.4.64.0606172036360.5498@g5.osdl.org>
-References: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org>
- <Pine.LNX.4.64.0606171902040.5498@g5.osdl.org> <4494C8E7.3080700@ens-lyon.org>
+	Sat, 17 Jun 2006 23:52:11 -0400
+Received: from cpe-72-226-39-15.nycap.res.rr.com ([72.226.39.15]:10501 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S1751076AbWFRDwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 23:52:11 -0400
+From: "Matt LaPlante" <laplam@rpi.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6.17: Contradictory text in KConfig for LSF?
+Date: Sat, 17 Jun 2006 23:51:20 -0400
+Message-ID: <000001c6928a$75fe2590$fd01a8c0@frostbyte>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcaSimywCYas3Du+QT+Yz5E7m26Ggg==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+X-Spam-Processed: mail.cyberdogtech.com, Sat, 17 Jun 2006 23:51:29 -0400
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: laplam@rpi.edu
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Sat, 17 Jun 2006 23:51:30 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cheers on another great new release!
+
+I'm a bit confused about the new KConfig text for LSF.  From make oldconfig:
+
+"Say Y here if you want to be able to handle very large files (bigger
+than 2TB), otherwise say N.
+
+If unsure, say Y.
+
+Support for Large Single Files (LSF) [N/y/?]"
+
+We've got Say Y here if [condition unlikely in standard environments],
+otherwise say N.  Then on the next line it says if unsure, say Y.  Then we
+have the default in make oldconfig set to N!  So we say to enable in a
+certain (rare?) situation, otherwise disable, however if you don't
+understand the text above enable, or accept the default to disable.  I feel
+like I'm running in circles...
+
+Long story short, shouldn't it be if unsure, say N?  Or otherwise default to
+Y?
+
+-
+Matt LaPlante
 
 
-On Sat, 17 Jun 2006, Brice Goglin wrote:
->
-> I guess I could use git to generate the full changelog once a new
-> release and keep it for later...
 
-Well, if you are already a git user (or willing to become one), there's no 
-point in even keeping it for later.
-
-	[torvalds@g5 linux]$ time git log v2.6.16..v2.6.17 > /dev/null 
-	
-	real    0m0.484s
-	user    0m0.448s
-	sys     0m0.036s
-
-ie the logfile generation really is almost free. And yes, that's the 
-_full_ big log (all 92 _thousand_ lines of it, from the 6113 commits in 
-the 2.6.16->17 case) being generated in under half a second.
-
-Doing the shortlog (which sort and group by author in perl) is only 
-fractionally more expensive.
-
-The added benefit of doing it with git and generating it each time is that 
-then you can also ask for logs just for a specific subsystem.
-
-I don't know of anything but git that can efficiently do things like
-
-	git log v2.6.16..v2.6.17 drivers/usb/
-
-and it will show the log for all the commits that changed things under 
-drivers/usb. And yeah, that can be slightly more expensive, but usually 
-it's not noticeably so (history pruning at least in that case makes up for 
-the extra work it has to do to figure out which commits changed that 
-subsystem).
-
-The point being that the dynamically generated data is often a lot more 
-useful and readable. 
-
-			Linus

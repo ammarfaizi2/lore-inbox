@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWFRGuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWFRHLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWFRGuh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 02:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWFRGuh
+	id S1751118AbWFRHLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 03:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWFRHLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 02:50:37 -0400
-Received: from 1wt.eu ([62.212.114.60]:50952 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751108AbWFRGuh (ORCPT
+	Sun, 18 Jun 2006 03:11:25 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:31645 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751118AbWFRHLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 02:50:37 -0400
-Date: Sun, 18 Jun 2006 08:48:32 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: marcelo@kvack.org, jolivares@gigablast.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-2.4] allow core files bigger than 2GB
-Message-ID: <20060618064832.GA31066@1wt.eu>
-References: <20060617214507.GA1213@1wt.eu> <1150610993.3117.2.camel@laptopd505.fenrus.org>
+	Sun, 18 Jun 2006 03:11:24 -0400
+Date: Sun, 18 Jun 2006 09:06:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rt1
+Message-ID: <20060618070641.GA6759@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1150610993.3117.2.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5151]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 18, 2006 at 08:09:53AM +0200, Arjan van de Ven wrote:
-> On Sat, 2006-06-17 at 23:45 +0200, Willy Tarreau wrote:
-> > Marcelo,
-> > 
-> > I think I have not sent you this one. It looks valid to me.
-> > I can queue it in -upstream if you prefer to pull everything
-> > at once.
-> 
-> 
-> Hi,
-> 
-> This is a rather complex issue, to the point that your patch is not
-> sufficient actually. While it will create a core file, it's not really a
-> good one, and there are some nasty other issues with it (esp on 64 bit
-> systems). The enterprise distro kernels have a more complete patch for
-> this (I'm pretty sure both RH and SUSE have fundamentally the same patch
-> for this), if you really want this functionality I suggest getting the
-> patch from either of those distros to get the full thing (there's some
-> security angle to this even iirc).
+i have released the 2.6.17-rt1 tree, which can be downloaded from the 
+usual place:
 
-Thanks for notifying us about this Arjan. I've checked in RHEL patches
-and found that this is done in 2.4.21-binfmt-elf.patch with a detailed
-explanation. The patch is rather large, not to say invasive. I believe
-it serves other purposes but it seems to me that it will still be
-invasive enough not to be merged into 2.4 mainline right now.
+   http://redhat.com/~mingo/realtime-preempt/
 
-> Greetings, 
->    Arjan van de Ven
+this is a fixes-only release: merged to 2.6.17-final and smaller fixes.
 
-Regards,
-Willy
+to build a 2.6.17-rc6-rt1 tree, the following patches should be applied:
 
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.tar.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.17-rt1
+
+	Ingo

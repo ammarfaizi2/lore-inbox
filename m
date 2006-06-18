@@ -1,94 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWFRKzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWFRK4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbWFRKzb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 06:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWFRKzb
+	id S1751132AbWFRK4c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 06:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWFRK4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 06:55:31 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:25549
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750924AbWFRKza
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 06:55:30 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: Linux v2.6.17
-Date: Sun, 18 Jun 2006 12:54:13 +0200
-User-Agent: KMail/1.9.1
-References: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, bcm43xx-dev@lists.berlios.de
+	Sun, 18 Jun 2006 06:56:31 -0400
+Received: from wx-out-0102.google.com ([66.249.82.192]:51093 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751132AbWFRK4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 06:56:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=q+gmlQMNtYGadwAIHmopy5V1pFbxgHy5P/gsxbr9rQrQY1IAI2vOV+XZqOoNKOcQFNF2VvbUDMLPWV4zzexOLqcYJbiSvcw1hQObwjMCqKs/0O6vo+F01RtV/6CBfmUg70tk7aSzDApyQ/zBEXbX0kFESRFak8yPus8F1eUyg+g=
+Message-ID: <32124b660606180356k3ebf7791h40a979b40253210d@mail.gmail.com>
+Date: Sun, 18 Jun 2006 12:56:30 +0200
+From: "Ojciec Rydzyk" <69rydzyk69@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: smp problems
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200606181254.13600.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 June 2006 03:59, Linus Torvalds wrote:
-> Not a lot of changes since the last -rc, the bulk is actually some 
-> last-minute MIPS updates and s390 futex changes, the rest tend to be 
-> various very small fixes that trickled in over the last week.
+Hello!
+There is a bug (I suppose) in file linux/boot/i386/kernel/mpparse.c. I
+have laptop Amilo L 7300 and during the kernel boot, I get:
+SMP mptable: bad table version
+BIOS bug, MP table errors detectd!...
 
-D'oh, please queue the following patch for -stable, Greg. ;)
+And I just even have one processor. I had to remove kernel options
+connected with lapic (added previously to kernel command line).
+Some time ago Alan Cox said:
 
---
+"No actually its our bug. Some BIOSes contain template SMP tables which have
+intentionally incomplete data and no checksum. This is used by the BIOS to
+generate a real table if SMP is present.
 
-Place the Init-vs-IRQ workaround before any card register
-access, because we might not have the wireless core mapped
-at all times in init. So this will result in a Machine Check
-caused by a bus error.
+We should not be reporting a wrongly checksummed SMP table we should be
+skipping it silently. This used to be right in 2.0 but someone has obviously
+elevated debugging code too far since.
 
-Signed-off-by: Michael Buesch <mb@bu3sch.de>
+Alan"
+(adapted from http://www.redhat.com/archives/rhl-beta-list/2006-March/msg01144.html)
 
-Index: wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-===================================================================
---- wireless-2.6.orig/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-06-17 15:06:38.000000000 +0200
-+++ wireless-2.6/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-06-17 15:17:49.000000000 +0200
-@@ -1885,6 +1885,15 @@
- 
- 	spin_lock(&bcm->irq_lock);
- 
-+	/* Only accept IRQs, if we are initialized properly.
-+	 * This avoids an RX race while initializing.
-+	 * We should probably not enable IRQs before we are initialized
-+	 * completely, but some careful work is needed to fix this. I think it
-+	 * is best to stay with this cheap workaround for now... .
-+	 */
-+	if (unlikely(bcm43xx_status(bcm) != BCM43xx_STAT_INITIALIZED))
-+		goto out;
-+
- 	reason = bcm43xx_read32(bcm, BCM43xx_MMIO_GEN_IRQ_REASON);
- 	if (reason == 0xffffffff) {
- 		/* irq not for us (shared irq) */
-@@ -1906,19 +1915,11 @@
- 
- 	bcm43xx_interrupt_ack(bcm, reason);
- 
--	/* Only accept IRQs, if we are initialized properly.
--	 * This avoids an RX race while initializing.
--	 * We should probably not enable IRQs before we are initialized
--	 * completely, but some careful work is needed to fix this. I think it
--	 * is best to stay with this cheap workaround for now... .
--	 */
--	if (likely(bcm43xx_status(bcm) == BCM43xx_STAT_INITIALIZED)) {
--		/* disable all IRQs. They are enabled again in the bottom half. */
--		bcm->irq_savedstate = bcm43xx_interrupt_disable(bcm, BCM43xx_IRQ_ALL);
--		/* save the reason code and call our bottom half. */
--		bcm->irq_reason = reason;
--		tasklet_schedule(&bcm->isr_tasklet);
--	}
-+	/* disable all IRQs. They are enabled again in the bottom half. */
-+	bcm->irq_savedstate = bcm43xx_interrupt_disable(bcm, BCM43xx_IRQ_ALL);
-+	/* save the reason code and call our bottom half. */
-+	bcm->irq_reason = reason;
-+	tasklet_schedule(&bcm->isr_tasklet);
- 
- out:
- 	mmiowb();
-
--- 
-Greetings Michael.
+So I think it should be fixed :). Thanks,
+Greetings,
+Jacek Jablonski

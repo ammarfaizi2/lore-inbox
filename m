@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWFRMDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWFRMFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWFRMDq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 08:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWFRMDq
+	id S932189AbWFRMFv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 08:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWFRMFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 08:03:46 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:62629 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932182AbWFRMDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 08:03:45 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44954102.3090901@s5r6.in-berlin.de>
-Date: Sun, 18 Jun 2006 14:03:14 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Ben Collins <bcollins@ubuntu.com>,
-       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
-Subject: [git pull] ieee1394 tree for 2.6.18
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-0.736) AWL,BAYES_00
+	Sun, 18 Jun 2006 08:05:51 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32531 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932189AbWFRMFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 08:05:51 -0400
+Date: Sun, 18 Jun 2006 13:05:43 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17: CONFIG_PARPORT_SERIAL should require CONFIG_SERIAL_8250_PCI?
+Message-ID: <20060618120542.GA4833@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrey Borzenkov <arvidjaar@mail.ru>,
+	linux-kernel@vger.kernel.org
+References: <200606181423.17884.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606181423.17884.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Sun, Jun 18, 2006 at 02:23:07PM +0400, Andrey Borzenkov wrote:
+> Just rebuilt 2.6.17 from older config and disabling 8250 PCI (I do not have 
+> any on notebook) and got:
 
-the IEEE 1394 subsystem updates for Linux 2.6.18 are now staged in Ben's 
-revived linux1394 git tree. I guess the URL to pull from is
-git://git.kernel.org/pub/scm/linux/kernel/git/bcollins/linux1394-2.6.git
+Thanks for reporting this.  The patch below should fix this - please
+test so it can be submitted for the stable branch, thanks.
 
-The updates in there are basically identical to the ieee1394 subsystem 
-patches in 2.6.17-rc6-mm2. The essence:
-  - a few fixes which did not seem important enough for 2.6.17
-  - a performance tweak in the DMA routines
-  - enhanced hardware compatibility (with 1394b PHYs when running at
-    S100...S400, and with devices with link speed < phy speed)
-  - minor coding updates, e.g. partial sem2mutex and kthread conversion
+# Base git commit: 427abfa28afedffadfca9dd8b067eb6d36bac53f
+#	(Linux v2.6.17)
+#
+# Author:    Russell King (Sun Jun 18 13:00:48 BST 2006)
+# Committer: Russell King (Sun Jun 18 13:00:48 BST 2006)
+#	
+#	[SERIAL] PARPORT_SERIAL should depend on SERIAL_8250_PCI
+#	
+#	Since parport_serial uses symbols from 8250_pci, there should
+#	be a dependency between the configuration symbols for these
+#	two modules.  Problem reported by Andrey Borzenkov
+#	
+#	Signed-off-by: Russell King
+#
+#	 drivers/parport/Kconfig |    2 +-
+#	 1 files changed, 1 insertions(+), 1 deletions(-)
+#
+diff --git a/drivers/parport/Kconfig b/drivers/parport/Kconfig
+--- a/drivers/parport/Kconfig
++++ b/drivers/parport/Kconfig
+@@ -48,7 +48,7 @@ config PARPORT_PC
+ 
+ config PARPORT_SERIAL
+ 	tristate "Multi-IO cards (parallel and serial)"
+-	depends on SERIAL_8250 && PARPORT_PC && PCI
++	depends on SERIAL_8250_PCI && PARPORT_PC && PCI
+ 	help
+ 	  This adds support for multi-IO PCI cards that have parallel and
+ 	  serial ports.  You should say Y or M here.  If you say M, the module
 
-Thanks,
+
 -- 
-Stefan Richter
--=====-=-==- -==- =--=-
-http://arcgraph.de/sr/
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

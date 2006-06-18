@@ -1,100 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWFRMZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWFRMek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWFRMZe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 08:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWFRMZd
+	id S932193AbWFRMek (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 08:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWFRMek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 08:25:33 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:38054 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932196AbWFRMZd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 08:25:33 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-Organization: IBM
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/16] 2.6.17-rc6 perfmon2 patch for review: new i386 files
-Date: Sun, 18 Jun 2006 07:24:07 -0500
-User-Agent: KMail/1.8.3
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Stephane Eranian <eranian@frankl.hpl.hp.com>
-References: <200606180210_MC3-1-C2BF-E5CE@compuserve.com>
-In-Reply-To: <200606180210_MC3-1-C2BF-E5CE@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606180724.08069.kevcorry@us.ibm.com>
+	Sun, 18 Jun 2006 08:34:40 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:11993 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S932193AbWFRMek
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 08:34:40 -0400
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [MMC] Fix SD timeout calculation
+Date: Sun, 18 Jun 2006 14:34:37 +0200
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: rmk+lkml@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20060618123432.15915.71389.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun June 18 2006 1:07 am, Chuck Ebbert wrote:
-> In-Reply-To: <200606150907.k5F97e7A008202@frankl.hpl.hp.com>
-> On Thu, 15 Jun 2006 02:07:40 -0700, Stephane Eranian wrote:
-> > --- linux-2.6.17-rc6.orig/arch/i386/perfmon/Kconfig   1969-12-31
-> > 16:00:00.000000000 -0800 +++ linux-2.6.17-rc6/arch/i386/perfmon/Kconfig  
-> >      2006-06-13 06:58:08.000000000 -0700 @@ -0,0 +1,48 @@
-> > +menu "Hardware Performance Monitoring support"
-> > +config PERFMON
-> > +     bool "Perfmon2 performance monitoring interface"
-> > +     select X86_LOCAL_APIC
-> > +     default y
-> > +     help
-> > +       include the perfmon2 performance monitoring interface
-> > +       in the kernel. See <http://perfmon2.sf.net/> for
-> > +       more details. If you're unsure, say Y.
-> > +
-> > + config PERFMON_P6
-> > +     tristate "Support for P6/Pentium M processor hardware performance
-> > counters" +     depends on PERFMON
-> > +     default m
-> > +     help
-> > +     Enables support for the P6-style hardware performance counters.
-> > +     To be used for P6 processors (Pentium III, PentiumPro) and also
-> > +     for Pentium M.
-> > +     If unsure, say M.
-> > +
-> > +config PERFMON_P4
-> > +     tristate "Support for 32-bit P4/Xeon hardware performance counters"
-> > +     depends on PERFMON
-> > +     default m
-> > +     help
-> > +     Enables support for the 32-bit P4/Xeon style hardware performance
-> > +     counters.
-> > +     If unsure, say M.
-> > +
-> > +config PERFMON_GEN_IA32
-> > +     tristate "Support for the architected IA-32 PMU"
-> > +     depends on PERFMON
-> > +     default m
-> > +     help
-> > +     Enables support for the architected IA-32 hardware performance
-> > counters. +     You need a Core Duo/Solo processor or newer for this
-> > work. +     If unsure, say M.
-> > +
-> > +config PERFMON_P4_PEBS
-> > +     tristate "Support for Intel P4 PEBS sampling format"
-> > +     depends on PERFMON_P4
-> > +     default m
-> > +     help
-> > +     Enables support for Precise Event-Based Sampling (PEBS) on the
-> > Intel P4 +     processors which support it.  Does not work with P6
-> > processors. +     If unsure, say m.
-> > +
-> > +endmenu
->
-> What do I pick for i386 kernel on Athlon64 hardware?  P6?  There's no help
-> for that (or Athlon/Sempron processors.)
+Secure Digital cards use a different algorithm to calculate the timeout
+for data transfers. Using the MMC one works often, but not always.
 
-P6 is only for Intel Pentium-Pro, Pentium-II, Pentium-III, and Pentium-M.
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
-See arch/x86_64/perfmon/Kconfig for the config options for AMD Athlon64 and 
-Intel EM64T.
+ drivers/mmc/mmc.c       |   15 +++++++++++++--
+ drivers/mmc/mmc_block.c |   44 ++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 49 insertions(+), 10 deletions(-)
 
-I'm not sure if 32-bit Athlons are supported yet.
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index 6201f30..bd15f99 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -913,6 +913,7 @@ static void mmc_read_scrs(struct mmc_hos
+ 	struct mmc_request mrq;
+ 	struct mmc_command cmd;
+ 	struct mmc_data data;
++	unsigned int timeout_us;
+ 
+ 	struct scatterlist sg;
+ 
+@@ -948,8 +949,18 @@ static void mmc_read_scrs(struct mmc_hos
+ 
+ 		memset(&data, 0, sizeof(struct mmc_data));
+ 
+-		data.timeout_ns = card->csd.tacc_ns * 10;
+-		data.timeout_clks = card->csd.tacc_clks * 10;
++		data.timeout_ns = card->csd.tacc_ns * 100;
++		data.timeout_clks = card->csd.tacc_clks * 100;
++
++		timeout_us = data.timeout_ns / 1000;
++		timeout_us += data.timeout_clks * 1000 /
++			(host->ios.clock / 1000);
++
++		if (timeout_us > 100000) {
++			data.timeout_ns = 100000000;
++			data.timeout_clks = 0;
++		}
++
+ 		data.blksz_bits = 3;
+ 		data.blksz = 1 << 3;
+ 		data.blocks = 1;
+diff --git a/drivers/mmc/mmc_block.c b/drivers/mmc/mmc_block.c
+index 96049e2..69fa6bc 100644
+--- a/drivers/mmc/mmc_block.c
++++ b/drivers/mmc/mmc_block.c
+@@ -31,6 +31,7 @@ #include <linux/devfs_fs_kernel.h>
+ #include <linux/mutex.h>
+ 
+ #include <linux/mmc/card.h>
++#include <linux/mmc/host.h>
+ #include <linux/mmc/protocol.h>
+ 
+ #include <asm/system.h>
+@@ -172,8 +173,6 @@ static int mmc_blk_issue_rq(struct mmc_q
+ 
+ 		brq.cmd.arg = req->sector << 9;
+ 		brq.cmd.flags = MMC_RSP_R1 | MMC_CMD_ADTC;
+-		brq.data.timeout_ns = card->csd.tacc_ns * 10;
+-		brq.data.timeout_clks = card->csd.tacc_clks * 10;
+ 		brq.data.blksz_bits = md->block_bits;
+ 		brq.data.blksz = 1 << md->block_bits;
+ 		brq.data.blocks = req->nr_sectors >> (md->block_bits - 9);
+@@ -181,6 +180,41 @@ static int mmc_blk_issue_rq(struct mmc_q
+ 		brq.stop.arg = 0;
+ 		brq.stop.flags = MMC_RSP_R1B | MMC_CMD_AC;
+ 
++		brq.data.timeout_ns = card->csd.tacc_ns * 10;
++		brq.data.timeout_clks = card->csd.tacc_clks * 10;
++
++		/*
++		 * Scale up the timeout by the r2w factor
++		 */
++		if (rq_data_dir(req) == WRITE) {
++			brq.data.timeout_ns <<= card->csd.r2w_factor;
++			brq.data.timeout_clks <<= card->csd.r2w_factor;
++		}
++
++		/*
++		 * SD cards use a 100 multiplier and has a upper limit
++		 */
++		if (mmc_card_sd(card)) {
++			unsigned int limit_us, timeout_us;
++
++			brq.data.timeout_ns *= 10;
++			brq.data.timeout_clks *= 10;
++
++			if (rq_data_dir(req) == READ)
++				limit_us = 100000;
++			else
++				limit_us = 250000;
++
++			timeout_us = brq.data.timeout_ns / 1000;
++			timeout_us += brq.data.timeout_clks * 1000 /
++				(card->host->ios.clock / 1000);
++
++			if (timeout_us > limit_us) {
++				brq.data.timeout_ns = limit_us * 1000;
++				brq.data.timeout_clks = 0;
++			}
++		}
++
+ 		if (rq_data_dir(req) == READ) {
+ 			brq.cmd.opcode = brq.data.blocks > 1 ? MMC_READ_MULTIPLE_BLOCK : MMC_READ_SINGLE_BLOCK;
+ 			brq.data.flags |= MMC_DATA_READ;
+@@ -188,12 +222,6 @@ static int mmc_blk_issue_rq(struct mmc_q
+ 			brq.cmd.opcode = MMC_WRITE_BLOCK;
+ 			brq.data.flags |= MMC_DATA_WRITE;
+ 			brq.data.blocks = 1;
+-
+-			/*
+-			 * Scale up the timeout by the r2w factor
+-			 */
+-			brq.data.timeout_ns <<= card->csd.r2w_factor;
+-			brq.data.timeout_clks <<= card->csd.r2w_factor;
+ 		}
+ 
+ 		if (brq.data.blocks > 1) {
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://www.ibm.com/linux/
-http://evms.sourceforge.net/

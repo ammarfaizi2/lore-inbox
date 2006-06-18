@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWFRHj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWFRHou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbWFRHj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 03:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWFRHc0
+	id S932127AbWFRHou (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 03:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWFRHot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 03:32:26 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:2030 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932139AbWFRHcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 03:32:06 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux list <linux-kernel@vger.kernel.org>
-Subject: [ckpatch][13/29] cfq-iso_idleprio_ionice.patch
-Date: Sun, 18 Jun 2006 17:32:04 +1000
-User-Agent: KMail/1.9.3
-Cc: ck list <ck@vds.kolivas.org>
-MIME-Version: 1.0
+	Sun, 18 Jun 2006 03:44:49 -0400
+Received: from 1wt.eu ([62.212.114.60]:51720 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S932127AbWFRHos (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 03:44:48 -0400
+Date: Sun, 18 Jun 2006 09:42:48 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>
+Subject: Re: [ckpatch][15/29] hz-no_default_250.patch
+Message-ID: <20060618074247.GF13255@w.ods.org>
+References: <200606181732.48952.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Length: 2332
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606181732.04800.kernel@kolivas.org>
+In-Reply-To: <200606181732.48952.kernel@kolivas.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For SCHED_ISO and SCHED_IDLEPRIO tasks where no ioprio is explicitly set:
+Hi Con,
 
-Set ioprio to best priority normal class for SCHED_ISO tasks.
+On Sun, Jun 18, 2006 at 05:32:48PM +1000, Con Kolivas wrote:
+> Make 250 HZ a value that is not selected by default and give some better
+> recommendations in help.
+> 
+> Signed-off-by: Con Kolivas <kernel@kolivas.org>
+> 
+>  kernel/Kconfig.hz |   15 +++++++++------
+>  1 files changed, 9 insertions(+), 6 deletions(-)
+> 
+> Index: linux-ck-dev/kernel/Kconfig.hz
+> ===================================================================
+> --- linux-ck-dev.orig/kernel/Kconfig.hz	2006-06-18 15:23:58.000000000 +1000
+> +++ linux-ck-dev/kernel/Kconfig.hz	2006-06-18 15:24:28.000000000 +1000
+> @@ -21,14 +21,17 @@ choice
+>  	help
+>  	  100 HZ is a typical choice for servers, SMP and NUMA systems
+>  	  with lots of processors that may show reduced performance if
+> -	  too many timer interrupts are occurring.
+> +	  too many timer interrupts are occurring. Laptops may also show
+> +	  improved battery life.
+>  
+> -	config HZ_250
+> +	config HZ_250_NODEFAULT
+>  		bool "250 HZ"
+>  	help
+> -	 250 HZ is a good compromise choice allowing server performance
+> -	 while also showing good interactive responsiveness even
+> -	 on SMP and NUMA systems.
+> +	 250 HZ is a lousy compromise choice allowing server interactivity
+> +	 while also showing desktop throughput and no extra power saving on
+> +	 laptops. Good for when you can't make up your mind.
+> +
+> +	 Recommend 100 or 1000 instead.
 
-Set ioprio to idle class for SCHED_IDLEPRIO tasks.
+In fact, I use this value (250 Hz) on servers because it provides slightly
+finer scheduling precision than 100 Hz without the performance impact of
+1000 Hz. It also has the advantage that conversions between ms<->jiffies
+are performed by bit shifts only and no divide nor multiply. I really do
+not notice any performance hit between 100 and 250 Hz, while I do between
+250 and 1000.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+Cheers,
+Willy
 
----
- block/cfq-iosched.c    |    2 ++
- include/linux/ioprio.h |    6 ++++++
- 2 files changed, 8 insertions(+)
-
-Index: linux-ck-dev/include/linux/ioprio.h
-===================================================================
---- linux-ck-dev.orig/include/linux/ioprio.h	2006-06-18 15:23:53.000000000 +1000
-+++ linux-ck-dev/include/linux/ioprio.h	2006-06-18 15:23:56.000000000 +1000
-@@ -56,6 +56,8 @@ static inline enum ioprio_class
- {
- 	if (rt_task(task))
- 		return IOPRIO_CLASS_RT;
-+	if (idleprio_task(task))
-+		return IOPRIO_CLASS_IDLE;
- 	return IOPRIO_CLASS_BE;
- }
- 
-@@ -64,6 +66,10 @@ static inline int task_nice_ioprio(struc
- 	if (rt_task(task))
- 		return (MAX_RT_PRIO - task->rt_priority) * IOPRIO_BE_NR /
- 			MAX_RT_PRIO;
-+	if (iso_task(task))
-+		return 0;
-+	if (idleprio_task(task))
-+		return IOPRIO_BE_NR - 1;
- 	return (task_nice(task) + 20) / 5;
- }
- 
-Index: linux-ck-dev/block/cfq-iosched.c
-===================================================================
---- linux-ck-dev.orig/block/cfq-iosched.c	2006-06-18 15:23:53.000000000 +1000
-+++ linux-ck-dev/block/cfq-iosched.c	2006-06-18 15:23:56.000000000 +1000
-@@ -1358,6 +1358,8 @@ static void cfq_init_prio_data(struct cf
- 			 */
- 			cfqq->ioprio_class = task_policy_ioprio_class(tsk);
- 			cfqq->ioprio = task_nice_ioprio(tsk);
-+			if (cfqq->ioprio_class == IOPRIO_CLASS_IDLE)
-+				cfq_clear_cfqq_idle_window(cfqq);
- 			break;
- 		case IOPRIO_CLASS_RT:
- 			cfqq->ioprio = task_ioprio(tsk);
-
--- 
--ck

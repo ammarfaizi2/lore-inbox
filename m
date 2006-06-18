@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWFRCKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWFRCld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWFRCKm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 22:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932067AbWFRCKm
+	id S932071AbWFRCld (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 22:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWFRCld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 22:10:42 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:51401 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932066AbWFRCKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 22:10:42 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] powerpc: enable CPU_FTR_CI_LARGE_PAGE for cell
-Date: Sun, 18 Jun 2006 04:10:54 +0200
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>
-References: <200606171759.k5HHxkjG004420@hera.kernel.org> <1150583350.23600.117.camel@localhost.localdomain>
-In-Reply-To: <1150583350.23600.117.camel@localhost.localdomain>
+	Sat, 17 Jun 2006 22:41:33 -0400
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:44635 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932071AbWFRCld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 22:41:33 -0400
+Date: Sat, 17 Jun 2006 19:41:30 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck@vds.kolivas.org, Hugo Vanwoerkom <rociobarroso@att.net.mx>,
+       ocilent1@gmail.com, linux list <linux-kernel@vger.kernel.org>
+Subject: Re: sound skips on 2.6.16.17
+Message-ID: <20060618024130.GA32399@tuatara.stupidest.org>
+References: <4487F942.3030601@att.net.mx> <200606161115.53716.ocilent1@gmail.com> <4493D24D.2010902@att.net.mx> <200606172129.56986.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606180410.55219.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <200606172129.56986.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sunday 18 June 2006 00:29 schrieb Benjamin Herrenschmidt:
-> Are you sure you want that in ? The SPU code upstream isn't ready for
-> 64k pages yet... I spotted at least:
->
-> __spu_trap_data_seg() and get_kernel_slb()
->
-> Those need to encode the proper page size. I think you have patches for
-> that already. I wouldn't enable 64k pages with the abvoe without these
-> as you may end up with infinite hash fault loops due to the mismatch
-> between page size encoding in the hash table an in the SLB.
+On Sat, Jun 17, 2006 at 09:29:56PM +1000, Con Kolivas wrote:
 
-It doesn't make much of a difference. The upstream spufs is broken
-for 64k pages regardless of whether they are HW or compound pages.
+> > > 1)  PCI-VIA-quirk-fixup-additional-PCI-IDs.patch
 
-The other patch was for making HW 64k pages work at all, as is this
-one.
+that shouldn't break things, if it does I *really* want to know
 
-	Arnd <><
+> > > 2)
+> PCI-quirk-VIA-IRQ-fixup-should-only-run-for-VIA-southbridges.patch
+
+nor should that, so again i would like to know if this is the one that
+makes a difference
+
+> > Works like a charm. End of the sound skips.
+
+what cpu/mainboard/etc

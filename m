@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWFRHdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWFRHj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWFRHdg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 03:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWFRHdS
+	id S932145AbWFRHj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 03:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWFRHc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 03:33:18 -0400
-Received: from mail.gmx.de ([213.165.64.21]:56972 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932139AbWFRHcb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 03:32:31 -0400
-X-Authenticated: #14349625
-Subject: Re: [RFC] CPU controllers?
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net, vatsa@in.ibm.com,
-       dev@openvz.org, mingo@elte.hu, pwil3058@bigpond.net.au,
-       sekharan@us.ibm.com, balbir@in.ibm.com, linux-kernel@vger.kernel.org,
-       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
-In-Reply-To: <20060617234259.dc34a20c.akpm@osdl.org>
-References: <20060615134632.GA22033@in.ibm.com>
-	 <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com>
-	 <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net>
-	 <4494EE86.7090209@yahoo.com.au>  <20060617234259.dc34a20c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 18 Jun 2006 09:36:16 +0200
-Message-Id: <1150616176.7985.50.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Sun, 18 Jun 2006 03:32:26 -0400
+Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:2030 "EHLO
+	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932139AbWFRHcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 03:32:06 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux list <linux-kernel@vger.kernel.org>
+Subject: [ckpatch][13/29] cfq-iso_idleprio_ionice.patch
+Date: Sun, 18 Jun 2006 17:32:04 +1000
+User-Agent: KMail/1.9.3
+Cc: ck list <ck@vds.kolivas.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 2332
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Message-Id: <200606181732.04800.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-06-17 at 23:42 -0700, Andrew Morton wrote:
-> On Sun, 18 Jun 2006 16:11:18 +1000
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+For SCHED_ISO and SCHED_IDLEPRIO tasks where no ioprio is explicitly set:
 
-> > Again, I don't care about the solutions at this stage. I want to know
-> > what the problem is. Please?
-> 
-> Isolation.  To prevent one group of processes from damaging the performance
-> of other groups, by providing manageability of the resource consumption of
-> each group.  There are plenty of applications of this, not just
-> server-consolidation-via-server-virtualisation.
+Set ioprio to best priority normal class for SCHED_ISO tasks.
 
-Scheduling contexts do sound useful.  They're easily defeated though, as
-evolution mail demonstrates to me every time it's GUI hangs and I see
-that a nice 19 find is running, eating very little CPU, but effectively
-DoSing evolution nonetheless (journal).  I wonder how often people who
-tried to distribute CPU would likewise be stymied by other resources.
+Set ioprio to idle class for SCHED_IDLEPRIO tasks.
 
-	-Mike
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
+---
+ block/cfq-iosched.c    |    2 ++
+ include/linux/ioprio.h |    6 ++++++
+ 2 files changed, 8 insertions(+)
+
+Index: linux-ck-dev/include/linux/ioprio.h
+===================================================================
+--- linux-ck-dev.orig/include/linux/ioprio.h	2006-06-18 15:23:53.000000000 +1000
++++ linux-ck-dev/include/linux/ioprio.h	2006-06-18 15:23:56.000000000 +1000
+@@ -56,6 +56,8 @@ static inline enum ioprio_class
+ {
+ 	if (rt_task(task))
+ 		return IOPRIO_CLASS_RT;
++	if (idleprio_task(task))
++		return IOPRIO_CLASS_IDLE;
+ 	return IOPRIO_CLASS_BE;
+ }
+ 
+@@ -64,6 +66,10 @@ static inline int task_nice_ioprio(struc
+ 	if (rt_task(task))
+ 		return (MAX_RT_PRIO - task->rt_priority) * IOPRIO_BE_NR /
+ 			MAX_RT_PRIO;
++	if (iso_task(task))
++		return 0;
++	if (idleprio_task(task))
++		return IOPRIO_BE_NR - 1;
+ 	return (task_nice(task) + 20) / 5;
+ }
+ 
+Index: linux-ck-dev/block/cfq-iosched.c
+===================================================================
+--- linux-ck-dev.orig/block/cfq-iosched.c	2006-06-18 15:23:53.000000000 +1000
++++ linux-ck-dev/block/cfq-iosched.c	2006-06-18 15:23:56.000000000 +1000
+@@ -1358,6 +1358,8 @@ static void cfq_init_prio_data(struct cf
+ 			 */
+ 			cfqq->ioprio_class = task_policy_ioprio_class(tsk);
+ 			cfqq->ioprio = task_nice_ioprio(tsk);
++			if (cfqq->ioprio_class == IOPRIO_CLASS_IDLE)
++				cfq_clear_cfqq_idle_window(cfqq);
+ 			break;
+ 		case IOPRIO_CLASS_RT:
+ 			cfqq->ioprio = task_ioprio(tsk);
+
+-- 
+-ck

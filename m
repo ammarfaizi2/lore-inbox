@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWFRRur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWFRSYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWFRRur (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 13:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWFRRur
+	id S1751185AbWFRSYE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 14:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWFRSYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 13:50:47 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:16565 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932275AbWFRRuq
+	Sun, 18 Jun 2006 14:24:04 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:9135 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751185AbWFRSYB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 13:50:46 -0400
-Date: Sun, 18 Jun 2006 18:50:45 +0100
+	Sun, 18 Jun 2006 14:24:01 -0400
+Date: Sun, 18 Jun 2006 19:23:59 +0100
 From: Al Viro <viro@ftp.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/5]: ufs: missed brelse and wrong baseblk
-Message-ID: <20060618175045.GX27946@ftp.linux.org.uk>
-References: <20060617101403.GA22098@rain.homenetwork> <20060618162054.GW27946@ftp.linux.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       herbert@13thfloor.at, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [RFC][PATCH 11/20] elevate write count over calls to vfs_rename()
+Message-ID: <20060618182359.GY27946@ftp.linux.org.uk>
+References: <20060616231213.D4C5D6AF@localhost.localdomain> <20060616231221.C30C0D59@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060618162054.GW27946@ftp.linux.org.uk>
+In-Reply-To: <20060616231221.C30C0D59@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 18, 2006 at 05:20:54PM +0100, Al Viro wrote:
-> Comment more on the entire series than on this patch: scenario that causes
-> trouble
-> 	* foo is a sparse file on ufs with 8Kb block/1Kb fragment
-> 	* process opens it writable and mmaps it shared
-> 	* it proceeds to dirty the pages
-> 	* fork
-> 	* parent and child do msync() on pages next to each other
-> 
-> I.e. we try to write adjacent pages that sit in the same block.  At the
-> same time.  Each will trigger an allocation and we'd better be very
-> careful, or we'll end up allocating the same block twice.
+On Fri, Jun 16, 2006 at 04:12:21PM -0700, Dave Hansen wrote:
+> +	err = mnt_want_write(ffhp->fh_export->ex_mnt);
+> +	if (err)
+> +		goto out_dput_new;
+> +
+> +	err = mnt_want_write(tfhp->fh_export->ex_mnt);
+> +	if (err)
+> +		goto out_mnt_drop_write_old;
+> +
+>  	err = vfs_rename(fdir, odentry, tdir, ndentry);
+>  	if (!err && EX_ISSYNC(tfhp->fh_export)) {
+>  		err = nfsd_sync_dir(tdentry);
+>  		if (!err)
+>  			err = nfsd_sync_dir(fdentry);
+>  	}
+> -
+> +	mnt_drop_write(tfhp->fh_export->ex_mnt);
+> + out_mnt_drop_write_old:
+> +	mnt_drop_write(ffhp->fh_export->ex_mnt);
 
-FWIW, for folks who are not familiar with UFS: the important differences
-between it and ext2 are
-	* directory chunk size is fixed to 512, instead of being fs parameter
-as in ext2
-	* names in directory entries are NUL-terminated
-	* there are two allocation units: fragment and block.  Each block
-consists of 2^{parameter} fragments.  ext2 is what you get when parameter
-is 0 (block == fragment).  UFS tends to use block:fragment == 8, but
-1, 2 and 4 are also allowed.
-	* equivalent of ext2 free block bitmap has bit per fragment.
-	* "block" in "direct block", "indirect block", etc. is actually
-a group of fragments.  The number of first fragment in group is stored
-where ext2 would store the block number.
-	* if there are indirect blocks, all those groups are simply full
-blocks; they are aligned to block boundary and consist of block:fragment
-ratio fragments.
-	* if file is shorter than 12 * block size, we have no indirects and
-all but the last direct one are full blocks.  I.e. the numbers we have
-there are multiples of block:fragment ration and a full block is allocated
-for each.   The last one consists of just enough fragments to reach the
-end of file and may be not aligned.
-
-IOW, it's _almost_ as if we had ext2 with all block numbers (in inode and
-in indirect blocks) multiplied by block:fragment ratio.  The only exception
-is for the last direct block of small files - these span fewer fragments
-and may be unaligned.
-
-The only subtle part is when we extend a small file; the last direct block
-needs to be expanded and that may require relocation.
-
-	* block may be bigger than page.  That can cause all sorts of fun
-problems in interaction with our VM, since allocation can affect more than
-one page and that has to be taken into account.
-
-	* UFS2 supports ext.attributes; it has two fragment numbers in
-inode; they refer to up to 2 blocks worth of data.  As with the data
-of small files, the partial block doesn't have to be aligned.
+Ahem...
+	a) nfsd_rename() should check that tfhp->fh_export->ex_mnt ==
+ffhp->fh_export->ex_mnt (if not that tfhp->fh_export == ffhp->fh_export)
+instead of comparing ->i_sb
+	b) that patch should do mnt_want_write() only once.

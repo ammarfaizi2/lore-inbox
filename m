@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWFREzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWFRFGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWFREzf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 00:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWFREzf
+	id S932092AbWFRFGc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 01:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWFRFGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 00:55:35 -0400
-Received: from xenotime.net ([66.160.160.81]:31424 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932089AbWFREzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 00:55:35 -0400
-Date: Sat, 17 Jun 2006 21:58:18 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: sturmflut@lieberbiber.de
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch 2/3] vdso: improve print_fatal_signals support by adding
- memory maps
-Message-Id: <20060617215818.7bc728af.rdunlap@xenotime.net>
-In-Reply-To: <200606171614.58610.sturmflut@lieberbiber.de>
-References: <200606171614.58610.sturmflut@lieberbiber.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 18 Jun 2006 01:06:31 -0400
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:3696 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932092AbWFRFGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 01:06:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=51eg05bVSVDiyTbEqx+r09/mNdO4AViDGBNRQUQEmZGAo5Ke9FRkQizWoyvIzQRl2RBEMDaqbVFtDKJMZtqJvSRw6sDBg+0BZNFyQMl990gUA0atstc22m+NE/tzFULDhjzNQ45gJX6y+tBVheDm2esINEh8bEb/eXTtGFEEFB0=  ;
+Message-ID: <4494DF50.2070509@yahoo.com.au>
+Date: Sun, 18 Jun 2006 15:06:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: vatsa@in.ibm.com
+CC: Sam Vilain <sam@vilain.net>, Kirill Korotaev <dev@openvz.org>,
+       Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@elte.hu>,
+       Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
+       sekharan@us.ibm.com, Balbir Singh <balbir@in.ibm.com>,
+       linux-kernel@vger.kernel.org, maeda.naoaki@jp.fujitsu.com,
+       kurosawa@valinux.co.jp
+Subject: Re: [RFC] CPU controllers?
+References: <20060615134632.GA22033@in.ibm.com> <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com>
+In-Reply-To: <20060617164812.GB4643@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Jun 2006 16:14:52 +0200 Simon Raffeiner wrote:
-
-> When compiling 2.6.17-rc6-mm2 (which contains this patch) my gcc 4.0.3 (Ubuntu 
-> 4.0.3-1ubuntu5) complains about "int len;" being used uninitialized in 
-> print_vma(). AFAICS len is not initialized and then passed to 
-> pad_len_spaces(int len), which uses it for some calculations.
+Srivatsa Vaddagiri wrote:
+> On Sat, Jun 17, 2006 at 06:48:17PM +1000, Nick Piggin wrote:
 > 
-> I also noticed that similar code is used in fs/proc/task_mmu.c, where 
-> show_map_internal() passes an uninitialised int len; to pad_len_spaces(struct 
-> seq_file *m, int len).
+>>Srivatsa Vaddagiri wrote:
+>>
+>>>	- Do we need mechanisms to control CPU usage of tasks, further to 
+>>>	what
+>>>	  already exists (like nice)?  IMO yes.
+>>
+>>Can we get back to the question of need? And from there, work out what
+>>features are wanted.
+>>
+>>IMHO, having containers try to virtualise all resources (memory, pagecache,
+>>slab cache, CPU, disk/network IO...) seems insane: we may just as well use
+>>virtualisation.
+>>
+>>So, from my POV, I would like to be convinced of the need for this first.
+>>I would really love to be able to keep core kernel simple and fast even if
+>>it means edge cases might need to use a slightly different solution.
+> 
+> 
+> I think a proportional-share scheduler (which is what a CPU controller
+> may provide) has non-container uses also. Do you think nice (or sched policy) 
+> is enough to, say, provide guaranteed CPU usage for applications or limit 
+> their CPU usage? Moreover it is more flexible if guarantee/limit can be 
+> specified for a group of tasks, rather than individual tasks even in
+> non-container scenarios (like limiting CPU usage of all web-server 
+> tasks togther or for limiting CPU usage of make -j command).
+> 
 
-Ack both of those.  And both of them pass &len as a parameter to
-printk/seq_printf where it looks as though they want just <len>
-(after it has been initialized).
+Oh, I'm sure there are lots of things we *could* do that we currently can't.
 
-> Please include my E-Mail address in replies as I am not subscribed to LKML.
+What I want to establish first is: what exact functionality is required, why,
+and by whom. Only then can we sanely discuss the fitness of solutions and
+propose alternatives, and decide whether to merge.
 
----
-~Randy
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

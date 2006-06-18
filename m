@@ -1,142 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWFRNUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWFRNXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWFRNUp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 09:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWFRNUp
+	id S932203AbWFRNXw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 09:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWFRNXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 09:20:45 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:64705 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932207AbWFRNUo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 09:20:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XPvuaapX3jMpEhuea/MB2K/yHWzgDYdXwjnbzIR0saOqEW0nfdocFyNVfEdyYZkvMF3MFAjxDnfkgwv2d2GM1k/yfEtJirGMg1HVrZa32UXKXnl9Uju9Uome4Y32TraUcm3kdEx5Ps1MQOJ6QDTHp5897FLiB8OrSSccl8GOavY=
-Message-ID: <b8bf37780606180620y6e980e04k5b35da2c61fa1d1f@mail.gmail.com>
-Date: Sun, 18 Jun 2006 09:20:43 -0400
-From: "=?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?=" <andre.goddard@gmail.com>
-To: "linux list" <linux-kernel@vger.kernel.org>
-Subject: Support for SEEK_HOLE and SEEK_DATA for sparse files on lseek(2)
+	Sun, 18 Jun 2006 09:23:52 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:12175 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932203AbWFRNXw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 09:23:52 -0400
+Message-ID: <449553E5.9030004@drzeus.cx>
+Date: Sun, 18 Jun 2006 15:23:49 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Marcel Holtmann <marcel@holtmann.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [RFC] New MMC driver model
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all!
+I've been looking at how we can support SDIO cards and how we need to
+adapt our driver model for it.
 
-Jeff Bonwick, from Slab allocator and ZFS fame is asking for comments on
-supporting SEEK_HOLE and SEEK_DATA for sparse files on lseek(2), like
-stated in this snip:
+Functions
+=========
 
-"Portability
-At this writing, SEEK_HOLE and SEEK_DATA are Solaris-specific. I
-encourage (implore? beg?) other operating systems to adopt these
-lseek(2) extensions verbatim (100% tax-free) so that sparse file
-navigation becomes a ubiquitous feature that every backup and
-archiving program can rely on. It's long overdue."
+First of all, we need to have multiple drivers for one physical card.
+This is needed to handle both "combo cards" (mem and I/O) and because
+SDIO cards can have seven distinct functions in one card.
 
-Here is the original source:
-http://blogs.sun.com/roller/page/bonwick?entry=seek_hole_and_seek_data#comments
+For this I propose we add the concept of "function" and that each "card"
+has 1 to 8 of these. The drivers then bind to these functions, not to
+the card.
 
-FULL TEXT from the source above:
+Identification
+==============
 
-SEEK_HOLE and SEEK_DATA for sparse files
+SDIO uses the PCMCIA CIS structure for its generic fields. This includes
+the CISTPL_MANFID tuple, which has one 16-bit value for manufacturer and
+one 16-bit value for card id. The standard also has a special field for
+"standard" interfaces, which are similar to PCI classes.
 
-A sparse file is a file that contains much less data than its size
-would suggest. If you create a new file and then do a 1-byte write to
-the billionth byte, for example, you've just created a 1GB sparse
-file. By convention, reads from unwritten parts of a file return
-zeroes.
+This scheme would allow us to handle storage cards quite nicely:
 
-File-based backup and archiving programs like tar, cpio, and rsync can
-detect runs of zeroes and ignore them, so that the archives they
-produce aren't filled with zeroes. Still, this is terribly
-inefficient. If you're a backup program, what you really want is a
-list of the non-zero segments in the file. But historically there's
-been no way to get this information without looking at
-filesystem-specific metadata.
+#define SDIO_ID_ANY                  0xFFFFFFFF
 
-Desperately seeking segments
+#define SDIO_VENDOR_STORAGE          0xFFFFFFFE
+#define SDIO_DEVICE_ID_STORAGE_MMC   0x00000000
+#define SDIO_DEVICE_ID_STORAGE_SD    0x00000001
 
-As part of the ZFS project, we introduced two general extensions to
-lseek(2): SEEK_HOLE and SEEK_DATA. These allow you to quickly discover
-the non-zero regions of sparse files. Quoting from the new man page:
+(If the prefix makes the MMC layer a bit SDIO centric, feel free to come
+with other suggestions)
 
-       o  If whence is SEEK_HOLE, the offset of the start of  the
-          next  hole greater than or equal to the supplied offset
-          is returned. The definition of a hole is provided  near
-          the end of the DESCRIPTION.
+Interrupts
+==========
 
-       o  If whence is SEEK_DATA, the file pointer is set to  the
-          start  of the next non-hole file region greater than or
-          equal to the supplied offset.
+SDIO has generic interrupts that cards can use how they damn well
+please. The interrupts are also level triggered and have the nice
+"feature" of being active when there is no card in the slot.
 
-        [...]
+So I propose the following:
 
-     A "hole" is defined as a contiguous  range  of  bytes  in  a
-     file,  all  having the value of zero, but not all zeros in a
-     file are guaranteed to be represented as holes returned with
-     SEEK_HOLE. Filesystems are allowed to expose ranges of zeros
-     with SEEK_HOLE, but not required to.  Applications  can  use
-     SEEK_HOLE  to  optimise  their behavior for ranges of zeros,
-     but must not depend on it to find all such ranges in a file.
-     The  existence  of  a  hole  at the end of every data region
-     allows for easy programming and implies that a virtual  hole
-     exists  at  the  end  of  the  file. Applications should use
-     fpathconf(_PC_MIN_HOLE_SIZE) or  pathconf(_PC_MIN_HOLE_SIZE)
-     to  determine if a filesystem supports SEEK_HOLE. See fpath-
-     conf(2).
+ * We add a "interrupt enable" field to the ios structure so that hosts
+know when a SDIO card has been inserted and card interrupts should be
+caught.
 
-     For filesystems that do not supply information about  holes,
-     the file will be represented as one entire data region.
+ * When a interrupt is caught, the host driver masks it and tells the
+MMC layer that a interrupt is pending. The MMC layer then calls a card
+interrupt handler in some deferred manner (suggestions welcome).
 
-Any filesystem can support SEEK_HOLE / SEEK_DATA. Even a filesystem
-like UFS, which has no special support for sparseness, can walk its
-block pointers much faster than it can copy out a bunch of zeroes.
-Even if the search algorithm is linear-time, at least the constant is
-thousands of times smaller.
+ * When the card driver feels that it has handled the interrupt, it
+calls a special acknowledge command that removes the mask the host has set.
 
-Sparse file navigation in ZFS
+Since SDIO cards can have seven distinct functions, there is a generic
+register that tells which of the seven that currently has a pending
+interrupt. This allows us to call only the relevant handlers.
 
-A file in ZFS is a tree of blocks. To maximize the performance of
-SEEK_HOLE and SEEK_DATA, ZFS maintains in each block pointer a fill
-count indicating the number of data blocks beneath it in the tree (see
-below). Fill counts reveal where holes and data reside, so that ZFS
-can find both holes and data in guaranteed logarithmic time.
+The "interrupt pending" register also allows us to do a polled solution
+for non-SDIO capable hosts. I'm unsure how to get a good balance between
+latency and resource usage though.
 
-      L4                           6
-                  -----------------------------------
-      L3          5                0                1
-             -----------      -----------      -----------
-      L2     3    0    2                       0    0    1
-            ---  ---  ---                     ---  ---  ---
-      L1    111       101                               001
+Register functions
+==================
 
-    An indirect block tree for a sparse file, showing the fill count
-in each block pointer. In this example there are three block pointers
-per indirect block. The lowest-level (L1) block pointers describe
-either one block of data or one block-sized hole, indicated by a fill
-count of 1 or 0, respectively. At L2 and above, each block pointer's
-fill count is the sum of the fill counts of its children. At any
-level, a non-zero fill count indicates that there's data below. A fill
-count less than the maximum (3L-1 in this example) indicates that
-there are holes below. From any offset in the file, ZFS can find the
-next hole or next data in logarithmic time by following the fill
-counts in the indirect block tree.
+I also intend to write a couple of register functions (sdio_read[bwl])
+so that card drivers doesn't have to deal with MMC requests more than
+necessary. Endianness can also be handled there (SDIO are always LE).
 
-Portability
 
-At this writing, SEEK_HOLE and SEEK_DATA are Solaris-specific. I
-encourage (implore? beg?) other operating systems to adopt these
-lseek(2) extensions verbatim (100% tax-free) so that sparse file
-navigation becomes a ubiquitous feature that every backup and
-archiving program can rely on. It's long overdue.
+Comment away! :)
 
-Thank in advance,
--- 
-[]s,
-André Goddard
+Rgds
+Pierre

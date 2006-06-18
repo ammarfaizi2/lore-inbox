@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWFRDa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWFRDnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWFRDa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jun 2006 23:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFRDa4
+	id S932079AbWFRDnP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jun 2006 23:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWFRDnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jun 2006 23:30:56 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:10961 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751076AbWFRDaz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jun 2006 23:30:55 -0400
-Message-ID: <4494C8E7.3080700@ens-lyon.org>
-Date: Sat, 17 Jun 2006 23:30:47 -0400
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Sat, 17 Jun 2006 23:43:15 -0400
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:40389 "EHLO
+	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751076AbWFRDnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jun 2006 23:43:15 -0400
+Date: Sat, 17 Jun 2006 23:36:36 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 5/16] 2.6.17-rc6 perfmon2 patch for review: new
+  sysfs support
+To: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephane Eranian <eranian@hpl.hp.com>
+Message-ID: <200606172339_MC3-1-C2C6-D2C3@compuserve.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.17
-References: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org> <Pine.LNX.4.64.0606171902040.5498@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606171902040.5498@g5.osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Btw, one thing that I was planning to ask people - does anybody find the 
-> full-format ChangeLog's that I produce at all useful?
->
-> You can get the exact same information directly from git, and the full 
-> changelog (as opposed to the shortlog) tends to be pretty rough to read, 
-> so I suspect that most people who do want to delve into the details are 
-> actually much more likely to look it up using git instead (at which point 
-> you can obviously get much better information - graphical history, diffs, 
-> etc)
->
-> I'm not going to stop doing the incremental shortlogs, since those are 
-> easy to read and I usually post them with the release announcement unless 
-> they end up being too large (usually -rc1 has a _lot_ of changes as a 
-> result of the merge window), but I'm just wondering if anybody finds the 
-> full logs useful at all?
->   
+In-Reply-To: <200606150907.k5F97YtU008130@frankl.hpl.hp.com>
 
-I actually like having the full changelog of every kernels and grep in
-all them at once when I want to quickly find out where something has
-been added/modified without knowing the exact name of the function or
-file that I am looking for.
-I guess I could use git to generate the full changelog once a new
-release and keep it for later...
+On Thu, 15 Jun 2006 02:07:34 -0700, Stephane Eranian wrote:
 
-Regards,
-Brice
+> --- linux-2.6.17-rc6.orig/perfmon/perfmon_sysfs.c     1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.6.17-rc6/perfmon/perfmon_sysfs.c  2006-06-08 05:36:31.000000000 -0700
+ ...
+> +struct pfm_controls pfm_controls = {
+> +     .sys_group = PFM_GROUP_PERM_ANY,
+> +     .task_group = PFM_GROUP_PERM_ANY,
+> +     .arg_size_max = PAGE_SIZE,
+> +     .smpl_buf_size_max = ~0,
+> +};
 
+This means that by default anyone can create monitoring sessions.
+It should start out as restrictive as possible; the admin can relax
+permissions as needed.
+
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

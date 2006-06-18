@@ -1,117 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWFRNfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWFRNgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWFRNfv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 09:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWFRNfv
+	id S932185AbWFRNgb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 09:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWFRNgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 09:35:51 -0400
-Received: from web26512.mail.ukl.yahoo.com ([217.146.177.59]:4982 "HELO
-	web26512.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932232AbWFRNfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 09:35:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=lQaf27zJMRJO4nn36X6HKuHlEcsq+pRYgj+wbH83BIT6cl4/sq9gx9M34kpF45ht3JzSwXJ3j70r4BKly6ewAxSGf9f75Iiaba13jAoz72aP60CmMHtZCnGmvFv18uUkXsyrBYrrzpwMB8T4X0esENeclxVRmg43BnJyd7gGlsE=  ;
-Message-ID: <20060618133549.24302.qmail@web26512.mail.ukl.yahoo.com>
-Date: Sun, 18 Jun 2006 15:35:49 +0200 (CEST)
-From: karsten wiese <annabellesgarden@yahoo.de>
-Subject: Re: sound skips on 2.6.16.17
-To: Hugo Vanwoerkom <rociobarroso@att.net.mx>, Chris Wedgwood <cw@f00f.org>
-Cc: ck@vds.kolivas.org, linux list <linux-kernel@vger.kernel.org>
-In-Reply-To: <449534DA.8040103@att.net.mx>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 18 Jun 2006 09:36:31 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:28549 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932185AbWFRNga (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 09:36:30 -0400
+Date: Sun, 18 Jun 2006 10:37:18 -0300
+From: Marcelo Tosatti <marcelo@kvack.org>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Willy Tarreau <willy@w.ods.org>,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Linux 2.4.33-rc1
+Message-ID: <20060618133718.GA2467@dmt>
+References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Hugo Vanwoerkom <rociobarroso@att.net.mx> schrieb:
-
-> Chris Wedgwood wrote:
-> > On Sun, Jun 18, 2006 at 12:04:29PM +0800, ocilent1 wrote:
-> >
-> >   
-> >> (PCI-quirk-VIA-IRQ-fixup-should-only-run-for-VIA-southbridges.patch)
-> >> that is causing the sound stuttering/skipping problems for our users
-> >> with VIA chipsets. Backing out the first patch alone did not fix the
-> >> problem (PCI-VIA-quirk-fixup-additional-PCI-IDs.patch) but to back
-> >> out the 2nd patch, you need to have initially backed out the first
-> >> patch, due to the way the patches apply in series.
-> >>     
-> >
-> > what mainboard/CPU do you have there?
-> >
-> > what does 'lspci -n' say?
-> >
-> >   
+On Sat, Jun 17, 2006 at 08:21:44AM +1000, Grant Coady wrote:
+> On Fri, 16 Jun 2006 15:14:19 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
 > 
-> /home/hugoSun Jun 18-06:08:30HDC1# lspci -n
-> 0000:00:00.0 0600: 1106:0269
-> 0000:00:00.1 0600: 1106:1269
-> 0000:00:00.2 0600: 1106:2269
-> 0000:00:00.3 0600: 1106:3269
-> 0000:00:00.4 0600: 1106:4269
-> 0000:00:00.7 0600: 1106:7269
-> 0000:00:01.0 0604: 1106:b198
-> 0000:00:0a.0 0300: 10de:0181 (rev a2)
-> 0000:00:0b.0 0104: 1095:3112 (rev 02)
-> 0000:00:0c.0 0401: 1102:0007
-> 0000:00:0f.0 0101: 1106:0571 (rev 06)
-> 0000:00:10.0 0c03: 1106:3038 (rev 81)
-> 0000:00:10.1 0c03: 1106:3038 (rev 81)
-> 0000:00:10.2 0c03: 1106:3038 (rev 81)
-> 0000:00:10.3 0c03: 1106:3038 (rev 81)
-> 0000:00:10.4 0c03: 1106:3104 (rev 86)
-> 0000:00:11.0 0601: 1106:3227
-> 0000:00:11.5 0401: 1106:3059 (rev 60)
-> 0000:00:12.0 0200: 1106:3065 (rev 78)
-> 0000:01:00.0 0300: 10de:0185 (rev c1)
+> >Here is 2.4.33-rc1.
 > 
+> I provoked a network related oops as user 'grant', with this CLI input
+> boo-boo on an ssh terminal:
+> 
+> grant@sempro:~$ rm /home/share/config-2.6.17-rc6-mm1a dmesg-2.6.17-rc6-mm1a
+> 
+> /home/share is an NFS mounted directory
+> 
+> Was able to login direct as root and copy the oops info with mouse (gpm)
+> copy/paste, but console locked up on localnet access, here's the guff:
+> 
+> ksymoops 2.4.11 on i686 2.4.33-rc1.  Options used
+>      -v /home/grant/linux/linux-2.4.33-rc1/vmlinux (specified)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.33-rc1/ (default)
+>      -m /boot/System.map-2.4.33-rc1 (specified)
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000088
+> *pde = 00000000
+> Oops: 0002
+> CPU:    0
+> EIP:    0010:[<c013eeb4>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010282
+> eax: 00000000   ebx: 00000000   ecx: 00000088   edx: 00000088
+> esi: f6e2fd08   edi: f5839ac0   ebp: f6e2fc80   esp: f5889f6c
+> ds: 0018   es: 0018   ss: 0018
+> Process rm (pid: 243, stackpage=f5889000)
+> Stack: f6e2fc80 f5839ac0 f5839ac0 f7bdd000 f5889f90 f5839ac0 c013f066 f6e2fc80
+>        f5839ac0 f6e36440 c19ac440 f7bdd00c 00000016 be8f2661 00000010 00000000
+>        00000004 f5888000 bffff96b 08051050 bffff758 c0106eff bffff96b 00000002
+> Call Trace:    [<c013f066>] [<c0106eff>]
+> Code: ff 80 88 00 00 00 0f 8e 2e 16 00 00 85 db 74 16 89 d8 8b 5c
+> 
+> 
+> >>EIP; c013eeb4 <vfs_unlink+a4/1a0>   <=====
+> 
+> >>esi; f6e2fd08 <_end+36a9405c/386be3d4>
+> >>edi; f5839ac0 <_end+3549de14/386be3d4>
+> >>ebp; f6e2fc80 <_end+36a93fd4/386be3d4>
+> >>esp; f5889f6c <_end+354ee2c0/386be3d4>
+> 
+> Trace; c013f066 <sys_unlink+b6/120>
+> Trace; c0106eff <system_call+33/38>
+> 
+> Code;  c013eeb4 <vfs_unlink+a4/1a0>
+> 00000000 <_EIP>:
+> Code;  c013eeb4 <vfs_unlink+a4/1a0>   <=====
+>    0:   ff 80 88 00 00 00         incl   0x88(%eax)   <=====
+> Code;  c013eeba <vfs_unlink+aa/1a0>
+>    6:   0f 8e 2e 16 00 00         jle    163a <_EIP+0x163a>
+> Code;  c013eec0 <vfs_unlink+b0/1a0>
+>    c:   85 db                     test   %ebx,%ebx
+> Code;  c013eec2 <vfs_unlink+b2/1a0>
+>    e:   74 16                     je     26 <_EIP+0x26>
+> Code;  c013eec4 <vfs_unlink+b4/1a0>
+>   10:   89 d8                     mov    %ebx,%eax
+> Code;  c013eec6 <vfs_unlink+b6/1a0>
+>   12:   8b 5c 00 00               mov    0x0(%eax,%eax,1),%ebx
 
-had sound skipping here too with likely the same southbridge:
-(AMD64 K8T800 mobo)
-# lspci -n
-00:00.0 0600: 1106:0282
-00:00.1 0600: 1106:1282
-00:00.2 0600: 1106:2282
-00:00.3 0600: 1106:3282
-00:00.4 0600: 1106:4282
-00:00.7 0600: 1106:7282
-00:01.0 0604: 1106:b188
-00:0b.0 0200: 10ec:8169 (rev 10)
-00:0f.0 0101: 1106:0571 (rev 06)
-00:10.0 0c03: 1106:3038 (rev 81)
-00:10.1 0c03: 1106:3038 (rev 81)
-00:10.2 0c03: 1106:3038 (rev 81)
-00:10.3 0c03: 1106:3038 (rev 81)
-00:10.4 0c03: 1106:3104 (rev 86)
-00:11.0 0601: 1106:3227
-00:11.5 0401: 1106:3059 (rev 60)
-00:18.0 0600: 1022:1100
-00:18.1 0600: 1022:1101
-00:18.2 0600: 1022:1102
-00:18.3 0600: 1022:1103
-01:00.0 0300: 10de:0185 (rev c1)
+Grant,
 
-backing out above patches didn't help.
-Enabling variable samplerate support by loading
-snd-via82xx like this:
-# rmmod snd-via82xx
-# modprobe snd-via82xx dxs_support=5
-made the difference here.
+Can you please try the attached patch.
 
-Also I completely disabled PCI-quirk-VIA-IRQ-fixup here without
-any negative impact.
-When active, it reports nonsense here:
-"PCI: VIA IRQ fixup for 0000:00:0f.0, from 255 to 0"
-"PCI: VIA IRQ fixup for 0000:00:10.0, from 11 to 3"
+Grab a reference to the victim inode before calling vfs_unlink() to avoid
+it vanishing under us.
 
-
-      Karsten
-
-
-		
-___________________________________________________________ 
-Telefonate ohne weitere Kosten vom PC zum PC: http://messenger.yahoo.de
+diff --git a/fs/namei.c b/fs/namei.c
+index 42cce98..7993283 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1509,6 +1509,7 @@ asmlinkage long sys_unlink(const char * 
+ 	char * name;
+ 	struct dentry *dentry;
+ 	struct nameidata nd;
++	struct inode *inode = NULL;
+ 
+ 	name = getname(pathname);
+ 	if(IS_ERR(name))
+@@ -1527,11 +1528,16 @@ asmlinkage long sys_unlink(const char * 
+ 		/* Why not before? Because we want correct error value */
+ 		if (nd.last.name[nd.last.len])
+ 			goto slashes;
++		inode = dentry->d_inode;
++		if (inode)
++			atomic_inc(&inode->i_count);
+ 		error = vfs_unlink(nd.dentry->d_inode, dentry);
+ 	exit2:
+ 		dput(dentry);
+ 	}
+ 	up(&nd.dentry->d_inode->i_sem);
++	if (inode)
++		iput(inode);
+ exit1:
+ 	path_release(&nd);
+ exit:

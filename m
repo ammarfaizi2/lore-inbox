@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWFRWGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWFRWHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWFRWGy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 18:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWFRWGy
+	id S1750990AbWFRWHa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 18:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWFRWHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 18:06:54 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:32985 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932096AbWFRWGx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 18:06:53 -0400
-Date: Sun, 18 Jun 2006 23:06:50 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Implement AT_SYMLINK_FOLLOW flag for linkat
-Message-ID: <20060618220650.GG27946@ftp.linux.org.uk>
-References: <200606171913.k5HJDM3U021408@devserv.devel.redhat.com> <20060618191629.GE27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606181220590.5498@g5.osdl.org> <4495AC3B.4020508@redhat.com>
+	Sun, 18 Jun 2006 18:07:30 -0400
+Received: from wp060.webpack.hosteurope.de ([80.237.132.67]:2192 "EHLO
+	wp060.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S932109AbWFRWH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 18:07:29 -0400
+Date: Mon, 19 Jun 2006 00:13:06 +0200
+From: Hansjoerg Lipp <hjlipp@web.de>
+To: Karsten Keil <kkeil@suse.de>
+Cc: i4ldeveloper@listserv.isdn4linux.de, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tilman Schmidt <tilman@imap.cc>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/1] i4l: Gigaset drivers: add IOCTLs to compat_ioctl.h
+Message-ID: <gigaset307x.2006.06.19.001.1@hjlipp.my-fqdn.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4495AC3B.4020508@redhat.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 18, 2006 at 12:40:43PM -0700, Ulrich Drepper wrote:
-> Linus Torvalds wrote:
-> > Well, the patch as sent in does seem sane, as long as glibc doesn't start 
-> > defaulting to the insane behaviour. Giving users the _ability_ to link to 
-> > the symlink target is certainly not wrong, regardless of any standard. 
-> > Doing it by default is another matter.
-> 
-> I do not intend to change the link implementation in glibc.  That would
-> be majorly stupid, it'd break the ABI.
-> 
-> The AT_SYMLINK_FOLLOW flag to linkat was the result of the discussion
-> how to resolve the issue of the conflict between POSIX and the Linux
-> implementation of link (BTW: the Solaris link syscall behaves the same
-> as Linux's).
+From: Hansjoerg Lipp <hjlipp@web.de>
 
-... while FreeBSD still doesn't have that 4.2BSD bug fixed, the suckers.
+This patch adds the IOCTLs of the Gigaset drivers to compat_ioctl.h
+in order to make them available for 32 bit programs on 64 bit platforms.
+Please merge.
 
->   This is an easy an non-intrusive way to help people who
-> depend on the questionable POSIx-mandated behavior to work around the
-> incompatiblity.  Nothing more.  Don't change the link syscall, don't
-> assume the glibc will be changed.  This is only one little extra bit of
-> new functionality.
+Signed-off-by: Hansjoerg Lipp <hjlipp@web.de>
+Acked-by: Tilman Schmidt <tilman@imap.cc>
+---
 
-*shrug*
+ fs/compat_ioctl.c            |    1 +
+ include/linux/compat_ioctl.h |    5 +++++
+ 2 files changed, 6 insertions(+)
 
-Fine by me; it's not really useful, but it's not a serious bloat either.
-
-ACKed-by: Al Viro <viro@zeniv.linux.org.uk>
+diff -urp linux-2.6.17.orig/fs/compat_ioctl.c linux-2.6.17/fs/compat_ioctl.c
+--- linux-2.6.17.orig/fs/compat_ioctl.c	2006-04-04 23:29:12.000000000 +0200
++++ linux-2.6.17/fs/compat_ioctl.c	2006-06-18 20:37:17.000000000 +0200
+@@ -80,6 +80,7 @@
+ #include <net/bluetooth/rfcomm.h>
+ 
+ #include <linux/capi.h>
++#include <linux/gigaset_dev.h>
+ 
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_ioctl.h>
+diff -urp linux-2.6.17.orig/include/linux/compat_ioctl.h linux-2.6.17/include/linux/compat_ioctl.h
+--- linux-2.6.17.orig/include/linux/compat_ioctl.h	2006-04-04 23:29:14.000000000 +0200
++++ linux-2.6.17/include/linux/compat_ioctl.h	2006-06-18 20:37:17.000000000 +0200
+@@ -673,6 +673,11 @@ COMPATIBLE_IOCTL(CAPI_SET_FLAGS)
+ COMPATIBLE_IOCTL(CAPI_CLR_FLAGS)
+ COMPATIBLE_IOCTL(CAPI_NCCI_OPENCOUNT)
+ COMPATIBLE_IOCTL(CAPI_NCCI_GETUNIT)
++/* Siemens Gigaset */
++COMPATIBLE_IOCTL(GIGASET_REDIR)
++COMPATIBLE_IOCTL(GIGASET_CONFIG)
++COMPATIBLE_IOCTL(GIGASET_BRKCHARS)
++COMPATIBLE_IOCTL(GIGASET_VERSION)
+ /* Misc. */
+ COMPATIBLE_IOCTL(0x41545900)		/* ATYIO_CLKR */
+ COMPATIBLE_IOCTL(0x41545901)		/* ATYIO_CLKW */

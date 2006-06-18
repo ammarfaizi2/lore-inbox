@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWFRWZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWFRWdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWFRWZO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 18:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWFRWZO
+	id S1750734AbWFRWdW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 18:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWFRWdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 18:25:14 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:20440 "EHLO
+	Sun, 18 Jun 2006 18:33:22 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:37347 "EHLO
 	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751164AbWFRWZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 18:25:12 -0400
+	id S1750734AbWFRWdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 18:33:21 -0400
 From: Grant Coady <gcoady.lk@gmail.com>
 To: Marcelo Tosatti <marcelo@kvack.org>
 Cc: linux-kernel@vger.kernel.org, Willy Tarreau <willy@w.ods.org>,
        Al Viro <viro@ftp.linux.org.uk>
 Subject: Re: Linux 2.4.33-rc1
-Date: Mon, 19 Jun 2006 08:25:06 +1000
+Date: Mon, 19 Jun 2006 08:33:19 +1000
 Organization: http://bugsplatter.mine.nu/
 Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com>
+Message-ID: <oqkb925d1kvcf3bjuckuniee9dm1h1lmrs@4ax.com>
 References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <20060618133718.GA2467@dmt>
 In-Reply-To: <20060618133718.GA2467@dmt>
 X-Mailer: Forte Agent 2.0/32.652
@@ -64,78 +64,10 @@ On Sun, 18 Jun 2006 10:37:18 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
 > 	path_release(&nd);
 > exit:
 
-/home/share is an NFS mounted directory, via ssh terminal:
-
-grant@sempro:~$ dmesg >/home/share/dmesg-2.4.33-rc1a
-grant@sempro:~$ rm /home/share/dmesg-2.4.33-rc1a
-Segmentation fault
-
-Network connection lost, copy / paste oops from screen to file, reboot, 
-and...
-
-ksymoops 2.4.11 on i686 2.4.33-rc1a.  Options used
-     -v /home/grant/linux/linux-2.4.33-rc1a/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.33-rc1a/ (default)
-     -m /boot/System.map-2.4.33-rc1a (specified)
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000088
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c013eeb4>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000000   ebx: 00000000   ecx: 00000088   edx: 00000088
-esi: f6e2ed08   edi: f5954e40   ebp: f6e2ec80   esp: f587ff68
-ds: 0018   es: 0018   ss: 0018
-Process rm (pid: 241, stackpage=f587f000)
-Stack: f6e2ec80 f5954e40 f5954e40 f75a7000 f58ca0c0 f587ff90 c013f078 f6e2ec80
-       f5954e40 f5954e40 f6eb8440 c19ac440 f75a700c 00000011 c1bbcfcb 00000010
-       00000000 00000004 f587e000 bffff986 08051050 bffff768 c0106eff bffff986
-Call Trace:    [<c013f078>] [<c0106eff>]
-Code: ff 80 88 00 00 00 0f 8e 58 16 00 00 85 db 74 16 89 d8 8b 5c
-
-
->>EIP; c013eeb4 <vfs_unlink+a4/1a0>   <=====
-
->>esi; f6e2ed08 <_end+36a9305c/386be3d4>
->>edi; f5954e40 <_end+355b9194/386be3d4>
->>ebp; f6e2ec80 <_end+36a92fd4/386be3d4>
->>esp; f587ff68 <_end+354e42bc/386be3d4>
-
-Trace; c013f078 <sys_unlink+c8/140>
-Trace; c0106eff <system_call+33/38>
-
-Code;  c013eeb4 <vfs_unlink+a4/1a0>
-00000000 <_EIP>:
-Code;  c013eeb4 <vfs_unlink+a4/1a0>   <=====
-   0:   ff 80 88 00 00 00         incl   0x88(%eax)   <=====
-Code;  c013eeba <vfs_unlink+aa/1a0>
-   6:   0f 8e 58 16 00 00         jle    1664 <_EIP+0x1664>
-Code;  c013eec0 <vfs_unlink+b0/1a0>
-   c:   85 db                     test   %ebx,%ebx
-Code;  c013eec2 <vfs_unlink+b2/1a0>
-   e:   74 16                     je     26 <_EIP+0x26>
-Code;  c013eec4 <vfs_unlink+b4/1a0>
-  10:   89 d8                     mov    %ebx,%eax
-Code;  c013eec6 <vfs_unlink+b6/1a0>
-  12:   8b 5c 00 00               mov    0x0(%eax,%eax,1),%ebx
-
-
-Sorry for bad news.  As before, the 'rm file' succeeded, prior to the 
-segfault.  I put the dmesg (before oops) and 'grep = .config' up on 
-<http://bugsplatter.mine.nu/test/linux-2.4/sempro/> with -rc1a suffix
-
-Repeat with extract 2.4.32 + patches --> same, note that the oops is 
-only on deleting file over NFS, I noticed 2.6.16.20 has extra NFS 
-stuff around this area.
-
-grant@sempro:~$ dmesg >dmesg
-grant@sempro:~$ rm dmesg
-grant@sempro:~$ dmesg >/home/share/dmesg-test
-grant@sempro:~$ rm /home/share/dmesg-test
-Segmentation fault
+An odd thing happening is that after editing /etc/lilo.conf I get the 
+vim backup file: "/etc/lilo.co~" instead of "/etc/lilo.conf~" -- this 
+was happening before the above patch, with -rc1.  Very weird.  I'm 
+editing lilo.conf to have the box reboot to 2.6.16.20, since it is 
+semi-headless (has KVM, but I usually it run via ssh terminal).
 
 Grant.

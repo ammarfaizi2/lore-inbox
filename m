@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWFSIyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWFSI5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWFSIyk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWFSIyj
+	id S1750701AbWFSI5d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWFSI5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:54:39 -0400
-Received: from mx2.suse.de ([195.135.220.15]:29900 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751248AbWFSIyi (ORCPT
+	Mon, 19 Jun 2006 04:57:33 -0400
+Received: from iona.labri.fr ([147.210.8.143]:61103 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S1750701AbWFSI5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:54:38 -0400
-From: Andi Kleen <ak@suse.de>
-To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-Subject: Re: [discuss] Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-Date: Mon, 19 Jun 2006 10:54:29 +0200
-User-Agent: KMail/1.8
-Cc: discuss@x86-64.org, Chase Venters <chase.venters@clientec.com>,
-       Brent Casavant <bcasavan@sgi.com>, Jes Sorensen <jes@sgi.com>,
-       Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
-References: <200606140942.31150.ak@suse.de> <200606170855.49123.ak@suse.de> <44966383.1030006@bull.net>
-In-Reply-To: <44966383.1030006@bull.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 04:57:32 -0400
+Date: Mon, 19 Jun 2006 10:57:31 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: emergency or init=/bin/sh mode and terminal signals
+Message-ID: <20060619085731.GH4253@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
+References: <787b0d920606182047n62916655m5c88dc38e6b1ad72@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200606191054.29543.ak@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <787b0d920606182047n62916655m5c88dc38e6b1ad72@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert Cahalan, le Sun 18 Jun 2006 23:47:51 -0400, a écrit :
+> Samuel Thibault writes:
+> 
+> >The attached patch sets such session and controlling tty up, which fixes
+> >the issue. The unfortunate effect is that init might be killed if one
+> >presses control-C very fast after its start.
+> 
+> Doesn't the kernel protect process 1 from any signal
+> that it does not have a handler for?
 
-> Probably I have not explained it correctly:
-> - The "information page" (that includes the current CPU no.) is not a
->   per CPU page
+Ah, yes, indeed, forgot that.
 
-If it isn't then you can't figure out the current CPU/node for a thread.
+> I think there is no problem.
 
-Anyways I think we're talking past each other. Your approach might
-even work on ia64 (at least if you're willing to add a lot of cost
-to the context switch). You presumably could implement vgetcpu()
-internally with an approach like this (although with IA64's fast 
-EPC calls it seems a bit pointless) 
+Agreed.
 
-It just won't work on x86. 
-
--Andi
+Samuel

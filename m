@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWFSViP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWFSVif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWFSViP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 17:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWFSViP
+	id S964851AbWFSVif (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 17:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWFSVif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 17:38:15 -0400
-Received: from xenotime.net ([66.160.160.81]:7074 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964896AbWFSViO (ORCPT
+	Mon, 19 Jun 2006 17:38:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57524 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964851AbWFSVie (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 17:38:14 -0400
-Date: Mon, 19 Jun 2006 14:41:01 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: tglx@linutronix.de
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: Re: [PATCH] ktime/hrtimer: fix kernel-doc comments
-Message-Id: <20060619144101.dbe56ef7.rdunlap@xenotime.net>
-In-Reply-To: <1150752657.6780.16.camel@localhost.localdomain>
-References: <20060619130948.6ea3998c.rdunlap@xenotime.net>
-	<1150750822.29299.86.camel@localhost.localdomain>
-	<20060619141127.abdfdac0.rdunlap@xenotime.net>
-	<1150751733.6780.3.camel@localhost.localdomain>
-	<20060619142050.c4765cef.rdunlap@xenotime.net>
-	<1150752657.6780.16.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 19 Jun 2006 17:38:34 -0400
+Date: Mon, 19 Jun 2006 14:41:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, tglx@linutronix.de
+Subject: Re: The i386 and x86_64 genirq patches are wrong!
+Message-Id: <20060619144150.51fe627c.akpm@osdl.org>
+In-Reply-To: <m1y7vzzlrk.fsf@ebiederm.dsl.xmission.com>
+References: <m1r71t2ew8.fsf@ebiederm.dsl.xmission.com>
+	<20060614070353.GA11896@elte.hu>
+	<m1y7vzzlrk.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 23:30:57 +0200 Thomas Gleixner wrote:
-
-> On Mon, 2006-06-19 at 14:20 -0700, Randy.Dunlap wrote:
-> > > Seriously, is it hard to fix ? I'm not good with perl, so its likely
-> > > that I would make more mess than fixups.
-> > 
-> > I don't know for sure.  I have looked at it a bit and
-> > it's messy code IMHO.  Might be easier/better just to rewrite
-> > the function (comment) header parsing.
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
+> Ingo Molnar <mingo@elte.hu> writes:
 > 
-> I would do that, but I have no idea how to mix python into perl :)
-
-so rewrite scripts/kernel-doc in python.  ;)
-
-> > Andrew also wants the short function description to be able to be
-> > more than one line.  That could/should be incorporated at the same time.
+> > here too it's hard for me to give an answer without seeing your specific 
+> > changes (against whatever base is most convenient to you). MSI certainly 
+> > works fine on current -mm. (at least on my box)
 > 
-> That would be a really nice feature.
-
-It's just a convenience factor.  There is another way to have a
-multi-line function description.
-
-> > OTOH, it's a defined doc. language and these files contain errors...
+> Ok.  Looking closer.  I have found a clear functional bug.
 > 
-> No objections, but it would be cool if some perl experts would remove
-> those restrictions before the patches finally hit mainline.
+> When CONFIG_PCI_MSI is not set.
+>   move_irq expands to move_native_irq.
+> 
+>   ack_ioapic_vector
+>     move_native_irq
+>     ack_ioapic_irq
+>       move_irq
+>         move_native_irq
+> 
+>   ack_ioapic_quirk_vector
+>     move_native_irq
+>     ack_ioapic_quirk_irq
+>       move_irq
+>         move_native_irq
+> 
+> So we wind up calling move_native_irq twice when MSI is disabled where
+> before your conversion we only ever called it once.  Luckily in
+> the case where we have the double call vector_to_irq is a noop so
+> we only migration the same irq twice.
+> 
 
-I plan to work on it, but it's not super high priority.
-Someone else can do the same...
+OK, but this doesn't seem to answer Ingo's request "could you please send
+that fix to me, against whatever base you have it tested on, and i'll merge
+it to genirq/irqchips [and fix up genirq if needed].  Please also include a
+description of the problem.  How common is that edge retrigger problem, and
+how come this has never been seen in the past years since we had
+irqbalance?"
 
+The genirq patches are stuck in limboland until issues like this are
+resolved.  I'm not planning on sending them to Linus for 2.6.18 so there's
+no huge rush on it, but it would be nice to get all these loose ends tied
+off reasonably promptly, please.
 
-This is just one example of many files that have similar kernel-doc
-problems.  I wasn't picking on your files.  :)
-
----
-~Randy

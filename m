@@ -1,92 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWFSTzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWFSUAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWFSTzq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 15:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWFSTzq
+	id S964872AbWFSUAK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 16:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWFSUAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 15:55:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61327 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964871AbWFSTzp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 15:55:45 -0400
-Date: Mon, 19 Jun 2006 12:55:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: ccb@acm.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] increase spinlock-debug looping timeouts from 1 sec to
- 1 min
-Message-Id: <20060619125531.4c72b8cc.akpm@osdl.org>
-In-Reply-To: <20060619113943.GA18321@elte.hu>
-References: <1150142023.3621.22.camel@cbox.memecycle.com>
-	<20060617100710.ec05131f.akpm@osdl.org>
-	<20060619070229.GA8293@elte.hu>
-	<20060619005955.b05840e8.akpm@osdl.org>
-	<20060619081252.GA13176@elte.hu>
-	<20060619013238.6d19570f.akpm@osdl.org>
-	<20060619083518.GA14265@elte.hu>
-	<20060619021314.a6ce43f5.akpm@osdl.org>
-	<20060619113943.GA18321@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 19 Jun 2006 16:00:10 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:11272 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964872AbWFSUAI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 16:00:08 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 19 Jun 2006 20:00:06.0953 (UTC) FILETIME=[F6361190:01C693DA]
+Content-class: urn:content-classes:message
+Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+Date: Mon, 19 Jun 2006 16:00:06 -0400
+Message-ID: <Pine.LNX.4.61.0606191542050.4926@chaos.analogic.com>
+In-Reply-To: <20060619191543.GA17187@rhlx01.fht-esslingen.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+thread-index: AcaT2vY9zN6VgbfUSHKgQCJQ9iyCWw==
+References: <20060619191543.GA17187@rhlx01.fht-esslingen.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 13:39:44 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > > The write_trylock + __delay in the loop is not a problem or a bug, as 
-> > > the trylock will at most _increase_ the delay - and our goal is to not 
-> > > have a false positive, not to be absolutely accurate about the 
-> > > measurement here.
-> > 
-> > Precisely.  We have delays of over a second (but we don't know how 
-> > much more than a second).  Let's say two seconds.  The NMI watchdog 
-> > timeout is, what?  Five seconds?
-> 
-> i dont see the problem.
+On Mon, 19 Jun 2006, Andreas Mohr wrote:
 
-It's taking over a second to acquire a write_lock.  A lock which is
-unlikely to be held for more than a microsecond anywhere.  That's really
-bad, isn't it?  Being on the edge of an NMI watchdog induced system crash
-is bad, too.
+> Hello all,
+>
+> while looking for loop places to apply cpu_relax() to, I found the
+> following gems:
+>
+> arch/i386/kernel/crash.c/crash_nmi_callback():
+>
+>        /* Assume hlt works */
+>        halt();
+>        for(;;);
+>
+>        return 1;
+> }
+>
+> arch/i386/kernel/doublefault.c/doublefault_fn():
+>
+>        for (;;) /* nothing */;
+> }
+>
+> Let's assume that we have a less than moderate fan failure that causes
+> the CPU to heat up beyond the critical limit...
+> That might result in - you guessed it - crashes or doublefaults.
+> In which case we enter the corresponding handler and do... what?
 
-> We'll have tried that lock hundreds of thousands 
-> of times before this happens. The NMI watchdog will only trigger if we 
-> do this with IRQs disabled.
+The double-fault is just a place-holder. The CPU will actually
+reset without even executing this (try it).
 
-tree_lock uses write_lock_irq().
+> Exactly, we accelerate the CPUs happy march into bit heaven by letting it
+> execute a busy-loop under a non-working fan.
 
-> And it's not like the normal 
-> __write_lock_failed codepath would be any different: for heavily 
-> contended workloads the overhead is likely in the cacheline bouncing, 
-> not in the __delay().
+You accelerate nothing. Bit heaven? A CPU without a fan will go into
+a cold, cold, shutdown, requiring a hardware reset to get it out of
+that latched, no internal clock running, mode. Try it. I have had
+broken plastic heat-sink hold-downs let the entire heat-sink fall off
+the CPU. The machine just stops. I didn't know why it was stopping
+since each time I reset it, it ran long enough to boot. When
+I took the side panel off, I was surprised to see the heat-sink
+and fan assembly hanging by the fan wires. Also, the CPU was only
+warm to the touch, having been completely shut down for the
+several minutes it took to locate tools to remove the cover, even
+though I deliberately left the power ON.
 
-Yes, it might also happen with !CONFIG_DEBUG_SPINLOCK.  We need to find out
-if that's so and if so, why.
+> Thanks, your users will be very happy, I think ;)
+> (especially since it was "just" a simple fan failure that could have been
+> entirely remedied by buying another fan for $3)
+>
+>
+> The same thing applies to
+> arch/i386/kernel/smp.c/stop_this_cpu(), albeit there it's less catastrophic
+> due to most likely normal working conditions there.
+>
+> IMHO on any critical CPU failure we should:
+> - try to log it (might be difficult with a broken CPU, though)
+> - optionally somehow directly alert the user
+> - STOP the system, COMPLETELY (that way people WILL take notice, hopefully
+>  before it's too late and actual damage will have occurred)
+> - make DAMN SURE that the (possibly already broken) CPU won't have a
+>  less than nice time once the system is stopped
 
-> > That's getting too close.  The result will be a total system crash.  
-> > And RH are shipping this.
-> 
-> I dont see a connection. Pretty much the only thing the loop condition 
-> impacts is the condition under which we print out a 'i think we 
-> deadlocked' message.
 
-I'm assuming that the additional delay in the debug code has worsened the
-situation.
+In the first place, when the Intel and AMD CPUs overheat, they
+shut down. To prevent them from cycling ON/OFF, they need a
+hardware reset to take them out of shutdown mode. There is no
+need to fret about busy-waiting.
 
-> Have i missed your point perhaps?
+For sure, it might be nicer to have some call-and-never-return
+function for waiting with the rep-nop code, but it isn't necessary
+for CPU protection.
 
-I get that impression ;) If it takes 1-2 seconds to get this lock then it
-can take five seconds.  a) that's just gross and b) the NMI watchdog will
-nuke the box.
+>
+> Am I completely missing something here?
+>
 
-Why is it taking so long to get the lock?
+See above.
 
-Does it happen in non-debug mode?
+> If this is an issue, then maybe we should consolidate those places into
+> one function that safely(!) halts a CPU, optionally disabling APIC etc.
+>
+> Oh, and once you finished processing my mail here, you could optionally
+> also look at my report about almost unusably broken USB:
+> http://lkml.org/lkml/2006/6/19/54
+> (no replies yet despite advanced breakage)
+>
+> Thanks!
+>
+> Andreas Mohr
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-What do we do about it?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

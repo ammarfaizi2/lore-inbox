@@ -1,56 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWFSKis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWFSKpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbWFSKis (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 06:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWFSKis
+	id S932377AbWFSKpS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 06:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWFSKpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 06:38:48 -0400
-Received: from smtp6-g19.free.fr ([212.27.42.36]:7141 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932372AbWFSKir (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 06:38:47 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: juampe <juampe@iquis.com>
-Subject: Re: [PATCH 06/13] USBATM: shutdown open connections when disconnected
-Date: Mon, 19 Jun 2006 12:38:43 +0200
-User-Agent: KMail/1.9.1
-Cc: kernel <linux-kernel@vger.kernel.org>
-References: <OF39174CF7.B508FCBD-ONC125718F.00407FFC-C125718F.00413F4F@telefonica.es> <44965CC3.1060203@iquis.com> <449660E1.30505@iquis.com>
-In-Reply-To: <449660E1.30505@iquis.com>
+	Mon, 19 Jun 2006 06:45:18 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:44941 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932211AbWFSKpP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 06:45:15 -0400
+Message-ID: <44967EA9.9070307@in.ibm.com>
+Date: Mon, 19 Jun 2006 16:08:33 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jan Blunck <jblunck@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, dgc@sgi.com, neilb@suse.de
+Subject: Re: [PATCH 2/5] vfs: d_genocide() doesnt add dentries to unused list
+References: <20060616104321.778718000@hasse.suse.de> <20060616104322.204073000@hasse.suse.de> <4495AABE.6090007@in.ibm.com> <20060619092249.GB6824@hasse.suse.de>
+In-Reply-To: <20060619092249.GB6824@hasse.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606191238.43980.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I really sorry, this is a patch to 2.6.16 and this kernel version works
-> well the speedtouch driver.
-> I have problems with 2.6.17 and the speedtocuh driver block the
-> conection at some point that  i can't locate.
+Jan Blunck wrote:
+> On Mon, Jun 19, Balbir Singh wrote:
 > 
-> wave:~# atmdiag
-> Itf       TX_okay   TX_err    RX_okay   RX_err    RX_drop
->   0 AAL0         0         0         0         0         0
->     AAL5    266537         0    198023         1         0
 > 
-> RX cells don't increment, AFAIK the driver don't manage incoming ATM cells
+>>>			this_parent = dentry;
+>>>			goto repeat;
+>>>		}
+>>>-		atomic_dec(&dentry->d_count);
+>>>+		if (!list_empty(&dentry->d_lru)) {
+>>>+			dentry_stat.nr_unused--;
+>>>+			list_del_init(&dentry->d_lru);
+>>>+		}
+>>>+		if (atomic_dec_and_test(&dentry->d_count)) {
+>>>+			list_add(&dentry->d_lru, dentry_unused.prev);
+>>>+			dentry_stat.nr_unused++;
+>>>+		}
+>>
+>>We could have dentries on the LRU list with non-zero d_count. If
+>>we have a dentry on the LRU list with a count of 1, then the code
+>>will remove it from LRU list and then add it back subsequently.
+>>
 > 
-> How i can dig more into this issue in order to extract  relevant
-> information for a bug report?.
+> 
+> So you think this is better?
+> 
+>    if (atomic_dec_and_test(&dentry->d_count)) {
+>       if (!list_empty(&dentry_d_lru))
+>          list_move_tail(&dentry->d_lru, dentry_unused);
+>    } else
+>       if (!list_empty(&dentry->d_lru)) {
+>          dentry_stat.nr_unused--;
+>          list_del_init(&dentry->d_lru);
+>       }
+> 
+> 
 
-Hi Juampe, there were only two changes to the speedtouch driver
-between 2.6.16 and 2.6.17: a cosmetic one (change to modinfo
-output), and one only affecting people using iso urb support
-(are you running with enable_isoc=1?).  So any new problems in
-2.6.17 must be coming from elsewhere, such as ATM or USB changes.
-I didn't spot any interesting ATM changes, and haven't looked at
-the USB changes yet.  Are you sure you don't get the same problem
-with 2.6.16?  Also, do you get any interesting messages in your
-system logs (eg: check the dmesg output)?
+Yes, I think it is.
 
-Ciao,
+> 
+>>I think the condition below should be an else if
+>>
+> 
+> 
+> No. We always lower the reference count in d_genocide.
+> 
 
-Duncan.
+Yep, good catch
+
+> 
+>>d_genocide() now almost looks like select_parent(). I think we can share a 
+>>lot
+>>of code between the two.
+>>
+> 
+> 
+> Hmm, interesting idea. This would save the dentry-tree walking code in
+> have_submounts too. Maybe something like this:
+> 
+> +static int select_parent_walker(struct dentry * dentry, int * found)
+> +{
+> +       if (!list_empty(&dentry->d_lru)) {
+> +               dentry_stat.nr_unused--;
+> +               list_del_init(&dentry->d_lru);
+> +       }
+> +
+> +       /*
+> +        * move only zero ref count dentries to the end
+> +        * of the unused list for prune_dcache
+> +        */
+> +       if (!atomic_read(&dentry->d_count)) {
+> +               list_add(&dentry->d_lru, dentry_unused.prev);
+> +               dentry_stat.nr_unused++;
+> +               *found++;
+> +       }
+> +
+> +       /*
+> +        * We can return to the caller if we have found some (this
+> +        * ensures forward progress). We'll be coming back to find
+> +        * the rest.
+> +        */
+> +       if (*found && need_resched())
+> +               return -1;
+
+Is this true for all paths? d_genocide() might actually not return
+
+> +
+> +       return 0;
+> +}
+> +
+> +typedef int (*walker_t)(struct dentry * dentry, int * return);
+> +
+
+Will there be a different type of walker as well? Is it going to be too different?
+
+> +static int dentry_tree_walk(struct dentry * parent, walker_t walker)
+> +{
+> +       struct dentry *this_parent = parent;
+> +       struct list_head *next;
+> +       int ret = 0;
+> +
+> +       spin_lock(&dcache_lock);
+> +repeat:
+> +       next = this_parent->d_subdirs.next;
+> +resume:
+> +       while (next != &this_parent->d_subdirs) {
+> +               struct list_head *tmp = next;
+> +               struct dentry *dentry = list_entry(tmp, struct dentry,
+> +                                                  d_u.d_child);
+> +               next = tmp->next;
+> +
+> +               if (walker(dentry, &ret))
+> +                       goto out;
+> +
+> +               /*
+> +                * Descend a level if the d_subdirs list is non-empty.
+> +                */
+> +               if (!list_empty(&dentry->d_subdirs)) {
+> +                       this_parent = dentry;
+> +                       goto repeat;
+> +               }
+> +       }
+> +       /*
+> +        * All done at this level ... ascend and resume the search.
+> +        */
+> +       if (this_parent != parent) {
+> +               next = this_parent->d_u.d_child.next;
+> +               this_parent = this_parent->d_parent;
+> +               goto resume;
+> +       }
+> +out:
+> +       spin_unlock(&dcache_lock);
+> +       return ret;
+> +}
+
+The overall code looks good.
+
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

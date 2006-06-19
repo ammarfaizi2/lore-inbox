@@ -1,112 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWFSRev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWFSRe6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWFSRev (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 13:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWFSRev
+	id S1750932AbWFSRe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 13:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWFSRe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 13:34:51 -0400
-Received: from smtp1.xs4all.be ([195.144.64.135]:3750 "EHLO smtp1.xs4all.be")
-	by vger.kernel.org with ESMTP id S1750712AbWFSReu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 13:34:50 -0400
-Date: Mon, 19 Jun 2006 19:34:28 +0200
-From: Frank Gevaerts <frank.gevaerts@fks.be>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Frank Gevaerts <frank.gevaerts@fks.be>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RESEND] [PATCH 2/2] ipaq.c timing parameters
-Message-ID: <20060619173428.GD32484@fks.be>
-References: <20060619084446.GA17103@fks.be> <20060619084619.GB17103@fks.be> <20060619134240.68785a33@doriath.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060619134240.68785a33@doriath.conectiva>
-User-Agent: Mutt/1.5.9i
-X-FKS-MailScanner: Found to be clean
-X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-103.497,
-	vereist 5, ALL_TRUSTED -3.30, AWL -2.20, BAYES_50 2.00,
-	USER_IN_WHITELIST -100.00)
+	Mon, 19 Jun 2006 13:34:56 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:43443 "EHLO
+	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
+	id S1750744AbWFSRez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 13:34:55 -0400
+X-ASG-Debug-ID: 1150738493-21764-2-0
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+Reply-To: <ravinandan.arakali@neterion.com>
+From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, <tglx@linutronix.de>
+Cc: <dgc@sgi.com>, <mingo@elte.hu>, <neilb@suse.de>, <jblunck@suse.de>,
+       <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+       <viro@zeniv.linux.org.uk>, <balbir@in.ibm.com>,
+       "Ananda. Raju \(E-mail\)" <ananda.raju@neterion.com>,
+       "Leonid. Grossman \(E-mail\)" <leonid.grossman@neterion.com>
+X-ASG-Orig-Subj: RE: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
+Subject: RE: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
+Date: Mon, 19 Jun 2006 10:34:38 -0700
+Message-ID: <000101c693c6$a46c5a90$3e10100a@pc.s2io.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <20060619040110.03b39673.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+X-Barracuda-Spam-Score: 0.60
+X-Barracuda-Spam-Status: No, SCORE=0.60 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 tests=COMMA_SUBJECT
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.15101
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.60 COMMA_SUBJECT          Subject is like 'Re: FDSDS, this is a subject'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 01:42:40PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Mon, 19 Jun 2006 10:46:19 +0200
-> Frank Gevaerts <frank.gevaerts@fks.be> wrote:
-> 
-> | Adds configurable waiting periods to the ipaq connection code. These are
-> | not needed when the pocketpc device is running normally when plugged in,
-> | but they need extra delays if they are physically connected while
-> | rebooting.
-> | There are two parameters :
-> | * initial_wait : this is the delay before the driver attemts to start the
-> |   connection. This is needed because the pocktpc device takes much
-> |   longer to boot if the driver starts sending control packets too soon.
-> | * connect_retries : this is the number of times the control urb is
-> |   retried before finally giving up. The patch also adds a 1 second delay
-> |   between retries.
-> | I'm not sure if the cases where this patch is useful are general enough
-> | to include this in the kernel.
-> | 
-> | Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
-> | 
-> | diff -urp linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c
-> | --- linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c	2006-06-14 16:02:03.000000000 +0200
-> | +++ linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c	2006-06-14 16:06:44.000000000 +0200
-> | @@ -71,6 +71,8 @@
-> |  
-> |  static __u16 product, vendor;
-> |  static int debug;
-> | +static int connect_retries = KP_RETRIES;
-> | +static int initial_wait;
-> |  
-> |  /* Function prototypes for an ipaq */
-> |  static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
-> | @@ -583,7 +585,7 @@ static int ipaq_open(struct usb_serial_p
-> |  	struct ipaq_private	*priv;
-> |  	struct ipaq_packet	*pkt;
-> |  	int			i, result = 0;
-> | -	int			retries = KP_RETRIES;
-> | +	int			retries = connect_retries;
-> |  
-> |  	dbg("%s - port %d", __FUNCTION__, port->number);
-> |  
-> | @@ -647,6 +649,7 @@ static int ipaq_open(struct usb_serial_p
-> |  	port->read_urb->transfer_buffer_length = URBDATA_SIZE;
-> |  	port->bulk_out_size = port->write_urb->transfer_buffer_length = URBDATA_SIZE;
-> |  	
-> | +	msleep(1000*initial_wait);
-> 
->  I was going to say you should use ssleep() here, but I can't find a
-> ssleep_interruptible(). Then either: use msleep_interruptible() or
-> creates a new ssleep_interruptible().
+Andrew,
+This is a known problem and has been fixed in our internal source tree. We
+will be submitting the patch soon.
 
-I wasn't sure if that was safe here, so I used the non-interruptible
-version. I'll change it when I redo the patch.
-Is it worth it creating ssleep_interruptible() just for this one call?
+Ravi
 
-> |  	/* Start reading from the device */
-> |  	usb_fill_bulk_urb(port->read_urb, serial->dev, 
-> |  		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
-> | @@ -673,6 +676,7 @@ static int ipaq_open(struct usb_serial_p
-> |  			}
-> |  			return 0;
-> |  		}
-> | +		msleep(1000);
-> |  	}
-> 
->  Don't you want msleep(100); here?
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org]
+Sent: Monday, June 19, 2006 4:01 AM
+To: tglx@linutronix.de; Ravinandan Arakali
+Cc: dgc@sgi.com; mingo@elte.hu; neilb@suse.de; jblunck@suse.de;
+linux-kernel@vger.kernel.org; linux-fsdevel@vger.kernel.org;
+viro@zeniv.linux.org.uk; balbir@in.ibm.com
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
+list (2nd version)
 
-The currently running version has 1000. 100 is probably better.
 
-I'll submit a new patch once it's clear which version of the first patch
-goes in.
+On Mon, 19 Jun 2006 12:48:44 +0200
+Thomas Gleixner <tglx@linutronix.de> wrote:
 
-> 
-> -- 
-> Luiz Fernando N. Capitulino
+> On Sun, 2006-06-18 at 23:33 -0700, Andrew Morton wrote:
+> > > ....
+> > >     eth3      device: S2io Inc. Xframe 10 Gigabit Ethernet PCI-X (rev
+03)
+> > >     eth3      configuration: eth-id-00:0c:fc:00:02:c8
+> > > irq 60, desc: a0000001009a2d00, depth: 1, count: 0, unhandled: 0
+> > > ->handle_irq():  0000000000000000, 0x0
+> > > ->chip(): a000000100a0fe40, irq_type_sn+0x0/0x80
+> > > ->action(): e00000b007471b80
+> > > ->action->handler(): a0000002059373d0, s2io_msi_handle+0x1510/0x660
+[s2io]    eth3
+> > > IP address: 192.168.1.248/24
+> > > Unexpected irq vector 0x3c on CPU 3!
+> >
+> > I guess that's where things start to go bad.  genirq changes?
+>
+> Hmm, The extra noisy printout is from geirq. The unhandled interrupt
+> should be unrelated.
+>
+> The s2io driver enables interrupts in the card in start_nic() before
+> requesting the interrupt itself with request_irq(). So I suspect thats a
+> problem which has been there already, just the noisy printout makes it
+> more visible
 
--- 
-Frank Gevaerts                                 frank.gevaerts@fks.be
-fks bvba - Formal and Knowledge Systems        http://www.fks.be/
-Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
-B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19
+OK, that's not good.  It would be strange for the NIC to be aserting an
+interrupt in that window though - the machine would end up taking a zillion
+interrupts and would disable the whole IRQ line.
+
+Still.  Ravinandan, could you take a look at fixing that up, please?  Wire
+up the IRQ handler before enabling interrupts?
+
+We still don't know why these things happened.
+

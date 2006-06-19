@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWFSQjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWFSQkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWFSQjt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 12:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWFSQjs
+	id S964796AbWFSQkl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 12:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWFSQkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 12:39:48 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.192.84]:40680 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S964791AbWFSQjr (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 12:39:47 -0400
-Message-ID: <4496D34F.4010007@namesys.com>
-Date: Mon, 19 Jun 2006 09:39:43 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Mon, 19 Jun 2006 12:40:41 -0400
+Received: from dew1.atmos.washington.edu ([128.95.89.41]:47070 "EHLO
+	dew1.atmos.washington.edu") by vger.kernel.org with ESMTP
+	id S964792AbWFSQkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 12:40:40 -0400
+Message-ID: <4496D37D.7090400@atmos.washington.edu>
+Date: Mon, 19 Jun 2006 09:40:29 -0700
+From: Harry Edmon <harry@atmos.washington.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Miklos Szeredi <miklos@szeredi.hu>
-CC: nix@esperi.org.uk, akpm@osdl.org, vs@namesys.com, hch@infradead.org,
-       Reiserfs-Dev@namesys.com, Linux-Kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, drepper@redhat.com
-Subject: Re: batched write
-References: <44736D3E.8090808@namesys.com> <20060524175312.GA3579@zero>	<44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de>	<1149766000.6336.29.camel@tribesman.namesys.com>	<20060608121006.GA8474@infradead.org>	<1150322912.6322.129.camel@tribesman.namesys.com>	<20060617100458.0be18073.akpm@osdl.org> <4494411B.4010706@namesys.com> <87ac8an21r.fsf@hades.wkstn.nix> <449668D1.1050200@namesys.com> <E1FsHzf-0004ES-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1FsHzf-0004ES-00@dorka.pomaz.szeredi.hu>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Jesper Dangaard Brouer <hawk@diku.dk>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+References: <4492D5D3.4000303@atmos.washington.edu> <20060617153511.53a129a3.akpm@osdl.org> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
+In-Reply-To: <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -104.399 () ALL_TRUSTED,BAYES_00,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
 
->>Forgive myn utter ignorance of fuse, but does it currently context
->>switch to user space for every 4k written through VFS?
->>    
->>
+
+Jesper Dangaard Brouer wrote:
 >
->Yes, unfortunately it does, so fuse would benefit from batched writing
->as well, with some constraint on the number of locked pages to avoid
->DoS against the page cache.
+>>> Harry Edmon <harry@atmos.washington.edu> wrote:
+>>>
+>>>> I have a system with a strange network performance degradation from 
+>>>> 2.6.11.12 to most recent kernels including 2.6.16.20 and 
+>>>> 2.6.17-rc6. The system is has Dual single core Xeons with 
+>>>> hyperthreading on.
+> <cut>
 >
->Miklos
+> Hi Harry
+>
+> Can you check which "high-res timesource" you are using?
+>
+> In the kernel log look for:
+>  kernel: Using tsc for high-res timesource
+>  kernel: Using pmtmr for high-res timesource
+>
+> I have experinced some network performance degradation when using the 
+> "pmtmr" timesource, on a Opteron AMD system.  It seems that the 
+> default timesource change between 2.6.15 to 2.6.16.
+>
+> If you use "pmtmr" try to reboot with kernel option "clock=tsc".
+>
+> On my Opteron AMD system i normally can route 400 kpps, but with 
+> timesource "pmtmr" i could only route around 83 kpps.  (I found the 
+> timer to be the issue by using oprofile).
 >
 >
->  
->
-I would think that batched write is pretty essential then to FUSE
-performance.  If we could then get the glibc authors to not sabotage the
-using of a large block size to indicate that we like large IOs (see
-thread on fseek implementation), reiser4 and FUSE would be all set for
-improved performance.  Even without glibc developer cooperation, we will
-get a lot of benefits.
+We have CONFIG_HPET_TIMER=y, so we do not see these messages.
+
+

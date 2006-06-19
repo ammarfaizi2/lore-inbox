@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWFSIiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWFSIkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWFSIiX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWFSIiW
+	id S1751216AbWFSIkT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWFSIkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:38:22 -0400
-Received: from mail-gw2.sa.eol.hu ([212.108.200.109]:12507 "EHLO
-	mail-gw2.sa.eol.hu") by vger.kernel.org with ESMTP id S1751091AbWFSIiV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:38:21 -0400
-To: jesper.juhl@gmail.com
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <9a8748490606190121u3c76c6bbif707835ec7e5873c@mail.gmail.com>
-	(jesper.juhl@gmail.com)
-Subject: Re: [PATCH 4/7] fuse: add POSIX file locking support
-References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
-	 <E1FplXk-00062M-00@dorka.pomaz.szeredi.hu> <9a8748490606190121u3c76c6bbif707835ec7e5873c@mail.gmail.com>
-Message-Id: <E1FsFGX-0002Pp-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 19 Jun 2006 10:37:49 +0200
+	Mon, 19 Jun 2006 04:40:18 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:39857 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751216AbWFSIkR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 04:40:17 -0400
+Date: Mon, 19 Jun 2006 10:35:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ccb@acm.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] increase spinlock-debug looping timeouts from 1 sec to 1 min
+Message-ID: <20060619083518.GA14265@elte.hu>
+References: <1150142023.3621.22.camel@cbox.memecycle.com> <20060617100710.ec05131f.akpm@osdl.org> <20060619070229.GA8293@elte.hu> <20060619005955.b05840e8.akpm@osdl.org> <20060619081252.GA13176@elte.hu> <20060619013238.6d19570f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060619013238.6d19570f.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.5 required=5.9 tests=AWL,BAYES_60 autolearn=no SpamAssassin version=3.0.3
+	1.0 BAYES_60               BODY: Bayesian spam probability is 60 to 80%
+	[score: 0.7425]
+	-0.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How about; on fuse startup, pick some semirandom number, store it
-> somewhere, then do an XOR of the pointer with the saved value to
-> scramble it, when you need to use it, simply XOR it again with the
-> stored value...  Not especially strong, but better than nothing and
-> better than just adding a constant that people can find out from the
-> source
 
-I think Andrew was suggesting a random key for the ADD function.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-> (and the scramble value would be differene each time fuse loads, so
-> at a minimum a different scramble key every boot) - also, XOR is a
-> quite fast operation so overhead should be low.
+> OK.  That sucks.  A sufficiently large machine with the right mix of 
+> latencies will get hit by the NMI watchdog in write_lock_irq().
+> 
+> But presumably the situation is much worse with CONFIG_DEBUG_SPINLOCK 
+> because of that __delay().
+> 
+> So how about we remove the __delay() (which is wrong anyway, because 
+> loops_per_jiffy isn't calculated with a write_trylock() in the loop 
+> (which means we're getting scarily close to the NMI watchdog at 
+> present)).
+> 
+> Instead, calculate a custom loops_per_jiffy for this purpose in 
+> lib/spinlock_debug.c?
 
-I think XOR might be even weaker than ADD, because from gessing the
-difference between two values (easy) you might be able to guess the
-bits of the key.
+hm, that would be yet another calibration loop with the potential to be 
+wrong (and which would slow down the bootup process). If loops_per_jiffy 
+is wrong then our timings are toast anyway.
 
-I'm actually looking for something stronger than XOR or ADD, but it's
-all a bit academical I think, because even if userspace knows these
-kernel pointers it can't really use them for any malicious purpose.
+I think increasing the timeout to 60 secs ought to be enough - 1 sec was 
+a bit too close to valid delays and i can imagine really high loads 
+causing 1 sec delays (especially if something like SysRq-T is holding 
+the tasklist_lock for long).
 
-Miklos
+The write_trylock + __delay in the loop is not a problem or a bug, as 
+the trylock will at most _increase_ the delay - and our goal is to not 
+have a false positive, not to be absolutely accurate about the 
+measurement here.
+
+	Ingo

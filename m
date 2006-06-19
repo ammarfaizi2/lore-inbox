@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWFSSTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWFSSWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWFSSTg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 14:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWFSSTg
+	id S964808AbWFSSWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 14:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWFSSWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 14:19:36 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:25487 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751278AbWFSSTf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 14:19:35 -0400
-Date: Mon, 19 Jun 2006 14:19:15 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Preben Traerup <Preben.Trarup@ericsson.com>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before crashing
-Message-ID: <20060619181915.GD8172@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com> <m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com> <20060616211555.1e5c4af0.akiyama.nobuyuk@jp.fujitsu.com> <m1odwtnjke.fsf@ebiederm.dsl.xmission.com> <20060619163053.f0f10a5e.akiyama.nobuyuk@jp.fujitsu.com> <m1y7vtia7r.fsf@ebiederm.dsl.xmission.com> <4496A677.3020301@ericsson.com> <m1hd2hhyzn.fsf@ebiederm.dsl.xmission.com> <20060619170711.GB8172@in.ibm.com> <m1zmg9ghlr.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1zmg9ghlr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+	Mon, 19 Jun 2006 14:22:04 -0400
+Received: from zcars04f.nortel.com ([47.129.242.57]:56008 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP id S964808AbWFSSWC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 14:22:02 -0400
+Message-ID: <4496EB2E.2000106@nortel.com>
+Date: Mon, 19 Jun 2006 12:21:34 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org, mingo@elte.hu,
+       pwil3058@bigpond.net.au, sekharan@us.ibm.com, balbir@in.ibm.com,
+       linux-kernel@vger.kernel.org, maeda.naoaki@jp.fujitsu.com,
+       kurosawa@valinux.co.jp
+Subject: Re: [RFC] CPU controllers?
+References: <20060615134632.GA22033@in.ibm.com> <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com> <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net> <4494EE86.7090209@yahoo.com.au>  <20060617234259.dc34a20c.akpm@osdl.org> <1150616176.7985.50.camel@Homer.TheSimpsons.net>
+In-Reply-To: <1150616176.7985.50.camel@Homer.TheSimpsons.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Jun 2006 18:21:39.0170 (UTC) FILETIME=[34E5EC20:01C693CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 11:50:24AM -0600, Eric W. Biederman wrote:
-> Vivek Goyal <vgoyal@in.ibm.com> writes:
-> 
-> > On Mon, Jun 19, 2006 at 10:49:32AM -0600, Eric W. Biederman wrote:
-> >
-> > Sounds like trouble for modules. I am assuming that code to power down the
-> > scsi disks/controller will be part of the driver, which is generally built
-> > as a module and also assuming that powering down the disks is a valid
-> > requirement after the crash.
-> 
-> I'm assuming if anything is important and critical enough to be in a crash
-> notifier it can be built into the kernel.
-> 
-> > After introducing an option to disable/enable crash notifiers from user
-> > space I think now responsibility lies to with user. If he chooses to enable
-> > the notifiers, he understands that there are chances that we never boot
-> > into the next kernel and get lost in between. 
-> 
-> At the moment this is a lot of infrastructure for a vaguely defined
-> case that I have yet to see defined.
-> 
-> One of the reasons using kexec for this kind of activity was precisely
-> because it doesn't do any of this when the kernel is known to be
-> broken.
-> 
-> Having notifiers and being able to disable them is designing for an
-> unspecified case.  We need to concentrate on the fundamentals here.
-> Do any of these crash notifiers make sense?
-> 
+Mike Galbraith wrote:
 
-Agreed. That makes sense. Probably folks who want this functionality
-should also post the code which they would like to run from inside the
-notifiers so that requirement is understood more clearly.
+> Scheduling contexts do sound useful.  They're easily defeated though, as
+> evolution mail demonstrates to me every time it's GUI hangs and I see
+> that a nice 19 find is running, eating very little CPU, but effectively
+> DoSing evolution nonetheless (journal).  I wonder how often people who
+> tried to distribute CPU would likewise be stymied by other resources.
 
-Thanks
-Vivek
+We do a lot with diskless blades.  Basically cpu(s), memory, and network 
+ports.
+
+For this case, cpu, memory, and network controllers are sufficient. 
+Even just cpu gets you a long way, since mostly we're not IO-intensive 
+and we generally have a pretty good idea of memory consumption.
+
+Chris

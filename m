@@ -1,72 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWFSIdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWFSIgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWFSIdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWFSIdL
+	id S1751211AbWFSIgv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWFSIgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:33:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9100 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932325AbWFSIdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:33:09 -0400
-Date: Mon, 19 Jun 2006 01:32:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: ccb@acm.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] increase spinlock-debug looping timeouts from 1 sec to
- 1 min
-Message-Id: <20060619013238.6d19570f.akpm@osdl.org>
-In-Reply-To: <20060619081252.GA13176@elte.hu>
-References: <1150142023.3621.22.camel@cbox.memecycle.com>
-	<20060617100710.ec05131f.akpm@osdl.org>
-	<20060619070229.GA8293@elte.hu>
-	<20060619005955.b05840e8.akpm@osdl.org>
-	<20060619081252.GA13176@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 19 Jun 2006 04:36:50 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:47341 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751211AbWFSIgu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 04:36:50 -0400
+Message-ID: <4496608D.6000502@in.ibm.com>
+Date: Mon, 19 Jun 2006 14:00:05 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Peter Williams <peterw@aurema.com>, Andrew Morton <akpm@osdl.org>,
+       dev@openvz.org, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, bsingharora@gmail.com, efault@gmx.de,
+       kernel@kolivas.org, sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
+       rene.herman@keyaccess.nl
+Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
+References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com> <44961758.6070305@bigpond.net.au> <44961A77.800@in.ibm.com> <44961EFC.8080809@bigpond.net.au>
+In-Reply-To: <44961EFC.8080809@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 10:12:52 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+Peter Williams wrote:
+> Balbir Singh wrote:
+> 
+>> Peter Williams wrote:
+>>
+>>> Balbir Singh wrote:
+>>>
+>>>> Peter Williams wrote:
+>>>>
+>>
+>> <snip>
+>>
+>>>> Is it possible that the effective tasks
+>>>> is greater than the limit of the group?
+>>>
+>>>
+>>>
+>>> Yes.
+>>>
+>>>> How do we handle this scenario?
+>>>
+>>>
+>>>
+>>> You've got the problem back to front.  If the number of effective 
+>>> tasks is less than the group limit then you have the situation that 
+>>> needs special handling (not the other way around).  I.e. if the 
+>>> number of effective tasks is less than the group limit then (strictly 
+>>> speaking) there's no need to do any capping at all as the demand is 
+>>> less than the limit.  However, in the case where the group limit is 
+>>> less than one CPU (i.e. less than 1000) the recommended thing to do 
+>>> would be set the limit of each task in the group to the group limit.
+>>>
+>>> Obviously, group limits can be greater than one CPU (i.e. 1000).
+>>>
+>>> The number of CPUs on the system also needs to be taken into account 
+>>> for group capping as if the group cap is greater than the number of 
+>>> CPUs there's no way it can be exceeded and tasks in this group would 
+>>> not need any processing.
+>>>
+>>
+>> What if we have a group limit of 100 (out of 1000) and 150 effective 
+>> tasks in
+>> the group? How do you calculate the cap of each task?
+> 
+> 
+> Personally I'd round up to 1 :-) but rounding down to zero is also an 
+> option.  The reason I'd opt for 1 is that a zero cap has a special 
+> meaning i.e. background.
+> 
+>> I hope my understanding of effective tasks is correct.
+> 
+> 
+> Yes, but I think that you fail to realize that this problem (a lower 
+> limit to what caps can be enforced) exists for any mechanism due to the 
+> fact we're stuck with discrete mathematics in computers.  This includes 
+> floating point representations of numbers which are just crude (discrete 
+> maths) approximations of real numbers.
+
+I do appreciate and realize the problem, thats why I asked the question.
+
+There are some ways of solving this problem (that I could think about)
+
+1. Keep a whole number and fraction pair and increment the fraction until
+   it reaches a whole number and then schedule the task when the whole
+   number value reaches a minimal threshold. Or provide tasks with some
+   minimal whole number ticks in advance and then do not schedule them
+   again till their fractions add up to the whole number (credit system).
+
+   For example if T1 and T2 have a cap of 0.5%. Then represent the values
+   as whole number zero and fraction represented as 1 and divisor as 2.
+
+   Every two ticks their whole number would become 1 and fraction 0, divisor 2.
+   Schedule the tasks for a tick whenever its whole number becomes 1
+   and reset then its whole number to 0.
+
+
+2. In a group based cap management system, schedule some tasks (highest priority)
+   until their cap run out. In the subsequent rounds pick and choose tasks that
+   did not get a chance to run earlier.
+
+Solving this is indeed a interesting problem.
 
 > 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > On Mon, 19 Jun 2006 09:02:29 +0200
-> > Ingo Molnar <mingo@elte.hu> wrote:
-> > 
-> > > Subject: increase spinlock-debug looping timeouts from 1 sec to 1 
-> > > min
-> > 
-> > But it's broken.  In the non-debug case we subtract RW_LOCK_BIAS so we 
-> > know that the writer will get the lock when all readers vacate.  But 
-> > in the CONFIG_DEBUG_SPINLOCK case we don't do that, with the result 
-> > that taking a write_lock can take over a second.
-> > 
-> > A much, much better fix (which involves visiting all architectures) 
-> > would be to subtract RW_LOCK_BIAS and _then_ wait for a second.
-> 
-> no. Write-locks are unfair too, and there's no guarantee that writes are 
-> listened to. That's why nested read_lock() is valid, while nested 
-> down_read() is invalid.
-> 
-> Take a look at arch/i386/kernel/semaphore.c, __write_lock_failed() just 
-> adds back the RW_LOCK_BIAS and retries in a loop. There's no difference 
-> to an open-coded write_trylock loop - unless i'm missing something 
-> fundamental.
+> Peter
 
-OK.  That sucks.  A sufficiently large machine with the right mix of
-latencies will get hit by the NMI watchdog in write_lock_irq().
 
-But presumably the situation is much worse with CONFIG_DEBUG_SPINLOCK
-because of that __delay().
+-- 
 
-So how about we remove the __delay() (which is wrong anyway, because
-loops_per_jiffy isn't calculated with a write_trylock() in the loop (which
-means we're getting scarily close to the NMI watchdog at present)).
-
-Instead, calculate a custom loops_per_jiffy for this purpose in
-lib/spinlock_debug.c?
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWFSIoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWFSIpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWFSIoO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWFSIoN
+	id S932327AbWFSIpO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWFSIpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:44:13 -0400
-Received: from smtp4-g19.free.fr ([212.27.42.30]:64913 "EHLO smtp4-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751229AbWFSIoN (ORCPT
+	Mon, 19 Jun 2006 04:45:14 -0400
+Received: from smtp1.xs4all.be ([195.144.64.135]:60377 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S1751235AbWFSIpM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:44:13 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: juampe <juampe@iquis.com>
-Subject: Re: [PATCH 06/13] USBATM: shutdown open connections when disconnected
-Date: Mon, 19 Jun 2006 10:44:10 +0200
-User-Agent: KMail/1.9.1
-Cc: kernel <linux-kernel@vger.kernel.org>,
-       linux-atm-general@lists.sourceforge.net
-References: <OF39174CF7.B508FCBD-ONC125718F.00407FFC-C125718F.00413F4F@telefonica.es> <44965CC3.1060203@iquis.com>
-In-Reply-To: <44965CC3.1060203@iquis.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 04:45:12 -0400
+Date: Mon, 19 Jun 2006 10:44:47 +0200
+From: Frank Gevaerts <frank.gevaerts@fks.be>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+Subject: [RESEND] [PATCH 1/2] ipaq.c bugfixes
+Message-ID: <20060619084446.GA17103@fks.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606191044.10820.baldrick@free.fr>
+User-Agent: Mutt/1.5.9i
+X-FKS-MailScanner: Found to be clean
+X-FKS-MailScanner-SpamCheck: geen spam, SpamAssassin (score=-104.708,
+	vereist 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL -0.99,
+	BAYES_05 -0.41, USER_IN_WHITELIST -100.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Juampe,
+This patch fixes several problems in the ipaq.c driver with connecting
+and disconnecting pocketpc devices:
+* The read urb stayed active if the connect failed, causing nullpointer
+  dereferences later on.
+* If a write failed, the driver continued as if nothing happened. Now it
+  handles that case the same way as other usb serial devices (fix by
+  Luiz Fernando N. Capitulino <lcapitulino@mandriva.com.br>)
 
-On Monday 19 June 2006 10:13, juampe wrote:
-> > This patch causes vcc_release_async to be applied to any *open
-> >** v*cc's when the modem is *disconnected*. 
-> 
-> 
-> > Unfortunately this patch may create problems
-> > for those rare users like me who use routed IP or some other
-> > non-ppp connection method that goes via the ATM ARP daemon: the
-> > daemon is buggy, and with this patch will crash when the modem
-> > is *disconnected*.  Users with a buggy atmarpd can simply restart
-> > it after disconnecting the modem.
-> 
-> First i must thanks all effort in usbatm development.
-> IMHO New fatures to a driver that works well and can block the use, 
-> especially if it can disable internet access and the problem is know,
-> MUST be disabled by default or provide a mechanism to disable it.
->
-> I'm a rare user with routed IP and this patch blocks the normal use of internet
-> I dont understand how this patch can be accepted for a stable release without 
-> any kind of disable mechanism.
-> 
-> Yeah, i know that atmarp is buggy, but before speedtouch driver and atm works well during months.
+Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
 
-why don't you just restart atmarpd?  After all, if you are unplugging and
-replugging your modem, surely you can restart the daemon at the same time?
+diff -urp linux-2.6.17-rc6/drivers/usb/serial/ipaq.c linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c
+--- linux-2.6.17-rc6/drivers/usb/serial/ipaq.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c	2006-06-14 16:02:03.000000000 +0200
+@@ -652,11 +652,6 @@ static int ipaq_open(struct usb_serial_p
+ 		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
+ 		      port->read_urb->transfer_buffer, port->read_urb->transfer_buffer_length,
+ 		      ipaq_read_bulk_callback, port);
+-	result = usb_submit_urb(port->read_urb, GFP_KERNEL);
+-	if (result) {
+-		err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
+-		goto error;
+-	}
+ 
+ 	/*
+ 	 * Send out control message observed in win98 sniffs. Not sure what
+@@ -671,6 +666,11 @@ static int ipaq_open(struct usb_serial_p
+ 				usb_sndctrlpipe(serial->dev, 0), 0x22, 0x21,
+ 				0x1, 0, NULL, 0, 100);
+ 		if (result == 0) {
++			result = usb_submit_urb(port->read_urb, GFP_KERNEL);
++			if (result) {
++				err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
++				goto error;
++			}
+ 			return 0;
+ 		}
+ 	}
+@@ -855,6 +855,7 @@ static void ipaq_write_bulk_callback(str
+ 	
+ 	if (urb->status) {
+ 		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);
++		return;
+ 	}
+ 
+ 	spin_lock_irqsave(&write_list_lock, flags);
 
-I didn't feel it was necessary to have an override mechanism for this new,
-correct behavior (which makes things better for people using pppd, i.e. most
-people) since a simple workaround exists.
-
-What is very bad however is that atmarpd is still not fixed.  I had a look,
-got stuck, and asked for help on the linux-atm list, but no-one replied.
-There has been no progress since then.  I will have another look - maybe
-you can too?
-
-Best wishes,
-
-Duncan.
+-- 
+Frank Gevaerts                                 frank.gevaerts@fks.be
+fks bvba - Formal and Knowledge Systems        http://www.fks.be/
+Stationsstraat 108                             Tel:  ++32-(0)11-21 49 11
+B-3570 ALKEN                                   Fax:  ++32-(0)11-22 04 19

@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWFSLqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWFSLxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWFSLqH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 07:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWFSLqH
+	id S932367AbWFSLxI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 07:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWFSLxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 07:46:07 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:25334 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932360AbWFSLqF (ORCPT
+	Mon, 19 Jun 2006 07:53:08 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:6105 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932367AbWFSLxH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 07:46:05 -0400
-Date: Mon, 19 Jun 2006 13:45:57 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Vivek Goyal <vgoyal@in.ibm.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH 16/16] 64bit Resource: finally enable 64bit resource
- sizes
-In-Reply-To: <Pine.LNX.4.64.0606191330080.17704@scrub.home>
-Message-ID: <Pine.LNX.4.62.0606191344010.10350@pademelon.sonytel.be>
-References: <11501587303683-git-send-email-greg@kroah.com>
- <11501587343689-git-send-email-greg@kroah.com>
- <Pine.LNX.4.62.0606141417430.1886@pademelon.sonytel.be> <20060614233507.GA23629@kroah.com>
- <20060615042806.GC8587@in.ibm.com> <Pine.LNX.4.62.0606151345420.21517@pademelon.sonytel.be>
- <20060615155643.GB8706@in.ibm.com> <20060616013543.GB2566@kroah.com>
- <20060616201605.GA27462@in.ibm.com> <Pine.LNX.4.62.0606171633190.24519@pademelon.sonytel.be>
- <20060618180547.GA14049@in.ibm.com> <Pine.LNX.4.62.0606191003230.6499@pademelon.sonytel.be>
- <Pine.LNX.4.64.0606191214320.12900@scrub.home>
- <Pine.LNX.4.62.0606191308110.10350@pademelon.sonytel.be>
- <Pine.LNX.4.64.0606191330080.17704@scrub.home>
+	Mon, 19 Jun 2006 07:53:07 -0400
+Date: Mon, 19 Jun 2006 13:52:57 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Con Kolivas <kernel@kolivas.org>
+cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ckpatch][15/29] hz-no_default_250.patch
+In-Reply-To: <200606191125.50826.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.61.0606191351350.31576@yvahk01.tjqt.qr>
+References: <787b0d920606181752j4b7c7309t9c0ab9bf8da1537a@mail.gmail.com>
+ <200606191125.50826.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006, Roman Zippel wrote:
-> On Mon, 19 Jun 2006, Geert Uytterhoeven wrote:
-> > > config RESOURCES_64BIT
-> > > 	bool "64 bit Memory and IO resources (EXPERIMENTAL)" if !64BIT && EXPERIMENTAL
-> > > 	default 64BIT
-> >                ^
-> > Missing `y if'?
-> 
-> Not really. :)
-> 
-> A default accepts normal expressions for boolean/tristate. Most of the 
-> time an if is not needed for a default, it only really makes a difference 
-> if you have multiple defaults, where the condition controls which one is 
-> active.
+>
+>Yes I stored a family of these values and 864 was ~ the optimum for a high 
+>value for desktops and ~84 for a low value but were unpopular for not being 
 
-IC, of course.
+82 IIRC.
 
-So the default value of CONFIG_RESOURCES_64BIT is the same as the value of
-CONFIG_64BIT, which is indeed what we want.
+>something decimally familiar. Also lots of code kind of broke with values 
+>below 100 in the kernel.
 
-Gr{oetje,eeting}s,
+Ought to be fixed. Just like the code which assumed 100 Hz and broke during 
+the initial switch to 1000, before we went back again to 250. :p
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Jan Engelhardt
+-- 

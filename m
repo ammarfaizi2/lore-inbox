@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWFSQmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWFSQpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWFSQmr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 12:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWFSQmr
+	id S964799AbWFSQpk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 12:45:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWFSQpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 12:42:47 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:53441 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S964793AbWFSQmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 12:42:46 -0400
-Date: Mon, 19 Jun 2006 13:42:40 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RESEND] [PATCH 2/2] ipaq.c timing parameters
-Message-ID: <20060619134240.68785a33@doriath.conectiva>
-In-Reply-To: <20060619084619.GB17103@fks.be>
-References: <20060619084446.GA17103@fks.be>
-	<20060619084619.GB17103@fks.be>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.9.3; i586-mandriva-linux-gnu)
+	Mon, 19 Jun 2006 12:45:40 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:31440 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964794AbWFSQpj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 12:45:39 -0400
+Subject: Re: [RFC][PATCH 20/20] honor r/w changes at do_remount() time
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       herbert@13thfloor.at
+In-Reply-To: <20060618183616.GA27946@ftp.linux.org.uk>
+References: <20060616231213.D4C5D6AF@localhost.localdomain>
+	 <20060616231228.2107A2EE@localhost.localdomain>
+	 <20060618183616.GA27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 19 Jun 2006 09:45:18 -0700
+Message-Id: <1150735518.10515.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 10:46:19 +0200
-Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+On Sun, 2006-06-18 at 19:36 +0100, Al Viro wrote:
+> On Fri, Jun 16, 2006 at 04:12:28PM -0700, Dave Hansen wrote:
+> > 
+> > Originally from: Herbert Poetzl <herbert@13thfloor.at>
+> > 
+> > This is the core of the read-only bind mount patch set.
+> > 
+> > Note that this does _not_ add a "ro" option directly to
+> > the bind mount operation.  If you require such a mount,
+> > you must first do the bind, then follow it up with a
+> > 'mount -o remount,ro' operation.
+> 
+> Hrm...  So you want r/o status of vfsmount completely independent from
+> that of superblock?  I.e. allow writable vfsmount over r/o filesystem?
+> I realize that we have double checks, but...
 
-| Adds configurable waiting periods to the ipaq connection code. These are
-| not needed when the pocketpc device is running normally when plugged in,
-| but they need extra delays if they are physically connected while
-| rebooting.
-| There are two parameters :
-| * initial_wait : this is the delay before the driver attemts to start the
-|   connection. This is needed because the pocktpc device takes much
-|   longer to boot if the driver starts sending control packets too soon.
-| * connect_retries : this is the number of times the control urb is
-|   retried before finally giving up. The patch also adds a 1 second delay
-|   between retries.
-| I'm not sure if the cases where this patch is useful are general enough
-| to include this in the kernel.
-| 
-| Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
-| 
-| diff -urp linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c
-| --- linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c	2006-06-14 16:02:03.000000000 +0200
-| +++ linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c	2006-06-14 16:06:44.000000000 +0200
-| @@ -71,6 +71,8 @@
-|  
-|  static __u16 product, vendor;
-|  static int debug;
-| +static int connect_retries = KP_RETRIES;
-| +static int initial_wait;
-|  
-|  /* Function prototypes for an ipaq */
-|  static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
-| @@ -583,7 +585,7 @@ static int ipaq_open(struct usb_serial_p
-|  	struct ipaq_private	*priv;
-|  	struct ipaq_packet	*pkt;
-|  	int			i, result = 0;
-| -	int			retries = KP_RETRIES;
-| +	int			retries = connect_retries;
-|  
-|  	dbg("%s - port %d", __FUNCTION__, port->number);
-|  
-| @@ -647,6 +649,7 @@ static int ipaq_open(struct usb_serial_p
-|  	port->read_urb->transfer_buffer_length = URBDATA_SIZE;
-|  	port->bulk_out_size = port->write_urb->transfer_buffer_length = URBDATA_SIZE;
-|  	
-| +	msleep(1000*initial_wait);
+I think it does make sense to keep them separate.  I think of the
+superblock flag is really there to describe the state of the filesystem.
+Are we even _able_ to write to this thing now?
 
- I was going to say you should use ssleep() here, but I can't find a
-ssleep_interruptible(). Then either: use msleep_interruptible() or
-creates a new ssleep_interruptible().
+The vfsmount flag, on the other hand, spells out the intentions of the
+person who _did_ the mount.  Do I _want_ this to be writable?  
 
-|  	/* Start reading from the device */
-|  	usb_fill_bulk_urb(port->read_urb, serial->dev, 
-|  		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
-| @@ -673,6 +676,7 @@ static int ipaq_open(struct usb_serial_p
-|  			}
-|  			return 0;
-|  		}
-| +		msleep(1000);
-|  	}
+Let's say that we eliminate the superblock r/o flag.  There's a
+filesystem with one regular vfsmount, one r/o bind vfsmount, and one r/w
+bind vfsmount.  It encounters an error.  Not having a superblock flag,
+we must go find each vfsmount and mark it r/o (this also enlarges the
+window during which the f/s might be written).
 
- Don't you want msleep(100); here?
+Now, the administrator decides that the fs is OK, and remounts it r/w.
+The vfsmounts should obviously regain their original permissions, any
+other behavior is pretty screwy.  To accomplish this, we need both a
+"current write state" and a "previous write state", which probably means
+a new flag in the vfsmount.
 
--- 
-Luiz Fernando N. Capitulino
+So, we've fanned out this "current state" information from the
+superblock, increased the window of fs damage, and added some complexity
+when we do the transitions between the states.  I think I like the way
+it is now. :)
+
+-- Dave
+

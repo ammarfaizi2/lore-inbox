@@ -1,49 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWFSEcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWFSEhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWFSEcW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 00:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWFSEcW
+	id S1750826AbWFSEhR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 00:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWFSEhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 00:32:22 -0400
-Received: from ns.theshore.net ([67.18.92.50]:59590 "EHLO www.theshore.net")
-	by vger.kernel.org with ESMTP id S1750751AbWFSEcW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 00:32:22 -0400
-Message-ID: <449628CB.6050206@theshore.net>
-Date: Sun, 18 Jun 2006 23:32:11 -0500
-From: "Christopher S. Aker" <caker@theshore.net>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: user-mode-linux-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] 2.6.17-um - new uptime record (40 years!)
-References: <44961CC8.1060302@theshore.net>
-In-Reply-To: <44961CC8.1060302@theshore.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 00:37:16 -0400
+Received: from brain.cel.usyd.edu.au ([129.78.24.68]:39407 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S1750826AbWFSEhP (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 00:37:15 -0400
+Message-Id: <5.1.1.5.2.20060619142049.049e1ee0@brain.sedal.usyd.edu.au>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Mon, 19 Jun 2006 14:37:12 +1000
+To: Shailabh Nagar <nagar@watson.ibm.com>
+From: sena seneviratne <auntvini@cel.usyd.edu.au>
+Subject: Re: New Metrics to measure Load average
+Cc: linux-Kernel@vger.kernel.org
+In-Reply-To: <44962320.8040201@watson.ibm.com>
+References: <5.1.1.5.2.20060619124345.0335fda0@brain.sedal.usyd.edu.au>
+ <4492D948.8090300@in.ibm.com>
+ <5.1.1.5.2.20060616110033.04483890@brain.sedal.usyd.edu.au>
+ <4492D948.8090300@in.ibm.com>
+ <5.1.1.5.2.20060619124345.0335fda0@brain.sedal.usyd.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher S. Aker wrote:
-> root@none:~ # uname -a
-> Linux none 2.6.17-linode20 #1 Sun Jun 18 00:04:18 EDT 2006 i686 GNU/Linux
-> root@none:~ # uptime
->   23:37:50 up 14663 days, 20:54,  1 user,  load average: 0.00, 0.00, 0.00
-> root@none:~ # cat /proc/uptime
-> 1266958484.15 69449.04
-> 
-> -Chris
+Hi Nagar,
 
-OK, 2.6.17 final missed Jeff's "Fix wall_to_monotonic initialization" 
-patch...
+Thanks for your response and time.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115016859504778&w=2
+Yes a good question.
 
-I can confirm that this fixes the issue.  Queue this sucker up for the 
-next stable release!
+(a) The short tasks to measure the response time itself after applying the 
+division of load and before.
 
-I hope nothing else was missed, but so far this is the only snag we've 
-hit with 2.6.17-um.  Rock on!  Maybe now I can finally stop making new 
-deployments default to 2.4-um.
+(b) The long tasks means HPC tasks to measure the load signal after 
+applying the division of load and before.
 
--Chris
+I have run it for 600s, 1000s, and 1500s.
+
+The both these tests were successful.
+
+What I want to document is some standard tests just like using lmbench and 
+re-aim-7.
+
+I will go through your web site as well
+
+Thanks
+Sena Seneviratne
+Computer Engineering Lab
+School of Electrical and Information Engineering
+Sydney University
+Australia
+
+
+
+
+At 12:08 AM 6/19/2006 -0400, you wrote:
+>sena seneviratne wrote:
+>
+>>In fact my question in the post was about performance testing after the 
+>>changes being done.
+>>
+>>--2) Now about the tests
+>>--As I have documented all this yet need to perform some standard tests 
+>>for the sake of completion.
+>>--What tests should I carry out to prove that the system is still intact?
+>
+>
+>>--Please tell me whether the below is correct?
+>>
+>>--(a) As suggested by the http://kernel-perf.sourceforge.net/ the lmbench 
+>>and re-aim-7 test packages can be used to test the ----performance of the 
+>>kernel before making changes and after. (Not done as yet)
+>To measure impact of patches for a kernel tree, Contest (available from 
+>http://freshmeat.net/projects/contest/)
+>is a good start. lmbench is also useful.
+>
+>>--(-b) Further tests have been carried out to check the response time of 
+>>short tasks before making changes and after making --changes. The results 
+>>indicated that there was no difference in the response time after 
+>>introducing the changes to the kernel (done)
+>>
+>>---(c) Thereafter the tests have been carried out to check the runtime of 
+>>long tasks before and after making changes. The results of the tests 
+>>revealed that there is no change in reported runtime in both occasions.(done)
+>Why is there a distinction between short and long running tasks when 
+>overall performance overhead
+>of the kernel needs to be verified ?
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+

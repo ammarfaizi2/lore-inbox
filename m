@@ -1,74 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWFSGmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWFSGzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWFSGmo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 02:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWFSGmo
+	id S1751147AbWFSGzo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 02:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWFSGzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 02:42:44 -0400
-Received: from mail.gmx.net ([213.165.64.21]:57783 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751139AbWFSGmn (ORCPT
+	Mon, 19 Jun 2006 02:55:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6363 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751147AbWFSGzn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 02:42:43 -0400
-X-Authenticated: #14349625
-Subject: Re: [RFC] CPU controllers?
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org,
-       mingo@elte.hu, pwil3058@bigpond.net.au, sekharan@us.ibm.com,
-       balbir@in.ibm.com, linux-kernel@vger.kernel.org,
-       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
-In-Reply-To: <20060618233522.c2690983.akpm@osdl.org>
-References: <20060615134632.GA22033@in.ibm.com>
-	 <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com>
-	 <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net>
-	 <4494EE86.7090209@yahoo.com.au> <20060617234259.dc34a20c.akpm@osdl.org>
-	 <1150616176.7985.50.camel@Homer.TheSimpsons.net>
-	 <20060618020932.5947a7dc.akpm@osdl.org>
-	 <1150624169.9324.12.camel@Homer.TheSimpsons.net>
-	 <1150698525.4659.8.camel@Homer.TheSimpsons.net>
-	 <20060618233522.c2690983.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 19 Jun 2006 08:46:13 +0200
-Message-Id: <1150699573.8326.2.camel@Homer.TheSimpsons.net>
+	Mon, 19 Jun 2006 02:55:43 -0400
+Date: Sun, 18 Jun 2006 23:55:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 3/7] fuse: add control filesystem
+Message-Id: <20060618235538.3600d06f.akpm@osdl.org>
+In-Reply-To: <E1FplWy-000620-00@dorka.pomaz.szeredi.hu>
+References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
+	<E1FplWy-000620-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-18 at 23:35 -0700, Andrew Morton wrote:
-> On Mon, 19 Jun 2006 08:28:45 +0200
-> Mike Galbraith <efault@gmx.de> wrote:
-> 
-> > This is kinda OT for this thread, but here's another example of where
-> > the IO can easily foil CPU distribution plans.  I wonder how many folks
-> > get nailed by /proc being mounted without noatime,nodiratime like I just
-> > apparently did.
-> > 
-> > top           D E29B4928     0 10174   8510                     (NOTLB)
-> >        d2f63c4c 00100100 00200200 e29b4928 ea07f3c0 f1510c40 000f6e66 d2f63000 
-> >        d2f63000 ed88c550 f1510c40 000f6e66 d2f63000 d2f63000 ed062220 ed88c550 
-> >        d2f63c70 b139a97b ed062224 efef8df8 ed062224 ed88c550 d2f63000 0000385a 
-> > Call Trace:
-> >  [<b139a97b>] __mutex_lock_slowpath+0x59/0xb0
-> >  [<b139a9d7>] .text.lock.mutex+0x5/0x14
-> >  [<b10bb24f>] __log_wait_for_space+0x53/0xb4
-> >  [<b10b67b4>] start_this_handle+0x100/0x617
-> >  [<b10b6d86>] journal_start+0xbb/0xe0
-> >  [<b10ae10e>] ext3_journal_start_sb+0x29/0x4a
-> >  [<b10a8d9f>] ext3_dirty_inode+0x2a/0xaf
-> >  [<b1080171>] __mark_inode_dirty+0x2a/0x19e
-> >  [<b107784a>] touch_atime+0x79/0x9f
-> >  [<b103fda5>] do_generic_mapping_read+0x370/0x480
-> >  [<b1040747>] __generic_file_aio_read+0xf0/0x205
-> >  [<b1040896>] generic_file_aio_read+0x3a/0x46
-> >  [<b105d919>] do_sync_read+0xbb/0xf1
-> >  [<b105e2c1>] vfs_read+0xa4/0x166
-> >  [<b105e6c1>] sys_read+0x3d/0x64
-> >  [<b1002e1b>] syscall_call+0x7/0xb
-> 
-> Confused.  What has this to do with /proc?
+On Mon, 12 Jun 2006 14:28:32 +0200
+Miklos Szeredi <miklos@szeredi.hu> wrote:
 
-/me assumed... with usual result.
+> Add a control filesystem to fuse, replacing the attributes currently
+> exported through sysfs.  An empty directory '/sys/fs/fuse/connections'
+> is still created in sysfs, and mounting the control filesystem here
+> provides backward compatibility.
+> 
+> Advantages of the control filesystem over the previous solution:
+> 
+>   - allows the object directory and the attributes to be owned by the
+>     filesystem owner, hence letting unpriviled users abort the
+>     filesystem connection
+> 
+>   - does not suffer from module unload race
+> 
+
+Presumably people with currently-working setups will find that whatever
+they used to have in /sys/fs/fuse/connections won't be there any more, so
+this is a non-back-compatible change.  How do we help them with that?
+
+
+> +static ssize_t fuse_conn_waiting_read(struct file *file, char __user *buf,
+> +				      size_t len, loff_t *ppos)
+> +{
+> +	char tmp[32];
+> +	size_t size;
+> +
+> +	if (!*ppos) {
+> +		struct fuse_conn *fc = fuse_ctl_file_conn_get(file);
+> +		if (!fc)
+> +			return 0;
+> +
+> +		file->private_data = (void *) atomic_read(&fc->num_waiting);
+> +		fuse_conn_put(fc);
+> +	}
+> +	size = sprintf(tmp, "%i\n", (int) file->private_data);
+> +	return simple_read_from_buffer(buf, len, ppos, tmp, size);
+> +}
+
+What happens if the first read isn't at file offset 0?
+
+> +
+> +static struct dentry *fuse_ctl_add_dentry(struct dentry *parent,
+> +					  struct fuse_conn *fc,
+> +					  const char *name,
+> +					  int mode, int nlink,
+> +					  struct inode_operations *iop,
+> +					  const struct file_operations *fop)
+> +{
+> +	struct dentry *dentry;
+> +	struct inode *inode;
+> +
+> +	BUG_ON(fc->ctl_ndents >= FUSE_CTL_NUM_DENTRIES);
+> +	dentry = d_alloc_name(parent, name);
+> +	if (!dentry)
+> +		return NULL;
+> +
+> +	fc->ctl_dentry[fc->ctl_ndents++] = dentry;
+
+What locking protects fc->ctl_ndents?
+
+> +	inode = new_inode(fuse_control_sb);
+> +	if (!inode)
+> +		return NULL;
+> +
+> +	inode->i_mode = mode;
+> +	inode->i_uid = fc->user_id;
+> +	inode->i_gid = fc->group_id;
+> +	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+> +	if (iop)
+> +		inode->i_op = iop;
+
+Is iop ever null?
+
+> +	inode->i_fop = fop;
+> +	inode->i_nlink = nlink;
+> +	inode->u.generic_ip = fc;
+> +	d_add(dentry, inode);
+> +	return dentry;
+> +}
+> +
+> +int fuse_ctl_add_conn(struct fuse_conn *fc)
+> +{
+> +	struct dentry *parent;
+> +	char name[32];
+> +
+> +	if (!fuse_control_sb)
+> +		return 0;
+
+Can this happen?
+
+> +	parent = fuse_control_sb->s_root;
+> +	parent->d_inode->i_nlink++;
+
+What locking protects i_nlink?
+
+> +	sprintf(name, "%llu", (unsigned long long) fc->id);
+> +	parent = fuse_ctl_add_dentry(parent, fc, name, S_IFDIR | 0500, 2,
+> +				     &simple_dir_inode_operations,
+> +				     &simple_dir_operations);
+> +	if (!parent)
+> +		goto err;
+> +
+> +	if (!fuse_ctl_add_dentry(parent, fc, "waiting", S_IFREG | 0400, 1,
+> +				NULL, &fuse_ctl_waiting_ops) ||
+> +	    !fuse_ctl_add_dentry(parent, fc, "abort", S_IFREG | 0200, 1,
+> +				 NULL, &fuse_ctl_abort_ops))
+> +		goto err;
+> +
+> +	return 0;
+> +
+> + err:
+> +	fuse_ctl_remove_conn(fc);
+> +	return -ENOMEM;
+> +}
+> +
+> +void fuse_ctl_remove_conn(struct fuse_conn *fc)
+> +{
+> +	int i;
+> +
+> +	if (!fuse_control_sb)
+> +		return;
+> +
+> +	for (i = fc->ctl_ndents - 1; i >= 0; i--) {
+> +		struct dentry *dentry = fc->ctl_dentry[i];
+> +		dentry->d_inode->u.generic_ip = NULL;
+> +		d_drop(dentry);
+> +		dput(dentry);
+> +	}
+> +	fuse_control_sb->s_root->d_inode->i_nlink--;
+
+Ditto.
+
 

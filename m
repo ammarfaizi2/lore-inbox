@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWFSIxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWFSIyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750881AbWFSIxe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWFSIxe
+	id S1751248AbWFSIyk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWFSIyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:53:34 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:8358 "EHLO watts.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1750881AbWFSIxd (ORCPT
+	Mon, 19 Jun 2006 04:54:39 -0400
+Received: from mx2.suse.de ([195.135.220.15]:29900 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751248AbWFSIyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:53:33 -0400
-Message-ID: <44966617.6040005@vilain.net>
-Date: Mon, 19 Jun 2006 20:53:43 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060521)
+	Mon, 19 Jun 2006 04:54:38 -0400
+From: Andi Kleen <ak@suse.de>
+To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+Subject: Re: [discuss] Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
+Date: Mon, 19 Jun 2006 10:54:29 +0200
+User-Agent: KMail/1.8
+Cc: discuss@x86-64.org, Chase Venters <chase.venters@clientec.com>,
+       Brent Casavant <bcasavan@sgi.com>, Jes Sorensen <jes@sgi.com>,
+       Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
+       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
+References: <200606140942.31150.ak@suse.de> <200606170855.49123.ak@suse.de> <44966383.1030006@bull.net>
+In-Reply-To: <44966383.1030006@bull.net>
 MIME-Version: 1.0
-To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Cc: vatsa@in.ibm.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
-       Ingo Molnar <mingo@elte.hu>, Peter Williams <pwil3058@bigpond.net.au>,
-       Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
-       Balbir Singh <balbir@in.ibm.com>, linux-kernel@vger.kernel.org,
-       kurosawa@valinux.co.jp, ckrm-tech@lists.sourceforge.net
-Subject: Re: [RFC] CPU controllers?
-References: <20060615134632.GA22033@in.ibm.com> <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com> <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net> <20060618071847.GA4988@in.ibm.com> <449606F5.6050909@vilain.net> <44964C89.6060003@jp.fujitsu.com> <44965E0C.9050508@vilain.net> <44966320.6080308@jp.fujitsu.com>
-In-Reply-To: <44966320.6080308@jp.fujitsu.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606191054.29543.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MAEDA Naoaki wrote:
->> Ok, so that's not as bad as it looked.  So, while it is still O(N), the
->> fact that it is O(N/HZ) makes this not a problem until you get to
->> possibly impractical levels of runqueue length.
->>     
->
-> Do you mean N is the size of the loop? for_each_cpu_mask() loops
-> the number of CPUs times. It is not directly related to runqueue length.
->   
 
-Ok, I mistook it for a per-task loop.
+> Probably I have not explained it correctly:
+> - The "information page" (that includes the current CPU no.) is not a
+>   per CPU page
 
-Well, let me know if you think it's worth trying it out anyway.
+If it isn't then you can't figure out the current CPU/node for a thread.
 
-Sam.
+Anyways I think we're talking past each other. Your approach might
+even work on ia64 (at least if you're willing to add a lot of cost
+to the context switch). You presumably could implement vgetcpu()
+internally with an approach like this (although with IA64's fast 
+EPC calls it seems a bit pointless) 
+
+It just won't work on x86. 
+
+-Andi

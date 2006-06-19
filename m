@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWFSU5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWFSU61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWFSU5U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 16:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWFSU5U
+	id S932328AbWFSU61 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 16:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWFSU60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 16:57:20 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:61893 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S932318AbWFSU5T (ORCPT
+	Mon, 19 Jun 2006 16:58:26 -0400
+Received: from thunk.org ([69.25.196.29]:64472 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932328AbWFSU60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 16:57:19 -0400
-Date: Mon, 19 Jun 2006 22:57:18 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Thomas Gleixner <tglx@timesys.com>, len.brown@intel.com
-Cc: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: ACPI C-States algorithm updates for dyn-tick
-Message-ID: <20060619205718.GA26332@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Thomas Gleixner <tglx@timesys.com>, len.brown@intel.com,
-	Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-	john stultz <johnstul@us.ibm.com>
-References: <1150643426.27073.17.camel@localhost.localdomain> <200606191521.05508.kernel@kolivas.org> <20060619122606.GA19451@elte.hu> <200606200003.26008.kernel@kolivas.org> <1150747611.29299.77.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 19 Jun 2006 16:58:26 -0400
+Date: Mon, 19 Jun 2006 16:58:28 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 6/8] inode-diet: Move i_cindex from struct inode to struct file
+Message-ID: <20060619205828.GA20362@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <20060619152003.830437000@candygram.thunk.org> <20060619153110.075342000@candygram.thunk.org> <20060619193335.GL27946@ftp.linux.org.uk> <20060619193756.GM27946@ftp.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1150747611.29299.77.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060619193756.GM27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- 
-On Mon, Jun 19, 2006 at 10:06:51PM +0200, Thomas Gleixner wrote:
-> On Tue, 2006-06-20 at 00:03 +1000, Con Kolivas wrote:
-> > Dominik donated a lot of code to use the dynticks infrastructure to actually 
-> > implement the power savings. Just skipping ticks seemed to make very little 
-> > power difference unless we also used the knowledge from next timer interrupt 
-> > to know how long we are going to be idle and choose C state transitions 
-> > accordingly. Each patch is documented at length in the split out
-> > 
-> > C-States-1_bm_activity_improvements.patch
-> > C-States-2_bm_activity_handling_improvement.patch
-> > C-States-3_accounting_of_sleep_times.patch
-> > C-States-4_dyn-ticks_tweaks.patch
-> > 
-> > http://ck.kolivas.org/patches/dyn-ticks/split-out/
+On Mon, Jun 19, 2006 at 08:37:56PM +0100, Al Viro wrote:
+> > NAK.  Please, take it to the union into cdev part.
 > 
-> Thanks for pointing that out. We'll look into those tomorrow.
+> Explanation: the whole point of that sucker is to avoid i_rdev use
+> in drivers, switching to i_cdev + i_cindex.  _Especially_ in open().
+> There is a bunch of other drivers that would get cleaner from that,
+> including a lot of tty code.
 
-1 to 3 were already submitted to Len, as they're useful already right now.
-(Len: do you want me to re-submit, as I can't find them in a git tree right
-now?) The fourth one is the only dyn-tick-specific one, and probably needs
-some more tweaking, testing and benchmarking.
+The problem is that we already have more stuff in the cdev union
+(list_head's are *big*, especially on Opterons), so moving it there
+doesn't actually save us anything.
 
-	Dominik
+Moving it into struct file however should be good enough clean up the
+character devices drivers that you are concerned about, however.  They
+are passed the struct file pointer in the file_operations->open call.
+So we can clean up the tty code, et. al, by using file->f_cindex just
+as easily.  
+
+Furthermore, the inode->i_cindex isn't guaranteed to be valid until
+the high-level vfs open code is called anyway, so you might as well
+tell people to reference it from filp->f_cindex in the device driver's
+open() routine.
+
+Does that make sense?
+
+						- Ted

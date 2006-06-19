@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWFSTRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWFST2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbWFSTRN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 15:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFSTRN
+	id S932540AbWFST2y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 15:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWFST2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 15:17:13 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:15515 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932570AbWFSTRM (ORCPT
+	Mon, 19 Jun 2006 15:28:54 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:35514 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932540AbWFST2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 15:17:12 -0400
-Date: Mon, 19 Jun 2006 15:16:56 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Greg KH <gregkh@suse.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 64bit resources i386 proc iomem fix
-Message-ID: <20060619191656.GE8172@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
+	Mon, 19 Jun 2006 15:28:54 -0400
+Date: Tue, 20 Jun 2006 03:28:56 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] arm_timer: remove a racy and obsolete PF_EXITING check
+Message-ID: <20060619232856.GA88@oleg>
+References: <20060615161202.GA21463@oleg> <20060619080656.42097180049@magilla.sf.frob.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060619080656.42097180049@magilla.sf.frob.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On 06/19, Roland McGrath wrote:
+> 
+> > However, for some reason it does so only for CPUCLOCK_PERTHREAD
+> > case (which is imho wrong).
+> 
+> For a process CPU clock timer, ->it.cpu.task is the thread group leader.
+> The group leader can exit and will be a lingering zombie for as long as
+> other threads in the group live.  The process timers need to keep getting
+> armed and working both during and after the group leader's exit processing.
 
-With the recent changes to 64bit resources Kconfig options, following 
-patch shall have to be applied to make sure things are not broken
-on i386. Can you please include this patch.
+Ah, yes. Also, I missed the fact that process_timer_rebalance() checks
+PF_EXITING anyway (For a process CPU clock timer), so I was wrong twice.
 
-Thanks
-Vivek
+Thanks!
 
+Oleg.
 
-
-o Avoid exporting memory more than 4G through /proc/iomem on i386 if
-  CONFIG_RESOURCES_64BIT is not defined. Resources subsystem can not handle
-  it.
-
-o This patch is required after the recent re-organization of kconfig option
-  for 64bit resources.
-
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- linux-2.6.17-rc6-1M-vivek/arch/i386/kernel/setup.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/i386/kernel/setup.c~64bit-resources-i386-proc-iomem-fix arch/i386/kernel/setup.c
---- linux-2.6.17-rc6-1M/arch/i386/kernel/setup.c~64bit-resources-i386-proc-iomem-fix	2006-06-19 14:46:05.000000000 -0400
-+++ linux-2.6.17-rc6-1M-vivek/arch/i386/kernel/setup.c	2006-06-19 14:46:37.000000000 -0400
-@@ -1338,7 +1338,7 @@ legacy_init_iomem_resources(struct resou
- 	probe_roms();
- 	for (i = 0; i < e820.nr_map; i++) {
- 		struct resource *res;
--#ifdef CONFIG_RESOURCES_32BIT
-+#ifndef CONFIG_RESOURCES_64BIT
- 		if (e820.map[i].addr + e820.map[i].size > 0x100000000ULL)
- 			continue;
- #endif
-_

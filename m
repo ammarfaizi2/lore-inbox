@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWFSSvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWFSSxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWFSSvv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 14:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbWFSSvT
+	id S964812AbWFSSxS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 14:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbWFSSxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 14:51:19 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:39321 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964843AbWFSSuv
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 14:50:51 -0400
-Date: Mon, 19 Jun 2006 12:50:49 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Vladimir V. Saveliev" <vs@namesys.com>,
-       hch@infradead.org, Reiserfs-Dev@namesys.com,
-       Linux-Kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: batched write
-Message-ID: <20060619185049.GH5817@schatzie.adilger.int>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Andrew Morton <akpm@osdl.org>,
-	"Vladimir V. Saveliev" <vs@namesys.com>, hch@infradead.org,
-	Reiserfs-Dev@namesys.com, Linux-Kernel@vger.kernel.org,
+	Mon, 19 Jun 2006 14:53:17 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:23351 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S964812AbWFSSwu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 14:52:50 -0400
+Date: Mon, 19 Jun 2006 22:58:16 +0400
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/5]: ufs: missed brelse and wrong baseblk
+Message-ID: <20060619185816.GA26513@rain.homenetwork>
+Mail-Followup-To: Al Viro <viro@ftp.linux.org.uk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org
-References: <44736D3E.8090808@namesys.com> <20060524175312.GA3579@zero> <44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de> <1149766000.6336.29.camel@tribesman.namesys.com> <20060608121006.GA8474@infradead.org> <1150322912.6322.129.camel@tribesman.namesys.com> <20060617100458.0be18073.akpm@osdl.org> <20060619162740.GA5817@schatzie.adilger.int> <4496D606.8070402@namesys.com>
+References: <20060617101403.GA22098@rain.homenetwork> <20060618162054.GW27946@ftp.linux.org.uk> <20060618175045.GX27946@ftp.linux.org.uk> <20060619064721.GA6106@rain.homenetwork> <20060619073229.GI27946@ftp.linux.org.uk> <20060619131750.GA14770@rain.homenetwork> <20060619182833.GJ27946@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4496D606.8070402@namesys.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <20060619182833.GJ27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 19, 2006  09:51 -0700, Hans Reiser wrote:
-> Andreas Dilger wrote:
-> >With the caveat that I didn't see the original patch, if this can be a step
-> >down the road toward supporting delayed allocation at the VFS level then
-> >I'm all for such changes.
->
-> What do you mean by supporting delayed allocation at the VFS level?  Do
-> you mean calling to the FS or maybe just not stepping on the FS's toes
-> so much or?  Delayed allocation is very fs specific in so far as I can
-> imagine it.
+On Mon, Jun 19, 2006 at 07:28:33PM +0100, Al Viro wrote:
+> On Mon, Jun 19, 2006 at 05:17:50PM +0400, Evgeniy Dushistov wrote:
+> > In case of 1k fragments, msync of two pages
+> > cause 8 calls of ufs's get_block_t with create == 1,
+> > they will be consequent because of synchronization.
+> 
+> _What_ synchronization?
+> Now, which lock would, in your opinion, provide serialization between these
+> two calls?  They apply to different pages, so page locks do not help.
+>  
+you can look at fs/ufs/inode.c: ufs_getfrag_block.
+It is ufs's get_block_t,
+if create == 1 it uses "[un]lock_kernel". 
 
-Currently the VM/VFS call into the filesystem in ->prepare_write for each
-page to do block allocation for the filesystem.  This is the filesystem's
-chance to return -ENOSPC, etc, because after that point the dirty pages
-are written asynchronously and there is no guarantee that the application
-will even be around when they are finally written to disk.
+> To simplify the analysis, have one of those do msync() and another - write().
+> One triggers writeback, leading to ufs_writepage().  Another leads to call
+> of ufs_prepare_write().  Note that the latter call is process-synchronous,
+> so no implicit serialization could apply.
+skiped
 
-If the VFS supported delayed allocation it would call into the filesystem
-on a per-sys_write basis to allow the filesystem to RESERVE space for all
-of the pages in the write call, and then later (under memory pressure,
-page aging, or even "pull" from the fs) submit a whole batch of contiguous
-pages to the fs efficiently (via ->fill_pages() or whatever).
+I'll think about this.
 
-The fs can know at that time the final file size (if the file isn't still
-being dirtied), can allocate all these blocks in a contiguous chunk, can
-submit all of the IO in a single bio to the block layer or RPC/RDMA to net.
-
-As you well know, while it is possible to do this now by copying all of the
-generic_file_write() logic into the filesystem *_file_write() method, in
-practise it is hard to do this from a code maintenance point of view.
-
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+-- 
+/Evgeniy
 

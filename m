@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWFSPQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWFSPYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWFSPQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWFSPQN
+	id S932516AbWFSPYl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWFSPYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:16:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35789 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932178AbWFSPQM (ORCPT
+	Mon, 19 Jun 2006 11:24:41 -0400
+Received: from mx2.suse.de ([195.135.220.15]:62860 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932513AbWFSPYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:16:12 -0400
-To: Ian Kent <raven@themaw.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [autofs] [RFC:VFS] autofs4 needs to force fail return
- revalidate
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
-References: <Pine.LNX.4.64.0606191332510.5732@raven.themaw.net>
-From: Jeff Moyer <jmoyer@redhat.com>
-Date: Mon, 19 Jun 2006 11:15:39 -0400
-In-Reply-To: <Pine.LNX.4.64.0606191332510.5732@raven.themaw.net> (Ian Kent's
- message of "Mon, 19 Jun 2006 13:51:14 +0800 (WST)")
-Message-ID: <x491wtljhwk.fsf@segfault.boston.redhat.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Mon, 19 Jun 2006 11:24:40 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jesper Dangaard Brouer <hawk@diku.dk>
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Date: Mon, 19 Jun 2006 17:24:31 +0200
+User-Agent: KMail/1.9.3
+Cc: Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
+In-Reply-To: <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606191724.31305.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding [autofs] [RFC:VFS] autofs4 needs to force fail return revalidate; Ian Kent <raven@themaw.net> adds:
 
-raven> Hi all,
+> If you use "pmtmr" try to reboot with kernel option "clock=tsc".
 
-raven> For a long time now I have had a problem with not being able to
-raven> return a lookup failure on an existsing directory. In autofs this
-raven> corresponds to a mount failure on a autofs managed mount entry that
-raven> is browsable (and so the mount point directory exists).
+That's dangerous advice - when the system choses not to use
+TSC it often has a reason.
 
-raven> While this problem has been present for a long time I've avoided
-raven> resolving it because it was not very visible. But now that autofs v5
-raven> has "mount and expire on demand" of nested multiple mounts, such as
-raven> is found when mounting an export list from a server, solving the
-raven> problem cannot be avoided any longer.
+> 
+> On my Opteron AMD system i normally can route 400 kpps, but with 
+> timesource "pmtmr" i could only route around 83 kpps.  (I found the timer 
+> to be the issue by using oprofile).
 
-raven> I've tried very hard to find a way to do this entirely within the
-raven> autofs4 module but have not been able to find a satisfactory way to
-raven> achieve it.
+Unless you're using packet sniffing or any other application
+that requests time stamps on a socket then the timer shouldn't 
+make much difference. Incoming packets are only time stamped
+when someone asks for the timestamps.
 
-raven> So, I need to propose a change to the VFS.
-
-raven> Please offer comments and suggestions or if anyone has an idea how
-raven> this could be done within the autofs4 filesystem then I'm all ears.
-
-> --- linux-2.6.17/include/linux/dcache.h.dcache-revalidate-return-fail	2006-06-19 13:26:27.000000000 +0800
-> +++ linux-2.6.17/include/linux/dcache.h	2006-06-19 13:29:25.000000000 +0800
-> @@ -163,6 +163,7 @@ d_iput:		no		no		no       yes
->  #define DCACHE_UNHASHED		0x0010	
-
->  #define DCACHE_INOTIFY_PARENT_WATCHED	0x0020 /* Parent inode is watched */
-> +#define DCACHE_REVAL_FORCE_FAIL 0x0040	/* Force revalidate fail on valid dentry */
-
->  extern spinlock_t dcache_lock;
-
-This looks like the right approach to me.  I'd ack it.
-
--Jeff
+-Andi

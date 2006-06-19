@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWFSUv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWFSUwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWFSUv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 16:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWFSUv0
+	id S932305AbWFSUwK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 16:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFSUwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 16:51:26 -0400
-Received: from lucidpixels.com ([66.45.37.187]:9406 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932305AbWFSUvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 16:51:25 -0400
-Date: Mon, 19 Jun 2006 16:51:24 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: linux-kernel@vger.kernel.org
-Subject: Control-C under High I/O Crashes Box, 2.6.16.20 or 2.6.17
-Message-ID: <Pine.LNX.4.64.0606191649380.18637@p34.internal.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 19 Jun 2006 16:52:10 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:682 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932305AbWFSUwI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 16:52:08 -0400
+Subject: Re: Linux 2.6.17: IRQ handler mismatch in serial code?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+In-Reply-To: <4496FEC2.8050903@rtr.ca>
+References: <20060619180658.58945.qmail@web52908.mail.yahoo.com>
+	 <20060619184706.GH3479@flint.arm.linux.org.uk>  <4496FEC2.8050903@rtr.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Jun 2006 22:06:52 +0100
+Message-Id: <1150751212.2871.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is very rare, but when it happens it is very irritating.
+Ar Llu, 2006-06-19 am 15:45 -0400, ysgrifennodd Mark Lord:
+> If the drivers are written "correctly", they shouldn't grab the IRQ
+> until someone actually opens the device.  Which means they should be
+> able the share the IRQ, so long as both devices are not in use (open)
+> at the same time.
 
-It has happened on an old Dell Optiplex GX110 (1.0GHZ) and a new 3.4GHZ 
-box with a Promise/Maxtor ATA/133 PCI controller.
+This is not the case for ISA bus. Most ISA hardware is physically unable
+to share and the drivers for such hardware intentionally grab the IRQ at
+load time to avoid it being mis-reused.
 
-When more than 1 heavy I/O (cp/mv/etc) process is running and you hit 
-control-c on one of the heavy processes, the box locks up and this appears 
-in the logs:
-
-Jun 19 06:20:23 p34 kernel: [4295114.329000] hdk: dma_timer_expiry: dma 
-status == 0x20
-Jun 19 06:20:23 p34 kernel: [4295114.329000] hdk: DMA timeout retry
-Jun 19 06:20:23 p34 kernel: [4295114.329000] PDC202XX: Secondary channel 
-reset.
-Jun 19 06:20:23 p34 kernel: [4295114.329000] hdk: status error: 
-status=0x58 { DriveReady SeekComplete DataRequest }
-Jun 19 06:20:23 p34 kernel: [4295114.329000] ide: failed opcode was: 
-unknown
-Jun 19 06:20:23 p34 kernel: [4295114.584000] hdk: status timeout: 
-status=0xd0 { Busy }
-Jun 19 06:20:23 p34 kernel: [4295114.584000] ide: failed opcode was: 
-unknown
-Jun 19 06:20:23 p34 kernel: [4295114.584000] PDC202XX: Secondary channel 
-reset.
-Jun 19 06:20:24 p34 kernel: [4295114.684000] ide5: reset: success
-
-Just thought I'd mention it, maybe other people have also experienced this 
-as well.
-
-Justin.
+Alan
 

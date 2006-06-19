@@ -1,76 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWFSIxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWFSIxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbWFSIxk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWFSIxk
+	id S1750881AbWFSIxe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWFSIxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:53:40 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:29672 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1750967AbWFSIxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:53:39 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: Linux 2.4.33-rc1
-Date: Mon, 19 Jun 2006 18:53:31 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <s9pc929iilegdlg0heo1ap83dq3eha4hcs@4ax.com>
-References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu>
-In-Reply-To: <20060619080651.GA3273@1wt.eu>
-X-Mailer: Forte Agent 2.0/32.652
+	Mon, 19 Jun 2006 04:53:34 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:8358 "EHLO watts.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1750881AbWFSIxd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 04:53:33 -0400
+Message-ID: <44966617.6040005@vilain.net>
+Date: Mon, 19 Jun 2006 20:53:43 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060521)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Cc: vatsa@in.ibm.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Kirill Korotaev <dev@openvz.org>, Mike Galbraith <efault@gmx.de>,
+       Ingo Molnar <mingo@elte.hu>, Peter Williams <pwil3058@bigpond.net.au>,
+       Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       Balbir Singh <balbir@in.ibm.com>, linux-kernel@vger.kernel.org,
+       kurosawa@valinux.co.jp, ckrm-tech@lists.sourceforge.net
+Subject: Re: [RFC] CPU controllers?
+References: <20060615134632.GA22033@in.ibm.com> <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com> <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net> <20060618071847.GA4988@in.ibm.com> <449606F5.6050909@vilain.net> <44964C89.6060003@jp.fujitsu.com> <44965E0C.9050508@vilain.net> <44966320.6080308@jp.fujitsu.com>
+In-Reply-To: <44966320.6080308@jp.fujitsu.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 10:06:51 +0200, Willy Tarreau <w@1wt.eu> wrote:
-
->Hi Grant,
+MAEDA Naoaki wrote:
+>> Ok, so that's not as bad as it looked.  So, while it is still O(N), the
+>> fact that it is O(N/HZ) makes this not a problem until you get to
+>> possibly impractical levels of runqueue length.
+>>     
 >
->OK, it does *really* crash in vfs_unlink(), during the double_up on
->dentry->inode-i_zombie (dentry->inode = NULL).
->
->I suggest the following fix, I hope that it is correct and is not subject
->to any race condition :
->
->--- ./fs/namei.c.orig	2006-06-19 09:39:52.000000000 +0200
->+++ ./fs/namei.c	2006-06-19 09:51:09.000000000 +0200
->@@ -1478,12 +1478,14 @@
-> int vfs_unlink(struct inode *dir, struct dentry *dentry)
-> {
-> 	int error;
->+	struct inode *inode;
-> 
-> 	error = may_delete(dir, dentry, 0);
-> 	if (error)
-> 		return error;
-> 
->-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
->+	inode = dentry->d_inode;
->+	double_down(&dir->i_zombie, &inode->i_zombie);
-> 	error = -EPERM;
-> 	if (dir->i_op && dir->i_op->unlink) {
-> 		DQUOT_INIT(dir);
->@@ -1495,7 +1497,7 @@
-> 			unlock_kernel();
-> 		}
-> 	}
->-	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
->+	double_up(&dir->i_zombie, &inode->i_zombie);
-> 	if (!error) {
-> 		d_delete(dentry);
-> 		inode_dir_notify(dir, DN_DELETE);
->
->I think it will *not* oops anymore with this fix, but I'd like someone to
->review it to ensure that it is valid.
+> Do you mean N is the size of the loop? for_each_cpu_mask() loops
+> the number of CPUs times. It is not directly related to runqueue length.
+>   
 
-Hi Willy,
+Ok, I mistook it for a per-task loop.
 
-Still corrupts a vim edit backup filename as previously reported, 
-instead of /etc/lilo.conf~ I get /etc/lilo.co~ :(
+Well, let me know if you think it's worth trying it out anyway.
 
-Grant.
+Sam.

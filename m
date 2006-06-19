@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWFSRUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWFSRVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWFSRUp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 13:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWFSRUp
+	id S964817AbWFSRVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 13:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWFSRVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 13:20:45 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:48003 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964816AbWFSRUn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 13:20:43 -0400
-Date: Mon, 19 Jun 2006 19:20:27 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Theodore Tso <tytso@thunk.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH 4/8] inode-diet: Move i_cdev into a union
-In-Reply-To: <20060619153109.539332000@candygram.thunk.org>
-Message-ID: <Pine.LNX.4.61.0606191919590.23792@yvahk01.tjqt.qr>
-References: <20060619152003.830437000@candygram.thunk.org>
- <20060619153109.539332000@candygram.thunk.org>
+	Mon, 19 Jun 2006 13:21:16 -0400
+Received: from mail-ale01.alestra.net.mx ([207.248.224.149]:64141 "EHLO
+	mail-ale01.alestra.net.mx") by vger.kernel.org with ESMTP
+	id S964818AbWFSRVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 13:21:15 -0400
+Message-ID: <4496DCFA.7090106@att.net.mx>
+Date: Mon, 19 Jun 2006 12:20:58 -0500
+From: Hugo Vanwoerkom <rociobarroso@att.net.mx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
+Subject: Re: [ck] 2.6.17-ck1
+References: <200606181736.38768.kernel@kolivas.org>
+In-Reply-To: <200606181736.38768.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Con Kolivas wrote:
+> These are patches designed to improve system responsiveness and interactivity. 
+> It is configurable to any workload but the default ck patch is aimed at the 
+> desktop and cks is available with more emphasis on serverspace.
+>
+> Apply to 2.6.17
+> http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.17/2.6.17-ck1/patch-2.6.17-ck1.bz2
+>
+> or server version
+> http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.17-cks1.bz2
+>
+> web:
+> http://kernel.kolivas.org
+>
+> all patches:
+> http://www.kernel.org/pub/linux/kernel/people/ck/patches/
+>
+> Split patches available.
+>
+> Full patchlist:
+>
+>   
+<snip>
 
->===================================================================
->--- linux-2.6.17.orig/fs/file_table.c	2006-06-18 19:37:14.000000000 -0400
->+++ linux-2.6.17/fs/file_table.c	2006-06-18 19:50:56.000000000 -0400
->@@ -170,7 +170,7 @@
-> 	if (file->f_op && file->f_op->release)
-> 		file->f_op->release(inode, file);
-> 	security_file_free(file);
->-	if (unlikely(inode->i_cdev != NULL))
->+	if (unlikely(S_ISCHR(inode->i_mode) && (inode->i_cdev != NULL)))
+Thanks Con.
+Good news: 2.6.17 has support for the Winbond W83687thf sensor chip. One 
+patch less for me.
+Bad news: now nvidia  7167 no longer compiles:
+*Unknown symbol pm_unregister
 
-Am I allowed to be nitpicky? If so, drop the () around inode->i_cdev != 
-NULL. :)
+Regards,
 
+Hugo
+
+*
 
 
-Jan Engelhardt
--- 

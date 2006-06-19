@@ -1,117 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWFSShz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWFSSjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWFSShz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 14:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWFSShz
+	id S964811AbWFSSjK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 14:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWFSSjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 14:37:55 -0400
-Received: from chen.mtu.ru ([195.34.34.232]:18956 "EHLO chen.mtu.ru")
-	by vger.kernel.org with ESMTP id S932383AbWFSShy (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 14:37:54 -0400
-Subject: Re: batched write
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org, Reiserfs-Dev@namesys.com,
-       Linux-Kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060619162740.GA5817@schatzie.adilger.int>
-References: <44736D3E.8090808@namesys.com> <20060524175312.GA3579@zero>
-	 <44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de>
-	 <1149766000.6336.29.camel@tribesman.namesys.com>
-	 <20060608121006.GA8474@infradead.org>
-	 <1150322912.6322.129.camel@tribesman.namesys.com>
-	 <20060617100458.0be18073.akpm@osdl.org>
-	 <20060619162740.GA5817@schatzie.adilger.int>
-Content-Type: text/plain
-Date: Mon, 19 Jun 2006 22:28:48 +0400
-Message-Id: <1150741728.6383.146.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Mon, 19 Jun 2006 14:39:10 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:23067 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S964811AbWFSSjJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 14:39:09 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] 2.6.17: dmesg flooded with "ohci_hcd 0000:00:02.0: wakeup"
+Date: Mon, 19 Jun 2006 22:39:04 +0400
+User-Agent: KMail/1.9.3
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200606181919.51126.arvidjaar@mail.ru> <200606182129.15712.arvidjaar@mail.ru> <200606181116.20815.david-b@pacbell.net>
+In-Reply-To: <200606181116.20815.david-b@pacbell.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606192239.06208.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Mon, 2006-06-19 at 09:27 -0700, Andreas Dilger wrote:
-> On Jun 17, 2006  10:04 -0700, Andrew Morton wrote:
-> > On Thu, 15 Jun 2006 02:08:32 +0400
-> > "Vladimir V. Saveliev" <vs@namesys.com> wrote:
-> > 
-> > > The core of generic_file_buffered_write is 
-> > > do {
-> > > 	grab_cache_page();
-> > > 	a_ops->prepare_write();
-> > > 	copy_from_user();
-> > > 	a_ops->commit_write();
-> > > 	
-> > > 	filemap_set_next_iovec();
-> > > 	balance_dirty_pages_ratelimited();
-> > > } while (count);
-> > > 
-> > > 
-> > > Would it make sence to rework this code with adding new address_space
-> > > operation - fill_pages so that looks like:
-> > > 
-> > > do {
-> > > 	a_ops->fill_pages();
-> > > 	filemap_set_next_iovec();
-> > > 	balance_dirty_pages_ratelimited();
-> > > } while (count);
-> > > 
-> > > generic implementation of fill_pages would look like:
-> > > 
-> > > generic_fill_pages()
-> > > {
-> > > 	grab_cache_page();
-> > > 	a_ops->prepare_write();
-> > > 	copy_from_user();
-> > > 	a_ops->commit_write();
-> > > }
-> > > 
-> > 
-> > There's nothing which leaps out and says "wrong" in this.  But there's
-> > nothing which leaps out and says "right", either.  It seems somewhat
-> > arbitrary, that's all.
-> > 
-> > We have one filesystem which wants such a refactoring (although I don't
-> > think you've adequately spelled out _why_ reiser4 wants this).
-> > 
-> > To be able to say "yes, we want this" I think we'd need to understand which
-> > other filesystems would benefit from exploiting it, and with what results?
-> 
-> With the caveat that I didn't see the original patch, if this can be a step
-> down the road toward supporting delayed allocation at the VFS level then
-> I'm all for such changes.
-> 
+On Sunday 18 June 2006 22:16, David Brownell wrote:
+> On Sunday 18 June 2006 10:29 am, Andrey Borzenkov wrote:
+> > On Sunday 18 June 2006 20:29, David Brownell wrote:
+> > > An alternative (but post-boot) workaround _should_ be
+> > >
+> > >     echo disabled > /sys/bus/pci/devices/0000:00:02.0/power/wakeup
+>
+> Did that work?
+>
 
-Doesn't writepages method operation of address space provide enough
-freedom for a filesystem to perform delayed allocation?
+No. But
 
-The goal of the patch was just to allow a filesystem to perform metadata
-update for several newly added to a file pages at once. Currently,
-filesystem is asked to do that once per page. Filesystems which have
-complex algorithms involved into that may find this possibility useful
-to improve performance.
+	echo -n disabled > /sys/devices/pci0000:00/0000:00:02.0/usb1/power/wakeup
 
-> Lustre goes to some lengths to batch up reads and writes on the client into
-> large (1MB+) RPCs in order to maximize performance.  Similarly on the
-> server we essentially bypass the VFS in order to allocate all of the RPC's
-> blocks in one call and do a large bio write in a second.  It just isn't
-> possible to maximize performance if everything is split into PAGE_SIZE
-> chunks.
-> 
-> I believe XFS would benefit from delayed allocation, and the ext3-delalloc
-> patches from Alex also provide a large part of the performance wins for
-> userspace IO, when they allow large sys_write() and VM cache flush to
-> efficiently call into the filesystem to allocate many blocks at once, and
-> then push them out to disk in large chunks.
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> Principal Software Engineer
-> Cluster File Systems, Inc.
-> 
-> 
+did.
 
+Now I noticed that when I boot 2.6.16 hub has only 'Self Powered' attribite 
+(0xc0) while in 2.6.17 it adds 'Remote Wakeup':
+
+Bus 001 Device 001: ID 0000:0000
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            9 Hub
+...
+    bmAttributes         0xe0
+      Self Powered
+      Remote Wakeup
+
+It apparently makes OHCI believe controller can correctly do suspend/wakeup. 
+The suspend does not come from upper layer - it is ohci_hub itself attempting 
+to put controller in lower power mode:
+
+ohci_hub_status_data (struct usb_hcd *hcd, char *buf)
+{
+...
+        int             can_suspend = 
+device_may_wakeup(&hcd->self.root_hub->dev);
+...
+#ifdef CONFIG_PM
+        /* save power by suspending idle root hubs;
+         * INTR_RD wakes us when there's work
+         */
+        if (can_suspend
+                        && !changed
+                        && !ohci->ed_rm_list
+                        && ((OHCI_CTRL_HCFS | OHCI_SCHED_ENABLES)
+                                        & ohci->hc_control)
+                                == OHCI_USB_OPER
+                        && time_after (jiffies, ohci->next_statechange)
+                        && usb_trylock_device (hcd->self.root_hub) == 0
+                        ) {
+                ohci_vdbg (ohci, "autosuspend\n");
+                (void) ohci_bus_suspend (hcd);
+                usb_unlock_device (hcd->self.root_hub);
+        }
+#endif
+
+can_suspend is true while it was apparently false in 2.6.16.
+
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFElu9JR6LMutpd94wRAv5rAJwO/NZ13duktsD0WsksmFqLtUZufACgkBCS
+cOb6y1BG+RjecKtCcua9sNY=
+=Rm8d
+-----END PGP SIGNATURE-----

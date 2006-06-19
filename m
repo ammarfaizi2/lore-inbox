@@ -1,87 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWFSTLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWFSTNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbWFSTLa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 15:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWFSTLa
+	id S932465AbWFSTNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 15:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWFSTNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 15:11:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:12426 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932408AbWFSTL3
+	Mon, 19 Jun 2006 15:13:08 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16020 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932465AbWFSTNG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 15:11:29 -0400
-Subject: Re: [RFC] CPU controllers?
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, vatsa@in.ibm.com,
-       Sam Vilain <sam@vilain.net>, Kirill Korotaev <dev@openvz.org>,
-       Mike Galbraith <efault@gmx.de>, Ingo Molnar <mingo@elte.hu>,
-       Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
-       Balbir Singh <balbir@in.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4496E982.3040607@nortel.com>
-References: <20060615134632.GA22033@in.ibm.com>
-	 <4493C1D1.4020801@yahoo.com.au>  <4496E982.3040607@nortel.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 19 Jun 2006 12:11:25 -0700
-Message-Id: <1150744285.30901.6.camel@linuxchandra>
+	Mon, 19 Jun 2006 15:13:06 -0400
+Date: Mon, 19 Jun 2006 20:13:06 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/5]: ufs: missed brelse and wrong baseblk
+Message-ID: <20060619191306.GK27946@ftp.linux.org.uk>
+References: <20060617101403.GA22098@rain.homenetwork> <20060618162054.GW27946@ftp.linux.org.uk> <20060618175045.GX27946@ftp.linux.org.uk> <20060619064721.GA6106@rain.homenetwork> <20060619073229.GI27946@ftp.linux.org.uk> <20060619131750.GA14770@rain.homenetwork> <20060619182833.GJ27946@ftp.linux.org.uk> <20060619185816.GA26513@rain.homenetwork>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060619185816.GA26513@rain.homenetwork>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-19 at 12:14 -0600, Chris Friesen wrote:
-> Nick Piggin wrote:
-> 
-> > So, from my POV, I would like to be convinced of the need for this first.
-> > I would really love to be able to keep core kernel simple and fast even if
-> > it means edge cases might need to use a slightly different solution.
-> 
-> We currently use a heavily modified CKRM version "e".
-> 
-> The "resource groups" (formerly known as CKRM) cpu controls express what 
-> we'd like to do, but they aren't nearly accurate enough.  We don't make 
-> use the limits, but we do use per-cpu guarantees, along with the 
-> hierarchy concept.
-> 
-> Our engineering guys need to be able to make cpu guarantees for the 
-> various type of processes.  "main server app gets 90%, these fault 
-> handling guys normally get 2% but should be able to burst to 100% for up 
-> to 100ms, that other group gets 5% in total, but a subset of them should 
-> get priority over the others, and this little guy here should only be 
-> guaranteed .5% but it should take priority over everything else on the 
-> system as long as it hasn't used all its allocation".
-> 
-> Ideally they'd really like sub percentage (.1% would be nice, but .5% is 
-> proably more realistic) accuracy over the divisions.  This should be 
-> expressed per-cpu, and tasks should be migrated as necessary to maintain 
-> fairness.  (Ie, a task belonging to a group with 50% on each cpu should 
-> be able to run essentially continuously, bouncing back and forth between 
-> cpus.)  In our case, predictability/fairness comes first, then performance.
-> 
-> If a method is accepted into mainline, it would be nice to have NPTL 
-> support it as a thread attribute so that different threads can be in 
-> different groups.
-> 
+On Mon, Jun 19, 2006 at 10:58:16PM +0400, Evgeniy Dushistov wrote:
+> On Mon, Jun 19, 2006 at 07:28:33PM +0100, Al Viro wrote:
+> > On Mon, Jun 19, 2006 at 05:17:50PM +0400, Evgeniy Dushistov wrote:
+> > > In case of 1k fragments, msync of two pages
+> > > cause 8 calls of ufs's get_block_t with create == 1,
+> > > they will be consequent because of synchronization.
+> > 
+> > _What_ synchronization?
+> > Now, which lock would, in your opinion, provide serialization between these
+> > two calls?  They apply to different pages, so page locks do not help.
+> >  
+> you can look at fs/ufs/inode.c: ufs_getfrag_block.
+> It is ufs's get_block_t,
+> if create == 1 it uses "[un]lock_kernel". 
 
-Chris,
-
-Resource Groups(CKRM) does allow threads to be in different Resource
-Groups ( and since Resource Group assignment is dynamic, a thread can
-move to a high priority resource group for a specific operation and get
-back to its original resource group after the operation is complete).
-
-Just wondering if that is sufficient or you _would_ need support from
-NPTL.
-
-chandra
-> Chris
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Which is fsck-all protection, since then you proceed to do a lot of
+blocking operations.  Now, lock_super() down in balloc.c _might_ be
+enough, but I wouldn't bet on that.

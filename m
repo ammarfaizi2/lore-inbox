@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWFSSWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWFSSYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWFSSWE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 14:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWFSSWE
+	id S1751287AbWFSSYM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 14:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWFSSYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 14:22:04 -0400
-Received: from zcars04f.nortel.com ([47.129.242.57]:56008 "EHLO
-	zcars04f.nortel.com") by vger.kernel.org with ESMTP id S964808AbWFSSWC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 14:22:02 -0400
-Message-ID: <4496EB2E.2000106@nortel.com>
-Date: Mon, 19 Jun 2006 12:21:34 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
+	Mon, 19 Jun 2006 14:24:12 -0400
+Received: from mgw1.diku.dk ([130.225.96.91]:60572 "EHLO mgw1.diku.dk")
+	by vger.kernel.org with ESMTP id S1751284AbWFSSYL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 14:24:11 -0400
+Date: Mon, 19 Jun 2006 20:24:08 +0200 (CEST)
+From: Jesper Dangaard Brouer <hawk@diku.dk>
+To: Andi Kleen <ak@suse.de>
+Cc: Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+In-Reply-To: <200606191724.31305.ak@suse.de>
+Message-ID: <Pine.LNX.4.61.0606192017370.31662@ask.diku.dk>
+References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu>
+ <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk> <200606191724.31305.ak@suse.de>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org, mingo@elte.hu,
-       pwil3058@bigpond.net.au, sekharan@us.ibm.com, balbir@in.ibm.com,
-       linux-kernel@vger.kernel.org, maeda.naoaki@jp.fujitsu.com,
-       kurosawa@valinux.co.jp
-Subject: Re: [RFC] CPU controllers?
-References: <20060615134632.GA22033@in.ibm.com> <4493C1D1.4020801@yahoo.com.au> <20060617164812.GB4643@in.ibm.com> <4494DF50.2070509@yahoo.com.au> <4494EA66.8030305@vilain.net> <4494EE86.7090209@yahoo.com.au>  <20060617234259.dc34a20c.akpm@osdl.org> <1150616176.7985.50.camel@Homer.TheSimpsons.net>
-In-Reply-To: <1150616176.7985.50.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Jun 2006 18:21:39.0170 (UTC) FILETIME=[34E5EC20:01C693CD]
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
 
-> Scheduling contexts do sound useful.  They're easily defeated though, as
-> evolution mail demonstrates to me every time it's GUI hangs and I see
-> that a nice 19 find is running, eating very little CPU, but effectively
-> DoSing evolution nonetheless (journal).  I wonder how often people who
-> tried to distribute CPU would likewise be stymied by other resources.
+On Mon, 19 Jun 2006, Andi Kleen wrote:
 
-We do a lot with diskless blades.  Basically cpu(s), memory, and network 
-ports.
+>> If you use "pmtmr" try to reboot with kernel option "clock=tsc".
+>
+> That's dangerous advice - when the system choses not to use
+> TSC it often has a reason.
 
-For this case, cpu, memory, and network controllers are sufficient. 
-Even just cpu gets you a long way, since mostly we're not IO-intensive 
-and we generally have a pretty good idea of memory consumption.
+Sorry, it was not a general advice, just something to try out.  It really 
+solved my network performance issue...
 
-Chris
+
+>> On my Opteron AMD system i normally can route 400 kpps, but with
+>> timesource "pmtmr" i could only route around 83 kpps.  (I found the timer
+>> to be the issue by using oprofile).
+>
+> Unless you're using packet sniffing or any other application
+> that requests time stamps on a socket then the timer shouldn't
+> make much difference. Incoming packets are only time stamped
+> when someone asks for the timestamps.
+
+I do not know what caused the issue on my machine, but I can look into it 
+if you like to know?
+
+I do have VLAN interfaces on the machine and it seems that eth1 runs in 
+PROMISC mode (eth1.xxx does not).  Could it be caused by that?
+
+Hilsen
+   Jesper Brouer
+
+--
+-------------------------------------------------------------------
+MSc. Master of Computer Science
+Dept. of Computer Science, University of Copenhagen
+Author of http://www.adsl-optimizer.dk
+-------------------------------------------------------------------

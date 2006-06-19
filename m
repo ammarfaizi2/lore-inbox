@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWFSEeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWFSEcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWFSEeH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 00:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWFSEeH
+	id S1750751AbWFSEcW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 00:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWFSEcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 00:34:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59820 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750826AbWFSEeF (ORCPT
+	Mon, 19 Jun 2006 00:32:22 -0400
+Received: from ns.theshore.net ([67.18.92.50]:59590 "EHLO www.theshore.net")
+	by vger.kernel.org with ESMTP id S1750751AbWFSEcW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 00:34:05 -0400
-Date: Sun, 18 Jun 2006 21:33:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Staubach <staubach@redhat.com>
-Cc: staubach@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] memory mapped files not updating timestamps
-Message-Id: <20060618213356.e847db04.akpm@osdl.org>
-In-Reply-To: <447DD80C.2000408@redhat.com>
-References: <446B3E5D.1030301@redhat.com>
-	<447DD80C.2000408@redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 19 Jun 2006 00:32:22 -0400
+Message-ID: <449628CB.6050206@theshore.net>
+Date: Sun, 18 Jun 2006 23:32:11 -0500
+From: "Christopher S. Aker" <caker@theshore.net>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: user-mode-linux-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] 2.6.17-um - new uptime record (40 years!)
+References: <44961CC8.1060302@theshore.net>
+In-Reply-To: <44961CC8.1060302@theshore.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 May 2006 13:53:16 -0400
-Peter Staubach <staubach@redhat.com> wrote:
-
->
-
-A few issues here.
-
+Christopher S. Aker wrote:
+> root@none:~ # uname -a
+> Linux none 2.6.17-linode20 #1 Sun Jun 18 00:04:18 EDT 2006 i686 GNU/Linux
+> root@none:~ # uptime
+>   23:37:50 up 14663 days, 20:54,  1 user,  load average: 0.00, 0.00, 0.00
+> root@none:~ # cat /proc/uptime
+> 1266958484.15 69449.04
 > 
-> I embarked on this work due to a bug reported by one of Red Hat's large
-> customers.  They are finding that files, which should have been backed
-> up, were not getting backed up.  This is due to the mtime on the files
-> not changing and their backup software looking for mtime changes.  This
-> is corruption and I need to get it fixed, sooner as opposed to later.
-> 
-> While I would like to get this fixed on top of Peter Zijlstra's changes,
-> the process for those is looking long and complicated.  I am wondering
-> if we could consider these changes and then add the requirement of
-> maintaining these semantics to those that Peter's work is attempting to
-> address.
-> 
+> -Chris
 
-We seem to be having a problem getting a coherent changelog.  A changelog
-should describe why the patch exists, what it does and how it does it. 
-Please develop and maintain a changelog for each patch and reissue the
-changelog with each reissuing of a patch, thanks.
+OK, 2.6.17 final missed Jeff's "Fix wall_to_monotonic initialization" 
+patch...
 
-This sequence:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115016859504778&w=2
 
-+	if (test_and_clear_bit(AS_MCTIME, &mapping->flags))
-+		inode_update_time(inode);
+I can confirm that this fixes the issue.  Queue this sucker up for the 
+next stable release!
 
-appears all over the place and should be implemented in a helper function.
+I hope nothing else was missed, but so far this is the only snag we've 
+hit with 2.6.17-um.  Rock on!  Maybe now I can finally stop making new 
+deployments default to 2.4-um.
 
-
-The patch should work correctly for mmaps of block devices and I don't
-think it does.  Sometimes it updates the timestamp on the kernel-internal
-blockdev inode at mapping->host and sometimes it updates the inode of the
-device node (/dev/hda1) at file->f_dentry->d_inode.  It should be updating
-the /dev/hda1 inode.
-
-The change to unlink_file_vma() is awkward, IMO.  It means that this helper
-function "knows" things about what its caller is using it for.  I'd suggest
-that this code should be moved up to a higher level where we have a more
-sure semantic context, rather than being implemented in some low-level
-helper function where it happens to be convenient.
-
-Also, inode_update_time() can sleep. 
-mark_inode_dirty_sync()->__mark_inode_dirty()->ext3_dirty_inode().  This is
-despite Documentation/filesystems/Locking saying "must not sleep".  But
-unlink_file_vma() (at least) is called from atomic context:
-
-	unmap_region()
-	->tlb_gather_mmu()
-	  ->preempt_disable()
-	->free_pgtables()
-	  ->unlink_file_vma()
-	->tlb_finish_mmu()
-	  ->preempt_enable()
-
-Which _should_ have triggered warnings if full kernel debugging was enabled
-and sufficient testing was performed.  Perhaps a might_sleep() is needed in
-_mark_inode_dirty().
-
+-Chris

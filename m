@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWFSJa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWFSJca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbWFSJa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 05:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWFSJa3
+	id S932217AbWFSJca (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 05:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWFSJca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 05:30:29 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:65164 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932210AbWFSJa2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 05:30:28 -0400
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-hotplug-devel@vger.kernel.org
-In-Reply-To: <20060619082355.GE4253@implementation.labri.fr>
-References: <20060618221343.GA20277@kroah.com>
-	 <20060618230041.GG4744@bouh.residence.ens-lyon.fr>
-	 <20060618231204.GB2212@suse.de>
-	 <20060618233508.GH4744@bouh.residence.ens-lyon.fr>
-	 <20060619032259.GB4651@suse.de>
-	 <20060619082355.GE4253@implementation.labri.fr>
-Content-Type: text/plain
-Date: Mon, 19 Jun 2006 11:30:31 +0200
-Message-Id: <1150709431.4277.4.camel@localhost>
+	Mon, 19 Jun 2006 05:32:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14601 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932217AbWFSJc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 05:32:29 -0400
+Date: Mon, 19 Jun 2006 10:32:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: gouji <gouji.masayuki@jp.fujitsu.com>,
+       "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: Re: About the fixes of /drivers/serial/8250.C in 2.6.17-rc6 for avoiding habbg-up
+Message-ID: <20060619093219.GA26941@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	gouji <gouji.masayuki@jp.fujitsu.com>,
+	'LKML' <linux-kernel@vger.kernel.org>
+References: <000d01c6934c$f25c9870$f4647c0a@GOUJI> <1150708994.2503.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150708994.2503.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Samuel,
-
-> > Or just tell your users to make sure that they have the uinput driver
-> > loaded,
+On Mon, Jun 19, 2006 at 10:23:14AM +0100, Alan Cox wrote:
+> Ar Llu, 2006-06-19 am 12:03 +0900, ysgrifennodd gouji:
+> > In /drivers/serial/8250.C of 2.6.17-rc6,
+> > 
+> > these fixes are adapted for avoinding  the problem of hang-up
+> > while TTY write and console write from kernel conflicted.
 > 
-> They can't, since without it they can't even type things.
+> Yes, there is a bug in this version that was not in the one I submitted,
+> someone added an improvement.
 
-if you install a program or a driver that needs uinput loaded, then you
-have a clean requirement. So simply add a "modprobe uinput" to its init
-script.
+I disagree - in the non-oops_in_progress case, your version and the
+merged version are 100% identical - see
 
-Look at the TUN/Tap driver which has the same problem. The boot up
-scripts of various daemons (for example OpenVPN etc.) are making sure
-that the driver is loaded.
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=114657841432447&w=2
 
-Regards
+However, you never responded to my answers to your two questions in
+that email, which came with the patch which was merged.
 
-Marcel
+> > +   if (oops_in_progress) {
+> > +      locked = spin_trylock_irqsave(&up->port.lock, flags);
+> > +   } else
+> > +      spin_lock_irqsave(&up->port.lock, flags);
+> > +
+> 
+> It could always use spin_trylock_irqsave().  The oops in progress
+> optimisation makes some sense initially but there are many console
+> printk users that can occur during serial I/O in exceptional cases.
+> 
+> It's not an easy problem to solve with the current serial locking.
 
+I don't have the initial email from ysgrifennodd gouji, and neither
+do the lkml archives.  What's the problem?
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

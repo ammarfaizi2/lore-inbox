@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWFSWMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWFSWNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964931AbWFSWMR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 18:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWFSWMQ
+	id S964947AbWFSWNV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 18:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbWFSWNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 18:12:16 -0400
-Received: from iabervon.org ([66.92.72.58]:22537 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S964931AbWFSWMP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 18:12:15 -0400
-Date: Mon, 19 Jun 2006 18:14:28 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-cc: linux-kernel@vger.kernel.org, Joshua Hudson <joshudson@gmail.com>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
-In-Reply-To: <44964EDC.3030104@ums.usu.ru>
-Message-ID: <Pine.LNX.4.64.0606191801000.6713@iabervon.org>
-References: <20060618221343.GA20277@kroah.com>  <20060618230041.GG4744@bouh.residence.ens-lyon.fr>
-  <4495F5C3.1030203@zytor.com>  <bda6d13a0606181817q2ab4e5cev670ef5c537b63e6c@mail.gmail.com>
-  <4495FF59.2010100@zytor.com> <8e6f94720606182255u400964c2v1ea16221ffc5c94d@mail.gmail.com>
- <44964EDC.3030104@ums.usu.ru>
+	Mon, 19 Jun 2006 18:13:21 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:64886 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S964947AbWFSWNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 18:13:20 -0400
+Date: Mon, 19 Jun 2006 15:13:09 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Christoph Hellwig <hch@infradead.org>, Theodore Tso <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 5/8] inode-diet: Eliminate i_blksize and use a per-superblock default
+Message-ID: <20060619221309.GI3082@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060619152003.830437000@candygram.thunk.org> <20060619153109.817554000@candygram.thunk.org> <20060619155821.GA27867@infradead.org> <20060619161651.GS29684@ca-server1.us.oracle.com> <20060619172014.GD15216@thunk.org> <20060619185555.GA15389@infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060619185555.GA15389@infradead.org>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006, Alexander E. Patrakov wrote:
+On Mon, Jun 19, 2006 at 07:55:55PM +0100, Christoph Hellwig wrote:
+> And to answer Joel's statment of these three two already implement their
+> own ->getattr.  Also it doesn't mean a filesystem has to completely
+> reimplement it, they just have to override it by reusing generic_fillattr,
+> e.g.
+And actually, that's what we do in ocfs2_getattr() today already:
 
-> Will Dyson wrote:
-> > Providing the information about what devices a virtual driver will
-> > register when loaded seems like a good idea.
-> 
-> Why? This information is currently useless. What you want is that something
-> knows that you want this driver to be loaded.
+	generic_fillattr(inode, stat);
 
-The point is that you *don't* want those modules to be loaded. What you 
-want is for the kernel to know that those modules are available, and 
-therefore mention that drivers could be found for those devices, and 
-therefore udev would create the device nodes for them, even though the 
-kernel doesn't contain a module that drives them yet.
+	/* We set the blksize from the cluster size for performance */
+	stat->blksize = osb->s_clustersize;
 
-If something actually opens the device node, the module will be loaded, 
-but until then it isn't using up resources.
-
-	-Daniel
-*This .sig left intentionally blank*
+Thanks,
+	--Mark
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

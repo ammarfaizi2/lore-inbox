@@ -1,113 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWFSAUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWFSA1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWFSAUd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 20:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWFSAUd
+	id S1750964AbWFSA1t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 20:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWFSA1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 20:20:33 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:56766 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750715AbWFSAUc (ORCPT
+	Sun, 18 Jun 2006 20:27:49 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:1442 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750879AbWFSA1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 20:20:32 -0400
-Message-ID: <4495EC40.70301@in.ibm.com>
-Date: Mon, 19 Jun 2006 05:43:52 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
+	Sun, 18 Jun 2006 20:27:48 -0400
+From: Neil Brown <neilb@suse.de>
+To: David Chinner <dgc@sgi.com>
+Date: Mon, 19 Jun 2006 10:27:39 +1000
 MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, kernel@kolivas.org, sam@vilain.net,
-       bsingharora@gmail.com, vatsa@in.ibm.com, dev@openvz.org,
-       linux-kernel@vger.kernel.org, efault@gmx.de, kingsley@aurema.com,
-       ckrm-tech@lists.sourceforge.net, mingo@elte.hu,
-       rene.herman@keyaccess.nl
-Subject: Re: [PATCH 0/4] sched: Add CPU rate caps
-References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest> <20060618025046.77b0cecf.akpm@osdl.org> <449529FE.1040008@bigpond.net.au>
-In-Reply-To: <449529FE.1040008@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17557.61307.364404.640539@cse.unsw.edu.au>
+Cc: Jan Blunck <jblunck@suse.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
+       balbir@in.ibm.com
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
+In-Reply-To: message from David Chinner on Monday June 19
+References: <20060601095125.773684000@hasse.suse.de>
+	<17539.35118.103025.716435@cse.unsw.edu.au>
+	<20060616155120.GA6824@hasse.suse.de>
+	<17555.12234.347353.670918@cse.unsw.edu.au>
+	<20060618235654.GB2114946@melbourne.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Andrew Morton wrote:
+On Monday June 19, dgc@sgi.com wrote:
 > 
->> On Sun, 18 Jun 2006 18:26:38 +1000
->> Peter Williams <pwil3058@bigpond.net.au> wrote:
->>
->> People are going to want to extend this to capping a *group* of tasks, 
->> with
->> some yet-to-be-determined means of tying those tasks together.  How well
->> suited is this code to that extension?
+> > I can see that shrink_dcache_sb could take a long time and should be
+> > fixed, which should be as simple as replacing it with
+> > shrink_dcache_parent; shrink_dcache_anon.
 > 
-> 
-> Quite good.  It can be used from outside the scheduler to impose caps on 
-> arbitrary groups of tasks.  Were the PAGG interface available I could 
-> knock up a module to demonstrate this.  When/if the "task watchers" 
-> patch is included I will try and implement a higher level mechanism 
-> using that.  The general technique is to get an estimate of the 
-> "effective number" of tasks in the group (similar to load) and give each 
-> task in the group a cap which is the group's cap divided by the 
-> effective number of tasks (or the group cap whichever is smaller -- i.e. 
-> the effective number of tasks could be less than one).
->)
-
-
-There is one possible issue with this approach. Lets assume that we desire
-a cap of 10 for a set of two tasks. As discussed earlier, each task
-would get a limit of 5% if they are equally busy.
-
-Lets call the group as G1 and the tasks as T1 and T2.
-
-If we have another group called G2 with tasks T3, T4 and T5 and a soft
-cap of 90. Then each of T3, T4 and T5 would get a soft cap of
-30% (assuming that they are equally busy). Now if T5 stops using its limit
-for a while let say its cpu utilization is 10% - how do we divide the saved
-20% between T1, T2, T3 and T4.
-
-In a group scenario, the balance 20% should be shared between T3 and T4.
-
-Also mathematically
-
-A group is a superset of task
-
-It is hard to implement things for a task and make it work for groups,
-but if we had something for groups, we could easily adapt it to tasks
-by making each group equal to a task
-
-
- 
-> Doing it inside the scheduler is also doable but would have some locking 
-> issues.  The run queue lock could no longer be used to protect the data 
-> as there's no guarantee that all the tasks in the group are associated 
-> with the same queue.
-> 
->>
->> If the task can exceed its cap without impacting any other tasks (ie: 
->> there
->> is spare idle capacity), what happens?
-> 
-> 
-> That's the difference between soft and hard caps.  If it's a soft cap 
-> then the task is allowed to exceed it if there's spare capacity.  If 
-> it's a hard cap it's not.
+> But these are not guaranteed to reclaim all the dentries from a given
+> superblock. Yes, they move the dentries to the LRU, but other activity in the
+> system means that they may not get reclaimed during the subsequent calls
+> to prune_dcache() and hence they may live beyond the unmount....
 > 
 
-By how much is the task allowed to exceed if there is spare capacity?
-Will the spare capacity allocation require resetting of caps to implement
-the new caps?
+My proposed patch earlier in this thread (I can post it again if you
+like) addresses exactly this issue.  Instead of moving dentries to the
+global LRU, it moves them to a private LRU, and the calls prune_dcache
+on that.  So there is no room for other activity to get in the way of
+prune_dcache doing what needs to be done.
 
->>  I trust that spare capacity gets
->> used?  (Is this termed "work conserving"?)
-> 
-> 
-> Soft caps, yes.  Hard caps, no.
-> 
+I agree that using a single big LRU for everything doesn't work.  I
+just don't think we need (or want) separate LRUs for each superblock.
+Rather we want separate temporary LRUs just for use when unmounting.
 
--- 
-	Cheers,
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+
+> > But I'm still puzzled as to why a long dcache LRU slows down
+> > unmounting. 
+> > 
+> > Can you give more details?
+> 
+> It's not the unmount that slows down - it's the fact that the dcache lock
+> is held for so long that rest of the system halts for time it takes
+> to run shrink_dcache_sb(). We've seen up to 50s to do a (touch fred; rm fred)
+> when the LRU has grown to several million dentries and shrink_dcache_sb()
+> is running. When this happens, it's not uncommon to see every CPU in the
+> machine spinning on the dcache_lock...
+
+Definitely a problem.
+Maybe it was hoped that the call to cond_resched_lock(&dcache_lock)
+would avoid this, but apparently not.
+I still maintain that we should replace shrink_dcache_sb with calls to
+shrink_dcache_anon and shrink_dcache_parent.  That, together with my
+previous patch, should fix this problem quite cleanly.  If I send you
+a combined patch against the latest -mm can you test?
+
+Thanks,
+NeilBrown

@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWFSVlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbWFSVli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWFSVlT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 17:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWFSVlS
+	id S964906AbWFSVli (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 17:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWFSVli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 17:41:18 -0400
-Received: from main.gmane.org ([80.91.229.2]:33699 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964905AbWFSVlR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 17:41:17 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Marcus Furlong <furlongm@hotmail.com>
-Subject: Re: PATA driver patch for 2.6.17
-Date: Mon, 19 Jun 2006 22:40:57 +0100
-Message-ID: <e775l9$91l$1@sea.gmane.org>
-References: <1150740947.2871.42.camel@localhost.localdomain> <e76uv1$g1s$1@sea.gmane.org> <1150751279.2871.46.camel@localhost.localdomain>
-Reply-To: furlongm@hotmail.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 83-70-234-22.b-ras1.prp.dublin.eircom.net
-User-Agent: KNode/0.10.2
+	Mon, 19 Jun 2006 17:41:38 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:16780 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964906AbWFSVlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 17:41:36 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Mon, 19 Jun 2006 23:40:46 +0200
+References: <6pxs2-1AR-5@gated-at.bofh.it> <6pyer-2Pt-1@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1FsRUZ-0001Ll-0K@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+> On Mon, 19 Jun 2006, Andreas Mohr wrote:
 
-> Ar Llu, 2006-06-19 am 20:46 +0100, ysgrifennodd Marcus Furlong:
->> Alan Cox wrote:
->> 
->> > http://zeniv.linux.org.uk/~alan/IDE
->> > 
->> > This is basically a resync versus 2.6.17, the head of the PATA tree is
->> > now built against Jeffs tree with revised error handling and the like.
->> > 
->> > Alan
->> 
->> I get the following bug while booting:
+>> while looking for loop places to apply cpu_relax() to, I found the
+>> following gems:
+>>
+>> arch/i386/kernel/crash.c/crash_nmi_callback():
+>>
+>>        /* Assume hlt works */
+>>        halt();
+>>        for(;;);
+>>
+>>        return 1;
+>> }
+
+This will result in the processor burning energy again after the first
+interrupt, won't it?
+
+>> arch/i386/kernel/doublefault.c/doublefault_fn():
+>>
+>>        for (;;) /* nothing */;
+>> }
+>>
+>> Let's assume that we have a less than moderate fan failure that causes
+>> the CPU to heat up beyond the critical limit...
+>> That might result in - you guessed it - crashes or doublefaults.
+>> In which case we enter the corresponding handler and do... what?
 > 
-> Sorry about that. I messed up a patch segment in the merge
+> The double-fault is just a place-holder. The CPU will actually
+> reset without even executing this (try it).
+
+If it does reset, you don't need that fuctions (you can use anything),
+and if not, doing while(1) halt(); in both cases should DTRT even if the
+system is FUBAR, and it should be even smaller.
+
+>> Exactly, we accelerate the CPUs happy march into bit heaven by letting it
+>> execute a busy-loop under a non-working fan.
 > 
-> --- drivers/scsi/ata_piix.c~  2006-06-19 21:38:43.746144712 +0100
-> +++ drivers/scsi/ata_piix.c   2006-06-19 21:38:43.747144560 +0100
-> @@ -360,6 +360,8 @@
->  .qc_prep             = ata_qc_prep,
->  .qc_issue            = ata_qc_issue_prot,
->  
-> +     .data_xfer              = ata_pio_data_xfer,
-> +
->  .eng_timeout         = ata_eng_timeout,
->  
->  .irq_handler         = ata_interrupt,
+> You accelerate nothing. Bit heaven? A CPU without a fan will go into
+> a cold, cold, shutdown, requiring a hardware reset to get it out of
+> that latched, no internal clock running, mode.
 
-That fixes it. Thanks! :)
+Some CPU may do this, others will go via the random-generator mode into the
+self-deformation-mode instead.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
+http://david.woodhou.se/why-not-spf.html

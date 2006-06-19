@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWFSOa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWFSOrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWFSOa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 10:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWFSOa2
+	id S932507AbWFSOrw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 10:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWFSOrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 10:30:28 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:2486 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932502AbWFSOa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 10:30:28 -0400
-Date: Mon, 19 Jun 2006 16:30:07 +0200
-From: Voluspa <lista1@comhem.se>
-To: "Ojciec Rydzyk" <69rydzyk69@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, be-news06@lina.inka.de,
-       jengelh@linux01.gwdg.de, greg@kroah.com
-Subject: Re: Several errors in kernel
-Message-Id: <20060619163007.2a681aaa.lista1@comhem.se>
-In-Reply-To: <32124b660606190706g2d44414ck3860fd6ae82ec628@mail.gmail.com>
-References: <20060619155824.7cc1ad6c.lista1@comhem.se>
-	<32124b660606190706g2d44414ck3860fd6ae82ec628@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 10:47:52 -0400
+Received: from mgw1.diku.dk ([130.225.96.91]:64139 "EHLO mgw1.diku.dk")
+	by vger.kernel.org with ESMTP id S932453AbWFSOrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 10:47:51 -0400
+Date: Mon, 19 Jun 2006 16:47:49 +0200 (CEST)
+From: Jesper Dangaard Brouer <hawk@diku.dk>
+To: Harry Edmon <harry@atmos.washington.edu>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+In-Reply-To: <44948EF6.1060201@atmos.washington.edu>
+Message-ID: <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
+References: <4492D5D3.4000303@atmos.washington.edu> <20060617153511.53a129a3.akpm@osdl.org>
+ <44948EF6.1060201@atmos.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 16:06:26 +0200 Ojciec Rydzyk wrote:
-> And what is wrong with my BIOS that kernel cannot allocate mem
-> resource. What is the reason? (I just would like to know what should I
-> post to my BIOS vendor :P)
 
-It's a good question, so I'm cc:-ing the rest of the thread recipients
-and adding Greg KH, so he can fight it out with anyone interested. Me,
-I've given up on the issue. But as I predicted, it will hunt the list
-until hidden...
+>> Harry Edmon <harry@atmos.washington.edu> wrote:
+>> 
+>>> I have a system with a strange network performance degradation from 
+>>> 2.6.11.12 to most recent kernels including 2.6.16.20 and 2.6.17-rc6. 
+>>> The system is has Dual single core Xeons with hyperthreading on.
+<cut>
 
-Greg, here's my reply, sorry didn't quote anything from the original
-message, but thread starts at:
+Hi Harry
 
-http://marc.theaimsgroup.com/?t=115066436000002&r=1&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115066427121999&w=2
+Can you check which "high-res timesource" you are using?
 
-I wrote:
->>The nsxfeval is completely harmless and has been fixed in the
->>"ACPI: Subsystem revision 20060310" present in -mm kernels.
->>
->>The "Failed to allocate mem resource" is also harmless but Greg KH
->>has decided to not hide/fix it. Our BIOS vendors are to blame.
->>
->>For a summary see:
->>[Re: [2.6.16-rc2] Error - nsxfeval - And uncool silence from kernel
->>hackers.]
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=113957514307078&w=2
->>
->>I started the thread at:
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=113952620328363&w=2
+In the kernel log look for:
+  kernel: Using tsc for high-res timesource
+  kernel: Using pmtmr for high-res timesource
 
-Mvh
-Mats Johannesson
+I have experinced some network performance degradation when using the 
+"pmtmr" timesource, on a Opteron AMD system.  It seems that the default 
+timesource change between 2.6.15 to 2.6.16.
+
+If you use "pmtmr" try to reboot with kernel option "clock=tsc".
+
+On my Opteron AMD system i normally can route 400 kpps, but with 
+timesource "pmtmr" i could only route around 83 kpps.  (I found the timer 
+to be the issue by using oprofile).
+
+
+Cheers,
+   Jesper Brouer
+
 --
+-------------------------------------------------------------------
+MSc. Master of Computer Science
+Dept. of Computer Science, University of Copenhagen
+Author of http://www.adsl-optimizer.dk
+-------------------------------------------------------------------

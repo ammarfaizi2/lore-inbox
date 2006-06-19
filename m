@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWFSPrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWFSPrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWFSPrz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWFSPry
+	id S932302AbWFSPrl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFSPrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:47:54 -0400
-Received: from iona.labri.fr ([147.210.8.143]:26310 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S932497AbWFSPrx (ORCPT
+	Mon, 19 Jun 2006 11:47:41 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:23488 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932302AbWFSPrk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:47:53 -0400
-Date: Mon, 19 Jun 2006 17:47:46 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Message-ID: <20060619154746.GS4253@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	linux-kernel@vger.kernel.org
-References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr> <Pine.LNX.4.61.0606191407150.31576@yvahk01.tjqt.qr>
+	Mon, 19 Jun 2006 11:47:40 -0400
+Date: Mon, 19 Jun 2006 08:47:29 -0700
+From: Greg Lindahl <greg.lindahl@qlogic.com>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, Brice Goglin <brice@myri.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
+Message-ID: <20060619154728.GA15089@greglaptop.hsd1.ca.comcast.net>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+	Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org
+References: <4493709A.7050603@myri.com> <44941632.4050703@myri.com> <20060619005329.GA1425@greglaptop> <200606191028.51242.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0606191407150.31576@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200606191028.51242.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+X-Frumious: Bandersnatch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt, le Mon 19 Jun 2006 14:08:28 +0200, a écrit :
-> >Hi,
-> >
-> >There's a long-standing issue in init=/bin/sh mode: pressing control-C
-> >doesn't send a SIGINT to programs running on the console. The incurred
-> >typical pitfall is if one runs ping without a -c option... no way to
-> >stop it!
-> 
-> Worse, I can observe same behavior when using "-b", i.e. init=/sbin/init 
-> called with -b (read: `/sbin/init -b`),
+On Mon, Jun 19, 2006 at 10:28:50AM +0200, Andi Kleen wrote:
 
-That's equivalent to the "emergency" mode.
+> Isn't your HCA directly connected to HTX? If yes it will
+> likely not run into PCI bridge bugs.
 
-Samuel
+I was referring to our new PCI Express HCA.
+
+-- greg
+

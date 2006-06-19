@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWFSP1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWFSPbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWFSP1J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWFSP1J
+	id S932474AbWFSPbK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:31:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbWFSPbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:27:09 -0400
-Received: from colo.lackof.org ([198.49.126.79]:31391 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S932462AbWFSP1I (ORCPT
+	Mon, 19 Jun 2006 11:31:10 -0400
+Received: from thunk.org ([69.25.196.29]:6282 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932474AbWFSPbJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:27:08 -0400
-Date: Mon, 19 Jun 2006 09:27:06 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Matthew Wilcox <matthew@wil.cx>, Brice Goglin <brice@myri.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
-Message-ID: <20060619152706.GC7575@colo.lackof.org>
-References: <4493709A.7050603@myri.com> <20060617050524.GX2387@parisc-linux.org> <1150715995.14284.10.camel@capoeira>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150715995.14284.10.camel@capoeira>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+	Mon, 19 Jun 2006 11:31:09 -0400
+Message-Id: <20060619153108.720582000@candygram.thunk.org>
+References: <20060619152003.830437000@candygram.thunk.org>
+Date: Mon, 19 Jun 2006 11:20:05 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] [PATCH 2/8] inode-diet: Move i_pipe into a union
+Content-Disposition: inline; filename=inode-slim-2
+From: Theodore Tso <tytso@thunk.org>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 01:19:55PM +0200, Xavier Bestel wrote:
-> On Sat, 2006-06-17 at 07:05, Matthew Wilcox wrote:
-> > On Fri, Jun 16, 2006 at 11:01:46PM -0400, Brice Goglin wrote:
-> > > We introduce whitelisting of chipsets that are known to support MSI and
-> > > keep the existing backlisting to disable MSI for other chipsets. When it
-> > > is unknown whether the root chipset support MSI or not, we disable MSI
-> > > by default except if pci=forcemsi was passed.
-> > 
-> > I think that's a bad idea.  Blacklisting is the better idea in the long-term.
-> 
-> I think the option adopted elsewhere is: whitelist for old chipsets, and
-> blacklist for new chipsets. You just have to decide for a good date to
-> separate "old" and "new" to minimize the lists size.
+Move the i_pipe pointer into a union that will be shared with i_bdev
+and i_cdev.
 
-I agree with willy.
+Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
 
-White lists work "well" only if one's goal is to reduce the number
-of bug reports about _all_ HW. Most folks with _working_ MSI (but not
-already on the whitelist) won't know they could report this as a bug.
-Ie these chipsets likely won't ever get added to the whitelist.
 
-thanks,
-grant
+Index: linux-2.6.17/include/linux/fs.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/fs.h	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/include/linux/fs.h	2006-06-18 19:39:52.000000000 -0400
+@@ -508,9 +508,10 @@
+ #ifdef CONFIG_QUOTA
+ 	struct dquot		*i_dquot[MAXQUOTAS];
+ #endif
+-	/* These three should probably be a union */
+ 	struct list_head	i_devices;
+-	struct pipe_inode_info	*i_pipe;
++	union {
++		struct pipe_inode_info	*i_pipe;
++	};
+ 	struct block_device	*i_bdev;
+ 	struct cdev		*i_cdev;
+ 	int			i_cindex;
+
+--

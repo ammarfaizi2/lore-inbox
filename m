@@ -1,284 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWFSFEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWFSFWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbWFSFEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 01:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWFSFEv
+	id S932148AbWFSFWV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 01:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWFSFWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 01:04:51 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:36054 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932135AbWFSFEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 01:04:50 -0400
-Message-ID: <44963070.1080106@bigpond.net.au>
-Date: Mon, 19 Jun 2006 15:04:48 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Mon, 19 Jun 2006 01:22:21 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:16021 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932148AbWFSFWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 01:22:21 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: tglx@timesys.com
+Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and dynamic  HZ
+Date: Mon, 19 Jun 2006 15:21:05 +1000
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+References: <1150643426.27073.17.camel@localhost.localdomain>
+In-Reply-To: <1150643426.27073.17.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: kernel@kolivas.org, sam@vilain.net, bsingharora@gmail.com,
-       vatsa@in.ibm.com, dev@openvz.org, linux-kernel@vger.kernel.org,
-       efault@gmx.de, kingsley@aurema.com, ckrm-tech@lists.sourceforge.net,
-       mingo@elte.hu, rene.herman@keyaccess.nl
-Subject: Re: [PATCH 0/4] sched: Add CPU rate caps
-References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest> <20060618025046.77b0cecf.akpm@osdl.org> <449529FE.1040008@bigpond.net.au>
-In-Reply-To: <449529FE.1040008@bigpond.net.au>
-Content-Type: multipart/mixed;
- boundary="------------020102010905040304070004"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 19 Jun 2006 05:04:47 +0000
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606191521.05508.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020102010905040304070004
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 19 June 2006 01:10, Thomas Gleixner wrote:
+> We are pleased to announce the 2.6.17 based release of our high-res
+> timers kernel feature, upon which we based a tickless kernel (dyntick)
+> implementation and a 'dynamic HZ' feature as well:
+>
+> http://www.tglx.de/projects/hrtimers/2.6.17/
+>
+> The easiest way to try these features is to apply the combo patch to
+> vanilla 2.6.17. The patching order is:
+>
+> http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.tar.bz2
+> http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick1.patch
+>
+>
+> A broken out patch series is available too:
+>
+> http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick1.patch
+>es.tar.bz2
+>
+>
+> The high-res timers feature (CONFIG_HIGH_RES_TIMERS) enables POSIX
+> timers and nanosleep() to be as accurate as the hardware allows (around
+> 1usec on typical hardware). This feature is transparent - if enabled it
+> just makes these timers much more accurate than the current HZ
+> resolution. It is based on the Generic Time Of Day patchset from John
+> Stultz and it in essence finishes what we started with the
+> kernel/hrtimers.c code in 2.6.16.
+>
+> The tickless kernel feature (CONFIG_NO_HZ) enables 'on-demand' timer
+> interrupts: if there is no timer to be expired for say 1.5 seconds when
+> the system goes idle, then the system will stay totally idle for 1.5
+> seconds. This should bring cooler CPUs and power savings: on our (x86)
+> testboxes we have measured the effective IRQ rate to go from HZ to 1-2
+> timer interrupts per second.
+>
+> This feature is implemented by driving 'low res timer wheel' processing
+> via special per-CPU high-res timers, which timers are reprogrammed to
+> the next-low-res-timer-expires interval. This tickless-kernel design is
+> SMP-safe in a natural way and has been developed on SMP systems from
+> the
+> beginning.
+>
+> Note: while our code should be similar in behavior to the existing
+> dynticks kernel patch from Con, it is a fundamentally different design
+> (being based on the high-res timers support and APIs) and is thus a
+> different implementation. We reused one area of dynticks: we integrated
+> and improved the 'timer top' profiling tool (CONFIG_TIMER_INFO).
+>
+> When running the kernel then there's a 'timeout granularity'
+> runtime tunable parameter as well, under:
+>
+>    /proc/sys/kernel/timeout_granularity
+>
+> it defaults to 1, meaning that CONFIG_HZ is the granularity of timers.
+>
+> For example, if CONFIG_HZ is 1000 and timeout_granularity is set to 10,
+> then low-res timers will be expired every 10 jiffies (every 10 msecs),
+> thus the effective granularity of low-res timers is 100 HZ. Thus this
+> feature implements nonintrusive dynamic HZ in essence, without touching
+> the HZ macro itself.
+>
+> Supported platforms: high-res timers and tickless works on x86 (x86_64,
+> PPC and ARM port are in the works). Other platforms should still work
+> fine with the usual HZ frequency timer tick.
+>
+> Naturally, we'd like these features to be integrated into the upstream
+> kernel as well.
+>
+> Bugreports and suggestions are welcome,
+>
+> 	Thomas, Ingo
 
-Peter Williams wrote:
-> Andrew Morton wrote:
->> On Sun, 18 Jun 2006 18:26:38 +1000
->> Peter Williams <pwil3058@bigpond.net.au> wrote:
->>> 5. Code size measurements:
->>>
->>> Vanilla kernel:
->>>
->>>    text    data     bss     dec     hex filename
->>>   33800    4689     296   38785    9781 sched.o
->>>    2554      79       0    2633     a49 mutex.o
->>>   12076    2632       0   14708    3974 base.o
->>>
->>> Patches applied:
->>>
->>>    text    data     bss     dec     hex filename
->>>   36870    4721     296   41887    a39f sched.o
->>>    2630      79       0    2709     a95 mutex.o
->>>   13011    2920       0   15931    3e3b base.o
->>>
->>> Indicating that the size cost of the patch proper is about
->>> 3 kilobytes and the procfs costs about another 1.2 kilobytes.
->>>
->>
->> hm.  That seems rather a lot.  I guess it's not a simple thing to do.
-> 
-> I suspect that a large part of that is the functions that set the caps 
-> (i.e. the equivalents of set_user_nice()) one for soft and one for hard 
-> caps.  The actual capping mechanisms are quite simple.
+Nice work Thomas and Ingo.
 
-This contribution may not be as large as I thought.  Realizing that the
-function to set soft caps and the function to set hard caps duplicate a
-lot of code I've modified them to share code rather than duplicate.
-I've also made the functions for getting caps inline and they should
-just be optimized away to a field reference.  But the reduction in code
-size is only about 285 bytes.
+The approach to previous dynticks that I was working on had some nasty issues 
+with scalability that were not addressable without a complete rewrite which 
+is why I abandoned the previous implementation. Your approach for using the 
+hires timer events is ultimately a better solution and the code base is 
+cleaner so I'm very pleased to see it.
 
-Before:
-    text    data     bss     dec     hex filename
-   32820    4913     672   38405    9605 kernel/sched.o
+A couple of comments.
 
-After:
-    text    data     bss     dec     hex filename
-   32535    4913     672   38120    94e8 kernel/sched.o
+One of the problems we enountered with dynticks was that using the higher 
+resolution timers such as TSC and HPET to adjust for timer ticks over longer 
+periods when skipping ticks made the overall clock drift when run for many 
+days and only the PM Timer was not prone to this happening. ie the timers 
+were very accurate for short periods but over days it would drift. It could 
+well have been a design flaw in the dynticks I was maintaining rather than 
+the timers themselves but have you checked that this isn't a problem?
 
-Noting that these values were less than those in the original mail, I've
-also checked the size for when the patches are excluded.
+The other thing I note is that there is a reasonable amount of indirection in 
+fairly hot paths. It looks like there is scope for more local variable 
+storage of these indirect calls. Also if set_next_event is separated from 
+struct clock_event, the whole struct looks like a suitable candidate for 
+__read_only.
 
-    text    data     bss     dec     hex filename
-   30061    4881     672   35614    8b1e kernel/sched.o
-
-The numbers in the e-mail were from a different computer with gcc-4.0.2
-installed while these are generated with gcc-4.1.1 (also that build
-would not have had CONFIG_SCHED_SMT or CONFIG_SCHED_MC set).  But the
-end result is that the cost is still of the order of 2.5 kilobytes.
-
-A patch to make these changes is attached.
-
-Signed-off-by: Peter Williams <pwil3058@bigpond.net.au>
-
-Peter
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
-
---------------020102010905040304070004
-Content-Type: text/plain;
- name="simplify-get-set-caps-code"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="simplify-get-set-caps-code"
-
----
- include/linux/sched.h |   24 +++++++++++--
- kernel/sched.c        |   90 ++++++++++----------------------------------------
- 2 files changed, 38 insertions(+), 76 deletions(-)
-
-Index: MM-2.6.17-rc6-mm2/include/linux/sched.h
-===================================================================
---- MM-2.6.17-rc6-mm2.orig/include/linux/sched.h	2006-06-19 13:57:18.000000000 +1000
-+++ MM-2.6.17-rc6-mm2/include/linux/sched.h	2006-06-19 14:28:25.000000000 +1000
-@@ -1022,11 +1022,27 @@ struct task_struct {
- };
- 
- #ifdef CONFIG_CPU_RATE_CAPS
--unsigned int get_cpu_rate_cap(const struct task_struct *);
--int set_cpu_rate_cap(struct task_struct *, unsigned int);
-+int set_cpu_rate_cap_low(struct task_struct *, unsigned int, int);
-+
-+static inline unsigned int get_cpu_rate_cap(const struct task_struct *p)
-+{
-+	return p->cpu_rate_cap;
-+}
-+
-+static inline int set_cpu_rate_cap(struct task_struct *p, unsigned int newcap)
-+{
-+	return set_cpu_rate_cap_low(p, newcap, 0);
-+}
- #ifdef CONFIG_CPU_RATE_HARD_CAPS
--unsigned int get_cpu_rate_hard_cap(const struct task_struct *);
--int set_cpu_rate_hard_cap(struct task_struct *, unsigned int);
-+static inline unsigned int get_cpu_rate_hard_cap(const struct task_struct *p)
-+{
-+	return p->cpu_rate_hard_cap;
-+}
-+
-+static inline int set_cpu_rate_hard_cap(struct task_struct *p, unsigned int newcap)
-+{
-+	return set_cpu_rate_cap_low(p, newcap, 1);
-+}
- #endif
- #endif
- 
-Index: MM-2.6.17-rc6-mm2/kernel/sched.c
-===================================================================
---- MM-2.6.17-rc6-mm2.orig/kernel/sched.c	2006-06-19 13:57:18.000000000 +1000
-+++ MM-2.6.17-rc6-mm2/kernel/sched.c	2006-06-19 14:28:25.000000000 +1000
-@@ -4614,17 +4614,11 @@ out_unlock:
- }
- 
- #ifdef CONFIG_CPU_RATE_CAPS
--unsigned int get_cpu_rate_cap(const struct task_struct *p)
--{
--	return p->cpu_rate_cap;
--}
--
--EXPORT_SYMBOL(get_cpu_rate_cap);
--
- /*
-- * Require: 0 <= new_cap <= CPU_CAP_ONE
-+ * Require: 0 <= new_cap <= CPU_CAP_ONE for hard == 0
-+ *          1 <= new_cap <= CPU_CAP_ONE otherwise
-  */
--int set_cpu_rate_cap(struct task_struct *p, unsigned int new_cap)
-+int set_cpu_rate_cap_low(struct task_struct *p, unsigned int new_cap, int hard)
- {
- 	int is_allowed;
- 	unsigned long flags;
-@@ -4634,13 +4628,21 @@ int set_cpu_rate_cap(struct task_struct 
- 
- 	if (new_cap > CPU_CAP_ONE)
- 		return -EINVAL;
-+#ifdef CONFIG_CPU_RATE_HARD_CAPS
-+	if (hard && new_cap < 1)
-+		return -EINVAL;
-+#endif
- 	is_allowed = capable(CAP_SYS_NICE);
- 	/*
- 	 * We have to be careful, if called from /proc code,
- 	 * the task might be in the middle of scheduling on another CPU.
- 	 */
- 	rq = task_rq_lock(p, &flags);
-+#ifdef CONFIG_CPU_RATE_HARD_CAPS
-+	delta = new_cap - (hard ? p->cpu_rate_hard_cap : p->cpu_rate_cap);
-+#else
- 	delta = new_cap - p->cpu_rate_cap;
-+#endif
- 	if (!is_allowed) {
- 		/*
- 		 * Ordinary users can set/change caps on their own tasks
-@@ -4656,7 +4658,12 @@ int set_cpu_rate_cap(struct task_struct 
- 	 * set - but as expected it wont have any effect on scheduling until
- 	 * the task becomes SCHED_NORMAL/SCHED_BATCH:
- 	 */
--	p->cpu_rate_cap = new_cap;
-+#ifdef CONFIG_CPU_RATE_HARD_CAPS
-+	if (hard)
-+		p->cpu_rate_hard_cap = new_cap;
-+	else
-+#endif
-+		p->cpu_rate_cap = new_cap;
- 
- 	if (has_rt_policy(p))
- 		goto out;
-@@ -4680,68 +4687,7 @@ out:
- 	return 0;
- }
- 
--EXPORT_SYMBOL(set_cpu_rate_cap);
--
--#ifdef CONFIG_CPU_RATE_HARD_CAPS
--unsigned int get_cpu_rate_hard_cap(const struct task_struct *p)
--{
--	return p->cpu_rate_hard_cap;
--}
--
--EXPORT_SYMBOL(get_cpu_rate_hard_cap);
--
--/*
-- * Require: 1 <= new_cap <= CPU_CAP_ONE
-- */
--int set_cpu_rate_hard_cap(struct task_struct *p, unsigned int new_cap)
--{
--	int is_allowed;
--	unsigned long flags;
--	struct runqueue *rq;
--	int delta;
--
--	if (new_cap > CPU_CAP_ONE || new_cap < 1)
--		return -EINVAL;
--	is_allowed = capable(CAP_SYS_NICE);
--	/*
--	 * We have to be careful, if called from /proc code,
--	 * the task might be in the middle of scheduling on another CPU.
--	 */
--	rq = task_rq_lock(p, &flags);
--	delta = new_cap - p->cpu_rate_hard_cap;
--	if (!is_allowed) {
--		/*
--		 * Ordinary users can set/change caps on their own tasks
--		 * provided that the new setting is MORE constraining
--		 */
--		if (((current->euid != p->uid) && (current->uid != p->uid)) || (delta > 0)) {
--			task_rq_unlock(rq, &flags);
--			return -EPERM;
--		}
--	}
--	/*
--	 * The RT tasks don't have caps, but we still allow the caps to be
--	 * set - but as expected it wont have any effect on scheduling until
--	 * the task becomes SCHED_NORMAL/SCHED_BATCH:
--	 */
--	p->cpu_rate_hard_cap = new_cap;
--
--	if (has_rt_policy(p))
--		goto out;
--
--	if (p->array)
--		dec_raw_weighted_load(rq, p);
--	set_load_weight(p);
--	if (p->array)
--		inc_raw_weighted_load(rq, p);
--out:
--	task_rq_unlock(rq, &flags);
--
--	return 0;
--}
--
--EXPORT_SYMBOL(set_cpu_rate_hard_cap);
--#endif
-+EXPORT_SYMBOL(set_cpu_rate_cap_low);
- #endif
- 
- long sched_setaffinity(pid_t pid, cpumask_t new_mask)
-
---------------020102010905040304070004--
+-ck

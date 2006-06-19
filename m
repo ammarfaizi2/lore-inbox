@@ -1,59 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWFSBwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWFSB7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWFSBwl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 21:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWFSBwl
+	id S1750937AbWFSB7t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 21:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWFSB7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 21:52:41 -0400
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:39873 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750888AbWFSBwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 21:52:40 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [ckpatch][15/29] hz-no_default_250.patch
-Date: Mon, 19 Jun 2006 11:52:27 +1000
-User-Agent: KMail/1.9.3
-Cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-References: <787b0d920606181752j4b7c7309t9c0ab9bf8da1537a@mail.gmail.com> <1150680632.4428.129.camel@mindpipe>
-In-Reply-To: <1150680632.4428.129.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Jun 2006 21:59:49 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:3589 "EHLO
+	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S1750755AbWFSB7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 21:59:49 -0400
+Date: Mon, 19 Jun 2006 12:00:40 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: dm-devel@redhat.com
+Subject: 2.6.16.20/dm: can't create more then one snapshot of an lv
+Message-ID: <20060619020040.GX2059@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606191152.28038.kernel@kolivas.org>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 June 2006 11:30, Lee Revell wrote:
-> On Sun, 2006-06-18 at 20:52 -0400, Albert Cahalan wrote:
-> > > Make 250 HZ a value that is not selected by default and give some
-> > > better recommendations in help.
-> >
-> > No, 250 is a good default.
-> >
-> > We can't reliably do 1000. There are many systems, including both
-> > laptops and servers, which have a BIOS that uses SMM/SMI to grab
-> > the CPU for longer than a millisecond. We'd lose clock ticks if
-> > we had HZ at 1000.
->
-> Doesn't this become a non-issue with John Stultz's gettimeofday rework?
+I am attempting to create multiple snapshots of an lv ontop of a raid-5
+software raid device and ext3+dir_index and resize_inode for the fs.
+The kernel is a pure 64bit compile with Debian Sarge amd64 running on
+top of it. The kernel is monolithic and I'm using lvm2 2.01.03-5 with
+devmapper 1.01.
 
-No, but Thomas Gleixner's HRTimers will. Also the extra granularity in the cpu 
-scheduler is desirable on a desktop.
->
-> > NTSC video is 59.94 fields per second. Though a sample rate of
-> > double that would satisfy the Nyquest theory, in practice you
-> > need to go to 4x to 5x the rate you want. This comes out to be
-> > around 240 to 300 as a minimum.
->
-> Realtime audio wants higher framerates than video.  Of course many of
-> these systems with the SMM bug are fatally broken for these
-> applications.
+This works under 2.6.15.7. Under 2.6.16.20 I get this:
 
-Agreed.
+# lvcreate --snapshot --size 50G --name snap-12 --permission r --verbose /dev/backups/main
+    Setting chunksize to 16 sectors.
+    Finding volume group "backups"
+    Creating logical volume snap-12
+    Archiving volume group "backups" metadata.
+    Creating volume group backup "/etc/lvm/backup/backups"
+    Found volume group "backups"
+    Loading backups-snap--12
+    Zeroing start of logical volume "snap-12"
+    Found volume group "backups"
+    Removing backups-snap--12
+    Found volume group "backups"
+    Found volume group "backups"
+    Found volume group "backups"
+    Loading backups-main-real
+    Loading backups-snap--12-cow
+    Loading backups-snap--12
+    Loading backups-main
+    Creating volume group backup "/etc/lvm/backup/backups"
+  Logical volume "snap-12" created
+# lvcreate --snapshot --size 50G --name snap-13 --permission r --verbose /dev/backups/main
+    Setting chunksize to 16 sectors.
+    Finding volume group "backups"
+    Creating logical volume snap-13
+    Archiving volume group "backups" metadata.
+    Creating volume group backup "/etc/lvm/backup/backups"
+    Found volume group "backups"
+    Loading backups-snap--13
+    Zeroing start of logical volume "snap-13"
+    Found volume group "backups"
+    Removing backups-snap--13
+    Found volume group "backups"
+    Found volume group "backups"
+    Found volume group "backups"
+    Loading backups-main-real
+    Loading backups-snap--12-cow
+    Loading backups-snap--12
+*freeze*
+
+# ps auxww | grep lvcreate
+root      1315  0.0  1.2 16000 13104 pts/2   D<L+ 11:44   0:00 lvcreate --snapshot --size 50G --name snap-13 --permission r --verbose /dev/backups/main
+
+Nothing special in dmesg at time of lvcreate.
+
+# lsof -n | grep 1315 | less
+lvcreate  1315        root  cwd       DIR                9,0    1024       4017 /root
+lvcreate  1315        root  rtd       DIR                9,0    1024          2 /
+lvcreate  1315        root  txt       REG                9,0  465896     116659 /lib/lvm-200/lvm
+lvcreate  1315        root  mem       REG                0,0                  0 [heap] (stat: No such file or directory)
+lvcreate  1315        root  mem       REG                9,0   90288     116481 /lib/ld-2.3.2.so
+lvcreate  1315        root  mem       REG                9,1  290512     458029 /usr/lib/locale/locale-archive
+lvcreate  1315        root  mem       REG                9,0   34640     116657 /lib/libdevmapper.so.1.01
+lvcreate  1315        root  mem       REG                9,0   12072     116489 /lib/libdl-2.3.2.so
+lvcreate  1315        root  mem       REG                9,0 1295328     116487 /lib/libc-2.3.2.so
+lvcreate  1315        root    0u      CHR              136,2                  4 /dev/pts/2
+lvcreate  1315        root    1u      CHR              136,2                  4 /dev/pts/2
+lvcreate  1315        root    2u      CHR              136,2                  4 /dev/pts/2
+lvcreate  1315        root    3u      CHR              10,63              44265 /dev/mapper/control
+lvcreate  1315        root    4uW     REG              253,2       0     147459 /var/lock/lvm/V_backups
+lvcreate  1315        root    5u      BLK                9,0              33555 /dev/md0
+lvcreate  1315        root    6u      BLK                9,1              33567 /dev/md1
+lvcreate  1315        root    7u      BLK                9,2              33568 /dev/md2
+lvcreate  1315        root    8u      BLK                9,3              33569 /dev/md3
+
+MD section of .config:
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+CONFIG_MD_RAID1=y
+# CONFIG_MD_RAID10 is not set
+CONFIG_MD_RAID5=y
+# CONFIG_MD_RAID6 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_MD_FAULTY is not set
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_CRYPT=y
+CONFIG_DM_SNAPSHOT=y
+CONFIG_DM_MIRROR=y
+CONFIG_DM_ZERO=y
+# CONFIG_DM_MULTIPATH is not set
+
+This server is not live yet so I can test patches if need be. I wont be 
+able to in approx 1 weeks time though.
 
 -- 
--ck
+    "To the extent that we overreact, we proffer the terrorists the
+    greatest tribute."
+    	- High Court Judge Michael Kirby

@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWFSVoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWFSVoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964910AbWFSVoN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 17:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWFSVoN
+	id S964911AbWFSVoq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 17:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWFSVoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 17:44:13 -0400
-Received: from www.osadl.org ([213.239.205.134]:27055 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S964910AbWFSVoL (ORCPT
+	Mon, 19 Jun 2006 17:44:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3746 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964911AbWFSVoo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 17:44:11 -0400
-Subject: Re: [PATCH] ktime/hrtimer: fix kernel-doc comments
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-In-Reply-To: <20060619144101.dbe56ef7.rdunlap@xenotime.net>
-References: <20060619130948.6ea3998c.rdunlap@xenotime.net>
-	 <1150750822.29299.86.camel@localhost.localdomain>
-	 <20060619141127.abdfdac0.rdunlap@xenotime.net>
-	 <1150751733.6780.3.camel@localhost.localdomain>
-	 <20060619142050.c4765cef.rdunlap@xenotime.net>
-	 <1150752657.6780.16.camel@localhost.localdomain>
-	 <20060619144101.dbe56ef7.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Mon, 19 Jun 2006 23:45:31 +0200
-Message-Id: <1150753532.6780.20.camel@localhost.localdomain>
+	Mon, 19 Jun 2006 17:44:44 -0400
+Date: Mon, 19 Jun 2006 17:44:40 -0400
+From: Dave Jones <davej@redhat.com>
+To: 7eggert@gmx.de
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+Message-ID: <20060619214440.GA14681@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, 7eggert@gmx.de,
+	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
+	Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+	linux-kernel@vger.kernel.org
+References: <6pxs2-1AR-5@gated-at.bofh.it> <6pyer-2Pt-1@gated-at.bofh.it> <E1FsRUZ-0001Ll-0K@be1.lrz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1FsRUZ-0001Ll-0K@be1.lrz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-06-19 at 14:41 -0700, Randy.Dunlap wrote:
+On Mon, Jun 19, 2006 at 11:40:46PM +0200, Bodo Eggert wrote:
+ > linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+ > > On Mon, 19 Jun 2006, Andreas Mohr wrote:
+ > 
+ > >> while looking for loop places to apply cpu_relax() to, I found the
+ > >> following gems:
+ > >>
+ > >> arch/i386/kernel/crash.c/crash_nmi_callback():
+ > >>
+ > >>        /* Assume hlt works */
+ > >>        halt();
+ > >>        for(;;);
+ > >>
+ > >>        return 1;
+ > >> }
+ > 
+ > This will result in the processor burning energy again after the first
+ > interrupt, won't it?
 
-> This is just one example of many files that have similar kernel-doc
-> problems.  I wasn't picking on your files.  :)
+Interrupts are disabled here.
 
-I did not take it personal. I know that I missed to read the docs - as
-always. I was just expressing my surprise about something I thought it
-would be naturaly that way
+		Dave
 
-	tglx
-
-
+-- 
+http://www.codemonkey.org.uk

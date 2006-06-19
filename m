@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWFSKKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWFSKQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWFSKKO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 06:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWFSKKO
+	id S932335AbWFSKQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 06:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWFSKQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 06:10:14 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39606 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932331AbWFSKKM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 06:10:12 -0400
-Date: Mon, 19 Jun 2006 03:09:41 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz
-Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-Message-Id: <20060619030941.fea8a7b0.pj@sgi.com>
-In-Reply-To: <200606191021.03631.ak@suse.de>
-References: <200606140942.31150.ak@suse.de>
-	<20060618171511.e0e6de26.pj@sgi.com>
-	<200606191021.03631.ak@suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 19 Jun 2006 06:16:44 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2433 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932335AbWFSKQo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 06:16:44 -0400
+Subject: Re: About the fixes of /drivers/serial/8250.C in 2.6.17-rc6 for
+	avoiding habbg-up
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: gouji <gouji.masayuki@jp.fujitsu.com>,
+       "'LKML'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060619093219.GA26941@flint.arm.linux.org.uk>
+References: <000d01c6934c$f25c9870$f4647c0a@GOUJI>
+	 <1150708994.2503.3.camel@localhost.localdomain>
+	 <20060619093219.GA26941@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Jun 2006 11:31:42 +0100
+Message-Id: <1150713102.2871.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> glibc TLS
+Ar Llu, 2006-06-19 am 10:32 +0100, ysgrifennodd Russell King:
+> > Yes, there is a bug in this version that was not in the one I submitted,
+> > someone added an improvement.
+> 
+> I disagree - in the non-oops_in_progress case, your version and the
+> merged version are 100% identical - see
 
-Good idea - thanks.
+So they are, sorry the one that differs was the original Red Hat
+Enterprise Linux patch.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> I don't have the initial email from ysgrifennodd gouji, and neither
+> do the lkml archives.  What's the problem?
+
+Sysrq for one
+

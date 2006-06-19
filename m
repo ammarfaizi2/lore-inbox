@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWFSLjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWFSLon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWFSLjn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 07:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWFSLjn
+	id S932362AbWFSLon (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 07:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWFSLon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 07:39:43 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:18651 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932361AbWFSLjn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 07:39:43 -0400
-Message-ID: <44968B6D.8040301@in.ibm.com>
-Date: Mon, 19 Jun 2006 17:03:01 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, dev@openvz.org, vatsa@in.ibm.com,
-       ckrm-tech@lists.sourceforge.net, bsingharora@gmail.com, efault@gmx.de,
-       linux-kernel@vger.kernel.org, kernel@kolivas.org, sam@vilain.net,
-       kingsley@aurema.com, mingo@elte.hu, Peter Williams <peterw@aurema.com>,
-       rene.herman@keyaccess.nl
-Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
-References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com>	<4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com>	<44961758.6070305@bigpond.net.au> <44961A77.800@in.ibm.com>	<44961EFC.8080809@bigpond.net.au> <4496608D.6000502@in.ibm.com> <44968C19.7050501@bigpond.net.au>
-In-Reply-To: <44968C19.7050501@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 07:44:43 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:28841 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932362AbWFSLom (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 07:44:42 -0400
+Date: Mon, 19 Jun 2006 13:39:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ccb@acm.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] increase spinlock-debug looping timeouts from 1 sec to 1 min
+Message-ID: <20060619113943.GA18321@elte.hu>
+References: <1150142023.3621.22.camel@cbox.memecycle.com> <20060617100710.ec05131f.akpm@osdl.org> <20060619070229.GA8293@elte.hu> <20060619005955.b05840e8.akpm@osdl.org> <20060619081252.GA13176@elte.hu> <20060619013238.6d19570f.akpm@osdl.org> <20060619083518.GA14265@elte.hu> <20060619021314.a6ce43f5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060619021314.a6ce43f5.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5454]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
 
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > The write_trylock + __delay in the loop is not a problem or a bug, as 
+> > the trylock will at most _increase_ the delay - and our goal is to not 
+> > have a false positive, not to be absolutely accurate about the 
+> > measurement here.
 > 
-> You're over engineering and you're not solving the problem.  You're just 
-> moving it down a bit.
-> 
+> Precisely.  We have delays of over a second (but we don't know how 
+> much more than a second).  Let's say two seconds.  The NMI watchdog 
+> timeout is, what?  Five seconds?
 
-> 
->>
->>2. In a group based cap management system, schedule some tasks (highest 
->>priority)
->>  until their cap run out. In the subsequent rounds pick and choose 
->>tasks that
->>  did not get a chance to run earlier.
->>
->>Solving this is indeed a interesting problem.
->>
-> 
-> 
-> Once again, you're over engineering and probably making the problem worse.
-> 
+i dont see the problem. We'll have tried that lock hundreds of thousands 
+of times before this happens. The NMI watchdog will only trigger if we 
+do this with IRQs disabled. And it's not like the normal 
+__write_lock_failed codepath would be any different: for heavily 
+contended workloads the overhead is likely in the cacheline bouncing, 
+not in the __delay().
 
-I like this term over-engineering. Lets focus on the solution for the most
-common case and see what works out. I was pointing you to the possible
-limitations of the approach, which is always a good thing to do in engineering.
+> That's getting too close.  The result will be a total system crash.  
+> And RH are shipping this.
 
-> Peter
+I dont see a connection. Pretty much the only thing the loop condition 
+impacts is the condition under which we print out a 'i think we 
+deadlocked' message. Have i missed your point perhaps?
 
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+	Ingo

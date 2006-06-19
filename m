@@ -1,136 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWFSQfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWFSQiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWFSQfg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 12:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWFSQfg
+	id S964785AbWFSQiP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 12:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWFSQiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 12:35:36 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:39883 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S964786AbWFSQff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 12:35:35 -0400
-Date: Mon, 19 Jun 2006 13:35:31 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-To: Frank Gevaerts <frank.gevaerts@fks.be>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RESEND] [PATCH 1/2] ipaq.c bugfixes
-Message-ID: <20060619133531.78f8ab39@doriath.conectiva>
-In-Reply-To: <20060619084446.GA17103@fks.be>
-References: <20060619084446.GA17103@fks.be>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.9.3; i586-mandriva-linux-gnu)
+	Mon, 19 Jun 2006 12:38:15 -0400
+Received: from main.gmane.org ([80.91.229.2]:4264 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964785AbWFSQiO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 12:38:14 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Marcus Furlong <furlongm@hotmail.com>
+Subject: pci bus is hidden behind transparent bridge
+Date: Mon, 19 Jun 2006 17:37:41 +0100
+Message-ID: <e76jsl$558$1@sea.gmane.org>
+Reply-To: furlongm@hotmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 83-70-234-22.b-ras1.prp.dublin.eircom.net
+User-Agent: KNode/0.10.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 10:44:47 +0200
-Frank Gevaerts <frank.gevaerts@fks.be> wrote:
+Hi,
 
-| This patch fixes several problems in the ipaq.c driver with connecting
-| and disconnecting pocketpc devices:
-| * The read urb stayed active if the connect failed, causing nullpointer
-|   dereferences later on.
-| * If a write failed, the driver continued as if nothing happened. Now it
-|   handles that case the same way as other usb serial devices (fix by
-|   Luiz Fernando N. Capitulino <lcapitulino@mandriva.com.br>)
-| 
-| Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
-| 
-| diff -urp linux-2.6.17-rc6/drivers/usb/serial/ipaq.c linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c
-| --- linux-2.6.17-rc6/drivers/usb/serial/ipaq.c	2006-03-20 06:53:29.000000000 +0100
-| +++ linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c	2006-06-14 16:02:03.000000000 +0200
-| @@ -652,11 +652,6 @@ static int ipaq_open(struct usb_serial_p
-|  		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
-|  		      port->read_urb->transfer_buffer, port->read_urb->transfer_buffer_length,
-|  		      ipaq_read_bulk_callback, port);
-| -	result = usb_submit_urb(port->read_urb, GFP_KERNEL);
-| -	if (result) {
-| -		err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
-| -		goto error;
-| -	}
-|  
-|  	/*
-|  	 * Send out control message observed in win98 sniffs. Not sure what
-| @@ -671,6 +666,11 @@ static int ipaq_open(struct usb_serial_p
-|  				usb_sndctrlpipe(serial->dev, 0), 0x22, 0x21,
-|  				0x1, 0, NULL, 0, 100);
-|  		if (result == 0) {
-| +			result = usb_submit_urb(port->read_urb, GFP_KERNEL);
-| +			if (result) {
-| +				err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
-| +				goto error;
-| +			}
-|  			return 0;
-|  		}
-|  	}
+I get this in dmesg with 2.6.17 :
 
- What do you think about this (not compiled and may be wrong):
+ACPI: bus type pci registered
+PCI: Using MMCONFIG
+Setting up standard PCI resources
+ACPI: Subsystem revision 20060127
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
+PCI quirk: region 1000-107f claimed by ICH6 ACPI/GPIO/TCO
+PCI quirk: region 1080-10bf claimed by ICH6 GPIO
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.2
+Boot video device is 0000:01:00.0
+PCI: Transparent bridge - 0000:00:1e.0
+PCI: Bus #04 (-#07) is hidden behind transparent bridge #03 (-#04)
+(try 'pci=assign-busses')
+Please report the result to linux-kernel to fix this permanently
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Link [LNKA] (IRQs 9 10 *11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 5 7) *10
+ACPI: PCI Interrupt Link [LNKC] (IRQs *9 10 11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 5 *7 9 10 11)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 11 12 14 15) *0,
+disabled.
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 11 12 14 15) *0,
+disabled.
+ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 9 10 11 12 14 15) *0,
+disabled.
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.AGP_._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCIE._PRT]
 
-diff --git a/drivers/usb/serial/ipaq.c b/drivers/usb/serial/ipaq.c
-index 9a5c979..96a6550 100644
---- a/drivers/usb/serial/ipaq.c
-+++ b/drivers/usb/serial/ipaq.c
-@@ -646,17 +646,6 @@ static int ipaq_open(struct usb_serial_p
- 	port->write_urb->transfer_buffer = port->bulk_out_buffer;
- 	port->read_urb->transfer_buffer_length = URBDATA_SIZE;
- 	port->bulk_out_size = port->write_urb->transfer_buffer_length = URBDATA_SIZE;
--	
--	/* Start reading from the device */
--	usb_fill_bulk_urb(port->read_urb, serial->dev, 
--		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
--		      port->read_urb->transfer_buffer, port->read_urb->transfer_buffer_length,
--		      ipaq_read_bulk_callback, port);
--	result = usb_submit_urb(port->read_urb, GFP_KERNEL);
--	if (result) {
--		err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
--		goto error;
--	}
- 
- 	/*
- 	 * Send out control message observed in win98 sniffs. Not sure what
-@@ -670,12 +659,27 @@ static int ipaq_open(struct usb_serial_p
- 		result = usb_control_msg(serial->dev,
- 				usb_sndctrlpipe(serial->dev, 0), 0x22, 0x21,
- 				0x1, 0, NULL, 0, 100);
--		if (result == 0) {
--			return 0;
--		}
-+		if (!result)
-+			break;
- 	}
--	err("%s - failed doing control urb, error %d", __FUNCTION__, result);
--	goto error;
-+	if (result) {
-+		err("%s - failed doing control urb, error %d", __FUNCTION__,
-+		    result);
-+		goto error;
-+	}
-+
-+	/* Start reading from the device */
-+	usb_fill_bulk_urb(port->read_urb, serial->dev, 
-+		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
-+		      port->read_urb->transfer_buffer, port->read_urb->transfer_buffer_length,
-+		      ipaq_read_bulk_callback, port);
-+	result = usb_submit_urb(port->read_urb, GFP_KERNEL);
-+	if (result) {
-+		err("%s - failed submitting read urb, error %d", __FUNCTION__, result);
-+		goto error;
-+	}
-+
-+	return 0;
- 
- enomem:
- 	result = -ENOMEM;
 
- This makes the code more readable than your version, IMHO.
+and this is the dmesg with pci=assign-busses :
 
- Greg, what do you think about this patch? I think it makes sense
-because besides Frank's tests there's a comment stating that the
-device only starts the chat sequence after one of these control
-messages gets through.
+ACPI: bus type pci registered
+PCI: Using MMCONFIG
+Setting up standard PCI resources
+ACPI: Subsystem revision 20060127
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
+PCI quirk: region 1000-107f claimed by ICH6 ACPI/GPIO/TCO
+PCI quirk: region 1080-10bf claimed by ICH6 GPIO
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.2
+Boot video device is 0000:01:00.0
+PCI: Transparent bridge - 0000:00:1e.0
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Link [LNKA] (IRQs 9 10 *11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 5 7) *10
+ACPI: PCI Interrupt Link [LNKC] (IRQs *9 10 11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 5 *7 9 10 11)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 11 12 14 15) *0,
+disabled.
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 11 12 14 15) *0,
+disabled.
+ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 9 10 11 12 14 15) *0,
+disabled.
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.AGP_._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCIE._PRT]
 
--- 
-Luiz Fernando N. Capitulino
+
+Seems to work fine either way.
+
+Marcus.
+

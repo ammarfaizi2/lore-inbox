@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbWFSPbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWFSPbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbWFSPbd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbWFSPbN
+	id S932523AbWFSPbh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbWFSPbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:31:13 -0400
-Received: from thunk.org ([69.25.196.29]:6538 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932514AbWFSPbK (ORCPT
+	Mon, 19 Jun 2006 11:31:35 -0400
+Received: from thunk.org ([69.25.196.29]:7818 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932523AbWFSPbR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:31:10 -0400
-Message-Id: <20060619153108.418349000@candygram.thunk.org>
+	Mon, 19 Jun 2006 11:31:17 -0400
+Message-Id: <20060619153109.817554000@candygram.thunk.org>
 References: <20060619152003.830437000@candygram.thunk.org>
-Date: Mon, 19 Jun 2006 11:20:04 -0400
+Date: Mon, 19 Jun 2006 11:20:08 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] [PATCH 1/8] inode_diet: Replace inode.u.generic_ip with inode.i_private
-Content-Disposition: inline; filename=inode-slim-1
+Subject: [RFC] [PATCH 5/8] inode-diet: Eliminate i_blksize and use a per-superblock default
+Content-Disposition: inline; filename=inode-slim-5
 From: Theodore Tso <tytso@thunk.org>
 X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: tytso@thunk.org
@@ -22,946 +22,1296 @@ X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The filesystem or device-specific pointer in the inode is inside a
-union, which is pretty pointless given that all 30+ users of this
-field have been using the void pointer.  Get rid of the union and
-rename it to i_private, with a comment to explain who is allowed to
-use the void pointer.  This is just a cleanup, but it allows us to
-reuse the union 'u' for something something where the union will
-actually be used.
+This eliminates the i_blksize field from struct inode and uses default
+value in super->s_blksize.  Filesystems that want to provide a
+per-inode st_blksize can do so by providing their own getattr routine
+instead of using the generic_fillattr() function.
+
+Note that some filesystems were providing pretty much random (and
+incorrect) values for i_blksize.
 
 Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
 
 Index: linux-2.6.17/include/linux/fs.h
 ===================================================================
---- linux-2.6.17.orig/include/linux/fs.h	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/include/linux/fs.h	2006-06-18 18:58:55.000000000 -0400
-@@ -534,9 +534,7 @@
+--- linux-2.6.17.orig/include/linux/fs.h	2006-06-18 19:50:56.000000000 -0400
++++ linux-2.6.17/include/linux/fs.h	2006-06-18 19:53:54.000000000 -0400
+@@ -492,7 +492,6 @@
+ 	struct timespec		i_mtime;
+ 	struct timespec		i_ctime;
+ 	unsigned int		i_blkbits;
+-	unsigned long		i_blksize;
+ 	unsigned long		i_version;
+ 	blkcnt_t		i_blocks;
+ 	unsigned short          i_bytes;
+@@ -867,6 +866,8 @@
+ 	/* Granularity of c/m/atime in ns.
+ 	   Cannot be worse than a second */
+ 	u32		   s_time_gran;
++	unsigned long	   s_blksize; /* Optimal i/o size for stat(2) */
++
+ };
  
- 	atomic_t		i_writecount;
- 	void			*i_security;
--	union {
--		void		*generic_ip;
--	} u;
-+	void			*i_private; /* fs or device private pointer */
- #ifdef __NEED_I_SIZE_ORDERED
- 	seqcount_t		i_size_seqcount;
- #endif
+ extern struct timespec current_fs_time(struct super_block *sb);
+Index: linux-2.6.17/fs/stat.c
+===================================================================
+--- linux-2.6.17.orig/fs/stat.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/stat.c	2006-06-18 19:53:54.000000000 -0400
+@@ -33,7 +33,8 @@
+ 	stat->ctime = inode->i_ctime;
+ 	stat->size = i_size_read(inode);
+ 	stat->blocks = inode->i_blocks;
+-	stat->blksize = inode->i_blksize;
++	if (inode->i_sb->s_blksize)
++		stat->blksize = inode->i_sb->s_blksize;
+ }
+ 
+ EXPORT_SYMBOL(generic_fillattr);
+Index: linux-2.6.17/fs/binfmt_misc.c
+===================================================================
+--- linux-2.6.17.orig/fs/binfmt_misc.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/binfmt_misc.c	2006-06-18 19:53:54.000000000 -0400
+@@ -507,7 +507,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = 0;
+ 		inode->i_gid = 0;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime =
+ 			current_fs_time(inode->i_sb);
+Index: linux-2.6.17/fs/eventpoll.c
+===================================================================
+--- linux-2.6.17.orig/fs/eventpoll.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/eventpoll.c	2006-06-18 19:53:54.000000000 -0400
+@@ -1587,7 +1587,6 @@
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_gid = current->fsgid;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+-	inode->i_blksize = PAGE_SIZE;
+ 	return inode;
+ 
+ eexit_1:
+Index: linux-2.6.17/fs/libfs.c
+===================================================================
+--- linux-2.6.17.orig/fs/libfs.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/libfs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -385,7 +385,6 @@
+ 		return -ENOMEM;
+ 	inode->i_mode = S_IFDIR | 0755;
+ 	inode->i_uid = inode->i_gid = 0;
+-	inode->i_blksize = PAGE_CACHE_SIZE;
+ 	inode->i_blocks = 0;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_op = &simple_dir_inode_operations;
+@@ -407,7 +406,6 @@
+ 			goto out;
+ 		inode->i_mode = S_IFREG | files->mode;
+ 		inode->i_uid = inode->i_gid = 0;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		inode->i_fop = files->ops;
+Index: linux-2.6.17/fs/pipe.c
+===================================================================
+--- linux-2.6.17.orig/fs/pipe.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/pipe.c	2006-06-18 19:53:54.000000000 -0400
+@@ -879,7 +879,6 @@
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_gid = current->fsgid;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+-	inode->i_blksize = PAGE_SIZE;
+ 
+ 	return inode;
+ 
+Index: linux-2.6.17/fs/super.c
+===================================================================
+--- linux-2.6.17.orig/fs/super.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/super.c	2006-06-18 19:53:54.000000000 -0400
+@@ -86,6 +86,7 @@
+ 		s->s_qcop = sb_quotactl_ops;
+ 		s->s_op = &default_op;
+ 		s->s_time_gran = 1000000000;
++		s->s_blksize = PAGE_CACHE_SIZE;
+ 	}
+ out:
+ 	return s;
 Index: linux-2.6.17/arch/powerpc/platforms/cell/spufs/inode.c
 ===================================================================
---- linux-2.6.17.orig/arch/powerpc/platforms/cell/spufs/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/arch/powerpc/platforms/cell/spufs/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -120,7 +120,7 @@
- 	ret = 0;
- 	inode->i_op = &spufs_file_iops;
- 	inode->i_fop = fops;
--	inode->u.generic_ip = SPUFS_I(inode)->i_ctx = get_spu_context(ctx);
-+	inode->i_private = SPUFS_I(inode)->i_ctx = get_spu_context(ctx);
- 	d_add(dentry, inode);
+--- linux-2.6.17.orig/arch/powerpc/platforms/cell/spufs/inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/arch/powerpc/platforms/cell/spufs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -82,7 +82,6 @@
+ 	inode->i_mode = mode;
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_gid = current->fsgid;
+-	inode->i_blksize = PAGE_CACHE_SIZE;
+ 	inode->i_blocks = 0;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
  out:
- 	return ret;
-Index: linux-2.6.17/arch/s390/kernel/debug.c
+Index: linux-2.6.17/drivers/isdn/capi/capifs.c
 ===================================================================
---- linux-2.6.17.orig/arch/s390/kernel/debug.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/arch/s390/kernel/debug.c	2006-06-18 18:58:55.000000000 -0400
-@@ -604,7 +604,7 @@
- 	debug_info_t *debug_info, *debug_info_snapshot;
- 
- 	down(&debug_lock);
--	debug_info = (struct debug_info*)file->f_dentry->d_inode->u.generic_ip;
-+	debug_info = (struct debug_info*)file->f_dentry->d_inode->i_private;
- 	/* find debug view */
- 	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
- 		if (!debug_info->views[i])
-Index: linux-2.6.17/drivers/i2c/chips/tps65010.c
-===================================================================
---- linux-2.6.17.orig/drivers/i2c/chips/tps65010.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/i2c/chips/tps65010.c	2006-06-18 18:58:55.000000000 -0400
-@@ -307,7 +307,7 @@
- 
- static int dbg_tps_open(struct inode *inode, struct file *file)
- {
--	return single_open(file, dbg_show, inode->u.generic_ip);
-+	return single_open(file, dbg_show, inode->i_private);
- }
- 
- static struct file_operations debug_fops = {
-Index: linux-2.6.17/drivers/infiniband/ulp/ipoib/ipoib_fs.c
-===================================================================
---- linux-2.6.17.orig/drivers/infiniband/ulp/ipoib/ipoib_fs.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/infiniband/ulp/ipoib/ipoib_fs.c	2006-06-18 18:58:55.000000000 -0400
-@@ -141,7 +141,7 @@
- 		return ret;
- 
- 	seq = file->private_data;
--	seq->private = inode->u.generic_ip;
-+	seq->private = inode->i_private;
- 
- 	return 0;
- }
-@@ -247,7 +247,7 @@
- 		return ret;
- 
- 	seq = file->private_data;
--	seq->private = inode->u.generic_ip;
-+	seq->private = inode->i_private;
- 
- 	return 0;
- }
+--- linux-2.6.17.orig/drivers/isdn/capi/capifs.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/drivers/isdn/capi/capifs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -104,7 +104,6 @@
+ 	inode->i_ino = 1;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_blocks = 0;
+-	inode->i_blksize = 1024;
+ 	inode->i_uid = inode->i_gid = 0;
+ 	inode->i_mode = S_IFDIR | S_IRUGO | S_IXUGO | S_IWUSR;
+ 	inode->i_op = &simple_dir_inode_operations;
+@@ -149,7 +148,6 @@
+ 	if (!inode)
+ 		return;
+ 	inode->i_ino = number+2;
+-	inode->i_blksize = 1024;
+ 	inode->i_uid = config.setuid ? config.uid : current->fsuid;
+ 	inode->i_gid = config.setgid ? config.gid : current->fsgid;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
 Index: linux-2.6.17/drivers/misc/ibmasm/ibmasmfs.c
 ===================================================================
---- linux-2.6.17.orig/drivers/misc/ibmasm/ibmasmfs.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/misc/ibmasm/ibmasmfs.c	2006-06-18 18:58:55.000000000 -0400
-@@ -174,7 +174,7 @@
+--- linux-2.6.17.orig/drivers/misc/ibmasm/ibmasmfs.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/drivers/misc/ibmasm/ibmasmfs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -146,7 +146,6 @@
+ 	if (ret) {
+ 		ret->i_mode = mode;
+ 		ret->i_uid = ret->i_gid = 0;
+-		ret->i_blksize = PAGE_CACHE_SIZE;
+ 		ret->i_blocks = 0;
+ 		ret->i_atime = ret->i_mtime = ret->i_ctime = CURRENT_TIME;
  	}
- 
- 	inode->i_fop = fops;
--	inode->u.generic_ip = data;
-+	inode->i_private = data;
- 
- 	d_add(dentry, inode);
- 	return dentry;
-@@ -243,7 +243,7 @@
- {
- 	struct ibmasmfs_command_data *command_data;
- 
--	if (!inode->u.generic_ip)
-+	if (!inode->i_private)
- 		return -ENODEV;
- 
- 	command_data = kmalloc(sizeof(struct ibmasmfs_command_data), GFP_KERNEL);
-@@ -251,7 +251,7 @@
- 		return -ENOMEM;
- 
- 	command_data->command = NULL;
--	command_data->sp = inode->u.generic_ip;
-+	command_data->sp = inode->i_private;
- 	file->private_data = command_data;
- 	return 0;
- }
-@@ -350,10 +350,10 @@
- 	struct ibmasmfs_event_data *event_data;
- 	struct service_processor *sp; 
- 
--	if (!inode->u.generic_ip)
-+	if (!inode->i_private)
- 		return -ENODEV;
- 
--	sp = inode->u.generic_ip;
-+	sp = inode->i_private;
- 
- 	event_data = kmalloc(sizeof(struct ibmasmfs_event_data), GFP_KERNEL);
- 	if (!event_data)
-@@ -438,14 +438,14 @@
- {
- 	struct ibmasmfs_heartbeat_data *rhbeat;
- 
--	if (!inode->u.generic_ip)
-+	if (!inode->i_private)
- 		return -ENODEV;
- 
- 	rhbeat = kmalloc(sizeof(struct ibmasmfs_heartbeat_data), GFP_KERNEL);
- 	if (!rhbeat)
- 		return -ENOMEM;
- 
--	rhbeat->sp = (struct service_processor *)inode->u.generic_ip;
-+	rhbeat->sp = (struct service_processor *)inode->i_private;
- 	rhbeat->active = 0;
- 	ibmasm_init_reverse_heartbeat(rhbeat->sp, &rhbeat->heartbeat);
- 	file->private_data = rhbeat;
-@@ -507,7 +507,7 @@
- 
- static int remote_settings_file_open(struct inode *inode, struct file *file)
- {
--	file->private_data = inode->u.generic_ip;
-+	file->private_data = inode->i_private;
- 	return 0;
- }
- 
-Index: linux-2.6.17/drivers/net/irda/vlsi_ir.h
-===================================================================
---- linux-2.6.17.orig/drivers/net/irda/vlsi_ir.h	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/net/irda/vlsi_ir.h	2006-06-18 18:58:55.000000000 -0400
-@@ -58,7 +58,7 @@
- 
- /* PDE() introduced in 2.5.4 */
- #ifdef CONFIG_PROC_FS
--#define PDE(inode) ((inode)->u.generic_ip)
-+#define PDE(inode) ((inode)->i_private)
- #endif
- 
- /* irda crc16 calculation exported in 2.5.42 */
 Index: linux-2.6.17/drivers/oprofile/oprofilefs.c
 ===================================================================
---- linux-2.6.17.orig/drivers/oprofile/oprofilefs.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/oprofile/oprofilefs.c	2006-06-18 18:58:55.000000000 -0400
-@@ -110,8 +110,8 @@
- 
- static int default_open(struct inode * inode, struct file * filp)
- {
--	if (inode->u.generic_ip)
--		filp->private_data = inode->u.generic_ip;
-+	if (inode->i_private)
-+		filp->private_data = inode->i_private;
- 	return 0;
- }
- 
-@@ -158,7 +158,7 @@
- 	if (!d)
- 		return -EFAULT;
- 
--	d->d_inode->u.generic_ip = val;
-+	d->d_inode->i_private = val;
- 	return 0;
- }
- 
-@@ -171,7 +171,7 @@
- 	if (!d)
- 		return -EFAULT;
- 
--	d->d_inode->u.generic_ip = val;
-+	d->d_inode->i_private = val;
- 	return 0;
- }
- 
-@@ -197,7 +197,7 @@
- 	if (!d)
- 		return -EFAULT;
- 
--	d->d_inode->u.generic_ip = val;
-+	d->d_inode->i_private = val;
- 	return 0;
- }
- 
-Index: linux-2.6.17/drivers/pci/hotplug/cpqphp_sysfs.c
-===================================================================
---- linux-2.6.17.orig/drivers/pci/hotplug/cpqphp_sysfs.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/pci/hotplug/cpqphp_sysfs.c	2006-06-18 18:58:55.000000000 -0400
-@@ -141,7 +141,7 @@
- 
- static int open(struct inode *inode, struct file *file)
- {
--	struct controller *ctrl = inode->u.generic_ip;
-+	struct controller *ctrl = inode->i_private;
- 	struct ctrl_dbg *dbg;
- 	int retval = -ENOMEM;
- 
-Index: linux-2.6.17/drivers/usb/core/devio.c
-===================================================================
---- linux-2.6.17.orig/drivers/usb/core/devio.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/usb/core/devio.c	2006-06-18 18:58:55.000000000 -0400
-@@ -553,7 +553,7 @@
- 	if (imajor(inode) == USB_DEVICE_MAJOR)
- 		dev = usbdev_lookup_minor(iminor(inode));
- 	if (!dev)
--		dev = inode->u.generic_ip;
-+		dev = inode->i_private;
- 	if (!dev) {
- 		kfree(ps);
- 		goto out;
+--- linux-2.6.17.orig/drivers/oprofile/oprofilefs.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/drivers/oprofile/oprofilefs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -31,7 +31,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = 0;
+ 		inode->i_gid = 0;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 	}
 Index: linux-2.6.17/drivers/usb/core/inode.c
 ===================================================================
---- linux-2.6.17.orig/drivers/usb/core/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/usb/core/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -403,8 +403,8 @@
- 
- static int default_open (struct inode *inode, struct file *file)
- {
--	if (inode->u.generic_ip)
--		file->private_data = inode->u.generic_ip;
-+	if (inode->i_private)
-+		file->private_data = inode->i_private;
- 
- 	return 0;
- }
-@@ -510,7 +510,7 @@
- 	} else {
- 		if (dentry->d_inode) {
- 			if (data)
--				dentry->d_inode->u.generic_ip = data;
-+				dentry->d_inode->i_private = data;
- 			if (fops)
- 				dentry->d_inode->i_fop = fops;
- 			dentry->d_inode->i_uid = uid;
+--- linux-2.6.17.orig/drivers/usb/core/inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/drivers/usb/core/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -250,7 +250,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+ 		inode->i_gid = current->fsgid;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		switch (mode & S_IFMT) {
 Index: linux-2.6.17/drivers/usb/gadget/inode.c
 ===================================================================
---- linux-2.6.17.orig/drivers/usb/gadget/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/usb/gadget/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -845,7 +845,7 @@
- static int
- ep_open (struct inode *inode, struct file *fd)
- {
--	struct ep_data		*data = inode->u.generic_ip;
-+	struct ep_data		*data = inode->i_private;
- 	int			value = -EBUSY;
- 
- 	if (down_interruptible (&data->lock) != 0)
-@@ -1908,7 +1908,7 @@
- static int
- dev_open (struct inode *inode, struct file *fd)
- {
--	struct dev_data		*dev = inode->u.generic_ip;
-+	struct dev_data		*dev = inode->i_private;
- 	int			value = -EBUSY;
- 
- 	if (dev->state == STATE_DEV_DISABLED) {
-@@ -1969,7 +1969,7 @@
+--- linux-2.6.17.orig/drivers/usb/gadget/inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/drivers/usb/gadget/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -1965,7 +1965,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = default_uid;
+ 		inode->i_gid = default_gid;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
  		inode->i_blocks = 0;
  		inode->i_atime = inode->i_mtime = inode->i_ctime
  				= CURRENT_TIME;
--		inode->u.generic_ip = data;
-+		inode->i_private = data;
- 		inode->i_fop = fops;
- 	}
- 	return inode;
-Index: linux-2.6.17/drivers/usb/host/isp116x-hcd.c
+Index: linux-2.6.17/fs/9p/vfs_inode.c
 ===================================================================
---- linux-2.6.17.orig/drivers/usb/host/isp116x-hcd.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/usb/host/isp116x-hcd.c	2006-06-18 18:58:55.000000000 -0400
-@@ -1204,7 +1204,7 @@
+--- linux-2.6.17.orig/fs/9p/vfs_inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/9p/vfs_inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -204,7 +204,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+ 		inode->i_gid = current->fsgid;
+-		inode->i_blksize = sb->s_blocksize;
+ 		inode->i_blocks = 0;
+ 		inode->i_rdev = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+@@ -953,9 +952,8 @@
  
- static int isp116x_open_seq(struct inode *inode, struct file *file)
- {
--	return single_open(file, isp116x_show_dbg, inode->u.generic_ip);
-+	return single_open(file, isp116x_show_dbg, inode->i_private);
+ 	inode->i_size = stat->length;
+ 
+-	inode->i_blksize = sb->s_blocksize;
+ 	inode->i_blocks =
+-	    (inode->i_size + inode->i_blksize - 1) >> sb->s_blocksize_bits;
++	    (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
  }
- 
- static struct file_operations isp116x_debug_fops = {
-Index: linux-2.6.17/drivers/usb/host/uhci-debug.c
-===================================================================
---- linux-2.6.17.orig/drivers/usb/host/uhci-debug.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/usb/host/uhci-debug.c	2006-06-18 18:58:55.000000000 -0400
-@@ -406,7 +406,7 @@
- 
- static int uhci_debug_open(struct inode *inode, struct file *file)
- {
--	struct uhci_hcd *uhci = inode->u.generic_ip;
-+	struct uhci_hcd *uhci = inode->i_private;
- 	struct uhci_debug *up;
- 	int ret = -ENOMEM;
- 	unsigned long flags;
-Index: linux-2.6.17/drivers/usb/mon/mon_stat.c
-===================================================================
---- linux-2.6.17.orig/drivers/usb/mon/mon_stat.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/usb/mon/mon_stat.c	2006-06-18 18:58:55.000000000 -0400
-@@ -28,7 +28,7 @@
- 	if ((sp = kmalloc(sizeof(struct snap), GFP_KERNEL)) == NULL)
- 		return -ENOMEM;
- 
--	mbus = inode->u.generic_ip;
-+	mbus = inode->i_private;
- 
- 	sp->slen = snprintf(sp->str, STAT_BUF_SIZE,
- 	    "nreaders %d text_lost %u\n",
-Index: linux-2.6.17/drivers/usb/mon/mon_text.c
-===================================================================
---- linux-2.6.17.orig/drivers/usb/mon/mon_text.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/usb/mon/mon_text.c	2006-06-18 18:58:55.000000000 -0400
-@@ -210,7 +210,7 @@
- 	int rc;
- 
- 	mutex_lock(&mon_lock);
--	mbus = inode->u.generic_ip;
-+	mbus = inode->i_private;
- 	ubus = mbus->u_bus;
- 
- 	rp = kzalloc(sizeof(struct mon_reader_text), GFP_KERNEL);
-@@ -372,7 +372,7 @@
- 	struct mon_event_text *ep;
- 
- 	mutex_lock(&mon_lock);
--	mbus = inode->u.generic_ip;
-+	mbus = inode->i_private;
- 
- 	if (mbus->nreaders <= 0) {
- 		printk(KERN_ERR TAG ": consistency error on close\n");
-Index: linux-2.6.17/fs/autofs/inode.c
-===================================================================
---- linux-2.6.17.orig/fs/autofs/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/autofs/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -241,7 +241,7 @@
- 		
- 		inode->i_op = &autofs_symlink_inode_operations;
- 		sl = &sbi->symlink[n];
--		inode->u.generic_ip = sl;
-+		inode->i_private = sl;
- 		inode->i_mode = S_IFLNK | S_IRWXUGO;
- 		inode->i_mtime.tv_sec = inode->i_ctime.tv_sec = sl->mtime;
- 		inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec = 0;
-Index: linux-2.6.17/fs/autofs/symlink.c
-===================================================================
---- linux-2.6.17.orig/fs/autofs/symlink.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/autofs/symlink.c	2006-06-18 18:58:55.000000000 -0400
-@@ -15,7 +15,7 @@
- /* Nothing to release.. */
- static void *autofs_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
--	char *s=((struct autofs_symlink *)dentry->d_inode->u.generic_ip)->data;
-+	char *s=((struct autofs_symlink *)dentry->d_inode->i_private)->data;
- 	nd_set_link(nd, s);
- 	return NULL;
- }
-Index: linux-2.6.17/fs/binfmt_misc.c
-===================================================================
---- linux-2.6.17.orig/fs/binfmt_misc.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/binfmt_misc.c	2006-06-18 18:58:55.000000000 -0400
-@@ -517,7 +517,7 @@
- 
- static void bm_clear_inode(struct inode *inode)
- {
--	kfree(inode->u.generic_ip);
-+	kfree(inode->i_private);
- }
- 
- static void kill_node(Node *e)
-@@ -545,7 +545,7 @@
- static ssize_t
- bm_entry_read(struct file * file, char __user * buf, size_t nbytes, loff_t *ppos)
- {
--	Node *e = file->f_dentry->d_inode->u.generic_ip;
-+	Node *e = file->f_dentry->d_inode->i_private;
- 	loff_t pos = *ppos;
- 	ssize_t res;
- 	char *page;
-@@ -579,7 +579,7 @@
- 				size_t count, loff_t *ppos)
- {
- 	struct dentry *root;
--	Node *e = file->f_dentry->d_inode->u.generic_ip;
-+	Node *e = file->f_dentry->d_inode->i_private;
- 	int res = parse_command(buffer, count);
- 
- 	switch (res) {
-@@ -646,7 +646,7 @@
- 	}
- 
- 	e->dentry = dget(dentry);
--	inode->u.generic_ip = e;
-+	inode->i_private = e;
- 	inode->i_fop = &bm_entry_operations;
- 
- 	d_instantiate(dentry, inode);
-Index: linux-2.6.17/fs/debugfs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/debugfs/file.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/debugfs/file.c	2006-06-18 18:58:55.000000000 -0400
-@@ -33,8 +33,8 @@
- 
- static int default_open(struct inode *inode, struct file *file)
- {
--	if (inode->u.generic_ip)
--		file->private_data = inode->u.generic_ip;
-+	if (inode->i_private)
-+		file->private_data = inode->i_private;
- 
- 	return 0;
- }
-Index: linux-2.6.17/fs/debugfs/inode.c
-===================================================================
---- linux-2.6.17.orig/fs/debugfs/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/debugfs/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -170,7 +170,7 @@
-  *          directory dentry if set.  If this paramater is NULL, then the
-  *          file will be created in the root of the debugfs filesystem.
-  * @data: a pointer to something that the caller will want to get to later
-- *        on.  The inode.u.generic_ip pointer will point to this value on
-+ *        on.  The inode.i_private pointer will point to this value on
-  *        the open() call.
-  * @fops: a pointer to a struct file_operations that should be used for
-  *        this file.
-@@ -211,7 +211,7 @@
- 
- 	if (dentry->d_inode) {
- 		if (data)
--			dentry->d_inode->u.generic_ip = data;
-+			dentry->d_inode->i_private = data;
- 		if (fops)
- 			dentry->d_inode->i_fop = fops;
- 	}
-Index: linux-2.6.17/fs/devfs/base.c
-===================================================================
---- linux-2.6.17.orig/fs/devfs/base.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/devfs/base.c	2006-06-18 18:58:55.000000000 -0400
-@@ -26,7 +26,7 @@
-                Original version.
-   v0.1
-     19980111   Richard Gooch <rgooch@atnf.csiro.au>
--               Created per-fs inode table rather than using inode->u.generic_ip
-+               Created per-fs inode table rather than using inode->i_private
-   v0.2
-     19980111   Richard Gooch <rgooch@atnf.csiro.au>
-                Created .epoch inode which has a ctime of 0.
-@@ -521,7 +521,7 @@
-   v0.109
-     20010807   Richard Gooch <rgooch@atnf.csiro.au>
- 	       Fixed inode table races by removing it and using
--	       inode->u.generic_ip instead.
-+	       inode->i_private instead.
- 	       Moved <devfs_read_inode> into <get_vfs_inode>.
- 	       Moved <devfs_write_inode> into <devfs_notify_change>.
-   v0.110
-@@ -1266,8 +1266,8 @@
- {
- 	if (inode == NULL)
- 		return NULL;
--	VERIFY_ENTRY((struct devfs_entry *)inode->u.generic_ip);
--	return inode->u.generic_ip;
-+	VERIFY_ENTRY((struct devfs_entry *)inode->i_private);
-+	return inode->i_private;
- }				/*  End Function get_devfs_entry_from_vfs_inode  */
  
  /**
-@@ -1920,7 +1920,7 @@
- 		return NULL;
+Index: linux-2.6.17/fs/adfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/adfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/adfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -269,7 +269,6 @@
+ 	inode->i_ino	 = obj->file_id;
+ 	inode->i_size	 = obj->size;
+ 	inode->i_nlink	 = 2;
+-	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_blocks	 = (inode->i_size + sb->s_blocksize - 1) >>
+ 			    sb->s_blocksize_bits;
+ 
+Index: linux-2.6.17/fs/afs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/afs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/afs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -72,7 +72,6 @@
+ 	inode->i_ctime.tv_sec	= vnode->status.mtime_server;
+ 	inode->i_ctime.tv_nsec	= 0;
+ 	inode->i_atime		= inode->i_mtime = inode->i_ctime;
+-	inode->i_blksize	= PAGE_CACHE_SIZE;
+ 	inode->i_blocks		= 0;
+ 	inode->i_version	= vnode->fid.unique;
+ 	inode->i_mapping->a_ops	= &afs_fs_aops;
+Index: linux-2.6.17/fs/autofs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/autofs/inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/autofs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -216,7 +216,6 @@
+ 	inode->i_nlink = 2;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_blocks = 0;
+-	inode->i_blksize = 1024;
+ 
+ 	if ( ino == AUTOFS_ROOT_INO ) {
+ 		inode->i_mode = S_IFDIR | S_IRUGO | S_IXUGO | S_IWUSR;
+Index: linux-2.6.17/fs/autofs4/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/autofs4/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/autofs4/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -446,7 +446,6 @@
+ 		inode->i_uid = 0;
+ 		inode->i_gid = 0;
  	}
- 	/* FIXME where is devfs_put? */
--	inode->u.generic_ip = devfs_get(de);
-+	inode->i_private = devfs_get(de);
- 	inode->i_ino = de->inode.ino;
- 	DPRINTK(DEBUG_I_GET, "(%d): VFS inode: %p  devfs_entry: %p\n",
- 		(int)inode->i_ino, inode, de);
+-	inode->i_blksize = PAGE_CACHE_SIZE;
+ 	inode->i_blocks = 0;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 
+Index: linux-2.6.17/fs/befs/linuxvfs.c
+===================================================================
+--- linux-2.6.17.orig/fs/befs/linuxvfs.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/befs/linuxvfs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -365,7 +365,6 @@
+ 	inode->i_mtime.tv_nsec = 0;   /* lower 16 bits are not a time */	
+ 	inode->i_ctime = inode->i_mtime;
+ 	inode->i_atime = inode->i_mtime;
+-	inode->i_blksize = befs_sb->block_size;
+ 
+ 	befs_ino->i_inode_num = fsrun_to_cpu(sb, raw_inode->inode_num);
+ 	befs_ino->i_parent = fsrun_to_cpu(sb, raw_inode->parent);
+Index: linux-2.6.17/fs/bfs/dir.c
+===================================================================
+--- linux-2.6.17.orig/fs/bfs/dir.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/bfs/dir.c	2006-06-18 19:53:54.000000000 -0400
+@@ -102,7 +102,7 @@
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_gid = (dir->i_mode & S_ISGID) ? dir->i_gid : current->fsgid;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+-	inode->i_blocks = inode->i_blksize = 0;
++	inode->i_blocks = 0;
+ 	inode->i_op = &bfs_file_inops;
+ 	inode->i_fop = &bfs_file_operations;
+ 	inode->i_mapping->a_ops = &bfs_aops;
+Index: linux-2.6.17/fs/bfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/bfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/bfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -76,7 +76,6 @@
+ 	inode->i_size = BFS_FILESIZE(di);
+ 	inode->i_blocks = BFS_FILEBLOCKS(di);
+         if (inode->i_size || inode->i_blocks) dprintf("Registered inode with %lld size, %ld blocks\n", inode->i_size, inode->i_blocks);
+-	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_atime.tv_sec =  le32_to_cpu(di->i_atime);
+ 	inode->i_mtime.tv_sec =  le32_to_cpu(di->i_mtime);
+ 	inode->i_ctime.tv_sec =  le32_to_cpu(di->i_ctime);
+Index: linux-2.6.17/fs/configfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/configfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/configfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -136,7 +136,6 @@
+ {
+ 	struct inode * inode = new_inode(configfs_sb);
+ 	if (inode) {
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_mapping->a_ops = &configfs_aops;
+ 		inode->i_mapping->backing_dev_info = &configfs_backing_dev_info;
+Index: linux-2.6.17/fs/cramfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/cramfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/cramfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -73,7 +73,6 @@
+ 	inode->i_uid = cramfs_inode->uid;
+ 	inode->i_size = cramfs_inode->size;
+ 	inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
+-	inode->i_blksize = PAGE_CACHE_SIZE;
+ 	inode->i_gid = cramfs_inode->gid;
+ 	/* Struct copy intentional */
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
+Index: linux-2.6.17/fs/debugfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/debugfs/inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/debugfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -41,7 +41,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = 0;
+ 		inode->i_gid = 0;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		switch (mode & S_IFMT) {
 Index: linux-2.6.17/fs/devpts/inode.c
 ===================================================================
---- linux-2.6.17.orig/fs/devpts/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/devpts/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -177,7 +177,7 @@
+--- linux-2.6.17.orig/fs/devpts/inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/devpts/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -113,7 +113,6 @@
+ 	inode->i_ino = 1;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_blocks = 0;
+-	inode->i_blksize = 1024;
+ 	inode->i_uid = inode->i_gid = 0;
+ 	inode->i_mode = S_IFDIR | S_IRUGO | S_IXUGO | S_IWUSR;
+ 	inode->i_op = &simple_dir_inode_operations;
+@@ -172,7 +171,6 @@
+ 		return -ENOMEM;
+ 
+ 	inode->i_ino = number+2;
+-	inode->i_blksize = 1024;
+ 	inode->i_uid = config.setuid ? config.uid : current->fsuid;
  	inode->i_gid = config.setgid ? config.gid : current->fsgid;
  	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
- 	init_special_inode(inode, S_IFCHR|config.mode, device);
--	inode->u.generic_ip = tty;
-+	inode->i_private = tty;
- 
- 	dentry = get_node(number);
- 	if (!IS_ERR(dentry) && !dentry->d_inode)
-@@ -196,7 +196,7 @@
- 	tty = NULL;
- 	if (!IS_ERR(dentry)) {
- 		if (dentry->d_inode)
--			tty = dentry->d_inode->u.generic_ip;
-+			tty = dentry->d_inode->i_private;
- 		dput(dentry);
- 	}
- 
-Index: linux-2.6.17/fs/freevxfs/vxfs.h
+Index: linux-2.6.17/fs/ext2/ialloc.c
 ===================================================================
---- linux-2.6.17.orig/fs/freevxfs/vxfs.h	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/freevxfs/vxfs.h	2006-06-18 18:58:55.000000000 -0400
-@@ -252,7 +252,7 @@
-  * Get filesystem private data from VFS inode.
-  */
- #define VXFS_INO(ip) \
--	((struct vxfs_inode_info *)(ip)->u.generic_ip)
-+	((struct vxfs_inode_info *)(ip)->i_private)
+--- linux-2.6.17.orig/fs/ext2/ialloc.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ext2/ialloc.c	2006-06-18 19:53:54.000000000 -0400
+@@ -575,7 +575,6 @@
+ 	inode->i_mode = mode;
  
- /*
-  * Get filesystem private data from VFS superblock.
+ 	inode->i_ino = ino;
+-	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
+ 	inode->i_blocks = 0;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+ 	memset(ei->i_data, 0, sizeof(ei->i_data));
+Index: linux-2.6.17/fs/ext2/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/ext2/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ext2/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -1094,7 +1094,6 @@
+ 		brelse (bh);
+ 		goto bad_inode;
+ 	}
+-	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
+ 	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
+ 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
+ 	ei->i_faddr = le32_to_cpu(raw_inode->i_faddr);
+Index: linux-2.6.17/fs/ext3/ialloc.c
+===================================================================
+--- linux-2.6.17.orig/fs/ext3/ialloc.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ext3/ialloc.c	2006-06-18 19:53:54.000000000 -0400
+@@ -557,7 +557,6 @@
+ 
+ 	inode->i_ino = ino;
+ 	/* This is the optimal IO size (for stat), not the fs block size */
+-	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_blocks = 0;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+ 
+Index: linux-2.6.17/fs/ext3/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/ext3/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ext3/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -2627,9 +2627,6 @@
+ 		 * recovery code: that's fine, we're about to complete
+ 		 * the process of deleting those. */
+ 	}
+-	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size
+-					 * (for stat), not the fs block
+-					 * size */  
+ 	inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
+ 	ei->i_flags = le32_to_cpu(raw_inode->i_flags);
+ #ifdef EXT3_FRAGMENTS
+Index: linux-2.6.17/fs/fat/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/fat/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/fat/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -375,8 +375,6 @@
+ 			inode->i_flags |= S_IMMUTABLE;
+ 	}
+ 	MSDOS_I(inode)->i_attrs = de->attr & ATTR_UNUSED;
+-	/* this is as close to the truth as we can get ... */
+-	inode->i_blksize = sbi->cluster_size;
+ 	inode->i_blocks = ((inode->i_size + (sbi->cluster_size - 1))
+ 			   & ~((loff_t)sbi->cluster_size - 1)) >> 9;
+ 	inode->i_mtime.tv_sec =
+@@ -1137,7 +1135,6 @@
+ 		MSDOS_I(inode)->i_start = 0;
+ 		inode->i_size = sbi->dir_entries * sizeof(struct msdos_dir_entry);
+ 	}
+-	inode->i_blksize = sbi->cluster_size;
+ 	inode->i_blocks = ((inode->i_size + (sbi->cluster_size - 1))
+ 			   & ~((loff_t)sbi->cluster_size - 1)) >> 9;
+ 	MSDOS_I(inode)->i_logstart = 0;
 Index: linux-2.6.17/fs/freevxfs/vxfs_inode.c
 ===================================================================
---- linux-2.6.17.orig/fs/freevxfs/vxfs_inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/freevxfs/vxfs_inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -243,7 +243,7 @@
+--- linux-2.6.17.orig/fs/freevxfs/vxfs_inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/freevxfs/vxfs_inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -239,7 +239,6 @@
+ 	ip->i_ctime.tv_nsec = 0;
+ 	ip->i_mtime.tv_nsec = 0;
+ 
+-	ip->i_blksize = PAGE_SIZE;
  	ip->i_blocks = vip->vii_blocks;
  	ip->i_generation = vip->vii_gen;
  
--	ip->u.generic_ip = (void *)vip;
-+	ip->i_private = (void *)vip;
+Index: linux-2.6.17/fs/fuse/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/fuse/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/fuse/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -115,7 +115,6 @@
+ 	inode->i_uid     = attr->uid;
+ 	inode->i_gid     = attr->gid;
+ 	i_size_write(inode, attr->size);
+-	inode->i_blksize = PAGE_CACHE_SIZE;
+ 	inode->i_blocks  = attr->blocks;
+ 	inode->i_atime.tv_sec   = attr->atime;
+ 	inode->i_atime.tv_nsec  = attr->atimensec;
+Index: linux-2.6.17/fs/hfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/hfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/hfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -154,7 +154,6 @@
+ 	inode->i_gid = current->fsgid;
+ 	inode->i_nlink = 1;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+-	inode->i_blksize = HFS_SB(sb)->alloc_blksz;
+ 	HFS_I(inode)->flags = 0;
+ 	HFS_I(inode)->rsrc_inode = NULL;
+ 	HFS_I(inode)->fs_blocks = 0;
+@@ -284,7 +283,6 @@
+ 	inode->i_uid = hsb->s_uid;
+ 	inode->i_gid = hsb->s_gid;
+ 	inode->i_nlink = 1;
+-	inode->i_blksize = HFS_SB(inode->i_sb)->alloc_blksz;
+ 
+ 	if (idata->key)
+ 		HFS_I(inode)->cat_key = *idata->key;
+Index: linux-2.6.17/fs/hfsplus/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/hfsplus/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/hfsplus/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -304,7 +304,6 @@
+ 	inode->i_gid = current->fsgid;
+ 	inode->i_nlink = 1;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+-	inode->i_blksize = HFSPLUS_SB(sb).alloc_blksz;
+ 	INIT_LIST_HEAD(&HFSPLUS_I(inode).open_dir_list);
+ 	init_MUTEX(&HFSPLUS_I(inode).extents_lock);
+ 	atomic_set(&HFSPLUS_I(inode).opencnt, 0);
+@@ -407,7 +406,6 @@
+ 	type = hfs_bnode_read_u16(fd->bnode, fd->entryoffset);
+ 
+ 	HFSPLUS_I(inode).dev = 0;
+-	inode->i_blksize = HFSPLUS_SB(inode->i_sb).alloc_blksz;
+ 	if (type == HFSPLUS_FOLDER) {
+ 		struct hfsplus_cat_folder *folder = &entry.folder;
+ 
+Index: linux-2.6.17/fs/hpfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/hpfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/hpfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -17,7 +17,6 @@
+ 	i->i_gid = hpfs_sb(sb)->sb_gid;
+ 	i->i_mode = hpfs_sb(sb)->sb_mode;
+ 	hpfs_inode->i_conv = hpfs_sb(sb)->sb_conv;
+-	i->i_blksize = 512;
+ 	i->i_size = -1;
+ 	i->i_blocks = -1;
  	
+Index: linux-2.6.17/fs/hppfs/hppfs_kern.c
+===================================================================
+--- linux-2.6.17.orig/fs/hppfs/hppfs_kern.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/hppfs/hppfs_kern.c	2006-06-18 19:53:54.000000000 -0400
+@@ -152,7 +152,6 @@
+ 	ino->i_mode = proc_ino->i_mode;
+ 	ino->i_nlink = proc_ino->i_nlink;
+ 	ino->i_size = proc_ino->i_size;
+-	ino->i_blksize = proc_ino->i_blksize;
+ 	ino->i_blocks = proc_ino->i_blocks;
  }
  
-@@ -338,5 +338,5 @@
- void
- vxfs_clear_inode(struct inode *ip)
- {
--	kmem_cache_free(vxfs_inode_cachep, ip->u.generic_ip);
-+	kmem_cache_free(vxfs_inode_cachep, ip->i_private);
- }
+Index: linux-2.6.17/fs/isofs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/isofs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/isofs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -1237,7 +1237,7 @@
+ 	}
+ 	inode->i_uid = sbi->s_uid;
+ 	inode->i_gid = sbi->s_gid;
+-	inode->i_blocks = inode->i_blksize = 0;
++	inode->i_blocks = 0;
+ 
+ 	ei->i_format_parm[0] = 0;
+ 	ei->i_format_parm[1] = 0;
+@@ -1293,7 +1293,6 @@
+ 			      isonum_711 (de->ext_attr_length));
+ 
+ 	/* Set the number of blocks for stat() - should be done before RR */
+-	inode->i_blksize = PAGE_CACHE_SIZE; /* For stat() only */
+ 	inode->i_blocks  = (inode->i_size + 511) >> 9;
+ 
+ 	/*
 Index: linux-2.6.17/fs/jffs/inode-v23.c
 ===================================================================
---- linux-2.6.17.orig/fs/jffs/inode-v23.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/jffs/inode-v23.c	2006-06-18 18:58:55.000000000 -0400
-@@ -369,7 +369,7 @@
+--- linux-2.6.17.orig/fs/jffs/inode-v23.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/jffs/inode-v23.c	2006-06-18 19:53:54.000000000 -0400
+@@ -364,7 +364,6 @@
+ 	inode->i_ctime.tv_nsec = 0;
+ 	inode->i_mtime.tv_nsec = 0;
+ 	inode->i_atime.tv_nsec = 0;
+-	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_blocks = (inode->i_size + 511) >> 9;
  
  	f = jffs_find_file(c, raw_inode->ino);
+@@ -1706,7 +1705,6 @@
+ 	inode->i_mtime.tv_nsec = 
+ 	inode->i_ctime.tv_nsec = 0;
  
--	inode->u.generic_ip = (void *)f;
-+	inode->i_private = (void *)f;
- 	insert_inode_hash(inode);
+-	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_blocks = (inode->i_size + 511) >> 9;
+ 	if (S_ISREG(inode->i_mode)) {
+ 		inode->i_op = &jffs_file_inode_operations;
+Index: linux-2.6.17/fs/jffs2/fs.c
+===================================================================
+--- linux-2.6.17.orig/fs/jffs2/fs.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/jffs2/fs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -254,7 +254,6 @@
  
- 	return inode;
-@@ -442,7 +442,7 @@
- 	});
+ 	inode->i_nlink = f->inocache->nlink;
  
- 	result = -ENOTDIR;
--	if (!(old_dir_f = (struct jffs_file *)old_dir->u.generic_ip)) {
-+	if (!(old_dir_f = (struct jffs_file *)old_dir->i_private)) {
- 		D(printk("jffs_rename(): Old dir invalid.\n"));
- 		goto jffs_rename_end;
- 	}
-@@ -456,7 +456,7 @@
+-	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_blocks = (inode->i_size + 511) >> 9;
  
- 	/* Find the new directory.  */
- 	result = -ENOTDIR;
--	if (!(new_dir_f = (struct jffs_file *)new_dir->u.generic_ip)) {
-+	if (!(new_dir_f = (struct jffs_file *)new_dir->i_private)) {
- 		D(printk("jffs_rename(): New dir invalid.\n"));
- 		goto jffs_rename_end;
- 	}
-@@ -593,7 +593,7 @@
- 		}
- 		else {
- 			ddino = ((struct jffs_file *)
--				 inode->u.generic_ip)->pino;
-+				 inode->i_private)->pino;
- 		}
- 		D3(printk("jffs_readdir(): \"..\" %u\n", ddino));
- 		if (filldir(dirent, "..", 2, filp->f_pos, ddino, DT_DIR) < 0) {
-@@ -604,7 +604,7 @@
- 		}
- 		filp->f_pos++;
- 	}
--	f = ((struct jffs_file *)inode->u.generic_ip)->children;
-+	f = ((struct jffs_file *)inode->i_private)->children;
+ 	switch (inode->i_mode & S_IFMT) {
+@@ -430,7 +429,6 @@
+ 	inode->i_atime = inode->i_ctime = inode->i_mtime = CURRENT_TIME_SEC;
+ 	ri->atime = ri->mtime = ri->ctime = cpu_to_je32(I_SEC(inode->i_mtime));
  
- 	j = 2;
- 	while(f && (f->deleted || j++ < filp->f_pos )) {
-@@ -668,7 +668,7 @@
- 	}
- 
- 	r = -EACCES;
--	if (!(d = (struct jffs_file *)dir->u.generic_ip)) {
-+	if (!(d = (struct jffs_file *)dir->i_private)) {
- 		D(printk("jffs_lookup(): No such inode! (%lu)\n",
- 			 dir->i_ino));
- 		goto jffs_lookup_end;
-@@ -739,7 +739,7 @@
- 	unsigned long read_len;
- 	int result;
- 	struct inode *inode = (struct inode*)page->mapping->host;
--	struct jffs_file *f = (struct jffs_file *)inode->u.generic_ip;
-+	struct jffs_file *f = (struct jffs_file *)inode->i_private;
- 	struct jffs_control *c = (struct jffs_control *)inode->i_sb->s_fs_info;
- 	int r;
- 	loff_t offset;
-@@ -828,7 +828,7 @@
- 	});
- 
- 	lock_kernel();
--	dir_f = (struct jffs_file *)dir->u.generic_ip;
-+	dir_f = (struct jffs_file *)dir->i_private;
- 
- 	ASSERT(if (!dir_f) {
- 		printk(KERN_ERR "jffs_mkdir(): No reference to a "
-@@ -972,7 +972,7 @@
- 		kfree(_name);
- 	});
- 
--	dir_f = (struct jffs_file *) dir->u.generic_ip;
-+	dir_f = (struct jffs_file *) dir->i_private;
- 	c = dir_f->c;
- 
- 	result = -ENOENT;
-@@ -1082,7 +1082,7 @@
- 	if (!old_valid_dev(rdev))
- 		return -EINVAL;
- 	lock_kernel();
--	dir_f = (struct jffs_file *)dir->u.generic_ip;
-+	dir_f = (struct jffs_file *)dir->i_private;
- 	c = dir_f->c;
- 
- 	D3(printk (KERN_NOTICE "mknod(): down biglock\n"));
-@@ -1186,7 +1186,7 @@
- 		kfree(_symname);
- 	});
- 
--	dir_f = (struct jffs_file *)dir->u.generic_ip;
-+	dir_f = (struct jffs_file *)dir->i_private;
- 	ASSERT(if (!dir_f) {
- 		printk(KERN_ERR "jffs_symlink(): No reference to a "
- 		       "jffs_file struct in inode.\n");
-@@ -1289,7 +1289,7 @@
- 		kfree(s);
- 	});
- 
--	dir_f = (struct jffs_file *)dir->u.generic_ip;
-+	dir_f = (struct jffs_file *)dir->i_private;
- 	ASSERT(if (!dir_f) {
- 		printk(KERN_ERR "jffs_create(): No reference to a "
- 		       "jffs_file struct in inode.\n");
-@@ -1403,9 +1403,9 @@
- 		goto out_isem;
- 	}
- 
--	if (!(f = (struct jffs_file *)inode->u.generic_ip)) {
--		D(printk("jffs_file_write(): inode->u.generic_ip = 0x%p\n",
--				inode->u.generic_ip));
-+	if (!(f = (struct jffs_file *)inode->i_private)) {
-+		D(printk("jffs_file_write(): inode->i_private = 0x%p\n",
-+				inode->i_private));
- 		goto out_isem;
- 	}
- 
-@@ -1693,7 +1693,7 @@
- 		mutex_unlock(&c->fmc->biglock);
- 		return;
- 	}
--	inode->u.generic_ip = (void *)f;
-+	inode->i_private = (void *)f;
- 	inode->i_mode = f->mode;
- 	inode->i_nlink = f->nlink;
- 	inode->i_uid = f->uid;
-@@ -1748,7 +1748,7 @@
- 	lock_kernel();
- 	inode->i_size = 0;
+-	inode->i_blksize = PAGE_SIZE;
  	inode->i_blocks = 0;
--	inode->u.generic_ip = NULL;
-+	inode->i_private = NULL;
- 	clear_inode(inode);
- 	if (inode->i_nlink == 0) {
- 		c = (struct jffs_control *) inode->i_sb->s_fs_info;
-Index: linux-2.6.17/fs/libfs.c
-===================================================================
---- linux-2.6.17.orig/fs/libfs.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/libfs.c	2006-06-18 18:58:55.000000000 -0400
-@@ -549,7 +549,7 @@
+ 	inode->i_size = 0;
  
- 	attr->get = get;
- 	attr->set = set;
--	attr->data = inode->u.generic_ip;
-+	attr->data = inode->i_private;
- 	attr->fmt = fmt;
- 	mutex_init(&attr->mutex);
+Index: linux-2.6.17/fs/minix/bitmap.c
+===================================================================
+--- linux-2.6.17.orig/fs/minix/bitmap.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/minix/bitmap.c	2006-06-18 19:53:54.000000000 -0400
+@@ -254,7 +254,7 @@
+ 	inode->i_gid = (dir->i_mode & S_ISGID) ? dir->i_gid : current->fsgid;
+ 	inode->i_ino = j;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+-	inode->i_blocks = inode->i_blksize = 0;
++	inode->i_blocks = 0;
+ 	memset(&minix_i(inode)->u, 0, sizeof(minix_i(inode)->u));
+ 	insert_inode_hash(inode);
+ 	mark_inode_dirty(inode);
+Index: linux-2.6.17/fs/minix/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/minix/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/minix/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -392,7 +392,7 @@
+ 	inode->i_mtime.tv_nsec = 0;
+ 	inode->i_atime.tv_nsec = 0;
+ 	inode->i_ctime.tv_nsec = 0;
+-	inode->i_blocks = inode->i_blksize = 0;
++	inode->i_blocks = 0;
+ 	for (i = 0; i < 9; i++)
+ 		minix_inode->u.i1_data[i] = raw_inode->i_zone[i];
+ 	minix_set_inode(inode, old_decode_dev(raw_inode->i_zone[0]));
+@@ -425,7 +425,7 @@
+ 	inode->i_mtime.tv_nsec = 0;
+ 	inode->i_atime.tv_nsec = 0;
+ 	inode->i_ctime.tv_nsec = 0;
+-	inode->i_blocks = inode->i_blksize = 0;
++	inode->i_blocks = 0;
+ 	for (i = 0; i < 10; i++)
+ 		minix_inode->u.i2_data[i] = raw_inode->i_zone[i];
+ 	minix_set_inode(inode, old_decode_dev(raw_inode->i_zone[0]));
+Index: linux-2.6.17/fs/ntfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/ntfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ntfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -540,8 +540,6 @@
  
-Index: linux-2.6.17/fs/ocfs2/dlmglue.c
-===================================================================
---- linux-2.6.17.orig/fs/ocfs2/dlmglue.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/ocfs2/dlmglue.c	2006-06-18 18:58:55.000000000 -0400
-@@ -1995,7 +1995,7 @@
- 		mlog_errno(ret);
- 		goto out;
- 	}
--	osb = (struct ocfs2_super *) inode->u.generic_ip;
-+	osb = (struct ocfs2_super *) inode->i_private;
- 	ocfs2_get_dlm_debug(osb->osb_dlm_debug);
- 	priv->p_dlm_debug = osb->osb_dlm_debug;
- 	INIT_LIST_HEAD(&priv->p_iter_res.l_debug_list);
-Index: linux-2.6.17/fs/openpromfs/inode.c
-===================================================================
---- linux-2.6.17.orig/fs/openpromfs/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/openpromfs/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -70,9 +70,9 @@
- 	struct inode *inode = file->f_dentry->d_inode;
- 	char buffer[10];
- 	
--	if (count < 0 || !inode->u.generic_ip)
-+	if (count < 0 || !inode->i_private)
- 		return -EINVAL;
--	sprintf (buffer, "%8.8x\n", (u32)(long)(inode->u.generic_ip));
-+	sprintf (buffer, "%8.8x\n", (u32)(long)(inode->i_private));
- 	if (file->f_pos >= 9)
- 		return 0;
- 	if (count > 9 - file->f_pos)
-@@ -95,9 +95,9 @@
- 	char buffer[64];
- 	
- 	if (!filp->private_data) {
--		node = nodes[(u16)((long)inode->u.generic_ip)].node;
--		i = ((u32)(long)inode->u.generic_ip) >> 16;
--		if ((u16)((long)inode->u.generic_ip) == aliases) {
-+		node = nodes[(u16)((long)inode->i_private)].node;
-+		i = ((u32)(long)inode->i_private) >> 16;
-+		if ((u16)((long)inode->i_private) == aliases) {
- 			if (i >= aliases_nodes)
- 				p = NULL;
- 			else
-@@ -111,7 +111,7 @@
- 			return -EIO;
- 		i = prom_getproplen (node, p);
- 		if (i < 0) {
--			if ((u16)((long)inode->u.generic_ip) == aliases)
-+			if ((u16)((long)inode->i_private) == aliases)
- 				i = 0;
- 			else
- 				return -EIO;
-@@ -539,8 +539,8 @@
- 	if (!op)
- 		return 0;
- 	lock_kernel();
--	node = nodes[(u16)((long)inode->u.generic_ip)].node;
--	if ((u16)((long)inode->u.generic_ip) == aliases) {
-+	node = nodes[(u16)((long)inode->i_private)].node;
-+	if ((u16)((long)inode->i_private) == aliases) {
- 		if ((op->flag & OPP_DIRTY) && (op->flag & OPP_STRING)) {
- 			char *p = op->name;
- 			int i = (op->value - op->name) - strlen (op->name) - 1;
-@@ -743,7 +743,7 @@
- 		inode->i_mode = S_IFREG | S_IRUGO;
- 		inode->i_fop = &openpromfs_nodenum_ops;
- 		inode->i_nlink = 1;
--		inode->u.generic_ip = (void *)(long)(n);
-+		inode->i_private = (void *)(long)(n);
- 		break;
- 	case OPFSL_PROPERTY:
- 		if ((dirnode == options) && (len == 17)
-@@ -760,7 +760,7 @@
- 		inode->i_nlink = 1;
- 		if (inode->i_size < 0)
- 			inode->i_size = 0;
--		inode->u.generic_ip = (void *)(long)(((u16)dirnode) | 
-+		inode->i_private = (void *)(long)(((u16)dirnode) |
- 			(((u16)(ino - NODEP2INO(NODE(dir->i_ino).first_prop) - 1)) << 16));
- 		break;
- 	}
-@@ -886,7 +886,7 @@
- 	inode->i_fop = &openpromfs_prop_ops;
- 	inode->i_nlink = 1;
- 	if (inode->i_size < 0) inode->i_size = 0;
--	inode->u.generic_ip = (void *)(long)(((u16)aliases) | 
-+	inode->i_private = (void *)(long)(((u16)aliases) |
- 			(((u16)(aliases_nodes - 1)) << 16));
- 	unlock_kernel();
- 	d_instantiate(dentry, inode);
-Index: linux-2.6.17/security/inode.c
-===================================================================
---- linux-2.6.17.orig/security/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/security/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -45,8 +45,8 @@
+ 	/* Setup the generic vfs inode parts now. */
  
- static int default_open(struct inode *inode, struct file *file)
- {
--	if (inode->u.generic_ip)
--		file->private_data = inode->u.generic_ip;
-+	if (inode->i_private)
-+		file->private_data = inode->i_private;
+-	/* This is the optimal IO size (for stat), not the fs block size. */
+-	vi->i_blksize = PAGE_CACHE_SIZE;
+ 	/*
+ 	 * This is for checking whether an inode has changed w.r.t. a file so
+ 	 * that the file can be updated if necessary (compare with f_version).
+@@ -1218,7 +1216,6 @@
+ 	base_ni = NTFS_I(base_vi);
  
- 	return 0;
- }
-@@ -195,7 +195,7 @@
-  *          directory dentry if set.  If this paramater is NULL, then the
-  *          file will be created in the root of the securityfs filesystem.
-  * @data: a pointer to something that the caller will want to get to later
-- *        on.  The inode.u.generic_ip pointer will point to this value on
-+ *        on.  The inode.i_private pointer will point to this value on
-  *        the open() call.
-  * @fops: a pointer to a struct file_operations that should be used for
-  *        this file.
-@@ -241,7 +241,7 @@
- 		if (fops)
- 			dentry->d_inode->i_fop = fops;
- 		if (data)
--			dentry->d_inode->u.generic_ip = data;
-+			dentry->d_inode->i_private = data;
- 	}
- exit:
- 	return dentry;
-Index: linux-2.6.17/fs/inode.c
+ 	/* Just mirror the values from the base inode. */
+-	vi->i_blksize	= base_vi->i_blksize;
+ 	vi->i_version	= base_vi->i_version;
+ 	vi->i_uid	= base_vi->i_uid;
+ 	vi->i_gid	= base_vi->i_gid;
+@@ -1488,7 +1485,6 @@
+ 	ni	= NTFS_I(vi);
+ 	base_ni = NTFS_I(base_vi);
+ 	/* Just mirror the values from the base inode. */
+-	vi->i_blksize	= base_vi->i_blksize;
+ 	vi->i_version	= base_vi->i_version;
+ 	vi->i_uid	= base_vi->i_uid;
+ 	vi->i_gid	= base_vi->i_gid;
+Index: linux-2.6.17/fs/ntfs/mft.c
 ===================================================================
---- linux-2.6.17.orig/fs/inode.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/fs/inode.c	2006-06-18 18:58:55.000000000 -0400
-@@ -164,7 +164,7 @@
- 				bdi = sb->s_bdev->bd_inode->i_mapping->backing_dev_info;
- 			mapping->backing_dev_info = bdi;
+--- linux-2.6.17.orig/fs/ntfs/mft.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ntfs/mft.c	2006-06-18 19:53:54.000000000 -0400
+@@ -2638,11 +2638,6 @@
  		}
--		memset(&inode->u, 0, sizeof(inode->u));
-+		inode->i_private = 0;
- 		inode->i_mapping = mapping;
+ 		vi->i_ino = bit;
+ 		/*
+-		 * This is the optimal IO size (for stat), not the fs block
+-		 * size.
+-		 */
+-		vi->i_blksize = PAGE_CACHE_SIZE;
+-		/*
+ 		 * This is for checking whether an inode has changed w.r.t. a
+ 		 * file so that the file can be updated if necessary (compare
+ 		 * with f_version).
+Index: linux-2.6.17/fs/ocfs2/dlm/dlmfs.c
+===================================================================
+--- linux-2.6.17.orig/fs/ocfs2/dlm/dlmfs.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ocfs2/dlm/dlmfs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -335,7 +335,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+ 		inode->i_gid = current->fsgid;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_mapping->backing_dev_info = &dlmfs_backing_dev_info;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+@@ -362,7 +361,6 @@
+ 	inode->i_mode = mode;
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_gid = current->fsgid;
+-	inode->i_blksize = PAGE_CACHE_SIZE;
+ 	inode->i_blocks = 0;
+ 	inode->i_mapping->backing_dev_info = &dlmfs_backing_dev_info;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+Index: linux-2.6.17/fs/ocfs2/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/ocfs2/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ocfs2/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -251,7 +251,6 @@
+ 	inode->i_mode = le16_to_cpu(fe->i_mode);
+ 	inode->i_uid = le32_to_cpu(fe->i_uid);
+ 	inode->i_gid = le32_to_cpu(fe->i_gid);
+-	inode->i_blksize = (u32)osb->s_clustersize;
+ 
+ 	/* Fast symlinks will have i_size but no allocated clusters. */
+ 	if (S_ISLNK(inode->i_mode) && !fe->i_clusters)
+@@ -1174,7 +1173,6 @@
+ 	inode->i_uid = le32_to_cpu(fe->i_uid);
+ 	inode->i_gid = le32_to_cpu(fe->i_gid);
+ 	inode->i_mode = le16_to_cpu(fe->i_mode);
+-	inode->i_blksize = (u32) osb->s_clustersize;
+ 	if (S_ISLNK(inode->i_mode) && le32_to_cpu(fe->i_clusters) == 0)
+ 		inode->i_blocks = 0;
+ 	else
+Index: linux-2.6.17/fs/ocfs2/super.c
+===================================================================
+--- linux-2.6.17.orig/fs/ocfs2/super.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ocfs2/super.c	2006-06-18 19:53:54.000000000 -0400
+@@ -1390,7 +1390,7 @@
+ 	/* get some pseudo constants for clustersize bits */
+ 	osb->s_clustersize_bits =
+ 		le32_to_cpu(di->id2.i_super.s_clustersize_bits);
+-	osb->s_clustersize = 1 << osb->s_clustersize_bits;
++	osb->s_blksize = osb->s_clustersize = 1 << osb->s_clustersize_bits;
+ 	mlog(0, "clusterbits=%d\n", osb->s_clustersize_bits);
+ 
+ 	if (osb->s_clustersize < OCFS2_MIN_CLUSTERSIZE ||
+Index: linux-2.6.17/fs/qnx4/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/qnx4/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/qnx4/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -496,7 +496,6 @@
+ 	inode->i_ctime.tv_sec   = le32_to_cpu(raw_inode->di_ctime);
+ 	inode->i_ctime.tv_nsec = 0;
+ 	inode->i_blocks  = le32_to_cpu(raw_inode->di_first_xtnt.xtnt_size);
+-	inode->i_blksize = QNX4_DIR_ENTRY_SIZE;
+ 
+ 	memcpy(qnx4_inode, raw_inode, QNX4_DIR_ENTRY_SIZE);
+ 	if (S_ISREG(inode->i_mode)) {
+Index: linux-2.6.17/fs/ramfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/ramfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ramfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -58,7 +58,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+ 		inode->i_gid = current->fsgid;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_mapping->a_ops = &ramfs_aops;
+ 		inode->i_mapping->backing_dev_info = &ramfs_backing_dev_info;
+Index: linux-2.6.17/fs/reiserfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/reiserfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/reiserfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -18,8 +18,6 @@
+ #include <linux/writeback.h>
+ #include <linux/quotaops.h>
+ 
+-extern int reiserfs_default_io_size;	/* default io size devuned in super.c */
+-
+ static int reiserfs_commit_write(struct file *f, struct page *page,
+ 				 unsigned from, unsigned to);
+ static int reiserfs_prepare_write(struct file *f, struct page *page,
+@@ -1131,7 +1129,6 @@
+ 	ih = PATH_PITEM_HEAD(path);
+ 
+ 	copy_key(INODE_PKEY(inode), &(ih->ih_key));
+-	inode->i_blksize = reiserfs_default_io_size;
+ 
+ 	INIT_LIST_HEAD(&(REISERFS_I(inode)->i_prealloc_list));
+ 	REISERFS_I(inode)->i_flags = 0;
+@@ -1886,7 +1883,6 @@
  	}
- 	return inode;
-Index: linux-2.6.17/block/blktrace.c
-===================================================================
---- linux-2.6.17.orig/block/blktrace.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/block/blktrace.c	2006-06-18 18:58:55.000000000 -0400
-@@ -215,7 +215,7 @@
+ 	// these do not go to on-disk stat data
+ 	inode->i_ino = le32_to_cpu(ih.ih_key.k_objectid);
+-	inode->i_blksize = reiserfs_default_io_size;
  
- static int blk_dropped_open(struct inode *inode, struct file *filp)
+ 	// store in in-core inode the key of stat data and version all
+ 	// object items will have (directory items will have old offset
+Index: linux-2.6.17/fs/reiserfs/super.c
+===================================================================
+--- linux-2.6.17.orig/fs/reiserfs/super.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/reiserfs/super.c	2006-06-18 19:53:54.000000000 -0400
+@@ -726,12 +726,6 @@
+ 	{NULL, 0, 0},
+ };
+ 
+-int reiserfs_default_io_size = 128 * 1024;	/* Default recommended I/O size is 128k.
+-						   There might be broken applications that are
+-						   confused by this. Use nolargeio mount option
+-						   to get usual i/o size = PAGE_SIZE.
+-						 */
+-
+ /* proceed only one option from a list *cur - string containing of mount options
+    opts - array of options which are accepted
+    opt_arg - if option is found and requires an argument and if it is specifed
+@@ -959,6 +953,12 @@
+ 			*commit_max_age = (unsigned int)val;
+ 		}
+ 
++		/*
++		 * Default recommended I/O size is 128k.
++		 * There might be broken applications that are
++		 * confused by this. Use nolargeio mount option
++		 * to get usual i/o size = PAGE_SIZE.
++		 */
+ 		if (c == 'w') {
+ 			char *p = NULL;
+ 			int val = simple_strtoul(arg, &p, 0);
+@@ -970,9 +970,9 @@
+ 				return 0;
+ 			}
+ 			if (val)
+-				reiserfs_default_io_size = PAGE_SIZE;
++				s->s_blksize = PAGE_SIZE;
+ 			else
+-				reiserfs_default_io_size = 128 * 1024;
++				s->s_blksize = 128 * 1024;
+ 		}
+ 
+ 		if (c == 'j') {
+Index: linux-2.6.17/fs/sysfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/sysfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/sysfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -113,7 +113,6 @@
  {
--	filp->private_data = inode->u.generic_ip;
-+	filp->private_data = inode->i_private;
- 
- 	return 0;
- }
-Index: linux-2.6.17/drivers/infiniband/hw/ipath/ipath_fs.c
+ 	struct inode * inode = new_inode(sysfs_sb);
+ 	if (inode) {
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_mapping->a_ops = &sysfs_aops;
+ 		inode->i_mapping->backing_dev_info = &sysfs_backing_dev_info;
+Index: linux-2.6.17/fs/sysv/ialloc.c
 ===================================================================
---- linux-2.6.17.orig/drivers/infiniband/hw/ipath/ipath_fs.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/infiniband/hw/ipath/ipath_fs.c	2006-06-18 18:58:55.000000000 -0400
-@@ -64,7 +64,7 @@
- 	inode->i_blksize = PAGE_CACHE_SIZE;
+--- linux-2.6.17.orig/fs/sysv/ialloc.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/sysv/ialloc.c	2006-06-18 19:53:54.000000000 -0400
+@@ -170,7 +170,7 @@
+ 	inode->i_uid = current->fsuid;
+ 	inode->i_ino = fs16_to_cpu(sbi, ino);
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+-	inode->i_blocks = inode->i_blksize = 0;
++	inode->i_blocks = 0;
+ 	memset(SYSV_I(inode)->i_data, 0, sizeof(SYSV_I(inode)->i_data));
+ 	SYSV_I(inode)->i_dir_start_lookup = 0;
+ 	insert_inode_hash(inode);
+Index: linux-2.6.17/fs/sysv/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/sysv/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/sysv/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -200,7 +200,7 @@
+ 	inode->i_ctime.tv_nsec = 0;
+ 	inode->i_atime.tv_nsec = 0;
+ 	inode->i_mtime.tv_nsec = 0;
+-	inode->i_blocks = inode->i_blksize = 0;
++	inode->i_blocks = 0;
+ 
+ 	si = SYSV_I(inode);
+ 	for (block = 0; block < 10+1+1+1; block++)
+Index: linux-2.6.17/fs/udf/ialloc.c
+===================================================================
+--- linux-2.6.17.orig/fs/udf/ialloc.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/udf/ialloc.c	2006-06-18 19:53:54.000000000 -0400
+@@ -120,7 +120,6 @@
+ 	UDF_I_LOCATION(inode).logicalBlockNum = block;
+ 	UDF_I_LOCATION(inode).partitionReferenceNum = UDF_I_LOCATION(dir).partitionReferenceNum;
+ 	inode->i_ino = udf_get_lb_pblock(sb, UDF_I_LOCATION(inode), 0);
+-	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_blocks = 0;
+ 	UDF_I_LENEATTR(inode) = 0;
+ 	UDF_I_LENALLOC(inode) = 0;
+Index: linux-2.6.17/fs/udf/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/udf/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/udf/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -916,8 +916,6 @@
+ 	 *      i_nlink = 1
+ 	 *      i_op = NULL;
+ 	 */
+-	inode->i_blksize = PAGE_SIZE;
+-
+ 	bh = udf_read_ptagged(inode->i_sb, UDF_I_LOCATION(inode), 0, &ident);
+ 
+ 	if (!bh)
+Index: linux-2.6.17/fs/ufs/ialloc.c
+===================================================================
+--- linux-2.6.17.orig/fs/ufs/ialloc.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ufs/ialloc.c	2006-06-18 19:53:54.000000000 -0400
+@@ -263,7 +263,6 @@
+ 		inode->i_gid = current->fsgid;
+ 
+ 	inode->i_ino = cg * uspi->s_ipg + bit;
+-	inode->i_blksize = PAGE_SIZE;	/* This is the optimal IO size (for stat), not the fs block size */
+ 	inode->i_blocks = 0;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+ 	ufsi->i_flags = UFS_I(dir)->i_flags;
+Index: linux-2.6.17/fs/ufs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/ufs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ufs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -596,7 +596,6 @@
+ 	inode->i_atime.tv_nsec = 0;
+ 	inode->i_ctime.tv_nsec = 0;
+ 	inode->i_blocks = fs32_to_cpu(sb, ufs_inode->ui_blocks);
+-	inode->i_blksize = PAGE_SIZE;   /* This is the optimal IO size (for stat) */
+ 	inode->i_version++;
+ 	ufsi->i_flags = fs32_to_cpu(sb, ufs_inode->ui_flags);
+ 	ufsi->i_gen = fs32_to_cpu(sb, ufs_inode->ui_gen);
+@@ -668,7 +667,6 @@
+ 	inode->i_atime.tv_nsec = 0;
+ 	inode->i_ctime.tv_nsec = 0;
+ 	inode->i_blocks = fs64_to_cpu(sb, ufs2_inode->ui_blocks);
+-	inode->i_blksize = PAGE_SIZE; /*This is the optimal IO size(for stat)*/
+ 
+ 	inode->i_version++;
+ 	ufsi->i_flags = fs32_to_cpu(sb, ufs2_inode->ui_flags);
+Index: linux-2.6.17/include/linux/nfsd/nfsfh.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/nfsd/nfsfh.h	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/include/linux/nfsd/nfsfh.h	2006-06-18 19:53:54.000000000 -0400
+@@ -270,8 +270,8 @@
+ 	fhp->fh_post_uid	= inode->i_uid;
+ 	fhp->fh_post_gid	= inode->i_gid;
+ 	fhp->fh_post_size       = inode->i_size;
+-	if (inode->i_blksize) {
+-		fhp->fh_post_blksize    = inode->i_blksize;
++	if (inode->i_sb->s_blksize) {
++		fhp->fh_post_blksize    = inode->i_sb->s_blksize;
+ 		fhp->fh_post_blocks     = inode->i_blocks;
+ 	} else {
+ 		fhp->fh_post_blksize    = BLOCK_SIZE;
+Index: linux-2.6.17/ipc/mqueue.c
+===================================================================
+--- linux-2.6.17.orig/ipc/mqueue.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/ipc/mqueue.c	2006-06-18 19:53:54.000000000 -0400
+@@ -112,7 +112,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+ 		inode->i_gid = current->fsgid;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_mtime = inode->i_ctime = inode->i_atime =
+ 				CURRENT_TIME;
+Index: linux-2.6.17/kernel/cpuset.c
+===================================================================
+--- linux-2.6.17.orig/kernel/cpuset.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/kernel/cpuset.c	2006-06-18 19:53:54.000000000 -0400
+@@ -289,7 +289,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+ 		inode->i_gid = current->fsgid;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		inode->i_mapping->backing_dev_info = &cpuset_backing_dev_info;
+Index: linux-2.6.17/mm/shmem.c
+===================================================================
+--- linux-2.6.17.orig/mm/shmem.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/mm/shmem.c	2006-06-18 19:53:54.000000000 -0400
+@@ -1360,7 +1360,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = current->fsuid;
+ 		inode->i_gid = current->fsgid;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_mapping->a_ops = &shmem_aops;
+ 		inode->i_mapping->backing_dev_info = &shmem_backing_dev_info;
+Index: linux-2.6.17/net/sunrpc/rpc_pipe.c
+===================================================================
+--- linux-2.6.17.orig/net/sunrpc/rpc_pipe.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/net/sunrpc/rpc_pipe.c	2006-06-18 19:53:54.000000000 -0400
+@@ -491,7 +491,6 @@
+ 		return NULL;
+ 	inode->i_mode = mode;
+ 	inode->i_uid = inode->i_gid = 0;
+-	inode->i_blksize = PAGE_CACHE_SIZE;
  	inode->i_blocks = 0;
  	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
--	inode->u.generic_ip = data;
-+	inode->i_private = data;
- 	if ((mode & S_IFMT) == S_IFDIR) {
- 		inode->i_op = &simple_dir_inode_operations;
- 		inode->i_nlink++;
-@@ -119,7 +119,7 @@
- 	u16 i;
- 	struct ipath_devdata *dd;
- 
--	dd = file->f_dentry->d_inode->u.generic_ip;
-+	dd = file->f_dentry->d_inode->i_private;
- 
- 	for (i = 0; i < NUM_COUNTERS; i++)
- 		counters[i] = ipath_snap_cntr(dd, i);
-@@ -139,7 +139,7 @@
- 	struct ipath_devdata *dd;
- 	u64 guid;
- 
--	dd = file->f_dentry->d_inode->u.generic_ip;
-+	dd = file->f_dentry->d_inode->i_private;
- 
- 	guid = be64_to_cpu(dd->ipath_guid);
- 
-@@ -178,7 +178,7 @@
- 	u32 tmp, tmp2;
- 	struct ipath_devdata *dd;
- 
--	dd = file->f_dentry->d_inode->u.generic_ip;
-+	dd = file->f_dentry->d_inode->i_private;
- 
- 	/* so we only initialize non-zero fields. */
- 	memset(portinfo, 0, sizeof portinfo);
-@@ -325,7 +325,7 @@
- 		goto bail;
- 	}
- 
--	dd = file->f_dentry->d_inode->u.generic_ip;
-+	dd = file->f_dentry->d_inode->i_private;
- 	if (ipath_eeprom_read(dd, pos, tmp, count)) {
- 		ipath_dev_err(dd, "failed to read from flash\n");
- 		ret = -ENXIO;
-@@ -381,7 +381,7 @@
- 		goto bail_tmp;
- 	}
- 
--	dd = file->f_dentry->d_inode->u.generic_ip;
-+	dd = file->f_dentry->d_inode->i_private;
- 	if (ipath_eeprom_write(dd, pos, tmp, count)) {
- 		ret = -ENXIO;
- 		ipath_dev_err(dd, "failed to write to flash\n");
-Index: linux-2.6.17/drivers/net/wireless/bcm43xx/bcm43xx_debugfs.c
+ 	switch(mode & S_IFMT) {
+Index: linux-2.6.17/security/inode.c
 ===================================================================
---- linux-2.6.17.orig/drivers/net/wireless/bcm43xx/bcm43xx_debugfs.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/drivers/net/wireless/bcm43xx/bcm43xx_debugfs.c	2006-06-18 18:58:55.000000000 -0400
-@@ -54,7 +54,7 @@
+--- linux-2.6.17.orig/security/inode.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/security/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -65,7 +65,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = 0;
+ 		inode->i_gid = 0;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		switch (mode & S_IFMT) {
+Index: linux-2.6.17/security/selinux/selinuxfs.c
+===================================================================
+--- linux-2.6.17.orig/security/selinux/selinuxfs.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/security/selinux/selinuxfs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -707,7 +707,6 @@
+ 	if (ret) {
+ 		ret->i_mode = mode;
+ 		ret->i_uid = ret->i_gid = 0;
+-		ret->i_blksize = PAGE_CACHE_SIZE;
+ 		ret->i_blocks = 0;
+ 		ret->i_atime = ret->i_mtime = ret->i_ctime = CURRENT_TIME;
+ 	}
+Index: linux-2.6.17/fs/cifs/cifsfs.c
+===================================================================
+--- linux-2.6.17.orig/fs/cifs/cifsfs.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/cifs/cifsfs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -112,7 +112,7 @@
+ #ifdef CONFIG_CIFS_QUOTA
+ 	sb->s_qcop = &cifs_quotactl_ops;
+ #endif
+-	sb->s_blocksize = CIFS_MAX_MSGSIZE;
++	sb->s_blksize = sb->s_blocksize = CIFS_MAX_MSGSIZE;
+ 	sb->s_blocksize_bits = 14;	/* default 2**14 = CIFS_MAX_MSGSIZE */
+ 	inode = iget(sb, ROOT_I);
  
- static int open_file_generic(struct inode *inode, struct file *file)
+@@ -254,7 +254,6 @@
+ 	file data or metadata */
+ 	cifs_inode->clientCanCacheRead = FALSE;
+ 	cifs_inode->clientCanCacheAll = FALSE;
+-	cifs_inode->vfs_inode.i_blksize = CIFS_MAX_MSGSIZE;
+ 	cifs_inode->vfs_inode.i_blkbits = 14;  /* 2**14 = CIFS_MAX_MSGSIZE */
+ 	cifs_inode->vfs_inode.i_flags = S_NOATIME | S_NOCMTIME;
+ 	INIT_LIST_HEAD(&cifs_inode->openFileList);
+Index: linux-2.6.17/fs/cifs/readdir.c
+===================================================================
+--- linux-2.6.17.orig/fs/cifs/readdir.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/cifs/readdir.c	2006-06-18 19:53:54.000000000 -0400
+@@ -197,10 +197,9 @@
+ 
+ 	if (allocation_size < end_of_file)
+ 		cFYI(1, ("May be sparse file, allocation less than file size"));
+-	cFYI(1, ("File Size %ld and blocks %llu and blocksize %ld",
++	cFYI(1, ("File Size %ld and blocks %llu",
+ 		(unsigned long)tmp_inode->i_size,
+-		(unsigned long long)tmp_inode->i_blocks,
+-		tmp_inode->i_blksize));
++		(unsigned long long)tmp_inode->i_blocks));
+ 	if (S_ISREG(tmp_inode->i_mode)) {
+ 		cFYI(1, ("File inode"));
+ 		tmp_inode->i_op = &cifs_file_inode_ops;
+Index: linux-2.6.17/fs/devfs/base.c
+===================================================================
+--- linux-2.6.17.orig/fs/devfs/base.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/fs/devfs/base.c	2006-06-18 19:53:54.000000000 -0400
+@@ -693,7 +693,6 @@
+ #define FIRST_INODE 1
+ 
+ #define STRING_LENGTH 256
+-#define FAKE_BLOCK_SIZE 1024
+ #define POISON_PTR ( *(void **) poison_array )
+ #define MAGIC_VALUE 0x327db823
+ 
+@@ -1925,7 +1924,6 @@
+ 	DPRINTK(DEBUG_I_GET, "(%d): VFS inode: %p  devfs_entry: %p\n",
+ 		(int)inode->i_ino, inode, de);
+ 	inode->i_blocks = 0;
+-	inode->i_blksize = FAKE_BLOCK_SIZE;
+ 	inode->i_op = &devfs_iops;
+ 	inode->i_mode = de->mode;
+ 	if (S_ISDIR(de->mode)) {
+Index: linux-2.6.17/fs/hugetlbfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/hugetlbfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/hugetlbfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -361,7 +361,6 @@
+ 		inode->i_mode = mode;
+ 		inode->i_uid = uid;
+ 		inode->i_gid = gid;
+-		inode->i_blksize = HPAGE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_mapping->a_ops = &hugetlbfs_aops;
+ 		inode->i_mapping->backing_dev_info =&hugetlbfs_backing_dev_info;
+@@ -678,6 +677,7 @@
+ 	sb->s_magic = HUGETLBFS_MAGIC;
+ 	sb->s_op = &hugetlbfs_ops;
+ 	sb->s_time_gran = 1;
++	sb->s_blksize = HPAGE_SIZE;
+ 	inode = hugetlbfs_get_inode(sb, config.uid, config.gid,
+ 					S_IFDIR | config.mode, 0);
+ 	if (!inode)
+Index: linux-2.6.17/fs/jfs/jfs_extent.c
+===================================================================
+--- linux-2.6.17.orig/fs/jfs/jfs_extent.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/jfs/jfs_extent.c	2006-06-18 19:53:54.000000000 -0400
+@@ -468,7 +468,7 @@
+ int extFill(struct inode *ip, xad_t * xp)
  {
--	file->private_data = inode->u.generic_ip;
-+	file->private_data = inode->i_private;
- 	return 0;
+ 	int rc, nbperpage = JFS_SBI(ip->i_sb)->nbperpage;
+-	s64 blkno = offsetXAD(xp) >> ip->i_blksize;
++	s64 blkno = offsetXAD(xp) >> ip->i_blkbits;
+ 
+ //      assert(ISSPARSE(ip));
+ 
+Index: linux-2.6.17/fs/jfs/jfs_imap.c
+===================================================================
+--- linux-2.6.17.orig/fs/jfs/jfs_imap.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/jfs/jfs_imap.c	2006-06-18 19:53:54.000000000 -0400
+@@ -3115,7 +3115,6 @@
+ 	ip->i_mtime.tv_nsec = le32_to_cpu(dip->di_mtime.tv_nsec);
+ 	ip->i_ctime.tv_sec = le32_to_cpu(dip->di_ctime.tv_sec);
+ 	ip->i_ctime.tv_nsec = le32_to_cpu(dip->di_ctime.tv_nsec);
+-	ip->i_blksize = ip->i_sb->s_blocksize;
+ 	ip->i_blocks = LBLK2PBLK(ip->i_sb, le64_to_cpu(dip->di_nblocks));
+ 	ip->i_generation = le32_to_cpu(dip->di_gen);
+ 
+Index: linux-2.6.17/fs/jfs/jfs_inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/jfs/jfs_inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/jfs/jfs_inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -115,7 +115,6 @@
+ 	}
+ 	jfs_inode->mode2 |= mode;
+ 
+-	inode->i_blksize = sb->s_blocksize;
+ 	inode->i_blocks = 0;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	jfs_inode->otime = inode->i_ctime.tv_sec;
+Index: linux-2.6.17/fs/jfs/jfs_metapage.c
+===================================================================
+--- linux-2.6.17.orig/fs/jfs/jfs_metapage.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/jfs/jfs_metapage.c	2006-06-18 19:53:54.000000000 -0400
+@@ -257,7 +257,7 @@
+ 	int rc = 0;
+ 	int xflag;
+ 	s64 xaddr;
+-	sector_t file_blocks = (inode->i_size + inode->i_blksize - 1) >>
++	sector_t file_blocks = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
+ 			       inode->i_blkbits;
+ 
+ 	if (lblock >= file_blocks)
+Index: linux-2.6.17/fs/ncpfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/ncpfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/ncpfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -225,7 +225,6 @@
+ 	inode->i_nlink = 1;
+ 	inode->i_uid = server->m.uid;
+ 	inode->i_gid = server->m.gid;
+-	inode->i_blksize = NCP_BLOCK_SIZE;
+ 
+ 	ncp_update_dates(inode, &nwinfo->i);
+ 	ncp_update_inode(inode, nwinfo);
+@@ -493,6 +492,7 @@
+ 	sb->s_blocksize_bits = 10;
+ 	sb->s_magic = NCP_SUPER_MAGIC;
+ 	sb->s_op = &ncp_sops;
++	sb->s_blksize = NCP_BLOCK_SIZE;
+ 
+ 	server = NCP_SBP(sb);
+ 	memset(server, 0, sizeof(*server));
+Index: linux-2.6.17/drivers/block/loop.c
+===================================================================
+--- linux-2.6.17.orig/drivers/block/loop.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/drivers/block/loop.c	2006-06-18 19:57:00.000000000 -0400
+@@ -664,7 +664,8 @@
+ 
+ 	mapping_set_gfp_mask(old_file->f_mapping, lo->old_gfp_mask);
+ 	lo->lo_backing_file = file;
+-	lo->lo_blocksize = mapping->host->i_blksize;
++	lo->lo_blocksize = S_ISBLK(mapping->host->i_mode) ?
++		mapping->host->i_bdev->bd_block_size : PAGE_SIZE;
+ 	lo->old_gfp_mask = mapping_gfp_mask(mapping);
+ 	mapping_set_gfp_mask(mapping, lo->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
+ 	complete(&p->wait);
+@@ -796,7 +797,9 @@
+ 		if (!(lo_flags & LO_FLAGS_USE_AOPS) && !file->f_op->write)
+ 			lo_flags |= LO_FLAGS_READ_ONLY;
+ 
+-		lo_blocksize = inode->i_blksize;
++		lo_blocksize = S_ISBLK(inode->i_mode) ?
++			inode->i_bdev->bd_block_size : PAGE_SIZE;
++
+ 		error = 0;
+ 	} else {
+ 		goto out_putf;
+Index: linux-2.6.17/fs/coda/coda_linux.c
+===================================================================
+--- linux-2.6.17.orig/fs/coda/coda_linux.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/coda/coda_linux.c	2006-06-18 19:53:54.000000000 -0400
+@@ -110,8 +110,6 @@
+ 	        inode->i_nlink = attr->va_nlink;
+ 	if (attr->va_size != -1)
+ 	        inode->i_size = attr->va_size;
+-	if (attr->va_blocksize != -1)
+-		inode->i_blksize = attr->va_blocksize;
+ 	if (attr->va_size != -1)
+ 		inode->i_blocks = (attr->va_size + 511) >> 9;
+ 	if (attr->va_atime.tv_sec != -1) 
+Index: linux-2.6.17/fs/smbfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/smbfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/smbfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -168,7 +168,6 @@
+ 	fattr->f_mtime	= inode->i_mtime;
+ 	fattr->f_ctime	= inode->i_ctime;
+ 	fattr->f_atime	= inode->i_atime;
+-	fattr->f_blksize= inode->i_blksize;
+ 	fattr->f_blocks	= inode->i_blocks;
+ 
+ 	fattr->attr	= SMB_I(inode)->attr;
+@@ -202,7 +201,6 @@
+ 	inode->i_uid	= fattr->f_uid;
+ 	inode->i_gid	= fattr->f_gid;
+ 	inode->i_ctime	= fattr->f_ctime;
+-	inode->i_blksize= fattr->f_blksize;
+ 	inode->i_blocks = fattr->f_blocks;
+ 	inode->i_size	= fattr->f_size;
+ 	inode->i_mtime	= fattr->f_mtime;
+Index: linux-2.6.17/fs/smbfs/proc.c
+===================================================================
+--- linux-2.6.17.orig/fs/smbfs/proc.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/smbfs/proc.c	2006-06-18 19:53:54.000000000 -0400
+@@ -1826,7 +1826,6 @@
+ 	fattr->f_nlink = 1;
+ 	fattr->f_uid = server->mnt->uid;
+ 	fattr->f_gid = server->mnt->gid;
+-	fattr->f_blksize = SMB_ST_BLKSIZE;
+ 	fattr->f_unix = 0;
  }
  
-Index: linux-2.6.17/kernel/relay.c
+Index: linux-2.6.17/include/linux/smb.h
 ===================================================================
---- linux-2.6.17.orig/kernel/relay.c	2006-06-18 18:58:51.000000000 -0400
-+++ linux-2.6.17/kernel/relay.c	2006-06-18 18:58:55.000000000 -0400
-@@ -669,7 +669,7 @@
-  */
- static int relay_file_open(struct inode *inode, struct file *filp)
- {
--	struct rchan_buf *buf = inode->u.generic_ip;
-+	struct rchan_buf *buf = inode->i_private;
- 	kref_get(&buf->kref);
- 	filp->private_data = buf;
+--- linux-2.6.17.orig/include/linux/smb.h	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/include/linux/smb.h	2006-06-18 19:53:54.000000000 -0400
+@@ -88,7 +88,6 @@
+ 	struct timespec	f_atime;
+ 	struct timespec f_mtime;
+ 	struct timespec f_ctime;
+-	unsigned long	f_blksize;
+ 	unsigned long	f_blocks;
+ 	int		f_unix;
+ };
+Index: linux-2.6.17/fs/hostfs/hostfs_kern.c
+===================================================================
+--- linux-2.6.17.orig/fs/hostfs/hostfs_kern.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/hostfs/hostfs_kern.c	2006-06-18 19:53:54.000000000 -0400
+@@ -156,7 +156,6 @@
+ 	ino->i_mode = i_mode;
+ 	ino->i_nlink = i_nlink;
+ 	ino->i_size = i_size;
+-	ino->i_blksize = i_blksize;
+ 	ino->i_blocks = i_blocks;
+ 	return(0);
+ }
+Index: linux-2.6.17/fs/nfs/inode.c
+===================================================================
+--- linux-2.6.17.orig/fs/nfs/inode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/nfs/inode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -910,10 +910,8 @@
+ 			 * report the blocks in 512byte units
+ 			 */
+ 			inode->i_blocks = nfs_calc_block_size(fattr->du.nfs3.used);
+-			inode->i_blksize = inode->i_sb->s_blocksize;
+ 		} else {
+ 			inode->i_blocks = fattr->du.nfs2.blocks;
+-			inode->i_blksize = fattr->du.nfs2.blocksize;
+ 		}
+ 		nfsi->attrtimeo = NFS_MINATTRTIMEO(inode);
+ 		nfsi->attrtimeo_timestamp = jiffies;
+@@ -1606,10 +1604,8 @@
+ 		 * report the blocks in 512byte units
+ 		 */
+ 		inode->i_blocks = nfs_calc_block_size(fattr->du.nfs3.used);
+-		inode->i_blksize = inode->i_sb->s_blocksize;
+  	} else {
+  		inode->i_blocks = fattr->du.nfs2.blocks;
+- 		inode->i_blksize = fattr->du.nfs2.blocksize;
+  	}
  
+ 	if ((fattr->valid & NFS_ATTR_FATTR_V4)) {
+Index: linux-2.6.17/fs/xfs/linux-2.6/xfs_super.c
+===================================================================
+--- linux-2.6.17.orig/fs/xfs/linux-2.6/xfs_super.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/xfs/linux-2.6/xfs_super.c	2006-06-18 19:53:54.000000000 -0400
+@@ -173,7 +173,6 @@
+ 		break;
+ 	}
+ 
+-	inode->i_blksize = xfs_preferred_iosize(mp);
+ 	inode->i_generation = ip->i_d.di_gen;
+ 	i_size_write(inode, ip->i_d.di_size);
+ 	inode->i_blocks =
+Index: linux-2.6.17/fs/xfs/linux-2.6/xfs_vnode.c
+===================================================================
+--- linux-2.6.17.orig/fs/xfs/linux-2.6/xfs_vnode.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/xfs/linux-2.6/xfs_vnode.c	2006-06-18 19:53:54.000000000 -0400
+@@ -106,7 +106,6 @@
+ 	inode->i_blocks	    = vap->va_nblocks;
+ 	inode->i_mtime	    = vap->va_mtime;
+ 	inode->i_ctime	    = vap->va_ctime;
+-	inode->i_blksize    = vap->va_blocksize;
+ 	if (vap->va_xflags & XFS_XFLAG_IMMUTABLE)
+ 		inode->i_flags |= S_IMMUTABLE;
+ 	else
+Index: linux-2.6.17/drivers/infiniband/hw/ipath/ipath_fs.c
+===================================================================
+--- linux-2.6.17.orig/drivers/infiniband/hw/ipath/ipath_fs.c	2006-06-18 19:37:39.000000000 -0400
++++ linux-2.6.17/drivers/infiniband/hw/ipath/ipath_fs.c	2006-06-18 19:53:54.000000000 -0400
+@@ -61,7 +61,6 @@
+ 	inode->i_mode = mode;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+-	inode->i_blksize = PAGE_CACHE_SIZE;
+ 	inode->i_blocks = 0;
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_private = data;
 
 --

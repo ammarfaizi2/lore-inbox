@@ -1,99 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWFSEhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWFSEoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWFSEhR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 00:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWFSEhQ
+	id S932109AbWFSEoa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 00:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWFSEoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 00:37:16 -0400
-Received: from brain.cel.usyd.edu.au ([129.78.24.68]:39407 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S1750826AbWFSEhP (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 00:37:15 -0400
-Message-Id: <5.1.1.5.2.20060619142049.049e1ee0@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Mon, 19 Jun 2006 14:37:12 +1000
-To: Shailabh Nagar <nagar@watson.ibm.com>
-From: sena seneviratne <auntvini@cel.usyd.edu.au>
-Subject: Re: New Metrics to measure Load average
-Cc: linux-Kernel@vger.kernel.org
-In-Reply-To: <44962320.8040201@watson.ibm.com>
-References: <5.1.1.5.2.20060619124345.0335fda0@brain.sedal.usyd.edu.au>
- <4492D948.8090300@in.ibm.com>
- <5.1.1.5.2.20060616110033.04483890@brain.sedal.usyd.edu.au>
- <4492D948.8090300@in.ibm.com>
- <5.1.1.5.2.20060619124345.0335fda0@brain.sedal.usyd.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Mon, 19 Jun 2006 00:44:30 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:8369 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750831AbWFSEoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 00:44:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kpVHRzaI9zv1jp06BWnHbNxnRmCjp0udWcvMAxujUzoPYqvnrbPbMIQK/oK6ZqIdbO4ZolBmGDPHJR+9EPchpN4UP1fZjmPuEqq1i3eU5ncAclX3/d1D1Bt38zixjJyFwUp3iukb/NSExT8ZOdPAKo+7tx11w1InNZ3bygHH0e0=
+Message-ID: <787b0d920606182144q9e4fe00re909df57dd520f39@mail.gmail.com>
+Date: Mon, 19 Jun 2006 00:44:29 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: linux-kernel@vger.kernel.org, roland@redhat.com, 76306.1226@compuserve.com,
+       cwright@cs.sunysb.edu, renzo@cs.unibo.it, blaisorblade@yahoo.it,
+       jdike@addtoit.com
+Subject: Re: [RFC PATCH 0/4] utrace: new modular infrastructure for user debug/tracing
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nagar,
+Roland McGrath writes:
 
-Thanks for your response and time.
-
-Yes a good question.
-
-(a) The short tasks to measure the response time itself after applying the 
-division of load and before.
-
-(b) The long tasks means HPC tasks to measure the load signal after 
-applying the division of load and before.
-
-I have run it for 600s, 1000s, and 1500s.
-
-The both these tests were successful.
-
-What I want to document is some standard tests just like using lmbench and 
-re-aim-7.
-
-I will go through your web site as well
-
-Thanks
-Sena Seneviratne
-Computer Engineering Lab
-School of Electrical and Information Engineering
-Sydney University
-Australia
-
-
-
-
-At 12:08 AM 6/19/2006 -0400, you wrote:
->sena seneviratne wrote:
+> This series of patches revamps the support for user process debugging
+> from the ground up, replacing the old ptrace support completely.
 >
->>In fact my question in the post was about performance testing after the 
->>changes being done.
->>
->>--2) Now about the tests
->>--As I have documented all this yet need to perform some standard tests 
->>for the sake of completion.
->>--What tests should I carry out to prove that the system is still intact?
->
->
->>--Please tell me whether the below is correct?
->>
->>--(a) As suggested by the http://kernel-perf.sourceforge.net/ the lmbench 
->>and re-aim-7 test packages can be used to test the ----performance of the 
->>kernel before making changes and after. (Not done as yet)
->To measure impact of patches for a kernel tree, Contest (available from 
->http://freshmeat.net/projects/contest/)
->is a good start. lmbench is also useful.
->
->>--(-b) Further tests have been carried out to check the response time of 
->>short tasks before making changes and after making --changes. The results 
->>indicated that there was no difference in the response time after 
->>introducing the changes to the kernel (done)
->>
->>---(c) Thereafter the tests have been carried out to check the runtime of 
->>long tasks before and after making changes. The results of the tests 
->>revealed that there is no change in reported runtime in both occasions.(done)
->Why is there a distinction between short and long running tasks when 
->overall performance overhead
->of the kernel needs to be verified ?
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> Two major problems with ptrace are its interface and its implementation.
 
+Yay!
+
+Having written a debugger for Linux, I can assure everyone that
+this is long overdue. We've been putting it off for years because
+the code is so horrible and nasty, yet not normally used prior to
+the creation of user-mode Linux.
+
+Doing serious work with ptrace() is a horrible joke involving
+interfaces that are crufty, undocumented, and insufficient.
+
+BTW: debuggers can't get and set the signal context (with cr2!),
+can't get and set LDT entries, don't get events when unshare()
+succeeds, can't call ptrace() from any desired thread, can't do
+a stop or start that affects more than one task, can't adjust the
+target's signal data (handlers,blocked,ignored,etc.), can't adjust
+file pointers and flags in the target, etc.
+
+With great difficulty, some of the above can be hacked around by
+inserting code into the target and running it. This is horribly
+painful. It puts writing a debugger out of reach of many people
+who might otherwise have only very basic code insertion needs
+or none at all.
+
+> system call interface is clunky to use and to extend, and makes it
+> difficult to reduce the overhead of doing several operations and of
+> transferring large amounts of data.
+
+See the FreeBSD ptrace() man page. We're just being dumb.
+
+> There is no way for more than one
+> party to trace a process.  The reporting model using SIGCHLD and wait4
+> is tricky to use reliably from userland, and especially hard to
+> integrate with other kinds of event loop.
+
+We needlessly make wait4/waitid/waitpid fail to accept
+equivalent flags. (some may need to be inverted sense)
+
+We don't appear to have any way to get these events into a
+select() or poll(). We could use this even for non-debugger apps.

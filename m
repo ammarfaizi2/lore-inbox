@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWFSBG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWFSBH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWFSBG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 21:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWFSBG7
+	id S932295AbWFSBH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 21:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWFSBH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 21:06:59 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:38248 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932161AbWFSBG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 21:06:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=lvjeVJq2sP6MdFVkNZtz0+KtChlYjXxfHhJs8BjwsQdy9NNxeDtlAAVJ3JpRVwEz9iPMc3O8U7R3Ze1DZg1nKsWPvQTOSKuLGjn0FHgh8GHu8Sr7jX/KRekSEAH2vj4Ixq7ZTKv4oEBvyqWEt7CqupidRDo/A5j1hm7yUN9JhE0=
-Message-ID: <4495F8B1.7020304@gmail.com>
-Date: Mon, 19 Jun 2006 03:06:57 +0200
-From: Wojciech Moczulski <wmoczulski@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Suspending and resuming a single task
-References: <4495F344.8080705@gmail.com> <E1Fs7vj-0003Rm-00@chiark.greenend.org.uk>
-In-Reply-To: <E1Fs7vj-0003Rm-00@chiark.greenend.org.uk>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Sun, 18 Jun 2006 21:07:27 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:6046 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S932295AbWFSBHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 21:07:25 -0400
+Date: Sun, 18 Jun 2006 21:07:22 -0400
+From: Brice Goglin <brice@myri.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/8] Rename PCI_CAP_ID_HT_IRQCONF into PCI_CAP_ID_HT
+Message-ID: <20060619010721.GB29950@myri.com>
+References: <20060619010544.GA29950@myri.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060619010544.GA29950@myri.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett napisa³(a):
-> http://cryopid.berlios.de/ ?
+[PATCH 1/8] Rename PCI_CAP_ID_HT_IRQCONF into PCI_CAP_ID_HT
 
-OK, and if I want to parse the path to a file, where process state is saved,
-to the kernel and let the kernel module restart the process? Is it possible to
-do it this way (without building self-executable binary)?
+0x08 is the HT capability, while PCI_CAP_ID_HT_IRQCONF would be
+the subtype 0x80 that mpic_scan_ht_pic() uses.
+Rename PCI_CAP_ID_HT_IRQCONF into PCI_CAP_ID_HT.
 
-Regards,
-Wojciech
+Signed-off-by: Brice Goglin <brice@myri.com>
+---
+ arch/powerpc/sysdev/mpic.c |    2 +-
+ include/linux/pci_regs.h   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+Index: linux-mm/arch/powerpc/sysdev/mpic.c
+===================================================================
+--- linux-mm.orig/arch/powerpc/sysdev/mpic.c	2006-06-17 22:11:06.000000000 -0400
++++ linux-mm/arch/powerpc/sysdev/mpic.c	2006-06-17 23:07:40.000000000 -0400
+@@ -250,7 +250,7 @@
+ 	for (pos = readb(devbase + PCI_CAPABILITY_LIST); pos != 0;
+ 	     pos = readb(devbase + pos + PCI_CAP_LIST_NEXT)) {
+ 		u8 id = readb(devbase + pos + PCI_CAP_LIST_ID);
+-		if (id == PCI_CAP_ID_HT_IRQCONF) {
++		if (id == PCI_CAP_ID_HT) {
+ 			id = readb(devbase + pos + 3);
+ 			if (id == 0x80)
+ 				break;
+Index: linux-mm/include/linux/pci_regs.h
+===================================================================
+--- linux-mm.orig/include/linux/pci_regs.h	2006-06-17 22:11:06.000000000 -0400
++++ linux-mm/include/linux/pci_regs.h	2006-06-17 23:07:40.000000000 -0400
+@@ -196,7 +196,7 @@
+ #define  PCI_CAP_ID_MSI		0x05	/* Message Signalled Interrupts */
+ #define  PCI_CAP_ID_CHSWP	0x06	/* CompactPCI HotSwap */
+ #define  PCI_CAP_ID_PCIX	0x07	/* PCI-X */
+-#define  PCI_CAP_ID_HT_IRQCONF	0x08	/* HyperTransport IRQ Configuration */
++#define  PCI_CAP_ID_HT		0x08	/* HyperTransport */
+ #define  PCI_CAP_ID_VNDR	0x09	/* Vendor specific capability */
+ #define  PCI_CAP_ID_SHPC 	0x0C	/* PCI Standard Hot-Plug Controller */
+ #define  PCI_CAP_ID_EXP 	0x10	/* PCI Express */

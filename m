@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWFSOrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWFSOs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbWFSOrw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 10:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWFSOrw
+	id S932503AbWFSOs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 10:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWFSOs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 10:47:52 -0400
-Received: from mgw1.diku.dk ([130.225.96.91]:64139 "EHLO mgw1.diku.dk")
-	by vger.kernel.org with ESMTP id S932453AbWFSOrv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 10:47:51 -0400
-Date: Mon, 19 Jun 2006 16:47:49 +0200 (CEST)
-From: Jesper Dangaard Brouer <hawk@diku.dk>
-To: Harry Edmon <harry@atmos.washington.edu>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-In-Reply-To: <44948EF6.1060201@atmos.washington.edu>
-Message-ID: <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
-References: <4492D5D3.4000303@atmos.washington.edu> <20060617153511.53a129a3.akpm@osdl.org>
- <44948EF6.1060201@atmos.washington.edu>
+	Mon, 19 Jun 2006 10:48:27 -0400
+Received: from ik55118.ikexpress.com ([213.246.55.118]:409 "EHLO
+	ik55118.ikexpress.com") by vger.kernel.org with ESMTP
+	id S932503AbWFSOs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 10:48:27 -0400
+Message-ID: <4496B92A.3010907@free-electrons.com>
+Date: Mon, 19 Jun 2006 16:48:10 +0200
+From: Michael Opdenacker <michael-lists@free-electrons.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Option to clear allocated kernel memory before freeing it?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
->> Harry Edmon <harry@atmos.washington.edu> wrote:
->> 
->>> I have a system with a strange network performance degradation from 
->>> 2.6.11.12 to most recent kernels including 2.6.16.20 and 2.6.17-rc6. 
->>> The system is has Dual single core Xeons with hyperthreading on.
-<cut>
+Would it make sense to implement a kernel option that would clear kernel 
+memory before freeing it (by kfree or free_page(s))?
 
-Hi Harry
+Unless I'm missing something, uncleared memory previously used for 
+kernel allocations could later be recycled for user allocations, making 
+it possible for a user program to access sensitive driver data if it's 
+lucky.
 
-Can you check which "high-res timesource" you are using?
+Tough clearing memory should be efficient (thanks to the use of 
+memset(), optimized for each platform), there would of course be a 
+significant performance hit. However, this could be acceptable for 
+systems with strong security requirements...
 
-In the kernel log look for:
-  kernel: Using tsc for high-res timesource
-  kernel: Using pmtmr for high-res timesource
+What do you think? If this idea makes sense, I'll be glad to help in 
+implementing it.
 
-I have experinced some network performance degradation when using the 
-"pmtmr" timesource, on a Opteron AMD system.  It seems that the default 
-timesource change between 2.6.15 to 2.6.16.
+    Thanks in advance,
 
-If you use "pmtmr" try to reboot with kernel option "clock=tsc".
+    Cheers,
 
-On my Opteron AMD system i normally can route 400 kpps, but with 
-timesource "pmtmr" i could only route around 83 kpps.  (I found the timer 
-to be the issue by using oprofile).
+    Michael.
 
+-- 
+Michael Opdenacker, Free Electrons
+Free Embedded Linux Training Materials
+on http://free-electrons.com/training
+(More than 1000 pages!)
 
-Cheers,
-   Jesper Brouer
-
---
--------------------------------------------------------------------
-MSc. Master of Computer Science
-Dept. of Computer Science, University of Copenhagen
-Author of http://www.adsl-optimizer.dk
--------------------------------------------------------------------

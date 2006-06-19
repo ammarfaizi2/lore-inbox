@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWFSLLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWFSLUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWFSLLo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 07:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWFSLLo
+	id S932239AbWFSLUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 07:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWFSLUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 07:11:44 -0400
-Received: from i58-94-79-192.s02.a026.ap.plala.or.jp ([58.94.79.192]:57611
-	"HELO i58-94-79-192.s02.a026.ap.plala.or.jp") by vger.kernel.org
-	with SMTP id S932382AbWFSLLn (ORCPT
+	Mon, 19 Jun 2006 07:20:05 -0400
+Received: from smtp10.orange.fr ([193.252.22.21]:2366 "EHLO smtp10.orange.fr")
+	by vger.kernel.org with ESMTP id S932239AbWFSLUD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 07:11:43 -0400
-Message-Id: <6.8.7.92.2.20031262293053.025b4b48@grownup.starnetusa.net>
-X-Mailer: QUALCOMM Windows Eudora Version 6.0.0.22
-Date: Mon, 19 Jun 2006 13:06:50 +0100
-From: "Marva Stanley" <YCRRBWRNJIS@venus.ark.com>
-To: linux-assembly@vger.kernel.org
-Subject: Re: change
+	Mon, 19 Jun 2006 07:20:03 -0400
+X-ME-UUID: 20060619112002602.930A7280014A@mwinf1007.orange.fr
+Subject: Re: [RFC] Whitelist chipsets supporting MSI and check
+	Hyper-transport capabilities
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Brice Goglin <brice@myri.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060617050524.GX2387@parisc-linux.org>
+References: <4493709A.7050603@myri.com>
+	 <20060617050524.GX2387@parisc-linux.org>
+Content-Type: text/plain
+Message-Id: <1150715995.14284.10.camel@capoeira>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 19 Jun 2006 13:19:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--S''ensationall r'evoolution in m''edicine!
+On Sat, 2006-06-17 at 07:05, Matthew Wilcox wrote:
+> On Fri, Jun 16, 2006 at 11:01:46PM -0400, Brice Goglin wrote:
+> > We introduce whitelisting of chipsets that are known to support MSI and
+> > keep the existing backlisting to disable MSI for other chipsets. When it
+> > is unknown whether the root chipset support MSI or not, we disable MSI
+> > by default except if pci=forcemsi was passed.
+> 
+> I think that's a bad idea.  Blacklisting is the better idea in the long-term.
 
--E'n'l'a'r'g'e your p''e'n'i's up to 10 cm or up to 4 i'nches!
+I think the option adopted elsewhere is: whitelist for old chipsets, and
+blacklist for new chipsets. You just have to decide for a good date to
+separate "old" and "new" to minimize the lists size.
 
--It's h'e'r'b'a'l solution what hasn't side e'ffect, but has 100% g'uaranted results!
+	Xav
 
--Don't lose your chance and but know wihtout d'oubts, you will be i'mpressed with results!
-
- Clisk here: http://houstontemple.info
-
-
-
-
-
-
-
-
-
-cloudburst stunk jolly autism dishes complement cosponsor collaborate tramp anaheim
-black torrid crease assonant countersunk doubleton lasso scram duke
-carborundum convolute cony cameramen lemon auctioneer strafe aghast cleft colloq architectural
-homeomorphic enzymology fest spitfire tarnish lineman midas pollinate
-scabrous gamesman ileum nymph spook liturgic slouch vogue
-incur donate electrocardiograph fable gunfire cody auschwitz sweeten

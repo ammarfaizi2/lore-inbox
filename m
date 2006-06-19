@@ -1,142 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWFSJWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWFSJ1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWFSJWx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 05:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWFSJWx
+	id S1751270AbWFSJ1y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 05:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWFSJ1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 05:22:53 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:44496 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751267AbWFSJWw (ORCPT
+	Mon, 19 Jun 2006 05:27:54 -0400
+Received: from 1wt.eu ([62.212.114.60]:63496 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751270AbWFSJ1x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 05:22:52 -0400
-Date: Mon, 19 Jun 2006 11:22:49 +0200
-From: Jan Blunck <jblunck@suse.de>
-To: Balbir Singh <balbir@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@zeniv.linux.org.uk, dgc@sgi.com, neilb@suse.de
-Subject: Re: [PATCH 2/5] vfs: d_genocide() doesnt add dentries to unused list
-Message-ID: <20060619092249.GB6824@hasse.suse.de>
-References: <20060616104321.778718000@hasse.suse.de> <20060616104322.204073000@hasse.suse.de> <4495AABE.6090007@in.ibm.com>
+	Mon, 19 Jun 2006 05:27:53 -0400
+Date: Mon, 19 Jun 2006 11:24:26 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Linux 2.4.33-rc1
+Message-ID: <20060619092426.GC3472@1wt.eu>
+References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <p9qc92t26fu29ib2opsg4l82lju7qmldm9@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4495AABE.6090007@in.ibm.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <p9qc92t26fu29ib2opsg4l82lju7qmldm9@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, Balbir Singh wrote:
-
-> > 			this_parent = dentry;
-> > 			goto repeat;
+On Mon, Jun 19, 2006 at 07:12:22PM +1000, Grant Coady wrote:
+> On Mon, 19 Jun 2006 10:06:51 +0200, Willy Tarreau <w@1wt.eu> wrote:
+> 
+> >Hi Grant,
+> >
+> >OK, it does *really* crash in vfs_unlink(), during the double_up on
+> >dentry->inode-i_zombie (dentry->inode = NULL).
+> >
+> >I suggest the following fix, I hope that it is correct and is not subject
+> >to any race condition :
+> >
+> >--- ./fs/namei.c.orig	2006-06-19 09:39:52.000000000 +0200
+> >+++ ./fs/namei.c	2006-06-19 09:51:09.000000000 +0200
+> >@@ -1478,12 +1478,14 @@
+> > int vfs_unlink(struct inode *dir, struct dentry *dentry)
+> > {
+> > 	int error;
+> >+	struct inode *inode;
+> > 
+> > 	error = may_delete(dir, dentry, 0);
+> > 	if (error)
+> > 		return error;
+> > 
+> >-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
+> >+	inode = dentry->d_inode;
+> >+	double_down(&dir->i_zombie, &inode->i_zombie);
+> > 	error = -EPERM;
+> > 	if (dir->i_op && dir->i_op->unlink) {
+> > 		DQUOT_INIT(dir);
+> >@@ -1495,7 +1497,7 @@
+> > 			unlock_kernel();
 > > 		}
-> >-		atomic_dec(&dentry->d_count);
-> >+		if (!list_empty(&dentry->d_lru)) {
-> >+			dentry_stat.nr_unused--;
-> >+			list_del_init(&dentry->d_lru);
-> >+		}
-> >+		if (atomic_dec_and_test(&dentry->d_count)) {
-> >+			list_add(&dentry->d_lru, dentry_unused.prev);
-> >+			dentry_stat.nr_unused++;
-> >+		}
+> > 	}
+> >-	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
+> >+	double_up(&dir->i_zombie, &inode->i_zombie);
+> > 	if (!error) {
+> > 		d_delete(dentry);
+> > 		inode_dir_notify(dir, DN_DELETE);
+> >
+> >I think it will *not* oops anymore with this fix, but I'd like someone to
+> >review it to ensure that it is valid.
 > 
-> We could have dentries on the LRU list with non-zero d_count. If
-> we have a dentry on the LRU list with a count of 1, then the code
-> will remove it from LRU list and then add it back subsequently.
-> 
+> Strangely, the /etc/lilo.conf~ is as expected on a different box, 
+> 500MHz Celeron (Coppermine) + PATA HDD okay, whereas the Sempron 
+> SktA 2600+ with SATA HDD has something munch a couple chars off 
+> a filename during whatever vim does to make its backup file.
 
-So you think this is better?
+I would not suspect the hardware. Instead, you should strace vim when it
+write the file :
 
-   if (atomic_dec_and_test(&dentry->d_count)) {
-      if (!list_empty(&dentry_d_lru))
-         list_move_tail(&dentry->d_lru, dentry_unused);
-   } else
-      if (!list_empty(&dentry->d_lru)) {
-         dentry_stat.nr_unused--;
-         list_del_init(&dentry->d_lru);
-      }
+  # strace -s 1000 -o /tmp/vim.trace vim /etc/lilo.conf
 
+Grep for "lilo.co" in it, I'm fairly sure that you will find "lilo.co~".
 
-> I think the condition below should be an else if
-> 
+> Grant.
 
-No. We always lower the reference count in d_genocide.
+Cheers,
+Willy
 
-> 
-> d_genocide() now almost looks like select_parent(). I think we can share a 
-> lot
-> of code between the two.
-> 
-
-Hmm, interesting idea. This would save the dentry-tree walking code in
-have_submounts too. Maybe something like this:
-
-+static int select_parent_walker(struct dentry * dentry, int * found)
-+{
-+       if (!list_empty(&dentry->d_lru)) {
-+               dentry_stat.nr_unused--;
-+               list_del_init(&dentry->d_lru);
-+       }
-+
-+       /*
-+        * move only zero ref count dentries to the end
-+        * of the unused list for prune_dcache
-+        */
-+       if (!atomic_read(&dentry->d_count)) {
-+               list_add(&dentry->d_lru, dentry_unused.prev);
-+               dentry_stat.nr_unused++;
-+               *found++;
-+       }
-+
-+       /*
-+        * We can return to the caller if we have found some (this
-+        * ensures forward progress). We'll be coming back to find
-+        * the rest.
-+        */
-+       if (*found && need_resched())
-+               return -1;
-+
-+       return 0;
-+}
-+
-+typedef int (*walker_t)(struct dentry * dentry, int * return);
-+
-+static int dentry_tree_walk(struct dentry * parent, walker_t walker)
-+{
-+       struct dentry *this_parent = parent;
-+       struct list_head *next;
-+       int ret = 0;
-+
-+       spin_lock(&dcache_lock);
-+repeat:
-+       next = this_parent->d_subdirs.next;
-+resume:
-+       while (next != &this_parent->d_subdirs) {
-+               struct list_head *tmp = next;
-+               struct dentry *dentry = list_entry(tmp, struct dentry,
-+                                                  d_u.d_child);
-+               next = tmp->next;
-+
-+               if (walker(dentry, &ret))
-+                       goto out;
-+
-+               /*
-+                * Descend a level if the d_subdirs list is non-empty.
-+                */
-+               if (!list_empty(&dentry->d_subdirs)) {
-+                       this_parent = dentry;
-+                       goto repeat;
-+               }
-+       }
-+       /*
-+        * All done at this level ... ascend and resume the search.
-+        */
-+       if (this_parent != parent) {
-+               next = this_parent->d_u.d_child.next;
-+               this_parent = this_parent->d_parent;
-+               goto resume;
-+       }
-+out:
-+       spin_unlock(&dcache_lock);
-+       return ret;
-+}

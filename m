@@ -1,37 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWFSDrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWFSDuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbWFSDrw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 23:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWFSDrw
+	id S1750986AbWFSDuc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 23:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWFSDub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 23:47:52 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:28854 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750965AbWFSDrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 23:47:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=R3dziZ7Gbpe9GiWuqMv4VMYNZmc5cwE9olVzq7ysCP8xCTvKeTLdR0VnkCzYPHMk9mr4F9tjRC4Xj94z3KpF7/4TFoAe6uPsiFT90euQikUnpD3j4B2RVYE72uW9L/KiFDVxW1BF6PP9l+YcWbzB7eW+AHCFH/8onAmtMeISRuw=
-Message-ID: <787b0d920606182047n62916655m5c88dc38e6b1ad72@mail.gmail.com>
-Date: Sun, 18 Jun 2006 23:47:51 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: linux-kernel@vger.kernel.org, samuel.thibault@ens-lyon.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
+	Sun, 18 Jun 2006 23:50:31 -0400
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:2401 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750986AbWFSDub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 23:50:31 -0400
+Message-ID: <44961EFC.8080809@bigpond.net.au>
+Date: Mon, 19 Jun 2006 13:50:20 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: Peter Williams <peterw@aurema.com>, Andrew Morton <akpm@osdl.org>,
+       dev@openvz.org, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, bsingharora@gmail.com, efault@gmx.de,
+       kernel@kolivas.org, sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
+       rene.herman@keyaccess.nl
+Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
+References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com> <44961758.6070305@bigpond.net.au> <44961A77.800@in.ibm.com>
+In-Reply-To: <44961A77.800@in.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 19 Jun 2006 03:50:29 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Thibault writes:
+Balbir Singh wrote:
+> Peter Williams wrote:
+>> Balbir Singh wrote:
+>>
+>>> Peter Williams wrote:
+>>>
+> 
+> <snip>
+> 
+>>> Is it possible that the effective tasks
+>>> is greater than the limit of the group?
+>>
+>>
+>> Yes.
+>>
+>>> How do we handle this scenario?
+>>
+>>
+>> You've got the problem back to front.  If the number of effective 
+>> tasks is less than the group limit then you have the situation that 
+>> needs special handling (not the other way around).  I.e. if the number 
+>> of effective tasks is less than the group limit then (strictly 
+>> speaking) there's no need to do any capping at all as the demand is 
+>> less than the limit.  However, in the case where the group limit is 
+>> less than one CPU (i.e. less than 1000) the recommended thing to do 
+>> would be set the limit of each task in the group to the group limit.
+>>
+>> Obviously, group limits can be greater than one CPU (i.e. 1000).
+>>
+>> The number of CPUs on the system also needs to be taken into account 
+>> for group capping as if the group cap is greater than the number of 
+>> CPUs there's no way it can be exceeded and tasks in this group would 
+>> not need any processing.
+>>
+> 
+> What if we have a group limit of 100 (out of 1000) and 150 effective 
+> tasks in
+> the group? How do you calculate the cap of each task?
 
-> The attached patch sets such session and controlling tty up, which fixes
-> the issue. The unfortunate effect is that init might be killed if one
-> presses control-C very fast after its start.
+Personally I'd round up to 1 :-) but rounding down to zero is also an 
+option.  The reason I'd opt for 1 is that a zero cap has a special 
+meaning i.e. background.
 
-Doesn't the kernel protect process 1 from any signal
-that it does not have a handler for?
+> I hope my understanding of effective tasks is correct.
 
-I think there is no problem.
+Yes, but I think that you fail to realize that this problem (a lower 
+limit to what caps can be enforced) exists for any mechanism due to the 
+fact we're stuck with discrete mathematics in computers.  This includes 
+floating point representations of numbers which are just crude (discrete 
+maths) approximations of real numbers.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

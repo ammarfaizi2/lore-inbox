@@ -1,134 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWFSC0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWFSC1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWFSC0J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 22:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWFSC0J
+	id S1750750AbWFSC1A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 22:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWFSC1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 22:26:09 -0400
-Received: from cantor.suse.de ([195.135.220.2]:30687 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750726AbWFSC0H (ORCPT
+	Sun, 18 Jun 2006 22:27:00 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:2226 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750750AbWFSC07 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 22:26:07 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 19 Jun 2006 12:25:57 +1000
+	Sun, 18 Jun 2006 22:26:59 -0400
+Message-ID: <449609E4.1030908@in.ibm.com>
+Date: Mon, 19 Jun 2006 07:50:20 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Peter Williams <peterw@aurema.com>
+Cc: Andrew Morton <akpm@osdl.org>, dev@openvz.org, vatsa@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       bsingharora@gmail.com, efault@gmx.de,
+       Peter Williams <pwil3058@bigpond.net.au>, kernel@kolivas.org,
+       sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
+       rene.herman@keyaccess.nl
+Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
+References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com>
+In-Reply-To: <4495F7FE.9030601@aurema.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17558.2869.42245.876826@cse.unsw.edu.au>
-Cc: dgc@sgi.com, jblunck@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-       balbir@in.ibm.com
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
- list (2nd version)
-In-Reply-To: message from Andrew Morton on Sunday June 18
-References: <20060601095125.773684000@hasse.suse.de>
-	<17539.35118.103025.716435@cse.unsw.edu.au>
-	<20060616155120.GA6824@hasse.suse.de>
-	<17555.12234.347353.670918@cse.unsw.edu.au>
-	<20060618235654.GB2114946@melbourne.sgi.com>
-	<17557.61307.364404.640539@cse.unsw.edu.au>
-	<20060619010013.GC2114946@melbourne.sgi.com>
-	<17557.64512.496195.714144@cse.unsw.edu.au>
-	<20060618190422.5daf17fe.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday June 18, akpm@osdl.org wrote:
-> On Mon, 19 Jun 2006 11:21:04 +1000
-> Neil Brown <neilb@suse.de> wrote:
+Peter Williams wrote:
+> Balbir Singh wrote:
 > 
-> > static void prune_dcache(int count, struct super_block *sb)
-> > +static void prune_dcache(int count, struct list_head *list)
-> >  {
-> > +	int have_list = list != NULL;
-> > +	struct list_head alt_head;
-> >  	spin_lock(&dcache_lock);
-> > +	if (list == NULL) {
-> > +		/* use the dentry_unused list */
-> > +		list_add(&alt_head, &dentry_unused);
-> > +		list_del_init(&dentry_unused);
-> > +		list = &alt_head;
-> > +	}
+>>Peter Williams wrote:
+>>
+>>>Andrew Morton wrote:
+>>>
+>>>
+>>>>On Sun, 18 Jun 2006 18:26:38 +1000
+>>>>Peter Williams <pwil3058@bigpond.net.au> wrote:
+>>>>
+>>>>People are going to want to extend this to capping a *group* of tasks, 
+>>>>with
+>>>>some yet-to-be-determined means of tying those tasks together.  How well
+>>>>suited is this code to that extension?
+>>>
+>>>Quite good.  It can be used from outside the scheduler to impose caps on 
+>>>arbitrary groups of tasks.  Were the PAGG interface available I could 
+>>>knock up a module to demonstrate this.  When/if the "task watchers" 
+>>>patch is included I will try and implement a higher level mechanism 
+>>>using that.  The general technique is to get an estimate of the 
+>>>"effective number" of tasks in the group (similar to load) and give each 
+>>>task in the group a cap which is the group's cap divided by the 
+>>>effective number of tasks (or the group cap whichever is smaller -- i.e. 
+>>>the effective number of tasks could be less than one).
+>>>)
+>>
+>>
+>>There is one possible issue with this approach. Lets assume that we desire
+>>a cap of 10 for a set of two tasks. As discussed earlier, each task
+>>would get a limit of 5% if they are equally busy.
+>>
+>>Lets call the group as G1 and the tasks as T1 and T2.
+>>
+>>If we have another group called G2 with tasks T3, T4 and T5 and a soft
+>>cap of 90. Then each of T3, T4 and T5 would get a soft cap of
+>>30% (assuming that they are equally busy). Now if T5 stops using its limit
+>>for a while let say its cpu utilization is 10% - how do we divide the saved
+>>20% between T1, T2, T3 and T4.
+>>
+>>In a group scenario, the balance 20% should be shared between T3 and T4.
 > 
-> This will make dentry_unused appear to be empty.
 > 
+> You're mixing up the method described above with the other one we 
+> discussed where the group's cap is divided among its tasks in proportion 
+> to their demand.  With the model I describe above reduced demand by any 
+> tasks in a group would be reflected in a reduced value for the 
+> "effective number of tasks" in the group with a consequent increase in 
+> the cap applied to all group members.
+>
 
-Yep.  Appear.
+Thanks for clarifying. How frequently is the reduction in effective number
+of tasks calculated and how frequently is the cap updated? Does it require
+setting the cap values of all the tasks in the group again (O(N), N is the
+number of tasks in the group)? Is it possible that the effective tasks
+is greater than the limit of the group? How do we handle this scenario?
 
-> >  	for (; count ; count--) {
-> >  		struct dentry *dentry;
-> >  		struct list_head *tmp;
-> > @@ -405,23 +417,11 @@ static void prune_dcache(int count, stru
-> >  
-> >  		cond_resched_lock(&dcache_lock);
-> 
-> And then it makes that apparent-emptiness globally visible.
-> 
-
-But who will look?  and will they care?
-
-> Won't this cause concurrent unmounting or memory shrinking to malfunction?
-
-I don't think so.
-
-Unmounting always passes a list to prune_dcache, so dentry_unused
-doesn't get emptied, so shrink_dcache_memory will not get confused.
-
-If there are two concurrent calls to shrink_dcache_memory, then one
-will find an empty list and do nothing, and it appears this is
-possible - there is no locking between callers to shrink_slab.
-
-That's probably not fatal, but it isn't ideal (I expect....).
-
-I guess I don't need to create a separate list.  It seemed cleaner but
-does have this awkwardness.
-The following patch on top of the previous one changes that behaviour.
-
-I'm wondering now if maybe we should really have two different
-'prune_dcache' functions.
-One that works on a private list and doesn't bother with
-DCACHE_REFERENCED or s_umount, and one that works on the global list
-and does the awkward stuff.  I might try that later and see what it
-looks like.
-
-NeilBrown
-
-
-### Diffstat output
- ./fs/dcache.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
-
-diff .prev/fs/dcache.c ./fs/dcache.c
---- .prev/fs/dcache.c	2006-06-19 11:19:29.000000000 +1000
-+++ ./fs/dcache.c	2006-06-19 12:20:49.000000000 +1000
-@@ -404,12 +404,10 @@ static void prune_dcache(int count, stru
- 	int have_list = list != NULL;
- 	struct list_head alt_head;
- 	spin_lock(&dcache_lock);
--	if (list == NULL) {
-+	if (list == NULL)
- 		/* use the dentry_unused list */
--		list_add(&alt_head, &dentry_unused);
--		list_del_init(&dentry_unused);
--		list = &alt_head;
--	}
-+		list = &dentry_unused;
-+
- 	for (; count ; count--) {
- 		struct dentry *dentry;
- 		struct list_head *tmp;
-@@ -490,7 +488,8 @@ static void prune_dcache(int count, stru
- 		break;
- 	}
- 	/* split any remaining entries back onto dentry_unused */
--	list_splice(list, dentry_unused.prev);
-+	if (have_list)
-+		list_splice(list, dentry_unused.prev);
- 	spin_unlock(&dcache_lock);
- }
  
+> I think both methods will work and the main difference would be in their 
+> complexity.
+
+An implementation or prototype when available will be interesting to play
+around and experiment with. I think it will help clarify if the task mechanism
+will indeed work for groups or may expose some limitations of the mechanism.
+
+> 
+> 
+>>Also mathematically
+>>
+>>A group is a superset of task
+>>
+>>It is hard to implement things for a task and make it work for groups,
+> 
+> 
+> I disagree.  If the low level control is there at the task level or (if 
+> we were managing memory) the address space level then it is relatively 
+> simple (even if boring) to do arbitrary resource control for groups from 
+> the outside.
+> 
+> One of the key advantages of doing it from the outside is that any 
+> locking that is required at the group level is unlikely to get tangled 
+> up with the existing locking mechanisms such as the run queue lock. 
+> This is not true if group management is done on the inside e.g. in the 
+> scheduling code.
+> 
+
+The f-series controller from ckrm does so without changing or getting
+tangled with the existing locking system.
+
+> 
+>>but if we had something for groups, we could easily adapt it to tasks
+>>by making each group equal to a task
+> 
+> 
+> You seem to have a flair for adding unnecessary overhead for those who 
+> won't use this functionality. :-)
+> 
+> 
+>>>Doing it inside the scheduler is also doable but would have some locking 
+>>>issues.  The run queue lock could no longer be used to protect the data 
+>>>as there's no guarantee that all the tasks in the group are associated 
+>>>with the same queue.
+> 
+> 
+> I should have elaborated here that (conceptually) modifying this code to 
+> apply caps to groups of tasks instead of individual tasks is simple.  It 
+> mainly involves moving most the data (statistics plus cap values) to a 
+> group structure and then modifying the code to update statistics for the 
+> group instead of the task and then make the decisions about whether a 
+> task should have a cap enforced (i.e. moved to one of the soft cap 
+> priorities or sin binned) based on the group statistics.
+> 
+> However, maintaining and accessing the group statistics will require 
+> additional locking as the run queue lock will no longer be able to 
+> protect the data as not all tasks in the group will be associated with 
+> the same CPU.  Care will be needed to ensure that this new locking 
+> doesn't lead to dead locks with the run queue locks.
+> 
+> In addition to the extra overhead caused by these locking requirements, 
+> the code for gathering the statistics will need to be more complex also 
+> adding to the overhead.  There is also the issue of increased 
+> serialization (there is already some due to load balancing) of task 
+> scheduling to be considered although, to be fair, this increased 
+> serialization will be within groups.
+> 
+> 
+
+The f-series CPU controller does all of what you say in 403 lines (including
+comments and copyright). I think the biggest advantage of maintaining the
+group statistics in the kernel is that certain scheduling decisions can be
+made based on group statistics rather than task statistics, which makes the
+mechanism independent of the number of tasks in the group (isolates the
+groups from changes in number of tasks).
+
+If we can achieve something similar with low overhead in user space, I would
+certainly love to see it.
+
+>>>>If the task can exceed its cap without impacting any other tasks (ie: 
+>>>>there
+>>>>is spare idle capacity), what happens?
+>>>
+>>>That's the difference between soft and hard caps.  If it's a soft cap 
+>>>then the task is allowed to exceed it if there's spare capacity.  If 
+>>>it's a hard cap it's not.
+>>>
+>>
+>>By how much is the task allowed to exceed if there is spare capacity?
+> 
+> 
+> Up to the amount of spare capacity.
+> 
+> 
+>>Will the spare capacity allocation require resetting of caps to implement
+>>the new caps?
+> 
+> 
+> No.  It's part of the soft cap mechanism.
+> 
+> 
+>>>> I trust that spare capacity gets
+>>>>used?  (Is this termed "work conserving"?)
+>>>
+>>>Soft caps, yes.  Hard caps, no.
+>>>
+>>
+> 
+> In summary, these patches are a good basis for doing capping for groups 
+> of tasks by at least two means:
+> 
+> 1. modification to do group capping in the scheduler, or
+> 2. implementing group capping from outside the scheduler.
+> 
+> I intend spending more effort looking at the second of these options 
+> than looking at the first.
+> 
+> Peter
+
+
+-- 
+	Double the cheers,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

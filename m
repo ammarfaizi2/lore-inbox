@@ -1,77 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWFSV4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWFSWCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWFSV4t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 17:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWFSV4s
+	id S964930AbWFSWCo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 18:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWFSWCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 17:56:48 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:5340 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964927AbWFSV4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 17:56:48 -0400
-Date: Mon, 19 Jun 2006 14:58:22 -0700
-From: mark gross <mgross@linux.intel.com>
-To: Thomas Gleixner <tglx@timesys.com>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and dynamic HZ
-Message-ID: <20060619215822.GA4178@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-References: <1150643426.27073.17.camel@localhost.localdomain> <449580CA.2060704@gmail.com> <1150660202.27073.23.camel@localhost.localdomain> <200606192209.38403.kernel@kolivas.org> <1150720304.27073.70.camel@localhost.localdomain>
+	Mon, 19 Jun 2006 18:02:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57787 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964930AbWFSWCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 18:02:43 -0400
+Date: Mon, 19 Jun 2006 15:05:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: mingo@elte.hu, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com
+Subject: Re: [patch 8/8] lock validator: add s390 to supported options
+Message-Id: <20060619150547.0b6213b1.akpm@osdl.org>
+In-Reply-To: <20060614142503.GI1241@osiris.boeblingen.de.ibm.com>
+References: <20060614142503.GI1241@osiris.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150720304.27073.70.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 02:31:44PM +0200, Thomas Gleixner wrote:
-> On Mon, 2006-06-19 at 22:09 +1000, Con Kolivas wrote:
-> > Also suffers from:
-> > WARNING: "timespec_to_jiffies" [fs/fuse/fuse.ko] undefined!
-> > 
-> > Here is a fix
-> 
-> Doh, where is the brown paperbag shop ?
-> 
-> Thanks, applied.
-> 
-> New queue:
-> 
-> http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick3.patch
-> 
-> http://www.tglx.de/projects/hrtimers/2.6.17/patch-2.6.17-hrt-dyntick3.patches.tar.bz2
-> 
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+>
+>  config DEBUG_SPINLOCK_ALLOC
+>  	bool "Spinlock debugging: detect incorrect freeing of live spinlocks"
+> -	depends on DEBUG_SPINLOCK && X86
+> +	depends on DEBUG_SPINLOCK && (X86 || S390)
 
-I'm just giving this a test spin now on my desktop boot.  looking at uptime and cat /proc/interrupts 
-~/work> uptime;cat /proc/interrupts 
-  2:51pm  up   0:28,  5 users,  load average: 0.00, 0.02, 0.08
-	CPU0       
-	0:      80007          XT-PIC  timer
-	1:       1776          XT-PIC  i8042
-	2:          0          XT-PIC  cascade
-	8:          2          XT-PIC  rtc
-	9:          0          XT-PIC  acpi
-	11:       2156          XT-PIC  eth0
-	12:       2879          XT-PIC  i8042
-	14:      20402          XT-PIC  ide0
-	15:         11          XT-PIC  ide1
-	NMI:          0 
-	LOC:          0 
-	ERR:          0
-	MIS:          0
+Can we please stomp this out before it starts to look like
+CONFIG_FRAME_POINTER?
 
-or about 47.6 timer's a second.
+We should define CONFIG_ARCH_SUPPORTS_LOCKDEP down in
+arch/[i386|x86_64|s390]/Kconfig and use that in lib/Kconfig.debug.
 
-This system is mostly idle, is this about right or should I expect even fewer timer ticks?
-
-Is there a way to see timer stats?
-
-FWIW Its nice to see this stuff start getting real.
-
-thanks
-
---mgross

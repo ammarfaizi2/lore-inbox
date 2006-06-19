@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWFSINS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWFSIQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWFSINS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWFSINS
+	id S932291AbWFSIQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWFSIQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:13:18 -0400
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:45708 "EHLO
-	mail-gw1.sa.eol.hu") by vger.kernel.org with ESMTP id S932275AbWFSINS
+	Mon, 19 Jun 2006 04:16:08 -0400
+Received: from 189.Red-80-39-87.staticIP.rima-tde.net ([80.39.87.189]:39309
+	"EHLO iquis.com") by vger.kernel.org with ESMTP id S932291AbWFSIQF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:13:18 -0400
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20060618235805.f12d4606.akpm@osdl.org> (message from Andrew
-	Morton on Sun, 18 Jun 2006 23:58:05 -0700)
-Subject: Re: [PATCH 4/7] fuse: add POSIX file locking support
-References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
-	<E1FplXk-00062M-00@dorka.pomaz.szeredi.hu> <20060618235805.f12d4606.akpm@osdl.org>
-Message-Id: <E1FsEsM-0002M3-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 19 Jun 2006 10:12:50 +0200
+	Mon, 19 Jun 2006 04:16:05 -0400
+Message-ID: <44965CC3.1060203@iquis.com>
+Date: Mon, 19 Jun 2006 10:13:55 +0200
+From: juampe <juampe@iquis.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Duncan Sands <baldrick@free.fr>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 06/13] USBATM: shutdown open connections when disconnected
+References: <OF39174CF7.B508FCBD-ONC125718F.00407FFC-C125718F.00413F4F@telefonica.es>
+In-Reply-To: <OF39174CF7.B508FCBD-ONC125718F.00407FFC-C125718F.00413F4F@telefonica.es>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +/*
-> > + * It would be nice to scramble the ID space, so that the value of the
-> > + * files_struct pointer is not exposed to userspace.  Symmetric crypto
-> > + * functions are overkill, since the inverse function doesn't need to
-> > + * be implemented (though it does have to exist).  Is there something
-> > + * simpler?
-> > + */
-> > +static inline u64 fuse_lock_owner_id(fl_owner_t id)
-> > +{
-> > +	return (unsigned long) id;
-> > +}
-> 
-> Add a constant, not-known-to-userspace offset to all ids?
+> This patch causes vcc_release_async to be applied to any *open
+>** v*cc's when the modem is *disconnected*. 
 
-I thought of that, but it seemd cryptographically not quite strong
-enough.  But maybe it's better than nothing.
 
-Thanks,
-Miklos
+> Unfortunately this patch may create problems
+> for those rare users like me who use routed IP or some other
+> non-ppp connection method that goes via the ATM ARP daemon: the
+> daemon is buggy, and with this patch will crash when the modem
+> is *disconnected*.  Users with a buggy atmarpd can simply restart
+> it after disconnecting the modem.
+
+First i must thanks all effort in usbatm development.
+IMHO New fatures to a driver that works well and can block the use, 
+especially if it can disable internet access and the problem is know,
+MUST be disabled by default or provide a mechanism to disable it.
+
+I'm a rare user with routed IP and this patch blocks the normal use of internet
+I dont understand how this patch can be accepted for a stable release without 
+any kind of disable mechanism.
+
+Yeah, i know that atmarp is buggy, but before speedtouch driver and atm works well during months.
+
+Best Regards.
+Juampe.
+

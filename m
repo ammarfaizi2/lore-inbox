@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWFSJmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWFSKDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWFSJmt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 05:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWFSJmt
+	id S932332AbWFSKDx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 06:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWFSKDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 05:42:49 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:7054 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932220AbWFSJms (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 05:42:48 -0400
-Date: Mon, 19 Jun 2006 11:42:46 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: "leo.liang.chen@gmail.com" <leo.liang.chen@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Newbie questions on the kernel programming
-Message-ID: <20060619094245.GA13787@harddisk-recovery.com>
-References: <1150709412.051278.100900@g10g2000cwb.googlegroups.com>
+	Mon, 19 Jun 2006 06:03:53 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:47336 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932332AbWFSKDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 06:03:52 -0400
+Date: Mon, 19 Jun 2006 05:57:40 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Kernel panic when re-inserting Adaptec PCMCIA card
+To: Alex Davis <alex14641@yahoo.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Message-ID: <200606190600_MC3-1-C2D8-23E6@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1150709412.051278.100900@g10g2000cwb.googlegroups.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 09:30:12AM -0000, leo.liang.chen@gmail.com wrote:
-> I am learning linux kernel programming starting from  "The Linux Kernel
-> Module Programming Guide"(http://www.faqs.org/docs/kernel/) .   I have
-> background in Windows DDK, but I am confused on the following topics.
-> Can anyone here give me some hints.
-> 
-> 1) MODULE_PARM() macro (http://www.faqs.org/docs/kernel/x350.html)
-> static short int myshort = 1;
-> static int myint = 420;
-> static long int mylong = 9999;
-> static char *mystring = "blah";
-> 
-> MODULE_PARM (myshort, "h");
-> MODULE_PARM (myint, "i");
-> MODULE_PARM (mylong, "l");
-> MODULE_PARM (mystring, "s");
+In-Reply-To: <20060614022139.21737.qmail@web50208.mail.yahoo.com>
 
-Note that this is an obsolete syntax, it changed in 2.6 like this:
+On Tue, 13 Jun 2006 19:21:39 -0700, Alex Davis wrote:
 
-  module_param(myint, int, 0);
+Same panic occurs in 2.6.17rc6:
 
-> In the sample code, it is said the MODULE_PARM macro can allow
-> arguments to be passed to the driver module.  But how?
+> Jun 13 17:50:36 siafu kernel: [4295220.230000] pccard: PCMCIA card inserted into slot 0
+> Jun 13 17:50:36 siafu kernel: [4295220.230000] pcmcia: registering new device pcmcia0.0
+> Jun 13 17:50:37 siafu kernel: [4295220.281000] aha152x: resetting bus...
+> Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: vital data: rev=1, io=0xd340
+> (0xd340/0xd340), irq=3, scsiid=7, reconnect=enabled,
+>  parity=enabled, synchronous=enabled, delay=100, extended translation=disabled
+> Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: trying software interrupt, ok.
+> Jun 13 17:50:37 siafu kernel: [4295221.638000] scsi13 : Adaptec 152x SCSI driver; $Revision: 2.7 $
+> Jun 13 17:50:37 siafu kernel: [4295221.650000]
+> Jun 13 17:50:37 siafu kernel: [4295221.650000] aha152x22856: bottom-half already running!?
+> Jun 13 17:50:37 siafu kernel: [4295221.650000]
+> Jun 13 17:50:37 siafu kernel: [4295221.650000] queue status:
+> Jun 13 17:50:37 siafu kernel: [4295221.650000] issue_SC:
+> Jun 13 17:50:37 siafu kernel: [4295221.650000] current_SC:
+> Jun 13 17:50:37 siafu kernel: [4295221.650000] BUG: unable to handle kernel paging request at
+> virtual address 00020016
 
-  modprobe mydriver myshort=42
+Something is going very wrong here.  At time .637 it says it is
+adapter number 13 (aha152x13.)  Then at .650 it thinks it's
+adapter nr. 22856 (!)  Looks like some kind of pointer to the
+hostdata is corrupted.
 
-> 2) Character Device Drivers(http://www.faqs.org/docs/kernel/x571.html)
-> I can not catch the key points in this section.  What should I learn
-> from the "chardev.c" sample?  How can I install the module as a device?
->  How can I call the functions in the driver?
-> 
-> 3)  The /proc File System(http://www.faqs.org/docs/kernel/x716.html)
-> What's the main points in the section.  How does the /proc file system
-> matter linux kernel programming?
-
-Hardly at all anymore.
-
-See http://lwn.net/Kernel/LDD3/ for a book that describes the current
-2.6 kernel.
-
-
-Erik
+Can you rmmod the driver after removing the card and see if that
+helps?
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

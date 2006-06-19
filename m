@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWFSNoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWFSNsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWFSNoK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 09:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWFSNoK
+	id S932424AbWFSNsL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 09:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWFSNsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 09:44:10 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:25045 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S932456AbWFSNoI (ORCPT
+	Mon, 19 Jun 2006 09:48:11 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:10917 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932424AbWFSNsK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 09:44:08 -0400
-Date: Mon, 19 Jun 2006 06:36:26 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 5/16] 2.6.17-rc6 perfmon2 patch for review: new sysfs support
-Message-ID: <20060619133626.GE25215@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200606172339_MC3-1-C2C6-D2C3@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606172339_MC3-1-C2C6-D2C3@compuserve.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Mon, 19 Jun 2006 09:48:10 -0400
+Date: Mon, 19 Jun 2006 15:47:45 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Thomas Gleixner <tglx@timesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and
+ dynamic HZ
+In-Reply-To: <20060619125018.GA20549@elte.hu>
+Message-ID: <Pine.LNX.4.64.0606191510140.12900@scrub.home>
+References: <1150643426.27073.17.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0606190144560.17704@scrub.home> <20060619125018.GA20549@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck,
+Hi,
 
-On Sat, Jun 17, 2006 at 11:36:36PM -0400, Chuck Ebbert wrote:
-> In-Reply-To: <200606150907.k5F97YtU008130@frankl.hpl.hp.com>
+On Mon, 19 Jun 2006, Ingo Molnar wrote:
+
+> > > Bugreports and suggestions are welcome,
+> > 
+> > Could you please document the patches? I know it sucks compared to 
+> > hacking, but it would make a review a lot simpler.
 > 
-> On Thu, 15 Jun 2006 02:07:34 -0700, Stephane Eranian wrote:
-> 
-> > --- linux-2.6.17-rc6.orig/perfmon/perfmon_sysfs.c     1969-12-31 16:00:00.000000000 -0800
-> > +++ linux-2.6.17-rc6/perfmon/perfmon_sysfs.c  2006-06-08 05:36:31.000000000 -0700
->  ...
-> > +struct pfm_controls pfm_controls = {
-> > +     .sys_group = PFM_GROUP_PERM_ANY,
-> > +     .task_group = PFM_GROUP_PERM_ANY,
-> > +     .arg_size_max = PAGE_SIZE,
-> > +     .smpl_buf_size_max = ~0,
-> > +};
-> 
-> This means that by default anyone can create monitoring sessions.
+> yeah, we'll add some description to the patches themselves, but 
 
-Yes.
+The problem is this is not the first time I mentioned this and some 
+patches still have no descriptions at all! :-(
 
-> It should start out as restrictive as possible; the admin can relax
-> permissions as needed.
-> 
+> otherwise i'm afraid it will be like with almost all patch submissions 
+> on lkml: 99% of the details are in the code and people have to ask 
+> specifically if one area or another is unclear :-|
 
-I would expect distros to set it in a more restrictive way. That is what
-I have observed with the Resources Limits such as RLIMIT_MEMLOCK, for instance.
+For a lot of things this acceptable, but if patches (e.g. clockevents) add 
+new generic infrastructure which effect all archs, they need 
+documentation (unless you also provide all the arch specific changes).
 
-I am not sure what the mainline policy is on this.
+> Meanwhile the patch names should provide you with some initial info 
+> (also, we reuse GTOD which is documented in -mm) and the splitup is 
+> pretty clean too - but in any case please feel free to ask pointed 
+> questions! (we happily accept documentation patches as well.)
 
-I am glad you looked at that permission code because I found a bug there
-related to sys_group/task_group.
+I can't do this without documentation. Without any information I'm only 
+wondering why it has to be this complex.
+For example clockevents, I think all the special event handlers are 
+overkill, a simple list would do just fine. This way it may also possible 
+to treat a clock as virtual interrupt source and we could share code with 
+interrupt code and a callback can simply be requested via request_irq().
+More information about what this code actually intends to do and what it 
+is required to do, would help a great deal to judge alternative solutions, 
+but only the author of this code can really provide this information and 
+IMO it's really sad that this information is still lacking after being 
+requested multiple times.
 
-Thanks.
-
--- 
-
--Stephane
+bye, Roman

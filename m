@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWFSH76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWFSIAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWFSH76 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 03:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWFSH75
+	id S932244AbWFSIAc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWFSIAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 03:59:57 -0400
-Received: from iona.labri.fr ([147.210.8.143]:63659 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S1751006AbWFSH75 (ORCPT
+	Mon, 19 Jun 2006 04:00:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17024 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932244AbWFSIAb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 03:59:57 -0400
-Date: Mon, 19 Jun 2006 09:59:56 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Message-ID: <20060619075955.GC4253@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
-References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr> <20060618223906.GA30726@animx.eu.org> <20060618224051.GE4744@bouh.residence.ens-lyon.fr> <20060618224424.GH13255@w.ods.org> <20060618224828.GF4744@bouh.residence.ens-lyon.fr> <20060619035910.GA2678@1wt.eu>
+	Mon, 19 Jun 2006 04:00:31 -0400
+Date: Mon, 19 Jun 2006 00:59:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: ccb@acm.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] increase spinlock-debug looping timeouts from 1 sec to
+ 1 min
+Message-Id: <20060619005955.b05840e8.akpm@osdl.org>
+In-Reply-To: <20060619070229.GA8293@elte.hu>
+References: <1150142023.3621.22.camel@cbox.memecycle.com>
+	<20060617100710.ec05131f.akpm@osdl.org>
+	<20060619070229.GA8293@elte.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060619035910.GA2678@1wt.eu>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau, le Mon 19 Jun 2006 05:59:10 +0200, a écrit :
-> On Mon, Jun 19, 2006 at 12:48:28AM +0200, Samuel Thibault wrote:
-> > Willy Tarreau, le Mon 19 Jun 2006 00:44:24 +0200, a écrit :
-> > > On Mon, Jun 19, 2006 at 12:40:51AM +0200, Samuel Thibault wrote:
-> > > > Wakko Warner, le Sun 18 Jun 2006 18:39:06 -0400, a écrit :
-> > > > > why not only set this if the shell is /bin/sh ?
-> > > > 
-> > > > Because you can't know that. /bin/sh is one example of shell, /bin/ash
-> > > > is another /usr/bin/myprog is yet another...
-> > > 
-> > > another possibility would be to do it only if 'init=' has been specified,
-> > > since most of the time the kernel finds it itself.
-> > 
-> > Init needs to be patched for the emergency case then.
->  
-> why ?
+On Mon, 19 Jun 2006 09:02:29 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-For the "emergency" case: for now, init doesn't create a session either
-in such case.
+> Subject: increase spinlock-debug looping timeouts from 1 sec to 1 min
 
-Samuel
+But it's broken.  In the non-debug case we subtract RW_LOCK_BIAS so we know
+that the writer will get the lock when all readers vacate.  But in the
+CONFIG_DEBUG_SPINLOCK case we don't do that, with the result that taking a
+write_lock can take over a second.
+
+A much, much better fix (which involves visiting all architectures) would
+be to subtract RW_LOCK_BIAS and _then_ wait for a second.
+
+OK, it's only debug code.  But RH (for one) have decided to ship zillions
+of kernels with this debug code turned on.

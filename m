@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWFSRxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWFSRxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWFSRxv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 13:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWFSRxs
+	id S964819AbWFSRxr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 13:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWFSRxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 13:53:48 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:5273 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S964805AbWFSRx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 13:53:28 -0400
+	Mon, 19 Jun 2006 13:53:46 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:500 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S964818AbWFSRxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 13:53:39 -0400
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
@@ -17,202 +17,132 @@ Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
        Christoph Lameter <christoph@lameter.com>,
        Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
        Linus Torvalds <torvalds@osdl.org>
-Date: Mon, 19 Jun 2006 19:53:15 +0200
-Message-Id: <20060619175315.24655.45123.sendpatchset@lappy>
+Date: Mon, 19 Jun 2006 19:53:26 +0200
+Message-Id: <20060619175326.24655.90153.sendpatchset@lappy>
 In-Reply-To: <20060619175243.24655.76005.sendpatchset@lappy>
 References: <20060619175243.24655.76005.sendpatchset@lappy>
-Subject: [PATCH 3/6] mm: msync() cleanup
+Subject: [PATCH 4/6] mm: optimize the new mprotect() code a bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-With the tracking of dirty pages properly done now, msync doesn't need to
-scan the PTEs anymore to determine the dirty status.
+mprotect() resets the page protections, which could result in extra write
+faults for those pages whos dirty state we track using write faults
+and are dirty already.
 
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ mm/mprotect.c |   33 +++++++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
- mm/msync.c |  129 ++++---------------------------------------------------------
- 1 file changed, 9 insertions(+), 120 deletions(-)
-
-Index: 2.6-mm/mm/msync.c
+Index: 2.6-mm/mm/mprotect.c
 ===================================================================
---- 2.6-mm.orig/mm/msync.c	2006-06-19 16:21:13.000000000 +0200
-+++ 2.6-mm/mm/msync.c	2006-06-19 16:21:21.000000000 +0200
-@@ -20,109 +20,14 @@
- #include <asm/pgtable.h>
+--- 2.6-mm.orig/mm/mprotect.c	2006-06-19 16:19:42.000000000 +0200
++++ 2.6-mm/mm/mprotect.c	2006-06-19 16:20:42.000000000 +0200
+@@ -28,7 +28,8 @@
  #include <asm/tlbflush.h>
  
--static unsigned long msync_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
--				unsigned long addr, unsigned long end)
--{
--	pte_t *pte;
--	spinlock_t *ptl;
--	int progress = 0;
--	unsigned long ret = 0;
--
--again:
--	pte = pte_offset_map_lock(vma->vm_mm, pmd, addr, &ptl);
--	do {
--		struct page *page;
--
--		if (progress >= 64) {
--			progress = 0;
--			if (need_resched() || need_lockbreak(ptl))
--				break;
--		}
--		progress++;
--		if (!pte_present(*pte))
--			continue;
--		if (!pte_maybe_dirty(*pte))
--			continue;
--		page = vm_normal_page(vma, addr, *pte);
--		if (!page)
--			continue;
--		if (ptep_clear_flush_dirty(vma, addr, pte) ||
--				page_test_and_clear_dirty(page))
--			ret += set_page_dirty(page);
--		progress += 3;
--	} while (pte++, addr += PAGE_SIZE, addr != end);
--	pte_unmap_unlock(pte - 1, ptl);
--	cond_resched();
--	if (addr != end)
--		goto again;
--	return ret;
--}
--
--static inline unsigned long msync_pmd_range(struct vm_area_struct *vma,
--			pud_t *pud, unsigned long addr, unsigned long end)
--{
--	pmd_t *pmd;
--	unsigned long next;
--	unsigned long ret = 0;
--
--	pmd = pmd_offset(pud, addr);
--	do {
--		next = pmd_addr_end(addr, end);
--		if (pmd_none_or_clear_bad(pmd))
--			continue;
--		ret += msync_pte_range(vma, pmd, addr, next);
--	} while (pmd++, addr = next, addr != end);
--	return ret;
--}
--
--static inline unsigned long msync_pud_range(struct vm_area_struct *vma,
--			pgd_t *pgd, unsigned long addr, unsigned long end)
--{
--	pud_t *pud;
--	unsigned long next;
--	unsigned long ret = 0;
--
--	pud = pud_offset(pgd, addr);
--	do {
--		next = pud_addr_end(addr, end);
--		if (pud_none_or_clear_bad(pud))
--			continue;
--		ret += msync_pmd_range(vma, pud, addr, next);
--	} while (pud++, addr = next, addr != end);
--	return ret;
--}
--
--static unsigned long msync_page_range(struct vm_area_struct *vma,
--				unsigned long addr, unsigned long end)
--{
--	pgd_t *pgd;
--	unsigned long next;
--	unsigned long ret = 0;
--
--	/* For hugepages we can't go walking the page table normally,
--	 * but that's ok, hugetlbfs is memory based, so we don't need
--	 * to do anything more on an msync().
--	 */
--	if (vma->vm_flags & VM_HUGETLB)
--		return 0;
--
--	BUG_ON(addr >= end);
--	pgd = pgd_offset(vma->vm_mm, addr);
--	flush_cache_range(vma, addr, end);
--	do {
--		next = pgd_addr_end(addr, end);
--		if (pgd_none_or_clear_bad(pgd))
--			continue;
--		ret += msync_pud_range(vma, pgd, addr, next);
--	} while (pgd++, addr = next, addr != end);
--	return ret;
--}
--
- /*
-  * MS_SYNC syncs the entire file - including mappings.
-  *
-- * MS_ASYNC does not start I/O (it used to, up to 2.5.67).  Instead, it just
-- * marks the relevant pages dirty.  The application may now run fsync() to
-+ * MS_ASYNC does not start I/O (it used to, up to 2.5.67).
-+ * Nor does it marks the relevant pages dirty (it used to up to 2.6.17).
-+ * Now it doesn't do anything, since dirty pages are properly tracked.
-+ *
-+ * The application may now run fsync() to
-  * write out the dirty pages and wait on the writeout and check the result.
-  * Or the application may run fadvise(FADV_DONTNEED) against the fd to start
-  * async writeout immediately.
-@@ -130,16 +35,11 @@ static unsigned long msync_page_range(st
-  * applications.
-  */
- static int msync_interval(struct vm_area_struct *vma, unsigned long addr,
--			unsigned long end, int flags,
--			unsigned long *nr_pages_dirtied)
-+			unsigned long end, int flags)
+ static void change_pte_range(struct mm_struct *mm, pmd_t *pmd,
+-		unsigned long addr, unsigned long end, pgprot_t newprot)
++		unsigned long addr, unsigned long end, pgprot_t newprot,
++		int is_accountable)
  {
--	struct file *file = vma->vm_file;
--
- 	if ((flags & MS_INVALIDATE) && (vma->vm_flags & VM_LOCKED))
- 		return -EBUSY;
- 
--	if (file && (vma->vm_flags & VM_SHARED))
--		*nr_pages_dirtied = msync_page_range(vma, addr, end);
- 	return 0;
+ 	pte_t *pte, oldpte;
+ 	spinlock_t *ptl;
+@@ -43,7 +44,13 @@ static void change_pte_range(struct mm_s
+ 			 * bits by wiping the pte and then setting the new pte
+ 			 * into place.
+ 			 */
+-			ptent = pte_modify(ptep_get_and_clear(mm, addr, pte), newprot);
++			ptent = ptep_get_and_clear(mm, addr, pte);
++			ptent = pte_modify(ptent, newprot);
++			/* Avoid taking write faults for pages we know to be
++			 * dirty.
++			 */
++			if (is_accountable && pte_dirty(ptent))
++				ptent = pte_mkwrite(ptent);
+ 			set_pte_at(mm, addr, pte, ptent);
+ 			lazy_mmu_prot_update(ptent);
+ #ifdef CONFIG_MIGRATION
+@@ -67,7 +74,8 @@ static void change_pte_range(struct mm_s
  }
  
-@@ -178,7 +78,6 @@ asmlinkage long sys_msync(unsigned long 
- 		goto out_unlock;
- 	}
- 	do {
--		unsigned long nr_pages_dirtied = 0;
- 		struct file *file;
+ static inline void change_pmd_range(struct mm_struct *mm, pud_t *pud,
+-		unsigned long addr, unsigned long end, pgprot_t newprot)
++		unsigned long addr, unsigned long end, pgprot_t newprot,
++		int is_accountable)
+ {
+ 	pmd_t *pmd;
+ 	unsigned long next;
+@@ -77,12 +85,13 @@ static inline void change_pmd_range(stru
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+-		change_pte_range(mm, pmd, addr, next, newprot);
++		change_pte_range(mm, pmd, addr, next, newprot, is_accountable);
+ 	} while (pmd++, addr = next, addr != end);
+ }
  
- 		/* Here start < vma->vm_end. */
-@@ -189,8 +88,7 @@ asmlinkage long sys_msync(unsigned long 
- 		/* Here vma->vm_start <= start < vma->vm_end. */
- 		if (end <= vma->vm_end) {
- 			if (start < end) {
--				error = msync_interval(vma, start, end, flags,
--							&nr_pages_dirtied);
-+				error = msync_interval(vma, start, end, flags);
- 				if (error)
- 					goto out_unlock;
- 			}
-@@ -198,22 +96,13 @@ asmlinkage long sys_msync(unsigned long 
- 			done = 1;
- 		} else {
- 			/* Here vma->vm_start <= start < vma->vm_end < end. */
--			error = msync_interval(vma, start, vma->vm_end, flags,
--						&nr_pages_dirtied);
-+			error = msync_interval(vma, start, vma->vm_end, flags);
- 			if (error)
- 				goto out_unlock;
- 		}
- 		file = vma->vm_file;
- 		start = vma->vm_end;
--		if ((flags & MS_ASYNC) && file && nr_pages_dirtied) {
--			get_file(file);
--			up_read(&current->mm->mmap_sem);
--			balance_dirty_pages_ratelimited_nr(file->f_mapping,
--							nr_pages_dirtied);
--			fput(file);
--			down_read(&current->mm->mmap_sem);
--			vma = find_vma(current->mm, start);
--		} else if ((flags & MS_SYNC) && file &&
-+		if ((flags & MS_SYNC) && file &&
- 				(vma->vm_flags & VM_SHARED)) {
- 			get_file(file);
- 			up_read(&current->mm->mmap_sem);
+ static inline void change_pud_range(struct mm_struct *mm, pgd_t *pgd,
+-		unsigned long addr, unsigned long end, pgprot_t newprot)
++		unsigned long addr, unsigned long end, pgprot_t newprot,
++		int is_accountable)
+ {
+ 	pud_t *pud;
+ 	unsigned long next;
+@@ -92,12 +101,13 @@ static inline void change_pud_range(stru
+ 		next = pud_addr_end(addr, end);
+ 		if (pud_none_or_clear_bad(pud))
+ 			continue;
+-		change_pmd_range(mm, pud, addr, next, newprot);
++		change_pmd_range(mm, pud, addr, next, newprot, is_accountable);
+ 	} while (pud++, addr = next, addr != end);
+ }
+ 
+ static void change_protection(struct vm_area_struct *vma,
+-		unsigned long addr, unsigned long end, pgprot_t newprot)
++		unsigned long addr, unsigned long end, pgprot_t newprot,
++		int is_accountable)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	pgd_t *pgd;
+@@ -111,7 +121,7 @@ static void change_protection(struct vm_
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none_or_clear_bad(pgd))
+ 			continue;
+-		change_pud_range(mm, pgd, addr, next, newprot);
++		change_pud_range(mm, pgd, addr, next, newprot, is_accountable);
+ 	} while (pgd++, addr = next, addr != end);
+ 	flush_tlb_range(vma, start, end);
+ }
+@@ -129,6 +139,7 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	pgprot_t newprot;
+ 	pgoff_t pgoff;
+ 	int error;
++	int is_accountable = 0;
+ 
+ 	if (newflags == oldflags) {
+ 		*pprev = vma;
+@@ -184,8 +195,10 @@ success:
+ 	if (is_shared_writable(newflags) && vma->vm_file)
+ 		mapping = vma->vm_file->f_mapping;
+ 	if ((mapping && mapping_cap_account_dirty(mapping)) ||
+-			(vma->vm_ops && vma->vm_ops->page_mkwrite))
++			(vma->vm_ops && vma->vm_ops->page_mkwrite)) {
+ 		mask &= ~VM_SHARED;
++		is_accountable = 1;
++	}
+ 
+ 	newprot = protection_map[newflags & mask];
+ 
+@@ -198,7 +211,7 @@ success:
+ 	if (is_vm_hugetlb_page(vma))
+ 		hugetlb_change_protection(vma, start, end, newprot);
+ 	else
+-		change_protection(vma, start, end, newprot);
++		change_protection(vma, start, end, newprot, is_accountable);
+ 	vm_stat_account(mm, oldflags, vma->vm_file, -nrpages);
+ 	vm_stat_account(mm, newflags, vma->vm_file, nrpages);
+ 	return 0;

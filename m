@@ -1,61 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWFSQkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWFSQmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbWFSQkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 12:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWFSQkl
+	id S964793AbWFSQmr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 12:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWFSQmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 12:40:41 -0400
-Received: from dew1.atmos.washington.edu ([128.95.89.41]:47070 "EHLO
-	dew1.atmos.washington.edu") by vger.kernel.org with ESMTP
-	id S964792AbWFSQkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 12:40:40 -0400
-Message-ID: <4496D37D.7090400@atmos.washington.edu>
-Date: Mon, 19 Jun 2006 09:40:29 -0700
-From: Harry Edmon <harry@atmos.washington.edu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Jesper Dangaard Brouer <hawk@diku.dk>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-References: <4492D5D3.4000303@atmos.washington.edu> <20060617153511.53a129a3.akpm@osdl.org> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
-In-Reply-To: <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 19 Jun 2006 12:42:47 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:53441 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S964793AbWFSQmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 12:42:46 -0400
+Date: Mon, 19 Jun 2006 13:42:40 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Frank Gevaerts <frank.gevaerts@fks.be>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RESEND] [PATCH 2/2] ipaq.c timing parameters
+Message-ID: <20060619134240.68785a33@doriath.conectiva>
+In-Reply-To: <20060619084619.GB17103@fks.be>
+References: <20060619084446.GA17103@fks.be>
+	<20060619084619.GB17103@fks.be>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.9.3; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -104.399 () ALL_TRUSTED,BAYES_00,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Jun 2006 10:46:19 +0200
+Frank Gevaerts <frank.gevaerts@fks.be> wrote:
 
+| Adds configurable waiting periods to the ipaq connection code. These are
+| not needed when the pocketpc device is running normally when plugged in,
+| but they need extra delays if they are physically connected while
+| rebooting.
+| There are two parameters :
+| * initial_wait : this is the delay before the driver attemts to start the
+|   connection. This is needed because the pocktpc device takes much
+|   longer to boot if the driver starts sending control packets too soon.
+| * connect_retries : this is the number of times the control urb is
+|   retried before finally giving up. The patch also adds a 1 second delay
+|   between retries.
+| I'm not sure if the cases where this patch is useful are general enough
+| to include this in the kernel.
+| 
+| Signed-off-by: Frank Gevaerts <frank.gevaerts@fks.be>
+| 
+| diff -urp linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c
+| --- linux-2.6.17-rc6.a/drivers/usb/serial/ipaq.c	2006-06-14 16:02:03.000000000 +0200
+| +++ linux-2.6.17-rc6.b/drivers/usb/serial/ipaq.c	2006-06-14 16:06:44.000000000 +0200
+| @@ -71,6 +71,8 @@
+|  
+|  static __u16 product, vendor;
+|  static int debug;
+| +static int connect_retries = KP_RETRIES;
+| +static int initial_wait;
+|  
+|  /* Function prototypes for an ipaq */
+|  static int  ipaq_open (struct usb_serial_port *port, struct file *filp);
+| @@ -583,7 +585,7 @@ static int ipaq_open(struct usb_serial_p
+|  	struct ipaq_private	*priv;
+|  	struct ipaq_packet	*pkt;
+|  	int			i, result = 0;
+| -	int			retries = KP_RETRIES;
+| +	int			retries = connect_retries;
+|  
+|  	dbg("%s - port %d", __FUNCTION__, port->number);
+|  
+| @@ -647,6 +649,7 @@ static int ipaq_open(struct usb_serial_p
+|  	port->read_urb->transfer_buffer_length = URBDATA_SIZE;
+|  	port->bulk_out_size = port->write_urb->transfer_buffer_length = URBDATA_SIZE;
+|  	
+| +	msleep(1000*initial_wait);
 
-Jesper Dangaard Brouer wrote:
->
->>> Harry Edmon <harry@atmos.washington.edu> wrote:
->>>
->>>> I have a system with a strange network performance degradation from 
->>>> 2.6.11.12 to most recent kernels including 2.6.16.20 and 
->>>> 2.6.17-rc6. The system is has Dual single core Xeons with 
->>>> hyperthreading on.
-> <cut>
->
-> Hi Harry
->
-> Can you check which "high-res timesource" you are using?
->
-> In the kernel log look for:
->  kernel: Using tsc for high-res timesource
->  kernel: Using pmtmr for high-res timesource
->
-> I have experinced some network performance degradation when using the 
-> "pmtmr" timesource, on a Opteron AMD system.  It seems that the 
-> default timesource change between 2.6.15 to 2.6.16.
->
-> If you use "pmtmr" try to reboot with kernel option "clock=tsc".
->
-> On my Opteron AMD system i normally can route 400 kpps, but with 
-> timesource "pmtmr" i could only route around 83 kpps.  (I found the 
-> timer to be the issue by using oprofile).
->
->
-We have CONFIG_HPET_TIMER=y, so we do not see these messages.
+ I was going to say you should use ssleep() here, but I can't find a
+ssleep_interruptible(). Then either: use msleep_interruptible() or
+creates a new ssleep_interruptible().
 
+|  	/* Start reading from the device */
+|  	usb_fill_bulk_urb(port->read_urb, serial->dev, 
+|  		      usb_rcvbulkpipe(serial->dev, port->bulk_in_endpointAddress),
+| @@ -673,6 +676,7 @@ static int ipaq_open(struct usb_serial_p
+|  			}
+|  			return 0;
+|  		}
+| +		msleep(1000);
+|  	}
 
+ Don't you want msleep(100); here?
+
+-- 
+Luiz Fernando N. Capitulino

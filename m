@@ -1,72 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWFSVpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbWFSVqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWFSVpn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 17:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWFSVpn
+	id S932544AbWFSVqE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 17:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWFSVqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 17:45:43 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:2120 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S964907AbWFSVpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 17:45:42 -0400
-Date: Mon, 19 Jun 2006 14:45:37 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Theodore Tso <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Cc: mark.fasheh@oracle.com
-Subject: Re: [RFC] [PATCH 5/8] inode-diet: Eliminate i_blksize and use a per-superblock default
-Message-ID: <20060619214537.GV29684@ca-server1.us.oracle.com>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	linux-kernel@vger.kernel.org, mark.fasheh@oracle.com
-References: <20060619152003.830437000@candygram.thunk.org> <20060619153109.817554000@candygram.thunk.org> <20060619160146.GQ29684@ca-server1.us.oracle.com> <20060619170627.GC15216@thunk.org>
-MIME-Version: 1.0
+	Mon, 19 Jun 2006 17:46:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40123 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932544AbWFSVqC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 17:46:02 -0400
+Date: Mon, 19 Jun 2006 14:42:58 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI Hotplug patches for 2.6.17
+Message-ID: <20060619214258.GA6607@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060619170627.GC15216@thunk.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 01:06:27PM -0400, Theodore Tso wrote:
-> How strongly do you feel about reporting stat.st_blksize out to be the
-> clustersize?  Keeping in mind that if you report a value which is too
-> big, /bin/cp will start coredumping....
+Here are PCI Hotplug fixes and patches for 2.6.17.  They refactor a
+number of different pci hotplug drivers and fix some bugs for different
+platforms.
 
-	What's "too big"?  We certainly don't specify 128MB, but we will
-specify up to 1MB.
-	When we have large cluster size filesystems, we've seen backups
-with O_DIRECT-enabled versions of cp(1) and dd(1) go way faster than
-when they read/write 4K at a time.  This matters to folks who have the
-files open O_DIRECT by other processes and cannot trust the page cache.
-At least, that's is how it was when we originally did this :-)
+All of these patches have been in the -mm tree for a number of months.
 
-> If I take Christoph's suggestion of simply removing sb->s_blksize
-> altogether, and forcing filesystems that want to return a non-default
-> value for stat.st_blksize to supply their own filesystem-specific
-> getattr, will you mind terribly?
+Please pull from:
+	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
-	Well, Christoph points out we already have a valid getattr()
-that calls generic_fillattr() and then overloads our stat->blksize.  So
-I think we're safe.  I don't think we need sb->s_blksize, but I'll defer
-to Mark for the final say.
+The full patches will be sent to the linux-pci mailing list, if anyone
+wants to see them.
 
-Joel
+thanks,
 
--- 
+greg k-h
 
-"The lawgiver, of all beings, most owes the law allegiance.  He of all
- men should behave as though the law compelled him.  But it is the
- universal weakness of mankind that what we are given to administer we
- presently imagine we own."
-        - H.G. Wells
 
-Joel Becker
-Principal Software Developer
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+ drivers/pci/hotplug/acpi_pcihp.c   |  257 +++++++++--
+ drivers/pci/hotplug/acpiphp.h      |    5 
+ drivers/pci/hotplug/acpiphp_glue.c |  242 +++++++---
+ drivers/pci/hotplug/ibmphp_core.c  |   12 
+ drivers/pci/hotplug/pci_hotplug.h  |   50 +-
+ drivers/pci/hotplug/pciehp.h       |    2 
+ drivers/pci/hotplug/pciehp_core.c  |   14 
+ drivers/pci/hotplug/pciehp_hpc.c   |   32 -
+ drivers/pci/hotplug/pciehp_pci.c   |  152 ++++++
+ drivers/pci/hotplug/sgi_hotplug.c  |   46 +
+ drivers/pci/hotplug/shpchp.h       |    8 
+ drivers/pci/hotplug/shpchp_core.c  |    8 
+ drivers/pci/hotplug/shpchp_ctrl.c  |   32 -
+ drivers/pci/hotplug/shpchp_hpc.c   |  861 ++++++++++++++++---------------------
+ drivers/pci/hotplug/shpchp_pci.c   |   31 -
+ 15 files changed, 1091 insertions(+), 661 deletions(-)
+
+---------------
+
+Eric Sesterhenn:
+      PCI Hotplug: fake NULL pointer dereferences in IBM Hot Plug Controller Driver
+
+Jan Beulich:
+      PCI Hotplug: Fix recovery path from errors during pcie_init()
+
+Kenji Kaneshige:
+      acpi_pcihp: Fix programming _HPP values
+      acpi_pcihp: Remove improper error message about OSHP
+      acpi_pcihp: Add support for _HPX
+      pciehp: Fix programming hotplug parameters
+      SHPC: Cleanup SHPC register access
+      SHPC: Cleanup SHPC Logical Slot Register access
+      SHPC: Cleanup SHPC Logical Slot Register bits access
+      SHPC: Fix SHPC Logical Slot Register bits access
+      SHPC: Fix SHPC Contoller SERR-INT Register bits access
+      shpchp: Mask Global SERR and Intr at controller release time
+      shpchp: Create shpchpd at controller probe time
+      pciehp: Replace pci_find_slot() with pci_get_slot()
+      pciehp: Add missing pci_dev_put
+      pciehp: Implement get_address callback
+      shpchp: Remove unnecessary hpc_ctlr_handle check
+      shpchp: Cleanup interrupt handler
+      shpchp: Cleanup SHPC commands
+      shpchp: Cleanup interrupt polling timer
+      shpchp: Remove Unused hpc_evelnt_lock
+      shpchp: Cleanup improper info messages
+
+Kristen Accardi:
+      PCI Hotplug: don't use acpi_os_free
+      pciehp: dont call pci_enable_dev
+
+Mike Habeck:
+      SGI Hotplug: Incorrect power status
+
+MUNEDA Takahiro:
+      acpiphp: configure _PRT - V3
+      acpiphp: hotplug slot hotplug
+      acpiphp: host and p2p hotplug
+      acpiphp: turn off slot power at error case
+
+Prarit Bhargava:
+      PCI Hotplug: Tollhouse HP: SGI hotplug driver changes
+

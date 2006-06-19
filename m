@@ -1,171 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWFSKpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWFSKrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWFSKpS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 06:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWFSKpS
+	id S932380AbWFSKrW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 06:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWFSKrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 06:45:18 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:44941 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932211AbWFSKpP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 06:45:15 -0400
-Message-ID: <44967EA9.9070307@in.ibm.com>
-Date: Mon, 19 Jun 2006 16:08:33 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Blunck <jblunck@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@zeniv.linux.org.uk, dgc@sgi.com, neilb@suse.de
-Subject: Re: [PATCH 2/5] vfs: d_genocide() doesnt add dentries to unused list
-References: <20060616104321.778718000@hasse.suse.de> <20060616104322.204073000@hasse.suse.de> <4495AABE.6090007@in.ibm.com> <20060619092249.GB6824@hasse.suse.de>
-In-Reply-To: <20060619092249.GB6824@hasse.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 19 Jun 2006 06:47:22 -0400
+Received: from www.osadl.org ([213.239.205.134]:32166 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932368AbWFSKrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 06:47:21 -0400
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
+	list (2nd version)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>, neilb@suse.de,
+       jblunck@suse.de, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
+       balbir@in.ibm.com
+In-Reply-To: <20060618233339.dba0fc86.akpm@osdl.org>
+References: <20060601095125.773684000@hasse.suse.de>
+	 <17539.35118.103025.716435@cse.unsw.edu.au>
+	 <20060616155120.GA6824@hasse.suse.de>
+	 <17555.12234.347353.670918@cse.unsw.edu.au>
+	 <20060618235654.GB2114946@melbourne.sgi.com>
+	 <17557.61307.364404.640539@cse.unsw.edu.au>
+	 <20060619010013.GC2114946@melbourne.sgi.com>
+	 <17557.64512.496195.714144@cse.unsw.edu.au>
+	 <20060619055523.GS2795448@melbourne.sgi.com>
+	 <20060618233339.dba0fc86.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 19 Jun 2006 12:48:44 +0200
+Message-Id: <1150714124.27073.67.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Blunck wrote:
-> On Mon, Jun 19, Balbir Singh wrote:
+On Sun, 2006-06-18 at 23:33 -0700, Andrew Morton wrote:
+> > ....
+> >     eth3      device: S2io Inc. Xframe 10 Gigabit Ethernet PCI-X (rev 03)
+> >     eth3      configuration: eth-id-00:0c:fc:00:02:c8
+> > irq 60, desc: a0000001009a2d00, depth: 1, count: 0, unhandled: 0
+> > ->handle_irq():  0000000000000000, 0x0
+> > ->chip(): a000000100a0fe40, irq_type_sn+0x0/0x80
+> > ->action(): e00000b007471b80
+> > ->action->handler(): a0000002059373d0, s2io_msi_handle+0x1510/0x660 [s2io]    eth3
+> > IP address: 192.168.1.248/24
+> > Unexpected irq vector 0x3c on CPU 3!
 > 
-> 
->>>			this_parent = dentry;
->>>			goto repeat;
->>>		}
->>>-		atomic_dec(&dentry->d_count);
->>>+		if (!list_empty(&dentry->d_lru)) {
->>>+			dentry_stat.nr_unused--;
->>>+			list_del_init(&dentry->d_lru);
->>>+		}
->>>+		if (atomic_dec_and_test(&dentry->d_count)) {
->>>+			list_add(&dentry->d_lru, dentry_unused.prev);
->>>+			dentry_stat.nr_unused++;
->>>+		}
->>
->>We could have dentries on the LRU list with non-zero d_count. If
->>we have a dentry on the LRU list with a count of 1, then the code
->>will remove it from LRU list and then add it back subsequently.
->>
-> 
-> 
-> So you think this is better?
-> 
->    if (atomic_dec_and_test(&dentry->d_count)) {
->       if (!list_empty(&dentry_d_lru))
->          list_move_tail(&dentry->d_lru, dentry_unused);
->    } else
->       if (!list_empty(&dentry->d_lru)) {
->          dentry_stat.nr_unused--;
->          list_del_init(&dentry->d_lru);
->       }
-> 
-> 
+> I guess that's where things start to go bad.  genirq changes?
 
-Yes, I think it is.
+Hmm, The extra noisy printout is from geirq. The unhandled interrupt
+should be unrelated. 
 
-> 
->>I think the condition below should be an else if
->>
-> 
-> 
-> No. We always lower the reference count in d_genocide.
-> 
+The s2io driver enables interrupts in the card in start_nic() before
+requesting the interrupt itself with request_irq(). So I suspect thats a
+problem which has been there already, just the noisy printout makes it
+more visible
 
-Yep, good catch
+	tglx
 
-> 
->>d_genocide() now almost looks like select_parent(). I think we can share a 
->>lot
->>of code between the two.
->>
-> 
-> 
-> Hmm, interesting idea. This would save the dentry-tree walking code in
-> have_submounts too. Maybe something like this:
-> 
-> +static int select_parent_walker(struct dentry * dentry, int * found)
-> +{
-> +       if (!list_empty(&dentry->d_lru)) {
-> +               dentry_stat.nr_unused--;
-> +               list_del_init(&dentry->d_lru);
-> +       }
-> +
-> +       /*
-> +        * move only zero ref count dentries to the end
-> +        * of the unused list for prune_dcache
-> +        */
-> +       if (!atomic_read(&dentry->d_count)) {
-> +               list_add(&dentry->d_lru, dentry_unused.prev);
-> +               dentry_stat.nr_unused++;
-> +               *found++;
-> +       }
-> +
-> +       /*
-> +        * We can return to the caller if we have found some (this
-> +        * ensures forward progress). We'll be coming back to find
-> +        * the rest.
-> +        */
-> +       if (*found && need_resched())
-> +               return -1;
 
-Is this true for all paths? d_genocide() might actually not return
-
-> +
-> +       return 0;
-> +}
-> +
-> +typedef int (*walker_t)(struct dentry * dentry, int * return);
-> +
-
-Will there be a different type of walker as well? Is it going to be too different?
-
-> +static int dentry_tree_walk(struct dentry * parent, walker_t walker)
-> +{
-> +       struct dentry *this_parent = parent;
-> +       struct list_head *next;
-> +       int ret = 0;
-> +
-> +       spin_lock(&dcache_lock);
-> +repeat:
-> +       next = this_parent->d_subdirs.next;
-> +resume:
-> +       while (next != &this_parent->d_subdirs) {
-> +               struct list_head *tmp = next;
-> +               struct dentry *dentry = list_entry(tmp, struct dentry,
-> +                                                  d_u.d_child);
-> +               next = tmp->next;
-> +
-> +               if (walker(dentry, &ret))
-> +                       goto out;
-> +
-> +               /*
-> +                * Descend a level if the d_subdirs list is non-empty.
-> +                */
-> +               if (!list_empty(&dentry->d_subdirs)) {
-> +                       this_parent = dentry;
-> +                       goto repeat;
-> +               }
-> +       }
-> +       /*
-> +        * All done at this level ... ascend and resume the search.
-> +        */
-> +       if (this_parent != parent) {
-> +               next = this_parent->d_u.d_child.next;
-> +               this_parent = this_parent->d_parent;
-> +               goto resume;
-> +       }
-> +out:
-> +       spin_unlock(&dcache_lock);
-> +       return ret;
-> +}
-
-The overall code looks good.
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs

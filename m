@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWFSKKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWFSKKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWFSKKl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 06:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWFSKKl
+	id S932331AbWFSKKO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 06:10:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWFSKKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 06:10:41 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:39373 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932338AbWFSKKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 06:10:41 -0400
-Message-ID: <4496781F.70109@manoweb.com>
-Date: Mon, 19 Jun 2006 12:10:39 +0200
-From: Alessio Sangalli <alesan@manoweb.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Alessio Sangalli <alesan@manoweb.com>
-CC: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: APM problem after 2.6.13.5
-References: <44927F91.6050506@manoweb.com>	 <84144f020606160305ueae2050lc2d8f47944173971@mail.gmail.com>	 <44929CF5.208@manoweb.com> <84144f020606160540q20433601jd9b5331763a55dab@mail.gmail.com> <4492AE3A.7070309@manoweb.com>
-In-Reply-To: <4492AE3A.7070309@manoweb.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 19 Jun 2006 06:10:14 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39606 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932331AbWFSKKM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 06:10:12 -0400
+Date: Mon, 19 Jun 2006 03:09:41 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       libc-alpha@sourceware.org, vojtech@suse.cz
+Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
+Message-Id: <20060619030941.fea8a7b0.pj@sgi.com>
+In-Reply-To: <200606191021.03631.ak@suse.de>
+References: <200606140942.31150.ak@suse.de>
+	<20060618171511.e0e6de26.pj@sgi.com>
+	<200606191021.03631.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:98b9443de46bd48dbf34b16449aa5d76
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessio Sangalli wrote:
+Andi wrote:
+> glibc TLS
 
->>> done:
->>>
->>> 4196c3af25d98204216a5d6c37ad2cb303a1f2bf is first bad commit
->>> diff-tree 4196c3af25d98204216a5d6c37ad2cb303a1f2bf (from
->>> 9092b20803e4b3b3a480592794a73030f17370b3)
->>> Author: Linus Torvalds <torvalds@g5.osdl.org>
->>> Date:   Sun Oct 23 16:31:16 2005 -0700
->>>
->>>     cardbus: limit IO windows to 256 bytes
+Good idea - thanks.
 
->> So reverting the above commit from git head makes your box boot again?
->> Linus, any thoughts?
-> 
-> 
-> Yes, exactly. I can run 2.6.17-rc6 with only that commit reverted.
-
-Any news about this problem?
-
-Thank you
-Alessio Sangalli
-
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWFSUwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWFSU5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbWFSUwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 16:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFSUwr
+	id S932318AbWFSU5U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 16:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWFSU5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 16:52:47 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1962 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932308AbWFSUwq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 16:52:46 -0400
-Subject: Re: PATA driver patch for 2.6.17
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: furlongm@hotmail.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e76uv1$g1s$1@sea.gmane.org>
-References: <1150740947.2871.42.camel@localhost.localdomain>
-	 <e76uv1$g1s$1@sea.gmane.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 19 Jun 2006 22:07:58 +0100
-Message-Id: <1150751279.2871.46.camel@localhost.localdomain>
+	Mon, 19 Jun 2006 16:57:20 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:61893 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S932318AbWFSU5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 16:57:19 -0400
+Date: Mon, 19 Jun 2006 22:57:18 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Thomas Gleixner <tglx@timesys.com>, len.brown@intel.com
+Cc: Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       john stultz <johnstul@us.ibm.com>
+Subject: ACPI C-States algorithm updates for dyn-tick
+Message-ID: <20060619205718.GA26332@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Thomas Gleixner <tglx@timesys.com>, len.brown@intel.com,
+	Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+	john stultz <johnstul@us.ibm.com>
+References: <1150643426.27073.17.camel@localhost.localdomain> <200606191521.05508.kernel@kolivas.org> <20060619122606.GA19451@elte.hu> <200606200003.26008.kernel@kolivas.org> <1150747611.29299.77.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1150747611.29299.77.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-06-19 am 20:46 +0100, ysgrifennodd Marcus Furlong:
-> Alan Cox wrote:
-> 
-> > http://zeniv.linux.org.uk/~alan/IDE
-> > 
-> > This is basically a resync versus 2.6.17, the head of the PATA tree is
-> > now built against Jeffs tree with revised error handling and the like.
-> > 
-> > Alan
-> 
-> I get the following bug while booting: 
-
-Sorry about that. I messed up a patch segment in the merge
-
---- drivers/scsi/ata_piix.c~	2006-06-19 21:38:43.746144712 +0100
-+++ drivers/scsi/ata_piix.c	2006-06-19 21:38:43.747144560 +0100
-@@ -360,6 +360,8 @@
- 	.qc_prep		= ata_qc_prep,
- 	.qc_issue		= ata_qc_issue_prot,
+Hi,
  
-+	.data_xfer		= ata_pio_data_xfer,
-+
- 	.eng_timeout		= ata_eng_timeout,
- 
- 	.irq_handler		= ata_interrupt,
+On Mon, Jun 19, 2006 at 10:06:51PM +0200, Thomas Gleixner wrote:
+> On Tue, 2006-06-20 at 00:03 +1000, Con Kolivas wrote:
+> > Dominik donated a lot of code to use the dynticks infrastructure to actually 
+> > implement the power savings. Just skipping ticks seemed to make very little 
+> > power difference unless we also used the knowledge from next timer interrupt 
+> > to know how long we are going to be idle and choose C state transitions 
+> > accordingly. Each patch is documented at length in the split out
+> > 
+> > C-States-1_bm_activity_improvements.patch
+> > C-States-2_bm_activity_handling_improvement.patch
+> > C-States-3_accounting_of_sleep_times.patch
+> > C-States-4_dyn-ticks_tweaks.patch
+> > 
+> > http://ck.kolivas.org/patches/dyn-ticks/split-out/
+> 
+> Thanks for pointing that out. We'll look into those tomorrow.
 
+1 to 3 were already submitted to Len, as they're useful already right now.
+(Len: do you want me to re-submit, as I can't find them in a git tree right
+now?) The fourth one is the only dyn-tick-specific one, and probably needs
+some more tweaking, testing and benchmarking.
+
+	Dominik

@@ -1,92 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWFSDyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWFSD7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWFSDyz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 23:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWFSDyz
+	id S932099AbWFSD7L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 23:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWFSD7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 23:54:55 -0400
-Received: from ash25e.internode.on.net ([203.16.214.182]:19728 "EHLO
-	ash25e.internode.on.net") by vger.kernel.org with ESMTP
-	id S1751125AbWFSDyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 23:54:55 -0400
-From: ocilent1 <ocilent1@gmail.com>
-Reply-To: ocilent1@gmail.com
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: sound skips on 2.6.16.17
-Date: Mon, 19 Jun 2006 11:54:33 +0800
-User-Agent: KMail/1.9.1
-Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-       Hugo Vanwoerkom <rociobarroso@att.net.mx>,
-       linux list <linux-kernel@vger.kernel.org>
-References: <4487F942.3030601@att.net.mx> <200606181204.29626.ocilent1@gmail.com> <20060618044047.GA1261@tuatara.stupidest.org>
-In-Reply-To: <20060618044047.GA1261@tuatara.stupidest.org>
+	Sun, 18 Jun 2006 23:59:11 -0400
+Received: from sccrmhc15.comcast.net ([204.127.200.85]:34731 "EHLO
+	sccrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S932099AbWFSD7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 23:59:10 -0400
+Message-ID: <44962116.70302@acm.org>
+Date: Sun, 18 Jun 2006 22:59:18 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Peter Palfrader <peter@palfrader.org>, linux-kernel@vger.kernel.org,
+       openipmi-developer@lists.sourceforge.net
+Subject: Re: [Openipmi-developer] BUG: soft lockup detected on CPU#1, ipmi_si
+References: <20060613233521.GO22999@asteria.noreply.org>
+In-Reply-To: <20060613233521.GO22999@asteria.noreply.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606191154.33747.ocilent1@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 June 2006 12:40, Chris Wedgwood wrote:
-> On Sun, Jun 18, 2006 at 12:04:29PM +0800, ocilent1 wrote:
-> > (PCI-quirk-VIA-IRQ-fixup-should-only-run-for-VIA-southbridges.patch)
-> > that is causing the sound stuttering/skipping problems for our users
-> > with VIA chipsets. Backing out the first patch alone did not fix the
-> > problem (PCI-VIA-quirk-fixup-additional-PCI-IDs.patch) but to back
-> > out the 2nd patch, you need to have initially backed out the first
-> > patch, due to the way the patches apply in series.
+Sorry, I've been on vacation for a week without internet, so I'm just
+getting caught up.
+
+The IPMI driver spawns a low-priority thread that will poll the driver
+when it finds there is something to do.  It's possible that the hardware
+is not setting things properly and is always telling the driver it has
+to do something.  It's possible that the new version of the firmware
+enabled interrupts; I think there's a problem with the driver here; it
+should not really enable the kernel thread if interrupts are working. 
+The driver should also probably call schedule() instead of udelay() in
+the kernel thread when a short timeout is requested by the state machine.
+
+In either situation, the kernel thread will sit there and spin, and if
+nothing else is scheduled for 10 seconds on that CPU you will get that
+warning.  Can you check a few things for me?
+
+cat /proc/ipmi/0/si_stats and send me the output.
+
+If you do "top", is the kipmi0 always running?
+
+Is your IPMI interface KCS or SMIC?  The IPMI driver should report this
+in the system log at startup.
+
+Thanks,
+
+-Corey
+
+Peter Palfrader wrote:
+> Hi,
 >
-> what mainboard/CPU do you have there?
+> On 2.6.17-rc6 I get these soft lockup warnings quite regularly on one of
+> my DL145-G2 systems (dual dual-core (opteron 275), x86_64).
 >
-> what does 'lspci -n' say?
+> Here's an example of one:
+>
+> Jun 14 00:57:55 laura kernel: [97133.246571] BUG: soft lockup detected on CPU#1!
+> Jun 14 00:57:55 laura kernel: [97133.247456] 
+> Jun 14 00:57:55 laura kernel: [97133.247457] Call Trace: <IRQ> <ffffffff802a6eba>{softlockup_tick+250}
+> Jun 14 00:57:55 laura kernel: [97133.247496]        <ffffffff80293bb7>{update_process_times+87} <ffffffff80279923>{smp_local_timer_interrupt+35}
+> Jun 14 00:57:55 laura kernel: [97133.247546]        <ffffffff80279e61>{smp_apic_timer_interrupt+65} <ffffffff8026712e>{apic_timer_interrupt+98} <EOI>
+> Jun 14 00:57:55 laura kernel: [97133.247599]        <ffffffff802526c3>{try_to_del_timer_sync+83} <ffffffff8026be38>{_spin_unlock_irqrestore+8}
+> Jun 14 00:57:55 laura kernel: [97133.247652]        <ffffffff880eab78>{:ipmi_si:ipmi_thread+72} <ffffffff880eab30>{:ipmi_si:ipmi_thread+0}
+> Jun 14 00:57:55 laura kernel: [97133.247707]        <ffffffff80237099>{kthread+217} <ffffffff8026743a>{child_rip+8}
+> Jun 14 00:57:55 laura kernel: [97133.247757]        <ffffffff8029d280>{keventd_create_kthread+0} <ffffffff80236fc0>{kthread+0}
+> Jun 14 00:57:55 laura kernel: [97133.247807]        <ffffffff80267432>{child_rip+0}
+>
+> I have several more, all of which include ipmi_si in one way or
+> another.  Usually these lockups happened on CPUs 2 and 3, tho today I
+> got one of CPU 1.
+>
+> It's interesting to note that these logs are happening every 30 minutes
+> (munin queries 'openipmi -I open sensors' about once every 5 minutes).
+>
+> Jun 12 18:45:40 laura kernel: [ 2876.040688] BUG: soft lockup detected on CPU#2!
+> Jun 12 19:15:54 laura kernel: [ 4688.141966] BUG: soft lockup detected on CPU#2!
+> Jun 12 19:46:06 laura kernel: [ 6499.159958] BUG: soft lockup detected on CPU#3!
+> Jun 12 20:16:17 laura kernel: [ 8309.394462] BUG: soft lockup detected on CPU#2!
+> Jun 12 20:46:29 laura kernel: [10120.468415] BUG: soft lockup detected on CPU#3!
+> Jun 12 21:16:42 laura kernel: [11931.614321] BUG: soft lockup detected on CPU#2!
+> Jun 12 21:46:54 laura kernel: [13742.672285] BUG: soft lockup detected on CPU#2!
+> [rebooted in between]
+> Jun 14 00:57:55 laura kernel: [97133.246571] BUG: soft lockup detected on CPU#1!
+> Jun 14 01:28:07 laura kernel: [98944.316467] BUG: soft lockup detected on CPU#3!
+>
+> Not having the ipmi_si module loaded means these warnings don't happen.
+>
+> I suspect this started happening when I upgraded the firmware of the
+> iLo 100i BMC from 1.00 to version 1.23 (the other system's firmware
+> wasn't upgraded yet).  I'm still reporting it here on the chance that it
+> actually is a kernel/ipmi_si module bug.
+>
+> Cheers,
+> Peter
+>   
 
-It is a compaq presario with KM266 mobo AMD XP2200+
-
-[root@localhost ~]# lspci -n
-00:00.0 0600: 1106:3116
-00:01.0 0604: 1106:b091
-00:0b.0 0200: 10ec:8139 (rev 10)
-00:10.0 0c03: 1106:3038 (rev 80)
-00:10.1 0c03: 1106:3038 (rev 80)
-00:10.2 0c03: 1106:3038 (rev 80)
-00:10.3 0c03: 1106:3104 (rev 82)
-00:11.0 0601: 1106:3177
-00:11.1 0101: 1106:0571 (rev 06)
-00:11.5 0401: 1106:3059 (rev 50)
-01:00.0 0300: 10de:002d (rev 15)
-
-
-[root@localhost ~]# lspci -m
-00:00.0 "Host bridge" "VIA Technologies, Inc." "VT8375 [KM266/KL266]
-Host Bridge" "FIRST INTERNATIONAL Computer Inc" "Unknown device 9012"
-00:01.0 "PCI bridge" "VIA Technologies, Inc." "VT8633 [Apollo Pro266 AGP]" "" 
-""
-00:0b.0 "Ethernet controller" "Realtek Semiconductor Co., Ltd."
-"RTL-8139/8139C/8139C+" -r10 "FIRST INTERNATIONAL Computer Inc"
-"Unknown device 9012"
-00:10.0 "USB Controller" "VIA Technologies, Inc." "VT82xxxxx UHCI USB
-1.1 Controller" -r80 "FIRST INTERNATIONAL Computer Inc" "Unknown
-device 9012"
-00:10.1 "USB Controller" "VIA Technologies, Inc." "VT82xxxxx UHCI USB
-1.1 Controller" -r80 "FIRST INTERNATIONAL Computer Inc" "Unknown
-device 9012"
-00:10.2 "USB Controller" "VIA Technologies, Inc." "VT82xxxxx UHCI USB
-1.1 Controller" -r80 "FIRST INTERNATIONAL Computer Inc" "Unknown
-device 9012"
-00:10.3 "USB Controller" "VIA Technologies, Inc." "USB 2.0" -r82 -p20
-"FIRST INTERNATIONAL Computer Inc" "Unknown device 9012"
-00:11.0 "ISA bridge" "VIA Technologies, Inc." "VT8235 ISA Bridge"
-"FIRST INTERNATIONAL Computer Inc" "Unknown device 9012"
-00:11.1 "IDE interface" "VIA Technologies, Inc."
-"VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE" -r06 -p8a
-"FIRST INTERNATIONAL Computer Inc" "Unknown device 9012"
-00:11.5 "Multimedia audio controller" "VIA Technologies, Inc."
-"VT8233/A/8235/8237 AC97 Audio Controller" -r50 "FIRST INTERNATIONAL
-Computer Inc" "Unknown device 9012"
-01:00.0 "VGA compatible controller" "nVidia Corporation" "NV5M64 [RIVA
-TNT2 Model 64/Model 64 Pro]" -r15 "" ""
-
--- 
-*ocilent1

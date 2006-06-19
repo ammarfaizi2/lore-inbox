@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWFSM46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWFSNGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWFSM46 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 08:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWFSM46
+	id S932438AbWFSNGO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 09:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWFSNGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 08:56:58 -0400
-Received: from mail.mnsspb.ru ([84.204.75.2]:699 "EHLO mail.mnsspb.ru")
-	by vger.kernel.org with ESMTP id S932437AbWFSM45 (ORCPT
+	Mon, 19 Jun 2006 09:06:14 -0400
+Received: from ns1.suse.de ([195.135.220.2]:1211 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932438AbWFSNGO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 08:56:57 -0400
-From: Kirill Smelkov <kirr@mns.spb.ru>
-Organization: MNS
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] x86: compile fix for asm-i386/alternatives.h
-Date: Mon, 19 Jun 2006 16:53:56 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
+	Mon, 19 Jun 2006 09:06:14 -0400
+To: Jes Sorensen <jes@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Hugh Dickins <hugh@veritas.com>, Carsten Otte <cotte@de.ibm.com>,
+       bjorn_helgaas@hp.com
+Subject: Re: [patch] do_no_pfn
+References: <yq0psh5zenq.fsf@jaguar.mkp.net>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Jun 2006 15:06:05 +0200
+In-Reply-To: <yq0psh5zenq.fsf@jaguar.mkp.net>
+Message-ID: <p73r71lpa6a.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606191653.58076.kirr@mns.spb.ru>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-compile fix:  <asm-i386/alternative.h>  needs  <asm/types.h> for 'u8' -- 
-just look at struct alt_instr.
+Jes Sorensen <jes@sgi.com> writes:
 
-My module includes <asm/bitops.h> as the first header, and as of 2.6.17 this
-leads to compilation errors.
+> Hi,
+> 
+> I woke up this morning and had a revelation! Today is the day, the day
+> of do_no_pfn()! It can be no other way ... :) And what happens, I come
+> into the office to discover that 2.6.17 is out! It has to be a sign!
+> 
+> Anyway, I have had no objections to this patch for a while now,
+> clearly it is perfect<tm> :) If anybody has new objections, it's
+> obviously not my fault! But ok I'll look at them anyway :)
+> 
+> So here it is, it even boots!
 
-Signed-off-by: Kirill Smelkov <kirr@mns.spb.ru>
+The big question is - why do you have pages without struct page? 
+It seems ... wrong.
 
-Index: linux-2.6.17/include/asm-i386/alternative.h
-===================================================================
---- linux-2.6.17.orig/include/asm-i386/alternative.h	2006-06-18 05:49:35.000000000 +0400
-+++ linux-2.6.17/include/asm-i386/alternative.h	2006-06-19 16:44:17.000000000 +0400
-@@ -3,6 +3,8 @@
- 
- #ifdef __KERNEL__
- 
-+#include <asm/types.h>
-+
- struct alt_instr {
- 	u8 *instr; 		/* original instruction */
- 	u8 *replacement;
-
-
+-Andi

@@ -1,82 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWFSXav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWFSXds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWFSXav (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 19:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWFSXav
+	id S964986AbWFSXds (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 19:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWFSXds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 19:30:51 -0400
-Received: from web50205.mail.yahoo.com ([206.190.38.46]:40797 "HELO
-	web50205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S964979AbWFSXau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 19:30:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=OCwAYghSRoLKU71Ukm8zsNgKGEi6tV+mWgY6BeqY6W20aZsZn2Xhar4PPStgVUAf5DUOrkv7FTeLEg4ULeabxttEhFA/5nMzRguJTQ9pFMY7eECMohnEpZdR10K4LozhpQu3aK/1lHZyDhwS7t3FnAqDOrenhJ537zVLNBDerJg=  ;
-Message-ID: <20060619233049.67325.qmail@web50205.mail.yahoo.com>
-Date: Mon, 19 Jun 2006 16:30:49 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: Kernel panic when re-inserting Adaptec PCMCIA card
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 19 Jun 2006 19:33:48 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:56487 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S964986AbWFSXdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 19:33:47 -0400
+Date: Mon, 19 Jun 2006 17:32:12 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+In-reply-to: <fa.so5wrYE6MzA2swzlOE1Xjw9iqvk@ifi.uio.no>
+To: Dave Jones <davej@redhat.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       linux-kernel@vger.kernel.org
+Message-id: <449733FC.4030701@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.pC0NfRl4O1eOCqPOBXy8f+7gbqU@ifi.uio.no>
+ <fa.so5wrYE6MzA2swzlOE1Xjw9iqvk@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Alex Davis <alex14641@yahoo.com> wrote:
+Dave Jones wrote:
+> Wrong.
+> 
+>  > Try it. I have had
+>  > broken plastic heat-sink hold-downs let the entire heat-sink fall off
+>  > the CPU. The machine just stops.
+> 
+> Your single datapoint is just that, a single datapoint.
+> There are a number of reported cases of CPUs frying themselves.
+> Here's one: http://www.tomshardware.com/2001/09/17/hot_spot/page4.html
+> Google no doubt has more.
+> 
+> Another anecdote: Upon fan failure, I once had an athlon MP *completely shatter*
+> (as in broke in two pieces) under extreme heat.
+> 
+> This _does_ happen.
 
-> --- Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> 
-> > In-Reply-To: <20060614022139.21737.qmail@web50208.mail.yahoo.com>
-> > 
-> > On Tue, 13 Jun 2006 19:21:39 -0700, Alex Davis wrote:
-> > 
-> > Same panic occurs in 2.6.17rc6:
-> > 
-> > > Jun 13 17:50:36 siafu kernel: [4295220.230000] pccard: PCMCIA card inserted into slot 0
-> > > Jun 13 17:50:36 siafu kernel: [4295220.230000] pcmcia: registering new device pcmcia0.0
-> > > Jun 13 17:50:37 siafu kernel: [4295220.281000] aha152x: resetting bus...
-> > > Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: vital data: rev=1, io=0xd340
-> > > (0xd340/0xd340), irq=3, scsiid=7, reconnect=enabled,
-> > >  parity=enabled, synchronous=enabled, delay=100, extended translation=disabled
-> > > Jun 13 17:50:37 siafu kernel: [4295220.637000] aha152x13: trying software interrupt, ok.
-> > > Jun 13 17:50:37 siafu kernel: [4295221.638000] scsi13 : Adaptec 152x SCSI driver; $Revision:
-> > 2.7 $
-> > > Jun 13 17:50:37 siafu kernel: [4295221.650000]
-> > > Jun 13 17:50:37 siafu kernel: [4295221.650000] aha152x22856: bottom-half already running!?
-> > > Jun 13 17:50:37 siafu kernel: [4295221.650000]
-> > > Jun 13 17:50:37 siafu kernel: [4295221.650000] queue status:
-> > > Jun 13 17:50:37 siafu kernel: [4295221.650000] issue_SC:
-> > > Jun 13 17:50:37 siafu kernel: [4295221.650000] current_SC:
-> > > Jun 13 17:50:37 siafu kernel: [4295221.650000] BUG: unable to handle kernel paging request
-> at
-> > > virtual address 00020016
-> > 
-> > Something is going very wrong here.  At time .637 it says it is
-> > adapter number 13 (aha152x13.)  Then at .650 it thinks it's
-> > adapter nr. 22856 (!)  Looks like some kind of pointer to the
-> > hostdata is corrupted.
-> > 
-> > Can you rmmod the driver after removing the card and see if that
-> > helps?
-> > 
-> It turns out I was trying to remove the driver before doing 'pccardctl eject'.
-> 
-> It seems that removing the driver after ejecting make the problem go away:
-> I ejected and re-inserted the card six times with no crash.
-> 
-> I'll continue testing just to make sure.
-> 
-Will removing the module after ejecting be considered the fix 
-for this problem??
+This is entirely dependent on the CPU type. Intel CPUs for years would
+shut down on over-temperature (the THERMTRIP signal). Pentium 4s will
+additionally throttle the CPU clock before reaching that temperature.
+Older AMD CPUs like that Athlon MP indeed had no internal temperature
+limiting - if there was any it was part of the motherboard, which often
+responded too slowly such that it was indeed possible to smoke
+(literally) CPUs if the heatsink fell off. Athlon 64/Opteron CPUs will
+shut down on exceeding a critical temperature.
+
+> cpu_relax() and friends aren't going to save a box in light of
+> a fan failure in my experience.  
+> However for a box which has locked up (intentionally)
+> running instructions that do save power in a loop has obvious advantages.
+
+cpu_relax likely doesn't save a whole lot of power, I wouldn't think..
+However, at least in the first case that was pointed out, halt() is
+called first, the loop only is there in case the halt() somehow exits
+for some reason.
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
 
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

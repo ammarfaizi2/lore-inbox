@@ -1,71 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWFSQuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWFSQvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWFSQuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 12:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWFSQuE
+	id S964803AbWFSQvR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 12:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWFSQvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 12:50:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27287 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964795AbWFSQuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 12:50:02 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Preben Traerup <Preben.Trarup@ericsson.com>
-Cc: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before crashing
-References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
-	<20060616211555.1e5c4af0.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1odwtnjke.fsf@ebiederm.dsl.xmission.com>
-	<20060619163053.f0f10a5e.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1y7vtia7r.fsf@ebiederm.dsl.xmission.com>
-	<4496A677.3020301@ericsson.com>
-Date: Mon, 19 Jun 2006 10:49:32 -0600
-In-Reply-To: <4496A677.3020301@ericsson.com> (Preben Traerup's message of
-	"Mon, 19 Jun 2006 15:28:23 +0200")
-Message-ID: <m1hd2hhyzn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 19 Jun 2006 12:51:16 -0400
+Received: from rwcrmhc14.comcast.net ([204.127.192.84]:37044 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S964800AbWFSQvP (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 12:51:15 -0400
+Message-ID: <4496D606.8070402@namesys.com>
+Date: Mon, 19 Jun 2006 09:51:18 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: Andrew Morton <akpm@osdl.org>, "Vladimir V. Saveliev" <vs@namesys.com>,
+       hch@infradead.org, Reiserfs-Dev@namesys.com,
+       Linux-Kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: batched write
+References: <44736D3E.8090808@namesys.com> <20060524175312.GA3579@zero> <44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de> <1149766000.6336.29.camel@tribesman.namesys.com> <20060608121006.GA8474@infradead.org> <1150322912.6322.129.camel@tribesman.namesys.com> <20060617100458.0be18073.akpm@osdl.org> <20060619162740.GA5817@schatzie.adilger.int>
+In-Reply-To: <20060619162740.GA5817@schatzie.adilger.int>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Preben Traerup <Preben.Trarup@ericsson.com> writes:
+Andreas Dilger wrote:
 
-> Strictly speaking for myself: Nothing.
+>On Jun 17, 2006  10:04 -0700, Andrew Morton wrote:
+>  
 >
-> Mr. Akiyama Nobuyuk gave an example from his environment which is cluster
-> systems.
-> I was the one saying we in our Telco systems could use this feature too.
+>>On Thu, 15 Jun 2006 02:08:32 +0400
+>>"Vladimir V. Saveliev" <vs@namesys.com> wrote:
+>>
+>>    
+>>
+>>>The core of generic_file_buffered_write is 
+>>>do {
+>>>	grab_cache_page();
+>>>	a_ops->prepare_write();
+>>>	copy_from_user();
+>>>	a_ops->commit_write();
+>>>	
+>>>	filemap_set_next_iovec();
+>>>	balance_dirty_pages_ratelimited();
+>>>} while (count);
+>>>
+>>>
+>>>Would it make sence to rework this code with adding new address_space
+>>>operation - fill_pages so that looks like:
+>>>
+>>>do {
+>>>	a_ops->fill_pages();
+>>>	filemap_set_next_iovec();
+>>>	balance_dirty_pages_ratelimited();
+>>>} while (count);
+>>>
+>>>generic implementation of fill_pages would look like:
+>>>
+>>>generic_fill_pages()
+>>>{
+>>>	grab_cache_page();
+>>>	a_ops->prepare_write();
+>>>	copy_from_user();
+>>>	a_ops->commit_write();
+>>>}
+>>>
+>>>      
+>>>
+>>There's nothing which leaps out and says "wrong" in this.  But there's
+>>nothing which leaps out and says "right", either.  It seems somewhat
+>>arbitrary, that's all.
+>>
+>>We have one filesystem which wants such a refactoring (although I don't
+>>think you've adequately spelled out _why_ reiser4 wants this).
+>>
+>>To be able to say "yes, we want this" I think we'd need to understand which
+>>other filesystems would benefit from exploiting it, and with what results?
+>>    
+>>
 >
-> The only thing Mr. Akiyama Nobuyuk and I have in common is we both would like to
-> do
-> something before crash dumping, simply because the less mess we will have to
-> cleanup
-> afterwards in the system taking over, the better.
+>With the caveat that I didn't see the original patch, if this can be a step
+>down the road toward supporting delayed allocation at the VFS level then
+>I'm all for such changes.
+>  
 >
-> Mr. Akiyama Nobuyuk operates on SCSI devices to avoid filesystem corruptions.
-> My usage would be more like notifying external management to get traffic
-> redirected to server systems taking over.
+What do you mean by supporting delayed allocation at the VFS level?  Do
+you mean calling to the FS or maybe just not stepping on the FS's toes
+so much or?  Delayed allocation is very fs specific in so far as I can
+imagine it.
 
-Ok. That resolves some of my confusion.
+>Lustre goes to some lengths to batch up reads and writes on the client into
+>large (1MB+) RPCs in order to maximize performance.  Similarly on the
+>server we essentially bypass the VFS in order to allocate all of the RPC's
+>blocks in one call and do a large bio write in a second.  It just isn't
+>possible to maximize performance if everything is split into PAGE_SIZE
+>chunks.
+>
+>I believe XFS would benefit from delayed allocation, and the ext3-delalloc
+>patches from Alex also provide a large part of the performance wins for
+>userspace IO, when they allow large sys_write() and VM cache flush to
+>efficiently call into the filesystem to allocate many blocks at once, and
+>then push them out to disk in large chunks.
+>
+>Cheers, Andreas
+>--
+>Andreas Dilger
+>Principal Software Engineer
+>Cluster File Systems, Inc.
+>
+>
+>
+>  
+>
 
-After think this over here is my position.
-
-There may be cases where it is warranted to add a call during crash_kexec.
-I have seen no evidence that the cases where we want something happening
-in crash_kexec are going to be at all common. It is my opinion anything
-added to the crash_kexec path needs a case by case review.
-
-Therefore if something is needs to happen in the crash kexec path it
-should be a direct function call.  No pointers and no hooks.  Just call
-the function.
-
-Patches that and add an explicit function call allow for case by case review
-and convey the message that you really don't want to do that, and that we
-are really dealing with an exceptional circumstance.
-
-Does this sound like a reasonable position?
-
-Eric

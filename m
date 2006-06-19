@@ -1,65 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWFSDSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWFSDRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWFSDSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 23:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWFSDSZ
+	id S1751140AbWFSDRr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 23:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWFSDRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 23:18:25 -0400
-Received: from mx1.suse.de ([195.135.220.2]:33507 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751160AbWFSDSY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 23:18:24 -0400
-Date: Sun, 18 Jun 2006 20:15:21 -0700
-From: Greg KH <gregkh@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
-Message-ID: <20060619031521.GA4651@suse.de>
-References: <20060618221343.GA20277@kroah.com> <20060618230041.GG4744@bouh.residence.ens-lyon.fr> <4495F5C3.1030203@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4495F5C3.1030203@zytor.com>
-User-Agent: Mutt/1.5.11
+	Sun, 18 Jun 2006 23:17:47 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:24294 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751140AbWFSDRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 23:17:47 -0400
+Message-ID: <44961758.6070305@bigpond.net.au>
+Date: Mon, 19 Jun 2006 13:17:44 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: Peter Williams <peterw@aurema.com>, Andrew Morton <akpm@osdl.org>,
+       dev@openvz.org, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, bsingharora@gmail.com, efault@gmx.de,
+       kernel@kolivas.org, sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
+       rene.herman@keyaccess.nl
+Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
+References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com>
+In-Reply-To: <449609E4.1030908@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 19 Jun 2006 03:17:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 18, 2006 at 05:54:27PM -0700, H. Peter Anvin wrote:
-> Samuel Thibault wrote:
-> >
-> >There has been at least my complaint about udev not being able to
-> >auto-load modules on /dev entry lookup (28th March 2006):
-> >
-> >? Given a freshly booted linux box, hence uinput is not loaded (why
-> >would it be, it doesn't drive any real hardware) ; what is the right
-> >way(tm) for an application to have the uinput module loaded, so that it
-> >can open /dev/input/uinput for emulating keypresses?
-> >
-> >- With good-old static /dev, we could just open /dev/input/uinput
-> >  (installed by the distribution), and thanks to a
-> >  alias char-major-10-223 uinput
-> >  line somewhere in /etc/modprobe.d, uinput gets auto-loaded.
-> >
-> >- With devfs, it doesn't look like it works (/dev/misc/uinput is not
-> >  present and opening it just like if it existed doesn't work). But I
-> >  read in archives that it could be feasible.
-> >
-> >- With udev, this just cannot work. As explained in an earlier thread,
-> >  even using a special filesystem that would report the opening attempt
-> >  to udevd wouldn't work fine since udevd takes time for creating the
-> >  device, and hence the original program needs to be notified ; this
-> >  becomes racy.
-> >
+Balbir Singh wrote:
+> Peter Williams wrote:
+>> Balbir Singh wrote:
+>>
+>>> Peter Williams wrote:
+>>>
+>>>> Andrew Morton wrote:
+>>>>
+>>>>
+>>>>> On Sun, 18 Jun 2006 18:26:38 +1000
+>>>>> Peter Williams <pwil3058@bigpond.net.au> wrote:
+>>>>>
+>>>>> People are going to want to extend this to capping a *group* of 
+>>>>> tasks, with
+>>>>> some yet-to-be-determined means of tying those tasks together.  How 
+>>>>> well
+>>>>> suited is this code to that extension?
+>>>>
+>>>> Quite good.  It can be used from outside the scheduler to impose 
+>>>> caps on arbitrary groups of tasks.  Were the PAGG interface 
+>>>> available I could knock up a module to demonstrate this.  When/if 
+>>>> the "task watchers" patch is included I will try and implement a 
+>>>> higher level mechanism using that.  The general technique is to get 
+>>>> an estimate of the "effective number" of tasks in the group (similar 
+>>>> to load) and give each task in the group a cap which is the group's 
+>>>> cap divided by the effective number of tasks (or the group cap 
+>>>> whichever is smaller -- i.e. the effective number of tasks could be 
+>>>> less than one).
+>>>> )
+>>>
+>>>
+>>> There is one possible issue with this approach. Lets assume that we 
+>>> desire
+>>> a cap of 10 for a set of two tasks. As discussed earlier, each task
+>>> would get a limit of 5% if they are equally busy.
+>>>
+>>> Lets call the group as G1 and the tasks as T1 and T2.
+>>>
+>>> If we have another group called G2 with tasks T3, T4 and T5 and a soft
+>>> cap of 90. Then each of T3, T4 and T5 would get a soft cap of
+>>> 30% (assuming that they are equally busy). Now if T5 stops using its 
+>>> limit
+>>> for a while let say its cpu utilization is 10% - how do we divide the 
+>>> saved
+>>> 20% between T1, T2, T3 and T4.
+>>>
+>>> In a group scenario, the balance 20% should be shared between T3 and T4.
+>>
+>>
+>> You're mixing up the method described above with the other one we 
+>> discussed where the group's cap is divided among its tasks in 
+>> proportion to their demand.  With the model I describe above reduced 
+>> demand by any tasks in a group would be reflected in a reduced value 
+>> for the "effective number of tasks" in the group with a consequent 
+>> increase in the cap applied to all group members.
+>>
 > 
-> It would be nice if udev could be fed not just from the kernel, but from 
-> the repository of modules that are available for loading.  That may 
-> require additional module information.
+> Thanks for clarifying. How frequently is the reduction in effective number
+> of tasks calculated and how frequently is the cap updated?
 
-There's no reason it could not be, but usually a simple, "modprobe loop"
-works good enough for everyone :)
+I'll answer that when I've done an implementation.
 
-thanks,
+> Does it require
+> setting the cap values of all the tasks in the group again (O(N), N is the
+> number of tasks in the group)?
 
-greg k-h
+Probably but it's not on a fast path.
+
+> Is it possible that the effective tasks
+> is greater than the limit of the group?
+
+Yes.
+
+> How do we handle this scenario?
+
+You've got the problem back to front.  If the number of effective tasks 
+is less than the group limit then you have the situation that needs 
+special handling (not the other way around).  I.e. if the number of 
+effective tasks is less than the group limit then (strictly speaking) 
+there's no need to do any capping at all as the demand is less than the 
+limit.  However, in the case where the group limit is less than one CPU 
+(i.e. less than 1000) the recommended thing to do would be set the limit 
+of each task in the group to the group limit.
+
+Obviously, group limits can be greater than one CPU (i.e. 1000).
+
+The number of CPUs on the system also needs to be taken into account for 
+group capping as if the group cap is greater than the number of CPUs 
+there's no way it can be exceeded and tasks in this group would not need 
+any processing.
+
+> 
+> 
+>> I think both methods will work and the main difference would be in 
+>> their complexity.
+> 
+> An implementation or prototype when available will be interesting to play
+> around and experiment with. I think it will help clarify if the task 
+> mechanism
+> will indeed work for groups or may expose some limitations of the 
+> mechanism.
+
+I'm going to start looking at the "task tracking" patches with a view to 
+using them for an implementation.  The "executive overview" for these 
+patches indicates that they're sufficiently similar to PAGG for this 
+purpose.
+
+> 
+>>
+>>
+>>> Also mathematically
+>>>
+>>> A group is a superset of task
+>>>
+>>> It is hard to implement things for a task and make it work for groups,
+>>
+>>
+>> I disagree.  If the low level control is there at the task level or 
+>> (if we were managing memory) the address space level then it is 
+>> relatively simple (even if boring) to do arbitrary resource control 
+>> for groups from the outside.
+>>
+>> One of the key advantages of doing it from the outside is that any 
+>> locking that is required at the group level is unlikely to get tangled 
+>> up with the existing locking mechanisms such as the run queue lock. 
+>> This is not true if group management is done on the inside e.g. in the 
+>> scheduling code.
+>>
+> 
+> The f-series controller from ckrm does so without changing or getting
+> tangled with the existing locking system.
+
+I didn't say it was impossible just in need of care.
+
+> 
+>>
+>>> but if we had something for groups, we could easily adapt it to tasks
+>>> by making each group equal to a task
+>>
+>>
+>> You seem to have a flair for adding unnecessary overhead for those who 
+>> won't use this functionality. :-)
+>>
+>>
+>>>> Doing it inside the scheduler is also doable but would have some 
+>>>> locking issues.  The run queue lock could no longer be used to 
+>>>> protect the data as there's no guarantee that all the tasks in the 
+>>>> group are associated with the same queue.
+>>
+>>
+>> I should have elaborated here that (conceptually) modifying this code 
+>> to apply caps to groups of tasks instead of individual tasks is 
+>> simple.  It mainly involves moving most the data (statistics plus cap 
+>> values) to a group structure and then modifying the code to update 
+>> statistics for the group instead of the task and then make the 
+>> decisions about whether a task should have a cap enforced (i.e. moved 
+>> to one of the soft cap priorities or sin binned) based on the group 
+>> statistics.
+>>
+>> However, maintaining and accessing the group statistics will require 
+>> additional locking as the run queue lock will no longer be able to 
+>> protect the data as not all tasks in the group will be associated with 
+>> the same CPU.  Care will be needed to ensure that this new locking 
+>> doesn't lead to dead locks with the run queue locks.
+>>
+>> In addition to the extra overhead caused by these locking 
+>> requirements, the code for gathering the statistics will need to be 
+>> more complex also adding to the overhead.  There is also the issue of 
+>> increased serialization (there is already some due to load balancing) 
+>> of task scheduling to be considered although, to be fair, this 
+>> increased serialization will be within groups.
+>>
+>>
+> 
+> The f-series CPU controller does all of what you say in 403 lines 
+> (including
+> comments and copyright). I think the biggest advantage of maintaining the
+> group statistics in the kernel is that certain scheduling decisions can be
+> made based on group statistics rather than task statistics, which makes the
+> mechanism independent of the number of tasks in the group (isolates the
+> groups from changes in number of tasks).
+
+Yes, that's one of its advantages.  Both methods have advantages and 
+disadvantages.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

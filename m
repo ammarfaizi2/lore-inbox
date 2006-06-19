@@ -1,62 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWFSCcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWFSChD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWFSCcD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 22:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWFSCcD
+	id S1751031AbWFSChD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 22:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWFSChC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 22:32:03 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:39845 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1750933AbWFSCcB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 22:32:01 -0400
-Date: Mon, 19 Jun 2006 03:39:00 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.17
-Message-ID: <20060619013900.GD24203@pasky.or.cz>
-References: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org> <Pine.LNX.4.64.0606171902040.5498@g5.osdl.org> <4494C8E7.3080700@ens-lyon.org> <Pine.LNX.4.64.0606172036360.5498@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606172036360.5498@g5.osdl.org>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+	Sun, 18 Jun 2006 22:37:02 -0400
+Received: from mf2.realtek.com.tw ([60.248.182.46]:15110 "EHLO
+	mf2.realtek.com.tw") by vger.kernel.org with ESMTP id S1751031AbWFSChA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 22:37:00 -0400
+Message-ID: <006f01c69349$394a8ac0$106215ac@realtek.com.tw>
+From: "colin" <colin@realtek.com.tw>
+To: "Mike Smullin" <mikesmullin@s161200816.onlinehome.us>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <d5a2d4790606160939i50ca65dfn2a4d92bc9b4a0fb0@mail.gmail.com>
+Subject: Re: Solve the problem that umount will fail when an opened file isn't closed
+Date: Mon, 19 Jun 2006 10:36:52 +0800
+MIME-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+X-MIMETrack: Itemize by SMTP Server on msx/Realtek(Release 6.5.3|September 14, 2004) at
+ 2006/06/19 =?Bog5?B?pFekyCAxMDozNjo1Mg==?=,
+	Serialize by Router on msx/Realtek(Release 6.5.3|September 14, 2004) at
+ 2006/06/19 =?Bog5?B?pFekyCAxMDozNjo1NQ==?=,
+	Serialize complete at 2006/06/19 =?Bog5?B?pFekyCAxMDozNjo1NQ==?=
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Jun 18, 2006 at 05:47:27AM CEST, I got a letter
-where Linus Torvalds <torvalds@osdl.org> said that...
-> On Sat, 17 Jun 2006, Brice Goglin wrote:
+
+Hi Mike,
+Do you want to see the hotplug agent code?
+I can mail it to you and I would be very grateful if you can give me any
+suggestion to improve it.
+It will be used on a consumer product and would be better to be very stable.
+
+Regards,
+Colin
+
+
+----- Original Message ----- 
+From: "Mike Smullin" <mikesmullin@s161200816.onlinehome.us>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>; "colin"
+<colin@realtek.com.tw>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, June 17, 2006 12:39 AM
+Subject: Re: Solve the problem that umount will fail when an opened file
+isn't closed
+
+
+> Thanks for that, Jan. What a great idea!
+>
+> > >I have implemented an auto-mount & auto-umount
+> > facility based on USB
+> > >hotplug.
+>
+> Colin can you explain how you implemented this? I would like to try it,
+too.
+>
+> Thanks,
+> Mike
+>
+> --
+> Mike Smullin
+> "The day I come in front of the Gartner audience and say we have a
+> better Unix than Linux, that'll be a good day" -- Steve Ballmer
+> http://www.mikesmullin.com
+>
+> --- Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+>
+> > >
+> > >Hi all,
+> > >I have implemented an auto-mount & auto-umount
+> > facility based on USB
+> > >hotplug.
+> > >An annoying problem will occur when some process
+> > doesn't close its open file
+> > >and auto-umount is trying to umount that mount
+> > point after usb disk has been
+> > >unplugged.
+> > >Is there any way to force it to be umounted in this
+> > situation?
+> > >
 > >
-> > I guess I could use git to generate the full changelog once a new
-> > release and keep it for later...
-> 
-> Well, if you are already a git user (or willing to become one), there's no 
-> point in even keeping it for later.
-> 
-> 	[torvalds@g5 linux]$ time git log v2.6.16..v2.6.17 > /dev/null 
-> 	
-> 	real    0m0.484s
-> 	user    0m0.448s
-> 	sys     0m0.036s
-> 
-> ie the logfile generation really is almost free. And yes, that's the 
-> _full_ big log (all 92 _thousand_ lines of it, from the 6113 commits in 
-> the 2.6.16->17 case) being generated in under half a second.
+> > fs/super.c:
+> >
+> >     /* Forget any remaining inodes */
+> >     if (invalidate_inodes(sb)) {
+> >         printk("VFS: Busy inodes after unmount of
+> > %s. "
+> >            "Self-destruct in 5 seconds.  Have a nice
+> > day...\n",
+> >            sb->s_id);
+> >     }
+> >
+> > That's what happens if you eject a CD. The box won't
+> > explode though.
+> >
+> >
+> > Jan Engelhardt
+> > --
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
 
-I assume that this is with hot cache, which is something you shouldn't
-assume for a use like this - you likely aren't in the middle of doing
-stuff with the repository but just want to peek at the changes list.
-
-Anyway, the nice thing about the Changelog files MIGHT be Google - it's
-nice when googling around about your kernel problem ends up yielding
-a changelog entry indicating that it's already fixed in a newer kernel
-version. That is, if only Google crawled the changelogs. Does it stay
-away of them because they have no extension?
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-A person is just about as big as the things that make them angry.

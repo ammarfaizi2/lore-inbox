@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWFSImz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWFSIoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWFSImz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWFSImz
+	id S1751229AbWFSIoO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWFSIoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:42:55 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:23964 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751232AbWFSImy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:42:54 -0400
-Message-ID: <44966383.1030006@bull.net>
-Date: Mon, 19 Jun 2006 10:42:43 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
+	Mon, 19 Jun 2006 04:44:13 -0400
+Received: from smtp4-g19.free.fr ([212.27.42.30]:64913 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751229AbWFSIoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 04:44:13 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: juampe <juampe@iquis.com>
+Subject: Re: [PATCH 06/13] USBATM: shutdown open connections when disconnected
+Date: Mon, 19 Jun 2006 10:44:10 +0200
+User-Agent: KMail/1.9.1
+Cc: kernel <linux-kernel@vger.kernel.org>,
+       linux-atm-general@lists.sourceforge.net
+References: <OF39174CF7.B508FCBD-ONC125718F.00407FFC-C125718F.00413F4F@telefonica.es> <44965CC3.1060203@iquis.com>
+In-Reply-To: <44965CC3.1060203@iquis.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, Chase Venters <chase.venters@clientec.com>,
-       Brent Casavant <bcasavan@sgi.com>, Jes Sorensen <jes@sgi.com>,
-       Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz, linux-ia64@vger.kernel.org
-Subject: Re: [discuss] Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-References: <200606140942.31150.ak@suse.de> <200606161740.18611.ak@suse.de> <Pine.LNX.4.64.0606161615450.23743@turbotaz.ourhouse> <200606170855.49123.ak@suse.de>
-In-Reply-To: <200606170855.49123.ak@suse.de>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 19/06/2006 10:46:41,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 19/06/2006 10:46:43,
-	Serialize complete at 19/06/2006 10:46:43
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200606191044.10820.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brent Casavant wrote:
+Hi Juampe,
 
-> To this last point, it might be more reasonable to map in a page that
-> contained a new structure with a stable ABI, which mirrored some of
-> the task_struct information, and likely other useful information as
-> needs are identified in the future.  In any case, it would be hard
-> to beat a single memory read for performance.
+On Monday 19 June 2006 10:13, juampe wrote:
+> > This patch causes vcc_release_async to be applied to any *open
+> >** v*cc's when the modem is *disconnected*. 
 > 
-> Cache-coloring and kernel bookkeeping effects could be minimized if this
-> was provided as an mmaped page from a device driver, used only by
-> applications which care.  This does work somewhat contrary to the idea of
-> getting support into glibc, unless glibc only used this capability when
-> asked to through some sort of environment variable or other run-time
-> configuration.
+> 
+> > Unfortunately this patch may create problems
+> > for those rare users like me who use routed IP or some other
+> > non-ppp connection method that goes via the ATM ARP daemon: the
+> > daemon is buggy, and with this patch will crash when the modem
+> > is *disconnected*.  Users with a buggy atmarpd can simply restart
+> > it after disconnecting the modem.
+> 
+> First i must thanks all effort in usbatm development.
+> IMHO New fatures to a driver that works well and can block the use, 
+> especially if it can disable internet access and the problem is know,
+> MUST be disabled by default or provide a mechanism to disable it.
+>
+> I'm a rare user with routed IP and this patch blocks the normal use of internet
+> I dont understand how this patch can be accepted for a stable release without 
+> any kind of disable mechanism.
+> 
+> Yeah, i know that atmarp is buggy, but before speedtouch driver and atm works well during months.
 
-Quite O.K. for me.
+why don't you just restart atmarpd?  After all, if you are unplugging and
+replugging your modem, surely you can restart the daemon at the same time?
 
-Andi Kleen wrote:
+I didn't feel it was necessary to have an override mechanism for this new,
+correct behavior (which makes things better for people using pppd, i.e. most
+people) since a simple workaround exists.
 
->>Well, if every process had a page of its own, what would the context
->>switch overhead be?
+What is very bad however is that atmarpd is still not fixed.  I had a look,
+got stuck, and asked for help on the linux-atm list, but no-one replied.
+There has been no progress since then.  I will have another look - maybe
+you can too?
 
-> For process zero, for thread quite high on x86 because you
-> would need per CPU page tables. Doing that would be extremly
-> nasty because you would potentially need to allocate a new
-> set of page tables every time the process is scheduled to a new
-> CPU it hasn't run on before.
+Best wishes,
 
-Probably I have not explained it correctly:
-- The "information page" (that includes the current CPU no.) is not a
-  per CPU page
-- This page is just another page that is mapped at a "well known" user
-  virtual address (for those who are interested in)
-- As you do not do any special action for each user page on context
-  switch, there is nothing to to this page either
-- The scheduler sometimes migrates a task, then it updates the
-  the current CPU number on the "information page"
-
-> My reference was more to high suggestion of keeping a second version 
-> of task_struct for export. That would require changing everything
-> in task struct that is changed on switch_to and should be exported
-> in the other function too.
-
-It depends on what else can be in this "information page".
-As for the current CPU no., you need a single store on each task migration.
-
-Thanks,
-
-Zoltan
+Duncan.

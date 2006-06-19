@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWFSTPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWFSTRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbWFSTPq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 15:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWFSTPq
+	id S932570AbWFSTRN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 15:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFSTRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 15:15:46 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:24274 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932540AbWFSTPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 15:15:45 -0400
-Date: Mon, 19 Jun 2006 21:15:43 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
-Message-ID: <20060619191543.GA17187@rhlx01.fht-esslingen.de>
+	Mon, 19 Jun 2006 15:17:13 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:15515 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932570AbWFSTRM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 15:17:12 -0400
+Date: Mon, 19 Jun 2006 15:16:56 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 64bit resources i386 proc iomem fix
+Message-ID: <20060619191656.GE8172@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hi Greg,
 
-while looking for loop places to apply cpu_relax() to, I found the
-following gems:
+With the recent changes to 64bit resources Kconfig options, following 
+patch shall have to be applied to make sure things are not broken
+on i386. Can you please include this patch.
 
-arch/i386/kernel/crash.c/crash_nmi_callback():
-
-        /* Assume hlt works */
-        halt();
-        for(;;);
-
-        return 1;
-}
-
-arch/i386/kernel/doublefault.c/doublefault_fn():
-
-        for (;;) /* nothing */;
-}
-
-Let's assume that we have a less than moderate fan failure that causes
-the CPU to heat up beyond the critical limit...
-That might result in - you guessed it - crashes or doublefaults.
-In which case we enter the corresponding handler and do... what?
-Exactly, we accelerate the CPUs happy march into bit heaven by letting it
-execute a busy-loop under a non-working fan.
-Thanks, your users will be very happy, I think ;)
-(especially since it was "just" a simple fan failure that could have been
-entirely remedied by buying another fan for $3)
+Thanks
+Vivek
 
 
-The same thing applies to
-arch/i386/kernel/smp.c/stop_this_cpu(), albeit there it's less catastrophic
-due to most likely normal working conditions there.
 
-IMHO on any critical CPU failure we should:
-- try to log it (might be difficult with a broken CPU, though)
-- optionally somehow directly alert the user
-- STOP the system, COMPLETELY (that way people WILL take notice, hopefully
-  before it's too late and actual damage will have occurred)
-- make DAMN SURE that the (possibly already broken) CPU won't have a
-  less than nice time once the system is stopped
+o Avoid exporting memory more than 4G through /proc/iomem on i386 if
+  CONFIG_RESOURCES_64BIT is not defined. Resources subsystem can not handle
+  it.
 
-Am I completely missing something here?
+o This patch is required after the recent re-organization of kconfig option
+  for 64bit resources.
 
-If this is an issue, then maybe we should consolidate those places into
-one function that safely(!) halts a CPU, optionally disabling APIC etc.
 
-Oh, and once you finished processing my mail here, you could optionally
-also look at my report about almost unusably broken USB:
-http://lkml.org/lkml/2006/6/19/54
-(no replies yet despite advanced breakage)
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
-Thanks!
+ linux-2.6.17-rc6-1M-vivek/arch/i386/kernel/setup.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Andreas Mohr
+diff -puN arch/i386/kernel/setup.c~64bit-resources-i386-proc-iomem-fix arch/i386/kernel/setup.c
+--- linux-2.6.17-rc6-1M/arch/i386/kernel/setup.c~64bit-resources-i386-proc-iomem-fix	2006-06-19 14:46:05.000000000 -0400
++++ linux-2.6.17-rc6-1M-vivek/arch/i386/kernel/setup.c	2006-06-19 14:46:37.000000000 -0400
+@@ -1338,7 +1338,7 @@ legacy_init_iomem_resources(struct resou
+ 	probe_roms();
+ 	for (i = 0; i < e820.nr_map; i++) {
+ 		struct resource *res;
+-#ifdef CONFIG_RESOURCES_32BIT
++#ifndef CONFIG_RESOURCES_64BIT
+ 		if (e820.map[i].addr + e820.map[i].size > 0x100000000ULL)
+ 			continue;
+ #endif
+_

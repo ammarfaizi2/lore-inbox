@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWFSGGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWFSGSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWFSGGN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 02:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWFSGGN
+	id S932199AbWFSGSd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 02:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWFSGSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 02:06:13 -0400
-Received: from max.feld.cvut.cz ([147.32.192.36]:3289 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S1750922AbWFSGGN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 02:06:13 -0400
-From: CIJOML <cijoml@volny.cz>
-To: linux-kernel@vger.kernel.org
-Subject: cpufreq doesn't work with my Intel Pentium M processor in 2.6.17
-Date: Mon, 19 Jun 2006 08:06:06 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 02:18:33 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:41740 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750922AbWFSGSc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 02:18:32 -0400
+Date: Mon, 19 Jun 2006 16:18:13 +1000
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Joachim Fritschi <jfritschi@freenet.de>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH  1/4] Twofish cipher - split out common c code
+Message-ID: <20060619061813.GA28582@gondor.apana.org.au>
+References: <200606041516.21967.jfritschi@freenet.de> <200606080920.04480.jfritschi@freenet.de> <20060608072735.GA10613@gondor.apana.org.au> <200606161358.53036.jfritschi@freenet.de> <20060618113138.GA22097@gondor.apana.org.au> <Pine.LNX.4.64.0606181551580.17704@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606190806.07400.cijoml@volny.cz>
+In-Reply-To: <Pine.LNX.4.64.0606181551580.17704@scrub.home>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello team,
+On Sun, Jun 18, 2006 at 03:53:36PM +0200, Roman Zippel wrote:
+>
+> > Please drop the help (it's not meant to be visible) and add a 'default n'
+> > instead.
+> 
+> The help text is also useful as documentation and doesn't hurt.
+> 'n' is the default already, so it's not needed.
 
-I compiled 2.6.17 and now I see, that cpufreq doesn't work with 2.6.17 (2.6.16 
-was fine).
+Thanks for the correction Roman.
 
-My cpu:
-Intel(R) Pentium(R) M processor 1.70GHz
-cpu family 6
-model 13
-stepping 6
+Joachim, please rebase your patch on the cryptodev tree and resend.
 
-Cpufreq doesn't start and also /sys files are not present/created
-
-My config:
-[*] CPU Frequency scaling
-<*> CPU frequency translation statistics
-[*] CPU frequency translation statistics details
-governors: <*> performance, powersave, ondemand, conservative
-<*> Intel Enhanced SpeedStep
-[*] Use ACPI tables to decode valid frequency/voltage pairs
-[*] Built-in tables for Banias CPUs 
-
-Thank you for fixing this in 2.6.17.1
-
-Best regards
-
-Michal
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

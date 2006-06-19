@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWFSGxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWFSG6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWFSGxr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 02:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWFSGxr
+	id S1751228AbWFSG6K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 02:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWFSG6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 02:53:47 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:8633 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751180AbWFSGxr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 02:53:47 -0400
-Message-ID: <4496492A.1030907@aitel.hist.no>
-Date: Mon, 19 Jun 2006 08:50:18 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Jeff Gold <jgold@mazunetworks.com>
-CC: Mark Lord <lkml@rtr.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Serial Console and Slow SCSI Disk Access?
-References: <448DDC7F.4030308@mazunetworks.com> <448DDF1D.5020108@rtr.ca> <448DE4F1.9000407@mazunetworks.com>
-In-Reply-To: <448DE4F1.9000407@mazunetworks.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 19 Jun 2006 02:58:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26587 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751211AbWFSG6J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 02:58:09 -0400
+Date: Sun, 18 Jun 2006 23:58:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 4/7] fuse: add POSIX file locking support
+Message-Id: <20060618235805.f12d4606.akpm@osdl.org>
+In-Reply-To: <E1FplXk-00062M-00@dorka.pomaz.szeredi.hu>
+References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
+	<E1FplXk-00062M-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Gold wrote:
-> Mark Lord wrote:
->> This can happen if there are kernel messages being printed on the 
->> serial console.
->> If all is quiet, I would expect things to be as fast as normal 
->> elsewhere.
->
-> Thank you for the suggestion.  I don't see much in /var/log/messages 
-> (syslogd is running).  There are 3326 lines taking up about 256 kB 
-> there, and when I run hdparm runs no further messages are generated.
->
-> I don't have anything attached to the serial port at the moment.  
-> Could that cause problems?  I'm going to attach something and see what 
-> happens.  Other advice is still welcome. 
-With nothing attached, any write to the serial device might go through
-a lengthy timeout because of flow control.  I'd consider that a bug
-in this case though, and there is usually no console printout
-per scsi disk access either.
+On Mon, 12 Jun 2006 14:29:20 +0200
+Miklos Szeredi <miklos@szeredi.hu> wrote:
 
+> +/*
+> + * It would be nice to scramble the ID space, so that the value of the
+> + * files_struct pointer is not exposed to userspace.  Symmetric crypto
+> + * functions are overkill, since the inverse function doesn't need to
+> + * be implemented (though it does have to exist).  Is there something
+> + * simpler?
+> + */
+> +static inline u64 fuse_lock_owner_id(fl_owner_t id)
+> +{
+> +	return (unsigned long) id;
+> +}
 
-I would not be surprised if your serial console causes a longer boot time,
-as all boot messages have to be transferred over the slow serial link
-or in the worst case timed out one message at a time.
-
-But I can't see why it'd make scsi disks slower. The scsi host adapter 
-initialization
-writes some messages of course, but there should be no more console accesses
-during a hdparm test run.
-
-Helge Hafting
+Add a constant, not-known-to-userspace offset to all ids?

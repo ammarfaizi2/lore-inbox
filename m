@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWFSQpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWFSQqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWFSQpk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 12:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWFSQpk
+	id S932525AbWFSQqO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 12:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWFSQqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 12:45:40 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:31440 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964794AbWFSQpj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 12:45:39 -0400
-Subject: Re: [RFC][PATCH 20/20] honor r/w changes at do_remount() time
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       herbert@13thfloor.at
-In-Reply-To: <20060618183616.GA27946@ftp.linux.org.uk>
-References: <20060616231213.D4C5D6AF@localhost.localdomain>
-	 <20060616231228.2107A2EE@localhost.localdomain>
-	 <20060618183616.GA27946@ftp.linux.org.uk>
+	Mon, 19 Jun 2006 12:46:14 -0400
+Received: from adsl-71-128-175-242.dsl.pltn13.pacbell.net ([71.128.175.242]:16583
+	"EHLO build.embeddedalley.com") by vger.kernel.org with ESMTP
+	id S932525AbWFSQqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 12:46:13 -0400
+Subject: Re: i2c-algo-ite and i2c-ite planned for removal
+From: Pete Popov <ppopov@embeddedalley.com>
+Reply-To: ppopov@embeddedalley.com
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060616222908.f96e3691.khali@linux-fr.org>
+References: <20060615225723.012c82be.khali@linux-fr.org>
+	 <1150406598.1193.73.camel@localhost.localdomain>
+	 <20060616222908.f96e3691.khali@linux-fr.org>
 Content-Type: text/plain
-Date: Mon, 19 Jun 2006 09:45:18 -0700
-Message-Id: <1150735518.10515.46.camel@localhost.localdomain>
+Organization: Embedded Alley Solutions, Inc
+Date: Mon, 19 Jun 2006 19:45:58 +0300
+Message-Id: <1150735558.8413.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-18 at 19:36 +0100, Al Viro wrote:
-> On Fri, Jun 16, 2006 at 04:12:28PM -0700, Dave Hansen wrote:
-> > 
-> > Originally from: Herbert Poetzl <herbert@13thfloor.at>
-> > 
-> > This is the core of the read-only bind mount patch set.
-> > 
-> > Note that this does _not_ add a "ro" option directly to
-> > the bind mount operation.  If you require such a mount,
-> > you must first do the bind, then follow it up with a
-> > 'mount -o remount,ro' operation.
+On Fri, 2006-06-16 at 22:29 +0200, Jean Delvare wrote:
+> Hi Pete,
 > 
-> Hrm...  So you want r/o status of vfsmount completely independent from
-> that of superblock?  I.e. allow writable vfsmount over r/o filesystem?
-> I realize that we have double checks, but...
+> > > So basically we have two drivers in the kernel tree for 5 years or so,
+> > > which never were usable, and nobody seemed to care. 
+> > 
+> > For historical correctness, this driver was once upon a time usable,
+> > though it was a few years ago. It was written by MV for some ref board
+> > that had the ITE chip and it did work. That ref board is no longer
+> > around so it's probably safe to nuke the driver. 
+> 
+> In which kernel version? In every version I checked (2.4.12, 2.4.30,
+> 2.6.0 and 2.6.16) it wouldn't compile due to struct iic_ite being used
+> but never defined (and possibly other errors, but I can't test-compile
+> the driver.)
 
-I think it does make sense to keep them separate.  I think of the
-superblock flag is really there to describe the state of the filesystem.
-Are we even _able_ to write to this thing now?
+Honestly, I don't remember. I think it was one of the very first 2.6
+kernels because when MV first released a 2.6 product, 2.6 was still
+'experimental'. It's quite possible of course that the driver was never
+properly merged upstream in the community tree(s). But I do know that it
+worked in the internal MV tree and an effort was made to get the driver
+accepted upstream.
 
-The vfsmount flag, on the other hand, spells out the intentions of the
-person who _did_ the mount.  Do I _want_ this to be writable?  
-
-Let's say that we eliminate the superblock r/o flag.  There's a
-filesystem with one regular vfsmount, one r/o bind vfsmount, and one r/w
-bind vfsmount.  It encounters an error.  Not having a superblock flag,
-we must go find each vfsmount and mark it r/o (this also enlarges the
-window during which the f/s might be written).
-
-Now, the administrator decides that the fs is OK, and remounts it r/w.
-The vfsmounts should obviously regain their original permissions, any
-other behavior is pretty screwy.  To accomplish this, we need both a
-"current write state" and a "previous write state", which probably means
-a new flag in the vfsmount.
-
-So, we've fanned out this "current state" information from the
-superblock, increased the window of fs damage, and added some complexity
-when we do the transitions between the states.  I think I like the way
-it is now. :)
-
--- Dave
+Pete
 

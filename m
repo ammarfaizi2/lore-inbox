@@ -1,505 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWFSJUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWFSJWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWFSJUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 05:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFSJUZ
+	id S1751271AbWFSJWx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 05:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWFSJWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 05:20:25 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:36586 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1751266AbWFSJUY (ORCPT
+	Mon, 19 Jun 2006 05:22:53 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:44496 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751267AbWFSJWw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 05:20:24 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Hugh Dickins <hugh@veritas.com>, Carsten Otte <cotte@de.ibm.com>,
-       bjorn_helgaas@hp.com
-Subject: [patch] mspec
-From: Jes Sorensen <jes@sgi.com>
-Date: 19 Jun 2006 05:20:23 -0400
-Message-ID: <yq0lkrtzelk.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Mon, 19 Jun 2006 05:22:52 -0400
+Date: Mon, 19 Jun 2006 11:22:49 +0200
+From: Jan Blunck <jblunck@suse.de>
+To: Balbir Singh <balbir@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, dgc@sgi.com, neilb@suse.de
+Subject: Re: [PATCH 2/5] vfs: d_genocide() doesnt add dentries to unused list
+Message-ID: <20060619092249.GB6824@hasse.suse.de>
+References: <20060616104321.778718000@hasse.suse.de> <20060616104322.204073000@hasse.suse.de> <4495AABE.6090007@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4495AABE.6090007@in.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jun 19, Balbir Singh wrote:
 
-Since today is the day of do_no_pfn, it is obviously also the time for
-mspec! Here we go :)
+> > 			this_parent = dentry;
+> > 			goto repeat;
+> > 		}
+> >-		atomic_dec(&dentry->d_count);
+> >+		if (!list_empty(&dentry->d_lru)) {
+> >+			dentry_stat.nr_unused--;
+> >+			list_del_init(&dentry->d_lru);
+> >+		}
+> >+		if (atomic_dec_and_test(&dentry->d_count)) {
+> >+			list_add(&dentry->d_lru, dentry_unused.prev);
+> >+			dentry_stat.nr_unused++;
+> >+		}
+> 
+> We could have dentries on the LRU list with non-zero d_count. If
+> we have a dentry on the LRU list with a count of 1, then the code
+> will remove it from LRU list and then add it back subsequently.
+> 
 
-Cheers,
-Jes
+So you think this is better?
 
-This patch implements the special memory driver (mspec) based on the
-do_no_pfn approach. The driver is currently used only on SN2 hardware
-with special fetchop support but could be beneficial on other
-architectures using the uncached mode.
+   if (atomic_dec_and_test(&dentry->d_count)) {
+      if (!list_empty(&dentry_d_lru))
+         list_move_tail(&dentry->d_lru, dentry_unused);
+   } else
+      if (!list_empty(&dentry->d_lru)) {
+         dentry_stat.nr_unused--;
+         list_del_init(&dentry->d_lru);
+      }
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
 
-----
+> I think the condition below should be an else if
+> 
 
- drivers/char/Kconfig  |    8 
- drivers/char/Makefile |    1 
- drivers/char/mspec.c  |  422 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 431 insertions(+)
+No. We always lower the reference count in d_genocide.
 
-Index: linux-2.6/drivers/char/Kconfig
-===================================================================
---- linux-2.6.orig/drivers/char/Kconfig
-+++ linux-2.6/drivers/char/Kconfig
-@@ -422,6 +422,14 @@
-          If you have an SGI Altix with an attached SABrick
-          say Y or M here, otherwise say N.
- 
-+config MSPEC
-+	tristate "Memory special operations driver"
-+	depends on IA64
-+	help
-+	  If you have an ia64 and you want to enable memory special
-+	  operations support (formerly known as fetchop), say Y here,
-+	  otherwise say N.
-+
- source "drivers/serial/Kconfig"
- 
- config UNIX98_PTYS
-Index: linux-2.6/drivers/char/Makefile
-===================================================================
---- linux-2.6.orig/drivers/char/Makefile
-+++ linux-2.6/drivers/char/Makefile
-@@ -51,6 +51,7 @@
- obj-$(CONFIG_VIOTAPE)		+= viotape.o
- obj-$(CONFIG_HVCS)		+= hvcs.o
- obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
-+obj-$(CONFIG_MSPEC)		+= mspec.o
- 
- obj-$(CONFIG_PRINTER)		+= lp.o
- obj-$(CONFIG_TIPAR)		+= tipar.o
-Index: linux-2.6/drivers/char/mspec.c
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/char/mspec.c
-@@ -0,0 +1,422 @@
-+/*
-+ * Copyright (C) 2001-2006 Silicon Graphics, Inc.  All rights
-+ * reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of version 2 of the GNU General Public License
-+ * as published by the Free Software Foundation.
-+ */
-+
-+/*
-+ * SN Platform Special Memory (mspec) Support
-+ *
-+ * This driver exports the SN special memory (mspec) facility to user
-+ * processes.
-+ * There are three types of memory made available thru this driver:
-+ * fetchops, uncached and cached.
-+ *
-+ * Fetchops are atomic memory operations that are implemented in the
-+ * memory controller on SGI SN hardware.
-+ *
-+ * Uncached are used for memory write combining feature of the ia64
-+ * cpu.
-+ *
-+ * Cached are used for areas of memory that are used as cached addresses
-+ * on our partition and used as uncached addresses from other partitions.
-+ * Due to a design constraint of the SN2 Shub, you can not have processors
-+ * on the same FSB perform both a cached and uncached reference to the
-+ * same cache line.  These special memory cached regions prevent the
-+ * kernel from ever dropping in a TLB entry and therefore prevent the
-+ * processor from ever speculating a cache line from this page.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/miscdevice.h>
-+#include <linux/spinlock.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
-+#include <linux/string.h>
-+#include <linux/slab.h>
-+#include <linux/numa.h>
-+#include <asm/page.h>
-+#include <asm/system.h>
-+#include <asm/pgtable.h>
-+#include <asm/atomic.h>
-+#include <asm/tlbflush.h>
-+#include <asm/uncached.h>
-+#include <asm/sn/addrs.h>
-+#include <asm/sn/arch.h>
-+#include <asm/sn/mspec.h>
-+#include <asm/sn/sn_cpuid.h>
-+#include <asm/sn/io.h>
-+#include <asm/sn/bte.h>
-+#include <asm/sn/shubio.h>
-+
-+
-+#define FETCHOP_ID	"SGI Fetchop,"
-+#define CACHED_ID	"Cached,"
-+#define UNCACHED_ID	"Uncached"
-+#define REVISION	"4.0"
-+#define MSPEC_BASENAME	"mspec"
-+
-+/*
-+ * Page types allocated by the device.
-+ */
-+enum {
-+	MSPEC_FETCHOP = 1,
-+	MSPEC_CACHED,
-+	MSPEC_UNCACHED
-+};
-+
-+static int is_sn2;
-+
-+/*
-+ * One of these structures is allocated when an mspec region is mmaped. The
-+ * structure is pointed to by the vma->vm_private_data field in the vma struct.
-+ * This structure is used to record the addresses of the mspec pages.
-+ */
-+struct vma_data {
-+	atomic_t refcnt;	/* Number of vmas sharing the data. */
-+	spinlock_t lock;	/* Serialize access to the vma. */
-+	int count;		/* Number of pages allocated. */
-+	int type;		/* Type of pages allocated. */
-+	unsigned long maddr[0];	/* Array of MSPEC addresses. */
-+};
-+
-+/* used on shub2 to clear FOP cache in the HUB */
-+static unsigned long scratch_page[MAX_NUMNODES];
-+#define SH2_AMO_CACHE_ENTRIES	4
-+
-+static inline int
-+mspec_zero_block(unsigned long addr, int len)
+> 
+> d_genocide() now almost looks like select_parent(). I think we can share a 
+> lot
+> of code between the two.
+> 
+
+Hmm, interesting idea. This would save the dentry-tree walking code in
+have_submounts too. Maybe something like this:
+
++static int select_parent_walker(struct dentry * dentry, int * found)
 +{
-+	int status;
++       if (!list_empty(&dentry->d_lru)) {
++               dentry_stat.nr_unused--;
++               list_del_init(&dentry->d_lru);
++       }
 +
-+	if (is_sn2) {
-+		if (is_shub2()) {
-+			int nid;
-+			void *p;
-+			int i;
++       /*
++        * move only zero ref count dentries to the end
++        * of the unused list for prune_dcache
++        */
++       if (!atomic_read(&dentry->d_count)) {
++               list_add(&dentry->d_lru, dentry_unused.prev);
++               dentry_stat.nr_unused++;
++               *found++;
++       }
 +
-+			nid = nasid_to_cnodeid(get_node_number(__pa(addr)));
-+			p = (void *)TO_AMO(scratch_page[nid]);
++       /*
++        * We can return to the caller if we have found some (this
++        * ensures forward progress). We'll be coming back to find
++        * the rest.
++        */
++       if (*found && need_resched())
++               return -1;
 +
-+			for (i=0; i < SH2_AMO_CACHE_ENTRIES; i++) {
-+				FETCHOP_LOAD_OP(p, FETCHOP_LOAD);
-+				p += FETCHOP_VAR_SIZE;
-+			}
-+		}
-+
-+		status = bte_copy(0, addr & ~__IA64_UNCACHED_OFFSET, len,
-+				  BTE_WACQUIRE | BTE_ZERO_FILL, NULL);
-+	} else {
-+		memset((char *) addr, 0, len);
-+		status = 0;
-+	}
-+	return status;
++       return 0;
 +}
 +
-+/*
-+ * mspec_open
-+ *
-+ * Called when a device mapping is created by a means other than mmap
-+ * (via fork, etc.).  Increments the reference count on the underlying
-+ * mspec data so it is not freed prematurely.
-+ */
-+static void
-+mspec_open(struct vm_area_struct *vma)
++typedef int (*walker_t)(struct dentry * dentry, int * return);
++
++static int dentry_tree_walk(struct dentry * parent, walker_t walker)
 +{
-+	struct vma_data *vdata;
++       struct dentry *this_parent = parent;
++       struct list_head *next;
++       int ret = 0;
 +
-+	vdata = vma->vm_private_data;
-+	atomic_inc(&vdata->refcnt);
++       spin_lock(&dcache_lock);
++repeat:
++       next = this_parent->d_subdirs.next;
++resume:
++       while (next != &this_parent->d_subdirs) {
++               struct list_head *tmp = next;
++               struct dentry *dentry = list_entry(tmp, struct dentry,
++                                                  d_u.d_child);
++               next = tmp->next;
++
++               if (walker(dentry, &ret))
++                       goto out;
++
++               /*
++                * Descend a level if the d_subdirs list is non-empty.
++                */
++               if (!list_empty(&dentry->d_subdirs)) {
++                       this_parent = dentry;
++                       goto repeat;
++               }
++       }
++       /*
++        * All done at this level ... ascend and resume the search.
++        */
++       if (this_parent != parent) {
++               next = this_parent->d_u.d_child.next;
++               this_parent = this_parent->d_parent;
++               goto resume;
++       }
++out:
++       spin_unlock(&dcache_lock);
++       return ret;
 +}
-+
-+/*
-+ * mspec_close
-+ *
-+ * Called when unmapping a device mapping. Frees all mspec pages
-+ * belonging to the vma.
-+ */
-+static void
-+mspec_close(struct vm_area_struct *vma)
-+{
-+	struct vma_data *vdata;
-+	int i, pages, result, vdata_size;
-+
-+	vdata = vma->vm_private_data;
-+	if (!atomic_dec_and_test(&vdata->refcnt))
-+		return;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	for (i = 0; i < pages; i++) {
-+		if (vdata->maddr[i] == 0)
-+			continue;
-+		/*
-+		 * Clear the page before sticking it back
-+		 * into the pool.
-+		 */
-+		result = mspec_zero_block(vdata->maddr[i], PAGE_SIZE);
-+		if (!result)
-+			uncached_free_page(vdata->maddr[i]);
-+		else
-+			printk(KERN_WARNING "mspec_close(): "
-+			       "failed to zero page %i\n",
-+			       result);
-+	}
-+
-+	if (vdata_size <= PAGE_SIZE)
-+		kfree(vdata);
-+	else
-+		vfree(vdata);
-+}
-+
-+
-+/*
-+ * mspec_nopfn
-+ *
-+ * Creates a mspec page and maps it to user space.
-+ */
-+static unsigned long
-+mspec_nopfn(struct vm_area_struct *vma, unsigned long address)
-+{
-+	unsigned long paddr, maddr;
-+	unsigned long pfn;
-+	int index;
-+	struct vma_data *vdata = vma->vm_private_data;
-+
-+	index = (address - vma->vm_start) >> PAGE_SHIFT;
-+	maddr = (volatile unsigned long) vdata->maddr[index];
-+	if (maddr == 0) {
-+		maddr = uncached_alloc_page(numa_node_id());
-+		if (maddr == 0)
-+			return NOPFN_OOM;
-+
-+		spin_lock(&vdata->lock);
-+		if (vdata->maddr[index] == 0) {
-+			vdata->count++;
-+			vdata->maddr[index] = maddr;
-+		} else {
-+			uncached_free_page(maddr);
-+			maddr = vdata->maddr[index];
-+		}
-+		spin_unlock(&vdata->lock);
-+	}
-+
-+	if (vdata->type == MSPEC_FETCHOP)
-+		paddr = TO_AMO(maddr);
-+	else
-+		paddr = __pa(TO_CAC(maddr));
-+
-+	pfn = paddr >> PAGE_SHIFT;
-+
-+	return pfn;
-+}
-+
-+static struct vm_operations_struct mspec_vm_ops = {
-+	.open = mspec_open,
-+	.close = mspec_close,
-+	.nopfn = mspec_nopfn
-+};
-+
-+/*
-+ * mspec_mmap
-+ *
-+ * Called when mmaping the device.  Initializes the vma with a fault handler
-+ * and private data structure necessary to allocate, track, and free the
-+ * underlying pages.
-+ */
-+static int
-+mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
-+{
-+	struct vma_data *vdata;
-+	int pages, vdata_size;
-+
-+	if (vma->vm_pgoff != 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_SHARED) == 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_WRITE) == 0)
-+		return -EPERM;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	if (vdata_size <= PAGE_SIZE)
-+		vdata = kmalloc(vdata_size, GFP_KERNEL);
-+	else
-+		vdata = vmalloc(vdata_size);
-+	if (!vdata)
-+		return -ENOMEM;
-+	memset(vdata, 0, vdata_size);
-+
-+	vdata->type = type;
-+	spin_lock_init(&vdata->lock);
-+	vdata->refcnt = ATOMIC_INIT(1);
-+	vma->vm_private_data = vdata;
-+
-+	vma->vm_flags |= (VM_IO | VM_LOCKED | VM_RESERVED | VM_PFNMAP);
-+	if (vdata->type == MSPEC_FETCHOP || vdata->type == MSPEC_UNCACHED)
-+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-+	vma->vm_ops = &mspec_vm_ops;
-+
-+	return 0;
-+}
-+
-+static int
-+fetchop_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_FETCHOP);
-+}
-+
-+static int
-+cached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_CACHED);
-+}
-+
-+static int
-+uncached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_UNCACHED);
-+}
-+
-+static struct file_operations fetchop_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = fetchop_mmap
-+};
-+
-+static struct miscdevice fetchop_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "sgi_fetchop",
-+	.fops = &fetchop_fops
-+};
-+
-+static struct file_operations cached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = cached_mmap
-+};
-+
-+static struct miscdevice cached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_cached",
-+	.fops = &cached_fops
-+};
-+
-+static struct file_operations uncached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = uncached_mmap
-+};
-+
-+static struct miscdevice uncached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_uncached",
-+	.fops = &uncached_fops
-+};
-+
-+/*
-+ * mspec_init
-+ *
-+ * Called at boot time to initialize the mspec facility.
-+ */
-+static int __init
-+mspec_init(void)
-+{
-+	int ret;
-+	int nid;
-+
-+	/*
-+	 * The fetchop device only works on SN2 hardware, uncached and cached
-+	 * memory drivers should both be valid on all ia64 hardware
-+	 */
-+	if (ia64_platform_is("sn2")) {
-+		is_sn2 = 1;
-+		if (is_shub2()) {
-+			ret = -ENOMEM;
-+			for_each_online_node(nid) {
-+				int actual_nid;
-+				int nasid;
-+				unsigned long phys;
-+
-+				scratch_page[nid] = uncached_alloc_page(nid);
-+				if (scratch_page[nid] == 0)
-+					goto free_scratch_pages;
-+				phys = __pa(scratch_page[nid]);
-+				nasid = get_node_number(phys);
-+				actual_nid = nasid_to_cnodeid(nasid);
-+				if (actual_nid != nid)
-+					goto free_scratch_pages;
-+			}
-+		}
-+
-+		ret = misc_register(&fetchop_miscdev);
-+		if (ret) {
-+			printk(KERN_ERR
-+			       "%s: failed to register device %i\n",
-+			       FETCHOP_ID, ret);
-+			goto free_scratch_pages;
-+		}
-+	}
-+	ret = misc_register(&cached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       CACHED_ID, ret);
-+		if (is_sn2)
-+			misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+	ret = misc_register(&uncached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       UNCACHED_ID, ret);
-+		misc_deregister(&cached_miscdev);
-+		if (is_sn2)
-+			misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+
-+	printk(KERN_INFO "%s %s initialized devices: %s %s %s\n",
-+	       MSPEC_BASENAME, REVISION, is_sn2 ? FETCHOP_ID : "",
-+	       CACHED_ID, UNCACHED_ID);
-+
-+	return 0;
-+
-+free_scratch_pages:
-+	for_each_node(nid) {
-+		if (scratch_page[nid] != 0)
-+			uncached_free_page(scratch_page[nid]);
-+	}
-+	return ret;
-+}
-+
-+static void __exit
-+mspec_exit(void)
-+{
-+	int nid;
-+
-+	misc_deregister(&uncached_miscdev);
-+	misc_deregister(&cached_miscdev);
-+	if (is_sn2) {
-+		misc_deregister(&fetchop_miscdev);
-+
-+		for_each_node(nid) {
-+			if (scratch_page[nid] != 0)
-+				uncached_free_page(scratch_page[nid]);
-+		}
-+	}
-+}
-+
-+module_init(mspec_init);
-+module_exit(mspec_exit);
-+
-+MODULE_AUTHOR("Silicon Graphics, Inc.");
-+MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
-+MODULE_LICENSE("GPL");
-+MODULE_INFO(supported, "external");

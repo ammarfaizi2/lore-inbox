@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbWFSWJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWFSWMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbWFSWJY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 18:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWFSWJX
+	id S964931AbWFSWMR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 18:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWFSWMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 18:09:23 -0400
-Received: from mailfe10.tele2.fr ([212.247.155.44]:39583 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S964946AbWFSWJX (ORCPT
+	Mon, 19 Jun 2006 18:12:16 -0400
+Received: from iabervon.org ([66.92.72.58]:22537 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S964931AbWFSWMP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 18:09:23 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-X-Cloudmark-Score: 0.000000 []
-Date: Tue, 20 Jun 2006 00:09:20 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Message-ID: <20060619220920.GB5788@implementation.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	linux-kernel@vger.kernel.org
-References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr> <Pine.LNX.4.61.0606190730070.27378@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0606190730070.27378@chaos.analogic.com>
-User-Agent: Mutt/1.5.11
+	Mon, 19 Jun 2006 18:12:15 -0400
+Date: Mon, 19 Jun 2006 18:14:28 -0400 (EDT)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+cc: linux-kernel@vger.kernel.org, Joshua Hudson <joshudson@gmail.com>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
+In-Reply-To: <44964EDC.3030104@ums.usu.ru>
+Message-ID: <Pine.LNX.4.64.0606191801000.6713@iabervon.org>
+References: <20060618221343.GA20277@kroah.com>  <20060618230041.GG4744@bouh.residence.ens-lyon.fr>
+  <4495F5C3.1030203@zytor.com>  <bda6d13a0606181817q2ab4e5cev670ef5c537b63e6c@mail.gmail.com>
+  <4495FF59.2010100@zytor.com> <8e6f94720606182255u400964c2v1ea16221ffc5c94d@mail.gmail.com>
+ <44964EDC.3030104@ums.usu.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson), le Mon 19 Jun 2006 07:37:02 -0400, a écrit :
-> You can't allow some terminal input to affect init. It has been the
-> de facto standard in Unix, that the only time one should have a
-> controlling terminal is after somebody logs in and owns something to
-> control.
+On Mon, 19 Jun 2006, Alexander E. Patrakov wrote:
 
-Ok. The following still makes sense, doesn't it? (i.e. set a session for
-the emergency shell)
+> Will Dyson wrote:
+> > Providing the information about what devices a virtual driver will
+> > register when loaded seems like a good idea.
+> 
+> Why? This information is currently useless. What you want is that something
+> knows that you want this driver to be loaded.
 
---- linux-2.6.17-orig/init/main.c	2006-06-18 19:22:40.000000000 +0200
-+++ linux-2.6.17-perso/init/main.c	2006-06-20 00:07:07.000000000 +0200
-@@ -729,6 +729,11 @@
- 	run_init_process("/sbin/init");
- 	run_init_process("/etc/init");
- 	run_init_process("/bin/init");
-+
-+	/* Set a session for the shell.  */
-+	sys_setsid();
-+	sys_ioctl(0, TIOCSCTTY, 1);
-+
- 	run_init_process("/bin/sh");
- 
- 	panic("No init found.  Try passing init= option to kernel.");
+The point is that you *don't* want those modules to be loaded. What you 
+want is for the kernel to know that those modules are available, and 
+therefore mention that drivers could be found for those devices, and 
+therefore udev would create the device nodes for them, even though the 
+kernel doesn't contain a module that drives them yet.
+
+If something actually opens the device node, the module will be loaded, 
+but until then it isn't using up resources.
+
+	-Daniel
+*This .sig left intentionally blank*

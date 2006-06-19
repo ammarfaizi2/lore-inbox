@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWFSIwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWFSIxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWFSIwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbWFSIwU
+	id S1750967AbWFSIxk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWFSIxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:52:20 -0400
-Received: from iona.labri.fr ([147.210.8.143]:9391 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S1750777AbWFSIwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:52:19 -0400
-Date: Mon, 19 Jun 2006 10:52:17 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Greg KH <gregkh@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
-Message-ID: <20060619085217.GG4253@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Greg KH <gregkh@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, greg@kroah.com
-References: <20060618221343.GA20277@kroah.com> <20060618230041.GG4744@bouh.residence.ens-lyon.fr> <4495F5C3.1030203@zytor.com> <20060619031521.GA4651@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060619031521.GA4651@suse.de>
-User-Agent: Mutt/1.5.11
+	Mon, 19 Jun 2006 04:53:40 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:29672 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750967AbWFSIxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 04:53:39 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Linux 2.4.33-rc1
+Date: Mon, 19 Jun 2006 18:53:31 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <s9pc929iilegdlg0heo1ap83dq3eha4hcs@4ax.com>
+References: <20060616181419.GA15734@dmt> <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu>
+In-Reply-To: <20060619080651.GA3273@1wt.eu>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH, le Sun 18 Jun 2006 20:15:21 -0700, a écrit :
-> On Sun, Jun 18, 2006 at 05:54:27PM -0700, H. Peter Anvin wrote:
-> > It would be nice if udev could be fed not just from the kernel, but from 
-> > the repository of modules that are available for loading.  That may 
-> > require additional module information.
+On Mon, 19 Jun 2006 10:06:51 +0200, Willy Tarreau <w@1wt.eu> wrote:
+
+>Hi Grant,
+>
+>OK, it does *really* crash in vfs_unlink(), during the double_up on
+>dentry->inode-i_zombie (dentry->inode = NULL).
+>
+>I suggest the following fix, I hope that it is correct and is not subject
+>to any race condition :
+>
+>--- ./fs/namei.c.orig	2006-06-19 09:39:52.000000000 +0200
+>+++ ./fs/namei.c	2006-06-19 09:51:09.000000000 +0200
+>@@ -1478,12 +1478,14 @@
+> int vfs_unlink(struct inode *dir, struct dentry *dentry)
+> {
+> 	int error;
+>+	struct inode *inode;
 > 
-> There's no reason it could not be, but usually a simple, "modprobe loop"
-> works good enough for everyone :)
+> 	error = may_delete(dir, dentry, 0);
+> 	if (error)
+> 		return error;
+> 
+>-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
+>+	inode = dentry->d_inode;
+>+	double_down(&dir->i_zombie, &inode->i_zombie);
+> 	error = -EPERM;
+> 	if (dir->i_op && dir->i_op->unlink) {
+> 		DQUOT_INIT(dir);
+>@@ -1495,7 +1497,7 @@
+> 			unlock_kernel();
+> 		}
+> 	}
+>-	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
+>+	double_up(&dir->i_zombie, &inode->i_zombie);
+> 	if (!error) {
+> 		d_delete(dentry);
+> 		inode_dir_notify(dir, DN_DELETE);
+>
+>I think it will *not* oops anymore with this fix, but I'd like someone to
+>review it to ensure that it is valid.
 
-Not for non-root people. (And yes, they may want to do non-root things
-with such virtual devices, in the dummy sequencer case for instance).
+Hi Willy,
 
-Samuel
+Still corrupts a vim edit backup filename as previously reported, 
+instead of /etc/lilo.conf~ I get /etc/lilo.co~ :(
+
+Grant.

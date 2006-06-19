@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWFSO2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWFSOa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWFSO2M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 10:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWFSO2M
+	id S932502AbWFSOa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 10:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWFSOa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 10:28:12 -0400
-Received: from rtr.ca ([64.26.128.89]:26600 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932452AbWFSO2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 10:28:12 -0400
-Message-ID: <4496B47B.7070602@rtr.ca>
-Date: Mon, 19 Jun 2006 10:28:11 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Narendra Hadke <nhadke@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sata_mv driver on 88sx6041 (kernel version 2.6.13)
-References: <20060616164827.18258.qmail@web33514.mail.mud.yahoo.com>
-In-Reply-To: <20060616164827.18258.qmail@web33514.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 19 Jun 2006 10:30:28 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:2486 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932502AbWFSOa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 10:30:28 -0400
+Date: Mon, 19 Jun 2006 16:30:07 +0200
+From: Voluspa <lista1@comhem.se>
+To: "Ojciec Rydzyk" <69rydzyk69@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, be-news06@lina.inka.de,
+       jengelh@linux01.gwdg.de, greg@kroah.com
+Subject: Re: Several errors in kernel
+Message-Id: <20060619163007.2a681aaa.lista1@comhem.se>
+In-Reply-To: <32124b660606190706g2d44414ck3860fd6ae82ec628@mail.gmail.com>
+References: <20060619155824.7cc1ad6c.lista1@comhem.se>
+	<32124b660606190706g2d44414ck3860fd6ae82ec628@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Narendra Hadke wrote:
-> Hi,
-> I am using sata_mv driver as exists in kernel 2.6.13,
-> reached to a stage where after detecting the disk,
-> control gets struck. Any ideas? 
+On Mon, 19 Jun 2006 16:06:26 +0200 Ojciec Rydzyk wrote:
+> And what is wrong with my BIOS that kernel cannot allocate mem
+> resource. What is the reason? (I just would like to know what should I
+> post to my BIOS vendor :P)
 
-No surprises there.  The sata_mv driver is horribly buggy
-in all kernels prior to 2.6.16, and even there it still has
-some serious bugs.  The 2.6.17 kernel version is MUCH better.
+It's a good question, so I'm cc:-ing the rest of the thread recipients
+and adding Greg KH, so he can fight it out with anyone interested. Me,
+I've given up on the issue. But as I predicted, it will hunt the list
+until hidden...
 
-Cheers
+Greg, here's my reply, sorry didn't quote anything from the original
+message, but thread starts at:
+
+http://marc.theaimsgroup.com/?t=115066436000002&r=1&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115066427121999&w=2
+
+I wrote:
+>>The nsxfeval is completely harmless and has been fixed in the
+>>"ACPI: Subsystem revision 20060310" present in -mm kernels.
+>>
+>>The "Failed to allocate mem resource" is also harmless but Greg KH
+>>has decided to not hide/fix it. Our BIOS vendors are to blame.
+>>
+>>For a summary see:
+>>[Re: [2.6.16-rc2] Error - nsxfeval - And uncool silence from kernel
+>>hackers.]
+>>http://marc.theaimsgroup.com/?l=linux-kernel&m=113957514307078&w=2
+>>
+>>I started the thread at:
+>>http://marc.theaimsgroup.com/?l=linux-kernel&m=113952620328363&w=2
+
+Mvh
+Mats Johannesson
+--

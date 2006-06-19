@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWFSPrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWFSPt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWFSPrl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFSPrl
+	id S964779AbWFSPt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFSPt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:47:41 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:23488 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932302AbWFSPrk (ORCPT
+	Mon, 19 Jun 2006 11:49:26 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:59654 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S932178AbWFSPtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:47:40 -0400
-Date: Mon, 19 Jun 2006 08:47:29 -0700
-From: Greg Lindahl <greg.lindahl@qlogic.com>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, Brice Goglin <brice@myri.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
-Message-ID: <20060619154728.GA15089@greglaptop.hsd1.ca.comcast.net>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-	Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org
-References: <4493709A.7050603@myri.com> <44941632.4050703@myri.com> <20060619005329.GA1425@greglaptop> <200606191028.51242.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606191028.51242.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-X-Frumious: Bandersnatch
+	Mon, 19 Jun 2006 11:49:25 -0400
+Message-ID: <4496C782.8090605@argo.co.il>
+Date: Mon, 19 Jun 2006 18:49:22 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Theodore Tso <tytso@thunk.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 5/8] inode-diet: Eliminate i_blksize and use a per-superblock
+ default
+References: <20060619153109.817554000@candygram.thunk.org>
+In-Reply-To: <20060619153109.817554000@candygram.thunk.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Jun 2006 15:49:23.0800 (UTC) FILETIME=[EFCB1580:01C693B7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 10:28:50AM +0200, Andi Kleen wrote:
+Theodore Tso wrote:
+>
+> This eliminates the i_blksize field from struct inode and uses default
+> value in super->s_blksize.  Filesystems that want to provide a
+> per-inode st_blksize can do so by providing their own getattr routine
+> instead of using the generic_fillattr() function.
+>
 
-> Isn't your HCA directly connected to HTX? If yes it will
-> likely not run into PCI bridge bugs.
+> Index: linux-2.6.17/include/linux/nfsd/nfsfh.h
+> ===================================================================
+> --- linux-2.6.17.orig/include/linux/nfsd/nfsfh.h        2006-06-18 
+> 19:37:14.000000000 -0400
+> +++ linux-2.6.17/include/linux/nfsd/nfsfh.h     2006-06-18 
+> 19:53:54.000000000 -0400
+> @@ -270,8 +270,8 @@
+>         fhp->fh_post_uid        = inode->i_uid;
+>         fhp->fh_post_gid        = inode->i_gid;
+>         fhp->fh_post_size       = inode->i_size;
+> -       if (inode->i_blksize) {
+> -               fhp->fh_post_blksize    = inode->i_blksize;
+> +       if (inode->i_sb->s_blksize) {
+> +               fhp->fh_post_blksize    = inode->i_sb->s_blksize;
+>                 fhp->fh_post_blocks     = inode->i_blocks;
+>         } else {
+>                 fhp->fh_post_blksize    = BLOCK_SIZE;
+>
 
-I was referring to our new PCI Express HCA.
+Isn't this a behavioral change?  If a filesystem chooses to provide 
+i_blksize via a getattr method, it will not show on nfs mounts.
 
--- greg
+-- 
+error compiling committee.c: too many arguments to function
 

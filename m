@@ -1,46 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWFST2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWFST3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbWFST2y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 15:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWFST2y
+	id S964833AbWFST3x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 15:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWFST3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 15:28:54 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:35514 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932540AbWFST2y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 15:28:54 -0400
-Date: Tue, 20 Jun 2006 03:28:56 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] arm_timer: remove a racy and obsolete PF_EXITING check
-Message-ID: <20060619232856.GA88@oleg>
-References: <20060615161202.GA21463@oleg> <20060619080656.42097180049@magilla.sf.frob.com>
+	Mon, 19 Jun 2006 15:29:53 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:34005 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964833AbWFST3w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 15:29:52 -0400
+Date: Mon, 19 Jun 2006 14:29:50 -0500
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: powerpc: pseries: Print PCI slot location code on failure
+Message-ID: <20060619192950.GB9200@austin.ibm.com>
+References: <20060615221527.GD12389@austin.ibm.com> <17553.57932.127038.417630@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060619080656.42097180049@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <17553.57932.127038.417630@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/19, Roland McGrath wrote:
+On Fri, Jun 16, 2006 at 08:42:20AM +1000, Paul Mackerras wrote:
+> Linas Vepstas writes:
 > 
-> > However, for some reason it does so only for CPUCLOCK_PERTHREAD
-> > case (which is imho wrong).
+> > Resending an older patch (from 28 April) that seems to have fallen
+> > through the cracks, its not in mailine, is not in -mm and its not
+> > controversial (its mostly a printk change). Tested.
 > 
-> For a process CPU clock timer, ->it.cpu.task is the thread group leader.
-> The group leader can exit and will be a lingering zombie for as long as
-> other threads in the group live.  The process timers need to keep getting
-> armed and working both during and after the group leader's exit processing.
+> I don't like doing printk on things that might be NULL (i.e. the
+> result of get_property).  Even though printk doesn't crash, it would
+> be nicer for the user to see "location=unknown" or something rather
+> than "location=<NULL>".
 
-Ah, yes. Also, I missed the fact that process_timer_rebalance() checks
-PF_EXITING anyway (For a process CPU clock timer), so I was wrong twice.
+Right. Revised patch below.
+--------------
 
-Thanks!
+[PATCH]: powerpc/pseries: Print PCI slot location code on failure
 
-Oleg.
+The PCI error recovery code will printk diagnostic info when
+a PCI error event occurs. Change the messages to include the slot
+location code, which is how most sysadmins will know the device.
 
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+
+----
+ arch/powerpc/platforms/pseries/eeh_driver.c |   35 +++++++++++++++++-----------
+ 1 files changed, 22 insertions(+), 13 deletions(-)
+
+Index: linux-2.6.17-rc6-mm2/arch/powerpc/platforms/pseries/eeh_driver.c
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/arch/powerpc/platforms/pseries/eeh_driver.c	2006-06-13 18:13:26.000000000 -0500
++++ linux-2.6.17-rc6-mm2/arch/powerpc/platforms/pseries/eeh_driver.c	2006-06-16 13:51:44.000000000 -0500
+@@ -261,16 +261,22 @@ struct pci_dn * handle_eeh_events (struc
+ 	struct pci_bus *frozen_bus;
+ 	int rc = 0;
+ 	enum pci_ers_result result = PCI_ERS_RESULT_NONE;
+-	const char *pci_str, *drv_str;
++	const char *location, *pci_str, *drv_str;
+ 
+ 	frozen_dn = find_device_pe(event->dn);
+ 	frozen_bus = pcibios_find_pci_bus(frozen_dn);
+ 
+ 	if (!frozen_dn) {
+-		printk(KERN_ERR "EEH: Error: Cannot find partition endpoint for %s\n",
+-		        pci_name(event->dev));
++
++		location = (char *) get_property(event->dn, "ibm,loc-code", NULL);
++		location = location ? location : "unknown"; 
++		printk(KERN_ERR "EEH: Error: Cannot find partition endpoint "
++		                "for location=%s pci addr=%s\n",
++		        location, pci_name(event->dev));
+ 		return NULL;
+ 	}
++	location = (char *) get_property(frozen_dn, "ibm,loc-code", NULL);
++	location = location ? location : "unknown"; 
+ 
+ 	/* There are two different styles for coming up with the PE.
+ 	 * In the old style, it was the highest EEH-capable device
+@@ -282,8 +288,9 @@ struct pci_dn * handle_eeh_events (struc
+ 		frozen_bus = pcibios_find_pci_bus (frozen_dn->parent);
+ 
+ 	if (!frozen_bus) {
+-		printk(KERN_ERR "EEH: Cannot find PCI bus for %s\n",
+-		        frozen_dn->full_name);
++		printk(KERN_ERR "EEH: Cannot find PCI bus "
++		        "for location=%s dn=%s\n",
++		        location, frozen_dn->full_name);
+ 		return NULL;
+ 	}
+ 
+@@ -318,8 +325,9 @@ struct pci_dn * handle_eeh_events (struc
+ 
+ 	eeh_slot_error_detail(frozen_pdn, 1 /* Temporary Error */);
+ 	printk(KERN_WARNING
+-	   "EEH: This PCI device has failed %d times since last reboot: %s - %s\n",
+-		frozen_pdn->eeh_freeze_count, drv_str, pci_str);
++	   "EEH: This PCI device has failed %d times since last reboot: "
++		"location=%s driver=%s pci addr=%s\n",
++		frozen_pdn->eeh_freeze_count, location, drv_str, pci_str);
+ 
+ 	/* Walk the various device drivers attached to this slot through
+ 	 * a reset sequence, giving each an opportunity to do what it needs
+@@ -368,17 +376,18 @@ excess_failures:
+ 	 * due to actual, failed cards.
+ 	 */
+ 	printk(KERN_ERR
+-	   "EEH: PCI device %s - %s has failed %d times \n"
+-	   "and has been permanently disabled.  Please try reseating\n"
+-	   "this device or replacing it.\n",
+-		drv_str, pci_str, frozen_pdn->eeh_freeze_count);
++	   "EEH: PCI device at location=%s driver=%s pci addr=%s \n"
++		"has failed %d times and has been permanently disabled. \n"
++		"Please try reseating this device or replacing it.\n",
++		location, drv_str, pci_str, frozen_pdn->eeh_freeze_count);
+ 	goto perm_error;
+ 
+ hard_fail:
+ 	printk(KERN_ERR
+-	   "EEH: Unable to recover from failure of PCI device %s - %s\n"
++	   "EEH: Unable to recover from failure of PCI device "
++	   "at location=%s driver=%s pci addr=%s \n"
+ 	   "Please try reseating this device or replacing it.\n",
+-		drv_str, pci_str);
++		location, drv_str, pci_str);
+ 
+ perm_error:
+ 	eeh_slot_error_detail(frozen_pdn, 2 /* Permanent Error */);

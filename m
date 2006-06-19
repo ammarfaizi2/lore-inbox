@@ -1,62 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWFSXs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWFSXvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWFSXs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 19:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWFSXs7
+	id S932555AbWFSXvN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 19:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWFSXvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 19:48:59 -0400
-Received: from relay2.uli.it ([62.212.1.5]:12684 "EHLO relay2.uli.it")
-	by vger.kernel.org with ESMTP id S932512AbWFSXs7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 19:48:59 -0400
-From: Daniele Orlandi <daniele@orlandi.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Passing references to kobjects between userland and kernel
-Date: Tue, 20 Jun 2006 01:48:54 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200606141626.39273.daniele@orlandi.com> <20060616235800.GA29573@kroah.com>
-In-Reply-To: <20060616235800.GA29573@kroah.com>
-X-Message-Flag: Outlook puo' causare gravi danni alla salute. Pensaci.
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 19:51:13 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:56758 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932550AbWFSXvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 19:51:12 -0400
+Date: Tue, 20 Jun 2006 00:51:09 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: karsten wiese <annabellesgarden@yahoo.de>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, gregkh@suse.de
+Subject: [FIXED PATCH] Clear abnormal poweroff flag on VIA southbridges, fix resume
+Message-ID: <20060619235109.GA23675@srcf.ucam.org>
+References: <20060618191421.GA15358@srcf.ucam.org> <20060619225719.87000.qmail@web26501.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606200148.56117.daniele@orlandi.com>
+In-Reply-To: <20060619225719.87000.qmail@web26501.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 17 June 2006 01:58, Greg KH wrote:
->
-> Use the kobject_uevent() call from kernelspace to let userspace know
-> whatever you want it to.  That is what it is there for :)
+On Tue, Jun 20, 2006 at 12:57:19AM +0200, karsten wiese wrote:
+> --- Matthew Garrett <mjg59@srcf.ucam.org> schrieb:
+> > Some VIA southbridges contain a flag in the ACPI register space that 
+> > indicates whether an abnormal poweroff has occured, presumably with the 
+> > intention that it can be cleared on clean shutdown. Some BIOSes check
+> 
+> (intel defines this bit as being set, when poweroff-button is
+> pressed for > 4s. They say, BIOS is responsible for handling it.)
 
-kobject_uevent() is fine if I want to asynchronously notify the user space of 
-an event.
+Interesting. The ACPI spec claims that it should just be ignored by the 
+OS.
 
-What I need is a synchronous bidirectional interface, e.g. I tell the kernel 
-"connect node X with node Y" and I get back the resulting pipeline 
-identifier.
+> with above comments applied it works on this VIA K8T800 mobo.
+> Please repost. Thanks!
 
-> Or use configfs :)
+Yes, I sent entirely the wrong one. Try this.
 
-Configfs is very interesting, it's surely well suited for several tasks I'm 
-doing and I will add support for it into my subsystem.
+Some VIA southbridges contain a flag in the ACPI register space that 
+indicates whether an abnormal poweroff has occured, presumably with the 
+intention that it can be cleared on clean shutdown. Some BIOSes check 
+this and will fail to resume if it's set. Clear it on boot in order to 
+prevent this.
 
-What it's missing is the ability to create non-persistent configurations, 
-bound to a process and disappearing along with the process that created them.
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+ACKed-by: Karsten Wiese <annabellesgarden@yahoo.de>
 
-For example, my process creates pipelines between nodes using a ioctl() 
-interface. If the process dies unexpectedly the file descriptor is 
-automatically closed and I can release all the pipelines. I don't see a way I 
-could accomplish the same with configfs or sysfs. 
-
-OTOH, for what concerns persistent pipelines, configfs is quite good. It would 
-be even better if I could create links from configfs objects to sysfs 
-objects.
-
-Bye,
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 7537260..01da8cc 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -660,6 +660,33 @@ static void __devinit quirk_vt82c598_id(
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C597_0,	quirk_vt82c598_id );
+ 
++#ifdef CONFIG_ACPI
++
++/* Some VIA systems boot with the abnormal status flag set. This can cause
++ * the BIOS to re-POST the system on resume rather than passing control 
++ * back to the OS. Clear the flag on boot
++ */
++
++static void __devinit quirk_via_abnormal_poweroff(struct pci_dev *dev)
++{
++	u32 pm1_status;
++
++	acpi_hw_register_read (ACPI_MTX_DO_NOT_LOCK, ACPI_REGISTER_PM1_STATUS,
++			       &pm1_status);
++
++	if (pm1_status & 0x800) {
++		printk ("Clearing abnormal poweroff flag\n");
++		acpi_hw_register_write (ACPI_MTX_DO_NOT_LOCK,
++					ACPI_REGISTER_PM1_STATUS,
++					(u16)0x800);
++	}
++}
++
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8235, quirk_via_abnormal_poweroff);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, quirk_via_abnormal_poweroff);
++
++#endif
++
+ /*
+  * CardBus controllers have a legacy base address that enables them
+  * to respond as i82365 pcmcia controllers.  We don't want them to
 
 -- 
-  Daniele "Vihai" Orlandi
+Matthew Garrett | mjg59@srcf.ucam.org

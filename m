@@ -1,101 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWFSDbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWFSDho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWFSDbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 23:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWFSDbZ
+	id S1750717AbWFSDho (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 23:37:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWFSDho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 23:31:25 -0400
-Received: from brain.cel.usyd.edu.au ([129.78.24.68]:19949 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S1751089AbWFSDbZ (ORCPT <rfc822;linux-Kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 23:31:25 -0400
-Message-Id: <5.1.1.5.2.20060619124345.0335fda0@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Mon, 19 Jun 2006 13:31:12 +1000
-To: Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com
-From: sena seneviratne <auntvini@cel.usyd.edu.au>
-Subject: Re: New Metrics to measure Load average
-Cc: linux-Kernel@vger.kernel.org
-In-Reply-To: <20060617100415.07a040de.akpm@osdl.org>
-References: <4492D948.8090300@in.ibm.com>
- <5.1.1.5.2.20060616110033.04483890@brain.sedal.usyd.edu.au>
- <4492D948.8090300@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Sun, 18 Jun 2006 23:37:44 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:26057 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750717AbWFSDhn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 23:37:43 -0400
+Message-ID: <44961A77.800@in.ibm.com>
+Date: Mon, 19 Jun 2006 09:01:03 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Peter Williams <peterw@aurema.com>, Andrew Morton <akpm@osdl.org>,
+       dev@openvz.org, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, bsingharora@gmail.com, efault@gmx.de,
+       kernel@kolivas.org, sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
+       rene.herman@keyaccess.nl
+Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
+References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com> <44961758.6070305@bigpond.net.au>
+In-Reply-To: <44961758.6070305@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-Hi Nagar,
+Peter Williams wrote:
+> Balbir Singh wrote:
+> 
+>> Peter Williams wrote:
+>>
 
-Thanks for your reply and for your time.
+<snip>
 
-Few years ago the few additions I have explained, have been implemented in 
-linux 2.4.18 kernel at  the Sydney Uni as part of a large research project.
-
-Also few years ago I have posted many posts about this topic to this 
-forum.  Few very experience hands  were advising me in coding at that time. 
-To prove this I have all the e-mails with me. Yet then I had not explained 
-to this forum about the research project which involved prediction 
-algorithm as then it had not been published.
-
-Thereafter few research papers have been published with regard to this. 1 
-in US.
-
-Currently I am preparing the changes to a more recent linux patch.
-
-In fact my question in the post was about performance testing after the 
-changes being done.
-
---2) Now about the tests
---As I have documented all this yet need to perform some standard tests for 
-the sake of completion.
---What tests should I carry out to prove that the system is still intact?
---
---Please tell me whether the below is correct?
-
---(a) As suggested by the http://kernel-perf.sourceforge.net/ the lmbench 
-and re-aim-7 test packages can be used to test the ----performance of the 
-kernel before making changes and after. (Not done as yet)
-
---(-b) Further tests have been carried out to check the response time of 
-short tasks before making changes and after making --changes. The results 
-indicated that there was no difference in the response time after 
-introducing the changes to the kernel (done)
-
----(c) Thereafter the tests have been carried out to check the runtime of 
-long tasks before and after making changes. The results of the tests 
-revealed that there is no change in reported runtime in both occasions.(done)
-
-
-Thanks
-Sena Seneviratne
-Computer Engineering Lab
-School of Electrical and Information Engineering
-Sydney University
-Australia
-
-
-
-At 10:04 AM 6/17/2006 -0700, you wrote:
->On Fri, 16 Jun 2006 21:46:08 +0530
->Balbir Singh <balbir@in.ibm.com> wrote:
+>> Is it possible that the effective tasks
+>> is greater than the limit of the group?
+> 
+> 
+> Yes.
+> 
+>> How do we handle this scenario?
+> 
+> 
+> You've got the problem back to front.  If the number of effective tasks 
+> is less than the group limit then you have the situation that needs 
+> special handling (not the other way around).  I.e. if the number of 
+> effective tasks is less than the group limit then (strictly speaking) 
+> there's no need to do any capping at all as the demand is less than the 
+> limit.  However, in the case where the group limit is less than one CPU 
+> (i.e. less than 1000) the recommended thing to do would be set the limit 
+> of each task in the group to the group limit.
+> 
+> Obviously, group limits can be greater than one CPU (i.e. 1000).
+> 
+> The number of CPUs on the system also needs to be taken into account for 
+> group capping as if the group cap is greater than the number of CPUs 
+> there's no way it can be exceeded and tasks in this group would not need 
+> any processing.
 >
-> > I think it is easier to make the changes to be per-task and then in
-> > user-space account all information for the user (using the per-task data).
->
->Yes please try to do this.  There are all sorts of ways in which we could
->combine these stats on behalf of a particular application scenario.  Each
->scheme involves some sort of data loss, so each application needs new code
->to get the information which _it_ wants.
->
->We really should work on presenting the relevant information to userspace
->in a complete, efficient and un-post-processed manner so that
->application-specific userspace code can combine it in the manner which it
->desires.
->
->Balbir's new code (in -mm) is supposed to be the basis of _all_ new
->per-task accounting, so you should look at what additional information is
->needed and then find a way to transport it to userspace via Balbir's
->proposed framework, thanks.
 
+What if we have a group limit of 100 (out of 1000) and 150 effective tasks in
+the group? How do you calculate the cap of each task?
+I hope my understanding of effective tasks is correct.
+
+<snip>
+ 
+>>>
+>>> I should have elaborated here that (conceptually) modifying this code 
+>>> to apply caps to groups of tasks instead of individual tasks is 
+>>> simple.  It mainly involves moving most the data (statistics plus cap 
+>>> values) to a group structure and then modifying the code to update 
+>>> statistics for the group instead of the task and then make the 
+>>> decisions about whether a task should have a cap enforced (i.e. moved 
+>>> to one of the soft cap priorities or sin binned) based on the group 
+>>> statistics.
+>>>
+>>> However, maintaining and accessing the group statistics will require 
+>>> additional locking as the run queue lock will no longer be able to 
+>>> protect the data as not all tasks in the group will be associated 
+>>> with the same CPU.  Care will be needed to ensure that this new 
+>>> locking doesn't lead to dead locks with the run queue locks.
+>>>
+>>> In addition to the extra overhead caused by these locking 
+>>> requirements, the code for gathering the statistics will need to be 
+>>> more complex also adding to the overhead.  There is also the issue of 
+>>> increased serialization (there is already some due to load balancing) 
+>>> of task scheduling to be considered although, to be fair, this 
+>>> increased serialization will be within groups.
+>>>
+>>>
+>>
+>> The f-series CPU controller does all of what you say in 403 lines 
+>> (including
+>> comments and copyright). I think the biggest advantage of maintaining the
+>> group statistics in the kernel is that certain scheduling decisions 
+>> can be
+>> made based on group statistics rather than task statistics, which 
+>> makes the
+>> mechanism independent of the number of tasks in the group (isolates the
+>> groups from changes in number of tasks).
+> 
+> 
+> Yes, that's one of its advantages.  Both methods have advantages and 
+> disadvantages.
+> 
+> Peter
+
+
+-- 
+	Cheers,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

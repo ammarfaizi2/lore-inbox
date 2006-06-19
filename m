@@ -1,102 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWFSMr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWFSMvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbWFSMr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 08:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWFSMr1
+	id S932433AbWFSMvo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 08:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWFSMvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 08:47:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11467 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932416AbWFSMr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 08:47:26 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>
-Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before crashing
-References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
-	<20060616211555.1e5c4af0.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1odwtnjke.fsf@ebiederm.dsl.xmission.com>
-	<20060619163053.f0f10a5e.akiyama.nobuyuk@jp.fujitsu.com>
-Date: Mon, 19 Jun 2006 06:47:04 -0600
-In-Reply-To: <20060619163053.f0f10a5e.akiyama.nobuyuk@jp.fujitsu.com>
-	(Nobuyuki Akiyama's message of "Mon, 19 Jun 2006 16:30:53 +0900")
-Message-ID: <m1y7vtia7r.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 19 Jun 2006 08:51:44 -0400
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:23483 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932433AbWFSMvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 08:51:43 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: 2.6.17-ck1
+Date: Mon, 19 Jun 2006 22:51:21 +1000
+User-Agent: KMail/1.9.3
+Cc: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
+References: <200606181736.38768.kernel@kolivas.org> <200606190111.54914.kernel@kolivas.org> <Pine.LNX.4.61.0606191353210.31576@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0606191353210.31576@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606192251.22236.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com> writes:
-
-> On Fri, 16 Jun 2006 10:37:05 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Monday 19 June 2006 21:54, Jan Engelhardt wrote:
+> >Were you running them SCHED_IDLEPRIO or in compute mode? They would do
+> > that.
 >
->> > The processing of the notifier is to make a SCSI adaptor power off to
->> > stop writing in the shared disk completely and then notify to standby-node.
->> 
->> The kernel has called panic no new SCSI operations were execute.
->> I'm not saying don't notify your standby-node
->
-> As you say, the kernel does not do anything about SCSI operations.
-> But many SCSI adaptors flush their cache after a few seconds pass
-> after a SCSI write command is invoked, especially RAID cards.
-> To completely stop writing immediately, we should make the adaptor
-> power off.
+> I have not changed anything, so I presume SCHED_NORMAL.
+> Unless they have been made SCHED_IDLEPRIO/compute by staircase's logic...
 
-Yes.  Although I don't have a clue what big scsi has to do with a
-telco systems.
+No it wouldn't do that. 
 
->> Please walk me through a real world kernel failure, and show me how
->> your millisecond requirement is met.
->> 
->> In the example please answer:
->> - What causes the kernel to call panic?
->> - From the real failure to the kernel calling panic how long
->>   does it take?
->
-> For instance, if a file system inconsistency is detected,
-> it takes few time until invoking panic.
+I've not seen what you describe happening but definitely the timing of 
+parallelising jobs in 'make' completely changes with cpu scheduler changes 
+and with I/O scheduler changes. 
 
-What is a few time?
+However if it's purely unrelated cpu bound tasks running and no disk I/O 
+involved then full timeslices run out at ~114ms at 1000HZ (longer at lower 
+HZ) so that should be the longest period one task of the same priority could 
+possibly run before the others do. That sort of timeslice you would not pick 
+up at .1s interval 'top's but I find 'top' can be very deceiving if its 
+timing happens to be exactly what the intervals are it can look like only one 
+thing is running or one thing is stuck at the same priority and so on. 
 
-> I have seen various kernel failure so far and these will
-> unfortunately occur.
+With actual numbers from interbench testing of fully cpu bound tasks (under 
+what's called benchmarking cpu of Gaming) the average and max scheduling 
+delays look of the same magnitude as mainline.
 
-Yes kernel failures will occur, people and hardware are imperfect.
-But the should be quite rare, on the telco gear you were talking
-about.
-
->> - What actions does the notifier take to tell the other kernel
->>   it is dead.
->
-> The operation is only writing to BMC a few times to use IPMI
-> interface. That operation using outb is very simple.
-
-Ok.  A simple outb to the BMC through the IPMI interface.
-
->> - Why do we think the kernel taking that action will be reliable?
->
-> I agree the notifier may spoil reliability as compared with doing
-> nothing. It depends on quality of the notifier processing.
-> But I think the one is needed because it is more effective.
-
-It depends very much on what you are doing.  We have C code that
-runs before the dump kernel is started.  It would be absolutely
-trivial to modify that C code to tell the IPMI controller that
-something has happened.  That operation can happen then after
-it has checked a checksum of itself.  
-
->> - From the point where we call panic() how long does it take until
->>   the kdump kernel is active?
->
-> On my box it takes about one second or so, but on a actual enterprise
-> system which have many disks(hundreds or more) it becomes more.
-
-Certainly.  But a system with hundreds of disks isn't the system
-with a millisecond response time limit.  In general you don't need
-to initialize all of your disks just to take a crash dump so even
-without optimizing the kernel the kernel things are slow.
-
-Eric
+-- 
+-ck

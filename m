@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWFSWCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWFSWEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWFSWCo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 18:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWFSWCo
+	id S964943AbWFSWEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 18:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWFSWEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 18:02:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57787 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964930AbWFSWCn (ORCPT
+	Mon, 19 Jun 2006 18:04:08 -0400
+Received: from mailfe09.tele2.fr ([212.247.155.12]:11946 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S964935AbWFSWEH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 18:02:43 -0400
-Date: Mon, 19 Jun 2006 15:05:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: mingo@elte.hu, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com
-Subject: Re: [patch 8/8] lock validator: add s390 to supported options
-Message-Id: <20060619150547.0b6213b1.akpm@osdl.org>
-In-Reply-To: <20060614142503.GI1241@osiris.boeblingen.de.ibm.com>
-References: <20060614142503.GI1241@osiris.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 19 Jun 2006 18:04:07 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+X-Cloudmark-Score: 0.000000 []
+Date: Tue, 20 Jun 2006 00:03:59 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: emergency or init=/bin/sh mode and terminal signals
+Message-ID: <20060619220359.GA6218@bouh.residence.ens-lyon.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org
+References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr> <20060618213342.GG13255@w.ods.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060618213342.GG13255@w.ods.org>
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
->
->  config DEBUG_SPINLOCK_ALLOC
->  	bool "Spinlock debugging: detect incorrect freeing of live spinlocks"
-> -	depends on DEBUG_SPINLOCK && X86
-> +	depends on DEBUG_SPINLOCK && (X86 || S390)
+Hi,
 
-Can we please stomp this out before it starts to look like
-CONFIG_FRAME_POINTER?
+Willy Tarreau, le Sun 18 Jun 2006 23:33:42 +0200, a écrit :
+> I too am used to starting with init=/bin/sh, but I'm also used to launch
+> ping in the background. However, if getting Ctrl-C working implies a risk
+> of killing init, then I'd rather keep it the old way.
 
-We should define CONFIG_ARCH_SUPPORTS_LOCKDEP down in
-arch/[i386|x86_64|s390]/Kconfig and use that in lib/Kconfig.debug.
+Maybe you should rather use init=/bin/login . If your login program is
+smart enough, it will set a session and thus ^C will work.
 
+Samuel

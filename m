@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWFSPYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWFSP1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbWFSPYl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWFSPYl
+	id S932462AbWFSP1J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWFSP1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:24:41 -0400
-Received: from mx2.suse.de ([195.135.220.15]:62860 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932513AbWFSPYk (ORCPT
+	Mon, 19 Jun 2006 11:27:09 -0400
+Received: from colo.lackof.org ([198.49.126.79]:31391 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S932462AbWFSP1I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:24:40 -0400
-From: Andi Kleen <ak@suse.de>
-To: Jesper Dangaard Brouer <hawk@diku.dk>
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Date: Mon, 19 Jun 2006 17:24:31 +0200
-User-Agent: KMail/1.9.3
-Cc: Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
-In-Reply-To: <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 11:27:08 -0400
+Date: Mon, 19 Jun 2006 09:27:06 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Matthew Wilcox <matthew@wil.cx>, Brice Goglin <brice@myri.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
+Message-ID: <20060619152706.GC7575@colo.lackof.org>
+References: <4493709A.7050603@myri.com> <20060617050524.GX2387@parisc-linux.org> <1150715995.14284.10.camel@capoeira>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606191724.31305.ak@suse.de>
+In-Reply-To: <1150715995.14284.10.camel@capoeira>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> If you use "pmtmr" try to reboot with kernel option "clock=tsc".
-
-That's dangerous advice - when the system choses not to use
-TSC it often has a reason.
-
+On Mon, Jun 19, 2006 at 01:19:55PM +0200, Xavier Bestel wrote:
+> On Sat, 2006-06-17 at 07:05, Matthew Wilcox wrote:
+> > On Fri, Jun 16, 2006 at 11:01:46PM -0400, Brice Goglin wrote:
+> > > We introduce whitelisting of chipsets that are known to support MSI and
+> > > keep the existing backlisting to disable MSI for other chipsets. When it
+> > > is unknown whether the root chipset support MSI or not, we disable MSI
+> > > by default except if pci=forcemsi was passed.
+> > 
+> > I think that's a bad idea.  Blacklisting is the better idea in the long-term.
 > 
-> On my Opteron AMD system i normally can route 400 kpps, but with 
-> timesource "pmtmr" i could only route around 83 kpps.  (I found the timer 
-> to be the issue by using oprofile).
+> I think the option adopted elsewhere is: whitelist for old chipsets, and
+> blacklist for new chipsets. You just have to decide for a good date to
+> separate "old" and "new" to minimize the lists size.
 
-Unless you're using packet sniffing or any other application
-that requests time stamps on a socket then the timer shouldn't 
-make much difference. Incoming packets are only time stamped
-when someone asks for the timestamps.
+I agree with willy.
 
--Andi
+White lists work "well" only if one's goal is to reduce the number
+of bug reports about _all_ HW. Most folks with _working_ MSI (but not
+already on the whitelist) won't know they could report this as a bug.
+Ie these chipsets likely won't ever get added to the whitelist.
+
+thanks,
+grant

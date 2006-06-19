@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWFSGeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWFSGfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWFSGeF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 02:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWFSGeE
+	id S1750948AbWFSGfn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 02:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWFSGfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 02:34:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8660 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750922AbWFSGeC (ORCPT
+	Mon, 19 Jun 2006 02:35:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39380 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750948AbWFSGfm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 02:34:02 -0400
-Date: Sun, 18 Jun 2006 23:33:39 -0700
+	Mon, 19 Jun 2006 02:35:42 -0400
+Date: Sun, 18 Jun 2006 23:35:22 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: David Chinner <dgc@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Cc: neilb@suse.de, jblunck@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-       balbir@in.ibm.com
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
- list (2nd version)
-Message-Id: <20060618233339.dba0fc86.akpm@osdl.org>
-In-Reply-To: <20060619055523.GS2795448@melbourne.sgi.com>
-References: <20060601095125.773684000@hasse.suse.de>
-	<17539.35118.103025.716435@cse.unsw.edu.au>
-	<20060616155120.GA6824@hasse.suse.de>
-	<17555.12234.347353.670918@cse.unsw.edu.au>
-	<20060618235654.GB2114946@melbourne.sgi.com>
-	<17557.61307.364404.640539@cse.unsw.edu.au>
-	<20060619010013.GC2114946@melbourne.sgi.com>
-	<17557.64512.496195.714144@cse.unsw.edu.au>
-	<20060619055523.GS2795448@melbourne.sgi.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: nickpiggin@yahoo.com.au, sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org,
+       mingo@elte.hu, pwil3058@bigpond.net.au, sekharan@us.ibm.com,
+       balbir@in.ibm.com, linux-kernel@vger.kernel.org,
+       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
+Subject: Re: [RFC] CPU controllers?
+Message-Id: <20060618233522.c2690983.akpm@osdl.org>
+In-Reply-To: <1150698525.4659.8.camel@Homer.TheSimpsons.net>
+References: <20060615134632.GA22033@in.ibm.com>
+	<4493C1D1.4020801@yahoo.com.au>
+	<20060617164812.GB4643@in.ibm.com>
+	<4494DF50.2070509@yahoo.com.au>
+	<4494EA66.8030305@vilain.net>
+	<4494EE86.7090209@yahoo.com.au>
+	<20060617234259.dc34a20c.akpm@osdl.org>
+	<1150616176.7985.50.camel@Homer.TheSimpsons.net>
+	<20060618020932.5947a7dc.akpm@osdl.org>
+	<1150624169.9324.12.camel@Homer.TheSimpsons.net>
+	<1150698525.4659.8.camel@Homer.TheSimpsons.net>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -36,194 +37,34 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 15:55:23 +1000
-David Chinner <dgc@sgi.com> wrote:
+On Mon, 19 Jun 2006 08:28:45 +0200
+Mike Galbraith <efault@gmx.de> wrote:
 
-> On Mon, Jun 19, 2006 at 11:21:04AM +1000, Neil Brown wrote:
-> > On Monday June 19, dgc@sgi.com wrote:
-> > > 
-> > > Ok. Send me the patch and I'll try to get some tests done on it...
-> > 
-> > Below, thanks.
+> This is kinda OT for this thread, but here's another example of where
+> the IO can easily foil CPU distribution plans.  I wonder how many folks
+> get nailed by /proc being mounted without noatime,nodiratime like I just
+> apparently did.
 > 
-> Neil,
-> 
-> I doubt I'm going to be able to run any tests for this patch on the
-> current -mm (2.6.17-rc6-mm2) any time soon. I get an interrupt
-> related BUG on boot in the sn2 console driver, and then a panic in
-> the scsi I/o completion code when running mkfs.xfs.  Both are
-> reproducable.
-
-Thanks.
-
-> I don't have any other non-sn2 machine with enough memory in it to
-> test the patch....
-> 
-> The boot warnings:
-> 
-> ....
->     eth3      device: S2io Inc. Xframe 10 Gigabit Ethernet PCI-X (rev 03)
->     eth3      configuration: eth-id-00:0c:fc:00:02:c8
-> irq 60, desc: a0000001009a2d00, depth: 1, count: 0, unhandled: 0
-> ->handle_irq():  0000000000000000, 0x0
-> ->chip(): a000000100a0fe40, irq_type_sn+0x0/0x80
-> ->action(): e00000b007471b80
-> ->action->handler(): a0000002059373d0, s2io_msi_handle+0x1510/0x660 [s2io]    eth3
-> IP address: 192.168.1.248/24
-> Unexpected irq vector 0x3c on CPU 3!
-
-I guess that's where things start to go bad.  genirq changes?
-
-> BUG: warning at drivers/serial/sn_console.c:976/sn_sal_console_write()
-
-There's a warning patch in -mm which shouts when someone does a busywait
-delay of over a millisecond, and sn_sal_console_write() is doing
-mdelay(150).
-
-And it's doing that mdelay because it thinks port->sc_port.lock is already
-held.  I don't know why.
-
-
+> top           D E29B4928     0 10174   8510                     (NOTLB)
+>        d2f63c4c 00100100 00200200 e29b4928 ea07f3c0 f1510c40 000f6e66 d2f63000 
+>        d2f63000 ed88c550 f1510c40 000f6e66 d2f63000 d2f63000 ed062220 ed88c550 
+>        d2f63c70 b139a97b ed062224 efef8df8 ed062224 ed88c550 d2f63000 0000385a 
 > Call Trace:
->  [<a0000001000125a0>] show_stack+0x40/0xa0
->                                 sp=e0000039ee2f7970 bsp=e0000039ee2f14b0
->  [<a000000100012e30>] dump_stack+0x30/0x60
->                                 sp=e0000039ee2f7b40 bsp=e0000039ee2f1498
->  [<a0000001004e5350>] sn_sal_console_write+0x270/0x3e0
->                                 sp=e0000039ee2f7b40 bsp=e0000039ee2f1420
->  [<a0000001000a1d40>] __call_console_drivers+0x160/0x1c0
->                                 sp=e0000039ee2f7b40 bsp=e0000039ee2f13e8
->  [<a0000001000a1e80>] _call_console_drivers+0xe0/0x100
->                                 sp=e0000039ee2f7b40 bsp=e0000039ee2f13b8
->  [<a0000001000a2460>] release_console_sem+0x2c0/0x460
->                                 sp=e0000039ee2f7b40 bsp=e0000039ee2f1378
->  [<a0000001000a2cf0>] vprintk+0x6f0/0x880
->                                 sp=e0000039ee2f7b40 bsp=e0000039ee2f12f0
->  [<a0000001000a1f10>] printk+0x70/0xa0
->                                 sp=e0000039ee2f7b80 bsp=e0000039ee2f1290
->  [<a00000010000f530>] ack_bad_irq+0x30/0x60
->                                 sp=e0000039ee2f7bc0 bsp=e0000039ee2f1270
->  [<a0000001000f7ab0>] handle_bad_irq+0x410/0x440
->                                 sp=e0000039ee2f7bc0 bsp=e0000039ee2f1230
->  [<a0000001000f7c80>] __do_IRQ+0x80/0x3c0
->                                 sp=e0000039ee2f7bc0 bsp=e0000039ee2f11d0
->  [<a00000010000f790>] ia64_handle_irq+0xb0/0x160
->                                 sp=e0000039ee2f7bc0 bsp=e0000039ee2f11a0
->  [<a00000010000b1a0>] ia64_leave_kernel+0x0/0x290
->                                 sp=e0000039ee2f7bc0 bsp=e0000039ee2f11a0
->  [<a000000100010e80>] default_idle+0x120/0x160
->                                 sp=e0000039ee2f7d90 bsp=e0000039ee2f1158
->  [<a000000100011d90>] cpu_idle+0x1d0/0x2c0
->                                 sp=e0000039ee2f7e30 bsp=e0000039ee2f1128
->  [<a000000100051b70>] start_secondary+0x350/0x380
->                                 sp=e0000039ee2f7e30 bsp=e0000039ee2f10e0
->  [<a000000100008650>] __end_ivt_text+0x330/0x360
->                                 sp=e0000039ee2f7e30 bsp=e0000039ee2f10e0
-> eth3: Link down                                                       done
-> .....
-> 
-> 
-> And the panic from mkfs.xfs:
-> 
-> budgie:~/dgc/jbod # sh jbd-mkfs
-> meta-data=/dev/mapper/dm1        isize=256    agcount=5, agsize=1114112 blks
->          =                       sectsz=512   attr=0
-> data     =                       bsize=16384  blocks=5570560, imaxpct=25
->          =                       sunit=0      swidth=0 blks, unwritten=1
-> naming   =version 2              bsize=16384
-> log      =/dev/mapper/dm0        bsize=16384  blocks=8192, version=1
->          =                       sectsz=512   sunit=0 blks
-> realtime =none                   extsz=65536  blocks=0, rtextents=0
-> idle[0]: Oops 8813272891392 [1]
-> Modules linked in: ipv6 s2io sg
-> 
-> Pid: 0, CPU 1, comm:                 idle
-> psr : 0000101008022018 ifs : 800000000000038a ip  : [<a00000010014c7c0>]    Not tainted
-> ip is at kmem_freepages+0x100/0x200
-> unat: 0000000000000000 pfs : 000000000000050d rsc : 0000000000000003
-> rnat: 800000000000048d bsps: 0000000000000000 pr  : 80000000e7a95669
-> ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c8a70033f
-> csd : 0000000000000000 ssd : 0000000000000000
-> b0  : a00000010014cf30 b6  : a000000100003320 b7  : a000000100105fc0
-> f6  : 1003e0000000000000045 f7  : 0ffdd8000000000000000
-> f8  : 1000589ffec9800000000 f9  : 10004a000000000000000
-> f10 : 1003e0000000000c1e09c f11 : 1003e00000000054d2444
-> r1  : a000000100d953c0 r2  : 0000000000000001 r3  : 0000000000000001
-> r8  : 0000000000000000 r9  : a0007fff5d4e0000 r10 : 0000000005bd8ff9
-> r11 : 00000000068f7ff8 r12 : e0000039ee2bfb50 r13 : e0000039ee2b8000
-> r14 : 0000000000d1efff r15 : 0000000000000080 r16 : ffffffffffffffff
-> r17 : a0007fff8b3a8000 r18 : a000000100baece8 r19 : 0000000000000208
-> r20 : e0000039ee3b98b8 r21 : 0000000000000000 r22 : 0000000000000080
-> r23 : ffffffffffffff7f r24 : 0000000000000000 r25 : e000003078274000
-> r26 : e00000347bffc000 r27 : 0000000000000000 r28 : e0000039ee2bfb60
-> r29 : e00000347bffc020 r30 : 00000000000021b9 r31 : 0000000000000000
-> 
-> Call Trace:
->  [<a0000001000125a0>] show_stack+0x40/0xa0
->                                 sp=e0000039ee2bf700 bsp=e0000039ee2b98c8
->  [<a000000100012dd0>] show_regs+0x7d0/0x800
->                                 sp=e0000039ee2bf8d0 bsp=e0000039ee2b9880
->  [<a000000100033510>] die+0x230/0x340
->                                 sp=e0000039ee2bf8d0 bsp=e0000039ee2b9838
->  [<a0000001000564e0>] ia64_do_page_fault+0x860/0x9c0
->                                 sp=e0000039ee2bf8f0 bsp=e0000039ee2b97d8
->  [<a00000010000b1a0>] ia64_leave_kernel+0x0/0x290
->                                 sp=e0000039ee2bf980 bsp=e0000039ee2b97d8
->  [<a00000010014c7c0>] kmem_freepages+0x100/0x200
->                                 sp=e0000039ee2bfb50 bsp=e0000039ee2b9788
->  [<a00000010014cf30>] slab_destroy+0x1b0/0x260
->                                 sp=e0000039ee2bfb50 bsp=e0000039ee2b9738
->  [<a00000010014d300>] free_block+0x320/0x3c0
->                                 sp=e0000039ee2bfb60 bsp=e0000039ee2b96e0
->  [<a00000010014ccf0>] __cache_free+0x430/0x4c0
->                                 sp=e0000039ee2bfb60 bsp=e0000039ee2b9688
->  [<a00000010014db80>] kmem_cache_free+0x120/0x180
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9658
->  [<a000000100105ff0>] mempool_free_slab+0x30/0x60
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9630
->  [<a000000100106210>] mempool_free+0x130/0x160
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b95e8
->  [<a000000100638760>] dec_pending+0x2c0/0x2e0
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b95a0
->  [<a000000100638a80>] clone_endio+0x140/0x180
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9558
->  [<a000000100168970>] bio_endio+0x110/0x140
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9520
->  [<a0000001003dc2b0>] __end_that_request_first+0x390/0xac0
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9498
->  [<a0000001003dca10>] end_that_request_chunk+0x30/0x60
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9468
->  [<a000000100565d30>] scsi_end_request+0x50/0x1e0
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9420
->  [<a0000001005663f0>] scsi_io_completion+0x3b0/0x8a0
->                                 sp=e0000039ee2bfb70 bsp=e0000039ee2b9388
->  [<a0000001005dd220>] sd_rw_intr+0x480/0x4a0
->                                 sp=e0000039ee2bfb80 bsp=e0000039ee2b9338
->  [<a00000010055a5f0>] scsi_finish_command+0x150/0x180
->                                 sp=e0000039ee2bfba0 bsp=e0000039ee2b9308
->  [<a000000100567910>] scsi_softirq_done+0x270/0x2a0
->                                 sp=e0000039ee2bfba0 bsp=e0000039ee2b92e0
->  [<a0000001003d8e60>] blk_done_softirq+0x160/0x1c0
->                                 sp=e0000039ee2bfbb0 bsp=e0000039ee2b92c8
->  [<a0000001000afff0>] __do_softirq+0xd0/0x240
->                                 sp=e0000039ee2bfbc0 bsp=e0000039ee2b9250
->  [<a0000001000b01e0>] do_softirq+0x80/0xe0
->                                 sp=e0000039ee2bfbc0 bsp=e0000039ee2b91e8
->  [<a0000001000b0520>] irq_exit+0x80/0xc0
->                                 sp=e0000039ee2bfbc0 bsp=e0000039ee2b91d0
->  [<a00000010000f810>] ia64_handle_irq+0x130/0x160
->                                 sp=e0000039ee2bfbc0 bsp=e0000039ee2b91a0
->  [<a00000010000b1a0>] ia64_leave_kernel+0x0/0x290
->                                 sp=e0000039ee2bfbc0 bsp=e0000039ee2b91a0
->  [<a000000100407600>] __copy_user+0x20/0x960
->                                 sp=e0000039ee2bfd90 bsp=e0000039ee2b9178
->  [<a000000100010e20>] default_idle+0xc0/0x160
->                                 sp=e0000039ee2bfd90 bsp=e0000039ee2b9158
->  [<a000000100011d90>] cpu_idle+0x1d0/0x2c0
->                                 sp=e0000039ee2bfe30 bsp=e0000039ee2b9128
->  [<a000000100051b70>] start_secondary+0x350/0x380
->                                 sp=e0000039ee2bfe30 bsp=e0000039ee2b90e0
->  [<a000000100008650>] __end_ivt_text+0x330/0x360
->                                 sp=e0000039ee2bfe30 bsp=e0000039ee2b90e0
+>  [<b139a97b>] __mutex_lock_slowpath+0x59/0xb0
+>  [<b139a9d7>] .text.lock.mutex+0x5/0x14
+>  [<b10bb24f>] __log_wait_for_space+0x53/0xb4
+>  [<b10b67b4>] start_this_handle+0x100/0x617
+>  [<b10b6d86>] journal_start+0xbb/0xe0
+>  [<b10ae10e>] ext3_journal_start_sb+0x29/0x4a
+>  [<b10a8d9f>] ext3_dirty_inode+0x2a/0xaf
+>  [<b1080171>] __mark_inode_dirty+0x2a/0x19e
+>  [<b107784a>] touch_atime+0x79/0x9f
+>  [<b103fda5>] do_generic_mapping_read+0x370/0x480
+>  [<b1040747>] __generic_file_aio_read+0xf0/0x205
+>  [<b1040896>] generic_file_aio_read+0x3a/0x46
+>  [<b105d919>] do_sync_read+0xbb/0xf1
+>  [<b105e2c1>] vfs_read+0xa4/0x166
+>  [<b105e6c1>] sys_read+0x3d/0x64
+>  [<b1002e1b>] syscall_call+0x7/0xb
 
-slab got messed up - I don't know what did this, either.
+Confused.  What has this to do with /proc?

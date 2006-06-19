@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWFSUwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWFSUwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWFSUwK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 16:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFSUwK
+	id S964879AbWFSUwr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 16:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFSUwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 16:52:10 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:682 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932305AbWFSUwI
+	Mon, 19 Jun 2006 16:52:47 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:1962 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932308AbWFSUwq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 16:52:08 -0400
-Subject: Re: Linux 2.6.17: IRQ handler mismatch in serial code?
+	Mon, 19 Jun 2006 16:52:46 -0400
+Subject: Re: PATA driver patch for 2.6.17
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-In-Reply-To: <4496FEC2.8050903@rtr.ca>
-References: <20060619180658.58945.qmail@web52908.mail.yahoo.com>
-	 <20060619184706.GH3479@flint.arm.linux.org.uk>  <4496FEC2.8050903@rtr.ca>
+To: furlongm@hotmail.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <e76uv1$g1s$1@sea.gmane.org>
+References: <1150740947.2871.42.camel@localhost.localdomain>
+	 <e76uv1$g1s$1@sea.gmane.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 19 Jun 2006 22:06:52 +0100
-Message-Id: <1150751212.2871.44.camel@localhost.localdomain>
+Date: Mon, 19 Jun 2006 22:07:58 +0100
+Message-Id: <1150751279.2871.46.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-06-19 am 15:45 -0400, ysgrifennodd Mark Lord:
-> If the drivers are written "correctly", they shouldn't grab the IRQ
-> until someone actually opens the device.  Which means they should be
-> able the share the IRQ, so long as both devices are not in use (open)
-> at the same time.
+Ar Llu, 2006-06-19 am 20:46 +0100, ysgrifennodd Marcus Furlong:
+> Alan Cox wrote:
+> 
+> > http://zeniv.linux.org.uk/~alan/IDE
+> > 
+> > This is basically a resync versus 2.6.17, the head of the PATA tree is
+> > now built against Jeffs tree with revised error handling and the like.
+> > 
+> > Alan
+> 
+> I get the following bug while booting: 
 
-This is not the case for ISA bus. Most ISA hardware is physically unable
-to share and the drivers for such hardware intentionally grab the IRQ at
-load time to avoid it being mis-reused.
+Sorry about that. I messed up a patch segment in the merge
 
-Alan
+--- drivers/scsi/ata_piix.c~	2006-06-19 21:38:43.746144712 +0100
++++ drivers/scsi/ata_piix.c	2006-06-19 21:38:43.747144560 +0100
+@@ -360,6 +360,8 @@
+ 	.qc_prep		= ata_qc_prep,
+ 	.qc_issue		= ata_qc_issue_prot,
+ 
++	.data_xfer		= ata_pio_data_xfer,
++
+ 	.eng_timeout		= ata_eng_timeout,
+ 
+ 	.irq_handler		= ata_interrupt,
 

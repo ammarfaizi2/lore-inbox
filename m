@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWFSC4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWFSDSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWFSC4d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 22:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWFSC4d
+	id S1751160AbWFSDSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 23:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWFSDSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 22:56:33 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:50834 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751178AbWFSC4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 22:56:32 -0400
-Message-ID: <44961246.1040509@cmu.edu>
-Date: Sun, 18 Jun 2006 22:56:06 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
-MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       Kristen Accardi <kristen.c.accardi@intel.com>
-Subject: Re: cdrom support with thinkpad x6 ultrabay
-References: <4490E776.7080000@cmu.edu> <4490F4BC.1040300@goop.org> <44910B54.8000408@cmu.edu> <44910E2A.5090205@goop.org> <44917B30.9010904@cmu.edu> <449188FF.7030700@goop.org>
-In-Reply-To: <449188FF.7030700@goop.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Jun 2006 23:18:25 -0400
+Received: from mx1.suse.de ([195.135.220.2]:33507 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751160AbWFSDSY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 23:18:24 -0400
+Date: Sun, 18 Jun 2006 20:15:21 -0700
+From: Greg KH <gregkh@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
+Message-ID: <20060619031521.GA4651@suse.de>
+References: <20060618221343.GA20277@kroah.com> <20060618230041.GG4744@bouh.residence.ens-lyon.fr> <4495F5C3.1030203@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4495F5C3.1030203@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-any update on this? anyone else have a clue?
-
-Thanks!
-George
-
-
-Jeremy Fitzhardinge wrote:
-> George Nychis wrote:
->> I applied the acpi-dock patch that I specified, and that patch only, and
->> i'm getting errors building:
->>
->> drivers/acpi/dock.c: In function 'dock_notify':
->> drivers/acpi/dock.c:543: error: 'KOBJ_DOCK' undeclared (first use in
->> this function)
->> drivers/acpi/dock.c:543: error: (Each undeclared identifier is reported
->> only once
->> drivers/acpi/dock.c:543: error: for each function it appears in.)
->> drivers/acpi/dock.c:562: error: 'KOBJ_UNDOCK' undeclared (first use in
->> this function)
->>
->> Is there something else I need to apply that I am missing?
->>   
-> Kristen?
+On Sun, Jun 18, 2006 at 05:54:27PM -0700, H. Peter Anvin wrote:
+> Samuel Thibault wrote:
+> >
+> >There has been at least my complaint about udev not being able to
+> >auto-load modules on /dev entry lookup (28th March 2006):
+> >
+> >? Given a freshly booted linux box, hence uinput is not loaded (why
+> >would it be, it doesn't drive any real hardware) ; what is the right
+> >way(tm) for an application to have the uinput module loaded, so that it
+> >can open /dev/input/uinput for emulating keypresses?
+> >
+> >- With good-old static /dev, we could just open /dev/input/uinput
+> >  (installed by the distribution), and thanks to a
+> >  alias char-major-10-223 uinput
+> >  line somewhere in /etc/modprobe.d, uinput gets auto-loaded.
+> >
+> >- With devfs, it doesn't look like it works (/dev/misc/uinput is not
+> >  present and opening it just like if it existed doesn't work). But I
+> >  read in archives that it could be feasible.
+> >
+> >- With udev, this just cannot work. As explained in an earlier thread,
+> >  even using a special filesystem that would report the opening attempt
+> >  to udevd wouldn't work fine since udevd takes time for creating the
+> >  device, and hence the original program needs to be notified ; this
+> >  becomes racy.
+> >
 > 
->    J
->> Thanks!
->> George
->>
->>
->> Jeremy Fitzhardinge wrote:
->>  
->>> George Nychis wrote:
->>>    
->>>> it successfully is applied, and i notice that CONFIG_ACPI_DOCK needs to
->>>> be set, so I did a "make oldconfig" after applying the patch, expecting
->>>> it to ask me whether or not i wanted to support it... it didn't.  So
->>>> then I manually added "CONFIG_ACPI_DOCK=y" to the .config and built the
->>>> kernel, but dock.o is never built... what else do i need to do?
->>>>         
->>> Make sure you disable the (obsolete?) ACPI_IBM_DOCK stuff.
->>>
->>>    
->>>> If i can't get hot swappable support yet, I might as well get what is
->>>> supported for now so I can atleast use it sometimes :)
->>>>
->>>> Maybe this cry for help will spark someone to finish off the work on
->>>> hot
->>>> swapping the optical drive.
->>>>         
->>> Yeah, I'm hoping all the work on power management in libata will make
->>> things "just work" soon, but I think there's more to it.  When you press
->>> the dock eject button, it really needs to go out to acpid, activate a
->>> script to unmount any filesystems mounted off the device, and then poke
->>> the ata layer to remove the device, before OKing the dock eject so the
->>> hardware's "don't do that" light goes out.
->>>
->>> But in the meantime I'm having enough trouble getting plain old
->>> suspend/resume reliable.
->>>
->>>    J
->>>
->>>     
-> 
-> 
+> It would be nice if udev could be fed not just from the kernel, but from 
+> the repository of modules that are available for loading.  That may 
+> require additional module information.
+
+There's no reason it could not be, but usually a simple, "modprobe loop"
+works good enough for everyone :)
+
+thanks,
+
+greg k-h

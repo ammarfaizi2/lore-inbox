@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWFSN2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWFSNoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWFSN2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 09:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWFSN2a
+	id S932456AbWFSNoK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 09:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWFSNoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 09:28:30 -0400
-Received: from mailgw4.ericsson.se ([193.180.251.62]:37037 "EHLO
-	mailgw4.ericsson.se") by vger.kernel.org with ESMTP id S932411AbWFSN2a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 09:28:30 -0400
-Message-ID: <4496A677.3020301@ericsson.com>
-Date: Mon, 19 Jun 2006 15:28:23 +0200
-From: Preben Traerup <Preben.Trarup@ericsson.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before crashing
-References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>	<m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>	<20060616211555.1e5c4af0.akiyama.nobuyuk@jp.fujitsu.com>	<m1odwtnjke.fsf@ebiederm.dsl.xmission.com>	<20060619163053.f0f10a5e.akiyama.nobuyuk@jp.fujitsu.com> <m1y7vtia7r.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1y7vtia7r.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Jun 2006 13:28:28.0417 (UTC) FILETIME=[3FFE0710:01C693A4]
-X-Brightmail-Tracker: AAAAAA==
+	Mon, 19 Jun 2006 09:44:10 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:25045 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S932456AbWFSNoI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 09:44:08 -0400
+Date: Mon, 19 Jun 2006 06:36:26 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 5/16] 2.6.17-rc6 perfmon2 patch for review: new sysfs support
+Message-ID: <20060619133626.GE25215@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200606172339_MC3-1-C2C6-D2C3@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606172339_MC3-1-C2C6-D2C3@compuserve.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+Chuck,
 
->"Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com> writes:
->
->  
->
->>On Fri, 16 Jun 2006 10:37:05 -0600
->>ebiederm@xmission.com (Eric W. Biederman) wrote:
->>
->>    
->>
->>>>The processing of the notifier is to make a SCSI adaptor power off to
->>>>stop writing in the shared disk completely and then notify to standby-node.
->>>>        
->>>>
->>>The kernel has called panic no new SCSI operations were execute.
->>>I'm not saying don't notify your standby-node
->>>      
->>>
->>As you say, the kernel does not do anything about SCSI operations.
->>But many SCSI adaptors flush their cache after a few seconds pass
->>after a SCSI write command is invoked, especially RAID cards.
->>To completely stop writing immediately, we should make the adaptor
->>power off.
->>    
->>
->
->Yes.  Although I don't have a clue what big scsi has to do with a
->telco systems.
->  
->
-Strictly speaking for myself: Nothing.
+On Sat, Jun 17, 2006 at 11:36:36PM -0400, Chuck Ebbert wrote:
+> In-Reply-To: <200606150907.k5F97YtU008130@frankl.hpl.hp.com>
+> 
+> On Thu, 15 Jun 2006 02:07:34 -0700, Stephane Eranian wrote:
+> 
+> > --- linux-2.6.17-rc6.orig/perfmon/perfmon_sysfs.c     1969-12-31 16:00:00.000000000 -0800
+> > +++ linux-2.6.17-rc6/perfmon/perfmon_sysfs.c  2006-06-08 05:36:31.000000000 -0700
+>  ...
+> > +struct pfm_controls pfm_controls = {
+> > +     .sys_group = PFM_GROUP_PERM_ANY,
+> > +     .task_group = PFM_GROUP_PERM_ANY,
+> > +     .arg_size_max = PAGE_SIZE,
+> > +     .smpl_buf_size_max = ~0,
+> > +};
+> 
+> This means that by default anyone can create monitoring sessions.
 
-Mr. Akiyama Nobuyuk gave an example from his environment which is cluster systems.
-I was the one saying we in our Telco systems could use this feature too.
+Yes.
 
-The only thing Mr. Akiyama Nobuyuk and I have in common is we both would like to do
-something before crash dumping, simply because the less mess we will have to cleanup
-afterwards in the system taking over, the better.
+> It should start out as restrictive as possible; the admin can relax
+> permissions as needed.
+> 
 
-Mr. Akiyama Nobuyuk operates on SCSI devices to avoid filesystem corruptions.
-My usage would be more like notifying external management to get traffic 
-redirected to server systems taking over.
+I would expect distros to set it in a more restrictive way. That is what
+I have observed with the Resources Limits such as RLIMIT_MEMLOCK, for instance.
 
-./Preben
+I am not sure what the mainline policy is on this.
 
+I am glad you looked at that permission code because I found a bug there
+related to sys_group/task_group.
 
+Thanks.
 
+-- 
+
+-Stephane

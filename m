@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWFSPwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWFSP4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWFSPwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWFSPwr
+	id S932178AbWFSP4K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWFSP4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:52:47 -0400
-Received: from mail.daysofwonder.com ([213.186.49.53]:23952 "EHLO
-	mail.daysofwonder.com") by vger.kernel.org with ESMTP
-	id S964780AbWFSPwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:52:46 -0400
-Subject: Re: 2.6.17: slow (as hell) tcp inbound transfers
-From: Brice Figureau <brice+lklm@daysofwonder.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org,
-       Vincent Vanackere <vincent.vanackere@gmail.com>
-In-Reply-To: <200606200115.02492.kernel@kolivas.org>
-References: <1150725598.4985.27.camel@localhost.localdomain>
-	 <65258a580606190717t2cc5b28eg10fb4d64fe5ec1f3@mail.gmail.com>
-	 <1150729187.4985.41.camel@localhost.localdomain>
-	 <200606200115.02492.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Mon, 19 Jun 2006 17:52:43 +0200
-Message-Id: <1150732363.4985.44.camel@localhost.localdomain>
+	Mon, 19 Jun 2006 11:56:10 -0400
+Received: from xenotime.net ([66.160.160.81]:12442 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932178AbWFSP4J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 11:56:09 -0400
+Date: Mon, 19 Jun 2006 08:58:55 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jes Sorensen <jes@sgi.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       hugh@veritas.com, cotte@de.ibm.com, bjorn_helgaas@hp.com
+Subject: Re: [patch] mspec
+Message-Id: <20060619085855.277cd217.rdunlap@xenotime.net>
+In-Reply-To: <yq0lkrtzelk.fsf@jaguar.mkp.net>
+References: <yq0lkrtzelk.fsf@jaguar.mkp.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-20 at 01:15 +1000, Con Kolivas wrote:
-> On Tuesday 20 June 2006 00:59, Brice Figureau wrote:
-> > On Mon, 2006-06-19 at 16:17 +0200, Vincent Vanackere wrote:
-> > > On 6/19/06, Brice Figureau <brice+lklm@daysofwonder.com> wrote:
-> > > > It seems that TCP inbound transfers (using either curl, or scp) are
-> > > > really slow except when issued on our gigabit LAN.
-> > >
-> > > Could you try the following to see if it cures your problem ?
-> > >
-> > > echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
-> >
-> > Yes, that fixed it:
-> > [snipped]
-> > Did something has changed between 2.6.16 and 2.6.17 regarding TCP window
-> > scaling ?
-> >
-> > I remember a discussion on lklm aroung 2.6.7 or so that finally ended as
-> > a bug in a firewall that wasn't handling TCP window scaling gracefully.
-> > That's certainly my case, I'll will have a look to that.
-> 
-> See:
-> 
-> http://kerneltrap.org/node/6723
+On 19 Jun 2006 05:20:23 -0400 Jes Sorensen wrote:
 
-Thanks for the pointer and sorry for the noise.
--- 
-Brice Figureau
+> Hi,
+> 
+> Since today is the day of do_no_pfn, it is obviously also the time for
+> mspec! Here we go :)
 
+Just minor stuff:
+
+> +MODULE_AUTHOR("Silicon Graphics, Inc.");
+> +MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
+> +MODULE_LICENSE("GPL");
+> +MODULE_INFO(supported, "external");
+
+What does that last line mean?  what does "external" mean?
+There are no other source files in the 2.6.17 tree that say
+anything like that.
+
+And of the 1800+ MODULE_AUTHOR() lines, SGI seems to be
+dominant is using company instead of a person for AUTHOR.
+Yes, there are a few others as well.
+module.h says:
+/* Author, ideally of form NAME <EMAIL>[, NAME <EMAIL>]*[ and NAME <EMAIL>] */
+
+---
+~Randy

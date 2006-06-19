@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWFSWnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWFSWuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbWFSWnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 18:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbWFSWnQ
+	id S964963AbWFSWuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 18:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWFSWuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 18:43:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38593 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964960AbWFSWnP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 18:43:15 -0400
-Date: Mon, 19 Jun 2006 18:43:12 -0400
-From: Dave Jones <davej@redhat.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
-Message-ID: <20060619224312.GB17134@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-	linux-kernel@vger.kernel.org
-References: <20060619191543.GA17187@rhlx01.fht-esslingen.de> <20060619221655.GB1648@openzaurus.ucw.cz>
+	Mon, 19 Jun 2006 18:50:08 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:55703 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964963AbWFSWuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 18:50:07 -0400
+Date: Mon, 19 Jun 2006 17:49:52 -0500
+From: Robin Holt <holt@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Carsten Otte <cotte@de.ibm.com>, bjorn_helgaas@hp.com
+Subject: Re: [patch] do_no_pfn
+Message-ID: <20060619224952.GA17685@lnx-holt.americas.sgi.com>
+References: <yq0psh5zenq.fsf@jaguar.mkp.net> <p73r71lpa6a.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060619221655.GB1648@openzaurus.ucw.cz>
+In-Reply-To: <p73r71lpa6a.fsf@verdi.suse.de>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 12:16:55AM +0200, Pavel Machek wrote:
+On Mon, Jun 19, 2006 at 03:06:05PM +0200, Andi Kleen wrote:
+> The big question is - why do you have pages without struct page? 
+> It seems ... wrong.
 
- > > Am I completely missing something here?
- > 
- > Yes. You are missing that modern hw already protects itself. See my  blog on planet.kernel.org.
+For mspec, these are pages which come from the efi trim regions.
+They are not usuable by the kernel.  Dropping in a kernel TLB entry for
+them does allow speculation into PROM reserved memory which will result
+in corrupting PROMs memory.  We have seen this in the past.
 
-And you are missing that not everyone is running linux on the latest CPUs.
+Additionally, Carsten Otte had been pursuing a do_no_pfn function to
+allow execute in place to insert executable pages into an os instance
+which are actually part of the physical machines memory map, but not part
+of the virtual machines.  Several virtual machines could share the same
+physical page.  I, of course, reserve the right to have gotten Carsten's
+intentions completely wrong.  I don't believe I have misinterpretted
+the intentions of do_no_pfn as expressed on the linux-mm mailing list.
 
-		Dave
+Are you saying the for the mspec pages we should extend the vmem_map,
+partially populate the regions for the mspec pages, mark those pages as
+uncached and reserved and then turn them over to the uncached allocator?
+Seems like we have done a lot of extra work to put a struct page behind
+a page which requires special handling.
 
--- 
-http://www.codemonkey.org.uk
+For Carsten's case, how would you propose we handle that?
+
+Thanks,
+Robin

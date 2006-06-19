@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWFSMZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWFSMZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWFSMZk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 08:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWFSMZI
+	id S932393AbWFSMZG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 08:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWFSMZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 08:25:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54973 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932403AbWFSMZE (ORCPT
+	Mon, 19 Jun 2006 08:25:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54717 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932393AbWFSMZE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 19 Jun 2006 08:25:04 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 02/15] frv: basic __iomem annotations
-Date: Mon, 19 Jun 2006 13:24:48 +0100
+Subject: [PATCH 05/15] frv: binfmt_elf_fdpic __user annotations
+Date: Mon, 19 Jun 2006 13:24:55 +0100
 To: torvalds@osdl.org, akpm@osdl.org, viro@zeniv.linux.org.uk
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060619122448.10060.13994.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060619122455.10060.96293.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060619122445.10060.97532.stgit@warthog.cambridge.redhat.com>
 References: <20060619122445.10060.97532.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,245 +22,115 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-Add annotations to the FRV I/O handling functions for sparse.
+Add __user annotations to binfmt_elf_fdpic.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- arch/frv/mm/kmap.c        |    6 +++---
- include/asm-frv/io.h      |   38 +++++++++++++++++++-------------------
- include/asm-frv/mb-regs.h |   27 +++++++++++++++++++--------
- 3 files changed, 41 insertions(+), 30 deletions(-)
+ fs/binfmt_elf_fdpic.c |   26 +++++++++++++-------------
+ 1 files changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/arch/frv/mm/kmap.c b/arch/frv/mm/kmap.c
-index c54f18e..40b62c5 100644
---- a/arch/frv/mm/kmap.c
-+++ b/arch/frv/mm/kmap.c
-@@ -31,15 +31,15 @@ #undef DEBUG
-  * Map some physical address range into the kernel address space.
-  */
- 
--void *__ioremap(unsigned long physaddr, unsigned long size, int cacheflag)
-+void __iomem *__ioremap(unsigned long physaddr, unsigned long size, int cacheflag)
+diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
+index a2e48c9..eba4e23 100644
+--- a/fs/binfmt_elf_fdpic.c
++++ b/fs/binfmt_elf_fdpic.c
+@@ -435,9 +435,10 @@ static int create_elf_fdpic_tables(struc
+ 				   struct elf_fdpic_params *interp_params)
  {
--	return (void *)physaddr;
-+	return (void __iomem *)physaddr;
- }
+ 	unsigned long sp, csp, nitems;
+-	elf_caddr_t *argv, *envp;
++	elf_caddr_t __user *argv, *envp;
+ 	size_t platform_len = 0, len;
+-	char *k_platform, *u_platform, *p;
++	char *k_platform;
++	char __user *u_platform, *p;
+ 	long hwcap;
+ 	int loop;
  
- /*
-  * Unmap a ioremap()ed region again
-  */
--void iounmap(void *addr)
-+void iounmap(void volatile __iomem *addr)
- {
- }
+@@ -462,12 +463,11 @@ #endif
+ 	if (k_platform) {
+ 		platform_len = strlen(k_platform) + 1;
+ 		sp -= platform_len;
++		u_platform = (char __user *) sp;
+ 		if (__copy_to_user(u_platform, k_platform, platform_len) != 0)
+ 			return -EFAULT;
+ 	}
  
-diff --git a/include/asm-frv/io.h b/include/asm-frv/io.h
-index 01247cb..0c18453 100644
---- a/include/asm-frv/io.h
-+++ b/include/asm-frv/io.h
-@@ -41,13 +41,13 @@ static inline unsigned long _swapl(unsig
- //#define __iormb() asm volatile("membar")
- //#define __iowmb() asm volatile("membar")
+-	u_platform = (char *) sp;
+-
+ #if defined(__i386__) && defined(CONFIG_SMP)
+ 	/* in some cases (e.g. Hyper-Threading), we want to avoid L1 evictions
+ 	 * by the processes running on the same package. One thing we can do
+@@ -490,7 +490,7 @@ #endif
+ 	sp = (sp - len) & ~7UL;
+ 	exec_params->map_addr = sp;
  
--#define __raw_readb(addr) __builtin_read8((void *) (addr))
--#define __raw_readw(addr) __builtin_read16((void *) (addr))
--#define __raw_readl(addr) __builtin_read32((void *) (addr))
-+#define __raw_readb __builtin_read8
-+#define __raw_readw __builtin_read16
-+#define __raw_readl __builtin_read32
+-	if (copy_to_user((void *) sp, exec_params->loadmap, len) != 0)
++	if (copy_to_user((void __user *) sp, exec_params->loadmap, len) != 0)
+ 		return -EFAULT;
  
--#define __raw_writeb(datum, addr) __builtin_write8((void *) (addr), datum)
--#define __raw_writew(datum, addr) __builtin_write16((void *) (addr), datum)
--#define __raw_writel(datum, addr) __builtin_write32((void *) (addr), datum)
-+#define __raw_writeb(datum, addr) __builtin_write8(addr, datum)
-+#define __raw_writew(datum, addr) __builtin_write16(addr, datum)
-+#define __raw_writel(datum, addr) __builtin_write32(addr, datum)
+ 	current->mm->context.exec_fdpic_loadmap = (unsigned long) sp;
+@@ -501,7 +501,7 @@ #endif
+ 		sp = (sp - len) & ~7UL;
+ 		interp_params->map_addr = sp;
  
- static inline void io_outsb(unsigned int addr, const void *buf, int len)
- {
-@@ -129,12 +129,12 @@ static inline void memcpy_toio(volatile 
+-		if (copy_to_user((void *) sp, interp_params->loadmap, len) != 0)
++		if (copy_to_user((void __user *) sp, interp_params->loadmap, len) != 0)
+ 			return -EFAULT;
  
- static inline uint8_t inb(unsigned long addr)
- {
--	return __builtin_read8((void *)addr);
-+	return __builtin_read8((void __iomem *)addr);
- }
+ 		current->mm->context.interp_fdpic_loadmap = (unsigned long) sp;
+@@ -527,7 +527,7 @@ #endif
+ 	/* put the ELF interpreter info on the stack */
+ #define NEW_AUX_ENT(nr, id, val)						\
+ 	do {									\
+-		struct { unsigned long _id, _val; } *ent = (void *) csp;	\
++		struct { unsigned long _id, _val; } __user *ent = (void __user *) csp;	\
+ 		__put_user((id), &ent[nr]._id);					\
+ 		__put_user((val), &ent[nr]._val);				\
+ 	} while (0)
+@@ -564,13 +564,13 @@ #undef NEW_AUX_ENT
  
- static inline uint16_t inw(unsigned long addr)
- {
--	uint16_t ret = __builtin_read16((void *)addr);
-+	uint16_t ret = __builtin_read16((void __iomem *)addr);
+ 	/* allocate room for argv[] and envv[] */
+ 	csp -= (bprm->envc + 1) * sizeof(elf_caddr_t);
+-	envp = (elf_caddr_t *) csp;
++	envp = (elf_caddr_t __user *) csp;
+ 	csp -= (bprm->argc + 1) * sizeof(elf_caddr_t);
+-	argv = (elf_caddr_t *) csp;
++	argv = (elf_caddr_t __user *) csp;
  
- 	if (__is_PCI_IO(addr))
- 		ret = _swapw(ret);
-@@ -144,7 +144,7 @@ static inline uint16_t inw(unsigned long
+ 	/* stack argc */
+ 	csp -= sizeof(unsigned long);
+-	__put_user(bprm->argc, (unsigned long *) csp);
++	__put_user(bprm->argc, (unsigned long __user *) csp);
  
- static inline uint32_t inl(unsigned long addr)
- {
--	uint32_t ret = __builtin_read32((void *)addr);
-+	uint32_t ret = __builtin_read32((void __iomem *)addr);
+ 	BUG_ON(csp != sp);
  
- 	if (__is_PCI_IO(addr))
- 		ret = _swapl(ret);
-@@ -154,21 +154,21 @@ static inline uint32_t inl(unsigned long
- 
- static inline void outb(uint8_t datum, unsigned long addr)
- {
--	__builtin_write8((void *)addr, datum);
-+	__builtin_write8((void __iomem *)addr, datum);
- }
- 
- static inline void outw(uint16_t datum, unsigned long addr)
- {
- 	if (__is_PCI_IO(addr))
- 		datum = _swapw(datum);
--	__builtin_write16((void *)addr, datum);
-+	__builtin_write16((void __iomem *)addr, datum);
- }
- 
- static inline void outl(uint32_t datum, unsigned long addr)
- {
- 	if (__is_PCI_IO(addr))
- 		datum = _swapl(datum);
--	__builtin_write32((void *)addr, datum);
-+	__builtin_write32((void __iomem *)addr, datum);
- }
- 
- #define inb_p(addr)	inb(addr)
-@@ -190,12 +190,12 @@ #define IO_SPACE_LIMIT	0xffffffff
- 
- static inline uint8_t readb(const volatile void __iomem *addr)
- {
--	return __builtin_read8((volatile uint8_t __force *) addr);
-+	return __builtin_read8((__force void volatile __iomem *) addr);
- }
- 
- static inline uint16_t readw(const volatile void __iomem *addr)
- {
--	uint16_t ret =	__builtin_read16((volatile uint16_t __force *)addr);
-+	uint16_t ret =	__builtin_read16((__force void volatile __iomem *)addr);
- 
- 	if (__is_PCI_MEM(addr))
- 		ret = _swapw(ret);
-@@ -204,7 +204,7 @@ static inline uint16_t readw(const volat
- 
- static inline uint32_t readl(const volatile void __iomem *addr)
- {
--	uint32_t ret =	__builtin_read32((volatile uint32_t __force *)addr);
-+	uint32_t ret =	__builtin_read32((__force void volatile __iomem *)addr);
- 
- 	if (__is_PCI_MEM(addr))
- 		ret = _swapl(ret);
-@@ -218,7 +218,7 @@ #define readl_relaxed readl
- 
- static inline void writeb(uint8_t datum, volatile void __iomem *addr)
- {
--	__builtin_write8((volatile uint8_t __force *) addr, datum);
-+	__builtin_write8(addr, datum);
- 	if (__is_PCI_MEM(addr))
- 		__flush_PCI_writes();
- }
-@@ -228,7 +228,7 @@ static inline void writew(uint16_t datum
- 	if (__is_PCI_MEM(addr))
- 		datum = _swapw(datum);
- 
--	__builtin_write16((volatile uint16_t __force *) addr, datum);
-+	__builtin_write16(addr, datum);
- 	if (__is_PCI_MEM(addr))
- 		__flush_PCI_writes();
- }
-@@ -238,7 +238,7 @@ static inline void writel(uint32_t datum
- 	if (__is_PCI_MEM(addr))
- 		datum = _swapl(datum);
- 
--	__builtin_write32((volatile uint32_t __force *) addr, datum);
-+	__builtin_write32(addr, datum);
- 	if (__is_PCI_MEM(addr))
- 		__flush_PCI_writes();
- }
-@@ -272,7 +272,7 @@ static inline void __iomem *ioremap_full
- 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
- }
- 
--extern void iounmap(void __iomem *addr);
-+extern void iounmap(void volatile __iomem *addr);
- 
- static inline void __iomem *ioport_map(unsigned long port, unsigned int nr)
- {
-diff --git a/include/asm-frv/mb-regs.h b/include/asm-frv/mb-regs.h
-index 93fa732..219e5f9 100644
---- a/include/asm-frv/mb-regs.h
-+++ b/include/asm-frv/mb-regs.h
-@@ -16,6 +16,17 @@ #include <asm/cpu-irqs.h>
- #include <asm/sections.h>
- #include <asm/mem-layout.h>
- 
-+#ifndef __ASSEMBLY__
-+/* gcc builtins, annotated */
-+
-+unsigned long __builtin_read8(volatile void __iomem *);
-+unsigned long __builtin_read16(volatile void __iomem *);
-+unsigned long __builtin_read32(volatile void __iomem *);
-+void __builtin_write8(volatile void __iomem *, unsigned char);
-+void __builtin_write16(volatile void __iomem *, unsigned short);
-+void __builtin_write32(volatile void __iomem *, unsigned long);
-+#endif
-+
- #define __region_IO	KERNEL_IO_START	/* the region from 0xe0000000 to 0xffffffff has suitable
- 					 * protection laid over the top for use in memory-mapped
- 					 * I/O
-@@ -59,7 +70,7 @@ #define __region_PCI_IO		(__region_CS2 +
- #define __region_PCI_MEM	(__region_CS2 + 0x08000000UL)
- #define __flush_PCI_writes()						\
- do {									\
--	__builtin_write8((volatile void *) __region_PCI_MEM, 0);	\
-+	__builtin_write8((volatile void __iomem *) __region_PCI_MEM, 0);	\
- } while(0)
- 
- #define __is_PCI_IO(addr) \
-@@ -83,15 +94,15 @@ #ifdef CONFIG_MB93090_MB00
- #define __set_LEDS(X)							\
- do {									\
- 	if (mb93090_mb00_detected)					\
--		__builtin_write32((void *) __addr_LEDS(), ~(X));	\
-+		__builtin_write32((void __iomem *) __addr_LEDS(), ~(X));	\
- } while (0)
- #else
- #define __set_LEDS(X)
+@@ -581,7 +581,7 @@ #else
+ 	current->mm->arg_start = current->mm->start_stack - (MAX_ARG_PAGES * PAGE_SIZE - bprm->p);
  #endif
  
- #define __addr_LCD()		(__region_CS2 + 0x01200008UL)
--#define __get_LCD(B)		__builtin_read32((volatile void *) (B))
--#define __set_LCD(B,X)		__builtin_write32((volatile void *) (B), (X))
-+#define __get_LCD(B)		__builtin_read32((volatile void __iomem *) (B))
-+#define __set_LCD(B,X)		__builtin_write32((volatile void __iomem *) (B), (X))
+-	p = (char *) current->mm->arg_start;
++	p = (char __user *) current->mm->arg_start;
+ 	for (loop = bprm->argc; loop > 0; loop--) {
+ 		__put_user((elf_caddr_t) p, argv++);
+ 		len = strnlen_user(p, PAGE_SIZE * MAX_ARG_PAGES);
+@@ -1025,7 +1025,7 @@ static int elf_fdpic_map_file_by_direct_
+ 		/* clear the bit between beginning of mapping and beginning of PT_LOAD */
+ 		if (prot & PROT_WRITE && disp > 0) {
+ 			kdebug("clear[%d] ad=%lx sz=%lx", loop, maddr, disp);
+-			clear_user((void *) maddr, disp);
++			clear_user((void __user *) maddr, disp);
+ 			maddr += disp;
+ 		}
  
- #define LCD_D			0x000000ff		/* LCD data bus */
- #define LCD_RW			0x00000100		/* LCD R/W signal */
-@@ -161,11 +172,11 @@ #define __get_CLKSW()		0UL
- #define __get_CLKIN()		66000000UL
+@@ -1059,7 +1059,7 @@ #ifdef CONFIG_MMU
+ 		if (prot & PROT_WRITE && excess1 > 0) {
+ 			kdebug("clear[%d] ad=%lx sz=%lx",
+ 			       loop, maddr + phdr->p_filesz, excess1);
+-			clear_user((void *) maddr + phdr->p_filesz, excess1);
++			clear_user((void __user *) maddr + phdr->p_filesz, excess1);
+ 		}
  
- #define __addr_LEDS()		(__region_CS2 + 0x00000023UL)
--#define __set_LEDS(X)		__builtin_write8((volatile void *) __addr_LEDS(), (X))
-+#define __set_LEDS(X)		__builtin_write8((volatile void __iomem *) __addr_LEDS(), (X))
- 
- #define __addr_FPGATR()		(__region_CS2 + 0x00000030UL)
--#define __set_FPGATR(X)		__builtin_write32((volatile void *) __addr_FPGATR(), (X))
--#define __get_FPGATR()		__builtin_read32((volatile void *) __addr_FPGATR())
-+#define __set_FPGATR(X)		__builtin_write32((volatile void __iomem *) __addr_FPGATR(), (X))
-+#define __get_FPGATR()		__builtin_read32((volatile void __iomem *) __addr_FPGATR())
- 
- #define MB93093_FPGA_FPGATR_AUDIO_CLK	0x00000003
- 
-@@ -180,7 +191,7 @@ #define MB93093_FPGA_FPGATR_AUDIO_CLK_02
- #define MB93093_FPGA_SWR_PUSHSWMASK	(0x1F<<26)
- #define MB93093_FPGA_SWR_PUSHSW4	(1<<29)
- 
--#define __addr_FPGA_SWR		((volatile void *)(__region_CS2 + 0x28UL))
-+#define __addr_FPGA_SWR		((volatile void __iomem *)(__region_CS2 + 0x28UL))
- #define __get_FPGA_PUSHSW1_5()	(__builtin_read32(__addr_FPGA_SWR) & MB93093_FPGA_SWR_PUSHSWMASK)
- 
- 
+ #else
 

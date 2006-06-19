@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWFSM0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWFSM0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWFSM0w (ORCPT <rfc822;willy@w.ods.org>);
+	id S932427AbWFSM0w (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 19 Jun 2006 08:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWFSMZt
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWFSMZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 08:25:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13502 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932424AbWFSMZW (ORCPT
+	Mon, 19 Jun 2006 08:25:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15806 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932425AbWFSMZY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 08:25:22 -0400
+	Mon, 19 Jun 2006 08:25:24 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 12/15] frv: ieee1394 is borken on frv
-Date: Mon, 19 Jun 2006 13:25:10 +0100
+Subject: [PATCH 15/15] frv: clean frv unistd.h
+Date: Mon, 19 Jun 2006 13:25:16 +0100
 To: torvalds@osdl.org, akpm@osdl.org, viro@zeniv.linux.org.uk
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060619122509.10060.74673.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060619122516.10060.71734.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060619122445.10060.97532.stgit@warthog.cambridge.redhat.com>
 References: <20060619122445.10060.97532.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,27 +22,42 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-The ieee1394 assumes it may make direct use of ->count in the semaphore
-structure.
+Remove _syscall invocations that aren't used in the kernel.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- drivers/ieee1394/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ include/asm-frv/unistd.h |   17 -----------------
+ 1 files changed, 0 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/ieee1394/Kconfig b/drivers/ieee1394/Kconfig
-index 39142e2..aac5cb2 100644
---- a/drivers/ieee1394/Kconfig
-+++ b/drivers/ieee1394/Kconfig
-@@ -4,7 +4,7 @@ menu "IEEE 1394 (FireWire) support"
+diff --git a/include/asm-frv/unistd.h b/include/asm-frv/unistd.h
+index dec80c1..af0f5dd 100644
+--- a/include/asm-frv/unistd.h
++++ b/include/asm-frv/unistd.h
+@@ -458,24 +458,7 @@ #include <asm/ptrace.h>
+  * some others too.
+  */
+ #define __NR__exit __NR_exit
+-static inline _syscall0(int,pause)
+-static inline _syscall0(int,sync)
+-static inline _syscall0(pid_t,setsid)
+-static inline _syscall3(int,write,int,fd,const char *,buf,off_t,count)
+-static inline _syscall3(int,read,int,fd,char *,buf,off_t,count)
+-static inline _syscall3(off_t,lseek,int,fd,off_t,offset,int,count)
+-static inline _syscall1(int,dup,int,fd)
+ static inline _syscall3(int,execve,const char *,file,char **,argv,char **,envp)
+-static inline _syscall3(int,open,const char *,file,int,flag,int,mode)
+-static inline _syscall1(int,close,int,fd)
+-static inline _syscall1(int,_exit,int,exitcode)
+-static inline _syscall3(pid_t,waitpid,pid_t,pid,int *,wait_stat,int,options)
+-static inline _syscall1(int,delete_module,const char *,name)
+-
+-static inline pid_t wait(int * wait_stat)
+-{
+-	return waitpid(-1,wait_stat,0);
+-}
  
- config IEEE1394
- 	tristate "IEEE 1394 (FireWire) support"
--	depends on PCI || BROKEN
-+	depends on (PCI || BROKEN) && (BROKEN || !FRV)
- 	select NET
- 	help
- 	  IEEE 1394 describes a high performance serial bus, which is also
+ #endif
+ 
 

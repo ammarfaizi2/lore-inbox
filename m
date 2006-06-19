@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWFSUjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWFSUkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWFSUjU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 16:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWFSUjU
+	id S1751163AbWFSUkk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 16:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWFSUkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 16:39:20 -0400
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:1975 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751151AbWFSUjT (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 16:39:19 -0400
-Message-ID: <44970B77.6030906@namesys.com>
-Date: Mon, 19 Jun 2006 13:39:19 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Akshat Aranya <aaranya@gmail.com>, vs <vs@thebsh.namesys.com>
-CC: Miklos Szeredi <miklos@szeredi.hu>, nix@esperi.org.uk, akpm@osdl.org,
-       vs@namesys.com, hch@infradead.org, Reiserfs-Dev@namesys.com,
-       Linux-Kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       drepper@redhat.com
-Subject: Re: batched write
-References: <44736D3E.8090808@namesys.com>	 <20060608121006.GA8474@infradead.org>	 <1150322912.6322.129.camel@tribesman.namesys.com>	 <20060617100458.0be18073.akpm@osdl.org> <4494411B.4010706@namesys.com>	 <87ac8an21r.fsf@hades.wkstn.nix> <449668D1.1050200@namesys.com>	 <E1FsHzf-0004ES-00@dorka.pomaz.szeredi.hu>	 <4496D34F.4010007@namesys.com>	 <E1FsNeQ-0004pV-00@dorka.pomaz.szeredi.hu> <e48344780606191052u43db7e45wd175e7f818c4a192@mail.gmail.com>
-In-Reply-To: <e48344780606191052u43db7e45wd175e7f818c4a192@mail.gmail.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 16:40:40 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:30593 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751163AbWFSUkk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 16:40:40 -0400
+Date: Mon, 19 Jun 2006 15:40:37 -0500
+To: christoph@lameter.com, clg@fr.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: NFS crash in linux-2.6.17-rc6-mm2; patch testd and works good.
+Message-ID: <20060619204037.GF9200@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akshat Aranya wrote:
 
-> On 6/19/06, Miklos Szeredi <miklos@szeredi.hu> wrote:
->
->> > I would think that batched write is pretty essential then to FUSE
->> > performance.
->>
->> Well, yes essential if the this is the bottleneck in write throughput,
->> which is most often not the case, but sometimes it is.
->>
->
-> I can vouch for this.  I did some experiments with an example FUSE
-> filesystem that discards the data in userspace.  Exporting such a
-> filesystem over NFS gives us 80 MB/s writes when FUSE is modified to
-> write with 32K block sizes.  With the standard FUSE (4K writes), we
-> get  closer to 50 MB/s.
+I saw a crash in 2.6.17-rc6-mm2 in the NFS code, w/ stack trace 
 
-The ratios of 4k performance / large write performance are amusingly
-similar for reiser4 and FUSE even though the filesystems and absolute
-performance are totally different.  The principle is the same it seems
-for both filesystems.
+                   c00000000007efac .dec_zone_page_state+0x4/0xb0
+[c00000003321bb60] c0000000001790f8 .nfs_commit_done+0x1a8/0x1f0
+[c00000003321bc00] c00000000042169c .rpc_exit_task+0x48/0x84
+[c00000003321bc80] c0000000004219b8 .__rpc_execute+0xec/0x2ac
+[c00000003321bd20] c00000000005f57c .run_workqueue+0xdc/0x168
+[c00000003321bdc0] c00000000005ff30 .worker_thread+0x138/0x1a8
+[c00000003321bee0] c0000000000643f0 .kthread+0x124/0x174
+[c00000003321bf90] c00000000002260c .kernel_thread+0x4c/0x68
 
-Vladimir, the benchmarks, please send them.....
+which was passed a NULL pointer. This was on PowerPC. 
 
-Hans
+It appears that the patch of Tue, 13 Jun 2006 14:13:36 -0700 (PDT)
+from Christoph Lameter seems to fix the probelm for me, after
+some light testing. 
+
+That is, the patch posted at  http://lkml.org/lkml/2006/6/13/210
+
+So -- thanks -- and please add the appropriate Signed-Off-bys to 
+that patch and get it upstream!
+
+--linas
+

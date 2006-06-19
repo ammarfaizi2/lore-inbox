@@ -1,91 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWFSSrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWFSSvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWFSSrl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 14:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWFSSrk
+	id S964845AbWFSSvR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 14:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWFSStz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 14:47:40 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:7912 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964841AbWFSSr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 14:47:27 -0400
-Date: Mon, 19 Jun 2006 11:47:07 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Marcelo Tosatti <marcelo@kvack.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Lameter <clameter@sgi.com>, Theodore Tso <tytso@mit.edu>,
-       Dave Chinner <dgc@sgi.com>, Andi Kleen <ak@suse.de>
-Message-Id: <20060619184707.23130.81359.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20060619184651.23130.62875.sendpatchset@schroedinger.engr.sgi.com>
-References: <20060619184651.23130.62875.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC 3/4] Add checks to current destructor uses
+	Mon, 19 Jun 2006 14:49:55 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:2260 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932459AbWFSSnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 14:43:22 -0400
+Message-Id: <20060619183404.213201000@klappe.arndb.de>
+References: <20060619183315.653672000@klappe.arndb.de>
+Date: Mon, 19 Jun 2006 20:33:17 +0200
+From: arnd@arndb.de
+To: paulus@samba.org
+Cc: linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: [patch 02/20] cell: fix interrupt priority handling
+Content-Disposition: inline; filename=cell-iic-cleanup.diff
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-slab: Add checks to current destructor uses
+Checking the priority field to test for irq validity is
+completely bogus and breaks with future external interrupt
+controllers.
 
-We will be adding new destructor options soon. So insure that all
-existing destructors only react to SLAB_DTOR_DESTROY.
+Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+---
 
-Index: linux-2.6.17-rc6-mm2/arch/i386/mm/pgtable.c
+Index: powerpc.git/arch/powerpc/platforms/cell/interrupt.c
 ===================================================================
---- linux-2.6.17-rc6-mm2.orig/arch/i386/mm/pgtable.c	2006-06-16 11:48:44.229756909 -0700
-+++ linux-2.6.17-rc6-mm2/arch/i386/mm/pgtable.c	2006-06-19 10:02:05.008801502 -0700
-@@ -224,15 +224,19 @@ void pgd_ctor(void *pgd, kmem_cache_t *c
- }
- 
- /* never called when PTRS_PER_PMD > 1 */
--void pgd_dtor(void *pgd, kmem_cache_t *cache, unsigned long unused)
-+void pgd_dtor(void *pgd, kmem_cache_t *cache, unsigned long slab_flags)
- {
- 	unsigned long flags; /* can be called from interrupt context */
- 
-+	if (!(slab_flags & SLAB_DTOR_DESTROY))
-+		return;
-+
- 	spin_lock_irqsave(&pgd_lock, flags);
- 	pgd_list_del(pgd);
- 	spin_unlock_irqrestore(&pgd_lock, flags);
- }
- 
-+
- pgd_t *pgd_alloc(struct mm_struct *mm)
- {
- 	int i;
-Index: linux-2.6.17-rc6-mm2/include/linux/slab.h
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/include/linux/slab.h	2006-06-16 11:48:52.272227349 -0700
-+++ linux-2.6.17-rc6-mm2/include/linux/slab.h	2006-06-19 10:00:33.951924377 -0700
-@@ -52,6 +52,9 @@ typedef struct kmem_cache kmem_cache_t;
- #define SLAB_CTOR_ATOMIC	0x002UL		/* tell constructor it can't sleep */
- #define	SLAB_CTOR_VERIFY	0x004UL		/* tell constructor it's a verify call */
- 
-+/* flags passed to a constructor func */
-+#define SLAB_DTOR_DESTROY	0x1000UL	/* Called during slab destruction */
-+
- #ifndef CONFIG_SLOB
- 
- /* prototypes */
-Index: linux-2.6.17-rc6-mm2/arch/frv/mm/pgalloc.c
-===================================================================
---- linux-2.6.17-rc6-mm2.orig/arch/frv/mm/pgalloc.c	2006-06-05 17:57:02.000000000 -0700
-+++ linux-2.6.17-rc6-mm2/arch/frv/mm/pgalloc.c	2006-06-19 10:03:11.301582635 -0700
-@@ -120,10 +120,13 @@ void pgd_ctor(void *pgd, kmem_cache_t *c
- }
- 
- /* never called when PTRS_PER_PMD > 1 */
--void pgd_dtor(void *pgd, kmem_cache_t *cache, unsigned long unused)
-+void pgd_dtor(void *pgd, kmem_cache_t *cache, unsigned long slab_flags)
- {
- 	unsigned long flags; /* can be called from interrupt context */
- 
-+	if (!(slab_flags & SLAB_DTOR_DESTROY))
-+		return;
-+
- 	spin_lock_irqsave(&pgd_lock, flags);
- 	pgd_list_del(pgd);
- 	spin_unlock_irqrestore(&pgd_lock, flags);
+--- powerpc.git.orig/arch/powerpc/platforms/cell/interrupt.c
++++ powerpc.git/arch/powerpc/platforms/cell/interrupt.c
+@@ -117,8 +117,7 @@ static int iic_external_get_irq(struct c
+ 		 * One of these units can be connected
+ 		 * to an external interrupt controller.
+ 		 */
+-		if (pending.prio > 0x3f ||
+-		    pending.class != 2)
++		if (pending.class != 2)
+ 			break;
+ 		irq = IIC_EXT_OFFSET
+ 			+ spider_get_irq(node)
+
+--
+

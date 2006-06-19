@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWFSJIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWFSJLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWFSJIV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 05:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWFSJIV
+	id S1751091AbWFSJLH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 05:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWFSJLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 05:08:21 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2745 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751169AbWFSJIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 05:08:21 -0400
-Subject: Re: About the fixes of /drivers/serial/8250.C in 2.6.17-rc6 for
-	avoiding habbg-up
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: gouji <gouji.masayuki@jp.fujitsu.com>
-Cc: "'LKML'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <000d01c6934c$f25c9870$f4647c0a@GOUJI>
-References: <000d01c6934c$f25c9870$f4647c0a@GOUJI>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 19 Jun 2006 10:23:14 +0100
-Message-Id: <1150708994.2503.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 19 Jun 2006 05:11:07 -0400
+Received: from mail-gw2.sa.eol.hu ([212.108.200.109]:51361 "EHLO
+	mail-gw2.sa.eol.hu") by vger.kernel.org with ESMTP id S1751091AbWFSJLF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 05:11:05 -0400
+To: jesper.juhl@gmail.com
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <9a8748490606190204n6e2ea0caua0015f4edd2fe7ac@mail.gmail.com>
+	(jesper.juhl@gmail.com)
+Subject: Re: [PATCH 4/7] fuse: add POSIX file locking support
+References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
+	 <E1FplXk-00062M-00@dorka.pomaz.szeredi.hu>
+	 <9a8748490606190121u3c76c6bbif707835ec7e5873c@mail.gmail.com>
+	 <E1FsFGX-0002Pp-00@dorka.pomaz.szeredi.hu> <9a8748490606190204n6e2ea0caua0015f4edd2fe7ac@mail.gmail.com>
+Message-Id: <E1FsFmG-0002VT-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 19 Jun 2006 11:10:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-06-19 am 12:03 +0900, ysgrifennodd gouji:
-> In /drivers/serial/8250.C of 2.6.17-rc6,
+> How about using TEA (Tiny Encryption Algorithm), XTEA or XXTEA then?
+> They are quite simple algorithms, easy to implement and resonably fast
+> (with TEA being the simplest, but also weakest).
+> A hell of a lot better than just a simple XOR or ADD and probably more
+> than sufficient for this purpose.
 > 
-> these fixes are adapted for avoinding  the problem of hang-up
-> while TTY write and console write from kernel conflicted.
+>   http://en.wikipedia.org/wiki/Tiny_Encryption_Algorithm
+>   http://www.simonshepherd.supanet.com/tea.htm
+>   http://www.ftp.cl.cam.ac.uk/ftp/papers/djw-rmn/djw-rmn-tea.html
 
-Yes, there is a bug in this version that was not in the one I submitted,
-someone added an improvement.
+Cool.  I'll add this.
 
-> +   if (oops_in_progress) {
-> +      locked = spin_trylock_irqsave(&up->port.lock, flags);
-> +   } else
-> +      spin_lock_irqsave(&up->port.lock, flags);
-> +
+It's not even worth using the crypto framework, since setting it up
+would be more code than including the algorithm inline.
 
-It could always use spin_trylock_irqsave(). The oops in progress
-optimisation makes some sense initially but there are many console
-printk users that can occur during serial I/O in exceptional cases.
-
-It's not an easy problem to solve with the current serial locking.
-
-Alan
-
+Thanks,
+Miklos

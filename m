@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWFSIVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWFSIVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWFSIVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWFSIVH
+	id S932320AbWFSIVl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWFSIVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:21:07 -0400
-Received: from ns.suse.de ([195.135.220.2]:21396 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932310AbWFSIVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:21:06 -0400
-From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
-Date: Mon, 19 Jun 2006 10:21:03 +0200
-User-Agent: KMail/1.8
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sourceware.org, vojtech@suse.cz
-References: <200606140942.31150.ak@suse.de> <20060618171511.e0e6de26.pj@sgi.com>
-In-Reply-To: <20060618171511.e0e6de26.pj@sgi.com>
+	Mon, 19 Jun 2006 04:21:41 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:2866 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932317AbWFSIVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 04:21:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PuunS0tEYm3NDqohKgxp/FzTHqLld+z9MDuLnywUBcpBB0FUCGZ7a2KCXcdMCdarxNJX4DHml5cqlixSY1eV4Jj/n7+jC7vRbLVAia5S4y3Jz9qY2Hz1xPnDKe3ZZ8P5wLw3lhzYUecLHHoAh89QjFzKtLAhM6Tnbaz6dbg2eSo=
+Message-ID: <9a8748490606190121u3c76c6bbif707835ec7e5873c@mail.gmail.com>
+Date: Mon, 19 Jun 2006 10:21:38 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Miklos Szeredi" <miklos@szeredi.hu>
+Subject: Re: [PATCH 4/7] fuse: add POSIX file locking support
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1FplXk-00062M-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606191021.03631.ak@suse.de>
+References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
+	 <E1FplXk-00062M-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 June 2006 02:15, Paul Jackson wrote:
-
+On 12/06/06, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> This patch adds POSIX file locking support to the fuse interface.
 >
-> Roughly, he was looking to support something resembling the kernel's
-> per-cpu data in userland library code for high performance scientific
-> number crunching, for things like statistics gathering and perhaps (not
-> sure of this) reduce locking costs.
+> +/*
+> + * It would be nice to scramble the ID space, so that the value of the
+> + * files_struct pointer is not exposed to userspace.  Symmetric crypto
+> + * functions are overkill, since the inverse function doesn't need to
+> + * be implemented (though it does have to exist).  Is there something
+> + * simpler?
+> + */
+> +static inline u64 fuse_lock_owner_id(fl_owner_t id)
+> +{
+> +       return (unsigned long) id;
+> +}
+> +
 
-While vgetcpu() can be used for this most likely glibc TLS is already 
-good enough for this. So it will help, but I don't think it's the primary
-motivation.
+How about; on fuse startup, pick some semirandom number, store it
+somewhere, then do an XOR of the pointer with the saved value to
+scramble it, when you need to use it, simply XOR it again with the
+stored value...  Not especially strong, but better than nothing and
+better than just adding a constant that people can find out from the
+source (and the scramble value would be differene each time fuse
+loads, so at a minimum a different scramble key every boot) - also,
+XOR is a quite fast operation so overhead should be low.
 
-> I see "x86-64" in the Subject.  I don't see why this facility is
-> arch-specific.  Could it work on any arch, ia64 being the one of
-> interest to me?
 
-The implementation is x86-64 specific and optimized for x86-64. You could 
-probably implement something with the same prototype for IA64 too,
-although the internal implementation will likely be very different
-(there is nothing x86-64 specific in the prototype) 
-
-AFAIK ia64 supports fast system calls so it might be possible to 
-do a simple implementation without vsyscalls.
-
-> I have some ignorance on your references to "CPUID(1)".  I don't recall
-> what it is.  The only command so named I find on my systems are a
-
-CPUID 1 is a x86 instruction that is one way to implement a user level
-vgetcpu on x86.
-
--Andi
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

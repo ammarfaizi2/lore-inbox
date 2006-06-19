@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWFSRxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWFSRy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWFSRxX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 13:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWFSRxW
+	id S964805AbWFSRy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 13:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWFSRy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 13:53:22 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:17313 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S964800AbWFSRxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 13:53:17 -0400
+	Mon, 19 Jun 2006 13:54:26 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:31977 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S964805AbWFSRyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 13:54:01 -0400
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
@@ -17,91 +17,52 @@ Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
        Christoph Lameter <christoph@lameter.com>,
        Martin Bligh <mbligh@google.com>, Nick Piggin <npiggin@suse.de>,
        Linus Torvalds <torvalds@osdl.org>
-Date: Mon, 19 Jun 2006 19:53:04 +0200
-Message-Id: <20060619175304.24655.99308.sendpatchset@lappy>
+Date: Mon, 19 Jun 2006 19:53:47 +0200
+Message-Id: <20060619175347.24655.67680.sendpatchset@lappy>
 In-Reply-To: <20060619175243.24655.76005.sendpatchset@lappy>
 References: <20060619175243.24655.76005.sendpatchset@lappy>
-Subject: [PATCH 2/6] mm: balance dirty pages
+Subject: [PATCH 6/6] mm: remove some update_mmu_cache() calls
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+From: Christoph Lameter <clameter@sgi.com>
 
-Now that we can detect writers of shared mappings, throttle them.
-Avoids OOM by surprise.
+This may be a bit controversial but it does not seem to
+make sense to use the update_mmu_cache macro when we reuse
+the page. We are only fiddling around with the protections,
+the dirty and accessed bits.
 
-Changes -v2:
+With the call to update_mmu_cache the way of using the macros
+would be different from mprotect() and page_mkclean(). I'd
+rather have everything work the same way. If this breaks on some
+arches then also mprotect and page_mkclean() are broken.
+The use of mprotect() is rare, we may have breakage in some
+arches that we just have not seen yet.
 
- - small helper function (Andrew Morton)
-
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-
- include/linux/writeback.h |    1 +
- mm/memory.c               |    5 +++--
- mm/page-writeback.c       |   10 ++++++++++
- 3 files changed, 14 insertions(+), 2 deletions(-)
+---
+ mm/memory.c |    2 --
+ 1 file changed, 2 deletions(-)
 
 Index: 2.6-mm/mm/memory.c
 ===================================================================
---- 2.6-mm.orig/mm/memory.c	2006-06-19 16:21:15.000000000 +0200
-+++ 2.6-mm/mm/memory.c	2006-06-19 16:21:16.000000000 +0200
-@@ -49,6 +49,7 @@
- #include <linux/module.h>
- #include <linux/delayacct.h>
- #include <linux/init.h>
-+#include <linux/writeback.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -1572,7 +1573,7 @@ gotten:
- unlock:
- 	pte_unmap_unlock(page_table, ptl);
- 	if (dirty_page) {
--		set_page_dirty(dirty_page);
-+		set_page_dirty_balance(dirty_page);
- 		put_page(dirty_page);
- 	}
- 	return ret;
-@@ -2219,7 +2220,7 @@ retry:
- unlock:
- 	pte_unmap_unlock(page_table, ptl);
- 	if (dirty_page) {
--		set_page_dirty(dirty_page);
-+		set_page_dirty_balance(dirty_page);
- 		put_page(dirty_page);
- 	}
- 	return ret;
-Index: 2.6-mm/include/linux/writeback.h
-===================================================================
---- 2.6-mm.orig/include/linux/writeback.h	2006-06-19 16:21:13.000000000 +0200
-+++ 2.6-mm/include/linux/writeback.h	2006-06-19 16:21:16.000000000 +0200
-@@ -121,6 +121,7 @@ int sync_page_range(struct inode *inode,
- 			loff_t pos, loff_t count);
- int sync_page_range_nolock(struct inode *inode, struct address_space *mapping,
- 			   loff_t pos, loff_t count);
-+void set_page_dirty_balance(struct page *page);
- 
- /* pdflush.c */
- extern int nr_pdflush_threads;	/* Global so it can be exported to sysctl
-Index: 2.6-mm/mm/page-writeback.c
-===================================================================
---- 2.6-mm.orig/mm/page-writeback.c	2006-06-19 16:21:15.000000000 +0200
-+++ 2.6-mm/mm/page-writeback.c	2006-06-19 16:21:16.000000000 +0200
-@@ -237,6 +237,16 @@ static void balance_dirty_pages(struct a
- 		pdflush_operation(background_writeout, 0);
- }
- 
-+void set_page_dirty_balance(struct page *page)
-+{
-+	if (set_page_dirty(page)) {
-+		struct address_space *mapping = page_mapping(page);
-+
-+		if (mapping)
-+			balance_dirty_pages_ratelimited(mapping);
-+	}
-+}
-+
- /**
-  * balance_dirty_pages_ratelimited_nr - balance dirty memory state
-  * @mapping: address_space which was dirtied
+--- 2.6-mm.orig/mm/memory.c	2006-06-19 16:21:16.000000000 +0200
++++ 2.6-mm/mm/memory.c	2006-06-19 16:21:25.000000000 +0200
+@@ -1514,7 +1514,6 @@ static int do_wp_page(struct mm_struct *
+ 		entry = pte_mkyoung(orig_pte);
+ 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+ 		ptep_set_access_flags(vma, address, page_table, entry, 1);
+-		update_mmu_cache(vma, address, entry);
+ 		lazy_mmu_prot_update(entry);
+ 		ret |= VM_FAULT_WRITE;
+ 		goto unlock;
+@@ -2317,7 +2316,6 @@ static inline int handle_pte_fault(struc
+ 	entry = pte_mkyoung(entry);
+ 	if (!pte_same(old_entry, entry)) {
+ 		ptep_set_access_flags(vma, address, pte, entry, write_access);
+-		update_mmu_cache(vma, address, entry);
+ 		lazy_mmu_prot_update(entry);
+ 	} else {
+ 		/*

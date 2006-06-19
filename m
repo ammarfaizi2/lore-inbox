@@ -1,46 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWFSPOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWFSPP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWFSPOT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWFSPOT
+	id S932084AbWFSPP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWFSPP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:14:19 -0400
-Received: from mail.mazunetworks.com ([4.19.249.111]:22739 "EHLO
-	mail.mazunetworks.com") by vger.kernel.org with ESMTP
-	id S1750935AbWFSPOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:14:19 -0400
-Message-ID: <4496BF65.30108@mazunetworks.com>
-Date: Mon, 19 Jun 2006 11:14:45 -0400
-From: Jeff Gold <jgold@mazunetworks.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Mon, 19 Jun 2006 11:15:28 -0400
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:52201 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932084AbWFSPP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 11:15:27 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17: slow (as hell) tcp inbound transfers
+Date: Tue, 20 Jun 2006 01:15:02 +1000
+User-Agent: KMail/1.9.3
+Cc: Brice Figureau <brice+lklm@daysofwonder.com>,
+       Vincent Vanackere <vincent.vanackere@gmail.com>
+References: <1150725598.4985.27.camel@localhost.localdomain> <65258a580606190717t2cc5b28eg10fb4d64fe5ec1f3@mail.gmail.com> <1150729187.4985.41.camel@localhost.localdomain>
+In-Reply-To: <1150729187.4985.41.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-CC: Mark Lord <lkml@rtr.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Serial Console and Slow SCSI Disk Access?
-References: <448DDC7F.4030308@mazunetworks.com> <448DDF1D.5020108@rtr.ca> <448DE4F1.9000407@mazunetworks.com> <4496492A.1030907@aitel.hist.no>
-In-Reply-To: <4496492A.1030907@aitel.hist.no>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606200115.02492.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> With nothing attached, any write to the serial device might go
-> through a lengthy timeout because of flow control.  [...] But I can't
-> see why it'd make scsi disks slower. The scsi host adapter 
-> initialization writes some messages of course, but there should be no
-> more console accesses during a hdparm test run.
+On Tuesday 20 June 2006 00:59, Brice Figureau wrote:
+> Hi,
+>
+> On Mon, 2006-06-19 at 16:17 +0200, Vincent Vanackere wrote:
+> > On 6/19/06, Brice Figureau <brice+lklm@daysofwonder.com> wrote:
+> > > Now to the problem: I just finished the installation of a brand new
+> > > 2.6.17 on a Dell PowerEdge 2850 which was running 2.6.16.19 really
+> > > fine, and I'm encountering a strange issue.
+> > >
+> > > It seems that TCP inbound transfers (using either curl, or scp) are
+> > > really slow except when issued on our gigabit LAN.
+> >
+> > Could you try the following to see if it cures your problem ?
+> >
+> > echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+>
+> Yes, that fixed it:
+> # curl http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.tar.gz
+>
+> > /dev/null
+>
+>   % Total    % Received % Xferd  Average Speed   Time    Time     Time
+> Current
+>                                  Dload  Upload   Total   Spent    Left
+> Speed
+>   0 49.3M    0  9856    0     0   2991      0  4:48:05  0:00:03  4:48:02
+> 3680
+>
+> # echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+>
+> # curl http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.tar.gz
+>
+> > /dev/null
+>
+>   % Total    % Received % Xferd  Average Speed   Time    Time     Time
+> Current
+>                                  Dload  Upload   Total   Spent    Left
+> Speed
+>   1 49.3M    1  904k    0     0  86544      0  0:09:57  0:00:10  0:09:47
+> 71173
+>
+> Did something has changed between 2.6.16 and 2.6.17 regarding TCP window
+> scaling ?
+>
+> I remember a discussion on lklm aroung 2.6.7 or so that finally ended as
+> a bug in a firewall that wasn't handling TCP window scaling gracefully.
+> That's certainly my case, I'll will have a look to that.
 
-This makes sense to me.  When I attach a serial cable and use that to 
-login (I've got agetty running), hdparm produces no console messages 
-that I can see using minicom.  Still, the disk throughput is around 1.5 
-MB/sec for some reason.  When I disable the serial console in grub.conf 
-and reboot I get over 70 MB/sec again.
+See:
 
-A combination of out-of-tree patches (mainly network related but also 
-one to disable PM_TIMERS) seem to eliminate the issue even with the 
-serial console enabled, at least for the moment.  That means I no longer 
-have a problem, but the whole thing is mysterious to me.
+http://kerneltrap.org/node/6723
 
-                                        Jeff
+-- 
+-ck

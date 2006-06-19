@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWFSLhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWFSLjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWFSLhH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 07:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWFSLhH
+	id S932361AbWFSLjn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 07:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWFSLjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 07:37:07 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:30212 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932355AbWFSLhF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 07:37:05 -0400
+	Mon, 19 Jun 2006 07:39:43 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:18651 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932361AbWFSLjn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 07:39:43 -0400
+Message-ID: <44968B6D.8040301@in.ibm.com>
+Date: Mon, 19 Jun 2006 17:03:01 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 19 Jun 2006 11:37:04.0031 (UTC) FILETIME=[AFC9AAF0:01C69394]
-Content-class: urn:content-classes:message
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Date: Mon, 19 Jun 2006 07:37:02 -0400
-Message-ID: <Pine.LNX.4.61.0606190730070.27378@chaos.analogic.com>
-In-Reply-To: <20060618212303.GD4744@bouh.residence.ens-lyon.fr>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: emergency or init=/bin/sh mode and terminal signals
-thread-index: AcaTlK/msT0Onc/2QhKK/Vjj0b4riQ==
-References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Samuel Thibault" <samuel.thibault@ens-lyon.org>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, dev@openvz.org, vatsa@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net, bsingharora@gmail.com, efault@gmx.de,
+       linux-kernel@vger.kernel.org, kernel@kolivas.org, sam@vilain.net,
+       kingsley@aurema.com, mingo@elte.hu, Peter Williams <peterw@aurema.com>,
+       rene.herman@keyaccess.nl
+Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
+References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com>	<4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com>	<44961758.6070305@bigpond.net.au> <44961A77.800@in.ibm.com>	<44961EFC.8080809@bigpond.net.au> <4496608D.6000502@in.ibm.com> <44968C19.7050501@bigpond.net.au>
+In-Reply-To: <44968C19.7050501@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Williams wrote:
 
-On Sun, 18 Jun 2006, Samuel Thibault wrote:
+> 
+> You're over engineering and you're not solving the problem.  You're just 
+> moving it down a bit.
+> 
 
-> Hi,
->
-> There's a long-standing issue in init=/bin/sh mode: pressing control-C
-> doesn't send a SIGINT to programs running on the console. The incurred
-> typical pitfall is if one runs ping without a -c option... no way to
-> stop it!
->
-> This is because no session is set up by the kernel, and shells don't
-> start sessions on their own, so that no session (hence no controlling
-> tty) is set up.
->
-> The attached patch sets such session and controlling tty up, which fixes
-> the issue. The unfortunate effect is that init might be killed if one
-> presses control-C very fast after its start.
->
-> Samuel
->
+> 
+>>
+>>2. In a group based cap management system, schedule some tasks (highest 
+>>priority)
+>>  until their cap run out. In the subsequent rounds pick and choose 
+>>tasks that
+>>  did not get a chance to run earlier.
+>>
+>>Solving this is indeed a interesting problem.
+>>
+> 
+> 
+> Once again, you're over engineering and probably making the problem worse.
+> 
 
-I don't think this is the correct behavior. You can't allow some
-terminal input to affect init. It has been the de facto standard
-in Unix, that the only time one should have a controlling terminal
-is after somebody logs in and owns something to control. If you want
-a controlling terminal from your emergency shell, please exec /bin/login.
+I like this term over-engineering. Lets focus on the solution for the most
+common case and see what works out. I was pointing you to the possible
+limitations of the approach, which is always a good thing to do in engineering.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.88 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
+> Peter
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Thank you.
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

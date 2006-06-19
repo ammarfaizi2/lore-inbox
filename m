@@ -1,117 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWFSKet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWFSKff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWFSKet (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 06:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWFSKes
+	id S932354AbWFSKff (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 06:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWFSKff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 06:34:48 -0400
-Received: from 1wt.eu ([62.212.114.60]:64520 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S932266AbWFSKes (ORCPT
+	Mon, 19 Jun 2006 06:35:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19432 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932354AbWFSKfe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 06:34:48 -0400
-Date: Mon, 19 Jun 2006 12:31:14 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Grant Coady <gcoady.lk@gmail.com>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: Linux 2.4.33-rc1
-Message-ID: <20060619103114.GA3855@1wt.eu>
-References: <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <p9qc92t26fu29ib2opsg4l82lju7qmldm9@4ax.com> <20060619092426.GC3472@1wt.eu> <9huc9217opa7sd26q5it13nvos9f9gg2in@4ax.com>
-Mime-Version: 1.0
+	Mon, 19 Jun 2006 06:35:34 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9huc9217opa7sd26q5it13nvos9f9gg2in@4ax.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: "Charles P. Wright" <cwright@cs.sunysb.edu>,
+       Renzo Davoli <renzo@cs.unibo.it>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Blaisorblade <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>
+Subject: Re: [RFC PATCH 0/4] utrace: new modular infrastructure for
+  user debug/tracing
+In-Reply-To: Chuck Ebbert's message of  Thursday, 15 June 2006 18:58:16 -0400 <200606151900_MC3-1-C293-BD30@compuserve.com>
+X-Antipastobozoticataclysm: Bariumenemanilow
+Message-Id: <20060619103528.6B77D180049@magilla.sf.frob.com>
+Date: Mon, 19 Jun 2006 03:35:28 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 08:27:29PM +1000, Grant Coady wrote:
-> On Mon, 19 Jun 2006 11:24:26 +0200, Willy Tarreau <w@1wt.eu> wrote:
-> 
-> >On Mon, Jun 19, 2006 at 07:12:22PM +1000, Grant Coady wrote:
-> >> On Mon, 19 Jun 2006 10:06:51 +0200, Willy Tarreau <w@1wt.eu> wrote:
-> >> 
-> >> >Hi Grant,
-> >> >
-> >> >OK, it does *really* crash in vfs_unlink(), during the double_up on
-> >> >dentry->inode-i_zombie (dentry->inode = NULL).
-> >> >
-> >> >I suggest the following fix, I hope that it is correct and is not subject
-> >> >to any race condition :
-> >> >
-> >> >--- ./fs/namei.c.orig	2006-06-19 09:39:52.000000000 +0200
-> >> >+++ ./fs/namei.c	2006-06-19 09:51:09.000000000 +0200
-> >> >@@ -1478,12 +1478,14 @@
-> >> > int vfs_unlink(struct inode *dir, struct dentry *dentry)
-> >> > {
-> >> > 	int error;
-> >> >+	struct inode *inode;
-> >> > 
-> >> > 	error = may_delete(dir, dentry, 0);
-> >> > 	if (error)
-> >> > 		return error;
-> >> > 
-> >> >-	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
-> >> >+	inode = dentry->d_inode;
-> >> >+	double_down(&dir->i_zombie, &inode->i_zombie);
-> >> > 	error = -EPERM;
-> >> > 	if (dir->i_op && dir->i_op->unlink) {
-> >> > 		DQUOT_INIT(dir);
-> >> >@@ -1495,7 +1497,7 @@
-> >> > 			unlock_kernel();
-> >> > 		}
-> >> > 	}
-> >> >-	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
-> >> >+	double_up(&dir->i_zombie, &inode->i_zombie);
-> >> > 	if (!error) {
-> >> > 		d_delete(dentry);
-> >> > 		inode_dir_notify(dir, DN_DELETE);
-> >> >
-> >> >I think it will *not* oops anymore with this fix, but I'd like someone to
-> >> >review it to ensure that it is valid.
-> >> 
-> >> Strangely, the /etc/lilo.conf~ is as expected on a different box, 
-> >> 500MHz Celeron (Coppermine) + PATA HDD okay, whereas the Sempron 
-> >> SktA 2600+ with SATA HDD has something munch a couple chars off 
-> >> a filename during whatever vim does to make its backup file.
-> >
-> >I would not suspect the hardware. Instead, you should strace vim when it
-> >write the file :
-> >
-> >  # strace -s 1000 -o /tmp/vim.trace vim /etc/lilo.conf
-> >
-> >Grep for "lilo.co" in it, I'm fairly sure that you will find "lilo.co~".
-> 
-> stat64("/etc/lilo.conf", {st_mode=S_IFREG|0644, st_size=778, ...}) = 0
-> stat64("/etc/lilo.conf", {st_mode=S_IFREG|0644, st_size=778, ...}) = 0
-> stat64("/etc/lilo.conf", {st_mode=S_IFREG|0644, st_size=778, ...}) = 0
-> access("/etc/lilo.conf", W_OK)          = 0
-> open("/etc/lilo.conf", O_RDONLY)        = 3
-> 
-> ## munch a char:
-> stat64("/etc/lilo_con.swp", 0xbfffee8c) = -1 ENOENT (No such file or directory)
-> lstat64("/etc/lilo_con.swp", 0xbfffef0c) = -1 ENOENT (No such file or directory)
-> lstat64("/etc/lilo_con.swp", 0xbffff38c) = -1 ENOENT (No such file or directory)
-> open("/etc/lilo_con.swp", O_RDWR|O_CREAT|O_EXCL, 0600) = 4
-> 
-> ##munch another:
-> write(1, "\"/etc/lilo.conf\"", 16)      = 16
-> stat64("/etc/lilo.conf", {st_mode=S_IFREG|0644, st_size=778, ...}) = 0
-> access("/etc/lilo.conf", W_OK)          = 0
-> lstat64("/etc/lilo.conf", {st_mode=S_IFREG|0644, st_size=778, ...}) = 0
-> lstat64("/etc/lilo.conf", {st_mode=S_IFREG|0644, st_size=778, ...}) = 0
-> stat64("/etc/lilo.conf", {st_mode=S_IFREG|0644, st_size=778, ...}) = 0
-> unlink("/etc/lilo.co~")                 = 0
-> rename("/etc/lilo.conf", "/etc/lilo.co~") = 0
-> 
-> <http://bugsplatter.mine.nu/test/boxen/sempro/2.4.xx/vim.trace.gz>
-> 
-> If you want the whole trace (168k -> 26k gzipped). 
+> At least three different sets of people want to extend the syscall
+> tracing.  Jeff Dike posted a patch that lets you supply a bitmask of
+> syscalls to trace.  Renzo Davoli posted one that lets you decide, after
+> trapping entrance to a syscall, whether to skip the trap that would
+> normally be done on exit from the same call.  Charles P. Wright also
+> had a similar patch.  I think this needs to be done at the utrace
+> level -- a tracing engine couldn't add that on its own (could it?)
 
-Not needed, it really seems that your vim does name the file like this on
-purpose. I see nothing abnormal right here. So possibly the kernel bug is
-fixed (but I'd like to get some reviewer comments).
+Indeed I do think a tracing engine can and should do those things itself.
+An engine's report_syscall callback can look in a bitmap that it maintains
+itself and decide to return quickly without doing anything.  That callback
+is only a function call or two away from where a core-level check in a
+bitmap would be.  It's my expectation that the overhead of an engine
+getting a callback and bailing out quickly will not be troublesome.  (I'd
+guess the biggest slowdown might be just from taking the slow path in the
+assembly necessary to do any kind of syscall tracing.  To optimally avoid
+that would require checking the bitmap in the assembly code, and I tend to
+doubt that optimization would be worth its maintenance burden.)  If the
+overhead inherent in engines doing their own filtering proves burdensome,
+then we could add new calls to the utrace core for setting certain special
+kinds of automatic filters like a syscall bitmap.  But that is an
+optimization for later; if it proves desireable, it fits cleanly as a
+compatible extension of the current interface.
+
+The latter feature, of deciding on a syscall-entry event whether ot not to
+see the next syscall-exit event, is already easy to implement in an engine
+and about as optimally as any specialized utrace core addition might be.
+An engine's report_syscall_entry callback can store a flag that is checked
+by its report_syscall_exit callback, and that is pretty simple.  If you
+don't want to use a flag bit of your own somewhere (engine->data or a data
+structure whose pointer you store there), there is a second way that is
+pretty straightforward as well.  Each syscall-exit event is preceded by a
+syscall-entry event (except when you've just attached to a threa already in
+the middle of a syscall).  So your report_syscall_entry callback call
+utrace_set_flags every time to change the set of events of interest to
+include or exclude the syscall-exit event, knowing each new setting will
+only affect the immediate corresponding syscall exit and you'll be called
+again to decide afresh for the next syscall.
+
+> Renzo Davoli also posted a patch to allow "batching" of ptrace requests
+> and Systemptap really needs this, too.  AFAICT this can be done by writing
+> a custom engine.
+
+That's the idea.  Batching is one of several obvious parts of a decent
+user-level interface (in contrast to the whole ptrace model).  The purpose
+of the utrace layer is to make it tractable to go and write these things,
+and to experiment with many of them, small and large.
+
+> And BTW patches 1 and 2 never made it to the list.  
+
+The patches are rather large and might have been discarded by the mailing
+list software because of that.  Having noticed the 40k limit on mailed
+patches in Documentation/SubmittingPatches, perhaps I shouldn't be posting
+them directly.
+
+> The ones on your server (http://redhat.com/~roland/utrace/) don't apply
+> cleanly due to whitespace damage but that can be fixed by stripping
+> trailing whitespace from the kernel files patch(1) complains about.
+
+Sorry about that.  (You can also apply them fine with patch -l, which is
+why I managed not to notice the problem myself the first time around.)
+I've fixed the way I generate the patches, and I've verified that the new
+patches now my site do apply to 2.6.17.
+
 
 Thanks,
-Willy
-
+Roland

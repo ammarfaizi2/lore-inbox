@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWFSSoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWFSSoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWFSSoY (ORCPT <rfc822;willy@w.ods.org>);
+	id S964826AbWFSSoY (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 19 Jun 2006 14:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWFSSoF
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWFSSoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 14:44:05 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:60104 "EHLO
+	Mon, 19 Jun 2006 14:44:06 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:51415 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932534AbWFSSnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932533AbWFSSnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 19 Jun 2006 14:43:23 -0400
-Message-Id: <20060619183405.554656000@klappe.arndb.de>
+Message-Id: <20060619183405.261655000@klappe.arndb.de>
 References: <20060619183315.653672000@klappe.arndb.de>
-Date: Mon, 19 Jun 2006 20:33:26 +0200
+Date: Mon, 19 Jun 2006 20:33:24 +0200
 From: arnd@arndb.de
 To: paulus@samba.org
 Cc: linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>
-Subject: [patch 11/20] spufs: use kzalloc in create_spu
-Content-Disposition: inline; filename=spufs-kzalloc.diff
+       linux-kernel@vger.kernel.org
+Subject: [patch 09/20] spufs: add a phys-id attribute to each SPU context
+Content-Disposition: inline; filename=spufs-phys-id.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeremy Kerr <jk@ozlabs.org>
+For performance analysis, it is often interesting to know
+which physical SPE a thread is currently running on, and,
+more importantly, if it is running at all.
 
-Clean up create_spu() a little by using kzalloc instead of kmalloc +
-assignments.
+This patch adds a simple attribute to each SPU directory
+with that information.
+The attribute is read-only and called 'phys-id'. It contains
+an ascii string with the number of the physical SPU (e.g.
+"0x5"), or alternatively the string "0xffffffff" (32 bit -1)
+when it is not running at all at the time that the file
+is read.
 
-Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-
 ---
-
- arch/powerpc/platforms/cell/spu_base.c |   17 +----------------
- 1 file changed, 1 insertion(+), 16 deletions(-)
-
-Index: powerpc.git/arch/powerpc/platforms/cell/spu_base.c
+Index: powerpc.git/arch/powerpc/platforms/cell/spufs/file.c
 ===================================================================
---- powerpc.git.orig/arch/powerpc/platforms/cell/spu_base.c
-+++ powerpc.git/arch/powerpc/platforms/cell/spu_base.c
-@@ -701,7 +701,7 @@ static int __init create_spu(struct devi
- 	static int number;
+--- powerpc.git.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ powerpc.git/arch/powerpc/platforms/cell/spufs/file.c
+@@ -1328,6 +1328,22 @@ static u64 spufs_srr0_get(void *data)
+ DEFINE_SIMPLE_ATTRIBUTE(spufs_srr0_ops, spufs_srr0_get, spufs_srr0_set,
+ 			"%llx\n")
  
- 	ret = -ENOMEM;
--	spu = kmalloc(sizeof (*spu), GFP_KERNEL);
-+	spu = kzalloc(sizeof (*spu), GFP_KERNEL);
- 	if (!spu)
- 		goto out;
- 
-@@ -713,28 +713,11 @@ static int __init create_spu(struct devi
- 	spu->nid = of_node_to_nid(spe);
- 	if (spu->nid == -1)
- 		spu->nid = 0;
--
--	spu->stop_code = 0;
--	spu->slb_replace = 0;
--	spu->mm = NULL;
--	spu->ctx = NULL;
--	spu->rq = NULL;
--	spu->pid = 0;
--	spu->class_0_pending = 0;
--	spu->flags = 0UL;
--	spu->dar = 0UL;
--	spu->dsisr = 0UL;
- 	spin_lock_init(&spu->register_lock);
--
- 	spu_mfc_sdr_set(spu, mfspr(SPRN_SDR1));
- 	spu_mfc_sr1_set(spu, 0x33);
--
--	spu->ibox_callback = NULL;
--	spu->wbox_callback = NULL;
--	spu->stop_callback = NULL;
--	spu->mfc_callback = NULL;
--
- 	mutex_lock(&spu_mutex);
++static u64 spufs_id_get(void *data)
++{
++	struct spu_context *ctx = data;
++	u64 num;
 +
- 	spu->number = number++;
- 	ret = spu_request_irqs(spu);
- 	if (ret)
++	spu_acquire(ctx);
++	if (ctx->state == SPU_STATE_RUNNABLE)
++		num = ctx->spu->number;
++	else
++		num = (unsigned int)-1;
++	spu_release(ctx);
++
++	return num;
++}
++DEFINE_SIMPLE_ATTRIBUTE(spufs_id_ops, spufs_id_get, 0, "0x%llx\n")
++
+ struct tree_descr spufs_dir_contents[] = {
+ 	{ "mem",  &spufs_mem_fops,  0666, },
+ 	{ "regs", &spufs_regs_fops,  0666, },
+@@ -1351,5 +1367,6 @@ struct tree_descr spufs_dir_contents[] =
+ 	{ "spu_tag_mask", &spufs_spu_tag_mask_ops, 0666, },
+ 	{ "event_mask", &spufs_event_mask_ops, 0666, },
+ 	{ "srr0", &spufs_srr0_ops, 0666, },
++	{ "phys-id", &spufs_id_ops, 0666, },
+ 	{},
+ };
 
 --
 

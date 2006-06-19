@@ -1,86 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWFSBKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWFSBRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932346AbWFSBKU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 21:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWFSBKT
+	id S932238AbWFSBRY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 21:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWFSBRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 21:10:19 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:19614 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932344AbWFSBKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 21:10:16 -0400
-Date: Sun, 18 Jun 2006 21:10:13 -0400
-From: Brice Goglin <brice@myri.com>
-To: linux-pci@atrey.karlin.mff.cuni.cz
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 8/8] Drop pci_msi_quirk
-Message-ID: <20060619011013.GI29950@myri.com>
-References: <20060619010544.GA29950@myri.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 18 Jun 2006 21:17:24 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:30619 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932238AbWFSBRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 21:17:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZSeDkrt8XyVCtPsLEGPm3ckw5zXWDW8S5k+/Zuu2vX0BkbtE6ERiutXuIoKirdkreJM23WJ4Js8VNVFsAegJtjcji7EzfkJtVi1LaBKfJiCVLKbagBWLXWa4yMfOKFcaQR3IGJ3jcKfxujT2cTso+cnJPrHHrDVpnOX46R1uryk=
+Message-ID: <bda6d13a0606181817q2ab4e5cev670ef5c537b63e6c@mail.gmail.com>
+Date: Sun, 18 Jun 2006 18:17:22 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Remove devfs from 2.6.17
+In-Reply-To: <4495F5C3.1030203@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060619010544.GA29950@myri.com>
-User-Agent: Mutt/1.5.9i
+References: <20060618221343.GA20277@kroah.com>
+	 <20060618230041.GG4744@bouh.residence.ens-lyon.fr>
+	 <4495F5C3.1030203@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 8/8] Drop pci_msi_quirk
-
-pci_msi_quirk is not used anymore and using bus_flags should be preferred.
-Drop pci_msi_quirk completely.
-
-Signed-off-by: Brice Goglin <brice@myri.com>
----
- drivers/pci/msi.c    |    7 -------
- drivers/pci/pci.h    |    6 ------
- drivers/pci/quirks.c |    2 --
- 3 files changed, 15 deletions(-)
-
-Index: linux-mm/drivers/pci/msi.c
-===================================================================
---- linux-mm.orig/drivers/pci/msi.c	2006-06-17 23:07:43.000000000 -0400
-+++ linux-mm/drivers/pci/msi.c	2006-06-17 23:07:45.000000000 -0400
-@@ -352,13 +352,6 @@
- 	if (!status)
- 		return status;
- 
--	if (pci_msi_quirk) {
--		pci_msi_enable = 0;
--		printk(KERN_WARNING "PCI: MSI quirk detected. MSI disabled.\n");
--		status = -EINVAL;
--		return status;
--	}
--
- 	status = msi_arch_init();
- 	if (status < 0) {
- 		pci_msi_enable = 0;
-Index: linux-mm/drivers/pci/pci.h
-===================================================================
---- linux-mm.orig/drivers/pci/pci.h	2006-06-17 22:08:57.000000000 -0400
-+++ linux-mm/drivers/pci/pci.h	2006-06-17 23:07:45.000000000 -0400
-@@ -42,12 +42,6 @@
- /* Lock for read/write access to pci device and bus lists */
- extern struct rw_semaphore pci_bus_sem;
- 
--#ifdef CONFIG_X86_IO_APIC
--extern int pci_msi_quirk;
--#else
--#define pci_msi_quirk 0
--#endif
--
- #ifdef CONFIG_PCI_MSI
- void disable_msi_mode(struct pci_dev *dev, int pos, int type);
- void pci_no_msi(void);
-Index: linux-mm/drivers/pci/quirks.c
-===================================================================
---- linux-mm.orig/drivers/pci/quirks.c	2006-06-17 23:07:44.000000000 -0400
-+++ linux-mm/drivers/pci/quirks.c	2006-06-17 23:07:45.000000000 -0400
-@@ -576,8 +576,6 @@
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_SI,	PCI_ANY_ID,			quirk_ioapic_rmw );
- 
--int pci_msi_quirk;
--
- #define AMD8131_revA0        0x01
- #define AMD8131_revB0        0x11
- #define AMD8131_MISC         0x40
+With udev, you could mknod it yourself (in your application), then open it.
+That would fire up the auto-module-load.

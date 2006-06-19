@@ -1,74 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWFRX5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWFSAFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWFRX5t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 19:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWFRX5t
+	id S1750762AbWFSAFW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 20:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWFSAFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 19:57:49 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30685 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750756AbWFRX5s (ORCPT
+	Sun, 18 Jun 2006 20:05:22 -0400
+Received: from iucha.net ([209.98.146.184]:29880 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S1750762AbWFSAFV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 19:57:48 -0400
-Date: Mon, 19 Jun 2006 09:56:54 +1000
-From: David Chinner <dgc@sgi.com>
-To: Neil Brown <neilb@suse.de>
-Cc: Jan Blunck <jblunck@suse.de>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       dgc@sgi.com, balbir@in.ibm.com
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
-Message-ID: <20060618235654.GB2114946@melbourne.sgi.com>
-References: <20060601095125.773684000@hasse.suse.de> <17539.35118.103025.716435@cse.unsw.edu.au> <20060616155120.GA6824@hasse.suse.de> <17555.12234.347353.670918@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 18 Jun 2006 20:05:21 -0400
+Date: Sun, 18 Jun 2006 19:05:20 -0500
+To: linux-usb-users@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Microsoft Wireless 6000 Mouse/Keyboard
+Message-ID: <20060619000520.GR7905@iucha.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mX5f3I2XfUAeTwiv"
 Content-Disposition: inline
-In-Reply-To: <17555.12234.347353.670918@cse.unsw.edu.au>
-User-Agent: Mutt/1.4.2.1i
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 5E59 C2E7 941E B592 3BA4  7DCF 343D 2B14 2376 6F5B
+User-Agent: Mutt/1.5.11+cvs20060403
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 17, 2006 at 08:25:14AM +1000, Neil Brown wrote:
-> On Friday June 16, jblunck@suse.de wrote:
-> > On Mon, Jun 05, Neil Brown wrote:
-> > 
-> > > I understand that this is where problem is because the selected
-> > > dentries don't stay at the end of the list very long in some
-> > > circumstances. In particular, other filesystems' dentries get mixed
-> > > in. 
-> > 
-> > No. The problem is that the LRU list is too long and therefore unmounting
-> > seems to take ages.
-> > 
-> 
-> But I cannot see that the whole LRU list needs to be scanned during
-> unmount.
 
-...
+--mX5f3I2XfUAeTwiv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I can see that shrink_dcache_sb could take a long time and should be
-> fixed, which should be as simple as replacing it with
-> shrink_dcache_parent; shrink_dcache_anon.
+Is the Microsoft Wireless Desktop 6000 supported under Linux? I am
+plugging the dongle into the motherboard port and under Linux 2.6.17 I
+cannot see it, but get the following error messages in the log:
 
-But these are not guaranteed to reclaim all the dentries from a given
-superblock. Yes, they move the dentries to the LRU, but other activity in the
-system means that they may not get reclaimed during the subsequent calls
-to prune_dcache() and hence they may live beyond the unmount....
+[  149.386325] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 6
+[  149.469949] usb 2-7: device descriptor read/64, error -110
+[  149.600844] usb 2-7: device descriptor read/64, error -110
+[  149.728097] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 7
+[  149.811719] usb 2-7: device descriptor read/64, error -110
+[  149.942610] usb 2-7: device descriptor read/64, error -110
+[  150.069866] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 8
+[  150.258930] usb 2-7: device not accepting address 8, error -110
+[  150.338920] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 9
+[  150.527982] usb 2-7: device not accepting address 9, error -110
+[  275.993109] usb 2-8: new low speed USB device using ohci_hcd and address=
+ 10
+[  276.076735] usb 2-8: device descriptor read/64, error -110
+[  276.207624] usb 2-8: device descriptor read/64, error -110
+[  276.334880] usb 2-8: new low speed USB device using ohci_hcd and address=
+ 11
+[  276.418503] usb 2-8: device descriptor read/64, error -110
+[  276.549394] usb 2-8: device descriptor read/64, error -110
+[  276.676650] usb 2-8: new low speed USB device using ohci_hcd and address=
+ 12
+[  276.862082] usb 2-8: device not accepting address 12, error -110
+[  276.942069] usb 2-8: new low speed USB device using ohci_hcd and address=
+ 13
+[  277.127496] usb 2-8: device not accepting address 13, error -110
+[  373.348645] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 14
+[  373.534074] usb 2-7: device not accepting address 14, error -110
+[  373.614062] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 15
+[  373.799490] usb 2-7: device not accepting address 15, error -110
+[  373.879484] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 16
+[  373.961286] usb 2-7: device descriptor read/64, error -110
+[  374.090359] usb 2-7: device descriptor read/64, error -110
+[  374.217615] usb 2-7: new low speed USB device using ohci_hcd and address=
+ 17
+[  374.299421] usb 2-7: device descriptor read/64, error -110
+[  374.428495] usb 2-7: device descriptor read/64, error -110
 
-> But I'm still puzzled as to why a long dcache LRU slows down
-> unmounting. 
-> 
-> Can you give more details?
+This is on a Asus A8N-SLI motheboard using Nforce4 chipset. I have plugged =
+it
+into a Laptop using the Intel BX chipset, but I wasn't getting even these
+errors. Nothing at all.
 
-It's not the unmount that slows down - it's the fact that the dcache lock
-is held for so long that rest of the system halts for time it takes
-to run shrink_dcache_sb(). We've seen up to 50s to do a (touch fred; rm fred)
-when the LRU has grown to several million dentries and shrink_dcache_sb()
-is running. When this happens, it's not uncommon to see every CPU in the
-machine spinning on the dcache_lock...
+The OS is debian testing/unstable . Is there anything I can do to help debug
+this problem?
 
-Cheers,
+Thank you,
+florin
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+--=20
+If we wish to count lines of code, we should not regard them as lines
+produced but as lines spent.                       -- Edsger Dijkstra
+
+--mX5f3I2XfUAeTwiv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFElepAND0rFCN2b1sRApZdAJ9LtD/+KlyRAOVPVVqi/nYFYbh6rwCgqPMZ
+MOxmYxVe/e2NOJOCjjHDYGY=
+=lyf0
+-----END PGP SIGNATURE-----
+
+--mX5f3I2XfUAeTwiv--

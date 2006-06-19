@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWFSNsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWFSNzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWFSNsL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 09:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWFSNsL
+	id S932211AbWFSNzA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 09:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWFSNzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 09:48:11 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:10917 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932424AbWFSNsK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 09:48:10 -0400
-Date: Mon, 19 Jun 2006 15:47:45 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@timesys.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCHSET] Announce: High-res timers, tickless/dyntick and
- dynamic HZ
-In-Reply-To: <20060619125018.GA20549@elte.hu>
-Message-ID: <Pine.LNX.4.64.0606191510140.12900@scrub.home>
-References: <1150643426.27073.17.camel@localhost.localdomain>
- <Pine.LNX.4.64.0606190144560.17704@scrub.home> <20060619125018.GA20549@elte.hu>
+	Mon, 19 Jun 2006 09:55:00 -0400
+Received: from dew1.atmos.washington.edu ([128.95.89.41]:21717 "EHLO
+	dew1.atmos.washington.edu") by vger.kernel.org with ESMTP
+	id S932211AbWFSNy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 09:54:59 -0400
+Message-ID: <4496ACA6.7090305@atmos.washington.edu>
+Date: Mon, 19 Jun 2006 06:54:46 -0700
+From: Harry Edmon <harry@atmos.washington.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+References: <4492D5D3.4000303@atmos.washington.edu>	<20060617153511.53a129a3.akpm@osdl.org>	<44948EF6.1060201@atmos.washington.edu> <20060617165611.2c478723.akpm@osdl.org> <4494C592.6090601@osdl.org>
+In-Reply-To: <4494C592.6090601@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.599 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Stephen Hemminger wrote:
 
-On Mon, 19 Jun 2006, Ingo Molnar wrote:
+> Does this fix it?
+>    # sysctl -w net.ipv4.tcp_abc=0
 
-> > > Bugreports and suggestions are welcome,
-> > 
-> > Could you please document the patches? I know it sucks compared to 
-> > hacking, but it would make a review a lot simpler.
-> 
-> yeah, we'll add some description to the patches themselves, but 
+That did not help.  I have 1 minute outputs from tcpdump under both 2.6.11.12 
+and 2.6.16.20.  You will see a large size difference between the files.  Since 
+the 2.6.11.12 one is 2 MBytes, I thought I would post them via the web instead 
+of via attachments.   Look at:
 
-The problem is this is not the first time I mentioned this and some 
-patches still have no descriptions at all! :-(
+http://www.atmos.washington.edu/~harry/linux/2.6.11.12.out.1min
+http://www.atmos.washington.edu/~harry/linux/2.6.16.20.out.1min
 
-> otherwise i'm afraid it will be like with almost all patch submissions 
-> on lkml: 99% of the details are in the code and people have to ask 
-> specifically if one area or another is unclear :-|
+And again, thank to all of you for looking into this.
 
-For a lot of things this acceptable, but if patches (e.g. clockevents) add 
-new generic infrastructure which effect all archs, they need 
-documentation (unless you also provide all the arch specific changes).
-
-> Meanwhile the patch names should provide you with some initial info 
-> (also, we reuse GTOD which is documented in -mm) and the splitup is 
-> pretty clean too - but in any case please feel free to ask pointed 
-> questions! (we happily accept documentation patches as well.)
-
-I can't do this without documentation. Without any information I'm only 
-wondering why it has to be this complex.
-For example clockevents, I think all the special event handlers are 
-overkill, a simple list would do just fine. This way it may also possible 
-to treat a clock as virtual interrupt source and we could share code with 
-interrupt code and a callback can simply be requested via request_irq().
-More information about what this code actually intends to do and what it 
-is required to do, would help a great deal to judge alternative solutions, 
-but only the author of this code can really provide this information and 
-IMO it's really sad that this information is still lacking after being 
-requested multiple times.
-
-bye, Roman
+-- 
+  Dr. Harry Edmon			E-MAIL: harry@atmos.washington.edu
+  206-543-0547				harry@u.washington.edu
+  Dept of Atmospheric Sciences		FAX:	206-543-0308
+  University of Washington, Box 351640, Seattle, WA 98195-1640

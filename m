@@ -1,99 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWFSUX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWFSUYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbWFSUX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 16:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWFSUX7
+	id S1750856AbWFSUYE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 16:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWFSUYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 16:23:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45021 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750856AbWFSUX6 (ORCPT
+	Mon, 19 Jun 2006 16:24:03 -0400
+Received: from 1wt.eu ([62.212.114.60]:9 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S1750856AbWFSUYC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 16:23:58 -0400
-Date: Mon, 19 Jun 2006 16:23:54 -0400
-From: Dave Jones <davej@redhat.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
-Message-ID: <20060619202354.GD26759@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-	linux-kernel@vger.kernel.org
-References: <20060619191543.GA17187@rhlx01.fht-esslingen.de> <Pine.LNX.4.61.0606191542050.4926@chaos.analogic.com>
+	Mon, 19 Jun 2006 16:24:02 -0400
+Date: Mon, 19 Jun 2006 22:20:04 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Linux 2.4.33-rc1
+Message-ID: <20060619202004.GA5822@1wt.eu>
+References: <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <p9qc92t26fu29ib2opsg4l82lju7qmldm9@4ax.com> <20060619092426.GC3472@1wt.eu> <9huc9217opa7sd26q5it13nvos9f9gg2in@4ax.com> <20060619103114.GA3855@1wt.eu> <an0e92h8q32cffd1rcja48fn05j5su4lhd@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0606191542050.4926@chaos.analogic.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <an0e92h8q32cffd1rcja48fn05j5su4lhd@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 04:00:06PM -0400, linux-os (Dick Johnson) wrote:
+On Tue, Jun 20, 2006 at 06:11:25AM +1000, Grant Coady wrote:
+> On Mon, 19 Jun 2006 12:31:14 +0200, Willy Tarreau <w@1wt.eu> wrote:
+> 
+> >Not needed, it really seems that your vim does name the file like this on
+> >purpose. I see nothing abnormal right here.
+> 
+> So testing -rc1 has munched the filesystem, I'll need to reinstall :(
 
- > > arch/i386/kernel/doublefault.c/doublefault_fn():
- > >
- > >        for (;;) /* nothing */;
- > > }
- > >
- > > Let's assume that we have a less than moderate fan failure that causes
- > > the CPU to heat up beyond the critical limit...
- > > That might result in - you guessed it - crashes or doublefaults.
- > > In which case we enter the corresponding handler and do... what?
- > 
- > The double-fault is just a place-holder. The CPU will actually
- > reset without even executing this (try it).
+Boot from a CD and force a full e2fsck. It is very smart and will do a very
+good job. At most, you'll get new friends in /lost+found. But do not reinstall
+for this !
 
-Wrong.
+> Thanks,
+> Grant.
 
-Why do you think we go to the bother of installing a double fault handler if
-we're going to reset? Why would we go to the bother of printk'ing
-information about the double fault if we're about to reset faster than
-it would get to a serial console ?
+Regards,
+willy
 
-The box intentionally locks up, so we have a chance to know wtf happened.
-
- > A CPU without a fan will go into
- > a cold, cold, shutdown, requiring a hardware reset to get it out of
- > that latched, no internal clock running, mode.
-
-Wrong.
-
- > Try it. I have had
- > broken plastic heat-sink hold-downs let the entire heat-sink fall off
- > the CPU. The machine just stops.
-
-Your single datapoint is just that, a single datapoint.
-There are a number of reported cases of CPUs frying themselves.
-Here's one: http://www.tomshardware.com/2001/09/17/hot_spot/page4.html
-Google no doubt has more.
-
-Another anecdote: Upon fan failure, I once had an athlon MP *completely shatter*
-(as in broke in two pieces) under extreme heat.
-
-This _does_ happen.
-
- > Also, the CPU was only warm to the touch, having been completely shut down for the
- > several minutes it took to locate tools to remove the cover, even
- > though I deliberately left the power ON.
-
-So you got lucky. I've blistered a thumb on hot CPUs before now
-after fan failure.
-
- > In the first place, when the Intel and AMD CPUs overheat, they
- > shut down. 
-
-Reality disagrees with you.
-
- > For sure, it might be nicer to have some call-and-never-return
- > function for waiting with the rep-nop code, but it isn't necessary
- > for CPU protection.
-
-cpu_relax() and friends aren't going to save a box in light of
-a fan failure in my experience.  
-However for a box which has locked up (intentionally)
-running instructions that do save power in a loop has obvious advantages.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk

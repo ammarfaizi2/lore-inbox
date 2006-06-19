@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWFSBFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWFSBG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWFSBFv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 21:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWFSBFv
+	id S932161AbWFSBG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 21:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWFSBG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 21:05:51 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:64669 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932161AbWFSBFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 21:05:50 -0400
-Date: Sun, 18 Jun 2006 21:05:45 -0400
-From: Brice Goglin <brice@myri.com>
-To: linux-pci@atrey.karlin.mff.cuni.cz
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/8] Improve MSI detection v2
-Message-ID: <20060619010544.GA29950@myri.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 18 Jun 2006 21:06:59 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:38248 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932161AbWFSBG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 21:06:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=lvjeVJq2sP6MdFVkNZtz0+KtChlYjXxfHhJs8BjwsQdy9NNxeDtlAAVJ3JpRVwEz9iPMc3O8U7R3Ze1DZg1nKsWPvQTOSKuLGjn0FHgh8GHu8Sr7jX/KRekSEAH2vj4Ixq7ZTKv4oEBvyqWEt7CqupidRDo/A5j1hm7yUN9JhE0=
+Message-ID: <4495F8B1.7020304@gmail.com>
+Date: Mon, 19 Jun 2006 03:06:57 +0200
+From: Wojciech Moczulski <wmoczulski@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Suspending and resuming a single task
+References: <4495F344.8080705@gmail.com> <E1Fs7vj-0003Rm-00@chiark.greenend.org.uk>
+In-Reply-To: <E1Fs7vj-0003Rm-00@chiark.greenend.org.uk>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 0/8] Improve MSI detection v2
+Matthew Garrett napisa³(a):
+> http://cryopid.berlios.de/ ?
 
-After my proposal to whitelist chipsets supporting MSI a couple days ago,
-here's a patchset implementing what seemed to better suit what people replied.
-We enable MSI by default on PCI-E and disable on non-PCI-E chipsets.
+OK, and if I want to parse the path to a file, where process state is saved,
+to the kernel and let the kernel module restart the process? Is it possible to
+do it this way (without building self-executable binary)?
 
-#1 - Rename PCI_CAP_ID_HT_IRQCONF to PCI_CAP_ID_HT
-#2 - Factorize common MSI detection code from pci_enable_msi() and msix()
-#3 - Blacklist PCI-E chipsets depending on Hypertransport MSI capabality
-#4 - Stop inheriting bus flags and check root chipset bus flags instead
-#5 - Whitelist Intel PCI chipsets that are known to support MSI
-#6 - Disable MSI by default on non PCI-E chipsets
-#7 - Drop existing quirks that disable MSI on some non PCI-E chipsets
-#8 - Drop pci_msi_quirk
+Regards,
+Wojciech
 
-#1 to #4 are simple and could make it to 2.6.18 easily.
-#6 might need the list of whitelisted chipsets to be improved to avoid
-regressions (nVidia chipsets for Intel processors?).
-#5 is useless without #6.
-#7 and #8 are mainly cosmetic (remove obsolete stuff when the new model
-is in place).
-
-These patches are against 2.6.17-rc6-mm2.
-
-I did not keep the option "pci=forcemsi" since it makes less sense than
-in my previous RFC. But I'd be happy to reimplement it, or even something
-at the device granularity.
-
-Brice Goglin

@@ -1,124 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWFSIgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWFSIiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWFSIgv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 04:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWFSIgu
+	id S1750783AbWFSIiX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 04:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWFSIiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 04:36:50 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:47341 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751211AbWFSIgu
+	Mon, 19 Jun 2006 04:38:22 -0400
+Received: from mail-gw2.sa.eol.hu ([212.108.200.109]:12507 "EHLO
+	mail-gw2.sa.eol.hu") by vger.kernel.org with ESMTP id S1751091AbWFSIiV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 04:36:50 -0400
-Message-ID: <4496608D.6000502@in.ibm.com>
-Date: Mon, 19 Jun 2006 14:00:05 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Peter Williams <peterw@aurema.com>, Andrew Morton <akpm@osdl.org>,
-       dev@openvz.org, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, bsingharora@gmail.com, efault@gmx.de,
-       kernel@kolivas.org, sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
-       rene.herman@keyaccess.nl
-Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
-References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com> <44961758.6070305@bigpond.net.au> <44961A77.800@in.ibm.com> <44961EFC.8080809@bigpond.net.au>
-In-Reply-To: <44961EFC.8080809@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 04:38:21 -0400
+To: jesper.juhl@gmail.com
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <9a8748490606190121u3c76c6bbif707835ec7e5873c@mail.gmail.com>
+	(jesper.juhl@gmail.com)
+Subject: Re: [PATCH 4/7] fuse: add POSIX file locking support
+References: <E1FplQT-0005yf-00@dorka.pomaz.szeredi.hu>
+	 <E1FplXk-00062M-00@dorka.pomaz.szeredi.hu> <9a8748490606190121u3c76c6bbif707835ec7e5873c@mail.gmail.com>
+Message-Id: <E1FsFGX-0002Pp-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 19 Jun 2006 10:37:49 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Balbir Singh wrote:
-> 
->> Peter Williams wrote:
->>
->>> Balbir Singh wrote:
->>>
->>>> Peter Williams wrote:
->>>>
->>
->> <snip>
->>
->>>> Is it possible that the effective tasks
->>>> is greater than the limit of the group?
->>>
->>>
->>>
->>> Yes.
->>>
->>>> How do we handle this scenario?
->>>
->>>
->>>
->>> You've got the problem back to front.  If the number of effective 
->>> tasks is less than the group limit then you have the situation that 
->>> needs special handling (not the other way around).  I.e. if the 
->>> number of effective tasks is less than the group limit then (strictly 
->>> speaking) there's no need to do any capping at all as the demand is 
->>> less than the limit.  However, in the case where the group limit is 
->>> less than one CPU (i.e. less than 1000) the recommended thing to do 
->>> would be set the limit of each task in the group to the group limit.
->>>
->>> Obviously, group limits can be greater than one CPU (i.e. 1000).
->>>
->>> The number of CPUs on the system also needs to be taken into account 
->>> for group capping as if the group cap is greater than the number of 
->>> CPUs there's no way it can be exceeded and tasks in this group would 
->>> not need any processing.
->>>
->>
->> What if we have a group limit of 100 (out of 1000) and 150 effective 
->> tasks in
->> the group? How do you calculate the cap of each task?
-> 
-> 
-> Personally I'd round up to 1 :-) but rounding down to zero is also an 
-> option.  The reason I'd opt for 1 is that a zero cap has a special 
-> meaning i.e. background.
-> 
->> I hope my understanding of effective tasks is correct.
-> 
-> 
-> Yes, but I think that you fail to realize that this problem (a lower 
-> limit to what caps can be enforced) exists for any mechanism due to the 
-> fact we're stuck with discrete mathematics in computers.  This includes 
-> floating point representations of numbers which are just crude (discrete 
-> maths) approximations of real numbers.
+> How about; on fuse startup, pick some semirandom number, store it
+> somewhere, then do an XOR of the pointer with the saved value to
+> scramble it, when you need to use it, simply XOR it again with the
+> stored value...  Not especially strong, but better than nothing and
+> better than just adding a constant that people can find out from the
+> source
 
-I do appreciate and realize the problem, thats why I asked the question.
+I think Andrew was suggesting a random key for the ADD function.
 
-There are some ways of solving this problem (that I could think about)
+> (and the scramble value would be differene each time fuse loads, so
+> at a minimum a different scramble key every boot) - also, XOR is a
+> quite fast operation so overhead should be low.
 
-1. Keep a whole number and fraction pair and increment the fraction until
-   it reaches a whole number and then schedule the task when the whole
-   number value reaches a minimal threshold. Or provide tasks with some
-   minimal whole number ticks in advance and then do not schedule them
-   again till their fractions add up to the whole number (credit system).
+I think XOR might be even weaker than ADD, because from gessing the
+difference between two values (easy) you might be able to guess the
+bits of the key.
 
-   For example if T1 and T2 have a cap of 0.5%. Then represent the values
-   as whole number zero and fraction represented as 1 and divisor as 2.
+I'm actually looking for something stronger than XOR or ADD, but it's
+all a bit academical I think, because even if userspace knows these
+kernel pointers it can't really use them for any malicious purpose.
 
-   Every two ticks their whole number would become 1 and fraction 0, divisor 2.
-   Schedule the tasks for a tick whenever its whole number becomes 1
-   and reset then its whole number to 0.
-
-
-2. In a group based cap management system, schedule some tasks (highest priority)
-   until their cap run out. In the subsequent rounds pick and choose tasks that
-   did not get a chance to run earlier.
-
-Solving this is indeed a interesting problem.
-
-> 
-> Peter
-
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Miklos

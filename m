@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWFSGfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWFSGl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWFSGfn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 02:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWFSGfm
+	id S1751102AbWFSGl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 02:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWFSGl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 02:35:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39380 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750948AbWFSGfm (ORCPT
+	Mon, 19 Jun 2006 02:41:58 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:12559 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S1751006AbWFSGl5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 02:35:42 -0400
-Date: Sun, 18 Jun 2006 23:35:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: nickpiggin@yahoo.com.au, sam@vilain.net, vatsa@in.ibm.com, dev@openvz.org,
-       mingo@elte.hu, pwil3058@bigpond.net.au, sekharan@us.ibm.com,
-       balbir@in.ibm.com, linux-kernel@vger.kernel.org,
-       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp
-Subject: Re: [RFC] CPU controllers?
-Message-Id: <20060618233522.c2690983.akpm@osdl.org>
-In-Reply-To: <1150698525.4659.8.camel@Homer.TheSimpsons.net>
-References: <20060615134632.GA22033@in.ibm.com>
-	<4493C1D1.4020801@yahoo.com.au>
-	<20060617164812.GB4643@in.ibm.com>
-	<4494DF50.2070509@yahoo.com.au>
-	<4494EA66.8030305@vilain.net>
-	<4494EE86.7090209@yahoo.com.au>
-	<20060617234259.dc34a20c.akpm@osdl.org>
-	<1150616176.7985.50.camel@Homer.TheSimpsons.net>
-	<20060618020932.5947a7dc.akpm@osdl.org>
-	<1150624169.9324.12.camel@Homer.TheSimpsons.net>
-	<1150698525.4659.8.camel@Homer.TheSimpsons.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 19 Jun 2006 02:41:57 -0400
+Date: Mon, 19 Jun 2006 10:47:21 +0400
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/5]: ufs: missed brelse and wrong baseblk
+Message-ID: <20060619064721.GA6106@rain.homenetwork>
+Mail-Followup-To: Al Viro <viro@ftp.linux.org.uk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+References: <20060617101403.GA22098@rain.homenetwork> <20060618162054.GW27946@ftp.linux.org.uk> <20060618175045.GX27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060618175045.GX27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 08:28:45 +0200
-Mike Galbraith <efault@gmx.de> wrote:
+On Sun, Jun 18, 2006 at 06:50:45PM +0100, Al Viro wrote:
+> 	* block may be bigger than page.  That can cause all sorts of fun
+> problems in interaction with our VM, since allocation can affect more than
+> one page and that has to be taken into account.
 
-> This is kinda OT for this thread, but here's another example of where
-> the IO can easily foil CPU distribution plans.  I wonder how many folks
-> get nailed by /proc being mounted without noatime,nodiratime like I just
-> apparently did.
-> 
-> top           D E29B4928     0 10174   8510                     (NOTLB)
->        d2f63c4c 00100100 00200200 e29b4928 ea07f3c0 f1510c40 000f6e66 d2f63000 
->        d2f63000 ed88c550 f1510c40 000f6e66 d2f63000 d2f63000 ed062220 ed88c550 
->        d2f63c70 b139a97b ed062224 efef8df8 ed062224 ed88c550 d2f63000 0000385a 
-> Call Trace:
->  [<b139a97b>] __mutex_lock_slowpath+0x59/0xb0
->  [<b139a9d7>] .text.lock.mutex+0x5/0x14
->  [<b10bb24f>] __log_wait_for_space+0x53/0xb4
->  [<b10b67b4>] start_this_handle+0x100/0x617
->  [<b10b6d86>] journal_start+0xbb/0xe0
->  [<b10ae10e>] ext3_journal_start_sb+0x29/0x4a
->  [<b10a8d9f>] ext3_dirty_inode+0x2a/0xaf
->  [<b1080171>] __mark_inode_dirty+0x2a/0x19e
->  [<b107784a>] touch_atime+0x79/0x9f
->  [<b103fda5>] do_generic_mapping_read+0x370/0x480
->  [<b1040747>] __generic_file_aio_read+0xf0/0x205
->  [<b1040896>] generic_file_aio_read+0x3a/0x46
->  [<b105d919>] do_sync_read+0xbb/0xf1
->  [<b105e2c1>] vfs_read+0xa4/0x166
->  [<b105e6c1>] sys_read+0x3d/0x64
->  [<b1002e1b>] syscall_call+0x7/0xb
+In fact this is not a problem. Blocks in terms of linux VFS
+is fragments in terms of UFS. 
+And if fragment >4096 we just don't mount such file system.
 
-Confused.  What has this to do with /proc?
+So we can easily support 32K blocks.
+
+-- 
+/Evgeniy
+

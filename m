@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWFSTDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWFSTGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWFSTDp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 15:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWFSTDp
+	id S932368AbWFSTGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 15:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWFSTGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 15:03:45 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:7565 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964857AbWFSTDo (ORCPT
+	Mon, 19 Jun 2006 15:06:08 -0400
+Received: from thunk.org ([69.25.196.29]:1710 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S964857AbWFSTGH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 15:03:44 -0400
-Subject: Resource Management Requirements (was "[RFC] CPU controllers?")
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, sam@vilain.net, vatsa@in.ibm.com,
-       dev@openvz.org, efault@gmx.de, mingo@elte.hu, pwil3058@bigpond.net.au,
-       balbir@in.ibm.com, linux-kernel@vger.kernel.org,
-       maeda.naoaki@jp.fujitsu.com, kurosawa@valinux.co.jp,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <4495009D.9030505@yahoo.com.au>
-References: <20060615134632.GA22033@in.ibm.com>
-	 <4493C1D1.4020801@yahoo.com.au>	<20060617164812.GB4643@in.ibm.com>
-	 <4494DF50.2070509@yahoo.com.au>	<4494EA66.8030305@vilain.net>
-	 <4494EE86.7090209@yahoo.com.au> <20060617234259.dc34a20c.akpm@osdl.org>
-	 <4495009D.9030505@yahoo.com.au>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 19 Jun 2006 12:03:23 -0700
-Message-Id: <1150743803.30013.37.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 15:06:07 -0400
+Date: Mon, 19 Jun 2006 15:06:10 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 2/8] inode-diet: Move i_pipe into a union
+Message-ID: <20060619190610.GH15216@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org
+References: <20060619152003.830437000@candygram.thunk.org> <20060619153108.720582000@candygram.thunk.org> <Pine.LNX.4.61.0606191918310.23792@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0606191918310.23792@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-06-18 at 17:28 +1000, Nick Piggin wrote:
+On Mon, Jun 19, 2006 at 07:19:26PM +0200, Jan Engelhardt wrote:
+> 
+> >Move the i_pipe pointer into a union that will be shared with i_bdev
+> >and i_cdev.
+> 
+> >+	union {
+> >+		struct pipe_inode_info	*i_pipe;
+> >+	};
+> 
+> Since in the next patch you did
+> 
+> -       if (inode->i_bdev)
+> +       if (S_ISBLK(inode->i_mode) && inode->i_bdev)
+> 
+> I am just asking, for clarity, if there were any similar lines for 
+> pipes that should now read S_IFIFO(inode->i_mode) too, like for bdevs.
 
-> OK... let me put it more clearly. What are the requirements?
-Nick,
+Nope, I didn't see any, and I did audit all of the places that used
+i_pipe.  At least in the mainline kernel, all of the places which used
+i_pipe were in places were we knew already that we were dealing with a
+pipe.  
 
-Here are some requirements we(Resource Groups aka CKRM) are working
-towards (Note that this is not limited to CPU alone):
+As was mentioned in earlier comment, this will be problematic for the
+out-of-tree System V Streams code, which hijacks i_pipe as another
+place to store 4 bytes of random data needed for the Streams code (I
+believe they needed a pointer to the stream head -- the v_str pointer
+in a legacy Unix system's inode).  But, that is an out-of-tree kernel
+module, and it's a clear abuse of the i_pipe element in any case.
 
-In a enterprise environment:
- - Ability to group applications into their importance levels and assign
-   appropriate amount of resources to them.
- - In case of server consolidation, ability to allocate and control
-   resources to a specific group of applications. Ability to 
-   account/charge according to their usages.
- - manage multiple departments in a single OS instance with ability to
-   allocate and control resources department wise (similar to above
-   requirement :)
- - ability to guarantee "time to complete" for a specific user
-   request (by controlling resource usage starting from the web server
-   to the database server).
- - In case of ISPs and ASPs, ability to guarantee/limit usages to 
-   independent clients (in a single OS instance). 
- - Ability to control runaway processes from bringing down the system 
-   response (DoS attacks, fork bombs etc.,)
-  
-In a university environment (can be treated as a subset of enterprise
-requirements above):
- - Ability to limit resource consumption at individual user level.
- - Ability to control runaway processes.
- - Ability for a user to manage resources allocated to them (as 
-   explained in the desktop environment below). 
-
-In a desktop environment:
- - Ability to control resource usage of a set of applications 
-   (ex: infamous updatedb issue).
- - Ability to run different loads and get the expected result (like 
-   checking emails or browsing Internet while compilation is in 
-   progress) 
-
-Generic:
-Provide these resource management capabilities with less overhead on
-overall system performance.
-
-regards,
-
-chandra
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+							- Ted

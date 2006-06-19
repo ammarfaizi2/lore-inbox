@@ -1,33 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWFSLdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWFSLfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWFSLdj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 07:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWFSLdj
+	id S932356AbWFSLfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 07:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWFSLfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 07:33:39 -0400
-Received: from mail-gw2.sa.eol.hu ([212.108.200.109]:63398 "EHLO
-	mail-gw2.sa.eol.hu") by vger.kernel.org with ESMTP id S932352AbWFSLdi
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 07:33:38 -0400
-To: reiser@namesys.com
-CC: nix@esperi.org.uk, akpm@osdl.org, vs@namesys.com, hch@infradead.org,
-       Reiserfs-Dev@namesys.com, Linux-Kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <449668D1.1050200@namesys.com> (message from Hans Reiser on Mon,
-	19 Jun 2006 02:05:21 -0700)
-Subject: Re: batched write
-References: <44736D3E.8090808@namesys.com> <20060524175312.GA3579@zero>	<44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de>	<1149766000.6336.29.camel@tribesman.namesys.com>	<20060608121006.GA8474@infradead.org>	<1150322912.6322.129.camel@tribesman.namesys.com>	<20060617100458.0be18073.akpm@osdl.org> <4494411B.4010706@namesys.com> <87ac8an21r.fsf@hades.wkstn.nix> <449668D1.1050200@namesys.com>
-Message-Id: <E1FsHzf-0004ES-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 19 Jun 2006 13:32:35 +0200
+	Mon, 19 Jun 2006 07:35:11 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:47523 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932356AbWFSLfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 07:35:10 -0400
+Date: Mon, 19 Jun 2006 13:34:59 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Vivek Goyal <vgoyal@in.ibm.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 16/16] 64bit Resource: finally enable 64bit resource
+ sizes
+In-Reply-To: <Pine.LNX.4.62.0606191308110.10350@pademelon.sonytel.be>
+Message-ID: <Pine.LNX.4.64.0606191330080.17704@scrub.home>
+References: <11501587303683-git-send-email-greg@kroah.com>
+ <11501587343689-git-send-email-greg@kroah.com>
+ <Pine.LNX.4.62.0606141417430.1886@pademelon.sonytel.be> <20060614233507.GA23629@kroah.com>
+ <20060615042806.GC8587@in.ibm.com> <Pine.LNX.4.62.0606151345420.21517@pademelon.sonytel.be>
+ <20060615155643.GB8706@in.ibm.com> <20060616013543.GB2566@kroah.com>
+ <20060616201605.GA27462@in.ibm.com> <Pine.LNX.4.62.0606171633190.24519@pademelon.sonytel.be>
+ <20060618180547.GA14049@in.ibm.com> <Pine.LNX.4.62.0606191003230.6499@pademelon.sonytel.be>
+ <Pine.LNX.4.64.0606191214320.12900@scrub.home>
+ <Pine.LNX.4.62.0606191308110.10350@pademelon.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Forgive myn utter ignorance of fuse, but does it currently context
-> switch to user space for every 4k written through VFS?
+Hi,
 
-Yes, unfortunately it does, so fuse would benefit from batched writing
-as well, with some constraint on the number of locked pages to avoid
-DoS against the page cache.
+On Mon, 19 Jun 2006, Geert Uytterhoeven wrote:
 
-Miklos
+> > config RESOURCES_64BIT
+> > 	bool "64 bit Memory and IO resources (EXPERIMENTAL)" if !64BIT && EXPERIMENTAL
+> > 	default 64BIT
+>                ^
+> Missing `y if'?
+
+Not really. :)
+
+A default accepts normal expressions for boolean/tristate. Most of the 
+time an if is not needed for a default, it only really makes a difference 
+if you have multiple defaults, where the condition controls which one is 
+active.
+
+bye, Roman

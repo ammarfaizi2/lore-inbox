@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWFSKg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWFSKis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWFSKg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 06:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWFSKg5
+	id S932372AbWFSKis (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 06:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWFSKis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 06:36:57 -0400
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:11915 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932369AbWFSKg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 06:36:56 -0400
-Date: Mon, 19 Jun 2006 06:31:46 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Possible spinlock recursion in search_module_extables() ?
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200606190635_MC3-1-C2D8-258F@compuserve.com>
+	Mon, 19 Jun 2006 06:38:48 -0400
+Received: from smtp6-g19.free.fr ([212.27.42.36]:7141 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932372AbWFSKir (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 06:38:47 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: juampe <juampe@iquis.com>
+Subject: Re: [PATCH 06/13] USBATM: shutdown open connections when disconnected
+Date: Mon, 19 Jun 2006 12:38:43 +0200
+User-Agent: KMail/1.9.1
+Cc: kernel <linux-kernel@vger.kernel.org>
+References: <OF39174CF7.B508FCBD-ONC125718F.00407FFC-C125718F.00413F4F@telefonica.es> <44965CC3.1060203@iquis.com> <449660E1.30505@iquis.com>
+In-Reply-To: <449660E1.30505@iquis.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200606191238.43980.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking at this code:
+> I really sorry, this is a patch to 2.6.16 and this kernel version works
+> well the speedtouch driver.
+> I have problems with 2.6.17 and the speedtocuh driver block the
+> conection at some point that  i can't locate.
+> 
+> wave:~# atmdiag
+> Itf       TX_okay   TX_err    RX_okay   RX_err    RX_drop
+>   0 AAL0         0         0         0         0         0
+>     AAL5    266537         0    198023         1         0
+> 
+> RX cells don't increment, AFAIK the driver don't manage incoming ATM cells
+> 
+> How i can dig more into this issue in order to extract  relevant
+> information for a bug report?.
 
-const struct exception_table_entry *search_exception_tables(unsigned long addr)
-{
-        const struct exception_table_entry *e;
+Hi Juampe, there were only two changes to the speedtouch driver
+between 2.6.16 and 2.6.17: a cosmetic one (change to modinfo
+output), and one only affecting people using iso urb support
+(are you running with enable_isoc=1?).  So any new problems in
+2.6.17 must be coming from elsewhere, such as ATM or USB changes.
+I didn't spot any interesting ATM changes, and haven't looked at
+the USB changes yet.  Are you sure you don't get the same problem
+with 2.6.16?  Also, do you get any interesting messages in your
+system logs (eg: check the dmesg output)?
 
-        e = search_extable(__start___ex_table, __stop___ex_table-1, addr);
-        if (!e)
-                e = search_module_extables(addr);
-        return e;
-}
+Ciao,
 
-const struct exception_table_entry *search_module_extables(unsigned long addr)
-{
-        unsigned long flags;
-        const struct exception_table_entry *e = NULL;
-        struct module *mod;
-
-        spin_lock_irqsave(&modlist_lock, flags);
-        list_for_each_entry(mod, &modules, list) {
-                if (mod->num_exentries == 0)
-                        continue;
-
-                e = search_extable(mod->extable,
-                                   mod->extable + mod->num_exentries - 1,
-                                   addr);
-                if (e)
-                        break;
-        }
-        spin_unlock_irqrestore(&modlist_lock, flags);
-
-        /* Now, if we found one, we are running inside it now, hence
-           we cannot unload the module, hence no refcnt needed. */
-        return e;
-}
-
-
-search_module_extables() takes a spinlock.  If some kind of fault occurs
-while it's holding that lock (module list corrupted etc.,) won't it be
-re-entered while looking for its own fault handler?  If so, would this
-be a possible fix?
-
-const struct exception_table_entry *search_exception_tables(unsigned long addr)
-{
-        const struct exception_table_entry *e;
-
-        if (core_kernel_text(addr))
-                e = search_extable(__start___ex_table, __stop___ex_table-1, addr);
-        else
-                e = search_module_extables(addr);
-
-        return e;
-}
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+Duncan.

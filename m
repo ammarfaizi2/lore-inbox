@@ -1,126 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWFSB7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWFSCEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbWFSB7t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jun 2006 21:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWFSB7t
+	id S1751145AbWFSCEc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jun 2006 22:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWFSCEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jun 2006 21:59:49 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:3589 "EHLO
-	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S1750755AbWFSB7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jun 2006 21:59:49 -0400
-Date: Mon, 19 Jun 2006 12:00:40 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: dm-devel@redhat.com
-Subject: 2.6.16.20/dm: can't create more then one snapshot of an lv
-Message-ID: <20060619020040.GX2059@zip.com.au>
+	Sun, 18 Jun 2006 22:04:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2953 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750839AbWFSCEb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jun 2006 22:04:31 -0400
+Date: Sun, 18 Jun 2006 19:04:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Brown <neilb@suse.de>
+Cc: dgc@sgi.com, jblunck@suse.de, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
+       balbir@in.ibm.com
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
+ list (2nd version)
+Message-Id: <20060618190422.5daf17fe.akpm@osdl.org>
+In-Reply-To: <17557.64512.496195.714144@cse.unsw.edu.au>
+References: <20060601095125.773684000@hasse.suse.de>
+	<17539.35118.103025.716435@cse.unsw.edu.au>
+	<20060616155120.GA6824@hasse.suse.de>
+	<17555.12234.347353.670918@cse.unsw.edu.au>
+	<20060618235654.GB2114946@melbourne.sgi.com>
+	<17557.61307.364404.640539@cse.unsw.edu.au>
+	<20060619010013.GC2114946@melbourne.sgi.com>
+	<17557.64512.496195.714144@cse.unsw.edu.au>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to create multiple snapshots of an lv ontop of a raid-5
-software raid device and ext3+dir_index and resize_inode for the fs.
-The kernel is a pure 64bit compile with Debian Sarge amd64 running on
-top of it. The kernel is monolithic and I'm using lvm2 2.01.03-5 with
-devmapper 1.01.
+On Mon, 19 Jun 2006 11:21:04 +1000
+Neil Brown <neilb@suse.de> wrote:
 
-This works under 2.6.15.7. Under 2.6.16.20 I get this:
+> static void prune_dcache(int count, struct super_block *sb)
+> +static void prune_dcache(int count, struct list_head *list)
+>  {
+> +	int have_list = list != NULL;
+> +	struct list_head alt_head;
+>  	spin_lock(&dcache_lock);
+> +	if (list == NULL) {
+> +		/* use the dentry_unused list */
+> +		list_add(&alt_head, &dentry_unused);
+> +		list_del_init(&dentry_unused);
+> +		list = &alt_head;
+> +	}
 
-# lvcreate --snapshot --size 50G --name snap-12 --permission r --verbose /dev/backups/main
-    Setting chunksize to 16 sectors.
-    Finding volume group "backups"
-    Creating logical volume snap-12
-    Archiving volume group "backups" metadata.
-    Creating volume group backup "/etc/lvm/backup/backups"
-    Found volume group "backups"
-    Loading backups-snap--12
-    Zeroing start of logical volume "snap-12"
-    Found volume group "backups"
-    Removing backups-snap--12
-    Found volume group "backups"
-    Found volume group "backups"
-    Found volume group "backups"
-    Loading backups-main-real
-    Loading backups-snap--12-cow
-    Loading backups-snap--12
-    Loading backups-main
-    Creating volume group backup "/etc/lvm/backup/backups"
-  Logical volume "snap-12" created
-# lvcreate --snapshot --size 50G --name snap-13 --permission r --verbose /dev/backups/main
-    Setting chunksize to 16 sectors.
-    Finding volume group "backups"
-    Creating logical volume snap-13
-    Archiving volume group "backups" metadata.
-    Creating volume group backup "/etc/lvm/backup/backups"
-    Found volume group "backups"
-    Loading backups-snap--13
-    Zeroing start of logical volume "snap-13"
-    Found volume group "backups"
-    Removing backups-snap--13
-    Found volume group "backups"
-    Found volume group "backups"
-    Found volume group "backups"
-    Loading backups-main-real
-    Loading backups-snap--12-cow
-    Loading backups-snap--12
-*freeze*
+This will make dentry_unused appear to be empty.
 
-# ps auxww | grep lvcreate
-root      1315  0.0  1.2 16000 13104 pts/2   D<L+ 11:44   0:00 lvcreate --snapshot --size 50G --name snap-13 --permission r --verbose /dev/backups/main
+>  	for (; count ; count--) {
+>  		struct dentry *dentry;
+>  		struct list_head *tmp;
+> @@ -405,23 +417,11 @@ static void prune_dcache(int count, stru
+>  
+>  		cond_resched_lock(&dcache_lock);
 
-Nothing special in dmesg at time of lvcreate.
+And then it makes that apparent-emptiness globally visible.
 
-# lsof -n | grep 1315 | less
-lvcreate  1315        root  cwd       DIR                9,0    1024       4017 /root
-lvcreate  1315        root  rtd       DIR                9,0    1024          2 /
-lvcreate  1315        root  txt       REG                9,0  465896     116659 /lib/lvm-200/lvm
-lvcreate  1315        root  mem       REG                0,0                  0 [heap] (stat: No such file or directory)
-lvcreate  1315        root  mem       REG                9,0   90288     116481 /lib/ld-2.3.2.so
-lvcreate  1315        root  mem       REG                9,1  290512     458029 /usr/lib/locale/locale-archive
-lvcreate  1315        root  mem       REG                9,0   34640     116657 /lib/libdevmapper.so.1.01
-lvcreate  1315        root  mem       REG                9,0   12072     116489 /lib/libdl-2.3.2.so
-lvcreate  1315        root  mem       REG                9,0 1295328     116487 /lib/libc-2.3.2.so
-lvcreate  1315        root    0u      CHR              136,2                  4 /dev/pts/2
-lvcreate  1315        root    1u      CHR              136,2                  4 /dev/pts/2
-lvcreate  1315        root    2u      CHR              136,2                  4 /dev/pts/2
-lvcreate  1315        root    3u      CHR              10,63              44265 /dev/mapper/control
-lvcreate  1315        root    4uW     REG              253,2       0     147459 /var/lock/lvm/V_backups
-lvcreate  1315        root    5u      BLK                9,0              33555 /dev/md0
-lvcreate  1315        root    6u      BLK                9,1              33567 /dev/md1
-lvcreate  1315        root    7u      BLK                9,2              33568 /dev/md2
-lvcreate  1315        root    8u      BLK                9,3              33569 /dev/md3
-
-MD section of .config:
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-CONFIG_MD_RAID1=y
-# CONFIG_MD_RAID10 is not set
-CONFIG_MD_RAID5=y
-# CONFIG_MD_RAID6 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_MD_FAULTY is not set
-CONFIG_BLK_DEV_DM=y
-CONFIG_DM_CRYPT=y
-CONFIG_DM_SNAPSHOT=y
-CONFIG_DM_MIRROR=y
-CONFIG_DM_ZERO=y
-# CONFIG_DM_MULTIPATH is not set
-
-This server is not live yet so I can test patches if need be. I wont be 
-able to in approx 1 weeks time though.
-
--- 
-    "To the extent that we overreact, we proffer the terrorists the
-    greatest tribute."
-    	- High Court Judge Michael Kirby
+Won't this cause concurrent unmounting or memory shrinking to malfunction?

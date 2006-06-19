@@ -1,30 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWFSSAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWFSSFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWFSSAf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 14:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWFSSAe
+	id S1751130AbWFSSFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 14:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWFSSFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 14:00:34 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15317 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964812AbWFSSAd
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 14:00:33 -0400
-Subject: PATA driver patch for 2.6.17
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux-Kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 19 Jun 2006 19:15:47 +0100
-Message-Id: <1150740947.2871.42.camel@localhost.localdomain>
+	Mon, 19 Jun 2006 14:05:15 -0400
+Received: from xenotime.net ([66.160.160.81]:44450 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751130AbWFSSFN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 14:05:13 -0400
+Date: Mon, 19 Jun 2006 11:07:56 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: tali@admingilde.org, akpm <akpm@osdl.org>
+Subject: [PATCH] kernel-doc: don't use XML escapes in text or man output
+ mode
+Message-Id: <20060619110756.d0f7e6fa.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://zeniv.linux.org.uk/~alan/IDE
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-This is basically a resync versus 2.6.17, the head of the PATA tree is
-now built against Jeffs tree with revised error handling and the like.
+For kernel-doc output modes of text and man, do not use XML escapes
+for less-than, greater-than, and ampersand characters.  I.e., leave
+the text and man output clean and readable.
 
-Alan
 
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ scripts/kernel-doc |    3 +++
+ 1 files changed, 3 insertions(+)
+
+--- linux-2617-pv.orig/scripts/kernel-doc
++++ linux-2617-pv/scripts/kernel-doc
+@@ -1673,6 +1673,9 @@ sub process_state3_type($$) {
+ # replace <, >, and &
+ sub xml_escape($) {
+ 	my $text = shift;
++	if (($output_mode eq "text") || ($output_mode eq "man")) {
++		return $text;
++	}
+ 	$text =~ s/\&/\\\\\\amp;/g;
+ 	$text =~ s/\</\\\\\\lt;/g;
+ 	$text =~ s/\>/\\\\\\gt;/g;
+
+
+---

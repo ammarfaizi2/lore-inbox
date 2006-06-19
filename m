@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWFSPlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWFSPrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWFSPlf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWFSPlf
+	id S964777AbWFSPrz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWFSPry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:41:35 -0400
-Received: from rtr.ca ([64.26.128.89]:25779 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S964773AbWFSPle (ORCPT
+	Mon, 19 Jun 2006 11:47:54 -0400
+Received: from iona.labri.fr ([147.210.8.143]:26310 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932497AbWFSPrx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:41:34 -0400
-Message-ID: <4496C5AC.3030809@rtr.ca>
-Date: Mon, 19 Jun 2006 11:41:32 -0400
-From: Mark Lord <tigerdirect@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       p.lundkvist@telia.com, linux-kernel@vger.kernel.org, rjw@sisk.pl,
-       Mark Lord <lkml@rtr.ca>
-Subject: Re: [PATCH] Page writeback broken after resume: wb_timer lost
-References: <20060520130326.GA6092@localhost> <20060520103728.6f3b3798.akpm@osdl.org> <20060520225018.GC8490@elf.ucw.cz> <20060520171244.4399bc54.akpm@osdl.org> <20060616212410.GA6821@linuxtv.org>
-In-Reply-To: <20060616212410.GA6821@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 11:47:53 -0400
+Date: Mon, 19 Jun 2006 17:47:46 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: emergency or init=/bin/sh mode and terminal signals
+Message-ID: <20060619154746.GS4253@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org
+References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr> <Pine.LNX.4.61.0606191407150.31576@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0606191407150.31576@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach wrote:
-> On Sat, May 20, 2006, Andrew Morton wrote:
->> From: Andrew Morton <akpm@osdl.org>
->>
->> pdflush is carefully designed to ensure that all wakeups have some
->> corresponding work to do - if a woken-up pdflush thread discovers that it
->> hasn't been given any work to do then this is considered an error.
->>
->> That all broke when swsusp came along - because a timer-delivered wakeup to a
->> frozen pdflush thread will just get lost.  This causes the pdflush thread to
->> get lost as well: the writeback timer is supposed to be re-armed by pdflush in
->> process context, but pdflush doesn't execute the callout which does this.
->>
->> Fix that up by ignoring the return value from try_to_freeze(): jsut proceed,
->> see if we have any work pending and only go back to sleep if that is not the
->> case.
->>
->>
->> Signed-off-by: Andrew Morton <akpm@osdl.org>
+Jan Engelhardt, le Mon 19 Jun 2006 14:08:28 +0200, a écrit :
+> >Hi,
+> >
+> >There's a long-standing issue in init=/bin/sh mode: pressing control-C
+> >doesn't send a SIGINT to programs running on the console. The incurred
+> >typical pitfall is if one runs ping without a -c option... no way to
+> >stop it!
 > 
-> 
-> I've tested this patch for about a week now, by applying it to
-> the 2.6.17-rc3 kernel on my laptop, which I've been using
-> for more than a month now. This patch seems to cure the
-> mysterious symptoms reported in February:
-> 
-> http://lkml.org/lkml/2006/2/6/167
-> http://lkml.org/lkml/2006/2/6/170
-> http://lkml.org/lkml/2006/2/13/424
-> etc.
-> 
-> Actually I didn't remember to check "Dirty:" in /proc/meminfo,
-> but when I "sync"ed at the end of my workday, just prior to
-> swsupending it, sync returned immediately. with unpatched
-> 2.6.17-rc3, sync would take half a minute. Maybe Mark can give
-> this patch a spin to check if it cures his problem, too.
-> (I still use vmware, so vmware was not the culprit.)
+> Worse, I can observe same behavior when using "-b", i.e. init=/sbin/init 
+> called with -b (read: `/sbin/init -b`),
 
-I just gave it a try here.  With or without a suspend/resume cycle after boot,
-the "sync" time is much quicker.  But the Dirty count in /proc/meminfo
-still shows very huge (eg. 600MB) values that never really get smaller
-until I type "sync".  But that subsequent "sync" only takes a couple
-of seconds now, rather than 10-20 seconds like before.
+That's equivalent to the "emergency" mode.
 
-Dunno what that all means -- I'm still keeping my little daemon around
-to do periodic "sync" calls for safety.
-
-Cheers
+Samuel

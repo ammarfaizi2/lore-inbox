@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWFSQqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWFSQuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWFSQqO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 12:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWFSQqO
+	id S964795AbWFSQuF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 12:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWFSQuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 12:46:14 -0400
-Received: from adsl-71-128-175-242.dsl.pltn13.pacbell.net ([71.128.175.242]:16583
-	"EHLO build.embeddedalley.com") by vger.kernel.org with ESMTP
-	id S932525AbWFSQqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 12:46:13 -0400
-Subject: Re: i2c-algo-ite and i2c-ite planned for removal
-From: Pete Popov <ppopov@embeddedalley.com>
-Reply-To: ppopov@embeddedalley.com
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060616222908.f96e3691.khali@linux-fr.org>
-References: <20060615225723.012c82be.khali@linux-fr.org>
-	 <1150406598.1193.73.camel@localhost.localdomain>
-	 <20060616222908.f96e3691.khali@linux-fr.org>
-Content-Type: text/plain
-Organization: Embedded Alley Solutions, Inc
-Date: Mon, 19 Jun 2006 19:45:58 +0300
-Message-Id: <1150735558.8413.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 12:50:04 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27287 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964795AbWFSQuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 12:50:02 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Preben Traerup <Preben.Trarup@ericsson.com>
+Cc: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before crashing
+References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
+	<m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
+	<20060616211555.1e5c4af0.akiyama.nobuyuk@jp.fujitsu.com>
+	<m1odwtnjke.fsf@ebiederm.dsl.xmission.com>
+	<20060619163053.f0f10a5e.akiyama.nobuyuk@jp.fujitsu.com>
+	<m1y7vtia7r.fsf@ebiederm.dsl.xmission.com>
+	<4496A677.3020301@ericsson.com>
+Date: Mon, 19 Jun 2006 10:49:32 -0600
+In-Reply-To: <4496A677.3020301@ericsson.com> (Preben Traerup's message of
+	"Mon, 19 Jun 2006 15:28:23 +0200")
+Message-ID: <m1hd2hhyzn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-06-16 at 22:29 +0200, Jean Delvare wrote:
-> Hi Pete,
-> 
-> > > So basically we have two drivers in the kernel tree for 5 years or so,
-> > > which never were usable, and nobody seemed to care. 
-> > 
-> > For historical correctness, this driver was once upon a time usable,
-> > though it was a few years ago. It was written by MV for some ref board
-> > that had the ITE chip and it did work. That ref board is no longer
-> > around so it's probably safe to nuke the driver. 
-> 
-> In which kernel version? In every version I checked (2.4.12, 2.4.30,
-> 2.6.0 and 2.6.16) it wouldn't compile due to struct iic_ite being used
-> but never defined (and possibly other errors, but I can't test-compile
-> the driver.)
+Preben Traerup <Preben.Trarup@ericsson.com> writes:
 
-Honestly, I don't remember. I think it was one of the very first 2.6
-kernels because when MV first released a 2.6 product, 2.6 was still
-'experimental'. It's quite possible of course that the driver was never
-properly merged upstream in the community tree(s). But I do know that it
-worked in the internal MV tree and an effort was made to get the driver
-accepted upstream.
+> Strictly speaking for myself: Nothing.
+>
+> Mr. Akiyama Nobuyuk gave an example from his environment which is cluster
+> systems.
+> I was the one saying we in our Telco systems could use this feature too.
+>
+> The only thing Mr. Akiyama Nobuyuk and I have in common is we both would like to
+> do
+> something before crash dumping, simply because the less mess we will have to
+> cleanup
+> afterwards in the system taking over, the better.
+>
+> Mr. Akiyama Nobuyuk operates on SCSI devices to avoid filesystem corruptions.
+> My usage would be more like notifying external management to get traffic
+> redirected to server systems taking over.
 
-Pete
+Ok. That resolves some of my confusion.
 
+After think this over here is my position.
+
+There may be cases where it is warranted to add a call during crash_kexec.
+I have seen no evidence that the cases where we want something happening
+in crash_kexec are going to be at all common. It is my opinion anything
+added to the crash_kexec path needs a case by case review.
+
+Therefore if something is needs to happen in the crash kexec path it
+should be a direct function call.  No pointers and no hooks.  Just call
+the function.
+
+Patches that and add an explicit function call allow for case by case review
+and convey the message that you really don't want to do that, and that we
+are really dealing with an exceptional circumstance.
+
+Does this sound like a reasonable position?
+
+Eric

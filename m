@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWFSMvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWFSMwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWFSMvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 08:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWFSMvo
+	id S932436AbWFSMwr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 08:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWFSMwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 08:51:44 -0400
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:23483 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932433AbWFSMvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 08:51:43 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: 2.6.17-ck1
-Date: Mon, 19 Jun 2006 22:51:21 +1000
-User-Agent: KMail/1.9.3
-Cc: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
-References: <200606181736.38768.kernel@kolivas.org> <200606190111.54914.kernel@kolivas.org> <Pine.LNX.4.61.0606191353210.31576@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0606191353210.31576@yvahk01.tjqt.qr>
+	Mon, 19 Jun 2006 08:52:47 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:46783 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S932436AbWFSMwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 08:52:47 -0400
+Message-ID: <44969E0E.7030403@myri.com>
+Date: Mon, 19 Jun 2006 08:52:30 -0400
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       Greg Lindahl <greg.lindahl@qlogic.com>
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
+ Hyper-transport capabilities
+References: <4493709A.7050603@myri.com> <44941632.4050703@myri.com> <20060619005329.GA1425@greglaptop> <200606191028.51242.ak@suse.de>
+In-Reply-To: <200606191028.51242.ak@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606192251.22236.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 June 2006 21:54, Jan Engelhardt wrote:
-> >Were you running them SCHED_IDLEPRIO or in compute mode? They would do
-> > that.
+Andi Kleen wrote:
+> We got a Serverworks based Supermicro system where the driver for the 
+> integrated tg3 NIC complains about MSI not working. So either that particular
+> system has a specific BIOS issue or it is broken for on motherboard
+> devices.
+>  
+> I was extrapolating from that.
 >
-> I have not changed anything, so I presume SCHED_NORMAL.
-> Unless they have been made SCHED_IDLEPRIO/compute by staircase's logic...
+> It doesn't complain on another Supermicro system, but that seems
+> to be because that particular BCM570x silicon revision is blacklisted
+> for MSI in the tg3 driver.
+>
+> From that experience I certainly cannot say that MSI works 
+> very well on Serverworks so far. It might be safer to blacklist
+> until someone can explain what's going on on these systems.
+> The problem is that not all drivers do the MSI probing tg3 do,
+> so if you got a system where MSI doesn't work. but it tells
+> the kernel it does, and a driver turns on MSI things just
+> break.
+>   
 
-No it wouldn't do that. 
+Initially, we thought MSI did not work. But, we actually discovered that
+it was caused by the MSI cap being disabled in the Hypertransport config
+space. Enabling the MSI cap there seems to make it work.
 
-I've not seen what you describe happening but definitely the timing of 
-parallelising jobs in 'make' completely changes with cpu scheduler changes 
-and with I/O scheduler changes. 
+My patches check the HT MSI cap in a quirk. So you will only get MSI for
+your driver if the BIOS/chipset has been correctly initialized.
 
-However if it's purely unrelated cpu bound tasks running and no disk I/O 
-involved then full timeslices run out at ~114ms at 1000HZ (longer at lower 
-HZ) so that should be the longest period one task of the same priority could 
-possibly run before the others do. That sort of timeslice you would not pick 
-up at .1s interval 'top's but I find 'top' can be very deceiving if its 
-timing happens to be exactly what the intervals are it can look like only one 
-thing is running or one thing is stuck at the same priority and so on. 
+The next step would be to explicitely set the MSI cap in the
+Hypertransport config space in my quirk. I have patches to do so, but
+I'd rather wait until my current patches to are stabilized/merged.
 
-With actual numbers from interbench testing of fully cpu bound tasks (under 
-what's called benchmarking cpu of Gaming) the average and max scheduling 
-delays look of the same magnitude as mainline.
+Brice
 
--- 
--ck

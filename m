@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWFSPP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWFSPQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWFSPP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 11:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWFSPP2
+	id S932175AbWFSPQN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 11:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWFSPQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 11:15:28 -0400
-Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:52201 "EHLO
-	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932084AbWFSPP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 11:15:27 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17: slow (as hell) tcp inbound transfers
-Date: Tue, 20 Jun 2006 01:15:02 +1000
-User-Agent: KMail/1.9.3
-Cc: Brice Figureau <brice+lklm@daysofwonder.com>,
-       Vincent Vanackere <vincent.vanackere@gmail.com>
-References: <1150725598.4985.27.camel@localhost.localdomain> <65258a580606190717t2cc5b28eg10fb4d64fe5ec1f3@mail.gmail.com> <1150729187.4985.41.camel@localhost.localdomain>
-In-Reply-To: <1150729187.4985.41.camel@localhost.localdomain>
+	Mon, 19 Jun 2006 11:16:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35789 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932178AbWFSPQM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 11:16:12 -0400
+To: Ian Kent <raven@themaw.net>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [autofs] [RFC:VFS] autofs4 needs to force fail return
+ revalidate
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
+References: <Pine.LNX.4.64.0606191332510.5732@raven.themaw.net>
+From: Jeff Moyer <jmoyer@redhat.com>
+Date: Mon, 19 Jun 2006 11:15:39 -0400
+In-Reply-To: <Pine.LNX.4.64.0606191332510.5732@raven.themaw.net> (Ian Kent's
+ message of "Mon, 19 Jun 2006 13:51:14 +0800 (WST)")
+Message-ID: <x491wtljhwk.fsf@segfault.boston.redhat.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606200115.02492.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 00:59, Brice Figureau wrote:
-> Hi,
->
-> On Mon, 2006-06-19 at 16:17 +0200, Vincent Vanackere wrote:
-> > On 6/19/06, Brice Figureau <brice+lklm@daysofwonder.com> wrote:
-> > > Now to the problem: I just finished the installation of a brand new
-> > > 2.6.17 on a Dell PowerEdge 2850 which was running 2.6.16.19 really
-> > > fine, and I'm encountering a strange issue.
-> > >
-> > > It seems that TCP inbound transfers (using either curl, or scp) are
-> > > really slow except when issued on our gigabit LAN.
-> >
-> > Could you try the following to see if it cures your problem ?
-> >
-> > echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
->
-> Yes, that fixed it:
-> # curl http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.tar.gz
->
-> > /dev/null
->
->   % Total    % Received % Xferd  Average Speed   Time    Time     Time
-> Current
->                                  Dload  Upload   Total   Spent    Left
-> Speed
->   0 49.3M    0  9856    0     0   2991      0  4:48:05  0:00:03  4:48:02
-> 3680
->
-> # echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
->
-> # curl http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.17.tar.gz
->
-> > /dev/null
->
->   % Total    % Received % Xferd  Average Speed   Time    Time     Time
-> Current
->                                  Dload  Upload   Total   Spent    Left
-> Speed
->   1 49.3M    1  904k    0     0  86544      0  0:09:57  0:00:10  0:09:47
-> 71173
->
-> Did something has changed between 2.6.16 and 2.6.17 regarding TCP window
-> scaling ?
->
-> I remember a discussion on lklm aroung 2.6.7 or so that finally ended as
-> a bug in a firewall that wasn't handling TCP window scaling gracefully.
-> That's certainly my case, I'll will have a look to that.
+==> Regarding [autofs] [RFC:VFS] autofs4 needs to force fail return revalidate; Ian Kent <raven@themaw.net> adds:
 
-See:
+raven> Hi all,
 
-http://kerneltrap.org/node/6723
+raven> For a long time now I have had a problem with not being able to
+raven> return a lookup failure on an existsing directory. In autofs this
+raven> corresponds to a mount failure on a autofs managed mount entry that
+raven> is browsable (and so the mount point directory exists).
 
--- 
--ck
+raven> While this problem has been present for a long time I've avoided
+raven> resolving it because it was not very visible. But now that autofs v5
+raven> has "mount and expire on demand" of nested multiple mounts, such as
+raven> is found when mounting an export list from a server, solving the
+raven> problem cannot be avoided any longer.
+
+raven> I've tried very hard to find a way to do this entirely within the
+raven> autofs4 module but have not been able to find a satisfactory way to
+raven> achieve it.
+
+raven> So, I need to propose a change to the VFS.
+
+raven> Please offer comments and suggestions or if anyone has an idea how
+raven> this could be done within the autofs4 filesystem then I'm all ears.
+
+> --- linux-2.6.17/include/linux/dcache.h.dcache-revalidate-return-fail	2006-06-19 13:26:27.000000000 +0800
+> +++ linux-2.6.17/include/linux/dcache.h	2006-06-19 13:29:25.000000000 +0800
+> @@ -163,6 +163,7 @@ d_iput:		no		no		no       yes
+>  #define DCACHE_UNHASHED		0x0010	
+
+>  #define DCACHE_INOTIFY_PARENT_WATCHED	0x0020 /* Parent inode is watched */
+> +#define DCACHE_REVAL_FORCE_FAIL 0x0040	/* Force revalidate fail on valid dentry */
+
+>  extern spinlock_t dcache_lock;
+
+This looks like the right approach to me.  I'd ack it.
+
+-Jeff

@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWFSVIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbWFSVOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964888AbWFSVIr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 17:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWFSVIr
+	id S964891AbWFSVOK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 17:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWFSVOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 17:08:47 -0400
-Received: from xenotime.net ([66.160.160.81]:17540 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964888AbWFSVIr (ORCPT
+	Mon, 19 Jun 2006 17:14:10 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:33229 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S964889AbWFSVOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 17:08:47 -0400
-Date: Mon, 19 Jun 2006 14:11:27 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: tglx@linutronix.de
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hr
-Subject: Re: [PATCH] ktime/hrtimer: fix kernel-doc comments
-Message-Id: <20060619141127.abdfdac0.rdunlap@xenotime.net>
-In-Reply-To: <1150750822.29299.86.camel@localhost.localdomain>
-References: <20060619130948.6ea3998c.rdunlap@xenotime.net>
-	<1150750822.29299.86.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 17:14:09 -0400
+Message-Id: <200606192114.k5JLDta2000794@zeus1.kernel.org>
+From: "Jeannie Bishop" <320pepito@free.fr>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Earn 15% per week
+Date: Mon, 19 Jun 2006 14:14:08 -0700
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: dZLiTNoi3OoT9SXn0d75xwgBms7HoXgvg23W
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 23:00:22 +0200 Thomas Gleixner wrote:
+Good day Linux-kernel!!!
 
-> Randy,
-> 
-> On Mon, 2006-06-19 at 13:09 -0700, Randy.Dunlap wrote:
-> > From: Randy Dunlap <rdunlap@xenotime.net>
-> > 
-> > Fix kernel-doc formatting in ktime.h and hrtimer.[ch] files.
-> > 
-> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> > ---
-> >  include/linux/hrtimer.h |    3 ---
-> >  include/linux/ktime.h   |    8 --------
-> >  kernel/hrtimer.c        |   11 +----------
-> >  3 files changed, 1 insertion(+), 21 deletions(-)
-> > 
-> > --- linux-2617-pv.orig/include/linux/ktime.h
-> > +++ linux-2617-pv/include/linux/ktime.h
-> > @@ -66,7 +66,6 @@ typedef union {
-> >  
-> >  /**
-> >   * ktime_set - Set a ktime_t variable from a seconds/nanoseconds value
-> > - *
-> >   * @secs:	seconds to set
-> >   * @nsecs:	nanoseconds to set
-> >   *
-> <.....>
-> 
-> Is there any real reason for doing this, expect for removing the blank
-> comment lines ? 
+One week ago i invested $ 240 in www.15Percents.com
 
-Hm, have you looked at the kernel-doc output of those functions?
 
-With the blank line, the function Description section (if there
-is one) is duplicated.  If there is not a Description section
-in the source file, then there is a (false) header generated
-for it but nothing below it.
+Yesterday i have got my principal $ 240 and earnings 11.2% = $ 26. Very good programm. They have two plans Silver and Gold.
 
-> My personal preference is to keep that line, as it makes it easier to
-> read. But as always: de gustibus non est disputandum :)
+Silver plan 15 % weekly. Duration - 21 day ! Payment period - weekly. You can withdraw your principal any time. The principal withdrawal fee - 7.0% Earnings - 7 days a week Monday-Sunday
 
-Feel free to send patches for scripts/kernel-doc instead.  :)
+Gold plan 3.2% - 5% daily. Duration - 60 days ! Payment period - daily. You can withdraw your principal after 60 days. The principal withdrawal fee - 0.0% Earnings - 7 days a week Monday-Sunday.
 
----
-~Randy
+You can try this programm http://www.15percents.com/?ref=salam1
+
+
+
+Thank you.
+
+
+ames buckwheat
+aborning abutting applaud
+
+
+

@@ -1,44 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWFSTNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWFSTPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWFSTNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 15:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWFSTNI
+	id S932546AbWFSTPq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 15:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWFSTPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 15:13:08 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:16020 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932465AbWFSTNG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 15:13:06 -0400
-Date: Mon, 19 Jun 2006 20:13:06 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/5]: ufs: missed brelse and wrong baseblk
-Message-ID: <20060619191306.GK27946@ftp.linux.org.uk>
-References: <20060617101403.GA22098@rain.homenetwork> <20060618162054.GW27946@ftp.linux.org.uk> <20060618175045.GX27946@ftp.linux.org.uk> <20060619064721.GA6106@rain.homenetwork> <20060619073229.GI27946@ftp.linux.org.uk> <20060619131750.GA14770@rain.homenetwork> <20060619182833.GJ27946@ftp.linux.org.uk> <20060619185816.GA26513@rain.homenetwork>
+	Mon, 19 Jun 2006 15:15:46 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:24274 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932540AbWFSTPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 15:15:45 -0400
+Date: Mon, 19 Jun 2006 21:15:43 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+Message-ID: <20060619191543.GA17187@rhlx01.fht-esslingen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060619185816.GA26513@rain.homenetwork>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 10:58:16PM +0400, Evgeniy Dushistov wrote:
-> On Mon, Jun 19, 2006 at 07:28:33PM +0100, Al Viro wrote:
-> > On Mon, Jun 19, 2006 at 05:17:50PM +0400, Evgeniy Dushistov wrote:
-> > > In case of 1k fragments, msync of two pages
-> > > cause 8 calls of ufs's get_block_t with create == 1,
-> > > they will be consequent because of synchronization.
-> > 
-> > _What_ synchronization?
-> > Now, which lock would, in your opinion, provide serialization between these
-> > two calls?  They apply to different pages, so page locks do not help.
-> >  
-> you can look at fs/ufs/inode.c: ufs_getfrag_block.
-> It is ufs's get_block_t,
-> if create == 1 it uses "[un]lock_kernel". 
+Hello all,
 
-Which is fsck-all protection, since then you proceed to do a lot of
-blocking operations.  Now, lock_super() down in balloc.c _might_ be
-enough, but I wouldn't bet on that.
+while looking for loop places to apply cpu_relax() to, I found the
+following gems:
+
+arch/i386/kernel/crash.c/crash_nmi_callback():
+
+        /* Assume hlt works */
+        halt();
+        for(;;);
+
+        return 1;
+}
+
+arch/i386/kernel/doublefault.c/doublefault_fn():
+
+        for (;;) /* nothing */;
+}
+
+Let's assume that we have a less than moderate fan failure that causes
+the CPU to heat up beyond the critical limit...
+That might result in - you guessed it - crashes or doublefaults.
+In which case we enter the corresponding handler and do... what?
+Exactly, we accelerate the CPUs happy march into bit heaven by letting it
+execute a busy-loop under a non-working fan.
+Thanks, your users will be very happy, I think ;)
+(especially since it was "just" a simple fan failure that could have been
+entirely remedied by buying another fan for $3)
+
+
+The same thing applies to
+arch/i386/kernel/smp.c/stop_this_cpu(), albeit there it's less catastrophic
+due to most likely normal working conditions there.
+
+IMHO on any critical CPU failure we should:
+- try to log it (might be difficult with a broken CPU, though)
+- optionally somehow directly alert the user
+- STOP the system, COMPLETELY (that way people WILL take notice, hopefully
+  before it's too late and actual damage will have occurred)
+- make DAMN SURE that the (possibly already broken) CPU won't have a
+  less than nice time once the system is stopped
+
+Am I completely missing something here?
+
+If this is an issue, then maybe we should consolidate those places into
+one function that safely(!) halts a CPU, optionally disabling APIC etc.
+
+Oh, and once you finished processing my mail here, you could optionally
+also look at my report about almost unusably broken USB:
+http://lkml.org/lkml/2006/6/19/54
+(no replies yet despite advanced breakage)
+
+Thanks!
+
+Andreas Mohr

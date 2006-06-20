@@ -1,54 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWFTVPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWFTVRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWFTVPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWFTVPa
+	id S1751100AbWFTVRY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWFTVRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:15:30 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:62361 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751097AbWFTVPa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:15:30 -0400
-Date: Tue, 20 Jun 2006 22:15:24 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net,
-       Ben Collins <bcollins@ubuntu.com>,
-       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [git pull] ieee1394 tree for 2.6.18
-Message-ID: <20060620211524.GU27946@ftp.linux.org.uk>
-References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org> <20060620025552.GO27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org> <20060620175321.GA7463@flint.arm.linux.org.uk> <44984CA1.5010308@s5r6.in-berlin.de> <20060620193422.GA10748@flint.arm.linux.org.uk> <44986126.506@s5r6.in-berlin.de>
+	Tue, 20 Jun 2006 17:17:24 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:26674 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S1751100AbWFTVRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 17:17:23 -0400
+Date: Tue, 20 Jun 2006 14:17:23 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc[56]-mm*: pcmcia "I/O resource not free"
+Message-ID: <20060620211723.GA28016@hexapodia.org>
+References: <20060615162859.GA1520@hexapodia.org> <20060617100327.e752b89a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44986126.506@s5r6.in-berlin.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060617100327.e752b89a.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 10:57:10PM +0200, Stefan Richter wrote:
-> Russell King wrote:
-> >The point was to try to establish when we could consider the tree from
-> >which we'd asked Linus to pull from as being sufficiently old that it
-> >would not be pulled from without another request being sent - or if it
-> >was pulled from, that we wouldn't get an email from Linus about the fact
-> >there was new stuff in there.
+On Sat, Jun 17, 2006 at 10:03:27AM -0700, Andrew Morton wrote:
+> > The PCMCIA slot on my Thinkpad X40 stopped working sometime between
+> > 2.6.17-rc4-mm3 and 2.6.17-rc5-mm3, and is still not working as of
+> > 2.6.17-rc6-mm2.
+[snip]
+> > -Probing IDE interface ide2...
+> > -hde: CF Card, CFA DISK drive
+> > -PM: Adding info for No Bus:ide2
+> > -hdf: probing with STATUS(0x50) instead of ALTSTATUS(0x0a)
+> > +ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
+> > +ide2: ports already in use, skipping probe
+> > +ide2: I/O resource 0xF8A8A01E-0xF8A8A01E not free.
+> > +ide2: ports already in use, skipping probe
+> > +ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
+> > +ide2: ports already in use, skipping probe
 > 
-> You could /a/ try to come to an agreement with him about a less brittle 
-> protocol, or /b/ think of your mail as an "announcement" rather than a 
-> "request" (for your peace of mind) and follow up with a repost of the 
-> announcement if you come to know that your updates did not appear in 
-> Linus' tree when the end of a merge window is near.
+> hm.   I don't know who to blame for this yet ;)
+> 
+> The contents of /proc/ioports on both kernels might be useful.  Let's see
+> which device+driver is already using those ports, and whether the older
+> kenrel uses the same addresses.
 
-c) no matter how badly your variant of git might suck, on server you
-can always do
-	echo [commit-ID] > .git/refs/heads/for-linus-<date>
-and ask him to pull that branch from that server (if your version of
-git doesn't suck, git checkout -b for-linus-<date>; git checkout <your
-previous branch> will do it).
+In further testing, -rc6 is fine while -rc6-mm2 fails.
 
-Then move on with the life, using whatever you are using.  The question when
-to remove that file... hell, run "trim the stuff more than month old"
-from cron every month and forget about it.
+Under 2.6.17-rc6 (after having inserted and removed the card, but that
+doesn't seem to make much difference) I have
+
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+03c0-03df : vga+
+03f6-03f6 : ide0
+1000-107f : 0000:00:1f.0
+  1000-107f : motherboard
+    1000-1003 : PM1a_EVT_BLK
+    1004-1005 : PM1a_CNT_BLK
+    1008-100b : PM_TMR
+    1010-1015 : ACPI CPU throttle
+    1020-1020 : PM2_CNT_BLK
+    1028-102f : GPE0_BLK
+1180-11bf : 0000:00:1f.0
+  1180-11bf : motherboard
+15e0-15ef : motherboard
+1600-167f : motherboard
+1680-169f : motherboard
+1800-1807 : 0000:00:02.0
+1810-181f : 0000:00:1f.1
+  1810-1817 : ide0
+  1818-181f : ide1
+1820-183f : 0000:00:1d.0
+  1820-183f : uhci_hcd
+1840-185f : 0000:00:1d.1
+  1840-185f : uhci_hcd
+1860-187f : 0000:00:1d.2
+  1860-187f : uhci_hcd
+1880-189f : 0000:00:1f.3
+18c0-18ff : 0000:00:1f.5
+  18c0-18ff : Intel 82801DB-ICH4
+1c00-1cff : 0000:00:1f.5
+  1c00-1cff : Intel 82801DB-ICH4
+2000-207f : 0000:00:1f.6
+  2000-207f : Intel 82801DB-ICH4 Modem
+2400-24ff : 0000:00:1f.6
+  2400-24ff : Intel 82801DB-ICH4 Modem
+3000-7fff : PCI Bus #02
+  3000-30ff : PCI CardBus #03
+  3400-34ff : PCI CardBus #03
+  7000-703f : 0000:02:01.0
+    7000-703f : e1000
+
+The diff between -rc6 and -rc6-mm2 shows that they have the same ioport
+assignment (there's only a textual diff due to ACPI string changes).
+
+I've put just about everything you could want to know about the two
+kernels at
+http://web.hexapodia.org/~adi/bobble/bobble_2.6.17-rc6_20060620093733/
+and
+http://web.hexapodia.org/~adi/bobble/bobble_2.6.17-rc6-mm2_20060620094254/
+
+-andy

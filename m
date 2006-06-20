@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWFTWW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWFTWXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWFTWW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWFTWW5
+	id S1751297AbWFTWXq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWFTWXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:22:57 -0400
-Received: from lucidpixels.com ([66.45.37.187]:28631 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751289AbWFTWW4 (ORCPT
+	Tue, 20 Jun 2006 18:23:46 -0400
+Received: from xenotime.net ([66.160.160.81]:49078 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751297AbWFTWXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:22:56 -0400
-Date: Tue, 20 Jun 2006 18:22:55 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: David Greaves <david@dgreaves.com>
-cc: Mark Lord <liml@rtr.ca>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: LibPATA/ATA Errors Continue - Will there be a fix for this?
-In-Reply-To: <449874B6.7020606@dgreaves.com>
-Message-ID: <Pine.LNX.4.64.0606201821460.17790@p34.internal.lan>
-References: <Pine.LNX.4.64.0606200808250.5851@p34.internal.lan>
- <4497F1C7.2070007@rtr.ca> <449804EA.8030908@dgreaves.com> <44981800.2000807@dgreaves.com>
- <Pine.LNX.4.64.0606201146430.2601@p34.internal.lan> <449874B6.7020606@dgreaves.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 20 Jun 2006 18:23:45 -0400
+Date: Tue, 20 Jun 2006 15:26:31 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: hostmaster@ed-soft.at, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines
+Message-Id: <20060620152631.287b8262.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.61.0606202357330.17281@yvahk01.tjqt.qr>
+References: <4497F85B.7010409@ed-soft.at>
+	<20060620101605.0240a685.rdunlap@xenotime.net>
+	<Pine.LNX.4.61.0606202357330.17281@yvahk01.tjqt.qr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, David Greaves wrote:
+On Tue, 20 Jun 2006 23:58:57 +0200 (MEST) Jan Engelhardt wrote:
 
-> Justin Piszcz wrote:
->> Dave, what is the make/model of the drives you get errors with by the
->> way?
->>
->> On Tue, 20 Jun 2006, David Greaves wrote:
->>> [Some email archaeology later]
->>>
->>> Back in March I was running 2.6.16 (with the opcode patch) and I sent an
->>> email with the following info:
->>>
->>> dmesg:
->>> ata1: translated op=0x28 cmd=0x25 ATA stat/err 0x51/04 to SCSI
->>> SK/ASC/ASCQ 0xb/00/00
->>> ata1: status=0x51 { DriveReady SeekComplete Error }
->>> ata1: error=0x04 { DriveStatusError }
-> Model Family: Maxtor DiamondMax 10 family
-> Device Model: Maxtor 6B200M0
-> Serial Number: B4038RRH
-> Firmware Version: BANC1980
->
-> this is sata_sil
->
-> Another machine has :
-> Device Model: SAMSUNG SP2504C
-> Serial Number: S09QJ10Y720963
-> Firmware Version: VT100-33
-> User Capacity: 250,059,350,016 bytes
->
-> running through sata_via
->
-> that's running 2.6.16.18 and just gives:
-> ata1: PIO error
-> ata1: status=0x50 { DriveReady SeekComplete }
->
->
-> David
->
-> -- 
->
+> >
+> >Darn, I was going to comment on the patch, but the attachment
+> >isn't quoted... :(
+> >
+> >
+> >1.  if you modify this patch, change
+> >+	if(!efi_enabled) {
+> >to
+> >	if (!efi_enabled) {
+> >to be compatible with Linux coding style.
+> >
+> Care to name the section this is listed in? It is used all over the place 
+> in examples in the CodingStyle document, but I could not find an 
+> explanation which explicitly says "space after if".
 
-I also use sata_sil, perhaps it is a controller-specific problem? I use a
-WD WD4000KD-00N.
+Nope, I didn't say compatible with Documentation/CodingStyle.
+I'm just basing it on visible evidence in source files and
+many emails requesting the same.
 
-I also ahve that same exact samsung drive but I have it on an Intel ICH5
-controller and I do not seem to get that error.
-
-# grep PIO\ error *
-#
-
+---
+~Randy

@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWFTOGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWFTOGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWFTOGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 10:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWFTOGp
+	id S1751014AbWFTOGn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 10:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWFTOGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 10:06:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:9143 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750975AbWFTOGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 10:06:44 -0400
-Subject: Re: update pci device id
-From: Arjan van de Ven <arjan@infradead.org>
-To: cckuo <chechun_kuo@sis.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF39A58CF4.C4A06C9A-ON48257193.004A1ACB@sis.com.tw>
-References: <OF39A58CF4.C4A06C9A-ON48257193.004A1ACB@sis.com.tw>
-Content-Type: text/plain
-Date: Tue, 20 Jun 2006 16:06:42 +0200
-Message-Id: <1150812402.2891.202.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 20 Jun 2006 10:06:43 -0400
+Received: from vscan03.westnet.com.au ([203.10.1.142]:1696 "EHLO
+	vscan03.westnet.com.au") by vger.kernel.org with ESMTP
+	id S1750975AbWFTOGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 10:06:42 -0400
+Message-ID: <449801C0.1000503@snapgear.com>
+Date: Wed, 21 Jun 2006 00:10:08 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.17-uc0 (MMU-less updates)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-20 at 21:28 +0800, cckuo wrote:
-> Dear All:
-> Recently my company, sis, releases some new platforms for intel socket 775,
-> and AMD socket 939. I have read the MAINTAINERS and cannot find someone whom
-> I can let him help me to add the pci device id. 
-> If someone knows who takes charge of this part, please let me know.
 
-Hi,
+Hi All,
 
-the answer is a bit complex; I'll try to break it down in steps ...
+An update of the uClinux (MMU-less) code against 2.6.17.
+There is a couple of bug fixes, some new CPU support,
+but mostly this is some new features and improvements.
+Some do need some good solid testing before merging to
+mainline. Pretty much everything in this patch set is
+related to m68knommu arch.
 
-step 1) the text database as used by lspci
-This is quite easy, just go to http://pciids.sourceforge.net/ and add
-your pci ids to the database
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.17-uc0.patch.gz
 
-step 2) the drivers
-this is a bit more work, basically this is about teaching individual
-drivers that support your hardware about your new IDs.
-
-for example the i810-like audio driver has a table like this:
-
- static struct pci_device_id snd_intel8x0_ids[] __devinitdata = {
-        { 0x8086, 0x2415, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL }, /* 82801AA */
-        { 0x8086, 0x2425, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL }, /* 82901AB */
-        { 0x8086, 0x2445, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL }, /* 82801BA */
-        { 0x8086, 0x2485, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL }, /* ICH3 */
+The biggest change is way the clock frequency and RAM setup
+is now configured for m68knommu targets. Both are now free-form
+configs, not just a small set of possible values from a menu.
+This will break older configs, so you will need to update them
+appropriately when using this patch set. Advantage is that
+this new mechanism greatly cleans and simplifies the clock and
+RAM setup handling.
 
 
-if your hw is compatible, just add your ID, test the new river (since
-you have the hardware) and send a patch to the driver mainter and/or the
-lkml mailing list
+Change log:
 
-Does this answer your question?
+. new m68knommu defconfig                          Greg Ungerer
+. configurable clock for ColdFire                  Greg Ungerer
+. configurable RAM setup                           Greg Ungerer
+. ColdFire timers use reg offsets                  Greg Ungerer
+. ColdFire 5329 support                            Matt Waddel
+. Cobra5329 support                                Thomas Brinker
+. Avnet 5282 support                               Daniel Alomar
+. remove get_cpuinfo from setup                    Philippe De Muyter
+. clean out use of rom_length                      Greg Ungerer
+. cleanups for new gcc versions                    Greg Ungerer
+. remove use of -Wa,-S from compilation            Philippe De Muyter
+. fix strace support                               Philippe De Muyter
+. speed up syscalls                                Philippe De Muyter
+. fec use different irq priority/level             Willson Callan
+. fec stats and speed fixes                        Philippe De Muyter
+. fix word aligned stack                           Andrea Tarani
 
-Greetings,
-   Arjan van de Ven
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a division of Secure Computing  PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
 

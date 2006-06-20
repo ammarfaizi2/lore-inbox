@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWFTFKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWFTFNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWFTFKU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 01:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWFTFKU
+	id S1751223AbWFTFNx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 01:13:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWFTFNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 01:10:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31895 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751195AbWFTFKR (ORCPT
+	Tue, 20 Jun 2006 01:13:53 -0400
+Received: from xenotime.net ([66.160.160.81]:43669 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751223AbWFTFNw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 01:10:17 -0400
-Date: Tue, 20 Jun 2006 01:09:10 -0400
-From: Dave Jones <davej@redhat.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] i386: halt the CPU on serious errors
-Message-ID: <20060620050910.GA6091@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-	Andrew Morton <akpm@osdl.org>
-References: <200606200059_MC3-1-C2E8-8C46@compuserve.com>
+	Tue, 20 Jun 2006 01:13:52 -0400
+Date: Mon, 19 Jun 2006 22:16:39 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: blp@cs.stanford.edu, bcollins@ubuntu.com
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Ubuntu PATCH] acpi: Add IBM R60E laptop to proc-idle blacklist
+Message-Id: <20060619221639.3adbbf34.rdunlap@xenotime.net>
+In-Reply-To: <87lkrstrgy.fsf@benpfaff.org>
+References: <4491BC6B.5000704@oracle.com>
+	<20060619203333.5e897ead.akpm@osdl.org>
+	<87lkrstrgy.fsf@benpfaff.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606200059_MC3-1-C2E8-8C46@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 12:55:25AM -0400, Chuck Ebbert wrote:
- 
- > --- 2.6.17-32.orig/arch/i386/kernel/crash.c
- > +++ 2.6.17-32/arch/i386/kernel/crash.c
- > @@ -113,8 +113,8 @@ static int crash_nmi_callback(struct pt_
- >  	disable_local_APIC();
- >  	atomic_dec(&waiting_for_crash_ipi);
- >  	/* Assume hlt works */
- > -	halt();
- > -	for(;;);
- > +	for (;;)
- > +		halt();
- >  
- >  	return 1;
+On Mon, 19 Jun 2006 20:51:09 -0700 Ben Pfaff wrote:
 
-But we should never get past that first halt(), as interrupts are disabled.
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > On Thu, 15 Jun 2006 13:00:43 -0700
+> > Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> >
+> >> [UBUNTU:acpi] Add IBM R60E laptop to proc-idle blacklist.
+> 
+> >> +	{ set_max_cstate, "IBM ThinkPad R40e", {
+> >> +	  DMI_MATCH(DMI_BIOS_VENDOR, "IBM"),
+> >> +	  DMI_MATCH(DMI_BIOS_VERSION, "1SET70WW") }, (void*)1},
+> >
+> > It seems that every R40e in the world is in that table.
+> 
+> The email says R60e.
+> The string says R40e.
+> Which is correct?
 
- > --- 2.6.17-32.orig/arch/i386/kernel/doublefault.c
- > +++ 2.6.17-32/arch/i386/kernel/doublefault.c
- > @@ -44,7 +44,8 @@ static void doublefault_fn(void)
- >  		}
- >  	}
- >  
- > -	for (;;) /* nothing */;
- > +	for (;;)
- > +		halt();
- >  }
+Good question for Ben.  Ben??
 
-This one would probably be better off as a cpu_relax()
+Current ubuntu-dapper git is still like this.
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+---
+~Randy

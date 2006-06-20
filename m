@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWFTOUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWFTOVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWFTOUR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 10:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWFTOUR
+	id S1751067AbWFTOVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 10:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWFTOVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 10:20:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36254 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751047AbWFTOUP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 10:20:15 -0400
-Date: Tue, 20 Jun 2006 15:20:05 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: CaT <cat@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: Re: 2.6.16.20/dm: can't create more then one snapshot of an lv
-Message-ID: <20060620142005.GA19254@agk.surrey.redhat.com>
-Mail-Followup-To: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
-	dm-devel@redhat.com
-References: <20060619020040.GX2059@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060619020040.GX2059@zip.com.au>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Jun 2006 10:21:36 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:5595 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751067AbWFTOVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 10:21:35 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: [PATCH 1/1] New Framebuffer for Intel based Macs
+To: Edgar Hucek <hostmaster@ed-soft.at>, LKML <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Tue, 20 Jun 2006 16:21:08 +0200
+References: <6pOCE-1Dv-39@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1Fsh6K-0000mJ-L7@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 12:00:40PM +1000, CaT wrote:
-> I am attempting to create multiple snapshots of an lv ontop of a raid-5
-> software raid device and ext3+dir_index and resize_inode for the fs.
-> The kernel is a pure 64bit compile with Debian Sarge amd64 running on
-> top of it. The kernel is monolithic and I'm using lvm2 2.01.03-5 with
-> devmapper 1.01.
-> This works under 2.6.15.7. Under 2.6.16.20 I get this:
+Edgar Hucek <hostmaster@ed-soft.at> wrote:
 
-Update to lvm2 version 2.02.01 or later and device-mapper version 1.02.02
-or later.
+> +config FB_IMAC
+> +        bool "Intel Based Macs FB"
+> +        depends on (FB = y) && X86
+> +        select FB_CFB_FILLRECT
+> +        select FB_CFB_COPYAREA
+> +        select FB_CFB_IMAGEBLIT
+> +        help
+> +          This is the frame buffer device driver for the Inel Based Mac's
 
-Alasdair
+1) Speling error: Inel
+2) Isn't there a macintosch CONFIG option you can depend on?
 -- 
-agk@redhat.com
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
+
+http://david.woodhou.se/why-not-spf.html

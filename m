@@ -1,65 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWFTQIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWFTQJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWFTQIh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWFTQIg
+	id S1751382AbWFTQJh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFTQJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:08:36 -0400
-Received: from xenotime.net ([66.160.160.81]:27831 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750847AbWFTQIg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:08:36 -0400
-Date: Tue, 20 Jun 2006 09:11:16 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jes Sorensen <jes@sgi.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] mspec
-Message-Id: <20060620091116.e81d4360.rdunlap@xenotime.net>
-In-Reply-To: <yq0hd2gyvl7.fsf@jaguar.mkp.net>
-References: <yq0lkrtzelk.fsf@jaguar.mkp.net>
-	<20060619085855.277cd217.rdunlap@xenotime.net>
-	<yq0hd2gyvl7.fsf@jaguar.mkp.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 12:09:37 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:14477 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751382AbWFTQJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:09:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=Mq4tmawm5L8Edri06N3lzfMp9Q3x/Pwh4IP2EZZW2J0YeAFy2EL1dLriAMz5tAnwkVd9caQspfw5R7P68iIFeb1HFAevVGvzoeSFFgnJLC1XE4R0uPp0zbX07lxk68MBl8Q/FNrRaGRP99R+davBej48/baj/68u/204Q0Ip0NY=
+Date: Tue, 20 Jun 2006 18:09:44 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <1150816429.6780.222.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+ <1150816429.6780.222.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Jun 2006 06:23:16 -0400 Jes Sorensen wrote:
+On Tue, 20 Jun 2006, Thomas Gleixner wrote:
 
-> >>>>> "Randy" == Randy Dunlap <rdunlap@xenotime.net> writes:
-> 
-> Randy> On 19 Jun 2006 05:20:23 -0400 Jes Sorensen wrote:
-> >> +MODULE_AUTHOR("Silicon Graphics, Inc.");
-> >> +MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
-> >> +MODULE_LICENSE("GPL"); +MODULE_INFO(supported, "external");
-> 
-> Randy> What does that last line mean?  what does "external" mean?
-> Randy> There are no other source files in the 2.6.17 tree that say
-> Randy> anything like that.
-> 
-> Randy> And of the 1800+ MODULE_AUTHOR() lines, SGI seems to be
-> Randy> dominant is using company instead of a person for AUTHOR.  Yes,
-> Randy> there are a few others as well.  module.h says: /* Author,
-> Randy> ideally of form NAME <EMAIL>[, NAME <EMAIL>]*[ and NAME
-> Randy> <EMAIL>] */
-> 
-> Randy,
-> 
-> I went back and looked through the usages of these macros and it does
-> indeed seem that nobody else tries to state 'supported' in MODULE_INFO
-> so I have removed that and added an email address to the author line,
-> which should always stay valid.
+> On Tue, 2006-06-20 at 17:01 +0100, Esben Nielsen wrote:
+>> Hi,
+>>   I wanted to run some tests with RTExec and I wanted to play around with
+>> the priorities, but I could not set the priorities of softirq-hrtXXXX.
+>> I looked a bit in the code and found that hrtimer_adjust_softirq_prio() is
+>> called every loop, setting it back to priority 1.
+>>
+>> Why is that? Can it be fixed so it behaves as any other task you can use
+>> chrt on?
+>
+> No, please see
+>
+> http://www.linutronix.de/index.php?mact=News,cntnt01,detail,0&cntnt01articleid=8&cntnt01dateformat=%25b%20%25d%2C%20%25Y&cntnt01returnid=31
+>
+> Dynamic priority support for high resolution timers
+>
 
-Hi Jes,
-Thanks for doing that, esp. the 'supported' part.
+I am sorry. I should have read some more of the code before asking.
+
+The only question I have is why the priority of the callback is set to
+priority of the task calling hrtimer_start() (current->normal_prio). That 
+seems like an odd binding to me. Shouldn't the finding of the priority be moved over to the 
+posix-timer code, where it is needed, and be given as a parameter to 
+hrtimer_start()?
+In rtmutex.c, where a hrtimer is used as a timeout on a mutex, wouldn't it 
+make more sense to use current->prio than current->normal_prio if the task 
+is boosted when it starts to wait on a mutex.
 
 
-> +MODULE_AUTHOR("Silicon Graphics, Inc. <linux-altix@sgi.com>");
-> +MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
-> +MODULE_LICENSE("GPL");
+But I am not sure I like the design at all:
 
----
-~Randy
+Let say you have a bunch of callback running at priority 1 and then the 
+next hrt timer with priority 99 expires. Then the callback which 
+is running will be boosted to priority 99. So the overall latency at 
+priority 99 will at least the latency of the worst hrtimer callback.
+And worse: What if the callback running is blocked on a mutex? Will the 
+owner of the mutex be boosted as well? Not according to the code in 
+sched.c. Therefore you get priority inversion to priority 1. That is the 
+worst case hrtimer latency is that of priority 1.
+
+Therefore, a simpler and more robust design would be to give the thread 
+priority 99 as a default - just as the posix_cpu_timer thread. Then the 
+system designer can move it around with chrt when needed.
+In fact you can say the current design have both the worst cases of having 
+it running as priority 99 and at priority 1!
+
+Another complicated design would be to make a task for each priority. 
+Then the interrupt wakes the highest priority one, which handles the first 
+callback and awakes the next one etc.
+
+
+Esben
+
+
+> 	tglx
+>
+>

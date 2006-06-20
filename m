@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWFTWcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWFTWbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWFTWcL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWFTWbq
+	id S1751339AbWFTWbi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWFTW3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:31:46 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42973 "EHLO
+	Tue, 20 Jun 2006 18:29:03 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53732 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751397AbWFTW3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:29:23 -0400
+	id S1751339AbWFTW2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:28:53 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
@@ -28,198 +28,232 @@ Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
        Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
        Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 14/25] x86_64 irq: Move msi message composition into io_apic.c
+Subject: [PATCH 4/25] msi: Simplify msi enable and disable.
 Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:27 -0600
-Message-Id: <1150842523493-git-send-email-ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:17 -0600
+Message-Id: <11508425191063-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425223015-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <11508425192220-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes the hardcoded assumption that irq == vector in the
-msi composition code, and it allows the msi message composition
-to setup logical mode, or lowest priorirty delivery mode as we
-do for other apic interrupts, and with the same selection criteria.
+The problem.  Because the disable routines leave the msi interrupts in all
+sorts of half enabled states the enable routines become impossible
+to implement correctly, and almost impossible to understand.
 
-Basically this moves the problem of what is in the msi message into
-the architecture irq management code where it belongs.  Not in
-a generic layer that doesn't have enough information to compose
-msi messages properly.
+Simplifing this allows me to simply kill the buggy reroute_msix_table,
+and generally makes the code more maintainable.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/x86_64/kernel/io_apic.c |   73 ++++++++++++++++++++++++++++++++++++++++++
- include/asm-x86_64/msi.h     |    7 +---
- include/asm-x86_64/msidef.h  |   47 +++++++++++++++++++++++++++
- 3 files changed, 122 insertions(+), 5 deletions(-)
+ drivers/pci/msi.c |  122 +++++++----------------------------------------------
+ 1 files changed, 16 insertions(+), 106 deletions(-)
 
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index ae64a63..7ad0980 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -42,6 +42,7 @@ #include <asm/mach_apic.h>
- #include <asm/acpi.h>
- #include <asm/dma.h>
- #include <asm/nmi.h>
-+#include <asm/msidef.h>
- 
- #define __apicdebuginit  __init
- 
-@@ -2061,6 +2062,78 @@ void destroy_irq(unsigned int irq)
- }
- #endif
- 
-+/*
-+ * MSI mesage composition
-+ */
-+#ifdef CONFIG_PCI_MSI
-+static int msi_msg_setup(struct pci_dev *pdev, unsigned int irq, struct msi_msg *msg)
-+{
-+	/* For now always this code always uses physical delivery
-+	 * mode.
-+	 */
-+	int vector;
-+	unsigned dest;
-+
-+	vector = assign_irq_vector(irq);
-+	if (vector >= 0) {
-+		cpumask_t tmp;
-+
-+		cpus_clear(tmp);
-+		cpu_set(first_cpu(cpu_online_map), tmp);
-+		dest = cpu_mask_to_apicid(tmp);
-+
-+		msg->address_hi = MSI_ADDR_BASE_HI;
-+		msg->address_lo =
-+			MSI_ADDR_BASE_LO |
-+			((INT_DEST_MODE == 0) ?
-+				MSI_ADDR_DEST_MODE_PHYSICAL:
-+				MSI_ADDR_DEST_MODE_LOGICAL) |
-+			((INT_DELIVERY_MODE != dest_LowestPrio) ?
-+				MSI_ADDR_REDIRECTION_CPU:
-+				MSI_ADDR_REDIRECTION_LOWPRI) |
-+			MSI_ADDR_DEST_ID(dest);
-+
-+		msg->data = 
-+			MSI_DATA_TRIGGER_EDGE |	
-+			MSI_DATA_LEVEL_ASSERT |
-+			((INT_DELIVERY_MODE != dest_LowestPrio) ?
-+				MSI_DATA_DELIVERY_FIXED:
-+				MSI_DATA_DELIVERY_LOWPRI) |
-+			MSI_DATA_VECTOR(vector); 
-+	}
-+	return vector;
-+}
-+
-+static void msi_msg_teardown(unsigned int irq)
-+{
-+	return;
-+}
-+
-+static void msi_msg_set_affinity(unsigned int irq, cpumask_t mask, struct msi_msg *msg)
-+{
-+	int vector;
-+	unsigned dest;
-+
-+	vector = assign_irq_vector(irq);
-+	if (vector > 0) {
-+		dest = cpu_mask_to_apicid(mask);
-+
-+		msg->data &= ~MSI_DATA_VECTOR_MASK;
-+		msg->data |= MSI_DATA_VECTOR(vector);
-+		msg->address_lo &= ~MSI_ADDR_DEST_ID_MASK;
-+		msg->address_lo |= MSI_ADDR_DEST_ID(dest);
-+	}
-+}
-+
-+struct msi_ops arch_msi_ops = {
-+	.needs_64bit_address = 0,
-+	.setup = msi_msg_setup,
-+	.teardown = msi_msg_teardown,
-+	.target = msi_msg_set_affinity,
-+};
-+
-+#endif
-+
- /* --------------------------------------------------------------------------
-                           ACPI-based IOAPIC Configuration
-    -------------------------------------------------------------------------- */
-diff --git a/include/asm-x86_64/msi.h b/include/asm-x86_64/msi.h
-index 3ad2346..1876fda 100644
---- a/include/asm-x86_64/msi.h
-+++ b/include/asm-x86_64/msi.h
-@@ -10,14 +10,11 @@ #include <asm/desc.h>
- #include <asm/mach_apic.h>
- #include <asm/smp.h>
- 
--#define LAST_DEVICE_VECTOR	(FIRST_SYSTEM_VECTOR - 1)
--#define MSI_TARGET_CPU_SHIFT	12
--
--extern struct msi_ops msi_apic_ops;
-+extern struct msi_ops arch_msi_ops;
- 
- static inline int msi_arch_init(void)
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 76d023d..c1c93f0 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -915,7 +915,6 @@ int pci_enable_msi(struct pci_dev* dev)
  {
--	msi_register(&msi_apic_ops);
-+	msi_register(&arch_msi_ops);
+ 	struct pci_bus *bus;
+ 	int pos, temp, status = -EINVAL;
+-	u16 control;
+ 
+ 	if (!pci_msi_enable || !dev)
+  		return status;
+@@ -937,27 +936,8 @@ int pci_enable_msi(struct pci_dev* dev)
+ 	if (!pos)
+ 		return -EINVAL;
+ 
+-	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
+-		/* Lookup Sucess */
+-		unsigned long flags;
++	BUG_ON(!msi_lookup_vector(dev, PCI_CAP_ID_MSI));
+ 
+-		pci_read_config_word(dev, msi_control_reg(pos), &control);
+-		if (control & PCI_MSI_FLAGS_ENABLE)
+-			return 0;	/* Already in MSI mode */
+-		spin_lock_irqsave(&msi_lock, flags);
+-		if (!vector_irq[dev->irq]) {
+-			msi_desc[dev->irq]->msi_attrib.state = 0;
+-			vector_irq[dev->irq] = -1;
+-			nr_released_vectors--;
+-			spin_unlock_irqrestore(&msi_lock, flags);
+-			status = msi_register_init(dev, msi_desc[dev->irq]);
+-			if (status == 0)
+-				enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
+-			return status;
+-		}
+-		spin_unlock_irqrestore(&msi_lock, flags);
+-		dev->irq = temp;
+-	}
+ 	/* Check whether driver already requested for MSI-X vectors */
+ 	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
+ 	if (pos > 0 && !msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
+@@ -999,6 +979,8 @@ void pci_disable_msi(struct pci_dev* dev
+ 	if (!(control & PCI_MSI_FLAGS_ENABLE))
+ 		return;
+ 
++	disable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
++
+ 	spin_lock_irqsave(&msi_lock, flags);
+ 	entry = msi_desc[dev->irq];
+ 	if (!entry || !entry->dev || entry->msi_attrib.type != PCI_CAP_ID_MSI) {
+@@ -1012,14 +994,12 @@ void pci_disable_msi(struct pci_dev* dev
+ 		       pci_name(dev), dev->irq);
+ 		BUG_ON(entry->msi_attrib.state > 0);
+ 	} else {
+-		vector_irq[dev->irq] = 0; /* free it */
+-		nr_released_vectors++;
+ 		default_vector = entry->msi_attrib.default_vector;
+ 		spin_unlock_irqrestore(&msi_lock, flags);
++		msi_free_vector(dev, dev->irq, 0);
++
+ 		/* Restore dev->irq to its default pin-assertion vector */
+ 		dev->irq = default_vector;
+-		disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
+-					PCI_CAP_ID_MSI);
+ 	}
+ }
+ 
+@@ -1067,57 +1047,6 @@ static int msi_free_vector(struct pci_de
  	return 0;
  }
  
-diff --git a/include/asm-x86_64/msidef.h b/include/asm-x86_64/msidef.h
-new file mode 100644
-index 0000000..4667f1a
---- /dev/null
-+++ b/include/asm-x86_64/msidef.h
-@@ -0,0 +1,47 @@
-+#ifndef ASM_MSIDEF_H
-+#define ASM_MSIDEF_H
+-static int reroute_msix_table(int head, struct msix_entry *entries, int *nvec)
+-{
+-	int vector = head, tail = 0;
+-	int i, j = 0, nr_entries = 0;
+-	void __iomem *base;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&msi_lock, flags);
+-	while (head != tail) {
+-		nr_entries++;
+-		tail = msi_desc[vector]->link.tail;
+-		if (entries[0].entry == msi_desc[vector]->msi_attrib.entry_nr)
+-			j = vector;
+-		vector = tail;
+-	}
+-	if (*nvec > nr_entries) {
+-		spin_unlock_irqrestore(&msi_lock, flags);
+-		*nvec = nr_entries;
+-		return -EINVAL;
+-	}
+-	vector = ((j > 0) ? j : head);
+-	for (i = 0; i < *nvec; i++) {
+-		j = msi_desc[vector]->msi_attrib.entry_nr;
+-		msi_desc[vector]->msi_attrib.state = 0;	/* Mark it not active */
+-		vector_irq[vector] = -1;		/* Mark it busy */
+-		nr_released_vectors--;
+-		entries[i].vector = vector;
+-		if (j != (entries + i)->entry) {
+-			base = msi_desc[vector]->mask_base;
+-			msi_desc[vector]->msi_attrib.entry_nr =
+-				(entries + i)->entry;
+-			writel( readl(base + j * PCI_MSIX_ENTRY_SIZE +
+-				PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET), base +
+-				(entries + i)->entry * PCI_MSIX_ENTRY_SIZE +
+-				PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
+-			writel(	readl(base + j * PCI_MSIX_ENTRY_SIZE +
+-				PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET), base +
+-				(entries + i)->entry * PCI_MSIX_ENTRY_SIZE +
+-				PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
+-			writel( (readl(base + j * PCI_MSIX_ENTRY_SIZE +
+-				PCI_MSIX_ENTRY_DATA_OFFSET) & 0xff00) | vector,
+-				base + (entries+i)->entry*PCI_MSIX_ENTRY_SIZE +
+-				PCI_MSIX_ENTRY_DATA_OFFSET);
+-		}
+-		vector = msi_desc[vector]->link.tail;
+-	}
+-	spin_unlock_irqrestore(&msi_lock, flags);
+-
+-	return 0;
+-}
+-
+ /**
+  * pci_enable_msix - configure device's MSI-X capability structure
+  * @dev: pointer to the pci_dev data structure of MSI-X device function
+@@ -1160,9 +1089,6 @@ int pci_enable_msix(struct pci_dev* dev,
+  		return -EINVAL;
+ 
+ 	pci_read_config_word(dev, msi_control_reg(pos), &control);
+-	if (control & PCI_MSIX_FLAGS_ENABLE)
+-		return -EINVAL;			/* Already in MSI-X mode */
+-
+ 	nr_entries = multi_msix_capable(control);
+ 	if (nvec > nr_entries)
+ 		return -EINVAL;
+@@ -1177,19 +1103,8 @@ int pci_enable_msix(struct pci_dev* dev,
+ 		}
+ 	}
+ 	temp = dev->irq;
+-	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
+-		/* Lookup Sucess */
+-		nr_entries = nvec;
+-		/* Reroute MSI-X table */
+-		if (reroute_msix_table(dev->irq, entries, &nr_entries)) {
+-			/* #requested > #previous-assigned */
+-			dev->irq = temp;
+-			return nr_entries;
+-		}
+-		dev->irq = temp;
+-		enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
+-		return 0;
+-	}
++	BUG_ON(!msi_lookup_vector(dev, PCI_CAP_ID_MSIX));
 +
-+/*
-+ * Constants for Intel APIC based MSI messages.
-+ */
+ 	/* Check whether driver already requested for MSI vector */
+    	if (pci_find_capability(dev, PCI_CAP_ID_MSI) > 0 &&
+ 		!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
+@@ -1248,37 +1163,32 @@ void pci_disable_msix(struct pci_dev* de
+ 	if (!(control & PCI_MSIX_FLAGS_ENABLE))
+ 		return;
+ 
++	disable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
 +
-+/*
-+ * Shifts for MSI data
-+ */
-+
-+#define MSI_DATA_VECTOR_SHIFT		0
-+#define  MSI_DATA_VECTOR_MASK		0x000000ff
-+#define	 MSI_DATA_VECTOR(v)		(((v) << MSI_DATA_VECTOR_SHIFT) & MSI_DATA_VECTOR_MASK)
-+
-+#define MSI_DATA_DELIVERY_MODE_SHIFT	8
-+#define  MSI_DATA_DELIVERY_FIXED	(0 << MSI_DATA_DELIVERY_MODE_SHIFT)
-+#define  MSI_DATA_DELIVERY_LOWPRI	(1 << MSI_DATA_DELIVERY_MODE_SHIFT)
-+
-+#define MSI_DATA_LEVEL_SHIFT		14
-+#define	 MSI_DATA_LEVEL_DEASSERT	(0 << MSI_DATA_LEVEL_SHIFT)
-+#define	 MSI_DATA_LEVEL_ASSERT		(1 << MSI_DATA_LEVEL_SHIFT)
-+
-+#define MSI_DATA_TRIGGER_SHIFT		15
-+#define  MSI_DATA_TRIGGER_EDGE		(0 << MSI_DATA_TRIGGER_SHIFT)
-+#define  MSI_DATA_TRIGGER_LEVEL		(1 << MSI_DATA_TRIGGER_SHIFT)
-+
-+/*
-+ * Shift/mask fields for msi address
-+ */
-+
-+#define MSI_ADDR_BASE_HI		0
-+#define MSI_ADDR_BASE_LO		0xfee00000
-+
-+#define MSI_ADDR_DEST_MODE_SHIFT	2
-+#define  MSI_ADDR_DEST_MODE_PHYSICAL	(0 << MSI_ADDR_DEST_MODE_SHIFT)
-+#define	 MSI_ADDR_DEST_MODE_LOGICAL	(1 << MSI_ADDR_DEST_MODE_SHIFT)
-+	
-+#define MSI_ADDR_REDIRECTION_SHIFT	3
-+#define  MSI_ADDR_REDIRECTION_CPU	(0 << MSI_ADDR_REDIRECTION_SHIFT) /* dedicated cpu */
-+#define  MSI_ADDR_REDIRECTION_LOWPRI	(1 << MSI_ADDR_REDIRECTION_SHIFT) /* lowest priority */
-+
-+#define MSI_ADDR_DEST_ID_SHIFT		12
-+#define	 MSI_ADDR_DEST_ID_MASK		0x00ffff0
-+#define  MSI_ADDR_DEST_ID(dest)		(((dest) << MSI_ADDR_DEST_ID_SHIFT) & MSI_ADDR_DEST_ID_MASK)
-+
-+#endif /* ASM_MSIDEF_H */
+ 	temp = dev->irq;
+ 	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
+ 		int state, vector, head, tail = 0, warning = 0;
+ 		unsigned long flags;
+ 
+ 		vector = head = dev->irq;
+-		spin_lock_irqsave(&msi_lock, flags);
++		dev->irq = temp;			/* Restore pin IRQ */
+ 		while (head != tail) {
++			spin_lock_irqsave(&msi_lock, flags);
+ 			state = msi_desc[vector]->msi_attrib.state;
++			tail = msi_desc[vector]->link.tail;
++			spin_unlock_irqrestore(&msi_lock, flags);
+ 			if (state)
+ 				warning = 1;
+-			else {
+-				vector_irq[vector] = 0; /* free it */
+-				nr_released_vectors++;
+-			}
+-			tail = msi_desc[vector]->link.tail;
++			else if (vector != head)	/* Release MSI-X vector */
++				msi_free_vector(dev, vector, 0);
+ 			vector = tail;
+ 		}
+-		spin_unlock_irqrestore(&msi_lock, flags);
++		msi_free_vector(dev, vector, 0);
+ 		if (warning) {
+-			dev->irq = temp;
+ 			printk(KERN_WARNING "PCI: %s: pci_disable_msix() called without "
+ 			       "free_irq() on all MSI-X vectors\n",
+ 			       pci_name(dev));
+ 			BUG_ON(warning > 0);
+-		} else {
+-			dev->irq = temp;
+-			disable_msi_mode(dev,
+-				pci_find_capability(dev, PCI_CAP_ID_MSIX),
+-				PCI_CAP_ID_MSIX);
+-
+ 		}
+ 	}
+ }
 -- 
 1.4.0.gc07e
 

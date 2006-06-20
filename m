@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWFTWCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWFTWHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWFTWCi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWFTWCi
+	id S1751251AbWFTWHb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWFTWHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:02:38 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:45258 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751109AbWFTWCi (ORCPT
+	Tue, 20 Jun 2006 18:07:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34755 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751234AbWFTWHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:02:38 -0400
-Date: Wed, 21 Jun 2006 00:02:35 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andi Kleen <ak@suse.de>
-cc: Maurice Volaski <mvolaski@aecom.yu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [Bug 6451] CONFIG_KMOD is not set for x86_64 but is set to Y
- for i386 and other archs
-In-Reply-To: <200606201730.39477.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0606210001060.17281@yvahk01.tjqt.qr>
-References: <200606201433.k5KEXbhX003862@fire-2.osdl.org>
- <a06230977c0bdc14545ff@[129.98.90.227]> <200606201730.39477.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jun 2006 18:07:30 -0400
+Date: Tue, 20 Jun 2006 15:10:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: <ravinandan.arakali@neterion.com>
+Cc: tglx@linutronix.de, dgc@sgi.com, mingo@elte.hu, neilb@suse.de,
+       jblunck@suse.de, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
+       balbir@in.ibm.com, ananda.raju@neterion.com,
+       leonid.grossman@neterion.com, jes@trained-monkey.org
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
+ list (2nd version)
+Message-Id: <20060620151019.797f120c.akpm@osdl.org>
+In-Reply-To: <006d01c694b1$4208c0f0$3e10100a@pc.s2io.com>
+References: <20060619173712.1144b332.akpm@osdl.org>
+	<006d01c694b1$4208c0f0$3e10100a@pc.s2io.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->> Hey, is this you? Why on Earth do you want this setting turned off?
+"Ravinandan Arakali" <ravinandan.arakali@neterion.com> wrote:
 >
->Because I don't use it and arch/x86_64/defconfig is my configuration.
+> Do you want the patch to be submitted to netdev(the mailing list that we
+> usually submit to) ?
 
-If that is your very personal config, I wonder why it is in the kernel. In 
-fact, what is defconfig good for if it's not for the general public? Plus, 
-the default values can be retrieved by {x,g,q,menu}config from the Kconfig 
-files. Slightly puzzled.
+If the patches are a formal submission then please send them to Jeff,
+netdev and I'd like a cc too.
 
+If they are not considered quite ready for submission then please just send
+them to myself, thanks.  A netdev cc would be appropriate as well.  Basically
+I just want to get that sn2 machine to boot.
 
-Jan Engelhardt
--- 
+Generally it's better to cc too many mailing lists and individuals than too
+few.

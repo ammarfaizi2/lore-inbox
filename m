@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWFTJHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWFTJMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWFTJHT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 05:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWFTJHS
+	id S964987AbWFTJMq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 05:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWFTJMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 05:07:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49059 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030187AbWFTJHR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 05:07:17 -0400
-Date: Tue, 20 Jun 2006 02:07:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] Clear abnormal poweroff flag on VIA southbridges, fix
- resume
-Message-Id: <20060620020713.84bddbb4.akpm@osdl.org>
-In-Reply-To: <20060620085429.GB27362@srcf.ucam.org>
-References: <20060618191421.GA15358@srcf.ucam.org>
-	<20060619230144.155bc938.akpm@osdl.org>
-	<20060620085429.GB27362@srcf.ucam.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 20 Jun 2006 05:12:46 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:26062 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964987AbWFTJMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 05:12:45 -0400
+Message-ID: <4497BBFE.6000703@sgi.com>
+Date: Tue, 20 Jun 2006 11:12:30 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Carsten Otte <cotte@de.ibm.com>, bjorn_helgaas@hp.com
+Subject: Re: [patch] do_no_pfn
+References: <yq0psh5zenq.fsf@jaguar.mkp.net> <200606201013.10353.ak@suse.de> <4497B490.90303@sgi.com> <200606201048.10545.ak@suse.de>
+In-Reply-To: <200606201048.10545.ak@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 09:54:29 +0100
-Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+Andi Kleen wrote:
+>> Please go back and read the old threads on this for all the details,
+>> I would miss half the points if I was to try and restate it all from
+>> memory.
+> 
+> Shouldn't these points be in the patch submission description? 
 
-> CONFIG_ACPI_SLEEP might be a better choice than CONFIG_ACPI, 
-> yes.
+You expect people to go look for things on random mailing lists when you
+post it, but you don't care to search the archives yourself.... och
+well.
 
-OK, I diddled the diff to use CONFIG_ACPI_SLEEP, thanks.
+http://www.gelato.unsw.edu.au/archives/linux-ia64/0603/index.html#17543
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0604.2/index.html#0652
+http://www.ussg.iu.edu/hypermail/linux/kernel/0604.3/index.html#0029
+
+>> Doing this at mmap time does not work, you want NUMA node locality.
+>> It has to be done through first touch mappings.
+> 
+> Then create struct page *s.
+
+One struct page for a random single page here, another for a single
+random page there. And the risk that someone will start walking the
+pages and dereference and cause data corruption. As explained before,
+it's a bad idea.
+
+Jes

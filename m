@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWFTVUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWFTVWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWFTVUF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWFTVUE
+	id S1751132AbWFTVWP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWFTVWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:20:04 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:49374 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751104AbWFTVUC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:20:02 -0400
-Date: Tue, 20 Jun 2006 22:20:00 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       herbert@13thfloor.at
-Subject: Re: [RFC][PATCH 03/20] Add vfsmount writer count
-Message-ID: <20060620212000.GV27946@ftp.linux.org.uk>
-References: <20060616231213.D4C5D6AF@localhost.localdomain> <20060616231215.09D54036@localhost.localdomain> <20060618183320.GZ27946@ftp.linux.org.uk> <1150736536.10515.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150736536.10515.52.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Jun 2006 17:22:14 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:26193 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751115AbWFTVVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 17:21:48 -0400
+Message-ID: <449866E7.4050508@fr.ibm.com>
+Date: Tue, 20 Jun 2006 23:21:43 +0200
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com
+Subject: Re: [RFC] [patch 0/6] [Network namespace] introduction
+References: <20060609210202.215291000@localhost.localdomain> <20060618184734.GB27946@ftp.linux.org.uk>
+In-Reply-To: <20060618184734.GB27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 10:02:16AM -0700, Dave Hansen wrote:
-> Very true.  How about this to fix it?
-> 
-> --- lxc/fs//open.c~C8.1-fix-faccesat    2006-06-19 09:59:41.000000000 -0700
-> +++ lxc-dave/fs//open.c 2006-06-19 10:01:25.000000000 -0700
-> @@ -546,8 +546,12 @@ asmlinkage long sys_faccessat(int dfd, c
->            special_file(nd.dentry->d_inode->i_mode))
->                 goto out_path_release;
-> 
-> -       if(__mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
-> -               res = -EROFS;
-> +       res = mnt_want_write(nd.mnt);
-> +       if (!res) {
-> +               mnt_drop_write(nd.mnt);
-> +               if(IS_RDONLY(nd.dentry->d_inode))
-> +                       res = -EROFS;
-> +       }
+Al Viro wrote:
+> On Fri, Jun 09, 2006 at 11:02:02PM +0200, dlezcano@fr.ibm.com wrote:
+> - renaming an interface in one "namespace" affects everyone.
 
-So access() can make remount r/o fail?  Uh-oh...
+Exact. If we ensure the interface can't be renamed if used in different 
+namespace, is it really a problem ?
+

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbWFTIOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbWFTIR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965009AbWFTIOG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWFTIOG
+	id S965170AbWFTIR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWFTIR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:14:06 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59264 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965009AbWFTIOF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:14:05 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
-Date: Tue, 20 Jun 2006 10:13:51 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeff Garzik <jeff@garzik.org>, Dave Olson <olson@unixfolk.com>,
-       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
-       Greg Lindahl <greg.lindahl@qlogic.com>, gregkh@suse.de
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <200606200925.30926.ak@suse.de> <4497ABAC.4030305@garzik.org>
-In-Reply-To: <4497ABAC.4030305@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 20 Jun 2006 04:17:56 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:32165 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965148AbWFTIRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:17:55 -0400
+Subject: Re: E1000 zero copy
+From: Arjan van de Ven <arjan@infradead.org>
+To: Heng Du <debbiehow315@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+In-Reply-To: <7fc623d50606192355l799ea043hc4eacb190e6be1ce@mail.gmail.com>
+References: <7fc623d50606192355l799ea043hc4eacb190e6be1ce@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 10:17:52 +0200
+Message-Id: <1150791472.2891.164.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606201013.51564.ak@suse.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 10:02, Jeff Garzik wrote:
-> Andi Kleen wrote:
-> > So if there are any more MSI problems comming up IMHO it should be white list/disabled 
-> > by default and only turn on after a long time when Windows uses it by default 
-> > or something. Greg, do you agree?
+On Tue, 2006-06-20 at 14:55 +0800, Heng Du wrote:
+> Hi all,
 > 
-> 
-> We should be optimists, not pessimists.
+> I want to know if there is an existing patch to e1000 network driver
+> to enable zero copy.
+> If so, can you share me with it?
+> If not, is it accepable if I submit a patch?
+> Many thanks
 
-Yes, booting on all systems is overrated anyways, isn't it?
+Hi,
 
-> 
-> MSI is useful enough that we should turn it on by default in newer systems.
+The e1000 driver supports zero copy for sending already for a long time
+(if I remember correctly, since 2.4.3 kernel or so) already. Zero copy
+receive is a much harder issue, and for that you need more
+infrastructure; I think the IOAT patches that got merged last night in
+the post-2.6.17 tree will help for that, but I do not know if what got
+merged is sufficient already for full support. 
+I hope this answers your question; if not I would like to ask you to
+explain in more detail what you mean by "enable zero copy"...
 
-That is what we've tried so far and it seems to not work.
+Greetings,
+   Arjan van de Ven
 
--Andi

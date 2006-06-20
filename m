@@ -1,183 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWFTQfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWFTQjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751403AbWFTQfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWFTQfA
+	id S1751406AbWFTQjv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWFTQjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:35:00 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:22233 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S1751403AbWFTQfA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:35:00 -0400
-Date: Wed, 21 Jun 2006 01:36:03 +0900 (JST)
-Message-Id: <20060621.013603.132759710.anemo@mba.ocn.ne.jp>
-To: linux-kernel@vger.kernel.org
-Cc: Richard Purdie <rpurdie@rpsys.net>, akpm@osdl.org
-Subject: [PATCH] LED: add LED heartbeat trigger
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 12:39:51 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:27014 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751406AbWFTQju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:39:50 -0400
+Date: Tue, 20 Jun 2006 12:39:38 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com>
+References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+ <1150816429.6780.222.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an LED trigger acts like a heart beat.  This can be used as a
-replacement of CONFIG_HEARTBEAT code exists in some arch's timer code.
 
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+On Tue, 20 Jun 2006, Esben Nielsen wrote:
 
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index 6265062..21bb7e8 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -87,5 +87,14 @@ config LEDS_TRIGGER_IDE_DISK
- 	  This allows LEDs to be controlled by IDE disk activity.
- 	  If unsure, say Y.
- 
-+config LEDS_TRIGGER_HEARTBEAT
-+	tristate "LED Heartbeat Trigger"
-+	depends LEDS_TRIGGERS
-+	help
-+	  This allows LEDs to be controlled by a CPU load average.
-+	  The flash frequency is a hyperbolic function of the 5-minute
-+	  load average.
-+	  If unsure, say Y.
-+
- endmenu
- 
-diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-index 40f0426..1dc79b5 100644
---- a/drivers/leds/Makefile
-+++ b/drivers/leds/Makefile
-@@ -15,3 +15,4 @@ obj-$(CONFIG_LEDS_S3C24XX)		+= leds-s3c2
- # LED Triggers
- obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
- obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+= ledtrig-ide-disk.o
-+obj-$(CONFIG_LEDS_TRIGGER_HEARTBEAT)	+= ledtrig-heartbeat.o
-diff --git a/drivers/leds/ledtrig-heartbeat.c b/drivers/leds/ledtrig-heartbeat.c
-new file mode 100644
-index 0000000..07ac645
---- /dev/null
-+++ b/drivers/leds/ledtrig-heartbeat.c
-@@ -0,0 +1,118 @@
-+/*
-+ * LED Heartbeat Trigger
-+ *
-+ * Copyright (C) 2006 Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-+ *
-+ * Based on Richard Purdie's ledtrig-timer.c and some arch's
-+ * CONFIG_HEARTBEAT code.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/timer.h>
-+#include <linux/sched.h>
-+#include <linux/leds.h>
-+#include "leds.h"
-+
-+struct heartbeat_trig_data {
-+	unsigned int phase;
-+	unsigned int period;
-+	struct timer_list timer;
-+};
-+
-+static void led_heartbeat_function(unsigned long data)
-+{
-+	struct led_classdev *led_cdev = (struct led_classdev *) data;
-+	struct heartbeat_trig_data *heartbeat_data = led_cdev->trigger_data;
-+	unsigned long brightness = LED_OFF;
-+	unsigned long delay = 0;
-+
-+	/* acts like an actual heart beat -- ie thump-thump-pause... */
-+	switch (heartbeat_data->phase) {
-+	case 0:
-+		/*
-+		 * The hyperbolic function below modifies the
-+		 * heartbeat period length in dependency of the
-+		 * current (5min) load. It goes through the points
-+		 * f(0)=126, f(1)=86, f(5)=51, f(inf)->30.
-+		 */
-+		heartbeat_data->period = 30 +
-+			(672 << FSHIFT) / (5 * avenrun[0] + (7 << FSHIFT));
-+		heartbeat_data->period = heartbeat_data->period * HZ / 100;
-+		delay = 7 * HZ / 100;
-+		heartbeat_data->phase++;
-+		brightness = LED_FULL;
-+		break;
-+	case 1:
-+		delay = heartbeat_data->period / 4 - 7 * HZ / 100;
-+		heartbeat_data->phase++;
-+		break;
-+	case 2:
-+		delay = 7 * HZ / 100;
-+		heartbeat_data->phase++;
-+		brightness = LED_FULL;
-+		break;
-+	default:
-+		delay = heartbeat_data->period - heartbeat_data->period / 4 -
-+			7 * HZ / 100;
-+		heartbeat_data->phase = 0;
-+		break;
-+	}
-+
-+	led_set_brightness(led_cdev, brightness);
-+	mod_timer(&heartbeat_data->timer, jiffies + delay);
-+}
-+
-+static void heartbeat_trig_activate(struct led_classdev *led_cdev)
-+{
-+	struct heartbeat_trig_data *heartbeat_data;
-+
-+	heartbeat_data = kzalloc(sizeof(*heartbeat_data), GFP_KERNEL);
-+	if (!heartbeat_data)
-+		return;
-+
-+	led_cdev->trigger_data = heartbeat_data;
-+	init_timer(&heartbeat_data->timer);
-+	heartbeat_data->timer.function = led_heartbeat_function;
-+	heartbeat_data->timer.data = (unsigned long) led_cdev;
-+	heartbeat_data->phase = 0;
-+	led_heartbeat_function(heartbeat_data->timer.data);
-+}
-+
-+static void heartbeat_trig_deactivate(struct led_classdev *led_cdev)
-+{
-+	struct heartbeat_trig_data *heartbeat_data = led_cdev->trigger_data;
-+
-+	if (heartbeat_data) {
-+		del_timer_sync(&heartbeat_data->timer);
-+		kfree(heartbeat_data);
-+	}
-+}
-+
-+static struct led_trigger heartbeat_led_trigger = {
-+	.name     = "heartbeat",
-+	.activate = heartbeat_trig_activate,
-+	.deactivate = heartbeat_trig_deactivate,
-+};
-+
-+static int __init heartbeat_trig_init(void)
-+{
-+	return led_trigger_register(&heartbeat_led_trigger);
-+}
-+
-+static void __exit heartbeat_trig_exit(void)
-+{
-+	led_trigger_unregister(&heartbeat_led_trigger);
-+}
-+
-+module_init(heartbeat_trig_init);
-+module_exit(heartbeat_trig_exit);
-+
-+MODULE_AUTHOR("Atsushi Nemoto <anemo@mba.ocn.ne.jp>");
-+MODULE_DESCRIPTION("Heartbeat LED trigger");
-+MODULE_LICENSE("GPL");
+> I am sorry. I should have read some more of the code before asking.
+>
+> The only question I have is why the priority of the callback is set to
+> priority of the task calling hrtimer_start() (current->normal_prio). That
+> seems like an odd binding to me. Shouldn't the finding of the priority be moved over to the
+> posix-timer code, where it is needed, and be given as a parameter to
+> hrtimer_start()?
+> In rtmutex.c, where a hrtimer is used as a timeout on a mutex, wouldn't it
+> make more sense to use current->prio than current->normal_prio if the task
+> is boosted when it starts to wait on a mutex.
+
+That seems reasonable.  It probably is a bug to use normal_prio, since we
+really do care what prio is at that time.
+
+>
+>
+> But I am not sure I like the design at all:
+>
+> Let say you have a bunch of callback running at priority 1 and then the
+> next hrt timer with priority 99 expires. Then the callback which
+> is running will be boosted to priority 99. So the overall latency at
+> priority 99 will at least the latency of the worst hrtimer callback.
+
+You mean for those that expire at the same time?
+
+I don't think this is a problem, because the run_hrtimer_hres_queue runs
+the hightest priorty callback first, then it adjusts its prio to the next
+priority callback.  See hrtimer_adjust_softirq_prio.
+
+> And worse: What if the callback running is blocked on a mutex? Will the
+> owner of the mutex be boosted as well? Not according to the code in
+> sched.c. Therefore you get priority inversion to priority 1. That is the
+> worst case hrtimer latency is that of priority 1.
+
+I don't see this.
+
+>
+> Therefore, a simpler and more robust design would be to give the thread
+> priority 99 as a default - just as the posix_cpu_timer thread. Then the
+> system designer can move it around with chrt when needed.
+> In fact you can say the current design have both the worst cases of having
+> it running as priority 99 and at priority 1!
+
+I still don't see this happening.
+
+>
+> Another complicated design would be to make a task for each priority.
+> Then the interrupt wakes the highest priority one, which handles the first
+> callback and awakes the next one etc.
+
+Don't think that is necessary.
+
+-- Steve
+

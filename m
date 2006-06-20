@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbWFTH3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbWFTHct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbWFTH3g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 03:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbWFTH3f
+	id S965126AbWFTHct (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 03:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWFTHct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 03:29:35 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:45469 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S965122AbWFTH3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 03:29:35 -0400
-Date: Tue, 20 Jun 2006 09:29:33 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
-Message-ID: <20060620072933.GA3030@rhlx01.fht-esslingen.de>
-References: <20060619191543.GA17187@rhlx01.fht-esslingen.de> <20060619221655.GB1648@openzaurus.ucw.cz> <20060619224312.GB17134@redhat.com>
+	Tue, 20 Jun 2006 03:32:49 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:18854 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S965126AbWFTHcs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 03:32:48 -0400
+Date: Tue, 20 Jun 2006 09:32:34 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Roland McGrath <roland@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] utrace: new modular infrastructure for user debug/tracing
+Message-ID: <20060620073234.GA29317@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
+References: <20060619105011.31953180049@magilla.sf.frob.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060619224312.GB17134@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+In-Reply-To: <20060619105011.31953180049@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jun 19, 2006 at 03:50:11AM -0700, Roland McGrath wrote:
+> I have been working on for a while, and imagining for much longer,
+> replacing ptrace from the ground up.  This is what I've come up with so
+> far, and I'm looking for some reactions on the direction.  What I'm
 
-[whoa, maybe I shouldn't have used such an inflammatory subject,
-the mail volume would suggest that ;-)]
+Roland,
 
-On Mon, Jun 19, 2006 at 06:43:12PM -0400, Dave Jones wrote:
-> On Tue, Jun 20, 2006 at 12:16:55AM +0200, Pavel Machek wrote:
-> 
->  > > Am I completely missing something here?
->  > 
->  > Yes. You are missing that modern hw already protects itself. See my  blog on planet.kernel.org.
-> 
-> And you are missing that not everyone is running linux on the latest CPUs.
+Is this what has elsewhere been referred to as 'ptrace-ng'?
 
-Darn right. Intel has been having thermal protection for a somewhat longer
-time, but Athlon had serious issues with missing or incompletely functioning
-thermal sensors on many not too outdated (let's say it was 4 years ago, ok?)
-motherboard/CPU combos.
+Thanks.
 
-And I don't really want to know about thermal protection status of various
-Cyrix, VIA or even Winchip CPUs (you've been a nic^H^Hïve believer of
-competition in a healthy marketplace and bought some of those, right?
-I know I did... ;).
-
-But since Pavel's blog mentions that thermal protection is an ACPI
-specification, there's hope that it may actually work half-decently
-after all.
-
-Andreas Mohr
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

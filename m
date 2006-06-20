@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWFTU0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWFTU0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWFTU0s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWFTU0r
+	id S1750930AbWFTU0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWFTU0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 20 Jun 2006 16:26:47 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:23775 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1750933AbWFTU0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:26:46 -0400
-Message-ID: <449859EF.7090507@myri.com>
-Date: Tue, 20 Jun 2006 16:26:23 -0400
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+Received: from ug-out-1314.google.com ([66.249.92.172]:44314 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750930AbWFTU0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:26:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=oRoMlMWY8nDYQMoM5q6smOxAGt+wC1JN+hekP119UmxfZMKf3gJjNVZwVVkOaisifUcFFmofCnT9BrOGwa81LGrnqhcD3gdJRIeGW8p+IUNIJU9+Ac4c9HOPFU5ZIcx23EN/COZmwhtucC2X9kkte+2tv8GTFmK9uEig7B3SImQ=
+Date: Tue, 20 Jun 2006 22:26:55 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <1150824092.6780.255.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606202217160.11643@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+  <1150816429.6780.222.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain> 
+ <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com> 
+ <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain>
+ <1150824092.6780.255.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Greg Lindahl <greg.lindahl@qlogic.com>, ak@suse.de, olson@unixfolk.com,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
- Hyper-transport capabilities
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no>	<fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no>	<Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com>	<200606200925.30926.ak@suse.de>	<20060620200352.GJ1414@greglaptop.internal.keyresearch.com> <20060620132049.ff5e6f67.rdunlap@xenotime.net>
-In-Reply-To: <20060620132049.ff5e6f67.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Tue, 20 Jun 2006 13:03:52 -0700 Greg Lindahl wrote:
->   
->> You probably meant the other Greg, but the situation doesn't seem to
->> be that bad. Brice's proposed whitelist covers almost all Opteron PCI
->> Express servers.
->>     
+On Tue, 20 Jun 2006, Thomas Gleixner wrote:
+
+> On Tue, 2006-06-20 at 19:12 +0100, Esben Nielsen wrote:
+>>>
+>>>>
+>>>> Another complicated design would be to make a task for each priority.
+>>>> Then the interrupt wakes the highest priority one, which handles the first
+>>>> callback and awakes the next one etc.
+>>>
+>>> Don't think that is necessary.
+>>
+>> Me neither :-) Running sofhtirq-hrt at priority 99 - or whatever is
+>> set by chrt - should be sufficient.
 >
-> Why "almost"?  What does a user do if his/hers is not covered?
-> Does it cover the 10 new models that are available tomorrow?
-> (hypothetical question)
->   
+> It is not, that was the reason, why we implemted it. You get arbitrary
+> latencies caused by timer storms.
+>
 
-At least, it will not be worse than currently for new PCI-E chipsets (my
-patch still enables MSI by default for these).
+What you are saying is that there is a lot of timers timing out at the 
+same time. When that happens you will get them all executed at priority 
+99 with the simple setup. In the current design you get them executed in 
+order of priority and the task lowers it's priority as it goes along.
+If you have a long list of low priority callbacks pending to be executed 
+the running one will finish at priority 99 and then the high priority one 
+will be put in as the list on the list.
 
-But, my quirks to check the MSI cap in the HT mapping might need to be
-enabled for more chipsets (I only handle nVidia Ck804 and ServerWorks
-HT2000).
+Ok, I see your point: Although you can't preempt the individual callbacks 
+you can preempt the loop, which helps on latencies as many timers can 
+timeout before they are executed.
 
-Brice
+> I have to check, whether the priority is propagated when the softirq is
+> blocked on a lock. If not its a bug and has to be fixed.
 
+I think the simplest solution would be to add
+
+         if (p->blocked_on)
+                 wake_up_process(p);
+
+in __setscheduler().
+
+>
+> 	tglx
+>
+>

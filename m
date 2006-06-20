@@ -1,41 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWFTUHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWFTULz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbWFTUHh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWFTUHh
+	id S1750732AbWFTULz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWFTULz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:07:37 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:12703 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750852AbWFTUHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:07:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=EAuwyAa5QSQz73AKrJW1+HJVOlLDk7eb9d8pw6WlmBR7btRjQoaQzM0QbvJx+hMYHumJF4tCqGs28Sw1ZBbtOs7UwndxhiMg8SlqlOplrJg3QyOWP0WNsl1kIpC06oD1XUKesuuyEw54+wgXnxkjJK/cR+NHKg1eaYwERJFRgq0=
-Message-ID: <7f45d9390606201307yfdb8aadn4d00a6afeba0b09b@mail.gmail.com>
-Date: Tue, 20 Jun 2006 14:07:36 -0600
-From: "Shaun Jackman" <sjackman@gmail.com>
-Reply-To: "Shaun Jackman" <sjackman@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: TL16C752B DUART: MCR_OUT2 disables interrupts
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 20 Jun 2006 16:11:55 -0400
+Received: from xenotime.net ([66.160.160.81]:23224 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750732AbWFTULz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:11:55 -0400
+Date: Tue, 20 Jun 2006 13:14:40 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jim Cromie <jim.cromie@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm 20/20 RFC] chardev: GPIO for SCx200 & PC-8736x: add
+ sysfs-GPIO interface
+Message-Id: <20060620131440.9c9b0999.rdunlap@xenotime.net>
+In-Reply-To: <44985321.3020609@gmail.com>
+References: <448DB57F.2050006@gmail.com>
+	<cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>
+	<44944D14.2000308@gmail.com>
+	<20060619222223.8f5133a9.akpm@osdl.org>
+	<44985321.3020609@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The datasheet I have for the TL16C752B labels the MCR_OUT1 bit as
-`FIFO Rdy enable' and the MCR_OUT2 bit as `IRQ enable'. The latter bit
-concerns me. The 8250.c driver sets MCR_OUT2 by default; however, if
-the user space clears MCR_OUT2 (through an ioctl TIOCMSET operation or
-similar), it seems to me that interrupts for that UART will stop
-working. Can someone confirm my suspicion?
+On Tue, 20 Jun 2006 13:57:21 -0600 Jim Cromie wrote:
 
-I'd expect that clearing/setting the OUT1 and OUT2 pins from user
-space should be an innocuous operation. Disabling interrupts is a
-fairly nasty side effect.
+> Andrew Morton wrote:
+> > On Sat, 17 Jun 2006 12:42:28 -0600
+> > Jim Cromie <jim.cromie@gmail.com> wrote:
+> >
+> > Fixup patches agains next -mm would be suitable.  Please keep them
+> > super-short: basically one-patch-per-review-comment.  That way I can easily
+> > instertion-sort the patches into place and we retain a nice patch series.
+> >
+> >   
+> OK.  Just so Im clear, Ill patch against the tail of the set (ie -mm1), 
+> and you'll push them forward into the
 
-Please cc me in your reply. Cheers,
-Shaun
+WTH?  "you'll" ??
+
+> series as close as possible to where the blunder was made ?  (and less 
+> close for conflicts )
+> >> Ive
+> >>     
+> >
+> > Apostrophe aversion?
+> >   
+> 
+> Its PFL.  Its also IMO a trend in the language.  "Its" (the contraction) 
+> has dropped the '
+> IIUC, its (with the apostrophe) now only for possession, forex: Its 
+> bigger than the sum of it's parts.
+> Im just taking that to excess, everywhere its applicable ;-)
+
+and you have it totally bassackwards too.  Maybe you meant to
+do that, a la Rusty.
+
+Possessive "its" did not and does not use apostrophe.
+and "forex" is the Foreign Exchange market (or a brand of
+prophylactic).
+
+http://en.wikipedia.org/wiki/PFL ??
+---
+~Randy

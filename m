@@ -1,174 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWFTWiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWFTWjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWFTWiz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWFTWiy
+	id S1751317AbWFTWjj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWFTWji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:38:54 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55780 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751326AbWFTW24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:28:56 -0400
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>, <discuss@x86-64.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andi Kleen <ak@suse.de>,
-       "Natalie Protasevich" <Natalie.Protasevich@UNISYS.com>,
-       "Len Brown" <len.brown@intel.com>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 9/25] irq: Add a dynamic irq creation API
-Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:22 -0600
-Message-Id: <115084252131-git-send-email-ebiederm@xmission.com>
-X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425213394-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com>
+	Tue, 20 Jun 2006 18:39:38 -0400
+Received: from melchior.nuitari.net ([209.222.54.175]:52876 "EHLO
+	melchior.nuitari.net") by vger.kernel.org with ESMTP
+	id S1751355AbWFTWjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:39:02 -0400
+Date: Tue, 20 Jun 2006 18:37:16 -0400 (EDT)
+From: Nuitari <nuitari@melchior.nuitari.net>
+To: linux-kernel@vger.kernel.org
+Subject: pci=assign-busses on Compaq R3440CA
+Message-ID: <Pine.LNX.4.64.0606201807090.15246@melchior.nuitari.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the msi support comes a new concept in irq handling,
-irqs that are created dynamically at run time.
+Hi,
 
-Currently the msi code allocates irqs backwards.  First it
-allocates a platform dependent routing value for an
-interrupt the ``vector'' and then it figures out from the
-vector which irq you are on.
+I have a Compaq R3440CA laptop.
 
-This msi backwards allocator suffers from two basic
-problems.  The allocator suffers because it is trying
-to do something that is architecture specific in a generic
-way making it brittle, inflexible, and tied to tightly
-to the architecture implementation.  The alloctor also
-suffers from it's very backwards nature as it has tied
-things together that should have no dependencies.
+Without the pci=assign-busses option I have this happenning:
 
-To solve the basic dynamic irq allocation problem two
-new architecture specific functions are added:
-create_irq and destroy_irq.
+[   13.311216] PCI: Bus #03 (-#06) is hidden behind  bridge #02 (-#02) (try 'pci=assign-busses')
+[   13.311292] Please report the result to linux-kernel to fix this permanently
+[   13.311386] PCI: Bus #07 (-#0a) is hidden behind  bridge #02 (-#02) (try 'pci=assign-busses')
+[   13.311462] Please report the result to linux-kernel to fix this permanently
 
-create_irq takes no input and returns an unused irq number,
-that won't be reused until it is returned to the free
-poll with destroy_irq.  The irq then can be used for
-any purpose although the only initial consumer is
-the msi code.
+This is lspci without the option:
+00:00.0 Host bridge: nVidia Corporation nForce3 Host Bridge (rev a4)
+00:01.0 ISA bridge: nVidia Corporation nForce3 LPC Bridge (rev a6)
+00:01.1 SMBus: nVidia Corporation nForce3 SMBus (rev a4)
+00:02.0 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
+00:02.1 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
+00:02.2 USB Controller: nVidia Corporation nForce3 USB 2.0 (rev a2)
+00:06.0 Multimedia audio controller: nVidia Corporation nForce3 Audio (rev a2)
+00:06.1 Modem: nVidia Corporation Unknown device 00d9 (rev a2)
+00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5)
+00:0a.0 PCI bridge: nVidia Corporation nForce3 PCI Bridge (rev a2)
+00:0b.0 PCI bridge: nVidia Corporation nForce3 AGP Bridge (rev a4)
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 420 Go 32M] (rev a3)
+02:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link)
+02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+02:02.0 Network controller: Broadcom Corporation BCM4306 802.11b/g Wireless LAN Controller (rev 03)
+02:04.0 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
+02:04.1 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
+02:04.2 System peripheral: Texas Instruments PCI1620 Firmware Loading Function (rev 01)
 
-destroy_irq takes an irq number allocated with create_irq
-and returns it to the free pool.
+and this is lspci with the option:
+fistandantilus ~ # lspci
+00:00.0 Host bridge: nVidia Corporation nForce3 Host Bridge (rev a4)
+00:01.0 ISA bridge: nVidia Corporation nForce3 LPC Bridge (rev a6)
+00:01.1 SMBus: nVidia Corporation nForce3 SMBus (rev a4)
+00:02.0 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
+00:02.1 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
+00:02.2 USB Controller: nVidia Corporation nForce3 USB 2.0 (rev a2)
+00:06.0 Multimedia audio controller: nVidia Corporation nForce3 Audio (rev a2)
+00:06.1 Modem: nVidia Corporation Unknown device 00d9 (rev a2)
+00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5)
+00:0a.0 PCI bridge: nVidia Corporation nForce3 PCI Bridge (rev a2)
+00:0b.0 PCI bridge: nVidia Corporation nForce3 AGP Bridge (rev a4)
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+01:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link)
+01:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+01:02.0 Network controller: Broadcom Corporation BCM4306 802.11b/g Wireless LAN Controller (rev 03)
+01:04.0 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
+01:04.1 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
+01:04.2 System peripheral: Texas Instruments PCI1620 Firmware Loading Function (rev 01)
+0a:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 420 Go 32M] (rev a3)
 
-Making this functionality per architecture increases
-the simplicity of the irq allocation code and increases
-it's flexibility.
 
-dynamic_irq_init() and dynamic_irq_cleanup() are added
-to automate the irq_desc initializtion that should happen
-for dynamic irqs.
+Initially I though that pci=assign-busses fixed a boot up BUG, however it 
+reappered in subsequent testing. The bug happens when udev-090 is 
+processing the events.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- include/linux/irq.h |    9 +++++++-
- kernel/irq/chip.c   |   56 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 64 insertions(+), 1 deletions(-)
-
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index b79d178..6d1ad88 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -392,8 +392,15 @@ set_irq_chained_handler(unsigned int irq
- 	__set_irq_handler(irq, handle, 1);
- }
- 
--/* Set/get chip/data for an IRQ: */
-+/* Handle dynamic irq creation and destruction */
-+extern int create_irq(void);
-+extern void destroy_irq(unsigned int irq);
-+
-+/* Dynamic irq helper functions */
-+extern void dynamic_irq_init(unsigned int irq);
-+extern void dynamic_irq_cleanup(unsigned int irq);
- 
-+/* Set/get chip/data for an IRQ: */
- extern int set_irq_chip(unsigned int irq, struct irq_chip *chip);
- extern int set_irq_data(unsigned int irq, void *data);
- extern int set_irq_chip_data(unsigned int irq, void *data);
-diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
-index 431e9d5..9c01e48 100644
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -18,6 +18,62 @@ #include <linux/kernel_stat.h>
- #include "internals.h"
- 
- /**
-+ *	dynamic_irq_init - initialize a dynamically allocated irq
-+ *	@irq:	irq number to initialize
-+ */
-+void dynamic_irq_init(unsigned int irq)
-+{
-+	struct irq_desc *desc;
-+	unsigned long flags;
-+
-+	if (irq >= NR_IRQS) {
-+		printk(KERN_ERR "Trying to initialize invalid IRQ%d\n", irq);
-+		WARN_ON(1);
-+		return;
-+	}
-+
-+	/* Ensure we don't have left over values from a previous use of this irq */
-+	desc = irq_desc + irq;
-+	spin_lock_irqsave(&desc->lock, flags);
-+	desc->status = IRQ_DISABLED;
-+	desc->chip = &no_irq_chip;
-+	desc->handle_irq = handle_bad_irq;
-+	desc->depth = 1;
-+	desc->handler_data = NULL;
-+	desc->chip_data = NULL;
-+	desc->action = NULL;
-+	desc->irq_count = 0;
-+	desc->irqs_unhandled = 0;
-+#ifdef CONFIG_SMP
-+	desc->affinity = CPU_MASK_ALL;
-+#endif
-+	spin_unlock_irqrestore(&desc->lock, flags);
-+}
-+
-+/**
-+ *	dynamic_irq_cleanup - cleanup a dynamically allocated irq
-+ *	@irq:	irq number to initialize
-+ */
-+void dynamic_irq_cleanup(unsigned int irq)
-+{
-+	struct irq_desc *desc;
-+	unsigned long flags;
-+
-+	if (irq >= NR_IRQS) {
-+		printk(KERN_ERR "Trying to cleanup invalid IRQ%d\n", irq);
-+		WARN_ON(1);
-+		return;
-+	}
-+	
-+	desc = irq_desc + irq;
-+	spin_lock_irqsave(&desc->lock, flags);
-+	desc->handle_irq = handle_bad_irq;
-+	desc->chip = &no_irq_chip;
-+	spin_unlock_irqrestore(&desc->lock, flags);
-+}
-+
-+
-+/**
-  *	set_irq_chip - set the irq chip for an irq
-  *	@irq:	irq number
-  *	@chip:	pointer to irq chip description structure
--- 
-1.4.0.gc07e
+[   30.687843] usbcore: registered new driver usbfs
+[   30.687929] usbcore: registered new driver hub
+[   30.699191] acpi_bus-0201 [04] bus_set_power         : Device is not power manageable
+[   30.700367] ACPI: PCI Interrupt Link [LUS2] enabled at IRQ 20
+[   30.700430] GSI 20 sharing vector 0xD1 and IRQ 20
+[   30.700488] ACPI: PCI Interrupt 0000:00:02.2[C] -> Link [LUS2] -> GSI 20 (level, low) -> IRQ 209
+[   30.700890] PCI: Setting latency timer of device 0000:00:02.2 to 64
+[   30.700898] ehci_hcd 0000:00:02.2: EHCI Host Controller
+[   30.701169] ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 1
+[   30.701280] PCI: cache line size of 64 is not supported by device 0000:00:02.2
+[   30.701292] ehci_hcd 0000:00:02.2: irq 209, io mem 0xe0004000
+[   30.701352] ehci_hcd 0000:00:02.2: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+[   30.701510] usb usb1: configuration #1 chosen from 1 choice
+[   30.701591] hub 1-0:1.0: USB hub found
+[   30.701651] hub 1-0:1.0: 6 ports detected
+[   30.702436] ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+[   30.817058] acpi_bus-0201 [04] bus_set_power         : Device is not power manageable
+[   30.817202] PCI: Enabling device 0000:00:02.0 (0004 -> 0006)
+// Long waiting period here
+[   91.732028] BUG: soft lockup detected on CPU#0!
+[   91.732083]
+[   91.732084] Call Trace: <IRQ> <ffffffff802ad30c>{softlockup_tick+188}
+[   91.732273]        <ffffffff80297677>{update_process_times+87} <ffffffff80277e42>{main_timer_handler+562}
+[   91.732479]        <ffffffff802780c5>{timer_interrupt+21} <ffffffff8021082c>{handle_IRQ_event+44}
+[   91.732682]        <ffffffff802ad4ee>{__do_IRQ+190} <ffffffff80276af9>{do_IRQ+57}
+[   91.732882]        <ffffffff802679cc>{ret_from_intr+0} <ffffffff80404b90>{acpi_pci_irq_enable+0}
+[   91.733086]        <ffffffff8021081a>{handle_IRQ_event+26} <ffffffff80293166>{tasklet_action+70}
+[   91.733287]        <ffffffff802ad4ee>{__do_IRQ+190} <ffffffff80276af9>{do_IRQ+57}
+[   91.733486]        <ffffffff802679cc>{ret_from_intr+0} <EOI> <ffffffff80404b90>{acpi_pci_irq_enable+0}
+[   91.733719]        <ffffffff80404cc1>{acpi_pci_irq_enable+305} <ffffffff80404bda>{acpi_pci_irq_enable+74}
+[   91.733921]        <ffffffff803afd75>{pci_enable_device_bars+53} <ffffffff803afdab>{pci_enable_device+27}
+[   91.734127]        <ffffffff88011643>{:usbcore:usb_hcd_pci_probe+83} <ffffffff803b1659>{pci_device_probe+89}
+[   91.734367]        <ffffffff8042d125>{driver_probe_device+101} <ffffffff8042d200>{__driver_attach+0}
+[   91.734572]        <ffffffff8042d256>{__driver_attach+86} <ffffffff8042d200>{__driver_attach+0}
+[   91.735825]        <ffffffff8042ca09>{bus_for_each_dev+73} <ffffffff8042c5d8>{bus_add_driver+136}
+[   91.736027]        <ffffffff803b1891>{__pci_register_driver+65} <ffffffff802a69fc>{sys_init_module+188}
+[   91.736229]        <ffffffff802674d2>{system_call+126}
 

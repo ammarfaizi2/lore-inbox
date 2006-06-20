@@ -1,141 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbWFTKk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWFTKks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932582AbWFTKk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 06:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWFTKk7
+	id S932566AbWFTKks (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 06:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWFTKks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 06:40:59 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:21221 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932574AbWFTKk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 06:40:57 -0400
-Message-ID: <4497D0A9.6060704@bull.net>
-Date: Tue, 20 Jun 2006 12:40:41 +0200
-From: Laurent Vivier <Laurent.Vivier@bull.net>
-Organization: Bull S.A.S.
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 20 Jun 2006 06:40:48 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:29894 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S932566AbWFTKkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 06:40:47 -0400
+Message-ID: <4497D014.1050704@s5r6.in-berlin.de>
+Date: Tue, 20 Jun 2006 12:38:12 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Qi Yong <qiyong@fc-cn.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-       alex@clusterfs.com, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org>	<1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>	<Pine.LNX.4.64.0606091344290.5498@g5.osdl.org> <4497927F.4070307@fc-cn.com> <4497B126.4000408@bull.net> <4497B230.5000508@garzik.org> <4497BE00.1040409@bull.net> <4497C485.7000400@garzik.org>
-In-Reply-To: <4497C485.7000400@garzik.org>
-X-Enigmail-Version: 0.94.0.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/06/2006 12:44:45,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/06/2006 12:44:47,
-	Serialize complete at 20/06/2006 12:44:47
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1EB8216EEB9A54DB7037A0B3"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>,
+       linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: [git pull] ieee1394 tree for 2.6.18
+References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1EB8216EEB9A54DB7037A0B3
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Linus Torvalds wrote:
+> On Sun, 18 Jun 2006, Stefan Richter wrote:
+>> 
+>> the IEEE 1394 subsystem updates for Linux 2.6.18 are now staged in Ben's
+>> revived linux1394 git tree. I guess the URL to pull from is
+>> git://git.kernel.org/pub/scm/linux/kernel/git/bcollins/linux1394-2.6.git
+> 
+> I'm sure that URL works fine, but I want to see what I'm pulling before I 
+> pull it, so _please_ use one of the scripts that generates diffstats and 
+> shortlogs, or do it by hand..
 
-Jeff Garzik wrote:
-> Laurent Vivier wrote:
->> Jeff Garzik wrote:
->>> Laurent Vivier wrote:
->>>> Qi Yong wrote:
->>>>> Linus Torvalds wrote:
->>>>>
->>>>>> On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
->>>>>> =20
->>>>>>
->>>>>>> When is the Linux syscall interface enough?  When should we just
->>>>>>> bump it
->>>>>>> and cut out all the compatibility interfaces?
->>>>>>>
->>>>>>> No, we don't; we let people configure certain obsolete bits out
->>>>>>> (a.out
->>>>>>> support etc), but we keep it in the tree despite the indirection
->>>>>>> cost to
->>>>>>> maintain multiple interfaces etc.
->>>>>>>  =20
->>>>>> Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN
->>>>>> WAYS THAT MIGHT BREAK OLD USERS.
->>>>>>
->>>>>> Your point was exactly what?
->>>>>>
->>>>>> Btw, where did that 2TB limit number come from? Afaik, it should b=
-e
->>>>>> 16TB for a 4kB filesystem, no?
->>>>>> =20
->>>>>>
->>>>> Partition tables describe partitions in units of one sector.
->>>>> 2^(32+9) =3D 2T
->>>>>
->>>>> To prevent integer overflow, we should use only 31 bits of a 32-bit=
+Here are stat and shortlog; not from the actual git tree but from patches as
+they went in. Side notes: The spike in the diffstat is whitespace formatting.
+Sem2mutex and kthread conversions as well as suspend/resume fixes are not
+complete yet.
 
->>>>> integer.
->>>>> 2^(31+12) =3D 8T
->>>>>
->>>>> There's _terrible_ hacks to really get to 16T.
->>>>>
->>>>> -- qiyong
->>>>>
->>>> IMHO, a simple solution is to use "Logical Volume Manager" instead o=
-f
->>>> partition
->>>> manager: we create 64bit filesystem in a Logical Volume, not in a
->>>> partition.
->>> That doesn't solve anything, if you are not using a 64bit filesystem.=
+ Documentation/feature-removal-schedule.txt |    4
+ drivers/ieee1394/Kconfig                   |   13
+ drivers/ieee1394/csr1212.c                 |    2
+ drivers/ieee1394/csr1212.h                 |    1
+ drivers/ieee1394/dma.c                     |   18
+ drivers/ieee1394/eth1394.c                 |   51 +-
+ drivers/ieee1394/eth1394.h                 |    2
+ drivers/ieee1394/highlevel.c               |  445 +++++++++------------
+ drivers/ieee1394/hosts.c                   |    7
+ drivers/ieee1394/hosts.h                   |   19
+ drivers/ieee1394/ieee1394_core.c           |   62 +-
+ drivers/ieee1394/ieee1394_transactions.c   |   10
+ drivers/ieee1394/nodemgr.c                 |   61 ++
+ drivers/ieee1394/ohci1394.c                |   37 +
+ drivers/ieee1394/ohci1394.h                |   10
+ drivers/ieee1394/raw1394.c                 |   54 +-
+ drivers/ieee1394/sbp2.c                    |   85 +---
+ drivers/ieee1394/sbp2.h                    |   23 -
+ drivers/ieee1394/video1394.c               |   16
+ 19 files changed, 463 insertions(+), 457 deletions(-)
 
->>
->> Sorry, I don't undestand why ???
->>
->> You can use 32bit filesystem too, but you limit the size of the
->> logical volume
->> to be compatible with the filesystem you use. LVM allows to create
->> several 32bit
->> volumes on a big (> 8T) disk (if exists)
->=20
-> Let's review the thread:
->=20
-> qiyong: <these limits> exist in the filesystem
-> you: bust those limits with LVM!
->=20
-> I think you are misunderstanding the subthread.
->=20
+Alexey Dobriyan:
+	eth1394: endian fixes
 
-Yes...
+Arjan van de Ven:
+	Semaphore to mutex conversion.
 
-I understood:
-qiyong: <these limits> exist in the partition manager.
+Christoph Hellwig, Andrew Morton:
+	ieee1394_core: switch to kthread API
 
-(because with patches proposed on http://www.bullopensource.org/ext4 thes=
-e
-limits don't exist anymore in the filesystem.)
+Daniel Drake:
+	video1394: be quiet
 
-Regards,
-Laurent
---=20
-Laurent Vivier
-Bull, Architect of an Open World (TM)
-http://www.bullopensource.org/ext4
+Jean-Baptiste Mur:
+	ieee1394/ohci1394: CycleTooLong interrupt management
 
+Jim Westfall:
+	ieee1394: speed up of dma_region_sync_for_cpu
 
---------------enig1EB8216EEB9A54DB7037A0B3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Jody McIntyre:
+	Update feature removal of obsolete raw1394 ISO requests.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
+Robert Hancock:
+	Fix broken suspend/resume in ohci1394
 
-iD8DBQFEl9Cv9Kffa9pFVzwRAsbiAKCOf70EE56Tk1XGkNwibp3VSnY0vgCfQO1v
-IFStSksvLJM8UkQl/c0pNJA=
-=/jhJ
------END PGP SIGNATURE-----
+Stefan Richter:
+	eth1394: replace __constant_htons by htons
+	ieee1394: adjust code formatting in highlevel.c
+	ieee1394: hl_irqs_lock is taken in hardware interrupt context
+	ieee1394: add preprocessor constant for invalid csr address
+	ieee1394: extend lowlevel API for address range properties
+	ieee1394: save RAM by using a single tlabel for broadcast transactions
+	ieee1394: support for slow links or slow 1394b phy ports
+	ohci1394: make phys_dma parameter read-only
+	ohci1394: set address range properties
+	ohci1394: Remove superfluous call to free_dma_rcv_ctx,
+	raw1394: fix whitespace after x86_64 compat patch
+	sbp2: Kconfig fix
+	sbp2: fix deregistration of status fifo address space
+	sbp2: use __attribute__((packed)) for on-the-wire structures
+	sbp2: provide helptext for CONFIG_IEEE1394_SBP2_PHYS_DMA and mark it experimental
+	sbp2: fix S800 transfers if phys_dma is off
+	sbp2: remove ohci1394 specific constant
+	sbp2: log number of supported concurrent logins
+	sbp2: remove manipulation of inquiry response
+	sbp2: make TSB42AA9 workaround specific to Momobay CX-1
 
---------------enig1EB8216EEB9A54DB7037A0B3--
+-- 
+Stefan Richter
+-=====-=-==- -==- =-=--
+http://arcgraph.de/sr/

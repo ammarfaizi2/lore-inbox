@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWFTU5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWFTU6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbWFTU5n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWFTU5n
+	id S1751037AbWFTU6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWFTU6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:57:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:30423 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751060AbWFTU5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:57:42 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [RFC, patch] i386: vgetcpu()
-Date: Tue, 20 Jun 2006 22:57:16 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <200606201628_MC3-1-C2FA-3586@compuserve.com>
-In-Reply-To: <200606201628_MC3-1-C2FA-3586@compuserve.com>
+	Tue, 20 Jun 2006 16:58:39 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:25547 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751031AbWFTU6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:58:39 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44986126.506@s5r6.in-berlin.de>
+Date: Tue, 20 Jun 2006 22:57:10 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [git pull] ieee1394 tree for 2.6.18
+References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org> <20060620025552.GO27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org> <20060620175321.GA7463@flint.arm.linux.org.uk> <44984CA1.5010308@s5r6.in-berlin.de> <20060620193422.GA10748@flint.arm.linux.org.uk>
+In-Reply-To: <20060620193422.GA10748@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606202257.16033.ak@suse.de>
+X-Spam-Score: (0.884) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 22:25, Chuck Ebbert wrote:
-> Use the limit field of a GDT entry to store the current CPU
-> number for fast userspace access.  This still leaves 12 bits
-> free for other information.
+Russell King wrote:
+> The point was to try to establish when we could consider the tree from
+> which we'd asked Linus to pull from as being sufficiently old that it
+> would not be pulled from without another request being sent - or if it
+> was pulled from, that we wouldn't get an email from Linus about the fact
+> there was new stuff in there.
 
-Nice trick. Maybe I'll even add that to the x86-64 implementation
-if it's fast enough. Do you have numbers?
+You could /a/ try to come to an agreement with him about a less brittle 
+protocol, or /b/ think of your mail as an "announcement" rather than a 
+"request" (for your peace of mind) and follow up with a repost of the 
+announcement if you come to know that your updates did not appear in 
+Linus' tree when the end of a merge window is near.
 
-But it needs to be encapsulated in a wrapper I think. Just exposing
-it to user space is the wrong way to do this.
-
--Andi
+(Of course I cannot really assess your requirements and workload, not 
+being maintainer of a large or highly connected kernel component myself. 
+So ignore if I'm suggesting something stupid here.)
+-- 
+Stefan Richter
+-=====-=-==- -==- =-=--
+http://arcgraph.de/sr/

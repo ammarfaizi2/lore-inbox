@@ -1,25 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWFTFYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWFTFZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWFTFYg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 01:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWFTFYf
+	id S964939AbWFTFZS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 01:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWFTFZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 01:24:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50122 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964939AbWFTFWH (ORCPT
+	Tue, 20 Jun 2006 01:25:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65483 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964939AbWFTFZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 01:22:07 -0400
-Date: Mon, 19 Jun 2006 22:22:04 -0700
+	Tue, 20 Jun 2006 01:25:15 -0400
+Date: Mon, 19 Jun 2006 22:25:12 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm 05/20] chardev: GPIO for SCx200 & PC-8736x: put
- gpio_dump on a diet
-Message-Id: <20060619222204.362b30ca.akpm@osdl.org>
-In-Reply-To: <44944976.80400@gmail.com>
-References: <448DB57F.2050006@gmail.com>
-	<cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>
-	<44944976.80400@gmail.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [-mm patch] binfmt_elf: fix checks for bad address
+Message-Id: <20060619222512.58ba3e48.akpm@osdl.org>
+In-Reply-To: <200606200059_MC3-1-C2E8-8C45@compuserve.com>
+References: <200606200059_MC3-1-C2E8-8C45@compuserve.com>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,22 +24,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Jun 2006 12:27:02 -0600
-Jim Cromie <jim.cromie@gmail.com> wrote:
+On Tue, 20 Jun 2006 00:55:24 -0400
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
 
-> +        u32 config = scx200_gpio_configure(index, ~0, 0);
-> +
-> +        printk(KERN_INFO NAME ": GPIO-%02u: 0x%08lx %s %s %s %s %s %s %s\n",
-> +               index, (unsigned long) config,
-> +               (config & 1) ? "OE"      : "TS",		/* output enabled / tristate */
-> +               (config & 2) ? "PP"      : "OD",		/* push pull / open drain */
-> +               (config & 4) ? "PUE"     : "PUD",	/* pull up enabled/disabled */
-> +               (config & 8) ? "LOCKED"  : "",		/* locked / unlocked */
-> +               (config & 16) ? "LEVEL"  : "EDGE",	/* level/edge input */
-> +               (config & 32) ? "HI"     : "LO",		/* trigger on rising/falling edge */ 
-> +               (config & 64) ? "DEBOUNCE" : "");	/* debounce */
->  }
+> -#define BAD_ADDR(x) ((unsigned long)(x) > TASK_SIZE)
+> +#define BAD_ADDR(x) ((unsigned long)(x) >= TASK_SIZE)
 
-Please use hard tabs.
+Convince us that this is correct for all the other users of BAD_ADDR() in
+this file.
 
-Casting `config' to ulong isn't needed here.

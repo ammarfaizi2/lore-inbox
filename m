@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWFTWTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWFTWUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWFTWTv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWFTWTv
+	id S1751286AbWFTWUl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWFTWUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:19:51 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:45069 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751286AbWFTWTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:19:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=euvunsrHQWSUZHOshgWJFAJlUHFS/UzK1Q68Hu3OV6wLvKwIkK5fSz/i7zDlQTxqB1sgFjxnkxPIghiufWAusAn4l6TDJAyZcvYC/AS4jyXu8H1e2JUiG2wtSENUEpijTHTz08JlTgBRJVuMJF0dIi6LpK065GhVByhCc7j3fAE=
-Date: Wed, 21 Jun 2006 00:19:59 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
-In-Reply-To: <1150835732.6780.293.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0606202344240.11643@localhost.localdomain>
-References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
-  <1150816429.6780.222.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain> 
- <1150821311.6780.240.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0606201914170.11643@localhost.localdomain>
- <1150835732.6780.293.camel@localhost.localdomain>
+	Tue, 20 Jun 2006 18:20:41 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:33739 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1751286AbWFTWUk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:20:40 -0400
+Message-ID: <449874B6.7020606@dgreaves.com>
+Date: Tue, 20 Jun 2006 23:20:38 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Mark Lord <liml@rtr.ca>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: LibPATA/ATA Errors Continue - Will there be a fix for this?
+References: <Pine.LNX.4.64.0606200808250.5851@p34.internal.lan> <4497F1C7.2070007@rtr.ca> <449804EA.8030908@dgreaves.com> <44981800.2000807@dgreaves.com> <Pine.LNX.4.64.0606201146430.2601@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0606201146430.2601@p34.internal.lan>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Thomas Gleixner wrote:
-
-> On Tue, 2006-06-20 at 22:16 +0100, Esben Nielsen wrote:
->>> We had this before and it is horrible.
+Justin Piszcz wrote:
+> Dave, what is the make/model of the drives you get errors with by the
+> way?
+>
+> On Tue, 20 Jun 2006, David Greaves wrote:
+>> [Some email archaeology later]
 >>
->> "Horrible" in what respect?
->
-> Unbound latencies.
->
->>> A nice solution would be to enqueue the timer into the task struct of
->>> the thread which is target of the signal, wake that thread in a special
->>> state which only runs the callback and then does the signal delivery.
+>> Back in March I was running 2.6.16 (with the opcode patch) and I sent an
+>> email with the following info:
 >>
->> What if the thread is running?
->
-> Well, do it in the return from interrupt path.
+>> dmesg:
+>> ata1: translated op=0x28 cmd=0x25 ATA stat/err 0x51/04 to SCSI
+>> SK/ASC/ASCQ 0xb/00/00
+>> ata1: status=0x51 { DriveReady SeekComplete Error }
+>> ata1: error=0x04 { DriveStatusError }
+Model Family: Maxtor DiamondMax 10 family
+Device Model: Maxtor 6B200M0
+Serial Number: B4038RRH
+Firmware Version: BANC1980
 
-Wouldn't it just be the same as interrupt context then?
+this is sata_sil
 
->
->> Hmm, a practical thing to do would be to make a system where you can post
->> jobs in a thread. These jobs can then be done in thread context
->> around schedule or just before the task returns to user-space.
->
-> Thats basically what I said. But you have to take care of asynchronous
-> signal delivery. Therefor you need a special state. Also return to
-> userspace is not enough. You have to do the check in the return from
-> interrupt path, as you might delay async signals otherwise.
->
+Another machine has :
+Device Model: SAMSUNG SP2504C
+Serial Number: S09QJ10Y720963
+Firmware Version: VT100-33
+User Capacity: 250,059,350,016 bytes
 
-It doesn't sound very preemptible then.
+running through sata_via
 
-I was more thinking along the lines of having a "message" where threads 
-(and interrupts) can post functions to each other to be executed in 
-the target context.
+that's running 2.6.16.18 and just gives:
+ata1: PIO error
+ata1: status=0x50 { DriveReady SeekComplete }
 
-The idea is:
-1) You can get a fairly standeard code executeded with a priority 
-associated with the target thread.
-2) Make sure that only one thread touches some data and that way avoid 
-having locks and therefore deadlocks.
-3) Simplyfying callbacks. Instead of installing a callback which can be 
-executed in some task or interrupt, you can with this system make a 
-callback which will be executed in client's context, and thus simplyfying 
-the client's headaches with locks.
 
-By "fairly standeard" code I mean code which doesn't block 
-except that it should be allowed to use mutexes, which in many ways is not 
-real blocking when PI is implemented.
+David
 
-If this should be safe you can't just preemp and execute these functions 
-anywhere in a thread. It must be in a well-defined place where no mutexes are 
-held. Many (all?) kernel threads have a while() with a central schedule() in
-the middle. One can most often call these functions safely at this 
-schedule(). For userspace threads it would also be safe to call the functions
-when going in and out of userspace. It will probably be safe to call the
-functions at any call to schedule() except for the one inside the mutex 
-lock operation. The volentary-preemption points Ingo made some years ago 
-would probably be ok places, too.
+-- 
 
-Esben
-
-> 	tglx
->
->

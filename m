@@ -1,44 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWFTWuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWFTW4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbWFTWuv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWFTWuv
+	id S1751463AbWFTW4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWFTW4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:50:51 -0400
-Received: from gateway0.EECS.Berkeley.EDU ([169.229.60.93]:45464 "EHLO
-	gateway0.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S1751463AbWFTWuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:50:50 -0400
-From: "Jeff Anderson-Lee" <jonah@eecs.berkeley.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: [RFC] suggestion [PATCH N/M] subject lines
-Date: Tue, 20 Jun 2006 15:50:48 -0700
-Message-ID: <000001c694bb$f9fa3f40$ce2a2080@eecs.berkeley.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaUu/lE+0Bb57K9TCqTYaimFAY0kQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
+	Tue, 20 Jun 2006 18:56:17 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:38786 "EHLO
+	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
+	id S1751463AbWFTW4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:56:17 -0400
+Date: Tue, 20 Jun 2006 15:55:22 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [stable] [-stable PATCH] UML - fix uptime
+Message-ID: <20060620225522.GK22737@sequoia.sous-sol.org>
+References: <200606202225.k5KMP3U5006871@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606202225.k5KMP3U5006871@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reading the mailing list with a non-threads compatible 
-mail client agent would be made much easier if the 
-convention for subject lines for multi-part patches was 
-changed to the following:
+* Jeff Dike (jdike@addtoit.com) wrote:
+> The use of unsigned instead of unsigned here broke the calculations on
+             ^^^^^^^^            ^^^^^^^^
+Hard to imagine how that would cause a problem ;-)
 
-	patch set name [PATCH N/M] patch summary
-
-Then sorting by subject would group all patches for the
-Same patch set together.
-
-I don't know if these Subject lines are hand generated, or if there
-is software involved that would have to me modified for generating
-and/or parsing them.
-
-Comments?
-
-Jeff Anderson-Lee
-
+Queued for -stable, thanks.
+-chris

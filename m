@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWFTNYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWFTN2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWFTNYH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 09:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWFTNYH
+	id S1750810AbWFTN2g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 09:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWFTN2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 09:24:07 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:8967 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750797AbWFTNYF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 09:24:05 -0400
-Date: Tue, 20 Jun 2006 09:23:15 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17.1
-Message-ID: <20060620132310.GA3114@tuxdriver.com>
-References: <20060620101350.GE23467@sequoia.sous-sol.org> <200606201235.19811.mb@bu3sch.de> <20060620104416.GG23467@sequoia.sous-sol.org> <200606201256.27252.mb@bu3sch.de>
+	Tue, 20 Jun 2006 09:28:36 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46812 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750798AbWFTN2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 09:28:35 -0400
+Subject: Re: [PATCH] ide: disable dma for transcend CF
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kirill Smelkov <kirr@mns.spb.ru>
+Cc: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <200606201452.37905.kirr@mns.spb.ru>
+References: <200606201452.37905.kirr@mns.spb.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Jun 2006 14:43:23 +0100
+Message-Id: <1150811003.11062.45.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606201256.27252.mb@bu3sch.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 12:56:26PM +0200, Michael Buesch wrote:
-> On Tuesday 20 June 2006 12:44, Chris Wright wrote:
-> > * Michael Buesch (mb@bu3sch.de) wrote:
-> > > On Tuesday 20 June 2006 12:13, Chris Wright wrote:
-> > > > We (the -stable team) are announcing the release of the 2.6.17.1 kernel.
-> > > 
-> > > Please consider inclusion of the following patch into 2.6.17.2:
-> > > 
-> > > It fixes a possible crash. Might be triggerable in networks with
-> > > heavy traffic. I only saw it once so far, though.
-> > 
-> > I didn't notice that it made it to Linus' tree yet.  Can you make sure
-> > to push it up, and I'll queue it for -stable.
+Ar Maw, 2006-06-20 am 14:52 +0400, ysgrifennodd Kirill Smelkov:
+> I have a CF card which identifies itself as model=TRANSCEND rev=200508011
+> The card id labeled as TS512MCF80
 > 
-> It is in -mm and I think John Linville also queued it upstream
-> through Jeff to Linus.
-> >From my perspective, everything is done ;)
+> hdparm -i /dev/hdci  reports:
+> ...
+> DMA modes:  mdma0 mdma1 *mdma2
+> 
+> IDE controller:
+> IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+> 
+> 
+> but if dma is turned on i get a lot of errors::
+> 
+>     hdc: dma_timer_epiry: dma_status == 0x21
 
-I haven't quite done my part yet, but I intend to do so.  I think
-this is a fine candidate for -stable.
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+Almost certainly a problem with the CF adapter. Please verify the card
+in a modern CF adapter and also do tests with DMA capable cards of other
+types on the adapter you are using.
+
+Back when CF adapters first appeared the idea that you might run DMA on
+one was so ludicrously silly that nobody wired the neccessary pins on
+the adapters. Time has moved on, but hardware alas has sometimes not.
+
+Alan
+

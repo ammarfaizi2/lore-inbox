@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWFTWfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWFTWge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWFTWfw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWFTW26
+	id S1751329AbWFTWge (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWFTWgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:28:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51940 "EHLO
+	Tue, 20 Jun 2006 18:36:04 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57316 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751329AbWFTW2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:28:52 -0400
+	id S1751329AbWFTW3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:29:00 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
@@ -28,76 +28,226 @@ Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
        Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
        Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 3/25] x86_64 irq: Reenable migrating irqs to other cpus.
+Subject: [PATCH 8/25] msi: Simplify the msi irq limit policy.
 Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:16 -0600
-Message-Id: <11508425192220-git-send-email-ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:21 -0600
+Message-Id: <11508425213394-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425191381-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <1150842520775-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the latest changes the code for migrating x86_64 irqs was dropped.
-This reads it in a fashion that will work even if we change the
-vector on level triggered irqs when we migrate them.
+Currently we attempt to predict how many irqs we will be
+able to allocate with msi using pci_vector_resources and some
+complicated accounting, and then we only allow each device
+as many irqs as we think are available on average.
+
+Only the s2io driver even takes advantage of this feature
+all other drivers have a fixed number of irqs they need and
+bail if they can't get them.
+
+pci_vector_resources is inaccurate if anyone ever frees an irq.
+The whole implmentation is racy.  The current irq limit policy
+does not appear to make sense with current drivers.  So I have
+simplified things.  We can revisit this we we need a more sophisticated
+policy.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/x86_64/kernel/io_apic.c |   31 ++++++++++++++++++++++++++++---
- 1 files changed, 28 insertions(+), 3 deletions(-)
+ arch/i386/pci/irq.c |   30 -----------------------------
+ arch/ia64/pci/pci.c |    9 ---------
+ drivers/pci/msi.c   |   53 ++++++++-------------------------------------------
+ drivers/pci/msi.h   |   11 -----------
+ 4 files changed, 8 insertions(+), 95 deletions(-)
 
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index 2e9f1cf..f50be45 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -1572,18 +1572,43 @@ static int ioapic_retrigger_vector(unsig
-  * races.
-  */
+diff --git a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
+index 8ce6950..768584d 100644
+--- a/arch/i386/pci/irq.c
++++ b/arch/i386/pci/irq.c
+@@ -1170,33 +1170,3 @@ #endif
+ 	}
+ 	return 0;
+ }
+-
+-int pci_vector_resources(int last, int nr_released)
+-{
+-	int count = nr_released;
+-
+-	int next = last;
+-	int offset = (last % 8);
+-
+-	while (next < FIRST_SYSTEM_VECTOR) {
+-		next += 8;
+-#ifdef CONFIG_X86_64
+-		if (next == IA32_SYSCALL_VECTOR)
+-			continue;
+-#else
+-		if (next == SYSCALL_VECTOR)
+-			continue;
+-#endif
+-		count++;
+-		if (next >= FIRST_SYSTEM_VECTOR) {
+-			if (offset%8) {
+-				next = FIRST_DEVICE_VECTOR + offset;
+-				offset++;
+-				continue;
+-			}
+-			count--;
+-		}
+-	}
+-
+-	return count;
+-}
+diff --git a/arch/ia64/pci/pci.c b/arch/ia64/pci/pci.c
+index 5bef0e3..b0028fd 100644
+--- a/arch/ia64/pci/pci.c
++++ b/arch/ia64/pci/pci.c
+@@ -810,12 +810,3 @@ pcibios_prep_mwi (struct pci_dev *dev)
+ 	}
+ 	return rc;
+ }
+-
+-int pci_vector_resources(int last, int nr_released)
+-{
+-	int count = nr_released;
+-
+-	count += (IA64_LAST_DEVICE_VECTOR - last);
+-
+-	return count;
+-}
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 40499c0..772f5b6 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -30,8 +30,6 @@ static kmem_cache_t* msi_cachep;
+ static int pci_msi_enable = 1;
+ static int last_alloc_vector;
+ static int nr_released_vectors;
+-static int nr_reserved_vectors = NR_HP_RESERVED_VECTORS;
+-static int nr_msix_devices;
  
--static void ack_apic(unsigned int vector)
-+static void ack_apic(unsigned int irq)
+ #ifndef CONFIG_X86_IO_APIC
+ int vector_irq[NR_VECTORS] = { [0 ... NR_VECTORS - 1] = -1};
+@@ -542,11 +540,6 @@ void pci_scan_msi_device(struct pci_dev 
  {
- 	ack_APIC_irq();
+ 	if (!dev)
+ 		return;
+-
+-   	if (pci_find_capability(dev, PCI_CAP_ID_MSIX) > 0)
+-		nr_msix_devices++;
+-	else if (pci_find_capability(dev, PCI_CAP_ID_MSI) > 0)
+-		nr_reserved_vectors++;
  }
  
-+static void ack_apic_edge(unsigned int irq)
-+{
-+	move_native_irq(irq);
-+	ack_APIC_irq();
-+}
-+
-+static void ack_apic_level(unsigned int irq)
-+{
-+	int do_unmask_irq = 0;
-+	/* If we are moving the irq we need to mask it */
-+	if (unlikely(irq_desc[irq].status & IRQ_MOVE_PENDING)) {
-+		do_unmask_irq = 1;
-+		mask_IO_APIC_irq(irq);
-+	}
-+	/* We must acknowledge the irq before we move it
-+	 * or the acknowledge will not propogate properly.
-+	 */
-+	ack_APIC_irq();
-+
-+	/* Now we can move and renable the irq */
-+	move_masked_irq(irq);
-+	if (unlikely(do_unmask_irq))
-+		unmask_IO_APIC_irq(irq);
-+}
-+
- static struct irq_chip ioapic_chip __read_mostly = {
- 	.name 		= "IO-APIC",
- 	.startup 	= startup_ioapic_vector,
- 	.mask	 	= mask_ioapic_vector,
- 	.unmask	 	= unmask_ioapic_vector,
--	.ack 		= ack_apic,
--	.eoi 		= ack_apic,
-+	.ack 		= ack_apic_edge,
-+	.eoi 		= ack_apic_level,
- #ifdef CONFIG_SMP
- 	.set_affinity 	= set_ioapic_affinity_vector,
- #endif
+ #ifdef CONFIG_PM
+@@ -877,13 +870,19 @@ static int msix_capability_init(struct p
+ 		attach_msi_entry(entry, vector);
+ 	}
+ 	if (i != nvec) {
++		int avail = i - 1;
+ 		i--;
+ 		for (; i >= 0; i--) {
+ 			vector = (entries + i)->vector;
+ 			msi_free_vector(dev, vector, 0);
+ 			(entries + i)->vector = 0;
+ 		}
+-		return -EBUSY;
++		/* If we had some success report the number of irqs
++		 * we succeeded in setting up.
++		 */
++		if (avail <= 0)
++			avail = -EBUSY;
++		return avail;
+ 	}
+ 	/* Set MSI-X enabled bits */
+ 	enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
+@@ -943,14 +942,6 @@ int pci_enable_msi(struct pci_dev* dev)
+ 			return -EINVAL;
+ 	}
+ 	status = msi_capability_init(dev);
+-	if (!status) {
+-   		if (!pos)
+-			nr_reserved_vectors--;	/* Only MSI capable */
+-		else if (nr_msix_devices > 0)
+-			nr_msix_devices--;	/* Both MSI and MSI-X capable,
+-						   but choose enabling MSI */
+-	}
+-
+ 	return status;
+ }
+ 
+@@ -1060,10 +1051,9 @@ static int msi_free_vector(struct pci_de
+ int pci_enable_msix(struct pci_dev* dev, struct msix_entry *entries, int nvec)
+ {
+ 	struct pci_bus *bus;
+-	int status, pos, nr_entries, free_vectors;
++	int status, pos, nr_entries;
+ 	int i, j, temp;
+ 	u16 control;
+-	unsigned long flags;
+ 
+ 	if (!pci_msi_enable || !dev || !entries)
+  		return -EINVAL;
+@@ -1109,34 +1099,7 @@ int pci_enable_msix(struct pci_dev* dev,
+ 		dev->irq = temp;
+ 		return -EINVAL;
+ 	}
+-
+-	spin_lock_irqsave(&msi_lock, flags);
+-	/*
+-	 * msi_lock is provided to ensure that enough vectors resources are
+-	 * available before granting.
+-	 */
+-	free_vectors = pci_vector_resources(last_alloc_vector,
+-				nr_released_vectors);
+-	/* Ensure that each MSI/MSI-X device has one vector reserved by
+-	   default to avoid any MSI-X driver to take all available
+- 	   resources */
+-	free_vectors -= nr_reserved_vectors;
+-	/* Find the average of free vectors among MSI-X devices */
+-	if (nr_msix_devices > 0)
+-		free_vectors /= nr_msix_devices;
+-	spin_unlock_irqrestore(&msi_lock, flags);
+-
+-	if (nvec > free_vectors) {
+-		if (free_vectors > 0)
+-			return free_vectors;
+-		else
+-			return -EBUSY;
+-	}
+-
+ 	status = msix_capability_init(dev, entries, nvec);
+-	if (!status && nr_msix_devices > 0)
+-		nr_msix_devices--;
+-
+ 	return status;
+ }
+ 
+diff --git a/drivers/pci/msi.h b/drivers/pci/msi.h
+index 3519eca..6793241 100644
+--- a/drivers/pci/msi.h
++++ b/drivers/pci/msi.h
+@@ -8,19 +8,8 @@ #define MSI_H
+ 
+ #include <asm/msi.h>
+ 
+-/*
+- * Assume the maximum number of hot plug slots supported by the system is about
+- * ten. The worstcase is that each of these slots is hot-added with a device,
+- * which has two MSI/MSI-X capable functions. To avoid any MSI-X driver, which
+- * attempts to request all available vectors, NR_HP_RESERVED_VECTORS is defined
+- * as below to ensure at least one message is assigned to each detected MSI/
+- * MSI-X device function.
+- */
+-#define NR_HP_RESERVED_VECTORS 	20
+-
+ extern int vector_irq[NR_VECTORS];
+ extern void (*interrupt[NR_IRQS])(void);
+-extern int pci_vector_resources(int last, int nr_released);
+ 
+ /*
+  * MSI-X Address Register
 -- 
 1.4.0.gc07e
 

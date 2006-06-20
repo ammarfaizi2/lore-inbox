@@ -1,72 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWFTCQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWFTCZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWFTCQf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 22:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWFTCQf
+	id S964916AbWFTCZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 22:25:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWFTCZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 22:16:35 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:56423 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964892AbWFTCQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 22:16:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MqK5sbRGnFIYgishMXmdWLQTTpyjvO3wTa4CV8DsnB082+UArMbc6f9bp4Ryfl46xNxAlbBmlOXtO8TZ1AtX5xIE196/+TVoD4yXF2d+1slLINuIBh/T3YoY5N9Voy8CEEFKqv5XlseIMU8EHoVtp6rFqEMAW5mLk+Sm8p8RivI=
-Message-ID: <9e4733910606191916i1994d4d1i2ea661e015431750@mail.gmail.com>
-Date: Mon, 19 Jun 2006 22:16:33 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: [PATCH 3/9] VT binding: Make VT binding a Kconfig option
-Cc: "Linux Fbdev development list" 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
-In-Reply-To: <44974AC7.4060708@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jun 2006 22:25:09 -0400
+Received: from kevlar.burdell.org ([66.92.73.214]:33705 "EHLO
+	kevlar.burdell.org") by vger.kernel.org with ESMTP id S964916AbWFTCZH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 22:25:07 -0400
+Date: Mon, 19 Jun 2006 22:25:06 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc: anton@samba.org
+Subject: Possible bug in do_execve() 
+Message-ID: <20060620022506.GA3673@kevlar.burdell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44957026.2020405@gmail.com>
-	 <9e4733910606191718n74d0bf40na7b0cc3902d80172@mail.gmail.com>
-	 <44974AC7.4060708@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/19/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> Jon Smirl wrote:
-> > I gave this patch a try and it seems to work. I say seems because I
-> > could not get the nvidiafb driver to set a usable mode after it was
-> > bound/unbound.
->
-> What do you mean by this?  You mean that you cannot restore vgacon?
-> If that's the case, then yes, that is perfectly understandable as
-> nvidiafb does not restore VGA to text mode.
+While doing some stress testing with a reduced number of MMU contexts,
+I found that an error path in exec seemed to call destroy_context()
+via mmdrop() immediately after init_new_context() failed.
 
-modprobe fbcon
-modprobe nvidiafb
+specifically I got some warning from the idr code through powerpc
+mmu_context code:
 
-Display is messed up.
+idr_remove called for id=0 which is not allocated.
+Call Trace:
+[C0000003C9E73820] [C00000000000E760] .show_stack+0x74/0x1b4 (unreliable)
+[C0000003C9E738D0] [C000000000212F30] .idr_remove+0x1c4/0x274
+[C0000003C9E73990] [C00000000002CA14] .destroy_context+0x2c/0x60
+[C0000003C9E73A20] [C00000000004CDAC] .__mmdrop+0x50/0x80
+[C0000003C9E73AB0] [C0000000000C9E38] .do_execve+0x218/0x290
+[C0000003C9E73B60] [C00000000000F28C] .sys_execve+0x74/0xf8
+[C0000003C9E73C00] [C00000000000871C] syscall_exit+0x0/0x40
+--- Exception: c01 at .execve+0x8/0x14
+    LR = .____call_usermodehelper+0xdc/0xf4
+[C0000003C9E73EF0] [C000000000065388] .____call_usermodehelper+0xb0/0xf4 (unreliable)
+[C0000003C9E73F90] [C000000000023928] .kernel_thread+0x4c/0x68
 
-I used to fix this by switching to X and back but the nvidia X driver
-won't build on the mm kernel. I can try again and write a script to
-echo a mode into sysfs after the modprobe.
 
-When fbcon first gets a new fbdev driver registered with it, should it
-pick one of the modes is supports and set it automatically?
+Here's the code in do_execve():
 
->  or would it be better for each driver to set in a
-> > default mode that it understands when it gets control? The fbdev
-> > driver should not set a mode when it loads, but that doesn't mean
-> > fbcon can't set one when it is activated. Similarly VGAcon would set
-> > the mode (and load its fonts) when it regains control.
->
-> The problem with vgacon setting its own mode is that it does not know
-> anything about the hardware. So VGA text mode will need to rely on
-> a secondary program to set the mode (whether it's vbetool, another
-> fb driver, or X does not matter).
+        retval = init_new_context(current, bprm->mm);
+        if (retval < 0)
+                goto out_mm
 
-How does vbetool save state? Could VGAcon do whatever vbetool is doing?
+<snip>
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+out_mm:
+        if (bprm->mm)
+                mmdrop(bprm->mm);
+
+mmdrop() then calls destroy_context().
+There's a similar path in compat_do_execve().
+
+
+Anton pointed out a comment in fork.c, which seems to inidcate
+incorrect behavior in the exec code. 
+
+>From dup_mm() in fork.c:
+
+      if (init_new_context(tsk, mm))
+                goto fail_nocontext;
+
+<snip>
+
+fail_nocontext:
+        /*                                                              
+         * If init_new_context() failed, we cannot use mmput() to free the mm
+         * because it calls destroy_context()
+         */
+        mm_free_pgd(mm);
+        free_mm(mm);
+        return NULL;
+
+
+
+Is the behavior in do_execve() correct?

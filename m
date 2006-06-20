@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWFTGlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbWFTGmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965091AbWFTGlt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 02:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWFTGlt
+	id S965093AbWFTGmV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 02:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWFTGmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 02:41:49 -0400
-Received: from tougher.kangaroot.net ([62.213.203.135]:3755 "EHLO
-	tougher.kangaroot.net") by vger.kernel.org with ESMTP
-	id S965091AbWFTGls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 02:41:48 -0400
-Date: Tue, 20 Jun 2006 08:41:28 +0200
-From: Wouter Paesen <wouter@kangaroot.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
+	Tue, 20 Jun 2006 02:42:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40417 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965093AbWFTGmT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 02:42:19 -0400
+Date: Mon, 19 Jun 2006 23:42:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.6.17-rc6] input/mouse/sermouse: fix memleak and potential buffer overflow
-Message-ID: <20060620064127.GA25367@tougher.kangaroot.net>
-References: <20060615104702.GA4866@tougher.kangaroot.net> <200606180024.32759.dtor_core@ameritech.net>
+Subject: Re: Add pacct_struct to fix some pacct bugs.
+Message-Id: <20060619234212.b95e5734.akpm@osdl.org>
+In-Reply-To: <449794BB.8010108@ak.jp.nec.com>
+References: <449794BB.8010108@ak.jp.nec.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606180024.32759.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Jun 2006 15:24:59 +0900
+KaiGai Kohei <kaigai@ak.jp.nec.com> wrote:
 
-On Sun, Jun 18, 2006 at 12:24:31AM -0400, Dmitry Torokhov wrote:
-> >   Because serio->phys is also a 32 character field the sprintf could
-> >   result in 39 characters being written to the sermouse->phys.
+> Hi, I noticed three problems in pacct facility.
 > 
-> Right, we need to change it to use snprintf.
+> 1. Pacct facility has a possibility to write incorrect ac_flag
+>    in multi-threading cases.
+> 2. There is a possibility to be waken up OOM Killer from
+>    pacct facility. It will cause system stall.
+> 3. If several threads are killed at same time, There is
+>    a possibility not to pick up a part of those accountings.
+> 
+> The attached patch will resolve those matters.
+> Any comments please. Thanks,
 
-Thanks, this patch will do just that. 
-Still, keeping the array 39 characters long will prevent truncation of the string.
+Thanks, but you have three quite distinct bugs here, and three quite
+distinct descriptions and, I think, three quite distinct fixes.
 
-Signed-off-by: Wouter Paesen <wouter@kangaroot.net>
-
---- linux-2.6.17-rc6.orig/drivers/input/mouse/sermouse.c 2006-06-20 08:31:12.000000000 +0200
-+++ linux-2.6.17-rc6/drivers/input/mouse/sermouse.c 2006-06-20 08:31:41.000000000 +0200
-@@ -53,7 +53,7 @@ struct sermouse {
- 	unsigned char count;
- 	unsigned char type;
- 	unsigned long last;
--	char phys[32];
-+	char phys[39];
- };
- 
- /*
-@@ -254,7 +254,7 @@ static int sermouse_connect(struct serio
- 		goto fail;
- 
- 	sermouse->dev = input_dev;
--	sprintf(sermouse->phys, "%s/input0", serio->phys);
-+	snprintf(sermouse->phys, 39, "%s/input0", serio->phys);
- 	sermouse->type = serio->id.proto;
- 
- 	input_dev->name = sermouse_protocols[sermouse->type];
-
-
+Would it be possible for you to prepare three patches?

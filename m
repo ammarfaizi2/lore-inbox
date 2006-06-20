@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWFTPE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWFTPMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWFTPE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 11:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWFTPE1
+	id S1751303AbWFTPMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 11:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWFTPMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 11:04:27 -0400
-Received: from gw.openss7.com ([142.179.199.224]:59807 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id S1751293AbWFTPE0 (ORCPT
+	Tue, 20 Jun 2006 11:12:25 -0400
+Received: from www.osadl.org ([213.239.205.134]:6589 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751303AbWFTPMY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 11:04:26 -0400
-Date: Tue, 20 Jun 2006 09:04:25 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       Steven Whitehouse <steve@chygwyn.com>, Theodore Tso <tytso@thunk.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH 1/8] inode_diet: Replace inode.u.generic_ip with inode.i_private
-Message-ID: <20060620090425.C10897@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-	Steven Whitehouse <steve@chygwyn.com>,
-	Theodore Tso <tytso@thunk.org>, linux-kernel@vger.kernel.org
-References: <20060619152003.830437000@candygram.thunk.org> <200606201345.45332.arnd.bergmann@de.ibm.com> <1150806849.3856.1370.camel@quoit.chygwyn.com> <200606201553.23908.arnd.bergmann@de.ibm.com> <20060620090135.B10897@openss7.org>
+	Tue, 20 Jun 2006 11:12:24 -0400
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>
+	 <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 17:13:49 +0200
+Message-Id: <1150816429.6780.222.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060620090135.B10897@openss7.org>; from bidulock@openss7.org on Tue, Jun 20, 2006 at 09:01:35AM -0600
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd,
+On Tue, 2006-06-20 at 17:01 +0100, Esben Nielsen wrote:
+> Hi,
+>   I wanted to run some tests with RTExec and I wanted to play around with 
+> the priorities, but I could not set the priorities of softirq-hrtXXXX.
+> I looked a bit in the code and found that hrtimer_adjust_softirq_prio() is
+> called every loop, setting it back to priority 1.
+> 
+> Why is that? Can it be fixed so it behaves as any other task you can use 
+> chrt on?
 
-On Tue, 20 Jun 2006, Brian F. G. Bidulock wrote:
-> 
-> Placing i_private and i_pipe in the same union will break FIFOs.
-> 
-> Also, i_pipe should not be combined with i_cdev and i_bdev.
-> 
+No, please see
 
-Also, both character and block devices need separate use of i_private.
+http://www.linutronix.de/index.php?mact=News,cntnt01,detail,0&cntnt01articleid=8&cntnt01dateformat=%25b%20%25d%2C%20%25Y&cntnt01returnid=31
+        
+Dynamic priority support for high resolution timers
+        
+	tglx
+        
+

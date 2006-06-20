@@ -1,177 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWFTWhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWFTWjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWFTWhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWFTWf5
+	id S1750964AbWFTWjo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWFTWjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:35:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58340 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751355AbWFTW3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:29:01 -0400
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>, <discuss@x86-64.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andi Kleen <ak@suse.de>,
-       "Natalie Protasevich" <Natalie.Protasevich@UNISYS.com>,
-       "Len Brown" <len.brown@intel.com>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 23/25] x86_64 irq: Kill gsi_irq_sharing.
-Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:36 -0600
-Message-Id: <11508425263761-git-send-email-ebiederm@xmission.com>
-X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425262259-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com> <1150842523493-git-send-email-ebiederm@xmission.com> <11508425231168-git-send-email-ebiederm@xmission.com> <1150842524863-git-send-email-ebiederm@xmission.com> <1150842524755-git-send-email-ebiederm@xmission.com> <115084252460-git-send-!
- email-ebiederm@xmission.com> <11508425251099-git-send-email-ebiederm@xmission.com> <11508425253581-git-send-email-ebiederm@xmission.com> <11508425254020-git-send-email-ebiederm@xmission.com> <11508425262259-git-send-email-ebiederm@xmission.com>
+	Tue, 20 Jun 2006 18:39:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56269 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750964AbWFTWjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:39:40 -0400
+Date: Tue, 20 Jun 2006 15:42:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
+Message-Id: <20060620154241.024ad134.akpm@osdl.org>
+In-Reply-To: <20060620162706.GB21542@sergelap.austin.ibm.com>
+References: <20060615144331.GB16046@sergelap.austin.ibm.com>
+	<20060619201450.3434f72f.akpm@osdl.org>
+	<20060620082745.GA28092@sergelap>
+	<20060620014027.eba58cb7.akpm@osdl.org>
+	<20060620162706.GB21542@sergelap.austin.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After raising the number of irqs the system supports this
-function is no longer necessary.
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+>
+> Quoting Andrew Morton (akpm@osdl.org):
+> > On Tue, 20 Jun 2006 03:27:45 -0500
+> > "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+> > 
+> > > Ah, like so?
+> > 
+> > Nope.  kthread_bind() is supposed to be called by the thread creator,
+> > before the thread is started.
+> > 
+> > The documentation for kthread_bind() is irritatingly hidden in the header
+> > file.
+> 
+> Oh, I see - then it makes more sense that it gets away with being so
+> much simpler than set_cpus_allowed().
+> 
+> So here's another attempt.  However I'm not sure now whether
+> the first round of synchronization around stopmachine_thread_ack
+> is necessary anymore.  If any threads fail, we'll find out from the
+> kthread_create() return value, right?
+> 
+> Still I'm not sure about that, so first things first:
+> 
+> thanks,
+> -serge
+> 
+> From: Serge E. Hallyn <serue@us.ibm.com>
+> Date: Tue, 20 Jun 2006 11:01:08 -0500
+> Subject: [PATCH] kthread: update stop_machine to use kthread_bind
+> 
+> Update stop_machine to use the more efficient kthread_bind()
+> before running task in place of set_cpus_allowed() after.
+> 
+> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> 
+> ---
+> 
+>  kernel/stop_machine.c |    7 +++++--
+>  1 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> e25a88e3d60f3f139f10cc8cd894d87622033a16
+> diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
+> index 2dd5a48..593d8e4 100644
+> --- a/kernel/stop_machine.c
+> +++ b/kernel/stop_machine.c
+> @@ -86,7 +86,8 @@ static void stopmachine_set_state(enum s
+>  
+>  static int stop_machine(void)
+>  {
+> -	int i, ret = 0;
+> +	int ret = 0;
+> +	unsigned int i;
+>  	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
+>  
+>  	/* One high-prio thread per cpu.  We'll do this one. */
+> @@ -100,11 +101,13 @@ static int stop_machine(void)
+>  		struct task_struct *tsk;
+>  		if (i == raw_smp_processor_id())
+>  			continue;
+> -		tsk = kthread_run(stopmachine, (void *)(long)i, "stopmachine");
+> +		tsk = kthread_create(stopmachine, NULL, "stopmachine");
+>  		if (IS_ERR(tsk)) {
+>  			ret = PTR_ERR(tsk);
+>  			break;
+>  		}
+> +		kthread_bind(tsk, i);
+> +		wake_up_process(tsk);
+>  		stopmachine_num_threads++;
+>  	}
+>  
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- arch/i386/kernel/acpi/boot.c |    5 +--
- arch/x86_64/kernel/io_apic.c |   62 ------------------------------------------
- 2 files changed, 1 insertions(+), 66 deletions(-)
+You forgot this rather important bit:
 
-diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
-index 6e7edc0..74fd53c 100644
---- a/arch/i386/kernel/acpi/boot.c
-+++ b/arch/i386/kernel/acpi/boot.c
-@@ -42,7 +42,6 @@ #ifdef	CONFIG_X86_64
+--- 25/kernel/stop_machine.c~kthread-convert-stop_machine-into-a-kthread-update-fix	Tue Jun 20 15:39:30 2006
++++ 25-akpm/kernel/stop_machine.c	Tue Jun 20 15:39:30 2006
+@@ -26,13 +26,11 @@ static unsigned int stopmachine_num_thre
+ static atomic_t stopmachine_thread_ack;
+ static DECLARE_MUTEX(stopmachine_mutex);
  
- extern void __init clustered_apic_check(void);
- 
--extern int gsi_irq_sharing(int gsi);
- #include <asm/proto.h>
- 
- static inline int acpi_madt_oem_check(char *oem_id, char *oem_table_id) { return 0; }
-@@ -55,8 +54,6 @@ #include <mach_apic.h>
- #include <mach_mpparse.h>
- #endif				/* CONFIG_X86_LOCAL_APIC */
- 
--static inline int gsi_irq_sharing(int gsi) { return gsi; }
--
- #endif				/* X86 */
- 
- #define BAD_MADT_ENTRY(entry, end) (					    \
-@@ -459,7 +456,7 @@ void __init acpi_pic_sci_set_trigger(uns
- 
- int acpi_gsi_to_irq(u32 gsi, unsigned int *irq)
+-static int stopmachine(void *cpu)
++static int stopmachine(void *unused)
  {
--	*irq = gsi_irq_sharing(gsi);
-+	*irq = gsi;
- 	return 0;
- }
+ 	int irqs_disabled = 0;
+ 	int prepared = 0;
  
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index f818d64..a904ba7 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -164,8 +164,6 @@ static void set_ioapic_affinity_irq(unsi
- }
- #endif
- 
--static u8 gsi_2_irq[NR_IRQ_VECTORS] = { [0 ... NR_IRQ_VECTORS-1] = 0xFF };
+-	set_cpus_allowed(current, cpumask_of_cpu((int)(long)cpu));
 -
- /*
-  * The common case is 1:1 IRQ<->pin mappings. Sometimes there are
-  * shared ISA-space IRQs, so we have to support them. We are super
-@@ -721,64 +719,6 @@ static inline int irq_trigger(int idx)
- 	return MPBIOS_trigger(idx);
- }
- 
--static int next_irq = 16;
--
--/*
-- * gsi_irq_sharing -- Name overload!  "irq" can be either a legacy IRQ
-- * in the range 0-15, a linux IRQ in the range 0-223, or a GSI number
-- * from ACPI, which can reach 800 in large boxen.
-- *
-- * Compact the sparse GSI space into a sequential IRQ series and reuse
-- * vectors if possible.
-- */
--int gsi_irq_sharing(int gsi)
--{
--	int i, tries, vector;
--
--	BUG_ON(gsi >= NR_IRQ_VECTORS);
--
--	if (platform_legacy_irq(gsi))
--		return gsi;
--
--	if (gsi_2_irq[gsi] != 0xFF)
--		return (int)gsi_2_irq[gsi];
--
--	tries = NR_IRQS;
--  try_again:
--	vector = assign_irq_vector(gsi, TARGET_CPUS);
--
--	/*
--	 * Sharing vectors means sharing IRQs, so scan irq_vectors for previous
--	 * use of vector and if found, return that IRQ.  However, we never want
--	 * to share legacy IRQs, which usually have a different trigger mode
--	 * than PCI.
--	 */
--	for (i = 0; i < NR_IRQS; i++)
--		if (IO_APIC_VECTOR(i) == vector)
--			break;
--	if (platform_legacy_irq(i)) {
--		if (--tries >= 0) {
--			IO_APIC_VECTOR(i) = 0;
--			goto try_again;
--		}
--		panic("gsi_irq_sharing: didn't find an IRQ using vector 0x%02X for GSI %d", vector, gsi);
--	}
--	if (i < NR_IRQS) {
--		gsi_2_irq[gsi] = i;
--		printk(KERN_INFO "GSI %d sharing vector 0x%02X and IRQ %d\n",
--				gsi, vector, i);
--		return i;
--	}
--
--	i = next_irq++;
--	BUG_ON(i >= NR_IRQS);
--	gsi_2_irq[gsi] = i;
--	IO_APIC_VECTOR(i) = vector;
--	printk(KERN_INFO "GSI %d assigned vector 0x%02X and IRQ %d\n",
--			gsi, vector, i);
--	return i;
--}
--
- static int pin_2_irq(int idx, int apic, int pin)
- {
- 	int irq, i;
-@@ -808,7 +748,6 @@ static int pin_2_irq(int idx, int apic, 
- 			while (i < apic)
- 				irq += nr_ioapic_registers[i++];
- 			irq += pin;
--			irq = gsi_irq_sharing(irq);
- 			break;
- 		}
- 		default:
-@@ -2202,7 +2141,6 @@ int io_apic_set_pci_routing (int ioapic,
- 		return -EINVAL;
- 	}
- 
--	irq = gsi_irq_sharing(irq);
- 	/*
- 	 * IRQs < 16 are already in the irq_2_pin[] map
- 	 */
--- 
-1.4.0.gc07e
+ 	/* Ack: we are alive */
+ 	smp_mb(); /* Theoretically the ack = 0 might not be on this CPU yet. */
+ 	atomic_inc(&stopmachine_thread_ack);
+_
+
+
+Without that change, every thread will run on cpu 0, and the whole
+stopmachine thing is, presumably, busted.
+
+I'll fold all three patches together and send 'em back to you for a bit of
+runtime testing, OK?
 

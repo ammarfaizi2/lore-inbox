@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWFTHuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbWFTIBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWFTHuS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 03:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbWFTHuS
+	id S964993AbWFTIBb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWFTIBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 03:50:18 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:10194 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S965143AbWFTHuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 03:50:16 -0400
-Date: Tue, 20 Jun 2006 09:50:15 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] i386: halt the CPU on serious errors
-Message-ID: <20060620075015.GB3030@rhlx01.fht-esslingen.de>
-References: <200606200059_MC3-1-C2E8-8C46@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606200059_MC3-1-C2E8-8C46@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Tue, 20 Jun 2006 04:01:31 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:10696 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964993AbWFTIBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:01:30 -0400
+Message-ID: <4497AB46.4000402@sgi.com>
+Date: Tue, 20 Jun 2006 10:01:10 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: Robin Holt <holt@sgi.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Carsten Otte <cotte@de.ibm.com>, bjorn_helgaas@hp.com
+Subject: Re: [patch] do_no_pfn
+References: <yq0psh5zenq.fsf@jaguar.mkp.net> <p73r71lpa6a.fsf@verdi.suse.de> <20060619224952.GA17685@lnx-holt.americas.sgi.com>
+In-Reply-To: <20060619224952.GA17685@lnx-holt.americas.sgi.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Robin Holt wrote:
+> On Mon, Jun 19, 2006 at 03:06:05PM +0200, Andi Kleen wrote:
+>> The big question is - why do you have pages without struct page? 
+>> It seems ... wrong.
+[snip]
+> Are you saying the for the mspec pages we should extend the vmem_map,
+> partially populate the regions for the mspec pages, mark those pages as
+> uncached and reserved and then turn them over to the uncached allocator?
+> Seems like we have done a lot of extra work to put a struct page behind
+> a page which requires special handling.
 
-On Tue, Jun 20, 2006 at 12:55:25AM -0400, Chuck Ebbert wrote:
-> Halt the CPU when serious errors are encountered and we
-> deliberately go into an infinite loop.
-> 
-> Suggested by Andreas Mohr.
+Note that Bjorn Helgas has a case where he needs this as well.
 
-Thanks for the very fast patch, but:
+We could fake the pages by giving them a struct page, but it really
+makes no point as you say.
 
->       /* Assume hlt works */
-> -     halt();
-> -     for(;;);
-> +     for (;;)
-> +             halt();
-
-The comment above seems to hint at this code in arch/i386/kernel/smp.c/
-stop_this_cpu() which does proper hlt checks:
-
-        if (cpu_data[smp_processor_id()].hlt_works_ok)
-                for(;;) halt();
-        for (;;);
-
-So I'm unsure what happens if hlt is not supported properly. Maybe
-there's an invalid opcode exception in a loop then.
-
-I think a patch should do the following (or more):
-
-- try to group various CPU emergency stop places together
-- comment about trying to avoid overheating, mentioning ACPI
-  thermal protection specifications and possibly *missing protection*
-  in non-ACPI systems/modes (APM!)
-- if (hlt_works_ok), do hlt loop
-- if not, do a cpu_relax() loop (or even: for (;;) 3 times cpu_relax()
-  for lower activity?)
-
-One thing that may be worth pondering about is whether using cpu_relax()
-might actually keep the CPU slightly below the ACPI shutdown temperature
-limit and thus do *more* harm with a broken fan. In that case we might
-want to check for active ACPI mode and if active do a busy loop instead.
-This however may cause temperature to cycle (will a CPU shutdown reactivate
-itself after cooling down again?), so a cpu_relax() might still be better.
-
-Andreas Mohr
+Cheers,
+Jes

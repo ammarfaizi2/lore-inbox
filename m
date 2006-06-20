@@ -1,49 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWFTOkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWFTOk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWFTOkN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 10:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWFTOkM
+	id S1751124AbWFTOk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 10:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWFTOk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 10:40:12 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:58240 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750951AbWFTOkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 10:40:11 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: Linux 2.6.17: IRQ handler mismatch in serial code?
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Lord <lkml@rtr.ca>,
-       Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 20 Jun 2006 16:39:49 +0200
-References: <6pwmi-8mW-1@gated-at.bofh.it> <6px8R-Y7-43@gated-at.bofh.it> <6pxV5-2ci-13@gated-at.bofh.it> <6pz12-3Rg-67@gated-at.bofh.it> <6pzX4-5jE-19@gated-at.bofh.it> <6pA6B-5K8-33@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Tue, 20 Jun 2006 10:40:56 -0400
+Received: from simmts5.bellnexxia.net ([206.47.199.163]:26854 "EHLO
+	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751124AbWFTOkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 10:40:55 -0400
+Date: Tue, 20 Jun 2006 11:40:32 -0300
+From: Tony Rowe <ay986@chebucto.ns.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Porting BSD console screensavers to Linux
+Message-ID: <20060620144032.GA1919@chebucto.ns.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1FshOP-0000pd-No@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Llu, 2006-06-19 am 17:52 -0400, ysgrifennodd Mark Lord:
+Hello,
 
->> Eh?  The vast majority of ISA bus devices have open-collector IRQ lines,
-> 
-> Not in my experience. In the network work at least very few are, they
-> all drive the chip lines all the time. Thats why Don Becker made sure
-> such drivers grab the lines at startup. Those which can share IRQ or
-> move IRQ grab at open
+I have been wondering about this for a few years. Are there any 
+[non-locking] screensavers for the Linux console like 'warp_saver' which 
+is implemented in the BSD kernel I think?  Could the BSD syscons 
+screensavers be implemented in the Linux kernel?  The warp_saver.c is 
+included below.
 
-There are thousands of NE2K-clones, the driver can't know if sharing the IRQ
-will be OK for a given card. Is the change for sharing IRQs trivial enough
-to allow an if/else based on a load-time module parameter?
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Thanks for all the good work,
+Tony Rowe
 
-http://david.woodhou.se/why-not-spf.html
+modules/syscons/warp/warp_saver.c     
+
+http://freebsd.active-venture.com/FreeBSD-srctree/newsrc/modules/syscons/warp/warp_saver.c.html
+ 
+/*-
+ * Copyright (c) 1998 Dag-Erling Coïdan Smørgrav
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer
+ *    in this position and unchanged.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * $FreeBSD: src/sys/modules/syscons/warp/warp_saver.c,v 1.7.2.1 2000/05/10 16:
+26:47 obrien Exp $
+ */
+
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/kernel.h>
+#include <sys/module.h>
+#include <sys/syslog.h>
+#include <sys/consio.h>
+#include <sys/fbio.h>
+#include <sys/random.h>
+
+#include <dev/fb/fbreg.h>
+#include <dev/fb/splashreg.h>
+#include <dev/syscons/syscons.h>
+
+static u_char *vid;
+static int blanked;
+
+#define SCRW 320
+#define SCRH 200
+#define SPP 15
+#define STARS (SPP*(1+2+4+8))
+
+static int star[STARS];
+static u_char warp_pal[768] = {
+    0x00, 0x00, 0x00,
+    0x66, 0x66, 0x66,
+    0x99, 0x99, 0x99,
+    0xcc, 0xcc, 0xcc,
+    0xff, 0xff, 0xff
+    /* the rest is zero-filled by the compiler */
+};
+
+static void
+warp_update(void)
+{
+    int i, j, k, n;
+
+    for (i = 1, k = 0, n = SPP*8; i < 5; i++, n /= 2)
+        for (j = 0; j < n; j++, k++) {
+            vid[star[k]] = 0;
+            star[k] += i;
+            if (star[k] > SCRW*SCRH)
+                star[k] -= SCRW*SCRH;
+            vid[star[k]] = i;
+        }
+}
+
+static int
+warp_saver(video_adapter_t *adp, int blank)
+{
+    int pl;
+
+    if (blank) {
+        /* switch to graphics mode */
+        if (blanked <= 0) {
+            pl = splhigh();
+            set_video_mode(adp, M_VGA_CG320);
+            load_palette(adp, warp_pal);
+#if 0 /* XXX conflict */
+            set_border(adp, 0);
+#endif
+            blanked++;
+            vid = (u_char *)adp->va_window;
+            splx(pl);
+            bzero(vid, SCRW*SCRH);
+        }
+
+        /* update display */
+        warp_update();
+
+    } else {
+        blanked = 0;
+    }
+    return 0;
+}
+
+static int
+warp_init(video_adapter_t *adp)
+{
+    video_info_t info;
+    int i;
+
+    /* check that the console is capable of running in 320x200x256 */
+    if (get_mode_info(adp, M_VGA_CG320, &info)) {
+        log(LOG_NOTICE, "warp_saver: the console does not support M_VGA_CG320\n
+");
+        return ENODEV;
+    }
+
+    /* randomize the star field */
+    for (i = 0; i < STARS; i++) {
+        star[i] = random() % (SCRW*SCRH);
+    }
+
+    blanked = 0;
+
+    return 0;
+}
+
+static int
+warp_term(video_adapter_t *adp)
+{
+    return 0;
+}
+
+static scrn_saver_t warp_module = {
+    "warp_saver", warp_init, warp_term, warp_saver, NULL,
+
+
+

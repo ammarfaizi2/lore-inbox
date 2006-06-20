@@ -1,73 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWFTI2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWFTI26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWFTI2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWFTI2F
+	id S965026AbWFTI26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWFTI26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:28:05 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:65508 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S965015AbWFTI2D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:28:03 -0400
-Date: Tue, 20 Jun 2006 03:27:45 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
-Message-ID: <20060620082745.GA28092@sergelap>
-References: <20060615144331.GB16046@sergelap.austin.ibm.com> <20060619201450.3434f72f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060619201450.3434f72f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Tue, 20 Jun 2006 04:28:58 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:39370 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965026AbWFTI24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:28:56 -0400
+Message-ID: <4497B1B4.3020307@sgi.com>
+Date: Tue, 20 Jun 2006 10:28:36 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: discuss@x86-64.org, Tony Luck <tony.luck@intel.com>,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
+       vojtech@suse.cz, linux-ia64@vger.kernel.org
+Subject: Re: [discuss] Re: FOR REVIEW: New x86-64 vsyscall vgetcpu()
+References: <200606140942.31150.ak@suse.de> <200606161317.19296.ak@suse.de> <44929CE6.4@sgi.com> <200606161654.15881.ak@suse.de>
+In-Reply-To: <200606161654.15881.ak@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton (akpm@osdl.org):
-> OK.  But if we're going to convert to the kthread API then stopmachine()
-> really whould be switched to the more efficient kthread_bind().
+Andi Kleen wrote:
+>> I really don't see the benefit here. malloc already gets pages handed
+>> down from the kernel which are node local due to them being assigned at
+>> a first touch basis. I am not sure about glibc's malloc internals, but
+>> rather rely on a vgetcpu() call, all it really needs to do is to keep
+>> a thread local pool which will automatically get it's thing locally
+>> through first touch usage.
+> 
+> That would add too much overhead on small systems. It's better to be 
+> able to share the pools. vgetcpu allows that.
 
-Ah, like so?
+How do you expect to be able to share the pools? Or are you saying you
+just one page per numa node? Having a page per thread is not noticable
+and for databases, which was your primary target usergroup, I think it's
+fair to see it won't even be visible as noise.
 
-Rusty, do you feel this makes the conversion less of a step backward?
-If not, Andrew, as Rusty pointed out, stop_machine.c does not fall into
-the set of kernel_thread users which need to be updated either for the
-deprecation or to deal with pid namespaces, and perhaps my previous
-patch should not be applied after all.
+>>> Basically it is just for extending the existing already used proven etc.
+>>> default local policy to sub pages. Also there might be other uses
+>>> of it too (like per CPU data), although I expect most use of that
+>>> in user space can be already done using TLS.
+>> The thread libraries already have their own thread local area which
+>> should be allocated on the thread's own node if done right, which I
+>> assume it is.
+> 
+> - The heap for small allocations is shared (although this can be tuned) 
+> - When another thread does free() you need special handling to keep
+> the item in the correct free lists
+> This is one of the tricky bits in the new kernel NUMA slab allocator
+> too.
 
-thanks,
--serge
+It should be pretty easy to make the allocator aware of the per thread
+regions based on the address.
 
-From: Serge E. Hallyn <serue@us.ibm.com>
-Date: Tue, 20 Jun 2006 03:17:44 -0500
-Subject: [PATCH] kthread: convert stop_machine to use kthread_bind
+>> If you migrate your app elsewhere, you should migrate the pages with it,
+>> or not expect things to run with the local effect.
+> 
+> That's too costly to do by default and you have no guarantee that it will amortize.
 
-Convert stop_machine to use the more efficient kthread_bind()
-in place of set_cpus_allowed().
+But if you don't migrate the pages with it, the numa aware allocation is
+wasted anyway, whether you do it on a first-touch basis or using
+vgetcpu.
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+>> I don't really see the point in solving something half way when it can
+>> be done better. Maybe the "serious" databases should open up and let us
+>> know what the problem is they are hitting.
+> 
+> I see no indication of anything better so far from you. You only offered
+> static configuration instead which while in some cases is better
+> doesn't work in the general case.
 
----
+Static configuration? I never said anything about that, I said that libc
+should offer a memory pool per thread and have it created when it's
+first touched by the thread. That solves exactly what you have described
+so far unless is something else you also expect to benefit from
+vgetcpu().
 
- kernel/stop_machine.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-831c955bcc8572f0aea75ab608ed5da37680df4e
-diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
-index 2dd5a48..a462deb 100644
---- a/kernel/stop_machine.c
-+++ b/kernel/stop_machine.c
-@@ -31,7 +31,7 @@ static int stopmachine(void *cpu)
- 	int irqs_disabled = 0;
- 	int prepared = 0;
- 
--	set_cpus_allowed(current, cpumask_of_cpu((int)(long)cpu));
-+	kthread_bind(current, (unsigned int)(long)cpu);
- 
- 	/* Ack: we are alive */
- 	smp_mb(); /* Theoretically the ack = 0 might not be on this CPU yet. */
--- 
-1.3.3
-
+Jes

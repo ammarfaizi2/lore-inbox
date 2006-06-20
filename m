@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965503AbWFTEG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbWFTEWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965503AbWFTEG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 00:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965501AbWFTEG3
+	id S932579AbWFTEWy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 00:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWFTEWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 00:06:29 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22948
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965500AbWFTEG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 00:06:28 -0400
-Date: Mon, 19 Jun 2006 21:06:35 -0700 (PDT)
-Message-Id: <20060619.210635.66061007.davem@davemloft.net>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Cc: mm-commits@vger.kernel.org, randy.dunlap@oracle.com,
-       val_henson@linux.intel.com
-Subject: Re: + make-tulip-driver-not-handle-davicom-nics.patch added to -mm
- tree
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200606200046.k5K0kPdg020414@shell0.pdx.osdl.net>
-References: <200606200046.k5K0kPdg020414@shell0.pdx.osdl.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 20 Jun 2006 00:22:53 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:29835 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932579AbWFTEWx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 00:22:53 -0400
+Date: Tue, 20 Jun 2006 05:22:51 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [git pull] ieee1394 tree for 2.6.18
+Message-ID: <20060620042250.GP27946@ftp.linux.org.uk>
+References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org> <20060620025552.GO27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: akpm@osdl.org
-Date: Mon, 19 Jun 2006 17:49:48 -0700
+On Mon, Jun 19, 2006 at 08:14:45PM -0700, Linus Torvalds wrote:
+> But that's not the point.
+> 
+> I want to know what I'm pulling _ahead_ of time, AND I WANT TO KNOW THAT 
+> WHAT I PULL IS WHAT THE SENDER INTENDED ME TO PULL!
 
-> Subject: Make tulip driver not handle Davicom NICs
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> 
-> Make tulip driver not handle Davicom NICs, let dmfe take over"
-> 
-> Reference: https://launchpad.net/bugs/48287
-> Source URL of Patch:
-> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=1804482911a71bee9114cae1c2079507a38e9e7f
-> 
-> Cc: Valerie Henson <val_henson@linux.intel.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+No arguments; that's a different question.
 
-Please see followups, this change is bogus, it breaks sparc64 Sun
-Netra X1 onboard NICs.  The tulip driver drives them fine in that
-case, the dmfe driver doesn't work at all.
+I'm _not_ saying that you should <something>.
 
-There is no reason the normal tulip driver cannot handle these
-chip variants.
+I'm saying that often _I_ am curious about the log _in_ _some_ _remote_ _tree_.
+Preferably - without fetch + git log + rm .git/refs/tmp + git prune, which
+is how I do that now.  git prune is quite slow, for one thing...
+
+It's not about kernel or getting stuff merged; the question is about git
+and cheaper way to do the thing I often find useful.  IOW, read that as
+"BTW, is there a way to get such information out of git without too much
+PITA?"

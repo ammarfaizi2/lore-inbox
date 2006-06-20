@@ -1,127 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWFTJkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWFTJnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965225AbWFTJkb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 05:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbWFTJkb
+	id S932398AbWFTJnr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 05:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFTJnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 05:40:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11707 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965225AbWFTJka (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 05:40:30 -0400
-Date: Tue, 20 Jun 2006 18:40:10 +0900 (JST)
-Message-Id: <20060620.184010.225581173.jet@gyve.org>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] sharing maximum errno symbol used in __syscall_return
- (i386)
-From: Masatake YAMATO <jet@gyve.org>
-X-Mailer: Mew version 4.2.53 on Emacs 22.0.51 / Mule 5.0 (SAKAKI)
+	Tue, 20 Jun 2006 05:43:47 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:34691 "EHLO
+	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
+	id S932398AbWFTJnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 05:43:47 -0400
+Date: Tue, 20 Jun 2006 02:42:39 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.16.21
+Message-ID: <20060620094239.GC23467@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+We (the -stable team) are announcing the release of the 2.6.16.21 kernel.
+This has a couple local DoS fixes, and a SCTP fix.
 
-__syscall_return in unistd.h is maintained?
+The diffstat and short summary of the fixes are below.
 
-In the macro the value returned from system call is
-compared with the maximum error number defined in a header file 
-to know the call is successful or not. However, the maximum error number 
-is hard-coded and is not updated.
+I'll also be replying to this message with a copy of the patch between
+2.6.16.20 and 2.6.16.21, as it is small enough to do so.
 
-Here is an example(i386):
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-  * <asm-i386/errno.h>
-  */
- #define __syscall_return(type, res) \
- do { \
-	if ((unsigned long)(res) >= (unsigned long)(-(128 + 1))) { \
- 		errno = -(res); \
- 		res = -1; \
- 	} \
+thanks,
+-chris
 
-The comment says the maximum errno is 128.
-However, the actual C code says 128 + 1. What does "+ 1" mean?
+--------
 
-Look at <asm-i386/errno.h>:
+ Makefile                        |    2 -
+ arch/powerpc/kernel/signal_32.c |   11 ++++++++-
+ arch/powerpc/kernel/signal_64.c |    2 +
+ kernel/exit.c                   |    8 -------
+ kernel/posix-cpu-timers.c       |   45 +++++++++++++++++++---------------------
+ net/netfilter/xt_sctp.c         |    2 -
+ 6 files changed, 36 insertions(+), 34 deletions(-)
 
-    #ifndef _I386_ERRNO_H
-    #define _I386_ERRNO_H
+Summary of changes from v2.6.16.20 to v2.6.16.21
+================================================
 
-    #include <asm-generic/errno.h>
+Chris Wright:
+      Linux 2.6.16.21
 
-    #endif
+Oleg Nesterov:
+      check_process_timers: fix possible lockup
+      run_posix_cpu_timers: remove a bogus BUG_ON() (CVE-2006-2445)
 
-The look at <asm-generic/errno.h>:
+Patrick McHardy:
+      xt_sctp: fix endless loop caused by 0 chunk length (CVE-2006-3085)
 
-    #define	EKEYREVOKED	128	/* Key has been revoked */
-    #define	EKEYREJECTED	129	/* Key was rejected by service */
+Paul Mackerras:
+      powerpc: Fix machine check problem on 32-bit kernels (CVE-2006-2448)
 
-    /* for robust mutexes */
-    #define	EOWNERDEAD	130	/* Owner died */
-    #define	ENOTRECOVERABLE	131	/* State not recoverable */
-
-Here the maximum errno is 131. 
-
-
-In many architectures, <asm-foo/errno.h> just includes 
-<asm-generic/errno.h>. So I think <asm-generic/errno.h> should
-exports the real maximum errno and the other headers can
-use it. So in many cases, we can just maintain
-the real maximum errno in <asm-generic/errno.h>.
-
-Here is the patch for i386. If this patch is approved, I will write
-patches for the other architectures. (However, it may be better to be
-done by each architecture's maintainer.)
-
-Signed-off-by: Masatake YAMATO <jet@gyve.org>
-
-diff --git a/include/asm-generic/errno.h b/include/asm-generic/errno.h
-index e8852c0..4e1238e 100644
---- a/include/asm-generic/errno.h
-+++ b/include/asm-generic/errno.h
-@@ -106,4 +106,8 @@ #define	EKEYREJECTED	129	/* Key was reje
- #define	EOWNERDEAD	130	/* Owner died */
- #define	ENOTRECOVERABLE	131	/* State not recoverable */
- 
-+/* 
-+ * If you add a new error, Don't forget to update `GENERIC_ERRNO_MAX' 
-+ */
-+#define GENERIC_ERRNO_MAX ENOTRECOVERABLE
- #endif
-diff --git a/include/asm-i386/errno.h b/include/asm-i386/errno.h
-index 969b343..9892b2d 100644
---- a/include/asm-i386/errno.h
-+++ b/include/asm-i386/errno.h
-@@ -2,5 +2,5 @@ #ifndef _I386_ERRNO_H
- #define _I386_ERRNO_H
- 
- #include <asm-generic/errno.h>
--
-+#define  i386_ERRNO_MAX GENERIC_ERRNO_MAX
- #endif
-diff --git a/include/asm-i386/unistd.h b/include/asm-i386/unistd.h
-index eb4b152..f52ec68 100644
---- a/include/asm-i386/unistd.h
-+++ b/include/asm-i386/unistd.h
-@@ -326,12 +326,13 @@ #define __NR_vmsplice		316
- #define NR_syscalls 317
- 
- /*
-- * user-visible error numbers are in the range -1 - -128: see
-- * <asm-i386/errno.h>
-+ * user-visible error numbers are in the range -1 - -i386_ERRNO_MAX
-  */
-+#include <asm-i386/errno.h>
-+
- #define __syscall_return(type, res) \
- do { \
--	if ((unsigned long)(res) >= (unsigned long)(-(128 + 1))) { \
-+	if ((unsigned long)(res) >= (unsigned long)(-(i386_ERRNO_MAX))) { \
- 		errno = -(res); \
- 		res = -1; \
- 	} \

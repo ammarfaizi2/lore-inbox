@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWFTLuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWFTLuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWFTLuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 07:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWFTLuJ
+	id S1030231AbWFTLuz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 07:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWFTLuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 07:50:09 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10625 "EHLO
+	Tue, 20 Jun 2006 07:50:23 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:39041 "EHLO
 	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
-	id S1030223AbWFTLts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 07:49:48 -0400
-Message-Id: <20060620114708.454448000@sous-sol.org>
+	id S1030227AbWFTLuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 07:50:20 -0400
+Message-Id: <20060620114722.456380000@sous-sol.org>
 References: <20060620114527.934114000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 20 Jun 2006 00:00:05 -0700
+Date: Tue, 20 Jun 2006 00:00:06 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,64 +21,54 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Oleg Drokin <green@linuxhacker.ru>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 05/13] [PATCH] Missed error checking for intents filp in open_namei().
-Content-Disposition: inline; filename=missed-error-checking-for-intent-s-filp-in-open_namei.patch
+       Hugh Dickins <hugh@veritas.com>,
+       "Robin H. Johnson" <robbat2@gentoo.org>, Andi Kleen <ak@suse.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 06/13] tmpfs: time granularity fix for [acm]time going backwards
+Content-Disposition: inline; filename=tmpfs-time-granularity-fix-for-time-going-backwards.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Oleg Drokin <green@linuxhacker.ru>
+From: Robin H. Johnson <robbat2@gentoo.org>
 
-It seems there is error check missing in open_namei for errors returned
-through intent.open.file (from lookup_instantiate_filp).
+I noticed a strange behavior in a tmpfs file system the other day, while
+building packages - occasionally, and seemingly at random, make decided to
+rebuild a target. However, only on tmpfs.
 
-If there is plain open performed, then such a check done inside
-__path_lookup_intent_open called from path_lookup_open(), but when the open
-is performed with O_CREAT flag set, then __path_lookup_intent_open is only
-called with LOOKUP_PARENT set where no file opening can occur yet.
+A file would be created, and if checked, it had a sub-second timestamp.
+However, after an utimes related call where sub-seconds should be set, they
+were zeroed instead. In the case that a file was created, and utimes(...,NULL)
+was used on it in the same second, the timestamp on the file moved backwards.
 
-Later on lookup_hash is called where exact opening might take place and
-intent.open.file may be filled.  If it is filled with error value of some
-sort, then we get kernel attempting to dereference this error value as
-address (and corresponding oops) in nameidata_to_filp() called from
-filp_open().
+After some digging, I found that this was being caused by tmpfs not having a
+time granularity set, thus inheriting the default 1 second granularity.
 
-While this is relatively simple to workaround in ->lookup() method by just
-checking lookup_instantiate_filp() return value and returning error as
-needed, this is not so easy in ->d_revalidate(), where we can only return
-"yes, dentry is valid" or "no, dentry is invalid, perform full lookup
-again", and just returning 0 on error would cause extra lookup (with
-potential extra costly RPCs).
+Hugh adds: yes, we missed tmpfs when the s_time_gran mods went into 2.6.11.
+Unfortunately, the granularity of CURRENT_TIME, often used in filesystems,
+does not match the default granularity set by alloc_super.  A few more such
+discrepancies have been found, but this is the most important to fix now.
 
-So in short, I believe that there should be no difference in error handling
-for opening a file and creating a file in open_namei() and propose this
-simple patch as a solution.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+Acked-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
 ---
- fs/namei.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ mm/shmem.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- linux-2.6.16.21.orig/fs/namei.c
-+++ linux-2.6.16.21/fs/namei.c
-@@ -1628,6 +1628,12 @@ do_last:
- 		goto exit;
- 	}
+--- linux-2.6.16.21.orig/mm/shmem.c
++++ linux-2.6.16.21/mm/shmem.c
+@@ -2100,6 +2100,7 @@ static int shmem_fill_super(struct super
+ 	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
+ 	sb->s_magic = TMPFS_MAGIC;
+ 	sb->s_op = &shmem_ops;
++	sb->s_time_gran = 1;
  
-+	if (IS_ERR(nd->intent.open.file)) {
-+		mutex_unlock(&dir->d_inode->i_mutex);
-+		error = PTR_ERR(nd->intent.open.file);
-+		goto exit_dput;
-+	}
-+
- 	/* Negative dentry, just create the file */
- 	if (!path.dentry->d_inode) {
- 		if (!IS_POSIXACL(dir->d_inode))
+ 	inode = shmem_get_inode(sb, S_IFDIR | mode, 0);
+ 	if (!inode)
 
 --

@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWFTPR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWFTPRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWFTPR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 11:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWFTPR1
+	id S1751309AbWFTPRB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 11:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWFTPRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 11:17:27 -0400
-Received: from mail.mnsspb.ru ([84.204.75.2]:18631 "EHLO mail.mnsspb.ru")
-	by vger.kernel.org with ESMTP id S1751310AbWFTPRZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 11:17:25 -0400
-From: Kirill Smelkov <kirr@mns.spb.ru>
-Organization: MNS
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] ide: disable dma for transcend CF
-Date: Tue, 20 Jun 2006 19:18:16 +0400
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <200606201452.37905.kirr@mns.spb.ru> <1150811003.11062.45.camel@localhost.localdomain>
-In-Reply-To: <1150811003.11062.45.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 11:17:01 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:49830 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751309AbWFTPRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 11:17:00 -0400
+Date: Tue, 20 Jun 2006 17:16:58 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Jean-Daniel Pauget <jd@disjunkt.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>,
+       bert hubert <bert.hubert@netherlabs.nl>, george@mvista.com
+Subject: Re: Linux 2.6.17: PM-Timer bug warning?
+Message-ID: <20060620151658.GA5230@rhlx01.fht-esslingen.de>
+References: <20060620100800.GB5040@disjunkt.com> <20060620101946.GA32658@rhlx01.fht-esslingen.de> <87zmg7q3gm.fsf@duaron.myhome.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606201918.18412.kirr@mns.spb.ru>
+In-Reply-To: <87zmg7q3gm.fsf@duaron.myhome.or.jp>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi,
 
-[...]
-> >     hdc: dma_timer_epiry: dma_status == 0x21
+On Tue, Jun 20, 2006 at 11:58:01PM +0900, OGAWA Hirofumi wrote:
+> Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
 > 
-> Almost certainly a problem with the CF adapter. Please verify the card
-> in a modern CF adapter and also do tests with DMA capable cards of other
-> types on the adapter you are using.
-Thanks for the info.
+> >>     but now, how and to whom should I report ?
+> >
+> > We need to enhance current kernel to whitelist this chipset revision
+> > somehow. Or at least put a note there that this revision is ok, too
+> > (to wait some more time for further evidence/revisions to appear).
+> 
+> Almost ICH4 should be sane.  Since there seems both reports of good
+> and bad, probably the bug of ICH4 seems to be depending on a specific
+> motherboard.
+> 
+> FWIW, If you want to reduce gray-list, probably it should be
+> motherboard list.
 
-I'll try this if, and when necceessary hardware is available.
-At the time being i have to stick to these two.
+OK, so if I get a nice description of which dual P4 Xeon motherboard that
+was (Dell something?), then I'll make a patch adding
+this chipset's revision + motherboard + LKML link of bug test app
+to the file, and asking for more testers there, too.
+
+Andreas Mohr
 
 -- 
-	Kirill
-
+No programming skills!? Why not help translate many Linux applications! 
+https://launchpad.ubuntu.com/rosetta
+(or alternatively buy nicely packaged Linux distros/OSS software to help
+support Linux developers creating shiny new things for you?)

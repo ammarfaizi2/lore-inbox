@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbWFTIBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWFTH7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbWFTIBb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWFTIBb
+	id S964938AbWFTH7t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 03:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWFTH7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:01:31 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:10696 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964993AbWFTIBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:01:30 -0400
-Message-ID: <4497AB46.4000402@sgi.com>
-Date: Tue, 20 Jun 2006 10:01:10 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Tue, 20 Jun 2006 03:59:49 -0400
+Received: from web52914.mail.yahoo.com ([206.190.49.24]:63328 "HELO
+	web52914.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S964938AbWFTH7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 03:59:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=iawG6f1trqgoPGp3IsCWGNnSNkl0PS9pOnshWcq4hf31zLvKG4o3oH8hGawk0VfqYP6/GqFmBvkwbzXIucOGYU11KFy1X3KO4XX/hW+2BfVLaBfE0IHtjI+x1ROlTNcX/ZKm6Y0RWAHL0xeHeAIYjFuYDWuRSjgbITo3yWBzwt0=  ;
+Message-ID: <20060620075947.33014.qmail@web52914.mail.yahoo.com>
+Date: Tue, 20 Jun 2006 08:59:47 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Re: Linux 2.6.17: PM-Timer bug warning?
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cone.1150766585.735266.688.501@kolivas.org>
 MIME-Version: 1.0
-To: Robin Holt <holt@sgi.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Carsten Otte <cotte@de.ibm.com>, bjorn_helgaas@hp.com
-Subject: Re: [patch] do_no_pfn
-References: <yq0psh5zenq.fsf@jaguar.mkp.net> <p73r71lpa6a.fsf@verdi.suse.de> <20060619224952.GA17685@lnx-holt.americas.sgi.com>
-In-Reply-To: <20060619224952.GA17685@lnx-holt.americas.sgi.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt wrote:
-> On Mon, Jun 19, 2006 at 03:06:05PM +0200, Andi Kleen wrote:
->> The big question is - why do you have pages without struct page? 
->> It seems ... wrong.
-[snip]
-> Are you saying the for the mspec pages we should extend the vmem_map,
-> partially populate the regions for the mspec pages, mark those pages as
-> uncached and reserved and then turn them over to the uncached allocator?
-> Seems like we have done a lot of extra work to put a struct page behind
-> a page which requires special handling.
+--- Con Kolivas <kernel@kolivas.org> wrote:
+> We don't have such a list that tells us which hardware is prone otherwise we 
+> could have put the workaround for broken chipsets only.
 
-Note that Bjorn Helgas has a case where he needs this as well.
-
-We could fake the pages by giving them a struct page, but it really
-makes no point as you say.
+True, but if there were no way to test for this bug then arguably the bug could not be said to
+exist in the first place. So how would I determine whether my chipset really is prone or not?
 
 Cheers,
-Jes
+Chris
+
+
+
+	
+	
+		
+___________________________________________________________ 
+All new Yahoo! Mail "The new Interface is stunning in its simplicity and ease of use." - PC Magazine 
+http://uk.docs.yahoo.com/nowyoucan.html

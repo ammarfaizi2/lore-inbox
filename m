@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWFTQZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWFTQ1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWFTQZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFTQZJ
+	id S1751395AbWFTQ1E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWFTQ1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:25:09 -0400
-Received: from rtr.ca ([64.26.128.89]:26012 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751385AbWFTQZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:25:08 -0400
-Message-ID: <44982162.2020006@rtr.ca>
-Date: Tue, 20 Jun 2006 12:25:06 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Tue, 20 Jun 2006 12:27:03 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:15583 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751395AbWFTQ1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:27:02 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Olof Johansson <olof@lixom.net>
+Subject: Re: [Cbe-oss-dev] [patch 01/20] cell: add RAS support
+Date: Tue, 20 Jun 2006 18:26:53 +0200
+User-Agent: KMail/1.9.1
+Cc: paulus@samba.org, linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+References: <20060619183315.653672000@klappe.arndb.de> <20060619183404.144740000@klappe.arndb.de> <20060620154304.GD4845@pb15.lixom.net>
+In-Reply-To: <20060620154304.GD4845@pb15.lixom.net>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LibPATA/ATA Errors Continue - Will there be a fix for this?
-References: <200606201815.54318.a1426z@gawab.com>
-In-Reply-To: <200606201815.54318.a1426z@gawab.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606201826.54290.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
+On Tuesday 20 June 2006 17:43, Olof Johansson wrote:
 > 
-> I once sent a patch to -mm:
+> > This is a first version of support for the Cell BE "Reliability,
+> > Availability and Serviceability" features.
 > 
-..
->>> -#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==(good))
->>> +#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==((stat)&(good)))
->>>  #define BAD_R_STAT		(BUSY_STAT   | ERR_STAT)
->>>  #define BAD_W_STAT		(BAD_R_STAT  | WRERR_STAT)
->>>  #define BAD_STAT		(BAD_R_STAT  | DRQ_STAT)
->> Assuming hdb is a CDROM/optical drive, then this change makes sense for
->> that. But I don't think it is a valid (good) change for regular ATA disks.
->>
->> A more complex patch is required, one which correctly handles each drive
->> type.
+> Does it really make sense to do this under a config option? I don't see
+> why anyone would not want to know that their machine is about to melt.
+> 
+You can only have that when running on bare metal. Machines that run
+on a hypervisor can't run that code.
 
-That patch was very ATAPI-specific, and would break other things.
-It also would not correctly help anything in Justin's case.
+It probably makes sense to auto-select that option for CONFIG_CELL_BLADE
+though.
 
--ml
+	Arnd <><

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWFTH7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbWFTIDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbWFTH7t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 03:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWFTH7t
+	id S965021AbWFTIDO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWFTIDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 03:59:49 -0400
-Received: from web52914.mail.yahoo.com ([206.190.49.24]:63328 "HELO
-	web52914.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S964938AbWFTH7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 03:59:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iawG6f1trqgoPGp3IsCWGNnSNkl0PS9pOnshWcq4hf31zLvKG4o3oH8hGawk0VfqYP6/GqFmBvkwbzXIucOGYU11KFy1X3KO4XX/hW+2BfVLaBfE0IHtjI+x1ROlTNcX/ZKm6Y0RWAHL0xeHeAIYjFuYDWuRSjgbITo3yWBzwt0=  ;
-Message-ID: <20060620075947.33014.qmail@web52914.mail.yahoo.com>
-Date: Tue, 20 Jun 2006 08:59:47 +0100 (BST)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Re: Linux 2.6.17: PM-Timer bug warning?
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <cone.1150766585.735266.688.501@kolivas.org>
+	Tue, 20 Jun 2006 04:03:14 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:9670 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965021AbWFTIDN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:03:13 -0400
+Message-ID: <4497ABAC.4030305@garzik.org>
+Date: Tue, 20 Jun 2006 04:02:52 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Andi Kleen <ak@suse.de>
+CC: Dave Olson <olson@unixfolk.com>, discuss@x86-64.org,
+       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
+       Greg Lindahl <greg.lindahl@qlogic.com>, gregkh@suse.de
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
+ Hyper-transport capabilities
+References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com> <200606200925.30926.ak@suse.de>
+In-Reply-To: <200606200925.30926.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Con Kolivas <kernel@kolivas.org> wrote:
-> We don't have such a list that tells us which hardware is prone otherwise we 
-> could have put the workaround for broken chipsets only.
-
-True, but if there were no way to test for this bug then arguably the bug could not be said to
-exist in the first place. So how would I determine whether my chipset really is prone or not?
-
-Cheers,
-Chris
+Andi Kleen wrote:
+> So if there are any more MSI problems comming up IMHO it should be white list/disabled 
+> by default and only turn on after a long time when Windows uses it by default 
+> or something. Greg, do you agree?
 
 
+We should be optimists, not pessimists.
 
-	
-	
-		
-___________________________________________________________ 
-All new Yahoo! Mail "The new Interface is stunning in its simplicity and ease of use." - PC Magazine 
-http://uk.docs.yahoo.com/nowyoucan.html
+MSI is useful enough that we should turn it on by default in newer systems.
+
+	Jeff
+
+

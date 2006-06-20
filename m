@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWFTHkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWFTHtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbWFTHkk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 03:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965137AbWFTHkk
+	id S964806AbWFTHtO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 03:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFTHtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 03:40:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65508 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965133AbWFTHkk (ORCPT
+	Tue, 20 Jun 2006 03:49:13 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:50117 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932316AbWFTHtM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 03:40:40 -0400
+	Tue, 20 Jun 2006 03:49:12 -0400
+Message-ID: <4497A871.8000303@garzik.org>
+Date: Tue, 20 Jun 2006 03:49:05 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-git build breakage
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: bert hubert <bert.hubert@netherlabs.nl>
-X-Fcc: ~/Mail/linus
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] utrace: new modular infrastructure for user debug/tracing
-In-Reply-To: bert hubert's message of  Tuesday, 20 June 2006 09:32:34 +0200 <20060620073234.GA29317@outpost.ds9a.nl>
-X-Shopping-List: (1) Contagious savage cancer
-   (2) Acoustic tampons
-   (3) Cooking clinical bomb compasses
-Message-Id: <20060620074037.CE00718004B@magilla.sf.frob.com>
-Date: Tue, 20 Jun 2006 00:40:37 -0700 (PDT)
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jun 19, 2006 at 03:50:11AM -0700, Roland McGrath wrote:
-> > I have been working on for a while, and imagining for much longer,
-> > replacing ptrace from the ground up.  This is what I've come up with so
-> > far, and I'm looking for some reactions on the direction.  What I'm
-> 
-> Roland,
-> 
-> Is this what has elsewhere been referred to as 'ptrace-ng'?
+On the latest 'git pull', on x86-64 SMP 'make allmodconfig', I get the 
+following build breakage:
 
-I've never called it that, but then I didn't call it anything in particular
-until somewhat recently.  Whoever referred would have to tell you what it
-was to which they referred.  Noone has told me about something unrelated
-called ptrace-ng, so I might be it for all I know.
+1) myri10ge: needs iowrite64_copy from -mm
 
+2) forcedeth: git tree conflict, Herbert sent a patch
 
-Thanks,
-Roland
+3) pci-gart (ouch!) link: no fix seen yet
+
+[...]
+   LD      init/built-in.o
+   LD      .tmp_vmlinux1
+arch/x86_64/kernel/built-in.o: In function `pci_iommu_init':
+arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_amd64_init'
+arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_bridge'
+arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_copy_info'
+make: *** [.tmp_vmlinux1] Error 1
+

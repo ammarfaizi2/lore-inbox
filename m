@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWFTG7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWFTHH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbWFTG7D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 02:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWFTG7B
+	id S964942AbWFTHH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 03:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbWFTHH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 02:59:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61132 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965107AbWFTG7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 02:59:00 -0400
-Date: Tue, 20 Jun 2006 02:53:32 -0400
-From: Dave Jones <davej@redhat.com>
+	Tue, 20 Jun 2006 03:07:59 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:34003 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964942AbWFTHH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 03:07:59 -0400
+Subject: Re: [patch 8/8] lock validator: add s390 to supported options
+From: Arjan van de Ven <arjan@infradead.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Olson <olson@unixfolk.com>, mingo@elte.hu, ccb@acm.org,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch] increase spinlock-debug looping timeouts (write_lock and NMI)
-Message-ID: <20060620065332.GA27444@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Dave Olson <olson@unixfolk.com>,
-	mingo@elte.hu, ccb@acm.org, linux-kernel@vger.kernel.org,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <fa.VT2rwoX1M/2O/aO5crhlRDNx4YA@ifi.uio.no> <fa.Zp589GPrIISmAAheRowfRgZ1jgs@ifi.uio.no> <Pine.LNX.4.61.0606192231380.25413@osa.unixfolk.com> <20060619233947.94f7e644.akpm@osdl.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+In-Reply-To: <20060619150547.0b6213b1.akpm@osdl.org>
+References: <20060614142503.GI1241@osiris.boeblingen.de.ibm.com>
+	 <20060619150547.0b6213b1.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 09:07:47 +0200
+Message-Id: <1150787267.2891.147.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060619233947.94f7e644.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 11:39:47PM -0700, Andrew Morton wrote:
+On Mon, 2006-06-19 at 15:05 -0700, Andrew Morton wrote:
+> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> >
+> >  config DEBUG_SPINLOCK_ALLOC
+> >  	bool "Spinlock debugging: detect incorrect freeing of live spinlocks"
+> > -	depends on DEBUG_SPINLOCK && X86
+> > +	depends on DEBUG_SPINLOCK && (X86 || S390)
+> 
+> Can we please stomp this out before it starts to look like
+> CONFIG_FRAME_POINTER?
 
- > fc4?  You seem to have an RH-FCx which doesn't enable
- > CONFIG_DEBUG_SPINLOCK.  Or maybe we didn't have all that debug code in
- > 2.6.16.  Doesn't matter, really.
+why is this even an arch option ?
 
->From the uname, it looks like a recompiled Fedora kernel
-(probably with that option turned off).
 
- > > Pid: 4239, comm: mpi_multibw Not tainted 2.6.16-1.2096_FC4.rootsmp #1
-
-We helpfully appended the whoami output to it at buildtime.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk

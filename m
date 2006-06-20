@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWFTXMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWFTXPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWFTXMV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 19:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWFTXMV
+	id S932114AbWFTXPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 19:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWFTXPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 19:12:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62172 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932070AbWFTXMU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 19:12:20 -0400
-Date: Tue, 20 Jun 2006 16:15:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: pwil3058@bigpond.net.au, nagar@watson.ibm.com, sekharan@us.ibm.com,
-       jtk@us.ibm.com, balbir@in.ibm.com, jes@sgi.com,
-       linux-kernel@vger.kernel.org, stern@rowland.harvard.edu,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH 09/11] Task watchers: Add support for
- per-task watchers
-Message-Id: <20060620161524.7c132eea.akpm@osdl.org>
-In-Reply-To: <1150844177.21787.774.camel@stark>
-References: <20060613235122.130021000@localhost.localdomain>
-	<1150242901.21787.149.camel@stark>
-	<44978793.8070109@bigpond.net.au>
-	<1150844177.21787.774.camel@stark>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 19:15:25 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:35590 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932114AbWFTXPY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 19:15:24 -0400
+To: linux-kernel@vger.kernel.org
+Cc: kai@germaschewski.name, Sam Ravnborg <sam@ravnborg.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: [PATCH] Fix 100% initramfs bloat in 2.6.17 versus 2.6.16
+From: Nix <nix@esperi.org.uk>
+X-Emacs: because idle RAM is the Devil's playground.
+Date: Wed, 21 Jun 2006 00:15:17 +0100
+Message-ID: <87psh3mnay.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley <matthltc@us.ibm.com> wrote:
->
-> > > +static inline int notify_per_task_watchers(unsigned int val,
-> > > +					   struct task_struct *task)
-> > > +{
-> > > +	if (get_watch_event(val) != WATCH_TASK_INIT)
-> > > +		return raw_notifier_call_chain(&task->notify, val, task);
-> > > +	RAW_INIT_NOTIFIER_HEAD(&task->notify);
-> > > +	if (task->real_parent)
-> > > +		return raw_notifier_call_chain(&task->real_parent->notify,
-> > > +		   			       val, task);
-> > > +}
-> > 
-> > It's possible for this task to exit without returning a result.
-> 
-> Assuming you meant s/task/function/:
-> 
-> 	In the common case this will return a result because most tasks have a
-> real parent. The only exception should be the init task. However, the
-> init task does not "fork" from another task so this function will never
-> get called with WATCH_TASK_INIT and the init task.
-> 
-> 	This means that if one wants to use per-task watchers to associate data
-> and a function call with *every* task, special care will need to be
-> taken to register with the init task.
+When I built 2.6.17 for the first time I was a little surprised to see
+my kernel putting on >500Kb in weight.
 
-no......
+It didn't take long to work out that this was because my initramfs's
+contents were being included twice in the cpio image.
 
-It's possible for this function to fall off the end without returning
-anything.  The compiler should have spat a warning.
+A make V=1 makes the problem obvious:
+
+/bin/sh /usr/packages/linux/versions/i686-loki/scripts/gen_initramfs_list.sh -l  "usr/initramfs" > usr/.initramfs_data.cpio.gz.d
+  /bin/sh /usr/packages/linux/versions/i686-loki/scripts/gen_initramfs_list.sh -o usr/initramfs_data.cpio.gz  -u 0  -g 0  "usr/initramfs"  "usr/initramfs"
+
+Note that doubling-up of the "usr/initramfs", which leads to
+gen_initramfs_list.sh dumping the thing into the cpio archive twice.
+
+The cause is an obvious pasto, fixed thusly:
+
+Signed-off-by: Nick Alcock <nix@esperi.org.uk>
+
+diff -durN linux-orig/usr/Makefile linux/usr/Makefile
+--- linux-orig/usr/Makefile	2006-06-21 00:07:10.000000000 +0100
++++ linux/usr/Makefile	2006-06-21 00:09:29.000000000 +0100
+@@ -33,7 +33,7 @@
+ endif
+ 
+ quiet_cmd_initfs = GEN     $@
+-      cmd_initfs = $(initramfs) -o $@ $(ramfs-args) $(ramfs-input)
++      cmd_initfs = $(initramfs) -o $@ $(ramfs-args)
+ 
+ targets := initramfs_data.cpio.gz
+ $(deps_initramfs): klibcdirs
+
+-- 
+`NB: Anyone suggesting that we should say "Tibibytes" instead of
+ Terabytes there will be hunted down and brutally slain.
+ That is all.' --- Matthew Wilcox

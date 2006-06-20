@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWFTNWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWFTNYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWFTNWT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 09:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWFTNWT
+	id S1750797AbWFTNYH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 09:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWFTNYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 09:22:19 -0400
-Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:43703 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S1750797AbWFTNWS (ORCPT
+	Tue, 20 Jun 2006 09:24:07 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:8967 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750797AbWFTNYF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 09:22:18 -0400
-X-AntiVirus: PTMail-AV 0.3-0.88.2
-Subject: Re: [Fwd: Re: [Linux-usb-users] Fwd: Re: 2.6.17-rc6-mm2 - USB
-	issues]
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Johny <kernel@agotnes.com>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net, stern@rowland.harvard.edu,
-       Chris Wedgwood <cw@f00f.org>
-In-Reply-To: <20060620044003.4287426d.akpm@osdl.org>
-References: <44953B4B.9040108@agotnes.com> <4497DA3F.80302@agotnes.com>
-	 <20060620044003.4287426d.akpm@osdl.org>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 20 Jun 2006 14:22:04 +0100
-Message-Id: <1150809726.7194.27.camel@localhost.localdomain>
+	Tue, 20 Jun 2006 09:24:05 -0400
+Date: Tue, 20 Jun 2006 09:23:15 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17.1
+Message-ID: <20060620132310.GA3114@tuxdriver.com>
+References: <20060620101350.GE23467@sequoia.sous-sol.org> <200606201235.19811.mb@bu3sch.de> <20060620104416.GG23467@sequoia.sous-sol.org> <200606201256.27252.mb@bu3sch.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200606201256.27252.mb@bu3sch.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-
-In first thread of this issue in LKML, some months ago, (right now, I
-don't have the link). 
-After some discussion, someone arrive the conclusion of that: 
-You only need this quirks, if interrupts are in XT-PIC mode and is
-harmless if don't (and "should only run for VIA southbridges"). So if
-you are in XT-PIC mode, it is more probability that patch -R in
-question, have some affect.
-cat /proc/interrupts 
-give you: IO-APIC-... or XT-PIC ?
-
-and what PCI_IDs do you have ? (lspci -n)
-
-Other issue, you can't revert this patch cleanly because after that we
-have other patch that adds some more IDs. So just delete any declare of
-PCI_DEVICE_ID_VIA_82C... and add one declare with PCI_ANY_ID
-
-Thanks,
-Sérgio M. B.
-
-On Tue, 2006-06-20 at 04:40 -0700, Andrew Morton wrote:
-> You could try a `patch -R' of the below.
+On Tue, Jun 20, 2006 at 12:56:26PM +0200, Michael Buesch wrote:
+> On Tuesday 20 June 2006 12:44, Chris Wright wrote:
+> > * Michael Buesch (mb@bu3sch.de) wrote:
+> > > On Tuesday 20 June 2006 12:13, Chris Wright wrote:
+> > > > We (the -stable team) are announcing the release of the 2.6.17.1 kernel.
+> > > 
+> > > Please consider inclusion of the following patch into 2.6.17.2:
+> > > 
+> > > It fixes a possible crash. Might be triggerable in networks with
+> > > heavy traffic. I only saw it once so far, though.
+> > 
+> > I didn't notice that it made it to Linus' tree yet.  Can you make sure
+> > to push it up, and I'll queue it for -stable.
 > 
-> commit 75cf7456dd87335f574dcd53c4ae616a2ad71a11
-> Author: Chris Wedgwood <cw@f00f.org>
-> Date:   Tue Apr 18 23:57:09 2006 -0700 
+> It is in -mm and I think John Linville also queued it upstream
+> through Jeff to Linus.
+> >From my perspective, everything is done ;)
 
+I haven't quite done my part yet, but I intend to do so.  I think
+this is a fine candidate for -stable.
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

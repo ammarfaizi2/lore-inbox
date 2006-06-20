@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWFTKpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWFTKw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbWFTKpG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 06:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWFTKpF
+	id S932587AbWFTKw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 06:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbWFTKwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 06:45:05 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9088 "EHLO
-	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
-	id S932564AbWFTKpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 06:45:04 -0400
-Date: Tue, 20 Jun 2006 03:44:16 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, stable@kernel.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17.1
-Message-ID: <20060620104416.GG23467@sequoia.sous-sol.org>
-References: <20060620101350.GE23467@sequoia.sous-sol.org> <200606201235.19811.mb@bu3sch.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Jun 2006 06:52:55 -0400
+Received: from mail.mnsspb.ru ([84.204.75.2]:47490 "EHLO mail.mnsspb.ru")
+	by vger.kernel.org with ESMTP id S932574AbWFTKww (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 06:52:52 -0400
+From: Kirill Smelkov <kirr@mns.spb.ru>
+Organization: MNS
+To: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: [PATCH] ide: fix revision comparison in ide_in_drive_list
+Date: Tue, 20 Jun 2006 14:52:31 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200606201235.19811.mb@bu3sch.de>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200606201452.33925.kirr@mns.spb.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michael Buesch (mb@bu3sch.de) wrote:
-> On Tuesday 20 June 2006 12:13, Chris Wright wrote:
-> > We (the -stable team) are announcing the release of the 2.6.17.1 kernel.
-> 
-> Please consider inclusion of the following patch into 2.6.17.2:
-> 
-> It fixes a possible crash. Might be triggerable in networks with
-> heavy traffic. I only saw it once so far, though.
+NB: bart/ide-2.6.git seems to be unmaintained,  so I'm sending this directly to -mm
 
-I didn't notice that it made it to Linus' tree yet.  Can you make sure
-to push it up, and I'll queue it for -stable.
+Fix ide_in_drive_list:  drive_table->id_firmware should be searched *in* id->fw_rev,
+not vise versa.
 
-thanks,
--chris
+Signed-off-by: Kirill Smelkov <kirr@mns.spb.ru>
+
+Index: linux-2.6.17/drivers/ide/ide-dma.c
+===================================================================
+--- linux-2.6.17.orig/drivers/ide/ide-dma.c	2006-06-20 13:51:49.000000000 +0400
++++ linux-2.6.17/drivers/ide/ide-dma.c	2006-06-20 13:52:14.000000000 +0400
+@@ -147,7 +147,7 @@
+ {
+ 	for ( ; drive_table->id_model ; drive_table++)
+ 		if ((!strcmp(drive_table->id_model, id->model)) &&
+-		    ((strstr(drive_table->id_firmware, id->fw_rev)) ||
++		    ((strstr(id->fw_rev, drive_table->id_firmware)) ||
+ 		     (!strcmp(drive_table->id_firmware, "ALL"))))
+ 			return 1;
+ 	return 0;
+

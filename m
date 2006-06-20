@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751831AbWFTXIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWFTXKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751831AbWFTXIq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 19:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWFTXIq
+	id S932104AbWFTXKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 19:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWFTXK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 19:08:46 -0400
-Received: from ns1.suse.de ([195.135.220.2]:50913 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751831AbWFTXIo (ORCPT
+	Tue, 20 Jun 2006 19:10:29 -0400
+Received: from gate.crashing.org ([63.228.1.57]:32716 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751848AbWFTXKX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 19:08:44 -0400
-Date: Tue, 20 Jun 2006 16:05:33 -0700
-From: Greg KH <gregkh@suse.de>
-To: Brice Goglin <brice@myri.com>
-Cc: Andi Kleen <ak@suse.de>, Dave Olson <olson@unixfolk.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       Greg Lindahl <greg.lindahl@qlogic.com>
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
-Message-ID: <20060620230533.GB16598@suse.de>
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com> <200606200925.30926.ak@suse.de> <20060620212908.GA17012@suse.de> <44987661.5050907@myri.com>
+	Tue, 20 Jun 2006 19:10:23 -0400
+Subject: Re: [patch 0/3] 2.6.17 radix-tree: updates and lockless
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>, Paul.McKenney@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20060620153555.0bd61e7b.akpm@osdl.org>
+References: <20060408134635.22479.79269.sendpatchset@linux.site>
+	 <20060620153555.0bd61e7b.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 09:09:49 +1000
+Message-Id: <1150844989.1901.52.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44987661.5050907@myri.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 06:27:45PM -0400, Brice Goglin wrote:
-> Greg KH wrote:
-> > No, I don't want a whitelist, as it will be hard to always keep adding
-> > stuff to it (unless we can somehow figure out how to put a "cut-off"
-> > date check in there).
-> 
-> My second patchset (Improve MSI detection v2) uses "PCI-E vs non-PCI-E"
-> as a cut-off "date". After reading all what people said in this thread,
-> I still think it is a good compromise (and very simple to implement) if
-> we blacklist PCI-E and whitelist non-PCI-E chipsets.
+On Tue, 2006-06-20 at 15:35 -0700, Andrew Morton wrote:
 
-No, that's not fair for those devices which do not have PCI-E and yet
-have MSI (the original ones, that work just fine...)
+> So given those complexities, and the lack of a _user_ of
+> radix-tree-rcu-lockless-readside.patch, it doesn't look like 2.6.18 stuff
+> at this time.
 
-Again, no "whitelist" please, just quirks to fix problems with ones that
-we know we have problems with, just like all other PCI quirks...
+So what should I do ? leave the bug in ppc64 or kill it's scalability
+when taking interrupts ? You have one user already, me. From what Nick
+says, the patch has been beaten up pretty heavily and seems stable....
 
-thanks,
+Ben.
 
-greg k-h
+

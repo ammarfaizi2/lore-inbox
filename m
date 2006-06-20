@@ -1,99 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWFTQ11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWFTQdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWFTQ11 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWFTQ11
+	id S1751392AbWFTQdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFTQdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:27:27 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:17839 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751392AbWFTQ1Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:27:25 -0400
-Date: Tue, 20 Jun 2006 11:27:06 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
-Message-ID: <20060620162706.GB21542@sergelap.austin.ibm.com>
-References: <20060615144331.GB16046@sergelap.austin.ibm.com> <20060619201450.3434f72f.akpm@osdl.org> <20060620082745.GA28092@sergelap> <20060620014027.eba58cb7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060620014027.eba58cb7.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Tue, 20 Jun 2006 12:33:16 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:58326 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751392AbWFTQdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:33:15 -0400
+Message-ID: <44982344.2060507@bull.net>
+Date: Tue, 20 Jun 2006 18:33:08 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, fr, hu
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Jan Kara <jack@suse.cz>, sct@redhat.com
+Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
+References: <446C2F89.5020300@bull.net> <20060518134533.GA20159@atrey.karlin.mff.cuni.cz> <447F13B3.6050505@bull.net> <20060601162751.GH26933@atrey.karlin.mff.cuni.cz> <44801E16.3040300@bull.net> <20060602134923.GA1644@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20060602134923.GA1644@atrey.karlin.mff.cuni.cz>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 20/06/2006 18:37:06,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 20/06/2006 18:37:07,
+	Serialize complete at 20/06/2006 18:37:07
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton (akpm@osdl.org):
-> On Tue, 20 Jun 2006 03:27:45 -0500
-> "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> 
-> > Ah, like so?
-> 
-> Nope.  kthread_bind() is supposed to be called by the thread creator,
-> before the thread is started.
-> 
-> The documentation for kthread_bind() is irritatingly hidden in the header
-> file.
+I have got some crashes due to:
 
-Oh, I see - then it makes more sense that it gets away with being so
-much simpler than set_cpus_allowed().
+Assertion failure in __journal_file_buffer():
+      "jh->b_transaction == transaction || jh->b_transaction == 0"
 
-So here's another attempt.  However I'm not sure now whether
-the first round of synchronization around stopmachine_thread_ack
-is necessary anymore.  If any threads fail, we'll find out from the
-kthread_create() return value, right?
+[<a0000002053b44e0>] __journal_file_buffer+0x420/0x7c0 [jbd]
+      r32 : e000000161a1f3e0  jh
+      r33 : e00000010396a380  transaction
+      r34 : 0000000000000008  jlist == BJ_Locked
 
-Still I'm not sure about that, so first things first:
+*(struct journal_head *) 0xe000000161a1f3e0: // jh
+{
+ b_bh = 0xe00000048bb36930,
+ b_jcount = 0x0,
+ b_jlist = 0x1,
+ b_modified = 0x0,
+ b_frozen_data = 0x0,
+ b_committed_data = 0x0,
+ b_transaction = 0xe0000020014adb80,	// ->j_running_transaction
+ b_next_transaction = 0x0,
+ b_tnext = 0xe0000001c17306e0,
+ b_tprev = 0xe00000204757e540,
+ b_cp_transaction = 0x0,
+ b_cpnext = 0x0,
+ b_cpprev = 0x0
+}
 
-thanks,
--serge
+*(struct buffer_head *) 0xe00000048bb36930: // jh->b_bh
+{
+b_state = 0x8201d,
+b_this_page = 0xe00000048bb33d88,
+b_page = 0xa07ffffff9201300,
+b_count = {
+  counter = 0x2
+},
+b_size = 0x1000,
+b_blocknr = 0xadc001,
+b_data = 0xe000000492a0e000,
+b_bdev = 0xe0000023fe1ca300,
+b_end_io = 0xa000000100630be0,
+b_private = 0xe000000161a1f3e0,
+b_assoc_buffers = {
+  next = 0xe00000048bb36978,
+  prev = 0xe00000048bb36978
+}
 
-From: Serge E. Hallyn <serue@us.ibm.com>
-Date: Tue, 20 Jun 2006 11:01:08 -0500
-Subject: [PATCH] kthread: update stop_machine to use kthread_bind
+--- Called from --- :
 
-Update stop_machine to use the more efficient kthread_bind()
-before running task in place of set_cpus_allowed() after.
+journal_submit_data_buffers+0x200/0x660 [jbd]
+      r32 : e0000001035ec100  journal
+      r33 : e00000010396a380  commit_transaction
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+As you can see, the current "jh" has been stolen for the new
+"->j_running_transaction" while we released temporarily "->j_list_lock"
+in the middle of "journal_submit_data_buffers()".
 
----
+Therefore the test "jh->b_jlist != BJ_SyncData", i.e. if it is still
+on a (_any_) sync. list is not enough.
 
- kernel/stop_machine.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+--- linux-2.6.16.20-orig/fs/jbd/commit.c	2006-06-20 17:19:47.000000000 +0200
++++ linux-2.6.16.20/fs/jbd/commit.c	2006-06-20 17:35:54.000000000 +0200
+@@ -219,15 +219,26 @@
+ 				bufs = 0;
+ 				lock_buffer(bh);
+ 				spin_lock(&journal->j_list_lock);
++				/* Stolen (e.g. for a new transaction) ? */
++				if (jh != commit_transaction->t_sync_datalist) {
++					unlock_buffer(bh);
++					JBUFFER_TRACE(jh, "stolen sync. data");
++					put_bh(bh);
++					continue;
++				}
+ 				/* Someone already cleaned up the buffer? */
+-				if (!buffer_jbd(bh)
+-					|| jh->b_jlist != BJ_SyncData) {
++
++				// Can this happen???
++
++				if (!buffer_jbd(bh)) {
+ 					unlock_buffer(bh);
+ 					BUFFER_TRACE(bh, "already cleaned up");
+ 					put_bh(bh);
+ 					continue;
+ 				}
+ 				put_bh(bh);
++				J_ASSERT_JH(jh, jh->b_transaction ==
++							commit_transaction);
+ 			}
+ 			if (test_clear_buffer_dirty(bh)) {
+ 				BUFFER_TRACE(bh, "needs writeout, submitting");
 
-e25a88e3d60f3f139f10cc8cd894d87622033a16
-diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
-index 2dd5a48..593d8e4 100644
---- a/kernel/stop_machine.c
-+++ b/kernel/stop_machine.c
-@@ -86,7 +86,8 @@ static void stopmachine_set_state(enum s
- 
- static int stop_machine(void)
- {
--	int i, ret = 0;
-+	int ret = 0;
-+	unsigned int i;
- 	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
- 
- 	/* One high-prio thread per cpu.  We'll do this one. */
-@@ -100,11 +101,13 @@ static int stop_machine(void)
- 		struct task_struct *tsk;
- 		if (i == raw_smp_processor_id())
- 			continue;
--		tsk = kthread_run(stopmachine, (void *)(long)i, "stopmachine");
-+		tsk = kthread_create(stopmachine, NULL, "stopmachine");
- 		if (IS_ERR(tsk)) {
- 			ret = PTR_ERR(tsk);
- 			break;
- 		}
-+		kthread_bind(tsk, i);
-+		wake_up_process(tsk);
- 		stopmachine_num_threads++;
- 	}
- 
--- 
-1.3.3
+I am not really sure that the test "!buffer_jbd(bh)" is really useful.
+I left it alone for not introducing a new bug.
+If you can confirm that it is not necessary, I can take it away.
+
+Thanks,
+
+Zoltan
+
+
+
+
 

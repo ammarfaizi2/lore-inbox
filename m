@@ -1,50 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWFTHRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWFTHTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964925AbWFTHRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 03:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWFTHRQ
+	id S965101AbWFTHTW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 03:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWFTHTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 03:17:16 -0400
-Received: from relay2.uli.it ([62.212.1.5]:6295 "EHLO relay2.uli.it")
-	by vger.kernel.org with ESMTP id S964925AbWFTHRQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 03:17:16 -0400
-From: Daniele Orlandi <daniele@orlandi.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Passing references to kobjects between userland and kernel
-Date: Tue, 20 Jun 2006 09:17:10 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200606141626.39273.daniele@orlandi.com> <200606200148.56117.daniele@orlandi.com> <20060619235355.GA26685@kroah.com>
-In-Reply-To: <20060619235355.GA26685@kroah.com>
-X-Message-Flag: Outlook puo' causare gravi danni alla salute. Pensaci.
+	Tue, 20 Jun 2006 03:19:22 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.192.81]:61429 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S964926AbWFTHTV (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 03:19:21 -0400
+Message-ID: <4497A17C.50804@namesys.com>
+Date: Tue, 20 Jun 2006 00:19:24 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: David Chinner <dgc@sgi.com>, "Vladimir V. Saveliev" <vs@namesys.com>,
+       hch@infradead.org, Reiserfs-Dev@namesys.com,
+       Linux-Kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: batched write
+References: <20060524175312.GA3579@zero> <44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de> <1149766000.6336.29.camel@tribesman.namesys.com> <20060608121006.GA8474@infradead.org> <1150322912.6322.129.camel@tribesman.namesys.com> <20060617100458.0be18073.akpm@osdl.org> <20060619162740.GA5817@schatzie.adilger.int> <4496D606.8070402@namesys.com> <20060619185049.GH5817@schatzie.adilger.int> <20060620000133.GB8770394@melbourne.sgi.com>
+In-Reply-To: <20060620000133.GB8770394@melbourne.sgi.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606200917.13504.daniele@orlandi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 01:53, Greg KH wrote:
->
-> Why do you feel that this is a requirement?  What exactly are you trying
-> to do?
-
-I have my channels interconnect graph, nicely exported to sysfs, and I just 
-need an interface that an application could use to request connections 
-between two nodes of this graph.
-
-The result of the connection is a pipeline object, also exported to sysfs, 
-that the application will use to do further work on the connection.
-
-Currently I'm using an ioctl() but, given that ioctls seem to be a no-no for 
-future projects, given that there is great effort in having new and better 
-interfaces, I'm trying to figure out what is the best way to do what I need.
-
-thanks,
-Bye,
-
--- 
-  Daniele Orlandi
+So far we have XFS, FUSE, and reiser4 benefiting from the potential
+ability to process more than 4k at a time.  Is it enough?

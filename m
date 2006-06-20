@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWFTRSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWFTRUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWFTRSI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 13:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWFTRSI
+	id S1751443AbWFTRUR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 13:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWFTRUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 13:18:08 -0400
-Received: from javad.com ([216.122.176.236]:24580 "EHLO javad.com")
-	by vger.kernel.org with ESMTP id S1751433AbWFTRSG (ORCPT
+	Tue, 20 Jun 2006 13:20:17 -0400
+Received: from www.osadl.org ([213.239.205.134]:4799 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751437AbWFTRUP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 13:18:06 -0400
-From: Sergei Organov <osv@javad.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org, rmk+serial@arm.linux.org.uk
-Subject: Re: [PATCH] moxa: do not ignore input
-References: <200506021220.47138.vda@ilport.com.ua>
-	<200506021554.07316.vda@ilport.com.ua>
-	<20050602225805.GB9628@devserv.devel.redhat.com>
-	<200506031601.21180.vda@ilport.com.ua>
-Date: Tue, 20 Jun 2006 21:17:44 +0400
-In-Reply-To: <200506031601.21180.vda@ilport.com.ua> (Denis Vlasenko's
- message
-	of "Fri, 3 Jun 2005 16:01:21 +0300")
-Message-ID: <87y7vrpwzr.fsf@javad.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 20 Jun 2006 13:20:15 -0400
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>
+	 <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+	 <1150816429.6780.222.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+	 <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com>
+	 <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 19:21:31 +0200
+Message-Id: <1150824092.6780.255.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@ilport.com.ua> writes:
+On Tue, 2006-06-20 at 19:12 +0100, Esben Nielsen wrote:
+> >
+> >>
+> >> Another complicated design would be to make a task for each priority.
+> >> Then the interrupt wakes the highest priority one, which handles the first
+> >> callback and awakes the next one etc.
+> >
+> > Don't think that is necessary.
+> 
+> Me neither :-) Running sofhtirq-hrt at priority 99 - or whatever is 
+> set by chrt - should be sufficient.
 
-> Stop using tty internal structure in mxser_receive_chars(),
-> use tty_insert_flip_char(tty, ch flag); istead.
->
-> Without this change driver ignores any rx'ed chars.
->
-> Run tested, please apply.
->
-> Any suggestions on further cleanups this driver may need
-> while I have access to this hardware?
+It is not, that was the reason, why we implemted it. You get arbitrary
+latencies caused by timer storms.
 
-I have 8-port board, but mxser creates 16 devices anyway, and forces any
-application accessing one of those inexistent devices to segfault, e.g.:
+I have to check, whether the priority is propagated when the softirq is
+blocked on a lock. If not its a bug and has to be fixed.
 
-osv@osv ~$ cat /dev/ttyM9
-Segmentation fault
-osv@osv ~$
+	tglx
 
-This is on 2.6.14 kernel though, -- didn't try with more recent kernels
-as I have other troubles with them on my hardware/distribution.
 
-Not a big deal, but you've asked yourself ;)
-
--- 
-Sergei.

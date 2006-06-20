@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWFTMRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWFTM1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932618AbWFTMRz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 08:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWFTMRz
+	id S1030221AbWFTM1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 08:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWFTM1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 08:17:55 -0400
-Received: from lucidpixels.com ([66.45.37.187]:26793 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932618AbWFTMRu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 08:17:50 -0400
-Date: Tue, 20 Jun 2006 08:17:49 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: linux-kernel@vger.kernel.org
-cc: linux-ide@vger.kernel.org, jgarzik@pobox.com, Mark Lord <lkml@rtr.ca>
-Subject: LibPATA/ATA Errors Continue - Will there be a fix for this?
-Message-ID: <Pine.LNX.4.64.0606200808250.5851@p34.internal.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 20 Jun 2006 08:27:22 -0400
+Received: from souterrain.chygwyn.com ([194.39.143.233]:40918 "EHLO
+	souterrain.chygwyn.com") by vger.kernel.org with ESMTP
+	id S965056AbWFTM1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 08:27:22 -0400
+From: Steven Whitehouse <steve@chygwyn.com>
+To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Cc: Theodore Tso <tytso@thunk.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200606201345.45332.arnd.bergmann@de.ibm.com>
+References: <20060619152003.830437000@candygram.thunk.org>
+	 <20060619153108.418349000@candygram.thunk.org>
+	 <1150796596.3856.1333.camel@quoit.chygwyn.com>
+	 <200606201345.45332.arnd.bergmann@de.ibm.com>
+Organization: ChyGwyn Limited
+Date: Tue, 20 Jun 2006 13:34:09 +0100
+Message-Id: <1150806849.3856.1370.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Subject: Re: [RFC] [PATCH 1/8] inode_diet: Replace inode.u.generic_ip with
+	inode.i_private
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.0 (built Sat, 04 Sep 2004 19:17:51 +0100)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+Hi,
 
-I've done many RSYNCs to this disk (writing is what makes these errors 
-seem to occur) and I have MD5's the files on both sides, they are OK on 
-each side.
+On Tue, 2006-06-20 at 13:45 +0200, Arnd Bergmann wrote:
+> On Tuesday 20 June 2006 11:43, Steven Whitehouse wrote:
+> > As a further suggestion, I wonder do we really need i_private at all?
+> > Since we have sb->s_op->alloc_inode and inode->i_sb->s_op->destroy_inode
+> > if all filesystems did something along the following lines:
+> > 
+> > struct myfs_inode {
+> >         struct inode i_inode;
+> >         ...
+> > };
+> > 
+> > #define MYFS_I(inode) container_of((inode), struct myfs_inode, i_inode)
+> > 
+> > then it would seem that i_private is redundant. If there is a file
+> > system which does genuinely need a pointer here (if indeed such a
+> > filesystem does exist, I haven't actually checked that) then a pointer
+> > can just be added as the one single other member of (in my example)
+> > struct myfs_inode.
+> > 
+> That would mean that all file systems need to implement ->alloc_inode,
+> which in turn need slab caches that eat consume memory even when
+> the file system is not mounted.
+> 
+Yes, although I'm not sure that it would be as significant as the memory
+saved by removing the pointer bearing in mind the relative numbers of
+the structures that you'd expect to see in a "normal" working system. We
+could also try and reduce this by creating a special inode cache which
+would be shared by all filesystems which did still need just struct
+inode + private pointer for example.
 
-Should someone comment this code out that produces the printk()'s as these 
-are useless information as there is no problem with the disk?
+What you do gain though is (on umount of a filesystem) a much greater
+likelihood of being able to reclaim the memory which was being used by
+the inodes of that particular filesystem (particularly so if you only
+have a single mounted filesystem of a particular type). So hopefully
+having a separate slab cache per fstype would help reduce memory
+fragmentation, and more than compensate for the difference.
 
-Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: status=0x51 { 
-DriveReady SeekComplete Error }
-Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: error=0x04 { 
-DriveStatusError }
-Jun 20 03:20:27 p34 kernel: [4339823.900000] ata3: status=0x51 { 
-DriveReady SeekComplete Error }
-Jun 20 03:20:27 p34 kernel: [4339823.900000] ata3: error=0x04 { 
-DriveStatusError }
-Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: no sense translation 
-for status: 0x51
-Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: status=0x51 { 
-DriveReady SeekComplete Error }
-Jun 20 03:41:04 p34 kernel: [4341061.844000] ata3: no sense translation 
-for status: 0x51
-Jun 20 03:41:04 p34 kernel: [4341061.844000] ata3: status=0x51 { 
-DriveReady SeekComplete Error }
-Jun 20 03:46:27 p34 kernel: [4341384.974000] ata3: no sense translation 
-for status: 0x51
-Jun 20 03:46:27 p34 kernel: [4341384.974000] ata3: status=0x51 { 
-DriveReady SeekComplete Error }
+In fact a number of filesystems already have slab caches for their own
+private part of the inode anyway... I count 10 of those on my current
+development box.
 
-Justin.
+> Something as simple as nfsctl or devpts should not need that.
+> 
+> 	Arnd <><
+
+Steve.
+
+

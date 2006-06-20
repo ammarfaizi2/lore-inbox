@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965444AbWFTDa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965453AbWFTDdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965444AbWFTDa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 23:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965449AbWFTDa4
+	id S965453AbWFTDdt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 23:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965452AbWFTDds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 23:30:56 -0400
-Received: from meetpoint.leesburg-geeks.org ([66.63.28.250]:55820 "EHLO
-	meetpoint.home") by vger.kernel.org with ESMTP id S965444AbWFTDaz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 23:30:55 -0400
-Message-ID: <44976BED.4050600@leesburg-geeks.org>
-Date: Mon, 19 Jun 2006 23:30:53 -0400
-From: Ken Ryan <linuxryan@leesburg-geeks.org>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060411)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 19 Jun 2006 23:33:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36015 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965451AbWFTDdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 23:33:47 -0400
+Date: Mon, 19 Jun 2006 20:33:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: Re: [Ubuntu PATCH] acpi: Add IBM R60E laptop to proc-idle blacklist
+Message-Id: <20060619203333.5e897ead.akpm@osdl.org>
+In-Reply-To: <4491BC6B.5000704@oracle.com>
+References: <4491BC6B.5000704@oracle.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > You accelerate nothing. Bit heaven? A CPU without a fan will go into
- > > a cold, cold, shutdown, requiring a hardware reset to get it out of
- > > that latched, no internal clock running, mode.
- >
- > Some CPU may do this, others will go via the random-generator mode
- > into the self-deformation-mode instead.
+On Thu, 15 Jun 2006 13:00:43 -0700
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-A few years ago Tom's Hardware Guide made a cool video as part of an 
-article on thermal emergencies.  The article is here:
+> [UBUNTU:acpi] Add IBM R60E laptop to proc-idle blacklist.
+> 
+> Reference: https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/38228
+> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commit;h=ce5e62bc55056049d192c422b6032f6a406e0ba2
+> 
+> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> ---
+>  drivers/acpi/processor_idle.c |    3 +++
+>  1 files changed, 3 insertions(+)
+> 
+> --- linux-2617-rc6g7.orig/drivers/acpi/processor_idle.c
+> +++ linux-2617-rc6g7/drivers/acpi/processor_idle.c
+> @@ -142,6 +142,9 @@ static struct dmi_system_id __cpuinitdat
+>  	{ set_max_cstate, "IBM ThinkPad R40e", {
+>  	  DMI_MATCH(DMI_BIOS_VENDOR,"IBM"),
+>  	  DMI_MATCH(DMI_BIOS_VERSION,"1SET68WW") }, (void*)1},
+> +	{ set_max_cstate, "IBM ThinkPad R40e", {
+> +	  DMI_MATCH(DMI_BIOS_VENDOR, "IBM"),
+> +	  DMI_MATCH(DMI_BIOS_VERSION, "1SET70WW") }, (void*)1},
+>  	{ set_max_cstate, "Medion 41700", {
+>  	  DMI_MATCH(DMI_BIOS_VENDOR,"Phoenix Technologies LTD"),
+>  	  DMI_MATCH(DMI_BIOS_VERSION,"R01-A1J")}, (void *)1},
+> 
 
-http://www.tomshardware.com/2001/09/17/hot_spot/index.html
+It seems that every R40e in the world is in that table.
 
-The test was pulling off the CPU fan and heatsink while playing Quake. 
-Granted it's not entirely realistic; I don't imagine the heatsink would 
-come of during heavy gameplay (a more reasonable scenario THG mentions 
-is the fan/heatsink coming off during shipping) however considering the 
-preposterous little tabs AMD specs for their sockets I think sudden 
-breakage is not out of the question.
-
-The video shows a PIII coping (halting), a P4 gracefully slowing down, 
-and two variants of Athlon self-destructing (smoke and running solder).
-
-Evidently this set of tests convinced AMD to alter how they handled
-overtemp on their processors.  The mobos in the test were built 
-according to spec in terms of the thermal sensors and protection code in 
-the BIOS.  It didn't help; the exposed die of the Athlon ramped up its 
-temperature way faster than the sensor could react.
-
-As for the ceramic package cracking, it is certainly possible,  The
-ceramic is indeed designed for very high temperatures, but only if 
-heated evenly.  Give the package a 200C temperature differential within 
-a second or two and thermal expansion is going to do some damage...
-
-I can certainly believe modern processors deal with sudden thermal rise 
-better than the ones in the THG video.  However not all of us can afford 
-to always have the latest 'n' greatest... :-(
-
-		ken
+Can/should we wildcard it?  From my reading of dmi_check_system(), we can use
+"" in place of the "1SET..." string and it'll dtrt?

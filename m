@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWFTW5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWFTW45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWFTW5B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWFTW5B
+	id S1751472AbWFTW45 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWFTW45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:57:01 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:46156 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751467AbWFTW47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:56:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=GVEmYpnq/9nh2XT6sJN9vXG2nj0od9aeWENBWcQxs6VvQV16vfJ0BWyNn8xr9Bj/MIQkYjID3CYV7FZrDFG/t+LsBV9TnjgeRAqosgfDOkH8nrtNvgB5g+GacCD9stJoZdAuYm/LlohqOSspqVfMgHaIFHomP9juhO+GH5b5etA=
-Message-ID: <725404980606201556w1589a932j9bef9d6a03ef46f5@mail.gmail.com>
-Date: Wed, 21 Jun 2006 00:56:58 +0200
-From: "Simon Posnjak" <sposnjak@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux on Philips LPC3180
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 20 Jun 2006 18:56:57 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47073 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751467AbWFTW4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:56:55 -0400
+Subject: Re: [PATCH] ide: fix revision comparison in ide_in_drive_list
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kirill Smelkov <kirr@mns.spb.ru>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20060620151950.21ad94d6.akpm@osdl.org>
+References: <200606201452.33925.kirr@mns.spb.ru>
+	 <20060620151950.21ad94d6.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Wed, 21 Jun 2006 00:12:02 +0100
+Message-Id: <1150845122.15275.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ar Maw, 2006-06-20 am 15:19 -0700, ysgrifennodd Andrew Morton:
+> hm.  This seems...  rather serious.  I assume that in most cases, the
+> firmware rev which we have in the table (eg "24.09P07") is a full-string
+> match for the string which the drive returned.
 
-Is anybody using linux on the new Philips LPC3180
-(http://www.standardics.philips.com/products/lpc3000/lpc3180/) ARM9
-based chip?
+They are full matches as far as I can see so it should be ok, plus the
+DMA blacklist is mostly hardware that went out ten or more years ago.
+Even if it did mis-trigger we'd be blacklisting extra firmware revs of
+iffy hardware so that isn't do worrying.
 
-Regards Simon
+Alan
+

@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWFTRVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWFTRYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWFTRVk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 13:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWFTRVk
+	id S1751438AbWFTRYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 13:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWFTRYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 13:21:40 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:12625 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751437AbWFTRVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 13:21:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pMO6XbLeb40Z70AdFAGWfL4Q+CRrPqRjQP+zWAU+ZKgNIs855h5gG8Gle2PYdPbrPlelIE/uE/WeN31WDl1BSPSQHpDw36UJcHzzYpMW3tQeB6nC6+P2dzkcqKOJ5eP3krO2soMnap3vH5OUe4YLYoa2sjZCMx1ZVXETxmi8H20=
-Message-ID: <3aa654a40606201021m2dc8723die1559685f056acdd@mail.gmail.com>
-Date: Tue, 20 Jun 2006 10:21:37 -0700
-From: "Avuton Olrich" <avuton@gmail.com>
-To: "Justin Piszcz" <jpiszcz@lucidpixels.com>
-Subject: Re: XFS crashed twice, once in 2.6.16.20, next in 2.6.17, reproducable
-Cc: "Nathan Scott" <nathans@sgi.com>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.64.0606201315360.2601@p34.internal.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 20 Jun 2006 13:24:42 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49860 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751438AbWFTRYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 13:24:42 -0400
+Subject: Re: udev bluez
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Robert M. Stockmann" <stock@stokkie.net>
+Cc: linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
+       Hannes Reinecke <hare@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0606201759140.11776-100000@hubble.stokkie.net>
+References: <Pine.LNX.4.44.0606201759140.11776-100000@hubble.stokkie.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com>
-	 <20060620161006.C1079661@wobbly.melbourne.sgi.com>
-	 <3aa654a40606192340l67d0353fj875767d33d8bd493@mail.gmail.com>
-	 <Pine.LNX.4.64.0606200456540.3182@p34.internal.lan>
-	 <3aa654a40606201001s40fc2bf3j27cd7cb555b02688@mail.gmail.com>
-	 <Pine.LNX.4.64.0606201315360.2601@p34.internal.lan>
+Date: Tue, 20 Jun 2006 18:39:22 +0100
+Message-Id: <1150825163.11062.51.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/20/06, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
-> WHat options did you pass to bad blocks?
+Ar Maw, 2006-06-20 am 18:11 +0200, ysgrifennodd Robert M. Stockmann:
+> The key piece of trouble is udev which has nowadays has to run
+> in close cooperation with a daemon called hald. 
 
-Just the defaults, but it doesn't matter, someone else is having the
-same exact issue I am, from the bugzilla entry earlier in this thread.
--- 
-avuton
---
- Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I would suggest avoiding hald is a good starting point if you want to
+control the system rather than be its slave. If you want hal to do nice
+things and it doesn't then file a bug with the HAL people, they are
+fighting a billion random weird bits of hardware at once so all the help
+they get will I'm sure be appreciated.
+
+

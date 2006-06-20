@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWFTWfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWFTWfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWFTWfv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWFTW3B
+	id S1751345AbWFTWfw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWFTW26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:29:01 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53476 "EHLO
+	Tue, 20 Jun 2006 18:28:58 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51940 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751334AbWFTW2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:28:53 -0400
+	id S1751329AbWFTW2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:28:52 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
@@ -28,41 +28,76 @@ Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
        Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
        Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5/25] msi: Make the msi boolean tests return either 0 or 1.
+Subject: [PATCH 3/25] x86_64 irq: Reenable migrating irqs to other cpus.
 Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:18 -0600
-Message-Id: <1150842520235-git-send-email-ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:16 -0600
+Message-Id: <11508425192220-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425191063-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <11508425191381-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This allows the output of the msi tests to be stored directly
-in a bit field.  If you don't do this a value greater than
-one will be truncated and become 0.  Changing true to false
-with bizare consequences.
+In the latest changes the code for migrating x86_64 irqs was dropped.
+This reads it in a fashion that will work even if we change the
+vector on level triggered irqs when we migrate them.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/pci/msi.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86_64/kernel/io_apic.c |   31 ++++++++++++++++++++++++++++---
+ 1 files changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/msi.h b/drivers/pci/msi.h
-index 56951c3..9b31d4c 100644
---- a/drivers/pci/msi.h
-+++ b/drivers/pci/msi.h
-@@ -110,8 +110,8 @@ #define multi_msi_capable(control) \
- 	(1 << ((control & PCI_MSI_FLAGS_QMASK) >> 1))
- #define multi_msi_enable(control, num) \
- 	control |= (((num >> 1) << 4) & PCI_MSI_FLAGS_QSIZE);
--#define is_64bit_address(control)	(control & PCI_MSI_FLAGS_64BIT)
--#define is_mask_bit_support(control)	(control & PCI_MSI_FLAGS_MASKBIT)
-+#define is_64bit_address(control)	(!!(control & PCI_MSI_FLAGS_64BIT))
-+#define is_mask_bit_support(control)	(!!(control & PCI_MSI_FLAGS_MASKBIT))
- #define msi_enable(control, num) multi_msi_enable(control, num); \
- 	control |= PCI_MSI_FLAGS_ENABLE
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+index 2e9f1cf..f50be45 100644
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -1572,18 +1572,43 @@ static int ioapic_retrigger_vector(unsig
+  * races.
+  */
  
+-static void ack_apic(unsigned int vector)
++static void ack_apic(unsigned int irq)
+ {
+ 	ack_APIC_irq();
+ }
+ 
++static void ack_apic_edge(unsigned int irq)
++{
++	move_native_irq(irq);
++	ack_APIC_irq();
++}
++
++static void ack_apic_level(unsigned int irq)
++{
++	int do_unmask_irq = 0;
++	/* If we are moving the irq we need to mask it */
++	if (unlikely(irq_desc[irq].status & IRQ_MOVE_PENDING)) {
++		do_unmask_irq = 1;
++		mask_IO_APIC_irq(irq);
++	}
++	/* We must acknowledge the irq before we move it
++	 * or the acknowledge will not propogate properly.
++	 */
++	ack_APIC_irq();
++
++	/* Now we can move and renable the irq */
++	move_masked_irq(irq);
++	if (unlikely(do_unmask_irq))
++		unmask_IO_APIC_irq(irq);
++}
++
+ static struct irq_chip ioapic_chip __read_mostly = {
+ 	.name 		= "IO-APIC",
+ 	.startup 	= startup_ioapic_vector,
+ 	.mask	 	= mask_ioapic_vector,
+ 	.unmask	 	= unmask_ioapic_vector,
+-	.ack 		= ack_apic,
+-	.eoi 		= ack_apic,
++	.ack 		= ack_apic_edge,
++	.eoi 		= ack_apic_level,
+ #ifdef CONFIG_SMP
+ 	.set_affinity 	= set_ioapic_affinity_vector,
+ #endif
 -- 
 1.4.0.gc07e
 

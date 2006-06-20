@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWFTWbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWFTWaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWFTWbh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWFTW3X
+	id S1751340AbWFTWaG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWFTW33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:29:23 -0400
-Received: from 1wt.eu ([62.212.114.60]:4361 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1751336AbWFTW3N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:29:13 -0400
-Date: Wed, 21 Jun 2006 00:23:57 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Marcelo Tosatti <marcelo@kvack.org>
-Cc: Grant Coady <gcoady.lk@gmail.com>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: Linux 2.4.33-rc1
-Message-ID: <20060620222357.GA11862@1wt.eu>
-References: <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <20060619220405.GA16251@dmt> <20060619230007.GA6471@1wt.eu> <20060619234506.GA2763@dmt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060619234506.GA2763@dmt>
-User-Agent: Mutt/1.5.11
+	Tue, 20 Jun 2006 18:29:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39133 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751340AbWFTW3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:29:07 -0400
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>, <discuss@x86-64.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andi Kleen <ak@suse.de>,
+       "Natalie Protasevich" <Natalie.Protasevich@UNISYS.com>,
+       "Len Brown" <len.brown@intel.com>,
+       "Kimball Murray" <kimball.murray@gmail.com>,
+       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
+       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
+       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
+       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
+       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
+       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
+       "Eric W. Biederman" <ebiederman@lnxi.com>
+Subject: [PATCH 25/25] irq: Document what an IRQ is.
+Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:38 -0600
+Message-Id: <11508425271395-git-send-email-ebiederm@xmission.com>
+X-Mailer: git-send-email 1.4.0.gc07e
+In-Reply-To: <1150842527127-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com> <1150842523493-git-send-email-ebiederm@xmission.com> <11508425231168-git-send-email-ebiederm@xmission.com> <1150842524863-git-send-email-ebiederm@xmission.com> <1150842524755-git-send-email-ebiederm@xmission.com> <115084252460-git-send-!
+ email-ebiederm@xmission.com> <11508425251099-git-send-email-ebiederm@xmission.com> <11508425253581-git-send-email-ebiederm@xmission.com> <11508425254020-git-send-email-ebiederm@xmission.com> <11508425262259-git-send-email-ebiederm@xmission.com> <11508425263761-git-send-email-ebiederm@xmission.com> <1150842527127-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 08:45:06PM -0300, Marcelo Tosatti wrote:
-> > 
-> > ---- from here ----
-> > 
-> > 
-> > > +		inode = dentry->d_inode;
-> > > +		if (inode)
-> > > +			atomic_inc(&inode->i_count);
-> > >  		error = vfs_unlink(nd.dentry->d_inode, dentry);
-> > >  	exit2:
-> > >  		dput(dentry);
-> > >  	}
-> > >  	up(&nd.dentry->d_inode->i_sem);
-> > > +	if (inode)
-> > > +		iput(inode);
-> > 
-> > ---- to here ----
-> > 
-> > I believe that nd.dentry->d_inode cannot vanish because it is protected by the
-> > down(->i_sem) before and the up(->i_sem) after. Am I right or am I missing
-> > something important ?
-> 
-> Indeed it can't, but dentry->d_inode will be set to NULL by
-> nfs_unlink->nfs_safe_remove->d_delete. Thus the problem.
+From: Eric W. Biederman <ebiederman@lnxi.com>
 
-What puzzles me is how are we supposed to up(&nd.dentry->d_inode->i_sem) if
-dentry->d_inode can become NULL ? simply by keeping a copy of it ? I thought
-that the down() protected the whole thing, but may be that's stupid anyway.
-I've been running rc1 without this patch for a few hours and during kernel
-compiles without a problem, so I'm not sure about what to think about the
-other changes which were apparently harmless too :-/
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ Documentation/IRQ.txt |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
 
-Well, if I resume it right, we only need to merge your patch and mine and
-it *should* be OK.
-
-BTW, I've been reviewing the PaX patch and found *at least* one patch
-that should be merged (fix for oops). I'll send it separately, and it's
-queued in -upstream.
-
-Cheers,
-Willy
+diff --git a/Documentation/IRQ.txt b/Documentation/IRQ.txt
+new file mode 100644
+index 0000000..237235d
+--- /dev/null
++++ b/Documentation/IRQ.txt
+@@ -0,0 +1,22 @@
++What is an IRQ?
++
++An IRQ is an interrupt request from a device.  
++Currently they can come in over a pin, or over a packet.
++Several devices may be connected to the same pin thus
++sharing an IRQ.
++
++An IRQ number is a kernel identifier used to talk about a hardware
++interrupt source.  Typically this is an index into the global irq_desc
++array, but except for what linux/interrupt.h implements the details
++are architecture specific.
++
++An IRQ number is an enumeration of the possible interrupt sources on a
++machine.  Typically what is enumerated is the number of input pins on
++all of the interrupt controller in the system.  In the case of ISA
++what is enumerated are the 16 input pins on the two i8259 interrupt
++controllers.
++
++Architectures can assign additional meaning to the IRQ numbers, and
++are encouraged to in the case  where there is any manual configuration
++of the hardware involved.  The ISA IRQs are a classic example of
++assigning this kind of additional meaning.
+-- 
+1.4.0.gc07e
 

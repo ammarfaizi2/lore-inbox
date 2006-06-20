@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWFTHZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWFTH1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbWFTHZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 03:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbWFTHZr
+	id S965117AbWFTH1O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 03:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWFTH1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 03:25:47 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:62186 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965118AbWFTHZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 03:25:46 -0400
-From: Andi Kleen <ak@suse.de>
-To: Dave Olson <olson@unixfolk.com>
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
-Date: Tue, 20 Jun 2006 09:25:30 +0200
-User-Agent: KMail/1.9.3
-Cc: discuss@x86-64.org, Brice Goglin <brice@myri.com>,
-       linux-kernel@vger.kernel.org, Greg Lindahl <greg.lindahl@qlogic.com>,
-       gregkh@suse.de
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com>
-In-Reply-To: <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200606200925.30926.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 20 Jun 2006 03:27:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2947 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965117AbWFTH1M (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 03:27:12 -0400
+Date: Tue, 20 Jun 2006 00:26:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: dgc@sgi.com, vs@namesys.com, hch@infradead.org, Reiserfs-Dev@namesys.com,
+       Linux-Kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: batched write
+Message-Id: <20060620002659.08aee963.akpm@osdl.org>
+In-Reply-To: <4497A17C.50804@namesys.com>
+References: <20060524175312.GA3579@zero>
+	<44749E24.40203@namesys.com>
+	<20060608110044.GA5207@suse.de>
+	<1149766000.6336.29.camel@tribesman.namesys.com>
+	<20060608121006.GA8474@infradead.org>
+	<1150322912.6322.129.camel@tribesman.namesys.com>
+	<20060617100458.0be18073.akpm@osdl.org>
+	<20060619162740.GA5817@schatzie.adilger.int>
+	<4496D606.8070402@namesys.com>
+	<20060619185049.GH5817@schatzie.adilger.int>
+	<20060620000133.GB8770394@melbourne.sgi.com>
+	<4497A17C.50804@namesys.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Jun 2006 00:19:24 -0700
+Hans Reiser <reiser@namesys.com> wrote:
 
-> Sure, that's true of almost everything new.   It remains broken until people
-> start using it, complain, and get the bugs fixed.   Some of us have a vested
-> interest in having MSI work, since it's the only way we can deliver interrupts.
-> We've already worked with a few BIOS writers to get problems fixed, and we'll
-> keep doing so as we find problems.   If enough hardware vendors and consumers
-> do so, the broken stuff will get fixed, and stay fixed, because it will get
-> tested.
+> So far we have XFS, FUSE, and reiser4 benefiting from the potential
+> ability to process more than 4k at a time.  Is it enough?
 
-Sometimes there are new things that work relatively well and only break occassionally
-and then there are things where it seems to be the other way round.
-
-My point was basically that every time we tried to turn on such a banana green feature
-without white listing it was a sea of pain to get it to work everywhere
-and tended to cause far too many non boots
-
-(and any non boot is far worse than whatever performance advantage you get
-from it) 
-
-So if there are any more MSI problems comming up IMHO it should be white list/disabled 
-by default and only turn on after a long time when Windows uses it by default 
-or something. Greg, do you agree?
-
--Andi
+Spose so.  Let's see what the diff looks like?

@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWFTLOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbWFTLPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWFTLOg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 07:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbWFTLOg
+	id S932596AbWFTLPW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 07:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWFTLPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 07:14:36 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:37388 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932596AbWFTLOf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 07:14:35 -0400
-Date: Tue, 20 Jun 2006 21:14:30 +1000
-To: Joachim Fritschi <jfritschi@freenet.de>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
-Message-ID: <20060620111430.GA13878@gondor.apana.org.au>
-References: <200606041516.46920.jfritschi@freenet.de> <200606191613.01212.jfritschi@freenet.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606191613.01212.jfritschi@freenet.de>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Tue, 20 Jun 2006 07:15:21 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:34824 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932598AbWFTLPU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 07:15:20 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 20 Jun 2006 11:15:18.0820 (UTC) FILETIME=[D03C0640:01C6945A]
+Content-class: urn:content-classes:message
+Subject: Re: emergency or init=/bin/sh mode and terminal signals
+Date: Tue, 20 Jun 2006 07:15:16 -0400
+Message-ID: <Pine.LNX.4.61.0606200710090.7695@chaos.analogic.com>
+In-Reply-To: <20060619220359.GA6218@bouh.residence.ens-lyon.fr>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: emergency or init=/bin/sh mode and terminal signals
+thread-index: AcaUWtBDIwEQ0zzvTlSOzzc27Red/Q==
+References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr> <20060618213342.GG13255@w.ods.org> <20060619220359.GA6218@bouh.residence.ens-lyon.fr>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Samuel Thibault" <samuel.thibault@ens-lyon.org>
+Cc: "Willy Tarreau" <w@1wt.eu>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 04:13:01PM +0200, Joachim Fritschi wrote:
-> This patch is now based on the cryptodev tree using the new cryptoapi (crypto  tfm
->  instead of the crypto ctx as parameter).
-> 
-> The module passed the tcrypt tests and testscripts.
-> 
-> Signed-off-by: Joachim Fritschi <jfritschi@freenet.de>
 
-Thanks Joachim.  I've applied all four patches.  I had to add wrappers
-around the twofish assembly routines because asmlinkage may differ from
-the normal C calling convention.  It should get optimised away to just
-a jump if the conventions are identical.
+On Mon, 19 Jun 2006, Samuel Thibault wrote:
 
-BTW Andi, I think it might be better to have the x86-64 patch sit in the
-cryptodev tree rather than x86-64 because it won't even compile without
-the previous patches.  If you really want to, I can leave out the x86-64
-one in particular for you to merge after the others go upstream.
+> Hi,
+>
+> Willy Tarreau, le Sun 18 Jun 2006 23:33:42 +0200, a écrit :
+>> I too am used to starting with init=/bin/sh, but I'm also used to launch
+>> ping in the background. However, if getting Ctrl-C working implies a risk
+>> of killing init, then I'd rather keep it the old way.
+>
+> Maybe you should rather use init=/bin/login . If your login program is
+> smart enough, it will set a session and thus ^C will work.
+>
+> Samuel
+> -
+
+Actually, a rather trivial program can be written, the name of
+which you define as init on the command-line 'init=/bin/myprog'.
+This program sets up the controlling terminal, then exec()s
+/bin/bash or whatever shell you want. Since it's exec()ed, the
+PID remains at 1 so after you have fixed whatever you needed
+to fix, you can execute `exec /sbin/init auto` and continue
+with a normal startup. This is certainly cleaner than poking
+holes in the kernel.
 
 Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWFTVVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWFTVVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWFTVVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWFTVVp
+	id S1751117AbWFTVVl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWFTVVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:21:45 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:12514 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751113AbWFTVVo (ORCPT
+	Tue, 20 Jun 2006 17:21:41 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:1423 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751108AbWFTVVk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:21:44 -0400
-Message-ID: <449866E3.8010200@garzik.org>
-Date: Tue, 20 Jun 2006 17:21:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] SCSI updates for 2.6.17
-References: <1150837947.2531.27.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1150837947.2531.27.camel@mulgrave.il.steeleye.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Tue, 20 Jun 2006 17:21:40 -0400
+Date: Tue, 20 Jun 2006 16:21:34 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Mike Halcrow <mhalcrow@us.ibm.com>, Mike Halcrow <mike@halcrow.us>
+Subject: [PATCH 0/12] eCryptfs minor fixes; support for cipher/key size selection
+Message-ID: <20060620212134.GB18701@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> This represents the almost complete SCSI pending list apart from a SAS
-> port update which we're still trying to beat into shape.  The patch can
-> be pulled from here:
+This 12-part patch set includes several minor updates, but the main
+feature is that eCryptfs can support a user-selectable cipher and key
+size at mount time. Once these patches are applied, users will need to
+update to the new userspace util package for the mount helper, which
+is named ``ecryptfs-util-git-2.6.17-rc6-mm2++.tar.bz2'' and is
+available from the eCryptfs SourceForge site:
 
-When will aic94xx head upstream?  Even though it is seeing changes in 
-your repo, I would rather not hide the driver for another six months.
+http://sourceforge.net/project/showfiles.php?group_id=133988
 
-aic94xx is the only all-software-stack SAS user at present, so I think 
-its reasonable to get it into the tree, and make changes upstream.
+eCryptfs enthusiasts may notice that we got rid of all the shell
+scripts and implemented the whole mount helper in natively compiled
+code; we are also a bit more careful with how we handle sensitive
+passphrase material in memory. We do quite a bit of work with trying
+to auto-detect available ciphers provided by the kernel. We would
+appreciate folks who have the time to review that userspace code and
+let us know if you have any suggestions as to how we could do things
+better in that area.
 
-	Jeff
+Thanks to our interns, Tyler Hicks, Theresa Nelson, and Trevor
+Highland for contributing the majority of the kernel and userspace
+code toward cipher selection functionality. They are now hard at work
+getting public key support implemented.
 
-
-
+Thanks,
+Mike

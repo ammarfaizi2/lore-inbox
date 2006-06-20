@@ -1,157 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWFTWem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWFTWeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWFTWem (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWFTWeQ
+	id S1751428AbWFTWeM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWFTWeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:34:16 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59108 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751359AbWFTW3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:29:02 -0400
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+	Tue, 20 Jun 2006 18:34:03 -0400
+Received: from xenotime.net ([66.160.160.81]:12734 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751402AbWFTWdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:33:47 -0400
+Date: Tue, 20 Jun 2006 15:36:31 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>, <discuss@x86-64.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andi Kleen <ak@suse.de>,
-       "Natalie Protasevich" <Natalie.Protasevich@UNISYS.com>,
-       "Len Brown" <len.brown@intel.com>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 24/25] x86_64 irq: Kill irq compression.
-Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:37 -0600
-Message-Id: <1150842527127-git-send-email-ebiederm@xmission.com>
-X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425263761-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com> <1150842523493-git-send-email-ebiederm@xmission.com> <11508425231168-git-send-email-ebiederm@xmission.com> <1150842524863-git-send-email-ebiederm@xmission.com> <1150842524755-git-send-email-ebiederm@xmission.com> <115084252460-git-send-!
- email-ebiederm@xmission.com> <11508425251099-git-send-email-ebiederm@xmission.com> <11508425253581-git-send-email-ebiederm@xmission.com> <11508425254020-git-send-email-ebiederm@xmission.com> <11508425262259-git-send-email-ebiederm@xmission.com> <11508425263761-git-send-email-ebiederm@xmission.com>
+Cc: adi@hexapodia.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc[56]-mm*: pcmcia "I/O resource not free"
+Message-Id: <20060620153631.f0a3106e.rdunlap@xenotime.net>
+In-Reply-To: <20060620150317.746372c5.akpm@osdl.org>
+References: <20060615162859.GA1520@hexapodia.org>
+	<20060617100327.e752b89a.akpm@osdl.org>
+	<20060620211723.GA28016@hexapodia.org>
+	<20060620150317.746372c5.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With more irqs in the system we don't need this.
+On Tue, 20 Jun 2006 15:03:17 -0700 Andrew Morton wrote:
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> Andy Isaacson <adi@hexapodia.org> wrote:
+> >
+> > On Sat, Jun 17, 2006 at 10:03:27AM -0700, Andrew Morton wrote:
+> > > > The PCMCIA slot on my Thinkpad X40 stopped working sometime between
+> > > > 2.6.17-rc4-mm3 and 2.6.17-rc5-mm3, and is still not working as of
+> > > > 2.6.17-rc6-mm2.
+> > [snip]
+> > > > -Probing IDE interface ide2...
+> > > > -hde: CF Card, CFA DISK drive
+> > > > -PM: Adding info for No Bus:ide2
+> > > > -hdf: probing with STATUS(0x50) instead of ALTSTATUS(0x0a)
+> > > > +ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
+> > > > +ide2: ports already in use, skipping probe
+> > > > +ide2: I/O resource 0xF8A8A01E-0xF8A8A01E not free.
+> > > > +ide2: ports already in use, skipping probe
+> > > > +ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
+> > > > +ide2: ports already in use, skipping probe
+> > > 
+> > > hm.   I don't know who to blame for this yet ;)
+> > > 
+> > > The contents of /proc/ioports on both kernels might be useful.  Let's see
+> > > which device+driver is already using those ports, and whether the older
+> > > kenrel uses the same addresses.
+> > 
+> > In further testing, -rc6 is fine while -rc6-mm2 fails.
+> 
+> OK.
+> 
+> > Under 2.6.17-rc6 (after having inserted and removed the card, but that
+> > doesn't seem to make much difference) I have
+> > 
+> > 0000-001f : dma1
+> > ...
+> 
+> I should have said iomem, not ioports.  But you have it there on those very
+> detailed web pages.  There's nothing at 0xF8A8Axxx in either kernel.
+> 
+> > The diff between -rc6 and -rc6-mm2 shows that they have the same ioport
+> > assignment (there's only a textual diff due to ACPI string changes).
+> 
+> yep.  The only reelvant diff in the rc6 versus rc6-mm2 /proc/iomem is:
+> 
+> @@ -29,7 +29,6 @@
+>    d0220000-d0220fff : 0000:02:02.0
+>      d0220000-d0220fff : ipw2200
+>    d0221000-d02210ff : 0000:02:00.1
+> -  d1200000-d1200fff : pcmcia_socket0
+>    d2000000-d3ffffff : PCI CardBus #03
+>  e0000000-e7ffffff : 0000:00:02.0
+>  e8000000-efffffff : 0000:00:02.1
+> 
+> whch is to be expected if you removed the card.
+> 
+> 
+> > I've put just about everything you could want to know about the two
+> > kernels at
+> > http://web.hexapodia.org/~adi/bobble/bobble_2.6.17-rc6_20060620093733/
+> > and
+> > http://web.hexapodia.org/~adi/bobble/bobble_2.6.17-rc6-mm2_20060620094254/
+> > 
+> 
+> It's strange (to me) that IDE is requesting a single-byte memory region. 
+> Possibly we've broken the resource.c code such that it has some off-by-one
+> and is now rejecting single-byte requests.
+
+Looks like ide.c uses single-byte requests just for checking
+region availability, but I would think that it should use
+full-sized requests for that.
+
+
+> If you're keen , the place to poke around is in
+> kernel/resource.c:__request_region().   Here's a starting patch:
+> 
+> 
+> --- a/kernel/resource.c~a
+> +++ a/kernel/resource.c
+> @@ -501,6 +501,10 @@ struct resource * __request_region(struc
+>  			conflict = __request_resource(parent, res);
+>  			if (!conflict)
+>  				break;
+> +			printk("conflict: %s[%Lx->%Lx]\n",
+> +				conflict->name,
+> +				(unsigned long long)conflict->start,
+> +				(unsigned long long)conflict->end);
+>  			if (conflict != parent) {
+>  				parent = conflict;
+>  				if (!(conflict->flags & IORESOURCE_BUSY))
+> _
+> 
+> Which should tell us what we're allegedly conflicting with.
+> 
+> 
+> 
+> 
+> Then again, perhaps IDE is broken (as well?), because you don't have any
+> single-byte iomem regions in your 2.6.17-rc6 /proc/iomem.  It would be
+> interesting to run this patch in both 2.6.17-rc6 and in 2.6.17-rc6-mm2, see
+> what it says:
+> 
+> diff -puN drivers/ide/ide.c~a drivers/ide/ide.c
+> --- 25/drivers/ide/ide.c~a	Tue Jun 20 15:01:32 2006
+> +++ 25-akpm/drivers/ide/ide.c	Tue Jun 20 15:02:15 2006
+> @@ -364,6 +364,10 @@ static struct resource* hwif_request_reg
+>  {
+>  	struct resource *res = request_region(addr, num, hwif->name);
+>  
+> +	if (num == 1) {
+> +		printk("%s: single-byte request\n", __FUNCTION__);
+> +		dump_stack();
+> +	}
+>  	if (!res)
+>  		printk(KERN_ERR "%s: I/O resource 0x%lX-0x%lX not free.\n",
+>  				hwif->name, addr, addr+num-1);
+> _
+
+
+linux-2617-pv/drivers/ide> grep hwif_request_reg *.c
+ide.c:static struct resource* hwif_request_region(ide_hwif_t *hwif,
+ide.c: *        ide_hwif_request_regions - request resources for IDE
+ide.c:int ide_hwif_request_regions(ide_hwif_t *hwif)
+ide.c:  if (addr && !hwif_request_region(hwif, addr, 1))
+ide.c:          if (!hwif_request_region(hwif, addr, 8))
+ide.c:          if (!hwif_request_region(hwif, addr, 1)) {
+
 ---
- arch/x86_64/kernel/io_apic.c |    5 -----
- arch/x86_64/kernel/mpparse.c |   42 +-----------------------------------------
- include/asm-x86_64/io_apic.h |    1 -
- 3 files changed, 1 insertions(+), 47 deletions(-)
-
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index a904ba7..c4be89e 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -1722,8 +1722,6 @@ static inline void unlock_ExtINT_logic(v
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- }
- 
--int timer_uses_ioapic_pin_0;
--
- /*
-  * This code may look a bit paranoid, but it's supposed to cooperate with
-  * a wide range of boards and BIOS bugs.  Fortunately only the timer IRQ
-@@ -1760,9 +1758,6 @@ static inline void check_timer(void)
- 	pin2  = ioapic_i8259.pin;
- 	apic2 = ioapic_i8259.apic;
- 
--	if (pin1 == 0)
--		timer_uses_ioapic_pin_0 = 1;
--
- 	apic_printk(APIC_VERBOSE,KERN_INFO "..TIMER: vector=0x%02X apic1=%d pin1=%d apic2=%d pin2=%d\n",
- 		vector, apic1, pin1, apic2, pin2);
- 
-diff --git a/arch/x86_64/kernel/mpparse.c b/arch/x86_64/kernel/mpparse.c
-index 083da7e..304cef6 100644
---- a/arch/x86_64/kernel/mpparse.c
-+++ b/arch/x86_64/kernel/mpparse.c
-@@ -910,20 +910,11 @@ void __init mp_config_acpi_legacy_irqs (
- 	return;
- }
- 
--#define MAX_GSI_NUM	4096
--
- int mp_register_gsi(u32 gsi, int triggering, int polarity)
- {
- 	int			ioapic = -1;
- 	int			ioapic_pin = 0;
- 	int			idx, bit = 0;
--	static int		pci_irq = 16;
--	/*
--	 * Mapping between Global System Interrupts, which
--	 * represent all possible interrupts, to the IRQs
--	 * assigned to actual devices.
--	 */
--	static int		gsi_to_irq[MAX_GSI_NUM];
- 
- 	if (acpi_irq_model != ACPI_IRQ_MODEL_IOAPIC)
- 		return gsi;
-@@ -956,42 +947,11 @@ int mp_register_gsi(u32 gsi, int trigger
- 	if ((1<<bit) & mp_ioapic_routing[ioapic].pin_programmed[idx]) {
- 		Dprintk(KERN_DEBUG "Pin %d-%d already programmed\n",
- 			mp_ioapic_routing[ioapic].apic_id, ioapic_pin);
--		return gsi_to_irq[gsi];
-+		return gsi;
- 	}
- 
- 	mp_ioapic_routing[ioapic].pin_programmed[idx] |= (1<<bit);
- 
--	if (triggering == ACPI_LEVEL_SENSITIVE) {
--		/*
--		 * For PCI devices assign IRQs in order, avoiding gaps
--		 * due to unused I/O APIC pins.
--		 */
--		int irq = gsi;
--		if (gsi < MAX_GSI_NUM) {
--			/*
--			 * Retain the VIA chipset work-around (gsi > 15), but
--			 * avoid a problem where the 8254 timer (IRQ0) is setup
--			 * via an override (so it's not on pin 0 of the ioapic),
--			 * and at the same time, the pin 0 interrupt is a PCI
--			 * type.  The gsi > 15 test could cause these two pins
--			 * to be shared as IRQ0, and they are not shareable.
--			 * So test for this condition, and if necessary, avoid
--			 * the pin collision.
--			 */
--			if (gsi > 15 || (gsi == 0 && !timer_uses_ioapic_pin_0))
--				gsi = pci_irq++;
--			/*
--			 * Don't assign IRQ used by ACPI SCI
--			 */
--			if (gsi == acpi_fadt.sci_int)
--				gsi = pci_irq++;
--			gsi_to_irq[irq] = gsi;
--		} else {
--			printk(KERN_ERR "GSI %u is too high\n", gsi);
--			return gsi;
--		}
--	}
--
- 	io_apic_set_pci_routing(ioapic, ioapic_pin, gsi,
- 		triggering == ACPI_EDGE_SENSITIVE ? 0 : 1,
- 		polarity == ACPI_ACTIVE_HIGH ? 0 : 1);
-diff --git a/include/asm-x86_64/io_apic.h b/include/asm-x86_64/io_apic.h
-index 06806b1..c5235d6 100644
---- a/include/asm-x86_64/io_apic.h
-+++ b/include/asm-x86_64/io_apic.h
-@@ -164,7 +164,6 @@ #ifdef CONFIG_ACPI
- extern int io_apic_get_version (int ioapic);
- extern int io_apic_get_redir_entries (int ioapic);
- extern int io_apic_set_pci_routing (int ioapic, int pin, int irq, int, int);
--extern int timer_uses_ioapic_pin_0;
- #endif
- 
- extern int sis_apic_bug; /* dummy */ 
--- 
-1.4.0.gc07e
-
+~Randy

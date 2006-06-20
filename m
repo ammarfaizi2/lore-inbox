@@ -1,119 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWFTVvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWFTVuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWFTVvG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWFTVvF
+	id S1751075AbWFTVuy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWFTVuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:51:05 -0400
-Received: from hera.kernel.org ([140.211.167.34]:28894 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750798AbWFTVvE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:51:04 -0400
-Date: Mon, 19 Jun 2006 20:45:06 -0300
-From: Marcelo Tosatti <marcelo@kvack.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Grant Coady <gcoady.lk@gmail.com>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: Linux 2.4.33-rc1
-Message-ID: <20060619234506.GA2763@dmt>
-References: <hka6925bl0in1f3jm7m4vh975a64lcbi7g@4ax.com> <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <20060619220405.GA16251@dmt> <20060619230007.GA6471@1wt.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060619230007.GA6471@1wt.eu>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 20 Jun 2006 17:50:54 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:63457 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751075AbWFTVux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 17:50:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=o7UNO0uAiW3gVVBklBd+fCewnx0wVwnH2txeV+lzrAlRZFQB735qDN0GoFmfkppOVjIESWoIj2N2vxNunptvUAeYYeZsMe9S3QecSAj/RWW6yMuPBaw6syYUIl+nG0ESTWynG+Oos4psu51LBRxANTfxr4paBfCQCG+io/lHUh0=
+Message-ID: <44986DBB.2040206@gmail.com>
+Date: Tue, 20 Jun 2006 15:50:51 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm 20/20 RFC] chardev: GPIO for SCx200 & PC-8736x: add
+ sysfs-GPIO interface
+References: <448DB57F.2050006@gmail.com>	<cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>	<44944D14.2000308@gmail.com>	<20060619222223.8f5133a9.akpm@osdl.org>	<44985321.3020609@gmail.com>	<20060620131440.9c9b0999.rdunlap@xenotime.net>	<44985D51.8050200@gmail.com> <20060620135249.7f13d042.rdunlap@xenotime.net>
+In-Reply-To: <20060620135249.7f13d042.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 01:00:07AM +0200, Willy Tarreau wrote:
-> On Mon, Jun 19, 2006 at 07:04:05PM -0300, Marcelo Tosatti wrote:
-> 
-> > Think this is the right thing to do, except that it must be guaranteed
-> > that the inode struct won't be freed in the meantime, need to grab a
-> > reference to it.
-> 
-> OK, I believe it will be right this time. I took inspiration from your
-> precedent patch to sys_unlink().
-> 
-> diff --git a/fs/namei.c b/fs/namei.c
-> index 42cce98..374b767 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -1478,12 +1478,16 @@ exit:
->  int vfs_unlink(struct inode *dir, struct dentry *dentry)
->  {
->  	int error;
-> +	struct inode *inode;
->  
->  	error = may_delete(dir, dentry, 0);
->  	if (error)
->  		return error;
->  
-> -	double_down(&dir->i_zombie, &dentry->d_inode->i_zombie);
-> +	inode = dentry->d_inode;
-> +	atomic_inc(&inode->i_count);
-> +	double_down(&dir->i_zombie, &inode->i_zombie);
-> +
->  	error = -EPERM;
->  	if (dir->i_op && dir->i_op->unlink) {
->  		DQUOT_INIT(dir);
-> @@ -1495,7 +1499,9 @@ int vfs_unlink(struct inode *dir, struct
->  			unlock_kernel();
->  		}
->  	}
-> -	double_up(&dir->i_zombie, &dentry->d_inode->i_zombie);
-> +	double_up(&dir->i_zombie, &inode->i_zombie);
-> +	iput(inode);
-> +
->  	if (!error) {
->  		d_delete(dentry);
->  		inode_dir_notify(dir, DN_DELETE);
+Randy.Dunlap wrote:
+> On Tue, 20 Jun 2006 14:40:49 -0600 Jim Cromie wrote:
+>
+>   
+>> Randy.Dunlap wrote:
+>>     
+>>> On Tue, 20 Jun 2006 13:57:21 -0600 Jim Cromie wrote:
+>>>
+>>>   
+>>>       
+>>>> Andrew Morton wrote:
+>>>>     
+>>>>         
+>>>>> On Sat, 17 Jun 2006 12:42:28 -0600
+>>>>> Jim Cromie <jim.cromie@gmail.com> wrote:
+>>>>>
+>>>>> Fixup patches agains next -mm would be suitable.  Please keep them
+>>>>> super-short: basically one-patch-per-review-comment.  That way I can easily
+>>>>> instertion-sort the patches into place and we retain a nice patch series.
+>>>>>
+>>>>>   
+>>>>>       
+>>>>>           
+>>>> OK.  Just so Im clear, Ill patch against the tail of the set (ie -mm1), 
+>>>> and you'll push them forward into the
+>>>>     
+>>>>         
+>>> WTH?  "you'll" ??
+>>>
+>>>   
+>>>       
+>> are we talking apostrophes here, or division of labor ?
+>> If the latter, what have I missed ?
+>> Andrew specifically said 'patch against next -mm', I intended to follow 
+>> his instructions.
+>>     
+>
+> apostrophes :)
+>
+>   
+oops :)   I guess youll is just too visually grating
 
-Yeah thats better.
+> and ISTM that you didn't follow his request.
+>
+> ---
+> ~Randy
+>
+>   
+are you referring to the replacement patch for 20/20 ?
+The one that said RFC ??
 
-> BTW, I might be wrong because my knowledge in this area is rather poor, but
-> I now believe that your previously proposed fix below indeed is not needed
-> at all :
+heh - youre right, tho  :-}  I retract that patch.
+Forgive the over-wound (and in retrospect, kinda stunned) newbie !
 
+I'll spend some time making the Doc more coherent, and into an actual patch.
+I guess I was hoping for some comments before doing this..
 
-> 
-> > diff --git a/fs/namei.c b/fs/namei.c
-> > index 42cce98..69da199 100644
-> > --- a/fs/namei.c
-> > +++ b/fs/namei.c
-> > @@ -1509,6 +1511,7 @@ asmlinkage long sys_unlink(const char * 
-> >  	char * name;
-> >  	struct dentry *dentry;
-> >  	struct nameidata nd;
-> > +	struct inode *inode = NULL;
-> >  
-> >  	name = getname(pathname);
-> >  	if(IS_ERR(name))
-> > @@ -1527,11 +1530,16 @@ asmlinkage long sys_unlink(const char * 
-> >  		/* Why not before? Because we want correct error value */
-> >  		if (nd.last.name[nd.last.len])
-> >  			goto slashes;
-> 
-> ---- from here ----
-> 
-> 
-> > +		inode = dentry->d_inode;
-> > +		if (inode)
-> > +			atomic_inc(&inode->i_count);
-> >  		error = vfs_unlink(nd.dentry->d_inode, dentry);
-> >  	exit2:
-> >  		dput(dentry);
-> >  	}
-> >  	up(&nd.dentry->d_inode->i_sem);
-> > +	if (inode)
-> > +		iput(inode);
-> 
-> ---- to here ----
-> 
-> I believe that nd.dentry->d_inode cannot vanish because it is protected by the
-> down(->i_sem) before and the up(->i_sem) after. Am I right or am I missing
-> something important ?
+Whats a good name for this file?  (for purposes of focusing the tone and 
+content)
+     Doc/sysfs/gpio-interface ?  Doc/hwmon/gpio-sysfs-interface ?
 
-Indeed it can't, but dentry->d_inode will be set to NULL by
-nfs_unlink->nfs_safe_remove->d_delete. Thus the problem.
-
+thanks !
+Jim Cromie

@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWFTHtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbWFTHuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWFTHtO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 03:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFTHtN
+	id S965144AbWFTHuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 03:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbWFTHuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 03:49:13 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:50117 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932316AbWFTHtM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 03:49:12 -0400
-Message-ID: <4497A871.8000303@garzik.org>
-Date: Tue, 20 Jun 2006 03:49:05 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 20 Jun 2006 03:50:07 -0400
+Received: from web52906.mail.yahoo.com ([206.190.49.16]:15481 "HELO
+	web52906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S965144AbWFTHuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 03:50:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=LTH9JpA6L8OfMUKlgjvlo6qP6MRCP7Yh0g8aaoZ1ecWsLjylL94SGIwnyoGKNRvqb98EnzmXe/WnQRReTNDPsCY8Fy1KlqXVGbx2JPUMGsYscfZQLsm99oTl7RceIiuu+7vOLjvtyfJnYOcAmFq5kmr8hD0cI/fI+dAdE77IyzY=  ;
+Message-ID: <20060620075004.85981.qmail@web52906.mail.yahoo.com>
+Date: Tue, 20 Jun 2006 08:50:04 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Re: Linux 2.6.17: IRQ handler mismatch in serial code?
+To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+In-Reply-To: <20060620010011.GA25527@neo.rr.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-git build breakage
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the latest 'git pull', on x86-64 SMP 'make allmodconfig', I get the 
-following build breakage:
+--- Adam Belay <ambx1@neo.rr.com> wrote:
+> Yes, if a driver is available for the device, it will enable it regardless of
+> the initial state.  Most manual BIOS configuration options don't actually
+> disable the device in the commonly understood sense.  Rather, they tell the
+> BIOS not to waste any time configuring the device, as the operating system
+> is fully capable of doing so.  On operating systems that aren't PnP capable
+> these options might have a greater effect.
 
-1) myri10ge: needs iowrite64_copy from -mm
+OK, but I really do need that IRQ for the network card, and don't need that serial device on the
+motherboard. So how can I tell Linux not to activate it, please?
 
-2) forcedeth: git tree conflict, Herbert sent a patch
+Thanks,
+Chris
 
-3) pci-gart (ouch!) link: no fix seen yet
 
-[...]
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-arch/x86_64/kernel/built-in.o: In function `pci_iommu_init':
-arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_amd64_init'
-arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_bridge'
-arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_copy_info'
-make: *** [.tmp_vmlinux1] Error 1
 
+	
+	
+		
+___________________________________________________________ 
+All new Yahoo! Mail "The new Interface is stunning in its simplicity and ease of use." - PC Magazine 
+http://uk.docs.yahoo.com/nowyoucan.html

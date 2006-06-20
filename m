@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWFTXRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751859AbWFTXU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWFTXRB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 19:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWFTXRB
+	id S1751859AbWFTXU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 19:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751858AbWFTXU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 19:17:01 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:31472 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932133AbWFTXRA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 19:17:00 -0400
-Message-ID: <449881DE.4090606@myri.com>
-Date: Tue, 20 Jun 2006 19:16:46 -0400
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Tue, 20 Jun 2006 19:20:26 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:46727 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751375AbWFTXUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 19:20:25 -0400
+Date: Wed, 21 Jun 2006 01:20:04 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: 7eggert@gmx.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Mark Lord <lkml@rtr.ca>, Chris Rankin <rankincj@yahoo.com>,
+       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+Subject: Re: Linux 2.6.17: IRQ handler mismatch in serial code?
+In-Reply-To: <20060620180313.GC7463@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0606210049190.4702@be1.lrz>
+References: <6pwmi-8mW-1@gated-at.bofh.it> <6px8R-Y7-43@gated-at.bofh.it>
+ <6pxV5-2ci-13@gated-at.bofh.it> <6pz12-3Rg-67@gated-at.bofh.it>
+ <6pzX4-5jE-19@gated-at.bofh.it> <6pA6B-5K8-33@gated-at.bofh.it>
+ <E1FshOP-0000pd-No@be1.lrz> <20060620180313.GC7463@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Andi Kleen <ak@suse.de>, Dave Olson <olson@unixfolk.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       Greg Lindahl <greg.lindahl@qlogic.com>
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
- Hyper-transport capabilities
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com> <200606200925.30926.ak@suse.de> <20060620212908.GA17012@suse.de> <44987661.5050907@myri.com> <20060620230533.GB16598@suse.de>
-In-Reply-To: <20060620230533.GB16598@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> No, that's not fair for those devices which do not have PCI-E and yet
-> have MSI (the original ones, that work just fine...)
->
-> Again, no "whitelist" please, just quirks to fix problems with ones that
-> we know we have problems with, just like all other PCI quirks...
->
-> thanks,
->
-> greg k-h
->   
+On Tue, 20 Jun 2006, Russell King wrote:
+> On Tue, Jun 20, 2006 at 04:39:49PM +0200, Bodo Eggert wrote:
 
-Ok I will regenerate my patches to do so.
+> > There are thousands of NE2K-clones, the driver can't know if sharing the IRQ
+> > will be OK for a given card. Is the change for sharing IRQs trivial enough
+> > to allow an if/else based on a load-time module parameter?
+> 
+> Not if it's an ISA card.  You need to loop over all interrupt source
+> devices until you're certain that they have released the interrupt
+> line before returning, otherwise you will end up with the IRQ line
+> stuck in a state where it can't cause any further interrupts.
+> 
+> The kernel has no such infrastructure, except within the serial driver
+> to allow multiple serial ports to share a common interrupt.
 
-Brice
+What a pity - I hoped for a grab_shared_irq() which would do what you 
+describe.
 
+-- 
+Is reading in the bathroom considered Multitasking? 

@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbWFTJhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWFTJjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965233AbWFTJhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 05:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965255AbWFTJhP
+	id S965095AbWFTJjh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 05:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbWFTJjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 05:37:15 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:50836 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965233AbWFTJhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 05:37:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=jZPeKtsLmNmtTzUadrmH3kqshHyaAVK/OmdHuwGz9bKs4Pz40oLl6GjW+xTOMEVhGXPKdzZain9oMtCdkfCjyj0qUPKjvSPw4wzLfoBCLypSv9CeP2ammfcTRfIRRhEIIsAuvtWB3MSQY+Rej+xGYpxsA24sh0Sm02qmyDqk6M8=  ;
-Message-ID: <4497C1BC.9090601@yahoo.com.au>
-Date: Tue, 20 Jun 2006 19:37:00 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, Dave Olson <olson@unixfolk.com>,
-       ccb@acm.org, linux-kernel@vger.kernel.org,
-       Peter Chubb <peter@chubb.wattle.id.au>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch] increase spinlock-debug looping timeouts (write_lock
- and NMI)
-References: <fa.VT2rwoX1M/2O/aO5crhlRDNx4YA@ifi.uio.no> <fa.Zp589GPrIISmAAheRowfRgZ1jgs@ifi.uio.no> <Pine.LNX.4.61.0606192231380.25413@osa.unixfolk.com> <20060619233947.94f7e644.akpm@osdl.org> <4497A5BC.4070005@yahoo.com.au> <20060620083305.GB7899@elte.hu>
-In-Reply-To: <20060620083305.GB7899@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 05:39:37 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38106 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965095AbWFTJjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 05:39:36 -0400
+Date: Tue, 20 Jun 2006 11:34:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ccb@acm.org, linux-kernel@vger.kernel.org, Dave Olson <olson@unixfolk.com>
+Subject: Re: [patch] fix spinlock-debug looping
+Message-ID: <20060620093433.GB11037@elte.hu>
+References: <20060619081252.GA13176@elte.hu> <20060619013238.6d19570f.akpm@osdl.org> <20060619083518.GA14265@elte.hu> <20060619021314.a6ce43f5.akpm@osdl.org> <20060619113943.GA18321@elte.hu> <20060619125531.4c72b8cc.akpm@osdl.org> <20060620084001.GC7899@elte.hu> <20060620015259.dab285d5.akpm@osdl.org> <20060620091505.GA9749@elte.hu> <20060620023216.4995edb9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060620023216.4995edb9.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> curious, do you have any (relatively-) simple to run testcase that 
-> clearly shows the "scalability issues" you mention above, when going 
-> from rwlocks to spinlocks? I'd like to give it a try on an 8-way box.
 
-Arjan van de Ven wrote:
- > I'm curious what scalability advantage you see for rw spinlocks vs real
- > spinlocks ... since for any kind of moderate hold time the opposite is
- > expected ;)
+* Andrew Morton <akpm@osdl.org> wrote:
 
-It actually surprised me too, but Peter Chubb (who IIRC provided the
-motivation to merge the patch) showed some fairly significant improvement
-at 12-way.
+> > Spinlocks are alot fairer. Or as a simple experiment, 
+> > s/read_lock/write_lock, as the patch below (against rc6-mm2) does. 
+> > This is phase #1, if it works out we can switch tree_lock to a 
+> > spinlock. [write_lock()s are roughly as fair to each other as 
+> > spinlocks - it's a bit more expensive but not significantly] Builds 
+> > & boots fine here.
+> 
+> tree_lock was initially an rwlock.  Then we made it a spinlock.  Then 
+> we made it an rwlock.  We change the dang thing so often we should 
+> make it a macro ;)
 
-https://www.gelato.unsw.edu.au/archives/scalability/2005-March/000069.html
+ha! In -rt we can change types of locks by changing the type definition 
+and the declaration only ;-) [It makes for some confusing reading though 
+if done without restraint]
 
-Not sure what exactly would be going on at 8-way and above. Single
-threaded lock hold times for find_lock_page should be fairly short... At
-a wild guess, I'd say average lock transfer times are creeping up to the
-point that spin lockers are taking multiple cacheline transfers to obtain
-the lock, and the interconnect is getting saturated (read lockers should
-only need one cacheline transfer in the absense of write lockers).
+> Let's just make it a spinlock and be done with it.  Hopefully Dave or 
+> ccb@acm.org (?) will be able to test it.  I was planning on doing a 
+> patch tomorrowish.
 
-I thought Peter had a wider range of test cases than just reaim, but
-perhaps that was for demonstrating some other problem.
+ok. Until that happens the patch i sent can be used for testing.
 
-Before that, Bill Irwin made some noises about Oracle improvements with
-their VLM mode... that's not such a simple one to reproduce.
-
-I'm sure SGI would be mortified too, but that's a given ;)
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Ingo

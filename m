@@ -1,84 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWFTCZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWFTClK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWFTCZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 22:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbWFTCZJ
+	id S965049AbWFTClK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 22:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbWFTClJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 22:25:09 -0400
-Received: from kevlar.burdell.org ([66.92.73.214]:33705 "EHLO
-	kevlar.burdell.org") by vger.kernel.org with ESMTP id S964916AbWFTCZH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 22:25:07 -0400
-Date: Mon, 19 Jun 2006 22:25:06 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Cc: anton@samba.org
-Subject: Possible bug in do_execve() 
-Message-ID: <20060620022506.GA3673@kevlar.burdell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 19 Jun 2006 22:41:09 -0400
+Received: from web33009.mail.mud.yahoo.com ([68.142.206.73]:8592 "HELO
+	web33009.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965049AbWFTClI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 22:41:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=u9H76b817rt8qlh9Of5GOMCQmZDJrOhDDLxzVj9zhZfAFjE4UIlOJbuf/07QY39z8kSHam2L0hNpWRtmLIqf5mSmgDajvHmizB6V8ClYm21fSgLMYaG4aKfUmNbAp8fA/9NazWWfZiZnfqVLiPDBZggKNjw9zJAjsy0rFwiyTE8=  ;
+Message-ID: <20060620024108.35131.qmail@web33009.mail.mud.yahoo.com>
+Date: Mon, 19 Jun 2006 19:41:07 -0700 (PDT)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: Problem with Sandisk USB CF reader on 2.6.16.20
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While doing some stress testing with a reduced number of MMU contexts,
-I found that an error path in exec seemed to call destroy_context()
-via mmdrop() immediately after init_new_context() failed.
 
-specifically I got some warning from the idr code through powerpc
-mmu_context code:
+Probably this is somehow my idiocy, but...
 
-idr_remove called for id=0 which is not allocated.
-Call Trace:
-[C0000003C9E73820] [C00000000000E760] .show_stack+0x74/0x1b4 (unreliable)
-[C0000003C9E738D0] [C000000000212F30] .idr_remove+0x1c4/0x274
-[C0000003C9E73990] [C00000000002CA14] .destroy_context+0x2c/0x60
-[C0000003C9E73A20] [C00000000004CDAC] .__mmdrop+0x50/0x80
-[C0000003C9E73AB0] [C0000000000C9E38] .do_execve+0x218/0x290
-[C0000003C9E73B60] [C00000000000F28C] .sys_execve+0x74/0xf8
-[C0000003C9E73C00] [C00000000000871C] syscall_exit+0x0/0x40
---- Exception: c01 at .execve+0x8/0x14
-    LR = .____call_usermodehelper+0xdc/0xf4
-[C0000003C9E73EF0] [C000000000065388] .____call_usermodehelper+0xb0/0xf4 (unreliable)
-[C0000003C9E73F90] [C000000000023928] .kernel_thread+0x4c/0x68
+I have a Sandisk USB compact flash reader.  this 
+worked with 2.6.16.11, but does not seem to work with
+2.6.16.20.  Maybe a udev problem?
 
+[root@zuul ~]# udevinfo -V
+udevinfo, version 039
+[root@zuul ~]# lsmod | grep usb
+usb_storage            58496  0
+libusual               13072  1 usb_storage
+usbcore               131780  5 usb_storage,libusual,uhci_hcd,ehci_hcd
 
-Here's the code in do_execve():
+I plug the device in, and cat /proc/partitions, but
+see nothing matching my usb device.
 
-        retval = init_new_context(current, bprm->mm);
-        if (retval < 0)
-                goto out_mm
+I used the .config from my working 2.6.16.11 kernel
+when making the 2.6.16.20 kernel...
+(did "make oldconfig" iirc.)
 
-<snip>
+My userland is from Fedora core 3, mostly...
 
-out_mm:
-        if (bprm->mm)
-                mmdrop(bprm->mm);
+One thing that's always been a little fuzzy to me...
+when updating a kernel, how do I know what userland things
+need updating?  e.g. my iptables I think doesn't work any 
+more, also.
 
-mmdrop() then calls destroy_context().
-There's a similar path in compat_do_execve().
+Thanks for any hints.
 
+-- steve
 
-Anton pointed out a comment in fork.c, which seems to inidcate
-incorrect behavior in the exec code. 
-
->From dup_mm() in fork.c:
-
-      if (init_new_context(tsk, mm))
-                goto fail_nocontext;
-
-<snip>
-
-fail_nocontext:
-        /*                                                              
-         * If init_new_context() failed, we cannot use mmput() to free the mm
-         * because it calls destroy_context()
-         */
-        mm_free_pgd(mm);
-        free_mm(mm);
-        return NULL;
-
-
-
-Is the behavior in do_execve() correct?
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

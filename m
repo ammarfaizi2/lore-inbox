@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWFTWpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWFTWpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWFTWpV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWFTWpU
+	id S1751450AbWFTWpx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWFTWpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:45:20 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:49125 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751358AbWFTWpS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:45:18 -0400
-Message-ID: <44987A6E.6010608@garzik.org>
-Date: Tue, 20 Jun 2006 18:45:02 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 20 Jun 2006 18:45:52 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:8429 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751377AbWFTWpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:45:50 -0400
+Message-ID: <44987A94.3000705@fr.ibm.com>
+Date: Wed, 21 Jun 2006 00:45:40 +0200
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
-       Len Brown <len.brown@intel.com>,
-       Kimball Murray <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Greg KH <gregkh@suse.de>,
-       Grant Grundler <iod00d@hp.com>, "bibo,mao" <bibo.mao@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>, Mark Maule <maule@sgi.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Shaohua Li <shaohua.li@intel.com>,
-       Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 5/25] msi: Make the msi boolean tests return either 0
- or 1.
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com>
-In-Reply-To: <1150842520235-git-send-email-ebiederm@xmission.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
+       haveblue@us.ibm.com, clg@fr.ibm.com
+Subject: Re: [RFC] [patch 0/6] [Network namespace] introduction
+References: <20060609210202.215291000@localhost.localdomain> <20060618184734.GB27946@ftp.linux.org.uk> <449866E7.4050508@fr.ibm.com> <20060620212511.GW27946@ftp.linux.org.uk>
+In-Reply-To: <20060620212511.GW27946@ftp.linux.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> This allows the output of the msi tests to be stored directly
-> in a bit field.  If you don't do this a value greater than
-> one will be truncated and become 0.  Changing true to false
-> with bizare consequences.
+Al Viro wrote:
+> On Tue, Jun 20, 2006 at 11:21:43PM +0200, Daniel Lezcano wrote:
+> 
+>>Al Viro wrote:
+>>
+>>>On Fri, Jun 09, 2006 at 11:02:02PM +0200, dlezcano@fr.ibm.com wrote:
+>>>- renaming an interface in one "namespace" affects everyone.
+>>
+>>Exact. If we ensure the interface can't be renamed if used in different 
+>>namespace, is it really a problem ?
+> 
+> 
+> You _still_ have a single namespace; look in /sys/class/net and you'll see.
 
-Another example of why bit fields are a pain in the butt...
+Yes, that's right. The network devices namespaces are not yet 
+implemented. There are potentially some conflicts with /proc and sysfs 
+but we will address them in a future.
 
-	Jeff
-
+BTW, do you have some ideas on how handle these conflicts ?
 
 

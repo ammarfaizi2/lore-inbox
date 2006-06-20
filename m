@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWFTEr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWFTFA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbWFTEr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 00:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWFTEr3
+	id S1750968AbWFTFA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 01:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWFTFA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 00:47:29 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:9100 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964933AbWFTEr2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 00:47:28 -0400
-Message-ID: <44977C4A.8010007@in.ibm.com>
-Date: Tue, 20 Jun 2006 10:10:42 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
+	Tue, 20 Jun 2006 01:00:56 -0400
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:29666 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750866AbWFTFAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 01:00:55 -0400
+Date: Tue, 20 Jun 2006 00:55:24 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [-mm patch] binfmt_elf: fix checks for bad address
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200606200059_MC3-1-C2E8-8C45@compuserve.com>
 MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Peter Williams <peterw@aurema.com>, Andrew Morton <akpm@osdl.org>,
-       dev@openvz.org, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, bsingharora@gmail.com, efault@gmx.de,
-       kernel@kolivas.org, sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
-       rene.herman@keyaccess.nl, Chandra Seetharaman <sekharan@us.ibm.com>
-Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
-References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com> <44977971.9030703@bigpond.net.au>
-In-Reply-To: <44977971.9030703@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Balbir Singh wrote:
-> 
->> Peter Williams wrote:
->>
->> If we can achieve something similar with low overhead in user space, I 
->> would
->> certainly love to see it.
-> 
-> 
-> The Windows and Solaris components of IBM's eWLM product provide much 
-> the same functionality as CKRM from user space.  Don't they?
-> 
-> Peter
+Fix check for bad address; use macro instead of open-coding two checks.
 
+Taken from RHEL4 kernel update.
 
-I know absolutely nothing about eWLM's Windows and Solaris product.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
+--- 2.6.17-32.orig/fs/binfmt_elf.c
++++ 2.6.17-32/fs/binfmt_elf.c
+@@ -84,7 +84,7 @@ static struct linux_binfmt elf_format = 
+ 		.min_coredump	= ELF_EXEC_PAGESIZE
+ };
+ 
+-#define BAD_ADDR(x) ((unsigned long)(x) > TASK_SIZE)
++#define BAD_ADDR(x) ((unsigned long)(x) >= TASK_SIZE)
+ 
+ static int set_brk(unsigned long start, unsigned long end)
+ {
+@@ -394,7 +394,7 @@ static unsigned long load_elf_interp(str
+ 			 * <= p_memsize so it's only necessary to check p_memsz.
+ 			 */
+ 			k = load_addr + eppnt->p_vaddr;
+-			if (k > TASK_SIZE ||
++			if (BAD_ADDR(k) ||
+ 			    eppnt->p_filesz > eppnt->p_memsz ||
+ 			    eppnt->p_memsz > TASK_SIZE ||
+ 			    TASK_SIZE - eppnt->p_memsz < k) {
+@@ -888,7 +888,7 @@ static int load_elf_binary(struct linux_
+ 		 * allowed task size. Note that p_filesz must always be
+ 		 * <= p_memsz so it is only necessary to check p_memsz.
+ 		 */
+-		if (k > TASK_SIZE || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
++		if (BAD_ADDR(k) || elf_ppnt->p_filesz > elf_ppnt->p_memsz ||
+ 		    elf_ppnt->p_memsz > TASK_SIZE ||
+ 		    TASK_SIZE - elf_ppnt->p_memsz < k) {
+ 			/* set_brk can never work. Avoid overflows. */
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWFTJcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWFTJgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWFTJcL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 05:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWFTJcL
+	id S1030213AbWFTJgI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 05:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWFTJgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 05:32:11 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:46751 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965225AbWFTJcK (ORCPT
+	Tue, 20 Jun 2006 05:36:08 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:40074 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030213AbWFTJgG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 05:32:10 -0400
-Date: Tue, 20 Jun 2006 11:31:54 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: akpm@osdl.org
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Standalone inclusion elevator.h
-In-Reply-To: <Pine.LNX.4.61.0606201126001.2481@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0606201130200.2481@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0606201126001.2481@yvahk01.tjqt.qr>
+	Tue, 20 Jun 2006 05:36:06 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jes Sorensen <jes@sgi.com>
+Subject: Re: [patch] do_no_pfn
+Date: Tue, 20 Jun 2006 11:35:53 +0200
+User-Agent: KMail/1.9.3
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Carsten Otte <cotte@de.ibm.com>, bjorn_helgaas@hp.com
+References: <yq0psh5zenq.fsf@jaguar.mkp.net> <200606201048.10545.ak@suse.de> <4497BBFE.6000703@sgi.com>
+In-Reply-To: <4497BBFE.6000703@sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606201135.53824.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
+> One struct page for a random single page here, another for a single
+> random page there. And the risk that someone will start walking the
+> pages and dereference and cause data corruption. As explained before,
+> it's a bad idea.
 
-Patch:
-Make it possible to include elevator.h standalone (e.g. as the first file 
-of a row of #includes).
+Note sure what your point is. Why should they cause memory corruption?
 
-(cdemu for example only requires elv_requeue_request and therefore only
-needs elevtor.h.)
+Allowing struct page less VM is worse. If you add that then people
+will use it for other stuff, and eventually we got a two class
+VM. All not very good.
 
-Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
-
-# AS_59-standalone-linux_elevator_h.diff
-diff --fast -dpru linux-2.6.17~/include/linux/elevator.h linux-2.6.17+/include/linux/elevator.h
---- linux-2.6.17~/include/linux/elevator.h	2006-06-18 22:51:43.000000000 +0200
-+++ linux-2.6.17+/include/linux/elevator.h	2006-06-20 11:18:13.225409000 +0200
-@@ -1,6 +1,12 @@
- #ifndef _LINUX_ELEVATOR_H
- #define _LINUX_ELEVATOR_H
- 
-+#include <linux/blkdev.h>
-+#include <linux/types.h>
-+
-+struct bio;
-+struct request;
-+
- typedef int (elevator_merge_fn) (request_queue_t *, struct request **,
- 				 struct bio *);
- 
-#<<eof>>
-
-Jan Engelhardt
--- 
+-Andi

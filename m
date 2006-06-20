@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWFTVcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWFTVed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWFTVcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWFTVcZ
+	id S1751204AbWFTVed (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWFTVed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:32:25 -0400
-Received: from mx1.suse.de ([195.135.220.2]:12502 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751188AbWFTVcY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:32:24 -0400
-Date: Tue, 20 Jun 2006 14:29:08 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Dave Olson <olson@unixfolk.com>, discuss@x86-64.org,
-       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
-       Greg Lindahl <greg.lindahl@qlogic.com>
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
-Message-ID: <20060620212908.GA17012@suse.de>
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com> <200606200925.30926.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606200925.30926.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Tue, 20 Jun 2006 17:34:33 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:38844 "EHLO
+	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
+	id S1751201AbWFTVeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 17:34:31 -0400
+X-ASG-Debug-ID: 1150839270-26565-443-0
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+X-ASG-Whitelist: Client
+Reply-To: <ravinandan.arakali@neterion.com>
+From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <tglx@linutronix.de>, <dgc@sgi.com>, <mingo@elte.hu>, <neilb@suse.de>,
+       <jblunck@suse.de>, <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>, <viro@zeniv.linux.org.uk>,
+       <balbir@in.ibm.com>, <ananda.raju@neterion.com>,
+       <leonid.grossman@neterion.com>,
+       "'Jes Sorensen'" <jes@trained-monkey.org>
+X-ASG-Orig-Subj: RE: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
+Subject: RE: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
+Date: Tue, 20 Jun 2006 14:34:05 -0700
+Message-ID: <006d01c694b1$4208c0f0$3e10100a@pc.s2io.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20060619173712.1144b332.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 09:25:30AM +0200, Andi Kleen wrote:
-> 
-> > Sure, that's true of almost everything new.   It remains broken until people
-> > start using it, complain, and get the bugs fixed.   Some of us have a vested
-> > interest in having MSI work, since it's the only way we can deliver interrupts.
-> > We've already worked with a few BIOS writers to get problems fixed, and we'll
-> > keep doing so as we find problems.   If enough hardware vendors and consumers
-> > do so, the broken stuff will get fixed, and stay fixed, because it will get
-> > tested.
-> 
-> Sometimes there are new things that work relatively well and only break occassionally
-> and then there are things where it seems to be the other way round.
-> 
-> My point was basically that every time we tried to turn on such a banana green feature
-> without white listing it was a sea of pain to get it to work everywhere
-> and tended to cause far too many non boots
-> 
-> (and any non boot is far worse than whatever performance advantage you get
-> from it) 
-> 
-> So if there are any more MSI problems comming up IMHO it should be
-> white list/disabled by default and only turn on after a long time when
-> Windows uses it by default or something. Greg, do you agree?
+Do you want the patch to be submitted to netdev(the mailing list that we
+usually submit to) ?
 
-No, I don't want a whitelist, as it will be hard to always keep adding
-stuff to it (unless we can somehow figure out how to put a "cut-off"
-date check in there).  Yes, we do have a number of systems today that
-have MSI issues, but the newer ones all work properly, and we should
-continue on with the way we have today (blasklist problem boards, as the
-rest of the PCI subsystem works with the quirks).
+Ravi
 
-thanks,
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org]
+Sent: Monday, June 19, 2006 5:37 PM
+To: ravinandan.arakali@neterion.com
+Cc: tglx@linutronix.de; dgc@sgi.com; mingo@elte.hu; neilb@suse.de;
+jblunck@suse.de; linux-kernel@vger.kernel.org;
+linux-fsdevel@vger.kernel.org; viro@zeniv.linux.org.uk;
+balbir@in.ibm.com; ananda.raju@neterion.com;
+leonid.grossman@neterion.com; Jes Sorensen
+Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
+list (2nd version)
 
-greg "the optimist" k-h
+
+"Ravinandan Arakali" <ravinandan.arakali@neterion.com> wrote:
+>
+> This is a known problem and has been fixed in our internal source tree. We
+> will be submitting the patch soon.
+
+Please send me a copy asap - I urgently need to get the -mm patches vaguely
+stabilised.
+
+I'm somewhat surprised that the sn2 failed so seriously - I thought Jes was
+testing that fairly regularly.
+
+I think we kinda-sorta have a handle on the s2io->IRQ problem (although the
+unexpectedly-held console spinlock is a mystery).
+
+The scsi->BIO->mempool->slab crash is also a mystery.
+
+Thanks.
+

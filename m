@@ -1,103 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWFTJtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWFTJwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWFTJtN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 05:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWFTJtM
+	id S964944AbWFTJwP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 05:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWFTJwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 05:49:12 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:7114 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932497AbWFTJtL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 05:49:11 -0400
-Message-ID: <4497C485.7000400@garzik.org>
-Date: Tue, 20 Jun 2006 05:48:53 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Laurent Vivier <Laurent.Vivier@bull.net>
-CC: Qi Yong <qiyong@fc-cn.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-       alex@clusterfs.com, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org>	<1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>	<Pine.LNX.4.64.0606091344290.5498@g5.osdl.org> <4497927F.4070307@fc-cn.com> <4497B126.4000408@bull.net> <4497B230.5000508@garzik.org> <4497BE00.1040409@bull.net>
-In-Reply-To: <4497BE00.1040409@bull.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 20 Jun 2006 05:52:15 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:27796 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932537AbWFTJwO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 05:52:14 -0400
+Subject: Re: [RFC] New MMC driver model
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <449553E5.9030004@drzeus.cx>
+References: <449553E5.9030004@drzeus.cx>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 11:35:22 +0200
+Message-Id: <1150796122.18381.24.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Vivier wrote:
-> Jeff Garzik wrote:
->> Laurent Vivier wrote:
->>> Qi Yong wrote:
->>>> Linus Torvalds wrote:
->>>>
->>>>> On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
->>>>>  
->>>>>
->>>>>> When is the Linux syscall interface enough?  When should we just
->>>>>> bump it
->>>>>> and cut out all the compatibility interfaces?
->>>>>>
->>>>>> No, we don't; we let people configure certain obsolete bits out (a.out
->>>>>> support etc), but we keep it in the tree despite the indirection
->>>>>> cost to
->>>>>> maintain multiple interfaces etc.
->>>>>>   
->>>>> Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN
->>>>> WAYS THAT MIGHT BREAK OLD USERS.
->>>>>
->>>>> Your point was exactly what?
->>>>>
->>>>> Btw, where did that 2TB limit number come from? Afaik, it should be
->>>>> 16TB for a 4kB filesystem, no?
->>>>>  
->>>>>
->>>> Partition tables describe partitions in units of one sector.
->>>> 2^(32+9) = 2T
->>>>
->>>> To prevent integer overflow, we should use only 31 bits of a 32-bit
->>>> integer.
->>>> 2^(31+12) = 8T
->>>>
->>>> There's _terrible_ hacks to really get to 16T.
->>>>
->>>> -- qiyong
->>>>
->>> IMHO, a simple solution is to use "Logical Volume Manager" instead of
->>> partition
->>> manager: we create 64bit filesystem in a Logical Volume, not in a
->>> partition.
->> That doesn't solve anything, if you are not using a 64bit filesystem.
+Hi Pierre,
+
+> I've been looking at how we can support SDIO cards and how we need to
+> adapt our driver model for it.
 > 
-> Sorry, I don't undestand why ???
+> Functions
+> =========
 > 
-> You can use 32bit filesystem too, but you limit the size of the logical volume
-> to be compatible with the filesystem you use. LVM allows to create several 32bit
-> volumes on a big (> 8T) disk (if exists)
-
-Let's review the thread:
-
-qiyong: <these limits> exist in the filesystem
-you: bust those limits with LVM!
-
-I think you are misunderstanding the subthread.
-
-
->>> "partitioning is obsolete" ;-)
->> LVM is nothing but a partition manager...
+> First of all, we need to have multiple drivers for one physical card.
+> This is needed to handle both "combo cards" (mem and I/O) and because
+> SDIO cards can have seven distinct functions in one card.
 > 
-> LVM is more than a partition manager:
+> For this I propose we add the concept of "function" and that each "card"
+> has 1 to 8 of these. The drivers then bind to these functions, not to
+> the card.
 
-I am well aware of what LVM2 and device mapper can do.
+sounds reasonable to me and a storage only card has only one function.
 
-	Jeff
+> Identification
+> ==============
+> 
+> SDIO uses the PCMCIA CIS structure for its generic fields. This includes
+> the CISTPL_MANFID tuple, which has one 16-bit value for manufacturer and
+> one 16-bit value for card id. The standard also has a special field for
+> "standard" interfaces, which are similar to PCI classes.
+> 
+> This scheme would allow us to handle storage cards quite nicely:
+> 
+> #define SDIO_ID_ANY                  0xFFFFFFFF
+> 
+> #define SDIO_VENDOR_STORAGE          0xFFFFFFFE
+> #define SDIO_DEVICE_ID_STORAGE_MMC   0x00000000
+> #define SDIO_DEVICE_ID_STORAGE_SD    0x00000001
+> 
+> (If the prefix makes the MMC layer a bit SDIO centric, feel free to come
+> with other suggestions)
 
+So we can have SDIO_DEVICE and SDIO_DEVICE_CLASS macros for the matching
+drivers to functions.
+
+> Interrupts
+> ==========
+> 
+> SDIO has generic interrupts that cards can use how they damn well
+> please. The interrupts are also level triggered and have the nice
+> "feature" of being active when there is no card in the slot.
+> 
+> So I propose the following:
+> 
+>  * We add a "interrupt enable" field to the ios structure so that hosts
+> know when a SDIO card has been inserted and card interrupts should be
+> caught.
+> 
+>  * When a interrupt is caught, the host driver masks it and tells the
+> MMC layer that a interrupt is pending. The MMC layer then calls a card
+> interrupt handler in some deferred manner (suggestions welcome).
+> 
+>  * When the card driver feels that it has handled the interrupt, it
+> calls a special acknowledge command that removes the mask the host has set.
+
+It looks very straight forward to me.
+
+> Since SDIO cards can have seven distinct functions, there is a generic
+> register that tells which of the seven that currently has a pending
+> interrupt. This allows us to call only the relevant handlers.
+> 
+> The "interrupt pending" register also allows us to do a polled solution
+> for non-SDIO capable hosts. I'm unsure how to get a good balance between
+> latency and resource usage though.
+
+I think that polled solution is not really working out. Especially if
+you need some high speed transfers.
+
+> Register functions
+> ==================
+> 
+> I also intend to write a couple of register functions (sdio_read[bwl])
+> so that card drivers doesn't have to deal with MMC requests more than
+> necessary. Endianness can also be handled there (SDIO are always LE).
+
+Good idea.
+
+> Comment away! :)
+
+My understanding of the current MMC core is rather limited and I think
+that I am not of any good help to get this started. However I have a
+couple of SDIO cards (various types) for testing and I am happy to test
+any patch you send around.
+
+Regards
+
+Marcel
 
 

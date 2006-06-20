@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWFTWtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWFTWuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751460AbWFTWtU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWFTWtU
+	id S1751465AbWFTWuv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWFTWuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:49:20 -0400
-Received: from xenotime.net ([66.160.160.81]:26568 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751460AbWFTWtT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:49:19 -0400
-Date: Tue, 20 Jun 2006 15:52:03 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm 20/20 RFC] chardev: GPIO for SCx200 & PC-8736x: add
- sysfs-GPIO interface
-Message-Id: <20060620155203.c700cf53.rdunlap@xenotime.net>
-In-Reply-To: <44986DBB.2040206@gmail.com>
-References: <448DB57F.2050006@gmail.com>
-	<cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>
-	<44944D14.2000308@gmail.com>
-	<20060619222223.8f5133a9.akpm@osdl.org>
-	<44985321.3020609@gmail.com>
-	<20060620131440.9c9b0999.rdunlap@xenotime.net>
-	<44985D51.8050200@gmail.com>
-	<20060620135249.7f13d042.rdunlap@xenotime.net>
-	<44986DBB.2040206@gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 20 Jun 2006 18:50:51 -0400
+Received: from gateway0.EECS.Berkeley.EDU ([169.229.60.93]:45464 "EHLO
+	gateway0.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S1751463AbWFTWuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:50:50 -0400
+From: "Jeff Anderson-Lee" <jonah@eecs.berkeley.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [RFC] suggestion [PATCH N/M] subject lines
+Date: Tue, 20 Jun 2006 15:50:48 -0700
+Message-ID: <000001c694bb$f9fa3f40$ce2a2080@eecs.berkeley.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcaUu/lE+0Bb57K9TCqTYaimFAY0kQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 15:50:51 -0600 Jim Cromie wrote:
+Reading the mailing list with a non-threads compatible 
+mail client agent would be made much easier if the 
+convention for subject lines for multi-part patches was 
+changed to the following:
 
-> are you referring to the replacement patch for 20/20 ?
-> The one that said RFC ??
+	patch set name [PATCH N/M] patch summary
 
-Yes.
+Then sorting by subject would group all patches for the
+Same patch set together.
 
-> heh - youre right, tho  :-}  I retract that patch.
-> Forgive the over-wound (and in retrospect, kinda stunned) newbie !
+I don't know if these Subject lines are hand generated, or if there
+is software involved that would have to me modified for generating
+and/or parsing them.
 
-Stunned by what?
-Maybe you should skim over
-  http://www.xenotime.net/linux/mentor/linux-mentoring-2006.pdf
-<end plug>
+Comments?
 
-> I'll spend some time making the Doc more coherent, and into an actual patch.
-> I guess I was hoping for some comments before doing this..
-> 
-> Whats a good name for this file?  (for purposes of focusing the tone and 
-> content)
->      Doc/sysfs/gpio-interface ?  Doc/hwmon/gpio-sysfs-interface ?
+Jeff Anderson-Lee
 
-I like Documentation/hwmon/gpio-sysfs-interface, but if the driver(s)
-don't live in drivers/hwmon/, then something like
-Documentation/gpio/sysfs-interface makes sense to me.
-I'd leave Doc/sysfs for sysfs details/internals.
-
----
-~Randy

@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWFTEcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWFTEfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbWFTEcb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 00:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWFTEcb
+	id S964899AbWFTEfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 00:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWFTEfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 00:32:31 -0400
-Received: from 1wt.eu ([62.212.114.60]:2569 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S964917AbWFTEca (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 00:32:30 -0400
-Date: Tue, 20 Jun 2006 06:28:02 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: David Luyer <david@luyer.net>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Message-ID: <20060620042802.GI13255@w.ods.org>
-References: <20060619220920.GB5788@implementation.residence.ens-lyon.fr> <C0BD782F.CF80%david@luyer.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <C0BD782F.CF80%david@luyer.net>
-User-Agent: Mutt/1.5.10i
+	Tue, 20 Jun 2006 00:35:36 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:52071 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S964899AbWFTEff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 00:35:35 -0400
+X-IronPort-AV: i="4.06,153,1149490800"; 
+   d="scan'208"; a="1828855215:sNHT32274104"
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [git pull] ieee1394 tree for 2.6.18
+X-Message-Flag: Warning: May contain useful information
+References: <44954102.3090901@s5r6.in-berlin.de>
+	<Pine.LNX.4.64.0606191902350.5498@g5.osdl.org>
+	<20060620025552.GO27946@ftp.linux.org.uk>
+	<Pine.LNX.4.64.0606192007460.5498@g5.osdl.org>
+	<20060620042250.GP27946@ftp.linux.org.uk>
+	<20060620043148.GQ27946@ftp.linux.org.uk>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 19 Jun 2006 21:35:31 -0700
+In-Reply-To: <20060620043148.GQ27946@ftp.linux.org.uk> (Al Viro's message of "Tue, 20 Jun 2006 05:31:48 +0100")
+Message-ID: <adar71kphpo.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 20 Jun 2006 04:35:31.0809 (UTC) FILETIME=[F6DC9D10:01C69422]
+Authentication-Results: sj-dkim-8.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 10:02:23AM +1000, David Luyer wrote:
-> On 20/6/06 8:09 AM, "Samuel Thibault" <samuel.thibault@ens-lyon.org> wrote:
-> > linux-os (Dick Johnson), le Mon 19 Jun 2006 07:37:02 -0400, a écrit :
-> >> You can't allow some terminal input to affect init. It has been the
-> >> de facto standard in Unix, that the only time one should have a
-> >> controlling terminal is after somebody logs in and owns something to
-> >> control.
-> > 
-> > Ok. The following still makes sense, doesn't it? (i.e. set a session for
-> > the emergency shell)
-> > 
-> > --- linux-2.6.17-orig/init/main.c 2006-06-18 19:22:40.000000000 +0200
-> > +++ linux-2.6.17-perso/init/main.c 2006-06-20 00:07:07.000000000 +0200
-> > @@ -729,6 +729,11 @@
-> > run_init_process("/sbin/init");
-> > run_init_process("/etc/init");
-> > run_init_process("/bin/init");
-> > +
-> > + /* Set a session for the shell.  */
-> > + sys_setsid();
-> > + sys_ioctl(0, TIOCSCTTY, 1);
-> > +
-> > run_init_process("/bin/sh");
-> >  
-> > panic("No init found.  Try passing init= option to kernel.");
-> 
-> What if people are booting via /bin/sh and then setting up
-> their custom chroot's and init(s), and don't want these init(s) to
-> be part of a session?
-> 
-> It is also particularly possible for an embedded system to start
-> up via /bin/sh running /etc/profile rather than using an init type
-> program.
-> 
-> Also, the above doesn't help people specifying "init=/bin/sh" on the
-> command line (as per the original post subject).  The real solution
-> is for them to specify a different init= or run/exec something to set
-> up their tty and session once logged in.
+ > Actually, posting that _was_ useful - staring at the above got me to
+ > realize that git clone -l -s -n + git fetch + git log + rm -rf would
+ > work just fine and be much faster than the variant above...
+ > 
+ > Still, that looks like excessive from server, if nothing else.  Is there
+ > a better way to do it?  Getting remote log, that is, preferably with
+ > a way to get it starting at the point I have in local tree.
 
-Then, I think that a solution which would fit everyone's needs would be
-to add a command line parameter (eg: "setsid=1") which will allow
-the two lines to be executed whatever the init or shell. This way,
-you want a session ? -> "init=/bin/sh setsid=1".
+In the same vein "git clone --reference <local tree> <remote>" would
+be a further optimization, I think.
 
-Not particularly difficult to use and does not risk to break existing
-setups.
-
-> David.
-
-Cheers,
-Willy
-
+ - R.

@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWFTMwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWFTM4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWFTMwT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 08:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWFTMwT
+	id S1750716AbWFTM4P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 08:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWFTM4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 08:52:19 -0400
-Received: from s233-64-196-242.try.wideopenwest.com ([64.233.242.196]:61116
-	"EHLO echohome.org") by vger.kernel.org with ESMTP id S1750714AbWFTMwS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 08:52:18 -0400
-Message-ID: <22582.216.68.248.2.1150807936.squirrel@www.echohome.org>
-In-Reply-To: <1150791627.11062.25.camel@localhost.localdomain>
-References: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAIdWvHE4LIdGgJWKcd2w9I8BAAAAAA==@EchoHome.org>
-    <1150791627.11062.25.camel@localhost.localdomain>
-Date: Tue, 20 Jun 2006 08:52:16 -0400 (EDT)
-Subject: RE: Wish for 2006 to Alan Cox and Jeff Garzik: A functional Driver 
-     for PDC202XX
-From: "Erik Ohrnberger" <Erik@echohome.org>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Erik@echohome.org
-User-Agent: SquirrelMail/1.4.5
+	Tue, 20 Jun 2006 08:56:15 -0400
+Received: from smtp4.poczta.interia.pl ([80.48.65.8]:18008 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S1750716AbWFTM4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 08:56:14 -0400
+Message-ID: <4497F067.3090008@poczta.fm>
+Date: Tue, 20 Jun 2006 14:56:07 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: =?UTF-8?B?xYF1a2FzeiBTdGVsbWFjaA==?= <stlman@poczta.fm>
+Subject: ipv6 source address selection in addrconf.c (2.6.17)
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig8BE4A29832CA4711BE22DE57"
+X-EMID: 78da138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-    I thank you persaonlly for these pointers.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8BE4A29832CA4711BE22DE57
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-    Erik.
+Greetings
 
-On Tue, June 20, 2006 04:20, Alan Cox wrote:
-> Ar Llu, 2006-06-19 am 18:18 -0400, ysgrifennodd Erik Ohrnberger:
->> Regardless, count me as another one of the interested parties for a
->> cure.
->> I've read the thread, and will prepare two current kernels, one using
->> the
->> PDC202XX_NEW and one using the PDC202XX_OLD configuration options.  I'm
->> hoping that the PDC202XX_OLD will also resolve this issue.
->
-> Bartlomiej is the old IDE layer maintainer. I would direct any enquiries
-> to him about those drivers.
->
->> Any further advice on how to work around this would be greatly
->> appreciated.
->
-> 2.6.17 with the libata pata patch from
-> http://zeniv.linux.org.uk/~alan/IDE has a Promise driver for the PDC
-> 20268 and higher that was written by Albert Lee. There is also a test
-> driver for the older chips (20265 etc).
->
-> To try that build 2.6.17 with the patch and then say "N" to CONFIG_IDE,
-> "Y" to the SATA options under SCSI and the right controller. It will
-> move your disks to /dev/sda /dev/sdb etc as it uses the SCSI layer.
->
-> Alan
->
+net/ipv6/addrconf.c:971 is
+/* Rule 2: Prefer appropriate scope */
+if (hiscore.rule < 2) {
+        hiscore.scope =3D __ipv6_addr_src_scope(hiscore.addr_type);
+        hiscore.rule++;
+}
+
+Do you think it makes any sens when hiscore.addr_type hasn't been assigne=
+d any
+value (or I can't see it) before? There are some more references to
+hiscore.addr_type below but no assignment.
+
+I am trying to figure out why when trying to connect to
+
+2001:200:0:8002:203:47ff:fea5:3085 (www.kame.net)
+
+with two global addresses assigned to the ethernet card
+
+fd24:6f44:46bd:face::254
+2002:531f:d667:face::254
+
+rule 8 does not work and the first address is chosen.
 
 
+Please CC answers.
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Czwarta pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
+
+
+--------------enig8BE4A29832CA4711BE22DE57
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEl/BuNdzY8sm9K9wRAtQ1AKCeFS1YAvLqlAngbnBO4Lo+nKgHLQCfcxZV
+Gy1CtpRdE1mPOVbtERDhHqQ=
+=S7lL
+-----END PGP SIGNATURE-----
+
+--------------enig8BE4A29832CA4711BE22DE57--

@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWFTUuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWFTUuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWFTUuG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWFTUuF
+	id S1751028AbWFTUuv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWFTUuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:50:05 -0400
-Received: from xenotime.net ([66.160.160.81]:36822 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751013AbWFTUuE (ORCPT
+	Tue, 20 Jun 2006 16:50:51 -0400
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:63713 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1751024AbWFTUuu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:50:04 -0400
-Date: Tue, 20 Jun 2006 13:52:49 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm 20/20 RFC] chardev: GPIO for SCx200 & PC-8736x: add
- sysfs-GPIO interface
-Message-Id: <20060620135249.7f13d042.rdunlap@xenotime.net>
-In-Reply-To: <44985D51.8050200@gmail.com>
-References: <448DB57F.2050006@gmail.com>
-	<cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>
-	<44944D14.2000308@gmail.com>
-	<20060619222223.8f5133a9.akpm@osdl.org>
-	<44985321.3020609@gmail.com>
-	<20060620131440.9c9b0999.rdunlap@xenotime.net>
-	<44985D51.8050200@gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 20 Jun 2006 16:50:50 -0400
+Message-ID: <44985F9A.6000108@myri.com>
+Date: Tue, 20 Jun 2006 16:50:34 -0400
+From: Brice Goglin <brice@myri.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: greg.lindahl@qlogic.com
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, ak@suse.de, olson@unixfolk.com,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
+ Hyper-transport capabilities
+References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com> <200606200925.30926.ak@suse.de> <20060620200352.GJ1414@greglaptop.internal.keyresearch.com> <20060620132049.ff5e6f67.rdunlap@xenotime.net> <20060620204109.GA1980@greglaptop.internal.keyresearch.com>
+In-Reply-To: <20060620204109.GA1980@greglaptop.internal.keyresearch.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 14:40:49 -0600 Jim Cromie wrote:
+Greg Lindahl wrote:
+> Andi, is the tg3 NIC that didn't work in a Supermicro system
+> on PCI-X or PCI Express?
+>   
 
-> Randy.Dunlap wrote:
-> > On Tue, 20 Jun 2006 13:57:21 -0600 Jim Cromie wrote:
-> >
-> >   
-> >> Andrew Morton wrote:
-> >>     
-> >>> On Sat, 17 Jun 2006 12:42:28 -0600
-> >>> Jim Cromie <jim.cromie@gmail.com> wrote:
-> >>>
-> >>> Fixup patches agains next -mm would be suitable.  Please keep them
-> >>> super-short: basically one-patch-per-review-comment.  That way I can easily
-> >>> instertion-sort the patches into place and we retain a nice patch series.
-> >>>
-> >>>   
-> >>>       
-> >> OK.  Just so Im clear, Ill patch against the tail of the set (ie -mm1), 
-> >> and you'll push them forward into the
-> >>     
-> >
-> > WTH?  "you'll" ??
-> >
-> >   
-> 
-> are we talking apostrophes here, or division of labor ?
-> If the latter, what have I missed ?
-> Andrew specifically said 'patch against next -mm', I intended to follow 
-> his instructions.
+IIRC, Andi was talking about a Supermicro machine with a ServerWorks
+HT2000 chipset. We have such a machine here. Its MSI is disabled in the
+Hyper-transport mapping. But, MSI works once the HT capability is
+enabled (and my quirk will detect it right).
+For such machines, if people really want MSI, we'll need to enable the
+HT cap in my quirk. But, as long as they just want IRQ to work,
+detecting whether the HT cap is enabled or not should be enough.
 
-apostrophes :)
+Brice
 
-and ISTM that you didn't follow his request.
-
----
-~Randy

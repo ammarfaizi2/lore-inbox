@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWFTUWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWFTUXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWFTUWO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWFTUWO
+	id S1750873AbWFTUXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWFTUXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:22:14 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37296 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750869AbWFTUWN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:22:13 -0400
-Date: Tue, 20 Jun 2006 21:22:00 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Dave Neuer <mr.fred.smoothie@pobox.com>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net,
-       Ben Collins <bcollins@ubuntu.com>,
-       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [git pull] ieee1394 tree for 2.6.18
-Message-ID: <20060620202200.GT27946@ftp.linux.org.uk>
-References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org> <20060620025552.GO27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org> <20060620175321.GA7463@flint.arm.linux.org.uk> <44984CA1.5010308@s5r6.in-berlin.de> <20060620193422.GA10748@flint.arm.linux.org.uk> <161717d50606201302o7b13a436wc733c522611b5531@mail.gmail.com>
-Mime-Version: 1.0
+	Tue, 20 Jun 2006 16:23:16 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:14161 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1750872AbWFTUXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:23:15 -0400
+X-IronPort-AV: i="4.06,158,1149490800"; 
+   d="scan'208"; a="297992906:sNHT38634288"
+To: Andi Kleen <ak@suse.de>
+Cc: Dave Olson <olson@unixfolk.com>, discuss@x86-64.org,
+       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
+X-Message-Flag: Warning: May contain useful information
+References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no>
+	<fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no>
+	<Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com>
+	<200606200925.30926.ak@suse.de>
+	<20060620200352.GJ1414@greglaptop.internal.keyresearch.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 20 Jun 2006 13:23:09 -0700
+In-Reply-To: <20060620200352.GJ1414@greglaptop.internal.keyresearch.com> (Greg Lindahl's message of "Tue, 20 Jun 2006 13:03:52 -0700")
+Message-ID: <adaejxjo9ua.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <161717d50606201302o7b13a436wc733c522611b5531@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 20 Jun 2006 20:23:13.0783 (UTC) FILETIME=[5B3D4870:01C694A7]
+Authentication-Results: sj-dkim-6.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 04:02:43PM -0400, Dave Neuer wrote:
-> On 6/20/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> >On Tue, Jun 20, 2006 at 09:29:37PM +0200, Stefan Richter wrote:
-> >> Russell King wrote:
-> >> >On Mon, Jun 19, 2006 at 08:14:45PM -0700, Linus Torvalds wrote:
-> >> >>I want them to tell me what they are sending, so that _when_ I pull, I
-> >> >>can line up the result of that pull with the mail they sent, and I can
-> >> >>tell "ok, that's actually what the other side intended".
-> >> >
-> >> >Given that you've complained about me sending daily pull requests
-> >> >already, how do you intend folk to handle the situation where they've
-> >> >sent you a pull request, it's apparantly been ignored, and they update
-> >> >the tree from which you pull (maybe for akpm's benefit) and then you
-> >> >eventually get around to pulling it a couple of days later?
-> >> [...]
-> >>
-> >> I don't maintain git repos myself, but I'd say _branches_ or something
-> >> like that might be the way to go.
-> >
-> >The point was to try to establish when we could consider the tree from
-> >which we'd asked Linus to pull from as being sufficiently old that it
-> >would not be pulled from without another request being sent - or if it
-> >was pulled from, that we wouldn't get an email from Linus about the fact
-> >there was new stuff in there.
-> 
-> Can git pull a tag?
+    Greg> What is the list of things which are known to have problems?
+    Greg> All PCI-X?  We can ask some more people with PCI-X MSI cards
+    Greg> what works for them, i.e.  Mellanox.
 
-Of course, it can.
+Actually most PCI-X works as well.  AMD 8131 PCI-X bridges don't work,
+and it seems (based on the quirk in the kernel) that there are broken
+Serverworks chipsets, but I've never actually seen motherboards with
+that on there.
+
+But for example I have an old Xeon motherboard which lspci says has
+
+    PCI bridge: Intel Corporation 82870P2 P64H2 Hub PCI Bridge (rev 03)
+
+and MSI works fine there.
+
+There seem to be two issues here though.  First, MSI interrupts don't
+always work, because of chipset bugs, BIOS bugs, etc.  This is fairly
+manageable because the worst case is usually a single device not
+generating interrupts.
+
+However, the other issue is that CONFIG_PCI_MSI forces some other
+changes to x86 interrupt handling, even if no devices will ever use
+MSI.  And the changes are such that some systems can't even boot with
+CONFIG_PCI_MSI enabled.  This is the more severe problem, which needs
+to be handled if you want distros to turn on MSI.
+
+ - R.

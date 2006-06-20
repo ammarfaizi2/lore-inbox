@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWFTWaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWFTWbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbWFTWaG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWFTW33
+	id S1751363AbWFTWbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWFTW3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:29:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39133 "EHLO
+	Tue, 20 Jun 2006 18:29:25 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40413 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751340AbWFTW3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:29:07 -0400
+	id S1751370AbWFTW3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:29:21 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
@@ -27,53 +27,38 @@ Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
        "Michael S. Tsirkin" <mst@mellanox.co.il>,
        Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
        Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
-       "Eric W. Biederman" <ebiederman@lnxi.com>
-Subject: [PATCH 25/25] irq: Document what an IRQ is.
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 16/25] msi: Only build msi-apic.c on ia64
 Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:38 -0600
-Message-Id: <11508425271395-git-send-email-ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:29 -0600
+Message-Id: <1150842524863-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <1150842527127-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com> <1150842523493-git-send-email-ebiederm@xmission.com> <11508425231168-git-send-email-ebiederm@xmission.com> <1150842524863-git-send-email-ebiederm@xmission.com> <1150842524755-git-send-email-ebiederm@xmission.com> <115084252460-git-send-!
- email-ebiederm@xmission.com> <11508425251099-git-send-email-ebiederm@xmission.com> <11508425253581-git-send-email-ebiederm@xmission.com> <11508425254020-git-send-email-ebiederm@xmission.com> <11508425262259-git-send-email-ebiederm@xmission.com> <11508425263761-git-send-email-ebiederm@xmission.com> <1150842527127-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <11508425231168-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com> <1150842523493-git-send-email-ebiederm@xmission.com> <11508425231168-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric W. Biederman <ebiederman@lnxi.com>
+After the previous changes ia64 is the only architecture useing msi-apic.c
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- Documentation/IRQ.txt |   22 ++++++++++++++++++++++
- 1 files changed, 22 insertions(+), 0 deletions(-)
+ drivers/pci/Makefile |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/Documentation/IRQ.txt b/Documentation/IRQ.txt
-new file mode 100644
-index 0000000..237235d
---- /dev/null
-+++ b/Documentation/IRQ.txt
-@@ -0,0 +1,22 @@
-+What is an IRQ?
-+
-+An IRQ is an interrupt request from a device.  
-+Currently they can come in over a pin, or over a packet.
-+Several devices may be connected to the same pin thus
-+sharing an IRQ.
-+
-+An IRQ number is a kernel identifier used to talk about a hardware
-+interrupt source.  Typically this is an index into the global irq_desc
-+array, but except for what linux/interrupt.h implements the details
-+are architecture specific.
-+
-+An IRQ number is an enumeration of the possible interrupt sources on a
-+machine.  Typically what is enumerated is the number of input pins on
-+all of the interrupt controller in the system.  In the case of ISA
-+what is enumerated are the 16 input pins on the two i8259 interrupt
-+controllers.
-+
-+Architectures can assign additional meaning to the IRQ numbers, and
-+are encouraged to in the case  where there is any manual configuration
-+of the hardware involved.  The ISA IRQs are a classic example of
-+assigning this kind of additional meaning.
+diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
+index f2d152b..f4c7a4b 100644
+--- a/drivers/pci/Makefile
++++ b/drivers/pci/Makefile
+@@ -27,7 +27,8 @@ obj-$(CONFIG_PPC64) += setup-bus.o
+ obj-$(CONFIG_MIPS) += setup-bus.o setup-irq.o
+ obj-$(CONFIG_X86_VISWS) += setup-irq.o
+ 
+-msiobj-y := msi.o msi-apic.o
++msiobj-y := msi.o
++msiobj-$(CONFIG_IA64) := msi-apic.o
+ msiobj-$(CONFIG_IA64_GENERIC) += msi-altix.o
+ msiobj-$(CONFIG_IA64_SGI_SN2) += msi-altix.o
+ obj-$(CONFIG_PCI_MSI) += $(msiobj-y)
 -- 
 1.4.0.gc07e
 

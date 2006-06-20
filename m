@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWFTU5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWFTU5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWFTU5U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWFTU5U
+	id S1751060AbWFTU5n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWFTU5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:57:20 -0400
-Received: from osa.unixfolk.com ([209.204.179.118]:41915 "EHLO
-	osa.unixfolk.com") by vger.kernel.org with ESMTP id S1751054AbWFTU5U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:57:20 -0400
-Date: Tue, 20 Jun 2006 13:57:17 -0700 (PDT)
-From: Dave Olson <olson@unixfolk.com>
-To: Brice Goglin <brice@myri.com>
-Cc: greg.lindahl@qlogic.com, "Randy.Dunlap" <rdunlap@xenotime.net>, ak@suse.de,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
- Hyper-transport capabilities
-In-Reply-To: <44985F9A.6000108@myri.com>
-Message-ID: <Pine.LNX.4.64.0606201355320.12870@topaz.pathscale.com>
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no>
- <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com>
- <200606200925.30926.ak@suse.de> <20060620200352.GJ1414@greglaptop.internal.keyresearch.com>
- <20060620132049.ff5e6f67.rdunlap@xenotime.net>
- <20060620204109.GA1980@greglaptop.internal.keyresearch.com> <44985F9A.6000108@myri.com>
+	Tue, 20 Jun 2006 16:57:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:30423 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751060AbWFTU5m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:57:42 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [RFC, patch] i386: vgetcpu()
+Date: Tue, 20 Jun 2006 22:57:16 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+References: <200606201628_MC3-1-C2FA-3586@compuserve.com>
+In-Reply-To: <200606201628_MC3-1-C2FA-3586@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606202257.16033.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Brice Goglin wrote:
+On Tuesday 20 June 2006 22:25, Chuck Ebbert wrote:
+> Use the limit field of a GDT entry to store the current CPU
+> number for fast userspace access.  This still leaves 12 bits
+> free for other information.
 
-| Greg Lindahl wrote:
-| > Andi, is the tg3 NIC that didn't work in a Supermicro system
-| > on PCI-X or PCI Express?
-| >   
-| 
-| IIRC, Andi was talking about a Supermicro machine with a ServerWorks
-| HT2000 chipset. We have such a machine here. Its MSI is disabled in the
-| Hyper-transport mapping. But, MSI works once the HT capability is
-| enabled (and my quirk will detect it right).
-| For such machines, if people really want MSI, we'll need to enable the
-| HT cap in my quirk. But, as long as they just want IRQ to work,
-| detecting whether the HT cap is enabled or not should be enough.
+Nice trick. Maybe I'll even add that to the x86-64 implementation
+if it's fast enough. Do you have numbers?
 
-We definitely want that chipset to be on the whitelist.   It's used in
-supermicro systems, the Mac systems with the 970 chip, and some large
-vendor systems as well.
+But it needs to be encapsulated in a wrapper I think. Just exposing
+it to user space is the wrong way to do this.
 
-The detection of MSI not being enabled in the config space is 
-a good thing to do (and warn about), of course, no problem with that.
-
-I've seen no MSI-related issues with the ST2000 on 3 different
-platforms, so far.
-
-Dave Olson
-olson@unixfolk.com
+-Andi

@@ -1,83 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWFTIav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWFTIdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWFTIav (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWFTIav
+	id S965038AbWFTIdG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWFTIdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:30:51 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:10439 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965036AbWFTIau (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:30:50 -0400
-Message-ID: <4497B230.5000508@garzik.org>
-Date: Tue, 20 Jun 2006 04:30:40 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 20 Jun 2006 04:33:06 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:50631 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965038AbWFTIdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:33:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ob1VmoDe/edlpc9s0Mz+kEL0Hrg0Prg08HwvXS+w+vgFyxKl3y9UeCNJZyuCZ2NO2YmPlSnhkQjs2di2dA98GXmNVpH08tkILI1AxZaQ7REBfrAIZRqI0ldm4xhXjgkyyCjsh7azsqH6Fu1Uio6jbtlL+zaPU0qbS9wi4pLkat4=
+Message-ID: <4497B2B5.4040001@gmail.com>
+Date: Tue, 20 Jun 2006 16:32:53 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Laurent Vivier <Laurent.Vivier@bull.net>
-CC: Qi Yong <qiyong@fc-cn.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-       alex@clusterfs.com, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org>	<1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>	<Pine.LNX.4.64.0606091344290.5498@g5.osdl.org> <4497927F.4070307@fc-cn.com> <4497B126.4000408@bull.net>
-In-Reply-To: <4497B126.4000408@bull.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/9] VT binding: Make VT binding a Kconfig option
+References: <44957026.2020405@gmail.com>	 <9e4733910606191718n74d0bf40na7b0cc3902d80172@mail.gmail.com>	 <44974AC7.4060708@gmail.com> <9e4733910606191916i1994d4d1i2ea661e015431750@mail.gmail.com>
+In-Reply-To: <9e4733910606191916i1994d4d1i2ea661e015431750@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Vivier wrote:
-> Qi Yong wrote:
->> Linus Torvalds wrote:
+Jon Smirl wrote:
+> On 6/19/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+>> Jon Smirl wrote:
+>> > I gave this patch a try and it seems to work. I say seems because I
+>> > could not get the nvidiafb driver to set a usable mode after it was
+>> > bound/unbound.
 >>
->>> On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
->>>  
->>>
->>>> When is the Linux syscall interface enough?  When should we just bump it
->>>> and cut out all the compatibility interfaces?
->>>>
->>>> No, we don't; we let people configure certain obsolete bits out (a.out
->>>> support etc), but we keep it in the tree despite the indirection cost to
->>>> maintain multiple interfaces etc.
->>>>    
->>>>
->>> Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN WAYS THAT 
->>> MIGHT BREAK OLD USERS.
->>>
->>> Your point was exactly what?
->>>
->>> Btw, where did that 2TB limit number come from? Afaik, it should be 16TB 
->>> for a 4kB filesystem, no?
->>>  
->>>
->> Partition tables describe partitions in units of one sector.
->> 2^(32+9) = 2T
->>
->> To prevent integer overflow, we should use only 31 bits of a 32-bit integer.
->> 2^(31+12) = 8T
->>
->> There's _terrible_ hacks to really get to 16T.
->>
->> -- qiyong
->>
+>> What do you mean by this?  You mean that you cannot restore vgacon?
+>> If that's the case, then yes, that is perfectly understandable as
+>> nvidiafb does not restore VGA to text mode.
 > 
-> IMHO, a simple solution is to use "Logical Volume Manager" instead of partition
-> manager: we create 64bit filesystem in a Logical Volume, not in a partition.
+> modprobe fbcon
+> modprobe nvidiafb
+> 
+> Display is messed up.
+> 
+> I used to fix this by switching to X and back but the nvidia X driver
+> won't build on the mm kernel. I can try again and write a script to
+> echo a mode into sysfs after the modprobe.
+> 
+> When fbcon first gets a new fbdev driver registered with it, should it
+> pick one of the modes is supports and set it automatically?
 
-That doesn't solve anything, if you are not using a 64bit filesystem.
+All fbdev drivers have a startup mode that should always be valid. All
+fbcon does is enable that mode.
 
+You can load nvidiafb like this instead:
 
-> "partitioning is obsolete" ;-)
+modprobe nvidiafb mode_option=1024x768@60
 
-LVM is nothing but a partition manager...
+> 
+>>  or would it be better for each driver to set in a
+>> > default mode that it understands when it gets control? The fbdev
+>> > driver should not set a mode when it loads, but that doesn't mean
+>> > fbcon can't set one when it is activated. Similarly VGAcon would set
+>> > the mode (and load its fonts) when it regains control.
+>>
+>> The problem with vgacon setting its own mode is that it does not know
+>> anything about the hardware. So VGA text mode will need to rely on
+>> a secondary program to set the mode (whether it's vbetool, another
+>> fb driver, or X does not matter).
+> 
+> How does vbetool save state?
 
-	Jeff
+vbetool basically calls an int10 function that saves the state.  This
+function is unique per video BIOS, ie you cannot use the state file in
+another machine even if the graphics chipset is the same.
 
+> Could VGAcon do whatever vbetool is doing?
+ 
+No it can't.  Once the card is in graphics mode, vgacon cannot go to
+text mode on its own.  It has to know how to write to other VGA
+registers which are unique per hardware.
 
+Tony
 

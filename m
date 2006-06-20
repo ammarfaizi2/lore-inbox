@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWFTGKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWFTGPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbWFTGKc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 02:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWFTGKc
+	id S965073AbWFTGPe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 02:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWFTGPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 02:10:32 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9155 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965072AbWFTGKb (ORCPT
+	Tue, 20 Jun 2006 02:15:34 -0400
+Received: from fc-cn.com ([218.25.172.144]:58376 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S965073AbWFTGPd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 02:10:31 -0400
-Date: Tue, 20 Jun 2006 16:10:06 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: XFS crashed twice, once in 2.6.16.20, next in 2.6.17, reproducable
-Message-ID: <20060620161006.C1079661@wobbly.melbourne.sgi.com>
-References: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com>; from avuton@gmail.com on Mon, Jun 19, 2006 at 12:44:58AM -0700
+	Tue, 20 Jun 2006 02:15:33 -0400
+Message-ID: <4497927F.4070307@fc-cn.com>
+Date: Tue, 20 Jun 2006 14:15:27 +0800
+From: Qi Yong <qiyong@fc-cn.com>
+Organization: FCD
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: "Stephen C. Tweedie" <sct@redhat.com>, Jeff Garzik <jeff@garzik.org>,
+       Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+       alex@clusterfs.com
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>  <4488E1A4.20305@garzik.org> <20060609083523.GQ5964@schatzie.adilger.int>  <44898EE3.6080903@garzik.org> <1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk> <Pine.LNX.4.64.0606091344290.5498@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606091344290.5498@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 12:44:58AM -0700, Avuton Olrich wrote:
-> ..
-> Hello, when trying to recursively delete a directory (same directory
-> twice) from my 500gb hard drive I get a problem. It crashed first in
-> 2.6.16.20, then I upgraded to try to get rid of the issue. This one is
-> from 2.6.17:
+Linus Torvalds wrote:
 
-How reproducible is it?  Is it reproducible even after xfs_repair?
+>On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
+>  
+>
+>>When is the Linux syscall interface enough?  When should we just bump it
+>>and cut out all the compatibility interfaces?
+>>
+>>No, we don't; we let people configure certain obsolete bits out (a.out
+>>support etc), but we keep it in the tree despite the indirection cost to
+>>maintain multiple interfaces etc.
+>>    
+>>
+>
+>Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN WAYS THAT 
+>MIGHT BREAK OLD USERS.
+>
+>Your point was exactly what?
+>
+>Btw, where did that 2TB limit number come from? Afaik, it should be 16TB 
+>for a 4kB filesystem, no?
+>  
+>
 
-If so, can you try Mandy's patch below, to see if it is addressing
-the root cause of your problem?  If problems persist, a reproducible
-test case would be wonderful, if one can be found..
+Partition tables describe partitions in units of one sector.
+2^(32+9) = 2T
 
-cheers.
+To prevent integer overflow, we should use only 31 bits of a 32-bit integer.
+2^(31+12) = 8T
 
--- 
-Nathan
+There's _terrible_ hacks to really get to 16T.
 
-
-Fix nused counter.  It's currently getting set to -1 rather than getting
-decremented by 1.  Since nused never reaches 0, the "if (!free->hdr.nused)"
-check in xfs_dir2_leafn_remove() fails every time and xfs_dir2_shrink_inode()
-doesn't get called when it should.  This causes extra blocks to be left on
-an empty directory and the directory in unable to be converted back to
-inline extent mode.
-
-Signed-off-by: Mandy Kirkconnell <alkirkco@sgi.com>
-Signed-off-by: Nathan Scott <nathans@sgi.com>
-
---- a/fs/xfs/xfs_dir2_node.c	2006-06-20 16:00:45.000000000 +1000
-+++ b/fs/xfs/xfs_dir2_node.c	2006-06-20 16:00:45.000000000 +1000
-@@ -972,7 +972,7 @@ xfs_dir2_leafn_remove(
- 			/*
- 			 * One less used entry in the free table.
- 			 */
--			free->hdr.nused = cpu_to_be32(-1);
-+			be32_add(&free->hdr.nused, -1);
- 			xfs_dir2_free_log_header(tp, fbp);
- 			/*
- 			 * If this was the last entry in the table, we can
+-- qiyong

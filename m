@@ -1,72 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWFTULz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWFTUQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWFTULz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWFTULz
+	id S1750861AbWFTUQX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWFTUQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:11:55 -0400
-Received: from xenotime.net ([66.160.160.81]:23224 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750732AbWFTULz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:11:55 -0400
-Date: Tue, 20 Jun 2006 13:14:40 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm 20/20 RFC] chardev: GPIO for SCx200 & PC-8736x: add
- sysfs-GPIO interface
-Message-Id: <20060620131440.9c9b0999.rdunlap@xenotime.net>
-In-Reply-To: <44985321.3020609@gmail.com>
-References: <448DB57F.2050006@gmail.com>
-	<cfe85dfa0606121150y369f6beeqc643a1fe5c7ce69b@mail.gmail.com>
-	<44944D14.2000308@gmail.com>
-	<20060619222223.8f5133a9.akpm@osdl.org>
-	<44985321.3020609@gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 16:16:23 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:18948 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750788AbWFTUQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:16:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=Y5WHGF2vlz58pxxgjTrm0aOgCHnJOjGYIH/9C+uNeEVB/9mZHvYOygjpCfVKTx6oy3a8oWXfUDmLjRE9yiTr6ELkS18UxFfKQYG8RCaPqmM11DVE4dLH0+04nchSx7m3fKec1sB+MfAVTwTBYwexYvS8lxNN5Cc3tzS1UsvzGEU=
+Date: Tue, 20 Jun 2006 22:16:23 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <1150821311.6780.240.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606201914170.11643@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+  <1150816429.6780.222.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+ <1150821311.6780.240.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 13:57:21 -0600 Jim Cromie wrote:
 
-> Andrew Morton wrote:
-> > On Sat, 17 Jun 2006 12:42:28 -0600
-> > Jim Cromie <jim.cromie@gmail.com> wrote:
-> >
-> > Fixup patches agains next -mm would be suitable.  Please keep them
-> > super-short: basically one-patch-per-review-comment.  That way I can easily
-> > instertion-sort the patches into place and we retain a nice patch series.
-> >
-> >   
-> OK.  Just so Im clear, Ill patch against the tail of the set (ie -mm1), 
-> and you'll push them forward into the
 
-WTH?  "you'll" ??
+On Tue, 20 Jun 2006, Thomas Gleixner wrote:
 
-> series as close as possible to where the blunder was made ?  (and less 
-> close for conflicts )
-> >> Ive
-> >>     
-> >
-> > Apostrophe aversion?
-> >   
-> 
-> Its PFL.  Its also IMO a trend in the language.  "Its" (the contraction) 
-> has dropped the '
-> IIUC, its (with the apostrophe) now only for possession, forex: Its 
-> bigger than the sum of it's parts.
-> Im just taking that to excess, everywhere its applicable ;-)
+> On Tue, 2006-06-20 at 18:09 +0100, Esben Nielsen wrote:
+>> The only question I have is why the priority of the callback is set to
+>> priority of the task calling hrtimer_start() (current->normal_prio). That
+>> seems like an odd binding to me. Shouldn't the finding of the priority be moved over to the
+>> posix-timer code, where it is needed, and be given as a parameter to
+>> hrtimer_start()?
+>
+> Was the simplest way to do.
+>
 
-and you have it totally bassackwards too.  Maybe you meant to
-do that, a la Rusty.
+Yes, when you only use the hrtimers to implement signals. But what if you 
+use them for something different?
 
-Possessive "its" did not and does not use apostrophe.
-and "forex" is the Foreign Exchange market (or a brand of
-prophylactic).
+>> In rtmutex.c, where a hrtimer is used as a timeout on a mutex, wouldn't it
+>> make more sense to use current->prio than current->normal_prio if the task
+>> is boosted when it starts to wait on a mutex.
+>
+> Not sure about that.
+>
+>> Let say you have a bunch of callback running at priority 1 and then the
+>> next hrt timer with priority 99 expires. Then the callback which
+>> is running will be boosted to priority 99. So the overall latency at
+>> priority 99 will at least the latency of the worst hrtimer callback.
+>> And worse: What if the callback running is blocked on a mutex? Will the
+>> owner of the mutex be boosted as well? Not according to the code in
+>> sched.c. Therefore you get priority inversion to priority 1. That is the
+>> worst case hrtimer latency is that of priority 1.
+>>
+>> Therefore, a simpler and more robust design would be to give the thread
+>> priority 99 as a default - just as the posix_cpu_timer thread. Then the
+>> system designer can move it around with chrt when needed.
+>> In fact you can say the current design have both the worst cases of having
+>> it running as priority 99 and at priority 1!
+>
+> We had this before and it is horrible.
 
-http://en.wikipedia.org/wiki/PFL ??
----
-~Randy
+"Horrible" in what respect?
+
+>
+>> Another complicated design would be to make a task for each priority.
+>> Then the interrupt wakes the highest priority one, which handles the first
+>> callback and awakes the next one etc.
+>
+> Uurgh. Thats not a serious proposal ?
+
+No, not really. And then a little bit in a generalized way:
+The kernel could have these threads as general working threads on which 
+all kind of callbacks could be executed at their right priority.
+But, ofcourse, having 100 tasks sitting around per CPU is huge waste of 
+memory. But maybe some kind of pooling could be made?
+
+As I said in a another mail some time back: Having 100 different RT 
+priorities doesn't make sense. You can at most need 10 anyway.
+
+>
+> A nice solution would be to enqueue the timer into the task struct of
+> the thread which is target of the signal, wake that thread in a special
+> state which only runs the callback and then does the signal delivery.
+
+What if the thread is running?
+
+> The scary thing on this is to get the locking straight, but it might
+> well worth to try it. That way we would burden the softirq delivery to
+> the thread and maybe save a couple of task switches.
+>
+> 	tglx
+>
+>
+
+Hmm, a practical thing to do would be to make a system where you can post 
+jobs in a thread. These jobs can then be done in thread context 
+around schedule or just before the task returns to user-space.
+
+Esben

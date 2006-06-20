@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWFTPSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWFTPUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbWFTPSI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 11:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWFTPSI
+	id S1750726AbWFTPUj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 11:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWFTPUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 11:18:08 -0400
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:31633 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
-	id S1751311AbWFTPSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 11:18:07 -0400
-Mime-Version: 1.0
-Message-Id: <a06230977c0bdc14545ff@[129.98.90.227]>
-In-Reply-To: <200606201433.k5KEXbhX003862@fire-2.osdl.org>
-References: <200606201433.k5KEXbhX003862@fire-2.osdl.org>
-Date: Tue, 20 Jun 2006 11:18:28 -0400
-To: ak@suse.de
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: [Bug 6451] CONFIG_KMOD is not set for x86_64 but is set to Y
- for i386 and other archs
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Tue, 20 Jun 2006 11:20:39 -0400
+Received: from leopard.ecp.fr ([138.195.33.24]:32183 "EHLO leopard.ecp.fr")
+	by vger.kernel.org with ESMTP id S1750726AbWFTPUi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 11:20:38 -0400
+Message-ID: <4498124F.4070004@libertysurf.fr>
+Date: Tue, 20 Jun 2006 17:20:47 +0200
+From: Tanguy Ortolo <tanguy.ortolo@libertysurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051017 Thunderbird/1.0.7 TrombiNews/0.7.7
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [KORG] ipw2200 firmware
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, is this you? Why on Earth do you want this setting turned off?
+Hello,
 
->http://bugzilla.kernel.org/show_bug.cgi?id=6451
->
->zippel@linux-m68k.org changed:
->
->            What    |Removed                     |Added
->----------------------------------------------------------------------------
->              Status|NEW                         |REJECTED
->          Resolution|                            |WILL_NOT_FIX
->
->
->
->------- Additional Comments From zippel@linux-m68k.org  2006-06-20 
->07:32 -------
->This is a per architecture decision, please ask the respective maintainer.
->
->------- You are receiving this mail because: -------
->You reported the bug, or are watching the reporter.
+I saw you patched ipw2200 v1.0.8 driver for it to use ipw2200 firmware
+v3.0. But Documentation/networking/README.ipw2200 sends us to
+<http://ipw2200.sf.net>, that recommends firmware v2.4.
 
+Could you signal that issue in Documentation/networking/README.ipw2200 ?
+
+Regards,
 
 -- 
+Tanguy Ortolo
 
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University

@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWFTIye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWFTIzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWFTIye (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWFTIyd
+	id S965076AbWFTIzt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWFTIzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:54:33 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:58800 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S965068AbWFTIyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:54:32 -0400
-Date: Tue, 20 Jun 2006 09:54:29 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
+	Tue, 20 Jun 2006 04:55:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50591 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965068AbWFTIzr (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:55:47 -0400
+Subject: Re: batched write
+From: Steven Whitehouse <swhiteho@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] Clear abnormal poweroff flag on VIA southbridges, fix resume
-Message-ID: <20060620085429.GB27362@srcf.ucam.org>
-References: <20060618191421.GA15358@srcf.ucam.org> <20060619230144.155bc938.akpm@osdl.org>
+Cc: linux-fsdevel@vger.kernel.org, Linux-Kernel@vger.kernel.org,
+       Reiserfs-Dev@namesys.com, hch@infradead.org, vs@namesys.com,
+       dgc@sgi.com, Hans Reiser <reiser@namesys.com>
+In-Reply-To: <20060620002659.08aee963.akpm@osdl.org>
+References: <20060524175312.GA3579@zero> 	<44749E24.40203@namesys.com>
+	 <20060608110044.GA5207@suse.de>
+	 <1149766000.6336.29.camel@tribesman.namesys.com>
+	 <20060608121006.GA8474@infradead.org>
+	 <1150322912.6322.129.camel@tribesman.namesys.com>
+	 <20060617100458.0be18073.akpm@osdl.org>
+	 <20060619162740.GA5817@schatzie.adilger.int> <4496D606.8070402@namesys.com>
+	 <20060619185049.GH5817@schatzie.adilger.int>
+	 <20060620000133.GB8770394@melbourne.sgi.com> 	<4497A17C.50804@namesys.com>
+	 <20060620002659.08aee963.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Tue, 20 Jun 2006 10:02:53 +0100
+Message-Id: <1150794173.3856.1305.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060619230144.155bc938.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 11:01:44PM -0700, Andrew Morton wrote:
+Hi,
 
-> Is CONFIG_ACPI the right thing to use here?  As opposed to, say, CONFIG_PM?
-> Or CONFIG_ACPI_SLEEP??
+On Tue, 2006-06-20 at 00:26 -0700, Andrew Morton wrote:
+> On Tue, 20 Jun 2006 00:19:24 -0700
+> Hans Reiser <reiser@namesys.com> wrote:
+> 
+> > So far we have XFS, FUSE, and reiser4 benefiting from the potential
+> > ability to process more than 4k at a time.  Is it enough?
+> 
+> Spose so.  Let's see what the diff looks like?
+> -
 
-I've implemented it using the acpi register handling code, so 
-CONFIG_ACPI_something makes sense. I believe that the APM bios will 
-handle it itself, but the machine I have doesn't support APM so can't 
-check that. CONFIG_ACPI_SLEEP might be a better choice than CONFIG_ACPI, 
-yes.
+I have plans to do something along these lines for GFS2 in the future,
+so you can add that to the list as well, if that helps things along,
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Steve.
+
+

@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWFTQJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWFTQLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWFTQJh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFTQJh
+	id S1751295AbWFTQLT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFTQLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:09:37 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:14477 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751382AbWFTQJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:09:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=Mq4tmawm5L8Edri06N3lzfMp9Q3x/Pwh4IP2EZZW2J0YeAFy2EL1dLriAMz5tAnwkVd9caQspfw5R7P68iIFeb1HFAevVGvzoeSFFgnJLC1XE4R0uPp0zbX07lxk68MBl8Q/FNrRaGRP99R+davBej48/baj/68u/204Q0Ip0NY=
-Date: Tue, 20 Jun 2006 18:09:44 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
-In-Reply-To: <1150816429.6780.222.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
-References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
- <1150816429.6780.222.camel@localhost.localdomain>
+	Tue, 20 Jun 2006 12:11:19 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:26583 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S1751295AbWFTQLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:11:18 -0400
+Date: Tue, 20 Jun 2006 18:11:08 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: linux-kernel@vger.kernel.org
+cc: Kay Sievers <kay.sievers@vrfy.org>, Hannes Reinecke <hare@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@redhat.com>
+Subject: udev bluez
+Message-ID: <Pine.LNX.4.44.0606201759140.11776-100000@hubble.stokkie.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.3 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Thomas Gleixner wrote:
 
-> On Tue, 2006-06-20 at 17:01 +0100, Esben Nielsen wrote:
->> Hi,
->>   I wanted to run some tests with RTExec and I wanted to play around with
->> the priorities, but I could not set the priorities of softirq-hrtXXXX.
->> I looked a bit in the code and found that hrtimer_adjust_softirq_prio() is
->> called every loop, setting it back to priority 1.
->>
->> Why is that? Can it be fixed so it behaves as any other task you can use
->> chrt on?
->
-> No, please see
->
-> http://www.linutronix.de/index.php?mact=News,cntnt01,detail,0&cntnt01articleid=8&cntnt01dateformat=%25b%20%25d%2C%20%25Y&cntnt01returnid=31
->
-> Dynamic priority support for high resolution timers
->
+Hi,
 
-I am sorry. I should have read some more of the code before asking.
+It seems the story of the greatest piece of software ever written
+is being hit by the bluez of having to support too many seperate
+addon hardware devices, which the coders themselves in many cases
+never heard of. Until the udev problems showup.
 
-The only question I have is why the priority of the callback is set to
-priority of the task calling hrtimer_start() (current->normal_prio). That 
-seems like an odd binding to me. Shouldn't the finding of the priority be moved over to the 
-posix-timer code, where it is needed, and be given as a parameter to 
-hrtimer_start()?
-In rtmutex.c, where a hrtimer is used as a timeout on a mutex, wouldn't it 
-make more sense to use current->prio than current->normal_prio if the task 
-is boosted when it starts to wait on a mutex.
+The key piece of trouble is udev which has nowadays has to run
+in close cooperation with a daemon called hald. I wonder if linux is
+trying to solve the problems of 'broken by design' addon hardware?
+To me it just looks like polishing up a can of maggots.
 
+The most evil category seem to be USB camara's , photo devices, etc.
 
-But I am not sure I like the design at all:
+"I've even created a standalone udev rule - 
+  BUS="usb", SYSFS{idVendor}=="04a9", SYSFS{idProduct}=="3113",
+  MODE="0660", GROUP="camera", NAME="canon", SYMLINK="camera
 
-Let say you have a bunch of callback running at priority 1 and then the 
-next hrt timer with priority 99 expires. Then the callback which 
-is running will be boosted to priority 99. So the overall latency at 
-priority 99 will at least the latency of the worst hrtimer callback.
-And worse: What if the callback running is blocked on a mutex? Will the 
-owner of the mutex be boosted as well? Not according to the code in 
-sched.c. Therefore you get priority inversion to priority 1. That is the 
-worst case hrtimer latency is that of priority 1.
+"aah canon ... with a canon you can't!"
 
-Therefore, a simpler and more robust design would be to give the thread 
-priority 99 as a default - just as the posix_cpu_timer thread. Then the 
-system designer can move it around with chrt when needed.
-In fact you can say the current design have both the worst cases of having 
-it running as priority 99 and at priority 1!
+So is there a smart way out of this mess?
 
-Another complicated design would be to make a task for each priority. 
-Then the interrupt wakes the highest priority one, which handles the first 
-callback and awakes the next one etc.
+Regards,
 
+Robert
+-- 
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
 
-Esben
-
-
-> 	tglx
->
->

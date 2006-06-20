@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965459AbWFTDv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965503AbWFTEG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965459AbWFTDv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 23:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965460AbWFTDv1
+	id S965503AbWFTEG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 00:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965501AbWFTEG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 23:51:27 -0400
-Received: from main.gmane.org ([80.91.229.2]:41166 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965459AbWFTDv0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 23:51:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ben Pfaff <blp@cs.stanford.edu>
-Subject: Re: [Ubuntu PATCH] acpi: Add IBM R60E laptop to proc-idle blacklist
-Date: Mon, 19 Jun 2006 20:51:09 -0700
-Message-ID: <87lkrstrgy.fsf@benpfaff.org>
-References: <4491BC6B.5000704@oracle.com>
-	<20060619203333.5e897ead.akpm@osdl.org>
-Reply-To: blp@cs.stanford.edu
+	Tue, 20 Jun 2006 00:06:29 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22948
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965500AbWFTEG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 00:06:28 -0400
+Date: Mon, 19 Jun 2006 21:06:35 -0700 (PDT)
+Message-Id: <20060619.210635.66061007.davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Cc: mm-commits@vger.kernel.org, randy.dunlap@oracle.com,
+       val_henson@linux.intel.com
+Subject: Re: + make-tulip-driver-not-handle-davicom-nics.patch added to -mm
+ tree
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200606200046.k5K0kPdg020414@shell0.pdx.osdl.net>
+References: <200606200046.k5K0kPdg020414@shell0.pdx.osdl.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-7-50-23.hsd1.ca.comcast.net
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:BR2yAFVNugxk1V1fS47cEAZMW4Y=
-Cc: linux-acpi@vger.kernel.org
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+From: akpm@osdl.org
+Date: Mon, 19 Jun 2006 17:49:48 -0700
 
-> On Thu, 15 Jun 2006 13:00:43 -0700
-> Randy Dunlap <randy.dunlap@oracle.com> wrote:
->
->> [UBUNTU:acpi] Add IBM R60E laptop to proc-idle blacklist.
+> Subject: Make tulip driver not handle Davicom NICs
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> 
+> Make tulip driver not handle Davicom NICs, let dmfe take over"
+> 
+> Reference: https://launchpad.net/bugs/48287
+> Source URL of Patch:
+> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=1804482911a71bee9114cae1c2079507a38e9e7f
+> 
+> Cc: Valerie Henson <val_henson@linux.intel.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 
->> +	{ set_max_cstate, "IBM ThinkPad R40e", {
->> +	  DMI_MATCH(DMI_BIOS_VENDOR, "IBM"),
->> +	  DMI_MATCH(DMI_BIOS_VERSION, "1SET70WW") }, (void*)1},
->
-> It seems that every R40e in the world is in that table.
+Please see followups, this change is bogus, it breaks sparc64 Sun
+Netra X1 onboard NICs.  The tulip driver drives them fine in that
+case, the dmfe driver doesn't work at all.
 
-The email says R60e.
-The string says R40e.
-Which is correct?
--- 
-Ben Pfaff 
-email: blp@cs.stanford.edu
-web: http://benpfaff.org
-
+There is no reason the normal tulip driver cannot handle these
+chip variants.

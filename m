@@ -1,158 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWFTWeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWFTWeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWFTWeM (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751337AbWFTWeM (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 20 Jun 2006 18:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWFTWeD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWFTWeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:34:03 -0400
-Received: from xenotime.net ([66.160.160.81]:12734 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751402AbWFTWdr (ORCPT
+	Tue, 20 Jun 2006 18:34:00 -0400
+Received: from mx2.suse.de ([195.135.220.15]:3810 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751428AbWFTWdr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 20 Jun 2006 18:33:47 -0400
-Date: Tue, 20 Jun 2006 15:36:31 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: adi@hexapodia.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc[56]-mm*: pcmcia "I/O resource not free"
-Message-Id: <20060620153631.f0a3106e.rdunlap@xenotime.net>
-In-Reply-To: <20060620150317.746372c5.akpm@osdl.org>
-References: <20060615162859.GA1520@hexapodia.org>
-	<20060617100327.e752b89a.akpm@osdl.org>
-	<20060620211723.GA28016@hexapodia.org>
-	<20060620150317.746372c5.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Andi Kleen <ak@suse.de>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilitiesKJ
+Date: Wed, 21 Jun 2006 00:33:35 +0200
+User-Agent: KMail/1.9.3
+Cc: Dave Olson <olson@unixfolk.com>, discuss@x86-64.org,
+       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
+       Greg Lindahl <greg.lindahl@qlogic.com>
+References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <200606200925.30926.ak@suse.de> <20060620212908.GA17012@suse.de>
+In-Reply-To: <20060620212908.GA17012@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606210033.35409.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 15:03:17 -0700 Andrew Morton wrote:
-
-> Andy Isaacson <adi@hexapodia.org> wrote:
-> >
-> > On Sat, Jun 17, 2006 at 10:03:27AM -0700, Andrew Morton wrote:
-> > > > The PCMCIA slot on my Thinkpad X40 stopped working sometime between
-> > > > 2.6.17-rc4-mm3 and 2.6.17-rc5-mm3, and is still not working as of
-> > > > 2.6.17-rc6-mm2.
-> > [snip]
-> > > > -Probing IDE interface ide2...
-> > > > -hde: CF Card, CFA DISK drive
-> > > > -PM: Adding info for No Bus:ide2
-> > > > -hdf: probing with STATUS(0x50) instead of ALTSTATUS(0x0a)
-> > > > +ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
-> > > > +ide2: ports already in use, skipping probe
-> > > > +ide2: I/O resource 0xF8A8A01E-0xF8A8A01E not free.
-> > > > +ide2: ports already in use, skipping probe
-> > > > +ide2: I/O resource 0xF8A8A00E-0xF8A8A00E not free.
-> > > > +ide2: ports already in use, skipping probe
-> > > 
-> > > hm.   I don't know who to blame for this yet ;)
-> > > 
-> > > The contents of /proc/ioports on both kernels might be useful.  Let's see
-> > > which device+driver is already using those ports, and whether the older
-> > > kenrel uses the same addresses.
+On Tuesday 20 June 2006 23:29, Greg KH wrote:
+> On Tue, Jun 20, 2006 at 09:25:30AM +0200, Andi Kleen wrote:
 > > 
-> > In further testing, -rc6 is fine while -rc6-mm2 fails.
-> 
-> OK.
-> 
-> > Under 2.6.17-rc6 (after having inserted and removed the card, but that
-> > doesn't seem to make much difference) I have
+> > > Sure, that's true of almost everything new.   It remains broken until people
+> > > start using it, complain, and get the bugs fixed.   Some of us have a vested
+> > > interest in having MSI work, since it's the only way we can deliver interrupts.
+> > > We've already worked with a few BIOS writers to get problems fixed, and we'll
+> > > keep doing so as we find problems.   If enough hardware vendors and consumers
+> > > do so, the broken stuff will get fixed, and stay fixed, because it will get
+> > > tested.
 > > 
-> > 0000-001f : dma1
-> > ...
-> 
-> I should have said iomem, not ioports.  But you have it there on those very
-> detailed web pages.  There's nothing at 0xF8A8Axxx in either kernel.
-> 
-> > The diff between -rc6 and -rc6-mm2 shows that they have the same ioport
-> > assignment (there's only a textual diff due to ACPI string changes).
-> 
-> yep.  The only reelvant diff in the rc6 versus rc6-mm2 /proc/iomem is:
-> 
-> @@ -29,7 +29,6 @@
->    d0220000-d0220fff : 0000:02:02.0
->      d0220000-d0220fff : ipw2200
->    d0221000-d02210ff : 0000:02:00.1
-> -  d1200000-d1200fff : pcmcia_socket0
->    d2000000-d3ffffff : PCI CardBus #03
->  e0000000-e7ffffff : 0000:00:02.0
->  e8000000-efffffff : 0000:00:02.1
-> 
-> whch is to be expected if you removed the card.
-> 
-> 
-> > I've put just about everything you could want to know about the two
-> > kernels at
-> > http://web.hexapodia.org/~adi/bobble/bobble_2.6.17-rc6_20060620093733/
-> > and
-> > http://web.hexapodia.org/~adi/bobble/bobble_2.6.17-rc6-mm2_20060620094254/
+> > Sometimes there are new things that work relatively well and only break occassionally
+> > and then there are things where it seems to be the other way round.
 > > 
+> > My point was basically that every time we tried to turn on such a banana green feature
+> > without white listing it was a sea of pain to get it to work everywhere
+> > and tended to cause far too many non boots
+> > 
+> > (and any non boot is far worse than whatever performance advantage you get
+> > from it) 
+> > 
+> > So if there are any more MSI problems comming up IMHO it should be
+> > white list/disabled by default and only turn on after a long time when
+> > Windows uses it by default or something. Greg, do you agree?
 > 
-> It's strange (to me) that IDE is requesting a single-byte memory region. 
-> Possibly we've broken the resource.c code such that it has some off-by-one
-> and is now rejecting single-byte requests.
+> No, I don't want a whitelist, as it will be hard to always keep adding
+> stuff to it (unless we can somehow figure out how to put a "cut-off"
+> date check in there).  Yes, we do have a number of systems today that
+> have MSI issues, but the newer ones all work properly, and we should
+> continue on with the way we have today (blasklist problem boards, as the
+> rest of the PCI subsystem works with the quirks).
 
-Looks like ide.c uses single-byte requests just for checking
-region availability, but I would think that it should use
-full-sized requests for that.
+On Intel chipsets just enabling it is fine - i haven't heard of a MSI problem
+there so far. Detecting Intel chipsets can be tricky though - there are
+AMD systems with Intel PCI bridges now. I suppose any blacklist will be 
+per bridge.
 
+Just on AMD there seems to be no PCI-X bridge that actually works with MSI without
+hacks and PCI-E seems to be quite spotty too (e.g. BCM at least partly broken) 
 
-> If you're keen , the place to poke around is in
-> kernel/resource.c:__request_region().   Here's a starting patch:
-> 
-> 
-> --- a/kernel/resource.c~a
-> +++ a/kernel/resource.c
-> @@ -501,6 +501,10 @@ struct resource * __request_region(struc
->  			conflict = __request_resource(parent, res);
->  			if (!conflict)
->  				break;
-> +			printk("conflict: %s[%Lx->%Lx]\n",
-> +				conflict->name,
-> +				(unsigned long long)conflict->start,
-> +				(unsigned long long)conflict->end);
->  			if (conflict != parent) {
->  				parent = conflict;
->  				if (!(conflict->flags & IORESOURCE_BUSY))
-> _
-> 
-> Which should tell us what we're allegedly conflicting with.
-> 
-> 
-> 
-> 
-> Then again, perhaps IDE is broken (as well?), because you don't have any
-> single-byte iomem regions in your 2.6.17-rc6 /proc/iomem.  It would be
-> interesting to run this patch in both 2.6.17-rc6 and in 2.6.17-rc6-mm2, see
-> what it says:
-> 
-> diff -puN drivers/ide/ide.c~a drivers/ide/ide.c
-> --- 25/drivers/ide/ide.c~a	Tue Jun 20 15:01:32 2006
-> +++ 25-akpm/drivers/ide/ide.c	Tue Jun 20 15:02:15 2006
-> @@ -364,6 +364,10 @@ static struct resource* hwif_request_reg
->  {
->  	struct resource *res = request_region(addr, num, hwif->name);
->  
-> +	if (num == 1) {
-> +		printk("%s: single-byte request\n", __FUNCTION__);
-> +		dump_stack();
-> +	}
->  	if (!res)
->  		printk(KERN_ERR "%s: I/O resource 0x%lX-0x%lX not free.\n",
->  				hwif->name, addr, addr+num-1);
-> _
+Brice claims BCM can be fixed with a quirk and Petr claimed AMD 8132 can be fixed
+with a quirk, but my personal feeling is that it is very risky to do so because
+if these bits are not enabled by default they are likely unvalidated and might break
+in subtle ways under high load (past experiences with forcing hardware features
+on against BIOS wishes were usually negative) 
 
+The good message is that AMD without quirk they don't do anything so it would just
+not be enabled and at least not break anything.
 
-linux-2617-pv/drivers/ide> grep hwif_request_reg *.c
-ide.c:static struct resource* hwif_request_region(ide_hwif_t *hwif,
-ide.c: *        ide_hwif_request_regions - request resources for IDE
-ide.c:int ide_hwif_request_regions(ide_hwif_t *hwif)
-ide.c:  if (addr && !hwif_request_region(hwif, addr, 1))
-ide.c:          if (!hwif_request_region(hwif, addr, 8))
-ide.c:          if (!hwif_request_region(hwif, addr, 1)) {
+BCM seems to need a blacklist to force MSI off (or at least tg3 is complaining
+that MSI doesn't work). I guess we can try to contact someone at BCM
+and ask them if they actually tested it. If they did then enabling it would
+be fine.
 
----
-~Randy
+NForce4 PCI Express is an unknown - we'll see how that works.
+
+-Andi

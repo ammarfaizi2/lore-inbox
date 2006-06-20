@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWFTWbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWFTWcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWFTWbi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWFTW3D
+	id S1751398AbWFTWcM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWFTWbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:29:03 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53732 "EHLO
+	Tue, 20 Jun 2006 18:31:41 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43741 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751339AbWFTW2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:28:53 -0400
+	id S1751401AbWFTW3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:29:24 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
@@ -28,232 +28,406 @@ Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
        Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
        Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4/25] msi: Simplify msi enable and disable.
+Subject: [PATCH 17/25] x86_64 irq: Remove the msi assumption that irq == vector
 Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:17 -0600
-Message-Id: <11508425191063-git-send-email-ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:30 -0600
+Message-Id: <1150842524755-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425192220-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <1150842524863-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com> <1150842523493-git-send-email-ebiederm@xmission.com> <11508425231168-git-send-email-ebiederm@xmission.com> <1150842524863-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem.  Because the disable routines leave the msi interrupts in all
-sorts of half enabled states the enable routines become impossible
-to implement correctly, and almost impossible to understand.
+This patch removes the change in behavior of the irq allocation
+code when CONFIG_PCI_MSI is defined.  Removing all instances
+of the assumption that irq == vector.
 
-Simplifing this allows me to simply kill the buggy reroute_msix_table,
-and generally makes the code more maintainable.
+create_irq is rewritten to first allocate a free irq and then to
+assign that irq a vector.
+
+assign_irq_vector is made static and the AUTO_ASSIGN case which
+allocates an vector not bound to an irq is removed.
+
+The ioapic vector methods are removed, and everything now
+works with irqs.
+
+The definition of NR_IRQS no longer depends on CONFIG_PCI_MSI
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/pci/msi.c |  122 +++++++----------------------------------------------
- 1 files changed, 16 insertions(+), 106 deletions(-)
+ arch/x86_64/kernel/io_apic.c |  147 +++++++++++++-----------------------------
+ include/asm-x86_64/hw_irq.h  |    1 
+ include/asm-x86_64/io_apic.h |   40 -----------
+ include/asm-x86_64/irq.h     |    5 -
+ 4 files changed, 45 insertions(+), 148 deletions(-)
 
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 76d023d..c1c93f0 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -915,7 +915,6 @@ int pci_enable_msi(struct pci_dev* dev)
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+index 7ad0980..1a63a0e 100644
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -44,6 +44,8 @@ #include <asm/dma.h>
+ #include <asm/nmi.h>
+ #include <asm/msidef.h>
+ 
++static int assign_irq_vector(int irq);
++
+ #define __apicdebuginit  __init
+ 
+ int sis_apic_bug; /* not actually supported, dummy for compile */
+@@ -83,14 +85,6 @@ static struct irq_pin_list {
+ 	short apic, pin, next;
+ } irq_2_pin[PIN_MAP_SIZE];
+ 
+-int vector_irq[NR_VECTORS] __read_mostly = { [0 ... NR_VECTORS - 1] = -1};
+-#ifdef CONFIG_PCI_MSI
+-#define vector_to_irq(vector) 	\
+-	(platform_legacy_irq(vector) ? vector : vector_irq[vector])
+-#else
+-#define vector_to_irq(vector)	(vector)
+-#endif
+-
+ #define __DO_ACTION(R, ACTION, FINAL)					\
+ 									\
+ {									\
+@@ -135,7 +129,7 @@ static void set_ioapic_affinity_irq(unsi
+ 
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+ 	__DO_ACTION(1, = dest, )
+-	set_irq_info(irq, mask);
++	set_native_irq_info(irq, mask);
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ }
+ #endif
+@@ -834,18 +828,14 @@ static inline int IO_APIC_irq_trigger(in
+ /* irq_vectors is indexed by the sum of all RTEs in all I/O APICs. */
+ u8 irq_vector[NR_IRQ_VECTORS] __read_mostly = { FIRST_DEVICE_VECTOR , 0 };
+ 
+-int assign_irq_vector(int irq)
++static int __assign_irq_vector(int irq)
  {
- 	struct pci_bus *bus;
- 	int pos, temp, status = -EINVAL;
--	u16 control;
- 
- 	if (!pci_msi_enable || !dev)
-  		return status;
-@@ -937,27 +936,8 @@ int pci_enable_msi(struct pci_dev* dev)
- 	if (!pos)
- 		return -EINVAL;
- 
--	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
--		/* Lookup Sucess */
--		unsigned long flags;
-+	BUG_ON(!msi_lookup_vector(dev, PCI_CAP_ID_MSI));
- 
--		pci_read_config_word(dev, msi_control_reg(pos), &control);
--		if (control & PCI_MSI_FLAGS_ENABLE)
--			return 0;	/* Already in MSI mode */
--		spin_lock_irqsave(&msi_lock, flags);
--		if (!vector_irq[dev->irq]) {
--			msi_desc[dev->irq]->msi_attrib.state = 0;
--			vector_irq[dev->irq] = -1;
--			nr_released_vectors--;
--			spin_unlock_irqrestore(&msi_lock, flags);
--			status = msi_register_init(dev, msi_desc[dev->irq]);
--			if (status == 0)
--				enable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
--			return status;
--		}
--		spin_unlock_irqrestore(&msi_lock, flags);
--		dev->irq = temp;
--	}
- 	/* Check whether driver already requested for MSI-X vectors */
- 	pos = pci_find_capability(dev, PCI_CAP_ID_MSIX);
- 	if (pos > 0 && !msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
-@@ -999,6 +979,8 @@ void pci_disable_msi(struct pci_dev* dev
- 	if (!(control & PCI_MSI_FLAGS_ENABLE))
- 		return;
- 
-+	disable_msi_mode(dev, pos, PCI_CAP_ID_MSI);
-+
- 	spin_lock_irqsave(&msi_lock, flags);
- 	entry = msi_desc[dev->irq];
- 	if (!entry || !entry->dev || entry->msi_attrib.type != PCI_CAP_ID_MSI) {
-@@ -1012,14 +994,12 @@ void pci_disable_msi(struct pci_dev* dev
- 		       pci_name(dev), dev->irq);
- 		BUG_ON(entry->msi_attrib.state > 0);
- 	} else {
--		vector_irq[dev->irq] = 0; /* free it */
--		nr_released_vectors++;
- 		default_vector = entry->msi_attrib.default_vector;
- 		spin_unlock_irqrestore(&msi_lock, flags);
-+		msi_free_vector(dev, dev->irq, 0);
-+
- 		/* Restore dev->irq to its default pin-assertion vector */
- 		dev->irq = default_vector;
--		disable_msi_mode(dev, pci_find_capability(dev, PCI_CAP_ID_MSI),
--					PCI_CAP_ID_MSI);
- 	}
- }
- 
-@@ -1067,57 +1047,6 @@ static int msi_free_vector(struct pci_de
- 	return 0;
- }
- 
--static int reroute_msix_table(int head, struct msix_entry *entries, int *nvec)
--{
--	int vector = head, tail = 0;
--	int i, j = 0, nr_entries = 0;
--	void __iomem *base;
+ 	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
 -	unsigned long flags;
+ 	int vector;
+ 
+-	BUG_ON(irq != AUTO_ASSIGN && (unsigned)irq >= NR_IRQ_VECTORS);
 -
--	spin_lock_irqsave(&msi_lock, flags);
--	while (head != tail) {
--		nr_entries++;
--		tail = msi_desc[vector]->link.tail;
--		if (entries[0].entry == msi_desc[vector]->msi_attrib.entry_nr)
--			j = vector;
--		vector = tail;
--	}
--	if (*nvec > nr_entries) {
--		spin_unlock_irqrestore(&msi_lock, flags);
--		*nvec = nr_entries;
--		return -EINVAL;
--	}
--	vector = ((j > 0) ? j : head);
--	for (i = 0; i < *nvec; i++) {
--		j = msi_desc[vector]->msi_attrib.entry_nr;
--		msi_desc[vector]->msi_attrib.state = 0;	/* Mark it not active */
--		vector_irq[vector] = -1;		/* Mark it busy */
--		nr_released_vectors--;
--		entries[i].vector = vector;
--		if (j != (entries + i)->entry) {
--			base = msi_desc[vector]->mask_base;
--			msi_desc[vector]->msi_attrib.entry_nr =
--				(entries + i)->entry;
--			writel( readl(base + j * PCI_MSIX_ENTRY_SIZE +
--				PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET), base +
--				(entries + i)->entry * PCI_MSIX_ENTRY_SIZE +
--				PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
--			writel(	readl(base + j * PCI_MSIX_ENTRY_SIZE +
--				PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET), base +
--				(entries + i)->entry * PCI_MSIX_ENTRY_SIZE +
--				PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
--			writel( (readl(base + j * PCI_MSIX_ENTRY_SIZE +
--				PCI_MSIX_ENTRY_DATA_OFFSET) & 0xff00) | vector,
--				base + (entries+i)->entry*PCI_MSIX_ENTRY_SIZE +
--				PCI_MSIX_ENTRY_DATA_OFFSET);
--		}
--		vector = msi_desc[vector]->link.tail;
--	}
--	spin_unlock_irqrestore(&msi_lock, flags);
+-	spin_lock_irqsave(&vector_lock, flags);
++	BUG_ON((unsigned)irq >= NR_IRQ_VECTORS);
+ 
+-	if (irq != AUTO_ASSIGN && IO_APIC_VECTOR(irq) > 0) {
+-		spin_unlock_irqrestore(&vector_lock, flags);
++	if (IO_APIC_VECTOR(irq) > 0) {
+ 		return IO_APIC_VECTOR(irq);
+ 	}
+ next:
+@@ -860,10 +850,18 @@ next:
+ 	}
+ 
+ 	vector = current_vector;
+-	vector_irq[vector] = irq;
+-	if (irq != AUTO_ASSIGN)
+-		IO_APIC_VECTOR(irq) = vector;
++	IO_APIC_VECTOR(irq) = vector;
+ 
++	return vector;
++}
++
++static int assign_irq_vector(int irq)
++{
++	int vector;
++	unsigned long flags;
++
++	spin_lock_irqsave(&vector_lock, flags);
++	vector = __assign_irq_vector(irq);
+ 	spin_unlock_irqrestore(&vector_lock, flags);
+ 
+ 	return vector;
+@@ -879,18 +877,14 @@ #define IOAPIC_LEVEL	1
+ 
+ static void ioapic_register_intr(int irq, int vector, unsigned long trigger)
+ {
+-	unsigned idx;
 -
--	return 0;
+-	idx = use_pci_vector() && !platform_legacy_irq(irq) ? vector : irq;
+-
+ 	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
+ 			trigger == IOAPIC_LEVEL)
+-		set_irq_chip_and_handler(idx, &ioapic_chip,
++		set_irq_chip_and_handler(irq, &ioapic_chip,
+ 					 handle_fasteoi_irq);
+ 	else
+-		set_irq_chip_and_handler(idx, &ioapic_chip,
++		set_irq_chip_and_handler(irq, &ioapic_chip,
+ 					 handle_edge_irq);
+-	set_intr_gate(vector, interrupt[idx]);
++	set_intr_gate(vector, interrupt[irq]);
+ }
+ 
+ static void __init setup_IO_APIC_irqs(void)
+@@ -1110,17 +1104,12 @@ void __apicdebuginit print_IO_APIC(void)
+ 		);
+ 	}
+ 	}
+-	if (use_pci_vector())
+-		printk(KERN_INFO "Using vector-based indexing\n");
+ 	printk(KERN_DEBUG "IRQ to pin mappings:\n");
+ 	for (i = 0; i < NR_IRQS; i++) {
+ 		struct irq_pin_list *entry = irq_2_pin + i;
+ 		if (entry->pin < 0)
+ 			continue;
+- 		if (use_pci_vector() && !platform_legacy_irq(i))
+-			printk(KERN_DEBUG "IRQ%d ", IO_APIC_VECTOR(i));
+-		else
+-			printk(KERN_DEBUG "IRQ%d ", i);
++		printk(KERN_DEBUG "IRQ%d ", i);
+ 		for (;;) {
+ 			printk("-> %d:%d", entry->apic, entry->pin);
+ 			if (!entry->next)
+@@ -1523,42 +1512,8 @@ static unsigned int startup_ioapic_irq(u
+ 	return was_pending;
+ }
+ 
+-static unsigned int startup_ioapic_vector(unsigned int vector)
+-{
+-	int irq = vector_to_irq(vector);
+-
+-	return startup_ioapic_irq(irq);
 -}
 -
- /**
-  * pci_enable_msix - configure device's MSI-X capability structure
-  * @dev: pointer to the pci_dev data structure of MSI-X device function
-@@ -1160,9 +1089,6 @@ int pci_enable_msix(struct pci_dev* dev,
-  		return -EINVAL;
- 
- 	pci_read_config_word(dev, msi_control_reg(pos), &control);
--	if (control & PCI_MSIX_FLAGS_ENABLE)
--		return -EINVAL;			/* Already in MSI-X mode */
+-static void mask_ioapic_vector (unsigned int vector)
++static int ioapic_retrigger_irq(unsigned int irq)
+ {
+-	int irq = vector_to_irq(vector);
 -
- 	nr_entries = multi_msix_capable(control);
- 	if (nvec > nr_entries)
- 		return -EINVAL;
-@@ -1177,19 +1103,8 @@ int pci_enable_msix(struct pci_dev* dev,
- 		}
- 	}
- 	temp = dev->irq;
--	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
--		/* Lookup Sucess */
--		nr_entries = nvec;
--		/* Reroute MSI-X table */
--		if (reroute_msix_table(dev->irq, entries, &nr_entries)) {
--			/* #requested > #previous-assigned */
--			dev->irq = temp;
--			return nr_entries;
+-	mask_IO_APIC_irq(irq);
+-}
+-
+-static void unmask_ioapic_vector (unsigned int vector)
+-{
+-	int irq = vector_to_irq(vector);
+-
+-	unmask_IO_APIC_irq(irq);
+-}
+-
+-#ifdef CONFIG_SMP
+-static void set_ioapic_affinity_vector (unsigned int vector,
+-					cpumask_t cpu_mask)
+-{
+-	int irq = vector_to_irq(vector);
+-
+-	set_native_irq_info(vector, cpu_mask);
+-	set_ioapic_affinity_irq(irq, cpu_mask);
+-}
+-#endif // CONFIG_SMP
+-
+-static int ioapic_retrigger_vector(unsigned int vector)
+-{
+-	int irq = vector_to_irq(vector);
+-
+ 	send_IPI_self(IO_APIC_VECTOR(irq));
+ 
+ 	return 1;
+@@ -1605,15 +1560,15 @@ static void ack_apic_level(unsigned int 
+ 
+ static struct irq_chip ioapic_chip __read_mostly = {
+ 	.name 		= "IO-APIC",
+-	.startup 	= startup_ioapic_vector,
+-	.mask	 	= mask_ioapic_vector,
+-	.unmask	 	= unmask_ioapic_vector,
++	.startup 	= startup_ioapic_irq,
++	.mask	 	= mask_IO_APIC_irq,
++	.unmask	 	= unmask_IO_APIC_irq,
+ 	.ack 		= ack_apic_edge,
+ 	.eoi 		= ack_apic_level,
+ #ifdef CONFIG_SMP
+-	.set_affinity 	= set_ioapic_affinity_vector,
++	.set_affinity 	= set_ioapic_affinity_irq,
+ #endif
+-	.retrigger	= ioapic_retrigger_vector,
++	.retrigger	= ioapic_retrigger_irq,
+ };
+ 
+ static inline void init_IO_APIC_traps(void)
+@@ -1633,11 +1588,6 @@ static inline void init_IO_APIC_traps(vo
+ 	 */
+ 	for (irq = 0; irq < NR_IRQS ; irq++) {
+ 		int tmp = irq;
+-		if (use_pci_vector()) {
+-			if (!platform_legacy_irq(tmp))
+-				if ((tmp = vector_to_irq(tmp)) == -1)
+-					continue;
 -		}
--		dev->irq = temp;
--		enable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
--		return 0;
--	}
-+	BUG_ON(!msi_lookup_vector(dev, PCI_CAP_ID_MSIX));
-+
- 	/* Check whether driver already requested for MSI vector */
-    	if (pci_find_capability(dev, PCI_CAP_ID_MSI) > 0 &&
- 		!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
-@@ -1248,37 +1163,32 @@ void pci_disable_msix(struct pci_dev* de
- 	if (!(control & PCI_MSIX_FLAGS_ENABLE))
- 		return;
+ 		if (IO_APIC_IRQ(tmp) && !IO_APIC_VECTOR(tmp)) {
+ 			/*
+ 			 * Hmm.. We don't have an entry for this,
+@@ -2014,34 +1964,31 @@ static int __init ioapic_init_sysfs(void
  
-+	disable_msi_mode(dev, pos, PCI_CAP_ID_MSIX);
-+
- 	temp = dev->irq;
- 	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSIX)) {
- 		int state, vector, head, tail = 0, warning = 0;
- 		unsigned long flags;
+ device_initcall(ioapic_init_sysfs);
  
- 		vector = head = dev->irq;
--		spin_lock_irqsave(&msi_lock, flags);
-+		dev->irq = temp;			/* Restore pin IRQ */
- 		while (head != tail) {
-+			spin_lock_irqsave(&msi_lock, flags);
- 			state = msi_desc[vector]->msi_attrib.state;
-+			tail = msi_desc[vector]->link.tail;
-+			spin_unlock_irqrestore(&msi_lock, flags);
- 			if (state)
- 				warning = 1;
--			else {
--				vector_irq[vector] = 0; /* free it */
--				nr_released_vectors++;
--			}
--			tail = msi_desc[vector]->link.tail;
-+			else if (vector != head)	/* Release MSI-X vector */
-+				msi_free_vector(dev, vector, 0);
- 			vector = tail;
- 		}
--		spin_unlock_irqrestore(&msi_lock, flags);
-+		msi_free_vector(dev, vector, 0);
- 		if (warning) {
--			dev->irq = temp;
- 			printk(KERN_WARNING "PCI: %s: pci_disable_msix() called without "
- 			       "free_irq() on all MSI-X vectors\n",
- 			       pci_name(dev));
- 			BUG_ON(warning > 0);
--		} else {
--			dev->irq = temp;
--			disable_msi_mode(dev,
--				pci_find_capability(dev, PCI_CAP_ID_MSIX),
--				PCI_CAP_ID_MSIX);
+-#ifdef CONFIG_PCI_MSI
+ /*
+- * Dynamic irq allocate and deallocation for MSI
++ * Dynamic irq allocate and deallocation
+  */
+ int create_irq(void)
+ {
+-	/* Hack of the day: irq == vector.
+-	 *
+-	 * Ultimately this will be be more general,
+-	 * and not depend on the irq to vector identity mapping.
+-	 * But this version is needed until msi.c can cope with
+-	 * the more general form.
+-	 */
+-	int irq, vector;
++	/* Allocate an unused irq */
++	int irq, new, vector;
+ 	unsigned long flags;
+-	vector = assign_irq_vector(AUTO_ASSIGN);
+-	irq = vector;
+ 
+-	if (vector >= 0) {
+-		struct irq_desc *desc;
++	irq = -ENOSPC;
++	spin_lock_irqsave(&vector_lock, flags);
++	for (new = (NR_IRQS - 1); new >= 0; new--) {
++		if (platform_legacy_irq(new))
++			continue;
++		if (irq_vector[new] != 0)
++			continue;
++		vector = __assign_irq_vector(new);
++		if (likely(vector > 0))
++			irq = new;
++		break;
++	}
++	spin_unlock_irqrestore(&vector_lock, flags);
+ 
+-		spin_lock_irqsave(&vector_lock, flags);
+-		vector_irq[vector] = irq;
+-		irq_vector[irq] = vector;
+-		spin_unlock_irqrestore(&vector_lock, flags);
+-		
++	if (irq >= 0) {
+ 		set_intr_gate(vector, interrupt[irq]);
 -
- 		}
+ 		dynamic_irq_init(irq);
  	}
+ 	return irq;
+@@ -2050,17 +1997,13 @@ int create_irq(void)
+ void destroy_irq(unsigned int irq)
+ {
+ 	unsigned long flags;
+-	unsigned int vector;
+ 
+ 	dynamic_irq_cleanup(irq);
+ 
+ 	spin_lock_irqsave(&vector_lock, flags);
+-	vector = irq_vector[irq];
+-	vector_irq[vector] = -1;
+ 	irq_vector[irq] = 0;
+ 	spin_unlock_irqrestore(&vector_lock, flags);
  }
+-#endif
+ 
+ /*
+  * MSI mesage composition
+@@ -2216,7 +2159,7 @@ int io_apic_set_pci_routing (int ioapic,
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+ 	io_apic_write(ioapic, 0x11+2*pin, *(((int *)&entry)+1));
+ 	io_apic_write(ioapic, 0x10+2*pin, *(((int *)&entry)+0));
+-	set_native_irq_info(use_pci_vector() ?  entry.vector : irq, TARGET_CPUS);
++	set_native_irq_info(irq, TARGET_CPUS);
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ 
+ 	return 0;
+diff --git a/include/asm-x86_64/hw_irq.h b/include/asm-x86_64/hw_irq.h
+index f5da94a..1a8dc18 100644
+--- a/include/asm-x86_64/hw_irq.h
++++ b/include/asm-x86_64/hw_irq.h
+@@ -75,7 +75,6 @@ #define FIRST_SYSTEM_VECTOR	0xef   /* du
+ #ifndef __ASSEMBLY__
+ extern u8 irq_vector[NR_IRQ_VECTORS];
+ #define IO_APIC_VECTOR(irq)	(irq_vector[irq])
+-#define AUTO_ASSIGN		-1
+ 
+ /*
+  * Various low-level irq details needed by irq.c, process.c,
+diff --git a/include/asm-x86_64/io_apic.h b/include/asm-x86_64/io_apic.h
+index fb7a090..2885bea 100644
+--- a/include/asm-x86_64/io_apic.h
++++ b/include/asm-x86_64/io_apic.h
+@@ -12,45 +12,7 @@ #include <asm/mpspec.h>
+ 
+ #ifdef CONFIG_X86_IO_APIC
+ 
+-#ifdef CONFIG_PCI_MSI
+-static inline int use_pci_vector(void)	{return 1;}
+-static inline void disable_edge_ioapic_vector(unsigned int vector) { }
+-static inline void mask_and_ack_level_ioapic_vector(unsigned int vector) { }
+-static inline void end_edge_ioapic_vector (unsigned int vector) { }
+-#define startup_level_ioapic	startup_level_ioapic_vector
+-#define shutdown_level_ioapic	mask_IO_APIC_vector
+-#define enable_level_ioapic	unmask_IO_APIC_vector
+-#define disable_level_ioapic	mask_IO_APIC_vector
+-#define mask_and_ack_level_ioapic mask_and_ack_level_ioapic_vector
+-#define end_level_ioapic	end_level_ioapic_vector
+-#define set_ioapic_affinity	set_ioapic_affinity_vector
+-
+-#define startup_edge_ioapic 	startup_edge_ioapic_vector
+-#define shutdown_edge_ioapic 	disable_edge_ioapic_vector
+-#define enable_edge_ioapic 	unmask_IO_APIC_vector
+-#define disable_edge_ioapic 	disable_edge_ioapic_vector
+-#define ack_edge_ioapic 	ack_edge_ioapic_vector
+-#define end_edge_ioapic 	end_edge_ioapic_vector
+-#else
+ static inline int use_pci_vector(void)	{return 0;}
+-static inline void disable_edge_ioapic_irq(unsigned int irq) { }
+-static inline void mask_and_ack_level_ioapic_irq(unsigned int irq) { }
+-static inline void end_edge_ioapic_irq (unsigned int irq) { }
+-#define startup_level_ioapic	startup_level_ioapic_irq
+-#define shutdown_level_ioapic	mask_IO_APIC_irq
+-#define enable_level_ioapic	unmask_IO_APIC_irq
+-#define disable_level_ioapic	mask_IO_APIC_irq
+-#define mask_and_ack_level_ioapic mask_and_ack_level_ioapic_irq
+-#define end_level_ioapic	end_level_ioapic_irq
+-#define set_ioapic_affinity	set_ioapic_affinity_irq
+-
+-#define startup_edge_ioapic 	startup_edge_ioapic_irq
+-#define shutdown_edge_ioapic 	disable_edge_ioapic_irq
+-#define enable_edge_ioapic 	unmask_IO_APIC_irq
+-#define disable_edge_ioapic 	disable_edge_ioapic_irq
+-#define ack_edge_ioapic 	ack_edge_ioapic_irq
+-#define end_edge_ioapic 	end_edge_ioapic_irq
+-#endif
+ 
+ #define APIC_MISMATCH_DEBUG
+ 
+@@ -213,8 +175,6 @@ #else  /* !CONFIG_X86_IO_APIC */
+ #define io_apic_assign_pci_irqs 0
+ #endif
+ 
+-extern int assign_irq_vector(int irq);
+-
+ void enable_NMI_through_LVT0 (void * dummy);
+ 
+ extern spinlock_t i8259A_lock;
+diff --git a/include/asm-x86_64/irq.h b/include/asm-x86_64/irq.h
+index 9db5a1b..0c8d570 100644
+--- a/include/asm-x86_64/irq.h
++++ b/include/asm-x86_64/irq.h
+@@ -31,13 +31,8 @@ #define NR_VECTORS 256
+ 
+ #define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
+ 
+-#ifdef CONFIG_PCI_MSI
+-#define NR_IRQS FIRST_SYSTEM_VECTOR
+-#define NR_IRQ_VECTORS NR_IRQS
+-#else
+ #define NR_IRQS 224
+ #define NR_IRQ_VECTORS (32 * NR_CPUS)
+-#endif
+ 
+ static __inline__ int irq_canonicalize(int irq)
+ {
 -- 
 1.4.0.gc07e
 

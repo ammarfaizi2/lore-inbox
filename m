@@ -1,57 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWFTJFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWFTJHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbWFTJFe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 05:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbWFTJFe
+	id S1030187AbWFTJHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 05:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWFTJHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 05:05:34 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:34974 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S965079AbWFTJFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 05:05:34 -0400
-Date: Tue, 20 Jun 2006 11:05:32 +0200
-From: Andreas Mohr <andim2@users.sourceforge.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       hal@lists.freedesktop.org
-Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner underruns, USB HDD hard resets)
-Message-ID: <20060620090532.GA6170@rhlx01.fht-esslingen.de>
-Reply-To: andi@lisas.de
-References: <20060619082154.GA17129@rhlx01.fht-esslingen.de> <20060620013741.8e0e4a22.akpm@osdl.org> <1150794417.11062.30.camel@localhost.localdomain>
+	Tue, 20 Jun 2006 05:07:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49059 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030187AbWFTJHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 05:07:17 -0400
+Date: Tue, 20 Jun 2006 02:07:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH] Clear abnormal poweroff flag on VIA southbridges, fix
+ resume
+Message-Id: <20060620020713.84bddbb4.akpm@osdl.org>
+In-Reply-To: <20060620085429.GB27362@srcf.ucam.org>
+References: <20060618191421.GA15358@srcf.ucam.org>
+	<20060619230144.155bc938.akpm@osdl.org>
+	<20060620085429.GB27362@srcf.ucam.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150794417.11062.30.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 20 Jun 2006 09:54:29 +0100
+Matthew Garrett <mjg59@srcf.ucam.org> wrote:
 
-On Tue, Jun 20, 2006 at 10:06:56AM +0100, Alan Cox wrote:
-> Ar Maw, 2006-06-20 am 01:37 -0700, ysgrifennodd Andrew Morton:
-> > [hald polling causes cdrecord to go bad on a USB CD drive]
-> > 
-> > One possible reason is that we're shooting down the device's pagecache by
-> > accident as a result of hald activity. 
-> 
-> On IDE hal causes problems with some drives because the additional
-> commands sent while the drive is busy end up timing out which triggers a
-> bus reset and breaks everything. Really HAL should have better manners
-> than to poll a drive that is busy.
+> CONFIG_ACPI_SLEEP might be a better choice than CONFIG_ACPI, 
+> yes.
 
-But how would HAL safely determine whether a (IDE/USB) drive is busy?
-As my test app demonstrates (without HAL running), the *very first* open()
-happening during an ongoing burning operation will kill it instantly, in the
-USB case.
-Are there any options left for HAL at all? Still seems to strongly point
-towards a kernel issue so far.
-
-One (rather less desireable) way I can make up might be to have HAL
-keep the device open permanently and do an ioctl query on whether it's "busy"
-and then quickly close the device again before the newly started
-burning process gets disrupted (if this even properly works at all).
-
-Andreas Mohr
+OK, I diddled the diff to use CONFIG_ACPI_SLEEP, thanks.

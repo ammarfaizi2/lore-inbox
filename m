@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWFTI1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWFTI2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWFTI1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFTI1b
+	id S965027AbWFTI2F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWFTI2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:27:31 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:60614 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932166AbWFTI1a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:27:30 -0400
-Message-ID: <4497B16E.6020103@garzik.org>
-Date: Tue, 20 Jun 2006 04:27:26 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: discuss@x86-64.org, Dave Olson <olson@unixfolk.com>,
-       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
-       Greg Lindahl <greg.lindahl@qlogic.com>, gregkh@suse.de
-Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
- Hyper-transport capabilities
-References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <200606200925.30926.ak@suse.de> <4497ABAC.4030305@garzik.org> <200606201013.51564.ak@suse.de>
-In-Reply-To: <200606201013.51564.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+	Tue, 20 Jun 2006 04:28:05 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:65508 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S965015AbWFTI2D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:28:03 -0400
+Date: Tue, 20 Jun 2006 03:27:45 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
+Message-ID: <20060620082745.GA28092@sergelap>
+References: <20060615144331.GB16046@sergelap.austin.ibm.com> <20060619201450.3434f72f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060619201450.3434f72f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Tuesday 20 June 2006 10:02, Jeff Garzik wrote:
->> Andi Kleen wrote:
->>> So if there are any more MSI problems comming up IMHO it should be white list/disabled 
->>> by default and only turn on after a long time when Windows uses it by default 
->>> or something. Greg, do you agree?
->>
->> We should be optimists, not pessimists.
-> 
-> Yes, booting on all systems is overrated anyways, isn't it?
+Quoting Andrew Morton (akpm@osdl.org):
+> OK.  But if we're going to convert to the kthread API then stopmachine()
+> really whould be switched to the more efficient kthread_bind().
 
-Don't be silly.  Whatever solution is arrived at will boot on all 
-systems.  That's an obvious operational requirement.
+Ah, like so?
 
-This is how new technology always works in Linux.  We turn it on and see 
-what works, and what doesn't.  And whether existing problems will 
-disappear.  With MSI, I think we see them disappearing.
+Rusty, do you feel this makes the conversion less of a step backward?
+If not, Andrew, as Rusty pointed out, stop_machine.c does not fall into
+the set of kernel_thread users which need to be updated either for the
+deprecation or to deal with pid namespaces, and perhaps my previous
+patch should not be applied after all.
 
-Newer systems seem to be doing better with MSI, in part because 
-PCI-Express and other technologies trend towards MSI-style operation.
+thanks,
+-serge
 
-And the kernel's MSI code is finally getting cleaned up, and getting the 
-attention it needs.
+From: Serge E. Hallyn <serue@us.ibm.com>
+Date: Tue, 20 Jun 2006 03:17:44 -0500
+Subject: [PATCH] kthread: convert stop_machine to use kthread_bind
 
+Convert stop_machine to use the more efficient kthread_bind()
+in place of set_cpus_allowed().
 
->> MSI is useful enough that we should turn it on by default in newer systems.
-> 
-> That is what we've tried so far and it seems to not work.
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 
-IMO that's an exaggeration.  On 50% of the x86-64 platforms (Intel), MSI 
-has been working for quite some time.  On newer systems in the other 
-half of the platforms, MSI seems be more usable than it has been in the 
-past.
+---
 
-	Jeff
+ kernel/stop_machine.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+831c955bcc8572f0aea75ab608ed5da37680df4e
+diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
+index 2dd5a48..a462deb 100644
+--- a/kernel/stop_machine.c
++++ b/kernel/stop_machine.c
+@@ -31,7 +31,7 @@ static int stopmachine(void *cpu)
+ 	int irqs_disabled = 0;
+ 	int prepared = 0;
+ 
+-	set_cpus_allowed(current, cpumask_of_cpu((int)(long)cpu));
++	kthread_bind(current, (unsigned int)(long)cpu);
+ 
+ 	/* Ack: we are alive */
+ 	smp_mb(); /* Theoretically the ack = 0 might not be on this CPU yet. */
+-- 
+1.3.3
 

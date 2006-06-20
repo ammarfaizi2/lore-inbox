@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWFTWHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWFTWIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWFTWHb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWFTWHb
+	id S1751243AbWFTWIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWFTWIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:07:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34755 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751234AbWFTWHa (ORCPT
+	Tue, 20 Jun 2006 18:08:46 -0400
+Received: from gate.crashing.org ([63.228.1.57]:459 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751243AbWFTWIp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:07:30 -0400
-Date: Tue, 20 Jun 2006 15:10:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: <ravinandan.arakali@neterion.com>
-Cc: tglx@linutronix.de, dgc@sgi.com, mingo@elte.hu, neilb@suse.de,
-       jblunck@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-       balbir@in.ibm.com, ananda.raju@neterion.com,
-       leonid.grossman@neterion.com, jes@trained-monkey.org
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
- list (2nd version)
-Message-Id: <20060620151019.797f120c.akpm@osdl.org>
-In-Reply-To: <006d01c694b1$4208c0f0$3e10100a@pc.s2io.com>
-References: <20060619173712.1144b332.akpm@osdl.org>
-	<006d01c694b1$4208c0f0$3e10100a@pc.s2io.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 20 Jun 2006 18:08:45 -0400
+Subject: Re: [patch 0/3] 2.6.17 radix-tree: updates and lockless
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Paul McKenney <Paul.McKenney@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+In-Reply-To: <20060408134635.22479.79269.sendpatchset@linux.site>
+References: <20060408134635.22479.79269.sendpatchset@linux.site>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 08:08:10 +1000
+Message-Id: <1150841290.1901.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ravinandan Arakali" <ravinandan.arakali@neterion.com> wrote:
->
-> Do you want the patch to be submitted to netdev(the mailing list that we
-> usually submit to) ?
+On Tue, 2006-06-20 at 16:48 +0200, Nick Piggin wrote:
+> I've finally ported the RCU radix tree over my radix tree direct-data patch
+> (the latter patch has been in -mm for a while now).
+> 
+> I've also done the last step required for submission, which was to make a
+> small userspace RCU test harness, and wire up the rtth so that it can handle
+> multiple threads to test the lockless capability. The RCU test harness uses
+> an implementation somewhat like Paul's paper's quiescent state bitmask
+> approach; with infrequent quiescent state updates, performance isn't bad.
+> 
+> This quickly flushed out several obscure bugs just when running on my dual
+> G5. After fixing those, I racked up about 100 CPU hours of testing on
+> SUSE's 64-way Altix without problem. Also passes the normal battery of
+> single threaded rtth tests.
+> 
+> I'd like to hear views regarding merging these patches for 2.6.18. Initially
+> the lockless code would not come into effect (good - one thing at a time)
+> until tree_lock can start getting lifted in -mm and 2.6.19.
 
-If the patches are a formal submission then please send them to Jeff,
-netdev and I'd like a cc too.
+I'm all about it. As I said earlier, I discovered that pp64 has been
+abusing radix tree expecting them to work lockless in it's interrupt
+management for ages (at least insert vs. search). Fortunatley, the race
+is rare enough that it might never have been happening in practice but
+still... It would kill me to have to add a big global spinlock on
+interrupt handling to fix that so yeah, go for it !
 
-If they are not considered quite ready for submission then please just send
-them to myself, thanks.  A netdev cc would be appropriate as well.  Basically
-I just want to get that sn2 machine to boot.
+Ben.
 
-Generally it's better to cc too many mailing lists and individuals than too
-few.
+

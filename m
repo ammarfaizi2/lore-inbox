@@ -1,124 +1,518 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWFTWjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWFTWi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWFTWjj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWFTWji
+	id S1751356AbWFTWi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWFTWi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:39:38 -0400
-Received: from melchior.nuitari.net ([209.222.54.175]:52876 "EHLO
-	melchior.nuitari.net") by vger.kernel.org with ESMTP
-	id S1751355AbWFTWjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:39:02 -0400
-Date: Tue, 20 Jun 2006 18:37:16 -0400 (EDT)
-From: Nuitari <nuitari@melchior.nuitari.net>
-To: linux-kernel@vger.kernel.org
-Subject: pci=assign-busses on Compaq R3440CA
-Message-ID: <Pine.LNX.4.64.0606201807090.15246@melchior.nuitari.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 20 Jun 2006 18:38:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56036 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751341AbWFTW24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:28:56 -0400
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>, <discuss@x86-64.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andi Kleen <ak@suse.de>,
+       "Natalie Protasevich" <Natalie.Protasevich@UNISYS.com>,
+       "Len Brown" <len.brown@intel.com>,
+       "Kimball Murray" <kimball.murray@gmail.com>,
+       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
+       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
+       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
+       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
+       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
+       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 7/25] msi: Refactor the msi_ops.
+Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:20 -0600
+Message-Id: <1150842520775-git-send-email-ebiederm@xmission.com>
+X-Mailer: git-send-email 1.4.0.gc07e
+In-Reply-To: <11508425201406-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The current msi_ops are short sighted in a number of ways, this
+patch attempts to fix the glaring deficiences.
 
-I have a Compaq R3440CA laptop.
+- Report in msi_ops if a 64bit address is needed in the msi message,
+  so we can fail 32bit only msi structures.
 
-Without the pci=assign-busses option I have this happenning:
+- Send and receive a full struct msi_msg in both setup and target.
+  This is a little cleaner and allows for architectures that need
+  to modify the data to retarget the msi interrupt to a different cpu.
 
-[   13.311216] PCI: Bus #03 (-#06) is hidden behind  bridge #02 (-#02) (try 'pci=assign-busses')
-[   13.311292] Please report the result to linux-kernel to fix this permanently
-[   13.311386] PCI: Bus #07 (-#0a) is hidden behind  bridge #02 (-#02) (try 'pci=assign-busses')
-[   13.311462] Please report the result to linux-kernel to fix this permanently
+- In target pass in the full cpu mask instead of just the first
+  cpu in case we can make use of the full cpu mask.
 
-This is lspci without the option:
-00:00.0 Host bridge: nVidia Corporation nForce3 Host Bridge (rev a4)
-00:01.0 ISA bridge: nVidia Corporation nForce3 LPC Bridge (rev a6)
-00:01.1 SMBus: nVidia Corporation nForce3 SMBus (rev a4)
-00:02.0 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
-00:02.1 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
-00:02.2 USB Controller: nVidia Corporation nForce3 USB 2.0 (rev a2)
-00:06.0 Multimedia audio controller: nVidia Corporation nForce3 Audio (rev a2)
-00:06.1 Modem: nVidia Corporation Unknown device 00d9 (rev a2)
-00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5)
-00:0a.0 PCI bridge: nVidia Corporation nForce3 PCI Bridge (rev a2)
-00:0b.0 PCI bridge: nVidia Corporation nForce3 AGP Bridge (rev a4)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 420 Go 32M] (rev a3)
-02:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link)
-02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-02:02.0 Network controller: Broadcom Corporation BCM4306 802.11b/g Wireless LAN Controller (rev 03)
-02:04.0 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
-02:04.1 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
-02:04.2 System peripheral: Texas Instruments PCI1620 Firmware Loading Function (rev 01)
+- Operate in terms of irqs and not vectors, currently there
+  is still a 1-1 relationship but on architectures other than
+  ia64 I expect this will change.
 
-and this is lspci with the option:
-fistandantilus ~ # lspci
-00:00.0 Host bridge: nVidia Corporation nForce3 Host Bridge (rev a4)
-00:01.0 ISA bridge: nVidia Corporation nForce3 LPC Bridge (rev a6)
-00:01.1 SMBus: nVidia Corporation nForce3 SMBus (rev a4)
-00:02.0 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
-00:02.1 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
-00:02.2 USB Controller: nVidia Corporation nForce3 USB 2.0 (rev a2)
-00:06.0 Multimedia audio controller: nVidia Corporation nForce3 Audio (rev a2)
-00:06.1 Modem: nVidia Corporation Unknown device 00d9 (rev a2)
-00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5)
-00:0a.0 PCI bridge: nVidia Corporation nForce3 PCI Bridge (rev a2)
-00:0b.0 PCI bridge: nVidia Corporation nForce3 AGP Bridge (rev a4)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-01:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link)
-01:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-01:02.0 Network controller: Broadcom Corporation BCM4306 802.11b/g Wireless LAN Controller (rev 03)
-01:04.0 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
-01:04.1 CardBus bridge: Texas Instruments PCI1620 PC Card Controller (rev 01)
-01:04.2 System peripheral: Texas Instruments PCI1620 Firmware Loading Function (rev 01)
-0a:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 420 Go 32M] (rev a3)
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ drivers/pci/msi-altix.c |   49 +++++++++++++++++++------------------
+ drivers/pci/msi-apic.c  |   36 ++++++++++++++-------------
+ drivers/pci/msi.c       |   22 ++++++++---------
+ drivers/pci/msi.h       |   62 -----------------------------------------------
+ include/linux/pci.h     |   62 +++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 116 insertions(+), 115 deletions(-)
 
-
-Initially I though that pci=assign-busses fixed a boot up BUG, however it 
-reappered in subsequent testing. The bug happens when udev-090 is 
-processing the events.
-
-[   30.687843] usbcore: registered new driver usbfs
-[   30.687929] usbcore: registered new driver hub
-[   30.699191] acpi_bus-0201 [04] bus_set_power         : Device is not power manageable
-[   30.700367] ACPI: PCI Interrupt Link [LUS2] enabled at IRQ 20
-[   30.700430] GSI 20 sharing vector 0xD1 and IRQ 20
-[   30.700488] ACPI: PCI Interrupt 0000:00:02.2[C] -> Link [LUS2] -> GSI 20 (level, low) -> IRQ 209
-[   30.700890] PCI: Setting latency timer of device 0000:00:02.2 to 64
-[   30.700898] ehci_hcd 0000:00:02.2: EHCI Host Controller
-[   30.701169] ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 1
-[   30.701280] PCI: cache line size of 64 is not supported by device 0000:00:02.2
-[   30.701292] ehci_hcd 0000:00:02.2: irq 209, io mem 0xe0004000
-[   30.701352] ehci_hcd 0000:00:02.2: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
-[   30.701510] usb usb1: configuration #1 chosen from 1 choice
-[   30.701591] hub 1-0:1.0: USB hub found
-[   30.701651] hub 1-0:1.0: 6 ports detected
-[   30.702436] ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-[   30.817058] acpi_bus-0201 [04] bus_set_power         : Device is not power manageable
-[   30.817202] PCI: Enabling device 0000:00:02.0 (0004 -> 0006)
-// Long waiting period here
-[   91.732028] BUG: soft lockup detected on CPU#0!
-[   91.732083]
-[   91.732084] Call Trace: <IRQ> <ffffffff802ad30c>{softlockup_tick+188}
-[   91.732273]        <ffffffff80297677>{update_process_times+87} <ffffffff80277e42>{main_timer_handler+562}
-[   91.732479]        <ffffffff802780c5>{timer_interrupt+21} <ffffffff8021082c>{handle_IRQ_event+44}
-[   91.732682]        <ffffffff802ad4ee>{__do_IRQ+190} <ffffffff80276af9>{do_IRQ+57}
-[   91.732882]        <ffffffff802679cc>{ret_from_intr+0} <ffffffff80404b90>{acpi_pci_irq_enable+0}
-[   91.733086]        <ffffffff8021081a>{handle_IRQ_event+26} <ffffffff80293166>{tasklet_action+70}
-[   91.733287]        <ffffffff802ad4ee>{__do_IRQ+190} <ffffffff80276af9>{do_IRQ+57}
-[   91.733486]        <ffffffff802679cc>{ret_from_intr+0} <EOI> <ffffffff80404b90>{acpi_pci_irq_enable+0}
-[   91.733719]        <ffffffff80404cc1>{acpi_pci_irq_enable+305} <ffffffff80404bda>{acpi_pci_irq_enable+74}
-[   91.733921]        <ffffffff803afd75>{pci_enable_device_bars+53} <ffffffff803afdab>{pci_enable_device+27}
-[   91.734127]        <ffffffff88011643>{:usbcore:usb_hcd_pci_probe+83} <ffffffff803b1659>{pci_device_probe+89}
-[   91.734367]        <ffffffff8042d125>{driver_probe_device+101} <ffffffff8042d200>{__driver_attach+0}
-[   91.734572]        <ffffffff8042d256>{__driver_attach+86} <ffffffff8042d200>{__driver_attach+0}
-[   91.735825]        <ffffffff8042ca09>{bus_for_each_dev+73} <ffffffff8042c5d8>{bus_add_driver+136}
-[   91.736027]        <ffffffff803b1891>{__pci_register_driver+65} <ffffffff802a69fc>{sys_init_module+188}
-[   91.736229]        <ffffffff802674d2>{system_call+126}
+diff --git a/drivers/pci/msi-altix.c b/drivers/pci/msi-altix.c
+index bed4183..7aedc2a 100644
+--- a/drivers/pci/msi-altix.c
++++ b/drivers/pci/msi-altix.c
+@@ -26,7 +26,7 @@ struct sn_msi_info {
+ static struct sn_msi_info *sn_msi_info;
+ 
+ static void
+-sn_msi_teardown(unsigned int vector)
++sn_msi_teardown(unsigned int irq)
+ {
+ 	nasid_t nasid;
+ 	int widget;
+@@ -36,7 +36,7 @@ sn_msi_teardown(unsigned int vector)
+ 	struct pcibus_bussoft *bussoft;
+ 	struct sn_pcibus_provider *provider;
+ 
+-	sn_irq_info = sn_msi_info[vector].sn_irq_info;
++	sn_irq_info = sn_msi_info[irq].sn_irq_info;
+ 	if (sn_irq_info == NULL || sn_irq_info->irq_int_bit >= 0)
+ 		return;
+ 
+@@ -45,9 +45,9 @@ sn_msi_teardown(unsigned int vector)
+ 	provider = SN_PCIDEV_BUSPROVIDER(pdev);
+ 
+ 	(*provider->dma_unmap)(pdev,
+-			       sn_msi_info[vector].pci_addr,
++			       sn_msi_info[irq].pci_addr,
+ 			       PCI_DMA_FROMDEVICE);
+-	sn_msi_info[vector].pci_addr = 0;
++	sn_msi_info[irq].pci_addr = 0;
+ 
+ 	bussoft = SN_PCIDEV_BUSSOFT(pdev);
+ 	nasid = NASID_GET(bussoft->bs_base);
+@@ -56,14 +56,13 @@ sn_msi_teardown(unsigned int vector)
+ 			SWIN_WIDGETNUM(bussoft->bs_base);
+ 
+ 	sn_intr_free(nasid, widget, sn_irq_info);
+-	sn_msi_info[vector].sn_irq_info = NULL;
++	sn_msi_info[irq].sn_irq_info = NULL;
+ 
+ 	return;
+ }
+ 
+ int
+-sn_msi_setup(struct pci_dev *pdev, unsigned int vector,
+-	     u32 *addr_hi, u32 *addr_lo, u32 *data)
++sn_msi_setup(struct pci_dev *pdev, unsigned int irq, struct msi_msg *msg)
+ {
+ 	int widget;
+ 	int status;
+@@ -93,7 +92,7 @@ sn_msi_setup(struct pci_dev *pdev, unsig
+ 	if (! sn_irq_info)
+ 		return -ENOMEM;
+ 
+-	status = sn_intr_alloc(nasid, widget, sn_irq_info, vector, -1, -1);
++	status = sn_intr_alloc(nasid, widget, sn_irq_info, irq, -1, -1);
+ 	if (status) {
+ 		kfree(sn_irq_info);
+ 		return -ENOMEM;
+@@ -119,28 +118,27 @@ sn_msi_setup(struct pci_dev *pdev, unsig
+ 		return -ENOMEM;
+ 	}
+ 
+-	sn_msi_info[vector].sn_irq_info = sn_irq_info;
+-	sn_msi_info[vector].pci_addr = bus_addr;
++	sn_msi_info[irq].sn_irq_info = sn_irq_info;
++	sn_msi_info[irq].pci_addr = bus_addr;
+ 
+-	*addr_hi = (u32)(bus_addr >> 32);
+-	*addr_lo = (u32)(bus_addr & 0x00000000ffffffff);
++	msg->address_hi = (u32)(bus_addr >> 32);
++	msg->address_lo = (u32)(bus_addr & 0x00000000ffffffff);
+ 
+ 	/*
+ 	 * In the SN platform, bit 16 is a "send vector" bit which
+ 	 * must be present in order to move the vector through the system.
+ 	 */
+-	*data = 0x100 + (unsigned int)vector;
++	msg->data = 0x100 + irq;
+ 
+ #ifdef CONFIG_SMP
+-	set_irq_affinity_info((vector & 0xff), sn_irq_info->irq_cpuid, 0);
++	set_irq_affinity_info(irq, sn_irq_info->irq_cpuid, 0);
+ #endif
+ 
+ 	return 0;
+ }
+ 
+ static void
+-sn_msi_target(unsigned int vector, unsigned int cpu,
+-	      u32 *addr_hi, u32 *addr_lo)
++sn_msi_target(unsigned int irq, cpumask_t cpu_mask, struct msi_msg *msg)
+ {
+ 	int slice;
+ 	nasid_t nasid;
+@@ -150,8 +148,10 @@ sn_msi_target(unsigned int vector, unsig
+ 	struct sn_irq_info *sn_irq_info;
+ 	struct sn_irq_info *new_irq_info;
+ 	struct sn_pcibus_provider *provider;
++	unsigned int cpu;
+ 
+-	sn_irq_info = sn_msi_info[vector].sn_irq_info;
++	cpu = first_cpu(cpu_mask);
++	sn_irq_info = sn_msi_info[irq].sn_irq_info;
+ 	if (sn_irq_info == NULL || sn_irq_info->irq_int_bit >= 0)
+ 		return;
+ 
+@@ -163,15 +163,15 @@ sn_msi_target(unsigned int vector, unsig
+ 	pdev = sn_pdev->pdi_linux_pcidev;
+ 	provider = SN_PCIDEV_BUSPROVIDER(pdev);
+ 
+-	bus_addr = (u64)(*addr_hi) << 32 | (u64)(*addr_lo);
++	bus_addr = (u64)(msg->address_hi) << 32 | (u64)(msg->address_lo);
+ 	(*provider->dma_unmap)(pdev, bus_addr, PCI_DMA_FROMDEVICE);
+-	sn_msi_info[vector].pci_addr = 0;
++	sn_msi_info[irq].pci_addr = 0;
+ 
+ 	nasid = cpuid_to_nasid(cpu);
+ 	slice = cpuid_to_slice(cpu);
+ 
+ 	new_irq_info = sn_retarget_vector(sn_irq_info, nasid, slice);
+-	sn_msi_info[vector].sn_irq_info = new_irq_info;
++	sn_msi_info[irq].sn_irq_info = new_irq_info;
+ 	if (new_irq_info == NULL)
+ 		return;
+ 
+@@ -184,12 +184,13 @@ sn_msi_target(unsigned int vector, unsig
+ 					sizeof(new_irq_info->irq_xtalkaddr),
+ 					SN_DMA_MSI|SN_DMA_ADDR_XIO);
+ 
+-	sn_msi_info[vector].pci_addr = bus_addr;
+-	*addr_hi = (u32)(bus_addr >> 32);
+-	*addr_lo = (u32)(bus_addr & 0x00000000ffffffff);
++	sn_msi_info[irq].pci_addr = bus_addr;
++	msg->address_hi = (u32)(bus_addr >> 32);
++	msg->address_lo = (u32)(bus_addr & 0x00000000ffffffff);
+ }
+ 
+ struct msi_ops sn_msi_ops = {
++	.needs_64bit_address = 1,
+ 	.setup = sn_msi_setup,
+ 	.teardown = sn_msi_teardown,
+ #ifdef CONFIG_SMP
+@@ -201,7 +202,7 @@ int
+ sn_msi_init(void)
+ {
+ 	sn_msi_info =
+-		kzalloc(sizeof(struct sn_msi_info) * NR_VECTORS, GFP_KERNEL);
++		kzalloc(sizeof(struct sn_msi_info) * NR_IRQS, GFP_KERNEL);
+ 	if (! sn_msi_info)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/pci/msi-apic.c b/drivers/pci/msi-apic.c
+index 5ed798b..1ce2589 100644
+--- a/drivers/pci/msi-apic.c
++++ b/drivers/pci/msi-apic.c
+@@ -46,37 +46,36 @@ #define     MSI_ADDR_REDIRECTION_LOWPRI	
+ 
+ 
+ static void
+-msi_target_apic(unsigned int vector,
+-		unsigned int dest_cpu,
+-		u32 *address_hi,	/* in/out */
+-		u32 *address_lo)	/* in/out */
++msi_target_apic(unsigned int irq, cpumask_t cpu_mask, struct msi_msg *msg)
+ {
+-	u32 addr = *address_lo;
++	u32 addr = msg->address_lo;
+ 
+ 	addr &= MSI_ADDR_DESTID_MASK;
+-	addr |= MSI_ADDR_DESTID_CPU(cpu_physical_id(dest_cpu));
++	addr |= MSI_ADDR_DESTID_CPU(cpu_physical_id(first_cpu(cpu_mask)));
+ 
+-	*address_lo = addr;
++	msg->address_lo = addr;
+ }
+ 
+ static int
+ msi_setup_apic(struct pci_dev *pdev,	/* unused in generic */
+-		unsigned int vector,
+-		u32 *address_hi,
+-		u32 *address_lo,
+-		u32 *data)
++		unsigned int irq,
++		struct msi_msg *msg)
+ {
+ 	unsigned long	dest_phys_id;
++	unsigned int	vector;
+ 
+ 	dest_phys_id = cpu_physical_id(first_cpu(cpu_online_map));
++	vector = irq;
+ 
+-	*address_hi = 0;
+-	*address_lo =	MSI_ADDR_HEADER |
+-			MSI_ADDR_DESTMODE_PHYS |
+-			MSI_ADDR_REDIRECTION_CPU |
+-			MSI_ADDR_DESTID_CPU(dest_phys_id);
++	msg->address_hi = 0;
++	msg->address_lo =
++		MSI_ADDR_HEADER |
++		MSI_ADDR_DESTMODE_PHYS |
++		MSI_ADDR_REDIRECTION_CPU |
++		MSI_ADDR_DESTID_CPU(dest_phys_id);
+ 
+-	*data = MSI_DATA_TRIGGER_EDGE |
++	msg->data = 
++		MSI_DATA_TRIGGER_EDGE |
+ 		MSI_DATA_LEVEL_ASSERT |
+ 		MSI_DATA_DELIVERY_FIXED |
+ 		MSI_DATA_VECTOR(vector);
+@@ -85,7 +84,7 @@ msi_setup_apic(struct pci_dev *pdev,	/* 
+ }
+ 
+ static void
+-msi_teardown_apic(unsigned int vector)
++msi_teardown_apic(unsigned int irq)
+ {
+ 	return;		/* no-op */
+ }
+@@ -95,6 +94,7 @@ msi_teardown_apic(unsigned int vector)
+  */
+ 
+ struct msi_ops msi_apic_ops = {
++	.needs_64bit_address = 0,
+ 	.setup = msi_setup_apic,
+ 	.teardown = msi_teardown_apic,
+ 	.target = msi_target_apic,
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index e9db6c5..40499c0 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -172,19 +172,17 @@ static void write_msi_msg(struct msi_des
+ }
+ 
+ #ifdef CONFIG_SMP
+-static void set_msi_affinity(unsigned int vector, cpumask_t cpu_mask)
++static void set_msi_affinity(unsigned int irq, cpumask_t cpu_mask)
+ {
+ 	struct msi_desc *entry;
+ 	struct msi_msg msg;
+-	unsigned int irq = vector;
+-	unsigned int dest_cpu = first_cpu(cpu_mask);
+ 
+-	entry = (struct msi_desc *)msi_desc[vector];
++	entry = msi_desc[irq];
+ 	if (!entry || !entry->dev)
+ 		return;
+ 
+ 	read_msi_msg(entry, &msg);
+-	msi_ops->target(vector, dest_cpu, &msg.address_hi, &msg.address_lo);
++	msi_ops->target(irq, cpu_mask, &msg);
+ 	write_msi_msg(entry, &msg);
+ 	set_native_irq_info(irq, cpu_mask);
+ }
+@@ -709,14 +707,14 @@ static int msi_register_init(struct pci_
+ {
+ 	int status;
+ 	struct msi_msg msg;
+-	int pos, vector = dev->irq;
++	int pos;
+ 	u16 control;
+ 
+ 	pos = entry->msi_attrib.pos;
+ 	pci_read_config_word(dev, msi_control_reg(pos), &control);
+ 
+ 	/* Configure MSI capability structure */
+-	status = msi_ops->setup(dev, vector, &msg.address_hi, &msg.address_lo, &msg.data);
++	status = msi_ops->setup(dev, dev->irq, &msg);
+ 	if (status < 0)
+ 		return status;
+ 
+@@ -871,10 +869,7 @@ static int msix_capability_init(struct p
+ 		/* Replace with MSI-X handler */
+ 		irq_handler_init(PCI_CAP_ID_MSIX, vector, 1);
+ 		/* Configure MSI-X capability structure */
+-		status = msi_ops->setup(dev, vector,
+-					&msg.address_hi,
+-					&msg.address_lo,
+-					&msg.data);
++		status = msi_ops->setup(dev, vector, &msg);
+ 		if (status < 0)
+ 			break;
+ 
+@@ -910,6 +905,7 @@ int pci_enable_msi(struct pci_dev* dev)
+ {
+ 	struct pci_bus *bus;
+ 	int pos, temp, status = -EINVAL;
++	u16 control;
+ 
+ 	if (!pci_msi_enable || !dev)
+  		return status;
+@@ -931,6 +927,10 @@ int pci_enable_msi(struct pci_dev* dev)
+ 	if (!pos)
+ 		return -EINVAL;
+ 
++	pci_read_config_word(dev, msi_control_reg(pos), &control);
++	if (!is_64bit_address(control) && msi_ops->needs_64bit_address)
++		return -EINVAL;
++
+ 	BUG_ON(!msi_lookup_vector(dev, PCI_CAP_ID_MSI));
+ 
+ 	/* Check whether driver already requested for MSI-X vectors */
+diff --git a/drivers/pci/msi.h b/drivers/pci/msi.h
+index 62f61b6..3519eca 100644
+--- a/drivers/pci/msi.h
++++ b/drivers/pci/msi.h
+@@ -6,68 +6,6 @@
+ #ifndef MSI_H
+ #define MSI_H
+ 
+-/*
+- * MSI operation vector.  Used by the msi core code (drivers/pci/msi.c)
+- * to abstract platform-specific tasks relating to MSI address generation
+- * and resource management.
+- */
+-struct msi_ops {
+-	/**
+-	 * setup - generate an MSI bus address and data for a given vector
+-	 * @pdev: PCI device context (in)
+-	 * @vector: vector allocated by the msi core (in)
+-	 * @addr_hi: upper 32 bits of PCI bus MSI address (out)
+-	 * @addr_lo: lower 32 bits of PCI bus MSI address (out)
+-	 * @data: MSI data payload (out)
+-	 *
+-	 * Description: The setup op is used to generate a PCI bus addres and
+-	 * data which the msi core will program into the card MSI capability
+-	 * registers.  The setup routine is responsible for picking an initial
+-	 * cpu to target the MSI at.  The setup routine is responsible for
+-	 * examining pdev to determine the MSI capabilities of the card and
+-	 * generating a suitable address/data.  The setup routine is
+-	 * responsible for allocating and tracking any system resources it
+-	 * needs to route the MSI to the cpu it picks, and for associating
+-	 * those resources with the passed in vector.
+-	 *
+-	 * Returns 0 if the MSI address/data was successfully setup.
+-	 **/
+-
+-	int	(*setup)    (struct pci_dev *pdev, unsigned int vector,
+-			     u32 *addr_hi, u32 *addr_lo, u32 *data);
+-
+-	/**
+-	 * teardown - release resources allocated by setup
+-	 * @vector: vector context for resources (in)
+-	 *
+-	 * Description:  The teardown op is used to release any resources
+-	 * that were allocated in the setup routine associated with the passed
+-	 * in vector.
+-	 **/
+-
+-	void	(*teardown) (unsigned int vector);
+-
+-	/**
+-	 * target - retarget an MSI at a different cpu
+-	 * @vector: vector context for resources (in)
+-	 * @cpu:  new cpu to direct vector at (in)
+-	 * @addr_hi: new value of PCI bus upper 32 bits (in/out)
+-	 * @addr_lo: new value of PCI bus lower 32 bits (in/out)
+-	 *
+-	 * Description:  The target op is used to redirect an MSI vector
+-	 * at a different cpu.  addr_hi/addr_lo coming in are the existing
+-	 * values that the MSI core has programmed into the card.  The
+-	 * target code is responsible for freeing any resources (if any)
+-	 * associated with the old address, and generating a new PCI bus
+-	 * addr_hi/addr_lo that will redirect the vector at the indicated cpu.
+-	 **/
+-
+-	void	(*target)   (unsigned int vector, unsigned int cpu,
+-			     u32 *addr_hi, u32 *addr_lo);
+-};
+-
+-extern int msi_register(struct msi_ops *ops);
+-
+ #include <asm/msi.h>
+ 
+ /*
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index c7be27b..1aa01aa 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -613,6 +613,68 @@ extern int pci_enable_msix(struct pci_de
+ 	struct msix_entry *entries, int nvec);
+ extern void pci_disable_msix(struct pci_dev *dev);
+ extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
++
++/*
++ * MSI operation vector.  Used by the msi core code (drivers/pci/msi.c)
++ * to abstract platform-specific tasks relating to MSI address generation
++ * and resource management.
++ */
++struct msi_ops {
++	int needs_64bit_address;
++	/**
++	 * setup - generate an MSI bus address and data for a given vector
++	 * @pdev: PCI device context (in)
++	 * @irq: irq allocated by the msi core (in)
++	 * @msg: PCI bus address and data for msi message (out)
++	 *
++	 * Description: The setup op is used to generate a PCI bus addres and
++	 * data which the msi core will program into the card MSI capability
++	 * registers.  The setup routine is responsible for picking an initial
++	 * cpu to target the MSI at.  The setup routine is responsible for
++	 * examining pdev to determine the MSI capabilities of the card and
++	 * generating a suitable address/data.  The setup routine is
++	 * responsible for allocating and tracking any system resources it
++	 * needs to route the MSI to the cpu it picks, and for associating
++	 * those resources with the passed in vector.
++	 *
++	 * Returns 0 if the MSI address/data was successfully setup.
++	 **/
++
++	int	(*setup)    (struct pci_dev *pdev, unsigned int irq,
++			     struct msi_msg *msg);
++
++	/**
++	 * teardown - release resources allocated by setup
++	 * @vector: vector context for resources (in)
++	 *
++	 * Description:  The teardown op is used to release any resources
++	 * that were allocated in the setup routine associated with the passed
++	 * in vector.
++	 **/
++
++	void	(*teardown) (unsigned int irq);
++
++	/**
++	 * target - retarget an MSI at a different cpu
++	 * @vector: vector context for resources (in)
++	 * @cpu:  new cpu to direct vector at (in)
++	 * @addr_hi: new value of PCI bus upper 32 bits (in/out)
++	 * @addr_lo: new value of PCI bus lower 32 bits (in/out)
++	 *
++	 * Description:  The target op is used to redirect an MSI vector
++	 * at a different cpu.  addr_hi/addr_lo coming in are the existing
++	 * values that the MSI core has programmed into the card.  The
++	 * target code is responsible for freeing any resources (if any)
++	 * associated with the old address, and generating a new PCI bus
++	 * addr_hi/addr_lo that will redirect the vector at the indicated cpu.
++	 **/
++
++	void	(*target)   (unsigned int irq, cpumask_t cpumask,
++			     struct msi_msg *msg);
++};
++
++extern int msi_register(struct msi_ops *ops);
++
+ #endif
+ 
+ extern void pci_block_user_cfg_access(struct pci_dev *dev);
+-- 
+1.4.0.gc07e
 

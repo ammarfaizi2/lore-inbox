@@ -1,124 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWFTPqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWFTPs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751349AbWFTPqw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 11:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWFTPqw
+	id S1751343AbWFTPs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 11:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWFTPs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 11:46:52 -0400
-Received: from lucidpixels.com ([66.45.37.187]:54410 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751349AbWFTPqv (ORCPT
+	Tue, 20 Jun 2006 11:48:27 -0400
+Received: from lucidpixels.com ([66.45.37.187]:8362 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751343AbWFTPs0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 11:46:51 -0400
-Date: Tue, 20 Jun 2006 11:46:50 -0400 (EDT)
+	Tue, 20 Jun 2006 11:48:26 -0400
+Date: Tue, 20 Jun 2006 11:48:24 -0400 (EDT)
 From: Justin Piszcz <jpiszcz@lucidpixels.com>
 X-X-Sender: jpiszcz@p34.internal.lan
-To: David Greaves <david@dgreaves.com>
-cc: Mark Lord <liml@rtr.ca>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, jgarzik@pobox.com
+To: Al Boldi <a1426z@gawab.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: LibPATA/ATA Errors Continue - Will there be a fix for this?
-In-Reply-To: <44981800.2000807@dgreaves.com>
-Message-ID: <Pine.LNX.4.64.0606201146430.2601@p34.internal.lan>
-References: <Pine.LNX.4.64.0606200808250.5851@p34.internal.lan>
- <4497F1C7.2070007@rtr.ca> <449804EA.8030908@dgreaves.com> <44981800.2000807@dgreaves.com>
+In-Reply-To: <200606201815.54318.a1426z@gawab.com>
+Message-ID: <Pine.LNX.4.64.0606201148110.2601@p34.internal.lan>
+References: <200606201815.54318.a1426z@gawab.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave, what is the make/model of the drives you get errors with by the way?
+On Tue, 20 Jun 2006, Al Boldi wrote:
 
-On Tue, 20 Jun 2006, David Greaves wrote:
-
-> [Some email archaeology later]
->
-> Back in March I was running 2.6.16 (with the opcode patch) and I sent an
-> email with the following info:
->
-> dmesg:
-> ata1: translated op=0x28 cmd=0x25 ATA stat/err 0x51/04 to SCSI
-> SK/ASC/ASCQ 0xb/00/00
-> ata1: status=0x51 { DriveReady SeekComplete Error }
-> ata1: error=0x04 { DriveStatusError }
->
-> Does that help with the diagnosis?
->
-> Also see my emails: SMART on SATA reporting errors?
->  http://marc.theaimsgroup.com/?l=linux-ide&m=113933732903205&w=2
->
-> I did reply but got no response so I assumed I was just so far off base
-> that I was being ignored :)
->
-> David
->
-> David Greaves wrote:
->> Mark Lord wrote:
->>
+> Justin Piszcz wrote:
+>> On Tue, 20 Jun 2006, Mark Lord wrote:
+>>> Justin Piszcz wrote:
+>>>> Should someone comment this code out that produces the printk()'s as
+>>>> these are useless information as there is no problem with the disk?
+>>>
 >>> MMm.. probably "barrier" commands that the drive doesn't like.
 >>> Pity those messages don't also dump the failed opcode.
 >>>
->> For me:
->> smartctl -data -o on /dev/sda
->> produces this on 2.6.17-rc5
->>
->> (I thought the opcode patch went into 2.6.17...)
->>
->> ata1: PIO error
->> ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->> ata1: status=0x51 { DriveReady SeekComplete Error }
->> ata1: error=0x04 { DriveStatusError }
->> ata1: PIO error
->> ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->> ata1: status=0x51 { DriveReady SeekComplete Error }
->> ata1: error=0x04 { DriveStatusError }
->> ata1: PIO error
->> ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->> ata1: status=0x51 { DriveReady SeekComplete Error }
->> ata1: error=0x04 { DriveStatusError }
->> ata1: PIO error
->> ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->> ata1: status=0x51 { DriveReady SeekComplete Error }
->> ata1: error=0x04 { DriveStatusError }
->> ata1: PIO error
->> ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->> ata1: status=0x51 { DriveReady SeekComplete Error }
->> ata1: error=0x04 { DriveStatusError }
->> ata1: PIO error
->> ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->> ata1: status=0x51 { DriveReady SeekComplete Error }
->> ata1: error=0x04 { DriveStatusError }
->>
->> David
->>
->>
 >>>> Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: status=0x51 {
 >>>> DriveReady SeekComplete Error }
 >>>> Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: error=0x04 {
 >>>> DriveStatusError }
->>>> Jun 20 03:20:27 p34 kernel: [4339823.900000] ata3: status=0x51 {
->>>> DriveReady SeekComplete Error }
->>>> Jun 20 03:20:27 p34 kernel: [4339823.900000] ata3: error=0x04 {
->>>> DriveStatusError }
->>>> Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: no sense
->>>> translation for status: 0x51
+>>>> Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: no sense translation
+>>>> for status: 0x51
 >>>> Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: status=0x51 {
 >>>> DriveReady SeekComplete Error }
->>>> Jun 20 03:41:04 p34 kernel: [4341061.844000] ata3: no sense
->>>> translation for status: 0x51
->>>> Jun 20 03:41:04 p34 kernel: [4341061.844000] ata3: status=0x51 {
->>>> DriveReady SeekComplete Error }
->>>> Jun 20 03:46:27 p34 kernel: [4341384.974000] ata3: no sense
->>>> translation for status: 0x51
->>>> Jun 20 03:46:27 p34 kernel: [4341384.974000] ata3: status=0x51 {
->>>> DriveReady SeekComplete Error }
->>>>
 >>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Mark, what would be the proper direction to move towards?  Is Jeff or
+>> another SATA/ATA maintainer going to have to look at this or is there
+>> something else I can do, or?
+>
+> I once sent a patch to -mm:
+>
+> Mark Lord wrote:
+>> Al Boldi wrote:
+>>> Also apply this one to get rid of this message:
+>>>
+>>> 	hdb: set_drive_speed_status: status=0x40 { DriveReady }
+>>> 	ide: failed opcode was: unknown
+>>>
+>>> Maybe someone on the ide list can comment on this first though.
+>>>
+>>> --- 16/include/linux/ide.h.orig	2006-03-31 19:12:51.000000000 +0300
+>>> +++ 16/include/linux/ide.h	2006-04-23 13:06:32.000000000 +0300
+>>> @@ -120,7 +120,7 @@ typedef unsigned char	byte;	/* used ever
+>>>  #define IDE_BCOUNTL_REG		IDE_LCYL_REG
+>>>  #define IDE_BCOUNTH_REG		IDE_HCYL_REG
+>>>
+>>> -#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==(good))
+>>> +#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==((stat)&(good)))
+>>>  #define BAD_R_STAT		(BUSY_STAT   | ERR_STAT)
+>>>  #define BAD_W_STAT		(BAD_R_STAT  | WRERR_STAT)
+>>>  #define BAD_STAT		(BAD_R_STAT  | DRQ_STAT)
 >>
+>> Assuming hdb is a CDROM/optical drive, then this change makes sense for
+>> that. But I don't think it is a valid (good) change for regular ATA disks.
 >>
+>> A more complex patch is required, one which correctly handles each drive
+>> type.
 >
+> Thanks!
 >
-> -- 
+> --
+> Al
 >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Did the patch get applied to -mm?

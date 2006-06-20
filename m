@@ -1,51 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWFTNx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWFTN51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWFTNx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 09:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWFTNx2
+	id S1750976AbWFTN51 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 09:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWFTN51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 09:53:28 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:4325 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750994AbWFTNx1 (ORCPT
+	Tue, 20 Jun 2006 09:57:27 -0400
+Received: from mail.gmx.de ([213.165.64.21]:36311 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750976AbWFTN50 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 09:53:27 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: Steven Whitehouse <steve@chygwyn.com>
-Subject: Re: [RFC] [PATCH 1/8] inode_diet: Replace inode.u.generic_ip with inode.i_private
-Date: Tue, 20 Jun 2006 15:53:23 +0200
-User-Agent: KMail/1.9.1
-Cc: Theodore Tso <tytso@thunk.org>, linux-kernel@vger.kernel.org
-References: <20060619152003.830437000@candygram.thunk.org> <200606201345.45332.arnd.bergmann@de.ibm.com> <1150806849.3856.1370.camel@quoit.chygwyn.com>
-In-Reply-To: <1150806849.3856.1370.camel@quoit.chygwyn.com>
+	Tue, 20 Jun 2006 09:57:26 -0400
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 20 Jun 2006 15:57:25 +0200
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Message-ID: <20060620135725.161550@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Subject: man-pages-2.34 is released
+To: linux-kernel@vger.kernel.org
+X-Authenticated: #24879014
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606201553.23908.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 14:34, Steven Whitehouse wrote:
-> 
-> Yes, although I'm not sure that it would be as significant as the memory
-> saved by removing the pointer bearing in mind the relative numbers of
-> the structures that you'd expect to see in a "normal" working system. We
-> could also try and reduce this by creating a special inode cache which
-> would be shared by all filesystems which did still need just struct
-> inode + private pointer for example.
+Gidday,
 
-To take this further, you could indeed split struct inode into a smaller
-struct that has all the important parts and a derived struct that has
-i_private as well as other members that are used only by a minority
-of file systems.
+I recently released man-pages-2.33, which can be found at the
+location in the .sig.  
 
-Alternatively, it might be possible to stuff i_private into the same
-union as i_pipe, i_cdev and i_bdev. The rationale here being that
-a file system implementing different file types already is complex
-enough that you would normally want your own alloc_inode for a
-derived struct. The simple file systems OTOH normally only support
-regular files, and sometimes directories.
+Changes in this release that may be of interest to readers
+of this list include the following:
 
-	Arnd <><
+New pages
+---------
+
+ioprio_set.2
+    Eduardo Madeira Fleury, with edits by mtk, and review by Jens Axboe
+       New page for ioprio_get(2) and ioprio_set(2), new in 2.6.13.
+
+Changes to individual pages
+---------------------------
+
+ftw.3
+    Justin Pryzby / mtk
+        A fairly major revision...
+        Document FTW_ACTIONRETVAL; include .SH "RETURN VALUE";
+        Reorganized and rewrote much of the page
+        Added an example program.
+
+==========
+
+The man-pages set contains sections 2, 3, 4, 5, and 7 of
+the manual pages.  These sections describe the following:
+
+2: (Linux) system calls
+3: (libc) library functions
+4: Devices
+5: File formats and protocols
+7: Overview pages, conventions, etc.
+
+As far as this list is concerned the most relevant parts are:
+all of sections 2 and 4, which describe kernel-userland interfaces;
+in section 5, the proc(5) manual page, which attempts (it's always
+catching up) to be a comprehensive description of /proc; and
+various pages in section 7, some of which are overview pages of
+kernel features (e.g., networking protocols).
+
+If you make a change to a kernel-userland interface, or observe
+a discrepancy between the manual pages and reality, would you
+please send me (at mtk-manpages@gmx.net ) one of the following
+(in decreasing order of preference):
+
+1. An in-line "diff -u" patch with text changes for the
+   corresponding manual page.  (The most up-to-date version
+   of the manual pages can always be found at
+   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
+   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
+
+2. Some raw text describing the changes, which I can then
+   integrate into the appropriate manual page.
+
+3. A message alerting me that some part of the manual pages
+   does not correspond to reality.  Eventually, I will try to
+   remedy the situation.
+
+Obviously, as we get further down this list, more of my time
+is required, and things may go slower, especially when the
+changes concern some part of the kernel that I am ignorant
+about and I can't find someone to assist.
+
+Cheers,
+
+Michael
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

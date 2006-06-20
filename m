@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWFTVed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWFTVku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWFTVed (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWFTVed
+	id S1751214AbWFTVku (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWFTVkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:34:33 -0400
-Received: from barracuda.s2io.com ([72.1.205.138]:38844 "EHLO
-	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
-	id S1751201AbWFTVeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:34:31 -0400
-X-ASG-Debug-ID: 1150839270-26565-443-0
-X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
-X-ASG-Whitelist: Client
-Reply-To: <ravinandan.arakali@neterion.com>
-From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <tglx@linutronix.de>, <dgc@sgi.com>, <mingo@elte.hu>, <neilb@suse.de>,
-       <jblunck@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, <viro@zeniv.linux.org.uk>,
-       <balbir@in.ibm.com>, <ananda.raju@neterion.com>,
-       <leonid.grossman@neterion.com>,
-       "'Jes Sorensen'" <jes@trained-monkey.org>
-X-ASG-Orig-Subj: RE: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
-Subject: RE: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries list (2nd version)
-Date: Tue, 20 Jun 2006 14:34:05 -0700
-Message-ID: <006d01c694b1$4208c0f0$3e10100a@pc.s2io.com>
+	Tue, 20 Jun 2006 17:40:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25530 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751214AbWFTVks (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 17:40:48 -0400
+Date: Tue, 20 Jun 2006 14:40:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Neuer <mr.fred.smoothie@pobox.com>
+cc: Al Viro <viro@ftp.linux.org.uk>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [git pull] ieee1394 tree for 2.6.18
+In-Reply-To: <161717d50606201415t27d9b348y4b2069abb94e0fb3@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0606201426410.5498@g5.osdl.org>
+References: <44954102.3090901@s5r6.in-berlin.de>  <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org>
+  <20060620025552.GO27946@ftp.linux.org.uk>  <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org>
+  <20060620175321.GA7463@flint.arm.linux.org.uk>  <44984CA1.5010308@s5r6.in-berlin.de>
+  <20060620193422.GA10748@flint.arm.linux.org.uk> 
+ <161717d50606201302o7b13a436wc733c522611b5531@mail.gmail.com> 
+ <20060620202200.GT27946@ftp.linux.org.uk> <161717d50606201415t27d9b348y4b2069abb94e0fb3@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060619173712.1144b332.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you want the patch to be submitted to netdev(the mailing list that we
-usually submit to) ?
-
-Ravi
-
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org]
-Sent: Monday, June 19, 2006 5:37 PM
-To: ravinandan.arakali@neterion.com
-Cc: tglx@linutronix.de; dgc@sgi.com; mingo@elte.hu; neilb@suse.de;
-jblunck@suse.de; linux-kernel@vger.kernel.org;
-linux-fsdevel@vger.kernel.org; viro@zeniv.linux.org.uk;
-balbir@in.ibm.com; ananda.raju@neterion.com;
-leonid.grossman@neterion.com; Jes Sorensen
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
-list (2nd version)
 
 
-"Ravinandan Arakali" <ravinandan.arakali@neterion.com> wrote:
->
-> This is a known problem and has been fixed in our internal source tree. We
-> will be submitting the patch soon.
+On Tue, 20 Jun 2006, Dave Neuer wrote:
+> > 
+> > Of course, it can.
+> 
+> So "please pull git://somehost/myrepo.git mytag" is a solution?
 
-Please send me a copy asap - I urgently need to get the -mm patches vaguely
-stabilised.
+Yes. As is "mybranch" etc. A lot of people use a special "for-linus" 
+branch, which they update when they are ready to push to me, even if they 
+might - for example - have a more "wild and crazy" main branch that they 
+want others to pull for testing.
 
-I'm somewhat surprised that the sn2 failed so seriously - I thought Jes was
-testing that fairly regularly.
+On the other hand, it really _is_ more important to just use some common 
+sense. This is much less about technology than about a social protocol: 
+people you know better you can be less strict with, and you can use slang 
+with them, and you can call them "pinhead" rather than "Dr Torvalds". 
 
-I think we kinda-sorta have a handle on the s2io->IRQ problem (although the
-unexpectedly-held console spinlock is a mystery).
+So people you work closely with you know how they work, they know you, and 
+you may not be a total stickler for protocol.
 
-The scsi->BIO->mempool->slab crash is also a mystery.
+And other people may your co-workers, but you don't actually talk daily 
+with them, and you don't necessarily feel you "know" them, you are a bit 
+more careful about. You follow company policy, you work through the 
+channels ratehr than just showing up at his door to hang out.
 
-Thanks.
+See? There are pretty well-established rules for "please pull", but that 
+doesn't mean that they are set in stone per se.  Don't sweat it.
 
+Another way of sayign the same thing, and maybe clarifying: this _is_ 
+about the human-to-human interaction. Git on its own can do the 
+machine-to-machine part, and if you make the "please pull" be _purely_ 
+automated, and you take the rules mindlessly, then you'd be kind of 
+missing the point of the whole thing, wouldn't you?
+
+So there's a protocol in place. But it's a _social_ protocol. Everybody 
+starts out extra stiff and extra careful. But some day, you can give me a 
+wedgie, ok?
+
+			Linus

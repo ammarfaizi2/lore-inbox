@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWFTQM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWFTQQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWFTQM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWFTQM5
+	id S1751381AbWFTQQY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWFTQQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:12:57 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:15792 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751368AbWFTQM4 (ORCPT
+	Tue, 20 Jun 2006 12:16:24 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:36474 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751381AbWFTQQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:12:56 -0400
-Date: Tue, 20 Jun 2006 18:12:50 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Matt LaPlante <laplam@rpi.edu>, "'Linus Torvalds'" <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
-In-Reply-To: <20060620160128.GL1630@parisc-linux.org>
-Message-ID: <Pine.LNX.4.64.0606201809100.17704@scrub.home>
-References: <Pine.LNX.4.64.0606201742280.12900@scrub.home>
- <000601c69481$a9f86c40$fe01a8c0@cyberdogt42> <20060620160128.GL1630@parisc-linux.org>
+	Tue, 20 Jun 2006 12:16:23 -0400
+Date: Tue, 20 Jun 2006 18:16:21 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Walkinair <walktodeath@163.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to get kernel source release from git tree?
+Message-ID: <20060620161620.GA4487@harddisk-recovery.com>
+References: <4497830B.5010402@163.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4497830B.5010402@163.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 20 Jun 2006, Matthew Wilcox wrote:
-
-> On Tue, Jun 20, 2006 at 11:53:24AM -0400, Matt LaPlante wrote:
-> > > How likely is it that someone who doesn't understand the question needs
-> > > this option? I think N is a safe answer here.
-> > 
-> > This is the impression I had as well.  Even if you disagree though, I was
-> > equally confused by the fact that if we say to answer Y as default, why is
-> > the kconfig default already N?
+On Tue, Jun 20, 2006 at 01:09:31PM +0800, Walkinair wrote:
+> Hi, this may be a stupid question, sorry for this.
 > 
-> The *default* is N as that's the answer most people want.  The *safe*
-> answer is Y as it won't prevent you from getting access to your data.
-> Makes sense?
+> I have kenel 2.6 git tree in my local box, usually through the following 
+> steps I get source release,
+> 1. copy git repository to a new directory.
+> 2. rm .git directory.
+> 3. make config; make; make modules_install; make install
+> 
+> I there any convinient git command or other ways to get kernel release 
+> from git repository?
 
-This would imply that most people with 32bit systems have 2TB files, which 
-I think is rather unlikely. Distributions can turn this option on, but I 
-think people who compile their own kernel, either understand this option 
-or don't need it.
+What about this?
 
-bye, Roman
+  git tar-tree v2.6.17 linux-2.6.17 | ( cd .. ; tar xpf - )
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

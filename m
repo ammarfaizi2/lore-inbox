@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbWFTFw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbWFTF4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965055AbWFTFw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 01:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWFTFw2
+	id S965058AbWFTF4M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 01:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbWFTF4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 01:52:28 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:4240 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965055AbWFTFw1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 01:52:27 -0400
-Message-ID: <44978D20.5080403@cn.ibm.com>
-Date: Tue, 20 Jun 2006 13:52:32 +0800
-From: Yao Fei Zhu <walkinair@cn.ibm.com>
-Reply-To: walktodeath@163.com
-Organization: IBM
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Tue, 20 Jun 2006 01:56:12 -0400
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:1692 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965059AbWFTF4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 01:56:11 -0400
+Message-ID: <44978DF8.702@bigpond.net.au>
+Date: Tue, 20 Jun 2006 15:56:08 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to get kernel source release from git tree?
-References: <4497830B.5010402@163.com> <e780d2$br9$1@terminus.zytor.com>
-In-Reply-To: <e780d2$br9$1@terminus.zytor.com>
+To: balbir@in.ibm.com
+CC: Peter Williams <peterw@aurema.com>, Andrew Morton <akpm@osdl.org>,
+       dev@openvz.org, vatsa@in.ibm.com, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, bsingharora@gmail.com, efault@gmx.de,
+       kernel@kolivas.org, sam@vilain.net, kingsley@aurema.com, mingo@elte.hu,
+       rene.herman@keyaccess.nl, Chandra Seetharaman <sekharan@us.ibm.com>
+Subject: Re: [ckrm-tech] [PATCH 0/4] sched: Add CPU rate caps
+References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest>	<20060618025046.77b0cecf.akpm@osdl.org>	<449529FE.1040008@bigpond.net.au>	<4495EC40.70301@in.ibm.com> <4495F7FE.9030601@aurema.com> <449609E4.1030908@in.ibm.com> <44977971.9030703@bigpond.net.au> <44977C4A.8010007@in.ibm.com>
+In-Reply-To: <44977C4A.8010007@in.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 20 Jun 2006 05:56:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
+Balbir Singh wrote:
+> Peter Williams wrote:
+>> Balbir Singh wrote:
+>>
+>>> Peter Williams wrote:
+>>>
+>>> If we can achieve something similar with low overhead in user space, 
+>>> I would
+>>> certainly love to see it.
+>>
+>>
+>> The Windows and Solaris components of IBM's eWLM product provide much 
+>> the same functionality as CKRM from user space.  Don't they?
+>>
+>> Peter
+> 
+> 
+> I know absolutely nothing about eWLM's Windows and Solaris product.
+> 
 
->Followup to:  <4497830B.5010402@163.com>
->By author:    Walkinair <walktodeath@163.com>
->In newsgroup: linux.dev.kernel
->  
->
->>Hi, this may be a stupid question, sorry for this.
->>
->>I have kenel 2.6 git tree in my local box, usually through the following 
->>steps I get source release,
->>1. copy git repository to a new directory.
->>2. rm .git directory.
->>3. make config; make; make modules_install; make install
->>
->>I there any convinient git command or other ways to get kernel release 
->>from git repository?
->>
->>    
->>
->
->If you have Cogito installed, use cg-export.
->
->	-hpa
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Thank you, cg-export works.
+I'm sorry I've always assumed that (due to its design) CKRM was intended 
+as the Linux component of eWLM.
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

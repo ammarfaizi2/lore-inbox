@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWFTNdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWFTNd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWFTNdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 09:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWFTNdO
+	id S1750849AbWFTNd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 09:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWFTNd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 09:33:14 -0400
-Received: from aa002msr.fastwebnet.it ([85.18.95.65]:30423 "EHLO
-	aa002msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750830AbWFTNdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 09:33:13 -0400
-Date: Tue, 20 Jun 2006 15:30:12 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: elevator.h problem
-Message-ID: <20060620153012.2b50351d@localhost>
-In-Reply-To: <Pine.LNX.4.61.0606201126001.2481@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0606201126001.2481@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed-Claws 2.3.0-rc3 (GTK+ 2.8.17; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 09:33:59 -0400
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:18360
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1750837AbWFTNd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 09:33:57 -0400
+Message-ID: <4497F945.1020307@ed-soft.at>
+Date: Tue, 20 Jun 2006 15:33:57 +0200
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/1] Addition Apple USB id's for Keyboards
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------070107010401090007070804"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 11:28:35 +0200 (MEST)
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+This is a multi-part message in MIME format.
+--------------070107010401090007070804
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-> I am trying to compile a module that requires elv_requeue_request.
-> I include <linux/elevator.h>, but that fails. Now that elevator.h includes 
-> blkdev.h (to get at the reqeust_queue_t typedef -- see next post), 
-> blkdev.h wants elv_dequeue_request, but which is defined in elevator.h. 
-> This circular dependency is really a problem, does anyone have 
-> an adequate fix? 2.6.17.
+This Patch add support for the Keyboard found on the
+new intel macs.
 
-"linux/elevator.h" doesn't include anything
-"linux/blkdev.h" defines some typedefs needed by elevator.h and then
-		includes it
+Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
 
-So if you need "linux/elevator.h" you can just do:
+--------------070107010401090007070804
+Content-Type: text/x-patch;
+ name="keyboard_hid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="keyboard_hid.patch"
 
-#include <linux/blkdev.h>
+diff -uNr linux-2.6.16.1/drivers/usb/input/hid-core.c linux-2.6.16.1-imac/drivers/usb/input/hid-core.c
+--- linux-2.6.16.1/drivers/usb/input/hid-core.c	2006-03-20 05:53:29.000000000 +0000
++++ linux-2.6.16.1-imac/drivers/usb/input/hid-core.c	2006-04-01 23:51:38.000000000 +0000
+@@ -1602,6 +1602,8 @@
+ 	{ USB_VENDOR_ID_APPLE, 0x0214, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x0215, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x0216, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, 0x0217, HID_QUIRK_POWERBOOK_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, 0x0218, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x030A, HID_QUIRK_POWERBOOK_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, 0x030B, HID_QUIRK_POWERBOOK_HAS_FN },
+ 
 
-or
-
-#include <linux/blkdev.h>
-#include <linux/elevator.h>
-
-
-What's the problem?
-
--- 
-	Paolo Ornati
-	Linux 2.6.17 on x86_64
+--------------070107010401090007070804--

@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWFTLvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWFTLvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbWFTLvt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 07:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWFTLvj
+	id S1030225AbWFTLvI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 07:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWFTLu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 07:51:39 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:55425 "EHLO
+	Tue, 20 Jun 2006 07:50:56 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50305 "EHLO
 	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
-	id S1030230AbWFTLvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 07:51:24 -0400
-Message-Id: <20060620114854.321484000@sous-sol.org>
+	id S1030229AbWFTLuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 07:50:52 -0400
+Message-Id: <20060620114817.914701000@sous-sol.org>
 References: <20060620114527.934114000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 20 Jun 2006 00:00:12 -0700
+Date: Tue, 20 Jun 2006 00:00:10 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       git-commits-head@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Dave Jones <davej@codemonkey.org.uk>, "Len Brown" <len.brown@intel.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Brian Holty <lgeek@frontiernet.net>,
+       James Bottomley <jejb@mulgrave.il.steeleye.com>,
+       James Bottomley <James.Bottomley@steeleye.com>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 12/13] powernow-k8 crash workaround
-Content-Disposition: inline; filename=powernow-k8-crash-workaround.patch
+Subject: [PATCH 10/13] scsi_lib.c: properly count the number of pages in scsi_req_map_sg()
+Content-Disposition: inline; filename=scsi_lib.c-properly-count-the-number-of-pages-in-scsi_req_map_sg.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Andrew Morton <akpm@osdl.org>
+From: James Bottomley <jejb@mulgrave.il.steeleye.com>
 
-Work around the oops reported in
-http://bugzilla.kernel.org/show_bug.cgi?id=6478.
+The calculation of nr_pages in scsi_req_map_sg() doesn't account for
+the fact that the first page could have an offset that pushes the end
+of the buffer onto a new page.
 
-Thanks to Ralf Hildebrandt <ralf.hildebrandt@charite.de> for testing and
-reporting.
-
-Acked-by: Dave Jones <davej@codemonkey.org.uk>
-Cc: "Len Brown" <len.brown@intel.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Bryan Holty <lgeek@frontiernet.net>
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
 
- drivers/acpi/processor_perflib.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_lib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.16.21.orig/drivers/acpi/processor_perflib.c
-+++ linux-2.6.16.21/drivers/acpi/processor_perflib.c
-@@ -577,6 +577,8 @@ acpi_processor_register_performance(stru
- 		return_VALUE(-EBUSY);
- 	}
- 
-+	WARN_ON(!performance);
-+
- 	pr->performance = performance;
- 
- 	if (acpi_processor_get_performance_info(pr)) {
-@@ -609,7 +611,8 @@ acpi_processor_unregister_performance(st
- 		return_VOID;
- 	}
- 
--	kfree(pr->performance->states);
-+	if (pr->performance)
-+		kfree(pr->performance->states);
- 	pr->performance = NULL;
- 
- 	acpi_cpufreq_remove_file(pr);
+--- linux-2.6.16.21.orig/drivers/scsi/scsi_lib.c
++++ linux-2.6.16.21/drivers/scsi/scsi_lib.c
+@@ -368,7 +368,7 @@ static int scsi_req_map_sg(struct reques
+ 			   int nsegs, unsigned bufflen, gfp_t gfp)
+ {
+ 	struct request_queue *q = rq->q;
+-	int nr_pages = (bufflen + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	int nr_pages = (bufflen + sgl[0].offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	unsigned int data_len = 0, len, bytes, off;
+ 	struct page *page;
+ 	struct bio *bio = NULL;
 
 --

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWFTK5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbWFTK6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbWFTK5M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 06:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWFTK5M
+	id S932590AbWFTK6S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 06:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbWFTK6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 06:57:12 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:37070
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932561AbWFTK5L convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 06:57:11 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Chris Wright <chrisw@sous-sol.org>, linville@tuxdriver.com
-Subject: Re: Linux 2.6.17.1
-Date: Tue, 20 Jun 2006 12:56:26 +0200
-User-Agent: KMail/1.9.1
-References: <20060620101350.GE23467@sequoia.sous-sol.org> <200606201235.19811.mb@bu3sch.de> <20060620104416.GG23467@sequoia.sous-sol.org>
-In-Reply-To: <20060620104416.GG23467@sequoia.sous-sol.org>
-Cc: stable@kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Tue, 20 Jun 2006 06:58:17 -0400
+Received: from mail.gmx.de ([213.165.64.21]:40162 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932590AbWFTK6R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 06:58:17 -0400
+Content-Type: text/plain; charset="utf-8"
+Date: Tue, 20 Jun 2006 12:58:15 +0200
+From: "Oliver Spang" <Oliver.Spang@gmx.de>
+Message-ID: <20060620105815.72010@gmx.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200606201256.27252.mb@bu3sch.de>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: spinlock recursion bug
+To: linux-kernel@vger.kernel.org
+X-Authenticated: #480886
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 12:44, Chris Wright wrote:
-> * Michael Buesch (mb@bu3sch.de) wrote:
-> > On Tuesday 20 June 2006 12:13, Chris Wright wrote:
-> > > We (the -stable team) are announcing the release of the 2.6.17.1 kernel.
-> > 
-> > Please consider inclusion of the following patch into 2.6.17.2:
-> > 
-> > It fixes a possible crash. Might be triggerable in networks with
-> > heavy traffic. I only saw it once so far, though.
-> 
-> I didn't notice that it made it to Linus' tree yet.  Can you make sure
-> to push it up, and I'll queue it for -stable.
+Arghhh, forgot the subject, so sorry for the repost:
 
-It is in -mm and I think John Linville also queued it upstream
-through Jeff to Linus.
->From my perspective, everything is done ;)
+I got the following bug from the kernel (2.6.16):
+BUG: Spinlock recursion on CPU#0, swapped/0 (not tained)
+         lock d94566c4, .magic:dead4ead, .owner: swapper/0, .owner_cpu:0
+         BUG: Spinloc lockup on CPU#0, swapper/0, d94566c4 (not tained)
 
+Unfortunately there is no dump or call trace afterwards, and the address of the lock isn't the same on each crash.
+Could you give me a hint how to get a call trace after the crash, or can I somehow resolve the address of the lock to a symbol?
+
+Can you please CC me, because I'm not subscribed to the list.
+
+Regards,
+Oliver
 -- 
-Greetings Michael.
+
+
+"Feel free" – 10 GB Mailbox, 100 FreeSMS/Monat ...
+Jetzt GMX TopMail testen: http://www.gmx.net/de/go/topmail

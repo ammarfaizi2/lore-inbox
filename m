@@ -1,73 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWFSX75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWFTACZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWFSX75 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 19:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWFSX75
+	id S964848AbWFTACZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 20:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWFTACZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 19:59:57 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:46541 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932242AbWFSX74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 19:59:56 -0400
-Message-ID: <44973A79.6070307@bigpond.net.au>
-Date: Tue, 20 Jun 2006 09:59:53 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: kernel@kolivas.org, sam@vilain.net, bsingharora@gmail.com,
-       vatsa@in.ibm.com, dev@openvz.org, linux-kernel@vger.kernel.org,
-       efault@gmx.de, kingsley@aurema.com, ckrm-tech@lists.sourceforge.net,
-       mingo@elte.hu, rene.herman@keyaccess.nl
-Subject: Re: [PATCH 0/4] sched: Add CPU rate caps
-References: <20060618082638.6061.20172.sendpatchset@heathwren.pw.nest> <20060618025046.77b0cecf.akpm@osdl.org>
-In-Reply-To: <20060618025046.77b0cecf.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 19 Jun 2006 23:59:54 +0000
+	Mon, 19 Jun 2006 20:02:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48027 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932558AbWFTACY (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 20:02:24 -0400
+Date: Tue, 20 Jun 2006 10:01:33 +1000
+From: David Chinner <dgc@sgi.com>
+To: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       "Vladimir V. Saveliev" <vs@namesys.com>, hch@infradead.org,
+       Reiserfs-Dev@namesys.com, Linux-Kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: batched write
+Message-ID: <20060620000133.GB8770394@melbourne.sgi.com>
+References: <20060524175312.GA3579@zero> <44749E24.40203@namesys.com> <20060608110044.GA5207@suse.de> <1149766000.6336.29.camel@tribesman.namesys.com> <20060608121006.GA8474@infradead.org> <1150322912.6322.129.camel@tribesman.namesys.com> <20060617100458.0be18073.akpm@osdl.org> <20060619162740.GA5817@schatzie.adilger.int> <4496D606.8070402@namesys.com> <20060619185049.GH5817@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060619185049.GH5817@schatzie.adilger.int>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Mon, Jun 19, 2006 at 12:50:49PM -0600, Andreas Dilger wrote:
+> On Jun 19, 2006  09:51 -0700, Hans Reiser wrote:
+> > Andreas Dilger wrote:
+> > >With the caveat that I didn't see the original patch, if this can be a step
+> > >down the road toward supporting delayed allocation at the VFS level then
+> > >I'm all for such changes.
+> >
+> > What do you mean by supporting delayed allocation at the VFS level?  Do
+> > you mean calling to the FS or maybe just not stepping on the FS's toes
+> > so much or?  Delayed allocation is very fs specific in so far as I can
+> > imagine it.
 > 
-> If the task can exceed its cap without impacting any other tasks (ie: there
-> is spare idle capacity), what happens?  I trust that spare capacity gets
-> used?
+> Currently the VM/VFS call into the filesystem in ->prepare_write for each
+> page to do block allocation for the filesystem.  This is the filesystem's
+> chance to return -ENOSPC, etc, because after that point the dirty pages
+> are written asynchronously and there is no guarantee that the application
+> will even be around when they are finally written to disk.
+> 
+> If the VFS supported delayed allocation it would call into the filesystem
+> on a per-sys_write basis to allow the filesystem to RESERVE space for all
+> of the pages in the write call,
 
-As I said in another reply, the answer to this is yes for soft caps and 
-how good a job was demonstrated by the kernbench results that I 
-included.  Repeated here:
+The VFS doesn't need to support delalloc as delalloc is fundamentally a
+filesystem property. The VFS it already provides a hook for delalloc space
+reservation that can return ENOSPC - it's called ->prepare_write().
 
-Average Optimal -j 8 Load Run:
+Sure, a batch interface would be nice, but that's an optimisation that
+needs to be done regardless of whether the filesystem supports delalloc or
+not.  The current ->prepare_write() interface shows its limits when having to
+do hundreds of thousands (millions, even) of ->prepare_write() calls per
+second. This makes for entertaining scaling problems that batching would
+make less of a problem.
 
-                   Vanilla          Patch Applied    Soft Cap 0%
+> and then later (under memory pressure,
+> page aging, or even "pull" from the fs) submit a whole batch of contiguous
+> pages to the fs efficiently (via ->fill_pages() or whatever).
 
-Elapsed Time      1056.1   (1.92)  1048.2   (0.62)  1064.1   (1.59)
-User Time         1908.1   (1.09)  1895.2   (1.30)  1926.6   (1.39)
-System Time        181.7   (0.60)   177.5   (0.74)   173.8   (1.07)
-    Total          2089.8           2072.7           2100.4
-Percent CPU        197.6   (0.55)   197.0   (0)      197.0   (0)
-Context Switches 49253.6 (136.31) 48881.4  (92.03) 92490.8 (163.71)
-Sleeps           28038.8 (228.11) 28136.0 (250.65) 25769.4 (280.40)
+Can be done right now - XFS does this probe-and-pull operation already for
+writes. See xfs_probe_cluster(), xfs_cluster_write() and friends.
 
-Note that the (slight) increase in the elapsed time when using a soft 
-cap of zero can be directly attributed to the increase in CPU usage due 
-to the cap overhead (an approximate increase of 16 seconds for elapsed 
-time with an approximate increase of 28 seconds (for two CPUs) in CPU 
-time consumed when comparing the "patch applied" and "soft cap 0%" numbers).
+Yes, it would be nice to have the VM pass us clusters of adjacent pages, but
+given that the file layout drives the cluster size it is more appropriate
+to do this from the filesystem. Also, the pages do not contain the state
+necessary for the VM to cluster pages in an way that results in efficient
+I/O patterns.
 
-I think this illustrates that (for soft caps) spare capacity is not wasted?
+Basically, the only thing really needed from the VFS/VM is a method of tagging
+delalloc (or unwritten) pages so that the writepage path knows how to treat
+the page being written. Currently we keep that state in bufferheads (e.g. see
+buffer_delay() usage) attached to the page......
 
- >  (Is this termed "work conserving"?)
+> The fs can know at that time the final file size (if the file isn't still
+> being dirtied), can allocate all these blocks in a contiguous chunk, can
+> submit all of the IO in a single bio to the block layer or RPC/RDMA to net.
 
-I don't know but it sounds apt.
+You don't need to know the final file size - just what is contiguous in the
+page cache and in the same state as the page being flushed.
 
-Peter
-PS For ordinary users, I think that the ability to run jobs in the 
-background by using a soft cap of zero is the most useful thing that 
-this patch provides.
+Cheers,
+
+Dave.
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

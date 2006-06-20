@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWFTRuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWFTRxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWFTRuz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 13:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWFTRuz
+	id S1750734AbWFTRxD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 13:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWFTRxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 13:50:55 -0400
-Received: from lixom.net ([66.141.50.11]:51928 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S1750740AbWFTRuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 13:50:55 -0400
-Date: Tue, 20 Jun 2006 12:50:07 -0500
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Olof Johansson <olof@lixom.net>, paulus@samba.org, linuxppc-dev@ozlabs.org,
-       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [Cbe-oss-dev] [patch 01/20] cell: add RAS support
-Message-ID: <20060620175007.GE4845@pb15.lixom.net>
-References: <20060619183315.653672000@klappe.arndb.de> <20060619183404.144740000@klappe.arndb.de> <20060620154304.GD4845@pb15.lixom.net> <200606201826.54290.arnd@arndb.de>
-MIME-Version: 1.0
+	Tue, 20 Jun 2006 13:53:03 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:52386 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750734AbWFTRxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 13:53:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=ePeODGmwulpG/eboYRo1aH7c2j3hUSQp1YGHx0dU6Zwngwarfim0DtfWMT28pm2v392aABPvv8feuvtowsGdUhAI1SDAybyKXqGiym/HZPHslQmseWCBoADfEHL8wYOIj0fGxnqoOgjxdj0Z30KqBrsNWnnTQ62Wxa4SPB7sikY=
+Date: Tue, 20 Jun 2006 21:53:08 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] nfs: remove nfs_put_link()
+Message-ID: <20060620175308.GA8633@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606201826.54290.arnd@arndb.de>
 User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 06:26:53PM +0200, Arnd Bergmann wrote:
-> On Tuesday 20 June 2006 17:43, Olof Johansson wrote:
-> > 
-> > > This is a first version of support for the Cell BE "Reliability,
-> > > Availability and Serviceability" features.
-> > 
-> > Does it really make sense to do this under a config option? I don't see
-> > why anyone would not want to know that their machine is about to melt.
-> > 
-> You can only have that when running on bare metal. Machines that run
-> on a hypervisor can't run that code.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Well, it's harmless to build it in even on hypervisor systems, right?
+ fs/nfs/symlink.c |   11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-> It probably makes sense to auto-select that option for CONFIG_CELL_BLADE
-> though.
+--- a/fs/nfs/symlink.c
++++ b/fs/nfs/symlink.c
+@@ -75,22 +75,13 @@ read_failed:
+ 	return NULL;
+ }
+ 
+-static void nfs_put_link(struct dentry *dentry, struct nameidata *nd, void *cookie)
+-{
+-	if (cookie) {
+-		struct page *page = cookie;
+-		kunmap(page);
+-		page_cache_release(page);
+-	}
+-}
+-
+ /*
+  * symlinks can't do much...
+  */
+ struct inode_operations nfs_symlink_inode_operations = {
+ 	.readlink	= generic_readlink,
+ 	.follow_link	= nfs_follow_link,
+-	.put_link	= nfs_put_link,
++	.put_link	= page_put_link,
+ 	.getattr	= nfs_getattr,
+ 	.setattr	= nfs_setattr,
+ };
 
-Sounds like a reasonable trade-off.
-
--Olof

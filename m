@@ -1,41 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWFTTge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWFTTim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWFTTge (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 15:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWFTTge
+	id S1750818AbWFTTim (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 15:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWFTTim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 15:36:34 -0400
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:19318 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750812AbWFTTgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 15:36:33 -0400
-Date: Tue, 20 Jun 2006 12:36:20 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: ocilent1@gmail.com, Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-       Hugo Vanwoerkom <rociobarroso@att.net.mx>,
-       linux list <linux-kernel@vger.kernel.org>
-Subject: Re: sound skips on 2.6.16.17
-Message-ID: <20060620193620.GA24097@tuatara.stupidest.org>
-References: <4487F942.3030601@att.net.mx> <200606181204.29626.ocilent1@gmail.com> <20060618044047.GA1261@tuatara.stupidest.org> <200606191154.33747.ocilent1@gmail.com> <1150752280.2754.38.camel@mindpipe> <20060619215023.GA1424@tuatara.stupidest.org> <1150828530.2754.135.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150828530.2754.135.camel@mindpipe>
+	Tue, 20 Jun 2006 15:38:42 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49633
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750818AbWFTTim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 15:38:42 -0400
+Date: Tue, 20 Jun 2006 12:38:50 -0700 (PDT)
+Message-Id: <20060620.123850.112621108.davem@davemloft.net>
+To: stlman@poczta.fm
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ipv6 source address selection in addrconf.c (2.6.17)
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <4497F067.3090008@poczta.fm>
+References: <4497F067.3090008@poczta.fm>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 02:35:29PM -0400, Lee Revell wrote:
 
-> I see that no fix made it into 2.6.17.1 or 2.6.16.22.
+You'll have more luck with this question on netdev@vger.kernel.org,
+which is where the kernel networking developers are subscribed.
 
-both came out very quickly and i was waiting on the results from a
-couple of people
-
-> What is the downside of simply reverting the patch that introduced the
-> regression?
-
-it breaks for some other people, it's not clear what the 'right' fix
-here should be, but it might end up being the lesser of two evils
-
-it would be *really* nice if someone from VIA could weigh in here
+Thank you.

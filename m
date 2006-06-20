@@ -1,62 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWFTLuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWFTLuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbWFTLuV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 07:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWFTLuU
+	id S1030223AbWFTLuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 07:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWFTLuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 07:50:20 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:40321 "EHLO
+	Tue, 20 Jun 2006 07:50:09 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10625 "EHLO
 	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
-	id S1030224AbWFTLuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 07:50:18 -0400
-Message-Id: <20060620114733.957367000@sous-sol.org>
+	id S1030223AbWFTLts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 07:49:48 -0400
+Message-Id: <20060620114708.454448000@sous-sol.org>
 References: <20060620114527.934114000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 20 Jun 2006 00:00:07 -0700
+Date: Tue, 20 Jun 2006 00:00:05 -0700
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Russell King <rmk+kernel@arm.linux.org.uk>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 07/13] SERIAL: PARPORT_SERIAL should depend on SERIAL_8250_PCI
-Content-Disposition: inline; filename=serial-parport_serial-should-depend-on-serial_8250_pci.patch
+       Oleg Drokin <green@linuxhacker.ru>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 05/13] [PATCH] Missed error checking for intents filp in open_namei().
+Content-Disposition: inline; filename=missed-error-checking-for-intent-s-filp-in-open_namei.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From:	Russell King <rmk+lkml@arm.linux.org.uk>
+From: Oleg Drokin <green@linuxhacker.ru>
 
-Since parport_serial uses symbols from 8250_pci, there should
-be a dependency between the configuration symbols for these
-two modules.  Problem reported by Andrey Borzenkov
+It seems there is error check missing in open_namei for errors returned
+through intent.open.file (from lookup_instantiate_filp).
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+If there is plain open performed, then such a check done inside
+__path_lookup_intent_open called from path_lookup_open(), but when the open
+is performed with O_CREAT flag set, then __path_lookup_intent_open is only
+called with LOOKUP_PARENT set where no file opening can occur yet.
+
+Later on lookup_hash is called where exact opening might take place and
+intent.open.file may be filled.  If it is filled with error value of some
+sort, then we get kernel attempting to dereference this error value as
+address (and corresponding oops) in nameidata_to_filp() called from
+filp_open().
+
+While this is relatively simple to workaround in ->lookup() method by just
+checking lookup_instantiate_filp() return value and returning error as
+needed, this is not so easy in ->d_revalidate(), where we can only return
+"yes, dentry is valid" or "no, dentry is invalid, perform full lookup
+again", and just returning 0 on error would cause extra lookup (with
+potential extra costly RPCs).
+
+So in short, I believe that there should be no difference in error handling
+for opening a file and creating a file in open_namei() and propose this
+simple patch as a solution.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
 ---
+ fs/namei.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
- drivers/parport/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.16.21.orig/drivers/parport/Kconfig
-+++ linux-2.6.16.21/drivers/parport/Kconfig
-@@ -48,7 +48,7 @@ config PARPORT_PC
+--- linux-2.6.16.21.orig/fs/namei.c
++++ linux-2.6.16.21/fs/namei.c
+@@ -1628,6 +1628,12 @@ do_last:
+ 		goto exit;
+ 	}
  
- config PARPORT_SERIAL
- 	tristate "Multi-IO cards (parallel and serial)"
--	depends on SERIAL_8250 && PARPORT_PC && PCI
-+	depends on SERIAL_8250_PCI && PARPORT_PC && PCI
- 	help
- 	  This adds support for multi-IO PCI cards that have parallel and
- 	  serial ports.  You should say Y or M here.  If you say M, the module
++	if (IS_ERR(nd->intent.open.file)) {
++		mutex_unlock(&dir->d_inode->i_mutex);
++		error = PTR_ERR(nd->intent.open.file);
++		goto exit_dput;
++	}
++
+ 	/* Negative dentry, just create the file */
+ 	if (!path.dentry->d_inode) {
+ 		if (!IS_POSIXACL(dir->d_inode))
 
 --

@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWFTVZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWFTV0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWFTVZh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWFTVZg
+	id S1751198AbWFTV0J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWFTV0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:25:36 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:58312 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751188AbWFTVZL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:25:11 -0400
-Date: Tue, 20 Jun 2006 22:25:11 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, serue@us.ibm.com,
-       haveblue@us.ibm.com, clg@fr.ibm.com
-Subject: Re: [RFC] [patch 0/6] [Network namespace] introduction
-Message-ID: <20060620212511.GW27946@ftp.linux.org.uk>
-References: <20060609210202.215291000@localhost.localdomain> <20060618184734.GB27946@ftp.linux.org.uk> <449866E7.4050508@fr.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <449866E7.4050508@fr.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Jun 2006 17:26:06 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:37346 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751192AbWFTVZk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 17:25:40 -0400
+Message-ID: <449867D2.3020909@garzik.org>
+Date: Tue, 20 Jun 2006 17:25:38 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: Re: [GIT PATCH] SCSI updates for 2.6.17
+References: <1150837947.2531.27.camel@mulgrave.il.steeleye.com> <449866E3.8010200@garzik.org>
+In-Reply-To: <449866E3.8010200@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 11:21:43PM +0200, Daniel Lezcano wrote:
-> Al Viro wrote:
-> >On Fri, Jun 09, 2006 at 11:02:02PM +0200, dlezcano@fr.ibm.com wrote:
-> >- renaming an interface in one "namespace" affects everyone.
+Jeff Garzik wrote:
+> James Bottomley wrote:
+>> This represents the almost complete SCSI pending list apart from a SAS
+>> port update which we're still trying to beat into shape.  The patch can
+>> be pulled from here:
 > 
-> Exact. If we ensure the interface can't be renamed if used in different 
-> namespace, is it really a problem ?
+> When will aic94xx head upstream?  Even though it is seeing changes in 
+> your repo, I would rather not hide the driver for another six months.
+> 
+> aic94xx is the only all-software-stack SAS user at present, so I think 
+> its reasonable to get it into the tree, and make changes upstream.
 
-You _still_ have a single namespace; look in /sys/class/net and you'll see.
+I should have also mentioned the "it works" characteristic that aic94xx 
+continues to have.
+
+	Jeff
+
+

@@ -1,115 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbWFTI0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWFTI1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965178AbWFTI0e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWFTI0e
+	id S932166AbWFTI1b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWFTI1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:26:34 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:35537 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S965001AbWFTI0d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:26:33 -0400
-Message-ID: <4497B126.4000408@bull.net>
-Date: Tue, 20 Jun 2006 10:26:14 +0200
-From: Laurent Vivier <Laurent.Vivier@bull.net>
-Organization: Bull S.A.S.
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 20 Jun 2006 04:27:31 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:60614 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932166AbWFTI1a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:27:30 -0400
+Message-ID: <4497B16E.6020103@garzik.org>
+Date: Tue, 20 Jun 2006 04:27:26 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Qi Yong <qiyong@fc-cn.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-       alex@clusterfs.com, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
-References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org>	<1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>	<Pine.LNX.4.64.0606091344290.5498@g5.osdl.org> <4497927F.4070307@fc-cn.com>
-In-Reply-To: <4497927F.4070307@fc-cn.com>
-X-Enigmail-Version: 0.94.0.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/06/2006 10:30:15,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/06/2006 10:30:17,
-	Serialize complete at 20/06/2006 10:30:17
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig9E9CDA42B220698FCA17ABA6"
+To: Andi Kleen <ak@suse.de>
+CC: discuss@x86-64.org, Dave Olson <olson@unixfolk.com>,
+       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
+       Greg Lindahl <greg.lindahl@qlogic.com>, gregkh@suse.de
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
+ Hyper-transport capabilities
+References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <200606200925.30926.ak@suse.de> <4497ABAC.4030305@garzik.org> <200606201013.51564.ak@suse.de>
+In-Reply-To: <200606201013.51564.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9E9CDA42B220698FCA17ABA6
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Qi Yong wrote:
-> Linus Torvalds wrote:
->=20
->> On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
->> =20
+Andi Kleen wrote:
+> On Tuesday 20 June 2006 10:02, Jeff Garzik wrote:
+>> Andi Kleen wrote:
+>>> So if there are any more MSI problems comming up IMHO it should be white list/disabled 
+>>> by default and only turn on after a long time when Windows uses it by default 
+>>> or something. Greg, do you agree?
 >>
->>> When is the Linux syscall interface enough?  When should we just bump=
- it
->>> and cut out all the compatibility interfaces?
->>>
->>> No, we don't; we let people configure certain obsolete bits out (a.ou=
-t
->>> support etc), but we keep it in the tree despite the indirection cost=
- to
->>> maintain multiple interfaces etc.
->>>   =20
->>>
->> Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN WAYS =
-THAT=20
->> MIGHT BREAK OLD USERS.
->>
->> Your point was exactly what?
->>
->> Btw, where did that 2TB limit number come from? Afaik, it should be 16=
-TB=20
->> for a 4kB filesystem, no?
->> =20
->>
->=20
-> Partition tables describe partitions in units of one sector.
-> 2^(32+9) =3D 2T
->=20
-> To prevent integer overflow, we should use only 31 bits of a 32-bit int=
-eger.
-> 2^(31+12) =3D 8T
->=20
-> There's _terrible_ hacks to really get to 16T.
->=20
-> -- qiyong
->=20
+>> We should be optimists, not pessimists.
+> 
+> Yes, booting on all systems is overrated anyways, isn't it?
 
-IMHO, a simple solution is to use "Logical Volume Manager" instead of par=
-tition
-manager: we create 64bit filesystem in a Logical Volume, not in a partiti=
-on.
+Don't be silly.  Whatever solution is arrived at will boot on all 
+systems.  That's an obvious operational requirement.
 
-"partitioning is obsolete" ;-)
+This is how new technology always works in Linux.  We turn it on and see 
+what works, and what doesn't.  And whether existing problems will 
+disappear.  With MSI, I think we see them disappearing.
 
-Regards,
-Laurent
+Newer systems seem to be doing better with MSI, in part because 
+PCI-Express and other technologies trend towards MSI-style operation.
 
---=20
-Laurent Vivier
-Bull, Architect of an Open World (TM)
-http://www.bullopensource.org/ext4
+And the kernel's MSI code is finally getting cleaned up, and getting the 
+attention it needs.
 
 
---------------enig9E9CDA42B220698FCA17ABA6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+>> MSI is useful enough that we should turn it on by default in newer systems.
+> 
+> That is what we've tried so far and it seems to not work.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
+IMO that's an exaggeration.  On 50% of the x86-64 platforms (Intel), MSI 
+has been working for quite some time.  On newer systems in the other 
+half of the platforms, MSI seems be more usable than it has been in the 
+past.
 
-iD8DBQFEl7Eq9Kffa9pFVzwRAnegAJ9qmnAQT8FsgHL4QmwS9ocR1W2X7QCeOFr3
-2yXHSlWvhIdvdXh0yhGvvA8=
-=Pdyx
------END PGP SIGNATURE-----
+	Jeff
 
---------------enig9E9CDA42B220698FCA17ABA6--
+

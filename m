@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWFTI44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbWFTI5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWFTI44 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWFTI4z
+	id S965219AbWFTI5F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWFTI5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:56:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11936 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965219AbWFTI4z (ORCPT
+	Tue, 20 Jun 2006 04:57:04 -0400
+Received: from lucidpixels.com ([66.45.37.187]:63926 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S965219AbWFTI5C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:56:55 -0400
-Date: Tue, 20 Jun 2006 01:56:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: andi@lisas.de
-Cc: andim2@users.sourceforge.net, linux-kernel@vger.kernel.org,
-       hal@lists.freedesktop.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB/hal: USB open() broken? (USB CD burner underruns, USB HDD
- hard resets)
-Message-Id: <20060620015641.98368543.akpm@osdl.org>
-In-Reply-To: <20060620084759.GA798@rhlx01.fht-esslingen.de>
-References: <20060619082154.GA17129@rhlx01.fht-esslingen.de>
-	<20060620013741.8e0e4a22.akpm@osdl.org>
-	<20060620084759.GA798@rhlx01.fht-esslingen.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 04:57:02 -0400
+Date: Tue, 20 Jun 2006 04:57:01 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Avuton Olrich <avuton@gmail.com>
+cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+Subject: Re: XFS crashed twice, once in 2.6.16.20, next in 2.6.17, reproducable
+In-Reply-To: <3aa654a40606192340l67d0353fj875767d33d8bd493@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0606200456540.3182@p34.internal.lan>
+References: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com> 
+ <20060620161006.C1079661@wobbly.melbourne.sgi.com>
+ <3aa654a40606192340l67d0353fj875767d33d8bd493@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 10:47:59 +0200
-Andreas Mohr <andim2@users.sourceforge.net> wrote:
+Have you checked to make sure you don't have a bad disk?
 
-> Just filed this as
-> http://bugzilla.kernel.org/show_bug.cgi?id=6722
-> due to no response here before.
+On Mon, 19 Jun 2006, Avuton Olrich wrote:
 
-I saw it, which is why I hunted down this email.  I hadn't even got that
-far into my lkml reading, actually.  You should wait 2-3 days to be really
-sure that a bug is being ignored.  Although with one like this, it's a fair
-bet that it will be.
-
-> (#6194 looks like it might be the same issue)
-> 
-> I'd suggest continuing discussion at bug #6722 from now.
-
-No, I tend to think it's better to resort to bugzilla only after a few
-days, when the trail has gone cold.
+> On 6/19/06, Nathan Scott <nathans@sgi.com> wrote:
+>> How reproducible is it?  Is it reproducible even after xfs_repair?
+> It happens everytime I try to delete the directory.
+>
+> Also, forgot to mention I ran xfs_check on it and it gave me more
+> information than I had before:
+> More information, ran xfs_check and got the following:
+> missing free index for data block 0 in dir ino 1507133580
+> missing free index for data block 2 in dir ino 1507133580
+> missing free index for data block 3 in dir ino 1507133580
+> missing free index for data block 4 in dir ino 1507133580
+> missing free index for data block 5 in dir ino 1507133580
+> missing free index for data block 6 in dir ino 1507133580
+> missing free index for data block 7 in dir ino 1507133580
+> missing free index for data block 8 in dir ino 1507133580
+> missing free index for data block 9 in dir ino 1507133580
+>
+> -- 
+> avuton
+> --
+> Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+>
+>

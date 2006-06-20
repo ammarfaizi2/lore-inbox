@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWFTUjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWFTUlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbWFTUjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWFTUjI
+	id S1751001AbWFTUlN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWFTUlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:39:08 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:719 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750989AbWFTUjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:39:07 -0400
-Subject: Re: 2.6.17-rc6-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060620132431.e00a5c68.akpm@osdl.org>
-References: <20060607104724.c5d3d730.akpm@osdl.org>
-	 <20060608050047.GB16729@redhat.com>
-	 <1150825349.2891.219.camel@laptopd505.fenrus.org>
-	 <20060620132431.e00a5c68.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 20 Jun 2006 22:38:59 +0200
-Message-Id: <1150835940.2891.225.camel@laptopd505.fenrus.org>
+	Tue, 20 Jun 2006 16:41:13 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:58072 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1750870AbWFTUlK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:41:10 -0400
+Date: Tue, 20 Jun 2006 13:41:09 -0700
+From: Greg Lindahl <greg.lindahl@qlogic.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: ak@suse.de, olson@unixfolk.com, discuss@x86-64.org, brice@myri.com,
+       linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilities
+Message-ID: <20060620204109.GA1980@greglaptop.internal.keyresearch.com>
+Mail-Followup-To: "Randy.Dunlap" <rdunlap@xenotime.net>, ak@suse.de,
+	olson@unixfolk.com, discuss@x86-64.org, brice@myri.com,
+	linux-kernel@vger.kernel.org, gregkh@suse.de
+References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no> <fa.URgTUhhO9H/aLp98XyIN2gzSppk@ifi.uio.no> <Pine.LNX.4.61.0606192237560.25433@osa.unixfolk.com> <200606200925.30926.ak@suse.de> <20060620200352.GJ1414@greglaptop.internal.keyresearch.com> <20060620132049.ff5e6f67.rdunlap@xenotime.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060620132049.ff5e6f67.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.1i
+X-Frumious: Bandersnatch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-20 at 13:24 -0700, Andrew Morton wrote:
-> On Tue, 20 Jun 2006 19:42:29 +0200
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> 
-> >  /*
-> > + * Lock a file handle/inode to be used as parent dir for another
-> > + * NOTE: both fh_lock and fh_unlock are done "by hand" in
-> > + * vfs.c:nfsd_rename as it needs to grab 2 i_mutex's at once
-> > + * so, any changes here should be reflected there.
-> > + */
-> > +static inline void
-> > +fh_lock_parent(struct svc_fh *fhp)
-> > +{
-> > +	struct dentry	*dentry = fhp->fh_dentry;
-> > +	struct inode	*inode;
-> > +
-> > +	dfprintk(FILEOP, "nfsd: fh_lock(%s) locked = %d\n",
-> > +			SVCFH_fmt(fhp), fhp->fh_locked);
-> > +
-> > +	if (!fhp->fh_dentry) {
-> > +		printk(KERN_ERR "fh_lock: fh not verified!\n");
-> > +		return;
-> > +	}
-> > +	if (fhp->fh_locked) {
-> > +		printk(KERN_WARNING "fh_lock: %s/%s already locked!\n",
-> > +			dentry->d_parent->d_name.name, dentry->d_name.name);
-> > +		return;
-> > +	}
-> > +
-> > +	inode = dentry->d_inode;
-> > +	mutex_lock_nested(&inode->i_mutex, I_MUTEX_PARENT);
-> > +	fill_pre_wcc(fhp);
-> > +	fhp->fh_locked = 1;
-> > +}
-> 
-> yikes, five callsites, and fill_pre_wcc() is inlined too.
+On Tue, Jun 20, 2006 at 01:20:49PM -0700, Randy.Dunlap wrote:
 
-if this patch works for Dave I'll make one that just inlines this (and
-the other one) as well; as you said.. 5+ call sites...
-(and in fact there used to be an out-of-line function for this at some
-point so.. it's not unheard of)
+> Does it cover the 10 new models that are available tomorrow?
+> (hypothetical question)
+
+I see several people on this list who are aware of forthcoming PCI
+Express server products, and they aren't objecting to broad
+whitelisting of PCI Express.
+
+Is there any known case of PCI Express and MSI not working on any
+chipset? Andi, is the tg3 NIC that didn't work in a Supermicro system
+on PCI-X or PCI Express?
+
+-- greg
+
 

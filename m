@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWFTTLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWFTTap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWFTTLl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 15:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWFTTLl
+	id S1750789AbWFTTap (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 15:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWFTTap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 15:11:41 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:48785 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1750802AbWFTTLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 15:11:40 -0400
-Date: Tue, 20 Jun 2006 16:11:34 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+	Tue, 20 Jun 2006 15:30:45 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:4550 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1750789AbWFTTao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 15:30:44 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44984CA1.5010308@s5r6.in-berlin.de>
+Date: Tue, 20 Jun 2006 21:29:37 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
 To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: gregkh@suse.de, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Serial-Core: USB-Serial port current issues.
-Message-ID: <20060620161134.20c1316e@doriath.conectiva>
-In-Reply-To: <20060614152809.GA17432@flint.arm.linux.org.uk>
-References: <20060613192829.3f4b7c34@home.brethil>
-	<20060614152809.GA17432@flint.arm.linux.org.uk>
-Organization: Mandriva
-X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.9.3; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [git pull] ieee1394 tree for 2.6.18
+References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org> <20060620025552.GO27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org> <20060620175321.GA7463@flint.arm.linux.org.uk>
+In-Reply-To: <20060620175321.GA7463@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.361) AWL,BAYES_05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jun 2006 16:28:09 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Russell King wrote:
+> On Mon, Jun 19, 2006 at 08:14:45PM -0700, Linus Torvalds wrote:
+>>I want them to tell me what they are sending, so that _when_ I pull, I can 
+>>line up the result of that pull with the mail they sent, and I can tell 
+>>"ok, that's actually what the other side intended".
+> 
+> Given that you've complained about me sending daily pull requests
+> already, how do you intend folk to handle the situation where they've
+> sent you a pull request, it's apparantly been ignored, and they update
+> the tree from which you pull (maybe for akpm's benefit) and then you
+> eventually get around to pulling it a couple of days later?
+[...]
 
-| On Tue, Jun 13, 2006 at 07:28:29PM -0300, Luiz Fernando N. Capitulino wrote:
-| >  I took a look in the Serial Core code and didn't see why set_termios()
-| > and break_ctl() (plus tx_empty()) are not allowed to sleep: they doesn't
-| > seem to run in atomic context. So, are they allowed to sleep? Isn't the
-| > documentation out of date? I've even submitted a patch to fix it [2].
-| 
-| You are correct - and I will eventually apply your patch.  At the
-| moment, I'm throttling back on applying patches so that 2.6.17 can
-| finally appear (I don't want to be responsible for Linus saying
-| again "too many changes for -final, let's do another -rc".)
-| 
-| >  For get_mctrl() and set_mctrl() it seems possible to switch from a
-| > spinlock to a mutex, as they are not called from an interrupt context.
-| > Is this really possible? Would you agree with this change?
-| 
-| I don't know - that depends whether the throttle/unthrottle driver
-| methods are ever called from interrupt context or not.
-| 
-| What we could do is put a WARN_ON() or might_sleep() in there and
-| find out over time if they are called from non-process context.
-
- Ok, I've put a WARN_ON(in_interrupt()) (as suggested by Greg) in
-all the functions which grabs the 'port->lock' spinlock and didn't
-get anything with my tests (PPP through a standard modem, serial
-console and other simple tests).
-
- I could submit that debug patch to Andrew, but now I'm wondering
-whether the switch is really possible (considering, of course, that
-those functions are not called from interrupt context).
-
- Pete, was it your original idea to completely move from the spinlock
-to a mutex?
-
+I don't maintain git repos myself, but I'd say _branches_ or something 
+like that might be the way to go.
 -- 
-Luiz Fernando N. Capitulino
+Stefan Richter
+-=====-=-==- -==- =-=--
+http://arcgraph.de/sr/

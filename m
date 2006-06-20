@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbWFTLIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWFTLOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932597AbWFTLIn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 07:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbWFTLIn
+	id S964934AbWFTLOg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 07:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbWFTLOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 07:08:43 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:24025 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932597AbWFTLIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 07:08:42 -0400
-Date: Tue, 20 Jun 2006 06:08:24 -0500
-From: Robin Holt <holt@sgi.com>
-To: Jes Sorensen <jes@sgi.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, hugh@veritas.com,
-       cotte@de.ibm.com, bjorn_helgaas@hp.com
-Subject: Re: [patch] mspec
-Message-ID: <20060620110824.GB3099@lnx-holt.americas.sgi.com>
-References: <yq0lkrtzelk.fsf@jaguar.mkp.net> <20060619085855.277cd217.rdunlap@xenotime.net> <4497AC8D.6000808@sgi.com>
+	Tue, 20 Jun 2006 07:14:36 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:37388 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932596AbWFTLOf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 07:14:35 -0400
+Date: Tue, 20 Jun 2006 21:14:30 +1000
+To: Joachim Fritschi <jfritschi@freenet.de>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH  4/4] Twofish cipher - x86_64 assembler
+Message-ID: <20060620111430.GA13878@gondor.apana.org.au>
+References: <200606041516.46920.jfritschi@freenet.de> <200606191613.01212.jfritschi@freenet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4497AC8D.6000808@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200606191613.01212.jfritschi@freenet.de>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 10:06:37AM +0200, Jes Sorensen wrote:
-> Randy.Dunlap wrote:
-> > On 19 Jun 2006 05:20:23 -0400 Jes Sorensen wrote:
+On Mon, Jun 19, 2006 at 04:13:01PM +0200, Joachim Fritschi wrote:
+> This patch is now based on the cryptodev tree using the new cryptoapi (crypto  tfm
+>  instead of the crypto ctx as parameter).
 > 
-> >> +MODULE_INFO(supported, "external");
+> The module passed the tcrypt tests and testscripts.
+> 
+> Signed-off-by: Joachim Fritschi <jfritschi@freenet.de>
 
-That is a SuSE thing that keeps the tainted flag from being set.
+Thanks Joachim.  I've applied all four patches.  I had to add wrappers
+around the twofish assembly routines because asmlinkage may differ from
+the normal C calling convention.  It should get optimised away to just
+a jump if the conventions are identical.
 
-Thanks,
-Robin
+BTW Andi, I think it might be better to have the x86-64 patch sit in the
+cryptodev tree rather than x86-64 because it won't even compile without
+the previous patches.  If you really want to, I can leave out the x86-64
+one in particular for you to merge after the others go upstream.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

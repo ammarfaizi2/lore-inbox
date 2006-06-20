@@ -1,88 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWFTIdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWFTIhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbWFTIdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965039AbWFTIdG
+	id S965043AbWFTIhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWFTIhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:33:06 -0400
-Received: from nz-out-0102.google.com ([64.233.162.198]:50631 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965038AbWFTIdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:33:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ob1VmoDe/edlpc9s0Mz+kEL0Hrg0Prg08HwvXS+w+vgFyxKl3y9UeCNJZyuCZ2NO2YmPlSnhkQjs2di2dA98GXmNVpH08tkILI1AxZaQ7REBfrAIZRqI0ldm4xhXjgkyyCjsh7azsqH6Fu1Uio6jbtlL+zaPU0qbS9wi4pLkat4=
-Message-ID: <4497B2B5.4040001@gmail.com>
-Date: Tue, 20 Jun 2006 16:32:53 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Tue, 20 Jun 2006 04:37:15 -0400
+Received: from mx2.suse.de ([195.135.220.15]:48515 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965043AbWFTIhO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:37:14 -0400
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-git build breakage
+Date: Tue, 20 Jun 2006 10:37:05 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org, davej@redhat.com,
+       linux-kernel@vger.kernel.org
+References: <4497A871.8000303@garzik.org> <20060620011738.d72147a8.akpm@osdl.org>
+In-Reply-To: <20060620011738.d72147a8.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/9] VT binding: Make VT binding a Kconfig option
-References: <44957026.2020405@gmail.com>	 <9e4733910606191718n74d0bf40na7b0cc3902d80172@mail.gmail.com>	 <44974AC7.4060708@gmail.com> <9e4733910606191916i1994d4d1i2ea661e015431750@mail.gmail.com>
-In-Reply-To: <9e4733910606191916i1994d4d1i2ea661e015431750@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606201037.05610.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On 6/19/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> Jon Smirl wrote:
->> > I gave this patch a try and it seems to work. I say seems because I
->> > could not get the nvidiafb driver to set a usable mode after it was
->> > bound/unbound.
->>
->> What do you mean by this?  You mean that you cannot restore vgacon?
->> If that's the case, then yes, that is perfectly understandable as
->> nvidiafb does not restore VGA to text mode.
+On Tuesday 20 June 2006 10:17, Andrew Morton wrote:
+> On Tue, 20 Jun 2006 03:49:05 -0400
+> Jeff Garzik <jeff@garzik.org> wrote:
 > 
-> modprobe fbcon
-> modprobe nvidiafb
+> > On the latest 'git pull', on x86-64 SMP 'make allmodconfig', I get the 
+> > following build breakage:
+> > 
+> > 1) myri10ge: needs iowrite64_copy from -mm
 > 
-> Display is messed up.
+> Patch has been sent.
 > 
-> I used to fix this by switching to X and back but the nvidia X driver
-> won't build on the mm kernel. I can try again and write a script to
-> echo a mode into sysfs after the modprobe.
+> > 2) forcedeth: git tree conflict, Herbert sent a patch
+> > 
+> > 3) pci-gart (ouch!) link: no fix seen yet
+> > 
+> > [...]
+> >    LD      init/built-in.o
+> >    LD      .tmp_vmlinux1
+> > arch/x86_64/kernel/built-in.o: In function `pci_iommu_init':
+> > arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_amd64_init'
+> > arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_bridge'
+> > arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_copy_info'
+> > make: *** [.tmp_vmlinux1] Error 1
 > 
-> When fbcon first gets a new fbdev driver registered with it, should it
-> pick one of the modes is supports and set it automatically?
+> hm.  I could swear we fixed that multiple times, but I don't seem to be
+> able to locate the patch.
+> 
+> This one, perhaps?
 
-All fbdev drivers have a startup mode that should always be valid. All
-fbcon does is enable that mode.
+Is it new anyways? I don't think either me nor Dave changed anything 
+in this area yet post .17
 
-You can load nvidiafb like this instead:
+Anyways looks good although the old code worked at some point ...
 
-modprobe nvidiafb mode_option=1024x768@60
+-Andi
 
 > 
->>  or would it be better for each driver to set in a
->> > default mode that it understands when it gets control? The fbdev
->> > driver should not set a mode when it loads, but that doesn't mean
->> > fbcon can't set one when it is activated. Similarly VGAcon would set
->> > the mode (and load its fonts) when it regains control.
->>
->> The problem with vgacon setting its own mode is that it does not know
->> anything about the hardware. So VGA text mode will need to rely on
->> a secondary program to set the mode (whether it's vbetool, another
->> fb driver, or X does not matter).
+> use select for GART_IOMMU to enable AGP
 > 
-> How does vbetool save state?
-
-vbetool basically calls an int10 function that saves the state.  This
-function is unique per video BIOS, ie you cannot use the state file in
-another machine even if the graphics chipset is the same.
-
-> Could VGAcon do whatever vbetool is doing?
- 
-No it can't.  Once the card is in graphics mode, vgacon cannot go to
-text mode on its own.  It has to know how to write to other VGA
-registers which are unique per hardware.
-
-Tony
-
+> From: Roman Zippel <zippel@linux-m68k.org>
+> 
+> The AGP default doesn't work well with other selects, so use a select for
+> GART_IOMMU as well.  Remove a redundant default for SWIOTLB as well.
+>

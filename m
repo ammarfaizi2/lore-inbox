@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWFTRxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWFTSDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWFTRxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 13:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWFTRxg
+	id S1750759AbWFTSDW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 14:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWFTSDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 13:53:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25102 "EHLO
+	Tue, 20 Jun 2006 14:03:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63241 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750741AbWFTRxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 13:53:35 -0400
-Date: Tue, 20 Jun 2006 18:53:21 +0100
+	id S1750754AbWFTSDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 14:03:22 -0400
+Date: Tue, 20 Jun 2006 19:03:13 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Ben Collins <bcollins@ubuntu.com>,
-       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [git pull] ieee1394 tree for 2.6.18
-Message-ID: <20060620175321.GA7463@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	Stefan Richter <stefanr@s5r6.in-berlin.de>,
-	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-	Ben Collins <bcollins@ubuntu.com>,
-	Jody McIntyre <scjody@modernduck.com>,
-	Andrew Morton <akpm@osdl.org>
-References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org> <20060620025552.GO27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org>
+To: 7eggert@gmx.de
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Lord <lkml@rtr.ca>,
+       Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+Subject: Re: Linux 2.6.17: IRQ handler mismatch in serial code?
+Message-ID: <20060620180313.GC7463@flint.arm.linux.org.uk>
+Mail-Followup-To: 7eggert@gmx.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mark Lord <lkml@rtr.ca>, Chris Rankin <rankincj@yahoo.com>,
+	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+References: <6pwmi-8mW-1@gated-at.bofh.it> <6px8R-Y7-43@gated-at.bofh.it> <6pxV5-2ci-13@gated-at.bofh.it> <6pz12-3Rg-67@gated-at.bofh.it> <6pzX4-5jE-19@gated-at.bofh.it> <6pA6B-5K8-33@gated-at.bofh.it> <E1FshOP-0000pd-No@be1.lrz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org>
+In-Reply-To: <E1FshOP-0000pd-No@be1.lrz>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 08:14:45PM -0700, Linus Torvalds wrote:
-> I want them to tell me what they are sending, so that _when_ I pull, I can 
-> line up the result of that pull with the mail they sent, and I can tell 
-> "ok, that's actually what the other side intended".
+On Tue, Jun 20, 2006 at 04:39:49PM +0200, Bodo Eggert wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > Ar Llu, 2006-06-19 am 17:52 -0400, ysgrifennodd Mark Lord:
+> 
+> >> Eh?  The vast majority of ISA bus devices have open-collector IRQ lines,
+> > 
+> > Not in my experience. In the network work at least very few are, they
+> > all drive the chip lines all the time. Thats why Don Becker made sure
+> > such drivers grab the lines at startup. Those which can share IRQ or
+> > move IRQ grab at open
+> 
+> There are thousands of NE2K-clones, the driver can't know if sharing the IRQ
+> will be OK for a given card. Is the change for sharing IRQs trivial enough
+> to allow an if/else based on a load-time module parameter?
 
-Given that you've complained about me sending daily pull requests
-already, how do you intend folk to handle the situation where they've
-sent you a pull request, it's apparantly been ignored, and they update
-the tree from which you pull (maybe for akpm's benefit) and then you
-eventually get around to pulling it a couple of days later?
+Not if it's an ISA card.  You need to loop over all interrupt source
+devices until you're certain that they have released the interrupt
+line before returning, otherwise you will end up with the IRQ line
+stuck in a state where it can't cause any further interrupts.
 
-Given your complaint and your comments above, I can only assume that
-I must not touch a tree which I've asked you to pull for 48 hours
-just in case you do decide to honour the pull request.
-
-If that's not the case, we need something in place so we know what
-your intentions are.  Or we just say "sod it, we'll update the tree
-anyway and see what happens, and send an updated request after 48
-hours."
+The kernel has no such infrastructure, except within the serial driver
+to allow multiple serial ports to share a common interrupt.
 
 -- 
 Russell King

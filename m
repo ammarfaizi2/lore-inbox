@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWFTKIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWFTKOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbWFTKIf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 06:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFTKIf
+	id S932583AbWFTKOw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 06:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWFTKOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 06:08:35 -0400
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:12551 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932577AbWFTKIf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 06:08:35 -0400
-Date: Tue, 20 Jun 2006 12:08:36 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Pete Popov <ppopov@embeddedalley.com>
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: Re: i2c-algo-ite and i2c-ite planned for removal
-Message-Id: <20060620120836.628ddc79.khali@linux-fr.org>
-In-Reply-To: <1150735558.8413.7.camel@localhost.localdomain>
-References: <20060615225723.012c82be.khali@linux-fr.org>
-	<1150406598.1193.73.camel@localhost.localdomain>
-	<20060616222908.f96e3691.khali@linux-fr.org>
-	<1150735558.8413.7.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Tue, 20 Jun 2006 06:14:52 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:53635 "EHLO
+	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
+	id S932583AbWFTKOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 06:14:51 -0400
+Date: Tue, 20 Jun 2006 03:13:50 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.17.1
+Message-ID: <20060620101350.GE23467@sequoia.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pete,
+We (the -stable team) are announcing the release of the 2.6.17.1 kernel.
 
-> > > For historical correctness, this driver was once upon a time usable,
-> > > though it was a few years ago. It was written by MV for some ref board
-> > > that had the ITE chip and it did work. That ref board is no longer
-> > > around so it's probably safe to nuke the driver. 
-> > 
-> > In which kernel version? In every version I checked (2.4.12, 2.4.30,
-> > 2.6.0 and 2.6.16) it wouldn't compile due to struct iic_ite being used
-> > but never defined (and possibly other errors, but I can't test-compile
-> > the driver.)
-> 
-> Honestly, I don't remember. I think it was one of the very first 2.6
-> kernels because when MV first released a 2.6 product, 2.6 was still
-> 'experimental'. It's quite possible of course that the driver was never
-> properly merged upstream in the community tree(s). But I do know that it
-> worked in the internal MV tree and an effort was made to get the driver
-> accepted upstream.
+The diffstat and short summary of the fixes are below.
 
-I couldn't find any evidence of this effort. Whatever, past is past, if
-someone fixes the i2c-ite and i2c-algo-ite drivers soon, fine with me,
-if not, the drivers will be deleted (which doesn't mean they can't be
-resurrected later if there is interest and someone takes over
-maintenance.) I'm setting the deadline to September 2006.
+I'll also be replying to this message with a copy of the patch between
+2.6.17 and 2.6.17.1, as it is small enough to do so.
 
--- 
-Jean Delvare
+The updated 2.6.17.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.17.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+(note: the main -stable git tree update will lag a half-day or so for this one,
+use git://git.kernel.org/pub/scm/linux/kernel/git/chrisw/linux-2.6.17.y.git for
+now)
+
+thanks,
+-chris
+
+--------
+
+ Makefile                |    2 +-
+ net/netfilter/xt_sctp.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+Summary of changes from v2.6.17 to v2.6.17.1
+================================================
+
+Chris Wright:
+      Linux 2.6.17.1
+
+Patrick McHardy:
+      xt_sctp: fix endless loop caused by 0 chunk length (CVE-2006-3085)
+

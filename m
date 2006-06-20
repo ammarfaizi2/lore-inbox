@@ -1,62 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWFTDpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965454AbWFTDt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWFTDpV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jun 2006 23:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWFTDpV
+	id S965454AbWFTDt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jun 2006 23:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965457AbWFTDt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jun 2006 23:45:21 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:64429 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932537AbWFTDpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jun 2006 23:45:20 -0400
-Date: Tue, 20 Jun 2006 12:46:10 +0900
-From: "Akiyama, Nobuyuki" <akiyama.nobuyuk@jp.fujitsu.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: vgoyal@in.ibm.com, Preben.Trarup@ericsson.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] kdump: add a missing notifier before
- crashing
-Message-Id: <20060620124610.79c4f5a1.akiyama.nobuyuk@jp.fujitsu.com>
-In-Reply-To: <m1zmg9ghlr.fsf@ebiederm.dsl.xmission.com>
-References: <20060615201621.6e67d149.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1d5d9pqbr.fsf@ebiederm.dsl.xmission.com>
-	<20060616211555.1e5c4af0.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1odwtnjke.fsf@ebiederm.dsl.xmission.com>
-	<20060619163053.f0f10a5e.akiyama.nobuyuk@jp.fujitsu.com>
-	<m1y7vtia7r.fsf@ebiederm.dsl.xmission.com>
-	<4496A677.3020301@ericsson.com>
-	<m1hd2hhyzn.fsf@ebiederm.dsl.xmission.com>
-	<20060619170711.GB8172@in.ibm.com>
-	<m1zmg9ghlr.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-mingw32)
+	Mon, 19 Jun 2006 23:49:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2226 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965454AbWFTDt0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jun 2006 23:49:26 -0400
+Date: Mon, 19 Jun 2006 20:48:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Petr Baudis <pasky@suse.cz>
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Chris Wright <chrisw@sous-sol.org>, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [RESEND][PATCH] Let even non-dumpable tasks access
+ /proc/self/fd
+Message-Id: <20060619204851.84467440.akpm@osdl.org>
+In-Reply-To: <20060616124157.GB24203@pasky.or.cz>
+References: <20060616124157.GB24203@pasky.or.cz>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 11:50:24 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Fri, 16 Jun 2006 14:41:57 +0200
+Petr Baudis <pasky@suse.cz> wrote:
 
-> Vivek Goyal <vgoyal@in.ibm.com> writes:
+> All tasks calling setuid() from root to non-root during their lifetime
+> will not be able to access their /proc/self/fd.  This is troublesome
+> because the fstatat() and other *at() routines are emulated by accessing
+> /proc/self/fd/*/path and that will break with setuid()ing programs,
+> leading to various weird consequences (e.g. with the latest glibc,
+> nftw() does not work with setuid()ing programs on ppc and furthermore
+> causes the LSB testsuite to fail because of this).
+
+Odd. Did something actually change in glibc to make this start happening?
+
+> This kernel patch fixes the problem by letting the process access its
+> own /proc/self/fd - as far as I can see, this should be reasonably safe
+> since for the process, this does not reveal "anything new". Feel free to
+> comment on this.
 > 
-> > On Mon, Jun 19, 2006 at 10:49:32AM -0600, Eric W. Biederman wrote:
-> >
-> > Sounds like trouble for modules. I am assuming that code to power down the
-> > scsi disks/controller will be part of the driver, which is generally built
-> > as a module and also assuming that powering down the disks is a valid
-> > requirement after the crash.
+
+Eric, Chris - any thought on this one?
+
+Thanks.
+
 > 
-> I'm assuming if anything is important and critical enough to be in a crash
-> notifier it can be built into the kernel.
-
-No. On enterprise system, commercial distributions are generally
-used and we can not usually modify the kernel code.
-So that is the reason why I need generic add-on hook.
-I have put a actual usage, and Preben also. I think it is difficult
-to define precise characteristic of the notifier at the desk.
-
-Thanks,
---
-Akiyama, Nobuyuki
-
+> So far it's got one positive review on LKML and not much attention
+> otherwise; Pavel Machek hinted me to steer it your way...
+> 
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index 6cc77dc..ea36a25 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -1368,7 +1368,9 @@ static struct inode *proc_pid_make_inode
+>  	ei->type = ino;
+>  	inode->i_uid = 0;
+>  	inode->i_gid = 0;
+> -	if (ino == PROC_TGID_INO || ino == PROC_TID_INO || task_dumpable(task)) {
+> +	if (ino == PROC_TGID_INO || ino == PROC_TID_INO ||
+> +	    ((ino == PROC_TGID_FD || ino == PROC_TID_FD || ino >= PROC_TID_FD_DIR) && task == current) ||
+> +	    task_dumpable(task)) {
+>  		inode->i_uid = task->euid;
+>  		inode->i_gid = task->egid;
+>  	}
+> @@ -1398,7 +1400,9 @@ static int pid_revalidate(struct dentry 
+>  	struct inode *inode = dentry->d_inode;
+>  	struct task_struct *task = proc_task(inode);
+>  	if (pid_alive(task)) {
+> -		if (proc_type(inode) == PROC_TGID_INO || proc_type(inode) == PROC_TID_INO || task_dumpable(task)) {
+> +		if (proc_type(inode) == PROC_TGID_INO || proc_type(inode) == PROC_TID_INO ||
+> +		    ((proc_type(inode) == PROC_TGID_FD || proc_type(inode) == PROC_TID_FD) && task == current) ||
+> +		     task_dumpable(task)) {
+>  			inode->i_uid = task->euid;
+>  			inode->i_gid = task->egid;
+>  		} else {
+> @@ -1425,7 +1429,7 @@ static int tid_fd_revalidate(struct dent
+>  		if (fcheck_files(files, fd)) {
+>  			rcu_read_unlock();
+>  			put_files_struct(files);
+> -			if (task_dumpable(task)) {
+> +			if (task_dumpable(task) || task == current) {
+>  				inode->i_uid = task->euid;
+>  				inode->i_gid = task->egid;
+>  			} else {
+> 
+> 
+> -- 
+> 				Petr "Pasky" Baudis
+> Stuff: http://pasky.or.cz/
+> Right now I am having amnesia and deja-vu at the same time.  I think
+> I have forgotten this before.

@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWFTND5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWFTNFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWFTND5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 09:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWFTND4
+	id S1750782AbWFTNFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 09:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWFTNFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 09:03:56 -0400
-Received: from lucidpixels.com ([66.45.37.187]:28363 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750739AbWFTND4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 09:03:56 -0400
-Date: Tue, 20 Jun 2006 09:03:55 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: LibPATA/ATA Errors Continue - Will there be a fix for this?
-In-Reply-To: <4497F1C7.2070007@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0606200903160.5851@p34.internal.lan>
-References: <Pine.LNX.4.64.0606200808250.5851@p34.internal.lan>
- <4497F1C7.2070007@rtr.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 20 Jun 2006 09:05:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23521 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750782AbWFTNFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 09:05:14 -0400
+Subject: Re: [patch] increase spinlock-debug looping timeouts (write_lock
+	and NMI)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Dave Olson <olson@unixfolk.com>, ccb@acm.org,
+       linux-kernel@vger.kernel.org, Peter Chubb <peter@chubb.wattle.id.au>
+In-Reply-To: <4497D4FF.6000706@yahoo.com.au>
+References: <fa.VT2rwoX1M/2O/aO5crhlRDNx4YA@ifi.uio.no>
+	 <fa.Zp589GPrIISmAAheRowfRgZ1jgs@ifi.uio.no>
+	 <Pine.LNX.4.61.0606192231380.25413@osa.unixfolk.com>
+	 <20060619233947.94f7e644.akpm@osdl.org> <4497A5BC.4070005@yahoo.com.au>
+	 <20060620083305.GB7899@elte.hu> <4497C1BC.9090601@yahoo.com.au>
+	 <20060620095135.GC11037@elte.hu>  <4497D4FF.6000706@yahoo.com.au>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 15:04:52 +0200
+Message-Id: <1150808692.2891.194.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Mark Lord wrote:
 
-> Justin Piszcz wrote:
->> 
->> Should someone comment this code out that produces the printk()'s as these 
->> are useless information as there is no problem with the disk?
->
-> MMm.. probably "barrier" commands that the drive doesn't like.
-> Pity those messages don't also dump the failed opcode.
->
->> Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: status=0x51 { DriveReady 
->> SeekComplete Error }
->> Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: error=0x04 { 
->> DriveStatusError }
->> Jun 20 03:20:27 p34 kernel: [4339823.900000] ata3: status=0x51 { DriveReady 
->> SeekComplete Error }
->> Jun 20 03:20:27 p34 kernel: [4339823.900000] ata3: error=0x04 { 
->> DriveStatusError }
->> Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: no sense translation for 
->> status: 0x51
->> Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: status=0x51 { DriveReady 
->> SeekComplete Error }
->> Jun 20 03:41:04 p34 kernel: [4341061.844000] ata3: no sense translation for 
->> status: 0x51
->> Jun 20 03:41:04 p34 kernel: [4341061.844000] ata3: status=0x51 { DriveReady 
->> SeekComplete Error }
->> Jun 20 03:46:27 p34 kernel: [4341384.974000] ata3: no sense translation for 
->> status: 0x51
->> Jun 20 03:46:27 p34 kernel: [4341384.974000] ata3: status=0x51 { DriveReady 
->> SeekComplete Error }
->
+> Correct me if I'm wrong, but... a read-lock requires at most a single
+> cacheline transfer per lock acq and a single per release, no matter the
+> concurrency on the lock (so long as it is read only).
+> 
+> A spinlock is going to take more. If the hardware perfectly round-robins
+> the cacheline, it will take lockers+1 transfers per lock+unlock.
 
-Mark, what would be the proper direction to move towards?  Is Jeff or 
-another SATA/ATA maintainer going to have to look at this or is there 
-something else I can do, or?
+This is a bit too simplistic view; shared cachelines are cheap, it's
+getting the cacheline exclusive (or transitioning to/from exclusive)
+that is the expensive part...
 
-Justin.
+(note that our spinlocks are fixed nowadays to only do the slowpath side
+of things for read, eg allow shared cachelines there)
+
 

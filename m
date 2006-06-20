@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbWFTGze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWFTG7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965105AbWFTGze (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 02:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbWFTGze
+	id S965107AbWFTG7D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 02:59:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWFTG7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 02:55:34 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:25668 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965103AbWFTGzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 02:55:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=IcGL+CoVBsTraf7m0AdKU2cHlilk7KKHTTpostHE9HVmpAvv0S2F8O51+KBOdNEfTTK6POSqUDegQWaSw5anRkAumcZg0ZuWlSsEvyaPTEhm6mtE55Mk2L1S9+UuMtv1vbWfXUIVftQV/uc9lAwkwN4zv+Ezhp/c93VodMi1MY0=
-Message-ID: <7fc623d50606192355l799ea043hc4eacb190e6be1ce@mail.gmail.com>
-Date: Tue, 20 Jun 2006 14:55:32 +0800
-From: "Heng Du" <debbiehow315@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: E1000 zero copy
-Cc: linux-net@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 02:59:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61132 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965107AbWFTG7A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 02:59:00 -0400
+Date: Tue, 20 Jun 2006 02:53:32 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Olson <olson@unixfolk.com>, mingo@elte.hu, ccb@acm.org,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch] increase spinlock-debug looping timeouts (write_lock and NMI)
+Message-ID: <20060620065332.GA27444@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, Dave Olson <olson@unixfolk.com>,
+	mingo@elte.hu, ccb@acm.org, linux-kernel@vger.kernel.org,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <fa.VT2rwoX1M/2O/aO5crhlRDNx4YA@ifi.uio.no> <fa.Zp589GPrIISmAAheRowfRgZ1jgs@ifi.uio.no> <Pine.LNX.4.61.0606192231380.25413@osa.unixfolk.com> <20060619233947.94f7e644.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060619233947.94f7e644.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Jun 19, 2006 at 11:39:47PM -0700, Andrew Morton wrote:
 
-I want to know if there is an existing patch to e1000 network driver
-to enable zero copy.
-If so, can you share me with it?
-If not, is it accepable if I submit a patch?
-Many thanks
+ > fc4?  You seem to have an RH-FCx which doesn't enable
+ > CONFIG_DEBUG_SPINLOCK.  Or maybe we didn't have all that debug code in
+ > 2.6.16.  Doesn't matter, really.
 
-Regards,
--Debbie
+>From the uname, it looks like a recompiled Fedora kernel
+(probably with that option turned off).
+
+ > > Pid: 4239, comm: mpi_multibw Not tainted 2.6.16-1.2096_FC4.rootsmp #1
+
+We helpfully appended the whoami output to it at buildtime.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

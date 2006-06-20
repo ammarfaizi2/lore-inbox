@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWFTWfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWFTWhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751327AbWFTWfw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWFTW25
+	id S1751468AbWFTWhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWFTWfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:28:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51172 "EHLO
+	Tue, 20 Jun 2006 18:35:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59364 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751327AbWFTW2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:28:51 -0400
+	id S1751361AbWFTW3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:29:02 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
@@ -28,137 +28,202 @@ Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
        Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
        Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 2/25] irq: Add moved_masked_irq
+Subject: [PATCH 15/25] i386 irq: Move msi message composition into io_apic.c
 Reply-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Tue, 20 Jun 2006 16:28:15 -0600
-Message-Id: <11508425191381-git-send-email-ebiederm@xmission.com>
+Date: Tue, 20 Jun 2006 16:28:28 -0600
+Message-Id: <11508425231168-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.0.gc07e
-In-Reply-To: <11508425183073-git-send-email-ebiederm@xmission.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <1150842523493-git-send-email-ebiederm@xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com> <11508425213394-git-send-email-ebiederm@xmission.com> <115084252131-git-send-email-ebiederm@xmission.com> <11508425213795-git-send-email-ebiederm@xmission.com> <11508425222427-git-send-email-ebiederm@xmission.com> <11508425221394-git-send-email-ebiederm@xmission.com> <11508425223015-git-send-email-ebiederm@xmission.com> <1150842523493-git-send-email-ebiederm@xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently move_native_irq disables and renables the irq we are
-migrating to ensure we don't take that irq when we are actually
-doing the migration operation.  Disabling the irq needs to
-happen but sometimes doing the work is move_native_irq is too late.
+This removes the hardcoded assumption that irq == vector in the
+msi composition code, and it allows the msi message composition
+to setup logical mode, or lowest priorirty delivery mode as we
+do for other apic interrupts, and with the same selection criteria.
 
-On x86 with ioapics the irq move sequences needs to be:
-edge_triggered:
-  mask irq.
-  move irq.
-  unmask irq.
-  ack irq.
-level_triggered:
-  mask irq.
-  ack irq.
-  move irq.
-  unmask irq.
-
-We can esasily perform the edge triggered sequence, with the current
-defintion of move_native_irq.  However the level triggered case does
-not map well.  For that I have added move_masked_irq, to allow
-me to disable the irqs around both the ack and the move.
-
-Q: Why have we not seen this problem earlier?
-
-A: The only symptom I have been able to reproduce is that if we change
-   the vector before acknowleding an irq the wrong irq is acknowledged.
-   Since we currently are not reprogramming the irq vector during
-   migration no problems show up.
-
-   We have to mask the irq before we acknowledge the irq or else we could
-   hit a window where an irq is asserted just before we acknowledge it.
-
-   Edge triggered irqs do not have this problem because acknowledgements
-   do not propogate in the same way.
+Basically this moves the problem of what is in the msi message into
+the architecture irq management code where it belongs.  Not in
+a generic layer that doesn't have enough information to compose
+msi messages properly.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- include/linux/irq.h    |    6 ++++++
- kernel/irq/migration.c |   28 +++++++++++++++++++++-------
- 2 files changed, 27 insertions(+), 7 deletions(-)
+ arch/i386/kernel/io_apic.c |   70 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/msi.h     |    7 +---
+ include/asm-i386/msidef.h  |   47 ++++++++++++++++++++++++++++++
+ 3 files changed, 119 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index 1ad1acb..b79d178 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -200,6 +200,7 @@ #if defined(CONFIG_GENERIC_PENDING_IRQ) 
+diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+index 04f78ff..68af125 100644
+--- a/arch/i386/kernel/io_apic.c
++++ b/arch/i386/kernel/io_apic.c
+@@ -32,6 +32,7 @@ #include <linux/compiler.h>
+ #include <linux/acpi.h>
+ #include <linux/module.h>
+ #include <linux/sysdev.h>
++#include <linux/pci.h>
  
- void set_pending_irq(unsigned int irq, cpumask_t mask);
- void move_native_irq(int irq);
-+void move_masked_irq(int irq);
+ #include <asm/io.h>
+ #include <asm/smp.h>
+@@ -39,6 +40,7 @@ #include <asm/desc.h>
+ #include <asm/timer.h>
+ #include <asm/i8259.h>
+ #include <asm/nmi.h>
++#include <asm/msidef.h>
  
- #ifdef CONFIG_PCI_MSI
- /*
-@@ -241,6 +242,10 @@ static inline void move_native_irq(int i
- {
+ #include <mach_apic.h>
+ #include <mach_apicdef.h>
+@@ -2545,6 +2547,74 @@ void destroy_irq(unsigned int irq)
  }
+ #endif /* CONFIG_PCI_MSI */
  
-+static inline void move_masked_irq(int irq)
++/*
++ * MSI mesage composition
++ */
++#ifdef CONFIG_PCI_MSI
++static int msi_msg_setup(struct pci_dev *pdev, unsigned int irq, struct msi_msg *msg)
 +{
++	/* For now always this code always uses physical delivery
++	 * mode.
++	 */
++	int vector;
++	unsigned dest;
++
++	vector = assign_irq_vector(irq);
++	if (vector >= 0) {
++		dest = cpu_mask_to_apicid(TARGET_CPUS);
++
++		msg->address_hi = MSI_ADDR_BASE_HI;
++		msg->address_lo =
++			MSI_ADDR_BASE_LO |
++			((INT_DEST_MODE == 0) ?
++				MSI_ADDR_DEST_MODE_PHYSICAL:
++				MSI_ADDR_DEST_MODE_LOGICAL) |
++			((INT_DELIVERY_MODE != dest_LowestPrio) ?
++				MSI_ADDR_REDIRECTION_CPU:
++				MSI_ADDR_REDIRECTION_LOWPRI) |
++			MSI_ADDR_DEST_ID(dest);
++
++		msg->data = 
++			MSI_DATA_TRIGGER_EDGE |	
++			MSI_DATA_LEVEL_ASSERT |
++			((INT_DELIVERY_MODE != dest_LowestPrio) ?
++				MSI_DATA_DELIVERY_FIXED:
++				MSI_DATA_DELIVERY_LOWPRI) |
++			MSI_DATA_VECTOR(vector); 
++	}
++	return vector;
 +}
 +
- static inline void set_pending_irq(unsigned int irq, cpumask_t mask)
- {
- }
-@@ -256,6 +261,7 @@ #else /* CONFIG_SMP */
- 
- #define move_irq(x)
- #define move_native_irq(x)
-+#define move_masked_irq(x)
- 
- #endif /* CONFIG_SMP */
- 
-diff --git a/kernel/irq/migration.c b/kernel/irq/migration.c
-index 9b234df..4baa3bb 100644
---- a/kernel/irq/migration.c
-+++ b/kernel/irq/migration.c
-@@ -12,7 +12,7 @@ void set_pending_irq(unsigned int irq, c
- 	spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
--void move_native_irq(int irq)
-+void move_masked_irq(int irq)
- {
- 	struct irq_desc *desc = irq_desc + irq;
- 	cpumask_t tmp;
-@@ -48,15 +48,29 @@ void move_native_irq(int irq)
- 	 * when an active trigger is comming in. This could
- 	 * cause some ioapics to mal-function.
- 	 * Being paranoid i guess!
-+	 *
-+	 * For correct operation this depends on the caller
-+	 * masking the irqs.
- 	 */
- 	if (likely(!cpus_empty(tmp))) {
--		if (likely(!(desc->status & IRQ_DISABLED)))
--			desc->chip->disable(irq);
--
- 		desc->chip->set_affinity(irq,tmp);
--
--		if (likely(!(desc->status & IRQ_DISABLED)))
--			desc->chip->enable(irq);
- 	}
- 	cpus_clear(irq_desc[irq].pending_mask);
- }
-+
-+void move_native_irq(int irq)
++static void msi_msg_teardown(unsigned int irq)
 +{
-+	struct irq_desc *desc = irq_desc + irq;
-+
-+	if (likely(!(desc->status & IRQ_MOVE_PENDING)))
-+		return;
-+
-+	if (likely(!(desc->status & IRQ_DISABLED)))
-+		desc->chip->disable(irq);
-+
-+	move_masked_irq(irq);
-+
-+	if (likely(!(desc->status & IRQ_DISABLED)))
-+		desc->chip->enable(irq);
++	return;
 +}
 +
++static void msi_msg_set_affinity(unsigned int irq, cpumask_t mask, struct msi_msg *msg)
++{
++	int vector;
++	unsigned dest;
++
++	vector = assign_irq_vector(irq);
++	if (vector > 0) {
++		dest = cpu_mask_to_apicid(mask);
++
++		msg->data &= ~MSI_DATA_VECTOR_MASK;
++		msg->data |= MSI_DATA_VECTOR(vector);
++		msg->address_lo &= ~MSI_ADDR_DEST_ID_MASK;
++		msg->address_lo |= MSI_ADDR_DEST_ID(dest);
++	}
++}
++
++struct msi_ops arch_msi_ops = {
++	.needs_64bit_address = 0,
++	.setup = msi_msg_setup,
++	.teardown = msi_msg_teardown,
++	.target = msi_msg_set_affinity,
++};
++
++#endif /* CONFIG_PCI_MSI */
++
+ /* --------------------------------------------------------------------------
+                           ACPI-based IOAPIC Configuration
+    -------------------------------------------------------------------------- */
+diff --git a/include/asm-i386/msi.h b/include/asm-i386/msi.h
+index b11c4b7..7368a89 100644
+--- a/include/asm-i386/msi.h
++++ b/include/asm-i386/msi.h
+@@ -9,14 +9,11 @@ #define ASM_MSI_H
+ #include <asm/desc.h>
+ #include <mach_apic.h>
+ 
+-#define LAST_DEVICE_VECTOR	(FIRST_SYSTEM_VECTOR - 1)
+-#define MSI_TARGET_CPU_SHIFT	12
+-
+-extern struct msi_ops msi_apic_ops;
++extern struct msi_ops arch_msi_ops;
+ 
+ static inline int msi_arch_init(void)
+ {
+-	msi_register(&msi_apic_ops);
++	msi_register(&arch_msi_ops);
+ 	return 0;
+ }
+ 
+diff --git a/include/asm-i386/msidef.h b/include/asm-i386/msidef.h
+new file mode 100644
+index 0000000..4667f1a
+--- /dev/null
++++ b/include/asm-i386/msidef.h
+@@ -0,0 +1,47 @@
++#ifndef ASM_MSIDEF_H
++#define ASM_MSIDEF_H
++
++/*
++ * Constants for Intel APIC based MSI messages.
++ */
++
++/*
++ * Shifts for MSI data
++ */
++
++#define MSI_DATA_VECTOR_SHIFT		0
++#define  MSI_DATA_VECTOR_MASK		0x000000ff
++#define	 MSI_DATA_VECTOR(v)		(((v) << MSI_DATA_VECTOR_SHIFT) & MSI_DATA_VECTOR_MASK)
++
++#define MSI_DATA_DELIVERY_MODE_SHIFT	8
++#define  MSI_DATA_DELIVERY_FIXED	(0 << MSI_DATA_DELIVERY_MODE_SHIFT)
++#define  MSI_DATA_DELIVERY_LOWPRI	(1 << MSI_DATA_DELIVERY_MODE_SHIFT)
++
++#define MSI_DATA_LEVEL_SHIFT		14
++#define	 MSI_DATA_LEVEL_DEASSERT	(0 << MSI_DATA_LEVEL_SHIFT)
++#define	 MSI_DATA_LEVEL_ASSERT		(1 << MSI_DATA_LEVEL_SHIFT)
++
++#define MSI_DATA_TRIGGER_SHIFT		15
++#define  MSI_DATA_TRIGGER_EDGE		(0 << MSI_DATA_TRIGGER_SHIFT)
++#define  MSI_DATA_TRIGGER_LEVEL		(1 << MSI_DATA_TRIGGER_SHIFT)
++
++/*
++ * Shift/mask fields for msi address
++ */
++
++#define MSI_ADDR_BASE_HI		0
++#define MSI_ADDR_BASE_LO		0xfee00000
++
++#define MSI_ADDR_DEST_MODE_SHIFT	2
++#define  MSI_ADDR_DEST_MODE_PHYSICAL	(0 << MSI_ADDR_DEST_MODE_SHIFT)
++#define	 MSI_ADDR_DEST_MODE_LOGICAL	(1 << MSI_ADDR_DEST_MODE_SHIFT)
++	
++#define MSI_ADDR_REDIRECTION_SHIFT	3
++#define  MSI_ADDR_REDIRECTION_CPU	(0 << MSI_ADDR_REDIRECTION_SHIFT) /* dedicated cpu */
++#define  MSI_ADDR_REDIRECTION_LOWPRI	(1 << MSI_ADDR_REDIRECTION_SHIFT) /* lowest priority */
++
++#define MSI_ADDR_DEST_ID_SHIFT		12
++#define	 MSI_ADDR_DEST_ID_MASK		0x00ffff0
++#define  MSI_ADDR_DEST_ID(dest)		(((dest) << MSI_ADDR_DEST_ID_SHIFT) & MSI_ADDR_DEST_ID_MASK)
++
++#endif /* ASM_MSIDEF_H */
 -- 
 1.4.0.gc07e
 

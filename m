@@ -1,54 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWFTFNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWFTFOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWFTFNx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 01:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWFTFNx
+	id S1751238AbWFTFOc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 01:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWFTFOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 01:13:53 -0400
-Received: from xenotime.net ([66.160.160.81]:43669 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751223AbWFTFNw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 01:13:52 -0400
-Date: Mon, 19 Jun 2006 22:16:39 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: blp@cs.stanford.edu, bcollins@ubuntu.com
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Ubuntu PATCH] acpi: Add IBM R60E laptop to proc-idle blacklist
-Message-Id: <20060619221639.3adbbf34.rdunlap@xenotime.net>
-In-Reply-To: <87lkrstrgy.fsf@benpfaff.org>
-References: <4491BC6B.5000704@oracle.com>
-	<20060619203333.5e897ead.akpm@osdl.org>
-	<87lkrstrgy.fsf@benpfaff.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 01:14:32 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26773 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751238AbWFTFOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 01:14:31 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, tglx@linutronix.de
+Subject: Re: The i386 and x86_64 genirq patches are wrong!
+References: <m1r71t2ew8.fsf@ebiederm.dsl.xmission.com>
+	<20060614070353.GA11896@elte.hu>
+	<m1y7vzzlrk.fsf@ebiederm.dsl.xmission.com>
+	<20060619144150.51fe627c.akpm@osdl.org>
+Date: Mon, 19 Jun 2006 23:13:58 -0600
+In-Reply-To: <20060619144150.51fe627c.akpm@osdl.org> (Andrew Morton's message
+	of "Mon, 19 Jun 2006 14:41:50 -0700")
+Message-ID: <m1zmg8flyh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006 20:51:09 -0700 Ben Pfaff wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > On Thu, 15 Jun 2006 13:00:43 -0700
-> > Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> >
-> >> [UBUNTU:acpi] Add IBM R60E laptop to proc-idle blacklist.
-> 
-> >> +	{ set_max_cstate, "IBM ThinkPad R40e", {
-> >> +	  DMI_MATCH(DMI_BIOS_VENDOR, "IBM"),
-> >> +	  DMI_MATCH(DMI_BIOS_VERSION, "1SET70WW") }, (void*)1},
-> >
-> > It seems that every R40e in the world is in that table.
-> 
-> The email says R60e.
-> The string says R40e.
-> Which is correct?
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+>>
+>> Ingo Molnar <mingo@elte.hu> writes:
+>> 
+>> > here too it's hard for me to give an answer without seeing your specific 
+>> > changes (against whatever base is most convenient to you). MSI certainly 
+>> > works fine on current -mm. (at least on my box)
+>> 
+>> Ok.  Looking closer.  I have found a clear functional bug.
+>> 
+>> When CONFIG_PCI_MSI is not set.
+>>   move_irq expands to move_native_irq.
+>> 
+>>   ack_ioapic_vector
+>>     move_native_irq
+>>     ack_ioapic_irq
+>>       move_irq
+>>         move_native_irq
+>> 
+>>   ack_ioapic_quirk_vector
+>>     move_native_irq
+>>     ack_ioapic_quirk_irq
+>>       move_irq
+>>         move_native_irq
+>> 
+>> So we wind up calling move_native_irq twice when MSI is disabled where
+>> before your conversion we only ever called it once.  Luckily in
+>> the case where we have the double call vector_to_irq is a noop so
+>> we only migration the same irq twice.
+>> 
+>
+> OK, but this doesn't seem to answer Ingo's request "could you please send
+> that fix to me, against whatever base you have it tested on, and i'll merge
+> it to genirq/irqchips [and fix up genirq if needed].  Please also include a
+> description of the problem.  How common is that edge retrigger problem, and
+> how come this has never been seen in the past years since we had
+> irqbalance?"
+>
+> The genirq patches are stuck in limboland until issues like this are
+> resolved.  I'm not planning on sending them to Linus for 2.6.18 so there's
+> no huge rush on it, but it would be nice to get all these loose ends tied
+> off reasonably promptly, please.
 
-Good question for Ben.  Ben??
+Should be in the morning.  The patches are ready I just need to make certain
+I copy all of the appropriate people, add signed-off-by lines, etc.
+The reason for the delay was that I didn't have a convenient base.  I
+had a development effort that as it's final product turned up a bug.
 
-Current ubuntu-dapper git is still like this.
+I think everything is in good shape but I don't trust myself until I slept
+on it all.
 
----
-~Randy
+My patches are incremental against 2.6.17-rc6-mm2 as that turned out
+to be the easiest place to start.
+
+Eric
+
+
+

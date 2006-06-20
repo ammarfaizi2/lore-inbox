@@ -1,154 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWFTVX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWFTVYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWFTVX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWFTVXv
+	id S1751183AbWFTVYo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWFTVYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:23:51 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:32943 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751136AbWFTVXq (ORCPT
+	Tue, 20 Jun 2006 17:24:41 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:15774 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751183AbWFTVYi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:23:46 -0400
+	Tue, 20 Jun 2006 17:24:38 -0400
 In-reply-to: <20060620212134.GB18701@us.ibm.com>
 From: Mike Halcrow <mhalcrow@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        Mike Halcrow <mhalcrow@us.ibm.com>, Mike Halcrow <mike@halcrow.us>
-Subject: [PATCH 6/12] Add ecryptfs_ prefix to mount options; key size parameter
-Message-Id: <E1FsnhD-00079L-Tj@localhost.localdomain>
-Date: Tue, 20 Jun 2006 16:23:39 -0500
+Subject: [PATCH 11/12] More elegant AES key size manipulation
+Message-Id: <E1Fsni2-0007AX-1m@localhost.localdomain>
+Date: Tue, 20 Jun 2006 16:24:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add ecryptfs_ prefix to ecryptfs-specific mount options to avoid
-conflicts from changes to /bin/mount. Debian's addition of ``keybits''
-in its mount program left us scratching our heads when we happened to
-pick the exact same parameter name at first for this patch. This patch
-includes an aptly-named parameter to set the number of key bytes.
+Move logic to deal with AES special cases into the function that
+performs string to cipher code mapping.
 
 Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
 
 ---
 
- fs/ecryptfs/ecryptfs_kernel.h |    1 +
- fs/ecryptfs/main.c            |   36 +++++++++++++++++++++++++++++++++++-
- 2 files changed, 36 insertions(+), 1 deletions(-)
+ fs/ecryptfs/crypto.c          |   35 +++++++++++++++++++++++++++--------
+ fs/ecryptfs/ecryptfs_kernel.h |    2 +-
+ fs/ecryptfs/keystore.c        |   21 +--------------------
+ 3 files changed, 29 insertions(+), 29 deletions(-)
 
-5488f5ad764088bb99ba1980d9967da3aeb2ff12
-diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
-index 1fd6039..4dc95af 100644
---- a/fs/ecryptfs/ecryptfs_kernel.h
-+++ b/fs/ecryptfs/ecryptfs_kernel.h
-@@ -220,6 +220,7 @@ struct ecryptfs_mount_crypt_stat {
- 	/* Pointers to memory we do not own, do not free these */
- 	struct ecryptfs_auth_tok *global_auth_tok;
- 	struct key *global_auth_tok_key;
-+	unsigned int global_default_cipher_key_bits;
- 	unsigned char global_default_cipher_name[ECRYPTFS_MAX_CIPHER_NAME_SIZE
- 						 + 1];
- 	unsigned char global_auth_tok_sig[ECRYPTFS_SIG_SIZE_HEX + 1];
-diff --git a/fs/ecryptfs/main.c b/fs/ecryptfs/main.c
-index 5cbc948..57bbce7 100644
---- a/fs/ecryptfs/main.c
-+++ b/fs/ecryptfs/main.c
-@@ -125,13 +125,19 @@ out:
- 	return rc;
+340ac69819b8ff314c0b2f7d3d648d3535fd8135
+diff --git a/fs/ecryptfs/crypto.c b/fs/ecryptfs/crypto.c
+index ab47899..5727753 100644
+--- a/fs/ecryptfs/crypto.c
++++ b/fs/ecryptfs/crypto.c
+@@ -1042,16 +1042,35 @@ ecryptfs_cipher_code_str_map[] = {
+  *
+  * Returns zero on no match, or the cipher code on match
+  */
+-u16 ecryptfs_code_for_cipher_string(char *str)
++u16 ecryptfs_code_for_cipher_string(struct ecryptfs_crypt_stat *crypt_stat)
+ {
+ 	int i;
+-
+-	for (i = 0; i < (sizeof(ecryptfs_cipher_code_str_map)
+-			 / sizeof(struct ecryptfs_cipher_code_str_map_elem));
+-	     i++)
+-		if (strcmp(str, ecryptfs_cipher_code_str_map[i].cipher_str)==0)
+-			return ecryptfs_cipher_code_str_map[i].cipher_code;
+-	return 0;
++	u16 code = 0;
++	struct ecryptfs_cipher_code_str_map_elem *map =
++		ecryptfs_cipher_code_str_map;
++
++	if (strcmp(crypt_stat->cipher, "aes") == 0)
++		switch (crypt_stat->key_size) {
++		case 16:
++			code = RFC2440_CIPHER_AES_128;
++			break;
++		case 24:
++			code = RFC2440_CIPHER_AES_192;
++			break;
++		case 32:
++			code = RFC2440_CIPHER_AES_256;
++		}
++	else
++		for (i = 0; i < (sizeof(ecryptfs_cipher_code_str_map)
++				 / sizeof(struct
++					  ecryptfs_cipher_code_str_map_elem));
++		     i++)
++			if (strcmp(crypt_stat->cipher, map[i].cipher_str)
++			    == 0) {
++				code = map[i].cipher_code;
++				break;
++			}
++	return code;
  }
  
--enum { ecryptfs_opt_sig, ecryptfs_opt_debug, ecryptfs_opt_cipher,
-+enum { ecryptfs_opt_sig, ecryptfs_opt_ecryptfs_sig, ecryptfs_opt_debug,
-+       ecryptfs_opt_ecryptfs_debug, ecryptfs_opt_cipher,
-+       ecryptfs_opt_ecryptfs_cipher, ecryptfs_opt_ecryptfs_key_bytes,
-        ecryptfs_opt_err };
- 
- static match_table_t tokens = {
- 	{ecryptfs_opt_sig, "sig=%s"},
-+	{ecryptfs_opt_ecryptfs_sig, "ecryptfs_sig=%s"},
- 	{ecryptfs_opt_debug, "debug=%u"},
-+	{ecryptfs_opt_ecryptfs_debug, "ecryptfs_debug=%u"},
- 	{ecryptfs_opt_cipher, "cipher=%s"},
-+	{ecryptfs_opt_ecryptfs_cipher, "ecryptfs_cipher=%s"},
-+	{ecryptfs_opt_ecryptfs_key_bytes, "ecryptfs_key_bytes=%u"},
- 	{ecryptfs_opt_err, NULL}
- };
- 
-@@ -192,6 +198,8 @@ static int ecryptfs_parse_options(struct
- 	int rc = 0;
- 	int sig_set = 0;
- 	int cipher_name_set = 0;
-+	int cipher_key_bytes;
-+	int cipher_key_bytes_set = 0;
- 	struct key *auth_tok_key = NULL;
- 	struct ecryptfs_auth_tok *auth_tok = NULL;
- 	struct ecryptfs_mount_crypt_stat *mount_crypt_stat =
-@@ -203,6 +211,7 @@ static int ecryptfs_parse_options(struct
- 	char *debug_src;
- 	char *cipher_name_dst;
- 	char *cipher_name_src;
-+	char *cipher_key_bytes_src;
- 	int cipher_name_len;
- 
- 	if (!options) {
-@@ -215,6 +224,7 @@ static int ecryptfs_parse_options(struct
- 		token = match_token(p, tokens, args);
- 		switch (token) {
- 		case ecryptfs_opt_sig:
-+		case ecryptfs_opt_ecryptfs_sig:
- 			sig_src = args[0].from;
- 			sig_dst =
- 				mount_crypt_stat->global_auth_tok_sig;
-@@ -227,6 +237,7 @@ static int ecryptfs_parse_options(struct
- 			sig_set = 1;
- 			break;
- 		case ecryptfs_opt_debug:
-+		case ecryptfs_opt_ecryptfs_debug:
- 			debug_src = args[0].from;
- 			ecryptfs_verbosity =
- 				(int)simple_strtol(debug_src, &debug_src,
-@@ -236,6 +247,7 @@ static int ecryptfs_parse_options(struct
- 					ecryptfs_verbosity);
- 			break;
- 		case ecryptfs_opt_cipher:
-+		case ecryptfs_opt_ecryptfs_cipher:
- 			cipher_name_src = args[0].from;
- 			cipher_name_dst =
- 				mount_crypt_stat->
-@@ -248,6 +260,20 @@ static int ecryptfs_parse_options(struct
- 					"[%s]\n", cipher_name_dst);
- 			cipher_name_set = 1;
- 			break;
-+		case ecryptfs_opt_ecryptfs_key_bytes:
-+			cipher_key_bytes_src = args[0].from;
-+			cipher_key_bytes =
-+				(int)simple_strtol(cipher_key_bytes_src,
-+						   &cipher_key_bytes_src, 0);
-+			mount_crypt_stat->global_default_cipher_key_bits =
-+				cipher_key_bytes << 3;
-+			ecryptfs_printk(KERN_DEBUG,
-+					"The mount_crypt_stat "
-+					"global_default_cipher_key_bits "
-+					"set to: [%d]\n", mount_crypt_stat->
-+					global_default_cipher_key_bits);
-+			cipher_key_bytes_set = 1;
-+			break;
- 		case ecryptfs_opt_err:
- 		default:
- 			ecryptfs_printk(KERN_WARNING,
-@@ -277,6 +303,14 @@ static int ecryptfs_parse_options(struct
- 		mount_crypt_stat->global_default_cipher_name[cipher_name_len]
- 		    = '\0';
+ /**
+diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
+index cc88dc5..d0b9151 100644
+--- a/fs/ecryptfs/ecryptfs_kernel.h
++++ b/fs/ecryptfs/ecryptfs_kernel.h
+@@ -454,7 +454,7 @@ int ecryptfs_new_file_context(struct den
+ int contains_ecryptfs_marker(char *data);
+ int ecryptfs_read_header_region(char *data, struct dentry *dentry,
+ 				struct nameidata *nd);
+-u16 ecryptfs_code_for_cipher_string(char *str);
++u16 ecryptfs_code_for_cipher_string(struct ecryptfs_crypt_stat *crypt_stat);
+ int ecryptfs_cipher_code_to_string(char *str, u16 cipher_code);
+ void ecryptfs_set_default_sizes(struct ecryptfs_crypt_stat *crypt_stat);
+ int ecryptfs_generate_key_packet_set(char *dest_base,
+diff --git a/fs/ecryptfs/keystore.c b/fs/ecryptfs/keystore.c
+index 37fa03b..09a56f3 100644
+--- a/fs/ecryptfs/keystore.c
++++ b/fs/ecryptfs/keystore.c
+@@ -923,32 +923,13 @@ encrypted_session_key_set:
  	}
-+	if (!cipher_key_bytes_set) {
-+		mount_crypt_stat->global_default_cipher_key_bits =
-+				ECRYPTFS_DEFAULT_KEY_BYTES << 3;
-+		ecryptfs_printk(KERN_DEBUG, "Cipher key bits were not "
-+				"specified.  Defaulting to [%d]\n",
-+				mount_crypt_stat->
-+				global_default_cipher_key_bits);
-+	}
- 	ecryptfs_printk(KERN_DEBUG, "Requesting the key with description: "
- 			"[%s]\n", mount_crypt_stat->global_auth_tok_sig);
- 	/* The reference to this key is held until umount is done The
+ 	(*packet_size) += packet_size_length;
+ 	dest[(*packet_size)++] = 0x04; /* version 4 */
+-	cipher_code = ecryptfs_code_for_cipher_string(crypt_stat->cipher);
++	cipher_code = ecryptfs_code_for_cipher_string(crypt_stat);
+ 	if (cipher_code == 0) {
+ 		ecryptfs_printk(KERN_WARNING, "Unable to generate code for "
+ 				"cipher [%s]\n", crypt_stat->cipher);
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+-	/* If it is AES, we need to get more specific. */
+-	if (cipher_code == RFC2440_CIPHER_AES_128){
+-		switch (crypt_stat->key_size) {
+-		case 16:
+-			break;
+-		case 24:
+-			cipher_code = RFC2440_CIPHER_AES_192;
+-			break;
+-		case 32:
+-			cipher_code = RFC2440_CIPHER_AES_256;
+-			break;
+-		default:
+-			rc = -EINVAL;
+-			ecryptfs_printk(KERN_WARNING, "Unsupported AES key "
+-					"size: [%d]\n",
+-					crypt_stat->key_size);
+-			goto out;
+-		}
+-	}
+ 	dest[(*packet_size)++] = cipher_code;
+ 	dest[(*packet_size)++] = 0x03;	/* S2K */
+ 	dest[(*packet_size)++] = 0x01;	/* MD5 (TODO: parameterize) */
 -- 
 1.3.3
 

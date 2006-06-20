@@ -1,135 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWFTQdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWFTQds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWFTQdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFTQdQ
+	id S1751029AbWFTQds (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWFTQds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:33:16 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:58326 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751392AbWFTQdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:33:15 -0400
-Message-ID: <44982344.2060507@bull.net>
-Date: Tue, 20 Jun 2006 18:33:08 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Jan Kara <jack@suse.cz>, sct@redhat.com
-Subject: Re: [PATCH] Change ll_rw_block() calls in JBD
-References: <446C2F89.5020300@bull.net> <20060518134533.GA20159@atrey.karlin.mff.cuni.cz> <447F13B3.6050505@bull.net> <20060601162751.GH26933@atrey.karlin.mff.cuni.cz> <44801E16.3040300@bull.net> <20060602134923.GA1644@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060602134923.GA1644@atrey.karlin.mff.cuni.cz>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/06/2006 18:37:06,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/06/2006 18:37:07,
-	Serialize complete at 20/06/2006 18:37:07
+	Tue, 20 Jun 2006 12:33:48 -0400
+Received: from www.osadl.org ([213.239.205.134]:24766 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751029AbWFTQdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:33:47 -0400
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>
+	 <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+	 <1150816429.6780.222.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 18:35:11 +0200
+Message-Id: <1150821311.6780.240.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have got some crashes due to:
+On Tue, 2006-06-20 at 18:09 +0100, Esben Nielsen wrote:
+> The only question I have is why the priority of the callback is set to
+> priority of the task calling hrtimer_start() (current->normal_prio). That 
+> seems like an odd binding to me. Shouldn't the finding of the priority be moved over to the 
+> posix-timer code, where it is needed, and be given as a parameter to 
+> hrtimer_start()?
 
-Assertion failure in __journal_file_buffer():
-      "jh->b_transaction == transaction || jh->b_transaction == 0"
+Was the simplest way to do.
 
-[<a0000002053b44e0>] __journal_file_buffer+0x420/0x7c0 [jbd]
-      r32 : e000000161a1f3e0  jh
-      r33 : e00000010396a380  transaction
-      r34 : 0000000000000008  jlist == BJ_Locked
+> In rtmutex.c, where a hrtimer is used as a timeout on a mutex, wouldn't it 
+> make more sense to use current->prio than current->normal_prio if the task 
+> is boosted when it starts to wait on a mutex.
 
-*(struct journal_head *) 0xe000000161a1f3e0: // jh
-{
- b_bh = 0xe00000048bb36930,
- b_jcount = 0x0,
- b_jlist = 0x1,
- b_modified = 0x0,
- b_frozen_data = 0x0,
- b_committed_data = 0x0,
- b_transaction = 0xe0000020014adb80,	// ->j_running_transaction
- b_next_transaction = 0x0,
- b_tnext = 0xe0000001c17306e0,
- b_tprev = 0xe00000204757e540,
- b_cp_transaction = 0x0,
- b_cpnext = 0x0,
- b_cpprev = 0x0
-}
+Not sure about that.
 
-*(struct buffer_head *) 0xe00000048bb36930: // jh->b_bh
-{
-b_state = 0x8201d,
-b_this_page = 0xe00000048bb33d88,
-b_page = 0xa07ffffff9201300,
-b_count = {
-  counter = 0x2
-},
-b_size = 0x1000,
-b_blocknr = 0xadc001,
-b_data = 0xe000000492a0e000,
-b_bdev = 0xe0000023fe1ca300,
-b_end_io = 0xa000000100630be0,
-b_private = 0xe000000161a1f3e0,
-b_assoc_buffers = {
-  next = 0xe00000048bb36978,
-  prev = 0xe00000048bb36978
-}
+> Let say you have a bunch of callback running at priority 1 and then the 
+> next hrt timer with priority 99 expires. Then the callback which 
+> is running will be boosted to priority 99. So the overall latency at 
+> priority 99 will at least the latency of the worst hrtimer callback.
+> And worse: What if the callback running is blocked on a mutex? Will the 
+> owner of the mutex be boosted as well? Not according to the code in 
+> sched.c. Therefore you get priority inversion to priority 1. That is the 
+> worst case hrtimer latency is that of priority 1.
+> 
+> Therefore, a simpler and more robust design would be to give the thread 
+> priority 99 as a default - just as the posix_cpu_timer thread. Then the 
+> system designer can move it around with chrt when needed.
+> In fact you can say the current design have both the worst cases of having 
+> it running as priority 99 and at priority 1!
 
---- Called from --- :
+We had this before and it is horrible.
 
-journal_submit_data_buffers+0x200/0x660 [jbd]
-      r32 : e0000001035ec100  journal
-      r33 : e00000010396a380  commit_transaction
+> Another complicated design would be to make a task for each priority. 
+> Then the interrupt wakes the highest priority one, which handles the first 
+> callback and awakes the next one etc.
 
-As you can see, the current "jh" has been stolen for the new
-"->j_running_transaction" while we released temporarily "->j_list_lock"
-in the middle of "journal_submit_data_buffers()".
+Uurgh. Thats not a serious proposal ?
 
-Therefore the test "jh->b_jlist != BJ_SyncData", i.e. if it is still
-on a (_any_) sync. list is not enough.
+A nice solution would be to enqueue the timer into the task struct of
+the thread which is target of the signal, wake that thread in a special
+state which only runs the callback and then does the signal delivery.
+The scary thing on this is to get the locking straight, but it might
+well worth to try it. That way we would burden the softirq delivery to
+the thread and maybe save a couple of task switches.
 
---- linux-2.6.16.20-orig/fs/jbd/commit.c	2006-06-20 17:19:47.000000000 +0200
-+++ linux-2.6.16.20/fs/jbd/commit.c	2006-06-20 17:35:54.000000000 +0200
-@@ -219,15 +219,26 @@
- 				bufs = 0;
- 				lock_buffer(bh);
- 				spin_lock(&journal->j_list_lock);
-+				/* Stolen (e.g. for a new transaction) ? */
-+				if (jh != commit_transaction->t_sync_datalist) {
-+					unlock_buffer(bh);
-+					JBUFFER_TRACE(jh, "stolen sync. data");
-+					put_bh(bh);
-+					continue;
-+				}
- 				/* Someone already cleaned up the buffer? */
--				if (!buffer_jbd(bh)
--					|| jh->b_jlist != BJ_SyncData) {
-+
-+				// Can this happen???
-+
-+				if (!buffer_jbd(bh)) {
- 					unlock_buffer(bh);
- 					BUFFER_TRACE(bh, "already cleaned up");
- 					put_bh(bh);
- 					continue;
- 				}
- 				put_bh(bh);
-+				J_ASSERT_JH(jh, jh->b_transaction ==
-+							commit_transaction);
- 			}
- 			if (test_clear_buffer_dirty(bh)) {
- 				BUFFER_TRACE(bh, "needs writeout, submitting");
-
-I am not really sure that the test "!buffer_jbd(bh)" is really useful.
-I left it alone for not introducing a new bug.
-If you can confirm that it is not necessary, I can take it away.
-
-Thanks,
-
-Zoltan
-
-
-
+	tglx
 
 

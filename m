@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFTQLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWFTQM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWFTQLj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWFTQLi
+	id S1751384AbWFTQM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWFTQM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:11:38 -0400
-Received: from osa.unixfolk.com ([209.204.179.118]:5866 "EHLO osa.unixfolk.com")
-	by vger.kernel.org with ESMTP id S1751384AbWFTQLh (ORCPT
+	Tue, 20 Jun 2006 12:12:57 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:15792 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751368AbWFTQM4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:11:37 -0400
-Date: Tue, 20 Jun 2006 09:11:36 -0700 (PDT)
-From: Dave Olson <olson@unixfolk.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mingo@elte.hu, ccb@acm.org, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch] increase spinlock-debug looping timeouts (write_lock
- and NMI)
-In-Reply-To: <20060619233947.94f7e644.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0606200906340.26762@osa.unixfolk.com>
-References: <fa.VT2rwoX1M/2O/aO5crhlRDNx4YA@ifi.uio.no>
- <fa.Zp589GPrIISmAAheRowfRgZ1jgs@ifi.uio.no> <Pine.LNX.4.61.0606192231380.25413@osa.unixfolk.com>
- <20060619233947.94f7e644.akpm@osdl.org>
+	Tue, 20 Jun 2006 12:12:56 -0400
+Date: Tue, 20 Jun 2006 18:12:50 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Matt LaPlante <laplam@rpi.edu>, "'Linus Torvalds'" <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
+In-Reply-To: <20060620160128.GL1630@parisc-linux.org>
+Message-ID: <Pine.LNX.4.64.0606201809100.17704@scrub.home>
+References: <Pine.LNX.4.64.0606201742280.12900@scrub.home>
+ <000601c69481$a9f86c40$fe01a8c0@cyberdogt42> <20060620160128.GL1630@parisc-linux.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jun 2006, Andrew Morton wrote:
-| > We'll see very long delays when 8 MPI processes exit "simultaneously", and sometimes
-| > get NMI, sometimes system hangs, and sometimes just hung up for many seconds (and
-| > often in that state, doing sysrq-P or sysrq-T will make things happy again).
-| > 
-| 
-| OK.  I assume these processes have done a mmap(MAP_SHARED) of a lot of
-| memory?
+Hi,
 
-Yep.  Some shared with kernel modules, some of device address space.
+On Tue, 20 Jun 2006, Matthew Wilcox wrote:
 
-| > A typical trace looks like this (on an fc4 2.6.16 kernel):
-| 
-| fc4?  You seem to have an RH-FCx which doesn't enable
-| CONFIG_DEBUG_SPINLOCK.  Or maybe we didn't have all that debug code in
-| 2.6.16.  Doesn't matter, really.
+> On Tue, Jun 20, 2006 at 11:53:24AM -0400, Matt LaPlante wrote:
+> > > How likely is it that someone who doesn't understand the question needs
+> > > this option? I think N is a safe answer here.
+> > 
+> > This is the impression I had as well.  Even if you disagree though, I was
+> > equally confused by the fact that if we say to answer Y as default, why is
+> > the kconfig default already N?
+> 
+> The *default* is N as that's the answer most people want.  The *safe*
+> answer is Y as it won't prevent you from getting access to your data.
+> Makes sense?
 
-Intended to be more or less stock fc4 but with CONFIG_PCI_MSI=y and
-2.6.17-based patch so the 8131 MSI quirk isn't enabled.
+This would imply that most people with 32bit systems have 2TB files, which 
+I think is rather unlikely. Distributions can turn this option on, but I 
+think people who compile their own kernel, either understand this option 
+or don't need it.
 
->From the config file:
-	CONFIG_DEBUG_SPINLOCK=y
-	CONFIG_DEBUG_SPINLOCK_SLEEP=y
-
-| With a -stable backport.  I suspect this is triggerable on demand.
-
-So far we've only got the one test case, but it's quite reliable.
-We hit one of the 3 cases (long > 60 seconds) "hangs" at exit,
-NMI, or dead system hang, every time we run the test case (well,
-perhaps 1 out of 20 times everything is "just fine", probably
-something perturbs it enough to let one or more processes get
-through the critical section ahead of the whole gang).
-
-Dave Olson
-olson@unixfolk.com
-http://www.unixfolk.com/dave
+bye, Roman

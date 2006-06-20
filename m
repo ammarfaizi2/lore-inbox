@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWFTTI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWFTTLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWFTTI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 15:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWFTTI6
+	id S1750785AbWFTTLB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 15:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWFTTLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 15:08:58 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:12210 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750738AbWFTTI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 15:08:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=oBcIt1jGi1i9I70d2ZeCUSo6SbNWh3mvUT1IXe9ukz9J5oXf1E+NuHcP4zM1bXfn+fVOpNCFn/gwiojkjI/TWBvzjIZ+p/6dNr96f8JlGYVFD9DM4IcSSR7I8lRxrXdA4HKX36tBBDb3FRBe0hqkcOBoKSoIW80Jef4MW+Me3Fs=
-Message-ID: <642640090606201208g31a0a57bm268910b026ccd335@mail.gmail.com>
-Date: Tue, 20 Jun 2006 13:08:56 -0600
-From: "Ryan McAvoy" <ryan.sed@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org
-Subject: realtime-preempt for MIPS - compile problem with rwsem
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 20 Jun 2006 15:11:00 -0400
+Received: from xenotime.net ([66.160.160.81]:20871 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750785AbWFTTLA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 15:11:00 -0400
+Date: Tue, 20 Jun 2006 12:13:42 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/14/] Doc. sources: expose watchdog
+Message-Id: <20060620121342.61976088.rdunlap@xenotime.net>
+In-Reply-To: <20060620184847.GA4607@infomag.infomag.iguana.be>
+References: <20060521205810.64b631e2.rdunlap@xenotime.net>
+	<20060522144347.07b08a8c.akpm@osdl.org>
+	<20060522145832.ce45807a.rdunlap@xenotime.net>
+	<20060523203709.GA4651@infomag.infomag.iguana.be>
+	<20060620184847.GA4607@infomag.infomag.iguana.be>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 20 Jun 2006 20:48:47 +0200 Wim Van Sebroeck wrote:
 
-I have been trying to get the realtime-preempt patches working on a
-MIPs processor with the 2.6.15 (and subsequently the 2.6.16) kernel.
+> Randy, Andrew,
+> 
+> > > > >  Documentation/watchdog/pcwd-watchdog.txt |   73 -------------------------------
+> > > > >   Documentation/watchdog/watchdog-api.txt  |   17 -------
+> > > > >   Documentation/watchdog/watchdog-simple.c |   15 ++++++
+> > > > >   Documentation/watchdog/watchdog-test.c   |   68 ++++++++++++++++++++++++++++
+> > > > >   Documentation/watchdog/watchdog.txt      |   23 ---------
+> > > > 
+> > > > Wouldn't it be better to move all the .c files into a new directory? 
+> > > > Documentation/src or something?
+> > > 
+> > > I dunno.  I like using multiple subdirectories (like watchdog/,
+> > > laptop/, block/, etc.) and not cluttering up Documentation/
+> > > with them.
+> > 
+> > I think a "user" that wants to know something specific about watchdog drivers
+> > will look in Documentation/watchdog and try to find what he need as fast as
+> > he can. I would say Documentation/watchdog/src/ then...
+> 
+> I'm going to change this patch so that we put the .c files in
+> Documentation/watchdog/src/ . I presume this is ok for both of you?
 
-One problem I am having is as follows:
+Sure, OK for me.  Thanks.
 
-- The mips configuration specifically disables
-CONFIG_RWSEM_GENERIC_SPINLOCK when CONFIG_PREEMPT_RT is on
-- This causes the include/asm-mips/rwsem.h to be included by
-include/linux/rwsem.h.
-- include/asm-mips/rwsem.h calls rwsem_down_read_failed which is
-implemented in lib/rwsem.c
-- rwsem.c is only compiled if CONFIG_RWSEM_XCHGADD_ALGORITHM is on.
-This option is also disabled if CONFIG_PREEMPT_RT is on.
-
-To summarise, if CONFIG_PREEMPT_RT is on, then the mips specific
-rwsem.h is included, but at the same time, it prevents inclusion of
-lib/rwsem.c which is needed by the mips rwsem.h.
-
-Does anyone have a solution to this.
-Thanks,
-Ryan McAvoy
+---
+~Randy

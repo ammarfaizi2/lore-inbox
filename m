@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWFTIsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWFTIsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbWFTIsD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965215AbWFTIsB
+	id S965064AbWFTIsn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWFTIsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:48:01 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:9918 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S965061AbWFTIsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:48:01 -0400
-Date: Tue, 20 Jun 2006 10:47:59 +0200
-From: Andreas Mohr <andim2@users.sourceforge.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, hal@lists.freedesktop.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB/hal: USB open() broken? (USB CD burner underruns, USB HDD hard resets)
-Message-ID: <20060620084759.GA798@rhlx01.fht-esslingen.de>
-Reply-To: andi@lisas.de
-References: <20060619082154.GA17129@rhlx01.fht-esslingen.de> <20060620013741.8e0e4a22.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Jun 2006 04:48:43 -0400
+Received: from ns1.suse.de ([195.135.220.2]:20704 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965064AbWFTIsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:48:42 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jes Sorensen <jes@sgi.com>
+Subject: Re: [patch] do_no_pfn
+Date: Tue, 20 Jun 2006 10:48:10 +0200
+User-Agent: KMail/1.9.3
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Carsten Otte <cotte@de.ibm.com>, bjorn_helgaas@hp.com
+References: <yq0psh5zenq.fsf@jaguar.mkp.net> <200606201013.10353.ak@suse.de> <4497B490.90303@sgi.com>
+In-Reply-To: <4497B490.90303@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060620013741.8e0e4a22.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Message-Id: <200606201048.10545.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, Jun 20, 2006 at 01:37:41AM -0700, Andrew Morton wrote:
-> On Mon, 19 Jun 2006 10:21:54 +0200
-> Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
-> 
-> > I'm having severe issues with cdrecord aborting with "buffer underrun"
-> > message, *always*. Problem nailed, see below.
-> 
-> [hald polling causes cdrecord to go bad on a USB CD drive]
-> 
-> One possible reason is that we're shooting down the device's pagecache by
-> accident as a result of hald activity.  This shouldn't happen, but still.
-> Could you please do
+> Please go back and read the old threads on this for all the details,
+> I would miss half the points if I was to try and restate it all from
+> memory.
 
-[...]
+Shouldn't these points be in the patch submission description? 
 
-Thanks, will do.
+> Doing this at mmap time does not work, you want NUMA node locality.
+> It has to be done through first touch mappings.
 
-Just filed this as
-http://bugzilla.kernel.org/show_bug.cgi?id=6722
-due to no response here before.
+Then create struct page *s.
 
-(#6194 looks like it might be the same issue)
-
-I'd suggest continuing discussion at bug #6722 from now.
-
-Thanks,
-
-Andreas Mohr
-
--- 
-No programming skills!? Why not help translate many Linux applications! 
-https://launchpad.ubuntu.com/rosetta
-(or alternatively buy nicely packaged Linux distros/OSS software to help
-support Linux developers creating shiny new things for you?)
+-Andi

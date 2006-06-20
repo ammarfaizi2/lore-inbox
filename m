@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWFTQF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWFTQIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWFTQF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFTQF3
+	id S1750847AbWFTQIh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWFTQIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:05:29 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:43465 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751374AbWFTQF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:05:28 -0400
-Date: Tue, 20 Jun 2006 12:05:15 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Maurice Volaski <mvolaski@aecom.yu.edu>
-cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [Bug 6451] CONFIG_KMOD is not set for x86_64 but is set to Y
- for i386 and other archs
-In-Reply-To: <a06230977c0bdc14545ff@[129.98.90.227]>
-Message-ID: <Pine.LNX.4.58.0606201159260.32334@gandalf.stny.rr.com>
-References: <200606201433.k5KEXbhX003862@fire-2.osdl.org>
- <a06230977c0bdc14545ff@[129.98.90.227]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jun 2006 12:08:36 -0400
+Received: from xenotime.net ([66.160.160.81]:27831 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750847AbWFTQIg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:08:36 -0400
+Date: Tue, 20 Jun 2006 09:11:16 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jes Sorensen <jes@sgi.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] mspec
+Message-Id: <20060620091116.e81d4360.rdunlap@xenotime.net>
+In-Reply-To: <yq0hd2gyvl7.fsf@jaguar.mkp.net>
+References: <yq0lkrtzelk.fsf@jaguar.mkp.net>
+	<20060619085855.277cd217.rdunlap@xenotime.net>
+	<yq0hd2gyvl7.fsf@jaguar.mkp.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20 Jun 2006 06:23:16 -0400 Jes Sorensen wrote:
 
-On Tue, 20 Jun 2006, Maurice Volaski wrote:
+> >>>>> "Randy" == Randy Dunlap <rdunlap@xenotime.net> writes:
+> 
+> Randy> On 19 Jun 2006 05:20:23 -0400 Jes Sorensen wrote:
+> >> +MODULE_AUTHOR("Silicon Graphics, Inc.");
+> >> +MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
+> >> +MODULE_LICENSE("GPL"); +MODULE_INFO(supported, "external");
+> 
+> Randy> What does that last line mean?  what does "external" mean?
+> Randy> There are no other source files in the 2.6.17 tree that say
+> Randy> anything like that.
+> 
+> Randy> And of the 1800+ MODULE_AUTHOR() lines, SGI seems to be
+> Randy> dominant is using company instead of a person for AUTHOR.  Yes,
+> Randy> there are a few others as well.  module.h says: /* Author,
+> Randy> ideally of form NAME <EMAIL>[, NAME <EMAIL>]*[ and NAME
+> Randy> <EMAIL>] */
+> 
+> Randy,
+> 
+> I went back and looked through the usages of these macros and it does
+> indeed seem that nobody else tries to state 'supported' in MODULE_INFO
+> so I have removed that and added an email address to the author line,
+> which should always stay valid.
 
-> Hey, is this you? Why on Earth do you want this setting turned off?
-
-Maurice,
-
-This constant pestering will only get you ignored.  If you don't like the
-default, just change it, and copy over your .configs to all your machines
-that you use.  Once you have done so, your makes on those machines will
-use them (if you do "make install" to get the .config copied to /boot).
-
-Now, the point you _could_ have made, is that the Help on KMOD says
-
-   "If unsure, say Y"
-
-Which to me _is_ a bug.  I just hate it when the default doesn't match the
-recommended comment of any config option.
-
--- Steve
+Hi Jes,
+Thanks for doing that, esp. the 'supported' part.
 
 
->
-> >http://bugzilla.kernel.org/show_bug.cgi?id=6451
-> >
-> >zippel@linux-m68k.org changed:
-> >
-> >            What    |Removed                     |Added
-> >----------------------------------------------------------------------------
-> >              Status|NEW                         |REJECTED
-> >          Resolution|                            |WILL_NOT_FIX
-> >
-> >
-> >
-> >------- Additional Comments From zippel@linux-m68k.org  2006-06-20
-> >07:32 -------
-> >This is a per architecture decision, please ask the respective maintainer.
-> >
-> >------- You are receiving this mail because: -------
-> >You reported the bug, or are watching the reporter.
->
->
-> --
->
-> Maurice Volaski, mvolaski@aecom.yu.edu
-> Computing Support, Rose F. Kennedy Center
-> Albert Einstein College of Medicine of Yeshiva University
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> +MODULE_AUTHOR("Silicon Graphics, Inc. <linux-altix@sgi.com>");
+> +MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
+> +MODULE_LICENSE("GPL");
+
+---
+~Randy

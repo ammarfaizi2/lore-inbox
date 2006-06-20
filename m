@@ -1,93 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWFTWp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWFTWq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWFTWp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 18:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWFTWp2
+	id S1751446AbWFTWq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 18:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWFTWq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 18:45:28 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:9155 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751361AbWFTWp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 18:45:26 -0400
-Date: Tue, 20 Jun 2006 18:40:06 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [RFC, patch] i386: vgetcpu()
+	Tue, 20 Jun 2006 18:46:58 -0400
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:46364 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S1751446AbWFTWq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 18:46:57 -0400
 To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606201842_MC3-1-C2FD-FB7E@compuserve.com>
+Cc: Greg KH <gregkh@suse.de>, Dave Olson <olson@unixfolk.com>,
+       discuss@x86-64.org, Brice Goglin <brice@myri.com>,
+       linux-kernel@vger.kernel.org, Greg Lindahl <greg.lindahl@qlogic.com>
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilitiesKJ
+X-Message-Flag: Warning: May contain useful information
+References: <fa.5FgZbVFZIyOdjQ3utdNvbqTrUq0@ifi.uio.no>
+	<200606200925.30926.ak@suse.de> <20060620212908.GA17012@suse.de>
+	<200606210033.35409.ak@suse.de>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 20 Jun 2006 15:46:55 -0700
+In-Reply-To: <200606210033.35409.ak@suse.de> (Andi Kleen's message of "Wed, 21 Jun 2006 00:33:35 +0200")
+Message-ID: <adasllzmom8.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 20 Jun 2006 22:46:56.0384 (UTC) FILETIME=[6EB5C800:01C694BB]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200606202257.16033.ak@suse.de>
+ > NForce4 PCI Express is an unknown - we'll see how that works.
 
-On Tue, 20 Jun 2006 22:57:16 +0200, Andi Kleen wrote:
+I have systems (HP DL145) with
 
-> On Tuesday 20 June 2006 22:25, Chuck Ebbert wrote:
-> > Use the limit field of a GDT entry to store the current CPU
-> > number for fast userspace access.  This still leaves 12 bits
-> > free for other information.
-> 
-> Nice trick. Maybe I'll even add that to the x86-64 implementation
-> if it's fast enough. Do you have numbers?
-> 
+    PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
 
-I got ~13 clocks on x86_64 and 21 on PII.  Test program below.
+and MSI-X works fine for me with Mellanox PCIe adapters (with no
+quirks or anything -- the BIOS enables it by default):
 
-> But it needs to be encapsulated in a wrapper I think. Just exposing
-> it to user space is the wrong way to do this.
+    $ grep MSI-X /proc/interrupts
+     66:     205792          0          0          0       PCI-MSI-X ib_mthca (comp)
+     74:          1          0          0          0       PCI-MSI-X ib_mthca (async)
+     82:       1343          0          0          0       PCI-MSI-X ib_mthca (cmd)
 
-Well there's no real way to hide it, but something more is definitely
-needed.  A new vdso entry point is easy but how do you tell userspace
-it's there?  Does glibc look at the kernel version in the note?
-
-
-/* test how fast lsl, test for success + mask result runs
- * leave DO_TEST undefined to measure overhead
- */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-
-#define rdtscll(t)	asm volatile ("rdtsc" : "=A" (t))
-
-#ifndef ITERS
-#define ITERS	1000000
-#endif
-
-int main(int argc, char * const argv[])
-{
-	unsigned long long tsc1, tsc2;
-	int count, cpu, junk;
-
-	rdtscll(tsc1);
-	asm (
-		"	pushl %%ds		\n"
-		"	popl %2			\n"
-		"1:				\n"
-#ifdef DO_TEST
-		"	lsl %2,%0		\n"
-		"	jnz 2f			\n"
-		"	and $0xff,%0		\n"
-#endif
-		"	dec %1			\n"
-		"	jnz 1b			\n"
-		"2:				\n"
-		: "=&r" (cpu), "=&r" (count), "=&r" (junk)
-		: "1" (ITERS), "0" (-1)
-	);
-	rdtscll(tsc2);
-
-	if (count == 0)
-		printf("loops: %d, avg: %llu clocks\n",
-			ITERS, (tsc2 - tsc1) / ITERS);
-	return 0;
-}
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+ - R.

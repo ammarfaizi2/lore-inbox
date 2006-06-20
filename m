@@ -1,39 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWFTUhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWFTUjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbWFTUhf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 16:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWFTUhf
+	id S1750989AbWFTUjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 16:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWFTUjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 16:37:35 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:33179
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1750970AbWFTUhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 16:37:34 -0400
-Message-ID: <44985C89.3040000@microgate.com>
-Date: Tue, 20 Jun 2006 15:37:29 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shaun Jackman <sjackman@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: TL16C752B DUART: MCR_OUT2 disables interrupts
-References: <7f45d9390606201307yfdb8aadn4d00a6afeba0b09b@mail.gmail.com>	 <44985A07.9080807@microgate.com> <7f45d9390606201335x29957bfcy31dd4ece97d551ea@mail.gmail.com>
-In-Reply-To: <7f45d9390606201335x29957bfcy31dd4ece97d551ea@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 20 Jun 2006 16:39:08 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:719 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750989AbWFTUjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 16:39:07 -0400
+Subject: Re: 2.6.17-rc6-mm1
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060620132431.e00a5c68.akpm@osdl.org>
+References: <20060607104724.c5d3d730.akpm@osdl.org>
+	 <20060608050047.GB16729@redhat.com>
+	 <1150825349.2891.219.camel@laptopd505.fenrus.org>
+	 <20060620132431.e00a5c68.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 22:38:59 +0200
+Message-Id: <1150835940.2891.225.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaun Jackman wrote:
-> On 6/20/06, Paul Fulghum <paulkf@microgate.com>
-> I didn't know of this historic use of the OUT2 pin to disable
-> interrupts. I'll put OUT2 on my list of things not to muck with. Is
-> there any similar historic use of OUT1?
+On Tue, 2006-06-20 at 13:24 -0700, Andrew Morton wrote:
+> On Tue, 20 Jun 2006 19:42:29 +0200
+> Arjan van de Ven <arjan@infradead.org> wrote:
+> 
+> >  /*
+> > + * Lock a file handle/inode to be used as parent dir for another
+> > + * NOTE: both fh_lock and fh_unlock are done "by hand" in
+> > + * vfs.c:nfsd_rename as it needs to grab 2 i_mutex's at once
+> > + * so, any changes here should be reflected there.
+> > + */
+> > +static inline void
+> > +fh_lock_parent(struct svc_fh *fhp)
+> > +{
+> > +	struct dentry	*dentry = fhp->fh_dentry;
+> > +	struct inode	*inode;
+> > +
+> > +	dfprintk(FILEOP, "nfsd: fh_lock(%s) locked = %d\n",
+> > +			SVCFH_fmt(fhp), fhp->fh_locked);
+> > +
+> > +	if (!fhp->fh_dentry) {
+> > +		printk(KERN_ERR "fh_lock: fh not verified!\n");
+> > +		return;
+> > +	}
+> > +	if (fhp->fh_locked) {
+> > +		printk(KERN_WARNING "fh_lock: %s/%s already locked!\n",
+> > +			dentry->d_parent->d_name.name, dentry->d_name.name);
+> > +		return;
+> > +	}
+> > +
+> > +	inode = dentry->d_inode;
+> > +	mutex_lock_nested(&inode->i_mutex, I_MUTEX_PARENT);
+> > +	fill_pre_wcc(fhp);
+> > +	fhp->fh_locked = 1;
+> > +}
+> 
+> yikes, five callsites, and fill_pre_wcc() is inlined too.
 
-Not that I'm aware of. All of the old designs I've
-seen left that signal unconnected.
+if this patch works for Dave I'll make one that just inlines this (and
+the other one) as well; as you said.. 5+ call sites...
+(and in fact there used to be an out-of-line function for this at some
+point so.. it's not unheard of)
 
--- 
-Paul Fulghum
-Microgate Systems, Ltd.

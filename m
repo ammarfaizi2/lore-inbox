@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWFTPpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWFTPpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWFTPpM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 11:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWFTPpL
+	id S1751344AbWFTPpn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 11:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWFTPpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 11:45:11 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:48815 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751338AbWFTPpH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 11:45:07 -0400
-Date: Tue, 20 Jun 2006 17:44:57 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       webmaster@cyberdogtech.com
-Subject: Re: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
-In-Reply-To: <20060620145234.GK1630@parisc-linux.org>
-Message-ID: <Pine.LNX.4.64.0606201742280.12900@scrub.home>
-References: <20060619221618.GJ1630@parisc-linux.org>
- <Pine.LNX.4.64.0606201616430.17704@scrub.home> <20060620145234.GK1630@parisc-linux.org>
+	Tue, 20 Jun 2006 11:45:43 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:59045 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751344AbWFTPpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 11:45:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=K+bjv2Ivt/x4SdNO5iW/sSxOOgKFtAQKmuINZQsF3FPYJ270dYqaOHu3Sn0YPk69Y9bWkLlJxidLVtKPrCmFASC6RoW1yVKpGZNztJF2SFigSVFogUsHayW/cEOSny43KDys5XvjfQjcJ8RePPubPbijJl2aPB8Ayu0iTgvB2p0=
+Message-ID: <44981823.2050005@gmail.com>
+Date: Tue, 20 Jun 2006 17:45:16 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drm: Add VIA chipset IDs for drm detection
+References: <200606201816.08768.a1426z@gawab.com> <449817A4.4090408@gmail.com>
+In-Reply-To: <449817A4.4090408@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 20 Jun 2006, Matthew Wilcox wrote:
 
-> On Tue, Jun 20, 2006 at 04:20:53PM +0200, Roman Zippel wrote:
-> > Hi,
-> > 
-> > On Mon, 19 Jun 2006, Matthew Wilcox wrote:
-> > >  config LSF
-> > >  	bool "Support for Large Single Files"
-> > > -	depends on X86 || (MIPS && 32BIT) || PPC32 || ARCH_S390_31 || SUPERH || UML
-> > > +	depends on !64BIT
-> > >  	help
-> > >  	  Say Y here if you want to be able to handle very large files (bigger
-> > >  	  than 2TB), otherwise say N.
-> > 
-> > While you're at it, could you please take care of bug #6719 and fix the 
-> > LSF help text?
-> > Thanks.
+Jiri Slaby napsal(a):
+> Al Boldi napsal(a):
+>> Allow drm detection of new VIA chipsets.
+>>
+>> Signed-off-by: Al Boldi <a1426z@gawab.com>
+>> --
+>> --- drivers/char/drm/drm_pciids.h.old	2006-06-19 01:34:48.000000000 +0300
+>> +++ drivers/char/drm/drm_pciids.h	2006-06-19 13:36:49.000000000 +0300
+>> @@ -227,6 +227,9 @@
+>>  	{0x1106, 0x3122, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0}, \
+>>  	{0x1106, 0x7205, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0}, \
+>>  	{0x1106, 0x3108, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0}, \
+>> +	{0x1106, 0x3157, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0}, \
+>> +	{0x1106, 0x3344, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0}, \
+>> +	{0x1106, 0x7204, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0}, \
+>>  	{0, 0, 0}
 > 
-> I don't really understand the complaint.  If <rare condition applies>,
-> say Y, otherwise say N.  If unsure, say Y.  The default is N.  Perhaps
-> all that's needed is to spell out the implications of saying Y?  How
-> about:
-> 
-> 	  This option allows 32-bit systems to support files larger than
-> 	  2 Terabytes, at a cost of increased kernel memory usage.  Most
-> 	  people do not need the overhead and should answer N to this
-> 	  question, but if you do not understand this question, answering
-> 	  Y is safest.
-> 
-> Or is that too verbose?
+> Don't you want to post a patch converting all that lines to use PCI_DEVICE()
+> (and without backslashes)?
 
-How likely is it that someone who doesn't understand the question needs 
-this option? I think N is a safe answer here.
+Hrm, let backslashes be.
 
-bye, Roman
+regards,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

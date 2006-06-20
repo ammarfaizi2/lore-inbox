@@ -1,49 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWFTV0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWFTV0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWFTV0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 17:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWFTV0G
+	id S1751173AbWFTV0w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 17:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWFTV0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 17:26:06 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:37346 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751192AbWFTVZk (ORCPT
+	Tue, 20 Jun 2006 17:26:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17845 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751164AbWFTV0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 17:25:40 -0400
-Message-ID: <449867D2.3020909@garzik.org>
-Date: Tue, 20 Jun 2006 17:25:38 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 20 Jun 2006 17:26:40 -0400
+Date: Tue, 20 Jun 2006 14:25:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Al Viro <viro@ftp.linux.org.uk>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       Ben Collins <bcollins@ubuntu.com>,
+       Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [git pull] ieee1394 tree for 2.6.18
+In-Reply-To: <20060620175321.GA7463@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0606201416140.5498@g5.osdl.org>
+References: <44954102.3090901@s5r6.in-berlin.de> <Pine.LNX.4.64.0606191902350.5498@g5.osdl.org>
+ <20060620025552.GO27946@ftp.linux.org.uk> <Pine.LNX.4.64.0606192007460.5498@g5.osdl.org>
+ <20060620175321.GA7463@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] SCSI updates for 2.6.17
-References: <1150837947.2531.27.camel@mulgrave.il.steeleye.com> <449866E3.8010200@garzik.org>
-In-Reply-To: <449866E3.8010200@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> James Bottomley wrote:
->> This represents the almost complete SCSI pending list apart from a SAS
->> port update which we're still trying to beat into shape.  The patch can
->> be pulled from here:
+
+
+On Tue, 20 Jun 2006, Russell King wrote:
 > 
-> When will aic94xx head upstream?  Even though it is seeing changes in 
-> your repo, I would rather not hide the driver for another six months.
-> 
-> aic94xx is the only all-software-stack SAS user at present, so I think 
-> its reasonable to get it into the tree, and make changes upstream.
+> Given that you've complained about me sending daily pull requests
+> already, how do you intend folk to handle the situation where they've
+> sent you a pull request, it's apparantly been ignored
 
-I should have also mentioned the "it works" characteristic that aic94xx 
-continues to have.
+It's not ignored, btw, I'm staggering the merging so that I don't merge 
+everything the first day - I want nightly snapshots to have a chance of 
+making a difference to people who aren't git users but test patches.
 
-	Jeff
+(In other words, I want "2.6.17-git1" and "2.6.17-git2" etc to actually 
+b esomewhat spread out - rather than merge everything when people send it 
+to me the first day after a release. I also tend to want a release to be 
+"left alone" for a day or so, so that even people who track the 
+development tree religiously will actually end up testing it).
 
+> Given your complaint and your comments above, I can only assume that
+> I must not touch a tree which I've asked you to pull for 48 hours
+> just in case you do decide to honour the pull request.
 
+Actually, from a technical standpoint, the easy way to do this with git is 
+to simply have different branches (or even tags).
+
+That said, people who I merge up with often (and you're one of them), and 
+I don't actually tend to have any issues with (and again, you're one of 
+them), I don't mind it I pull and notice that there's been an added commit 
+or two since you asked me to pull.
+
+Again - the "please pull" message is because I want to work with the 
+_person_, and I want to be comfortable that what I pull is what they 
+intended to pull.
+
+And as you can guess, trees that I constantly update from end up having 
+much less of that issue - there's less risk of there being 
+miscommunication or just plain mistakes in those kinds of setups _anyway_.
+
+So in many ways, if it's an archive that doesn't sync up very often, I 
+want such people to be _extra_ careful. When I get a pull request for 
+ieee1394, _especially_ as the maintainer kind of seems to keep on 
+changing, I want to be a lot more careful than with something like yours 
+or Davids trees, that I've worked with for years beforehand, and have 
+already been using git pretty much since day one etc etc.
+
+In other words: rules are rules, and in the end, they matter a hell of a 
+lot less than just common sense. But they matter _more_ for the repo 
+maintainers I haven't gotten used to.
+
+			Linus

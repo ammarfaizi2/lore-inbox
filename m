@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWFTKDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWFTKIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWFTKDf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 06:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWFTKDf
+	id S932577AbWFTKIf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 06:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWFTKIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 06:03:35 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:45982 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932551AbWFTKDf
+	Tue, 20 Jun 2006 06:08:35 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:12551 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932577AbWFTKIf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 06:03:35 -0400
-Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner
-	underruns, USB HDD hard resets)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: andi@lisas.de
-Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       hal@lists.freedesktop.org
-In-Reply-To: <20060620090532.GA6170@rhlx01.fht-esslingen.de>
-References: <20060619082154.GA17129@rhlx01.fht-esslingen.de>
-	 <20060620013741.8e0e4a22.akpm@osdl.org>
-	 <1150794417.11062.30.camel@localhost.localdomain>
-	 <20060620090532.GA6170@rhlx01.fht-esslingen.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Jun 2006 11:18:10 +0100
-Message-Id: <1150798690.11062.38.camel@localhost.localdomain>
+	Tue, 20 Jun 2006 06:08:35 -0400
+Date: Tue, 20 Jun 2006 12:08:36 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Pete Popov <ppopov@embeddedalley.com>
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: i2c-algo-ite and i2c-ite planned for removal
+Message-Id: <20060620120836.628ddc79.khali@linux-fr.org>
+In-Reply-To: <1150735558.8413.7.camel@localhost.localdomain>
+References: <20060615225723.012c82be.khali@linux-fr.org>
+	<1150406598.1193.73.camel@localhost.localdomain>
+	<20060616222908.f96e3691.khali@linux-fr.org>
+	<1150735558.8413.7.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-06-20 am 11:05 +0200, ysgrifennodd Andreas Mohr:
-> But how would HAL safely determine whether a (IDE/USB) drive is busy?
-> As my test app demonstrates (without HAL running), the *very first* open()
-> happening during an ongoing burning operation will kill it instantly, in the
-> USB case.
-> Are there any options left for HAL at all? Still seems to strongly point
-> towards a kernel issue so far.
+Hi Pete,
 
-In the IDE space O_EXCL has the needed semantics. At least it does on
-Fedora and I don't think thats a Fedora patch, not sure if this is the
-case for the USB side of things. 
+> > > For historical correctness, this driver was once upon a time usable,
+> > > though it was a few years ago. It was written by MV for some ref board
+> > > that had the ITE chip and it did work. That ref board is no longer
+> > > around so it's probably safe to nuke the driver. 
+> > 
+> > In which kernel version? In every version I checked (2.4.12, 2.4.30,
+> > 2.6.0 and 2.6.16) it wouldn't compile due to struct iic_ite being used
+> > but never defined (and possibly other errors, but I can't test-compile
+> > the driver.)
+> 
+> Honestly, I don't remember. I think it was one of the very first 2.6
+> kernels because when MV first released a 2.6 product, 2.6 was still
+> 'experimental'. It's quite possible of course that the driver was never
+> properly merged upstream in the community tree(s). But I do know that it
+> worked in the internal MV tree and an effort was made to get the driver
+> accepted upstream.
 
-> One (rather less desireable) way I can make up might be to have HAL
-> keep the device open permanently and do an ioctl query on whether it's "busy"
-> and then quickly close the device again before the newly started
-> burning process gets disrupted (if this even properly works at all).
+I couldn't find any evidence of this effort. Whatever, past is past, if
+someone fixes the i2c-ite and i2c-algo-ite drivers soon, fine with me,
+if not, the drivers will be deleted (which doesn't mean they can't be
+resurrected later if there is interest and someone takes over
+maintenance.) I'm setting the deadline to September 2006.
 
-O_EXCL used by cdrecord is probably the right thing
-
+-- 
+Jean Delvare

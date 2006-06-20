@@ -1,89 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWFTIEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWFTIF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbWFTIEi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:04:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbWFTIEi
+	id S964998AbWFTIF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbWFTIF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:04:38 -0400
-Received: from iona.labri.fr ([147.210.8.143]:16608 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S965025AbWFTIEg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:04:36 -0400
-Date: Tue, 20 Jun 2006 10:04:35 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: David Luyer <david@luyer.net>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Message-ID: <20060620080435.GA4347@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	David Luyer <david@luyer.net>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	linux-kernel@vger.kernel.org
-References: <20060619220920.GB5788@implementation.residence.ens-lyon.fr> <C0BD782F.CF80%david@luyer.net>
+	Tue, 20 Jun 2006 04:05:26 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:58275 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964998AbWFTIFY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:05:24 -0400
+Subject: RE: Wish for 2006 to Alan Cox and Jeff Garzik: A functional Driver
+	for PDC202XX
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Erik@echohome.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAIdWvHE4LIdGgJWKcd2w9I8BAAAAAA==@EchoHome.org>
+References: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAIdWvHE4LIdGgJWKcd2w9I8BAAAAAA==@EchoHome.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Jun 2006 09:20:27 +0100
+Message-Id: <1150791627.11062.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <C0BD782F.CF80%david@luyer.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Luyer, le Tue 20 Jun 2006 10:02:23 +1000, a écrit :
-> On 20/6/06 8:09 AM, "Samuel Thibault" <samuel.thibault@ens-lyon.org> wrote:
-> > linux-os (Dick Johnson), le Mon 19 Jun 2006 07:37:02 -0400, a écrit :
-> >> You can't allow some terminal input to affect init. It has been the
-> >> de facto standard in Unix, that the only time one should have a
-> >> controlling terminal is after somebody logs in and owns something to
-> >> control.
-> > 
-> > Ok. The following still makes sense, doesn't it? (i.e. set a session for
-> > the emergency shell)
-> > 
-> > --- linux-2.6.17-orig/init/main.c 2006-06-18 19:22:40.000000000 +0200
-> > +++ linux-2.6.17-perso/init/main.c 2006-06-20 00:07:07.000000000 +0200
-> > @@ -729,6 +729,11 @@
-> > run_init_process("/sbin/init");
-> > run_init_process("/etc/init");
-> > run_init_process("/bin/init");
-> > +
-> > + /* Set a session for the shell.  */
-> > + sys_setsid();
-> > + sys_ioctl(0, TIOCSCTTY, 1);
-> > +
-> > run_init_process("/bin/sh");
-> >  
-> > panic("No init found.  Try passing init= option to kernel.");
-> 
-> What if people are booting via /bin/sh and then setting up
-> their custom chroot's and init(s), and don't want these init(s) to
-> be part of a session?
+Ar Llu, 2006-06-19 am 18:18 -0400, ysgrifennodd Erik Ohrnberger:
+> Regardless, count me as another one of the interested parties for a cure.
+> I've read the thread, and will prepare two current kernels, one using the
+> PDC202XX_NEW and one using the PDC202XX_OLD configuration options.  I'm
+> hoping that the PDC202XX_OLD will also resolve this issue.
 
-The problem is that you can't distinguish that from usual init booting:
+Bartlomiej is the old IDE layer maintainer. I would direct any enquiries
+to him about those drivers.
 
-	if (execute_command) {
-		run_init_process(execute_command);
-		printk(KERN_WARNING "Failed to execute %s.  Attempting "
-					"defaults...\n", execute_command);
-	}
-	run_init_process("/sbin/init");
+> Any further advice on how to work around this would be greatly appreciated.
 
-If you setsid() in the if(execute_command) statement, and the
-execute_command fails, you get to run init in a session.
+2.6.17 with the libata pata patch from
+http://zeniv.linux.org.uk/~alan/IDE has a Promise driver for the PDC
+20268 and higher that was written by Albert Lee. There is also a test
+driver for the older chips (20265 etc).
 
-> It is also particularly possible for an embedded system to start
-> up via /bin/sh running /etc/profile rather than using an init type
-> program.
+To try that build 2.6.17 with the patch and then say "N" to CONFIG_IDE,
+"Y" to the SATA options under SCSI and the right controller. It will
+move your disks to /dev/sda /dev/sdb etc as it uses the SCSI layer.
 
-Then people writing that embedded system should use /bin/login instead.
+Alan
 
-> Also, the above doesn't help people specifying "init=/bin/sh" on the
-> command line (as per the original post subject).  The real solution
-> is for them to specify a different init= or run/exec something to set
-> up their tty and session once logged in.
-
-Yes. And the problem is that people usually don't know about sessions
-etc, and will just grumble "linux can't work".
-
-Samuel

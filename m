@@ -1,120 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWFTIUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbWFTI0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbWFTIUl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbWFTIUl
+	id S965178AbWFTI0e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbWFTI0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:20:41 -0400
-Received: from wr-out-0506.google.com ([64.233.184.229]:6898 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964988AbWFTIUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:20:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kcCPTRumnA6y6EaGyaEoZtz77fRHNi35FLMKvEAaywgGt5GypYWnynQYzJ+GlPKkGQyJftlP6IigAgoX8xCPCu++SeIxAd916n1cAKoxRJSasYLO7ylB1MdJHTd4wrgaaPDeGLGwYQJQ55KltRPDKFiAo1Nq0s0GlvplnfQkRKA=
-Message-ID: <3aa654a40606200120v5baf0304ka205f1ad8f136ad9@mail.gmail.com>
-Date: Tue, 20 Jun 2006 01:20:39 -0700
-From: "Avuton Olrich" <avuton@gmail.com>
-To: "Nathan Scott" <nathans@sgi.com>
-Subject: Re: XFS crashed twice, once in 2.6.16.20, next in 2.6.17, reproducable
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-In-Reply-To: <20060620165209.C1080488@wobbly.melbourne.sgi.com>
+	Tue, 20 Jun 2006 04:26:34 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:35537 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S965001AbWFTI0d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:26:33 -0400
+Message-ID: <4497B126.4000408@bull.net>
+Date: Tue, 20 Jun 2006 10:26:14 +0200
+From: Laurent Vivier <Laurent.Vivier@bull.net>
+Organization: Bull S.A.S.
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com>
-	 <20060620161006.C1079661@wobbly.melbourne.sgi.com>
-	 <3aa654a40606192338v751150fp5645d1d2943316ea@mail.gmail.com>
-	 <20060620164338.A1080488@wobbly.melbourne.sgi.com>
-	 <3aa654a40606192350w5c469670t466dfc1344e23a4@mail.gmail.com>
-	 <20060620165209.C1080488@wobbly.melbourne.sgi.com>
+To: Qi Yong <qiyong@fc-cn.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, "Stephen C. Tweedie" <sct@redhat.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+       alex@clusterfs.com, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org>	<1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>	<Pine.LNX.4.64.0606091344290.5498@g5.osdl.org> <4497927F.4070307@fc-cn.com>
+In-Reply-To: <4497927F.4070307@fc-cn.com>
+X-Enigmail-Version: 0.94.0.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 20/06/2006 10:30:15,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 20/06/2006 10:30:17,
+	Serialize complete at 20/06/2006 10:30:17
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig9E9CDA42B220698FCA17ABA6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/19/06, Nathan Scott <nathans@sgi.com> wrote:
-> On Mon, Jun 19, 2006 at 11:50:37PM -0700, Avuton Olrich wrote:
-> > On 6/19/06, Nathan Scott <nathans@sgi.com> wrote:
-> > > Oh - thats a kernel patch, not a repair patch, I was more interested
-> > > in whether the initial corruption could be reproduced.  Which version
-> > > of xfs_repair are you running?  (xfs_repair -V)  xfsprogs-2.7.18 will
-> > > resolve your problem, I suspect.
-> >
-> > OK, I'm running Gentoo's latest: 2.7.11, I can't find 2.7.18
-> > _anywhere_ although 2.7.13 is in the pre directory on the ftp, is that
-> > the one you're referring to?
->
-> No - its in CVS (for a long time); I'll go get the ftp area updated,
-> looks like thats been forgotten about again.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig9E9CDA42B220698FCA17ABA6
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-OK, just compiled from CVS HEAD (xfs_repair 2.8.2) and it still fails:
+Qi Yong wrote:
+> Linus Torvalds wrote:
+>=20
+>> On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
+>> =20
+>>
+>>> When is the Linux syscall interface enough?  When should we just bump=
+ it
+>>> and cut out all the compatibility interfaces?
+>>>
+>>> No, we don't; we let people configure certain obsolete bits out (a.ou=
+t
+>>> support etc), but we keep it in the tree despite the indirection cost=
+ to
+>>> maintain multiple interfaces etc.
+>>>   =20
+>>>
+>> Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN WAYS =
+THAT=20
+>> MIGHT BREAK OLD USERS.
+>>
+>> Your point was exactly what?
+>>
+>> Btw, where did that 2TB limit number come from? Afaik, it should be 16=
+TB=20
+>> for a 4kB filesystem, no?
+>> =20
+>>
+>=20
+> Partition tables describe partitions in units of one sector.
+> 2^(32+9) =3D 2T
+>=20
+> To prevent integer overflow, we should use only 31 bits of a 32-bit int=
+eger.
+> 2^(31+12) =3D 8T
+>=20
+> There's _terrible_ hacks to really get to 16T.
+>=20
+> -- qiyong
+>=20
 
-If this fix is not yet in the 2.8.x I will wait for 2.7.18 to get on the ftp.
+IMHO, a simple solution is to use "Logical Volume Manager" instead of par=
+tition
+manager: we create 64bit filesystem in a Logical Volume, not in a partiti=
+on.
 
-Phase 1 - find and verify superblock...
-Phase 2 - using internal log
-        - zero log...
-        - scan filesystem freespace and inode maps...
-        - found root inode chunk
-Phase 3 - for each AG...
-        - scan and clear agi unlinked lists...
-        - process known inodes and perform inode discovery...
-        - agno = 0
-entry "/ost+found" at block 0 offset 448 in directory inode 128
-references invalid inode 18374686479671623679
-        clearing inode number in entry at offset 448...
-entry at block 0 offset 448 in directory inode 128 has illegal name
-"/ost+found": imap claims a free inode 859505 is in use, correcting
-imap and clearing inode
-        - agno = 1
-        - agno = 2
-        - agno = 3
-        - agno = 4
-        - agno = 5
-        - agno = 6
-        - agno = 7
-        - agno = 8
-        - agno = 9
-        - agno = 10
-        - agno = 11
-        - agno = 12
-        - agno = 13
-        - agno = 14
-        - agno = 15
-        - process newly discovered inodes...
-Phase 4 - check for duplicate blocks...
-        - setting up duplicate extent list...
-        - clear lost+found (if it exists) ...
-        - check for inodes claiming duplicate blocks...
-        - agno = 0
-        - agno = 1
-        - agno = 2
-        - agno = 3
-        - agno = 4
-        - agno = 5
-        - agno = 6
-        - agno = 7
-        - agno = 8
-        - agno = 9
-        - agno = 10
-        - agno = 11
-        - agno = 12
-        - agno = 13
-        - agno = 14
-        - agno = 15
-Phase 5 - rebuild AG headers and trees...
-        - reset superblock...
-Phase 6 - check inode connectivity...
-        - resetting contents of realtime bitmap and summary inodes
-        - ensuring existence of lost+found directory
-        - traversing filesystem starting at / ...
-rebuilding directory inode 128
+"partitioning is obsolete" ;-)
 
-fatal error -- can't read block 16777216 for directory inode
-1507133580
+Regards,
+Laurent
 
--- 
-avuton
---
- Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--=20
+Laurent Vivier
+Bull, Architect of an Open World (TM)
+http://www.bullopensource.org/ext4
+
+
+--------------enig9E9CDA42B220698FCA17ABA6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQFEl7Eq9Kffa9pFVzwRAnegAJ9qmnAQT8FsgHL4QmwS9ocR1W2X7QCeOFr3
+2yXHSlWvhIdvdXh0yhGvvA8=
+=Pdyx
+-----END PGP SIGNATURE-----
+
+--------------enig9E9CDA42B220698FCA17ABA6--

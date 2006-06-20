@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbWFTKzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWFTK5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932589AbWFTKzs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 06:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbWFTKzs
+	id S932561AbWFTK5M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 06:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWFTK5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 06:55:48 -0400
-Received: from mkedef1.rockwellautomation.com ([208.22.104.18]:6760 "EHLO
-	ranasmtp01.ra.rockwell.com") by vger.kernel.org with ESMTP
-	id S932589AbWFTKzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 06:55:47 -0400
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] no_pci_serial
+	Tue, 20 Jun 2006 06:57:12 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:37070
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932561AbWFTK5L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 06:57:11 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Chris Wright <chrisw@sous-sol.org>, linville@tuxdriver.com
+Subject: Re: Linux 2.6.17.1
+Date: Tue, 20 Jun 2006 12:56:26 +0200
+User-Agent: KMail/1.9.1
+References: <20060620101350.GE23467@sequoia.sous-sol.org> <200606201235.19811.mb@bu3sch.de> <20060620104416.GG23467@sequoia.sous-sol.org>
+In-Reply-To: <20060620104416.GG23467@sequoia.sous-sol.org>
+Cc: stable@kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF89471B99.99278420-ONC1257193.00377326-C1257193.0038013B@ra.rockwell.com>
-From: Milan Svoboda <msvoboda@ra.rockwell.com>
-Date: Tue, 20 Jun 2006 12:11:03 +0200
-X-MIMETrack: Serialize by Router on RANASMTP01/NorthAmerica/RA/Rockwell(Release 6.5.4FP1|June
- 19, 2005) at 06/20/2006 05:56:34 AM,
-	Serialize complete at 06/20/2006 05:56:34 AM
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Message-Id: <200606201256.27252.mb@bu3sch.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your reply.
+On Tuesday 20 June 2006 12:44, Chris Wright wrote:
+> * Michael Buesch (mb@bu3sch.de) wrote:
+> > On Tuesday 20 June 2006 12:13, Chris Wright wrote:
+> > > We (the -stable team) are announcing the release of the 2.6.17.1 kernel.
+> > 
+> > Please consider inclusion of the following patch into 2.6.17.2:
+> > 
+> > It fixes a possible crash. Might be triggerable in networks with
+> > heavy traffic. I only saw it once so far, though.
+> 
+> I didn't notice that it made it to Linus' tree yet.  Can you make sure
+> to push it up, and I'll queue it for -stable.
 
-I have created these patches (no_pci_serial and no_pci_mem) because I got 
-some errors (missing ixp4xx_pci_write/read)
-when I tried to compile kernel for ixp4xx without pci bus support. Now, I 
-tried it again and got clean build. I think I had to forget
-to do make clean before...
-
-Milan Svoboda
-
-
-
-
-
-
-Russell King <rmk+lkml@arm.linux.org.uk>
-Sent by: Russell King <rmk@arm.linux.org.uk>
-06/16/2006 09:31 PM
-
- 
-        To:     Milan Svoboda <msvoboda@ra.rockwell.com>
-        cc:     linux-kernel@vger.kernel.org
-        Subject:        Re: [PATCH] no_pci_serial
-
-
-On Fri, Jun 16, 2006 at 03:21:08PM +0000, Milan Svoboda wrote:
-> This patch allows to compile 8250 driver on systems without pci bus.
-
-inb/outb/readb/writeb methods have nothing to do with the presence of
-a PCI bus or not, so the patch is wrong - and it actually breaks a lot
-of machine implementations which use this.
+It is in -mm and I think John Linville also queued it upstream
+through Jeff to Linus.
+>From my perspective, everything is done ;)
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
-
-
-
+Greetings Michael.

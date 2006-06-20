@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWFTGkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWFTGlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbWFTGkg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 02:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbWFTGkg
+	id S965091AbWFTGlt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 02:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWFTGlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 02:40:36 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:27291 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965089AbWFTGkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 02:40:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Pop/CXVgCv0n6XHl9LPl5xvMroqXA5EdS8ooeqbxXEIrypFWeUNevWROEIFok093uW41MQXZ/B0aQKWxxw4KvxGG+RBebNwUwH/qmI38eSXSf3iGKqyDMIWUtXMrJzgzdHths9RpQIS5KBqs1Q/onnFynngwazgn/EDCgiu7Hcg=
-Message-ID: <3aa654a40606192340l67d0353fj875767d33d8bd493@mail.gmail.com>
-Date: Mon, 19 Jun 2006 23:40:34 -0700
-From: "Avuton Olrich" <avuton@gmail.com>
-To: "Nathan Scott" <nathans@sgi.com>
-Subject: Re: XFS crashed twice, once in 2.6.16.20, next in 2.6.17, reproducable
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-In-Reply-To: <20060620161006.C1079661@wobbly.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 02:41:49 -0400
+Received: from tougher.kangaroot.net ([62.213.203.135]:3755 "EHLO
+	tougher.kangaroot.net") by vger.kernel.org with ESMTP
+	id S965091AbWFTGls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 02:41:48 -0400
+Date: Tue, 20 Jun 2006 08:41:28 +0200
+From: Wouter Paesen <wouter@kangaroot.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.6.17-rc6] input/mouse/sermouse: fix memleak and potential buffer overflow
+Message-ID: <20060620064127.GA25367@tougher.kangaroot.net>
+References: <20060615104702.GA4866@tougher.kangaroot.net> <200606180024.32759.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3aa654a40606190044q43dca571qdc06ee13d82d979@mail.gmail.com>
-	 <20060620161006.C1079661@wobbly.melbourne.sgi.com>
+In-Reply-To: <200606180024.32759.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/19/06, Nathan Scott <nathans@sgi.com> wrote:
-> How reproducible is it?  Is it reproducible even after xfs_repair?
-It happens everytime I try to delete the directory.
 
-Also, forgot to mention I ran xfs_check on it and it gave me more
-information than I had before:
-More information, ran xfs_check and got the following:
-missing free index for data block 0 in dir ino 1507133580
-missing free index for data block 2 in dir ino 1507133580
-missing free index for data block 3 in dir ino 1507133580
-missing free index for data block 4 in dir ino 1507133580
-missing free index for data block 5 in dir ino 1507133580
-missing free index for data block 6 in dir ino 1507133580
-missing free index for data block 7 in dir ino 1507133580
-missing free index for data block 8 in dir ino 1507133580
-missing free index for data block 9 in dir ino 1507133580
+On Sun, Jun 18, 2006 at 12:24:31AM -0400, Dmitry Torokhov wrote:
+> >   Because serio->phys is also a 32 character field the sprintf could
+> >   result in 39 characters being written to the sermouse->phys.
+> 
+> Right, we need to change it to use snprintf.
 
--- 
-avuton
---
- Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Thanks, this patch will do just that. 
+Still, keeping the array 39 characters long will prevent truncation of the string.
+
+Signed-off-by: Wouter Paesen <wouter@kangaroot.net>
+
+--- linux-2.6.17-rc6.orig/drivers/input/mouse/sermouse.c 2006-06-20 08:31:12.000000000 +0200
++++ linux-2.6.17-rc6/drivers/input/mouse/sermouse.c 2006-06-20 08:31:41.000000000 +0200
+@@ -53,7 +53,7 @@ struct sermouse {
+ 	unsigned char count;
+ 	unsigned char type;
+ 	unsigned long last;
+-	char phys[32];
++	char phys[39];
+ };
+ 
+ /*
+@@ -254,7 +254,7 @@ static int sermouse_connect(struct serio
+ 		goto fail;
+ 
+ 	sermouse->dev = input_dev;
+-	sprintf(sermouse->phys, "%s/input0", serio->phys);
++	snprintf(sermouse->phys, 39, "%s/input0", serio->phys);
+ 	sermouse->type = serio->id.proto;
+ 
+ 	input_dev->name = sermouse_protocols[sermouse->type];
+
+

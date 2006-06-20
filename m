@@ -1,238 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWFTXsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751866AbWFTXwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWFTXsw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 19:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751866AbWFTXsw
+	id S1751866AbWFTXwz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 19:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWFTXwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 19:48:52 -0400
-Received: from gw.goop.org ([64.81.55.164]:24008 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751387AbWFTXsv (ORCPT
+	Tue, 20 Jun 2006 19:52:55 -0400
+Received: from gate.crashing.org ([63.228.1.57]:58317 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751866AbWFTXwy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 19:48:51 -0400
-Message-ID: <44988965.9010906@goop.org>
-Date: Tue, 20 Jun 2006 16:48:53 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: [PATCH] Fix bounds check in vsnprintf, to allow for a 0 size and
- NULL buffer
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 20 Jun 2006 19:52:54 -0400
+Subject: Re: [patch 0/3] 2.6.17 radix-tree: updates and lockless
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: npiggin@suse.de, Paul.McKenney@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20060620163037.6ff2c8e7.akpm@osdl.org>
+References: <20060408134635.22479.79269.sendpatchset@linux.site>
+	 <20060620153555.0bd61e7b.akpm@osdl.org>
+	 <1150844989.1901.52.camel@localhost.localdomain>
+	 <20060620163037.6ff2c8e7.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 09:50:28 +1000
+Message-Id: <1150847428.1901.60.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeremy Fitzhardinge <jeremy@xensource.com>
+On Tue, 2006-06-20 at 16:30 -0700, Andrew Morton wrote:
 
-This change allows callers to use a 0-byte buffer and a NULL buffer 
-pointer with vsnprintf, so it can be used to determine how large the 
-resulting formatted string will be.
+> > leave the bug in ppc64 or kill it's scalability
+> > when taking interrupts ? You have one user already, me.
+> 
+> I didn't know that 30 minutes ago ;)
 
-Previously the code effectively treated a size of 0 as a size of 4G (on 
-32-bit systems), with other checks preventing it from actually trying to 
-emit the string - but the terminal \0 would still be written, which 
-would crash if the buffer is NULL.
+Heh, I though I wrote that when I originally asked Nick to bring back
+his patch up to date :) Bah, anyway, you know now. 
 
-This change changes the boundary check so that 'end' points to the 
-putative location of the terminal '\0', which is only written if size > 0.
+> > From what Nick
+> > says, the patch has been beaten up pretty heavily and seems stable....
+> 
+> Well as I say, the tree_lock crash is way more important.  We need to work
+> out what we're going to do then get that fixed, backport the fix to -stable
+> then rebase the radix-tree patches on top and get
+> radix-tree-rcu-lockless-readside.patch tested and reviewed.
+> 
+> I guess we can do all that in time for -rc1, but not knowing _how_ we'll be
+> fixing the tree_lock crash is holding things up.
 
-vsnprintf still allows the buffer size to be set very large, to allow 
-unbounded buffer sizes (to implement sprintf, etc).
+Ok.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> Paul, if you could take a close look at the RCU aspects of this work it'd
+> help, thanks.
+> 
+> btw guys, theory has it that code which was submitted post-2.6.n is too
+> late for 2.6.n+1..
 
----
- lib/vsprintf.c |   67 ++++++++++++++++++++++++++++----------------------------
- 1 file changed, 34 insertions(+), 33 deletions(-)
+Yes but the lockless radix tree patch was floating around a long time
+ago :)
 
+Anyway, I can drop a spinlock in (in fact I have) the ppc64 irq code for
+now but that sucks, thus we should really seriously consider having the
+lockless tree in 2.6.18 or I might have to look into doing an alternate
+implementation specifically in arch code... or find some other way of
+doing the inverse mapping there...
 
-diff -r 509769aa6636 lib/vsprintf.c
---- a/lib/vsprintf.c	Tue Jun 20 16:40:33 2006 -0700
-+++ b/lib/vsprintf.c	Tue Jun 20 16:47:51 2006 -0700
-@@ -187,49 +187,49 @@ static char * number(char * buf, char * 
- 	size -= precision;
- 	if (!(type&(ZEROPAD+LEFT))) {
- 		while(size-->0) {
--			if (buf <= end)
-+			if (buf < end)
- 				*buf = ' ';
- 			++buf;
- 		}
- 	}
- 	if (sign) {
--		if (buf <= end)
-+		if (buf < end)
- 			*buf = sign;
- 		++buf;
- 	}
- 	if (type & SPECIAL) {
- 		if (base==8) {
--			if (buf <= end)
-+			if (buf < end)
- 				*buf = '0';
- 			++buf;
- 		} else if (base==16) {
--			if (buf <= end)
-+			if (buf < end)
- 				*buf = '0';
- 			++buf;
--			if (buf <= end)
-+			if (buf < end)
- 				*buf = digits[33];
- 			++buf;
- 		}
- 	}
- 	if (!(type & LEFT)) {
- 		while (size-- > 0) {
--			if (buf <= end)
-+			if (buf < end)
- 				*buf = c;
- 			++buf;
- 		}
- 	}
- 	while (i < precision--) {
--		if (buf <= end)
-+		if (buf < end)
- 			*buf = '0';
- 		++buf;
- 	}
- 	while (i-- > 0) {
--		if (buf <= end)
-+		if (buf < end)
- 			*buf = tmp[i];
- 		++buf;
- 	}
- 	while (size-- > 0) {
--		if (buf <= end)
-+		if (buf < end)
- 			*buf = ' ';
- 		++buf;
- 	}
-@@ -272,7 +272,8 @@ int vsnprintf(char *buf, size_t size, co
- 				/* 'z' changed to 'Z' --davidm 1/25/99 */
- 				/* 't' added for ptrdiff_t */
- 
--	/* Reject out-of-range values early */
-+	/* Reject out-of-range values early.  Large positive sizes are
-+	   used for unknown buffer sizes. */
- 	if (unlikely((int) size < 0)) {
- 		/* There can be only one.. */
- 		static int warn = 1;
-@@ -282,16 +283,17 @@ int vsnprintf(char *buf, size_t size, co
- 	}
- 
- 	str = buf;
--	end = buf + size - 1;
--
--	if (end < buf - 1) {
--		end = ((void *) -1);
--		size = end - buf + 1;
-+	end = buf + size;
-+
-+	/* Make sure end is always >= buf */
-+	if (end < buf) {
-+		end = ((void *) ~0ull);
-+		size = end - buf;
- 	}
- 
- 	for (; *fmt ; ++fmt) {
- 		if (*fmt != '%') {
--			if (str <= end)
-+			if (str < end)
- 				*str = *fmt;
- 			++str;
- 			continue;
-@@ -357,17 +359,17 @@ int vsnprintf(char *buf, size_t size, co
- 			case 'c':
- 				if (!(flags & LEFT)) {
- 					while (--field_width > 0) {
--						if (str <= end)
-+						if (str < end)
- 							*str = ' ';
- 						++str;
- 					}
- 				}
- 				c = (unsigned char) va_arg(args, int);
--				if (str <= end)
-+				if (str < end)
- 					*str = c;
- 				++str;
- 				while (--field_width > 0) {
--					if (str <= end)
-+					if (str < end)
- 						*str = ' ';
- 					++str;
- 				}
-@@ -382,18 +384,18 @@ int vsnprintf(char *buf, size_t size, co
- 
- 				if (!(flags & LEFT)) {
- 					while (len < field_width--) {
--						if (str <= end)
-+						if (str < end)
- 							*str = ' ';
- 						++str;
- 					}
- 				}
- 				for (i = 0; i < len; ++i) {
--					if (str <= end)
-+					if (str < end)
- 						*str = *s;
- 					++str; ++s;
- 				}
- 				while (len < field_width--) {
--					if (str <= end)
-+					if (str < end)
- 						*str = ' ';
- 					++str;
- 				}
-@@ -426,7 +428,7 @@ int vsnprintf(char *buf, size_t size, co
- 				continue;
- 
- 			case '%':
--				if (str <= end)
-+				if (str < end)
- 					*str = '%';
- 				++str;
- 				continue;
-@@ -449,11 +451,11 @@ int vsnprintf(char *buf, size_t size, co
- 				break;
- 
- 			default:
--				if (str <= end)
-+				if (str < end)
- 					*str = '%';
- 				++str;
- 				if (*fmt) {
--					if (str <= end)
-+					if (str < end)
- 						*str = *fmt;
- 					++str;
- 				} else {
-@@ -483,14 +485,13 @@ int vsnprintf(char *buf, size_t size, co
- 		str = number(str, end, num, base,
- 				field_width, precision, flags);
- 	}
--	if (str <= end)
--		*str = '\0';
--	else if (size > 0)
--		/* don't write out a null byte if the buf size is zero */
--		*end = '\0';
--	/* the trailing null byte doesn't count towards the total
--	* ++str;
--	*/
-+	if (size > 0) {
-+		if (str < end)
-+			*str = '\0';
-+		else
-+			*end = '\0';
-+	}
-+	/* the trailing null byte doesn't count towards the total */
- 	return str-buf;
- }
- 
+Ben.
+
 

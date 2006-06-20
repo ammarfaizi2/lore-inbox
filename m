@@ -1,17 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWFTLsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWFTLtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbWFTLsr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 07:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWFTLsr
+	id S965044AbWFTLtl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 07:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965130AbWFTLtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 07:48:47 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2689 "EHLO
+	Tue, 20 Jun 2006 07:49:41 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:63360 "EHLO
 	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
-	id S965042AbWFTLsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 07:48:46 -0400
-Message-Id: <20060620114527.934114000@sous-sol.org>
+	id S965128AbWFTLtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 07:49:19 -0400
+Message-Id: <20060620114657.947738000@sous-sol.org>
+References: <20060620114527.934114000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 20 Jun 2006 04:45:27 -0700
+Date: Tue, 20 Jun 2006 00:00:04 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,26 +20,66 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH 00/13] -stable review
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       David Miller <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 04/13] SPARC64: Fix missing fold at end of checksums.
+Content-Disposition: inline; filename=sparc64-fix-missing-fold-at-end-of-checksums.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the start of the stable review cycle for the 2.6.16.22 release.
-There are 13 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let us know.  If anyone is a maintainer of the proper subsystem, and
-wants to add a Signed-off-by: line to the patch, please respond with it.
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-These patches are sent out with a number of different people on the
-Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
-to add your name to the list.  If you want to be off the reviewer list,
-also email us.
+From: David Miller <davem@davemloft.net>
 
-Responses should be made by Thu, Jun 22, 11:30 UTC.
-Anything received after that time, might be too late.
+Both csum_partial() and the csum_partial_copy*() family of routines
+forget to do a final fold on the computed checksum value on sparc64.
+So do the standard Sparc "add + set condition codes, add carry"
+sequence, then make sure the high 32-bits of the return value are
+clear.
 
-thanks,
+Based upon some excellent detective work and debugging done by
+Richard Braun and Samuel Thibault.
 
-the -stable release team
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+
+ arch/sparc64/lib/checksum.S  |    5 +++--
+ arch/sparc64/lib/csum_copy.S |    5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+--- linux-2.6.16.21.orig/arch/sparc64/lib/checksum.S
++++ linux-2.6.16.21/arch/sparc64/lib/checksum.S
+@@ -165,8 +165,9 @@ csum_partial_end_cruft:
+ 	sll		%g1, 8, %g1
+ 	or		%o5, %g1, %o4
+ 
+-1:	add		%o2, %o4, %o2
++1:	addcc		%o2, %o4, %o2
++	addc		%g0, %o2, %o2
+ 
+ csum_partial_finish:
+ 	retl
+-	 mov		%o2, %o0
++	 srl		%o2, 0, %o0
+--- linux-2.6.16.21.orig/arch/sparc64/lib/csum_copy.S
++++ linux-2.6.16.21/arch/sparc64/lib/csum_copy.S
+@@ -221,11 +221,12 @@ FUNC_NAME:		/* %o0=src, %o1=dst, %o2=len
+ 	sll		%g1, 8, %g1
+ 	or		%o5, %g1, %o4
+ 
+-1:	add		%o3, %o4, %o3
++1:	addcc		%o3, %o4, %o3
++	addc		%g0, %o3, %o3
+ 
+ 70:
+ 	retl
+-	 mov		%o3, %o0
++	 srl		%o3, 0, %o0
+ 
+ 95:	mov		0, GLOBAL_SPARE
+ 	brlez,pn	%o2, 4f
+
 --

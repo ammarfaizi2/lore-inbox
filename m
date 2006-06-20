@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWFTQLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWFTQLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWFTQLT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWFTQLT
+	id S1751386AbWFTQLj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWFTQLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:11:19 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:26583 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S1751295AbWFTQLS (ORCPT
+	Tue, 20 Jun 2006 12:11:38 -0400
+Received: from osa.unixfolk.com ([209.204.179.118]:5866 "EHLO osa.unixfolk.com")
+	by vger.kernel.org with ESMTP id S1751384AbWFTQLh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:11:18 -0400
-Date: Tue, 20 Jun 2006 18:11:08 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: linux-kernel@vger.kernel.org
-cc: Kay Sievers <kay.sievers@vrfy.org>, Hannes Reinecke <hare@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@redhat.com>
-Subject: udev bluez
-Message-ID: <Pine.LNX.4.44.0606201759140.11776-100000@hubble.stokkie.net>
+	Tue, 20 Jun 2006 12:11:37 -0400
+Date: Tue, 20 Jun 2006 09:11:36 -0700 (PDT)
+From: Dave Olson <olson@unixfolk.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, ccb@acm.org, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch] increase spinlock-debug looping timeouts (write_lock
+ and NMI)
+In-Reply-To: <20060619233947.94f7e644.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0606200906340.26762@osa.unixfolk.com>
+References: <fa.VT2rwoX1M/2O/aO5crhlRDNx4YA@ifi.uio.no>
+ <fa.Zp589GPrIISmAAheRowfRgZ1jgs@ifi.uio.no> <Pine.LNX.4.61.0606192231380.25413@osa.unixfolk.com>
+ <20060619233947.94f7e644.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.3 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Jun 2006, Andrew Morton wrote:
+| > We'll see very long delays when 8 MPI processes exit "simultaneously", and sometimes
+| > get NMI, sometimes system hangs, and sometimes just hung up for many seconds (and
+| > often in that state, doing sysrq-P or sysrq-T will make things happy again).
+| > 
+| 
+| OK.  I assume these processes have done a mmap(MAP_SHARED) of a lot of
+| memory?
 
-Hi,
+Yep.  Some shared with kernel modules, some of device address space.
 
-It seems the story of the greatest piece of software ever written
-is being hit by the bluez of having to support too many seperate
-addon hardware devices, which the coders themselves in many cases
-never heard of. Until the udev problems showup.
+| > A typical trace looks like this (on an fc4 2.6.16 kernel):
+| 
+| fc4?  You seem to have an RH-FCx which doesn't enable
+| CONFIG_DEBUG_SPINLOCK.  Or maybe we didn't have all that debug code in
+| 2.6.16.  Doesn't matter, really.
 
-The key piece of trouble is udev which has nowadays has to run
-in close cooperation with a daemon called hald. I wonder if linux is
-trying to solve the problems of 'broken by design' addon hardware?
-To me it just looks like polishing up a can of maggots.
+Intended to be more or less stock fc4 but with CONFIG_PCI_MSI=y and
+2.6.17-based patch so the 8131 MSI quirk isn't enabled.
 
-The most evil category seem to be USB camara's , photo devices, etc.
+>From the config file:
+	CONFIG_DEBUG_SPINLOCK=y
+	CONFIG_DEBUG_SPINLOCK_SLEEP=y
 
-"I've even created a standalone udev rule - 
-  BUS="usb", SYSFS{idVendor}=="04a9", SYSFS{idProduct}=="3113",
-  MODE="0660", GROUP="camera", NAME="canon", SYMLINK="camera
+| With a -stable backport.  I suspect this is triggerable on demand.
 
-"aah canon ... with a canon you can't!"
+So far we've only got the one test case, but it's quite reliable.
+We hit one of the 3 cases (long > 60 seconds) "hangs" at exit,
+NMI, or dead system hang, every time we run the test case (well,
+perhaps 1 out of 20 times everything is "just fine", probably
+something perturbs it enough to let one or more processes get
+through the critical section ahead of the whole gang).
 
-So is there a smart way out of this mess?
-
-Regards,
-
-Robert
--- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+Dave Olson
+olson@unixfolk.com
+http://www.unixfolk.com/dave

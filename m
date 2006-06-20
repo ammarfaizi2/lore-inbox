@@ -1,61 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWFTJjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965225AbWFTJkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965095AbWFTJjh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 05:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbWFTJjh
+	id S965225AbWFTJkb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 05:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbWFTJkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 05:39:37 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38106 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965095AbWFTJjg (ORCPT
+	Tue, 20 Jun 2006 05:40:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11707 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965225AbWFTJka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 05:39:36 -0400
-Date: Tue, 20 Jun 2006 11:34:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ccb@acm.org, linux-kernel@vger.kernel.org, Dave Olson <olson@unixfolk.com>
-Subject: Re: [patch] fix spinlock-debug looping
-Message-ID: <20060620093433.GB11037@elte.hu>
-References: <20060619081252.GA13176@elte.hu> <20060619013238.6d19570f.akpm@osdl.org> <20060619083518.GA14265@elte.hu> <20060619021314.a6ce43f5.akpm@osdl.org> <20060619113943.GA18321@elte.hu> <20060619125531.4c72b8cc.akpm@osdl.org> <20060620084001.GC7899@elte.hu> <20060620015259.dab285d5.akpm@osdl.org> <20060620091505.GA9749@elte.hu> <20060620023216.4995edb9.akpm@osdl.org>
+	Tue, 20 Jun 2006 05:40:30 -0400
+Date: Tue, 20 Jun 2006 18:40:10 +0900 (JST)
+Message-Id: <20060620.184010.225581173.jet@gyve.org>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] sharing maximum errno symbol used in __syscall_return
+ (i386)
+From: Masatake YAMATO <jet@gyve.org>
+X-Mailer: Mew version 4.2.53 on Emacs 22.0.51 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060620023216.4995edb9.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Andrew Morton <akpm@osdl.org> wrote:
+__syscall_return in unistd.h is maintained?
 
-> > Spinlocks are alot fairer. Or as a simple experiment, 
-> > s/read_lock/write_lock, as the patch below (against rc6-mm2) does. 
-> > This is phase #1, if it works out we can switch tree_lock to a 
-> > spinlock. [write_lock()s are roughly as fair to each other as 
-> > spinlocks - it's a bit more expensive but not significantly] Builds 
-> > & boots fine here.
-> 
-> tree_lock was initially an rwlock.  Then we made it a spinlock.  Then 
-> we made it an rwlock.  We change the dang thing so often we should 
-> make it a macro ;)
+In the macro the value returned from system call is
+compared with the maximum error number defined in a header file 
+to know the call is successful or not. However, the maximum error number 
+is hard-coded and is not updated.
 
-ha! In -rt we can change types of locks by changing the type definition 
-and the declaration only ;-) [It makes for some confusing reading though 
-if done without restraint]
+Here is an example(i386):
 
-> Let's just make it a spinlock and be done with it.  Hopefully Dave or 
-> ccb@acm.org (?) will be able to test it.  I was planning on doing a 
-> patch tomorrowish.
+ /*
+  * user-visible error numbers are in the range -1 - -128: see
+  * <asm-i386/errno.h>
+  */
+ #define __syscall_return(type, res) \
+ do { \
+	if ((unsigned long)(res) >= (unsigned long)(-(128 + 1))) { \
+ 		errno = -(res); \
+ 		res = -1; \
+ 	} \
 
-ok. Until that happens the patch i sent can be used for testing.
+The comment says the maximum errno is 128.
+However, the actual C code says 128 + 1. What does "+ 1" mean?
 
-	Ingo
+Look at <asm-i386/errno.h>:
+
+    #ifndef _I386_ERRNO_H
+    #define _I386_ERRNO_H
+
+    #include <asm-generic/errno.h>
+
+    #endif
+
+The look at <asm-generic/errno.h>:
+
+    #define	EKEYREVOKED	128	/* Key has been revoked */
+    #define	EKEYREJECTED	129	/* Key was rejected by service */
+
+    /* for robust mutexes */
+    #define	EOWNERDEAD	130	/* Owner died */
+    #define	ENOTRECOVERABLE	131	/* State not recoverable */
+
+Here the maximum errno is 131. 
+
+
+In many architectures, <asm-foo/errno.h> just includes 
+<asm-generic/errno.h>. So I think <asm-generic/errno.h> should
+exports the real maximum errno and the other headers can
+use it. So in many cases, we can just maintain
+the real maximum errno in <asm-generic/errno.h>.
+
+Here is the patch for i386. If this patch is approved, I will write
+patches for the other architectures. (However, it may be better to be
+done by each architecture's maintainer.)
+
+Signed-off-by: Masatake YAMATO <jet@gyve.org>
+
+diff --git a/include/asm-generic/errno.h b/include/asm-generic/errno.h
+index e8852c0..4e1238e 100644
+--- a/include/asm-generic/errno.h
++++ b/include/asm-generic/errno.h
+@@ -106,4 +106,8 @@ #define	EKEYREJECTED	129	/* Key was reje
+ #define	EOWNERDEAD	130	/* Owner died */
+ #define	ENOTRECOVERABLE	131	/* State not recoverable */
+ 
++/* 
++ * If you add a new error, Don't forget to update `GENERIC_ERRNO_MAX' 
++ */
++#define GENERIC_ERRNO_MAX ENOTRECOVERABLE
+ #endif
+diff --git a/include/asm-i386/errno.h b/include/asm-i386/errno.h
+index 969b343..9892b2d 100644
+--- a/include/asm-i386/errno.h
++++ b/include/asm-i386/errno.h
+@@ -2,5 +2,5 @@ #ifndef _I386_ERRNO_H
+ #define _I386_ERRNO_H
+ 
+ #include <asm-generic/errno.h>
+-
++#define  i386_ERRNO_MAX GENERIC_ERRNO_MAX
+ #endif
+diff --git a/include/asm-i386/unistd.h b/include/asm-i386/unistd.h
+index eb4b152..f52ec68 100644
+--- a/include/asm-i386/unistd.h
++++ b/include/asm-i386/unistd.h
+@@ -326,12 +326,13 @@ #define __NR_vmsplice		316
+ #define NR_syscalls 317
+ 
+ /*
+- * user-visible error numbers are in the range -1 - -128: see
+- * <asm-i386/errno.h>
++ * user-visible error numbers are in the range -1 - -i386_ERRNO_MAX
+  */
++#include <asm-i386/errno.h>
++
+ #define __syscall_return(type, res) \
+ do { \
+-	if ((unsigned long)(res) >= (unsigned long)(-(128 + 1))) { \
++	if ((unsigned long)(res) >= (unsigned long)(-(i386_ERRNO_MAX))) { \
+ 		errno = -(res); \
+ 		res = -1; \
+ 	} \

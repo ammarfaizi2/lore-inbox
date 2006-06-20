@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWFTP7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWFTQBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWFTP7F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 11:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWFTP7E
+	id S1751357AbWFTQBD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWFTQBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 11:59:04 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33248 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751353AbWFTP7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 11:59:03 -0400
-Subject: Re: [PATCH] Unify CONFIG_LBD and CONFIG_LSF handling
-From: Arjan van de Ven <arjan@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, webmaster@cyberdogtech.com
-In-Reply-To: <Pine.LNX.4.64.0606201742280.12900@scrub.home>
-References: <20060619221618.GJ1630@parisc-linux.org>
-	 <Pine.LNX.4.64.0606201616430.17704@scrub.home>
-	 <20060620145234.GK1630@parisc-linux.org>
-	 <Pine.LNX.4.64.0606201742280.12900@scrub.home>
-Content-Type: text/plain
-Date: Tue, 20 Jun 2006 17:59:00 +0200
-Message-Id: <1150819141.2891.214.camel@laptopd505.fenrus.org>
+	Tue, 20 Jun 2006 12:01:03 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:19092 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751357AbWFTQBB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:01:01 -0400
+Date: Tue, 20 Jun 2006 17:55:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Steven Whitehouse <swhiteho@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GFS2 and DLM
+Message-ID: <20060620155556.GA19439@elte.hu>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com> <20060620123342.GA26579@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060620123342.GA26579@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Or is that too verbose?
+* Christoph Hellwig <hch@infradead.org> wrote:
+
+> On Tue, Jun 20, 2006 at 01:17:13PM +0100, Steven Whitehouse wrote:
+> > Hi,
+> > 
+> > Linus, Andrew suggested to me to send this pull request to you directly.
+> > Please consider merging the GFS2 filesystem and DLM from (they are both
+> > in the same tree for ease of testing):
 > 
-> How likely is it that someone who doesn't understand the question needs 
-> this option? I think N is a safe answer here.
+> Did anyone actually bother to review it?  It's huge and was in pretty 
+> bad shapre when I looked last time.  Also in the -mm merge writeup you 
+> guys said it's only scheduled for 2.6.19 so I didn't even bother 
+> looking at the huge mess.
 
-N is not the safe answer; Y is. If you set it to N you can't read all
-your files (if there is a big one) etc etc.
-The safe-but-a-bit-slower answer really is Y.
+i'm confused, are we looking at the same piece of code? Perhaps you are 
+still looking at some older codebase? fs/gfs2/ in Steven's current GIT 
+tree is a nicely isolated 29K lines of code, fs/dlm/ [distributed lock 
+manager] is 11K lines of code. Both look and work like normal Linux 
+code. (and there's almost zero impact to generic code.)
 
+Contrast that size for example to the 111K lines of code in fs/xfs/, 
+which no doubt has improved recently but still looks a bit alien. For 
+example the myriads locking APIs are still quite confusing in XFS, and 
+it still feels like a kernel within the kernel. The other cluster 
+filesystem which was merged recently, OCFS2, is 44K lines of code. So 
+really, on what basis do you call GFS2 "huge"?
 
+	Ingo

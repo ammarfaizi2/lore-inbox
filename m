@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWFTQEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWFTQF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWFTQEX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 12:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFTQEW
+	id S1751374AbWFTQF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 12:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFTQF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 12:04:22 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:23001 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1751373AbWFTQEW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 12:04:22 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Jes Sorensen <jes@sgi.com>
-Subject: Re: [patch] do_no_pfn
-Date: Tue, 20 Jun 2006 10:03:52 -0600
-User-Agent: KMail/1.8.3
-Cc: Robin Holt <holt@sgi.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Hugh Dickins <hugh@veritas.com>, Carsten Otte <cotte@de.ibm.com>,
-       bjorn_helgaas@hp.com
-References: <yq0psh5zenq.fsf@jaguar.mkp.net> <20060619224952.GA17685@lnx-holt.americas.sgi.com> <4497AB46.4000402@sgi.com>
-In-Reply-To: <4497AB46.4000402@sgi.com>
+	Tue, 20 Jun 2006 12:05:29 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:43465 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751374AbWFTQF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 12:05:28 -0400
+Date: Tue, 20 Jun 2006 12:05:15 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [Bug 6451] CONFIG_KMOD is not set for x86_64 but is set to Y
+ for i386 and other archs
+In-Reply-To: <a06230977c0bdc14545ff@[129.98.90.227]>
+Message-ID: <Pine.LNX.4.58.0606201159260.32334@gandalf.stny.rr.com>
+References: <200606201433.k5KEXbhX003862@fire-2.osdl.org>
+ <a06230977c0bdc14545ff@[129.98.90.227]>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606201003.52307.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 02:01, Jes Sorensen wrote:
-> Robin Holt wrote:
-> > On Mon, Jun 19, 2006 at 03:06:05PM +0200, Andi Kleen wrote:
-> >> The big question is - why do you have pages without struct page? 
-> >> It seems ... wrong.
-> ...
-> Note that Bjorn Helgas has a case where he needs this as well.
 
-I do have a case where I used pages without struct pages, but
-I don't really like the implementation, and I'd love to have
-someone who knows about VM tell me "no, dummy, you should do it
-this way instead."
+On Tue, 20 Jun 2006, Maurice Volaski wrote:
 
-Here's the scenario:  I'm trying to implement
-/sys/class/pci_bus/DDDD:BB/legacy_mem so we can run X servers
-on multiple VGA cards.  The chipset (used in HP parisc and ia64
-boxes) supports multiple PCI root bridges, and it routes the
-VGA legacy MMIO space at 0xA0000-0xBFFFF to one of them.
+> Hey, is this you? Why on Earth do you want this setting turned off?
 
-This region is MMIO, so there are no struct pages for it.  I can
-easily mmap the space for the first VGA device.  But to support
-a second device, I have to be able to invalidate the mappings
-for the first device, twiddle stuff in the chipset, and make new
-mappings for the second device.  And of course I have to do the
-reverse (invalidate mappings of second device, twiddle chipset,
-map first device) when the first X server faults on the frame
-buffer.
+Maurice,
 
-Basically, only one of the /sys/class/pci_bus/DDDD:BB/legacy_mem
-files can have an active mmap at a time, and I haven't figured
-out a good way to do the mutual exclusion.
+This constant pestering will only get you ignored.  If you don't like the
+default, just change it, and copy over your .configs to all your machines
+that you use.  Once you have done so, your makes on those machines will
+use them (if you do "make install" to get the .config copied to /boot).
 
-Bjorn
+Now, the point you _could_ have made, is that the Help on KMOD says
+
+   "If unsure, say Y"
+
+Which to me _is_ a bug.  I just hate it when the default doesn't match the
+recommended comment of any config option.
+
+-- Steve
+
+
+>
+> >http://bugzilla.kernel.org/show_bug.cgi?id=6451
+> >
+> >zippel@linux-m68k.org changed:
+> >
+> >            What    |Removed                     |Added
+> >----------------------------------------------------------------------------
+> >              Status|NEW                         |REJECTED
+> >          Resolution|                            |WILL_NOT_FIX
+> >
+> >
+> >
+> >------- Additional Comments From zippel@linux-m68k.org  2006-06-20
+> >07:32 -------
+> >This is a per architecture decision, please ask the respective maintainer.
+> >
+> >------- You are receiving this mail because: -------
+> >You reported the bug, or are watching the reporter.
+>
+>
+> --
+>
+> Maurice Volaski, mvolaski@aecom.yu.edu
+> Computing Support, Rose F. Kennedy Center
+> Albert Einstein College of Medicine of Yeshiva University
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

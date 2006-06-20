@@ -1,123 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWFTRiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWFTRmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWFTRiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 13:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWFTRiR
+	id S1750720AbWFTRmf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 13:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWFTRmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 13:38:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9682 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750708AbWFTRhs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 13:37:48 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 4/6] Keys: Allocate key serial numbers randomly [try #3]
-Date: Tue, 20 Jun 2006 18:37:44 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, keyrings@linux-nfs.org
-Message-Id: <20060620173744.5034.50837.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060620173735.5034.11436.stgit@warthog.cambridge.redhat.com>
-References: <20060620173735.5034.11436.stgit@warthog.cambridge.redhat.com>
+	Tue, 20 Jun 2006 13:42:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62145 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750720AbWFTRmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 13:42:35 -0400
+Subject: Re: 2.6.17-rc6-mm1
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060608050047.GB16729@redhat.com>
+References: <20060607104724.c5d3d730.akpm@osdl.org>
+	 <20060608050047.GB16729@redhat.com>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 19:42:29 +0200
+Message-Id: <1150825349.2891.219.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael LeMay <mdlemay@epoch.ncsc.mil>
+On Thu, 2006-06-08 at 01:00 -0400, Dave Jones wrote:
+> On Wed, Jun 07, 2006 at 10:47:24AM -0700, Andrew Morton wrote:
+>  > 
+>  > ftp://ftp.kernel.org/pub/linux/kernel/peopleD/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
+>  > 
+>  > - Many more lockdep updates
+> 
+> Needs more.
+> 
+> ====================================
+> [ BUG: possible deadlock detected! ]
+> ------------------------------------
+> nfsd/11429 is trying to acquire lock:
+>  (&inode->i_mutex){--..}, at: [<c032286a>] mutex_lock+0x21/0x24
+> 
+> but task is already holding lock:
+>  (&inode->i_mutex){--..}, at: [<c032286a>] mutex_lock+0x21/0x24
+> 
+> which could potentially lead to deadlocks!
 
-The attached patch causes key_alloc_serial() to generate key serial numbers
-randomly rather than in linear sequence.
+Does this fix it for you? (it fixes the case for me)
 
-Using an linear sequence permits a covert communication channel to be
-established, in which one process can communicate with another by creating or
-not creating new keys within a certain timeframe.  The second process can
-probe for the expected next key serial number and judge its existence by the
-error returned.
-
-This is a problem as the serial number namespace is globally shared between
-all tasks, regardless of their context.
-
-For more information on this topic, this old TCSEC guide is recommended:
-
-	http://www.radium.ncsc.mil/tpep/library/rainbow/NCSC-TG-030.html
-
-Signed-off-by: Michael LeMay <mdlemay@epoch.ncsc.mil>
-Signed-off-by: James Morris <jmorris@namei.org>
-Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
+ fs/nfsd/vfs.c              |   10 +++++-----
+ include/linux/nfsd/nfsd.h  |    1 -
+ include/linux/nfsd/nfsfh.h |   31 +++++++++++++++++++++++++++++++
+ 3 files changed, 36 insertions(+), 6 deletions(-)
 
- security/keys/key.c |   28 ++++++++++++++--------------
- 1 files changed, 14 insertions(+), 14 deletions(-)
-
-diff --git a/security/keys/key.c b/security/keys/key.c
-index a9b6ca7..10fea8c 100644
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -15,11 +15,11 @@ #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/security.h>
- #include <linux/workqueue.h>
-+#include <linux/random.h>
- #include <linux/err.h>
- #include "internal.h"
+Index: linux-2.6.17-rc6-mm2/fs/nfsd/vfs.c
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/fs/nfsd/vfs.c
++++ linux-2.6.17-rc6-mm2/fs/nfsd/vfs.c
+@@ -1115,7 +1115,7 @@ nfsd_create(struct svc_rqst *rqstp, stru
+ 	 */
+ 	if (!resfhp->fh_dentry) {
+ 		/* called from nfsd_proc_mkdir, or possibly nfsd3_proc_create */
+-		fh_lock(fhp);
++		fh_lock_parent(fhp);
+ 		dchild = lookup_one_len(fname, dentry, flen);
+ 		err = PTR_ERR(dchild);
+ 		if (IS_ERR(dchild))
+@@ -1241,7 +1241,7 @@ nfsd_create_v3(struct svc_rqst *rqstp, s
+ 	err = nfserr_notdir;
+ 	if(!dirp->i_op || !dirp->i_op->lookup)
+ 		goto out;
+-	fh_lock(fhp);
++	fh_lock_parent(fhp);
  
- static kmem_cache_t	*key_jar;
--static key_serial_t	key_serial_next = 3;
- struct rb_root		key_serial_tree; /* tree of keys indexed by serial */
- DEFINE_SPINLOCK(key_serial_lock);
+ 	/*
+ 	 * Compose the response file handle.
+@@ -1426,7 +1426,7 @@ nfsd_symlink(struct svc_rqst *rqstp, str
+ 	err = fh_verify(rqstp, fhp, S_IFDIR, MAY_CREATE);
+ 	if (err)
+ 		goto out;
+-	fh_lock(fhp);
++	fh_lock_parent(fhp);
+ 	dentry = fhp->fh_dentry;
+ 	dnew = lookup_one_len(fname, dentry, flen);
+ 	err = PTR_ERR(dnew);
+@@ -1495,7 +1495,7 @@ nfsd_link(struct svc_rqst *rqstp, struct
+ 	if (isdotent(name, len))
+ 		goto out;
  
-@@ -169,22 +169,23 @@ static void __init __key_insert_serial(s
- /*****************************************************************************/
+-	fh_lock(ffhp);
++	fh_lock_parent(ffhp);
+ 	ddir = ffhp->fh_dentry;
+ 	dirp = ddir->d_inode;
+ 
+@@ -1644,7 +1644,7 @@ nfsd_unlink(struct svc_rqst *rqstp, stru
+ 	if (err)
+ 		goto out;
+ 
+-	fh_lock(fhp);
++	fh_lock_parent(fhp);
+ 	dentry = fhp->fh_dentry;
+ 	dirp = dentry->d_inode;
+ 
+Index: linux-2.6.17-rc6-mm2/include/linux/nfsd/nfsd.h
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/include/linux/nfsd/nfsd.h
++++ linux-2.6.17-rc6-mm2/include/linux/nfsd/nfsd.h
+@@ -67,7 +67,6 @@ int		nfsd_svc(unsigned short port, int n
+ int		nfsd_dispatch(struct svc_rqst *rqstp, u32 *statp);
+ 
+ /* nfsd/vfs.c */
+-int		fh_lock_parent(struct svc_fh *, struct dentry *);
+ int		nfsd_racache_init(int);
+ void		nfsd_racache_shutdown(void);
+ int		nfsd_cross_mnt(struct svc_rqst *rqstp, struct dentry **dpp,
+Index: linux-2.6.17-rc6-mm2/include/linux/nfsd/nfsfh.h
+===================================================================
+--- linux-2.6.17-rc6-mm2.orig/include/linux/nfsd/nfsfh.h
++++ linux-2.6.17-rc6-mm2/include/linux/nfsd/nfsfh.h
+@@ -322,6 +322,37 @@ fh_lock(struct svc_fh *fhp)
+ }
+ 
  /*
-  * assign a key the next unique serial number
-- * - we work through all the serial numbers between 2 and 2^31-1 in turn and
-- *   then wrap
-+ * - these are assigned randomly to avoid security issues through covert
-+ *   channel problems
++ * Lock a file handle/inode to be used as parent dir for another
++ * NOTE: both fh_lock and fh_unlock are done "by hand" in
++ * vfs.c:nfsd_rename as it needs to grab 2 i_mutex's at once
++ * so, any changes here should be reflected there.
++ */
++static inline void
++fh_lock_parent(struct svc_fh *fhp)
++{
++	struct dentry	*dentry = fhp->fh_dentry;
++	struct inode	*inode;
++
++	dfprintk(FILEOP, "nfsd: fh_lock(%s) locked = %d\n",
++			SVCFH_fmt(fhp), fhp->fh_locked);
++
++	if (!fhp->fh_dentry) {
++		printk(KERN_ERR "fh_lock: fh not verified!\n");
++		return;
++	}
++	if (fhp->fh_locked) {
++		printk(KERN_WARNING "fh_lock: %s/%s already locked!\n",
++			dentry->d_parent->d_name.name, dentry->d_name.name);
++		return;
++	}
++
++	inode = dentry->d_inode;
++	mutex_lock_nested(&inode->i_mutex, I_MUTEX_PARENT);
++	fill_pre_wcc(fhp);
++	fhp->fh_locked = 1;
++}
++
++/*
+  * Unlock a file handle/inode
   */
- static inline void key_alloc_serial(struct key *key)
- {
- 	struct rb_node *parent, **p;
- 	struct key *xkey;
- 
--	spin_lock(&key_serial_lock);
--
--	/* propose a likely serial number and look for a hole for it in the
-+	/* propose a random serial number and look for a hole for it in the
- 	 * serial number tree */
--	key->serial = key_serial_next;
--	if (key->serial < 3)
--		key->serial = 3;
--	key_serial_next = key->serial + 1;
-+	do {
-+		get_random_bytes(&key->serial, sizeof(key->serial));
-+
-+		key->serial >>= 1; /* negative numbers are not permitted */
-+	} while (key->serial < 3);
-+
-+	spin_lock(&key_serial_lock);
- 
- 	parent = NULL;
- 	p = &key_serial_tree.rb_node;
-@@ -204,12 +205,11 @@ static inline void key_alloc_serial(stru
- 
- 	/* we found a key with the proposed serial number - walk the tree from
- 	 * that point looking for the next unused serial number */
-- serial_exists:
-+serial_exists:
- 	for (;;) {
--		key->serial = key_serial_next;
-+		key->serial++;
- 		if (key->serial < 2)
- 			key->serial = 2;
--		key_serial_next = key->serial + 1;
- 
- 		if (!parent->rb_parent)
- 			p = &key_serial_tree.rb_node;
-@@ -228,7 +228,7 @@ static inline void key_alloc_serial(stru
- 	}
- 
- 	/* we've found a suitable hole - arrange for this key to occupy it */
-- insert_here:
-+insert_here:
- 	rb_link_node(&key->serial_node, parent, p);
- 	rb_insert_color(&key->serial_node, &key_serial_tree);
- 
+ static inline void
+
 

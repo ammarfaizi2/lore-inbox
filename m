@@ -1,84 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWFTNtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWFTNxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWFTNtg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 09:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWFTNtg
+	id S1750978AbWFTNxI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 09:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWFTNxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 09:49:36 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:53862 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750862AbWFTNtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 09:49:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=6fs+IZfI4zTEqD1lMtRhtv5AX344LfX7V88Few5Ye300tS4Tqgvv6IypH8hc0vdbdNbxVBimgzvukS9AnZps4/RkIQQVP/BnlboY+ezXDssq4eB9Mn0eUcWwUJLAKAABDJHw9/LY0o9EL3HaJkcJR9ejN/Oi1KRBZPE+wvfkFtI=  ;
-Message-ID: <4497F9F1.8060708@yahoo.com.au>
-Date: Tue, 20 Jun 2006 23:36:49 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 20 Jun 2006 09:53:08 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:21693 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750974AbWFTNxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 09:53:07 -0400
+Message-ID: <4497FDBF.8010500@sw.ru>
+Date: Tue, 20 Jun 2006 17:53:03 +0400
+From: Vasily Averin <vvs@sw.ru>
+Organization: SW-soft
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Dave Olson <olson@unixfolk.com>, ccb@acm.org,
-       linux-kernel@vger.kernel.org, Peter Chubb <peter@chubb.wattle.id.au>
-Subject: Re: [patch] increase spinlock-debug looping timeouts (write_lock
- and NMI)
-References: <fa.VT2rwoX1M/2O/aO5crhlRDNx4YA@ifi.uio.no>	 <fa.Zp589GPrIISmAAheRowfRgZ1jgs@ifi.uio.no>	 <Pine.LNX.4.61.0606192231380.25413@osa.unixfolk.com>	 <20060619233947.94f7e644.akpm@osdl.org> <4497A5BC.4070005@yahoo.com.au>	 <20060620083305.GB7899@elte.hu> <4497C1BC.9090601@yahoo.com.au>	 <20060620095135.GC11037@elte.hu>  <4497D4FF.6000706@yahoo.com.au> <1150808692.2891.194.camel@laptopd505.fenrus.org>
-In-Reply-To: <1150808692.2891.194.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, devel@openvz.org
+Subject: Re: [PATCH 1/1] scsi : megaraid_{mm,mbox}: a fix on 64-bit DMA capability
+ check
+References: <890BF3111FB9484E9526987D912B261901BD91@NAMAIL3.ad.lsil.com>
+In-Reply-To: <890BF3111FB9484E9526987D912B261901BD91@NAMAIL3.ad.lsil.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>Correct me if I'm wrong, but... a read-lock requires at most a single
->>cacheline transfer per lock acq and a single per release, no matter the
->>concurrency on the lock (so long as it is read only).
->>
->>A spinlock is going to take more. If the hardware perfectly round-robins
->>the cacheline, it will take lockers+1 transfers per lock+unlock.
+Hello Seokmann,
+
+I would like to tell you that your patch is wrong, at least for
+ MegaRAID SATA 150-4 RAID Controller
+
+06:02.0 RAID bus controller: LSI Logic / Symbios Logic MegaRAID (rev 01)
+        Subsystem: LSI Logic / Symbios Logic MegaRAID SATA 150-4 RAID Controller
+00: 00 10 60 19 16 03 b0 04 01 00 04 01 08 20 00 00
+10: 08 00 20 df 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 10 23 45
+30: 00 00 00 00 80 00 00 00 00 00 00 00 0a 01 00 00
+40: 00 00 ff ff 00 00 00 d0 08 00 00 fc 00 00 00 fc
+50: 00 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 88 1f 00 00 00 00 00 f8 00 00 00 00
+70: 00 00 00 00 00 00 ff ff 00 00 f4 fe 00 00 00 00
+80: 01 00 02 00 00 00 00 00 06 01 38 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 06 01 00 20 9c 00 00 00
+a0: cc cc 00 00 99 02 00 00 00 06 00 80 00 00 00 00
+b0: 00 00 00 6e 00 00 00 00 00 00 00 00 fd 01 00 00
+c0: fd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+As far as I see the 64-bit magic is set, pci(0xA4) == 0x0299 and driver tries to
+enable 64-bit DMA. However the controller is not supported 64-bit DMA, and I
+still have the same error messages.
+
+Could you please check this issue and update your patch properly.
+
+Thank you,
+	Vasily Averin
+
+SWsoft Virtuozzo/OpenVZ Linux kernel team
+
+Ju, Seokmann wrote:
+> Hi,
 > 
-> 
-> This is a bit too simplistic view; shared cachelines are cheap, it's
-> getting the cacheline exclusive (or transitioning to/from exclusive)
-> that is the expensive part...
+> This patch contains a fix for 64-bit DMA capability check in
+> megaraid_{mm,mbox} driver. With patch, the driver access PCI
+> configuration space with dedicated offset to read a signature. If the
+> signature read, it means that the controller has capability to handle
+> 64-bit DMA. Before this patch, the driver blindly claimed the capability
+> without checking with controller.
+> The issue has been reported by Vasily Averin [vvs@sw.ru]. Thank you
+> Vasily for the reporting.
 
-Taking the lock is going to transiation the cacheline to exclusive. If
-the next locker tries to take the lock, they transfer the cacheline and
-exclusive access and fail. If they have already tried to take the lock
-earlier, they might only request a readonly state, but it still requires
-a cacheline transfer (which is the expensive part).
-
-The only way it is simplistic is that hardware will be unfair and give
-the same, or "close" requesters priority for some time, so the cacheline
-stays close.
-
-At some point, when it gets transferred away, there is no guarantee that
-the spinlock will be unlocked. Quite likely the opposite, if there is
-large contention for it and/or its cacheline.
-
-> 
-> (note that our spinlocks are fixed nowadays to only do the slowpath side
-> of things for read, eg allow shared cachelines there)
-
-To put it another way, when 1 CPU takes or releases the lock, the cachelines
-of 11 others are invalidated. In a perfect round-robin, if 12 queue up at the
-same time, 1 will go through and 11 will fail (= 12 cacheline transfers). So
-in this situation, the reader lock has a factor of 12 better acquisition
-throughput.
-
-Now the situation is simplistic (all queueing at the same time, perfectly
-fair hardware), but the cacheline transfer costs are accurate *for this
-situation*.
-
-So I think rwlocks do have a fundamental advantage over spinlocks (aside
-from the multiple concurrent readers advantage, although the two properties
-are obviously fundamentally related). It is yet to be shown whether that is
-actually the cause of Peter's performance improvement, but that is my
-guess.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> +#define HBA_SIGNATURE_64BIT		0x0299
+> +#define PCI_CONF_AMISIG64		0xa4
+...
+> -	if (pci_set_dma_mask(adapter->pdev, DMA_64BIT_MASK) != 0) {
+> +	pci_read_config_dword(adapter->pdev, PCI_CONF_AMISIG64,
+> &magic64);
+>  
+> -		con_log(CL_ANN, (KERN_WARNING
+> -			"megaraid: could not set DMA mask for
+> 64-bit.\n"));
+> +	if ((magic64 == HBA_SIGNATURE_64BIT) || 
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_DELL &&
+> +		adapter->pdev->device ==
+> PCI_DEVICE_ID_PERC4_DI_EVERGLADES) ||
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
+> +		adapter->pdev->device == PCI_DEVICE_ID_VERDE) ||
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
+> +		adapter->pdev->device == PCI_DEVICE_ID_DOBSON) ||
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_DELL &&
+> +		adapter->pdev->device == PCI_DEVICE_ID_PERC4E_DI_KOBUK)
+> ||
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
+> +		adapter->pdev->device == PCI_DEVICE_ID_LINDSAY)) {
+> +		if (pci_set_dma_mask(adapter->pdev, DMA_64BIT_MASK) !=
+> 0) {

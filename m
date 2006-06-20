@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWFTOVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWFTOXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWFTOVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 10:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWFTOVg
+	id S1751080AbWFTOXE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 10:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWFTOXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 10:21:36 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:5595 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751067AbWFTOVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 10:21:35 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: [PATCH 1/1] New Framebuffer for Intel based Macs
-To: Edgar Hucek <hostmaster@ed-soft.at>, LKML <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Tue, 20 Jun 2006 16:21:08 +0200
-References: <6pOCE-1Dv-39@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Tue, 20 Jun 2006 10:23:04 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:15123 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751080AbWFTOXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 10:23:01 -0400
+Date: Tue, 20 Jun 2006 10:22:57 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: andi@lisas.de
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
+       <hal@lists.freedesktop.org>, <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner
+ underruns, USB HDD hard resets)
+In-Reply-To: <20060620090532.GA6170@rhlx01.fht-esslingen.de>
+Message-ID: <Pine.LNX.4.44L0.0606201017030.6455-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1Fsh6K-0000mJ-L7@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Hucek <hostmaster@ed-soft.at> wrote:
+On Tue, 20 Jun 2006, Andreas Mohr wrote:
 
-> +config FB_IMAC
-> +        bool "Intel Based Macs FB"
-> +        depends on (FB = y) && X86
-> +        select FB_CFB_FILLRECT
-> +        select FB_CFB_COPYAREA
-> +        select FB_CFB_IMAGEBLIT
-> +        help
-> +          This is the frame buffer device driver for the Inel Based Mac's
+> But how would HAL safely determine whether a (IDE/USB) drive is busy?
+> As my test app demonstrates (without HAL running), the *very first* open()
+> happening during an ongoing burning operation will kill it instantly, in the
+> USB case.
+> Are there any options left for HAL at all? Still seems to strongly point
+> towards a kernel issue so far.
+> 
+> One (rather less desireable) way I can make up might be to have HAL
+> keep the device open permanently and do an ioctl query on whether it's "busy"
+> and then quickly close the device again before the newly started
+> burning process gets disrupted (if this even properly works at all).
 
-1) Speling error: Inel
-2) Isn't there a macintosch CONFIG option you can depend on?
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+The open() call is not in itself the problem.
 
-http://david.woodhou.se/why-not-spf.html
+I would guess that the problem is sparked by the TEST UNIT READY command
+automatically sent when the device file is opened.  Although a drive
+should have no difficulty handling this command while carrying out a burn,
+apparently yours aborts.  In other words, this is likely to be a firmware 
+problem in the CD drive.
+
+I can't tell what's going on with the USB HDD since you haven't provided 
+any information.
+
+If you want to find out what's actually happening instead of just 
+guessing, turn on CONFIG_USB_STORAGE_DEBUG and see what the kernel log has 
+to say for the time when the underrun/reset occurs.
+
+Alan Stern
+

@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWFTOz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWFTO6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWFTOz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 10:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWFTOz2
+	id S1751263AbWFTO6X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 10:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWFTO6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 10:55:28 -0400
-Received: from mail.mnsspb.ru ([84.204.75.2]:51397 "EHLO mail.mnsspb.ru")
-	by vger.kernel.org with ESMTP id S1751252AbWFTOz1 (ORCPT
+	Tue, 20 Jun 2006 10:58:22 -0400
+Received: from mail.parknet.jp ([210.171.160.80]:25862 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1751263AbWFTO6W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 10:55:27 -0400
-From: Kirill Smelkov <kirr@mns.spb.ru>
-Organization: MNS
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Subject: Re: [PATCH] ide: disable dma for transcend CF
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <200606201452.37905.kirr@mns.spb.ru> <E1FseQD-0001Tn-00@chiark.greenend.org.uk>
-In-Reply-To: <E1FseQD-0001Tn-00@chiark.greenend.org.uk>
+	Tue, 20 Jun 2006 10:58:22 -0400
+X-AuthUser: hirofumi@parknet.jp
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Jean-Daniel Pauget <jd@disjunkt.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>,
+       bert hubert <bert.hubert@netherlabs.nl>, george@mvista.com
+Subject: Re: Linux 2.6.17: PM-Timer bug warning?
+References: <20060620100800.GB5040@disjunkt.com>
+	<20060620101946.GA32658@rhlx01.fht-esslingen.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 20 Jun 2006 23:58:01 +0900
+In-Reply-To: <20060620101946.GA32658@rhlx01.fht-esslingen.de> (Andreas Mohr's message of "Tue, 20 Jun 2006 12:19:46 +0200")
+Message-ID: <87zmg7q3gm.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Date: Tue, 20 Jun 2006 18:56:33 +0400
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606201856.35332.kirr@mns.spb.ru>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<Sorry, Cyrillic letters were blocked on linux-ide>
+Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
 
-Matthew Garrett wrote:
-> > but if dma is turned on i get a lot of errors::
-> > 
-> >     hdc: dma_timer_epiry: dma_status == 0x21
-> >     hdc: DMA timeout error
-> >     hdc: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-> >     ide: failed opcode was: unknown
-> 
-> Are you sure that your CF adapter has the DMA lines hooked up? See 
-> http://lkml.org/lkml/2006/5/23/198 for instance - IIRC, the kernel has 
-> no way of telling whether the failure is because the card supports DMA 
-> and the adapter doesn't, or whether the card is lying. If it's the 
-> former, the card shouldn't be blacklisted.
+>>     but now, how and to whom should I report ?
+>
+> We need to enhance current kernel to whitelist this chipset revision
+> somehow. Or at least put a note there that this revision is ok, too
+> (to wait some more time for further evidence/revisions to appear).
 
-No, I'm not sure.
+Almost ICH4 should be sane.  Since there seems both reports of good
+and bad, probably the bug of ICH4 seems to be depending on a specific
+motherboard.
 
-My HW is PCISA-C800EVN-1G industrial MB (VT82C686B chipset) with integrated CF adapter.
-The adapter seems to have all pins soldered.
-
-I don't have another CF with DMA capability, so I can't check who creates the problem  --
-the card or the adapter.
-
-Let's see if someone have similar motherboard & CF with dma capabilities.
-
+FWIW, If you want to reduce gray-list, probably it should be
+motherboard list.
 -- 
-	Kirill
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

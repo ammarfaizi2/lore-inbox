@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbWFTIvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbWFTIwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965215AbWFTIvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 04:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWFTIvc
+	id S965071AbWFTIwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 04:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWFTIwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 04:51:32 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:65479 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965215AbWFTIvb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 04:51:31 -0400
-Message-ID: <4497B711.30109@garzik.org>
-Date: Tue, 20 Jun 2006 04:51:29 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Marc Sowen <marc.sowen@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] com20020_cs, kernel 2.6.17-rc6, 3rd try
-References: <4490281B.5060801@gmx.net>
-In-Reply-To: <4490281B.5060801@gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 20 Jun 2006 04:52:15 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15069 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965071AbWFTIwO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 04:52:14 -0400
+Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner
+	underruns, USB HDD hard resets)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       hal@lists.freedesktop.org
+In-Reply-To: <20060620013741.8e0e4a22.akpm@osdl.org>
+References: <20060619082154.GA17129@rhlx01.fht-esslingen.de>
+	 <20060620013741.8e0e4a22.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Date: Tue, 20 Jun 2006 10:06:56 +0100
+Message-Id: <1150794417.11062.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Sowen wrote:
-> Hello everybody,
+Ar Maw, 2006-06-20 am 01:37 -0700, ysgrifennodd Andrew Morton:
+> [hald polling causes cdrecord to go bad on a USB CD drive]
 > 
-> this patch enables the com20020_cs arcnet driver to see the SoHard (now 
-> Mercury Computer Systems Inc.) SH ARC-PCMCIA card. Added signed off line.
-> 
-> Regards,
->  Marc
-> 
-> Signed-off-by: Marc Sowen <marc.sowen@ibeo-as.de>
-> 
-> --- a/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-06 
-> 02:57:02.000000000 +0200
-> +++ b/linux-2.6.17-rc6/drivers/net/pcmcia/com20020_cs.c 2006-06-13 
-> 17:10:03.000000000 +0200
-> @@ -388,6 +388,7 @@
-> 
->  static struct pcmcia_device_id com20020_ids[] = {
->         PCMCIA_DEVICE_PROD_ID12("Contemporary Control Systems, Inc.", 
-> "PCM20 Arcnet Adapter", 0x59991666, 0x95dfffaf),
-> +       PCMCIA_DEVICE_PROD_ID12("SoHard AG", "SH ARC PCMCIA", 
-> 0xf8991729, 0x69dff0c7),
->         PCMCIA_DEVICE_NULL
+> One possible reason is that we're shooting down the device's pagecache by
+> accident as a result of hald activity. 
 
-ACK, but patch is corrupted:
+On IDE hal causes problems with some drives because the additional
+commands sent while the drive is busy end up timing out which triggers a
+bus reset and breaks everything. Really HAL should have better manners
+than to poll a drive that is busy.
 
-Applying 'com20020_cs, kernel 2.6.17-rc6, 3rd try'
-
-fatal: corrupt patch at line 4
+Alan
 

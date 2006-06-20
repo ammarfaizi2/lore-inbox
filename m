@@ -1,95 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWFTKgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbWFTKk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWFTKgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 06:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWFTKgQ
+	id S932582AbWFTKk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 06:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbWFTKk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 06:36:16 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:5830
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S964790AbWFTKgP
+	Tue, 20 Jun 2006 06:40:59 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:21221 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932574AbWFTKk5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 06:36:15 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: Linux 2.6.17.1
-Date: Tue, 20 Jun 2006 12:35:19 +0200
-User-Agent: KMail/1.9.1
-References: <20060620101350.GE23467@sequoia.sous-sol.org>
-In-Reply-To: <20060620101350.GE23467@sequoia.sous-sol.org>
-Cc: stable@kernel.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Tue, 20 Jun 2006 06:40:57 -0400
+Message-ID: <4497D0A9.6060704@bull.net>
+Date: Tue, 20 Jun 2006 12:40:41 +0200
+From: Laurent Vivier <Laurent.Vivier@bull.net>
+Organization: Bull S.A.S.
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606201235.19811.mb@bu3sch.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Qi Yong <qiyong@fc-cn.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mingming Cao <cmm@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+       alex@clusterfs.com, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Ext2-devel] [RFC 0/13] extents and 48bit ext3
+References: <1149816055.4066.60.camel@dyn9047017069.beaverton.ibm.com>	<4488E1A4.20305@garzik.org>	<20060609083523.GQ5964@schatzie.adilger.int>	<44898EE3.6080903@garzik.org>	<1149885135.5776.100.camel@sisko.sctweedie.blueyonder.co.uk>	<Pine.LNX.4.64.0606091344290.5498@g5.osdl.org> <4497927F.4070307@fc-cn.com> <4497B126.4000408@bull.net> <4497B230.5000508@garzik.org> <4497BE00.1040409@bull.net> <4497C485.7000400@garzik.org>
+In-Reply-To: <4497C485.7000400@garzik.org>
+X-Enigmail-Version: 0.94.0.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 20/06/2006 12:44:45,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 20/06/2006 12:44:47,
+	Serialize complete at 20/06/2006 12:44:47
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1EB8216EEB9A54DB7037A0B3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 June 2006 12:13, Chris Wright wrote:
-> We (the -stable team) are announcing the release of the 2.6.17.1 kernel.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1EB8216EEB9A54DB7037A0B3
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Please consider inclusion of the following patch into 2.6.17.2:
+Jeff Garzik wrote:
+> Laurent Vivier wrote:
+>> Jeff Garzik wrote:
+>>> Laurent Vivier wrote:
+>>>> Qi Yong wrote:
+>>>>> Linus Torvalds wrote:
+>>>>>
+>>>>>> On Fri, 9 Jun 2006, Stephen C. Tweedie wrote:
+>>>>>> =20
+>>>>>>
+>>>>>>> When is the Linux syscall interface enough?  When should we just
+>>>>>>> bump it
+>>>>>>> and cut out all the compatibility interfaces?
+>>>>>>>
+>>>>>>> No, we don't; we let people configure certain obsolete bits out
+>>>>>>> (a.out
+>>>>>>> support etc), but we keep it in the tree despite the indirection
+>>>>>>> cost to
+>>>>>>> maintain multiple interfaces etc.
+>>>>>>>  =20
+>>>>>> Right. WE ADD NEW SYSTEM CALLS. WE DO NOT EXTEND THE OLD ONES IN
+>>>>>> WAYS THAT MIGHT BREAK OLD USERS.
+>>>>>>
+>>>>>> Your point was exactly what?
+>>>>>>
+>>>>>> Btw, where did that 2TB limit number come from? Afaik, it should b=
+e
+>>>>>> 16TB for a 4kB filesystem, no?
+>>>>>> =20
+>>>>>>
+>>>>> Partition tables describe partitions in units of one sector.
+>>>>> 2^(32+9) =3D 2T
+>>>>>
+>>>>> To prevent integer overflow, we should use only 31 bits of a 32-bit=
 
-It fixes a possible crash. Might be triggerable in networks with
-heavy traffic. I only saw it once so far, though.
+>>>>> integer.
+>>>>> 2^(31+12) =3D 8T
+>>>>>
+>>>>> There's _terrible_ hacks to really get to 16T.
+>>>>>
+>>>>> -- qiyong
+>>>>>
+>>>> IMHO, a simple solution is to use "Logical Volume Manager" instead o=
+f
+>>>> partition
+>>>> manager: we create 64bit filesystem in a Logical Volume, not in a
+>>>> partition.
+>>> That doesn't solve anything, if you are not using a 64bit filesystem.=
 
---
+>>
+>> Sorry, I don't undestand why ???
+>>
+>> You can use 32bit filesystem too, but you limit the size of the
+>> logical volume
+>> to be compatible with the filesystem you use. LVM allows to create
+>> several 32bit
+>> volumes on a big (> 8T) disk (if exists)
+>=20
+> Let's review the thread:
+>=20
+> qiyong: <these limits> exist in the filesystem
+> you: bust those limits with LVM!
+>=20
+> I think you are misunderstanding the subthread.
+>=20
 
-Place the Init-vs-IRQ workaround before any card register
-access, because we might not have the wireless core mapped
-at all times in init. So this will result in a Machine Check
-caused by a bus error.
+Yes...
 
-Signed-off-by: Michael Buesch <mb@bu3sch.de>
+I understood:
+qiyong: <these limits> exist in the partition manager.
 
-Index: tmp/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-===================================================================
---- tmp.orig/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-06-18 18:51:48.000000000 +0200
-+++ tmp/drivers/net/wireless/bcm43xx/bcm43xx_main.c	2006-06-18 19:02:19.000000000 +0200
-@@ -1870,6 +1870,15 @@
- 
- 	spin_lock(&bcm->_lock);
- 
-+	/* Only accept IRQs, if we are initialized properly.
-+	 * This avoids an RX race while initializing.
-+	 * We should probably not enable IRQs before we are initialized
-+	 * completely, but some careful work is needed to fix this. I think it
-+	 * is best to stay with this cheap workaround for now... .
-+	 */
-+	if (unlikely(!bcm->initialized))
-+		goto out;
-+
- 	reason = bcm43xx_read32(bcm, BCM43xx_MMIO_GEN_IRQ_REASON);
- 	if (reason == 0xffffffff) {
- 		/* irq not for us (shared irq) */
-@@ -1891,20 +1900,11 @@
- 
- 	bcm43xx_interrupt_ack(bcm, reason);
- 
--	/* Only accept IRQs, if we are initialized properly.
--	 * This avoids an RX race while initializing.
--	 * We should probably not enable IRQs before we are initialized
--	 * completely, but some careful work is needed to fix this. I think it
--	 * is best to stay with this cheap workaround for now... .
--	 */
--	if (likely(bcm->initialized)) {
--		/* disable all IRQs. They are enabled again in the bottom half. */
--		bcm->irq_savedstate = bcm43xx_interrupt_disable(bcm, BCM43xx_IRQ_ALL);
--		/* save the reason code and call our bottom half. */
--		bcm->irq_reason = reason;
--		tasklet_schedule(&bcm->isr_tasklet);
--	}
--
-+	/* disable all IRQs. They are enabled again in the bottom half. */
-+	bcm->irq_savedstate = bcm43xx_interrupt_disable(bcm, BCM43xx_IRQ_ALL);
-+	/* save the reason code and call our bottom half. */
-+	bcm->irq_reason = reason;
-+	tasklet_schedule(&bcm->isr_tasklet);
- out:
- 	mmiowb();
- 	spin_unlock(&bcm->_lock);
+(because with patches proposed on http://www.bullopensource.org/ext4 thes=
+e
+limits don't exist anymore in the filesystem.)
+
+Regards,
+Laurent
+--=20
+Laurent Vivier
+Bull, Architect of an Open World (TM)
+http://www.bullopensource.org/ext4
 
 
--- 
-Greetings Michael.
+--------------enig1EB8216EEB9A54DB7037A0B3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQFEl9Cv9Kffa9pFVzwRAsbiAKCOf70EE56Tk1XGkNwibp3VSnY0vgCfQO1v
+IFStSksvLJM8UkQl/c0pNJA=
+=/jhJ
+-----END PGP SIGNATURE-----
+
+--------------enig1EB8216EEB9A54DB7037A0B3--

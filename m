@@ -1,105 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWFTNxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWFTNx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbWFTNxI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 09:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWFTNxI
+	id S1750998AbWFTNx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 09:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWFTNx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 09:53:08 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:21693 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750974AbWFTNxH (ORCPT
+	Tue, 20 Jun 2006 09:53:28 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:4325 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750994AbWFTNx1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 09:53:07 -0400
-Message-ID: <4497FDBF.8010500@sw.ru>
-Date: Tue, 20 Jun 2006 17:53:03 +0400
-From: Vasily Averin <vvs@sw.ru>
-Organization: SW-soft
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
-X-Accept-Language: en-us, en, ru
+	Tue, 20 Jun 2006 09:53:27 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Steven Whitehouse <steve@chygwyn.com>
+Subject: Re: [RFC] [PATCH 1/8] inode_diet: Replace inode.u.generic_ip with inode.i_private
+Date: Tue, 20 Jun 2006 15:53:23 +0200
+User-Agent: KMail/1.9.1
+Cc: Theodore Tso <tytso@thunk.org>, linux-kernel@vger.kernel.org
+References: <20060619152003.830437000@candygram.thunk.org> <200606201345.45332.arnd.bergmann@de.ibm.com> <1150806849.3856.1370.camel@quoit.chygwyn.com>
+In-Reply-To: <1150806849.3856.1370.camel@quoit.chygwyn.com>
 MIME-Version: 1.0
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, devel@openvz.org
-Subject: Re: [PATCH 1/1] scsi : megaraid_{mm,mbox}: a fix on 64-bit DMA capability
- check
-References: <890BF3111FB9484E9526987D912B261901BD91@NAMAIL3.ad.lsil.com>
-In-Reply-To: <890BF3111FB9484E9526987D912B261901BD91@NAMAIL3.ad.lsil.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606201553.23908.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Seokmann,
-
-I would like to tell you that your patch is wrong, at least for
- MegaRAID SATA 150-4 RAID Controller
-
-06:02.0 RAID bus controller: LSI Logic / Symbios Logic MegaRAID (rev 01)
-        Subsystem: LSI Logic / Symbios Logic MegaRAID SATA 150-4 RAID Controller
-00: 00 10 60 19 16 03 b0 04 01 00 04 01 08 20 00 00
-10: 08 00 20 df 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 10 23 45
-30: 00 00 00 00 80 00 00 00 00 00 00 00 0a 01 00 00
-40: 00 00 ff ff 00 00 00 d0 08 00 00 fc 00 00 00 fc
-50: 00 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 88 1f 00 00 00 00 00 f8 00 00 00 00
-70: 00 00 00 00 00 00 ff ff 00 00 f4 fe 00 00 00 00
-80: 01 00 02 00 00 00 00 00 06 01 38 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 06 01 00 20 9c 00 00 00
-a0: cc cc 00 00 99 02 00 00 00 06 00 80 00 00 00 00
-b0: 00 00 00 6e 00 00 00 00 00 00 00 00 fd 01 00 00
-c0: fd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-As far as I see the 64-bit magic is set, pci(0xA4) == 0x0299 and driver tries to
-enable 64-bit DMA. However the controller is not supported 64-bit DMA, and I
-still have the same error messages.
-
-Could you please check this issue and update your patch properly.
-
-Thank you,
-	Vasily Averin
-
-SWsoft Virtuozzo/OpenVZ Linux kernel team
-
-Ju, Seokmann wrote:
-> Hi,
+On Tuesday 20 June 2006 14:34, Steven Whitehouse wrote:
 > 
-> This patch contains a fix for 64-bit DMA capability check in
-> megaraid_{mm,mbox} driver. With patch, the driver access PCI
-> configuration space with dedicated offset to read a signature. If the
-> signature read, it means that the controller has capability to handle
-> 64-bit DMA. Before this patch, the driver blindly claimed the capability
-> without checking with controller.
-> The issue has been reported by Vasily Averin [vvs@sw.ru]. Thank you
-> Vasily for the reporting.
+> Yes, although I'm not sure that it would be as significant as the memory
+> saved by removing the pointer bearing in mind the relative numbers of
+> the structures that you'd expect to see in a "normal" working system. We
+> could also try and reduce this by creating a special inode cache which
+> would be shared by all filesystems which did still need just struct
+> inode + private pointer for example.
 
-> +#define HBA_SIGNATURE_64BIT		0x0299
-> +#define PCI_CONF_AMISIG64		0xa4
-...
-> -	if (pci_set_dma_mask(adapter->pdev, DMA_64BIT_MASK) != 0) {
-> +	pci_read_config_dword(adapter->pdev, PCI_CONF_AMISIG64,
-> &magic64);
->  
-> -		con_log(CL_ANN, (KERN_WARNING
-> -			"megaraid: could not set DMA mask for
-> 64-bit.\n"));
-> +	if ((magic64 == HBA_SIGNATURE_64BIT) || 
-> +		(adapter->pdev->vendor == PCI_VENDOR_ID_DELL &&
-> +		adapter->pdev->device ==
-> PCI_DEVICE_ID_PERC4_DI_EVERGLADES) ||
-> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
-> +		adapter->pdev->device == PCI_DEVICE_ID_VERDE) ||
-> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
-> +		adapter->pdev->device == PCI_DEVICE_ID_DOBSON) ||
-> +		(adapter->pdev->vendor == PCI_VENDOR_ID_DELL &&
-> +		adapter->pdev->device == PCI_DEVICE_ID_PERC4E_DI_KOBUK)
-> ||
-> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC &&
-> +		adapter->pdev->device == PCI_DEVICE_ID_LINDSAY)) {
-> +		if (pci_set_dma_mask(adapter->pdev, DMA_64BIT_MASK) !=
-> 0) {
+To take this further, you could indeed split struct inode into a smaller
+struct that has all the important parts and a derived struct that has
+i_private as well as other members that are used only by a minority
+of file systems.
+
+Alternatively, it might be possible to stuff i_private into the same
+union as i_pipe, i_cdev and i_bdev. The rationale here being that
+a file system implementing different file types already is complex
+enough that you would normally want your own alloc_inode for a
+derived struct. The simple file systems OTOH normally only support
+regular files, and sometimes directories.
+
+	Arnd <><

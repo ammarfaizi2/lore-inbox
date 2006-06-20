@@ -1,91 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWFTPs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWFTPr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWFTPs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 11:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWFTPs1
+	id S1751111AbWFTPr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 11:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWFTPr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 11:48:27 -0400
-Received: from lucidpixels.com ([66.45.37.187]:8362 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1751343AbWFTPs0 (ORCPT
+	Tue, 20 Jun 2006 11:47:56 -0400
+Received: from iucha.net ([209.98.146.184]:45968 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S1751111AbWFTPrz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 11:48:26 -0400
-Date: Tue, 20 Jun 2006 11:48:24 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Al Boldi <a1426z@gawab.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: LibPATA/ATA Errors Continue - Will there be a fix for this?
-In-Reply-To: <200606201815.54318.a1426z@gawab.com>
-Message-ID: <Pine.LNX.4.64.0606201148110.2601@p34.internal.lan>
-References: <200606201815.54318.a1426z@gawab.com>
+	Tue, 20 Jun 2006 11:47:55 -0400
+Date: Tue, 20 Jun 2006 10:47:54 -0500
+To: linux-usb-users@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft Wireless 6000 Mouse/Keyboard
+Message-ID: <20060620154754.GX7905@iucha.net>
+References: <20060619000520.GR7905@iucha.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8gs9RsbElyYeG6Yn"
+Content-Disposition: inline
+In-Reply-To: <20060619000520.GR7905@iucha.net>
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 5E59 C2E7 941E B592 3BA4  7DCF 343D 2B14 2376 6F5B
+User-Agent: Mutt/1.5.11+cvs20060403
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Al Boldi wrote:
 
-> Justin Piszcz wrote:
->> On Tue, 20 Jun 2006, Mark Lord wrote:
->>> Justin Piszcz wrote:
->>>> Should someone comment this code out that produces the printk()'s as
->>>> these are useless information as there is no problem with the disk?
->>>
->>> MMm.. probably "barrier" commands that the drive doesn't like.
->>> Pity those messages don't also dump the failed opcode.
->>>
->>>> Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: status=0x51 {
->>>> DriveReady SeekComplete Error }
->>>> Jun 20 03:14:20 p34 kernel: [4339456.678000] ata3: error=0x04 {
->>>> DriveStatusError }
->>>> Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: no sense translation
->>>> for status: 0x51
->>>> Jun 20 03:36:44 p34 kernel: [4340801.772000] ata3: status=0x51 {
->>>> DriveReady SeekComplete Error }
->>
->> Mark, what would be the proper direction to move towards?  Is Jeff or
->> another SATA/ATA maintainer going to have to look at this or is there
->> something else I can do, or?
->
-> I once sent a patch to -mm:
->
-> Mark Lord wrote:
->> Al Boldi wrote:
->>> Also apply this one to get rid of this message:
->>>
->>> 	hdb: set_drive_speed_status: status=0x40 { DriveReady }
->>> 	ide: failed opcode was: unknown
->>>
->>> Maybe someone on the ide list can comment on this first though.
->>>
->>> --- 16/include/linux/ide.h.orig	2006-03-31 19:12:51.000000000 +0300
->>> +++ 16/include/linux/ide.h	2006-04-23 13:06:32.000000000 +0300
->>> @@ -120,7 +120,7 @@ typedef unsigned char	byte;	/* used ever
->>>  #define IDE_BCOUNTL_REG		IDE_LCYL_REG
->>>  #define IDE_BCOUNTH_REG		IDE_HCYL_REG
->>>
->>> -#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==(good))
->>> +#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==((stat)&(good)))
->>>  #define BAD_R_STAT		(BUSY_STAT   | ERR_STAT)
->>>  #define BAD_W_STAT		(BAD_R_STAT  | WRERR_STAT)
->>>  #define BAD_STAT		(BAD_R_STAT  | DRQ_STAT)
->>
->> Assuming hdb is a CDROM/optical drive, then this change makes sense for
->> that. But I don't think it is a valid (good) change for regular ATA disks.
->>
->> A more complex patch is required, one which correctly handles each drive
->> type.
->
-> Thanks!
->
-> --
-> Al
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--8gs9RsbElyYeG6Yn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Did the patch get applied to -mm?
+On Sun, Jun 18, 2006 at 07:05:20PM -0500, Florin wrote:
+> Is the Microsoft Wireless Desktop 6000 supported under Linux? I am
+> plugging the dongle into the motherboard port and under Linux 2.6.17 I
+> cannot see it, but get the following error messages in the log:
+>=20
+> [  149.386325] usb 2-7: new low speed USB device using ohci_hcd and addre=
+ss 6
+> [  149.469949] usb 2-7: device descriptor read/64, error -110
+
+Just for the record: that particular unit was broken, it would not be
+recognized even by Windows.  I have exchanged it and the replacement=20
+works fine on both my Linux-running computers. Plug-and-play!
+
+Thank you,
+florin
+
+--=20
+If we wish to count lines of code, we should not regard them as lines
+produced but as lines spent.                       -- Edsger Dijkstra
+
+--8gs9RsbElyYeG6Yn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEmBiqND0rFCN2b1sRAtK3AJoCTLxQxJ9C8nSPMOwZcR8fFANUsACfcK4w
+Q2KO/aDeE3XhQ3VjPRfxqqs=
+=k+tc
+-----END PGP SIGNATURE-----
+
+--8gs9RsbElyYeG6Yn--

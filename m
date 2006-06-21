@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWFUBJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWFUBJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWFUBJW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 21:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWFUBJW
+	id S932378AbWFUBJv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 21:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWFUBJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 21:09:22 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:45273 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751908AbWFUBJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 21:09:21 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: Linux 2.4.33-rc1
-Date: Wed, 21 Jun 2006 11:09:15 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <4b6h92h0hvj929o5kas004jagjaiii8t0p@4ax.com>
-References: <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <20060619220405.GA16251@dmt> <20060619230007.GA6471@1wt.eu> <20060619234506.GA2763@dmt> <20060620222357.GA11862@1wt.eu>
-In-Reply-To: <20060620222357.GA11862@1wt.eu>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Tue, 20 Jun 2006 21:09:50 -0400
+Received: from mga07.intel.com ([143.182.124.22]:59746 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751912AbWFUBJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 21:09:49 -0400
+X-IronPort-AV: i="4.06,158,1149490800"; 
+   d="scan'208"; a="55096166:sNHT414565935"
+Date: Tue, 20 Jun 2006 17:44:24 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
+       Len Brown <len.brown@intel.com>,
+       Kimball Murray <kimball.murray@gmail.com>,
+       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
+       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
+       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
+       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
+       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
+       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 4/25] msi: Simplify msi enable and disable.
+Message-ID: <20060620174424.B10402@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <11508425191063-git-send-email-ebiederm@xmission.com>; from ebiederm@xmission.com on Tue, Jun 20, 2006 at 04:28:17PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 00:23:57 +0200, Willy Tarreau <w@1wt.eu> wrote:
+On Tue, Jun 20, 2006 at 04:28:17PM -0600, Eric W. Biederman wrote:
+> 
+> @@ -937,27 +936,8 @@ int pci_enable_msi(struct pci_dev* dev)
+>  	if (!pos)
+>  		return -EINVAL;
+>  
+> -	if (!msi_lookup_vector(dev, PCI_CAP_ID_MSI)) {
+> -		/* Lookup Sucess */
+> -		unsigned long flags;
+> +	BUG_ON(!msi_lookup_vector(dev, PCI_CAP_ID_MSI));
+>  
+A driver that calls pci_enable_msi() while MSI is already enabled
+will hit this BUG_ON. This is different from the behavior of
+some other pci functions like pci_enable_device(), which
+silently return success if the requested operation is a nop.
+It's pretty easy to do the same here too (ditto for MSI-X).
 
->On Mon, Jun 19, 2006 at 08:45:06PM -0300, Marcelo Tosatti wrote:
->> > 
->> > ---- from here ----
->> > 
->> > 
->> > > +		inode = dentry->d_inode;
->> > > +		if (inode)
->> > > +			atomic_inc(&inode->i_count);
->> > >  		error = vfs_unlink(nd.dentry->d_inode, dentry);
->> > >  	exit2:
->> > >  		dput(dentry);
->> > >  	}
->> > >  	up(&nd.dentry->d_inode->i_sem);
->> > > +	if (inode)
->> > > +		iput(inode);
->> > 
->> > ---- to here ----
->> > 
->> > I believe that nd.dentry->d_inode cannot vanish because it is protected by the
->> > down(->i_sem) before and the up(->i_sem) after. Am I right or am I missing
->> > something important ?
->> 
->> Indeed it can't, but dentry->d_inode will be set to NULL by
->> nfs_unlink->nfs_safe_remove->d_delete. Thus the problem.
->
->What puzzles me is how are we supposed to up(&nd.dentry->d_inode->i_sem) if
->dentry->d_inode can become NULL ? simply by keeping a copy of it ? I thought
->that the down() protected the whole thing, but may be that's stupid anyway.
->I've been running rc1 without this patch for a few hours and during kernel
->compiles without a problem, so I'm not sure about what to think about the
->other changes which were apparently harmless too :-/
-
-So what's the final fixup?  Last two patches don't seem to cause the 
-problems previously reported by me.  They don't play together though, 
-so I'll add my general sense of confusion to this issue ;)  
-
-Should I run the thing (which patch?) and compile a hundred kernels 
-or something to see what (if anything) breaks.  Shortest day of year 
-here, I don't mind running the test box as part of room heating :o)
-
-Thanks,
-Grant.
+Rajesh

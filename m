@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWFUEnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWFUEyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWFUEnI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 00:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWFUEnH
+	id S1751039AbWFUEyN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 00:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWFUEyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 00:43:07 -0400
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:10531 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S932463AbWFUEnG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 00:43:06 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Wed, 21 Jun 2006 00:54:12 -0400
+Received: from 36.5.74.218.broad.hz.zj.dynamic.cndata.com ([218.74.5.36]:50696
+	"HELO 84DDA98") by vger.kernel.org with SMTP id S1750832AbWFUEyM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 00:54:12 -0400
+Message-Id: <6.8.3.7.8.10439743558404.249a0578@209.132.176.167>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.0
+Date: Tue, 20 Jun 2006 21:54:09 -0800
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilitiesKJ
-Date: Tue, 20 Jun 2006 21:42:56 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B00E48CF12@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilitiesKJ
-Thread-Index: AcaUu7kkKr7IzCT/TZae6Q3DUTXGGgAMJujw
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "Andi Kleen" <ak@suse.de>, "Greg KH" <gregkh@suse.de>
-Cc: "Dave Olson" <olson@unixfolk.com>, <discuss@x86-64.org>,
-       "Brice Goglin" <brice@myri.com>, <linux-kernel@vger.kernel.org>,
-       "Greg Lindahl" <greg.lindahl@qlogic.com>
-X-OriginalArrivalTime: 21 Jun 2006 04:42:57.0586 (UTC) FILETIME=[2AFA8920:01C694ED]
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+From: "L0ANalerts" <Mcfadden_polypropylene@correu.udg.es>
+Subject: RE: Attempt to contact -- ICj
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> NForce4 PCI Express is an unknown - we'll see how that works.
-> 
 
-MSI is not officially supported on nForce4 and hasn't been fully tested.
+Important - Third And FINAL Notification:
 
-However it should work ok for PCI-E.  I would definitely not recommend
-enabling 
-MSI for the internal MAC though.
+RE: Home Re.FinancingOptions 
 
--Allen
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+One of our agents has been trying to contact you regarding your home.
+
+An unique situation has come to our attention regarding rates and we 
+strongly feel you will be interested in hearing about it. 
+
+Even a low credit-score will not be an issue if you confirm with us today.
+
+http://secure458.g271.com
+
+Best Wishes,
+
+Gary Kirkland
+Division 43 - Team Leader
+- L0ANCentreAlerts
+
+
+--
+working cancel link:
+If this reached you by mistake please let us know by going here:
+http://secure458.g271.com/re.php
+
+

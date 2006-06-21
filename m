@@ -1,106 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWFUUlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWFUUmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWFUUlo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 16:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWFUUlo
+	id S1750781AbWFUUmX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 16:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWFUUmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 16:41:44 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:7900 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750746AbWFUUln (ORCPT
+	Wed, 21 Jun 2006 16:42:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13991 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750781AbWFUUmW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 16:41:43 -0400
-Date: Wed, 21 Jun 2006 16:41:21 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64bit resources start end value fix
-Message-ID: <20060621204120.GA14739@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060621172903.GC9423@in.ibm.com> <20060621132227.ec401f93.akpm@osdl.org>
+	Wed, 21 Jun 2006 16:42:22 -0400
+Date: Wed, 21 Jun 2006 13:42:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mattia Dongili <malattia@linux.it>
+Cc: hpa@zytor.com, mbligh@mbligh.org, linux-kernel@vger.kernel.org
+Subject: Re: fs/binfmt_aout.o, Error: suffix or operands invalid for `cmp'
+ [was Re: 2.6.17-mm1]
+Message-Id: <20060621134215.1bca6a5c.akpm@osdl.org>
+In-Reply-To: <20060621193932.GR24595@inferi.kami.home>
+References: <44998DCB.1030703@mbligh.org>
+	<20060621184814.GQ24595@inferi.kami.home>
+	<44999BC5.7060702@zytor.com>
+	<20060621193932.GR24595@inferi.kami.home>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060621132227.ec401f93.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 01:22:27PM -0700, Andrew Morton wrote:
-> On Wed, 21 Jun 2006 13:29:03 -0400
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> 
-> > Hi Greg,
-> > 
-> > While changing 64bit kconfig options to CONFIG_RESOURCES_64BIT, I forgot
-> > to update the values of start and end fields in ioport_resource and
-> > iomem_resource.
-> > 
-> > Following patch applies on top of your reworked 64 bit patches and
-> > is based on Andrew Morton's patch. Please apply.
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-mm-commits&m=115087406130723&w=2
-> > 
-> > Thanks
-> > Vivek
-> > 
-> > 
-> > 
-> > o Update start and end fields for 32bit and 64bit resources.
-> > 
-> > Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
-> > ---
-> > 
-> >  linux-2.6.17-1M-vivek/kernel/resource.c |    6 +++---
-> >  1 files changed, 3 insertions(+), 3 deletions(-)
-> > 
-> > diff -puN kernel/resource.c~64bit-resources-start-end-value-fix kernel/resource.c
-> > --- linux-2.6.17-1M/kernel/resource.c~64bit-resources-start-end-value-fix	2006-06-21 12:43:43.000000000 -0400
-> > +++ linux-2.6.17-1M-vivek/kernel/resource.c	2006-06-21 12:44:59.000000000 -0400
-> > @@ -23,7 +23,7 @@
-> >  
-> >  struct resource ioport_resource = {
-> >  	.name	= "PCI IO",
-> > -	.start	= 0x0000,
-> > +	.start	= 0,
-> >  	.end	= IO_SPACE_LIMIT,
-> >  	.flags	= IORESOURCE_IO,
-> >  };
-> > @@ -32,8 +32,8 @@ EXPORT_SYMBOL(ioport_resource);
-> >  
-> >  struct resource iomem_resource = {
-> >  	.name	= "PCI mem",
-> > -	.start	= 0UL,
-> > -	.end	= ~0UL,
-> > +	.start	= 0,
-> > +	.end	= -1,
-> >  	.flags	= IORESOURCE_MEM,
-> >  };
-> >  
-> 
-> Confused.  This patch won't apply.  It will apply with `patch -R', and if
-> you do that you'll break iomem_reosurce.end by setting it to
-> 0x00000000ffffffff.
-> 
-> I don't think any additional changes are needed here.
+On Wed, 21 Jun 2006 21:39:32 +0200
+Mattia Dongili <malattia@linux.it> wrote:
 
-Andrew, you don't have to apply this patch. It is supposed to be picked
-by Greg.
+> Thanks, this is fixed, but I have a new failure:
+>   CC [M]  fs/xfs/support/move.o
+>   CC [M]  fs/xfs/support/uuid.o
+>   LD [M]  fs/xfs/xfs.o
+>   CC      fs/dnotify.o
+>   CC      fs/dcookies.o
+>   LD      fs/built-in.o
+>   CC [M]  fs/binfmt_aout.o
+> {standard input}: Assembler messages:
+> {standard input}:160: Error: suffix or operands invalid for `cmp'
+> make[1]: *** [fs/binfmt_aout.o] Error 1
+> make: *** [fs] Error 2
 
-There seems to be some confusion. Just few days back Greg consolidated
-and re-organized all the 64bit resources patches and posted on LKML for
-review.
+what the heck?  Can you do `make fs/binfmt_aout.s' then send the relevant
+parts of that file?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115015916118671&w=2
-
-There were few review comments regarding kconfig options.
-I reworked the patch and CONFING_RESOURCES_32BIT was changed to
-CONFIG_RESOURCES_64BIT.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115072559700302&w=2
-
-Now Greg's tree and your tree are not exact replica when it comes to 
-64bit resource patches. Hence this patch is supposed to be picked by 
-Greg to make sure things are not broken in his tree.
-
-Thanks
-Vivek

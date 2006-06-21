@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWFUTUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWFUTXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWFUTUn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWFUTUn
+	id S1751284AbWFUTXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWFUTXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:20:43 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:29873 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751236AbWFUTUn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:20:43 -0400
-Date: Wed, 21 Jun 2006 15:20:40 -0400 (EDT)
+	Wed, 21 Jun 2006 15:23:09 -0400
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:25325 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751284AbWFUTXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:23:08 -0400
+Date: Wed, 21 Jun 2006 15:23:06 -0400 (EDT)
 From: James Morris <jmorris@namei.org>
 X-X-Sender: jmorris@d.namei
 To: Andrew Morton <akpm@osdl.org>
@@ -17,8 +17,10 @@ cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
        Eric Paris <eparis@redhat.com>, David Quigley <dpquigl@tycho.nsa.gov>,
        Chris Wright <chrisw@sous-sol.org>,
        Christoph Lameter <clameter@sgi.com>
-Subject: [PATCH 1/3] SELinux: Add security hook definitions for setmempolicy
-Message-ID: <Pine.LNX.4.64.0606211517170.11782@d.namei>
+Subject: [PATCH 2/3] SELinux: add security_task_setmempolicy hooks to mm code
+In-Reply-To: <Pine.LNX.4.64.0606211517170.11782@d.namei>
+Message-ID: <Pine.LNX.4.64.0606211520540.11782@d.namei>
+References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,11 +28,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Quigley <dpquigl@tycho.nsa.gov>
 
-This patch adds new security hook definitions for the setmempolicy 
-operation (currently unmediated by SELinux).  At present, the SELinux hook 
-function implementation for this hook is identical to the setscheduler 
-implementation, but a separate hook introduced to allow this check to be 
-specialized in the future if necessary.
+This patch inserts the security hook calls into the setmempolicy function 
+to enable security modules to mediate this operation between tasks.
 
 This patch is aimed at 2.6.18 inclusion.
 
@@ -42,101 +41,52 @@ Signed-off-by: James Morris <jmorris@namei.org>
 
 ---
 
- include/linux/security.h |   16 ++++++++++++++++
- security/dummy.c         |    6 ++++++
- security/selinux/hooks.c |    6 ++++++
- 3 files changed, 28 insertions(+)
+ mempolicy.c |    5 +++++
+ migrate.c   |    6 ++++++
+ 2 files changed, 11 insertions(+)
 
-diff -purN -X dontdiff linux-2.6.17-mm1.p/include/linux/security.h linux-2.6.17-mm1.w/include/linux/security.h
---- linux-2.6.17-mm1.p/include/linux/security.h	2006-06-21 11:54:11.000000000 -0400
-+++ linux-2.6.17-mm1.w/include/linux/security.h	2006-06-21 12:30:11.000000000 -0400
-@@ -601,6 +601,11 @@ struct swap_info_struct;
-  *	@p.
-  *	@p contains the task_struct for process.
-  *	Return 0 if permission is granted.
-+ * @task_setmempolicy
-+ *	Check permission before setting memory policy and/or parameters of
-+ *	process @p.
-+ *	@p contains the task_struct for process.
-+ *	Return 0 if permission is granted.
-  * @task_kill:
-  *	Check permission before sending signal @sig to @p.  @info can be NULL,
-  *	the constant 1, or a pointer to a siginfo structure.  If @info is 1 or
-@@ -1221,6 +1226,7 @@ struct security_operations {
- 	int (*task_setscheduler) (struct task_struct * p, int policy,
- 				  struct sched_param * lp);
- 	int (*task_getscheduler) (struct task_struct * p);
-+	int (*task_setmempolicy) (struct task_struct * p); 
- 	int (*task_kill) (struct task_struct * p,
- 			  struct siginfo * info, int sig);
- 	int (*task_wait) (struct task_struct * p);
-@@ -1866,6 +1872,11 @@ static inline int security_task_getsched
- 	return security_ops->task_getscheduler (p);
- }
+diff -purN -X dontdiff linux-2.6.17-mm1.p/mm/mempolicy.c linux-2.6.17-mm1.w/mm/mempolicy.c
+--- linux-2.6.17-mm1.p/mm/mempolicy.c	2006-06-21 13:09:22.000000000 -0400
++++ linux-2.6.17-mm1.w/mm/mempolicy.c	2006-06-21 13:10:09.000000000 -0400
+@@ -88,6 +88,7 @@
+ #include <linux/proc_fs.h>
+ #include <linux/migrate.h>
+ #include <linux/rmap.h>
++#include <linux/security.h>
  
-+static inline int security_task_setmempolicy (struct task_struct *p)
-+{
-+	return security_ops->task_setmempolicy (p);
-+}
-+
- static inline int security_task_kill (struct task_struct *p,
- 				      struct siginfo *info, int sig)
- {
-@@ -2513,6 +2524,11 @@ static inline int security_task_getsched
- 	return 0;
- }
+ #include <asm/tlbflush.h>
+ #include <asm/uaccess.h>
+@@ -946,6 +947,10 @@ asmlinkage long sys_migrate_pages(pid_t 
+ 		goto out;
+ 	}
  
-+static inline int security_task_setmempolicy (struct task_struct *p)
-+{
-+	return 0;
-+}
++	err = security_task_setmempolicy(task);
++	if (err)
++		goto out;
 +
- static inline int security_task_kill (struct task_struct *p,
- 				      struct siginfo *info, int sig)
- {
-diff -purN -X dontdiff linux-2.6.17-mm1.p/security/dummy.c linux-2.6.17-mm1.w/security/dummy.c
---- linux-2.6.17-mm1.p/security/dummy.c	2006-06-21 11:54:12.000000000 -0400
-+++ linux-2.6.17-mm1.w/security/dummy.c	2006-06-21 12:30:11.000000000 -0400
-@@ -537,6 +537,11 @@ static int dummy_task_getscheduler (stru
- 	return 0;
- }
+ 	err = do_migrate_pages(mm, &old, &new,
+ 		capable(CAP_SYS_NICE) ? MPOL_MF_MOVE_ALL : MPOL_MF_MOVE);
+ out:
+diff -purN -X dontdiff linux-2.6.17-mm1.p/mm/migrate.c linux-2.6.17-mm1.w/mm/migrate.c
+--- linux-2.6.17-mm1.p/mm/migrate.c	2006-06-21 13:09:22.000000000 -0400
++++ linux-2.6.17-mm1.w/mm/migrate.c	2006-06-21 13:10:09.000000000 -0400
+@@ -27,6 +27,7 @@
+ #include <linux/writeback.h>
+ #include <linux/mempolicy.h>
+ #include <linux/vmalloc.h>
++#include <linux/security.h>
  
-+static int dummy_task_setmempolicy (struct task_struct *p)
-+{
-+	return 0;
-+}
-+
- static int dummy_task_wait (struct task_struct *p)
- {
- 	return 0;
-@@ -982,6 +987,7 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, task_setrlimit);
- 	set_to_dummy_if_null(ops, task_setscheduler);
- 	set_to_dummy_if_null(ops, task_getscheduler);
-+	set_to_dummy_if_null(ops, task_setmempolicy);
- 	set_to_dummy_if_null(ops, task_wait);
- 	set_to_dummy_if_null(ops, task_kill);
- 	set_to_dummy_if_null(ops, task_prctl);
-diff -purN -X dontdiff linux-2.6.17-mm1.p/security/selinux/hooks.c linux-2.6.17-mm1.w/security/selinux/hooks.c
---- linux-2.6.17-mm1.p/security/selinux/hooks.c	2006-06-21 11:54:12.000000000 -0400
-+++ linux-2.6.17-mm1.w/security/selinux/hooks.c	2006-06-21 12:30:11.000000000 -0400
-@@ -2690,6 +2690,11 @@ static int selinux_task_getscheduler(str
- 	return task_has_perm(current, p, PROCESS__GETSCHED);
- }
+ #include "internal.h"
  
-+static int selinux_task_setmempolicy(struct task_struct *p)
-+{
-+	return task_has_perm(current, p, PROCESS__SETSCHED);
-+}
+@@ -903,6 +904,11 @@ asmlinkage long sys_move_pages(pid_t pid
+ 		goto out2;
+ 	}
+ 
++ 	err = security_task_setmempolicy(task);
++ 	if (err)
++ 		goto out2;
++ 	
 +
- static int selinux_task_kill(struct task_struct *p, struct siginfo *info, int sig)
- {
- 	u32 perm;
-@@ -4416,6 +4421,7 @@ static struct security_operations selinu
- 	.task_setrlimit =		selinux_task_setrlimit,
- 	.task_setscheduler =		selinux_task_setscheduler,
- 	.task_getscheduler =		selinux_task_getscheduler,
-+	.task_setmempolicy =		selinux_task_setmempolicy,
- 	.task_kill =			selinux_task_kill,
- 	.task_wait =			selinux_task_wait,
- 	.task_prctl =			selinux_task_prctl,
+ 	task_nodes = cpuset_mems_allowed(task);
+ 
+ 	/* Limit nr_pages so that the multiplication may not overflow */

@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWFUPzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWFUPzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWFUPzM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 11:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751645AbWFUPzM
+	id S932206AbWFUPzS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 11:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751645AbWFUPzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 11:55:12 -0400
-Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:7003 "HELO
-	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751174AbWFUPzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 11:55:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=tYZ4B+4UfKZo52JvNkSo9xlJ3ou6SzhiW8xSQpnz0frYsX2ZSGMKbn7wlHw2xjdZopfqNZu6HnXttU25sVFwdMPNMotgChlz/gHj9Iuk7cA+k2RoUVgI/85Xg+49i/C8VLpoYpG9BZJvDrAoCChIjQ1PjsoRHH6iJYptaBW9WaE=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: mingo@elte.hu, tglx@timesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.17-rt1 ommit an oops when suspending
-Date: Wed, 21 Jun 2006 17:54:54 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 21 Jun 2006 11:55:17 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28612 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751174AbWFUPzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 11:55:16 -0400
+Subject: Re: Wish for 2006 to Alan Cox and Jeff Garzik: A functional Driver
+	for PDC202XX
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mike Snitzer <snitzer@gmail.com>
+Cc: Erik@echohome.org, linux-kernel@vger.kernel.org
+In-Reply-To: <170fa0d20606210820l5a41150bs7e8a088d85ca8d3b@mail.gmail.com>
+References: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAMbmKIDqIQhHt6BBy4E2zd0BAAAAAA==@EchoHome.org>
+	 <1150887073.15275.34.camel@localhost.localdomain>
+	 <23064.216.68.248.2.1150895349.squirrel@www.echohome.org>
+	 <1150896840.15275.62.camel@localhost.localdomain>
+	 <170fa0d20606210634t1ee3d186gd638feefd64d247d@mail.gmail.com>
+	 <1150898829.15275.69.camel@localhost.localdomain>
+	 <170fa0d20606210820l5a41150bs7e8a088d85ca8d3b@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606211754.55059.annabellesgarden@yahoo.de>
+Date: Wed, 21 Jun 2006 17:10:36 +0100
+Message-Id: <1150906236.15275.78.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Ar Mer, 2006-06-21 am 11:20 -0400, ysgrifennodd Mike Snitzer:
+> ata1: translated ATA stat/err 0x51/84 to SCSI SK/ASC/ASCQ 0xb/47/00
+> ata1: status=0x51 { DriveReady SeekComplete Error }
+> ata1: error=0x84 { DriveStatusError BadCRC }
 
-with this applied my AMD64 suspended resumed successfully 
-in PREEMPT_RT mode. Erm at least until now ;-)
-Takes longer than with mainline.
+Thats a speed mistune somewhere in the code. 
 
-Signed-off-by: Karsten Wiese <annabellesgraden@yahoo.de>
-
+Can you send me an lspci -vxx and the information on the drive (or
+dmesg) with a "normal" kernel boot and I'll hunt it down.
 
 
-diff -ru rt1/kernel/time/clockevents.c rt1-kw/kernel/time/clockevents.c
---- rt1/kernel/time/clockevents.c	2006-06-20 21:39:21.000000000 +0200
-+++ rt1-kw/kernel/time/clockevents.c	2006-06-21 17:25:50.000000000 +0200
-@@ -547,7 +547,7 @@
- global_eventsource_suspend(struct sys_device *dev, pm_message_t state)
- {
- 	/* Do generic stuff here */
--	if (global_eventsource.event->suspend)
-+	if (global_eventsource.event && global_eventsource.event->suspend)
- 		global_eventsource.event->suspend();
- 	return 0;
- }
-@@ -555,7 +555,7 @@
- static int global_eventsource_resume(struct sys_device *dev)
- {
- 	/* Do generic stuff here */
--	if (global_eventsource.event->resume)
-+	if (global_eventsource.event && global_eventsource.event->resume)
- 		global_eventsource.event->resume();
- 	return 0;
- }
+Alan
 
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

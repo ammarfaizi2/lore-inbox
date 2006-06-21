@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWFUTAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWFUTA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWFUTAR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbWFUTAR
+	id S932654AbWFUTA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWFUTA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:00:17 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:9997 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932568AbWFUTAP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:00:15 -0400
-Date: Wed, 21 Jun 2006 21:00:12 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@oss.sgi.com
-Subject: Re: PATCH: Re: Memory corruption in 8390.c ? (and hp100 xirc2ps smc9194 ....)
-Message-ID: <20060621190012.GA94169@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, netdev@oss.sgi.com
-References: <1150907317.8320.0.camel@alice> <1150909982.15275.100.camel@localhost.localdomain> <87mzc65soy.fsf@benpfaff.org> <1150912780.15275.108.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jun 2006 15:00:57 -0400
+Received: from wx-out-0102.google.com ([66.249.82.193]:63972 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932654AbWFUTA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:00:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sqJtFLkV2DYYpPaLeLe76aP5aZ+AlYxL93W/0/U8PFGsWpzjJCCxAwGD3/MP2EfNE4cI/jSizGT0xUjG9+boFg2JLtZhpBKRNWd5YSe6gYH0k7nhPBqla2TrkTu3YwXweu//QpibSjOhUZ4gBhZp0qLZFyZwxDxV8nQPVI6fLyU=
+Message-ID: <7c3341450606211200k5134c3fag286bc0b9b61d05aa@mail.gmail.com>
+Date: Wed, 21 Jun 2006 20:00:55 +0100
+From: "Nick Warne" <nick.warne@gmail.com>
+Reply-To: nick@linicks.net
+To: "Piotr Kaczuba" <pepe@attika.ath.cx>
+Subject: Re: PC speaker doesn't work
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060621111430.GA5753@attika.ath.cx>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1150912780.15275.108.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+References: <20060619171544.GA4363@attika.ath.cx>
+	 <20060621111430.GA5753@attika.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 06:59:40PM +0100, Alan Cox wrote:
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/8390.c linux-2.6.17/drivers/net/8390.c
-> --- linux.vanilla-2.6.17/drivers/net/8390.c	2006-06-19 17:17:32.000000000 +0100
-> +++ linux-2.6.17/drivers/net/8390.c	2006-06-21 17:41:12.007145384 +0100
-> @@ -275,12 +275,14 @@
->  	struct ei_device *ei_local = (struct ei_device *) netdev_priv(dev);
->  	int send_length = skb->len, output_page;
->  	unsigned long flags;
-> +	char buf[ETH_ZLEN];
-> +	char *data = skb->data;
->  
->  	if (skb->len < ETH_ZLEN) {
-> -		skb = skb_padto(skb, ETH_ZLEN);
-> -		if (skb == NULL)
-> -			return 0;
-> +		memset(buf, 0, ETH_ZLEN);	/* more efficient than doing just the needed bits */
-> +		memcpy(buf, data, ETH_ZLEN);
-                                  ^^^^^^^^
-send_length surely?
+You know, I am glad you posted this, as my system bell stopped working
+ages ago and I didn't know why (I am on x86 though).
 
->  		send_length = ETH_ZLEN;
-> +		data = buf;
->  	}
->  
->  	/* Mask interrupts from the ethercard. 
+So this post is in case anybody else has this peculiar problem.
 
-  OG.
+I didn't have a CONFIG_INPUT_PCSPKR in my .config, so investigated...
+
+It is cunningly hidden in Device Drivers->Input device
+support->Miscellaneous devices->PC Speaker support
+
+Then to get KDE to use it (I used KDE sound to *beep* before I sussed
+this tonight), even more peculiar configuration is required:
+
+http://lists.kde.org/?l=kde-accessibility&m=110963809201407&w=2
+
+All now works!  I did really miss the beeps for some silly reason...
+
+Nick

@@ -1,140 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWFUAHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWFUAIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWFUAHi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 20:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWFUAHi
+	id S1751003AbWFUAIo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 20:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751870AbWFUAIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 20:07:38 -0400
-Received: from xenotime.net ([66.160.160.81]:49034 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751383AbWFUAHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 20:07:37 -0400
-Date: Tue, 20 Jun 2006 17:10:20 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
+	Tue, 20 Jun 2006 20:08:43 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:60625 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751003AbWFUAIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 20:08:43 -0400
+Message-ID: <44988E08.9070000@vmware.com>
+Date: Tue, 20 Jun 2006 17:08:40 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Christian.Limpach@cl.cam.ac.uk, chrisw@sous-sol.org
-Subject: Re: [PATCH] Implement kasprintf
-Message-Id: <20060620171020.301add23.rdunlap@xenotime.net>
-In-Reply-To: <44988B5C.9080400@goop.org>
-References: <44988B5C.9080400@goop.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       jeremy@xensource.com
+Subject: Re: [PATCH 2.6.17] Clean up and refactor i386 sub-architecture setup
+References: <44988803.5090305@goop.org>
+In-Reply-To: <44988803.5090305@goop.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 16:57:16 -0700 Jeremy Fitzhardinge wrote:
-
+Jeremy Fitzhardinge wrote:
 > From: Jeremy Fitzhardinge <jeremy@xensource.com>
-> 
-> Implement kasprintf, a kernel version of asprintf.  This allocates the
-> memory required for the formatted string, including the trailing '\0'.
-> Returns NULL on allocation failure.
-> 
-> Requires vsnprintf to accept a NULL buffer when the buffer size is 0.
-> 
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> 
-> ---
->  include/linux/kernel.h |    2 +
->  lib/Makefile           |    2 -
->  lib/kasprintf.c        |   54 ++++++++++++++++++++++++++++++++++++++++++++++++
+>
+> Clean up and refactor i386 sub-architecture setup.
+>
+> This change moves all the code from the 
+> asm-i386/mach-*/setup_arch_pre/post.h headers, into 
+> arch/i386/mach-*/setup.c.  mach-*/setup_arch_pre.h is renamed to 
+> setup_arch.h, and contains only things which should be in header 
+> files.  It is purely code-motion; there should be no functional 
+> changes at all.
+>
+> Several functions in arch/i386/kernel/setup.c needed to be made 
+> non-static so that they're visible to the code in mach-*/setup.c. 
+> asm-i386/setup.h is used to hold the prototypes for these functions.
 
-Hi,
-<nit>
+This looks awesome.   Are there any plans to get these sub-architectures 
+to work with the generic subarch?  Seems the next logical step would be 
+putting each mach-*/*.o into separated namespaces.
 
-Why do we want a separate source file for this one function?
-
-
->  3 files changed, 57 insertions(+), 1 deletion(-)
-> 
-> 
-> diff -r c175fd50e604 include/linux/kernel.h
-> --- a/include/linux/kernel.h	Tue Jun 20 16:47:53 2006 -0700
-> +++ b/include/linux/kernel.h	Tue Jun 20 16:53:19 2006 -0700
-> @@ -114,6 +114,8 @@ extern int scnprintf(char * buf, size_t 
->  	__attribute__ ((format (printf, 3, 4)));
->  extern int vscnprintf(char *buf, size_t size, const char *fmt, va_list args)
->  	__attribute__ ((format (printf, 3, 0)));
-> +extern char *kasprintf(gfp_t gfp, const char *fmt, ...)
-> +	__attribute__ ((format (printf, 2, 3)));
->  
->  extern int sscanf(const char *, const char *, ...)
->  	__attribute__ ((format (scanf, 2, 3)));
-> diff -r c175fd50e604 lib/Makefile
-> --- a/lib/Makefile	Tue Jun 20 16:47:53 2006 -0700
-> +++ b/lib/Makefile	Tue Jun 20 16:53:19 2006 -0700
-> @@ -5,7 +5,7 @@ lib-y := errno.o ctype.o string.o vsprin
->  lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
->  	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
->  	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
-> -	 sha1.o
-> +	 sha1.o kasprintf.o
->  
->  lib-$(CONFIG_SMP) += cpumask.o
->  
-> diff -r c175fd50e604 lib/kasprintf.c
-> --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-> +++ b/lib/kasprintf.c	Tue Jun 20 16:53:19 2006 -0700
-> @@ -0,0 +1,54 @@
-> +/******************************************************************************
-> + * Simplified asprintf.
-> + *
-> + * Copyright (C) 2006 XenSource Ltd
-> + * 
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License version 2
-> + * as published by the Free Software Foundation; or, when distributed
-> + * separately from the Linux kernel or incorporated into other
-> + * software packages, subject to the following license:
-> + * 
-> + * Permission is hereby granted, free of charge, to any person obtaining a copy
-> + * of this source file (the "Software"), to deal in the Software without
-> + * restriction, including without limitation the rights to use, copy, modify,
-> + * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-> + * and to permit persons to whom the Software is furnished to do so, subject to
-> + * the following conditions:
-> + * 
-> + * The above copyright notice and this permission notice shall be included in
-> + * all copies or substantial portions of the Software.
-> + * 
-> + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> + * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> + * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> + * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> + * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-> + * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-> + * IN THE SOFTWARE.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/slab.h>
-> +
-> +/* Simplified asprintf. */
-> +char *kasprintf(gfp_t gfp, const char *fmt, ...)
-> +{
-> +	va_list ap;
-> +	unsigned int len;
-> +	char *p;
-> +
-> +	va_start(ap, fmt);
-> +	len = vsnprintf(NULL, 0, fmt, ap);
-> +	va_end(ap);
-> +
-> +	p = kmalloc(len+1, gfp);
-> +	if (!p)
-> +		return NULL;
-> +	va_start(ap, fmt);
-> +	vsnprintf(p, len+1, fmt, ap);
-> +	va_end(ap);
-> +	return p;
-> +}
-> +EXPORT_SYMBOL(kasprintf);
-
----
-~Randy
+Zach

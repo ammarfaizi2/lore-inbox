@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWFUNkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWFUNrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWFUNkq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 09:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWFUNkq
+	id S932144AbWFUNrl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 09:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWFUNrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 09:40:46 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:1542 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S932151AbWFUNkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 09:40:45 -0400
-Date: Wed, 21 Jun 2006 21:39:25 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-cc: autofs mailing list <autofs@linux.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] autofs4 needs to force fail return revalidate
-In-Reply-To: <20060620233941.49ba2223.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0606212135540.14481@raven.themaw.net>
-References: <200606210618.k5L6IFDr008176@raven.themaw.net>
- <20060620233941.49ba2223.akpm@osdl.org>
+	Wed, 21 Jun 2006 09:47:41 -0400
+Received: from wr-out-0506.google.com ([64.233.184.236]:56740 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932144AbWFUNrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 09:47:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HJzdMB+5F+jY1L+8cn/qvfDntROgIYgrgbvod38l/uAbepaehdGMYsdsxillbzNJNONlAi2xF22LeOeY4XMkbNFTMqv0bOYcLMWlZDojzRwNYH2wMd/BriX7eBDJ+G3hqT2AGQNJOWmIpKQ2b6uyCwlwhwkc3R+/axsBMfZfi60=
+Message-ID: <6bffcb0e0606210647m16da3e59o44ad4a48a0f7abfa@mail.gmail.com>
+Date: Wed, 21 Jun 2006 15:47:39 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Herbert Rosmanith" <kernel@wildsau.enemy.org>
+Subject: Re: gcc-4.1.1 and kernel-2.4.32
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200606211320.k5LDKTZW012519@wildsau.enemy.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0,
-	required 5, autolearn=not spam)
-X-themaw-MailScanner-From: raven@themaw.net
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200606211317.k5LDHYLv012510@wildsau.enemy.org>
+	 <200606211320.k5LDKTZW012519@wildsau.enemy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006, Andrew Morton wrote:
+Hi,
 
-> 
-> Also, did you consider broadening the ->d_revalidate() semantics?  It
-> appears that all implementations return 0 or 1.  You could teach the VFS to
-> also recognise and act upon a -ve return value, and do this trickery within
-> the autofs d_revalidate(), perhaps?
-> 
+On 21/06/06, Herbert Rosmanith <kernel@wildsau.enemy.org> wrote:
+> >
+> > good day,
+> >
+> > trying to compile 2.4.32 with gcc-4.1.1 (probably any 4.x gcc?) produces
+> > a lot of errors, (i.e., declaration of symbols of different types and so on).
+>
+> oh, hm .. "a lot" is a bit extreme ... 3 errors so far ;-)
 
-Now it occurs to me this is the only safe way to do this.
-And a lot simpler.
+Here are patches that fix compilation on 2.4
+http://user.it.uu.se/~mikpe/linux/patches/2.4/
 
-Al, given this is such a heavily traveled piece of code, do you think 
-it would be acceptable to change the semantics of revalidate in this way.
+>
+> kind regards,
+> h.rosmanith
+>
 
-Ian
+Regards,
+Michal
 
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

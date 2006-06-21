@@ -1,71 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWFUVBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWFUVBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWFUVBq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWFUVBq
+	id S1030310AbWFUVBU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbWFUVBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:01:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15791 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030297AbWFUVBe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:01:34 -0400
-Date: Wed, 21 Jun 2006 14:01:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <gregkh@suse.de>
-Cc: vgoyal@in.ibm.com, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64bit resources start end value fix
-Message-Id: <20060621140125.c27bc99e.akpm@osdl.org>
-In-Reply-To: <20060621204414.GA30766@suse.de>
-References: <20060621172903.GC9423@in.ibm.com>
-	<20060621132227.ec401f93.akpm@osdl.org>
-	<20060621204120.GA14739@in.ibm.com>
-	<20060621204414.GA30766@suse.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 21 Jun 2006 17:01:16 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:53479 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1030300AbWFUVAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:00:36 -0400
+Date: Wed, 21 Jun 2006 23:00:35 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH -mm 5/6] cpu_relax(): use in ACPI lock
+Message-ID: <20060621210035.GE22516@rhlx01.fht-esslingen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 13:44:15 -0700
-Greg KH <gregkh@suse.de> wrote:
 
-> > > Confused.  This patch won't apply.  It will apply with `patch -R', and if
-> > > you do that you'll break iomem_reosurce.end by setting it to
-> > > 0x00000000ffffffff.
-> > > 
-> > > I don't think any additional changes are needed here.
-> > 
-> > Andrew, you don't have to apply this patch. It is supposed to be picked
-> > by Greg.
-> > 
-> > There seems to be some confusion. Just few days back Greg consolidated
-> > and re-organized all the 64bit resources patches and posted on LKML for
-> > review.
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115015916118671&w=2
-> > 
-> > There were few review comments regarding kconfig options.
-> > I reworked the patch and CONFING_RESOURCES_32BIT was changed to
-> > CONFIG_RESOURCES_64BIT.
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115072559700302&w=2
-> > 
-> > Now Greg's tree and your tree are not exact replica when it comes to 
-> > 64bit resource patches. Hence this patch is supposed to be picked by 
-> > Greg to make sure things are not broken in his tree.
-> 
-> It still breaks things as Andrew pointed out.  .end should not be set to
-> -1.
+Use cpu_relax() in __acpi_acquire_global_lock() etc.
 
-No, -1 is OK.
 
-As it turns out,
+This could be considered overkill given the previous unlikely(),
+but it is busy-looping in case of false condition after all...
 
-	unsigned long long x = ~0UL;
+Tested on 2.6.17-mm1, i386 only (no x86_64 here).
 
-sets `x' to 0xffffffffffffffff which was totally not what I expected.
+Signed-off-by: Andreas Mohr <andi@lisas.de>
 
-But -1 works, and the patch I have against your tree is OK.
 
-Could someone please fix Andy Isaacson <adi@hexapodia.org>'s bug, btw?
+diff -urN linux-2.6.17-mm1.orig/include/asm-i386/acpi.h linux-2.6.17-mm1.my/include/asm-i386/acpi.h
+--- linux-2.6.17-mm1.orig/include/asm-i386/acpi.h	2006-06-19 10:57:27.000000000 +0200
++++ linux-2.6.17-mm1.my/include/asm-i386/acpi.h	2006-06-21 14:43:24.000000000 +0200
+@@ -61,11 +61,14 @@
+ __acpi_acquire_global_lock (unsigned int *lock)
+ {
+ 	unsigned int old, new, val;
+-	do {
++	while (1) {
+ 		old = *lock;
+ 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
+ 		val = cmpxchg(lock, old, new);
+-	} while (unlikely (val != old));
++		if (likely(val == old))
++			break;
++		cpu_relax();
++	}
+ 	return (new < 3) ? -1 : 0;
+ }
+ 
+@@ -73,11 +76,14 @@
+ __acpi_release_global_lock (unsigned int *lock)
+ {
+ 	unsigned int old, new, val;
+-	do {
++	while (1) {
+ 		old = *lock;
+ 		new = old & ~0x3;
+ 		val = cmpxchg(lock, old, new);
+-	} while (unlikely (val != old));
++		if (likely(val == old))
++			break;
++		cpu_relax();
++	}
+ 	return old & 0x1;
+ }
+ 
+diff -urN linux-2.6.17-mm1.orig/include/asm-x86_64/acpi.h linux-2.6.17-mm1.my/include/asm-x86_64/acpi.h
+--- linux-2.6.17-mm1.orig/include/asm-x86_64/acpi.h	2006-06-21 14:28:19.000000000 +0200
++++ linux-2.6.17-mm1.my/include/asm-x86_64/acpi.h	2006-06-21 14:43:24.000000000 +0200
+@@ -59,11 +59,14 @@
+ __acpi_acquire_global_lock (unsigned int *lock)
+ {
+ 	unsigned int old, new, val;
+-	do {
++	while (1) {
+ 		old = *lock;
+ 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
+ 		val = cmpxchg(lock, old, new);
+-	} while (unlikely (val != old));
++		if (likely(val == old))
++			break;
++		cpu_relax();
++	}
+ 	return (new < 3) ? -1 : 0;
+ }
+ 
+@@ -75,7 +78,10 @@
+ 		old = *lock;
+ 		new = old & ~0x3;
+ 		val = cmpxchg(lock, old, new);
+-	} while (unlikely (val != old));
++		if (likely(val == old))
++			break;
++		cpu_relax();
++	}
+ 	return old & 0x1;
+ }
+ 

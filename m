@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWFUAgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWFUAkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWFUAgI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 20:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWFUAgI
+	id S1751218AbWFUAkp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 20:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWFUAkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 20:36:08 -0400
-Received: from mga06.intel.com ([134.134.136.21]:35931 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932230AbWFUAgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 20:36:05 -0400
-X-IronPort-AV: i="4.06,158,1149490800"; 
-   d="scan'208"; a="54332456:sNHT33855220"
-Date: Tue, 20 Jun 2006 17:30:18 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
-       Len Brown <len.brown@intel.com>,
-       Kimball Murray <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 0/25] Decouple IRQ issues (MSI, i386, x86_64, ia64)
-Message-ID: <20060620173017.A10402@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com>; from ebiederm@xmission.com on Tue, Jun 20, 2006 at 04:24:35PM -0600
+	Tue, 20 Jun 2006 20:40:45 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:28619 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751218AbWFUAkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 20:40:45 -0400
+Message-ID: <4498958B.504@vmware.com>
+Date: Tue, 20 Jun 2006 17:40:43 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       jeremy@xensource.com
+Subject: Re: [PATCH 2.6.17] Clean up and refactor i386 sub-architecture setup
+References: <44988803.5090305@goop.org> <44988E08.9070000@vmware.com> <449891B9.3060409@goop.org>
+In-Reply-To: <449891B9.3060409@goop.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 04:24:35PM -0600, Eric W. Biederman wrote:
-> 
-> The primary aim of this patch is to remove maintenances problems caused
-> by the irq infrastructure.  The two big issues I address are an
-> artificially small cap on the number of irqs, and that MSI assumes
-> vector == irq.  My primary focus is on x86_64 but I have touched
-> other architectures where necessary to keep them from breaking.
-> 
-The MSI portions of this patchset is similar to the MSI cleanup
-I was working on. I'll drop my patchkit and instead comment on
-the relevant patches in this kit.
+Jeremy Fitzhardinge wrote:
+> Zachary Amsden wrote:
+>> This looks awesome.   Are there any plans to get these 
+>> sub-architectures to work with the generic subarch?  Seems the next 
+>> logical step would be putting each mach-*/*.o into separated namespaces.
+>
+> I haven't looked at that.  This patch was intended to be a very simple 
+> uncontroversial rearrangement, in preparation for the Xen subarch, and 
+> to just clean up a corner of the kernel which seems to have gotten a 
+> bit warty.  Chris just sent me your patches from March which look like 
+> they cover a lot of the same ground, but I haven't looked at them in 
+> detail yet.
 
-I got a couple of minor compile errors on i386 (kernel/io_apic.c).
-I fixed them up by hand and the resulting kernel booted and
-worked with MSI in the limited testing I've done so far.
+This is cleaner than the patches I sent in March, although we want to 
+re-use parts of the mach-default code, not replace it entirely.  Hence 
+my interest in the multi-subarch generic kernel.  I'd be glad to look 
+into it.
 
-thanks,
-Rajesh
+Zach

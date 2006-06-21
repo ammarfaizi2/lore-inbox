@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWFUUir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbWFUUjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030270AbWFUUir (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 16:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWFUUiq
+	id S1030271AbWFUUjG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 16:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWFUUjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 16:38:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18598 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030270AbWFUUiq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 16:38:46 -0400
-Date: Wed, 21 Jun 2006 13:38:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: nagar@watson.ibm.com, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in
- taskstats
-Message-Id: <20060621133838.12dfa9f8.akpm@osdl.org>
-In-Reply-To: <449999D1.7000403@engr.sgi.com>
-References: <44892610.6040001@watson.ibm.com>
-	<20060609010057.e454a14f.akpm@osdl.org>
-	<448952C2.1060708@in.ibm.com>
-	<20060609042129.ae97018c.akpm@osdl.org>
-	<4489EE7C.3080007@watson.ibm.com>
-	<449999D1.7000403@engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jun 2006 16:39:06 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:24965 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1030271AbWFUUjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 16:39:04 -0400
+Date: Wed, 21 Jun 2006 22:38:34 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: andi@lisas.de
+cc: Alan Stern <stern@rowland.harvard.edu>, Bodo Eggert <7eggert@gmx.de>,
+       Andrew Morton <akpm@osdl.org>, linux-usb-devel@lists.sourceforge.net,
+       gregkh@suse.de, linux-kernel@vger.kernel.org, hal@lists.freedesktop.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner
+ underruns, USB HDD hard resets)
+In-Reply-To: <20060621191640.GA8596@rhlx01.fht-esslingen.de>
+Message-ID: <Pine.LNX.4.58.0606212231400.4403@be1.lrz>
+References: <20060621163410.GA22736@rhlx01.fht-esslingen.de>
+ <Pine.LNX.4.44L0.0606211501290.8272-100000@iolanthe.rowland.org>
+ <20060621191640.GA8596@rhlx01.fht-esslingen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 12:11:13 -0700
-Jay Lan <jlan@engr.sgi.com> wrote:
+On Wed, 21 Jun 2006, Andreas Mohr wrote:
 
-> Another observation that i considered bad news is that all
-> 10 runs produced 1 to 5 recv() error with errno=105 (ENOBUF).
+[...]
+> And the obvious question would be whether the sdkp->openers++ thingy
+> could somehow be extended to enclose all hardware device users so that
+> e.g. sr.c wouldn't send ALLOW_MEDIUM_REMOVAL on a device already locked
+> by e.g. the sd.c driver.
+> Difficult question, though, since the group of drivers possible to use
+> with a certain device is not a static set:
+> it could be via
+> - sr.c
+> - sd.c
+> - IDE (in the case of ATA devices mapped via ide-scsi)
 
-Well that's rather bad.  AFAICT most of the allocations in there are
-GFP_KERNEL, so why is this happening?
+> Is it possible to have such a per-*hardware*-device instance in the kernel
+> to keep track of various things such as number of device openers?
+> I'll do some investigation myself, too...
 
-Because the kernel is producing netlink messages faster than userspace can
-consume them, perhaps?  If so, the sender needs to block, which means we
-need to make reception of these stats a privileged operation?
+The sg part should be implemented by each SCSI device, reducing the 
+current sg device to a mostly empty shell. Then you can prevent that
+empty shell from binding to devices having more specific drivers.
+-- 
+Top 100 things you don't want the sysadmin to say:
+30. And what does it mean 'rm: .o: No such file or directory'?

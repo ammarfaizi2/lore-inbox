@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751983AbWFUE3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWFUEbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751983AbWFUE3O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 00:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWFUE3O
+	id S1750870AbWFUEbA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 00:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751985AbWFUEbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 00:29:14 -0400
-Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:17596 "EHLO
-	mail6.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751983AbWFUE3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 00:29:13 -0400
-Date: Wed, 21 Jun 2006 00:29:11 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
-       David Quigley <dpquigl@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>,
-       pj@sgi.com
-Subject: [PATCH 1/2] SELinux: Add security hooks to {get,set}affinity
-Message-ID: <Pine.LNX.4.64.0606210016370.5379@d.namei>
+	Wed, 21 Jun 2006 00:31:00 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:5060 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750870AbWFUEa7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 00:30:59 -0400
+Message-ID: <4498CB6F.9000003@zytor.com>
+Date: Tue, 20 Jun 2006 21:30:39 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Kyle McMartin <kyle@parisc-linux.org>, jeremy@goop.org,
+       linux-kernel@vger.kernel.org, Christian.Limpach@cl.cam.ac.uk,
+       chrisw@sous-sol.org
+Subject: Re: [PATCH] Implement kasprintf
+References: <44988B5C.9080400@goop.org>	<20060621030444.GG20625@skunkworks.cabal.ca> <20060620202617.f39d7ca6.akpm@osdl.org>
+In-Reply-To: <20060620202617.f39d7ca6.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Quigley <dpquigl@tycho.nsa.gov>
+Andrew Morton wrote:
+> On Tue, 20 Jun 2006 23:04:44 -0400
+> Kyle McMartin <kyle@parisc-linux.org> wrote:
+> 
+>> On Tue, Jun 20, 2006 at 04:57:16PM -0700, Jeremy Fitzhardinge wrote:
+>>> +char *kasprintf(gfp_t gfp, const char *fmt, ...)
+>>> +{
+>> Why not just asprintf? We don't have ksprintf... 
+> asprintf() doesn't take a gfp_t arg.
+> 
 
-This patch adds LSM hooks into the setaffinity and getaffinity functions 
-to enable security modules to control these operations between tasks with 
-different security attributes. This implementation uses the existing 
-task_setscheduler and task_getscheduler LSM hooks.
+Or, more generally: if we change the API, change the name.  kmalloc() is 
+different from malloc() as it is invoked differently, as is kasprintf().
 
-This is aimed at 2.6.18 inclusion to cover new code currently unmediated 
-by SELinux.
+printk() was arguably a mistake, although it's semi-justified a posteori 
+since it takes the priority pseudo-argument now.
 
-Please apply.
-
-Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: James Morrisj <jmorris@namei.org>
-
----
-
-kernel/sched.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff -uprN -X /home/dpquigl/dontdiff linux-2.6.17-rc6-mm2/kernel/sched.c linux-2.6.17-rc6-mm2-affinity/kernel/sched.c
---- linux-2.6.17-rc6-mm2/kernel/sched.c	2006-06-15 09:46:28.000000000 -0400
-+++ linux-2.6.17-rc6-mm2-affinity/kernel/sched.c	2006-06-15 09:51:55.000000000 -0400
-@@ -4266,6 +4266,10 @@ long sched_setaffinity(pid_t pid, cpumas
- 			!capable(CAP_SYS_NICE))
- 		goto out_unlock;
- 
-+	retval = security_task_setscheduler(p, 0, NULL);
-+	if (retval)
-+		goto out_unlock;
-+
- 	cpus_allowed = cpuset_cpus_allowed(p);
- 	cpus_and(new_mask, new_mask, cpus_allowed);
- 	retval = set_cpus_allowed(p, new_mask);
-@@ -4334,7 +4338,10 @@ long sched_getaffinity(pid_t pid, cpumas
- 	if (!p)
- 		goto out_unlock;
- 
--	retval = 0;
-+	retval = security_task_getscheduler(p);
-+	if (retval)
-+		goto out_unlock;
-+
- 	cpus_and(*mask, p->cpus_allowed, cpu_online_map);
- 
- out_unlock:
-
-
+	-hpa

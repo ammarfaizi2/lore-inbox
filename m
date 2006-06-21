@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWFUWcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWFUWfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751501AbWFUWcd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 18:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWFUWcd
+	id S1030317AbWFUWfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 18:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbWFUWfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 18:32:33 -0400
-Received: from mx1.suse.de ([195.135.220.2]:27338 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751501AbWFUWcc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 18:32:32 -0400
-From: Andi Kleen <ak@suse.de>
-To: Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: [RFC] PCI extended conf space when MMCONFIG disabled because of e820
-Date: Thu, 22 Jun 2006 00:32:19 +0200
-User-Agent: KMail/1.9.3
-Cc: Arjan van de Ven <arjan@linux.intel.com>, Brice Goglin <brice@myri.com>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <44907A8E.1080308@myri.com> <4491029D.4060002@linux.intel.com> <20060621151942.A17228@unix-os.sc.intel.com>
-In-Reply-To: <20060621151942.A17228@unix-os.sc.intel.com>
+	Wed, 21 Jun 2006 18:35:16 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:58818 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030317AbWFUWfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 18:35:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=EdDIhTW5/PHEQo1LZoUvRR7EEcDUMskjUEYxhJdT2Oi12E4ZFSnhaTC7gp1eXoM36buLBn2tBO1uvfc2GnNzFYSHe3WUqSzaKCOg9Z0UFKdTYicwFXQg3mQbC8Lg0ON2H1JjfliHfyM/PtRl8zjkxMN6U2zeXzkshdt7desn7Kc=
+Date: Thu, 22 Jun 2006 00:35:14 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Esben Nielsen <nielsen.esben@gogglemail.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <1150922007.25491.24.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606212341410.10077@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+  <1150816429.6780.222.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain> 
+ <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com> 
+ <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain> 
+ <1150824092.6780.255.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606202217160.11643@localhost.localdomain> 
+ <Pine.LNX.4.58.0606210418160.29673@gandalf.stny.rr.com> 
+ <Pine.LNX.4.64.0606211204220.10723@localhost.localdomain> 
+ <Pine.LNX.4.64.0606211638560.6572@localhost.localdomain> 
+ <1150907165.25491.4.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0606212226291.7939@localhost.localdomain>
+ <1150922007.25491.24.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606220032.19388.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 June 2006 00:19, Rajesh Shah wrote:
-> On Wed, Jun 14, 2006 at 11:47:57PM -0700, Arjan van de Ven wrote:
-> > 
-> > > We need to improve this "mmconfig disabled" anyhow. Having the extended
-> > > config space unavailable on lots of machines is also far from a viable
-> > > solution :)
-> > 
-> > it's unlikely to be many machines though.
-> > 
-> I just noticed today - this check killed PCI Express on 3 of the 4
-> machines I normally use for testing.
+On Wed, 21 Jun 2006, Thomas Gleixner wrote:
 
-What do you mean with killed PCI Express? PCI Express should
-work even without extended config space, except error handling.
+> On Wed, 2006-06-21 at 22:29 +0100, Esben Nielsen wrote:
+>>> Find an version against the code in -mm below. Not too much tested yet.
+>>
+>> What if setscheduler is called from interrup context as in the hrt timers?
+>
+> It simply gets stuff going, nothing else.
+>
+What I mean is that we will then do the full priority inheritance boost 
+with interrupts off.
 
-Error handling seems to be still a quite obscure feature,
-not used by many people - so booting is more important than
-supporting it. Still would be good to support it of course.
+Before setscheduler() was O(1), now it is O(<lock depth of what ever lock 
+the target task might be locked on>).
 
-You're saying that you have lots of machines where the mmconfig
-aperture is not fully reserved in e820?
-
-Is it partially reserved (not for all busses) or not at all?
+This is not a problem for your use of setscheduler() as the task involved 
+only can be blocked on kernel mutexes, but when the function is used on a 
+userspace process the lock depth can be deep.
 
 
-> Sure enough, the ACPI namespace for the "broken" machines lists
-> the MMCFG resources as indicated above, and PCI Express works fine
-> otherwise. I haven't looked yet whether it's possible to add this
-> check in the code, have you looked into that option? I understand
-> the PCI firmware spec is not necessarily the final authority on
-> this, but a _lot_ of BIOS developers read that to figure out what
-> to do...
+Esben
 
-If someone does a patch to double check it against the ACPI name space
-I'm not opposed to let it overrule the e820 heuristic.
 
-The point of this code is to pragmatically detect BIOS with obviously 
-broken setups. It's not about standards lawyering.
-
--Andi
- 
+> 	tglx
+>
+>

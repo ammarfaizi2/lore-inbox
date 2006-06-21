@@ -1,98 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWFUVgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWFUVhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbWFUVgE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932714AbWFUVgE
+	id S1751262AbWFUVhj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWFUVhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:36:04 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:15331 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932504AbWFUVgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:36:02 -0400
-Date: Wed, 21 Jun 2006 17:36:00 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-       Eric Paris <eparis@redhat.com>, David Quigley <dpquigl@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: [PATCH 2/3] SELinux: add security_task_movememory calls to mm code
-In-Reply-To: <Pine.LNX.4.64.0606211730540.12872@d.namei>
-Message-ID: <Pine.LNX.4.64.0606211734480.12872@d.namei>
-References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
- <Pine.LNX.4.64.0606211730540.12872@d.namei>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Jun 2006 17:37:39 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:31658 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751262AbWFUVhi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:37:38 -0400
+Subject: Re: [Lse-tech] [PATCH 00/11] Task watchers:  Introduction
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, Shailabh Nagar <nagar@watson.ibm.com>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
+       "John T. Kohl" <jtk@us.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Jes Sorensen <jes@sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       LSE <lse-tech@lists.sourceforge.net>
+In-Reply-To: <4499222A.5090403@bigpond.net.au>
+References: <1150242721.21787.138.camel@stark>
+	 <20060619032453.2c19e32c.akpm@osdl.org> <1150878929.21787.956.camel@stark>
+	 <20060621020754.59dd42c6.akpm@osdl.org> <1150881185.21787.980.camel@stark>
+	 <4499222A.5090403@bigpond.net.au>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 14:32:10 -0700
+Message-Id: <1150925530.21787.1060.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Quigley <dpquigl@tycho.nsa.gov>
+On Wed, 2006-06-21 at 20:40 +1000, Peter Williams wrote:
+> Matt Helsley wrote:
+> > On Wed, 2006-06-21 at 02:07 -0700, Andrew Morton wrote:
+> >> On Wed, 21 Jun 2006 01:35:29 -0700
+> >> Matt Helsley <matthltc@us.ibm.com> wrote:
 
-This patch inserts security_task_movememory hook calls into memory
-management code to enable security modules to mediate this operation
-between tasks.
+<snip>
 
-Since the last posting, the hook has been renamed following feedback from
-Christoph Lameter.
+> >>> Alternately,
+> >>> I could produce patches that apply on top of the current set.
+> >> It depends on how many of the existing patches are affected.  If it's just
+> >> one or two then an increment would be fine.  If it's everything then a new
+> >> patchset I guess.
+> > 
+> > It would affect most of them -- I'd need to change the bits that
+> > register a notifier block. So I'll make a separate series.
+> 
+> How about making WATCH_TASK_INIT and friends flags so that clients can 
+> then pass a mask (probably part of the notifier_block) that specifies 
+> which ones they wish to be notified of.  This would save unnecessary 
+> function calls.
+> 
+> Peter
 
-This patch is aimed at 2.6.18 inclusion.
+	Yes, I was considering that. However, I realized that it still would
+involve either multiple notifier blocks or significant, non-intuitive
+changes in the notifier chain code so that one notifier block could be
+registered on multiple chains.
 
-Please apply.
+	I'll keep this suggestion in mind.
 
-Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: James Morris <jmorris@namei.org>
+Cheers,
+	-Matt Helsley
 
-
----
-
- mm/mempolicy.c |    5 +++++
- mm/migrate.c   |    6 ++++++
- 2 files changed, 11 insertions(+)
-
-diff -purN -X dontdiff linux-2.6.17-mm1.p/mm/mempolicy.c linux-2.6.17-mm1.w/mm/mempolicy.c
---- linux-2.6.17-mm1.p/mm/mempolicy.c	2006-06-21 11:54:12.000000000 -0400
-+++ linux-2.6.17-mm1.w/mm/mempolicy.c	2006-06-21 17:18:00.000000000 -0400
-@@ -88,6 +88,7 @@
- #include <linux/proc_fs.h>
- #include <linux/migrate.h>
- #include <linux/rmap.h>
-+#include <linux/security.h>
- 
- #include <asm/tlbflush.h>
- #include <asm/uaccess.h>
-@@ -946,6 +947,10 @@ asmlinkage long sys_migrate_pages(pid_t 
- 		goto out;
- 	}
- 
-+	err = security_task_movememory(task);
-+	if (err)
-+		goto out;
-+
- 	err = do_migrate_pages(mm, &old, &new,
- 		capable(CAP_SYS_NICE) ? MPOL_MF_MOVE_ALL : MPOL_MF_MOVE);
- out:
-diff -purN -X dontdiff linux-2.6.17-mm1.p/mm/migrate.c linux-2.6.17-mm1.w/mm/migrate.c
---- linux-2.6.17-mm1.p/mm/migrate.c	2006-06-21 11:54:12.000000000 -0400
-+++ linux-2.6.17-mm1.w/mm/migrate.c	2006-06-21 17:17:52.000000000 -0400
-@@ -27,6 +27,7 @@
- #include <linux/writeback.h>
- #include <linux/mempolicy.h>
- #include <linux/vmalloc.h>
-+#include <linux/security.h>
- 
- #include "internal.h"
- 
-@@ -903,6 +904,11 @@ asmlinkage long sys_move_pages(pid_t pid
- 		goto out2;
- 	}
- 
-+ 	err = security_task_movememory(task);
-+ 	if (err)
-+ 		goto out2;
-+ 	
-+
- 	task_nodes = cpuset_mems_allowed(task);
- 
- 	/* Limit nr_pages so that the multiplication may not overflow */

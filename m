@@ -1,74 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWFUMBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWFUMFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751507AbWFUMBf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 08:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWFUMBf
+	id S1751175AbWFUMFd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 08:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWFUMFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 08:01:35 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:64737 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S1751507AbWFUMBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 08:01:34 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [git pull] ieee1394 tree for 2.6.18
-References: <44954102.3090901@s5r6.in-berlin.de>
-	<Pine.LNX.4.64.0606191902350.5498@g5.osdl.org>
-	<4497D014.1050704@s5r6.in-berlin.de>
-	<Pine.LNX.4.64.0606202001520.5498@g5.osdl.org>
-	<1150871560.4517.13.camel@grayson>
-	<44991622.2000109@s5r6.in-berlin.de>
-cc: Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux1394-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ben Collins <bcollins@ubuntu.com>
-Date: Wed, 21 Jun 2006 05:01:32 -0700
-In-Reply-To: <44991622.2000109@s5r6.in-berlin.de> (Stefan Richter's message of
-	"Wed, 21 Jun 2006 11:49:22 +0200")
-Message-ID: <7v7j3azpib.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jun 2006 08:05:33 -0400
+Received: from soundwarez.org ([217.160.171.123]:23694 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1751175AbWFUMFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 08:05:32 -0400
+Subject: Re: udev bluez
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: "Robert M. Stockmann" <stock@stokkie.net>
+Cc: linux-kernel@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0606201759140.11776-100000@hubble.stokkie.net>
+References: <Pine.LNX.4.44.0606201759140.11776-100000@hubble.stokkie.net>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 14:06:47 +0200
+Message-Id: <1150891607.3224.25.camel@pim.off.vrfy.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter <stefanr@s5r6.in-berlin.de> writes:
+On Tue, 2006-06-20 at 18:11 +0200, Robert M. Stockmann wrote:
+> It seems the story of the greatest piece of software ever written
+> is being hit by the bluez of having to support too many seperate
+> addon hardware devices, which the coders themselves in many cases
+> never heard of. Until the udev problems showup.
+> 
+> The key piece of trouble is udev which has nowadays has to run
+> in close cooperation with a daemon called hald.
 
-> A related question: If a patch written by author A is forwarded via
-> e-mail by person B to git tree maintainer C, and C imports the mail with
-> git-am or git-applymbox --- will git catch the _last_ "From: " line
-> (hopefully listing the address of A) or the first "From: " line (which
-> contains the forwarding address of B) as author of the patch?
->
-> Similarly, will it care for the last or first "Subject: " line? (The
-> first line being the actual mail header, the last being a line in the
-> mail body or a line in a plain-text encoded attachment, that is.)
+No, HAL receives device events the kernel sends out trough udev. That's
+all, there is no dependency on HAL, or information flowing back from HAL
+to udev. HAL is just a consumer of the udev events, like some other
+services too.
 
-The main question was answered by Ben, so this may be a bit
-offtopic, but I'll answer git questions anyway.
+> I wonder if linux is
+> trying to solve the problems of 'broken by design' addon hardware?
+> To me it just looks like polishing up a can of maggots.
 
-The author-name-email, subject, and author-date are taken from
-the RFC2822 headers of the e-mail the committer feeds git-am,
-but you can override them by having "From: ", "Subject: ", and
-"Date: " as the first lines of the message body, like this:
+Well, that's the very nature of hardware, to be broken if you look at it
+from that angle. :)
 
-    From: "For W. Arder" <forwarder@example.com>
-    Date: Wed, 21 Jun 2006 11:49:22 +0200
-    Subject: forwarding patch (was Re: ieee1394)
-    Message-ID: ...
+> The most evil category seem to be USB camara's , photo devices, etc.
 
-    From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-    Date: Mon Jun 12 18:16:25 2006 -0400
-    Subject: eth1394: replace __constant_htons by htons
+We are not aware of any general problem here, if your distro or software
+stack doesn't solve that for you, try to fix it or just take a look at a
+working setup. It works nicely for quite some time.
 
-    ...and __constant_ntohs, __constant_ntohl, __constant_cpu_to_be32 too
-    where possible.  Htons and friends are resolved to constants in these
-    places anyway.  Also fix an endianess glitch in a log message, spotted
-    by Alexey Dobriyan.
+> "I've even created a standalone udev rule - 
+>   BUS="usb", SYSFS{idVendor}=="04a9", SYSFS{idProduct}=="3113",
+>   MODE="0660", GROUP="camera", NAME="canon", SYMLINK="camera
+> 
+> "aah canon ... with a canon you can't!"
 
-    Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Udev does not know what kind of device you have connected, it's just a
+dumb usb device, you can't solve that in a generic way at that level.
+Just completely forget device node names for devices like this, it can
+only work for very custom setups at the udev level.
 
-Note that the latter three header-looking lines are not RFC2822
-headers but part of your (eh, Mr Arder's) message body.
+> So is there a smart way out of this mess?
+
+That's already solved. Use HAL to get your device list. HAL identifies
+and classifies all common devices and offers you an interface to query
+these classifications and subscribe to events to get notified about
+device state changes. It usually even provides you with the supported
+method to access the content on the device.
+
+Monitor device changes:
+  $ lshal --monitor
+  Start monitoring devicelist:
+  -------------------------------------------------
+  usb_device_4a9_30fe_noserial added
+  usb_device_4a9_30fe_noserial_if0 added
+  usb_device_4a9_30fe_noserial_usbraw added
+
+Or lookup all camera's:
+  $ hal-find-by-capability --capability camera
+  /org/freedesktop/Hal/devices/usb_device_4a9_30fe_noserial_if0
+
+And get information about it:
+  $ lshal --long --show /org/freedesktop/Hal/devices/usb_device_4a9_30fe_noserial_if0
+  udi = '/org/freedesktop/Hal/devices/usb_device_4a9_30fe_noserial_if0'
+  camera.access_method = 'ptp'  (string)
+  camera.libgphoto2.name = 'USB PTP Class Camera'  (string)
+  camera.libgphoto2.support = true  (bool)
+  info.bus = 'usb'  (string)
+  info.capabilities = {'camera'} (string list)
+  info.category = 'camera'  (string)
+  info.parent = '/org/freedesktop/Hal/devices/usb_device_4a9_30fe_noserial'  (string)
+  info.product = 'USB Imaging Interface'  (string)
+  info.udi = '/org/freedesktop/Hal/devices/usb_device_4a9_30fe_noserial_if0'  (string)
+  linux.subsystem = 'usb'  (string)
+  linux.sysfs_path = '/sys/devices/pci0000:00/0000:00:1d.7/usb1/1-3/1-3:1.0'  (string)
+  linux.sysfs_path_device = '/sys/devices/pci0000:00/0000:00:1d.7/usb1/1-3/1-3:1.0'  (string)
+  usb.bus_number = 1  (0x1)  (int)
+  usb.configuration_value = 1  (0x1)  (int)
+  usb.device_class = 0  (0x0)  (int)
+  usb.device_protocol = 0  (0x0)  (int)
+  usb.device_revision_bcd = 2  (0x2)  (int)
+  usb.device_subclass = 0  (0x0)  (int)
+  usb.interface.class = 6  (0x6)  (int)
+  usb.interface.number = 0  (0x0)  (int)
+  usb.interface.protocol = 1  (0x1)  (int)
+  usb.vendor = 'Canon, Inc.'  (string)
+  usb.vendor_id = 1193  (0x4a9)  (int)
+  ...
+
+
+Kay
 

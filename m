@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWFULeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWFULhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWFULeF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 07:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWFULeF
+	id S932090AbWFULhU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 07:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWFULhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 07:34:05 -0400
-Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:17600 "EHLO
-	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751332AbWFULeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 07:34:04 -0400
-Message-ID: <44992EAA.6060805@bigpond.net.au>
-Date: Wed, 21 Jun 2006 21:34:02 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Matt Helsley <matthltc@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: [PATCH 00/11] Task watchers:  Introduction
-References: <1150242721.21787.138.camel@stark>	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>
-In-Reply-To: <1150876292.21787.911.camel@stark>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 21 Jun 2006 07:37:20 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38887 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751332AbWFULhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 07:37:19 -0400
+Subject: Re: [PATCH] moxa: do not ignore input
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergei Organov <osv@javad.com>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Alan Cox <alan@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
+       rmk+serial@arm.linux.org.uk
+In-Reply-To: <87y7vrpwzr.fsf@javad.com>
+References: <200506021220.47138.vda@ilport.com.ua>
+	 <200506021554.07316.vda@ilport.com.ua>
+	 <20050602225805.GB9628@devserv.devel.redhat.com>
+	 <200506031601.21180.vda@ilport.com.ua>  <87y7vrpwzr.fsf@javad.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 21 Jun 2006 11:34:02 +0000
+Date: Wed, 21 Jun 2006 12:51:44 +0100
+Message-Id: <1150890705.15275.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley wrote:
-> On Wed, 2006-06-21 at 15:41 +1000, Peter Williams wrote:
->> On a related note, I can't see where the new task's notify field gets 
->> initialized during fork.
+Ar Maw, 2006-06-20 am 21:17 +0400, ysgrifennodd Sergei Organov:
+> This is on 2.6.14 kernel though, -- didn't try with more recent kernels
+> as I have other troubles with them on my hardware/distribution.
 > 
-> It's initialized in kernel/sys.c:notify_per_task_watchers(), which calls
-> RAW_INIT_NOTIFIER_HEAD(&task->notify) in response to WATCH_TASK_INIT.
+> Not a big deal, but you've asked yourself ;)
 
-I think that's too late.  It needs to be done at the start of 
-notify_watchers() before any other watchers are called for the new task.
+What does "dmesg" show for the Oops that caused the segfault ?
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

@@ -1,22 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWFUV5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWFUV5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbWFUV5d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWFUV5d
+	id S1030323AbWFUV5V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWFUV5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:57:33 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48394 "HELO
+	Wed, 21 Jun 2006 17:57:20 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46602 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030328AbWFUV5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:57:30 -0400
-Date: Wed, 21 Jun 2006 23:57:29 +0200
+	id S1030321AbWFUV5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:57:18 -0400
+Date: Wed, 21 Jun 2006 23:57:17 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Thomas Kleffel <tk@maintech.de>,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-ide@vger.kernel.org
-Subject: [-mm patch] drivers/ide/legacy/ide-cs.c: make 2 functions static
-Message-ID: <20060621215729.GL9111@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: [-mm patch] drivers/acpi/scan.c: make acpi_bus_type static
+Message-ID: <20060621215717.GJ9111@stusta.de>
 References: <20060621034857.35cfe36f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -30,34 +28,28 @@ On Wed, Jun 21, 2006 at 03:48:57AM -0700, Andrew Morton wrote:
 >...
 > Changes since 2.6.17-rc6-mm2:
 >...
->  git-pcmcia.patch
+>  git-acpi.patch
 >...
 >  git trees
 >...
 
-This patch makes two needlessly global functions static.
- 
+This patch makes the needlessly global acpi_bus_type static.
+
+I'd also suggest to rename this struct, since although it's named 
+acpi_bus_type, it's of type "struct bus_type",
+not "struct acpi_bus_type" as defined in include/acpi/acpi_bus.h .
+
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- drivers/ide/legacy/ide-cs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.17-mm1-full/drivers/ide/legacy/ide-cs.c.old	2006-06-21 22:54:20.000000000 +0200
-+++ linux-2.6.17-mm1-full/drivers/ide/legacy/ide-cs.c	2006-06-21 22:54:37.000000000 +0200
-@@ -170,11 +170,11 @@
-         return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
+--- linux-2.6.17-mm1-full/drivers/acpi/scan.c.old	2006-06-21 22:35:30.000000000 +0200
++++ linux-2.6.17-mm1-full/drivers/acpi/scan.c	2006-06-21 22:35:40.000000000 +0200
+@@ -1450,7 +1450,7 @@
  }
  
--void outb_io(unsigned char value, unsigned long port) {
-+static void outb_io(unsigned char value, unsigned long port) {
- 	outb(value, port);
- }
  
--void outb_mem(unsigned char value, unsigned long port) {
-+static void outb_mem(unsigned char value, unsigned long port) {
- 	writeb(value, (void __iomem *) port);
- }
- 
+-struct bus_type acpi_bus_type = {
++static struct bus_type acpi_bus_type = {
+ 	.name		= "acpi",
+ 	.suspend	= acpi_device_suspend,
+ 	.resume		= acpi_device_resume,
 

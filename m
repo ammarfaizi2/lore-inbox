@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWFUIXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWFUI1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWFUIXM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 04:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWFUIXM
+	id S932491AbWFUI1b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 04:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWFUI1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 04:23:12 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:18837 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S932485AbWFUIXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 04:23:10 -0400
-Subject: Re: Sanitise ethtool.h and mii.h for userspace.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <44989E63.9010300@garzik.org>
-References: <200606202308.k5KN83bT013398@hera.kernel.org>
-	 <44989E63.9010300@garzik.org>
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 09:23:03 +0100
-Message-Id: <1150878183.3176.551.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.1.dwmw2.2) 
+	Wed, 21 Jun 2006 04:27:31 -0400
+Received: from tedsautoline.com ([69.222.0.225]:46820 "HELO
+	mail.webhostingstar.com") by vger.kernel.org with SMTP
+	id S932491AbWFUI1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 04:27:30 -0400
+Message-ID: <20060621031742.7tlid5zm4kgg4488@69.222.0.225>
+Date: Wed, 21 Jun 2006 03:17:42 -0500
+From: art@usfltd.com
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel-x64-smp-multiprocessor-time util problem
+References: <20060619180413.qlgd1oj9etmosckg@69.222.0.225>
+	<1150759021.3043.33.camel@gimli.at.home>
+In-Reply-To: <1150759021.3043.33.camel@gimli.at.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Internet Messaging Program (IMP) H3 (4.1.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-20 at 21:18 -0400, Jeff Garzik wrote:
-> How can reviewers make an informed decision, when you completely failed 
-> to note:
-> 
-> * This breaks the primary userspace user of this header, ethtool(8)
+Quoting Bernd Petrovitsch <bernd@firmix.at>:
 
-I cannot reproduce with either an ethtool-3 tarball or a fresh checkout
-from your git tree. Can you show me the error?
+> On Mon, 2006-06-19 at 18:04 -0500, art@usfltd.com wrote:
+>> on dual core amd-athlon under 64bit-smp core
+>>
+>> kernel compilation time:
+>>
+>> time make -j 8
+>> ...
+>> LD [M]  sound/usb/snd-usb-lib.ko
+>> LD [M]  sound/usb/usx2y/snd-usb-usx2y.ko
+>>
+>> real    18m0.948s
+>> user    26m6.270s    ------bad
+>> sys     4m22.256s    ------?bad
+>> [xxx@localhost linux-2.6.17]$
+>> --- real-clock time  is ~18 min -- user and system time doubled?
+>
+> How many virtual CPUs (i.e. HT is "2 CPUs") do you have in that machine?
+>
+> 	Bernd
+> --
+> Firmix Software GmbH                   http://www.firmix.at/
+> mobil: +43 664 4416156                 fax: +43 1 7890849-55
+>           Embedded Linux Development and Services
+>
+------------------------------------------------
 
-It's a somewhat surprising allegation, because ethtool doesn't even
-_use_ the header directly from the kernel. It has its own copy, and
-currently includes it like this...
+1 CPU 2 cores = 2 (amd athlon x2 4200+)
 
-typedef unsigned long long u64;         /* hack, so we may include kernel's ethtool.h */
-typedef __uint32_t u32;         /* ditto */
-typedef __uint16_t u16;         /* ditto */
-typedef __uint8_t u8;           /* ditto */
-#include "ethtool-copy.h"
+xboom
 
-> * The patch was NAK'd (and I don't even get a "Naked-by:" header :))
-
-Sorry, my recollection was that you backed down after everyone turned on
-you and declared that "but I _want_ to use 'u32' for userspace stuff
-because underscores hurt my eyes" was too silly for words. You didn't
-get a mention in the commit comment because I'd already committed it by
-the time we had the discussion. But I did mention it to Andrew at the
-time I asked him to put the hdrcleanup tree into -mm, and he seemed
-perfectly happy with the change.
-
-> * Despite knowing all this for quite some time, no associated userspace 
-> fix patch has ever appeared.
-
-That's because to the best of my knowledge, userspace doesn't _need_ any
-fix at the moment. We've built the whole of the Fedora Core 6 test 1
-release against (a subset of) these headers, and that includes ethtool.
-
-> If you are going to break stuff, AT LEAST TELL PEOPLE IN ALL CAPS ABOUT 
-> IT, rather than providing the highly deceptive description as above. 
-> And be courteous enough to help fix the breakage, if you please. 
-
-If I break stuff, I promise I'll bear that in mind.
-
--- 
-dwmw2
-
+art@usfltd.con

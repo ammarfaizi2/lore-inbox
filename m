@@ -1,40 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWFUUWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWFUUWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751420AbWFUUWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 16:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWFUUWn
+	id S1751436AbWFUUWg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 16:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFUUWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 16:22:43 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:3512 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751420AbWFUUWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 16:22:42 -0400
-Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner
-	underruns, USB HDD hard resets)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: andi@lisas.de, Bodo Eggert <7eggert@gmx.de>, Andrew Morton <akpm@osdl.org>,
-       linux-usb-devel@lists.sourceforge.net, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, hal@lists.freedesktop.org
-In-Reply-To: <Pine.LNX.4.44L0.0606211501290.8272-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0606211501290.8272-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 21 Jun 2006 21:37:35 +0100
-Message-Id: <1150922255.15275.114.camel@localhost.localdomain>
+	Wed, 21 Jun 2006 16:22:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:34721 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751436AbWFUUWf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 16:22:35 -0400
+Date: Wed, 21 Jun 2006 13:22:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64bit resources start end value fix
+Message-Id: <20060621132227.ec401f93.akpm@osdl.org>
+In-Reply-To: <20060621172903.GC9423@in.ibm.com>
+References: <20060621172903.GC9423@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-06-21 am 15:02 -0400, ysgrifennodd Alan Stern:
-> It's not a USB issue; it's a matter of lack of coordination between the sg 
-> and sr drivers.  Each is unaware of the actions of the other, even when 
-> they are speaking to the same device.
+On Wed, 21 Jun 2006 13:29:03 -0400
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
-Thats a relevant issue but sg is irrelevant for cd burning except with
-various ancient software setups. Probably sg/sr should share the O_EXCL
-locking but its not part of the cd burning stuff for modern setups.
+> Hi Greg,
+> 
+> While changing 64bit kconfig options to CONFIG_RESOURCES_64BIT, I forgot
+> to update the values of start and end fields in ioport_resource and
+> iomem_resource.
+> 
+> Following patch applies on top of your reworked 64 bit patches and
+> is based on Andrew Morton's patch. Please apply.
+> 
+> http://marc.theaimsgroup.com/?l=linux-mm-commits&m=115087406130723&w=2
+> 
+> Thanks
+> Vivek
+> 
+> 
+> 
+> o Update start and end fields for 32bit and 64bit resources.
+> 
+> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> ---
+> 
+>  linux-2.6.17-1M-vivek/kernel/resource.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff -puN kernel/resource.c~64bit-resources-start-end-value-fix kernel/resource.c
+> --- linux-2.6.17-1M/kernel/resource.c~64bit-resources-start-end-value-fix	2006-06-21 12:43:43.000000000 -0400
+> +++ linux-2.6.17-1M-vivek/kernel/resource.c	2006-06-21 12:44:59.000000000 -0400
+> @@ -23,7 +23,7 @@
+>  
+>  struct resource ioport_resource = {
+>  	.name	= "PCI IO",
+> -	.start	= 0x0000,
+> +	.start	= 0,
+>  	.end	= IO_SPACE_LIMIT,
+>  	.flags	= IORESOURCE_IO,
+>  };
+> @@ -32,8 +32,8 @@ EXPORT_SYMBOL(ioport_resource);
+>  
+>  struct resource iomem_resource = {
+>  	.name	= "PCI mem",
+> -	.start	= 0UL,
+> -	.end	= ~0UL,
+> +	.start	= 0,
+> +	.end	= -1,
+>  	.flags	= IORESOURCE_MEM,
+>  };
+>  
 
-Alan
+Confused.  This patch won't apply.  It will apply with `patch -R', and if
+you do that you'll break iomem_reosurce.end by setting it to
+0x00000000ffffffff.
 
+I don't think any additional changes are needed here.

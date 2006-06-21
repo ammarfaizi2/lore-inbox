@@ -1,194 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWFUK7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWFULHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751482AbWFUK7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 06:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWFUK7Y
+	id S1751499AbWFULHm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 07:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWFULHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 06:59:24 -0400
-Received: from ACaen-151-1-58-69.w86-205.abo.wanadoo.fr ([86.205.201.69]:52378
-	"EHLO mint") by vger.kernel.org with ESMTP id S1751482AbWFUK7Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 06:59:24 -0400
-Date: Tue, 20 Jun 2006 15:03:41 +0200
-From: Jean-Daniel Pauget <jd@disjunkt.com>
-To: linux-kernel-owner@vger.kernel.org
-Cc: john stultz <johnstul@us.ibm.com>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       bert hubert <bert.hubert@netherlabs.nl>, george@mvista.com
-Subject: Re: Linux 2.6.17: PM-Timer bug warning?
-Message-ID: <20060620130341.GC5040@disjunkt.com>
-References: <20060620100800.GB5040@disjunkt.com> <20060620101946.GA32658@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 21 Jun 2006 07:07:42 -0400
+Received: from wr-out-0506.google.com ([64.233.184.228]:10741 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751499AbWFULHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 07:07:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y7Wqv1Oawio2NkLTlTOuhu0sudL9W8Bk7x+wIlEZBYtldJtWqbWBqmuvfhxuI8O0xwc6kCxnx6qVKvpoAsOM/1R31h3grHp4/DBl7w+JOg1o0+LgelJR1Oi5VEDxk4/TZ7NevK3MUfWZP8U9NGINodMDBobEBdX2VJLTj4NGFwU=
+Message-ID: <6bffcb0e0606210407y781b3d41nef533847f579520b@mail.gmail.com>
+Date: Wed, 21 Jun 2006 13:07:41 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-mm1
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060620101946.GA32658@rhlx01.fht-esslingen.de>
-User-Agent: Mutt/1.5.9i
+References: <20060621034857.35cfe36f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 12:19:46PM +0200, Andreas Mohr wrote:
-> On Tue, Jun 20, 2006 at 12:08:00PM +0200, Jean-Daniel Pauget wrote:
-> >     though my hardware is in the gray list, it didn't trigger the bug 
-> >     with OGAWA's test.
-> [dual P4 Xeon board]
-> Interesting, so it likely isn't buggy.
-> Could you give lspci -v -v or so (to let us see chipset and revisions)?
-> Oh wait, you already did:
->  (.../...)
+Hi,
 
-    oups sorry, I think my post interfered with Chris Rankin's post.
+On 21/06/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
+>
+>
+> - powerpc is bust (on g5, at least).  git-klibc is causing nash to fail on
+>   startup and some later patch is causing a big crash (I didn't bisect that
+>   one - later).
+>
+> - ia64 doesn't compile for me, due to git-klibc problems (a truly ancient
+>   toolchain might be implicated).
+>
 
-    my board is single cpu-ed (asus p4pe), gray-listed but OGAWA's test 
-    doesn't trigger the bug :
+I have the similar problem here
 
-myboard@asus-p4pe# lspci -v -v
+usr/klibc/syscalls/typesize.c:1:23: error: syscommon.h: No such file
+or directory
+usr/klibc/syscalls/typesize.c:5: error: '__u32' undeclared here (not
+in a function)
+usr/klibc/syscalls/typesize.c:9: error: expected ')' before 'gid_t'
+usr/klibc/syscalls/typesize.c:9: warning: type defaults to 'int' in
+declaration of 'type name'
+usr/klibc/syscalls/typesize.c:10: error: expected ')' before 'sigset_t'
+usr/klibc/syscalls/typesize.c:10: warning: type defaults to 'int' in
+declaration of 'type name'
+usr/klibc/syscalls/typesize.c:21: error: 'dev_t' undeclared here (not
+in a function)
+usr/klibc/syscalls/typesize.c:22: error: 'fd_set' undeclared here (not
+in a function)
+usr/klibc/syscalls/typesize.c:22: error: expected expression before ')' token
+make[4]: *** [usr/klibc/syscalls/typesize.o] Error 1
+make[3]: *** [usr/klibc/syscalls] Error 2
+make[2]: *** [_usr_klibc] Error 2
+make[1]: *** [usr] Error 2
+make: *** [_all] Error 2
 
-0000:00:00.0 Host bridge: Intel Corp. 82845G/GL[Brookdale-G]/GE/PE DRAM Controller/Host-Hub Interface (rev 02)
-	Subsystem: Asustek Computer, Inc.: Unknown device 80b2
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 0
-	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=256M]
-	Capabilities: <available only to root>
+Linux ltg01-fedora.pl 2.6.17-g25f42b6a #63 SMP PREEMPT Tue Jun 20
+14:28:14 CEST 2006 i686 i686 i386 GNU/Linux
 
-0000:00:01.0 PCI bridge: Intel Corp. 82845G/GL[Brookdale-G]/GE/PE Host-to-AGP Bridge (rev 02) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	Memory behind bridge: c6000000-c76fffff
-	Prefetchable memory behind bridge: d7700000-dfffffff
-	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
+Gnu C                  4.1.1
+Gnu make               3.80
+binutils               2.16.91.0.6
+util-linux             2.13-pre7
+mount                  2.13-pre7
+module-init-tools      3.2.2
+e2fsprogs              1.38
+jfsutils               1.1.10
+reiserfsprogs          3.6.19
+xfsprogs               2.7.3
+PPP                    2.4.3
+Linux C Library        > libc.2.4
+Dynamic linker (ldd)   2.4
+Procps                 3.2.6
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.96
+udev                   084
 
-0000:00:1d.0 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 02) (prog-if 00 [UHCI])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8089
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin A routed to IRQ 19
-	Region 4: I/O ports at d800 [size=32]
+Regards,
+Michal
 
-0000:00:1d.1 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 02) (prog-if 00 [UHCI])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8089
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin B routed to IRQ 20
-	Region 4: I/O ports at d400 [size=32]
-
-0000:00:1d.2 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 02) (prog-if 00 [UHCI])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8089
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin C routed to IRQ 17
-	Region 4: I/O ports at d000 [size=32]
-
-0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB 2.0 EHCI Controller (rev 02) (prog-if 20 [EHCI])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8089
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin D routed to IRQ 18
-	Region 0: Memory at c5800000 (32-bit, non-prefetchable) [size=1K]
-	Capabilities: <available only to root>
-
-0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 82) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
-	Latency: 0
-	Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
-	I/O behind bridge: 0000b000-0000bfff
-	Memory behind bridge: c3000000-c57fffff
-	Prefetchable memory behind bridge: c7700000-d76fffff
-	BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
-
-0000:00:1f.0 ISA bridge: Intel Corp. 82801DB/DBL (ICH4/ICH4-L) LPC Bridge (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-0000:00:1f.1 IDE interface: Intel Corp. 82801DB/DBL (ICH4/ICH4-L) UltraATA-100 IDE Controller (rev 02) (prog-if 8a [Master SecP PriP])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8089
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin A routed to IRQ 17
-	Region 0: I/O ports at <unassigned>
-	Region 1: I/O ports at <unassigned>
-	Region 2: I/O ports at <unassigned>
-	Region 3: I/O ports at <unassigned>
-	Region 4: I/O ports at f000 [size=16]
-	Region 5: Memory at 50000000 (32-bit, non-prefetchable) [size=1K]
-
-0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 02)
-	Subsystem: Asustek Computer, Inc.: Unknown device 8089
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin B routed to IRQ 0
-	Region 4: I/O ports at e800 [size=32]
-
-0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 02)
-	Subsystem: Asustek Computer, Inc.: Unknown device 80b0
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin B routed to IRQ 21
-	Region 0: I/O ports at a800 [size=256]
-	Region 1: I/O ports at a400 [size=64]
-	Region 2: Memory at c2800000 (32-bit, non-prefetchable) [size=512]
-	Region 3: Memory at c2000000 (32-bit, non-prefetchable) [size=256]
-	Capabilities: <available only to root>
-
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4200] (rev a3) (prog-if 00 [VGA])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8043
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 248 (1250ns min, 250ns max)
-	Interrupt: pin A routed to IRQ 19
-	Region 0: Memory at c6000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: Memory at d8000000 (32-bit, prefetchable) [size=128M]
-	Region 2: Memory at d7800000 (32-bit, prefetchable) [size=512K]
-	Expansion ROM at d77e0000 [disabled] [size=128K]
-	Capabilities: <available only to root>
-
-0000:02:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80) (prog-if 10 [OHCI])
-	Subsystem: Asustek Computer, Inc.: Unknown device 808a
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 (8000ns max), Cache Line Size: 0x08 (32 bytes)
-	Interrupt: pin A routed to IRQ 22
-	Region 0: Memory at c5000000 (32-bit, non-prefetchable) [size=2K]
-	Region 1: I/O ports at b800 [size=128]
-	Capabilities: <available only to root>
-
-0000:02:05.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702X Gigabit Ethernet (rev 02)
-	Subsystem: Asustek Computer, Inc.: Unknown device 80a9
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (16000ns min), Cache Line Size: 0x08 (32 bytes)
-	Interrupt: pin A routed to IRQ 16
-	Region 0: Memory at c4800000 (64-bit, non-prefetchable) [size=64K]
-	Expansion ROM at d76f0000 [disabled] [size=64K]
-	Capabilities: <available only to root>
-
-0000:02:0a.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX 440] (rev a3) (prog-if 00 [VGA])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 248 (1250ns min, 250ns max)
-	Interrupt: pin A routed to IRQ 22
-	Region 0: Memory at c3000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: Memory at c8000000 (32-bit, prefetchable) [size=128M]
-	Region 2: Memory at c7800000 (32-bit, prefetchable) [size=512K]
-	Expansion ROM at c77e0000 [disabled] [size=128K]
-	Capabilities: <available only to root>
-
-----------------------------------------------
-
---
-    Jean-Daniel Pauget  -  http://disjunkt.com  -  http://nekodune.com
-    Tél: +33 (0)2 33 17 20 16
-    2, rue André PELCA
-    50580 Denneville-Plage
-    France
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

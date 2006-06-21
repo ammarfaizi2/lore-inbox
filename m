@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWFUSpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWFUSrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWFUSpx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 14:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWFUSpx
+	id S932316AbWFUSrs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 14:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWFUSrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 14:45:53 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:18832 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932314AbWFUSpx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 14:45:53 -0400
-Message-ID: <449993D4.8030309@zytor.com>
-Date: Wed, 21 Jun 2006 11:45:40 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Paul Drynoff <pauldrynoff@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG]: 2.6.17-mm1 can not compile - infinite cycle
-References: <20060621224600.aaa03fdc.pauldrynoff@gmail.com>
-In-Reply-To: <20060621224600.aaa03fdc.pauldrynoff@gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------060407080907040907010707"
+	Wed, 21 Jun 2006 14:47:47 -0400
+Received: from es335.com ([67.65.19.105]:10088 "EHLO mail.es335.com")
+	by vger.kernel.org with ESMTP id S932316AbWFUSrq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 14:47:46 -0400
+Subject: Re: [PATCH v3 1/7] AMSO1100 Low Level Driver.
+From: Steve Wise <swise@opengridcomputing.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <1150910013.3057.59.camel@laptopd505.fenrus.org>
+References: <20060620203050.31536.5341.stgit@stevo-desktop>
+	 <20060620203055.31536.15131.stgit@stevo-desktop>
+	 <1150836226.2891.231.camel@laptopd505.fenrus.org>
+	 <1150907571.31600.31.camel@stevo-desktop>
+	 <1150910013.3057.59.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 13:47:45 -0500
+Message-Id: <1150915665.20327.0.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060407080907040907010707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Paul Drynoff wrote:
-> I try compile 2.6.17-mm1 with almost(make oldconfig) the same config as 
-> linux-2.6.17-rc6-mm2.
+> ok pci posting...
+> 
+> basically, if you use writel() and co, the PCI bridges in the middle are
+> allowed (and the more fancy ones do) cache the write, to see if more
+> writes follow, so that the bridge can do the writes as a single burst to
+> the device, rather than as individual writes. This is of course great...
+> ... except when you really want the write to hit the device before the
+> driver continues with other actions. 
+> 
+> Now the PCI spec is set up such that any traffic in the other direction
+> (basically readl() and co) will first flush the write through the system
+> before the read is actually sent to the device, so doing a dummy readl()
+> is a good way to flush any pending posted writes.
+> 
+> Where does this matter? 
+> it matters most at places such as irq enabling/disabling, IO submission
+> and possibly IRQ acking, but also often in eeprom-like read/write logic
+> (where you do manual clocking and need to do delays between the
+> write()'s). But in general... any place where you do writel() without
+> doing any readl() before doing nothing to the card for a long time, or
+> where you are waiting for the card to do something (or want it done NOW,
+> such as IRQ disabling) you need to issue a (dummy) readl() to flush
+> pending writes out to the hardware.
+> 
+> 
+> does this explanation make any sense? if not please feel free to ask any
+> questions, I know I'm not always very good at explaining things.
 
-I just pushed out this bugfix for this condition.
+Yep.  I get it.  I believe we're ok in this respect, but I'll review the
+code again with an eye for this issue...
 
-	-hpa
-
---------------060407080907040907010707
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-[klibc] Fix incorrect dependency
-
-Remove a bogus dependency which would cause circular rebuilds at
-high -j levels.
-
-Signed-off-by: H. Peter Anvin <hpa@zytor.com>
-
----
-commit 540f76e3b9d0272b50e2cc9be086b1f77606cc58
-tree 636ac799e7517bb954e66a8eebb6adbcdd7b21d8
-parent 52a83f25c64f52abb81c6e93977cf00247176e1b
-author H. Peter Anvin <hpa@zytor.com> Wed, 21 Jun 2006 11:36:58 -0700
-committer H. Peter Anvin <hpa@zytor.com> Wed, 21 Jun 2006 11:36:58 -0700
-
- usr/klibc/syscalls/Kbuild |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
-
-diff --git a/usr/klibc/syscalls/Kbuild b/usr/klibc/syscalls/Kbuild
-index e7ae1d2..a1d408d 100644
---- a/usr/klibc/syscalls/Kbuild
-+++ b/usr/klibc/syscalls/Kbuild
-@@ -64,7 +64,6 @@ quiet_cmd_syscalsz = GEN     $@
- 
- $(obj)/typesize.c: $(KLIBCSRC)/syscalls.pl $(obj)/SYSCALLS.i \
-                       $(KLIBCSRC)/arch/$(KLIBCARCHDIR)/sysstub.ph \
--                      $(call objectify, $(syscall-objs:.o=.S)) \
-                       $(src)/syscommon.h $(obj)/syscalls.nrs FORCE
- 	$(call if_changed,syscalsz)
- 
-
-
-
-!-------------------------------------------------------------flip-
+Steve.
 
 
 
---------------060407080907040907010707--

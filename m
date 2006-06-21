@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWFUMG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbWFUMH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751518AbWFUMG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 08:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWFUMG1
+	id S1751512AbWFUMH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 08:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWFUMH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 08:06:27 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:2099 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751515AbWFUMG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 08:06:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FAfn+L5ZypTV1kPvvww5RVpU1GM1/AaSYdJ8z8p9rpO7DsxslHf0dpCqIq6NshBiwThLKGfWWbV8YpILwe9GNs8WO5tOuYRA0mcnxYy4+W53H+DnNKyVqOWYe2SP0/2xnD57zgHNFGAluNCpWoMdnCyQ/V95GOlI4WkkUHpUahk=
-Message-ID: <6bffcb0e0606210506w14388eb6ke3ba97e001706f90@mail.gmail.com>
-Date: Wed, 21 Jun 2006 14:06:25 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-mm1
-Cc: "Len Brown" <len.brown@intel.com>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
+	Wed, 21 Jun 2006 08:07:58 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34308 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751512AbWFUMH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 08:07:57 -0400
+Date: Wed, 21 Jun 2006 14:07:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org,
+       Chris Leech <christopher.leech@intel.com>
+Subject: Re: 2.6.17-rc5-mm2 another compile error
+Message-ID: <20060621120755.GC9111@stusta.de>
+References: <20060601014806.e86b3cc0.akpm@osdl.org> <447ED2AB.30107@aitel.hist.no> <20060601092953.169064d5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20060621034857.35cfe36f.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060601092953.169064d5.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jun 01, 2006 at 09:29:53AM -0700, Andrew Morton wrote:
+> On Thu, 01 Jun 2006 13:42:35 +0200
+> Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> 
+> >   CC      drivers/dma/ioatdma.o
+> > drivers/dma/ioatdma.c: In function ‘ioat_init_module’:
+> > drivers/dma/ioatdma.c:828: error: dereferencing pointer to incomplete type
+> > make[2]: *** [drivers/dma/ioatdma.o] Error 1
+> > make[1]: *** [drivers/dma] Error 2
+> > make: *** [drivers] Error 2
+> > 
+> 
+>         if (THIS_MODULE != NULL)
+>                 THIS_MODULE->unsafe = 1;
+> 
+> Chris, this won't compile with CONFIG_MODULES=n.
+> 
+> If module unloading is unsafe (why?) then a suitable workaround would be to
+> take an additional ref on the module (__module_get()) so that it cannot be
+> unloaded.
 
-On 21/06/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
->
+This bug is still present in 2.6.17-mm1, and even worse it's now in 
+Linus' tree.
 
-It looks like an ACPI problem.
-
-Setting up standard PCI resources
-=============================================
-[ INFO: possible recursive locking detected ]
----------------------------------------------
-idle/1 is trying to acquire lock:
- (lock_ptr){....}, at: [<c021cbd2>] acpi_os_acquire_lock+0x8/0xa
-
-but task is already holding lock:
- (lock_ptr){....}, at: [<c021cbd2>] acpi_os_acquire_lock+0x8/0xa
-
-other info that might help us debug this:
-1 lock held by idle/1:
- #0:  (lock_ptr){....}, at: [<c021cbd2>] acpi_os_acquire_lock+0x8/0xa
-
-stack backtrace:
- [<c0103e89>] show_trace+0xd/0x10
- [<c0104483>] dump_stack+0x19/0x1b
- [<c01395fa>] __lock_acquire+0x7d9/0xa50
- [<c0139a98>] lock_acquire+0x71/0x91
- [<c02f0beb>] _spin_lock_irqsave+0x2c/0x3c
- [<c021cbd2>] acpi_os_acquire_lock+0x8/0xa
- [<c0222d95>] acpi_ev_gpe_detect+0x4d/0x10e
- [<c02215c3>] acpi_ev_sci_xrupt_handler+0x15/0x1d
- [<c021c8b1>] acpi_irq+0xe/0x18
- [<c014d36e>] request_irq+0xbe/0x10c
- [<c021cf33>] acpi_os_install_interrupt_handler+0x59/0x87
- [<c02215e7>] acpi_ev_install_sci_handler+0x1c/0x21
- [<c0220d41>] acpi_ev_install_xrupt_handlers+0x9/0x50
- [<c0231772>] acpi_enable_subsystem+0x7d/0x9a
- [<c0416656>] acpi_init+0x3f/0x170
- [<c01003ae>] _stext+0x116/0x26c
- [<c0101005>] kernel_thread_helper+0x5/0xb
-ACPI: Interpreter enabled
-
-Here is a dmesg log http://www.stardust.webpages.pl/files/mm/2.6.17-mm1/mm-dmesg
-Here is a config file
-http://www.stardust.webpages.pl/files/mm/2.6.17-mm1/mm-config
-
-Regards,
-Michal
+cu
+Adrian
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

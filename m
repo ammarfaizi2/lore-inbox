@@ -1,106 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbWFUV7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWFUWBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030327AbWFUV7z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbWFUV7y
+	id S1751316AbWFUWBN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 18:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWFUWBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:59:54 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:28361 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030327AbWFUV7x
+	Wed, 21 Jun 2006 18:01:13 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:60307 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751316AbWFUWBL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:59:53 -0400
-Message-ID: <4499C144.6020505@watson.ibm.com>
-Date: Wed, 21 Jun 2006 17:59:32 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jay Lan <jlan@engr.sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com>	<20060609042129.ae97018c.akpm@osdl.org>	<4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com> <20060621133838.12dfa9f8.akpm@osdl.org> <4499BAA9.3000707@watson.ibm.com> <4499BDDD.3010206@engr.sgi.com>
-In-Reply-To: <4499BDDD.3010206@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 21 Jun 2006 18:01:11 -0400
+Subject: [PATCH 0/3] VFS fileop cleanups by collapsing AIO and vector IO
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, pbadari@us.ibm.com
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 15:03:08 -0700
+Message-Id: <1150927388.29759.4.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan wrote:
+Hi Andrew,
 
->Shailabh Nagar wrote:
->  
->
->>Andrew Morton wrote:
->>
->>    
->>
->>>On Wed, 21 Jun 2006 12:11:13 -0700
->>>Jay Lan <jlan@engr.sgi.com> wrote:
->>>
->>> 
->>>
->>>      
->>>
->>>>Another observation that i considered bad news is that all
->>>>10 runs produced 1 to 5 recv() error with errno=105 (ENOBUF).
->>>>  
->>>>        
->>>>
->>>Well that's rather bad.  AFAICT most of the allocations in there are
->>>GFP_KERNEL, so why is this happening?
->>> 
->>>
->>>      
->>>
->>Need to trace the cause.
->>
->>    
->>
->>>Because the kernel is producing netlink messages faster than
->>>userspace can
->>>consume them, perhaps?
->>>      
->>>
->>Hmm...possible. A quick check would be to reduce the frequency of
->>exits and see.
->>
->>    
->>
->>>If so, the sender needs to block, which means we
->>>need to make reception of these stats a privileged operation?
->>> 
->>>
->>>      
->>>
->>Won't it suffice to make delivery of these stats best effort, with
->>userspace dealing with missing data,
->>    
->>
->
->How do you recover the missed data?
->  
->
-Not recover as such but just let userspace know data was dropped so it 
-can work around it.
+Here the VFS cleanup patches to collapse vector and AIO fileop
+methods + cleanups to filemap.c against 2.6.17.
 
->  
->
->>rather than risk delaying exits ? The cases where exits are so
->>frequent as in this program should be
->>    
->>
->
->This is very true. However, it was a 2p IA64 machine. I am too frightened to
->speak "512p"...
->  
->
-True, but then you should presumably have more receivers or some other 
-strategy to consume the output
-faster ? Blocking is an even
-worse idea if that many CPUs will be waiting around for stats data to be 
-written out....
+These series of patches clean up and streamlines generic_file_*
+interfaces in filemap.c.
 
+BTW, I dropped adding vector-aio support (aio.c) patch for now
+as it can be added later.
 
---Shailabh
+===
+These patches collapses all the vectored IO support into 
+single set of file-operation method using aio_read/aio_write.
+Last patch (3) sets all thefilesystems .read/.write/.aio_read/
+.aio_write methods correctly to allow us to cleanup most
+generic_file_*_read/write interfaces in filemap.c
+
+After this patch set, we should end up with ONLY following
+read/write (exported) interfaces in filemap.c:
+
+        generic_file_aio_read() - read handler
+        generic_file_aio_write() - write handler
+        generic_file_aio_write_nolock() - no lock write handler
+
+Here is the summary:
+
+[PATCH 1/3] Vectorize aio_read/aio_write fileop methods
+
+[PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
+instead.
+
+[PATCH 3/3] Streamline generic_file_* interfaces and filemap cleanups
+
+Thanks,
+Badari
 

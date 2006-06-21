@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWFUBIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWFUBJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751910AbWFUBIN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 21:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751908AbWFUBIM
+	id S932358AbWFUBJW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 21:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWFUBJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 21:08:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14258 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751453AbWFUBIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 21:08:10 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
-       Len Brown <len.brown@intel.com>,
-       Kimball Murray <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Mark Maule <maule@sgi.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Shaohua Li <shaohua.li@intel.com>,
-       Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 0/25] Decouple IRQ issues (MSI, i386, x86_64, ia64)
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com>
-	<20060620173017.A10402@unix-os.sc.intel.com>
-Date: Tue, 20 Jun 2006 19:07:10 -0600
-In-Reply-To: <20060620173017.A10402@unix-os.sc.intel.com> (Rajesh Shah's
-	message of "Tue, 20 Jun 2006 17:30:18 -0700")
-Message-ID: <m1r71jb9kx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 20 Jun 2006 21:09:22 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:45273 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751908AbWFUBJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 21:09:21 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Marcelo Tosatti <marcelo@kvack.org>, linux-kernel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Linux 2.4.33-rc1
+Date: Wed, 21 Jun 2006 11:09:15 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <4b6h92h0hvj929o5kas004jagjaiii8t0p@4ax.com>
+References: <20060618133718.GA2467@dmt> <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <20060619220405.GA16251@dmt> <20060619230007.GA6471@1wt.eu> <20060619234506.GA2763@dmt> <20060620222357.GA11862@1wt.eu>
+In-Reply-To: <20060620222357.GA11862@1wt.eu>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajesh Shah <rajesh.shah@intel.com> writes:
+On Wed, 21 Jun 2006 00:23:57 +0200, Willy Tarreau <w@1wt.eu> wrote:
 
-> On Tue, Jun 20, 2006 at 04:24:35PM -0600, Eric W. Biederman wrote:
+>On Mon, Jun 19, 2006 at 08:45:06PM -0300, Marcelo Tosatti wrote:
+>> > 
+>> > ---- from here ----
+>> > 
+>> > 
+>> > > +		inode = dentry->d_inode;
+>> > > +		if (inode)
+>> > > +			atomic_inc(&inode->i_count);
+>> > >  		error = vfs_unlink(nd.dentry->d_inode, dentry);
+>> > >  	exit2:
+>> > >  		dput(dentry);
+>> > >  	}
+>> > >  	up(&nd.dentry->d_inode->i_sem);
+>> > > +	if (inode)
+>> > > +		iput(inode);
+>> > 
+>> > ---- to here ----
+>> > 
+>> > I believe that nd.dentry->d_inode cannot vanish because it is protected by the
+>> > down(->i_sem) before and the up(->i_sem) after. Am I right or am I missing
+>> > something important ?
 >> 
->> The primary aim of this patch is to remove maintenances problems caused
->> by the irq infrastructure.  The two big issues I address are an
->> artificially small cap on the number of irqs, and that MSI assumes
->> vector == irq.  My primary focus is on x86_64 but I have touched
->> other architectures where necessary to keep them from breaking.
->> 
-> The MSI portions of this patchset is similar to the MSI cleanup
-> I was working on. I'll drop my patchkit and instead comment on
-> the relevant patches in this kit.
+>> Indeed it can't, but dentry->d_inode will be set to NULL by
+>> nfs_unlink->nfs_safe_remove->d_delete. Thus the problem.
 >
-> I got a couple of minor compile errors on i386 (kernel/io_apic.c).
-> I fixed them up by hand and the resulting kernel booted and
-> worked with MSI in the limited testing I've done so far.
+>What puzzles me is how are we supposed to up(&nd.dentry->d_inode->i_sem) if
+>dentry->d_inode can become NULL ? simply by keeping a copy of it ? I thought
+>that the down() protected the whole thing, but may be that's stupid anyway.
+>I've been running rc1 without this patch for a few hours and during kernel
+>compiles without a problem, so I'm not sure about what to think about the
+>other changes which were apparently harmless too :-/
 
-Sounds good.
+So what's the final fixup?  Last two patches don't seem to cause the 
+problems previously reported by me.  They don't play together though, 
+so I'll add my general sense of confusion to this issue ;)  
 
-Hmm.  I thought I had compile tested on i386.
-Something must have bit rotted since then. :(
+Should I run the thing (which patch?) and compile a hundred kernels 
+or something to see what (if anything) breaks.  Shortest day of year 
+here, I don't mind running the test box as part of room heating :o)
 
-Eric
+Thanks,
+Grant.

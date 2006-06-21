@@ -1,93 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWFUGui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWFUGwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWFUGui (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 02:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751993AbWFUGui
+	id S1751221AbWFUGwg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 02:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751998AbWFUGwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 02:50:38 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:30783 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S1751213AbWFUGuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 02:50:37 -0400
-Date: Tue, 20 Jun 2006 23:50:36 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc[56]-mm*: pcmcia "I/O resource not free"
-Message-ID: <20060621065036.GR2038@hexapodia.org>
-References: <20060615162859.GA1520@hexapodia.org> <20060617100327.e752b89a.akpm@osdl.org> <20060620211723.GA28016@hexapodia.org> <20060620150317.746372c5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060620150317.746372c5.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Wed, 21 Jun 2006 02:52:36 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:28048 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751221AbWFUGwg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 02:52:36 -0400
+Message-ID: <4498EB1B.1070002@in.ibm.com>
+Date: Wed, 21 Jun 2006 12:15:47 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM India Private Limited
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org
+Cc: Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.17-rc6-mm2] Fix exit race in per-task-delay-accounting
+References: <20060621055952.6658.49704.sendpatchset@localhost.localdomain>
+In-Reply-To: <20060621055952.6658.49704.sendpatchset@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 03:03:17PM -0700, Andrew Morton wrote:
-> It's strange (to me) that IDE is requesting a single-byte memory region. 
-> Possibly we've broken the resource.c code such that it has some off-by-one
-> and is now rejecting single-byte requests.
-[snip]
-> +++ a/kernel/resource.c
-> +			printk("conflict: %s[%Lx->%Lx]\n",
-[snip]
-> Then again, perhaps IDE is broken (as well?), because you don't have any
-> single-byte iomem regions in your 2.6.17-rc6 /proc/iomem.  It would be
-> interesting to run this patch in both 2.6.17-rc6 and in 2.6.17-rc6-mm2, see
-> what it says:
-[snip]
-> +++ 25-akpm/drivers/ide/ide.c	Tue Jun 20 15:02:15 2006
-> +		printk("%s: single-byte request\n", __FUNCTION__);
-> +		dump_stack();
+Balbir Singh wrote:
+> Hi, Andrew,
+> 
+> This patch fixes a race in per-task-delay-accounting. This race
+> was reported by Jay Lan. I tested the patch using
+> cerebrus test control system for eight hours with getdelays running on
+> the side (for both push and pull of delay statistics).
+> 
+> It fixed the problem that Jay Lan saw.
+> 
+> Here's an explanation of the race condition
+> 
+> Consider tasks of the same thread group exiting, lets call them T1 and T2
+> 
+> 
+> T1                          T2
+> 
+> CPU0                        CPU1
+> =====                       =====
+> 
+> do_exit()
+> ...                        do_exit()
+> taskstats_exit_send()                ...
+>                            taskstats_exit_send()
+>                            	fill_tgid()
+>                                 delayacct_add_tsk()
+> delayacct_tsk_exit()            ....
+>                                 __delayacct_add_tsk()
+> 
+> 
+> While T1 is yet to be removed from the thread group. T1->delays is set to NULL
+> between delayacct_add_tsk() and __delayacct_add_tsk() call.
+> 
+> When T2 looks for threads in the thread group, it finds T1 and tries to
+> collect stats for it. When we get to the spin_lock() in __delayacct_add_tsk(),
+> we find T1->delays is a NULL pointer.
+> 
+> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+> ---
+> 
+>  include/linux/taskstats_kern.h |    1 +
+>  kernel/delayacct.c             |    5 ++++-
+>  kernel/taskstats.c             |    5 ++++-
+>  3 files changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff -puN kernel/taskstats.c~per-task-delay-accounting-fix-exit-race kernel/taskstats.c
+> --- linux-2.6.17-rc6/kernel/taskstats.c~per-task-delay-accounting-fix-exit-race	2006-06-20 13:49:29.000000000 +0530
+> +++ linux-2.6.17-rc6-balbir/kernel/taskstats.c	2006-06-20 13:49:29.000000000 +0530
+> @@ -25,7 +25,7 @@
+>  static DEFINE_PER_CPU(__u32, taskstats_seqnum) = { 0 };
+>  static int family_registered = 0;
+>  kmem_cache_t *taskstats_cache;
+> -static DEFINE_MUTEX(taskstats_exit_mutex);
+> +DEFINE_MUTEX(taskstats_exit_mutex);
+>  
+>  static struct genl_family family = {
+>  	.id		= GENL_ID_GENERATE,
+> @@ -193,6 +193,7 @@ static int taskstats_send_stats(struct s
+>  	if (rc < 0)
+>  		return rc;
+>  
+> +	mutex_lock(&taskstats_exit_mutex);
+>  	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
+>  		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
+>  		rc = fill_pid(pid, NULL, &stats);
+> @@ -218,6 +219,7 @@ static int taskstats_send_stats(struct s
+>  		goto err;
+>  	}
+>  
+> +	mutex_unlock(&taskstats_exit_mutex);
+>  	nla_nest_end(rep_skb, na);
+>  
+>  	return send_reply(rep_skb, info->snd_pid, TASKSTATS_MSG_UNICAST);
+> @@ -226,6 +228,7 @@ nla_put_failure:
+>  	return genlmsg_cancel(rep_skb, reply);
+>  err:
+>  	nlmsg_free(rep_skb);
+> +	mutex_unlock(&taskstats_exit_mutex);
+>  	return rc;
+>  }
+>  
+> diff -puN kernel/delayacct.c~per-task-delay-accounting-fix-exit-race kernel/delayacct.c
+> --- linux-2.6.17-rc6/kernel/delayacct.c~per-task-delay-accounting-fix-exit-race	2006-06-20 13:49:29.000000000 +0530
+> +++ linux-2.6.17-rc6-balbir/kernel/delayacct.c	2006-06-20 13:49:29.000000000 +0530
+> @@ -48,8 +48,11 @@ void __delayacct_tsk_init(struct task_st
+>  
+>  void __delayacct_tsk_exit(struct task_struct *tsk)
+>  {
+> -	kmem_cache_free(delayacct_cache, tsk->delays);
+> +	struct task_delay_info *delays = tsk->delays;
+> +	mutex_lock(&taskstats_exit_mutex);
+>  	tsk->delays = NULL;
+> +	mutex_unlock(&taskstats_exit_mutex);
+> +	kmem_cache_free(delayacct_cache, delays);
+>  }
+>  
+>  /*
+> diff -puN include/linux/taskstats_kern.h~per-task-delay-accounting-fix-exit-race include/linux/taskstats_kern.h
+> --- linux-2.6.17-rc6/include/linux/taskstats_kern.h~per-task-delay-accounting-fix-exit-race	2006-06-20 13:49:29.000000000 +0530
+> +++ linux-2.6.17-rc6-balbir/include/linux/taskstats_kern.h	2006-06-20 13:49:29.000000000 +0530
+> @@ -17,6 +17,7 @@ enum {
+>  
+>  #ifdef CONFIG_TASKSTATS
+>  extern kmem_cache_t *taskstats_cache;
+> +extern struct mutex taskstats_exit_mutex;
+>  
+>  static inline void taskstats_exit_alloc(struct taskstats **ptidstats,
+>  					struct taskstats **ptgidstats)
+> _
+> 
 
-With both patches, rc6-mm2 dumps the following.
+The Cc's got messed up (a really odd name lookup happened at the mail
+server).
 
-[ 2034.052000] pccard: PCMCIA card inserted into slot 0
-[ 2034.052000] cs: memory probe 0xf0000000-0xf7ffffff: excluding 0xf0000000-0xf7ffffff
-[ 2034.052000] cs: memory probe 0xd0200000-0xdfffffff: excluding 0xd0200000-0xd11fffff 0xd1a00000-0xd41fffff 0xd4a00000-0xd51fffff 0xd5a00000-0xd61fffff 0xd6a00000-0xd71fffff 0xd7a00000-0xd81fffff 0xd8a00000-0xd91fffff 0xd9a00000-0xda1fffff 0xdaa00000-0xdb1fffff 0xdba00000-0xdc1fffff 0xdca00000-0xdd1fffff 0xdda00000-0xde1fffff 0xdea00000-0xdf1fffff 0xdfa00000-0xe01fffff
-[ 2034.060000] pcmcia: registering new device pcmcia0.0
-[ 2034.060000] PM: Adding info for pcmcia:0.0
-[ 2035.976000] conflict: PCI IO[0->ffff]
-[ 2035.976000] hwif_request_region: single-byte request for ide2
-[ 2035.976000]  [<c0257386>] hwif_request_region+0xa6/0xb0
-[ 2035.976000]  [<c02574bf>] ide_hwif_request_regions+0x12f/0x150
-[ 2035.976000]  [<c0257177>] init_hwif_default+0x37/0x120
-[ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
-[ 2035.976000]  [<c025e8a9>] probe_hwif+0x29/0x4f0
-[ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
-[ 2035.976000]  [<c025ed85>] probe_hwif_init_with_fixup+0x15/0xa0
-[ 2035.976000]  [<c0257ea5>] ide_register_hw_with_fixup+0x165/0x1b0
-[ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
-[ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
-[ 2035.976000]  [<f8b07163>] idecs_register+0x83/0xd0 [ide_cs]
-[ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
-[ 2035.976000]  [<f8b071c0>] outb_mem+0x0/0x10 [ide_cs]
-[ 2035.976000]  [<f8b075e4>] ide_config+0x414/0x790 [ide_cs]
-[ 2035.976000]  [<f8b071c0>] outb_mem+0x0/0x10 [ide_cs]
-[ 2035.976000]  [<f8b0f4c8>] pcmcia_device_probe+0xa8/0x160 [pcmcia]
-[ 2035.976000]  [<c025104c>] driver_probe_device+0xbc/0xe0
-[ 2035.976000]  [<c02510f0>] __driver_attach+0x0/0x80
-[ 2035.976000]  [<c0251160>] __driver_attach+0x70/0x80
-[ 2035.976000]  [<c0250369>] bus_for_each_dev+0x69/0x80
-[ 2035.976000]  [<c0251195>] driver_attach+0x25/0x30
-[ 2035.976000]  [<c02510f0>] __driver_attach+0x0/0x80
-[ 2035.976000]  [<c0250968>] bus_add_driver+0x88/0xd0
-[ 2035.976000]  [<f8b0b00f>] init_ide_cs+0xf/0x11 [ide_cs]
-[ 2035.976000]  [<c0139f32>] sys_init_module+0xf2/0x190
-[ 2035.976000]  [<c02e3105>] sysenter_past_esp+0x56/0x79
-[ 2035.976000]  [<c02e007b>] inet6_lookup_listener+0x2b/0x100
-[ 2035.976000] ide2: I/O resource 0xF8B0200E-0xF8B0200E not free.
-[ 2035.976000] ide2: ports already in use, skipping probe
-[ 2035.976000] conflict: PCI IO[0->ffff]
-[ 2035.976000] hwif_request_region: single-byte request for ide2
-[ 2035.976000]  [<c0257386>] hwif_request_region+0xa6/0xb0
-[ 2035.976000]  [<c02574bf>] ide_hwif_request_regions+0x12f/0x150
-[ 2035.976000]  [<c0257177>] init_hwif_default+0x37/0x120
-
-[snip 1400 lines more]
-
--andy
+	Sorry
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

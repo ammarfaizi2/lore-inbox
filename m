@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWFUXfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932721AbWFUXfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWFUXfh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 19:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWFUXfh
+	id S932721AbWFUXfy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 19:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbWFUXfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 19:35:37 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9159 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932107AbWFUXfg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 19:35:36 -0400
-Message-ID: <4499D7CD.1020303@engr.sgi.com>
-Date: Wed, 21 Jun 2006 16:35:41 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en
+	Wed, 21 Jun 2006 19:35:53 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:1977 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932723AbWFUXfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 19:35:52 -0400
+From: Grant Coady <gcoady.lk@gmail.com>
+To: Marcelo Tosatti <marcelo@kvack.org>
+Cc: linux-kernel@vger.kernel.org, Willy Tarreau <w@1wt.eu>
+Subject: Re: Linux 2.4.33-rc2
+Date: Thu, 22 Jun 2006 09:35:46 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <krlj925po887kjqvv548ffs9fm4iq1v3tt@4ax.com>
+References: <20060621192756.GB13559@dmt>
+In-Reply-To: <20060621192756.GB13559@dmt>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com> <449999D1.7000403@engr.sgi.com> <44999A98.8030406@engr.sgi.com> <44999F5A.2080809@watson.ibm.com>
-In-Reply-To: <44999F5A.2080809@watson.ibm.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Jun 2006 16:27:56 -0300, Marcelo Tosatti <marcelo@kvack.org> wrote:
 
->>> System: SGI a350, a two cpus IA64 machine.
->>> Kernel:  2.6.17-rc3 + delay-acct-taskstats patch set
->>>      + tgid-disable_patch_shailabh + exit race patch_balbir +
->>> csa_patch_jlan
->>>
->>> I also modified the Decumentation/accounting/getdelay.c:
->>>  - it repeatedly does recv() to retrieve data from kernel
->>>  - instead of using printf() to display data received, i simply write
->>> it to
->>>    disk as it would be for an accounting daemon. Note that currently
->>> both the
->>>    BSD (or GNU) accounting and the CSA writes accounting data from
->>> kernel.
->>>    As an effort of moving accounting system to userspace, the raw data
->>> needs
->>>    to be written to a raw file first before further processing.
->>>   
-> In exit_recv.c, you appear to be dumping the per-tgid data  received
-> to disk too ?
-> If the accounting daemon isn't interested in per-tgid, shouldn't it be
-> discarding the data immediately after
-> doing the recv() and only write to disk the data it wants ?
-> Perhaps I'm missing something.
 >
-I modified my exit_recv.c so that
-1) i can totally skip data marked  TASKSTATS_TYPE_AGGR_TGID
-2) i can optinally drop data after receipt without writing to disk
+>A few problems appeared on -rc1... More networking security updates.
+>
+>
+>Summary of changes from v2.4.33-rc1 to v2.4.33-rc2
+>============================================
+>
+>Marcelo Tosatti:
+>      Change VERSION to v2.4.33-rc2
+>
+>Mikael Pettersson:
+>      [PATCH 2.4.33-rc1] repair __ide_dma_no_op breakage
+>
+>Solar Designer:
+>      [NETFILTER]: Fix do_add_counters race, possible oops or info leak (CVE-2006-0039)
+>
+>Vlad Yasevich:
+>      [SCTP]: Validate the parameter length in HB-ACK chunk. (CVE-2006-1857)
+>      [SCTP]: Respect the real chunk length when walking parameters. (CVE-2006-1858)
+>
+>Willy Tarreau:
+>      Fix vfs_unlink/NFS NULL pointer dereference
+>      range checking for sleep states sent to /proc/acpi/sleep
 
-The first case produced a system time of 1.34 second and the second
-case produced a system time of 1.25 sec.  Big improvement over 1.74
-sec, but still too high compared to 0.34 sec when we disable tgid
-completely.
+Things are looking up ;)  <http://bugsplatter.mine.nu/test/linux-2.4/>
 
-Shailabh and me now eye on the lock patch that fixed an exit race
-crash i reported. The global lock was held too long in scanning threads.
-Shailabh is working on a new patch.
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+| kernel version  |deltree|hal    |niner  |peetoo |pooh   |sempro |silly  |tosh   |
++ - - - - - - - - + - - - + - - - + - - - + - - - + - - - + - - - + - - - + - - - +
+| 2.4.33-rc2      |   Y   |   Y   |   Y   |   Y   |       |   Y   |   Y   |   Y   |
+| 2.4.33-rc1      |   -   |   -   |   -   |   -   |       |   X   |   -   |   X   |
 
-- jay
-
+Grant.

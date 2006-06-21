@@ -1,29 +1,44 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751133AbWFFVaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932686AbWFUTcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWFFVaV (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 6 Jun 2006 17:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWFFVaV
+	id S932686AbWFUTcn (ORCPT <rfc822;akpm@zip.com.au>);
+	Wed, 21 Jun 2006 15:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932688AbWFUTcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jun 2006 17:30:21 -0400
-Received: from jem75-3-82-236-91-238.fbx.proxad.net ([82.236.91.238]:30725
-	"HELO jem75-3-82-236-91-238.fbx.proxad.net") by vger.kernel.org
-	with SMTP id S1751133AbWFFVaU (ORCPT
+	Wed, 21 Jun 2006 15:32:43 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:16339 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S932686AbWFUTcm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jun 2006 17:30:20 -0400
-Reply-To: "Sonny Winters" <scottrrfj@scotair.com>
-From: "Sonny" <scottrrfj@scotair.com>
-Message-ID: <0118167193.233058738561@scotair.com>
-Date: Wed, 7 Jun 2006 12:29:48 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: cool Replicaa ////ATCCHE$
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+	Wed, 21 Jun 2006 15:32:42 -0400
+Message-Id: <8.0.4.3.3.72194837144034.472a4616@204.152.191.36>
+X-Mailer: Mediacomm Communicator 1.9
+Date: Wed, 21 Jun 2006 12:32:39 -0800
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+From: "Cust. Service" <Sanchez_buzzy@kruger.com>
+Subject: Unique Situation for your review
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-after Replicaa Watche$
+Important - Third And FINAL Notification:
 
-http://gq35lq3hmbmvtgyelyyw3ygg.anisylmc.com/?YbWPM-ZfSWfY.OdfS,ZfSWfY,VSd
+RE: Home Re.FinancingOptions 
+
+One of our agents has been trying to contact you regarding your home.
+
+An unique situation has come to our attention regarding rates and we 
+strongly feel you will be interested in hearing about it. 
+
+Even a low credit-score will not be an issue if you confirm with us today.
+
+http://secure930.kooldowns.net
+
+Best Wishes,
+
+Seth Beaver
+Division 43 - Team Leader
+- L0ANCentreAlerts
+
 

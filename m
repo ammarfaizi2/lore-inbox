@@ -1,56 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWFUSDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWFUSJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWFUSDS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 14:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWFUSDS
+	id S1751135AbWFUSJR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 14:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWFUSJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 14:03:18 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:12729 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S1751104AbWFUSDS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 14:03:18 -0400
-From: Ben Pfaff <blp@cs.stanford.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory corruption in 8390.c ?
-References: <1150907317.8320.0.camel@alice>
-	<1150909982.15275.100.camel@localhost.localdomain>
-	<87mzc65soy.fsf@benpfaff.org>
-	<1150912459.15275.101.camel@localhost.localdomain>
-Reply-To: blp@cs.stanford.edu
-Date: Wed, 21 Jun 2006 11:03:10 -0700
-In-Reply-To: <1150912459.15275.101.camel@localhost.localdomain> (Alan Cox's
-	message of "Wed, 21 Jun 2006 18:54:19 +0100")
-Message-ID: <87irmu5qu9.fsf@benpfaff.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 21 Jun 2006 14:09:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:36495 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751135AbWFUSJQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 14:09:16 -0400
+Date: Wed, 21 Jun 2006 20:08:57 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Christoph Lameter <christoph@lameter.com>,
+       Martin Bligh <mbligh@google.com>, Linus Torvalds <torvalds@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, "E. Gryaznova" <grev@namesys.com>
+Subject: Re: [PATCH] mm/tracking dirty pages: update get_dirty_limits for mmap tracking
+Message-ID: <20060621180857.GA6948@wotan.suse.de>
+References: <5c49b0ed0606211001s452c080cu3f55103a130b78f1@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5c49b0ed0606211001s452c080cu3f55103a130b78f1@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Wed, Jun 21, 2006 at 10:01:17AM -0700, Nate Diller wrote:
+> Update write throttling calculations now that we can track and
+> throttle dirty mmap'd pages.  A version of this patch has been tested
+> with iozone:
 
-> Ar Mer, 2006-06-21 am 10:23 -0700, ysgrifennodd Ben Pfaff:
->> > +		memset(buf, 0, ETH_ZLEN);	/* more efficient than doing just the needed bits */
->> > +		memcpy(buf, data, ETH_ZLEN);
->> 
->> Is this really correct?  It zeros out ETH_ZLEN bytes only to
->> immediately copy over all of them again.
->
-> When I did it originally I tested with rdtsc and its actually quicker to
-> let it build the static memset the copy data over it than to do the
-> extra maths and the variable length loop.
->
-> Hence the comment
+Your changelog doesn't tell much about the "why" side of things,
+and omits the fact that you have upped the dirty ratio to 80.
 
-You are saying that this:
-        memset(buf, 0, ETH_ZLEN);
-        memcpy(buf, data, ETH_ZLEN);
-is faster than this?
-        memcpy(buf, data, ETH_ZLEN);
+> 
+> http://namesys.com/intbenchmarks/iozone/06.06.19.tracking.dirty.page-noatime_-B/e3-2.6.16-tr.drt.pgs-rt.40_vs_rt.80.html
+> http://namesys.com/intbenchmarks/iozone/06.06.19.tracking.dirty.page-noatime_-B/r4-2.6.16-tr.drt.pgs-rt.40_vs_rt.80.html
 
-Because as far as I can tell they are equivalent.
--- 
-Ben Pfaff 
-email: blp@cs.stanford.edu
-web: http://benpfaff.org
+I'm guessing the reason you get all those red numbers when
+iozone files are larger than RAM is because writeout and reclaim
+tend to get worse when there are large amounts of dirty pages
+floating around in memory?
+
+> 
+> Signed-off-by: Nate Diller <nate.diller@gmail.com>
+> 
+> --- linux-2.6.orig/mm/page-writeback.c	2005-10-27 17:02:08.000000000 -0700
+> +++ linux-2.6/mm/page-writeback.c	2006-06-21 08:24:11.000000000 -0700
+> @@ -69,7 +69,7 @@ int dirty_background_ratio = 10;
+> /*
+>  * The generator of dirty data starts writeback at this percentage
+>  */
+> -int vm_dirty_ratio = 40;
+> +int vm_dirty_ratio = 80;
+> 
+> /*
+>  * The interval between `kupdate'-style writebacks, in centiseconds
+> @@ -119,15 +119,14 @@ static void get_writeback_state(struct w
+>  * Work out the current dirty-memory clamping and background writeout
+>  * thresholds.
+>  *
+> - * The main aim here is to lower them aggressively if there is a lot of 
+> mapped
+> - * memory around.  To avoid stressing page reclaim with lots of 
+> unreclaimable
+> - * pages.  It is better to clamp down on writers than to start swapping, 
+> and
+> - * performing lots of scanning.
+> - *
+> - * We only allow 1/2 of the currently-unmapped memory to be dirtied.
+> - *
+> - * We don't permit the clamping level to fall below 5% - that is getting 
+> rather
+> - * excessive.
+> + * We now have dirty memory accounting for mmap'd pages, so we calculate 
+> the
+> + * ratios based on the available memory.  We still have no way of tracking
+> + * how many pages are pinned (eg BSD wired accounting), so we still need 
+> the
+> + * hard clamping, but the default has been raised to 80.
+> + *
+> + * We now allow the ratios to be set to anything, because there is less 
+> risk
+> + * of OOM, and because databases and such will need more flexible tuning,
+> + * now that they are being throttled too.
+>  *
+>  * We make sure that the background writeout level is below the adjusted
+>  * clamping level.
+> @@ -136,9 +135,6 @@ static void
+> get_dirty_limits(struct writeback_state *wbs, long *pbackground, long 
+> *pdirty,
+> 		struct address_space *mapping)
+> {
+> -	int background_ratio;		/* Percentages */
+> -	int dirty_ratio;
+> -	int unmapped_ratio;
+> 	long background;
+> 	long dirty;
+> 	unsigned long available_memory = total_pages;
+> @@ -155,27 +151,16 @@ get_dirty_limits(struct writeback_state
+> 		available_memory -= totalhigh_pages;
+> #endif
+> 
+> -
+> -	unmapped_ratio = 100 - (wbs->nr_mapped * 100) / total_pages;
+> -
+> -	dirty_ratio = vm_dirty_ratio;
+> -	if (dirty_ratio > unmapped_ratio / 2)
+> -		dirty_ratio = unmapped_ratio / 2;
+> -
+> -	if (dirty_ratio < 5)
+> -		dirty_ratio = 5;
+> -
+> -	background_ratio = dirty_background_ratio;
+> -	if (background_ratio >= dirty_ratio)
+> -		background_ratio = dirty_ratio / 2;
+> -
+> -	background = (background_ratio * available_memory) / 100;
+> -	dirty = (dirty_ratio * available_memory) / 100;
+> +	background = (dirty_background_ratio * available_memory) / 100;
+> +	dirty = (vm_dirty_ratio * available_memory) / 100;
+> 	tsk = current;
+> 	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk)) {
+> 		background += background / 4;
+> -		dirty += dirty / 4;
+> +		dirty += dirty / 8;
+> 	}
+> +	if (background > dirty)
+> +		background = dirty;
+> +
+> 	*pbackground = background;
+> 	*pdirty = dirty;
+> }

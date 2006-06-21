@@ -1,351 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWFURow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWFURr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWFURow (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 13:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWFURov
+	id S932298AbWFURr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 13:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWFURr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 13:44:51 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43688 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932294AbWFURov
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 13:44:51 -0400
-Subject: PATCH: Re: Memory corruption in 8390.c ? (and hp100 xirc2ps
-	smc9194 ....)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: jgarzik@pobox.com, netdev@oss.sgi.com
-In-Reply-To: <87mzc65soy.fsf@benpfaff.org>
-References: <1150907317.8320.0.camel@alice>
-	 <1150909982.15275.100.camel@localhost.localdomain>
-	 <87mzc65soy.fsf@benpfaff.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 21 Jun 2006 18:59:40 +0100
-Message-Id: <1150912780.15275.108.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 21 Jun 2006 13:47:28 -0400
+Received: from wr-out-0506.google.com ([64.233.184.235]:13814 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932298AbWFURr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 13:47:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=SLjtX1V7ZGk8ugYtaPeu6Rea5ZnBq3GQD/j0AQM5OAU3mBMdFINmM+W4i+LOROBnbCsrmprwMTEQTAjL/F2bBeCWzzrSUs3cDWaihfPv9Dq6/rfWW9kFNioucyyd/nNOvWoxv6iA3fLvpQ3Dol4d1JLtq/4QclRd4rCmiwazIgg=
+Message-ID: <170fa0d20606211047i532b5ec5mf17a028a9ed4e3a6@mail.gmail.com>
+Date: Wed, 21 Jun 2006 13:47:27 -0400
+From: "Mike Snitzer" <snitzer@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Wish for 2006 to Alan Cox and Jeff Garzik: A functional Driver for PDC202XX
+Cc: Erik@echohome.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1150906236.15275.78.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_171327_13038139.1150912047263"
+References: <!&!AAAAAAAAAAAYAAAAAAAAAIiq6P81RFNNl8OW5VuEScvCgAAAEAAAAMbmKIDqIQhHt6BBy4E2zd0BAAAAAA==@EchoHome.org>
+	 <1150887073.15275.34.camel@localhost.localdomain>
+	 <23064.216.68.248.2.1150895349.squirrel@www.echohome.org>
+	 <1150896840.15275.62.camel@localhost.localdomain>
+	 <170fa0d20606210634t1ee3d186gd638feefd64d247d@mail.gmail.com>
+	 <1150898829.15275.69.camel@localhost.localdomain>
+	 <170fa0d20606210820l5a41150bs7e8a088d85ca8d3b@mail.gmail.com>
+	 <1150906236.15275.78.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok this is my first pass at fixing all the reported cases.
+------=_Part_171327_13038139.1150912047263
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-8390 reverts to the faster pre 2.6.9 solution
-HP100 moves the padto to a point after the fail cases
-Ditto xirc2ps
-Ditto smc9194
-Orinoco was a mess, someone long ago managed to merge both the skb_padto
-fix and the proper faster fix. The result worked (minus this newly
-noticed problem) but was not neccessary. Removed the padto stuff
-Wavelan uses the ETH_ZLEN sized buffer trick
+On 6/21/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Mer, 2006-06-21 am 11:20 -0400, ysgrifennodd Mike Snitzer:
+> > ata1: translated ATA stat/err 0x51/84 to SCSI SK/ASC/ASCQ 0xb/47/00
+> > ata1: status=0x51 { DriveReady SeekComplete Error }
+> > ata1: error=0x84 { DriveStatusError BadCRC }
+>
+> Thats a speed mistune somewhere in the code.
+>
+> Can you send me an lspci -vxx and the information on the drive (or
+> dmesg) with a "normal" kernel boot and I'll hunt it down.
 
-The trickiest one is skge. For that I've grabbed an extra reference to
-the original buffer and used that to keep the right things alive. Not
-sure if it is the best way or the right way to play with refcounts.
-Could do with more review.
+Please see attached for the lspci -vxx output.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Here is the the relevant IDE info from dmesg:
+
+ ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PDC20267: IDE controller at PCI slot 0000:01:01.0
+ACPI: PCI Interrupt Link [LNKG] enabled at IRQ 10
+PCI: setting IRQ 10 as level-triggered
+ACPI: PCI Interrupt 0000:01:01.0[A] -> Link [LNKG] -> GSI 10 (level,
+low) -> IRQ 10
+PDC20267: chipset revision 2
+PDC20267: ROM enabled at 0x40000000
+PDC20267: 100% native mode on irq 10
+PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide0: BM-DMA at 0xdf00-0xdf07, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xdf08-0xdf0f, BIOS settings: hdc:pio, hdd:pio
+Probing IDE interface ide0...
+hda: SAMSUNG SP0401N, ATA DISK drive
+ide0 at 0xdef0-0xdef7,0xdeea on irq 10
+Probing IDE interface ide1...
+ICH5: IDE controller at PCI slot 0000:00:1f.1
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
+PCI: setting IRQ 5 as level-triggered
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKC] -> GSI 5 (level,
+low) -> IRQ 5
+ICH5: chipset revision 2
+ICH5: not 100% native mode: will probe irqs later
+    ide2: BM-DMA at 0xffa8-0xffaf, BIOS settings: hde:DMA, hdf:pio
+Probing IDE interface ide2...
+hde: GCR-8483B, ATAPI CD/DVD-ROM drive
+ide2 at 0x170-0x177,0x376 on irq 15
+Probing IDE interface ide1...
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 128KiB
+hda: Host Protected Area detected.
+        current capacity is 78125000 sectors (40000 MB)
+        native  capacity is 78242976 sectors (40060 MB)
+hda: Host Protected Area disabled.
+hda: 78242976 sectors (40060 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+hda: cache flushes supported
+ hda: hda1 hda2 hda3
 
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/8390.c linux-2.6.17/drivers/net/8390.c
---- linux.vanilla-2.6.17/drivers/net/8390.c	2006-06-19 17:17:32.000000000 +0100
-+++ linux-2.6.17/drivers/net/8390.c	2006-06-21 17:41:12.007145384 +0100
-@@ -275,12 +275,14 @@
- 	struct ei_device *ei_local = (struct ei_device *) netdev_priv(dev);
- 	int send_length = skb->len, output_page;
- 	unsigned long flags;
-+	char buf[ETH_ZLEN];
-+	char *data = skb->data;
- 
- 	if (skb->len < ETH_ZLEN) {
--		skb = skb_padto(skb, ETH_ZLEN);
--		if (skb == NULL)
--			return 0;
-+		memset(buf, 0, ETH_ZLEN);	/* more efficient than doing just the needed bits */
-+		memcpy(buf, data, ETH_ZLEN);
- 		send_length = ETH_ZLEN;
-+		data = buf;
- 	}
- 
- 	/* Mask interrupts from the ethercard. 
-@@ -347,7 +349,7 @@
- 	 * trigger the send later, upon receiving a Tx done interrupt.
- 	 */
- 	 
--	ei_block_output(dev, send_length, skb->data, output_page);
-+	ei_block_output(dev, send_length, data, output_page);
- 		
- 	if (! ei_local->txing) 
- 	{
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/hp100.c linux-2.6.17/drivers/net/hp100.c
---- linux.vanilla-2.6.17/drivers/net/hp100.c	2006-06-19 17:29:46.000000000 +0100
-+++ linux-2.6.17/drivers/net/hp100.c	2006-06-21 17:52:01.211451328 +0100
-@@ -1484,14 +1484,6 @@
- 		return 0;
- 	}
- 
--	if (skb->len <= 0)
--		return 0;
--		
--	if (skb->len < ETH_ZLEN && lp->chip == HP100_CHIPID_SHASTA) {
--		skb = skb_padto(skb, ETH_ZLEN);
--		if (skb == NULL)
--			return 0;
--	}
- 
- 	/* Get Tx ring tail pointer */
- 	if (lp->txrtail->next == lp->txrhead) {
-@@ -1557,6 +1549,11 @@
- 	ringptr->pdl[0] = ((1 << 16) | i);	/* PDH: 1 Fragment & length */
- 	if (lp->chip == HP100_CHIPID_SHASTA) {
- 		/* TODO:Could someone who has the EISA card please check if this works? */
-+		if (skb->len < ETH_ZLEN) {
-+			skb = skb_padto(skb, ETH_ZLEN);
-+                	if (skb == NULL)
-+				return 0;
-+		}
- 		ringptr->pdl[2] = i;
- 	} else {		/* Lassen */
- 		/* In the PDL, don't use the padded size but the real packet size: */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/pcmcia/xirc2ps_cs.c linux-2.6.17/drivers/net/pcmcia/xirc2ps_cs.c
---- linux.vanilla-2.6.17/drivers/net/pcmcia/xirc2ps_cs.c	2006-06-19 17:29:46.000000000 +0100
-+++ linux-2.6.17/drivers/net/pcmcia/xirc2ps_cs.c	2006-06-21 18:12:50.291562288 +0100
-@@ -1359,27 +1359,11 @@
-     kio_addr_t ioaddr = dev->base_addr;
-     int okay;
-     unsigned freespace;
--    unsigned pktlen = skb? skb->len : 0;
-+    unsigned pktlen = max_t(unsigned, skb->len, ETH_ZLEN);
- 
-     DEBUG(1, "do_start_xmit(skb=%p, dev=%p) len=%u\n",
- 	  skb, dev, pktlen);
- 
--
--    /* adjust the packet length to min. required
--     * and hope that the buffer is large enough
--     * to provide some random data.
--     * fixme: For Mohawk we can change this by sending
--     * a larger packetlen than we actually have; the chip will
--     * pad this in his buffer with random bytes
--     */
--    if (pktlen < ETH_ZLEN)
--    {
--        skb = skb_padto(skb, ETH_ZLEN);
--        if (skb == NULL)
--        	return 0;
--	pktlen = ETH_ZLEN;
--    }
--
-     netif_stop_queue(dev);
-     SelectPage(0);
-     PutWord(XIRCREG0_TRS, (u_short)pktlen+2);
-@@ -1393,6 +1377,19 @@
-     if (!okay) { /* not enough space */
- 	return 1;  /* upper layer may decide to requeue this packet */
-     }
-+    /* adjust the packet length to min. required
-+     * and hope that the buffer is large enough
-+     * to provide some random data.
-+     * fixme: For Mohawk we can change this by sending
-+     * a larger packetlen than we actually have; the chip will
-+     * pad this in his buffer with random bytes
-+     */
-+    if (skb->len < ETH_ZLEN)
-+    {
-+        skb = skb_padto(skb, ETH_ZLEN);
-+        if (skb == NULL)
-+        	return 0;
-+    }
-     /* send the packet */
-     PutWord(XIRCREG_EDP, (u_short)pktlen);
-     outsw(ioaddr+XIRCREG_EDP, skb->data, pktlen>>1);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/sis190.c linux-2.6.17/drivers/net/sis190.c
---- linux.vanilla-2.6.17/drivers/net/sis190.c	2006-06-19 17:29:46.000000000 +0100
-+++ linux-2.6.17/drivers/net/sis190.c	2006-06-21 17:46:47.975070496 +0100
-@@ -1155,17 +1155,6 @@
- 	struct TxDesc *desc;
- 	dma_addr_t mapping;
- 
--	if (unlikely(skb->len < ETH_ZLEN)) {
--		skb = skb_padto(skb, ETH_ZLEN);
--		if (!skb) {
--			tp->stats.tx_dropped++;
--			goto out;
--		}
--		len = ETH_ZLEN;
--	} else {
--		len = skb->len;
--	}
--
- 	entry = tp->cur_tx % NUM_TX_DESC;
- 	desc = tp->TxDescRing + entry;
- 
-@@ -1177,6 +1166,17 @@
- 		return NETDEV_TX_BUSY;
- 	}
- 
-+	if (unlikely(skb->len < ETH_ZLEN)) {
-+		skb = skb_padto(skb, ETH_ZLEN);
-+		if (!skb) {
-+			tp->stats.tx_dropped++;
-+			goto out;
-+		}
-+		len = ETH_ZLEN;
-+	} else {
-+		len = skb->len;
-+	}
-+
- 	mapping = pci_map_single(tp->pci_dev, skb->data, len, PCI_DMA_TODEVICE);
- 
- 	tp->Tx_skbuff[entry] = skb;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/skge.c linux-2.6.17/drivers/net/skge.c
---- linux.vanilla-2.6.17/drivers/net/skge.c	2006-06-19 17:29:47.000000000 +0100
-+++ linux-2.6.17/drivers/net/skge.c	2006-06-21 18:20:10.785597016 +0100
-@@ -2298,23 +2298,28 @@
- 		+ (ring->to_clean - ring->to_use) - 1;
- }
- 
--static int skge_xmit_frame(struct sk_buff *skb, struct net_device *dev)
-+static int skge_xmit_frame(struct sk_buff *tx_skb, struct net_device *dev)
- {
- 	struct skge_port *skge = netdev_priv(dev);
- 	struct skge_hw *hw = skge->hw;
- 	struct skge_ring *ring = &skge->tx_ring;
- 	struct skge_element *e;
- 	struct skge_tx_desc *td;
-+	struct sk_buff *skb;
- 	int i;
- 	u32 control, len;
- 	u64 map;
- 
--	skb = skb_padto(skb, ETH_ZLEN);
--	if (!skb)
-+	skb_get(tx_skb);
-+	skb = skb_padto(tx_skb, ETH_ZLEN);
-+	if (!skb) {
-+		dev_kfree_skb(tx_skb);
- 		return NETDEV_TX_OK;
-+	}
- 
- 	if (!spin_trylock(&skge->tx_lock)) {
- 		/* Collision - tell upper layer to requeue */
-+		kfree(skb);
- 		return NETDEV_TX_LOCKED;
- 	}
- 
-@@ -2326,6 +2331,7 @@
- 			       dev->name);
- 		}
- 		spin_unlock(&skge->tx_lock);
-+		kfree(skb);
- 		return NETDEV_TX_BUSY;
- 	}
- 
-@@ -2403,6 +2409,8 @@
- 	spin_unlock(&skge->tx_lock);
- 
- 	dev->trans_start = jiffies;
-+	/* Drop the reference, the completion handler will drop the final one */
-+	kfree_skb(tx_skb);
- 
- 	return NETDEV_TX_OK;
- }
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/smc9194.c linux-2.6.17/drivers/net/smc9194.c
---- linux.vanilla-2.6.17/drivers/net/smc9194.c	2006-06-19 17:17:33.000000000 +0100
-+++ linux-2.6.17/drivers/net/smc9194.c	2006-06-21 17:57:57.604271384 +0100
-@@ -520,17 +520,8 @@
- 	}
- 	lp->saved_skb = skb;
- 
--	length = skb->len;
-+	length = max(skb->len, ETH_ZLEN);
- 
--	if (length < ETH_ZLEN) {
--		skb = skb_padto(skb, ETH_ZLEN);
--		if (skb == NULL) {
--			netif_wake_queue(dev);
--			return 0;
--		}
--		length = ETH_ZLEN;
--	}
--		
- 	/*
- 	** The MMU wants the number of pages to be the number of 256 bytes
- 	** 'pages', minus 1 ( since a packet can't ever have 0 pages :) )
-@@ -616,7 +607,7 @@
- 	struct smc_local *lp = netdev_priv(dev);
- 	byte	 		packet_no;
- 	struct sk_buff * 	skb = lp->saved_skb;
--	word			length;
-+	word			length, data_length;
- 	unsigned int		ioaddr;
- 	byte			* buf;
- 
-@@ -626,7 +617,16 @@
- 		PRINTK((CARDNAME": In XMIT with no packet to send \n"));
- 		return;
- 	}
--	length = ETH_ZLEN < skb->len ? skb->len : ETH_ZLEN;
-+
-+	if (length < ETH_ZLEN) {
-+		skb = skb_padto(skb, ETH_ZLEN);
-+		if (skb == NULL) {
-+			lp->saved_skb = NULL;
-+			netif_wake_queue(dev);
-+			return;
-+		}
-+		length = ETH_ZLEN;
-+	}
- 	buf = skb->data;
- 
- 	/* If I get here, I _know_ there is a packet slot waiting for me */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/wireless/orinoco.c linux-2.6.17/drivers/net/wireless/orinoco.c
---- linux.vanilla-2.6.17/drivers/net/wireless/orinoco.c	2006-06-19 17:29:48.000000000 +0100
-+++ linux-2.6.17/drivers/net/wireless/orinoco.c	2006-06-21 18:19:02.849924808 +0100
-@@ -491,11 +491,8 @@
- 	}
- 
- 	/* Length of the packet body */
--	/* FIXME: what if the skb is smaller than this? */
-+	/* A shorter data_len will be padded by hermes_bap_pwrite_pad */
- 	len = max_t(int, ALIGN(skb->len, 2), ETH_ZLEN);
--	skb = skb_padto(skb, len);
--	if (skb == NULL)
--		goto fail;
- 	len -= ETH_HLEN;
- 
- 	eh = (struct ethhdr *)skb->data;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.17/drivers/net/wireless/wavelan.c linux-2.6.17/drivers/net/wireless/wavelan.c
---- linux.vanilla-2.6.17/drivers/net/wireless/wavelan.c	2006-06-19 17:29:48.000000000 +0100
-+++ linux-2.6.17/drivers/net/wireless/wavelan.c	2006-06-21 18:16:01.599479064 +0100
-@@ -2903,6 +2903,7 @@
- {
- 	net_local *lp = (net_local *) dev->priv;
- 	unsigned long flags;
-+	char data[ETH_ZLEN];
- 
- #ifdef DEBUG_TX_TRACE
- 	printk(KERN_DEBUG "%s: ->wavelan_packet_xmit(0x%X)\n", dev->name,
-@@ -2937,15 +2938,16 @@
- 	 * able to detect collisions, therefore in theory we don't really
- 	 * need to pad. Jean II */
- 	if (skb->len < ETH_ZLEN) {
--		skb = skb_padto(skb, ETH_ZLEN);
--		if (skb == NULL)
--			return 0;
-+		memset(data, 0, ETH_ZLEN);
-+		memcpy(data, skb->data, skb->len);
-+		/* Write packet on the card */
-+		if(wv_packet_write(dev, data, ETH_ZLEN))
-+			return 1;	/* We failed */
- 	}
--
--	/* Write packet on the card */
--	if(wv_packet_write(dev, skb->data, skb->len))
-+	else if(wv_packet_write(dev, skb->data, skb->len))
- 		return 1;	/* We failed */
- 
-+
- 	dev_kfree_skb(skb);
- 
- #ifdef DEBUG_TX_TRACE
+also smartctl info:
 
+=== START OF INFORMATION SECTION ===
+Device Model:     SAMSUNG SP0401N
+Serial Number:    S004J10Y647557
+Firmware Version: TJ100-28
+User Capacity:    40,060,403,712 bytes
+Device is:        In smartctl database [for details use: -P show]
+ATA Version is:   7
+ATA Standard is:  ATA/ATAPI-7 T13 1532D revision 0
+Local Time is:    Wed Jun 21 13:45:56 2006 EDT
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+------=_Part_171327_13038139.1150912047263
+Content-Type: application/x-gzip; name=lspci.txt.gz
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eopz299m
+Content-Disposition: attachment; filename="lspci.txt.gz"
+
+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
+AAA=
+------=_Part_171327_13038139.1150912047263--

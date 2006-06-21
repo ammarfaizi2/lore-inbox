@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWFUL0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWFUL2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWFUL0y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 07:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWFUL0y
+	id S932080AbWFUL2j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 07:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWFUL2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 07:26:54 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60346 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932067AbWFUL0x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 07:26:53 -0400
-Subject: Re: 2.6.17-rc6-mm2 VIA PATA fails on some ATAPI drives
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org
-In-Reply-To: <4495A3E6.6010405@free.fr>
-References: <4495A3E6.6010405@free.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 21 Jun 2006 12:42:05 +0100
-Message-Id: <1150890125.15275.50.camel@localhost.localdomain>
+	Wed, 21 Jun 2006 07:28:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35204 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751332AbWFUL2i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 07:28:38 -0400
+Date: Wed, 21 Jun 2006 04:28:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm1
+Message-Id: <20060621042830.a11e87ff.akpm@osdl.org>
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-06-18 am 21:05 +0200, ysgrifennodd matthieu castet:
-> I make a patch that seem to make work the drive. It is attached as 
-> pata-via-atapi.I don't know if is the correct thing to do.
+On Wed, 21 Jun 2006 03:48:57 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-To be honest I am still very confused about this one as well. It isn't
-just occurring with the CDR-6S48 either, a few other reports look as if
-they are the same kind of problem.
+> - ia64 doesn't compile for me, due to git-klibc problems (a truly ancient
+>   toolchain might be implicated).
 
-I didn't spot anything in the ATAPI spec but I need to go back over it
-in case I missed something here. Similarly I can find nothing in the VIA
-docs to explain the occurence.
-
-I don't see anything fundamentally wrong with the patch, I'd just like
-to understand better the real reasons behind it.
+Actually I did do a full ia64 allmodconfig build on a recent distro.  So
+it's "broken on RHAS 2.1".
 

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWFUT22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWFUT3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWFUT22 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWFUT21
+	id S1751401AbWFUT3x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWFUT3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:28:27 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:24728 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751301AbWFUT20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:28:26 -0400
-Date: Wed, 21 Jun 2006 12:25:19 -0700
-From: Greg KH <greg@kroah.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] PCI patches for 2.6.17
-Message-ID: <20060621192519.GA22142@kroah.com>
-References: <20060621190246.GA20912@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jun 2006 15:29:53 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:62226 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751401AbWFUT3w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:29:52 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Subject: Re: gcc-4.1.1 and kernel-2.4.32
+Date: Wed, 21 Jun 2006 20:29:20 +0100
+User-Agent: KMail/1.9.3
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+References: <200606211425.k5LEPtY6012550@wildsau.enemy.org>
+In-Reply-To: <200606211425.k5LEPtY6012550@wildsau.enemy.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060621190246.GA20912@kroah.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200606212029.20032.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 12:02:46PM -0700, Greg KH wrote:
-> Here are some PCI fixes and patches for 2.6.17.  They do a bunch of work
-> getting MSI to work properly on ia64, and fix some other MSI issues.  We
-> also added a few new sysfs attributes for PCI devices and add some more
-> quirks and fix a few minor bugs.
+On Wednesday 21 June 2006 15:25, Herbert Rosmanith wrote:
+> > In effect (mainline) no. Linux 2.2 and 2.0 won't be fixed for the same
+> > reason; called deep maintenance. 2.6 has been on the road since Dec 2003,
+> > that's over 2 years. Do away with the old stuff.
+>
+> we are in the process of switching, which is not unproblematic. on
+> the other hand, we have to support existing installations as well.
 
-Oh, and others have already noticed, the first patch in this series
-fixes a build bug in the current tree where myri10ge.c does not build
-due to PCI_CAP_ID_VNDR not being defined.
+FWIW, distributions generally let you install older GCCs. Hopefully your 
+distribution still has 2.95.3 in its repository, so you could install this to 
+get a well tested (and probably smaller code generating) compiler for 2.4 
+kernels. gcc -V <version> can be used to switch between them, if your 
+distributor opts to install to the same prefix.
 
-Sorry about that, it was a dependancy between the network driver tree
-and mine.
+-- 
+Cheers,
+Alistair.
 
-thanks,
-
-greg k-h
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

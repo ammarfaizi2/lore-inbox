@@ -1,83 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWFUHUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWFUHUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWFUHUA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 03:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWFUHUA
+	id S1751256AbWFUHUw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 03:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWFUHUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 03:20:00 -0400
-Received: from mail.mnsspb.ru ([84.204.75.2]:1952 "EHLO mail.mnsspb.ru")
-	by vger.kernel.org with ESMTP id S1751234AbWFUHUA (ORCPT
+	Wed, 21 Jun 2006 03:20:52 -0400
+Received: from mail.sysgo.com ([62.8.134.5]:26571 "EHLO mail.sysgo.com")
+	by vger.kernel.org with ESMTP id S1751256AbWFUHUv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 03:20:00 -0400
-From: Kirill Smelkov <kirr@mns.spb.ru>
-Organization: MNS
-To: David Howells <dhowells@redhat.com>
-Subject: [PATCH] doc: fix typos in Documentation/memory-barriers.txt
-Date: Wed, 21 Jun 2006 11:20:55 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
+	Wed, 21 Jun 2006 03:20:51 -0400
+From: Gerhard Jaeger <g.jaeger@sysgo.com>
+To: linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH 2/3] FS_ENET: use PAL for mii management
+Date: Wed, 21 Jun 2006 09:20:36 +0200
+User-Agent: KMail/1.9.1
+Cc: Vitaly Bordug <vbordug@ru.mvista.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <20060620145825.24807.310.stgit@vitb.ru.mvista.com> <20060620145840.24807.30296.stgit@vitb.ru.mvista.com>
+In-Reply-To: <20060620145840.24807.30296.stgit@vitb.ru.mvista.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200606211120.56953.kirr@mns.spb.ru>
+Message-Id: <200606210920.37295.g.jaeger@sysgo.com>
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 7.1.0.15; VDF: 6.35.0.57; host: mailgate2.sysgo.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for excellent article!
-While reading it I discovered a few typos.
+Hi,
 
-Signed-off-by: Kirill Smelkov <kirr@mns.spb.ru>
+On Tuesday 20 June 2006 16:58, Vitaly Bordug wrote:
+> 
+> This patch should update the fs_enet infrastructure to utilize
+> Phy Abstraction Layer subsystem. Inside there are generic driver rehaul,
+> board-specific portion to respect driver changes (for 8272ads and 866ads).
+> 
+> Signed-off-by: Vitaly Bordug <vbordug@ru.mvista.com>
+> ---
+> 
+>  arch/ppc/platforms/mpc8272ads_setup.c |  154 ++++++----
+>  arch/ppc/platforms/mpc866ads_setup.c  |  192 ++++++------
+>  arch/ppc/platforms/mpc885ads_setup.c  |  179 ++++--------
+>  arch/ppc/syslib/mpc8xx_devices.c      |    8 +
+>  arch/ppc/syslib/mpc8xx_sys.c          |    6 
+>  arch/ppc/syslib/pq2_devices.c         |    5 
+>  arch/ppc/syslib/pq2_sys.c             |    3 
+>  drivers/net/fs_enet/Makefile          |    6 
+>  drivers/net/fs_enet/fec.h             |   42 +++
+>  drivers/net/fs_enet/fs_enet-main.c    |  207 ++++++++-----
+>  drivers/net/fs_enet/fs_enet-mii.c     |  507 ---------------------------------
+>  drivers/net/fs_enet/fs_enet.h         |   40 ++-
+>  drivers/net/fs_enet/mac-fcc.c         |   10 -
+>  drivers/net/fs_enet/mac-fec.c         |  132 +--------
+>  drivers/net/fs_enet/mac-scc.c         |    4 
+>  drivers/net/fs_enet/mii-bitbang.c     |  384 +++++++++++++++----------
+>  drivers/net/fs_enet/mii-fec.c         |  243 ++++++++++++++++
+>  drivers/net/fs_enet/mii-fixed.c       |   92 ------
+>  include/asm-ppc/mpc8260.h             |    1 
+>  include/asm-ppc/mpc8xx.h              |    1 
+>  include/linux/fs_enet_pd.h            |   50 +--
+>  21 files changed, 983 insertions(+), 1283 deletions(-)
 
-diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-index 4710845..638b686 100644
---- a/Documentation/memory-barriers.txt
-+++ b/Documentation/memory-barriers.txt
-@@ -282,7 +282,7 @@ Memory barriers come in four basic varie
-      A write barrier is a partial ordering on stores only; it is not required
-      to have any effect on loads.
- 
--     A CPU can be viewed as as commiting a sequence of store operations to the
-+     A CPU can be viewed as commiting a sequence of store operations to the
-      memory system as time progresses.  All stores before a write barrier will
-      occur in the sequence _before_ all the stores after the write barrier.
- 
-@@ -484,7 +484,7 @@ lines.  The pointer P might be stored in
- variable B might be stored in an even-numbered cache line.  Then, if the
- even-numbered bank of the reading CPU's cache is extremely busy while the
- odd-numbered bank is idle, one can see the new value of the pointer P (&B),
--but the old value of the variable B (1).
-+but the old value of the variable B (2).
- 
- 
- Another example of where data dependency barriers might by required is where a
-@@ -744,7 +744,7 @@ some effectively random order, despite t
- 	                                        :       :
- 
- 
--If, however, a read barrier were to be placed between the load of E and the
-+If, however, a read barrier were to be placed between the load of B and the
- load of A on CPU 2:
- 
- 	CPU 1			CPU 2
-@@ -1461,7 +1461,7 @@ instruction itself is complete.
- 
- On a UP system - where this wouldn't be a problem - the smp_mb() is just a
- compiler barrier, thus making sure the compiler emits the instructions in the
--right order without actually intervening in the CPU.  Since there there's only
-+right order without actually intervening in the CPU.  Since there's only
- one CPU, that CPU's dependency ordering logic will take care of everything
- else.
- 
-@@ -1640,7 +1640,7 @@ functions:
- 
-      The PCI bus, amongst others, defines an I/O space concept - which on such
-      CPUs as i386 and x86_64 cpus readily maps to the CPU's concept of I/O
--     space.  However, it may also mapped as a virtual I/O space in the CPU's
-+     space.  However, it may also be mapped as a virtual I/O space in the CPU's
-      memory map, particularly on those CPUs that don't support alternate
-      I/O spaces.
- 
+[SNIPSNAP]
+> diff --git a/drivers/net/fs_enet/mii-bitbang.c b/drivers/net/fs_enet/mii-bitbang.c
+> index 24a5e2e..145bf4c 100644
+> --- a/drivers/net/fs_enet/mii-bitbang.c
+> +++ b/drivers/net/fs_enet/mii-bitbang.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/mii.h>
+>  #include <linux/ethtool.h>
+>  #include <linux/bitops.h>
+> +#include <linux/platform_device.h>
+>  
+>  #include <asm/pgtable.h>
+>  #include <asm/irq.h>
+> @@ -41,6 +42,7 @@
+>  
+>  #include "fs_enet.h"
+>  
+> +
+>  #ifdef CONFIG_8xx
+>  static int bitbang_prep_bit(u8 **dirp, u8 **datp, u8 *mskp, int port, int bit)
+>  {
+> @@ -106,64 +108,25 @@ static int bitbang_prep_bit(u8 **dirp, u
+>  }
+>  #endif
+>  
+> -#ifdef CONFIG_8260
+> -static int bitbang_prep_bit(u8 **dirp, u8 **datp, u8 *mskp, int port, int bit)
+> +static int bitbang_prep_bit(u8 **datp, u8 *mskp,
+> +		struct fs_mii_bit *mii_bit)
 
+is it possible, that in case of CONFIG_8xx you'll have two times this 
+bitbang_prep_bit() function? 
+
+Gerhard
+
+-- 
+Gerhard Jaeger <gjaeger@sysgo.com>            
+SYSGO AG                      Embedded and Real-Time Software
+www.sysgo.com | www.elinos.com | www.pikeos.com | www.osek.de 
 

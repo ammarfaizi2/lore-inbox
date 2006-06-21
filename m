@@ -1,69 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWFUVbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWFUVdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWFUVbb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWFUVbb
+	id S932067AbWFUVdW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWFUVdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:31:31 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:3738 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932202AbWFUVba (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:31:30 -0400
-Message-ID: <4499BAA9.3000707@watson.ibm.com>
-Date: Wed, 21 Jun 2006 17:31:21 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jay Lan <jlan@engr.sgi.com>, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com>	<20060609042129.ae97018c.akpm@osdl.org>	<4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com> <20060621133838.12dfa9f8.akpm@osdl.org>
-In-Reply-To: <20060621133838.12dfa9f8.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 21 Jun 2006 17:33:22 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:27322 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932067AbWFUVdV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:33:21 -0400
+Subject: Re: [PATCH] Per-task watchers: Enable inheritance
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+In-Reply-To: <44991FB3.4060209@bigpond.net.au>
+References: <1150879635.21787.964.camel@stark>
+	 <44991FB3.4060209@bigpond.net.au>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 14:27:57 -0700
+Message-Id: <1150925277.21787.1053.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Wed, 2006-06-21 at 20:30 +1000, Peter Williams wrote:
+> Matt Helsley wrote:
+> > This allows per-task watchers to implement inheritance of the same function
+> > and/or data in response to the initialization of new tasks. A watcher might
+> > implement inheritance using the following notifier_call snippet:
+> > 
+> > int my_notify_func(struct notifier_block *nb, unsigned long val, void *t)
+> > {
+> > 	struct task_struct *tsk = t;
+> > 	struct notifier_block *child_nb;
+> > 	
+> > 	switch(get_watch_event(val)){
+> > 	case WATCH_TASK_INIT: /* use container_of() to associate extra data */
+> > 		child_nb = kzalloc(sizeof(struct notifier_block), GFP_KERNEL);
+> > 		if (!child_nb)
+> > 			return NOTIFY_DONE;
+> > 		child_nb->notifier_call = my_notify_func;
+> > 		register_per_task_watcher(tsk, child_nb);
+> > 		return NOTIFY_OK;
+> > 	case WATCH_TASK_FREE:
+> > 		unregister_per_task_watcher(tsk, nb);
+> > 		kfree(nb);
+> > 		return NOTIFY_OK;
+> > 
+> > Compile tested only. Peter, is this useful to you?
+> 
+> I think that it's what I want (i.e. the implementation is what I would 
+> have done) but I'm confused by you reference to inheritance.  My concern 
+> is to NOT inherit the data (via the notifier_block) but to have separate 
+> data for each task which is why I was concerned about not finding where 
+> "notify" was being initialized on boot.
 
->On Wed, 21 Jun 2006 12:11:13 -0700
->Jay Lan <jlan@engr.sgi.com> wrote:
->
->  
->
->>Another observation that i considered bad news is that all
->>10 runs produced 1 to 5 recv() error with errno=105 (ENOBUF).
->>    
->>
->
->Well that's rather bad.  AFAICT most of the allocations in there are
->GFP_KERNEL, so why is this happening?
->  
->
+Sorry, "inheritance" isn't exactly what it is. Poor choice of wording on
+my part.
 
-Need to trace the cause.
+> What I'm doing is using an ordinary watcher to catch new tasks being 
+> created via WATCH_TASK_INIT and attaching a per task watcher to them at 
+> that time.  As per your suggestion the notifier_block for the per task 
+> watcher is contained in a struct which contains the data that I need to 
+> maintain for each task.  So two layers of watchers :-)
 
->Because the kernel is producing netlink messages faster than userspace can
->consume them, perhaps? 
->
-Hmm...possible. A quick check would be to reduce the frequency of exits 
-and see.
+	Hmm. Ideally you should need only one layer. When caps have been
+established on a group you'd need to create the per-task watchers. From
+there on I'd expect new tasks that fork to be added to the same group
+using existing per-task watchers. Of course the trick is getting the
+initial task(s) into the group. With per-task watchers that's difficult
+because the group assignment might originate externally but registration
+must happen from the context of the task being registered. I could
+remove this restriction by paying an increased cost in complexity.
+Please let me know if you run into extreme difficulties with per-task
+watchers due to this context constraint.
 
-> If so, the sender needs to block, which means we
->need to make reception of these stats a privileged operation?
->  
->
-Won't it suffice to make delivery of these stats best effort, with 
-userspace dealing with missing data,
-rather than risk delaying exits ? The cases where exits are so frequent 
-as in this program should be
-very few. Making the reception privileged would kind of constrain the 
-utilization of stats and I'm not
-sure if  its warranted.
+> It will be a good test of your mechanism if I can get it to work.
 
+Yes.
 
---Shailabh
+> It'll probably take me another couple of days to complete this code as 
+> I'm having to figure out how it all hangs together as I go.  I'll let 
+> you know when I've finished.
+> 
+> Peter
 
+	Thanks, I look forward to seeing it. Partially as a test and partially
+because I'm curious if it will be compatible with the resource groups
+(formerly CKRM) group structure.
+
+Cheers,
+	-Matt Helsley
 

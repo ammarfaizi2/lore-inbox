@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWFUGYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWFUG0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWFUGYA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 02:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWFUGYA
+	id S1751149AbWFUG0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 02:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWFUG0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 02:24:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12002 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751127AbWFUGX7 (ORCPT
+	Wed, 21 Jun 2006 02:26:48 -0400
+Received: from max.feld.cvut.cz ([147.32.192.36]:10179 "EHLO max.feld.cvut.cz")
+	by vger.kernel.org with ESMTP id S1751149AbWFUG0r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 02:23:59 -0400
-Date: Wed, 21 Jun 2006 02:23:46 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc6-mm1
-Message-ID: <20060621062346.GA10637@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060607104724.c5d3d730.akpm@osdl.org> <20060608050047.GB16729@redhat.com> <1150825349.2891.219.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jun 2006 02:26:47 -0400
+From: CIJOML <cijoml@volny.cz>
+To: jkmaline@cc.hut.fi, linux-kernel@vger.kernel.org
+Subject: 2.6.17 - hostap_cs: unexpected IRQ trap at vector b0 and kernel freeze :(
+Date: Wed, 21 Jun 2006 08:26:40 +0200
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1150825349.2891.219.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200606210826.40184.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 07:42:29PM +0200, Arjan van de Ven wrote:
- > On Thu, 2006-06-08 at 01:00 -0400, Dave Jones wrote:
- > > On Wed, Jun 07, 2006 at 10:47:24AM -0700, Andrew Morton wrote:
- > >  > 
- > >  > ftp://ftp.kernel.org/pub/linux/kernel/peopleD/akpm/patches/2.6/2.6.17-rc6/2.6.17-rc6-mm1/
- > >  > 
- > >  > - Many more lockdep updates
- > > 
- > > Needs more.
- > > 
- > > ====================================
- > > [ BUG: possible deadlock detected! ]
- > > ------------------------------------
- > > nfsd/11429 is trying to acquire lock:
- > >  (&inode->i_mutex){--..}, at: [<c032286a>] mutex_lock+0x21/0x24
- > > 
- > > but task is already holding lock:
- > >  (&inode->i_mutex){--..}, at: [<c032286a>] mutex_lock+0x21/0x24
- > > 
- > > which could potentially lead to deadlocks!
- > 
- > Does this fix it for you? (it fixes the case for me)
+Hi Jouni,
 
-Hmm. This makes things drastically worse for me. Now it hangs during NFS startup.
+I have problem with 2.6.17 kernel.
 
-$ sudo service nfs start
-Starting NFS services:                                     [  OK  ]
-Starting NFS quotas:
+When I insert card or boot with card in pcmcia slot, kernel always freezes!
 
-and that's all she wrote.
+dmesg:
+hostap_cs: Registered netdevice wifi0
+unexpected IRQ trap at vector b0
+hostap_cs: index 0x01, irq3, io 0x3100-0x313f
+kernel freeze
 
-ps axf..
+up to 2.6.16 everythink worked fine!
 
- 2757 pts/0    S+     0:00  |           \_ /bin/sh /sbin/service nfs start
- 2760 pts/0    S+     0:00  |               \_ /bin/sh /etc/init.d/nfs start
- 2771 pts/0    S+     0:00  |                   \_ /bin/bash -c ulimit -S -c 0 >/dev/null 2>&1 ; rpc.rquotad
- 2772 pts/0    S+     0:00  |                       \_ rpc.rquotad
-	
+Can you please fix this ASAP? This is my only connection to the internet.
 
-If I ssh into the box, and get sysrq-t output, I see..
-http://people.redhat.com/davej/nfs
+Thanks
 
-I've kicked off a clean build that I'll leave running overnight, as I'm not
-100% sure that was a clean tree I built from. Odd behaviour for a miscompile though.
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+Michal

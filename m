@@ -1,107 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWFUVBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWFUVE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030310AbWFUVBU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbWFUVBQ
+	id S1030300AbWFUVE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWFUVE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:01:16 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:53479 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1030300AbWFUVAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:00:36 -0400
-Date: Wed, 21 Jun 2006 23:00:35 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
+	Wed, 21 Jun 2006 17:04:26 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47236 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030300AbWFUVEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:04:25 -0400
+Subject: Re: [PATCH -mm 1/6] cpu_relax(): interrupt.h
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH -mm 5/6] cpu_relax(): use in ACPI lock
-Message-ID: <20060621210035.GE22516@rhlx01.fht-esslingen.de>
+In-Reply-To: <20060621205932.GA22516@rhlx01.fht-esslingen.de>
+References: <20060621205932.GA22516@rhlx01.fht-esslingen.de>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 23:04:20 +0200
+Message-Id: <1150923860.3057.116.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-06-21 at 22:59 +0200, Andreas Mohr wrote:
+> Add cpu_relax() to tasklet_unlock_wait() loop.
+> 
+> 
+> I kept barrier() since it is said to still be required, in various older
+> postings.
 
-Use cpu_relax() in __acpi_acquire_global_lock() etc.
+cpu_relax() includes a barrier always, per definition.
+(simply because anywhere you would use cpu_relax() you would also put a
+barrier)
 
 
-This could be considered overkill given the previous unlikely(),
-but it is busy-looping in case of false condition after all...
-
-Tested on 2.6.17-mm1, i386 only (no x86_64 here).
-
-Signed-off-by: Andreas Mohr <andi@lisas.de>
-
-
-diff -urN linux-2.6.17-mm1.orig/include/asm-i386/acpi.h linux-2.6.17-mm1.my/include/asm-i386/acpi.h
---- linux-2.6.17-mm1.orig/include/asm-i386/acpi.h	2006-06-19 10:57:27.000000000 +0200
-+++ linux-2.6.17-mm1.my/include/asm-i386/acpi.h	2006-06-21 14:43:24.000000000 +0200
-@@ -61,11 +61,14 @@
- __acpi_acquire_global_lock (unsigned int *lock)
- {
- 	unsigned int old, new, val;
--	do {
-+	while (1) {
- 		old = *lock;
- 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
- 		val = cmpxchg(lock, old, new);
--	} while (unlikely (val != old));
-+		if (likely(val == old))
-+			break;
-+		cpu_relax();
-+	}
- 	return (new < 3) ? -1 : 0;
- }
- 
-@@ -73,11 +76,14 @@
- __acpi_release_global_lock (unsigned int *lock)
- {
- 	unsigned int old, new, val;
--	do {
-+	while (1) {
- 		old = *lock;
- 		new = old & ~0x3;
- 		val = cmpxchg(lock, old, new);
--	} while (unlikely (val != old));
-+		if (likely(val == old))
-+			break;
-+		cpu_relax();
-+	}
- 	return old & 0x1;
- }
- 
-diff -urN linux-2.6.17-mm1.orig/include/asm-x86_64/acpi.h linux-2.6.17-mm1.my/include/asm-x86_64/acpi.h
---- linux-2.6.17-mm1.orig/include/asm-x86_64/acpi.h	2006-06-21 14:28:19.000000000 +0200
-+++ linux-2.6.17-mm1.my/include/asm-x86_64/acpi.h	2006-06-21 14:43:24.000000000 +0200
-@@ -59,11 +59,14 @@
- __acpi_acquire_global_lock (unsigned int *lock)
- {
- 	unsigned int old, new, val;
--	do {
-+	while (1) {
- 		old = *lock;
- 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
- 		val = cmpxchg(lock, old, new);
--	} while (unlikely (val != old));
-+		if (likely(val == old))
-+			break;
-+		cpu_relax();
-+	}
- 	return (new < 3) ? -1 : 0;
- }
- 
-@@ -75,7 +78,10 @@
- 		old = *lock;
- 		new = old & ~0x3;
- 		val = cmpxchg(lock, old, new);
--	} while (unlikely (val != old));
-+		if (likely(val == old))
-+			break;
-+		cpu_relax();
-+	}
- 	return old & 0x1;
- }
- 

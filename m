@@ -1,33 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWFUAeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWFUAey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWFUAeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 20:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWFUAeZ
+	id S932225AbWFUAey (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 20:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWFUAey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 20:34:25 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23685
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932212AbWFUAeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 20:34:24 -0400
-Date: Tue, 20 Jun 2006 17:34:34 -0700 (PDT)
-Message-Id: <20060620.173434.35660839.davem@davemloft.net>
-To: linux-kernel@vger.kernel.org
-CC: torvalds@osdl.org, akpm@osdl.org, dwmw2@infradead.org
-Subject: cfq-iosched.c:RB_CLEAR_COLOR
-From: David Miller <davem@davemloft.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jun 2006 20:34:54 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:12228 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932229AbWFUAex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 20:34:53 -0400
+Date: Tue, 20 Jun 2006 17:34:30 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Andrew Morton <akpm@osdl.org>, npiggin@suse.de, Paul.McKenney@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch 0/3] 2.6.17 radix-tree: updates and lockless
+In-Reply-To: <1150847428.1901.60.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0606201732580.14331@schroedinger.engr.sgi.com>
+References: <20060408134635.22479.79269.sendpatchset@linux.site> 
+ <20060620153555.0bd61e7b.akpm@osdl.org>  <1150844989.1901.52.camel@localhost.localdomain>
+  <20060620163037.6ff2c8e7.akpm@osdl.org> <1150847428.1901.60.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Jun 2006, Benjamin Herrenschmidt wrote:
 
-That got removed in Linus's tree today, yet cfq-iosched.c
-still contains a reference to it.
+> Anyway, I can drop a spinlock in (in fact I have) the ppc64 irq code for
+> now but that sucks, thus we should really seriously consider having the
+> lockless tree in 2.6.18 or I might have to look into doing an alternate
+> implementation specifically in arch code... or find some other way of
+> doing the inverse mapping there...
 
-The culprit changeset seems to be 3db3a44.
+How many interrupts do you have to ? I would expect a simple table 
+lookup would be fine to get from the virtual to the real interrupt.
 
-There were two explicit calls in the cfq-iosched.c file
-to RB_CLEAR_COLOR, only the one in cfq_del_crq_rb() got
-removed so the build fails.

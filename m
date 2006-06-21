@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWFULSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWFUL0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWFULSL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 07:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWFULSL
+	id S932082AbWFUL0y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 07:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWFUL0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 07:18:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21997 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932073AbWFULSK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 07:18:10 -0400
-Date: Wed, 21 Jun 2006 04:17:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-Message-Id: <20060621041758.4235dbc6.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0606210407y781b3d41nef533847f579520b@mail.gmail.com>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-	<6bffcb0e0606210407y781b3d41nef533847f579520b@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 21 Jun 2006 07:26:54 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60346 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932067AbWFUL0x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 07:26:53 -0400
+Subject: Re: 2.6.17-rc6-mm2 VIA PATA fails on some ATAPI drives
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org
+In-Reply-To: <4495A3E6.6010405@free.fr>
+References: <4495A3E6.6010405@free.fr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Jun 2006 12:42:05 +0100
+Message-Id: <1150890125.15275.50.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 13:07:41 +0200
-"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+Ar Sul, 2006-06-18 am 21:05 +0200, ysgrifennodd matthieu castet:
+> I make a patch that seem to make work the drive. It is attached as 
+> pata-via-atapi.I don't know if is the correct thing to do.
 
-> On 21/06/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
-> >
-> >
-> > - powerpc is bust (on g5, at least).  git-klibc is causing nash to fail on
-> >   startup and some later patch is causing a big crash (I didn't bisect that
-> >   one - later).
-> >
-> > - ia64 doesn't compile for me, due to git-klibc problems (a truly ancient
-> >   toolchain might be implicated).
-> >
-> 
-> I have the similar problem here
-> 
-> usr/klibc/syscalls/typesize.c:1:23: error: syscommon.h: No such file
-> or directory
+To be honest I am still very confused about this one as well. It isn't
+just occurring with the CDR-6S48 either, a few other reports look as if
+they are the same kind of problem.
 
-That one's probably just a parallel kbuild race.  Type `make' again.
+I didn't spot anything in the ATAPI spec but I need to go back over it
+in case I missed something here. Similarly I can find nothing in the VIA
+docs to explain the occurence.
+
+I don't see anything fundamentally wrong with the patch, I'd just like
+to understand better the real reasons behind it.
+

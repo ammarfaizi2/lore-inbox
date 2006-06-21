@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWFUKJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWFUKVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbWFUKJx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 06:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWFUKJw
+	id S1751455AbWFUKVd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 06:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWFUKVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 06:09:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:31924 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751467AbWFUKJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 06:09:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=bhHJ3fO7Ea+uVssTjSt619bW9XH50TcBpAKRb7nfgaO2oajnJA+W5Me626UoJp36kYlpGCkkoA2PLTg/UM46heoITtW2ToakBlMjO8RrtvxlndjapRHckUP3U1flkTxUxZc/UYMpezXHc2wBaFZH9v7qVaT9Ew4CBcsEeMdOttU=
-Message-ID: <44991AFA.9050600@gmail.com>
-Date: Wed, 21 Jun 2006 12:10:02 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: John Rigg <lk@sound-man.co.uk>
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-rt1 unknown symbol monotonic_clock
-References: <20060621100623.GA2960@localhost.localdomain>
-In-Reply-To: <20060621100623.GA2960@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Wed, 21 Jun 2006 06:21:33 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:39913 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1751455AbWFUKVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 06:21:32 -0400
+Subject: Re: 2.6.17-rc6-mm1/pktcdvd - BUG: possible circular locking
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       petero2@telia.com
+In-Reply-To: <20060612164152.GP4420@suse.de>
+References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
+	 <20060612164152.GP4420@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Jun 2006 12:21:15 +0200
+Message-Id: <1150885275.3057.32.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John,
-
-John Rigg napisał(a):
-> Just compiled 2.6.17-rt1 on x86_64 UP system and got the following
-> message when doing `make modules_install':
-> WARNING: /lib/modules/2.6.17-rt1/kernel/drivers/char/hangcheck-timer.ko \
-> needs unknown symbol monotonic_clock
-
-Please try this patch
-
-diff -uprN -X linux-work/Documentation/dontdiff linux-work-clean/drivers/char/hangcheck-timer.c linux-work/drivers/char/hangcheck-timer.c
---- linux-work-clean/drivers/char/hangcheck-timer.c	2006-06-19 21:04:36.000000000 +0200
-+++ linux-work/drivers/char/hangcheck-timer.c	2006-06-19 21:08:49.000000000 +0200
-@@ -133,6 +133,8 @@ static inline unsigned long long monoton
- {
- 	return get_cycles();
- }
-+
-+EXPORT_SYMBOL(monotonic_clock);
- #endif  /* HAVE_MONOTONIC */
-
+On Mon, 2006-06-12 at 18:41 +0200, Jens Axboe wrote:
+> On Mon, Jun 12 2006, Arjan van de Ven wrote:
+> > Laurent Riffard wrote:
+> > >Hello,
+> > >
+> > >This BUG happened while pktcdvd service was starting. 
+> > >Basically, the 2 following commands were issued:
+> > >- modprobe ptkcdvd
+> > >- pktsetup dvd /dev/dvd
+> > 
+> > This appears to be a real bug:
+> > 
+> > A normal pkt dvd block dev open takes the
+> > bdev_mutex in the regular block device open path, which takes
+> > ctl_mutex in the pkt_open function which gets called then from
+> > the block layer.
+> > 
+> > HOWEVER the IOCTL path does it the other way around:
+> > 
+> >                 mutex_lock(&ctl_mutex);
+> >                 ret = pkt_setup_dev(&ctrl_cmd);
+> >                 mutex_unlock(&ctl_mutex);
+> > 
+> > where pkt_setup_dev in term calls pkt_new_dev which
+> > calls blkdev_get(), which takes the bdev_mutex.
+> > 
+> > Looks very much like a AB-BA deadlock to me...
 > 
-> John
+> I'd say you are right, however I haven't touched that code since 2.5 I
+> think - CC'ing Peter for a fix!
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+ping ?

@@ -1,22 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWFUUWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWFUU2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbWFUUWg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 16:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWFUUWg
+	id S1751454AbWFUU2i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 16:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWFUU2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 16:22:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34721 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751436AbWFUUWf (ORCPT
+	Wed, 21 Jun 2006 16:28:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12195 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751454AbWFUU2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 16:22:35 -0400
-Date: Wed, 21 Jun 2006 13:22:27 -0700
+	Wed, 21 Jun 2006 16:28:38 -0400
+Date: Wed, 21 Jun 2006 13:25:12 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64bit resources start end value fix
-Message-Id: <20060621132227.ec401f93.akpm@osdl.org>
-In-Reply-To: <20060621172903.GC9423@in.ibm.com>
-References: <20060621172903.GC9423@in.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: tytso@mit.edu, randy.dunlap@oracle.com, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, bcollins@ubuntu.com
+Subject: Re: reviewing Ubuntu kernel patches
+Message-Id: <20060621132512.12db84f6.akpm@osdl.org>
+In-Reply-To: <20060621173841.GH9111@stusta.de>
+References: <44909A1D.3030404@oracle.com>
+	<1150386150.2987.9.camel@laptopd505.fenrus.org>
+	<44924425.1040501@oracle.com>
+	<20060616140334.GA24491@thunk.org>
+	<20060621173841.GH9111@stusta.de>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,59 +29,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 13:29:03 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+On Wed, 21 Jun 2006 19:38:41 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-> Hi Greg,
+> When Andrew merges some small fix into an existing patch in -mm
+> (e.g. "make a function static" or "fix a compile error"), he adds the 
+> Signed-off-by line of the small fix to the Signed-off-by lines of the 
+> patch.
 > 
-> While changing 64bit kconfig options to CONFIG_RESOURCES_64BIT, I forgot
-> to update the values of start and end fields in ioport_resource and
-> iomem_resource.
+> But the submitter of the fix does not necessarly have checked the 
+> legal or technical status of the rest of the patch.
 > 
-> Following patch applies on top of your reworked 64 bit patches and
-> is based on Andrew Morton's patch. Please apply.
-> 
-> http://marc.theaimsgroup.com/?l=linux-mm-commits&m=115087406130723&w=2
-> 
-> Thanks
-> Vivek
-> 
-> 
-> 
-> o Update start and end fields for 32bit and 64bit resources.
-> 
-> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
-> ---
-> 
->  linux-2.6.17-1M-vivek/kernel/resource.c |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff -puN kernel/resource.c~64bit-resources-start-end-value-fix kernel/resource.c
-> --- linux-2.6.17-1M/kernel/resource.c~64bit-resources-start-end-value-fix	2006-06-21 12:43:43.000000000 -0400
-> +++ linux-2.6.17-1M-vivek/kernel/resource.c	2006-06-21 12:44:59.000000000 -0400
-> @@ -23,7 +23,7 @@
->  
->  struct resource ioport_resource = {
->  	.name	= "PCI IO",
-> -	.start	= 0x0000,
-> +	.start	= 0,
->  	.end	= IO_SPACE_LIMIT,
->  	.flags	= IORESOURCE_IO,
->  };
-> @@ -32,8 +32,8 @@ EXPORT_SYMBOL(ioport_resource);
->  
->  struct resource iomem_resource = {
->  	.name	= "PCI mem",
-> -	.start	= 0UL,
-> -	.end	= ~0UL,
-> +	.start	= 0,
-> +	.end	= -1,
->  	.flags	= IORESOURCE_MEM,
->  };
->  
+> As an example, my only contribution to commit 
+> 6b3934ef52712ece50605dfc72e55d00c580831a was making signal_cachep 
+> static, and I do refuse any legal or technical responsibility for 
+> the rest of the patch (this shouldn't imply the rest of the patch was 
+> bad - it's simply not me who can is responsible for it).
 
-Confused.  This patch won't apply.  It will apply with `patch -R', and if
-you do that you'll break iomem_reosurce.end by setting it to
-0x00000000ffffffff.
+Yes, nowadays I give the folded-in patch a mini-changelog, as in
 
-I don't think any additional changes are needed here.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/broken-out/slab-kmalloc-kzalloc-comments-cleanup-and-fix.patch

@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWFUWVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWFUWW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751493AbWFUWVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 18:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWFUWVm
+	id S1751478AbWFUWW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 18:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWFUWW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 18:21:42 -0400
-Received: from cantor.suse.de ([195.135.220.2]:27081 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751493AbWFUWVl (ORCPT
+	Wed, 21 Jun 2006 18:22:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33740 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751478AbWFUWW1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 18:21:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: rohitseth@google.com
-Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
-Date: Thu, 22 Jun 2006 00:21:21 +0200
-User-Agent: KMail/1.9.3
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-References: <200606210329_MC3-1-C305-E008@compuserve.com> <p73zmg6oo5t.fsf@verdi.suse.de> <1150926882.6885.32.camel@galaxy.corp.google.com>
-In-Reply-To: <1150926882.6885.32.camel@galaxy.corp.google.com>
+	Wed, 21 Jun 2006 18:22:27 -0400
+Date: Wed, 21 Jun 2006 15:22:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB patches for 2.6.17
+In-Reply-To: <20060621220656.GA10652@kroah.com>
+Message-ID: <Pine.LNX.4.64.0606211519550.5498@g5.osdl.org>
+References: <20060621220656.GA10652@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606220021.21657.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Can we use similar  mechanism to access pda in vsyscall in x86_64 (by
-> storing the address of pda there).  
 
+On Wed, 21 Jun 2006, Greg KH wrote:
+>
+>  123 files changed, 4169 insertions(+), 2440 deletions(-)
 
-You mean in the kernel? %gs prefix is a lot faster than this.
+Btw, I get
 
-Also the limit is only 20bit, not enough for a full address.
+  119 files changed, 3888 insertions(+), 2159 deletions(-)
 
-For user space it's useful though, but I don't see any immediate uses
-other than cpu number and node number. For most purposes glibc TLS
-(which uses %fs) is probably sufficient.
+Why? Becuause my default pull script has rename detection enabled, and I 
+get:
 
--Andi
+ rename include/linux/{usb_cdc.h => usb/cdc.h} (100%)
+ rename include/linux/{usb_input.h => usb/input.h} (100%)
+ rename include/linux/{usb_isp116x.h => usb/isp116x.h} (100%)
+ rename include/linux/{usb_sl811.h => usb/sl811.h} (71%)
+
+which explains the off-by-four number (and the smaller number of 
+lines changed).
+
+Just out of interest, could you enable that in your scripts too, so that 
+renames don't show up as huge deletes/creates (well, in this case, thet 
+were pretty small files, but you get the idea)?
+
+		Linus

@@ -1,18 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWFUMx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWFUMyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWFUMx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 08:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWFUMxn
+	id S932115AbWFUMyL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 08:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWFUMyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 08:53:43 -0400
-Received: from thunk.org ([69.25.196.29]:65200 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932093AbWFUMxl (ORCPT
+	Wed, 21 Jun 2006 08:54:00 -0400
+Received: from thunk.org ([69.25.196.29]:945 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932100AbWFUMxr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 08:53:41 -0400
-Message-Id: <20060621125146.508341000@candygram.thunk.org>
-Date: Wed, 21 Jun 2006 08:51:46 -0400
+	Wed, 21 Jun 2006 08:53:47 -0400
+Message-Id: <20060621125217.778021000@candygram.thunk.org>
+References: <20060621125146.508341000@candygram.thunk.org>
+Date: Wed, 21 Jun 2006 08:51:52 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] [PATCH 0/8] Inode diet v2
+Subject: [RFC] [PATCH 6/8] inode-diet: Move i_cindex from struct inode to struct file
+Content-Disposition: inline; filename=inode-slim-6
 From: Theodore Tso <tytso@thunk.org>
 X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: tytso@thunk.org
@@ -20,41 +22,59 @@ X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the second versoin of patches to reduce the size of struct
-inode.  I've taken into account comments to remove super.st_blksize,
-and simply requiring filesystems to override getattr if they care to
-use something other than the stock PAGE_CACHE_SIZE for st_blksize
-(which should be correct given that most filesystems are using
-generic_file_read/write).  
+inode.i_cindex isn't initialized until the character device is opened
+anyway, and there are far more struct inodes in memory than there are
+struct file.  So move the cindex field to file.f_cindex, and change
+the one(!) user of cindex to use file pointer, which is in fact simpler.
 
-Unfortunately, since these structures are used by a large amount of
-kernel code, some of the patches are quite involved, and/or will
-require a lot of auditing and code review, for "only" 4 or 8 bytes at
-a time (maybe more on 64-bit platforms).  However, since there are
-many, many copies of struct inode all over the kernel, even a small
-reduction in size can have a large beneficial result, and as the old
-Chinese saying goes, a journey of thousand miles begins with a single
-step....
+Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
 
-What else remains to be done?  There are a large number of fields in
-struct inode which are never populated unless the inode is open, and
-those should get moved into another structure which is populated only
-when needed.  There are a large number of inodes which are read into
-memory only because stat(2) was called on them (thanks to things like
-color ls, et. al).  
 
-Linus has suggested moving the i_data structure out to a separate
-structure, again because there are many inodes which do not have any
-pages cached in the page cache.  The challenge with this a huge number
-of codepaths assume that i_mapping is always non-NULL.  But, i_data is
-*huge* so the benefits of not having it taking up memory would make
-this a high-return activity.
-
-Another possibility is moving i_size into the file-specific area of
-the union, which would save 8 bytes.  However there are a largish
-number block device drivers that seem to have hijacked i_size to store
-the blocksize(!?!) of the device, and that should really be done in a
-bdev-specific structure.  Untangling this will be somewhat
-challenging, but should be doable.
+Index: linux-2.6.17/include/linux/fs.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/fs.h	2006-06-18 19:53:54.000000000 -0400
++++ linux-2.6.17/include/linux/fs.h	2006-06-18 19:59:59.000000000 -0400
+@@ -513,7 +513,6 @@
+ 		struct block_device	*i_bdev;
+ 		struct cdev		*i_cdev;
+ 	};
+-	int			i_cindex;
+ 
+ 	__u32			i_generation;
+ 
+@@ -659,6 +658,7 @@
+ 	spinlock_t		f_ep_lock;
+ #endif /* #ifdef CONFIG_EPOLL */
+ 	struct address_space	*f_mapping;
++	int			f_cindex;
+ };
+ extern spinlock_t files_lock;
+ #define file_list_lock() spin_lock(&files_lock);
+Index: linux-2.6.17/fs/char_dev.c
+===================================================================
+--- linux-2.6.17.orig/fs/char_dev.c	2006-06-18 19:37:14.000000000 -0400
++++ linux-2.6.17/fs/char_dev.c	2006-06-18 19:59:59.000000000 -0400
+@@ -290,7 +290,7 @@
+ 		p = inode->i_cdev;
+ 		if (!p) {
+ 			inode->i_cdev = p = new;
+-			inode->i_cindex = idx;
++			filp->f_cindex = idx;
+ 			list_add(&inode->i_devices, &p->list);
+ 			new = NULL;
+ 		} else if (!cdev_get(p))
+Index: linux-2.6.17/drivers/ieee1394/ieee1394_core.h
+===================================================================
+--- linux-2.6.17.orig/drivers/ieee1394/ieee1394_core.h	2006-06-18 19:37:13.000000000 -0400
++++ linux-2.6.17/drivers/ieee1394/ieee1394_core.h	2006-06-18 19:59:59.000000000 -0400
+@@ -212,7 +212,7 @@
+ /* return the index (within a minor number block) of a file */
+ static inline unsigned char ieee1394_file_to_instance(struct file *file)
+ {
+-	return file->f_dentry->d_inode->i_cindex;
++	return file->f_cindex;
+ }
+ 
+ extern int hpsb_disable_irm;
 
 --

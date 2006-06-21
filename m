@@ -1,61 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWFUIeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWFUIlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWFUIeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 04:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWFUIeE
+	id S932486AbWFUIlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 04:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWFUIlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 04:34:04 -0400
-Received: from ns.firmix.at ([62.141.48.66]:19883 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932489AbWFUIeC (ORCPT
+	Wed, 21 Jun 2006 04:41:09 -0400
+Received: from www.polish-dvd.com ([69.222.0.225]:43493 "HELO
+	mail.webhostingstar.com") by vger.kernel.org with SMTP
+	id S932486AbWFUIlI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 04:34:02 -0400
-Subject: Re: kernel-x64-smp-multiprocessor-time util problem
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: art@usfltd.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060621031742.7tlid5zm4kgg4488@69.222.0.225>
-References: <20060619180413.qlgd1oj9etmosckg@69.222.0.225>
-	 <1150759021.3043.33.camel@gimli.at.home>
-	 <20060621031742.7tlid5zm4kgg4488@69.222.0.225>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 21 Jun 2006 10:33:52 +0200
-Message-Id: <1150878832.16346.2.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.35 () AWL,BAYES_00,FORGED_RCVD_HELO
+	Wed, 21 Jun 2006 04:41:08 -0400
+Message-ID: <20060621033119.jxslshpug3k0kogc@69.222.0.225>
+Date: Wed, 21 Jun 2006 03:31:19 -0500
+From: art@usfltd.com
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu
+Subject: 2.6.17-rt1-64bit-SMP compilation errors - mm/slab.c:...
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) H3 (4.1.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-21 at 03:17 -0500, art@usfltd.com wrote:
-> Quoting Bernd Petrovitsch <bernd@firmix.at>:
-> > On Mon, 2006-06-19 at 18:04 -0500, art@usfltd.com wrote:
-> >> on dual core amd-athlon under 64bit-smp core
-> >>
-> >> kernel compilation time:
-> >>
-> >> time make -j 8
-> >> ...
-> >> LD [M]  sound/usb/snd-usb-lib.ko
-> >> LD [M]  sound/usb/usx2y/snd-usb-usx2y.ko
-> >>
-> >> real    18m0.948s
-> >> user    26m6.270s    ------bad
-> >> sys     4m22.256s    ------?bad
-> >> [xxx@localhost linux-2.6.17]$
-> >> --- real-clock time  is ~18 min -- user and system time doubled?
-> >
-> > How many virtual CPUs (i.e. HT is "2 CPUs") do you have in that machine?
-[...]
-> 1 CPU 2 cores = 2 (amd athlon x2 4200+)
+2.6.17-rt1-64bit-SMP compilation errors - mm/slab.c:3246: error: too  
+few arguments to function ?__drain_alien_cache?
 
-What does "real" really measure?
-What does "user" and "sys" really measure?
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+mm/slab.o
+mm/slab.c: In function ?reap_alien?:
+mm/slab.c:1065: warning: implicit declaration of function  
+?_raw_spin_trylock_irq ?
+mm/slab.c: In function ?drain_alien_cache?:
+mm/slab.c:1083: warning: value computed is not used
+mm/slab.c: In function ?cpuup_callback?:
+mm/slab.c:1147: warning: value computed is not used
+mm/slab.c:1181: warning: value computed is not used
+mm/slab.c:1234: warning: value computed is not used
+mm/slab.c:1278: warning: value computed is not used
+mm/slab.c: In function ?init_list?:
+mm/slab.c:1309: warning: value computed is not used
+mm/slab.c: In function ?kmem_cache_init?:
+mm/slab.c:1446: warning: value computed is not used
+mm/slab.c:1456: warning: value computed is not used
+mm/slab.c: In function ?__node_shrink?:
+mm/slab.c:2361: warning: value computed is not used
+mm/slab.c: In function ?__cache_shrink?:
+mm/slab.c:2379: warning: value computed is not used
+mm/slab.c: In function ?cache_grow?:
+mm/slab.c:2684: warning: value computed is not used
+mm/slab.c:2699: warning: value computed is not used
+mm/slab.c: In function ?__cache_alloc?:
+mm/slab.c:3026: warning: value computed is not used
+mm/slab.c: In function ?__cache_free?:
+mm/slab.c:3246: error: too few arguments to function ?__drain_alien_cache?
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+mm/slab.c:3253: error: too few arguments to function ?free_block?
+mm/slab.c: In function ?kmem_cache_alloc_node?:
+mm/slab.c:3365: warning: value computed is not used
+mm/slab.c: In function ?kmem_cache_free?:
+mm/slab.c:3512: warning: value computed is not used
+mm/slab.c: In function ?kfree?:
+mm/slab.c:3535: warning: value computed is not used
+mm/slab.c: In function ?alloc_kmemlist?:
+mm/slab.c:3607: warning: value computed is not used
+mm/slab.c: In function ?do_tune_cpucache?:
+mm/slab.c:3721: warning: value computed is not used
+mm/slab.c: In function ?drain_array?:
+mm/slab.c:3807: warning: value computed is not used
+mm/slab.c: In function ?cache_reap?:
+mm/slab.c:3892: warning: value computed is not used
+mm/slab.c: In function ?s_show?:
+mm/slab.c:4000: warning: value computed is not used
+   CC      kernel/kexec.o
+make[1]: *** [mm/slab.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+   CC      kernel/compat.o
+kernel/kexec.c: In function ?sys_kexec_load?:
+kernel/kexec.c:998: warning: value computed is not used
+kernel/kexec.c: In function ?crash_kexec?:
+kernel/kexec.c:1066: warning: value computed is not used
+   CC      fs/mbcache.o
+   CC      kernel/cpuset.o
+   CC      fs/posix_acl.o
+make: *** [mm] Error 2
+   CC      fs/xattr_acl.o
+make: *** Waiting for unfinished jobs....
+   LD      fs/9p/built-in.o
+   CC [M]  fs/9p/trans_fd.o
+   CC [M]  fs/9p/mux.o
+   CC [M]  fs/9p/fcall.o
+   CC [M]  fs/9p/conv.o
+   CC [M]  fs/9p/vfs_super.o
+   GZIP    kernel/config_data.gz
+
+xboom
+
+art@usfltd.com
 

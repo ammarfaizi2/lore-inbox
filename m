@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWFUReh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWFUReS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWFUReh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 13:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWFUReh
+	id S1750962AbWFUReS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 13:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWFUReS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 13:34:37 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:38296 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932284AbWFUReg (ORCPT
+	Wed, 21 Jun 2006 13:34:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1486 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750949AbWFUReR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 13:34:36 -0400
-Date: Wed, 21 Jun 2006 10:34:36 -0700
-From: Mike Grundy <grundym@us.ibm.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: jan.glauber@de.ibm.com, linux-kernel@vger.kernel.org,
-       systemtap@sources.redhat.com
-Subject: Re: [PATCH] kprobes for s390 architecture
-Message-ID: <20060621173436.GA7834@localhost.localdomain>
-Mail-Followup-To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	jan.glauber@de.ibm.com, linux-kernel@vger.kernel.org,
-	systemtap@sources.redhat.com
-References: <20060612131552.GA6647@localhost.localdomain> <1150141217.5495.72.camel@localhost> <20060621042804.GA20300@localhost.localdomain> <1150907920.8295.10.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1150907920.8295.10.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 21 Jun 2006 13:34:17 -0400
+Date: Wed, 21 Jun 2006 10:27:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Chuck Ebbert <76306.1226@compuserve.com>, Ingo Molnar <mingo@elte.hu>,
+       Jakub Jelinek <jakub@redhat.com>, Roland McGrath <roland@redhat.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
+In-Reply-To: <200606211914.37137.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0606211022300.5498@g5.osdl.org>
+References: <200606210828_MC3-1-C30B-9D83@compuserve.com> <200606211914.37137.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 06:38:40PM +0200, Martin Schwidefsky wrote:
-> You misunderstood me here. I'm not talking about storing the same piece
-> of data to memory on each processor. I'm talking about isolating all
-> other cpus so that the initiating cpu can store the breakpoint to memory
-> without running into the danger that another cpu is trying to execute it
-> at the same time. But probably the store should be atomic in regard to
-> instruction fetching on the other cpus. It is only two bytes and it
-> should be aligned.
 
-So maybe something like this:
 
-void smp_replace_instruction(void *info) {
-        struct ins_replace_args *parms;
-        parms = (struct ins_replace_args *) info;
-        *parms->addr = *parms->insn
-}
+On Wed, 21 Jun 2006, Andi Kleen wrote:
+> 
+> My measurements show different - i get 60+ cycles on K8 and 150+ cycles
+> on P4. That is with a full vsyscall around it. However it is still
+> far better than CPUID, however slower than RDTSCP on those CPUs that support it.
+> 
+> I changed the CPUID fallback path to use LSL on x86-64
 
-void __kprobes arch_arm_kprobe(struct kprobe *p)
-{
-        struct ins_replace_args parms;
-        parms.addr = p->addr;
-        parms.insn = BREAKPOINT_INSTRUCTION
+One note of warning: 
 
-        preempt_disable();
-        smp_call_function(smp_replace_instruction, &parms, 0, 1);
-        preempt_enable();
-}
+Playing "clever games" has a real tendency to suck badly eventually. I'm 
+betting LSL is pretty damn low on any list of instructions to be optimized 
+by the CPU core, so it would tend to always be microcoded, while other ops 
+might get faster.
 
-Thanks
-Mike
+> Measuring this way is a bad idea because you get far too much 
+> noise from the RDTSCs. Usually you need to put a a few thousands entry 
+> loop inside the RDTSCP and devide the result by the loop count
+
+And measuring that way isn't perfect either, because it tends to show you 
+how well an instruction works in that particular instruction mix, but not 
+necessarily in real life.
+
+Benchmarking single instructions is simply damn hard. It's often better to 
+try to find a real load where that particular sequence is important enough 
+to be measurable at all, and then try the alternatives. Not perfect 
+either, but if you can't find such a load, maybe you shouldn't be doing it 
+in the first place.. And if you _can_ find such a real load, at least you 
+measured something that was actually real.
+
+		Linus

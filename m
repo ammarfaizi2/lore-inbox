@@ -1,86 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWFUUrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWFUUtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWFUUrz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 16:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWFUUrz
+	id S932278AbWFUUtE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 16:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWFUUtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 16:47:55 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51672 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932232AbWFUUry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 16:47:54 -0400
-Date: Wed, 21 Jun 2006 13:47:45 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Jeff Dike <jdike@addtoit.com>
-cc: linux-kernel@vger.kernel.org
-Subject: UML/x86_64 broke on debian etch
-Message-ID: <Pine.LNX.4.64.0606211345030.21866@schroedinger.engr.sgi.com>
+	Wed, 21 Jun 2006 16:49:04 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:5765
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932278AbWFUUtA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 16:49:00 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Vitaly Bordug <vbordug@ru.mvista.com>
+Subject: Re: [PATCH 1/3] PAL: Support of the fixed PHY
+Date: Wed, 21 Jun 2006 22:48:27 +0200
+User-Agent: KMail/1.9.1
+References: <20060621160950.4860.92979.stgit@vitb.ru.mvista.com>
+In-Reply-To: <20060621160950.4860.92979.stgit@vitb.ru.mvista.com>
+Cc: Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606212248.27836.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried to use UML to do the page migration testing for x86_64 but ....
+On Wednesday 21 June 2006 18:09, Vitaly Bordug wrote:
 
-christoph@graphe:/usr/src/linux-2.6.17-uml$ make clean
-  CLEAN   .tmp_versions
-christoph@graphe:/usr/src/linux-2.6.17-uml$ make all ARCH=um
-  SYMLINK arch/um/include/kern_constants.h
-  SYMLINK arch/um/include/sysdep
-  HOSTCC  scripts/basic/fixdep
-  HOSTCC  scripts/basic/split-include
-  HOSTCC  scripts/basic/docproc
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/kxgettext.o
-  HOSTCC  scripts/kconfig/mconf.o
-  HOSTCC  scripts/kconfig/zconf.tab.o
-  HOSTLD  scripts/kconfig/conf
-scripts/kconfig/conf -s arch/um/Kconfig
-#
-# using defaults found in .config
-#
-  CHK     arch/um/include/uml-config.h
-  UPD     arch/um/include/uml-config.h
-  CC      arch/um/sys-x86_64/user-offsets.s
-  CHK     arch/um/include/user_constants.h
-  CHK     include/linux/version.h
-  SPLIT   include/linux/autoconf.h -> include/config/*
-  CC      arch/um/kernel/asm-offsets.s
-In file included from include/asm/timex.h:14,
-                 from include/linux/timex.h:61,
-                 from include/linux/sched.h:11,
-                 from arch/um/include/sysdep/kernel-offsets.h:3,
-                 from arch/um/kernel/asm-offsets.c:1:
-include/asm/processor.h:74: error: 'CONFIG_X86_L1_CACHE_SHIFT' undeclared 
-here (not in a function)
-include/asm/processor.h:74: error: requested alignment is not a constant
-include/asm/processor.h:229: error: requested alignment is not a constant
-In file included from include/linux/sched.h:12,
-                 from arch/um/include/sysdep/kernel-offsets.h:3,
-                 from arch/um/kernel/asm-offsets.c:1:
-include/linux/jiffies.h:18:5: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:20:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:22:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:24:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:26:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:28:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:30:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:33:3: error: #error You lose.
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: error: division by zero in #if
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: error: division by zero in #if
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: error: division by zero in #if
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: error: division by zero in #if
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:210:31: error: division by zero in #if
+> +static int fixed_mdio_update_regs(struct fixed_info *fixed)
+> +{
+> +	u16 *regs = fixed->regs;
+> +	u16 bmsr = 0;
+> +	u16 bmcr = 0;
+> +
+> +	if(!regs) {
+> +		printk(KERN_ERR "%s: regs not set up", __FUNCTION__);
+> +		return -1;
 
-....
+-EINVAL perhaps?
 
+> +static int fixed_mdio_register_device(int number, int speed, int duplex)
+> +{
+> +	struct mii_bus *new_bus;
+> +	struct fixed_info *fixed;
+> +	struct phy_device *phydev;
+> +	int err = 0;
+> +
+> +	struct device* dev = kzalloc(sizeof(struct device), GFP_KERNEL);
+> +
+> +	if (NULL == dev)
+> +		return -EINVAL;
+
+-ENOMEM here.
+
+> +	new_bus = kzalloc(sizeof(struct mii_bus), GFP_KERNEL);
+> +
+> +	if (NULL == new_bus) {
+> +		kfree(dev);
+> +		return -ENOMEM;
+> +	}
+> +	fixed = fixed_ptr = kzalloc(sizeof(struct fixed_info), GFP_KERNEL);
+> +
+> +	if (NULL == fixed) {
+> +		kfree(dev);
+> +		kfree(new_bus);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	fixed->regs = kzalloc(MII_REGS_NUM*sizeof(int), GFP_KERNEL);
+> +
+> +	if (NULL == fixed->regs) {
+> +		kfree(dev);
+> +		kfree(new_bus);
+> +		kfree (fixed);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	fixed->regs_num = MII_REGS_NUM;
+> +	fixed->phy_status.speed = speed;
+> +	fixed->phy_status.duplex = duplex;
+> +	fixed->phy_status.link = 1;
+> +
+> +	new_bus->name = "Fixed MII Bus",
+> +	new_bus->read = &fixed_mii_read,
+> +	new_bus->write = &fixed_mii_write,
+> +	new_bus->reset = &fixed_mii_reset,
+> +
+> +	/*set up workspace*/
+> +	fixed_mdio_update_regs(fixed);
+> +	new_bus->priv = fixed;
+> +
+> +	new_bus->dev = dev;
+> +	dev_set_drvdata(dev, new_bus);
+> +
+> +	/* create phy_device and register it on the mdio bus */
+> +	phydev = phy_device_create(new_bus, 0, 0);
+> +
+> +	/*
+> +	 Put the phydev pointer into the fixed pack so that bus read/write code could be able
+> +	 to access for instance attached netdev. Well it doesn't have  to do so, only in case
+> +	 of utilizing user-specified link-update...
+> +	 */
+> +	fixed->phydev = phydev;
+> +
+> +	if (IS_ERR(phydev)) {
+> +		err = PTR_ERR(-ENOMEM);
+> +		goto bus_register_fail;
+> +	}
+> +
+> +	phydev->irq = -1;
+> +	phydev->dev.bus = &mdio_bus_type;
+> +
+> +	if(number)
+> +		snprintf(phydev->dev.bus_id, BUS_ID_SIZE,
+> +				"fixed_%d@%d:%d", number, speed, duplex);
+> +	else
+> +		snprintf(phydev->dev.bus_id, BUS_ID_SIZE,
+> +				"fixed@%d:%d", speed, duplex);
+> +	phydev->bus = new_bus;
+> +
+> +	err = device_register(&phydev->dev);
+> +	if(err) {
+> +		printk(KERN_ERR "Phy %s failed to register\n",
+> +				phydev->dev.bus_id);
+> +		goto bus_register_fail;
+> +	}
+> +
+> +	/*
+> +	   the mdio bus has phy_id match... In order not to do it
+> +	   artificially, we are binding the driver here by hand;
+> +	   it will be the same
+> +	   for all the fixed phys anyway.
+> +	 */
+> +	down_write(&phydev->dev.bus->subsys.rwsem);
+> +
+> +	phydev->dev.driver = &fixed_mdio_driver.driver;
+> +
+> +	err = phydev->dev.driver->probe(&phydev->dev);
+> +	if(err < 0) {
+> +		printk(KERN_ERR "Phy %s: problems with fixed driver\n",
+> +				phydev->dev.bus_id);
+> +		up_write(&phydev->dev.bus->subsys.rwsem);
+> +		goto bus_register_fail;
+
+Probably need some additional error unwinding code.
+Of doesn't device_register() have to be reverted?
+What about phy_device_create()?
+
+> +	}
+> +
+> +	device_bind_driver(&phydev->dev);
+> +	up_write(&phydev->dev.bus->subsys.rwsem);
+> +
+> +	return 0;
+> +
+> +bus_register_fail:
+> +	kfree(dev);
+> +	kfree (fixed);
+> +	kfree(new_bus);
+> +
+> +	return err;
+> +}
+
+-- 
+Greetings Michael.

@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWFUSsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWFUSuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWFUSsr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 14:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWFUSsr
+	id S932340AbWFUSuo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 14:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWFUSuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 14:48:47 -0400
-Received: from aa004msr.fastwebnet.it ([85.18.95.67]:393 "EHLO
-	aa004msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932329AbWFUSsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 14:48:46 -0400
-Date: Wed, 21 Jun 2006 20:48:14 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hpa@zytor.com
-Subject: Re: 2.6.17-mm1
-Message-ID: <20060621184814.GQ24595@inferi.kami.home>
-Mail-Followup-To: Martin Bligh <mbligh@mbligh.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	hpa@zytor.com
-References: <44998DCB.1030703@mbligh.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44998DCB.1030703@mbligh.org>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.17-rc4-mm2-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11+cvs20060403
+	Wed, 21 Jun 2006 14:50:44 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:26902 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932340AbWFUSun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 14:50:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=SUy4Q3NBxyHa3egYXu7q5Q36xlm86jl+A0NzwpX60CjaglqlyCN1egPdfqzYMlhqhaRSu/aPVsal2/Yf30ivqMe3aOLFHkQREykBQxfbhXlMxGkll4/nqaeckX/umWZFAUMrSNfB+3OKmiPHDf+XnL0tqGQqvMbKLG3i8EwA9VE=
+Date: Wed, 21 Jun 2006 22:56:15 +0400
+From: Paul Drynoff <pauldrynoff@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BUG]: 2.6.17-mm1 can not compile - infinite cycle
+Message-Id: <20060621225615.7c035069.pauldrynoff@gmail.com>
+In-Reply-To: <449993D4.8030309@zytor.com>
+References: <20060621224600.aaa03fdc.pauldrynoff@gmail.com>
+	<449993D4.8030309@zytor.com>
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.12; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 11:19:55AM -0700, Martin Bligh wrote:
-> Seems to dive into an endless loop in compile.
-> 
-> http://test.kernel.org/abat/37068/debug/test.log.0
-> 
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   CC      init/initramfs.o
->   CC      init/calibrate.o
->   LD      init/built-in.o
->   HOSTCC  usr/gen_init_cpio
->   SYMLINK usr/include/asm -> include/asm-x86_64
->   GEN     usr/klibc/syscalls/SYSCALLS.i
->   GEN     usr/klibc/syscalls/syscalls.nrs
->   GEN     usr/klibc/syscalls/typesize.c
->   KLIBCCC usr/klibc/syscalls/typesize.o
->   OBJCOPY usr/klibc/syscalls/typesize.bin
-[...]
-> etc etc. for ever.
-> 
-> On both x86_64 and ppc64.
+Great. Thanks. Seems all start working.
 
-me too, on 586
+On Wed, 21 Jun 2006 11:45:40 -0700
+"H. Peter Anvin" <hpa@zytor.com> wrote:
 
-.config is here: http://oioio.altervista.org/linux/config-2.6.17-mm1
--- 
-mattia
-:wq!
+> Paul Drynoff wrote:
+> > I try compile 2.6.17-mm1 with almost(make oldconfig) the same config as 
+> > linux-2.6.17-rc6-mm2.
+> 
+> I just pushed out this bugfix for this condition.
+> 
+> 	-hpa
+> 

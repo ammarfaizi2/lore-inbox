@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWFUBYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWFUB2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWFUBYh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 21:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWFUBYg
+	id S1750730AbWFUB2z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 21:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWFUB2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 21:24:36 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:9653 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750768AbWFUBYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 21:24:36 -0400
-Message-ID: <44989FD3.1040805@vmware.com>
-Date: Tue, 20 Jun 2006 18:24:35 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       jeremy@xensource.com
-Subject: Re: [PATCH 2.6.17] Clean up and refactor i386 sub-architecture setup
-References: <44988803.5090305@goop.org> <44988E08.9070000@vmware.com> <449891B9.3060409@goop.org> <4498958B.504@vmware.com> <44989E25.3090402@goop.org>
-In-Reply-To: <44989E25.3090402@goop.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 20 Jun 2006 21:28:55 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:27024 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750730AbWFUB2y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 21:28:54 -0400
+Subject: Re: [Lse-tech] [PATCH 09/11] Task watchers: Add support for
+	per-task watchers
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pwil3058@bigpond.net.au, Shailabh Nagar <nagar@watson.ibm.com>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
+       "John T. Kohl" <jtk@us.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Jes Sorensen <jes@sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       LSE <lse-tech@lists.sourceforge.net>
+In-Reply-To: <20060620161524.7c132eea.akpm@osdl.org>
+References: <20060613235122.130021000@localhost.localdomain>
+	 <1150242901.21787.149.camel@stark> <44978793.8070109@bigpond.net.au>
+	 <1150844177.21787.774.camel@stark>  <20060620161524.7c132eea.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 20 Jun 2006 18:20:48 -0700
+Message-Id: <1150852848.21787.828.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge wrote:
-> Zachary Amsden wrote:
->> This is cleaner than the patches I sent in March, although we want to 
->> re-use parts of the mach-default code, not replace it entirely.  
->> Hence my interest in the multi-subarch generic kernel.  I'd be glad 
->> to look into it.
-> In my current Xen patch, I split the mach-default/setup.c into setup.c 
-> and setup-memory.c; Xen uses setup.c as-is, and then provides its own 
-> setup-xen.c.  That solves my immediate problem, but I don't know if it 
-> generalizes enough; certainly factoring default/setup.c into a cluster 
-> of reusable setup-*.c pieces is a pretty lightweight way of reusing 
-> those pieces.
+On Tue, 2006-06-20 at 16:15 -0700, Andrew Morton wrote:
+> Matt Helsley <matthltc@us.ibm.com> wrote:
+> >
+> > > > +static inline int notify_per_task_watchers(unsigned int val,
+> > > > +					   struct task_struct *task)
+> > > > +{
+> > > > +	if (get_watch_event(val) != WATCH_TASK_INIT)
+> > > > +		return raw_notifier_call_chain(&task->notify, val, task);
+> > > > +	RAW_INIT_NOTIFIER_HEAD(&task->notify);
+> > > > +	if (task->real_parent)
+> > > > +		return raw_notifier_call_chain(&task->real_parent->notify,
+> > > > +		   			       val, task);
+> > > > +}
+> > > 
+> > > It's possible for this task to exit without returning a result.
+> > 
+> > Assuming you meant s/task/function/:
+> > 
+> > 	In the common case this will return a result because most tasks have a
+> > real parent. The only exception should be the init task. However, the
+> > init task does not "fork" from another task so this function will never
+> > get called with WATCH_TASK_INIT and the init task.
+> > 
+> > 	This means that if one wants to use per-task watchers to associate data
+> > and a function call with *every* task, special care will need to be
+> > taken to register with the init task.
+> 
+> no......
 
-I was thinking more of having mach-xen/built-in.o, 
-mach-default/built-in.o, mach-es7000/built-in.o, mach-voyager/built-in.o 
-all be linked specially so they can be compiled into the same kernel 
-either as one giant batch, with weak linkage and a function table to 
-indirect calls to them (thus the generic kernel can jettison the modules 
-outside of the subarch it has chosen at boot time, potentially keeping 
-the default kernel as well to allow subarches to fallback on the 
-traditional indirections).  And if compiled as a specific kernel, those 
-weak linkages get promoted to direct instead of indirect calls.
+	I've been looking through the source and, from what I can see, the end
+of the function is not reachable. I think I need to add:
 
-You may have to separate the namespaces at the identifier level as well, 
-use some elven magic, but I haven't worked out all the details yet.
+notify_watchers(WATCH_TASK_INIT, &init_task);
 
-Zach
+to make this into an applicable warning.
+
+> It's possible for this function to fall off the end without returning
+> anything.  The compiler should have spat a warning.
+
+	I'll add a return value at the end of the function as well as the above
+notification to keep things uniform and address the compiler warning.
+
+	Incidentally, I've looked at my compilation logs and I did not get any
+warnings (gcc version 3.3.4 (Debian 1:3.3.4-3)).
+
+Cheers,
+	-Matt Helsley
+

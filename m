@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWFUTA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932649AbWFUTCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932654AbWFUTA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWFUTA5
+	id S932649AbWFUTCs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWFUTCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:00:57 -0400
-Received: from wx-out-0102.google.com ([66.249.82.193]:63972 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932654AbWFUTA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:00:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sqJtFLkV2DYYpPaLeLe76aP5aZ+AlYxL93W/0/U8PFGsWpzjJCCxAwGD3/MP2EfNE4cI/jSizGT0xUjG9+boFg2JLtZhpBKRNWd5YSe6gYH0k7nhPBqla2TrkTu3YwXweu//QpibSjOhUZ4gBhZp0qLZFyZwxDxV8nQPVI6fLyU=
-Message-ID: <7c3341450606211200k5134c3fag286bc0b9b61d05aa@mail.gmail.com>
-Date: Wed, 21 Jun 2006 20:00:55 +0100
-From: "Nick Warne" <nick.warne@gmail.com>
-Reply-To: nick@linicks.net
-To: "Piotr Kaczuba" <pepe@attika.ath.cx>
-Subject: Re: PC speaker doesn't work
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060621111430.GA5753@attika.ath.cx>
+	Wed, 21 Jun 2006 15:02:47 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:24082 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932642AbWFUTCq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:02:46 -0400
+Date: Wed, 21 Jun 2006 15:02:44 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: andi@lisas.de
+cc: Bodo Eggert <7eggert@gmx.de>, Andrew Morton <akpm@osdl.org>,
+       <linux-usb-devel@lists.sourceforge.net>, <gregkh@suse.de>,
+       <linux-kernel@vger.kernel.org>, <hal@lists.freedesktop.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner
+ underruns, USB HDD hard resets)
+In-Reply-To: <20060621163410.GA22736@rhlx01.fht-esslingen.de>
+Message-ID: <Pine.LNX.4.44L0.0606211501290.8272-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060619171544.GA4363@attika.ath.cx>
-	 <20060621111430.GA5753@attika.ath.cx>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You know, I am glad you posted this, as my system bell stopped working
-ages ago and I didn't know why (I am on x86 though).
+On Wed, 21 Jun 2006, Andreas Mohr wrote:
 
-So this post is in case anybody else has this peculiar problem.
+> Maybe it's better to (additionally?) go down the route of fixing up
+> low-level communication weaknesses (since it's been semi-confirmed that it's
+> an USB communication issue, see other thread part).
+> IMHO this is a severe user experience issue that shouldn't be fixed up
+> ("covered", "hidden") by the O_EXCL thingy alone.
 
-I didn't have a CONFIG_INPUT_PCSPKR in my .config, so investigated...
+It's not a USB issue; it's a matter of lack of coordination between the sg 
+and sr drivers.  Each is unaware of the actions of the other, even when 
+they are speaking to the same device.
 
-It is cunningly hidden in Device Drivers->Input device
-support->Miscellaneous devices->PC Speaker support
+Alan Stern
 
-Then to get KDE to use it (I used KDE sound to *beep* before I sussed
-this tonight), even more peculiar configuration is required:
-
-http://lists.kde.org/?l=kde-accessibility&m=110963809201407&w=2
-
-All now works!  I did really miss the beeps for some silly reason...
-
-Nick

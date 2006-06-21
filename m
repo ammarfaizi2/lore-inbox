@@ -1,47 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbWFUTd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbWFUTeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbWFUTd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWFUTd5
+	id S932691AbWFUTeF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWFUTeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:33:57 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:10318 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932693AbWFUTd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:33:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=S4mifG/xpyRq093Sme4K2+r0YoGWe/9TG7Evn+lghsPIpsLVG7hsZ3W02WMIda8YX83SNYpEtj50CJk7GaoCFOeaArfHewVd0uXqj+CZSEyNsAyZ7Qz9F7cKc2BZfNWSz5hqkJglJkJoH42v0KcQ8PNW1I414i8+uuKFkT0Wkvs=
-Message-ID: <9a8748490606211233j442406f4r48917e934e091020@mail.gmail.com>
-Date: Wed, 21 Jun 2006 21:33:53 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Herbert Rosmanith" <kernel@wildsau.enemy.org>
-Subject: Re: gcc-4.1.1 and kernel-2.4.32
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <200606211425.k5LEPtY6012550@wildsau.enemy.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jun 2006 15:34:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27811 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932691AbWFUTeB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:34:01 -0400
+Date: Wed, 21 Jun 2006 20:33:53 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: [PATCH 04/15] dm: export blkdev_driver_ioctl
+Message-ID: <20060621193353.GS4521@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Jens Axboe <axboe@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.61.0606211615390.31302@yvahk01.tjqt.qr>
-	 <200606211425.k5LEPtY6012550@wildsau.enemy.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21/06/06, Herbert Rosmanith <kernel@wildsau.enemy.org> wrote:
-> a notebook which had problems with our software: a
-> "toshiba portege m400". 2.4 seems to work so far, as does 2.6.16.
-> I also tried 2.6.17, but get a strange problem: it simply hangs
-> after writing "PCI: probing hardware" (or similar). A closer look
-> reveals that it hangs in drivers/pci/probe.c, in pci_read_bases. What's
-> exactly going on, I don't know...
+Export blkdev_driver_ioctl for device-mapper.
 
-May I suggest that you write up a complete bug report for that
-regression (see the REPORTING-BUGS file for details) and send it to
-LKML + Cc: relevant people from MAINTAINERS ?
+If we get as far as the device-mapper ioctl handler, we know the ioctl is
+not a standard block layer BLK* one, so we don't need to check for them a
+second time and can call blkdev_driver_ioctl() directly.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+
+Index: linux-2.6.17/block/ioctl.c
+===================================================================
+--- linux-2.6.17.orig/block/ioctl.c	2006-06-21 16:19:39.000000000 +0100
++++ linux-2.6.17/block/ioctl.c	2006-06-21 17:16:50.000000000 +0100
+@@ -199,8 +199,8 @@ static int blkdev_locked_ioctl(struct fi
+ 	return -ENOIOCTLCMD;
+ }
+ 
+-static int blkdev_driver_ioctl(struct inode *inode, struct file *file,
+-		struct gendisk *disk, unsigned cmd, unsigned long arg)
++int blkdev_driver_ioctl(struct inode *inode, struct file *file,
++			struct gendisk *disk, unsigned cmd, unsigned long arg)
+ {
+ 	int ret;
+ 	if (disk->fops->unlocked_ioctl)
+@@ -215,6 +215,7 @@ static int blkdev_driver_ioctl(struct in
+ 
+ 	return -ENOTTY;
+ }
++EXPORT_SYMBOL_GPL(blkdev_driver_ioctl);
+ 
+ int blkdev_ioctl(struct inode *inode, struct file *file, unsigned cmd,
+ 			unsigned long arg)
+Index: linux-2.6.17/drivers/md/dm-linear.c
+===================================================================
+--- linux-2.6.17.orig/drivers/md/dm-linear.c	2006-06-21 16:19:39.000000000 +0100
++++ linux-2.6.17/drivers/md/dm-linear.c	2006-06-21 17:16:50.000000000 +0100
+@@ -103,7 +103,7 @@ static int linear_ioctl(struct dm_target
+ 	struct linear_c *lc = (struct linear_c *) ti->private;
+ 	struct block_device *bdev = lc->dev->bdev;
+ 
+-	return blkdev_ioctl(bdev->bd_inode, filp, cmd, arg);
++	return blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk, cmd, arg);
+ }
+ 
+ static struct target_type linear_target = {
+Index: linux-2.6.17/drivers/md/dm-mpath.c
+===================================================================
+--- linux-2.6.17.orig/drivers/md/dm-mpath.c	2006-06-21 17:03:58.000000000 +0100
++++ linux-2.6.17/drivers/md/dm-mpath.c	2006-06-21 17:17:46.000000000 +0100
+@@ -1290,7 +1290,8 @@ static int multipath_ioctl(struct dm_tar
+ 
+ 	spin_unlock_irqrestore(&m->lock, flags);
+ 
+-	return r ? : blkdev_ioctl(bdev->bd_inode, filp, cmd, arg);
++	return r ? : blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk,
++		     cmd, arg);
+ }
+ 
+ /*-----------------------------------------------------------------
+Index: linux-2.6.17/include/linux/fs.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/fs.h	2006-06-21 16:19:39.000000000 +0100
++++ linux-2.6.17/include/linux/fs.h	2006-06-21 17:16:50.000000000 +0100
+@@ -1407,6 +1407,9 @@ extern const struct file_operations bad_
+ extern const struct file_operations def_fifo_fops;
+ extern int ioctl_by_bdev(struct block_device *, unsigned, unsigned long);
+ extern int blkdev_ioctl(struct inode *, struct file *, unsigned, unsigned long);
++extern int blkdev_driver_ioctl(struct inode *inode, struct file *file,
++			       struct gendisk *disk, unsigned cmd,
++			       unsigned long arg);
+ extern long compat_blkdev_ioctl(struct file *, unsigned, unsigned long);
+ extern int blkdev_get(struct block_device *, mode_t, unsigned);
+ extern int blkdev_put(struct block_device *);

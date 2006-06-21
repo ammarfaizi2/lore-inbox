@@ -1,129 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWFUJdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWFUJk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbWFUJdu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 05:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWFUJdu
+	id S1751335AbWFUJk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 05:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWFUJk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 05:33:50 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:32924 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751330AbWFUJdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 05:33:50 -0400
-Date: Wed, 21 Jun 2006 11:33:48 +0200
-From: Andreas Mohr <andim2@users.sourceforge.net>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: andi@lisas.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, hal@lists.freedesktop.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner underruns, USB HDD hard resets)
-Message-ID: <20060621093348.GA13143@rhlx01.fht-esslingen.de>
-Reply-To: andi@lisas.de
-References: <20060620090532.GA6170@rhlx01.fht-esslingen.de> <Pine.LNX.4.44L0.0606201017030.6455-100000@iolanthe.rowland.org>
+	Wed, 21 Jun 2006 05:40:27 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:9766 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751335AbWFUJk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 05:40:26 -0400
+Subject: Re: [PATCH] kprobes for s390 architecture
+From: Jan Glauber <jan.glauber@de.ibm.com>
+To: schwidefsky@de.ibm.com
+Cc: Mike Grundy <grundym@us.ibm.com>, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com
+In-Reply-To: <1150141217.5495.72.camel@localhost>
+References: <20060612131552.GA6647@localhost.localdomain>
+	 <1150141217.5495.72.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 11:40:32 +0200
+Message-Id: <1150882832.6219.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0606201017030.6455-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Jun 20, 2006 at 10:22:57AM -0400, Alan Stern wrote:
-> On Tue, 20 Jun 2006, Andreas Mohr wrote:
+On Mon, 2006-06-12 at 21:40 +0200, Martin Schwidefsky wrote:
+> On Mon, 2006-06-12 at 09:15 -0400, Mike Grundy wrote:
+> > +/* get_instruction type will return 0 if only the regular offset adjustments
+> > + * after out of line singlestep are required. If a register needs to be fixed,
+> > + * bits 16-23 will contain the register number, bits 24-31 contain the length
+> > + * of the instruction unit. If fixup is only required when the branch is not
+> > + * taken, bits 0-16 will all be set.
+> > + */
+> > +int __kprobes get_instruction_type(kprobe_opcode_t * instruction)
+> > +{
+> > +	__u8 opcode[6];
+> > +	int ret = 0;
+> > +
+> > +	memcpy(opcode, instruction, 6 * sizeof(__u8));
 > 
-> > But how would HAL safely determine whether a (IDE/USB) drive is busy?
-> > As my test app demonstrates (without HAL running), the *very first* open()
-> > happening during an ongoing burning operation will kill it instantly, in the
-> > USB case.
-> > Are there any options left for HAL at all? Still seems to strongly point
-> > towards a kernel issue so far.
-> > 
-> > One (rather less desireable) way I can make up might be to have HAL
-> > keep the device open permanently and do an ioctl query on whether it's "busy"
-> > and then quickly close the device again before the newly started
-> > burning process gets disrupted (if this even properly works at all).
+> Again that memcpy. Why don't you just cast the instruction pointer to
+> __u8 and __u16 and deference it? 
 > 
-> The open() call is not in itself the problem.
+> The following switch deals with all the instructions that need special
+> handling. Please get rid of the BALR/BASR/BCR/BCTR/... defines and use
+> the opcode number directly. Add a comment which instruction it is like
+> in the new is_prohibited_opcode. All these defines are only used in
+> get_instruction_type and the opcodes will certainly not change, only new
+> ones will get added. No point in all those #defines.
 > 
-> I would guess that the problem is sparked by the TEST UNIT READY command
-> automatically sent when the device file is opened.  Although a drive
-> should have no difficulty handling this command while carrying out a burn,
-> apparently yours aborts.  In other words, this is likely to be a firmware 
-> problem in the CD drive.
+> > +
+> > +	switch (opcode[0]) {
+> > +		/* RR Format - instruction unit length = 2
+> > +		 *  ________ ____ ____
+> > +		 * |Op Code | R1 | R2 |
+> > +		 * |________|_M1_|____|
+> > +		 * 0         8   12  15
+> > +		 */
+> > +	case BALR:	/* PSW addr saved in R1, branch address in R2 */
+> > +		ret = (opcode[1] & 0xf0) + 2;
+> > +		/* Special non branching use of BALR */
+> > +		if ((opcode[1] & 0x0f) == 0)
+> > +			ret &= FIXUP_NOBRANCH;
+> > +		break;
+> 
+> ((opcode[1] & 0xf0) + 2) & FIXUP_NOBRANCH is always 0. If the target
+> register is 0 no branch takes place but R1 still needs fixup.
+> resume_execution will just fixup the psw address in that case. I think
+> you meant "ret |= FIXUP_NOBRANCH".
+> 
+> 
+> > +	case BASR:	/* PSW addr saved in R1, branch address in R2 */
+> > +		ret = (opcode[1] & 0xf0) + 2;
+> > +		/* Special non branching use of BASR */
+> > +		if ((opcode[1] & 0x0f) == 0)
+> > +			ret &= FIXUP_NOBRANCH;
+> > +		break;
+> 
+> Same here..
+> 
+> > +	case BCR:	/* M1 is mask val (condition), branch addr in R2 */
+> > +		ret = FIXUP_NOBRANCH & 2;
+> > +		break;
+> 
+> ..here..
+> 
+> > +	case BCTR:	/* R1 is count down, R2 is branch addr until R1 = 0 */
+> > +		ret = FIXUP_NOBRANCH & 2;
+> > +		break;
+> 
+> ..here..
+> 
+> > +		/* RX Format - instruction unit length = 4
+> > +		 *  ________ ____ ____ ____ ____________
+> > +		 * |Op Code | R1 | X2 | B2 |     D2     |
+> > +		 * |________|_M1_|____|____|____________|
+> > +		 * 0         8   12   16   20          31
+> > +		 */
+> > +	case BAL:	/* PSW addr saved in R1, branch addr D2(X2,B2) */
+> > +		ret = (opcode[1] & 0xf0) + 4;
+> > +		break;
+> > +	case BAS:	/* PSW addr saved in R1, branch addr D2(X2,B2) */
+> > +		ret = (opcode[1] & 0xf0) + 4;
+> > +		break;
+> > +	case BC:	/* M1 is mask val (condition), branch addr D2(X2,B2) */
+> > +		ret = FIXUP_NOBRANCH & 4;
+> > +		break;
+> 
+> ..here..
+> 
+> > +	case BCT:	/* R1 is count down, D2(X2,B2) is branch addr */
+> > +		ret = FIXUP_NOBRANCH & 4;
+> > +		break;
+> 
+> ..here..
+> 
+> > +		/* RI Format - instruction unit length = 4
+> > +		 *  ________ ____ ____ _________________
+> > +		 * |Op Code | R1 |OpCd|       I2        |
+> > +		 * |________|____|____|_________________|
+> > +		 * 0         8   12   16               31
+> > +		 */
+> > +	case 0xA7:	/* first byte (multiple ops have same 1st byte) */
+> > +		if ((opcode[1] & 0x0f) == BRAS) {
+> > +			ret = (opcode[1] & 0xf0) + 4;
+> > +		}
+> > +		break;
+> > +		/* RS Format - instruction unit length = 4
+> > +		 *  ________ ____ ____ ____ ____________
+> > +		 * |Op Code | R1 | R3 | B2 |     D2     |
+> > +		 * |________|____|_M3_|____|____________|
+> > +		 * 0         8   12   16   20          31
+> > +		 */
+> > +	case BXH:
+> > +		ret = FIXUP_NOBRANCH & 4;
+> > +		break;
+> 
+> ..here..
+> 
+> > +	case BXLE:
+> > +		ret = FIXUP_NOBRANCH & 4;
+> > +		break;
+> 
+> ..here..
+> 
+> > +		/* RIL Format - instruction unit length = 6
+> > +		 *  ________ ____ ____ _____________/______________
+> > +		 * |Op Code | R1 |OpCd|            I2              |
+> > +		 * |________|_M1_|____|_____________/______________|
+> > +		 * 0         8   12   16                          47
+> > +		 */
+> > +	case 0xC0:
+> > +		if ((opcode[1] & 0x0f) == BRASL) {
+> > +			ret = (opcode[1] & 0xf0) + 6;
+> > +		} else if ((opcode[1] & 0x0f) == BRCL) {
+> > +			ret = FIXUP_NOBRANCH & 6;
+> > +		}
+> > +		break;
+> 
+> ..here..
+> 
+> > +		/* RSY Format - instruction unit length = 6
+> > +		 *  ________ ____ ____ ____ __/__ ________ ________
+> > +		 * |Op Code | R1 | R3 | B2 | DL2 |  DH2   |Op Code |
+> > +		 * |________|____|_M3_|____|__/__|________|________|
+> > +		 * 0         8   12   16   20    32       40      47
+> > +		 */
+> > +	case 0xEB:
+> > +		if (opcode[5] == BXHG || opcode[5] == BXLEG) {
+> > +			ret = FIXUP_NOBRANCH & 6;
+> > +		}
+> > +		break;
+> 
+> ..here..
+> 
+> > +		/* RXY Format - instruction unit length = 6
+> > +		 *  ________ ____ ____ ____ __/__ ________ ________
+> > +		 * |Op Code | R1 | X2 | B2 | DL2 |  DH2   |Op Code |
+> > +		 * |________|____|____|____|__/__|________|________|
+> > +		 * 0         8   12   16   20    32       40      47
+> > +		 */
+> > +	case 0xE3:
+> > +		if (opcode[5] == BCTG) {
+> > +			ret = FIXUP_NOBRANCH & 6;
+> > +		}
+> > +		break;
+> 
+> ..and here.
+> 
+> > +	default:
+> > +		break;
+> > +	}
+> > +	return ret;
+> > +}
+> > +
+> 
+> There are some more instructions missing that need fixup:
+> "brxh" 0x84??????, "brxle" 0x85??????, "brc" 0xa7?4????,
+> "brct" 0xa7?6????, "brctg" 0xa7?7????, "bctgr" 0xb946????,
+> "brxhg" 0xec????????44 and "brxlg" 0xec??????45.
 
-OK, at http://lisas.de/~andi/temp_usb/ there are logs:
-debug.log.gz: burning, then running my open() test app: test app started
-at 22:43:49, disrupted burning process.
-only_device_open.log.gz: device open() *only* (plus close()!),
-no other USB activity such as burning happening (for comparison purposes, to see
-what a usual open()/close() is like)
+We need to handle lpsw and larl too, since they change the instruction
+pointer.
 
-only_device_open.log.gz (and close()!) contains:
-- TEST_UNIT_READY (failure?)
-- TEST_UNIT_READY
-- TEST_UNIT_READY
-- READ_TOC (failure?)
-- ALLOW_MEDIUM_REMOVAL
-- (unknown command) !!!!!!!
-- TEST_UNIT_READY
-- READ_TOC (failure?)
-- READ_TOC (failure?)
-- READ_CAPACITY
-- ALLOW_MEDIUM_REMOVAL
+Jan
 
-Hmm, multiple failures in there: might be cable issues??
+---
+Jan Glauber
+IBM Linux Technology Center
+Linux on zSeries Development, Boeblingen
 
-
-debug.log.gz contains:
-*** ongoing burning: ***
-- lots of WRITE_10 (NO failure!)
-- READ BUFFER CAPACITY
-- lots of WRITE_10 (NO failure!)
-- READ BUFFER CAPACITY
-- a couple WRITE_10 (NO failure!)
-*** [22:43:49] device open(): ***
-- TEST_UNIT_READY (ok!)
-- WRITE_10 (ok!!)
-- TEST_UNIT_READY (ok!)
-- WRITE_10 (ok!)
-- READ_TOC (*** ERROR!! ***)
-- WRITE_10 (ok!)
-- ALLOW_MEDIUM_REMOVAL (ok!)
-- WRITE_10 (*** FAILURE! ***)
-- going downhill from here...
-
-
-So what could be the problem here?
-READ_TOC might be it, but then it might be fully ok to have it fail
-(after all it's non-valid data content), so ALLOW_MEDIUM_REMOVAL would be the
-problem then? (next WRITE_10 FAILS!).
-
-I could be totally wrong, though, since I don't have much storage debugging
-experience.
-
-
-A good idea would be to further check whether it's the open() or the close()
-which disrupts burning for me.
-
-
-> I can't tell what's going on with the USB HDD since you haven't provided 
-> any information.
-
-I'd like to, but can't since I don't have device access any more.
-
-
-Oh, and that burner_switchoff_oops.jpg in the same directory
-is an OOPS that happened when I tried to blank a CDRW,
-then cancelled the operation (2x Ctrl-C on cdrecord),
-but then had HAL device polling daemon and my test app block on I/O wait on the
-device that continued blanking the CDRW. Since I then didn't want to wait
-for the blanking to finish I had to switch off the device: immediate OOPS,
-possibly due to mis-handling the two processes still waiting on a busy device
-which then got switched off completely. Kernel 2.6.17-rc6-mm2.
-
-Thanks!
-
-Andreas Mohr

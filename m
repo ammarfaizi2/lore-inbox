@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWFUVqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWFUVsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbWFUVqc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWFUVqb
+	id S1030186AbWFUVsS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWFUVsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:46:31 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:19285 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751433AbWFUVqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:46:31 -0400
+	Wed, 21 Jun 2006 17:48:18 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:23841 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030186AbWFUVsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:48:18 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hlKDAJks5X1oGAhmZOiy1ot6sksArtmQjP8eSatS2HL9pT2tGyMI+l/+5HqzI+l+eWud2H65qi+cnPNkTr84g8nemF/i4MUC1II3Xh3SAqOw2TzELYt8iSLMO3wVWr+PvWSi4BlE9af5UmHXnA+4Y/lLwLGKL2AOOj0RYb8D4/g=
-Message-ID: <6bffcb0e0606211446v14491fdal756e1bc69763298d@mail.gmail.com>
-Date: Wed, 21 Jun 2006 23:46:30 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.6.17-mm1
-Cc: "Cedric Le Goater" <clg@fr.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, "Sam Ravnborg" <sam@ravnborg.org>
-In-Reply-To: <4499777C.7010505@zytor.com>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=HDkEnBG3DHH/pjAAsSNj6ilLiinE9fm1I07gRPlsXoTvyNWsH3YzO4/h1pVdHtvn0vUtPsSbllS966hScAXo0czLG347NYBVlWxHQ8wmtvywTZjoCdPwFSGpYzhX/lrIPmV0zfHb02+cDOTK6OQ/jvtg8dxQfFmnShjRDIvo+5E=
+Message-ID: <4499BE99.6010508@gmail.com>
+Date: Wed, 21 Jun 2006 23:47:46 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org,
+       pingc@wacom.com
+Subject: swsusp regression [Was: 2.6.17-mm1]
 References: <20060621034857.35cfe36f.akpm@osdl.org>
-	 <6bffcb0e0606210407y781b3d41nef533847f579520b@mail.gmail.com>
-	 <20060621041758.4235dbc6.akpm@osdl.org>
-	 <6bffcb0e0606210429t3e78e88dqd637718e4e22b3f0@mail.gmail.com>
-	 <44994F77.5030301@fr.ibm.com> <4499777C.7010505@zytor.com>
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
+Andrew Morton napsal(a):
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
 
-On 21/06/06, H. Peter Anvin <hpa@zytor.com> wrote:
-> Cedric Le Goater wrote:
-> > Michal Piotrowski wrote:
-> >
-> >>>> usr/klibc/syscalls/typesize.c:1:23: error: syscommon.h: No such file
-> >>>> or directory
-> >>> That one's probably just a parallel kbuild race.  Type `make' again.
-> >>>
-> >> "make O=/dir" is culprit.
-> >>
-> >> Regards,
-> >> Michal
-> >>
-> >
-> > That's how i fixed it. Is that the right way to do it ?
-> >
->
-> Probably not.  I suspect what's needed is the same EXTRA_KLIBCCFLAGS as
-> in socketcalls/Kbuild.
+[32512.214000] Suspending device usbdev3.2_ep81
+[32512.214040] Suspending device 3-2:1.0
+[32512.214081] wacom 3-2:1.0: no suspend for driver wacom?
+[32512.214128] Suspending device usbdev3.2_ep00
+[32512.214169] Suspending device 3-2
+[32512.214209] suspend_device(): usb_generic_suspend+0x0/0x128() returns -16
+[32512.214319] Could not suspend device 3-2: error -16
+[32512.214361] wacom 3-2:1.0: no resume for driver wacom?
+[32512.242552] Some devices failed to suspend
 
-Thanks for fixing that.
+Bus 003 Device 002: ID 056a:0011 Wacom Co., Ltd Graphire 2
 
->
->         -hpa
->
->
+Wacom messages are not new, but it now causes not suspending.
 
-Regards,
-Michal
+2.6.17-rc6-mm2 was OK.
+
+Is there any more info needed?
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751523AbWFUMZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWFUMbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751523AbWFUMZh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 08:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751528AbWFUMZh
+	id S1751533AbWFUMbz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 08:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWFUMbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 08:25:37 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:43752 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751523AbWFUMZg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 08:25:36 -0400
-Date: Wed, 21 Jun 2006 13:25:23 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Ian Kent <raven@themaw.net>
-Cc: akpm@osdl.org, autofs@linux.kernel.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] autofs4 needs to force fail return revalidate
-Message-ID: <20060621122523.GX27946@ftp.linux.org.uk>
-References: <200606210618.k5L6IFDr008176@raven.themaw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jun 2006 08:31:55 -0400
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:64939 "EHLO
+	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751411AbWFUMbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 08:31:55 -0400
+Date: Wed, 21 Jun 2006 08:24:31 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [-mm patch] binfmt_elf: fix checks for bad address
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Message-ID: <200606210828_MC3-1-C30B-9D84@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606210618.k5L6IFDr008176@raven.themaw.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 02:18:15PM +0800, Ian Kent wrote:
-> While this problem has been present for a long time I've avoided resolving 
-> it because it was not very visible. But now that autofs v5 has "mount and 
-> expire on demand" of nested multiple mounts, such as is found when 
-> mounting an export list from a server, solving the problem cannot be 
-> avoided any longer.
-> 
-> I've tried very hard to find a way to do this entirely within the 
-> autofs4 module but have not been able to find a satisfactory way to 
-> achieve it.
-> 
-> So, I need to propose a change to the VFS.
+In-Reply-To: <20060619222512.58ba3e48.akpm@osdl.org>
 
-NAK in that form.  Care to explain what should happen to mount tree
-when you do that to mountpoint?
+On Mon, 19 Jun 2006 22:25:12 -0700, Andrew Morton wrote:
+
+> On Tue, 20 Jun 2006 00:55:24 -0400
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> 
+> > -#define BAD_ADDR(x) ((unsigned long)(x) > TASK_SIZE)
+> > +#define BAD_ADDR(x) ((unsigned long)(x) >= TASK_SIZE)
+>
+> Convince us that this is correct for all the other users of BAD_ADDR() in
+> this file.
+
+Can I just wave my arms while asserting it's obvious?  It seemed that
+way to me...
+
+There are two more logical pieces to that patch in RHEL4 but those I
+really didn't understand enough to post. Who's the binfmt_elf expert?
+
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

@@ -1,55 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbWFUUrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWFUUrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbWFUUrT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 16:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWFUUrT
+	id S1750864AbWFUUrX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 16:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWFUUrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 16:47:19 -0400
-Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:27608 "EHLO
-	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1750864AbWFUUrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 16:47:18 -0400
-Date: Wed, 21 Jun 2006 16:47:15 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Christoph Lameter <clameter@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-       David Quigley <dpquigl@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 2/3] SELinux: add security_task_setmempolicy hooks to mm
- code
-In-Reply-To: <Pine.LNX.4.64.0606211306050.21504@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0606211646370.12514@d.namei>
-References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
- <Pine.LNX.4.64.0606211520540.11782@d.namei>
- <Pine.LNX.4.64.0606211230230.21024@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0606211544420.11782@d.namei>
- <Pine.LNX.4.64.0606211306050.21504@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Jun 2006 16:47:23 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:62368 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750864AbWFUUrW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 16:47:22 -0400
+Date: Wed, 21 Jun 2006 13:44:15 -0700
+From: Greg KH <gregkh@suse.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64bit resources start end value fix
+Message-ID: <20060621204414.GA30766@suse.de>
+References: <20060621172903.GC9423@in.ibm.com> <20060621132227.ec401f93.akpm@osdl.org> <20060621204120.GA14739@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621204120.GA14739@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006, Christoph Lameter wrote:
-
-> On Wed, 21 Jun 2006, James Morris wrote:
+On Wed, Jun 21, 2006 at 04:41:21PM -0400, Vivek Goyal wrote:
+> On Wed, Jun 21, 2006 at 01:22:27PM -0700, Andrew Morton wrote:
+> > On Wed, 21 Jun 2006 13:29:03 -0400
+> > Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> > 
+> > > Hi Greg,
+> > > 
+> > > While changing 64bit kconfig options to CONFIG_RESOURCES_64BIT, I forgot
+> > > to update the values of start and end fields in ioport_resource and
+> > > iomem_resource.
+> > > 
+> > > Following patch applies on top of your reworked 64 bit patches and
+> > > is based on Andrew Morton's patch. Please apply.
+> > > 
+> > > http://marc.theaimsgroup.com/?l=linux-mm-commits&m=115087406130723&w=2
+> > > 
+> > > Thanks
+> > > Vivek
+> > > 
+> > > 
+> > > 
+> > > o Update start and end fields for 32bit and 64bit resources.
+> > > 
+> > > Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> > > ---
+> > > 
+> > >  linux-2.6.17-1M-vivek/kernel/resource.c |    6 +++---
+> > >  1 files changed, 3 insertions(+), 3 deletions(-)
+> > > 
+> > > diff -puN kernel/resource.c~64bit-resources-start-end-value-fix kernel/resource.c
+> > > --- linux-2.6.17-1M/kernel/resource.c~64bit-resources-start-end-value-fix	2006-06-21 12:43:43.000000000 -0400
+> > > +++ linux-2.6.17-1M-vivek/kernel/resource.c	2006-06-21 12:44:59.000000000 -0400
+> > > @@ -23,7 +23,7 @@
+> > >  
+> > >  struct resource ioport_resource = {
+> > >  	.name	= "PCI IO",
+> > > -	.start	= 0x0000,
+> > > +	.start	= 0,
+> > >  	.end	= IO_SPACE_LIMIT,
+> > >  	.flags	= IORESOURCE_IO,
+> > >  };
+> > > @@ -32,8 +32,8 @@ EXPORT_SYMBOL(ioport_resource);
+> > >  
+> > >  struct resource iomem_resource = {
+> > >  	.name	= "PCI mem",
+> > > -	.start	= 0UL,
+> > > -	.end	= ~0UL,
+> > > +	.start	= 0,
+> > > +	.end	= -1,
+> > >  	.flags	= IORESOURCE_MEM,
+> > >  };
+> > >  
+> > 
+> > Confused.  This patch won't apply.  It will apply with `patch -R', and if
+> > you do that you'll break iomem_reosurce.end by setting it to
+> > 0x00000000ffffffff.
+> > 
+> > I don't think any additional changes are needed here.
 > 
-> > I'll let David and/or Stephen address this in detail, but what's being 
-> > added here is a security asbtraction, where we consider these operations 
-> > to be equivalent from an access control point of view.  So, one task 
-> > causing another task's memory to be moved to another node is conisdered to 
-> > be "setting memory policy" at a conceptual level.  Perhaps we could change 
-> > the name of the hook to make that clearer (which you suggest below).
+> Andrew, you don't have to apply this patch. It is supposed to be picked
+> by Greg.
 > 
-> That will cause lots of confusion. Moving memory is not a memory policy.
+> There seems to be some confusion. Just few days back Greg consolidated
+> and re-organized all the 64bit resources patches and posted on LKML for
+> review.
 > 
-> Why was this name picked? Use move_pages movemem or so.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=115015916118671&w=2
+> 
+> There were few review comments regarding kconfig options.
+> I reworked the patch and CONFING_RESOURCES_32BIT was changed to
+> CONFIG_RESOURCES_64BIT.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=115072559700302&w=2
+> 
+> Now Greg's tree and your tree are not exact replica when it comes to 
+> 64bit resource patches. Hence this patch is supposed to be picked by 
+> Greg to make sure things are not broken in his tree.
 
-Not sure, perhaps some earlier thinking that stuck around.  Thanks for 
-looking at it, I'll respin the patches.
+It still breaks things as Andrew pointed out.  .end should not be set to
+-1.
 
+thanks,
 
--- 
-James Morris
-<jmorris@namei.org>
+greg k-h

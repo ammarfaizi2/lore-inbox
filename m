@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWFUJW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWFUJWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbWFUJW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 05:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWFUJW3
+	id S932493AbWFUJWK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 05:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWFUJWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 05:22:29 -0400
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:34433 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932492AbWFUJW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 05:22:28 -0400
-Date: Wed, 21 Jun 2006 05:17:31 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: halt the CPU on serious errors
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200606210520_MC3-1-C307-8E12@compuserve.com>
+	Wed, 21 Jun 2006 05:22:09 -0400
+Received: from ns2.suse.de ([195.135.220.15]:38074 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932493AbWFUJWH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 05:22:07 -0400
+To: hondaman <hondaman@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: trap divide error. X86_64, fc5, and 2.6.17
+References: <44976CAA.8080000@gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Jun 2006 11:22:05 +0200
+In-Reply-To: <44976CAA.8080000@gmail.com>
+Message-ID: <p738xnqq2wy.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060620050910.GA6091@redhat.com>
+hondaman <hondaman@gmail.com> writes:
 
-On Tue, 20 Jun 2006 01:09:10 -0400, Dave Jones wrote:
+> I compiled 2.6.17 under fc5.  Halfway through the boot, the screen is
+> filled with this message:
+> init[1] trap divide error rip:4296d7 rsp:7ffff792ed10 error:0
+> I didnt change any of the default settings in the kernel.  Just
+> unzipped, make menuconfig, save, make and installed it.
 
-> > --- 2.6.17-32.orig/arch/i386/kernel/crash.c
-> > +++ 2.6.17-32/arch/i386/kernel/crash.c
-> > @@ -113,8 +113,8 @@ static int crash_nmi_callback(struct pt_
-> >     disable_local_APIC();
-> >     atomic_dec(&waiting_for_crash_ipi);
-> >     /* Assume hlt works */
-> > -   halt();
-> > -   for(;;);
-> > +   for (;;)
-> > +           halt();
-> >  
-> >     return 1;
->
-> But we should never get past that first halt(), as interrupts are disabled.
+Maybe do a make distclean and try again? Sometimes kernels get miscompiled.
+Also make sure old kernel still works.
 
-Yeah, but why not do it anyway?  I'll change the comment.
-
-> > --- 2.6.17-32.orig/arch/i386/kernel/doublefault.c
-> > +++ 2.6.17-32/arch/i386/kernel/doublefault.c
-> > @@ -44,7 +44,8 @@ static void doublefault_fn(void)
-> >             }
-> >     }
-> >  
-> > -   for (;;) /* nothing */;
-> > +   for (;;)
-> > +           halt();
-> >  }
->
-> This one would probably be better off as a cpu_relax()
-
-OK.
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+-Andi

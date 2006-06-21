@@ -1,104 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWFUHUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWFUHcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbWFUHUw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 03:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWFUHUw
+	id S932460AbWFUHcA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 03:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWFUHb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 03:20:52 -0400
-Received: from mail.sysgo.com ([62.8.134.5]:26571 "EHLO mail.sysgo.com")
-	by vger.kernel.org with ESMTP id S1751256AbWFUHUv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 03:20:51 -0400
-From: Gerhard Jaeger <g.jaeger@sysgo.com>
-To: linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH 2/3] FS_ENET: use PAL for mii management
-Date: Wed, 21 Jun 2006 09:20:36 +0200
-User-Agent: KMail/1.9.1
-Cc: Vitaly Bordug <vbordug@ru.mvista.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <20060620145825.24807.310.stgit@vitb.ru.mvista.com> <20060620145840.24807.30296.stgit@vitb.ru.mvista.com>
-In-Reply-To: <20060620145840.24807.30296.stgit@vitb.ru.mvista.com>
+	Wed, 21 Jun 2006 03:31:59 -0400
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:39832 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932460AbWFUHb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 03:31:59 -0400
+Date: Wed, 21 Jun 2006 03:27:30 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [RFC, patch] i386: vgetcpu(), take 2
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@suse.de>
+Message-ID: <200606210329_MC3-1-C305-E008@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606210920.37295.g.jaeger@sysgo.com>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 7.1.0.15; VDF: 6.35.0.57; host: mailgate2.sysgo.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Use a GDT entry's limit field to store per-cpu data for fast access
+from userspace, and provide a vsyscall to access the current CPU
+number stored there.
 
-On Tuesday 20 June 2006 16:58, Vitaly Bordug wrote:
-> 
-> This patch should update the fs_enet infrastructure to utilize
-> Phy Abstraction Layer subsystem. Inside there are generic driver rehaul,
-> board-specific portion to respect driver changes (for 8272ads and 866ads).
-> 
-> Signed-off-by: Vitaly Bordug <vbordug@ru.mvista.com>
-> ---
-> 
->  arch/ppc/platforms/mpc8272ads_setup.c |  154 ++++++----
->  arch/ppc/platforms/mpc866ads_setup.c  |  192 ++++++------
->  arch/ppc/platforms/mpc885ads_setup.c  |  179 ++++--------
->  arch/ppc/syslib/mpc8xx_devices.c      |    8 +
->  arch/ppc/syslib/mpc8xx_sys.c          |    6 
->  arch/ppc/syslib/pq2_devices.c         |    5 
->  arch/ppc/syslib/pq2_sys.c             |    3 
->  drivers/net/fs_enet/Makefile          |    6 
->  drivers/net/fs_enet/fec.h             |   42 +++
->  drivers/net/fs_enet/fs_enet-main.c    |  207 ++++++++-----
->  drivers/net/fs_enet/fs_enet-mii.c     |  507 ---------------------------------
->  drivers/net/fs_enet/fs_enet.h         |   40 ++-
->  drivers/net/fs_enet/mac-fcc.c         |   10 -
->  drivers/net/fs_enet/mac-fec.c         |  132 +--------
->  drivers/net/fs_enet/mac-scc.c         |    4 
->  drivers/net/fs_enet/mii-bitbang.c     |  384 +++++++++++++++----------
->  drivers/net/fs_enet/mii-fec.c         |  243 ++++++++++++++++
->  drivers/net/fs_enet/mii-fixed.c       |   92 ------
->  include/asm-ppc/mpc8260.h             |    1 
->  include/asm-ppc/mpc8xx.h              |    1 
->  include/linux/fs_enet_pd.h            |   50 +--
->  21 files changed, 983 insertions(+), 1283 deletions(-)
+Questions:
+ 1. Will the vdso relocation patch break this?
+ 2. Should the version number of the vsyscall .so be incremented?
 
-[SNIPSNAP]
-> diff --git a/drivers/net/fs_enet/mii-bitbang.c b/drivers/net/fs_enet/mii-bitbang.c
-> index 24a5e2e..145bf4c 100644
-> --- a/drivers/net/fs_enet/mii-bitbang.c
-> +++ b/drivers/net/fs_enet/mii-bitbang.c
-> @@ -34,6 +34,7 @@
->  #include <linux/mii.h>
->  #include <linux/ethtool.h>
->  #include <linux/bitops.h>
-> +#include <linux/platform_device.h>
->  
->  #include <asm/pgtable.h>
->  #include <asm/irq.h>
-> @@ -41,6 +42,7 @@
->  
->  #include "fs_enet.h"
->  
-> +
->  #ifdef CONFIG_8xx
->  static int bitbang_prep_bit(u8 **dirp, u8 **datp, u8 *mskp, int port, int bit)
->  {
-> @@ -106,64 +108,25 @@ static int bitbang_prep_bit(u8 **dirp, u
->  }
->  #endif
->  
-> -#ifdef CONFIG_8260
-> -static int bitbang_prep_bit(u8 **dirp, u8 **datp, u8 *mskp, int port, int bit)
-> +static int bitbang_prep_bit(u8 **datp, u8 *mskp,
-> +		struct fs_mii_bit *mii_bit)
+Test program using the new call:
 
-is it possible, that in case of CONFIG_8xx you'll have two times this 
-bitbang_prep_bit() function? 
+/* vgetcpu.c: get CPU number we are running on.
+ * build kernel with vgetcpu patch first, then:
+ *  gcc -o vgetcpu vgetcpu.c <srcpath>/arch/i386/kernel/vsyscall-sysenter.so
+ */
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
 
-Gerhard
+extern int __vgetcpu(void);
 
+int main(int argc, char * const argv[])
+{
+	printf("cpu: %u\n", __vgetcpu());
+
+	return 0;
+}
+
+---
+ arch/i386/kernel/cpu/common.c        |    3 +++
+ arch/i386/kernel/head.S              |    8 +++++++-
+ arch/i386/kernel/vsyscall-getcpu.S   |   25 +++++++++++++++++++++++++
+ arch/i386/kernel/vsyscall-int80.S    |    2 ++
+ arch/i386/kernel/vsyscall-sysenter.S |    2 ++
+ arch/i386/kernel/vsyscall.lds.S      |    1 +
+ 6 files changed, 40 insertions(+), 1 deletion(-)
+
+--- 2.6.17-32.orig/arch/i386/kernel/cpu/common.c
++++ 2.6.17-32/arch/i386/kernel/cpu/common.c
+@@ -642,6 +642,9 @@ void __cpuinit cpu_init(void)
+ 		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
+ 		(CPU_16BIT_STACK_SIZE - 1);
+ 
++	/* Set up GDT entry for per-cpu data */
++ 	*(__u64 *)(&gdt[27]) |= cpu;
++
+ 	cpu_gdt_descr->size = GDT_SIZE - 1;
+  	cpu_gdt_descr->address = (unsigned long)gdt;
+ 
+--- 2.6.17-32.orig/arch/i386/kernel/head.S
++++ 2.6.17-32/arch/i386/kernel/head.S
+@@ -525,7 +525,13 @@ ENTRY(cpu_gdt_table)
+ 	.quad 0x004092000000ffff	/* 0xc8 APM DS    data */
+ 
+ 	.quad 0x0000920000000000	/* 0xd0 - ESPFIX 16-bit SS */
+-	.quad 0x0000000000000000	/* 0xd8 - unused */
++
++	/*
++	 * Use a GDT entry to store per-cpu data for user space (DPL 3.)
++	 * 32-bit data segment, byte granularity, base 0, limit set at runtime.
++	 */
++	.quad 0x0040f20000000000	/* 0xd8 - for per-cpu user data */
++
+ 	.quad 0x0000000000000000	/* 0xe0 - unused */
+ 	.quad 0x0000000000000000	/* 0xe8 - unused */
+ 	.quad 0x0000000000000000	/* 0xf0 - unused */
+--- /dev/null
++++ 2.6.17-32/arch/i386/kernel/vsyscall-getcpu.S
+@@ -0,0 +1,25 @@
++/*
++ * vgetcpu
++ * This file is #include'd by vsyscall-*.S to define them after the
++ * vsyscall entry point.  The kernel assumes that the addresses of these
++ * routines are constant for all vsyscall implementations.
++ */
++
++#include <linux/errno.h>
++
++	.text
++	.org __kernel_rt_sigreturn+32,0x90
++	.globl __vgetcpu
++	.type __vgetcpu,@function
++__vgetcpu:
++.LSTART_vgetcpu:
++	movl $-EFAULT,%eax
++	movl $((27<<3)|3),%edx
++	lsll %edx,%eax
++	jnz 1f
++	andl $0xff,%eax
++1:
++	ret
++.LEND_vgetcpu:
++	.size __vgetcpu,.-.LSTART_vgetcpu
++
+--- 2.6.17-32.orig/arch/i386/kernel/vsyscall-int80.S
++++ 2.6.17-32/arch/i386/kernel/vsyscall-int80.S
+@@ -51,3 +51,5 @@ __kernel_vsyscall:
+  * Get the common code for the sigreturn entry points.
+  */
+ #include "vsyscall-sigreturn.S"
++
++#include "vsyscall-getcpu.S"
+--- 2.6.17-32.orig/arch/i386/kernel/vsyscall-sysenter.S
++++ 2.6.17-32/arch/i386/kernel/vsyscall-sysenter.S
+@@ -120,3 +120,5 @@ SYSENTER_RETURN:
+  * Get the common code for the sigreturn entry points.
+  */
+ #include "vsyscall-sigreturn.S"
++
++#include "vsyscall-getcpu.S"
+--- 2.6.17-32.orig/arch/i386/kernel/vsyscall.lds.S
++++ 2.6.17-32/arch/i386/kernel/vsyscall.lds.S
+@@ -57,6 +57,7 @@ VERSION
+     	__kernel_vsyscall;
+     	__kernel_sigreturn;
+     	__kernel_rt_sigreturn;
++	__vgetcpu;
+ 
+     local: *;
+   };
 -- 
-Gerhard Jaeger <gjaeger@sysgo.com>            
-SYSGO AG                      Embedded and Real-Time Software
-www.sysgo.com | www.elinos.com | www.pikeos.com | www.osek.de 
-
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

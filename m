@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWFUW2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWFUWcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbWFUW2U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 18:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbWFUW2T
+	id S1751501AbWFUWcd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 18:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWFUWcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 18:28:19 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:35772 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030320AbWFUW2T (ORCPT
+	Wed, 21 Jun 2006 18:32:33 -0400
+Received: from mx1.suse.de ([195.135.220.2]:27338 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751501AbWFUWcc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 18:28:19 -0400
-Date: Thu, 22 Jun 2006 00:27:59 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: Mattia Dongili <malattia@linux.it>, hpa@zytor.com, mbligh@mbligh.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] fix __range_ok constraint
-In-Reply-To: <20060621134215.1bca6a5c.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0606220023230.17704@scrub.home>
-References: <44998DCB.1030703@mbligh.org> <20060621184814.GQ24595@inferi.kami.home>
- <44999BC5.7060702@zytor.com> <20060621193932.GR24595@inferi.kami.home>
- <20060621134215.1bca6a5c.akpm@osdl.org>
+	Wed, 21 Jun 2006 18:32:32 -0400
+From: Andi Kleen <ak@suse.de>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Subject: Re: [RFC] PCI extended conf space when MMCONFIG disabled because of e820
+Date: Thu, 22 Jun 2006 00:32:19 +0200
+User-Agent: KMail/1.9.3
+Cc: Arjan van de Ven <arjan@linux.intel.com>, Brice Goglin <brice@myri.com>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <44907A8E.1080308@myri.com> <4491029D.4060002@linux.intel.com> <20060621151942.A17228@unix-os.sc.intel.com>
+In-Reply-To: <20060621151942.A17228@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606220032.19388.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 22 June 2006 00:19, Rajesh Shah wrote:
+> On Wed, Jun 14, 2006 at 11:47:57PM -0700, Arjan van de Ven wrote:
+> > 
+> > > We need to improve this "mmconfig disabled" anyhow. Having the extended
+> > > config space unavailable on lots of machines is also far from a viable
+> > > solution :)
+> > 
+> > it's unlikely to be many machines though.
+> > 
+> I just noticed today - this check killed PCI Express on 3 of the 4
+> machines I normally use for testing.
 
-On Wed, 21 Jun 2006, Andrew Morton wrote:
+What do you mean with killed PCI Express? PCI Express should
+work even without extended config space, except error handling.
 
-> what the heck?  Can you do `make fs/binfmt_aout.s' then send the relevant
-> parts of that file?
+Error handling seems to be still a quite obscure feature,
+not used by many people - so booting is more important than
+supporting it. Still would be good to support it of course.
 
-I've hit this too, I haven't booted with the patch yet, but it should be 
-simple enough to be safe.
+You're saying that you have lots of machines where the mmconfig
+aperture is not fully reserved in e820?
 
-bye, Roman
-
-
-
+Is it partially reserved (not for all busses) or not at all?
 
 
-An immediate operand can't be the destination of the cmpl instruction,
-so exclude it.
+> Sure enough, the ACPI namespace for the "broken" machines lists
+> the MMCFG resources as indicated above, and PCI Express works fine
+> otherwise. I haven't looked yet whether it's possible to add this
+> check in the code, have you looked into that option? I understand
+> the PCI firmware spec is not necessarily the final authority on
+> this, but a _lot_ of BIOS developers read that to figure out what
+> to do...
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+If someone does a patch to double check it against the ACPI name space
+I'm not opposed to let it overrule the e820 heuristic.
 
----
- include/asm-i386/uaccess.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The point of this code is to pragmatically detect BIOS with obviously 
+broken setups. It's not about standards lawyering.
 
-Index: linux-2.6-mm/include/asm-i386/uaccess.h
-===================================================================
---- linux-2.6-mm.orig/include/asm-i386/uaccess.h	2006-06-21 16:23:56.000000000 +0200
-+++ linux-2.6-mm/include/asm-i386/uaccess.h	2006-06-21 16:46:55.000000000 +0200
-@@ -58,7 +58,7 @@ extern struct movsl_mask {
- 	__chk_user_ptr(addr); \
- 	asm("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; sbbl $0,%0" \
- 		:"=&r" (flag), "=r" (sum) \
--		:"1" (addr),"g" ((int)(size)),"g" (current_thread_info()->addr_limit.seg)); \
-+		:"1" (addr),"g" ((int)(size)),"rm" (current_thread_info()->addr_limit.seg)); \
- 	flag; })
+-Andi
  
- /**

@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWFUOxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWFUO63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWFUOxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWFUOxP
+	id S932113AbWFUO63 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWFUO62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:53:15 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:40169 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932125AbWFUOxO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:53:14 -0400
-Date: Wed, 21 Jun 2006 23:54:18 +0900 (JST)
-Message-Id: <20060621.235418.59032700.anemo@mba.ocn.ne.jp>
-To: 7eggert@gmx.de
-Cc: rpurdie@rpsys.net, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] LED: add LED heartbeat trigger
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <E1FskCC-000109-LV@be1.lrz>
-References: <6pRqN-5QK-19@gated-at.bofh.it>
-	<E1FskCC-000109-LV@be1.lrz>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jun 2006 10:58:28 -0400
+Received: from host-84-9-201-23.bulldogdsl.com ([84.9.201.23]:3387 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932113AbWFUO62
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 10:58:28 -0400
+Date: Wed, 21 Jun 2006 15:58:02 +0100
+From: Ben Dooks <ben-linux@fluff.org>
+To: Simon Posnjak <sposnjak@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux on Philips LPC3180
+Message-ID: <20060621145802.GA20263@home.fluff.org>
+References: <725404980606201556w1589a932j9bef9d6a03ef46f5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <725404980606201556w1589a932j9bef9d6a03ef46f5@mail.gmail.com>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 19:39:04 +0200, Bodo Eggert <7eggert@elstempel.de> wrote:
-> > +       This allows LEDs to be controlled by a CPU load average.
-> > +       The flash frequency is a hyperbolic function of the 5-minute
-> > +       load average.
-> > +       If unsure, say Y.
+On Wed, Jun 21, 2006 at 12:56:58AM +0200, Simon Posnjak wrote:
+> Hi,
 > 
-> Wouldn't the 1-minute-load be better?
+> Is anybody using linux on the new Philips LPC3180
+> (http://www.standardics.philips.com/products/lpc3000/lpc3180/) ARM9
+> based chip?
 
-Actually, this driver (and preceeding CONFIG_HEARTBEAT codes) is using
-1-minute load average, avenrun[0].  This inconsistency has been exist
-so long time (since 2.4 kernel at least).  I'll fix the help text and
-a comment in driver anyway.
+The best place to ask this would be the linux-arm-kernel
+list (see http://www.arm.linux.org.uk/mailinglists/)
 
----
-Atsushi Nemoto
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

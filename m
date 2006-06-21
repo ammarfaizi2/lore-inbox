@@ -1,115 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbWFUO0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751608AbWFUO0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751604AbWFUO0f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751592AbWFUO0F
+	id S1751608AbWFUO0d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751587AbWFUO0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:26:05 -0400
+	Wed, 21 Jun 2006 10:26:06 -0400
 Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:61856 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S1751602AbWFUOZ6
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S1751449AbWFUOZl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:25:58 -0400
+	Wed, 21 Jun 2006 10:25:41 -0400
 From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH 07/21] [MMC] Correct register order
-Date: Wed, 21 Jun 2006 16:25:57 +0200
+Subject: [PATCH 02/21] [MMC] Print device id
+Date: Wed, 21 Jun 2006 16:25:41 +0200
 Cc: Pierre Ossman <drzeus-list@drzeus.cx>
 To: rmk+lkml@arm.linux.org.uk
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060621142557.8857.26186.stgit@poseidon.drzeus.cx>
+Message-Id: <20060621142541.8857.84201.stgit@poseidon.drzeus.cx>
 In-Reply-To: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
 References: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The sdhci specification states that some registers must be written to in a
-specific order.
+As sdhci is a generic driver, it is helpful to see some more specific
+identification of the actual hardware in dmesg. PCI vendor, device and
+revision is sufficient in most cases.
 
 Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
 ---
 
- drivers/mmc/sdhci.c |   44 +++++++++++++++++++++++++++-----------------
- 1 files changed, 27 insertions(+), 17 deletions(-)
+ drivers/mmc/sdhci.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
-index feadc2d..52e4c6e 100644
+index 681cbb8..efbece3 100644
 --- a/drivers/mmc/sdhci.c
 +++ b/drivers/mmc/sdhci.c
-@@ -270,16 +270,13 @@ static void sdhci_transfer_pio(struct sd
- 
- static void sdhci_prepare_data(struct sdhci_host *host, struct mmc_data *data)
+@@ -1151,13 +1151,18 @@ static int __devinit sdhci_probe(struct 
+ 	const struct pci_device_id *ent)
  {
--	u16 mode;
- 	u8 count;
- 	unsigned target_timeout, current_timeout;
+ 	int ret, i;
+-	u8 slots;
++	u8 slots, rev;
+ 	struct sdhci_chip *chip;
  
- 	WARN_ON(host->data);
+ 	BUG_ON(pdev == NULL);
+ 	BUG_ON(ent == NULL);
  
--	if (data == NULL) {
--		writew(0, host->ioaddr + SDHCI_TRANSFER_MODE);
-+	if (data == NULL)
- 		return;
--	}
- 
- 	DBG("blksz %04x blks %04x flags %08x\n",
- 		1 << data->blksz_bits, data->blocks, data->flags);
-@@ -317,19 +314,6 @@ static void sdhci_prepare_data(struct sd
- 
- 	writeb(count, host->ioaddr + SDHCI_TIMEOUT_CONTROL);
- 
--	mode = SDHCI_TRNS_BLK_CNT_EN;
--	if (data->blocks > 1)
--		mode |= SDHCI_TRNS_MULTI;
--	if (data->flags & MMC_DATA_READ)
--		mode |= SDHCI_TRNS_READ;
--	if (host->flags & SDHCI_USE_DMA)
--		mode |= SDHCI_TRNS_DMA;
--
--	writew(mode, host->ioaddr + SDHCI_TRANSFER_MODE);
--
--	writew(1 << data->blksz_bits, host->ioaddr + SDHCI_BLOCK_SIZE);
--	writew(data->blocks, host->ioaddr + SDHCI_BLOCK_COUNT);
--
- 	if (host->flags & SDHCI_USE_DMA) {
- 		int count;
- 
-@@ -347,6 +331,30 @@ static void sdhci_prepare_data(struct sd
- 		host->offset = 0;
- 		host->remain = host->cur_sg->length;
- 	}
+-	DBG("found at %s\n", pci_name(pdev));
++	pci_read_config_byte(pdev, PCI_CLASS_REVISION, &rev);
 +
-+	writew(1 << data->blksz_bits, host->ioaddr + SDHCI_BLOCK_SIZE);
-+	writew(data->blocks, host->ioaddr + SDHCI_BLOCK_COUNT);
-+}
-+
-+static void sdhci_set_transfer_mode(struct sdhci_host *host,
-+	struct mmc_data *data)
-+{
-+	u16 mode;
-+
-+	WARN_ON(host->data);
-+
-+	if (data == NULL)
-+		return;
-+
-+	mode = SDHCI_TRNS_BLK_CNT_EN;
-+	if (data->blocks > 1)
-+		mode |= SDHCI_TRNS_MULTI;
-+	if (data->flags & MMC_DATA_READ)
-+		mode |= SDHCI_TRNS_READ;
-+	if (host->flags & SDHCI_USE_DMA)
-+		mode |= SDHCI_TRNS_DMA;
-+
-+	writew(mode, host->ioaddr + SDHCI_TRANSFER_MODE);
- }
++	printk(KERN_INFO DRIVER_NAME
++		": SDHCI controller found at %s [%04x:%04x] (rev %x)\n",
++		pci_name(pdev), (int)pdev->vendor, (int)pdev->device,
++		(int)rev);
  
- static void sdhci_finish_data(struct sdhci_host *host)
-@@ -447,6 +455,8 @@ static void sdhci_send_command(struct sd
- 
- 	writel(cmd->arg, host->ioaddr + SDHCI_ARGUMENT);
- 
-+	sdhci_set_transfer_mode(host, cmd->data);
-+
- 	if ((cmd->flags & MMC_RSP_136) && (cmd->flags & MMC_RSP_BUSY)) {
- 		printk(KERN_ERR "%s: Unsupported response type! "
- 			"Please report this to " BUGMAIL ".\n",
+ 	ret = pci_read_config_byte(pdev, PCI_SLOT_INFO, &slots);
+ 	if (ret)
 

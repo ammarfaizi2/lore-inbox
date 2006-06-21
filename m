@@ -1,780 +1,358 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWFUWFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWFUWKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbWFUWFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 18:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbWFUWFS
+	id S1030336AbWFUWKF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 18:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbWFUWKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 18:05:18 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:48588 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030314AbWFUWFP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 18:05:15 -0400
-Subject: [PATCH 3/3] Streamline generic_file_* interfaces and filemap
-	cleanups
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org
-In-Reply-To: <1150927388.29759.4.camel@dyn9047017100.beaverton.ibm.com>
-References: <1150927388.29759.4.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 15:07:11 -0700
-Message-Id: <1150927631.30190.4.camel@dyn9047017100.beaverton.ibm.com>
+	Wed, 21 Jun 2006 18:10:05 -0400
+Received: from ns2.suse.de ([195.135.220.15]:23464 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030336AbWFUWKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 18:10:03 -0400
+Date: Wed, 21 Jun 2006 15:06:56 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [GIT PATCH] USB patches for 2.6.17
+Message-ID: <20060621220656.GA10652@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch cleans up generic_file_*_read/write() interfaces.
-Christoph Hellwig gave me the idea for this clean ups.
+Here are a lot of USB patches for 2.6.17.  They do the following:
 
-In a nutshell, all filesystems should set .aio_read/.aio_write
-methods and use do_sync_read/ do_sync_write() as their .read/.write 
-methods. This allows us to cleanup all variants of generic_file_*
-routines.
+	 - rework the UHCI driver
+	 - lots of new device ids added
+	 - EHCI tt fixed (allowing 1.1 devices behind 2.0 hubs to work properly)
+	 - new drivers added
+	 - endpoint sysfs code redone
+	 - lots of other small bugfixes and features added
 
-Final available interfaces:
+All of these changes have been in the -mm tree for a number of months.
 
-generic_file_aio_read() - read handler
-generic_file_aio_write() - write handler
-generic_file_aio_write_nolock() - no lock write handler
+Please pull from:
+	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
-__generic_file_aio_write_nolock() - internal worker routine 
+The full patches will be sent to the linux-usb-devel mailing list, if
+anyone wants to see them.
 
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+thanks,
 
- drivers/char/raw.c         |   15 +------
- fs/adfs/file.c             |    6 ++-
- fs/affs/file.c             |    6 ++-
- fs/bfs/file.c              |    6 ++-
- fs/block_dev.c             |   12 +-----
- fs/ext2/file.c             |    4 +-
- fs/fuse/file.c             |    6 ++-
- fs/hfs/inode.c             |    6 ++-
- fs/hfsplus/inode.c         |    6 ++-
- fs/hostfs/hostfs_kern.c    |    4 +-
- fs/hpfs/file.c             |    6 ++-
- fs/jffs/inode-v23.c        |    6 ++-
- fs/jffs2/file.c            |    6 ++-
- fs/jfs/file.c              |    4 +-
- fs/minix/file.c            |    6 ++-
- fs/ntfs/file.c             |    2 -
- fs/qnx4/file.c             |    6 ++-
- fs/ramfs/file-mmu.c        |    6 ++-
- fs/ramfs/file-nommu.c      |    6 ++-
- fs/read_write.c            |    3 +
- fs/smbfs/file.c            |   24 +++++++-----
- fs/sysv/file.c             |    6 ++-
- fs/udf/file.c              |   16 +++++---
- fs/ufs/file.c              |    6 ++-
- fs/xfs/linux-2.6/xfs_lrw.c |    4 +-
- include/linux/fs.h         |    5 --
- mm/filemap.c               |   88 ++-------------------------------------------
- 27 files changed, 105 insertions(+), 166 deletions(-)
+greg k-h
 
-Index: linux-2.6.17/drivers/char/raw.c
-===================================================================
---- linux-2.6.17.orig/drivers/char/raw.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/drivers/char/raw.c	2006-06-21 14:39:33.000000000 -0700
-@@ -239,21 +239,10 @@ out:
- 	return err;
- }
- 
--static ssize_t raw_file_write(struct file *file, const char __user *buf,
--				   size_t count, loff_t *ppos)
--{
--	struct iovec local_iov = {
--		.iov_base = (char __user *)buf,
--		.iov_len = count
--	};
--
--	return generic_file_write_nolock(file, &local_iov, 1, ppos);
--}
--
- static struct file_operations raw_fops = {
--	.read	=	generic_file_read,
-+	.read	=	do_sync_read,
- 	.aio_read = 	generic_file_aio_read,
--	.write	=	raw_file_write,
-+	.write	=	do_sync_write,
- 	.aio_write = 	generic_file_aio_write_nolock,
- 	.open	=	raw_open,
- 	.release=	raw_release,
-Index: linux-2.6.17/fs/adfs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/adfs/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/adfs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -27,10 +27,12 @@
- 
- const struct file_operations adfs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= file_fsync,
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.sendfile	= generic_file_sendfile,
- };
- 
-Index: linux-2.6.17/fs/affs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/affs/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/affs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -27,8 +27,10 @@ static int affs_file_release(struct inod
- 
- const struct file_operations affs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.open		= affs_file_open,
- 	.release	= affs_file_release,
-Index: linux-2.6.17/fs/bfs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/bfs/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/bfs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -19,8 +19,10 @@
- 
- const struct file_operations bfs_file_operations = {
- 	.llseek 	= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- };
-Index: linux-2.6.17/fs/block_dev.c
-===================================================================
---- linux-2.6.17.orig/fs/block_dev.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/fs/block_dev.c	2006-06-21 14:39:33.000000000 -0700
-@@ -1056,14 +1056,6 @@ static int blkdev_close(struct inode * i
- 	return blkdev_put(bdev);
- }
- 
--static ssize_t blkdev_file_write(struct file *file, const char __user *buf,
--				   size_t count, loff_t *ppos)
--{
--	struct iovec local_iov = { .iov_base = (void __user *)buf, .iov_len = count };
--
--	return generic_file_write_nolock(file, &local_iov, 1, ppos);
--}
--
- static long block_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- {
- 	return blkdev_ioctl(file->f_mapping->host, file, cmd, arg);
-@@ -1083,8 +1075,8 @@ const struct file_operations def_blk_fop
- 	.open		= blkdev_open,
- 	.release	= blkdev_close,
- 	.llseek		= block_llseek,
--	.read		= generic_file_read,
--	.write		= blkdev_file_write,
-+	.read		= do_sync_read,
-+	.write		= do_sync_write,
-   	.aio_read	= generic_file_aio_read,
-   	.aio_write	= generic_file_aio_write_nolock,
- 	.mmap		= generic_file_mmap,
-Index: linux-2.6.17/fs/ext2/file.c
-===================================================================
---- linux-2.6.17.orig/fs/ext2/file.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/fs/ext2/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -41,8 +41,8 @@ static int ext2_release_file (struct ino
-  */
- const struct file_operations ext2_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.write		= do_sync_write,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
- 	.ioctl		= ext2_ioctl,
-Index: linux-2.6.17/fs/fuse/file.c
-===================================================================
---- linux-2.6.17.orig/fs/fuse/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/fuse/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -621,8 +621,10 @@ static int fuse_set_page_dirty(struct pa
- 
- static const struct file_operations fuse_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= fuse_file_mmap,
- 	.open		= fuse_open,
- 	.flush		= fuse_flush,
-Index: linux-2.6.17/fs/hfs/inode.c
-===================================================================
---- linux-2.6.17.orig/fs/hfs/inode.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/hfs/inode.c	2006-06-21 14:39:33.000000000 -0700
-@@ -603,8 +603,10 @@ int hfs_inode_setattr(struct dentry *den
- 
- static const struct file_operations hfs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
-Index: linux-2.6.17/fs/hfsplus/inode.c
-===================================================================
---- linux-2.6.17.orig/fs/hfsplus/inode.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/hfsplus/inode.c	2006-06-21 14:39:33.000000000 -0700
-@@ -282,8 +282,10 @@ static struct inode_operations hfsplus_f
- 
- static const struct file_operations hfsplus_file_operations = {
- 	.llseek 	= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
-Index: linux-2.6.17/fs/hostfs/hostfs_kern.c
-===================================================================
---- linux-2.6.17.orig/fs/hostfs/hostfs_kern.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/fs/hostfs/hostfs_kern.c	2006-06-21 14:39:33.000000000 -0700
-@@ -386,11 +386,11 @@ int hostfs_fsync(struct file *file, stru
- 
- static const struct file_operations hostfs_file_fops = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
- 	.sendfile	= generic_file_sendfile,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
- 	.mmap		= generic_file_mmap,
- 	.open		= hostfs_file_open,
- 	.release	= NULL,
-Index: linux-2.6.17/fs/hpfs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/hpfs/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/hpfs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -113,7 +113,7 @@ static ssize_t hpfs_file_write(struct fi
- {
- 	ssize_t retval;
- 
--	retval = generic_file_write(file, buf, count, ppos);
-+	retval = do_sync_write(file, buf, count, ppos);
- 	if (retval > 0)
- 		hpfs_i(file->f_dentry->d_inode)->i_dirty = 1;
- 	return retval;
-@@ -122,8 +122,10 @@ static ssize_t hpfs_file_write(struct fi
- const struct file_operations hpfs_file_ops =
- {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.write		= hpfs_file_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.release	= hpfs_file_release,
- 	.fsync		= hpfs_file_fsync,
-Index: linux-2.6.17/fs/jffs/inode-v23.c
-===================================================================
---- linux-2.6.17.orig/fs/jffs/inode-v23.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/jffs/inode-v23.c	2006-06-21 14:39:33.000000000 -0700
-@@ -1633,8 +1633,10 @@ static const struct file_operations jffs
- {
- 	.open		= generic_file_open,
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.ioctl		= jffs_ioctl,
- 	.mmap		= generic_file_readonly_mmap,
- 	.fsync		= jffs_fsync,
-Index: linux-2.6.17/fs/jffs2/file.c
-===================================================================
---- linux-2.6.17.orig/fs/jffs2/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/jffs2/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -42,8 +42,10 @@ const struct file_operations jffs2_file_
- {
- 	.llseek =	generic_file_llseek,
- 	.open =		generic_file_open,
--	.read =		generic_file_read,
--	.write =	generic_file_write,
-+	.read =		do_sync_read,
-+	.aio_read =	generic_file_aio_read,
-+	.write =	do_sync_write,
-+	.aio_write =	generic_file_aio_write,
- 	.ioctl =	jffs2_ioctl,
- 	.mmap =		generic_file_readonly_mmap,
- 	.fsync =	jffs2_fsync,
-Index: linux-2.6.17/fs/jfs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/jfs/file.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/fs/jfs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -103,8 +103,8 @@ struct inode_operations jfs_file_inode_o
- const struct file_operations jfs_file_operations = {
- 	.open		= jfs_open,
- 	.llseek		= generic_file_llseek,
--	.write		= generic_file_write,
--	.read		= generic_file_read,
-+	.write		= do_sync_write,
-+	.read		= do_sync_read,
- 	.aio_read	= generic_file_aio_read,
- 	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
-Index: linux-2.6.17/fs/minix/file.c
-===================================================================
---- linux-2.6.17.orig/fs/minix/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/minix/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -17,8 +17,10 @@ int minix_sync_file(struct file *, struc
- 
- const struct file_operations minix_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= minix_sync_file,
- 	.sendfile	= generic_file_sendfile,
-Index: linux-2.6.17/fs/ntfs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/ntfs/file.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/fs/ntfs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -2294,7 +2294,7 @@ static int ntfs_file_fsync(struct file *
- 
- const struct file_operations ntfs_file_ops = {
- 	.llseek		= generic_file_llseek,	 /* Seek inside file. */
--	.read		= generic_file_read,	 /* Read from file. */
-+	.read		= do_sync_read,		 /* Read from file. */
- 	.aio_read	= generic_file_aio_read, /* Async read from file. */
- #ifdef NTFS_RW
- 	.write		= ntfs_file_write,	 /* Write to file. */
-Index: linux-2.6.17/fs/qnx4/file.c
-===================================================================
---- linux-2.6.17.orig/fs/qnx4/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/qnx4/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -22,11 +22,13 @@
- const struct file_operations qnx4_file_operations =
- {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_mmap,
- 	.sendfile	= generic_file_sendfile,
- #ifdef CONFIG_QNX4FS_RW
--	.write		= generic_file_write,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.fsync		= qnx4_sync_file,
- #endif
- };
-Index: linux-2.6.17/fs/ramfs/file-mmu.c
-===================================================================
---- linux-2.6.17.orig/fs/ramfs/file-mmu.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/ramfs/file-mmu.c	2006-06-21 14:39:33.000000000 -0700
-@@ -33,8 +33,10 @@ struct address_space_operations ramfs_ao
- };
- 
- const struct file_operations ramfs_file_operations = {
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= simple_sync_file,
- 	.sendfile	= generic_file_sendfile,
-Index: linux-2.6.17/fs/ramfs/file-nommu.c
-===================================================================
---- linux-2.6.17.orig/fs/ramfs/file-nommu.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/ramfs/file-nommu.c	2006-06-21 14:39:33.000000000 -0700
-@@ -36,8 +36,10 @@ struct address_space_operations ramfs_ao
- const struct file_operations ramfs_file_operations = {
- 	.mmap			= ramfs_nommu_mmap,
- 	.get_unmapped_area	= ramfs_nommu_get_unmapped_area,
--	.read			= generic_file_read,
--	.write			= generic_file_write,
-+	.read			= do_sync_read,
-+	.aio_read		= generic_file_aio_read,
-+	.write			= do_sync_write,
-+	.aio_write		= generic_file_aio_write,
- 	.fsync			= simple_sync_file,
- 	.sendfile		= generic_file_sendfile,
- 	.llseek			= generic_file_llseek,
-Index: linux-2.6.17/fs/read_write.c
-===================================================================
---- linux-2.6.17.orig/fs/read_write.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/fs/read_write.c	2006-06-21 14:39:33.000000000 -0700
-@@ -22,7 +22,8 @@
- 
- const struct file_operations generic_ro_fops = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
- 	.mmap		= generic_file_readonly_mmap,
- 	.sendfile	= generic_file_sendfile,
- };
-Index: linux-2.6.17/include/linux/fs.h
-===================================================================
---- linux-2.6.17.orig/include/linux/fs.h	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/include/linux/fs.h	2006-06-21 14:39:33.000000000 -0700
-@@ -1590,11 +1590,8 @@ extern int generic_file_mmap(struct file
- extern int generic_file_readonly_mmap(struct file *, struct vm_area_struct *);
- extern int file_read_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
- extern int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size);
--extern ssize_t generic_file_read(struct file *, char __user *, size_t, loff_t *);
- int generic_write_checks(struct file *file, loff_t *pos, size_t *count, int isblk);
--extern ssize_t generic_file_write(struct file *, const char __user *, size_t, loff_t *);
- extern ssize_t generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t);
--extern ssize_t __generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t *);
- extern ssize_t generic_file_aio_write(struct kiocb *, const struct iovec *, unsigned long, loff_t);
- extern ssize_t generic_file_aio_write_nolock(struct kiocb *, const struct iovec *,
- 		unsigned long, loff_t);
-@@ -1604,8 +1601,6 @@ extern ssize_t generic_file_buffered_wri
- 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
- extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
- extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
--ssize_t generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos);
- extern ssize_t generic_file_sendfile(struct file *, loff_t *, size_t, read_actor_t, void *);
- extern void do_generic_mapping_read(struct address_space *mapping,
- 				    struct file_ra_state *, struct file *,
-Index: linux-2.6.17/mm/filemap.c
-===================================================================
---- linux-2.6.17.orig/mm/filemap.c	2006-06-21 14:39:29.000000000 -0700
-+++ linux-2.6.17/mm/filemap.c	2006-06-21 14:39:33.000000000 -0700
-@@ -1050,13 +1050,14 @@ success:
-  * that can use the page cache directly.
-  */
- ssize_t
--__generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
--		unsigned long nr_segs, loff_t *ppos)
-+generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
-+		unsigned long nr_segs, loff_t pos)
- {
- 	struct file *filp = iocb->ki_filp;
- 	ssize_t retval;
- 	unsigned long seg;
- 	size_t count;
-+	loff_t *ppos = &iocb->ki_pos;
- 
- 	count = 0;
- 	for (seg = 0; seg < nr_segs; seg++) {
-@@ -1080,7 +1081,7 @@ __generic_file_aio_read(struct kiocb *io
- 
- 	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
- 	if (filp->f_flags & O_DIRECT) {
--		loff_t pos = *ppos, size;
-+		loff_t size;
- 		struct address_space *mapping;
- 		struct inode *inode;
- 
-@@ -1125,33 +1126,8 @@ out:
- 	return retval;
- }
- 
--EXPORT_SYMBOL(__generic_file_aio_read);
--
--ssize_t
--generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
--		unsigned long nr_segs, loff_t pos)
--{
--	BUG_ON(iocb->ki_pos != pos);
--	return __generic_file_aio_read(iocb, iov, nr_segs, &iocb->ki_pos);
--}
- EXPORT_SYMBOL(generic_file_aio_read);
- 
--ssize_t
--generic_file_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
--{
--	struct iovec local_iov = { .iov_base = buf, .iov_len = count };
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, filp);
--	ret = __generic_file_aio_read(&kiocb, &local_iov, 1, ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	return ret;
--}
--
--EXPORT_SYMBOL(generic_file_read);
--
- int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size)
- {
- 	ssize_t written;
-@@ -2218,38 +2194,6 @@ ssize_t generic_file_aio_write_nolock(st
- }
- EXPORT_SYMBOL(generic_file_aio_write_nolock);
- 
--static ssize_t
--__generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos)
--{
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, file);
--	kiocb.ki_pos = *ppos;
--	ret = __generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	return ret;
--}
--
--ssize_t
--generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos)
--{
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, file);
--	kiocb.ki_pos = *ppos;
--	ret = generic_file_aio_write_nolock(&kiocb, iov, nr_segs, *ppos);
--	if (-EIOCBQUEUED == ret)
--		ret = wait_on_sync_kiocb(&kiocb);
--	*ppos = kiocb.ki_pos;
--	return ret;
--}
--EXPORT_SYMBOL(generic_file_write_nolock);
--
- ssize_t generic_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
- 		unsigned long nr_segs, loff_t pos)
- {
-@@ -2276,30 +2220,6 @@ ssize_t generic_file_aio_write(struct ki
- }
- EXPORT_SYMBOL(generic_file_aio_write);
- 
--ssize_t generic_file_write(struct file *file, const char __user *buf,
--			   size_t count, loff_t *ppos)
--{
--	struct address_space *mapping = file->f_mapping;
--	struct inode *inode = mapping->host;
--	ssize_t	ret;
--	struct iovec local_iov = { .iov_base = (void __user *)buf,
--					.iov_len = count };
--
--	mutex_lock(&inode->i_mutex);
--	ret = __generic_file_write_nolock(file, &local_iov, 1, ppos);
--	mutex_unlock(&inode->i_mutex);
--
--	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
--		ssize_t err;
--
--		err = sync_page_range(inode, mapping, *ppos - ret, ret);
--		if (err < 0)
--			ret = err;
--	}
--	return ret;
--}
--EXPORT_SYMBOL(generic_file_write);
--
- /*
-  * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
-  * went wrong during pagecache shootdown.
-Index: linux-2.6.17/fs/xfs/linux-2.6/xfs_lrw.c
-===================================================================
---- linux-2.6.17.orig/fs/xfs/linux-2.6/xfs_lrw.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/xfs/linux-2.6/xfs_lrw.c	2006-06-21 14:39:33.000000000 -0700
-@@ -276,7 +276,9 @@ xfs_read(
- 
- 	xfs_rw_enter_trace(XFS_READ_ENTER, &ip->i_iocore,
- 				(void *)iovp, segs, *offset, ioflags);
--	ret = __generic_file_aio_read(iocb, iovp, segs, offset);
-+
-+	iocb->ki_pos = *offset;
-+	ret = generic_file_aio_read(iocb, iovp, segs, *offset);
- 	if (ret == -EIOCBQUEUED && !(ioflags & IO_ISAIO))
- 		ret = wait_on_sync_kiocb(iocb);
- 	if (ret > 0)
-Index: linux-2.6.17/fs/smbfs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/smbfs/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/smbfs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -214,13 +214,15 @@ smb_updatepage(struct file *file, struct
- }
- 
- static ssize_t
--smb_file_read(struct file * file, char __user * buf, size_t count, loff_t *ppos)
-+smb_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
-+			unsigned long nr_segs, loff_t pos)
- {
-+	struct file * file = iocb->ki_filp;
- 	struct dentry * dentry = file->f_dentry;
- 	ssize_t	status;
- 
- 	VERBOSE("file %s/%s, count=%lu@%lu\n", DENTRY_PATH(dentry),
--		(unsigned long) count, (unsigned long) *ppos);
-+		(unsigned long) iocb->ki_left, (unsigned long) pos);
- 
- 	status = smb_revalidate_inode(dentry);
- 	if (status) {
-@@ -233,7 +235,7 @@ smb_file_read(struct file * file, char _
- 		(long)dentry->d_inode->i_size,
- 		dentry->d_inode->i_flags, dentry->d_inode->i_atime);
- 
--	status = generic_file_read(file, buf, count, ppos);
-+	status = generic_file_aio_read(iocb, iov, nr_segs, pos);
- out:
- 	return status;
- }
-@@ -317,14 +319,16 @@ struct address_space_operations smb_file
-  * Write to a file (through the page cache).
-  */
- static ssize_t
--smb_file_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
-+smb_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
-+			       unsigned long nr_segs, loff_t pos)
- {
-+	struct file * file = iocb->ki_filp;
- 	struct dentry * dentry = file->f_dentry;
- 	ssize_t	result;
- 
- 	VERBOSE("file %s/%s, count=%lu@%lu\n",
- 		DENTRY_PATH(dentry),
--		(unsigned long) count, (unsigned long) *ppos);
-+		(unsigned long) iocb->ki_left, (unsigned long) pos);
- 
- 	result = smb_revalidate_inode(dentry);
- 	if (result) {
-@@ -337,8 +341,8 @@ smb_file_write(struct file *file, const 
- 	if (result)
- 		goto out;
- 
--	if (count > 0) {
--		result = generic_file_write(file, buf, count, ppos);
-+	if (iocb->ki_left > 0) {
-+		result = generic_file_aio_write(iocb, iov, nr_segs, pos);
- 		VERBOSE("pos=%ld, size=%ld, mtime=%ld, atime=%ld\n",
- 			(long) file->f_pos, (long) dentry->d_inode->i_size,
- 			dentry->d_inode->i_mtime, dentry->d_inode->i_atime);
-@@ -402,8 +406,10 @@ smb_file_permission(struct inode *inode,
- const struct file_operations smb_file_operations =
- {
- 	.llseek		= remote_llseek,
--	.read		= smb_file_read,
--	.write		= smb_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= smb_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= smb_file_aio_write,
- 	.ioctl		= smb_ioctl,
- 	.mmap		= smb_file_mmap,
- 	.open		= smb_file_open,
-Index: linux-2.6.17/fs/sysv/file.c
-===================================================================
---- linux-2.6.17.orig/fs/sysv/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/sysv/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -21,8 +21,10 @@
-  */
- const struct file_operations sysv_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= sysv_sync_file,
- 	.sendfile	= generic_file_sendfile,
-Index: linux-2.6.17/fs/udf/file.c
-===================================================================
---- linux-2.6.17.orig/fs/udf/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/udf/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -103,19 +103,21 @@ struct address_space_operations udf_adin
- 	.commit_write		= udf_adinicb_commit_write,
- };
- 
--static ssize_t udf_file_write(struct file * file, const char __user * buf,
--	size_t count, loff_t *ppos)
-+static ssize_t udf_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
-+			      unsigned long nr_segs, loff_t ppos)
- {
- 	ssize_t retval;
-+	struct file *file = iocb->ki_filp;
- 	struct inode *inode = file->f_dentry->d_inode;
- 	int err, pos;
-+	size_t count = iocb->ki_left;
- 
- 	if (UDF_I_ALLOCTYPE(inode) == ICBTAG_FLAG_AD_IN_ICB)
- 	{
- 		if (file->f_flags & O_APPEND)
- 			pos = inode->i_size;
- 		else
--			pos = *ppos;
-+			pos = ppos;
- 
- 		if (inode->i_sb->s_blocksize < (udf_file_entry_alloc_offset(inode) +
- 			pos + count))
-@@ -136,7 +138,7 @@ static ssize_t udf_file_write(struct fil
- 		}
- 	}
- 
--	retval = generic_file_write(file, buf, count, ppos);
-+	retval = generic_file_aio_write(iocb, iov, nr_segs, ppos);
- 
- 	if (retval > 0)
- 		mark_inode_dirty(inode);
-@@ -249,11 +251,13 @@ static int udf_release_file(struct inode
- }
- 
- const struct file_operations udf_file_operations = {
--	.read			= generic_file_read,
-+	.read			= do_sync_read,
-+	.aio_read		= generic_file_aio_read,
- 	.ioctl			= udf_ioctl,
- 	.open			= generic_file_open,
- 	.mmap			= generic_file_mmap,
--	.write			= udf_file_write,
-+	.write			= do_sync_write,
-+	.aio_write		= udf_file_aio_write,
- 	.release		= udf_release_file,
- 	.fsync			= udf_fsync_file,
- 	.sendfile		= generic_file_sendfile,
-Index: linux-2.6.17/fs/ufs/file.c
-===================================================================
---- linux-2.6.17.orig/fs/ufs/file.c	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17/fs/ufs/file.c	2006-06-21 14:39:33.000000000 -0700
-@@ -33,8 +33,10 @@
-  
- const struct file_operations ufs_file_operations = {
- 	.llseek		= generic_file_llseek,
--	.read		= generic_file_read,
--	.write		= generic_file_write,
-+	.read		= do_sync_read,
-+	.aio_read	= generic_file_aio_read,
-+	.write		= do_sync_write,
-+	.aio_write	= generic_file_aio_write,
- 	.mmap		= generic_file_mmap,
- 	.open           = generic_file_open,
- 	.sendfile	= generic_file_sendfile,
+ Documentation/power/swsusp.txt             |   37 -
+ Documentation/usb/usbmon.txt               |   32 
+ arch/powerpc/sysdev/fsl_soc.c              |   66 --
+ arch/ppc/syslib/mpc83xx_devices.c          |    6 
+ drivers/block/ub.c                         |   78 --
+ drivers/media/video/usbvideo/konicawc.c    |    3 
+ drivers/usb/Makefile                       |    2 
+ drivers/usb/atm/usbatm.c                   |    2 
+ drivers/usb/atm/xusbatm.c                  |    1 
+ drivers/usb/class/cdc-acm.c                |   84 +-
+ drivers/usb/class/cdc-acm.h                |   16 
+ drivers/usb/core/Makefile                  |    3 
+ drivers/usb/core/devio.c                   |   38 -
+ drivers/usb/core/endpoint.c                |  275 ++++++++
+ drivers/usb/core/file.c                    |   79 +-
+ drivers/usb/core/hub.c                     |  153 +++-
+ drivers/usb/core/message.c                 |  182 +++--
+ drivers/usb/core/sysfs.c                   |  201 ------
+ drivers/usb/core/usb.c                     |    1 
+ drivers/usb/core/usb.h                     |    3 
+ drivers/usb/gadget/ether.c                 |   90 +-
+ drivers/usb/gadget/inode.c                 |   62 +
+ drivers/usb/gadget/net2280.c               |   17 
+ drivers/usb/gadget/pxa2xx_udc.c            |   13 
+ drivers/usb/gadget/rndis.c                 |  389 +++++------
+ drivers/usb/gadget/rndis.h                 |   26 
+ drivers/usb/gadget/serial.c                |  105 ---
+ drivers/usb/host/Kconfig                   |   20 
+ drivers/usb/host/ehci-au1xxx.c             |   21 
+ drivers/usb/host/ehci-fsl.c                |   37 -
+ drivers/usb/host/ehci-hcd.c                |   50 +
+ drivers/usb/host/ehci-pci.c                |   59 -
+ drivers/usb/host/ehci-sched.c              |  216 ++++++
+ drivers/usb/host/isp116x-hcd.c             |    4 
+ drivers/usb/host/sl811-hcd.c               |    2 
+ drivers/usb/host/sl811_cs.c                |    2 
+ drivers/usb/host/uhci-debug.c              |   45 +
+ drivers/usb/host/uhci-hcd.c                |  139 ++--
+ drivers/usb/host/uhci-hcd.h                |   81 +-
+ drivers/usb/host/uhci-hub.c                |    5 
+ drivers/usb/host/uhci-q.c                  |  947 ++++++++++++++++-------------
+ drivers/usb/input/acecad.c                 |    4 
+ drivers/usb/input/aiptek.c                 |    4 
+ drivers/usb/input/appletouch.c             |  117 +++
+ drivers/usb/input/ati_remote.c             |    4 
+ drivers/usb/input/ati_remote2.c            |    2 
+ drivers/usb/input/hid-core.c               |   83 +-
+ drivers/usb/input/hid-input.c              |   36 -
+ drivers/usb/input/hid.h                    |   11 
+ drivers/usb/input/itmtouch.c               |    4 
+ drivers/usb/input/kbtab.c                  |    5 
+ drivers/usb/input/keyspan_remote.c         |    4 
+ drivers/usb/input/mtouchusb.c              |    4 
+ drivers/usb/input/powermate.c              |    4 
+ drivers/usb/input/touchkitusb.c            |    4 
+ drivers/usb/input/usbkbd.c                 |    4 
+ drivers/usb/input/usbmouse.c               |    4 
+ drivers/usb/input/usbtouchscreen.c         |    2 
+ drivers/usb/input/wacom.c                  |    5 
+ drivers/usb/input/xpad.c                   |    4 
+ drivers/usb/input/yealink.c                |    4 
+ drivers/usb/misc/Kconfig                   |   23 
+ drivers/usb/misc/Makefile                  |    2 
+ drivers/usb/misc/appledisplay.c            |  383 +++++++++++
+ drivers/usb/misc/cy7c63.c                  |  244 +++++++
+ drivers/usb/misc/phidgetkit.c              |  303 ++++++---
+ drivers/usb/misc/sisusbvga/sisusb.c        |  127 +--
+ drivers/usb/misc/sisusbvga/sisusb.h        |    6 
+ drivers/usb/misc/sisusbvga/sisusb_con.c    |  151 ++--
+ drivers/usb/misc/sisusbvga/sisusb_init.c   |    4 
+ drivers/usb/misc/sisusbvga/sisusb_init.h   |   20 
+ drivers/usb/misc/sisusbvga/sisusb_struct.h |    2 
+ drivers/usb/misc/usbtest.c                 |   38 -
+ drivers/usb/mon/mon_dma.c                  |    5 
+ drivers/usb/mon/mon_main.c                 |   23 
+ drivers/usb/mon/mon_stat.c                 |    4 
+ drivers/usb/mon/mon_text.c                 |   36 +
+ drivers/usb/mon/usb_mon.h                  |    2 
+ drivers/usb/net/asix.c                     |    4 
+ drivers/usb/net/cdc_ether.c                |   14 
+ drivers/usb/net/pegasus.c                  |   29 
+ drivers/usb/net/rndis_host.c               |    2 
+ drivers/usb/net/zaurus.c                   |   19 
+ drivers/usb/serial/Kconfig                 |   18 
+ drivers/usb/serial/airprime.c              |    2 
+ drivers/usb/serial/console.c               |   56 +
+ drivers/usb/serial/cp2101.c                |    1 
+ drivers/usb/serial/cyberjack.c             |    2 
+ drivers/usb/serial/cypress_m8.c            |    2 
+ drivers/usb/serial/empeg.c                 |    2 
+ drivers/usb/serial/ftdi_sio.c              |   13 
+ drivers/usb/serial/ftdi_sio.h              |    6 
+ drivers/usb/serial/garmin_gps.c            |    2 
+ drivers/usb/serial/generic.c               |    4 
+ drivers/usb/serial/io_edgeport.c           |   48 -
+ drivers/usb/serial/ipaq.c                  |    2 
+ drivers/usb/serial/ipw.c                   |    2 
+ drivers/usb/serial/ir-usb.c                |    2 
+ drivers/usb/serial/keyspan.c               |    2 
+ drivers/usb/serial/kl5kusb105.c            |    3 
+ drivers/usb/serial/omninet.c               |    2 
+ drivers/usb/serial/option.c                |  139 +++-
+ drivers/usb/serial/pl2303.c                |    4 
+ drivers/usb/serial/usb-serial.c            |   58 +
+ drivers/usb/serial/usb-serial.h            |    5 
+ drivers/usb/serial/visor.c                 |    2 
+ drivers/usb/serial/whiteheat.c             |    8 
+ drivers/usb/storage/onetouch.c             |    3 
+ drivers/usb/storage/scsiglue.c             |    4 
+ drivers/usb/storage/shuttle_usbat.c        |  105 ++-
+ drivers/usb/storage/shuttle_usbat.h        |    4 
+ drivers/usb/storage/transport.c            |   88 +-
+ drivers/usb/storage/unusual_devs.h         |   35 -
+ drivers/usb/storage/usb.c                  |   51 +
+ include/linux/usb.h                        |   22 
+ include/linux/usb/cdc.h                    |  205 ++++++
+ include/linux/usb/input.h                  |   25 
+ include/linux/usb/isp116x.h                |   29 
+ include/linux/usb/sl811.h                  |   26 
+ include/linux/usb_cdc.h                    |  205 ------
+ include/linux/usb_input.h                  |   25 
+ include/linux/usb_isp116x.h                |   29 
+ include/linux/usb_sl811.h                  |   26 
+ 123 files changed, 4169 insertions(+), 2440 deletions(-)
 
+---------------
+
+Adrian Bunk:
+      USB: sisusbvga: possible cleanups
+
+Alan Stern:
+      USB: usbcore: always turn on hub port power
+      USB: net2280: add a shutdown routine
+      USB: UHCI: store the endpoint type in the QH structure
+      USB: UHCI: fix obscure bug in enqueue()
+      usbhid: automatically set HID_QUIRK_NOGET for keyboards and mice
+      UHCI: Common result routine for Control/Bulk/Interrupt
+      UHCI: Remove non-iso TDs as they are used
+      UHCI: Move code for cleaning up unlinked URBs
+      UHCI: Eliminate the TD-removal list
+      UHCI: Reimplement FSBR
+      UHCI: Work around old Intel bug
+      UHCI: use integer-sized frame numbers
+      UHCI: fix race in ISO dequeuing
+      UHCI: store the period in the queue header
+      UHCI: remove ISO TDs as they are used
+      gadgetfs: fix AIO interface bugs
+      gadgetfs: fix memory leaks
+      usbtest: report errors in iso tests
+      usbhid: Remove unneeded blacklist entries
+      usbcore: port reset for composite devices
+      USB hub: use usb_reset_composite_device
+      usb-storage: use usb_reset_composite_device
+      usbhid: use usb_reset_composite_device
+      usbcore: recovery from Set-Configuration failure
+      usb-storage: unusual_devs entry for Nikon DSC D70s
+      UHCI: remove hc_inaccessible flag
+      UHCI: Improve FSBR-off timing
+      USB: unusual_devs entry for Nokia N80
+
+Andrew Morton:
+      Driver for Apple Cinema Display
+
+Arjan van de Ven:
+      USB: convert the semaphores in the sisusb driver to mutexes
+
+Bart Massey:
+      USB HID/HIDBP, INPUT DRIVERS: fix various usb/input/hid-input.c bugs that make Apple Mighty Mouse work poorly
+
+Chris Lund:
+      USB: free allocated memory on io_edgeport startup memory failure
+
+Dan Streetman:
+      improved TT scheduling for EHCI
+
+Daniel Drake:
+      USB shuttle_usbat: hardcode flash detection for now
+      USB: usb-storage alauda: Fix transport info mismerge
+      USB: print message when device is rejected due to insufficient power
+
+David Brownell:
+      USB: usbnet, zaurus mtu fixup
+      USB: correct the USB info in Documentation/power/swsusp.txt
+      USB: more pegasus log spamming removed
+      USB: cdc_ether: recognize olympus r1000 (fix regression)
+      UHCI: various updates
+      USB: whitespace removal from usb/gadget/ether
+      USB: move <linux/usb_cdc.h> to <linux/usb/cdc.h>
+      USB: move hardware-specific <linux/usb_*.h> to <linux/usb/*.h>
+      USB: move <linux/usb_input.h> to <linux/usb/input.h>
+
+Duncan Sands:
+      USBATM: remove pointless inline
+      USBATM: remove no-longer needed #include
+
+Eduard Warkentin:
+      USB: added support for ASIX 88178 chipset USB Gigabit Ethernet adaptor
+
+Eric Sesterhenn:
+      USB: negative index in drivers/usb/host/isp116x-hcd.c
+
+Franck Bui-Huu:
+      Fix a deadlock in usbtest
+      usb-storage: get rid of the timer during URB submission
+      USB: gadget-serial: fix a deadlock when closing the serial device
+      USB: gadget-serial: do not save/restore IRQ flags in gs_close()
+
+Frank Gevaerts:
+      USB Serial: clean tty fields on failed device open
+
+Giridhar Pemmasani:
+      usbcore: Fix broken RNDIS config selection
+
+Greg Kroah-Hartman:
+      USB: add usb_interrupt_msg() function for api completeness.
+      USB: move the endpoint specific sysfs code to it's own file
+      USB: make usb_create_ep_files take a struct device
+      USB: make endpoints real struct devices
+      USB: move usb_device_class class devices to be real devices
+      USB: convert usb class devices to real devices
+      USB: only make /sys/class/usb show up when there is something in it
+
+Guennadi Liakhovetski:
+      USB: console: fix oops
+      USB console: fix disconnection issues
+
+Henk Vergonet:
+      USB: add YEALINK phones to the HID_QUIRK_IGNORE blacklist
+
+Ian Abbott:
+      USB: ftdi_sio: add support for Yost Engineering ServoCenter3.1
+
+Jeremy Fitzhardinge:
+      USB: Add Sierra Wireless MC5720 ID to airprime.c
+
+Kumar Gala:
+      USB: allow multiple types of EHCI controllers to be built as modules
+
+Luiz Fernando N. Capitulino:
+      usbserial: Fixes wrong return values.
+
+Matt Reimer:
+      USB: trivial DEBUG message correction in gadget ether driver
+
+Matthias Urlichs:
+      USB: new devices for the Option driver
+
+Micah Dowty:
+      USB: Remove 4088-byte limit on usbfs control URBs
+      USB: Allow high-bandwidth isochronous packets via usbfs
+
+Milan Svoboda:
+      usb gadget: allow drivers support speeds higher than full speed
+      usb gadget: fix compile errors
+      usb gadget: update pxa2xx_udc.c driver to fully support IXP4xx platform
+
+Nicolas Boichat:
+      USB: MacBook Pro touchpad support
+
+Oliver Bock:
+      USB: new driver for Cypress CY7C63xxx mirco controllers
+
+Oliver Neukum:
+      USB: cdc-acm: add a new special case for modems with buggy firmware
+
+Paul Fulghum:
+      USB: console: fix cr/lf issues
+      USB: console: prevent ENODEV on node
+
+Paul Serice:
+      USB: EHCI works again on NVidia controllers with >2GB RAM
+
+Pete Zaitcev:
+      USB: clean out an unnecessary NULL check from ub
+      usb: io_edgeport, cleanup to unicode handling
+      USB serial: encapsulate schedule_work, remove double-calling
+      USB: Improve Kconfig comment for mct_u232
+      USB: Syntax cleanup for pl2303 (trailing backslash)
+      USB: rmmod pl2303 after -28
+      ub: atomic add_disk
+      ub: random cleanups
+      USB: io_edgeport touch-up
+      USB: update usbmon, fix glued lines
+      USB: implement error event in usbmon
+      USB: update usbmon.txt
+
+Peter Chubb:
+      USB: shuttle_usbat: Fix handling of scatter-gather buffers
+      USB: shuttle_usbat: Hardcode detection of HP CDRW devices
+
+Philippe Retornaz:
+      usb: drivers/usb/core/devio.c dereferences a userspace pointer
+
+Ralf Baechle:
+      USB: EHCI on non-Au1200 build fix
+
+Rene Rebe:
+      USB: Add Apple MacBook product IDs to usbhid
+
+Sean Young:
+      USB Phidget InterfaceKit: make inputs pollable and new device support
+
+Stuart MacDonald:
+      USB: Whiteheat: fix firmware spurious errors
+
+Timothy Sipples:
+      airprime.c: add Kyocera Wireless KPC650/Passport support
+
+Vitja Makarov:
+      USB: new cp2101 device
 

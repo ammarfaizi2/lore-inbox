@@ -1,189 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWFUPAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWFUPFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWFUPAe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 11:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWFUPAe
+	id S932149AbWFUPFD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 11:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751639AbWFUPFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 11:00:34 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:32764 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932130AbWFUPAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 11:00:33 -0400
-Date: Thu, 22 Jun 2006 00:01:38 +0900 (JST)
-Message-Id: <20060622.000138.130239297.anemo@mba.ocn.ne.jp>
-To: linux-kernel@vger.kernel.org
-Cc: rpurdie@rpsys.net, akpm@osdl.org, nish.aravamudan@gmail.com,
-       7eggert@gmx.de
-Subject: Re: [PATCH] LED: add LED heartbeat trigger
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060621.013603.132759710.anemo@mba.ocn.ne.jp>
-References: <20060621.013603.132759710.anemo@mba.ocn.ne.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 21 Jun 2006 11:05:03 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:14711 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751635AbWFUPFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 11:05:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CID/gwKvJICejnniJ5TP0brC47Pak40IiLOqBImUjx3L8rqkHJJOhsqdS7hJ/ZGcp7gGWHvf+4AkKapl7Tsxx5G28U/IzeLoTMpmaJ5Y7DXcidbLAMztTyR+WZvd3uq44wu5jkuvk/oQKbLiFCSnuLX/FovF4kan5yPkzYb+8MU=
+Message-ID: <642640090606210804k282085efm84476af3a8fa08b1@mail.gmail.com>
+Date: Wed, 21 Jun 2006 09:04:58 -0600
+From: "Ryan McAvoy" <ryan.sed@gmail.com>
+To: "Steven Rostedt" <rostedt@goodmis.org>
+Subject: Re: realtime-preempt for MIPS - compile problem with rwsem
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-mips@vger.kernel.org,
+       "Ingo Molnar" <mingo@elte.hu>, "Thomas Gleixner" <tglx@linutronix.de>
+In-Reply-To: <Pine.LNX.4.58.0606210354050.29673@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <642640090606201208g31a0a57bm268910b026ccd335@mail.gmail.com>
+	 <Pine.LNX.4.58.0606210354050.29673@gandalf.stny.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Take 2.  Updated by a few comment.  Thanks.
+Hi Steve,
 
+Thanks for your reply.
 
-Add an LED trigger acts like a heart beat.  This can be used as a
-replacement of CONFIG_HEARTBEAT code exists in some arch's timer code.
+Steven Rostedt wrote:
 
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+> First, whenever sending mail about the -rt patch, always CC Ingo (and
+> perhaps Thomas Gliexner and myself).
 
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index 6265062..b0d73b8 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -87,5 +87,14 @@ config LEDS_TRIGGER_IDE_DISK
- 	  This allows LEDs to be controlled by IDE disk activity.
- 	  If unsure, say Y.
- 
-+config LEDS_TRIGGER_HEARTBEAT
-+	tristate "LED Heartbeat Trigger"
-+	depends LEDS_TRIGGERS
-+	help
-+	  This allows LEDs to be controlled by a CPU load average.
-+	  The flash frequency is a hyperbolic function of the 1-minute
-+	  load average.
-+	  If unsure, say Y.
-+
- endmenu
- 
-diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-index 40f0426..1dc79b5 100644
---- a/drivers/leds/Makefile
-+++ b/drivers/leds/Makefile
-@@ -15,3 +15,4 @@ obj-$(CONFIG_LEDS_S3C24XX)		+= leds-s3c2
- # LED Triggers
- obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
- obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+= ledtrig-ide-disk.o
-+obj-$(CONFIG_LEDS_TRIGGER_HEARTBEAT)	+= ledtrig-heartbeat.o
-diff --git a/drivers/leds/ledtrig-heartbeat.c b/drivers/leds/ledtrig-heartbeat.c
-new file mode 100644
-index 0000000..4bf8cec
---- /dev/null
-+++ b/drivers/leds/ledtrig-heartbeat.c
-@@ -0,0 +1,118 @@
-+/*
-+ * LED Heartbeat Trigger
-+ *
-+ * Copyright (C) 2006 Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-+ *
-+ * Based on Richard Purdie's ledtrig-timer.c and some arch's
-+ * CONFIG_HEARTBEAT code.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/timer.h>
-+#include <linux/sched.h>
-+#include <linux/leds.h>
-+#include "leds.h"
-+
-+struct heartbeat_trig_data {
-+	unsigned int phase;
-+	unsigned int period;
-+	struct timer_list timer;
-+};
-+
-+static void led_heartbeat_function(unsigned long data)
-+{
-+	struct led_classdev *led_cdev = (struct led_classdev *) data;
-+	struct heartbeat_trig_data *heartbeat_data = led_cdev->trigger_data;
-+	unsigned long brightness = LED_OFF;
-+	unsigned long delay = 0;
-+
-+	/* acts like an actual heart beat -- ie thump-thump-pause... */
-+	switch (heartbeat_data->phase) {
-+	case 0:
-+		/*
-+		 * The hyperbolic function below modifies the
-+		 * heartbeat period length in dependency of the
-+		 * current (1min) load. It goes through the points
-+		 * f(0)=1260, f(1)=860, f(5)=510, f(inf)->300.
-+		 */
-+		heartbeat_data->period = 300 +
-+			(6720 << FSHIFT) / (5 * avenrun[0] + (7 << FSHIFT));
-+		heartbeat_data->period =
-+			msecs_to_jiffies(heartbeat_data->period);
-+		delay = msecs_to_jiffies(70);
-+		heartbeat_data->phase++;
-+		brightness = LED_FULL;
-+		break;
-+	case 1:
-+		delay = heartbeat_data->period / 4 - msecs_to_jiffies(70);
-+		heartbeat_data->phase++;
-+		break;
-+	case 2:
-+		delay = msecs_to_jiffies(70);
-+		heartbeat_data->phase++;
-+		brightness = LED_FULL;
-+		break;
-+	default:
-+		delay = heartbeat_data->period - heartbeat_data->period / 4 -
-+			msecs_to_jiffies(70);
-+		heartbeat_data->phase = 0;
-+		break;
-+	}
-+
-+	led_set_brightness(led_cdev, brightness);
-+	mod_timer(&heartbeat_data->timer, jiffies + delay);
-+}
-+
-+static void heartbeat_trig_activate(struct led_classdev *led_cdev)
-+{
-+	struct heartbeat_trig_data *heartbeat_data;
-+
-+	heartbeat_data = kzalloc(sizeof(*heartbeat_data), GFP_KERNEL);
-+	if (!heartbeat_data)
-+		return;
-+
-+	led_cdev->trigger_data = heartbeat_data;
-+	setup_timer(&heartbeat_data->timer,
-+		    led_heartbeat_function, (unsigned long) led_cdev);
-+	heartbeat_data->phase = 0;
-+	led_heartbeat_function(heartbeat_data->timer.data);
-+}
-+
-+static void heartbeat_trig_deactivate(struct led_classdev *led_cdev)
-+{
-+	struct heartbeat_trig_data *heartbeat_data = led_cdev->trigger_data;
-+
-+	if (heartbeat_data) {
-+		del_timer_sync(&heartbeat_data->timer);
-+		kfree(heartbeat_data);
-+	}
-+}
-+
-+static struct led_trigger heartbeat_led_trigger = {
-+	.name     = "heartbeat",
-+	.activate = heartbeat_trig_activate,
-+	.deactivate = heartbeat_trig_deactivate,
-+};
-+
-+static int __init heartbeat_trig_init(void)
-+{
-+	return led_trigger_register(&heartbeat_led_trigger);
-+}
-+
-+static void __exit heartbeat_trig_exit(void)
-+{
-+	led_trigger_unregister(&heartbeat_led_trigger);
-+}
-+
-+module_init(heartbeat_trig_init);
-+module_exit(heartbeat_trig_exit);
-+
-+MODULE_AUTHOR("Atsushi Nemoto <anemo@mba.ocn.ne.jp>");
-+MODULE_DESCRIPTION("Heartbeat LED trigger");
-+MODULE_LICENSE("GPL");
+Thanks, I will do that.
+
+> 2.6.15 had lots of problems with -rt.  Mainly the patch went through some
+> major rework, and Ingo was busy getting mutexes into mainline.  So the
+> 2.6.15-rtX was sort of neglected.  It would be best to use 2.6.16-rtX and
+> maybe even 2.6.17-rtX
+>
+> Which also comes the question: Which -rt patch are you actually trying?
+
+patch-2.6.15-rt21 .  I have also tried using the 2.6.16 kernel and
+patch-2.6.16-rt29 and have the same problems with it.  (I may be
+constrained in having to use a 2.6.15 kernel ... but would be happy to
+get 2.6.16 working /stable as a starting point.)
+
+> Yep, try the following patch: (completey untested since I don't have a
+> mips machine).
+>
+>  config RWSEM_GENERIC_SPINLOCK
+>         bool
+> -       depends on !PREEMPT_RT
+> +       depends on PREEMPT_RT
+>         default y
+
+I did just that when I first started with these patches and did
+succeed in getting it compiling and booting.  The resulting kernel,
+however, is very unstable and hangs frequently with no output.  (It
+will hang within hours if left idle.  I can hang it more quickly by
+attempting to use it).  I have deadlock detection turned on and have
+confirmed that it does produce output at least for some deadlocks:
+http://groups.google.com/group/linux.kernel/browse_frm/thread/1559667001b7da2d/2558b539a5adc660?lnk=st&q=realtime+preempt+mips&rnum=2&hl=en#2558b539a5adc660
+In the more common hangs though, I get no output.
+
+I decided to review the changes I made in getting it to compile and
+was hoping that this one may be the cause of the instability.  I
+thought that perhaps this change was incorrect because
+include/asm-mips/rwsem.h is introduced by the rt-preempt patch and
+would only be used if RWSEM_GENERIC_SPINLOCK was off.  [As well, it
+seemed like something fundamental enough to account for the general
+instability I am seeing.]
+
+Ryan

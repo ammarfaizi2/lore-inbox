@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751926AbWFUBXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWFUBYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751926AbWFUBXu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 21:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751921AbWFUBXt
+	id S1751227AbWFUBYh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 21:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWFUBYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 21:23:49 -0400
-Received: from mga06.intel.com ([134.134.136.21]:23481 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750768AbWFUBXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 21:23:48 -0400
-X-IronPort-AV: i="4.06,158,1149490800"; 
-   d="scan'208"; a="54348565:sNHT32768400"
-Date: Tue, 20 Jun 2006 18:18:19 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
-       Len Brown <len.brown@intel.com>,
-       Kimball Murray <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
-       Mark Maule <maule@sgi.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 7/25] msi: Refactor the msi_ops.
-Message-ID: <20060620181819.D10402@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com> <11508425183073-git-send-email-ebiederm@xmission.com> <11508425191381-git-send-email-ebiederm@xmission.com> <11508425192220-git-send-email-ebiederm@xmission.com> <11508425191063-git-send-email-ebiederm@xmission.com> <1150842520235-git-send-email-ebiederm@xmission.com> <11508425201406-git-send-email-ebiederm@xmission.com> <1150842520775-git-send-email-ebiederm@xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1150842520775-git-send-email-ebiederm@xmission.com>; from ebiederm@xmission.com on Tue, Jun 20, 2006 at 04:28:20PM -0600
+	Tue, 20 Jun 2006 21:24:36 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:9653 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750768AbWFUBYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 21:24:36 -0400
+Message-ID: <44989FD3.1040805@vmware.com>
+Date: Tue, 20 Jun 2006 18:24:35 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       jeremy@xensource.com
+Subject: Re: [PATCH 2.6.17] Clean up and refactor i386 sub-architecture setup
+References: <44988803.5090305@goop.org> <44988E08.9070000@vmware.com> <449891B9.3060409@goop.org> <4498958B.504@vmware.com> <44989E25.3090402@goop.org>
+In-Reply-To: <44989E25.3090402@goop.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 04:28:20PM -0600, Eric W. Biederman wrote:
->  drivers/pci/msi-altix.c |   49 +++++++++++++++++++------------------
->  drivers/pci/msi-apic.c  |   36 ++++++++++++++-------------
->  drivers/pci/msi.c       |   22 ++++++++---------
->  drivers/pci/msi.h       |   62 -----------------------------------------------
->  include/linux/pci.h     |   62 +++++++++++++++++++++++++++++++++++++++++++++++
+Jeremy Fitzhardinge wrote:
+> Zachary Amsden wrote:
+>> This is cleaner than the patches I sent in March, although we want to 
+>> re-use parts of the mach-default code, not replace it entirely.  
+>> Hence my interest in the multi-subarch generic kernel.  I'd be glad 
+>> to look into it.
+> In my current Xen patch, I split the mach-default/setup.c into setup.c 
+> and setup-memory.c; Xen uses setup.c as-is, and then provides its own 
+> setup-xen.c.  That solves my immediate problem, but I don't know if it 
+> generalizes enough; certainly factoring default/setup.c into a cluster 
+> of reusable setup-*.c pieces is a pretty lightweight way of reusing 
+> those pieces.
 
-I think the platform/arch specific code here should move to arch/.
-For example, msi-altix can go to arch/ia64/sn/pci, msi-apic.c can
-go to arch/i386/pci (and can be shared by x86_64)...
+I was thinking more of having mach-xen/built-in.o, 
+mach-default/built-in.o, mach-es7000/built-in.o, mach-voyager/built-in.o 
+all be linked specially so they can be compiled into the same kernel 
+either as one giant batch, with weak linkage and a function table to 
+indirect calls to them (thus the generic kernel can jettison the modules 
+outside of the subarch it has chosen at boot time, potentially keeping 
+the default kernel as well to allow subarches to fallback on the 
+traditional indirections).  And if compiled as a specific kernel, those 
+weak linkages get promoted to direct instead of indirect calls.
 
-Rajesh
+You may have to separate the namespaces at the identifier level as well, 
+use some elven magic, but I haven't worked out all the details yet.
+
+Zach

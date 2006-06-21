@@ -1,231 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWFUViF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWFUViw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751458AbWFUViF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWFUViF
+	id S1751492AbWFUViw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWFUViw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:38:05 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:11697 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751458AbWFUViC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:38:02 -0400
-Date: Wed, 21 Jun 2006 17:37:59 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-       Eric Paris <eparis@redhat.com>, David Quigley <dpquigl@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>, Al Viro <viro@ftp.linux.org.uk>
-Subject: [PATCH 3/3] SELinux: Add sockcreate node to procattr API
-In-Reply-To: <Pine.LNX.4.64.0606211730540.12872@d.namei>
-Message-ID: <Pine.LNX.4.64.0606211736080.12872@d.namei>
-References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
- <Pine.LNX.4.64.0606211730540.12872@d.namei>
+	Wed, 21 Jun 2006 17:38:52 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:18364 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751469AbWFUViu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:38:50 -0400
+Date: Wed, 21 Jun 2006 23:38:32 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: john stultz <johnstul@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix and optimize clock source update
+In-Reply-To: <1150923519.2690.14.camel@leatherman>
+Message-ID: <Pine.LNX.4.64.0606212320450.12900@scrub.home>
+References: <Pine.LNX.4.64.0606211434020.904@scrub.home>
+ <1150923519.2690.14.camel@leatherman>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Eric Paris <eparis@redhat.com>
+Hi,
 
-(Unchanged from eariler post).
+On Wed, 21 Jun 2006, john stultz wrote:
 
-Below is a patch to add a new /proc/self/attr/sockcreate A process may 
-write a context into this interface and all subsequent sockets created 
-will be labeled with that context.  This is the same idea as the fscreate 
-interface where a process can specify the label of a file about to be 
-created.  At this time one envisioned user of this will be xinetd. It will 
-be able to better label sockets for the actual services.  At this time all 
-sockets take the label of the creating process, so all xinitd sockets 
-would just be labeled the same.
+> >   * @is_continuous:	defines if clocksource is free-running.
+> > - * @interval_cycles:	Used internally by timekeeping core, please ignore.
+> > - * @interval_snsecs:	Used internally by timekeeping core, please ignore.
+> > + * @cycle_interval:	Used internally by timekeeping core, please ignore.
+> > + * @xtime_interval:	Used internally by timekeeping core, please ignore.
+> >   */
+> 
+> Where the variable name changes really necessary (I find them less
+> clear)? You also forgot to add error here as it is added below.
 
-I tested this by creating a tcp sender and listener.  The sender was able 
-to write to this new proc file and then create sockets with the specified 
-label.  I am able to be sure the new label was used since the avc denial 
-messages kicked out by the kernel included both the new security 
-permission setsockcreate and all the socket denials were for the new 
-label, not the label of the running process.
+I actually find them more clear this way, cycle values start with cycle_, 
+xtime related variables start with xtime_ and update intervals end with 
+_interval, this makes everything quite consistent.
+In the middle term I also want to document them properly, so I didn't 
+update these comments.
 
+> > +#define clocksource_adjustcheck(sign, error, interval, offset) ({	\
+> > +	int adj = sign;							\
+> > +	error >>= 2;							\
+> > +	if (unlikely(sign > 0 ? error > interval : error < interval)) {	\
+> > +		adj = clocksource_bigadjust(sign, error,		\
+> > +					    interval, offset);		\
+> > +		interval <<= adj;					\
+> > +		offset <<= adj;						\
+> > +		adj = sign << adj;					\
+> > +	}								\
+> > +	adj;								\
+> > +})
+> 
+> That's still a #define with side effects. Yuck.
 
-This patch is targeted for inclusion in 2.6.18.
+The alternative is duplicating the code and an inline function which takes 
+the address of these variables would likely generate worse code.
 
-Please apply.
+> > +	clock->mult += adj;
+> > +	clock->xtime_interval += interval;
+> > +	clock->xtime_nsec -= offset;
+> > +	clock->error -= (interval - offset) << (TICK_LENGTH_SHIFT - clock->shift);
+> > +done:
+> > +	/* store full nanoseconds into xtime */
+> > +	xtime.tv_nsec = clock->xtime_nsec >> clock->shift;
+> > +}
+> 
+> Why are you setting xtime.tv_nsec in clocksource_adjust()?
+> That should be kept in update_wall_time. 
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
-Signed-off-by: James Morris <jmorris@namei.org>
+clock->xtime_nsec and xtime.tv_nsec are closely related, in the long term 
+xtime.tv_nsec should be unused.
 
+> > -	now = clocksource_read(clock);
+> > -	offset = (now - last_clock_cycle)&clock->mask;
+> > +#ifdef CONFIG_GENERIC_TIME
+> > +	offset = (clocksource_read(clock) - clock->cycle_last) & clock->mask;
+> > +#else
+> > +	offset = clock->cycle_interval;
+> > +#endif
+> 
+> This looks ok, but I'd prefer the GENERIC_TIME case to be less dense
+> (not doing the read in the same line).
 
----
+The "now" definition would then require another #ifdef to avoid a warning.
 
- fs/proc/base.c                               |    6 ++++++
- security/selinux/hooks.c                     |   22 +++++++++++++++++-----
- security/selinux/include/av_perm_to_string.h |    1 +
- security/selinux/include/av_permissions.h    |    1 +
- security/selinux/include/objsec.h            |    1 +
- 5 files changed, 26 insertions(+), 5 deletions(-)
+> >  	/* normally this loop will run just once, however in the
+> >  	 * case of lost or late ticks, it will accumulate correctly.
+> >  	 */
+> > -	while (offset > clock->interval_cycles) {
+> > -		/* get the ntp interval in clock shifted nanoseconds */
+> > -		s64 ntp_snsecs	= current_tick_length(clock->shift);
+> > -
+> > +	while (offset > clock->cycle_interval) {
+> 
+> Shouldn't that be >= ? That was one of the fixes I made in my other
+> patch.
 
+Sorry, I indeed missed this, I was only looking at my patches.
 
-diff -purN -X dontdiff linux-2.6.17-mm1.p/fs/proc/base.c linux-2.6.17-mm1.w/fs/proc/base.c
---- linux-2.6.17-mm1.p/fs/proc/base.c	2006-06-21 11:54:10.000000000 -0400
-+++ linux-2.6.17-mm1.w/fs/proc/base.c	2006-06-21 12:51:28.000000000 -0400
-@@ -133,6 +133,7 @@ enum pid_directory_inos {
- 	PROC_TGID_ATTR_EXEC,
- 	PROC_TGID_ATTR_FSCREATE,
- 	PROC_TGID_ATTR_KEYCREATE,
-+	PROC_TGID_ATTR_SOCKCREATE,
- #endif
- #ifdef CONFIG_AUDITSYSCALL
- 	PROC_TGID_LOGINUID,
-@@ -175,6 +176,7 @@ enum pid_directory_inos {
- 	PROC_TID_ATTR_EXEC,
- 	PROC_TID_ATTR_FSCREATE,
- 	PROC_TID_ATTR_KEYCREATE,
-+	PROC_TID_ATTR_SOCKCREATE,
- #endif
- #ifdef CONFIG_AUDITSYSCALL
- 	PROC_TID_LOGINUID,
-@@ -292,6 +294,7 @@ static struct pid_entry tgid_attr_stuff[
- 	E(PROC_TGID_ATTR_EXEC,     "exec",     S_IFREG|S_IRUGO|S_IWUGO),
- 	E(PROC_TGID_ATTR_FSCREATE, "fscreate", S_IFREG|S_IRUGO|S_IWUGO),
- 	E(PROC_TGID_ATTR_KEYCREATE, "keycreate", S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TGID_ATTR_SOCKCREATE, "sockcreate", S_IFREG|S_IRUGO|S_IWUGO),
- 	{0,0,NULL,0}
- };
- static struct pid_entry tid_attr_stuff[] = {
-@@ -300,6 +303,7 @@ static struct pid_entry tid_attr_stuff[]
- 	E(PROC_TID_ATTR_EXEC,      "exec",     S_IFREG|S_IRUGO|S_IWUGO),
- 	E(PROC_TID_ATTR_FSCREATE,  "fscreate", S_IFREG|S_IRUGO|S_IWUGO),
- 	E(PROC_TID_ATTR_KEYCREATE, "keycreate", S_IFREG|S_IRUGO|S_IWUGO),
-+	E(PROC_TID_ATTR_SOCKCREATE, "sockcreate", S_IFREG|S_IRUGO|S_IWUGO),
- 	{0,0,NULL,0}
- };
- #endif
-@@ -1765,6 +1769,8 @@ static struct dentry *proc_pident_lookup
- 		case PROC_TGID_ATTR_FSCREATE:
- 		case PROC_TID_ATTR_KEYCREATE:
- 		case PROC_TGID_ATTR_KEYCREATE:
-+		case PROC_TID_ATTR_SOCKCREATE:
-+		case PROC_TGID_ATTR_SOCKCREATE:
- 			inode->i_fop = &proc_pid_attr_operations;
- 			break;
- #endif
-diff -purN -X dontdiff linux-2.6.17-mm1.p/security/selinux/hooks.c linux-2.6.17-mm1.w/security/selinux/hooks.c
---- linux-2.6.17-mm1.p/security/selinux/hooks.c	2006-06-21 12:42:51.000000000 -0400
-+++ linux-2.6.17-mm1.w/security/selinux/hooks.c	2006-06-21 12:54:26.000000000 -0400
-@@ -1532,8 +1532,9 @@ static int selinux_bprm_set_security(str
- 	/* Default to the current task SID. */
- 	bsec->sid = tsec->sid;
- 
--	/* Reset create SID on execve. */
-+	/* Reset create and sockcreate SID on execve. */
- 	tsec->create_sid = 0;
-+	tsec->sockcreate_sid = 0;
- 
- 	if (tsec->exec_sid) {
- 		newsid = tsec->exec_sid;
-@@ -2585,9 +2586,10 @@ static int selinux_task_alloc_security(s
- 	tsec2->osid = tsec1->osid;
- 	tsec2->sid = tsec1->sid;
- 
--	/* Retain the exec and create SIDs across fork */
-+	/* Retain the exec, create, and sock SIDs across fork */
- 	tsec2->exec_sid = tsec1->exec_sid;
- 	tsec2->create_sid = tsec1->create_sid;
-+	tsec2->sockcreate_sid = tsec1->sockcreate_sid;
- 
- 	/* Retain ptracer SID across fork, if any.
- 	   This will be reset by the ptrace hook upon any
-@@ -2937,12 +2939,14 @@ static int selinux_socket_create(int fam
- {
- 	int err = 0;
- 	struct task_security_struct *tsec;
-+	u32 newsid;
- 
- 	if (kern)
- 		goto out;
- 
- 	tsec = current->security;
--	err = avc_has_perm(tsec->sid, tsec->sid,
-+	newsid = tsec->sockcreate_sid ? : tsec->sid;
-+	err = avc_has_perm(tsec->sid, newsid,
- 			   socket_type_to_security_class(family, type,
- 			   protocol), SOCKET__CREATE, NULL);
- 
-@@ -2955,12 +2959,14 @@ static void selinux_socket_post_create(s
- {
- 	struct inode_security_struct *isec;
- 	struct task_security_struct *tsec;
-+	u32 newsid;
- 
- 	isec = SOCK_INODE(sock)->i_security;
- 
- 	tsec = current->security;
-+	newsid = tsec->sockcreate_sid ? : tsec->sid;
- 	isec->sclass = socket_type_to_security_class(family, type, protocol);
--	isec->sid = kern ? SECINITSID_KERNEL : tsec->sid;
-+	isec->sid = kern ? SECINITSID_KERNEL : newsid;
- 	isec->initialized = 1;
- 
- 	return;
-@@ -4163,6 +4169,8 @@ static int selinux_getprocattr(struct ta
- 		sid = tsec->create_sid;
- 	else if (!strcmp(name, "keycreate"))
- 		sid = tsec->keycreate_sid;
-+	else if (!strcmp(name, "sockcreate"))
-+		sid = tsec->sockcreate_sid;
- 	else
- 		return -EINVAL;
- 
-@@ -4197,6 +4205,8 @@ static int selinux_setprocattr(struct ta
- 		error = task_has_perm(current, p, PROCESS__SETFSCREATE);
- 	else if (!strcmp(name, "keycreate"))
- 		error = task_has_perm(current, p, PROCESS__SETKEYCREATE);
-+	else if (!strcmp(name, "sockcreate"))
-+		error = task_has_perm(current, p, PROCESS__SETSOCKCREATE);
- 	else if (!strcmp(name, "current"))
- 		error = task_has_perm(current, p, PROCESS__SETCURRENT);
- 	else
-@@ -4231,7 +4241,9 @@ static int selinux_setprocattr(struct ta
- 		if (error)
- 			return error;
- 		tsec->keycreate_sid = sid;
--	} else if (!strcmp(name, "current")) {
-+	} else if (!strcmp(name, "sockcreate"))
-+		tsec->sockcreate_sid = sid;
-+	else if (!strcmp(name, "current")) {
- 		struct av_decision avd;
- 
- 		if (sid == 0)
-diff -purN -X dontdiff linux-2.6.17-mm1.p/security/selinux/include/av_permissions.h linux-2.6.17-mm1.w/security/selinux/include/av_permissions.h
---- linux-2.6.17-mm1.p/security/selinux/include/av_permissions.h	2006-06-21 11:54:12.000000000 -0400
-+++ linux-2.6.17-mm1.w/security/selinux/include/av_permissions.h	2006-06-21 12:57:36.000000000 -0400
-@@ -468,6 +468,7 @@
- #define PROCESS__EXECSTACK                        0x04000000UL
- #define PROCESS__EXECHEAP                         0x08000000UL
- #define PROCESS__SETKEYCREATE                     0x10000000UL
-+#define PROCESS__SETSOCKCREATE                    0x20000000UL
- 
- #define IPC__CREATE                               0x00000001UL
- #define IPC__DESTROY                              0x00000002UL
-diff -purN -X dontdiff linux-2.6.17-mm1.p/security/selinux/include/av_perm_to_string.h linux-2.6.17-mm1.w/security/selinux/include/av_perm_to_string.h
---- linux-2.6.17-mm1.p/security/selinux/include/av_perm_to_string.h	2006-06-21 11:54:12.000000000 -0400
-+++ linux-2.6.17-mm1.w/security/selinux/include/av_perm_to_string.h	2006-06-21 12:58:58.000000000 -0400
-@@ -73,6 +73,7 @@
-    S_(SECCLASS_PROCESS, PROCESS__EXECSTACK, "execstack")
-    S_(SECCLASS_PROCESS, PROCESS__EXECHEAP, "execheap")
-    S_(SECCLASS_PROCESS, PROCESS__SETKEYCREATE, "setkeycreate")
-+   S_(SECCLASS_PROCESS, PROCESS__SETSOCKCREATE, "setsockcreate")
-    S_(SECCLASS_MSGQ, MSGQ__ENQUEUE, "enqueue")
-    S_(SECCLASS_MSG, MSG__SEND, "send")
-    S_(SECCLASS_MSG, MSG__RECEIVE, "receive")
-diff -purN -X dontdiff linux-2.6.17-mm1.p/security/selinux/include/objsec.h linux-2.6.17-mm1.w/security/selinux/include/objsec.h
---- linux-2.6.17-mm1.p/security/selinux/include/objsec.h	2006-06-21 11:54:12.000000000 -0400
-+++ linux-2.6.17-mm1.w/security/selinux/include/objsec.h	2006-06-21 12:58:07.000000000 -0400
-@@ -33,6 +33,7 @@ struct task_security_struct {
- 	u32 exec_sid;        /* exec SID */
- 	u32 create_sid;      /* fscreate SID */
- 	u32 keycreate_sid;   /* keycreate SID */
-+	u32 sockcreate_sid;  /* fscreate SID */
- 	u32 ptrace_sid;      /* SID of ptrace parent */
- };
- 
+> >  	/* check to see if there is a new clocksource to use */
+> >  	if (change_clocksource()) {
+> > -		error = 0;
+> > -		remainder_snsecs = 0;
+> > +		clock->error = 0;
+> > +		clock->xtime_nsec = 0;
+> > +		xtime.tv_nsec = 0;
+> >  		clocksource_calculate_interval(clock, tick_nsec);
+> >  	}
+> 
+> Setting xtime.tv_nsec to zero in the above is incorrect and causes the
+> inconsistencies I mentioned at the top.
+
+Indeed, but luckily it's not a common event.
+
+bye, Roman

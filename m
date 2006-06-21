@@ -1,76 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWFUQno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWFUQo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWFUQno (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 12:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWFUQno
+	id S932270AbWFUQo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 12:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWFUQo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 12:43:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53261 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932250AbWFUQnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 12:43:43 -0400
-Date: Wed, 21 Jun 2006 17:43:36 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+	Wed, 21 Jun 2006 12:44:27 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:48591 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932260AbWFUQo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 12:44:26 -0400
+Date: Wed, 21 Jun 2006 18:44:25 +0200
+From: Andreas Mohr <andim2@users.sourceforge.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: andi@lisas.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, hal@lists.freedesktop.org,
        linux-usb-devel@lists.sourceforge.net
-Subject: Re: Serial-Core: USB-Serial port current issues.
-Message-ID: <20060621164336.GD24265@flint.arm.linux.org.uk>
-Mail-Followup-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>,
-	Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
-	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net
-References: <20060613192829.3f4b7c34@home.brethil> <20060614152809.GA17432@flint.arm.linux.org.uk> <20060620161134.20c1316e@doriath.conectiva> <20060620193233.15224308.zaitcev@redhat.com> <20060621133500.18e82511@doriath.conectiva>
+Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner underruns, USB HDD hard resets)
+Message-ID: <20060621164425.GB22736@rhlx01.fht-esslingen.de>
+Reply-To: andi@lisas.de
+References: <20060621093348.GA13143@rhlx01.fht-esslingen.de> <Pine.LNX.4.44L0.0606211158030.6700-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621133500.18e82511@doriath.conectiva>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44L0.0606211158030.6700-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 01:35:00PM -0300, Luiz Fernando N. Capitulino wrote:
-> On Tue, 20 Jun 2006 19:32:33 -0700
-> Pete Zaitcev <zaitcev@redhat.com> wrote:
+Hi,
+
+On Wed, Jun 21, 2006 at 12:15:08PM -0400, Alan Stern wrote:
+> On Wed, 21 Jun 2006, Andreas Mohr wrote:
+> > - TEST_UNIT_READY
+> > - TEST_UNIT_READY
+> > - READ_TOC (failure?)
 > 
-> | On Tue, 20 Jun 2006 16:11:34 -0300, "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
-> | 
-> | >  Pete, was it your original idea to completely move from the spinlock
-> | > to a mutex?
-> | 
-> | I thought it was the cleanest solution. But perhaps I miss something.
-> | I'll look at your reposted patch again, maybe it's all right as it is.
+> I don't know why this failed.  Maybe the disc didn't have a valid Table of 
+> Contents.
+
+Ah, silly me, I should have stated that this was a simulation burn on an
+otherwise rather blank disc ;)
+
+
+> > - WRITE_10 (ok!)
+> > - ALLOW_MEDIUM_REMOVAL (ok!)
+> > - WRITE_10 (*** FAILURE! ***)
+> > - going downhill from here...
+> > 
+> > 
+> > So what could be the problem here?
+> > READ_TOC might be it, but then it might be fully ok to have it fail
+> > (after all it's non-valid data content), so ALLOW_MEDIUM_REMOVAL would be the
+> > problem then? (next WRITE_10 FAILS!).
 > 
->  Actually, that's the best solution from the USB-Serial's POV.
+> It sure does look like the ALLOW_MEDIUM_REMOVAL is the cause of the 
+> problem.
+
+Yup, already was quite sure of that after having written the previous mail.
+
+I'll try to verify this by simply removing all ALLOW_MEDIUM_REMOVAL calls ;)
+
+
+> > I could be totally wrong, though, since I don't have much storage debugging
+> > experience.
+> > 
+> > 
+> > A good idea would be to further check whether it's the open() or the close()
+> > which disrupts burning for me.
 > 
->  The problem is that several serial drivers uses the uart_port's
-> spinlock to implement their own locking, and some of them acquires the
-> lock in its interrupt handler...
+> Yep.  The ALLOW_MEDIUM_REMOVAL occurs as part of handling the close().  
+> And you can understand a CD drive not wanting to carry out a long write 
+> when the door is unlocked.
 > 
->  Sh*t.
+> The real problem seems to be that the device is reachable in two different 
+> ways, and they don't implement proper mutual exclusion.  HAL (or your test 
+> program) is undoubtedly using /dev/sr0 or something similar, whereas 
+> cdrecord uses /dev/sg0.  Going through two different drivers, it's no 
+> surprise they wind up interfering with each other.
 
-It all depends what you are locking.
+HAL is /dev/host0/.../cd
+cdrecord is -dev=0,0,0 (whatever Linux device file this translates into)
+or a similar device ID as returned by -scanbus.
 
-In the uart_update_mctrl() case, the purpose of the locking is to
-prevent two concurrent changes to the modem control state resulting
-in an inconsistency between the hardware and the software state.  If
-it's provable that it is always called from process context (and
-it isn't called from a lock_kernel()-section or the lock_kernel()
-section doesn't mind a rescheduling point being introduced there),
-there's no problem converting that to a mutex.
 
-I suspect that it needed to be a spinlock back in the days when
-the low latency mode directly called into the ldisc, which could
-then call back into the driver again from interrupt mode.
+Probably (stating the obvious here, I'm afraid) we should only send
+non-ALLOW_MEDIUM_REMOVAL for the *very first* device open,
+and then send ALLOW_MEDIUM_REMOVAL after the *very last* device close only.
 
-With get_mctrl(), the situation is slightly more complicated, because
-we need to atomically update tty->hw_stopped in some circumstances
-(that may also be modified from irq context.)  Therefore, to give
-the driver a consistent locking picture, the spinlock is _always_
-held.
+So you think that with sr and sg drivers both talking to the device,
+proper inter-driver device tracking is not doable or quite difficult
+to implement?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+> Unfortunately I can't debug this without seeing the start of the oops 
+> message.
+
+[OOPS output of a *different* issue]
+
+Right, it's a rather incomplete OOPS. Let me try to get one with a nice
+long-line VGA mode soon...
+
+Thanks!
+
+Andreas Mohr

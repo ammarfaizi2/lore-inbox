@@ -1,82 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWFUVpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWFUVqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWFUVpA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWFUVpA
+	id S1751332AbWFUVqq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWFUVqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:45:00 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:65205 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751491AbWFUVo7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:44:59 -0400
-Message-ID: <4499BDDD.3010206@engr.sgi.com>
-Date: Wed, 21 Jun 2006 14:45:01 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
-X-Accept-Language: en-us, en
+	Wed, 21 Jun 2006 17:46:46 -0400
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:45549 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751332AbWFUVqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:46:44 -0400
+Date: Wed, 21 Jun 2006 17:34:41 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+       Eric Paris <eparis@redhat.com>, David Quigley <dpquigl@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: [PATCH 1/3] SELinux: add task_movememory hook
+In-Reply-To: <Pine.LNX.4.64.0606211730540.12872@d.namei>
+Message-ID: <Pine.LNX.4.64.0606211733470.12872@d.namei>
+References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
+ <Pine.LNX.4.64.0606211730540.12872@d.namei>
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
-References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com>	<20060609042129.ae97018c.akpm@osdl.org>	<4489EE7C.3080007@watson.ibm.com>	<449999D1.7000403@engr.sgi.com> <20060621133838.12dfa9f8.akpm@osdl.org> <4499BAA9.3000707@watson.ibm.com>
-In-Reply-To: <4499BAA9.3000707@watson.ibm.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Andrew Morton wrote:
->
->> On Wed, 21 Jun 2006 12:11:13 -0700
->> Jay Lan <jlan@engr.sgi.com> wrote:
->>
->>  
->>
->>> Another observation that i considered bad news is that all
->>> 10 runs produced 1 to 5 recv() error with errno=105 (ENOBUF).
->>>   
->>
->> Well that's rather bad.  AFAICT most of the allocations in there are
->> GFP_KERNEL, so why is this happening?
->>  
->>
->
-> Need to trace the cause.
->
->> Because the kernel is producing netlink messages faster than
->> userspace can
->> consume them, perhaps?
-> Hmm...possible. A quick check would be to reduce the frequency of
-> exits and see.
->
->> If so, the sender needs to block, which means we
->> need to make reception of these stats a privileged operation?
->>  
->>
-> Won't it suffice to make delivery of these stats best effort, with
-> userspace dealing with missing data,
+From: David Quigley <dpquigl@tycho.nsa.gov>
 
-How do you recover the missed data?
+This patch adds new security hook, task_movememory, to be called when 
+memory owened by a task is to be moved (e.g. when migrating pages to a 
+different node). At present, the SELinux hook function implementation for 
+this hook is identical to the setscheduler implementation, but a separate 
+hook introduced to allow this check to be specialized in the future if 
+necessary.
 
-> rather than risk delaying exits ? The cases where exits are so
-> frequent as in this program should be
+Since the last posting, the hook has been renamed following feedback from
+Christoph Lameter.
 
-This is very true. However, it was a 2p IA64 machine. I am too frightened to
-speak "512p"...
+This patch is aimed at 2.6.18 inclusion.
 
-Regards,
- - jay
+Please apply.
 
-> very few. Making the reception privileged would kind of constrain the
-> utilization of stats and I'm not
-> sure if  its warranted.
->
->
-> --Shailabh
->
->
+Signed-Off-By: David Quigley <dpquigl@tycho.nsa.gov>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: James Morris <jmorris@namei.org>
 
+---
+
+ include/linux/security.h |   15 +++++++++++++++
+ security/dummy.c         |    6 ++++++
+ security/selinux/hooks.c |    6 ++++++
+ 3 files changed, 27 insertions(+)
+
+diff -purN -X dontdiff linux-2.6.17-mm1.p/include/linux/security.h linux-2.6.17-mm1.w/include/linux/security.h
+--- linux-2.6.17-mm1.p/include/linux/security.h	2006-06-21 11:54:11.000000000 -0400
++++ linux-2.6.17-mm1.w/include/linux/security.h	2006-06-21 16:57:53.000000000 -0400
+@@ -601,6 +601,10 @@ struct swap_info_struct;
+  *	@p.
+  *	@p contains the task_struct for process.
+  *	Return 0 if permission is granted.
++ * @task_movememory
++ *	Check permission before moving memory owned by process @p.
++ *	@p contains the task_struct for process.
++ *	Return 0 if permission is granted.
+  * @task_kill:
+  *	Check permission before sending signal @sig to @p.  @info can be NULL,
+  *	the constant 1, or a pointer to a siginfo structure.  If @info is 1 or
+@@ -1221,6 +1225,7 @@ struct security_operations {
+ 	int (*task_setscheduler) (struct task_struct * p, int policy,
+ 				  struct sched_param * lp);
+ 	int (*task_getscheduler) (struct task_struct * p);
++	int (*task_movememory) (struct task_struct * p); 
+ 	int (*task_kill) (struct task_struct * p,
+ 			  struct siginfo * info, int sig);
+ 	int (*task_wait) (struct task_struct * p);
+@@ -1866,6 +1871,11 @@ static inline int security_task_getsched
+ 	return security_ops->task_getscheduler (p);
+ }
+ 
++static inline int security_task_movememory (struct task_struct *p)
++{
++	return security_ops->task_movememory (p);
++}
++
+ static inline int security_task_kill (struct task_struct *p,
+ 				      struct siginfo *info, int sig)
+ {
+@@ -2513,6 +2523,11 @@ static inline int security_task_getsched
+ 	return 0;
+ }
+ 
++static inline int security_task_movememory (struct task_struct *p)
++{
++	return 0;
++}
++
+ static inline int security_task_kill (struct task_struct *p,
+ 				      struct siginfo *info, int sig)
+ {
+diff -purN -X dontdiff linux-2.6.17-mm1.p/security/dummy.c linux-2.6.17-mm1.w/security/dummy.c
+--- linux-2.6.17-mm1.p/security/dummy.c	2006-06-21 11:54:12.000000000 -0400
++++ linux-2.6.17-mm1.w/security/dummy.c	2006-06-21 16:58:22.000000000 -0400
+@@ -537,6 +537,11 @@ static int dummy_task_getscheduler (stru
+ 	return 0;
+ }
+ 
++static int dummy_task_movememory (struct task_struct *p)
++{
++	return 0;
++}
++
+ static int dummy_task_wait (struct task_struct *p)
+ {
+ 	return 0;
+@@ -982,6 +987,7 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, task_setrlimit);
+ 	set_to_dummy_if_null(ops, task_setscheduler);
+ 	set_to_dummy_if_null(ops, task_getscheduler);
++	set_to_dummy_if_null(ops, task_movememory);
+ 	set_to_dummy_if_null(ops, task_wait);
+ 	set_to_dummy_if_null(ops, task_kill);
+ 	set_to_dummy_if_null(ops, task_prctl);
+diff -purN -X dontdiff linux-2.6.17-mm1.p/security/selinux/hooks.c linux-2.6.17-mm1.w/security/selinux/hooks.c
+--- linux-2.6.17-mm1.p/security/selinux/hooks.c	2006-06-21 11:54:12.000000000 -0400
++++ linux-2.6.17-mm1.w/security/selinux/hooks.c	2006-06-21 16:58:40.000000000 -0400
+@@ -2690,6 +2690,11 @@ static int selinux_task_getscheduler(str
+ 	return task_has_perm(current, p, PROCESS__GETSCHED);
+ }
+ 
++static int selinux_task_movememory(struct task_struct *p)
++{
++	return task_has_perm(current, p, PROCESS__SETSCHED);
++}
++
+ static int selinux_task_kill(struct task_struct *p, struct siginfo *info, int sig)
+ {
+ 	u32 perm;
+@@ -4416,6 +4421,7 @@ static struct security_operations selinu
+ 	.task_setrlimit =		selinux_task_setrlimit,
+ 	.task_setscheduler =		selinux_task_setscheduler,
+ 	.task_getscheduler =		selinux_task_getscheduler,
++	.task_movememory =		selinux_task_movememory,
+ 	.task_kill =			selinux_task_kill,
+ 	.task_wait =			selinux_task_wait,
+ 	.task_prctl =			selinux_task_prctl,

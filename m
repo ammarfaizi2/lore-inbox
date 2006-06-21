@@ -1,80 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWFUMyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWFUMxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWFUMyL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 08:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWFUMyA
+	id S1750859AbWFUMxK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 08:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWFUMxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 08:54:00 -0400
-Received: from thunk.org ([69.25.196.29]:945 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932100AbWFUMxr (ORCPT
+	Wed, 21 Jun 2006 08:53:10 -0400
+Received: from gate.crashing.org ([63.228.1.57]:28886 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750859AbWFUMxI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 08:53:47 -0400
-Message-Id: <20060621125217.778021000@candygram.thunk.org>
-References: <20060621125146.508341000@candygram.thunk.org>
-Date: Wed, 21 Jun 2006 08:51:52 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] [PATCH 6/8] inode-diet: Move i_cindex from struct inode to struct file
-Content-Disposition: inline; filename=inode-slim-6
-From: Theodore Tso <tytso@thunk.org>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Wed, 21 Jun 2006 08:53:08 -0400
+Subject: powerpc new irq remapper patches
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Geoff Levand <geoffrey.levand@am.sony.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m1veqvb9tr.fsf@ebiederm.dsl.xmission.com>
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com>
+	 <11508425183073-git-send-email-ebiederm@xmission.com>
+	 <11508425191381-git-send-email-ebiederm@xmission.com>
+	 <11508425192220-git-send-email-ebiederm@xmission.com>
+	 <11508425191063-git-send-email-ebiederm@xmission.com>
+	 <1150842520235-git-send-email-ebiederm@xmission.com>
+	 <11508425201406-git-send-email-ebiederm@xmission.com>
+	 <1150842520775-git-send-email-ebiederm@xmission.com>
+	 <11508425213394-git-send-email-ebiederm@xmission.com>
+	 <115084252131-git-send-email-ebiederm@xmission.com>
+	 <1150847764.1901.64.camel@localhost.localdomain>
+	 <m1veqvb9tr.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 22:52:48 +1000
+Message-Id: <1150894368.16303.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inode.i_cindex isn't initialized until the character device is opened
-anyway, and there are far more struct inodes in memory than there are
-struct file.  So move the cindex field to file.f_cindex, and change
-the one(!) user of cindex to use file pointer, which is in fact simpler.
+As promised, here are some patches to look at. It's not complete yet but
+it should give you an idea of where things are going.
 
-Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
+At that url, you'll find a serie that applies on top of -mm 
+
+http://gate.crashing.org/~benh/irq-WIP/
+
+First set is just some random pending cell patches to make it boot on a
+cell blade, and are irrelevant.
+
+Then, there is a serie that ports almost all of arch/powerpc to genirq:
+
+powerpc-use-generic_handle_irq.diff
+powerpc-move-mpic-genirq.diff
+powerpc-move-xics-genirq.diff
+powerpc-move-8259-genirq.diff
+powerpc-move-pmac-pic-genirq.diff
+powerpc-move-iseries-genirq.diff
+genirq-fasteoi-allow-retrigger.diff
+powerpc-move-cell-genirq.diff
+
+And then, the meat:
+
+powerpc-add-irq-of-parsing.diff
+powerpc-copy-i8259-to-ppc.diff
+powerpc-add-irq-remapper-core.diff
+powerpc-remove-old-of-parsing.diff
+powerpc-fixup-legacy-serial.diff
+powerpc-fixup-rtas-pci.diff
+powerpc-fixup-hvsi.diff
+powerpc-new-irq-port-xics.diff
+powerpc-new-irq-port-i8259.diff
+genirq-add-irq-type-mask.diff
+powerpc-new-irq-port-mpic.diff
+powerpc-new-irq-adapt-pseries.diff
+powerpc-new-irq-adapt-iseries.diff
+
+What you really want to look at is powerpc-add-irq-remapper-core.diff
+which is the new irq remapping I was talking about.
+
+The serie of patches is still very much WIP since as it is, only pseries
+and iseries will build (the new core stuff breaks all powerpc platforms,
+there is no way around that, and that patch serie only ports pseries and
+iseries, still fixing up the other ones).
+
+But at least it should give you a good idea of where things are going on
+my side. Geoff: you should be able to start from there as you have no
+dependency on any of the other platofrms PIC stuff.
+
+Hopefully, I'll have a complete patch set that ports all of the powerpc
+archs in a few days.
+
+Cheers,
+Ben.
 
 
-Index: linux-2.6.17/include/linux/fs.h
-===================================================================
---- linux-2.6.17.orig/include/linux/fs.h	2006-06-18 19:53:54.000000000 -0400
-+++ linux-2.6.17/include/linux/fs.h	2006-06-18 19:59:59.000000000 -0400
-@@ -513,7 +513,6 @@
- 		struct block_device	*i_bdev;
- 		struct cdev		*i_cdev;
- 	};
--	int			i_cindex;
- 
- 	__u32			i_generation;
- 
-@@ -659,6 +658,7 @@
- 	spinlock_t		f_ep_lock;
- #endif /* #ifdef CONFIG_EPOLL */
- 	struct address_space	*f_mapping;
-+	int			f_cindex;
- };
- extern spinlock_t files_lock;
- #define file_list_lock() spin_lock(&files_lock);
-Index: linux-2.6.17/fs/char_dev.c
-===================================================================
---- linux-2.6.17.orig/fs/char_dev.c	2006-06-18 19:37:14.000000000 -0400
-+++ linux-2.6.17/fs/char_dev.c	2006-06-18 19:59:59.000000000 -0400
-@@ -290,7 +290,7 @@
- 		p = inode->i_cdev;
- 		if (!p) {
- 			inode->i_cdev = p = new;
--			inode->i_cindex = idx;
-+			filp->f_cindex = idx;
- 			list_add(&inode->i_devices, &p->list);
- 			new = NULL;
- 		} else if (!cdev_get(p))
-Index: linux-2.6.17/drivers/ieee1394/ieee1394_core.h
-===================================================================
---- linux-2.6.17.orig/drivers/ieee1394/ieee1394_core.h	2006-06-18 19:37:13.000000000 -0400
-+++ linux-2.6.17/drivers/ieee1394/ieee1394_core.h	2006-06-18 19:59:59.000000000 -0400
-@@ -212,7 +212,7 @@
- /* return the index (within a minor number block) of a file */
- static inline unsigned char ieee1394_file_to_instance(struct file *file)
- {
--	return file->f_dentry->d_inode->i_cindex;
-+	return file->f_cindex;
- }
- 
- extern int hpsb_disable_irm;
-
---

@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWFURjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWFURjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWFURjA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 13:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWFURjA
+	id S932293AbWFURjF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 13:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWFURjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 13:39:00 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47844 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932290AbWFURi4
+	Wed, 21 Jun 2006 13:39:05 -0400
+Received: from dlx132.neoplus.adsl.tpnet.pl ([83.24.53.132]:46061 "EHLO
+	unknown.box") by vger.kernel.org with ESMTP id S932293AbWFURjB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 13:38:56 -0400
-Subject: Re: Memory corruption in 8390.c ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: blp@cs.stanford.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87mzc65soy.fsf@benpfaff.org>
-References: <1150907317.8320.0.camel@alice>
-	 <1150909982.15275.100.camel@localhost.localdomain>
-	 <87mzc65soy.fsf@benpfaff.org>
-Content-Type: text/plain
+	Wed, 21 Jun 2006 13:39:01 -0400
+Message-ID: <44998432.4070002@o2.pl>
+Date: Wed, 21 Jun 2006 19:38:58 +0200
+From: Artur Skawina <art_k@o2.pl>
+User-Agent: Mail/News 3.0a1 (X11/20060416)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Ulrich Drepper <drepper@redhat.com>, Roland McGrath <roland@redhat.com>,
+       Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
+References: <200606210329_MC3-1-C305-E008@compuserve.com> <20060621081539.GA14227@elte.hu>
+In-Reply-To: <20060621081539.GA14227@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 21 Jun 2006 18:54:19 +0100
-Message-Id: <1150912459.15275.101.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-06-21 am 10:23 -0700, ysgrifennodd Ben Pfaff:
-> > +		memset(buf, 0, ETH_ZLEN);	/* more efficient than doing just the needed bits */
-> > +		memcpy(buf, data, ETH_ZLEN);
+Ingo Molnar wrote:
+> * Chuck Ebbert <76306.1226@compuserve.com> wrote:
 > 
-> Is this really correct?  It zeros out ETH_ZLEN bytes only to
-> immediately copy over all of them again.
+>> Use a GDT entry's limit field to store per-cpu data for fast access 
+>> from userspace, and provide a vsyscall to access the current CPU 
+>> number stored there.
+> 
+> very nice idea! I thought of doing sys_get_cpu() too, but my idea was to 
+> use the scheduler to keep a writable [and permanently pinned, 
+> per-thread] VDSO data page uptodate with the current CPU# [and other 
+> interesting data]. Btw., do we know how fast LSL is on modern CPUs?
 
-When I did it originally I tested with rdtsc and its actually quicker to
-let it build the static memset the copy data over it than to do the
-extra maths and the variable length loop.
+a quick check on two p2/p4 boxes gives the cycle numbers below. syscall/io times for comparison.
+Not that cheap, but still only ~1/4 of a syscall...
 
-Hence the comment
+ P4   P2
+ 123  39  {movl $-47,%%eax ; movl $((27<<3)|3),%%edx ; lsll %%edx,%%eax ; jnz 1f ; andl $0xff,%%eax ; 1: ;}  (average: 155)
 
+ 959  287 {movl $20,%%eax ; int $0x80 ; # getpid() }  (average: 983)
+ 475  153 {movl $20,%%eax ; call *vsyscall ; # getpid() }  (average: 519)
 
+ 333  586 {outb %%al,$0x80;}  (average: 369)
+3572  1181 {outb %%al,$0x80;outb %%al,$0x80;}  (average: 3628)
+6755  1557 {outb %%al,$0x80;outb %%al,$0x80;outb %%al,$0x80;}  (average: 6866)
+
+P2:
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 2
+cpu MHz         : 400.982
+cache size      : 512 KB
+
+P4:
+cpu family      : 15
+model           : 4
+model name      : Intel(R) Celeron(R) CPU 2.53GHz
+stepping        : 1
+cpu MHz         : 2533.270
+cache size      : 256 KB

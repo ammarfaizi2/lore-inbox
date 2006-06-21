@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWFUPxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWFUPzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWFUPxd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 11:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWFUPxd
+	id S932201AbWFUPzM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 11:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751645AbWFUPzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 11:53:33 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:8601 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751174AbWFUPxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 11:53:32 -0400
-Date: Wed, 21 Jun 2006 11:53:01 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Ryan McAvoy <ryan.sed@gmail.com>
-cc: LKML <linux-kernel@vger.kernel.org>, linux-mips@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: realtime-preempt for MIPS - compile problem with rwsem
-In-Reply-To: <Pine.LNX.4.58.0606211125590.29348@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0606211152060.30583@gandalf.stny.rr.com>
-References: <642640090606201208g31a0a57bm268910b026ccd335@mail.gmail.com> 
- <Pine.LNX.4.58.0606210354050.29673@gandalf.stny.rr.com>
- <642640090606210804k282085efm84476af3a8fa08b1@mail.gmail.com>
- <Pine.LNX.4.58.0606211125590.29348@gandalf.stny.rr.com>
+	Wed, 21 Jun 2006 11:55:12 -0400
+Received: from smtp008.mail.ukl.yahoo.com ([217.12.11.62]:7003 "HELO
+	smtp008.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751174AbWFUPzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 11:55:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=tYZ4B+4UfKZo52JvNkSo9xlJ3ou6SzhiW8xSQpnz0frYsX2ZSGMKbn7wlHw2xjdZopfqNZu6HnXttU25sVFwdMPNMotgChlz/gHj9Iuk7cA+k2RoUVgI/85Xg+49i/C8VLpoYpG9BZJvDrAoCChIjQ1PjsoRHH6iJYptaBW9WaE=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: mingo@elte.hu, tglx@timesys.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.17-rt1 ommit an oops when suspending
+Date: Wed, 21 Jun 2006 17:54:54 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606211754.55059.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-On Wed, 21 Jun 2006, Steven Rostedt wrote:
+with this applied my AMD64 suspended resumed successfully 
+in PREEMPT_RT mode. Erm at least until now ;-)
+Takes longer than with mainline.
 
->
-> >
-> > I decided to review the changes I made in getting it to compile and
-> > was hoping that this one may be the cause of the instability.  I
-> > thought that perhaps this change was incorrect because
-> > include/asm-mips/rwsem.h is introduced by the rt-preempt patch and
->
-> Ha, you're right!  (added John Cooper to this so he can clean up this mess
-> ;)
->
+Signed-off-by: Karsten Wiese <annabellesgraden@yahoo.de>
 
-Forget John, I guess he's no longer at TimeSys.  Just got a bounce from
-his email address.
 
--- Steve
+
+diff -ru rt1/kernel/time/clockevents.c rt1-kw/kernel/time/clockevents.c
+--- rt1/kernel/time/clockevents.c	2006-06-20 21:39:21.000000000 +0200
++++ rt1-kw/kernel/time/clockevents.c	2006-06-21 17:25:50.000000000 +0200
+@@ -547,7 +547,7 @@
+ global_eventsource_suspend(struct sys_device *dev, pm_message_t state)
+ {
+ 	/* Do generic stuff here */
+-	if (global_eventsource.event->suspend)
++	if (global_eventsource.event && global_eventsource.event->suspend)
+ 		global_eventsource.event->suspend();
+ 	return 0;
+ }
+@@ -555,7 +555,7 @@
+ static int global_eventsource_resume(struct sys_device *dev)
+ {
+ 	/* Do generic stuff here */
+-	if (global_eventsource.event->resume)
++	if (global_eventsource.event && global_eventsource.event->resume)
+ 		global_eventsource.event->resume();
+ 	return 0;
+ }
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

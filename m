@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWFUVSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWFUVVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWFUVSb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWFUVSb
+	id S1751393AbWFUVVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWFUVVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:18:31 -0400
-Received: from mail.gmx.de ([213.165.64.21]:20197 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751294AbWFUVSa (ORCPT
+	Wed, 21 Jun 2006 17:21:42 -0400
+Received: from gw.goop.org ([64.81.55.164]:9615 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751393AbWFUVVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:18:30 -0400
-X-Authenticated: #704063
-Subject: [Patch] Overrun in drivers/char/rio/riocmd.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 23:18:28 +0200
-Message-Id: <1150924709.24615.2.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 21 Jun 2006 17:21:42 -0400
+Message-ID: <4499B86D.8010700@goop.org>
+Date: Wed, 21 Jun 2006 14:21:49 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       marcel@holtmann.org, maxk@qualcomm.com, Andrew Morton <akpm@osdl.org>,
+       bluez-devel@lists.sourceforge.net
+Subject: Re: 2.6.17-mm1: oops in Bluetooth stuff, usbdev_open
+References: <4499ADEB.1000905@goop.org> <20060621204725.GB30766@suse.de>
+In-Reply-To: <20060621204725.GB30766@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Greg KH wrote:
+> Can you duplicate this without the closed source kernel module loaded?
+>   
+Annoyingly not.  I doubt the ath_hal module caused a problem in itself, 
+but there might have been a compilation-skew with the out-of-tree 
+madwifi driver.
 
-this fixes coverity bug id #1025. 
-The code checks if Rup is greater or equal to the size of 
-HostP->Mapping[], but uses Rup as an index if it is outside
-the range. This patch changes the if and else cases.
+Or its a race which only happens sometimes.  I'll keep an eye out.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.17-git2/drivers/char/rio/riocmd.c.orig	2006-06-21 23:14:52.000000000 +0200
-+++ linux-2.6.17-git2/drivers/char/rio/riocmd.c	2006-06-21 23:15:21.000000000 +0200
-@@ -402,7 +402,7 @@ static int RIOCommandRup(struct rio_info
- 		rio_dprintk(RIO_DEBUG_CMD, "CONTROL information: Host number %Zd, name ``%s''\n", HostP - p->RIOHosts, HostP->Name);
- 		rio_dprintk(RIO_DEBUG_CMD, "CONTROL information: Rup number  0x%x\n", rup);
- 
--		if (Rup >= (unsigned short) MAX_RUP) {
-+		if (Rup < (unsigned short) MAX_RUP) {
- 			rio_dprintk(RIO_DEBUG_CMD, "CONTROL information: This is the RUP for RTA ``%s''\n", HostP->Mapping[Rup].Name);
- 		} else
- 			rio_dprintk(RIO_DEBUG_CMD, "CONTROL information: This is the RUP for link ``%c'' of host ``%s''\n", ('A' + Rup - MAX_RUP), HostP->Name);
-
-
+    J

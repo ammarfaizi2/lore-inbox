@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWFUKBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWFUKDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWFUKBr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 06:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751995AbWFUKBr
+	id S1751360AbWFUKDy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 06:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWFUKDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 06:01:47 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:58258 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S1751466AbWFUKBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 06:01:47 -0400
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: dtor_core@ameritech.net, akpm <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Randy Dunlap <randy.dunlap@oracle.com>
-Date: Wed, 21 Jun 2006 11:01:43 +0100
-Message-Id: <E1FszWp-0004zt-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Wed, 21 Jun 2006 06:03:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:48306 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751360AbWFUKDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 06:03:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=CuX2MRP/f9TJxzdMafd5m6zewlz5lvP1v7+f/C6K7qaUbm9YWsN43zL1AorLsgisHiQdDe5+Vt8IJ/X0Xov1Tlch+sniX3v2MF3bduN08W/B0wkXUGusZAvr6PI+2N67Plf2fVw46rig9McRHCz2KucOChvUZP0YQ7fZ1yKyPpc=
+Date: Wed, 21 Jun 2006 12:03:57 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
+In-Reply-To: <Pine.LNX.4.58.0606210406310.29673@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.64.0606211035550.10723@localhost.localdomain>
+References: <20060618070641.GA6759@elte.hu>  <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
+ <1150816429.6780.222.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
+ <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com>
+ <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain>
+ <Pine.LNX.4.58.0606210406310.29673@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: [Ubuntu PATCH] input: allow root to inject unknown scan codes
-In-Reply-To: <4498D9F6.6020700@oracle.com>
-References: <4498D9F6.6020700@oracle.com>
 
-Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> Allow root to inject unknown scan codes for input device.
 
-I should probably describe what this does. The current code refuses to 
-synthesise any keyboard events that don't appear in the mask of 
-supported keycodes for the associated device. We've found that it's 
-sometimes helpful to be able to inject "fake" keyboard events through 
-the keyboard device. Consider the following scenario:
+On Wed, 21 Jun 2006, Steven Rostedt wrote:
 
-1) User presses ACPI hotkey that corresponds to volume up
-2) Userspace turns ACPI event into volume up key, either via uinput or 
-injecting into an existing /dev/input node
-3) HAL fires off a dbus event based on the volume up key (removes the 
-need for media players to do unpleasent things with xgrabkey)
+> [...]
+> No, I think fixing the bug you found is better :)
+>
 
-Using the existing /dev/input/whatever node, this is all 
-straightforward. Using uinput, we either need a daemon that provides a 
-uinput device or a new uinput device every time an ACPI hotkey is 
-pressed. The former solution requires building some sort of IPC 
-mechanism, and the latter means that every key will generate a line in 
-dmesg (input: foo as /class/input/input3, and so on) and HAL will have 
-to notice a new event device, bind to it, launch the keyboard listener 
-daemon, fire off the dbus message, notice that the device has vanished 
-and then shut stuff down again. So injection through the keyboard device 
-is much simpler.
+Thomas convinced me. I don't like the design though. Moving the 
+task priorities around isn't very healthy. It is confusing and it 
+complicates stuff a lot. But as Thomas says, with my solution one could 
+make DOS attack from userspace by arranging a lot of timers to timeout
+simultaniously (or sufficient close to each other).
+However, this is still possible, but less easy to do: In the interrupt 
+every timer expirering is touched. I.e. by having a lot of timers you push 
+a lot of work into the interrupt routine. In fact the interrupt routine 
+also have to take the timer out of the binary tree, so the worst case interrupt 
+latency is O(N log N), N being the total amount of timer in the system!!
 
-At the moment this fails if the keycode doesn't correspond to one 
-present in the keyboard mask - the input layer drops it on the floor 
-instead. I'm not sure that there's an especially good reason for that, 
-so we removed the check in order to make it easier to put as many input 
-events through the input layer as possible.
+But what about the configure option HIGH_RES_RESOLUTION ? It is barely 
+used in the system now. But if timers closer than the resolution were 
+batched together in a plist, then all the interrupt should do was to merge 
+two plists, namely the list of newly timeouts and the list of stuff still 
+pending to be executed by the softirq thread. The worst case would then be
+max(O(log N), O(<number of priorities==140>), which is both fairly limited as
+N can never be bigger than 1G on a 32 bit system such that log N <= 30.
 
-(In the future where we have food pills and flying cars and Linux has 
-become Atomic Fresh Linux, all these things generating acpi events 
-should probably be converted into proper input drivers instead)
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+Esben
+
+> -- Steve
+>

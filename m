@@ -1,122 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWFURBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWFURCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750882AbWFURBU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 13:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWFURBU
+	id S1750887AbWFURCk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 13:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWFURCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 13:01:20 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:34235 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750817AbWFURBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 13:01:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=E1I+6urskTob8+bkGjm+nqF7GNvoeQ6yRnrDtFY+u2m2VazuCmYGUmERRgafGQQlP/RzqLBMiT5EoM4w/iv6M5QmRGNo85Pj68V3BHnMdCCmjdlb7dQyyvzjTZmKR7prZxmoKOI/D1katpTn94NrlhCLeof0Gb5zmdZpy5hhvdc=
-Message-ID: <5c49b0ed0606211001s452c080cu3f55103a130b78f1@mail.gmail.com>
-Date: Wed, 21 Jun 2006 10:01:17 -0700
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] mm/tracking dirty pages: update get_dirty_limits for mmap tracking
-Cc: "Hugh Dickins" <hugh@veritas.com>, "Andrew Morton" <akpm@osdl.org>,
-       "David Howells" <dhowells@redhat.com>,
-       "Christoph Lameter" <christoph@lameter.com>,
-       "Martin Bligh" <mbligh@google.com>, "Nick Piggin" <npiggin@suse.de>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Hans Reiser" <reiser@namesys.com>, "E. Gryaznova" <grev@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 21 Jun 2006 13:02:40 -0400
+Received: from xenotime.net ([66.160.160.81]:19687 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750860AbWFURCj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 13:02:39 -0400
+Date: Wed, 21 Jun 2006 10:05:25 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Eric Sesterhenn <snakebyte@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible leaks in network drivers
+Message-Id: <20060621100525.bb4f76f4.rdunlap@xenotime.net>
+In-Reply-To: <1150907317.8320.0.camel@alice>
+References: <1150907317.8320.0.camel@alice>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update write throttling calculations now that we can track and
-throttle dirty mmap'd pages.  A version of this patch has been tested
-with iozone:
+On Wed, 21 Jun 2006 18:28:37 +0200 Eric Sesterhenn wrote:
 
-http://namesys.com/intbenchmarks/iozone/06.06.19.tracking.dirty.page-noatime_-B/e3-2.6.16-tr.drt.pgs-rt.40_vs_rt.80.html
-http://namesys.com/intbenchmarks/iozone/06.06.19.tracking.dirty.page-noatime_-B/r4-2.6.16-tr.drt.pgs-rt.40_vs_rt.80.html
+> hi,
+> 
+> Coverity complains about several pretty similar resource leaks
+> inside the net drivers, and i am not sure if those are real
 
-Signed-off-by: Nate Diller <nate.diller@gmail.com>
+Linux network driver development is done on the netdev
+mailing list (netdev@vger.kernel.org).
+You'll find a larger pool of the right people there...
 
---- linux-2.6.orig/mm/page-writeback.c	2005-10-27 17:02:08.000000000 -0700
-+++ linux-2.6/mm/page-writeback.c	2006-06-21 08:24:11.000000000 -0700
-@@ -69,7 +69,7 @@ int dirty_background_ratio = 10;
- /*
-  * The generator of dirty data starts writeback at this percentage
-  */
--int vm_dirty_ratio = 40;
-+int vm_dirty_ratio = 80;
 
- /*
-  * The interval between `kupdate'-style writebacks, in centiseconds
-@@ -119,15 +119,14 @@ static void get_writeback_state(struct w
-  * Work out the current dirty-memory clamping and background writeout
-  * thresholds.
-  *
-- * The main aim here is to lower them aggressively if there is a lot of mapped
-- * memory around.  To avoid stressing page reclaim with lots of unreclaimable
-- * pages.  It is better to clamp down on writers than to start swapping, and
-- * performing lots of scanning.
-- *
-- * We only allow 1/2 of the currently-unmapped memory to be dirtied.
-- *
-- * We don't permit the clamping level to fall below 5% - that is getting rather
-- * excessive.
-+ * We now have dirty memory accounting for mmap'd pages, so we calculate the
-+ * ratios based on the available memory.  We still have no way of tracking
-+ * how many pages are pinned (eg BSD wired accounting), so we still need the
-+ * hard clamping, but the default has been raised to 80.
-+ *
-+ * We now allow the ratios to be set to anything, because there is less risk
-+ * of OOM, and because databases and such will need more flexible tuning,
-+ * now that they are being throttled too.
-  *
-  * We make sure that the background writeout level is below the adjusted
-  * clamping level.
-@@ -136,9 +135,6 @@ static void
- get_dirty_limits(struct writeback_state *wbs, long *pbackground, long *pdirty,
- 		struct address_space *mapping)
- {
--	int background_ratio;		/* Percentages */
--	int dirty_ratio;
--	int unmapped_ratio;
- 	long background;
- 	long dirty;
- 	unsigned long available_memory = total_pages;
-@@ -155,27 +151,16 @@ get_dirty_limits(struct writeback_state
- 		available_memory -= totalhigh_pages;
- #endif
+> name				coverity #id
+> 
+> drivers/net/8390.c		623
+> drivers/net/pcmcia/xirc2ps_cs.c	627
+> drivers/net/sis190.c		628
+> drivers/net/wireless/wavelan.c	634
+> drivers/net/wireless/orinoco.c	661
+> drivers/net/depca.c		1246
+> drivers/net/hp100.c		1247
+> drivers/net/smc9194.c		1248
+> drivers/net/skge.c		1249
+> 
+> Its always in the hard_start_xmit() function
+> of the driver. Where we call skb=skb_padto(skb, ETH_ZLEN),
+> and dont free the skb later when something goes wrong.
+> 
+> Here is the output from the sis190.c case:
+> 
+> ------------snip--8<-------------
+> 1158 		if (unlikely(skb->len < ETH_ZLEN)) {
+> 
+> Event alloc_fn: Called allocation function "skb_padto" [model]
+> Event var_assign: Assigned variable "skb" to storage returned from "skb_padto"
+> Also see events: [var_assign][leaked_storage]
+> 
+> 1159 			skb = skb_padto(skb, ETH_ZLEN);
+> 
+> At conditional (1): "skb == 0" taking false path
+> 
+> 1160 			if (!skb) {
+> 1161 				tp->stats.tx_dropped++;
+> 1162 				goto out;
+> 1163 			}
+> 1164 			len = ETH_ZLEN;
+> 1165 		} else {
+> 1166 			len = skb->len;
+> 1167 		}
+> 1168 	
+> 1169 		entry = tp->cur_tx % NUM_TX_DESC;
+> 1170 		desc = tp->TxDescRing + entry;
+> 1171 	
+> 
+> At conditional (2): "(desc)->status & 2147483648 != 0" taking true path
+> 
+> 1172 		if (unlikely(le32_to_cpu(desc->status) & OWNbit)) {
+> 1173 			netif_stop_queue(dev);
+> 
+> At conditional (3): "(tp)->msg_enable & 128 != 0" taking true path
+> 
+> 1174 			net_tx_err(tp, KERN_ERR PFX
+> 1175 				   "%s: BUG! Tx Ring full when queue awake!\n",
+> 1176 				   dev->name);
+> 
+> Event leaked_storage: Returned without freeing storage "skb"
+> Also see events: [alloc_fn][var_assign]
+> 
+> 1177 			return NETDEV_TX_BUSY;
+> 1178 		}
+> 
+> ------------snip--8<-------------
+> 
+> As far as i can see, skb_put() might return a fresh allocated skb, 
+> so adding a kfree_skb() here should fix these, or am i missing
+> something?
+> 
+> Thanks Eric
 
--
--	unmapped_ratio = 100 - (wbs->nr_mapped * 100) / total_pages;
--
--	dirty_ratio = vm_dirty_ratio;
--	if (dirty_ratio > unmapped_ratio / 2)
--		dirty_ratio = unmapped_ratio / 2;
--
--	if (dirty_ratio < 5)
--		dirty_ratio = 5;
--
--	background_ratio = dirty_background_ratio;
--	if (background_ratio >= dirty_ratio)
--		background_ratio = dirty_ratio / 2;
--
--	background = (background_ratio * available_memory) / 100;
--	dirty = (dirty_ratio * available_memory) / 100;
-+	background = (dirty_background_ratio * available_memory) / 100;
-+	dirty = (vm_dirty_ratio * available_memory) / 100;
- 	tsk = current;
- 	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk)) {
- 		background += background / 4;
--		dirty += dirty / 4;
-+		dirty += dirty / 8;
- 	}
-+	if (background > dirty)
-+		background = dirty;
-+
- 	*pbackground = background;
- 	*pdirty = dirty;
- }
+---
+~Randy

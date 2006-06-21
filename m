@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWFUBpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWFUBpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWFUBpR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 21:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751921AbWFUBpQ
+	id S1750742AbWFUBpe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 21:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751921AbWFUBpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 21:45:16 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:13450 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750743AbWFUBpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 21:45:14 -0400
-Date: Tue, 20 Jun 2006 20:44:53 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH] kthread: convert stop_machine into a kthread
-Message-ID: <20060621014453.GA18821@sergelap.austin.ibm.com>
-References: <20060615144331.GB16046@sergelap.austin.ibm.com> <20060619201450.3434f72f.akpm@osdl.org> <20060620082745.GA28092@sergelap> <20060620014027.eba58cb7.akpm@osdl.org> <20060620162706.GB21542@sergelap.austin.ibm.com> <20060620154241.024ad134.akpm@osdl.org> <20060621005206.GA24600@sergelap.austin.ibm.com> <20060620181856.df8afa60.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 20 Jun 2006 21:45:34 -0400
+Received: from thunk.org ([69.25.196.29]:51909 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750742AbWFUBpc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 21:45:32 -0400
+Date: Tue, 20 Jun 2006 21:45:37 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 2/8] inode-diet: Move i_pipe into a union
+Message-ID: <20060621014537.GC5663@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org
+References: <20060619152003.830437000@candygram.thunk.org> <20060619153108.720582000@candygram.thunk.org> <Pine.LNX.4.61.0606191918310.23792@yvahk01.tjqt.qr> <20060619190610.GH15216@thunk.org> <20060620092351.E10897@openss7.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060620181856.df8afa60.akpm@osdl.org>
+In-Reply-To: <20060620092351.E10897@openss7.org>
 User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton (akpm@osdl.org):
-> On Tue, 20 Jun 2006 19:52:06 -0500
-> "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+On Tue, Jun 20, 2006 at 09:23:51AM -0600, Brian F. G. Bidulock wrote:
 > 
-> > here's
-> > the patch I meant to send.
-> > 
-> > ...
-> >
-> > -static int stopmachine(void *cpu)
-> > +static int stopmachine(void)
-> > ...
-> > -		tsk = kthread_run(stopmachine, (void *)(long)i, "stopmachine");
-> > +		tsk = kthread_create(stopmachine, NULL, "stopmachine");
-> 
-> This should have spat a compiler warning.
-> 
-> The confidence level on all of this ain't high.  Please, test the patch
-> which I merged?
+> It's used for implementing STREAMS-based FIFOs.  Which is a proper use
+> of i_pipe (which is for FIFOs).  Pipes (both mainline and STREAMS-based
+> pipes) can use i_private instead of i_pipe.
 
-Compiles, boots, and shuts down on s390.
+It's is an abuse of i_pipe.  You are using something which is supposed
+to hold a struct pipe_info, and storing the head of the STREAM stack,
+which is some other type.  
 
-thanks,
--serge
+In any case, when you state authoratively what "can" and "can not" be
+combined, please specify when your justification is for a particular
+out of tree modules.
+
+						- Ted

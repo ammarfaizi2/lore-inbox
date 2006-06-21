@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWFUX11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWFUXaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWFUX11 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 19:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWFUX11
+	id S1751521AbWFUXaF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 19:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWFUXaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 19:27:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12256 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751341AbWFUX10 (ORCPT
+	Wed, 21 Jun 2006 19:30:05 -0400
+Received: from mx2.suse.de ([195.135.220.15]:56239 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751521AbWFUXaD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 19:27:26 -0400
-Date: Wed, 21 Jun 2006 16:27:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: greg@kroah.com, gregkh@suse.de, linux-kernel@vger.kernel.org,
-       zippel@linux-m68k.org, geert@linux-m68k.org
-Subject: Re: [PATCH] 64bit resources start end value fix
-Message-Id: <20060621162715.4d91ff05.akpm@osdl.org>
-In-Reply-To: <20060621231552.GA25514@in.ibm.com>
-References: <20060621172903.GC9423@in.ibm.com>
-	<20060621132227.ec401f93.akpm@osdl.org>
-	<20060621204120.GA14739@in.ibm.com>
-	<20060621135855.ce68720f.akpm@osdl.org>
-	<20060621231552.GA25514@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 21 Jun 2006 19:30:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: rohitseth@google.com
+Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
+Date: Thu, 22 Jun 2006 01:29:47 +0200
+User-Agent: KMail/1.9.3
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+References: <200606210329_MC3-1-C305-E008@compuserve.com> <200606220105.18512.ak@suse.de> <1150931922.6885.72.camel@galaxy.corp.google.com>
+In-Reply-To: <1150931922.6885.72.camel@galaxy.corp.google.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200606220129.47546.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 19:15:52 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
-
-> On Wed, Jun 21, 2006 at 01:58:55PM -0700, Andrew Morton wrote:
-> > > 
-> > > Andrew, you don't have to apply this patch. It is supposed to be picked
-> > > by Greg.
-> > > 
-> > > There seems to be some confusion. Just few days back Greg consolidated
-> > > and re-organized all the 64bit resources patches and posted on LKML for
-> > > review.
-> > > 
-> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=115015916118671&w=2
-> > > 
-> > > There were few review comments regarding kconfig options.
-> > > I reworked the patch and CONFING_RESOURCES_32BIT was changed to
-> > > CONFIG_RESOURCES_64BIT.
-> > > 
-> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=115072559700302&w=2
-> > > 
-> > > Now Greg's tree and your tree are not exact replica when it comes to 
-> > > 64bit resource patches. Hence this patch is supposed to be picked by 
-> > > Greg to make sure things are not broken in his tree.
-> > 
-> > I'm working against Greg's tree, always...
+On Thursday 22 June 2006 01:18, Rohit Seth wrote:
+> On Thu, 2006-06-22 at 01:05 +0200, Andi Kleen wrote:
+> > On Thursday 22 June 2006 00:59, Rohit Seth wrote:
 > 
-> I am sorry. That's a mistake on my part. I misunderstood it.
+> > > I was thinking of storing it is base address part of the descriptor and
+> > > then using the memory load to read it in vsyscall.  (Keeping the p bit
+> > > to zero in the descriptor).
+> > 
+> > I'm still not sure where and for what you want to use this. In user space 
+> > or in kernel space? And what information should be stored in there?
+> > 
+> 
+> Store the kernel virtual pointer in gdt to access pda in (proposed)
+> vgetcpu in vsyscall. 
+> Using this pointer we can easily reach the cpu and 
+> node numbers and any other information that is there in pda.  For the
+> cpu and node numbers this will get rid of the need to do a serializing
+> operation cpuid.
+> 
+> Does it make any sense?
 
-Oh.
+Ok to spell it out (please correct me if I misinterpreted you). You want to:
 
-> Can you please include the attached patch.
+- Split PDA into kernel part and user exportable part
+- Export user exportable part to ring 3
+- Put base address of user exportable part into GDT
+- Access it using that.
 
-Hopefully I'll pick it up from
-http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-03-pci
-later today?
+I don't think it can work because the GDT only supports 32bit
+base addresses for code/data segments in long mode and you can't put
+a kernel virtual address into 32bit (only user space there) 
+
+And you can't get at at the base address anyways because they
+are ignored in long mode (except for fs/gs). For fs/gs you would
+need to save/restore them to reuse them which would be slow.
+
+You can't also just put them into fs/gs because those are
+already reserved for user space.
+
+Also I don't know what other information other than cpu/node 
+would be useful, so just using the 20 bits of limit seems plenty to me.
+
+-Andi

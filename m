@@ -1,98 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWFUPnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWFUPuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWFUPnh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 11:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWFUPnh
+	id S932197AbWFUPuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 11:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWFUPuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 11:43:37 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:24523 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751294AbWFUPng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 11:43:36 -0400
-Date: Wed, 21 Jun 2006 11:43:20 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Ryan McAvoy <ryan.sed@gmail.com>
-cc: LKML <linux-kernel@vger.kernel.org>, linux-mips@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       john.cooper@timesys.com
-Subject: Re: realtime-preempt for MIPS - compile problem with rwsem
-In-Reply-To: <642640090606210804k282085efm84476af3a8fa08b1@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0606211125590.29348@gandalf.stny.rr.com>
-References: <642640090606201208g31a0a57bm268910b026ccd335@mail.gmail.com> 
- <Pine.LNX.4.58.0606210354050.29673@gandalf.stny.rr.com>
- <642640090606210804k282085efm84476af3a8fa08b1@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Jun 2006 11:50:24 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:34205 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751053AbWFUPuX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 11:50:23 -0400
+Date: Wed, 21 Jun 2006 10:50:14 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: "Timothy R. Chavez" <tinytim@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Mike Halcrow <mike@halcrow.us>
+Subject: Re: [PATCH 2/12] Support for larger maximum key size
+Message-ID: <20060621155014.GB2682@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <E1FsngZ-00078k-Jc@localhost.localdomain> <1150901397.24002.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+Content-Disposition: inline
+In-Reply-To: <1150901397.24002.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 21 Jun 2006, Ryan McAvoy wrote:
+--A6N2fC+uXW/VQSAv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > First, whenever sending mail about the -rt patch, always CC Ingo (and
-> > perhaps Thomas Gliexner and myself).
->
-> Thanks, I will do that.
+On Wed, Jun 21, 2006 at 09:49:57AM -0500, Timothy R. Chavez wrote:
+> > -		    ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES;
+> > -	for (i =3D 0; i < auth_tok->session_key.encrypted_key_size; i++)
+> > +	for (i =3D 0; i < (crypt_stat->key_size_bits / 8); i++)
+>=20
+> Why don't you just do this particular calculation once?  Just looking
+> down, you do this same calculation at least 4 other potential times.
 
-Ingo is the important one.  Thomas and I are just the janitors
-Although Thomas is chief janitor :)
+Patch #10 in this set changes the keysize to bytes, so this is a
+resolved issue.
 
->
-> > 2.6.15 had lots of problems with -rt.  Mainly the patch went through some
-> > major rework, and Ingo was busy getting mutexes into mainline.  So the
-> > 2.6.15-rtX was sort of neglected.  It would be best to use 2.6.16-rtX and
-> > maybe even 2.6.17-rtX
-> >
-> > Which also comes the question: Which -rt patch are you actually trying?
->
-> patch-2.6.15-rt21 .  I have also tried using the 2.6.16 kernel and
+Thanks,
+Mike
 
-Hmm, 15-rt21 may have stabilized a bit. But I do still think the 16 series
-is much more stable.
+--A6N2fC+uXW/VQSAv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-> patch-2.6.16-rt29 and have the same problems with it.  (I may be
-> constrained in having to use a 2.6.15 kernel ... but would be happy to
-> get 2.6.16 working /stable as a starting point.)
->
-> > Yep, try the following patch: (completey untested since I don't have a
-> > mips machine).
-> >
-> >  config RWSEM_GENERIC_SPINLOCK
-> >         bool
-> > -       depends on !PREEMPT_RT
-> > +       depends on PREEMPT_RT
-> >         default y
->
-> I did just that when I first started with these patches and did
-> succeed in getting it compiling and booting.  The resulting kernel,
-> however, is very unstable and hangs frequently with no output.  (It
-> will hang within hours if left idle.  I can hang it more quickly by
-> attempting to use it).  I have deadlock detection turned on and have
-> confirmed that it does produce output at least for some deadlocks:
-> http://groups.google.com/group/linux.kernel/browse_frm/thread/1559667001b7da2d/2558b539a5adc660?lnk=st&q=realtime+preempt+mips&rnum=2&hl=en#2558b539a5adc660
-> In the more common hangs though, I get no output.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-That output looks like it had a deadlock on the serial output of sysrq
-key.  But that back trace looks screwy.
+iQEVAwUBRJlqtdtAhTFtyodpAQI6fgf9FtwZQXB/yZGDf/B1pC//rxbsV7d3+PI3
+/q4mkXlUrL79v4yyd+e00hSReBbK/oGz3qQgxXnTIEFrcx44tI/ahR/BgWMXl3sb
+293och5Qe5TvO0UA+6rVET4gzui56XK3UAPigPl+6azWoqLmKvUG2x8aRYpuN4am
+29yDE/ffme8XWCHlPDFMssnvbZjZIddqhs4S62M2Z53fhLUyheOyTUxcPQSXtBcq
+7fS98cTrzs8d8sbG/pkvVFi8OMcjx37pj7jm145gV9DsaKLbBUKIaWxggxsYdR8j
+Q+flyCRNZgHunFwis4wLNQwcKQsd7DhiiKTM7Ruvu0cvn4przC57Vg==
+=OnOq
+-----END PGP SIGNATURE-----
 
->
-> I decided to review the changes I made in getting it to compile and
-> was hoping that this one may be the cause of the instability.  I
-> thought that perhaps this change was incorrect because
-> include/asm-mips/rwsem.h is introduced by the rt-preempt patch and
-
-Ha, you're right!  (added John Cooper to this so he can clean up this mess
-;)
-
-> would only be used if RWSEM_GENERIC_SPINLOCK was off.  [As well, it
-> seemed like something fundamental enough to account for the general
-> instability I am seeing.]
->
-
-Perhaps you can post all the changes you made as a patch to see if
-something else is wrong.  It might also be best to see if you can get the
-latest working (2.6.17-rtX) and work your way backwards to the kernel
-version you really need.
-
--- Steve
+--A6N2fC+uXW/VQSAv--

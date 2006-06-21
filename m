@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWFUT0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbWFUT1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWFUT0J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWFUT0J
+	id S932687AbWFUT1b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWFUT1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:26:09 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:56487 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751289AbWFUT0I
+	Wed, 21 Jun 2006 15:27:31 -0400
+Received: from kevlar.burdell.org ([66.92.73.214]:60337 "EHLO
+	kevlar.burdell.org") by vger.kernel.org with ESMTP id S932686AbWFUT1a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:26:08 -0400
-Message-ID: <44999D49.1060703@fr.ibm.com>
-Date: Wed, 21 Jun 2006 21:26:01 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: 2.6.17-mm1
-References: <20060621034857.35cfe36f.akpm@osdl.org>	 <6bffcb0e0606210407y781b3d41nef533847f579520b@mail.gmail.com>	 <20060621041758.4235dbc6.akpm@osdl.org> <6bffcb0e0606210429t3e78e88dqd637718e4e22b3f0@mail.gmail.com> <44994F77.5030301@fr.ibm.com> <4499777C.7010505@zytor.com>
-In-Reply-To: <4499777C.7010505@zytor.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jun 2006 15:27:30 -0400
+Date: Wed, 21 Jun 2006 15:27:26 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, anton@samba.org
+Subject: Re: Possible bug in do_execve()
+Message-ID: <20060621192726.GA10052@kevlar.burdell.org>
+References: <20060620022506.GA3673@kevlar.burdell.org> <20060621184129.GB16576@sergelap.austin.ibm.com> <20060621185508.GA9234@kevlar.burdell.org> <20060621190910.GC16576@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621190910.GC16576@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-
->> That's how i fixed it. Is that the right way to do it ?
+On Wed, Jun 21, 2006 at 02:09:10PM -0500, Serge E. Hallyn wrote:
+<snip>
+> > Yeah, I proposed a similar patch to Anton, and it would quiet the
+> > warning on powerpc, but that's not the point.  It happens that powerpc
+> > doesn't use 0 as a context id, but that may not be true on another
+> > architecture.  That's really what I'm concerned about.
 > 
-> Probably not.  I suspect what's needed is the same EXTRA_KLIBCCFLAGS as
-> in socketcalls/Kbuild.
+> FWIW, ppc and cris do the NO_CONTEXT check, while others don't
+> even have a arch-specific 'mm->context.id'.
 
-it works fine.
+Good point.  I probably stated that concern too narrowly.  Probably
+what I should say is: What is the pre-condition for calling
+destroy_context() ?  Is it that init_new_context() must have
+succeeded?  Or is it merely that mm.context has been zeroed
+out?
 
-thanks !
+Here's destroy context on sparc64:
 
-C.
+void destroy_context(struct mm_struct *mm)
+{
+        unsigned long flags, i;
+
+        for (i = 0; i < MM_NUM_TSBS; i++)
+                tsb_destroy_one(&mm->context.tsb_block[i]);
+
+        spin_lock_irqsave(&ctx_alloc_lock, flags);
+
+        if (CTX_VALID(mm->context)) {
+                unsigned long nr = CTX_NRBITS(mm->context);
+                mmu_context_bmap[nr>>6] &= ~(1UL << (nr & 63));
+        }
+
+        spin_unlock_irqrestore(&ctx_alloc_lock, flags);
+}
+
+It seems to assume that mm->context is valid before doing a check.
+
+Since I don't have a sparc64 box, I can't check to see if this
+actually breaks things or not.
+

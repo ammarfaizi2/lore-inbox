@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWFUOkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWFUOmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWFUOkv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWFUOkv
+	id S1750936AbWFUOmT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWFUOmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:40:51 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:37093 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932087AbWFUOkt (ORCPT
+	Wed, 21 Jun 2006 10:42:19 -0400
+Received: from gw.openss7.com ([142.179.199.224]:34736 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id S1750936AbWFUOmS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:40:49 -0400
-Date: Wed, 21 Jun 2006 23:41:54 +0900 (JST)
-Message-Id: <20060621.234154.25912435.anemo@mba.ocn.ne.jp>
-To: nish.aravamudan@gmail.com
-Cc: linux-kernel@vger.kernel.org, rpurdie@rpsys.net, akpm@osdl.org
-Subject: Re: [PATCH] LED: add LED heartbeat trigger
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <29495f1d0606200954u3e81acb4w648d5c31e8daff3a@mail.gmail.com>
-References: <20060621.013603.132759710.anemo@mba.ocn.ne.jp>
-	<29495f1d0606200954u3e81acb4w648d5c31e8daff3a@mail.gmail.com>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 21 Jun 2006 10:42:18 -0400
+Date: Wed, 21 Jun 2006 08:42:17 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Theodore Tso <tytso@thunk.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH 0/8] Inode diet v2
+Message-ID: <20060621084217.B7834@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Theodore Tso <tytso@thunk.org>,
+	linux-kernel@vger.kernel.org
+References: <20060621125146.508341000@candygram.thunk.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060621125146.508341000@candygram.thunk.org>; from tytso@thunk.org on Wed, Jun 21, 2006 at 08:51:46AM -0400
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 09:54:59 -0700, "Nish Aravamudan" <nish.aravamudan@gmail.com> wrote:
-> Can these and the other HZ/100 users make use of the existing
-> *secs_to_jiffies() methods? FYI, if HZ=250, you're getting rounding
-> here, not sure if it's desired.
+Theodore,
 
-Thanks.  The msecs_to_jiffies makes code more readable.  The rounding
-is not serious here.
+On Wed, 21 Jun 2006, Theodore Tso wrote:
 
-> setup_timer()? (which will call init_timer() before returning.
+> Unfortunately, since these structures are used by a large amount of
+> kernel code, some of the patches are quite involved, and/or will
+> require a lot of auditing and code review, for "only" 4 or 8 bytes at
+> a time (maybe more on 64-bit platforms).  However, since there are
+> many, many copies of struct inode all over the kernel, even a small
+> reduction in size can have a large beneficial result, and as the old
+> Chinese saying goes, a journey of thousand miles begins with a single
+> step....
 
-Sure.  I'll post a new patch soon.
+Can you grep inode_cache /proc/slabinfo to see whether you saved any
+memory at all?
 
----
-Atsushi Nemoto
+You need to save 48 bytes per inode to fit one more into a slab with
+a 32 byte L1 cache slot; 120 bytes per inode, 64 byte L1 cache slot.
+And that's just a generic inode_cache object.  Something that is really
+used, like ext3_inode_cache or nfs_inode_cache is going to take more
+doing.  Moving a field from the generic inode to the filesystem specific
+inode acheives nothing.
+

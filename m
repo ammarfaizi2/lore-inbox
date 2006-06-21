@@ -1,103 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWFURvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWFURuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWFURvA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 13:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWFURvA
+	id S1751082AbWFURuz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 13:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWFURuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 13:51:00 -0400
-Received: from mail.gmx.de ([213.165.64.21]:19655 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932297AbWFURu7 (ORCPT
+	Wed, 21 Jun 2006 13:50:55 -0400
+Received: from ns.suse.de ([195.135.220.2]:48031 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751062AbWFURuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 13:50:59 -0400
-X-Authenticated: #704063
-Subject: Re: Possible leaks in network drivers
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, kmliu@sis.com
-In-Reply-To: <1150909982.15275.100.camel@localhost.localdomain>
-References: <1150907317.8320.0.camel@alice>
-	 <1150909982.15275.100.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 19:50:56 +0200
-Message-Id: <1150912256.8784.4.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 21 Jun 2006 13:50:54 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
+Date: Wed, 21 Jun 2006 19:50:47 +0200
+User-Agent: KMail/1.9.3
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Ingo Molnar <mingo@elte.hu>,
+       Jakub Jelinek <jakub@redhat.com>, Roland McGrath <roland@redhat.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200606210828_MC3-1-C30B-9D83@compuserve.com> <200606211914.37137.ak@suse.de> <Pine.LNX.4.64.0606211022300.5498@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606211022300.5498@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200606211950.47529.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-21 at 18:13 +0100, Alan Cox wrote:
-> Ar Mer, 2006-06-21 am 18:28 +0200, ysgrifennodd Eric Sesterhenn:
-> > of the driver. Where we call skb=skb_padto(skb, ETH_ZLEN),
-> > and dont free the skb later when something goes wrong.
+On Wednesday 21 June 2006 19:27, Linus Torvalds wrote:
 > 
-> skb_padto() returns either a new buffer or the existing one depending
-> upon the space situation. If it returns a new buffer then it frees the
-> old one.
+> On Wed, 21 Jun 2006, Andi Kleen wrote:
+> > 
+> > My measurements show different - i get 60+ cycles on K8 and 150+ cycles
+> > on P4. That is with a full vsyscall around it. However it is still
+> > far better than CPUID, however slower than RDTSCP on those CPUs that support it.
+> > 
+> > I changed the CPUID fallback path to use LSL on x86-64
 > 
-> The sequence is
+> One note of warning: 
 > 
-> dev_queue_xmit(skb)
-> 	->hard_start_xmit(dev, skb)
-> 	if (0)
-> 		free skb
-> 	return
+> Playing "clever games" has a real tendency to suck badly eventually. I'm 
+> betting LSL is pretty damn low on any list of instructions to be optimized 
+> by the CPU core, so it would tend to always be microcoded, while other ops 
+> might get faster.
+
+Any way we use to get the current CPU number is microcoded.
+Unless RDTSCP and CPUID LSL is not defined to flush any pipelines fortunately.
+And with the cache it is not THAT critical.
+
+> > Measuring this way is a bad idea because you get far too much 
+> > noise from the RDTSCs. Usually you need to put a a few thousands entry 
+> > loop inside the RDTSCP and devide the result by the loop count
 > 
-> Which I think means that the error path for a short packet would double
-> free the skb buffer and leak nskb.
+> And measuring that way isn't perfect either, because it tends to show you 
+> how well an instruction works in that particular instruction mix, but not 
+> necessarily in real life.
 > 
-> 
-> So these drivers should indeed be checking their status before they
-> clone the buffer. At the point they do an skb_padto they must not fail
-> if the skb_padto succeeds.
+> Benchmarking single instructions is simply damn hard. It's often better to 
+> try to find a real load where that particular sequence is important enough 
+> to be measurable at all, and then try the alternatives. Not perfect 
+> either, but if you can't find such a load, maybe you shouldn't be doing it 
+> in the first place.. And if you _can_ find such a real load, at least you 
+> measured something that was actually real.
 
-So something like this would be the correct fix for the example?
+I benchmarked it in a faithful simulation of a x86-64 vsyscall
 
-Fix skb leak found by coverity checker (id #628), skb_put() might
-return a new skb, which gets never freed when we return with
-NETDEV_TX_BUSY. This patch moves the check above the skb_put().
-
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.17-git2/drivers/net/sis190.c.orig	2006-06-21 19:44:18.000000000 +0200
-+++ linux-2.6.17-git2/drivers/net/sis190.c	2006-06-21 19:46:06.000000000 +0200
-@@ -1155,6 +1155,18 @@ static int sis190_start_xmit(struct sk_b
- 	struct TxDesc *desc;
- 	dma_addr_t mapping;
- 
-+
-+	entry = tp->cur_tx % NUM_TX_DESC;
-+	desc = tp->TxDescRing + entry;
-+
-+	if (unlikely(le32_to_cpu(desc->status) & OWNbit)) {
-+		netif_stop_queue(dev);
-+		net_tx_err(tp, KERN_ERR PFX
-+			"%s: BUG! Tx Ring full when queue awake!\n",
-+			dev->name);
-+		return NETDEV_TX_BUSY;
-+	}
-+
- 	if (unlikely(skb->len < ETH_ZLEN)) {
- 		skb = skb_padto(skb, ETH_ZLEN);
- 		if (!skb) {
-@@ -1166,17 +1178,6 @@ static int sis190_start_xmit(struct sk_b
- 		len = skb->len;
- 	}
- 
--	entry = tp->cur_tx % NUM_TX_DESC;
--	desc = tp->TxDescRing + entry;
--
--	if (unlikely(le32_to_cpu(desc->status) & OWNbit)) {
--		netif_stop_queue(dev);
--		net_tx_err(tp, KERN_ERR PFX
--			   "%s: BUG! Tx Ring full when queue awake!\n",
--			   dev->name);
--		return NETDEV_TX_BUSY;
--	}
--
- 	mapping = pci_map_single(tp->pci_dev, skb->data, len, PCI_DMA_TODEVICE);
- 
- 	tp->Tx_skbuff[entry] = skb;
-
-
+-Andi

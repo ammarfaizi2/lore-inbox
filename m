@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932723AbWFUXhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932724AbWFUXjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932723AbWFUXhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 19:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbWFUXhJ
+	id S932724AbWFUXjv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 19:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWFUXjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 19:37:09 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45835 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932723AbWFUXhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 19:37:07 -0400
-Date: Thu, 22 Jun 2006 01:37:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Oliver Bock <o.bock@fh-wolfenbuettel.de>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: [-mm patch] make drivers/usb/misc/cy7c63.c:vendor_command() static
-Message-ID: <20060621233706.GU9111@stusta.de>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
+	Wed, 21 Jun 2006 19:39:51 -0400
+Received: from omta03sl.mx.bigpond.com ([144.140.92.155]:32766 "EHLO
+	omta03sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932724AbWFUXju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 19:39:50 -0400
+Message-ID: <4499D8C4.5040304@bigpond.net.au>
+Date: Thu, 22 Jun 2006 09:39:48 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm1 : two PF flags with the same value
+References: <20060621034857.35cfe36f.akpm@osdl.org>
 In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 21 Jun 2006 23:39:48 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 03:48:57AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-rc6-mm2:
->...
-> +gregkh-usb-usb-new-driver-for-cypress-cy7c63xxx-mirco-controllers.patch
->...
->  USB tree updates
->...
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17/2.6.17-mm1/
 
-This patch makes the needlessly global vendor_command() static.
+Doing my quick review of changes to bits of code that overlap where I 
+wish to work I've noticed that PF_SPREAD_SLAB and PF_MUTEX_TESTER have 
+the same value.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+define PF_SPREAD_SLAB	0x02000000	/* Spread some slab caches over cpuset */
+#define PF_MEMPOLICY	0x10000000	/* Non-default NUMA mempolicy */
+#define PF_MUTEX_TESTER	0x02000000	/* Thread belongs to the rt mutex 
+tester */
 
---- linux-2.6.17-mm1-full/drivers/usb/misc/cy7c63.c.old	2006-06-22 01:25:08.000000000 +0200
-+++ linux-2.6.17-mm1-full/drivers/usb/misc/cy7c63.c	2006-06-22 01:25:57.000000000 +0200
-@@ -63,8 +63,8 @@
- };
- 
- /* used to send usb control messages to device */
--int vendor_command(struct cy7c63 *dev, unsigned char request,
--			 unsigned char address, unsigned char data) {
-+static int vendor_command(struct cy7c63 *dev, unsigned char request,
-+			  unsigned char address, unsigned char data) {
- 
- 	int retval = 0;
- 	unsigned int pipe;
+This will have interesting consequences in some circumstances, I imagine.
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

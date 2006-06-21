@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWFUJvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWFUKBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWFUJvS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 05:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWFUJvS
+	id S1751466AbWFUKBr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 06:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751995AbWFUKBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 05:51:18 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:15753 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751451AbWFUJvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 05:51:17 -0400
-Message-ID: <4499167D.1040308@sgi.com>
-Date: Wed, 21 Jun 2006 11:50:53 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Carsten Otte <cotte@de.ibm.com>, bjorn_helgaas@hp.com
-Subject: Re: [patch] do_no_pfn
-References: <yq0psh5zenq.fsf@jaguar.mkp.net> <200606201048.10545.ak@suse.de> <4497BBFE.6000703@sgi.com> <200606201135.53824.ak@suse.de>
-In-Reply-To: <200606201135.53824.ak@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jun 2006 06:01:47 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:58258 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S1751466AbWFUKBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 06:01:47 -0400
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: dtor_core@ameritech.net, akpm <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Randy Dunlap <randy.dunlap@oracle.com>
+Date: Wed, 21 Jun 2006 11:01:43 +0100
+Message-Id: <E1FszWp-0004zt-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> One struct page for a random single page here, another for a single
->> random page there. And the risk that someone will start walking the
->> pages and dereference and cause data corruption. As explained before,
->> it's a bad idea.
-> 
-> Note sure what your point is. Why should they cause memory corruption?
-> 
-> Allowing struct page less VM is worse. If you add that then people
-> will use it for other stuff, and eventually we got a two class
-> VM. All not very good.
+Subject: Re: [Ubuntu PATCH] input: allow root to inject unknown scan codes
+In-Reply-To: <4498D9F6.6020700@oracle.com>
+References: <4498D9F6.6020700@oracle.com>
 
-Special treatment of the pages are required. In particular they *must*
-be referenced in uncached mode. If something derefences the struct page
-in cached mode and the official user of the page does it correctly in
-uncached mode one risks memory corruption. It's worse than that in fact
-it has to be a full granule of pages that isn't touched like this.
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> Allow root to inject unknown scan codes for input device.
 
-But as Robin pointed out, there just is no real benefit to having a
-struct page behind it.
+I should probably describe what this does. The current code refuses to 
+synthesise any keyboard events that don't appear in the mask of 
+supported keycodes for the associated device. We've found that it's 
+sometimes helpful to be able to inject "fake" keyboard events through 
+the keyboard device. Consider the following scenario:
 
-Cheers,
-Jes
+1) User presses ACPI hotkey that corresponds to volume up
+2) Userspace turns ACPI event into volume up key, either via uinput or 
+injecting into an existing /dev/input node
+3) HAL fires off a dbus event based on the volume up key (removes the 
+need for media players to do unpleasent things with xgrabkey)
+
+Using the existing /dev/input/whatever node, this is all 
+straightforward. Using uinput, we either need a daemon that provides a 
+uinput device or a new uinput device every time an ACPI hotkey is 
+pressed. The former solution requires building some sort of IPC 
+mechanism, and the latter means that every key will generate a line in 
+dmesg (input: foo as /class/input/input3, and so on) and HAL will have 
+to notice a new event device, bind to it, launch the keyboard listener 
+daemon, fire off the dbus message, notice that the device has vanished 
+and then shut stuff down again. So injection through the keyboard device 
+is much simpler.
+
+At the moment this fails if the keycode doesn't correspond to one 
+present in the keyboard mask - the input layer drops it on the floor 
+instead. I'm not sure that there's an especially good reason for that, 
+so we removed the check in order to make it easier to put as many input 
+events through the input layer as possible.
+
+(In the future where we have food pills and flying cars and Linux has 
+become Atomic Fresh Linux, all these things generating acpi events 
+should probably be converted into proper input drivers instead)
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

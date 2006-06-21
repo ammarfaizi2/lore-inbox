@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWFUNxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWFUOJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbWFUNxF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 09:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbWFUNxE
+	id S1750795AbWFUOJS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWFUOJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 09:53:04 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:4255 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932137AbWFUNxD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 09:53:03 -0400
-Date: Wed, 21 Jun 2006 09:49:18 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Roland McGrath <roland@redhat.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "Charles P. Wright" <cwright@cs.sunysb.edu>,
-       Renzo Davoli <renzo@cs.unibo.it>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Blaisorblade <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>
-Subject: Re: [RFC PATCH 0/4] utrace: new modular infrastructure for user debug/tracing
-Message-ID: <20060621134918.GA1361@nevyn.them.org>
-Mail-Followup-To: "Frank Ch. Eigler" <fche@redhat.com>,
-	Roland McGrath <roland@redhat.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	"Charles P. Wright" <cwright@cs.sunysb.edu>,
-	Renzo Davoli <renzo@cs.unibo.it>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Blaisorblade <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>
-References: <200606151900_MC3-1-C293-BD30@compuserve.com> <y0mlkrxupqf.fsf@ton.toronto.redhat.com>
+	Wed, 21 Jun 2006 10:09:17 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33507 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750719AbWFUOJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 10:09:16 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
+       Len Brown <len.brown@intel.com>,
+       Kimball Murray <kimball.murray@gmail.com>,
+       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
+       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
+       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
+       "bibo,mao" <bibo.mao@intel.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Shaohua Li <shaohua.li@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
+       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 11/25] i386 irq:  Dynamic irq support
+References: <11508425191063-git-send-email-ebiederm@xmission.com>
+	<1150842520235-git-send-email-ebiederm@xmission.com>
+	<11508425201406-git-send-email-ebiederm@xmission.com>
+	<1150842520775-git-send-email-ebiederm@xmission.com>
+	<11508425213394-git-send-email-ebiederm@xmission.com>
+	<115084252131-git-send-email-ebiederm@xmission.com>
+	<11508425213795-git-send-email-ebiederm@xmission.com>
+	<11508425222427-git-send-email-ebiederm@xmission.com>
+	<20060620185015.F10402@unix-os.sc.intel.com>
+	<m1mzc79rlf.fsf@ebiederm.dsl.xmission.com>
+	<20060620192734.G10402@unix-os.sc.intel.com>
+Date: Wed, 21 Jun 2006 08:07:49 -0600
+In-Reply-To: <20060620192734.G10402@unix-os.sc.intel.com> (Rajesh Shah's
+	message of "Tue, 20 Jun 2006 19:27:34 -0700")
+Message-ID: <m1lkrq7gay.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <y0mlkrxupqf.fsf@ton.toronto.redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 16, 2006 at 10:42:00AM -0400, Frank Ch. Eigler wrote:
-> Indeed, I like what I see (at least those parts I understand) in
-> roland's utrace code.  One missed opportunity bit appears to be any
-> new support for something like per-thread breakpoints.
-> 
-> If I correctly understand how gdb etc. work, a hit breakpoint involves
-> stoppage of all other threads of a process, then the breakpoint
-> instruction is replaced by the original one, then the thread is
-> single-stepped, then the breakpoint is put back, then finally all
-> threads are resumed.  Could utrace API provide short-lived per-thread
-> page copies to execute the single-stepped original instruction out of,
-> and avoid stopping & resuming all other threads?
+Rajesh Shah <rajesh.shah@intel.com> writes:
 
-FYI: I talked with Roland about this a while ago, and got the
-impression that he was interested in implementing it, but wanted to get
-utrace going first.  It doesn't really relate to utrace; but it would
-need a new interface however it was implemented.
+> On Tue, Jun 20, 2006 at 08:21:00PM -0600, Eric W. Biederman wrote:
+>> Rajesh Shah <rajesh.shah@intel.com> writes:
+>> 
+>> > It would be really good to decouple MSI implementation from IO
+>> > APICs, since there's really no real hardware dependence here.
+>> > This code can actually go to arch/xxx/pci/msi-apic.c
+>> 
+>> I agree in theory.  In practice however msi interrupts look like io_apics.
+>> with a different register set and the use all of the same support facilities.
+>> So until that part of the architecture is refactored it doesn't make much
+>> sense.  There is a slightly better case for moving the code into a separate
+>> file.  Namely I think I know of a second common implementation for x86_64.
+>> At which point the files will probably be named msi-intel.c and msi-amd.c
+>> Or something like that.  
+>> 
+> Actually, I meant just the vector tracking code could be in a
+> separate file and the ioapic and msi code could both assign
+> vectors from a common routine. I had the patch below in my
+> patchkit, plus another patch for x86_64 to do the same thing
+> in io_apic.c and share the same intrvec.c file between the 
+> two archs. Once you have this, the MSI callbacks in arch
+> code can be moved out of io_apic.c
 
-GDB really does crave this feature.
+Well irq.c is probably the obvious place to put it.
 
--- 
-Daniel Jacobowitz
-CodeSourcery
+But that goes way beyond small obviously correct steps.
+So there is no way I'm going to include a change like
+that in the middle of my patchset because it is unnecessary.
+
+Doing this kind of thing later is certainly sane.
+
+I guess this is a difference in focus.  You have been focused
+on code cleanup.  I have been focused on breaking the unnatural tying
+between parts of the code.
+
+As for this specific patch it makes no sense to only move half
+of assign_irq_vector to a different file.
+
+Eric

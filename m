@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWFUBpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWFUBqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWFUBpe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 21:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751921AbWFUBpe
+	id S1751291AbWFUBqo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 21:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751929AbWFUBqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 21:45:34 -0400
-Received: from thunk.org ([69.25.196.29]:51909 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750742AbWFUBpc (ORCPT
+	Tue, 20 Jun 2006 21:46:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:61903 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751291AbWFUBqn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 21:45:32 -0400
-Date: Tue, 20 Jun 2006 21:45:37 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH 2/8] inode-diet: Move i_pipe into a union
-Message-ID: <20060621014537.GC5663@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	linux-kernel@vger.kernel.org
-References: <20060619152003.830437000@candygram.thunk.org> <20060619153108.720582000@candygram.thunk.org> <Pine.LNX.4.61.0606191918310.23792@yvahk01.tjqt.qr> <20060619190610.GH15216@thunk.org> <20060620092351.E10897@openss7.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060620092351.E10897@openss7.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Tue, 20 Jun 2006 21:46:43 -0400
+Subject: Re: [Cbe-oss-dev] [patch 01/20] cell: add RAS support
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olof Johansson <olof@lixom.net>
+Cc: arnd@arndb.de, linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060620154304.GD4845@pb15.lixom.net>
+References: <20060619183315.653672000@klappe.arndb.de>
+	 <20060619183404.144740000@klappe.arndb.de>
+	 <20060620154304.GD4845@pb15.lixom.net>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 11:46:25 +1000
+Message-Id: <1150854385.12507.59.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 09:23:51AM -0600, Brian F. G. Bidulock wrote:
+On Tue, 2006-06-20 at 10:43 -0500, Olof Johansson wrote:
+> On Mon, Jun 19, 2006 at 08:33:16PM +0200, arnd@arndb.de wrote:
+> > From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> > 
+> > This is a first version of support for the Cell BE "Reliability,
+> > Availability and Serviceability" features.
 > 
-> It's used for implementing STREAMS-based FIFOs.  Which is a proper use
-> of i_pipe (which is for FIFOs).  Pipes (both mainline and STREAMS-based
-> pipes) can use i_private instead of i_pipe.
+> Does it really make sense to do this under a config option? I don't see
+> why anyone would not want to know that their machine is about to melt.
 
-It's is an abuse of i_pipe.  You are using something which is supposed
-to hold a struct pipe_info, and storing the head of the STREAM stack,
-which is some other type.  
+Well, it's not quite clear yet wether that thing works at all at this
+point :) It shuld be a config option (becasue those things don't make
+sense on LPAR cells) but maybe not a selectable one ...
 
-In any case, when you state authoratively what "can" and "can not" be
-combined, please specify when your justification is for a particular
-out of tree modules.
+Ben.
 
-						- Ted
+

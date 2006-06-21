@@ -1,92 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWFUXE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbWFUXNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbWFUXE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 19:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030452AbWFUXE6
+	id S1030454AbWFUXNT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 19:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWFUXNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 19:04:58 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:50912 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1030351AbWFUXE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 19:04:58 -0400
-Message-ID: <4499D097.5030604@bigpond.net.au>
-Date: Thu, 22 Jun 2006 09:04:55 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Matt Helsley <matthltc@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: [PATCH 00/11] Task watchers:  Introduction
-References: <1150242721.21787.138.camel@stark>	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>	 <44992EAA.6060805@bigpond.net.au>  <44993079.40300@bigpond.net.au> <1150925387.21787.1056.camel@stark>
-In-Reply-To: <1150925387.21787.1056.camel@stark>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 21 Jun 2006 19:13:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4060 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030454AbWFUXNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 19:13:18 -0400
+Date: Wed, 21 Jun 2006 16:12:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, rmk+lkml@arm.linux.org.uk
+Subject: Re: [patch 1/2] genirq: allow usage of no_irq_chip
+Message-Id: <20060621161236.e868284d.akpm@osdl.org>
+In-Reply-To: <20060610085435.487020000@cruncher.tec.linutronix.de>
+References: <20060610085428.366868000@cruncher.tec.linutronix.de>
+	<20060610085435.487020000@cruncher.tec.linutronix.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 21 Jun 2006 23:04:55 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley wrote:
-> On Wed, 2006-06-21 at 21:41 +1000, Peter Williams wrote:
->> Peter Williams wrote:
->>> Matt Helsley wrote:
->>>> On Wed, 2006-06-21 at 15:41 +1000, Peter Williams wrote:
->>>>> On a related note, I can't see where the new task's notify field gets 
->>>>> initialized during fork.
->>>> It's initialized in kernel/sys.c:notify_per_task_watchers(), which calls
->>>> RAW_INIT_NOTIFIER_HEAD(&task->notify) in response to WATCH_TASK_INIT.
->>> I think that's too late.  It needs to be done at the start of 
->>> notify_watchers() before any other watchers are called for the new task.
-> 
-> 	I don't see why you think it's too late. It needs to be initialized
-> before it's used. Waiting until notify_per_task_watchers() is called
-> with WATCH_TASK_INIT does this.
-
-I probably didn't understand the code well enough.  I'm still learning 
-how it all hangs together :-).
+On Sat, 10 Jun 2006 10:15:11 -0000
+Thomas Gleixner <tglx@linutronix.de> wrote:
 
 > 
->> On second thoughts, it would simpler just before the WATCH_TASK_INIT 
->> call in copy_process() in fork.c.  It can be done unconditionally there.
->>
->> Peter
+> Some dumb interrupt hardware has no way to ack/mask.... Instead of creating a
+> seperate chip structure we allow to reuse the already existing no_irq_chip
 > 
-> 	That would work. It would not simplify the control flow of the code.
-> The branch for WATCH_TASK_INIT in notify_per_task_watchers() is
-> unavoidable; we need to call the parent task's chain in that case since
-> we know the child task's is empty.
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 > 
-> 	It is also counter to one goal of the patches -- reducing the "clutter"
-> in these paths. Arguably task watchers is the same kind of clutter that
-> existed before. However, it is a means of factoring such clutter into
-> fewer instances (ideally one) of the pattern.
+>  kernel/irq/handle.c |    8 ++++++--
+>  kernel/irq/manage.c |    2 +-
+>  kernel/irq/proc.c   |    5 ++---
+>  3 files changed, 9 insertions(+), 6 deletions(-)
+> 
+> Index: linux-2.6.17-rc6-mm/kernel/irq/handle.c
+> ===================================================================
+> --- linux-2.6.17-rc6-mm.orig/kernel/irq/handle.c	2006-06-10 10:32:51.000000000 +0200
+> +++ linux-2.6.17-rc6-mm/kernel/irq/handle.c	2006-06-10 10:42:22.000000000 +0200
+> @@ -63,8 +63,12 @@
+>   */
+>  static void ack_bad(unsigned int irq)
+>  {
+> -	print_irq_desc(irq, irq_desc + irq);
+> -	ack_bad_irq(irq);
+> +	struct irq_desc *desc = irq_desc + irq;
+> +
+> +	if (desc->handle_irq == handle_bad_irq) {
+> +		print_irq_desc(irq, desc);
+> +		ack_bad_irq(irq);
+> +	}
+>  }
+>  
+>  /*
+> @@ -89,6 +93,7 @@
+>  	.enable		= noop,
+>  	.disable	= noop,
+>  	.ack		= ack_bad,
+> +	.unmask		= noop,
+>  	.end		= noop,
+>  };
+>  
+> Index: linux-2.6.17-rc6-mm/kernel/irq/manage.c
+> ===================================================================
+> --- linux-2.6.17-rc6-mm.orig/kernel/irq/manage.c	2006-06-10 10:32:53.000000000 +0200
+> +++ linux-2.6.17-rc6-mm/kernel/irq/manage.c	2006-06-10 10:42:22.000000000 +0200
+> @@ -199,7 +199,7 @@
+>  	if (irq >= NR_IRQS)
+>  		return -EINVAL;
+>  
+> -	if (desc->chip == &no_irq_chip)
+> +	if (desc->handle_irq == &handle_bad_irq)
+>  		return -ENOSYS;
+>  	/*
+>  	 * Some drivers like serial.c use request_irq() heavily,
+> Index: linux-2.6.17-rc6-mm/kernel/irq/proc.c
+> ===================================================================
+> --- linux-2.6.17-rc6-mm.orig/kernel/irq/proc.c	2006-06-10 10:32:49.000000000 +0200
+> +++ linux-2.6.17-rc6-mm/kernel/irq/proc.c	2006-06-10 10:42:22.000000000 +0200
+> @@ -116,9 +116,8 @@
+>  {
+>  	char name [MAX_NAMELEN];
+>  
+> -	if (!root_irq_dir ||
+> -		(irq_desc[irq].chip == &no_irq_chip) ||
+> -			irq_desc[irq].dir)
+> +	if (!root_irq_dir || (irq_desc[irq].handle_irq == &handle_bad_irq) ||
+> +	    irq_desc[irq].dir)
+>  		return;
+>  
+>  	memset(name, 0, MAX_NAMELEN);
+> 
 
-Maybe a few comments in the code to help reviewers such as me learn how 
-it works more quickly would be worthwhile.
+This is the patch which causes powerpc to crash.  In a quite ugly manner:
+early oops, falls into xmon, keeps oopsing from within xmon.  No serial
+port, too early for netconsole.
 
-BTW as a former user of PAGG, I think there are ideas in the PAGG 
-implementation that you should look at.  In particular:
-
-1. The use of an array of function pointers (one for each hook) can cut 
-down on the overhead.  The notifier_block only needs to contain a 
-pointer to the array so there's no increase in the size of that 
-structure.  Within the array a null pointer would mean "don't bother 
-calling".  Only one real array needs to exist even for per task as 
-they're all using the same functions (just separate data).  It removes 
-the need for a switch statement in the client's function as well as 
-saving on unnecessary function calls.
-
-2. A helper mechanism to allow a client that's being loaded as a module 
-to visit all existing tasks and do whatever initialization it needs to 
-do.  Without this every client would have to implement such a mechanism 
-themselves (and it's not pretty).
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+I'll drop it.

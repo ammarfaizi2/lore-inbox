@@ -1,73 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWFUQsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWFUQv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWFUQsP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 12:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWFUQsP
+	id S932262AbWFUQv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 12:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWFUQv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 12:48:15 -0400
-Received: from thunk.org ([69.25.196.29]:63717 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932259AbWFUQsO (ORCPT
+	Wed, 21 Jun 2006 12:51:29 -0400
+Received: from mivlgu.ru ([81.18.140.87]:57503 "EHLO master.mivlgu.local")
+	by vger.kernel.org with ESMTP id S932262AbWFUQv2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 12:48:14 -0400
-Date: Wed, 21 Jun 2006 12:48:23 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH 0/8] Inode diet v2
-Message-ID: <20060621164823.GB28159@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	linux-kernel@vger.kernel.org
-References: <20060621125146.508341000@candygram.thunk.org> <20060621084217.B7834@openss7.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jun 2006 12:51:28 -0400
+Date: Wed, 21 Jun 2006 20:51:26 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86_64: Do not use -ffunction-sections for modules
+Message-ID: <20060621165126.GB4126@master.mivlgu.local>
+References: <11509074684035-git-send-email-vsu@altlinux.ru> <200606211841.33220.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
 Content-Disposition: inline
-In-Reply-To: <20060621084217.B7834@openss7.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+In-Reply-To: <200606211841.33220.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 08:42:17AM -0600, Brian F. G. Bidulock wrote:
-> > Unfortunately, since these structures are used by a large amount of
-> > kernel code, some of the patches are quite involved, and/or will
-> > require a lot of auditing and code review, for "only" 4 or 8 bytes at
-> > a time (maybe more on 64-bit platforms).  However, since there are
-> > many, many copies of struct inode all over the kernel, even a small
-> > reduction in size can have a large beneficial result, and as the old
-> > Chinese saying goes, a journey of thousand miles begins with a single
-> > step....
-> 
-> Can you grep inode_cache /proc/slabinfo to see whether you saved any
-> memory at all?
 
-I've been doing this continuously as I do my patches, and, yes, we're
-definitely saving memory.  How much memory depends on the
-configuration.  In particular, some people may not realize how much
-memory CONFIG_DEBUG_SPINLOCK, CONFIG_DEBUG_MUTEXES, et. al. consume.
-They can make the difference between 300-odd bytes and 500-odd bytes
-for the base struct inode.
+--eJnRUKwClWJh1Khz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also, struct inode is part of a number of different
-filesystem-specific inodes, so as we gradually slim down the inode, we
-can sometimes win with one filsystem more than others.
+On Wed, Jun 21, 2006 at 06:41:33PM +0200, Andi Kleen wrote:
+> The correct mailing list is still discuss@x86-64.org
 
-But just so people can see the results, here they are on a UML system:
+Noted.
 
-                      BEFORE         AFTER 
-name               size obj/slab  size obj/slab 
-isofs_inode_cache   308   13	   280   14	 
-fat_inode_cache     332   12	   304   13	 
-ext2_inode_cache    388   10	   360   11	 
-ext3_inode_cache    424    9	   396   10	 
-reiser_inode_cache  356   11	   328   12	 
-shmem_inode_cache   372   10	   344   11	 
-proc_inode_cache    296   13	   268   14	 
-inode_cache         280   14	   252   15     
+> On Thursday 01 January 1970 01:00, Sergey Vlasov wrote:
+> > Currently CONFIG_REORDER uses -ffunction-sections for all code;
+> > however, creating a separate section for each function is not useful
+> > for modules and just adds bloat.=20
+>=20
+> You mean the ELF files are larger?
 
-By going from 280 to 252 bytes, we've achieved a net savings of 10% on
-struct inode, which is definitely not bad.  Is there more work to be
-done?  Sure.  But we need to take the first step.
+Yes, and all these sections are then reported in sysfs (BTW, what programs
+really use /sys/module/*/sections/* files?).
 
-						- Ted
+> .text/.data size shouldn't > change in theory.
 
+Actually, it does change by a small amount for some reason - even
+increases by about 100 bytes in some cases; however, I suppose that the
+size reported by /proc/modules and lsmod is more important, and it
+decreases:
+
+before:
+ext3                  138896  4=20
+jbd                    58152  1 ext3
+mbcache                10248  1 ext3
+sata_nv                11140  13=20
+libata                 75928  1 sata_nv
+sd_mod                 21912  6=20
+scsi_mod              155824  3 usb_storage,libata,sd_mod
+ide_disk               17536  0=20
+ide_generic             1664  0 [permanent]
+amd74xx                15280  0 [permanent]
+generic                 5892  0 [permanent]
+ide_core              150624  6 ide_cd,usb_storage,ide_disk,ide_generic,amd=
+74xx,generic
+
+after:
+ext3                  129040  4=20
+jbd                    53672  1 ext3
+mbcache                 9608  1 ext3
+sata_nv                10756  13=20
+libata                 69784  1 sata_nv
+sd_mod                 20760  6=20
+scsi_mod              145200  3 usb_storage,libata,sd_mod
+ide_disk               16384  0=20
+ide_generic             1664  0 [permanent]
+amd74xx                14896  0 [permanent]
+generic                 5764  0 [permanent]
+ide_core              140768  6 ide_cd,usb_storage,ide_disk,ide_generic,amd=
+74xx,generic
+
+--eJnRUKwClWJh1Khz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFEmXkOW82GfkQfsqIRAqRLAJ4rxkZ+5+H6HAN1UeIRke2JzHMlLACfT4qE
+p6WE33TGg+wYC+SZCm5sdnE=
+=7hRF
+-----END PGP SIGNATURE-----
+
+--eJnRUKwClWJh1Khz--

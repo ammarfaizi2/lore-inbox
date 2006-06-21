@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWFUQeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWFUQfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWFUQeN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 12:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWFUQeN
+	id S932238AbWFUQfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 12:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWFUQfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 12:34:13 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:63662 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932234AbWFUQeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 12:34:12 -0400
-Date: Wed, 21 Jun 2006 18:34:10 +0200
-From: Andreas Mohr <andim2@users.sourceforge.net>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, andi@lisas.de,
-       Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+	Wed, 21 Jun 2006 12:35:09 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:60040 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932240AbWFUQfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 12:35:07 -0400
+Date: Wed, 21 Jun 2006 13:35:00 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: rmk+lkml@arm.linux.org.uk, gregkh@suse.de, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       hal@lists.freedesktop.org
-Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner underruns, USB HDD hard resets)
-Message-ID: <20060621163410.GA22736@rhlx01.fht-esslingen.de>
-Reply-To: andi@lisas.de
-References: <6pnj7-32Q-7@gated-at.bofh.it> <6pJWg-34g-5@gated-at.bofh.it> <6pKfL-3sx-29@gated-at.bofh.it> <6pKpl-3Sx-23@gated-at.bofh.it> <6pLll-5iq-15@gated-at.bofh.it> <E1FsqGX-0001eu-AT@be1.lrz> <1150887236.15275.37.camel@localhost.localdomain> <Pine.LNX.4.58.0606211802590.3817@be1.lrz>
+       zaitcev@redhat.com
+Subject: Re: Serial-Core: USB-Serial port current issues.
+Message-ID: <20060621133500.18e82511@doriath.conectiva>
+In-Reply-To: <20060620193233.15224308.zaitcev@redhat.com>
+References: <20060613192829.3f4b7c34@home.brethil>
+	<20060614152809.GA17432@flint.arm.linux.org.uk>
+	<20060620161134.20c1316e@doriath.conectiva>
+	<20060620193233.15224308.zaitcev@redhat.com>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.9.3; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0606211802590.3817@be1.lrz>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 20 Jun 2006 19:32:33 -0700
+Pete Zaitcev <zaitcev@redhat.com> wrote:
 
-On Wed, Jun 21, 2006 at 06:16:03PM +0200, Bodo Eggert wrote:
-> On Wed, 21 Jun 2006, Alan Cox wrote:
-> > Ar Mer, 2006-06-21 am 02:07 +0200, ysgrifennodd Bodo Eggert:
-> 
-> > > This does not work, since O_EXCL does not work:
-> > > http://lkml.org/lkml/2006/2/5/137
-> > 
-> > It works fine. Its an advisory exclusive locking scheme which is
-> > precisely what is needed and precisely how some vendors implement their
-> > solution.
-> 
-> This will be as effective as "/var/lock/please-don't-touch-the-burner",
-> and the lock is more portable ...
+| On Tue, 20 Jun 2006 16:11:34 -0300, "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> wrote:
+| 
+| >  Pete, was it your original idea to completely move from the spinlock
+| > to a mutex?
+| 
+| I thought it was the cleanest solution. But perhaps I miss something.
+| I'll look at your reposted patch again, maybe it's all right as it is.
 
-Indeed, until all(!) relevant apps specify the cooperative O_EXCL flag,
-there will always be some trouble left somewhere...
-And of course don't even dare trying to do a simply shell cat on the raw
-I/O device during an ongoing burning operation, will you!?
+ Actually, that's the best solution from the USB-Serial's POV.
 
-Maybe it's better to (additionally?) go down the route of fixing up
-low-level communication weaknesses (since it's been semi-confirmed that it's
-an USB communication issue, see other thread part).
-IMHO this is a severe user experience issue that shouldn't be fixed up
-("covered", "hidden") by the O_EXCL thingy alone.
+ The problem is that several serial drivers uses the uart_port's
+spinlock to implement their own locking, and some of them acquires the
+lock in its interrupt handler...
 
-Andreas Mohr
+ Sh*t.
+
+-- 
+Luiz Fernando N. Capitulino

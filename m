@@ -1,73 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWFUXaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWFUXfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751521AbWFUXaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 19:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWFUXaF
+	id S932107AbWFUXfh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 19:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWFUXfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 19:30:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:56239 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751521AbWFUXaD (ORCPT
+	Wed, 21 Jun 2006 19:35:37 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9159 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932107AbWFUXfg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 19:30:03 -0400
-From: Andi Kleen <ak@suse.de>
-To: rohitseth@google.com
-Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
-Date: Thu, 22 Jun 2006 01:29:47 +0200
-User-Agent: KMail/1.9.3
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-References: <200606210329_MC3-1-C305-E008@compuserve.com> <200606220105.18512.ak@suse.de> <1150931922.6885.72.camel@galaxy.corp.google.com>
-In-Reply-To: <1150931922.6885.72.camel@galaxy.corp.google.com>
+	Wed, 21 Jun 2006 19:35:36 -0400
+Message-ID: <4499D7CD.1020303@engr.sgi.com>
+Date: Wed, 21 Jun 2006 16:35:41 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060411
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, csturtiv@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch][RFC]  Disabling per-tgid stats on task exit in taskstats
+References: <44892610.6040001@watson.ibm.com>	<20060609010057.e454a14f.akpm@osdl.org>	<448952C2.1060708@in.ibm.com> <20060609042129.ae97018c.akpm@osdl.org> <4489EE7C.3080007@watson.ibm.com> <449999D1.7000403@engr.sgi.com> <44999A98.8030406@engr.sgi.com> <44999F5A.2080809@watson.ibm.com>
+In-Reply-To: <44999F5A.2080809@watson.ibm.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200606220129.47546.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 June 2006 01:18, Rohit Seth wrote:
-> On Thu, 2006-06-22 at 01:05 +0200, Andi Kleen wrote:
-> > On Thursday 22 June 2006 00:59, Rohit Seth wrote:
-> 
-> > > I was thinking of storing it is base address part of the descriptor and
-> > > then using the memory load to read it in vsyscall.  (Keeping the p bit
-> > > to zero in the descriptor).
-> > 
-> > I'm still not sure where and for what you want to use this. In user space 
-> > or in kernel space? And what information should be stored in there?
-> > 
-> 
-> Store the kernel virtual pointer in gdt to access pda in (proposed)
-> vgetcpu in vsyscall. 
-> Using this pointer we can easily reach the cpu and 
-> node numbers and any other information that is there in pda.  For the
-> cpu and node numbers this will get rid of the need to do a serializing
-> operation cpuid.
-> 
-> Does it make any sense?
 
-Ok to spell it out (please correct me if I misinterpreted you). You want to:
+>>> System: SGI a350, a two cpus IA64 machine.
+>>> Kernel:  2.6.17-rc3 + delay-acct-taskstats patch set
+>>>      + tgid-disable_patch_shailabh + exit race patch_balbir +
+>>> csa_patch_jlan
+>>>
+>>> I also modified the Decumentation/accounting/getdelay.c:
+>>>  - it repeatedly does recv() to retrieve data from kernel
+>>>  - instead of using printf() to display data received, i simply write
+>>> it to
+>>>    disk as it would be for an accounting daemon. Note that currently
+>>> both the
+>>>    BSD (or GNU) accounting and the CSA writes accounting data from
+>>> kernel.
+>>>    As an effort of moving accounting system to userspace, the raw data
+>>> needs
+>>>    to be written to a raw file first before further processing.
+>>>   
+> In exit_recv.c, you appear to be dumping the per-tgid data  received
+> to disk too ?
+> If the accounting daemon isn't interested in per-tgid, shouldn't it be
+> discarding the data immediately after
+> doing the recv() and only write to disk the data it wants ?
+> Perhaps I'm missing something.
+>
+I modified my exit_recv.c so that
+1) i can totally skip data marked  TASKSTATS_TYPE_AGGR_TGID
+2) i can optinally drop data after receipt without writing to disk
 
-- Split PDA into kernel part and user exportable part
-- Export user exportable part to ring 3
-- Put base address of user exportable part into GDT
-- Access it using that.
+The first case produced a system time of 1.34 second and the second
+case produced a system time of 1.25 sec.  Big improvement over 1.74
+sec, but still too high compared to 0.34 sec when we disable tgid
+completely.
 
-I don't think it can work because the GDT only supports 32bit
-base addresses for code/data segments in long mode and you can't put
-a kernel virtual address into 32bit (only user space there) 
+Shailabh and me now eye on the lock patch that fixed an exit race
+crash i reported. The global lock was held too long in scanning threads.
+Shailabh is working on a new patch.
 
-And you can't get at at the base address anyways because they
-are ignored in long mode (except for fs/gs). For fs/gs you would
-need to save/restore them to reuse them which would be slow.
+- jay
 
-You can't also just put them into fs/gs because those are
-already reserved for user space.
-
-Also I don't know what other information other than cpu/node 
-would be useful, so just using the 20 bits of limit seems plenty to me.
-
--Andi

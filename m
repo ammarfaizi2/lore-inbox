@@ -1,69 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751611AbWFUO3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbWFUObD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751611AbWFUO3p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751587AbWFUO0f
+	id S1751634AbWFUObD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWFUOa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:26:35 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:61856 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S1751600AbWFUO0P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:26:15 -0400
-From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH 12/21] [MMC] Check only relevant inhibit bits
-Date: Wed, 21 Jun 2006 16:26:15 +0200
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>
-To: rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060621142615.8857.43426.stgit@poseidon.drzeus.cx>
-In-Reply-To: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
-References: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
+	Wed, 21 Jun 2006 10:30:59 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:37030
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751628AbWFUOao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 10:30:44 -0400
+Subject: [PATCH] add synclink_gt crc return feature
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 09:30:29 -0500
+Message-Id: <1150900229.3708.5.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Conform to the sdhci specification as to which inhibit bits should be
-checked at different times.
+Add ability to return HDLC CRC to user application.
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
- drivers/mmc/sdhci.c |   16 +++++++++++++---
- 1 files changed, 13 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
-index 919d60f..41addde 100644
---- a/drivers/mmc/sdhci.c
-+++ b/drivers/mmc/sdhci.c
-@@ -465,6 +465,7 @@ static void sdhci_finish_data(struct sdh
- static void sdhci_send_command(struct sdhci_host *host, struct mmc_command *cmd)
+--- a/drivers/char/synclink_gt.c	2006-06-21 09:04:11.000000000 -0500
++++ b/drivers/char/synclink_gt.c	2006-06-21 09:20:49.000000000 -0500
+@@ -3076,7 +3076,7 @@ static int block_til_ready(struct tty_st
+ 
+ static int alloc_tmp_rbuf(struct slgt_info *info)
  {
- 	int flags;
-+	u32 mask;
- 	unsigned long timeout;
+-	info->tmp_rbuf = kmalloc(info->max_frame_size, GFP_KERNEL);
++	info->tmp_rbuf = kmalloc(info->max_frame_size + 5, GFP_KERNEL);
+ 	if (info->tmp_rbuf == NULL)
+ 		return -ENOMEM;
+ 	return 0;
+@@ -4012,7 +4012,7 @@ static void hdlc_mode(struct slgt_info *
+ 	case HDLC_ENCODING_DIFF_BIPHASE_LEVEL: val |= BIT12 + BIT11 + BIT10; break;
+ 	}
  
- 	WARN_ON(host->cmd);
-@@ -473,11 +474,20 @@ static void sdhci_send_command(struct sd
+-	switch (info->params.crc_type)
++	switch (info->params.crc_type & HDLC_CRC_MASK)
+ 	{
+ 	case HDLC_CRC_16_CCITT: val |= BIT9; break;
+ 	case HDLC_CRC_32_CCITT: val |= BIT9 + BIT8; break;
+@@ -4073,7 +4073,7 @@ static void hdlc_mode(struct slgt_info *
+ 	case HDLC_ENCODING_DIFF_BIPHASE_LEVEL: val |= BIT12 + BIT11 + BIT10; break;
+ 	}
  
- 	/* Wait max 10 ms */
- 	timeout = 10;
--	while (readl(host->ioaddr + SDHCI_PRESENT_STATE) &
--		(SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT)) {
+-	switch (info->params.crc_type)
++	switch (info->params.crc_type & HDLC_CRC_MASK)
+ 	{
+ 	case HDLC_CRC_16_CCITT: val |= BIT9; break;
+ 	case HDLC_CRC_32_CCITT: val |= BIT9 + BIT8; break;
+@@ -4313,6 +4313,12 @@ static int rx_get_frame(struct slgt_info
+ 	unsigned long flags;
+ 	struct tty_struct *tty = info->tty;
+ 	unsigned char addr_field = 0xff;
++	unsigned int crc_size = 0;
 +
-+	mask = SDHCI_CMD_INHIBIT;
-+	if ((cmd->data != NULL) || (cmd->flags & MMC_RSP_BUSY))
-+		mask |= SDHCI_DATA_INHIBIT;
++	switch (info->params.crc_type & HDLC_CRC_MASK) {
++	case HDLC_CRC_16_CCITT: crc_size = 2; break;
++	case HDLC_CRC_32_CCITT: crc_size = 4; break;
++	}
+ 
+ check_again:
+ 
+@@ -4357,7 +4363,7 @@ check_again:
+ 	status = desc_status(info->rbufs[end]);
+ 
+ 	/* ignore CRC bit if not using CRC (bit is undefined) */
+-	if (info->params.crc_type == HDLC_CRC_NONE)
++	if ((info->params.crc_type & HDLC_CRC_MASK) == HDLC_CRC_NONE)
+ 		status &= ~BIT1;
+ 
+ 	if (framesize == 0 ||
+@@ -4366,34 +4372,34 @@ check_again:
+ 		goto check_again;
+ 	}
+ 
+-	if (framesize < 2 || status & (BIT1+BIT0)) {
+-		if (framesize < 2 || (status & BIT0))
+-			info->icount.rxshort++;
+-		else
+-			info->icount.rxcrc++;
++	if (framesize < (2 + crc_size) || status & BIT0) {
++		info->icount.rxshort++;
+ 		framesize = 0;
++	} else if (status & BIT1) {
++		info->icount.rxcrc++;
++		if (!(info->params.crc_type & HDLC_CRC_RETURN_EX))
++			framesize = 0;
++	}
+ 
+ #ifdef CONFIG_HDLC
+-		{
+-			struct net_device_stats *stats = hdlc_stats(info->netdev);
+-			stats->rx_errors++;
+-			stats->rx_frame_errors++;
+-		}
+-#endif
+-	} else {
+-		/* adjust frame size for CRC, if any */
+-		if (info->params.crc_type == HDLC_CRC_16_CCITT)
+-			framesize -= 2;
+-		else if (info->params.crc_type == HDLC_CRC_32_CCITT)
+-			framesize -= 4;
++	if (framesize == 0) {
++		struct net_device_stats *stats = hdlc_stats(info->netdev);
++		stats->rx_errors++;
++		stats->rx_frame_errors++;
+ 	}
++#endif
+ 
+ 	DBGBH(("%s rx frame status=%04X size=%d\n",
+ 		info->device_name, status, framesize));
+ 	DBGDATA(info, info->rbufs[start].buf, min_t(int, framesize, DMABUFSIZE), "rx");
+ 
+ 	if (framesize) {
+-		if (framesize > info->max_frame_size)
++		if (!(info->params.crc_type & HDLC_CRC_RETURN_EX)) {
++			framesize -= crc_size;
++			crc_size = 0;
++		}
 +
-+	/* We shouldn't wait for data inihibit for stop commands, even
-+	   though they might use busy signaling */
-+	if (host->mrq->data && (cmd == host->mrq->data->stop))
-+		mask &= ~SDHCI_DATA_INHIBIT;
++		if (framesize > info->max_frame_size + crc_size)
+ 			info->icount.rxlong++;
+ 		else {
+ 			/* copy dma buffer(s) to contiguous temp buffer */
+@@ -4413,6 +4419,11 @@ check_again:
+ 					i = 0;
+ 			}
+ 
++			if (info->params.crc_type & HDLC_CRC_RETURN_EX) {
++				*p = (status & BIT1) ? RX_CRC_ERROR : RX_OK;
++				framesize++;
++			}
 +
-+	while (readl(host->ioaddr + SDHCI_PRESENT_STATE) & mask) {
- 		if (timeout == 0) {
- 			printk(KERN_ERR "%s: Controller never released "
--				"inhibit bits. Please report this to "
-+				"inhibit bit(s). Please report this to "
- 				BUGMAIL ".\n", mmc_hostname(host->mmc));
- 			sdhci_dumpregs(host);
- 			cmd->error = MMC_ERR_FAILED;
+ #ifdef CONFIG_HDLC
+ 			if (info->netcount)
+ 				hdlcdev_rx(info,info->tmp_rbuf, framesize);
+
 

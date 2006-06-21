@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWFUACI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWFUAHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWFUACI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 20:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWFUACI
+	id S1751383AbWFUAHi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 20:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWFUAHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 20:02:08 -0400
-Received: from xenotime.net ([66.160.160.81]:15752 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750824AbWFUACH (ORCPT
+	Tue, 20 Jun 2006 20:07:38 -0400
+Received: from xenotime.net ([66.160.160.81]:49034 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751383AbWFUAHh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 20:02:07 -0400
-Date: Tue, 20 Jun 2006 17:04:50 -0700
+	Tue, 20 Jun 2006 20:07:37 -0400
+Date: Tue, 20 Jun 2006 17:10:20 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Masatake YAMATO <jet@gyve.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sharing maximum errno symbol used in __syscall_return
- (i386)
-Message-Id: <20060620170450.e2fd1e02.rdunlap@xenotime.net>
-In-Reply-To: <20060620.184010.225581173.jet@gyve.org>
-References: <20060620.184010.225581173.jet@gyve.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Christian.Limpach@cl.cam.ac.uk, chrisw@sous-sol.org
+Subject: Re: [PATCH] Implement kasprintf
+Message-Id: <20060620171020.301add23.rdunlap@xenotime.net>
+In-Reply-To: <44988B5C.9080400@goop.org>
+References: <44988B5C.9080400@goop.org>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -26,121 +26,115 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jun 2006 18:40:10 +0900 (JST) Masatake YAMATO wrote:
+On Tue, 20 Jun 2006 16:57:16 -0700 Jeremy Fitzhardinge wrote:
 
-> Hi,
+> From: Jeremy Fitzhardinge <jeremy@xensource.com>
 > 
-> __syscall_return in unistd.h is maintained?
+> Implement kasprintf, a kernel version of asprintf.  This allocates the
+> memory required for the formatted string, including the trailing '\0'.
+> Returns NULL on allocation failure.
 > 
-> In the macro the value returned from system call is
-> compared with the maximum error number defined in a header file 
-> to know the call is successful or not. However, the maximum error number 
-> is hard-coded and is not updated.
+> Requires vsnprintf to accept a NULL buffer when the buffer size is 0.
+> 
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> 
+> ---
+>  include/linux/kernel.h |    2 +
+>  lib/Makefile           |    2 -
+>  lib/kasprintf.c        |   54 ++++++++++++++++++++++++++++++++++++++++++++++++
 
-Ack, this certainly needs some care & fixing.
+Hi,
+<nit>
 
-> Here is an example(i386):
-> 
->  /*
->   * user-visible error numbers are in the range -1 - -128: see
->   * <asm-i386/errno.h>
->   */
->  #define __syscall_return(type, res) \
->  do { \
-> 	if ((unsigned long)(res) >= (unsigned long)(-(128 + 1))) { \
->  		errno = -(res); \
->  		res = -1; \
->  	} \
-> 
-> The comment says the maximum errno is 128.
-> However, the actual C code says 128 + 1. What does "+ 1" mean?
-
-I don't understand the -1 either.  A few asm-*/unistd.h files
-use that, but most of them do not.
+Why do we want a separate source file for this one function?
 
 
-> Look at <asm-i386/errno.h>:
-> 
->     #ifndef _I386_ERRNO_H
->     #define _I386_ERRNO_H
-> 
->     #include <asm-generic/errno.h>
-> 
->     #endif
-> 
-> The look at <asm-generic/errno.h>:
-> 
->     #define	EKEYREVOKED	128	/* Key has been revoked */
->     #define	EKEYREJECTED	129	/* Key was rejected by service */
-> 
->     /* for robust mutexes */
->     #define	EOWNERDEAD	130	/* Owner died */
->     #define	ENOTRECOVERABLE	131	/* State not recoverable */
-> 
-> Here the maximum errno is 131. 
+>  3 files changed, 57 insertions(+), 1 deletion(-)
 > 
 > 
-> In many architectures, <asm-foo/errno.h> just includes 
-> <asm-generic/errno.h>. So I think <asm-generic/errno.h> should
-> exports the real maximum errno and the other headers can
-> use it. So in many cases, we can just maintain
-> the real maximum errno in <asm-generic/errno.h>.
-> 
-> Here is the patch for i386. If this patch is approved, I will write
-> patches for the other architectures. (However, it may be better to be
-> done by each architecture's maintainer.)
-
-I like the patch.
-
-> Signed-off-by: Masatake YAMATO <jet@gyve.org>
-> 
-> diff --git a/include/asm-generic/errno.h b/include/asm-generic/errno.h
-> index e8852c0..4e1238e 100644
-> --- a/include/asm-generic/errno.h
-> +++ b/include/asm-generic/errno.h
-> @@ -106,4 +106,8 @@ #define	EKEYREJECTED	129	/* Key was reje
->  #define	EOWNERDEAD	130	/* Owner died */
->  #define	ENOTRECOVERABLE	131	/* State not recoverable */
+> diff -r c175fd50e604 include/linux/kernel.h
+> --- a/include/linux/kernel.h	Tue Jun 20 16:47:53 2006 -0700
+> +++ b/include/linux/kernel.h	Tue Jun 20 16:53:19 2006 -0700
+> @@ -114,6 +114,8 @@ extern int scnprintf(char * buf, size_t 
+>  	__attribute__ ((format (printf, 3, 4)));
+>  extern int vscnprintf(char *buf, size_t size, const char *fmt, va_list args)
+>  	__attribute__ ((format (printf, 3, 0)));
+> +extern char *kasprintf(gfp_t gfp, const char *fmt, ...)
+> +	__attribute__ ((format (printf, 2, 3)));
 >  
-> +/* 
-> + * If you add a new error, Don't forget to update `GENERIC_ERRNO_MAX' 
+>  extern int sscanf(const char *, const char *, ...)
+>  	__attribute__ ((format (scanf, 2, 3)));
+> diff -r c175fd50e604 lib/Makefile
+> --- a/lib/Makefile	Tue Jun 20 16:47:53 2006 -0700
+> +++ b/lib/Makefile	Tue Jun 20 16:53:19 2006 -0700
+> @@ -5,7 +5,7 @@ lib-y := errno.o ctype.o string.o vsprin
+>  lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+>  	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+>  	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
+> -	 sha1.o
+> +	 sha1.o kasprintf.o
+>  
+>  lib-$(CONFIG_SMP) += cpumask.o
+>  
+> diff -r c175fd50e604 lib/kasprintf.c
+> --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
+> +++ b/lib/kasprintf.c	Tue Jun 20 16:53:19 2006 -0700
+> @@ -0,0 +1,54 @@
+> +/******************************************************************************
+> + * Simplified asprintf.
+> + *
+> + * Copyright (C) 2006 XenSource Ltd
+> + * 
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License version 2
+> + * as published by the Free Software Foundation; or, when distributed
+> + * separately from the Linux kernel or incorporated into other
+> + * software packages, subject to the following license:
+> + * 
+> + * Permission is hereby granted, free of charge, to any person obtaining a copy
+> + * of this source file (the "Software"), to deal in the Software without
+> + * restriction, including without limitation the rights to use, copy, modify,
+> + * merge, publish, distribute, sublicense, and/or sell copies of the Software,
+> + * and to permit persons to whom the Software is furnished to do so, subject to
+> + * the following conditions:
+> + * 
+> + * The above copyright notice and this permission notice shall be included in
+> + * all copies or substantial portions of the Software.
+> + * 
+> + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> + * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> + * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> + * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> + * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+> + * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+> + * IN THE SOFTWARE.
 > + */
-> +#define GENERIC_ERRNO_MAX ENOTRECOVERABLE
->  #endif
-> diff --git a/include/asm-i386/errno.h b/include/asm-i386/errno.h
-> index 969b343..9892b2d 100644
-> --- a/include/asm-i386/errno.h
-> +++ b/include/asm-i386/errno.h
-> @@ -2,5 +2,5 @@ #ifndef _I386_ERRNO_H
->  #define _I386_ERRNO_H
->  
->  #include <asm-generic/errno.h>
-> -
-> +#define  i386_ERRNO_MAX GENERIC_ERRNO_MAX
->  #endif
-> diff --git a/include/asm-i386/unistd.h b/include/asm-i386/unistd.h
-> index eb4b152..f52ec68 100644
-> --- a/include/asm-i386/unistd.h
-> +++ b/include/asm-i386/unistd.h
-> @@ -326,12 +326,13 @@ #define __NR_vmsplice		316
->  #define NR_syscalls 317
->  
->  /*
-> - * user-visible error numbers are in the range -1 - -128: see
-> - * <asm-i386/errno.h>
-> + * user-visible error numbers are in the range -1 - -i386_ERRNO_MAX
->   */
-> +#include <asm-i386/errno.h>
 > +
->  #define __syscall_return(type, res) \
->  do { \
-> -	if ((unsigned long)(res) >= (unsigned long)(-(128 + 1))) { \
-> +	if ((unsigned long)(res) >= (unsigned long)(-(i386_ERRNO_MAX))) { \
->  		errno = -(res); \
->  		res = -1; \
->  	} \
-> -
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +
+> +/* Simplified asprintf. */
+> +char *kasprintf(gfp_t gfp, const char *fmt, ...)
+> +{
+> +	va_list ap;
+> +	unsigned int len;
+> +	char *p;
+> +
+> +	va_start(ap, fmt);
+> +	len = vsnprintf(NULL, 0, fmt, ap);
+> +	va_end(ap);
+> +
+> +	p = kmalloc(len+1, gfp);
+> +	if (!p)
+> +		return NULL;
+> +	va_start(ap, fmt);
+> +	vsnprintf(p, len+1, fmt, ap);
+> +	va_end(ap);
+> +	return p;
+> +}
+> +EXPORT_SYMBOL(kasprintf);
 
-Thanks.
 ---
 ~Randy

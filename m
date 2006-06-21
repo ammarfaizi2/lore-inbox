@@ -1,34 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWFUNKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbWFUNMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751568AbWFUNKt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 09:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751570AbWFUNKs
+	id S1751569AbWFUNMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 09:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751572AbWFUNMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 09:10:48 -0400
-Received: from main.gmane.org ([80.91.229.2]:57304 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751566AbWFUNKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 09:10:48 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ilya Yanok <ilya.yanok@gmail.com>
-Subject: [RFC] usb gadget connect/disconnect events
-Date: Wed, 21 Jun 2006 13:07:34 +0000 (UTC)
-Message-ID: <loom.20060621T150420-92@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 81.23.122.40 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050517 Firefox/1.0.4 (Debian package 1.0.4-2))
+	Wed, 21 Jun 2006 09:12:17 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:64261 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751564AbWFUNMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 09:12:16 -0400
+Date: Wed, 21 Jun 2006 21:05:40 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: akpm@osdl.org, autofs@linux.kernel.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] autofs4 needs to force fail return revalidate
+In-Reply-To: <20060621122523.GX27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0606212103080.14481@raven.themaw.net>
+References: <200606210618.k5L6IFDr008176@raven.themaw.net>
+ <20060621122523.GX27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-2.599,
+	required 5, autolearn=not spam, BAYES_00 -2.60)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I need to get usb device connect/disconnect events in user space. What should I
-use? hotplug? kobject/uevent? And there is the right place to add this stuff?
+On Wed, 21 Jun 2006, Al Viro wrote:
 
-Thanks in advance,
-                  Ilya.
+> On Wed, Jun 21, 2006 at 02:18:15PM +0800, Ian Kent wrote:
+> > While this problem has been present for a long time I've avoided resolving 
+> > it because it was not very visible. But now that autofs v5 has "mount and 
+> > expire on demand" of nested multiple mounts, such as is found when 
+> > mounting an export list from a server, solving the problem cannot be 
+> > avoided any longer.
+> > 
+> > I've tried very hard to find a way to do this entirely within the 
+> > autofs4 module but have not been able to find a satisfactory way to 
+> > achieve it.
+> > 
+> > So, I need to propose a change to the VFS.
+> 
+> NAK in that form.  Care to explain what should happen to mount tree
+> when you do that to mountpoint?
+> 
+
+The flag is never set if it a mount succeeds so there's never a tree under 
+it. But that's only my usage, so point taken.
+
+Thinking about it that's not the only potential problem either.
+
+Ian
 

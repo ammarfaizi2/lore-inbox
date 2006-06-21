@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751872AbWFUAPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751873AbWFUAWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751872AbWFUAPw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 20:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWFUAPw
+	id S1751873AbWFUAWs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 20:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751874AbWFUAWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 20:15:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20352 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751175AbWFUAPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 20:15:51 -0400
-Date: Tue, 20 Jun 2006 17:18:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: <ravinandan.arakali@neterion.com>
-Cc: tglx@linutronix.de, dgc@sgi.com, mingo@elte.hu, neilb@suse.de,
-       jblunck@suse.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk,
-       balbir@in.ibm.com, ananda.raju@neterion.com,
-       leonid.grossman@neterion.com, jes@trained-monkey.org
-Subject: Re: [patch 0/5] [PATCH,RFC] vfs: per-superblock unused dentries
- list (2nd version)
-Message-Id: <20060620171831.32c9009a.akpm@osdl.org>
-In-Reply-To: <007601c694c5$359c4620$3e10100a@pc.s2io.com>
-References: <20060620151019.797f120c.akpm@osdl.org>
-	<007601c694c5$359c4620$3e10100a@pc.s2io.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 20 Jun 2006 20:22:48 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:58498 "EHLO
+	sequoia.sous-sol.org") by vger.kernel.org with ESMTP
+	id S1751873AbWFUAWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 20:22:47 -0400
+Date: Tue, 20 Jun 2006 17:22:07 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@sous-sol.org>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       jeremy@xensource.com
+Subject: Re: [PATCH 2.6.17] Clean up and refactor i386 sub-architecture setup
+Message-ID: <20060621002207.GM22737@sequoia.sous-sol.org>
+References: <44988803.5090305@goop.org> <44988E08.9070000@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44988E08.9070000@vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ravinandan Arakali" <ravinandan.arakali@neterion.com> wrote:
->
-> The formal submission will take some more time.
-> To boot your system, can you use the driver available on our website ?
+* Zachary Amsden (zach@vmware.com) wrote:
+> This looks awesome.   Are there any plans to get these sub-architectures 
+> to work with the generic subarch?  Seems the next logical step would be 
+> putting each mach-*/*.o into separated namespaces.
 
-Not really - it's not my system and I'd need to monkey around and generate
-a diff which I then cannot test.
+Well, to be honest, I had considered it in the 'would be nice someday'
+category, so I have not looked too deeply into how to get there from here.
+I think a distro kernel would ultimately like that though.
 
-
-The driver you have there (REL_2.0.14.5152_LX.tar.gz) doesn't actually
-appear to fix the bug:
-
-int s2io_open(struct net_device *dev)
-{
-	nic_t *sp = dev->priv;
-	int err = 0;
-
-	/*
-	 * Make sure you have link off by default every time
-	 * Nic is initialized
-	 */
-	netif_carrier_off(dev);
-	sp->last_link_state = 0;
-
-	/* Initialize H/W and enable interrupts */
-	err = s2io_card_up(sp);
-	if (err) {
-		DBG_PRINT(ERR_DBG, "%s: H/W initialization failed\n",
-			  dev->name);
-		if (err == -ENODEV)
-			goto hw_init_failed;
-		else
-			goto hw_enable_failed;
-	}
-
-#ifdef CONFIG_PCI_MSI
-	/* Store the values of the MSIX table in the nic_t structure */
-	store_xmsi_data(sp);
-
-	/* After proper initialization of H/W, register ISR */
-	if (sp->intr_type == MSI) {
-		err = request_irq((int) sp->pdev->irq, s2io_msi_handle,
-			SA_SHIRQ, sp->name, dev);
-
-
-It's still calling request_irq() _after_ "enable interrupts".
+thanks,
+-chris

@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWFUL51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWFUL6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWFUL51 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 07:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWFUL51
+	id S1751505AbWFUL6o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 07:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWFUL6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 07:57:27 -0400
-Received: from iona.labri.fr ([147.210.8.143]:3261 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S1751206AbWFUL51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 07:57:27 -0400
-Date: Wed, 21 Jun 2006 13:57:24 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: emergency or init=/bin/sh mode and terminal signals
-Message-ID: <20060621115723.GF4336@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
-	linux-kernel@vger.kernel.org
-References: <20060618212303.GD4744@bouh.residence.ens-lyon.fr> <Pine.LNX.4.61.0606190730070.27378@chaos.analogic.com> <20060619114617.GM4253@implementation.labri.fr> <Pine.LNX.4.61.0606210745550.4244@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 21 Jun 2006 07:58:43 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:40369 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id S1751505AbWFUL6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 07:58:43 -0400
+Date: Wed, 21 Jun 2006 07:58:17 -0400
+From: Kyle McMartin <kyle@parisc-linux.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kyle McMartin <kyle@parisc-linux.org>, jeremy@goop.org,
+       linux-kernel@vger.kernel.org, Christian.Limpach@cl.cam.ac.uk,
+       chrisw@sous-sol.org
+Subject: Re: [PATCH] Implement kasprintf
+Message-ID: <20060621115817.GA3948@tachyon.int.mcmartin.ca>
+References: <44988B5C.9080400@goop.org> <20060621030444.GG20625@skunkworks.cabal.ca> <20060620202617.f39d7ca6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0606210745550.4244@chaos.analogic.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060620202617.f39d7ca6.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson), le Wed 21 Jun 2006 07:53:12 -0400, a écrit :
+On Tue, Jun 20, 2006 at 08:26:17PM -0700, Andrew Morton wrote:
 > 
-> On Mon, 19 Jun 2006, Samuel Thibault wrote:
+> asprintf() doesn't take a gfp_t arg.
 > 
-> > linux-os (Dick Johnson), le Mon 19 Jun 2006 07:37:02 -0400, a écrit :
-> >> I don't think this is the correct behavior. You can't allow some
-> >> terminal input to affect init. It has been the de facto standard
-> >> in Unix, that the only time one should have a controlling terminal
-> >> is after somebody logs in and owns something to control. If you want
-> >> a controlling terminal from your emergency shell, please exec /bin/login.
-> >
-> > Ok, but people don't know that: they're given a shell, and wonder why on
-> > hell ^C doesn't work...
-> >
-> > Samuel
-> 
-> Attached is a simple program called shell.
 
-I already know how to write this.
+Good point. :)
 
-The problem is not for _me_, it is for all these people that use
-init=/bin/sh, and wonder why ^C doesn't work. Finding documentation on
-such issue is not easy, so they'll most probably _not_ find out that
-they need to use /sbin/sulogin, /bin/login, or even dig the linux-kernel
-archives for your program. That's why I'm raising the issue at the
-kernel level.
-
-Samuel
+Cheers,
+	Kyle

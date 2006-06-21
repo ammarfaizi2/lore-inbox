@@ -1,61 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWFUHiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWFUHqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWFUHiu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 03:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWFUHit
+	id S1751115AbWFUHqe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 03:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWFUHqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 03:38:49 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:37017 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932473AbWFUHit (ORCPT
+	Wed, 21 Jun 2006 03:46:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30355 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751115AbWFUHqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 03:38:49 -0400
-Message-ID: <4498F760.6070709@de.ibm.com>
-Date: Wed, 21 Jun 2006 09:38:08 +0200
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: carsteno@de.ibm.com
-Organization: IBM Deutschland
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: Jes Sorensen <jes@sgi.com>, Robin Holt <holt@sgi.com>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       bjorn_helgaas@hp.com
-Subject: Re: [patch] do_no_pfn
-References: <yq0psh5zenq.fsf@jaguar.mkp.net> <20060619224952.GA17685@lnx-holt.americas.sgi.com> <4497AB46.4000402@sgi.com> <200606201003.52307.bjorn.helgaas@hp.com>
-In-Reply-To: <200606201003.52307.bjorn.helgaas@hp.com>
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 21 Jun 2006 03:46:33 -0400
+Date: Wed, 21 Jun 2006 00:46:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc[56]-mm*: pcmcia "I/O resource not free"
+Message-Id: <20060621004630.bb5eb68a.akpm@osdl.org>
+In-Reply-To: <20060621065036.GR2038@hexapodia.org>
+References: <20060615162859.GA1520@hexapodia.org>
+	<20060617100327.e752b89a.akpm@osdl.org>
+	<20060620211723.GA28016@hexapodia.org>
+	<20060620150317.746372c5.akpm@osdl.org>
+	<20060621065036.GR2038@hexapodia.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
-> I do have a case where I used pages without struct pages, but
-> I don't really like the implementation, and I'd love to have
-> someone who knows about VM tell me "no, dummy, you should do it
-> this way instead."
-> 
-> Here's the scenario:  I'm trying to implement
-> /sys/class/pci_bus/DDDD:BB/legacy_mem so we can run X servers
-> on multiple VGA cards.  The chipset (used in HP parisc and ia64
-> boxes) supports multiple PCI root bridges, and it routes the
-> VGA legacy MMIO space at 0xA0000-0xBFFFF to one of them.
-> 
-> This region is MMIO, so there are no struct pages for it.  I can
-> easily mmap the space for the first VGA device.  But to support
-> a second device, I have to be able to invalidate the mappings
-> for the first device, twiddle stuff in the chipset, and make new
-> mappings for the second device.  And of course I have to do the
-> reverse (invalidate mappings of second device, twiddle chipset,
-> map first device) when the first X server faults on the frame
-> buffer.
-> 
-> Basically, only one of the /sys/class/pci_bus/DDDD:BB/legacy_mem
-> files can have an active mmap at a time, and I haven't figured
-> out a good way to do the mutual exclusion.
-Probably you can just nuke the pte's similar to __xip_unmap() in
-mm/filemap_xip.c.
+On Tue, 20 Jun 2006 23:50:36 -0700
+Andy Isaacson <adi@hexapodia.org> wrote:
 
-cheers,
-Carsten
+> On Tue, Jun 20, 2006 at 03:03:17PM -0700, Andrew Morton wrote:
+> > It's strange (to me) that IDE is requesting a single-byte memory region. 
+> > Possibly we've broken the resource.c code such that it has some off-by-one
+> > and is now rejecting single-byte requests.
+> [snip]
+> > +++ a/kernel/resource.c
+> > +			printk("conflict: %s[%Lx->%Lx]\n",
+> [snip]
+> > Then again, perhaps IDE is broken (as well?), because you don't have any
+> > single-byte iomem regions in your 2.6.17-rc6 /proc/iomem.  It would be
+> > interesting to run this patch in both 2.6.17-rc6 and in 2.6.17-rc6-mm2, see
+> > what it says:
+> [snip]
+> > +++ 25-akpm/drivers/ide/ide.c	Tue Jun 20 15:02:15 2006
+> > +		printk("%s: single-byte request\n", __FUNCTION__);
+> > +		dump_stack();
+> 
+> With both patches, rc6-mm2 dumps the following.
+> 
+> [ 2034.052000] pccard: PCMCIA card inserted into slot 0
+> [ 2034.052000] cs: memory probe 0xf0000000-0xf7ffffff: excluding 0xf0000000-0xf7ffffff
+> [ 2034.052000] cs: memory probe 0xd0200000-0xdfffffff: excluding 0xd0200000-0xd11fffff 0xd1a00000-0xd41fffff 0xd4a00000-0xd51fffff 0xd5a00000-0xd61fffff 0xd6a00000-0xd71fffff 0xd7a00000-0xd81fffff 0xd8a00000-0xd91fffff 0xd9a00000-0xda1fffff 0xdaa00000-0xdb1fffff 0xdba00000-0xdc1fffff 0xdca00000-0xdd1fffff 0xdda00000-0xde1fffff 0xdea00000-0xdf1fffff 0xdfa00000-0xe01fffff
+> [ 2034.060000] pcmcia: registering new device pcmcia0.0
+> [ 2034.060000] PM: Adding info for pcmcia:0.0
+> [ 2035.976000] conflict: PCI IO[0->ffff]
+> [ 2035.976000] hwif_request_region: single-byte request for ide2
+> [ 2035.976000]  [<c0257386>] hwif_request_region+0xa6/0xb0
+> [ 2035.976000]  [<c02574bf>] ide_hwif_request_regions+0x12f/0x150
+> [ 2035.976000]  [<c0257177>] init_hwif_default+0x37/0x120
+> [ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
+> [ 2035.976000]  [<c025e8a9>] probe_hwif+0x29/0x4f0
+> [ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
+> [ 2035.976000]  [<c025ed85>] probe_hwif_init_with_fixup+0x15/0xa0
+> [ 2035.976000]  [<c0257ea5>] ide_register_hw_with_fixup+0x165/0x1b0
+> [ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
+> [ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
+> [ 2035.976000]  [<f8b07163>] idecs_register+0x83/0xd0 [ide_cs]
+> [ 2035.976000]  [<f8b070b0>] idecs_mmio_fixup+0x0/0x30 [ide_cs]
+> [ 2035.976000]  [<f8b071c0>] outb_mem+0x0/0x10 [ide_cs]
+> [ 2035.976000]  [<f8b075e4>] ide_config+0x414/0x790 [ide_cs]
+> [ 2035.976000]  [<f8b071c0>] outb_mem+0x0/0x10 [ide_cs]
+> [ 2035.976000]  [<f8b0f4c8>] pcmcia_device_probe+0xa8/0x160 [pcmcia]
+> [ 2035.976000]  [<c025104c>] driver_probe_device+0xbc/0xe0
+> [ 2035.976000]  [<c02510f0>] __driver_attach+0x0/0x80
+> [ 2035.976000]  [<c0251160>] __driver_attach+0x70/0x80
+> [ 2035.976000]  [<c0250369>] bus_for_each_dev+0x69/0x80
+> [ 2035.976000]  [<c0251195>] driver_attach+0x25/0x30
+> [ 2035.976000]  [<c02510f0>] __driver_attach+0x0/0x80
+> [ 2035.976000]  [<c0250968>] bus_add_driver+0x88/0xd0
+> [ 2035.976000]  [<f8b0b00f>] init_ide_cs+0xf/0x11 [ide_cs]
+> [ 2035.976000]  [<c0139f32>] sys_init_module+0xf2/0x190
+> [ 2035.976000]  [<c02e3105>] sysenter_past_esp+0x56/0x79
+> [ 2035.976000]  [<c02e007b>] inet6_lookup_listener+0x2b/0x100
+> [ 2035.976000] ide2: I/O resource 0xF8B0200E-0xF8B0200E not free.
+> [ 2035.976000] ide2: ports already in use, skipping probe
 
+hm.  It appears to have decided that 0 < 0xF8B0200E < 0xffff, which is
+clever of it.
+
+Does it help if you set CONFIG_RESOURCES_32BIT?

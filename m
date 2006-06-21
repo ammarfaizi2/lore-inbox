@@ -1,92 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWFUTwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWFUTwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWFUTwP (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030235AbWFUTwP (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 21 Jun 2006 15:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWFUTuL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbWFUTwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:50:11 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:16026 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030245AbWFUTth (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:49:37 -0400
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: David Brownell <david-b@pacbell.net>,
-       David Brownell <dbrownell@users.sourceforge.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 9/22] [PATCH] platform_bus learns about modalias
-Reply-To: Greg KH <greg@kroah.com>
-Date: Wed, 21 Jun 2006 12:45:52 -0700
-Message-Id: <1150919192294-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11509191893358-git-send-email-greg@kroah.com>
-References: <20060621194511.GA23982@kroah.com> <11509191652021-git-send-email-greg@kroah.com> <11509191682051-git-send-email-greg@kroah.com> <11509191721672-git-send-email-greg@kroah.com> <1150919175882-git-send-email-greg@kroah.com> <11509191781796-git-send-email-greg@kroah.com> <11509191812079-git-send-email-greg@kroah.com> <115091918546-git-send-email-greg@kroah.com> <11509191893358-git-send-email-greg@kroah.com>
+	Wed, 21 Jun 2006 15:52:10 -0400
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:29359 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1030233AbWFUTvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:51:49 -0400
+Date: Wed, 21 Jun 2006 15:51:45 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Christoph Lameter <clameter@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+       David Quigley <dpquigl@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [PATCH 2/3] SELinux: add security_task_setmempolicy hooks to mm
+ code
+In-Reply-To: <Pine.LNX.4.64.0606211230230.21024@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0606211544420.11782@d.namei>
+References: <Pine.LNX.4.64.0606211517170.11782@d.namei>
+ <Pine.LNX.4.64.0606211520540.11782@d.namei>
+ <Pine.LNX.4.64.0606211230230.21024@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Brownell <david-b@pacbell.net>
+On Wed, 21 Jun 2006, Christoph Lameter wrote:
 
-This patch adds modalias support to platform devices, for simpler
-hotplug/coldplug driven driver setup.
+> On Wed, 21 Jun 2006, James Morris wrote:
+> 
+> > From: David Quigley <dpquigl@tycho.nsa.gov>
+> > 
+> > This patch inserts the security hook calls into the setmempolicy function 
+> > to enable security modules to mediate this operation between tasks.
+> 
+> Setting a memory policy is different from migrating pages of an 
+> application. The migration function migrates a process, it does not set 
+> any memory policies. Cpuset may change memory policies of the tasks 
+> contained in it but sys_migrate_pages() cannot.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/base/platform.c |   33 +++++++++++++++++++++++++++++++++
- 1 files changed, 33 insertions(+), 0 deletions(-)
+I'll let David and/or Stephen address this in detail, but what's being 
+added here is a security asbtraction, where we consider these operations 
+to be equivalent from an access control point of view.  So, one task 
+causing another task's memory to be moved to another node is conisdered to 
+be "setting memory policy" at a conceptual level.  Perhaps we could change 
+the name of the hook to make that clearer (which you suggest below).
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 83f5c59..f807197 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -452,6 +452,37 @@ void platform_driver_unregister(struct p
- EXPORT_SYMBOL_GPL(platform_driver_unregister);
- 
- 
-+/* modalias support enables more hands-off userspace setup:
-+ * (a) environment variable lets new-style hotplug events work once system is
-+ *     fully running:  "modprobe $MODALIAS"
-+ * (b) sysfs attribute lets new-style coldplug recover from hotplug events
-+ *     mishandled before system is fully running:  "modprobe $(cat modalias)"
-+ */
-+static ssize_t
-+modalias_show(struct device *dev, struct device_attribute *a, char *buf)
-+{
-+	struct platform_device	*pdev = to_platform_device(dev);
-+	int len = snprintf(buf, PAGE_SIZE, "%s\n", pdev->name);
-+
-+	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
-+}
-+
-+static struct device_attribute platform_dev_attrs[] = {
-+	__ATTR_RO(modalias),
-+	__ATTR_NULL,
-+};
-+
-+static int platform_uevent(struct device *dev, char **envp, int num_envp,
-+		char *buffer, int buffer_size)
-+{
-+	struct platform_device	*pdev = to_platform_device(dev);
-+
-+	envp[0] = buffer;
-+	snprintf(buffer, buffer_size, "MODALIAS=%s", pdev->name);
-+	return 0;
-+}
-+
-+
- /**
-  *	platform_match - bind platform device to platform driver.
-  *	@dev:	device.
-@@ -496,7 +527,9 @@ static int platform_resume(struct device
- 
- struct bus_type platform_bus_type = {
- 	.name		= "platform",
-+	.dev_attrs	= platform_dev_attrs,
- 	.match		= platform_match,
-+	.uevent		= platform_uevent,
- 	.suspend	= platform_suspend,
- 	.resume		= platform_resume,
- };
+> We need a similar hook for the sys_move_pages() function call in mm right?
+
+Yes, the hook is also added to sys_move_pages() in the patch.
+
+> If this is a generic hook then I would suggest to have some hook that 
+> contains the term "memory placement" somewhere that would fit both system 
+> calls.
+> 
+
 -- 
-1.4.0
-
+James Morris
+<jmorris@namei.org>

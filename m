@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWFUOk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWFUOkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWFUOk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWFUOk2
+	id S932087AbWFUOkv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWFUOkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:40:28 -0400
-Received: from mail.gmx.de ([213.165.64.21]:43409 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932068AbWFUOk1 (ORCPT
+	Wed, 21 Jun 2006 10:40:51 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:37093 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932087AbWFUOkt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:40:27 -0400
-X-Authenticated: #704063
-Subject: [Patch] Array overrun in drivers/net/wireless/wavelan.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: jt@hpl.hp.com
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 16:40:24 +0200
-Message-Id: <1150900824.20915.11.camel@alice>
+	Wed, 21 Jun 2006 10:40:49 -0400
+Date: Wed, 21 Jun 2006 23:41:54 +0900 (JST)
+Message-Id: <20060621.234154.25912435.anemo@mba.ocn.ne.jp>
+To: nish.aravamudan@gmail.com
+Cc: linux-kernel@vger.kernel.org, rpurdie@rpsys.net, akpm@osdl.org
+Subject: Re: [PATCH] LED: add LED heartbeat trigger
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <29495f1d0606200954u3e81acb4w648d5c31e8daff3a@mail.gmail.com>
+References: <20060621.013603.132759710.anemo@mba.ocn.ne.jp>
+	<29495f1d0606200954u3e81acb4w648d5c31e8daff3a@mail.gmail.com>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Tue, 20 Jun 2006 09:54:59 -0700, "Nish Aravamudan" <nish.aravamudan@gmail.com> wrote:
+> Can these and the other HZ/100 users make use of the existing
+> *secs_to_jiffies() methods? FYI, if HZ=250, you're getting rounding
+> here, not sure if it's desired.
 
-this is another array overrun spotted by coverity (#id 507)
-we should check the index against array size before using it.
-Not sure why the driver doesnt use ARRAY_SIZE instead of its
-own macro.
+Thanks.  The msecs_to_jiffies makes code more readable.  The rounding
+is not serious here.
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+> setup_timer()? (which will call init_timer() before returning.
 
---- linux-2.6.17-git2/drivers/net/wireless/wavelan.c.orig	2006-06-21 16:35:19.000000000 +0200
-+++ linux-2.6.17-git2/drivers/net/wireless/wavelan.c	2006-06-21 16:36:50.000000000 +0200
-@@ -1695,8 +1695,8 @@ static int wv_frequency_list(unsigned lo
- 		/* Look in the table if the frequency is allowed */
- 		if (table[9 - (freq / 16)] & (1 << (freq % 16))) {
- 			/* Compute approximate channel number */
--			while ((((channel_bands[c] >> 1) - 24) < freq) &&
--			       (c < NELS(channel_bands)))
-+			while ((c < NELS(channel_bands)) &&
-+				(((channel_bands[c] >> 1) - 24) < freq)) 
- 				c++;
- 			list[i].i = c;	/* Set the list index */
- 
+Sure.  I'll post a new patch soon.
 
-
+---
+Atsushi Nemoto

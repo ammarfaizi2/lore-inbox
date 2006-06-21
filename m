@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751970AbWFUFp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWFUGCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751970AbWFUFp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 01:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWFUFp6
+	id S1751145AbWFUGCR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 02:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWFUGCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 01:45:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64460 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751115AbWFUFp6 (ORCPT
+	Wed, 21 Jun 2006 02:02:17 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:4087 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1751145AbWFUGCQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 01:45:58 -0400
-Date: Wed, 21 Jun 2006 01:45:52 -0400
-From: Dave Jones <davej@redhat.com>
-To: Randy Dunlap <randy.dunlap@oracle.com>, davej@codemonkey.org.uk,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [Ubuntu PATCH] cpufreq: fix powernow-k8 load bug
-Message-ID: <20060621054552.GB7606@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Randy Dunlap <randy.dunlap@oracle.com>, davej@codemonkey.org.uk,
-	lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-References: <4498DA08.1010309@oracle.com> <20060621054144.GA7606@redhat.com>
+	Wed, 21 Jun 2006 02:02:16 -0400
+Date: Wed, 21 Jun 2006 15:02:12 +0900 (JST)
+Message-Id: <20060621.150212.138089156.jet@gyve.org>
+To: hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] sharing maximum errno symbol used in __syscall_return
+ (i386)
+From: Masatake YAMATO <jet@gyve.org>
+In-Reply-To: <4498C95A.3090909@zytor.com>
+References: <20060620.184010.225581173.jet@gyve.org>
+	<4498C95A.3090909@zytor.com>
+X-Mailer: Mew version 4.2.53 on Emacs 22.0.51 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060621054144.GA7606@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 01:41:44AM -0400, Dave Jones wrote:
- > On Tue, Jun 20, 2006 at 10:32:56PM -0700, Randy Dunlap wrote:
- >  > Fix powernow-k8 doesn't load bug.
- >  > Reference: https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/35145
- >  > 
- >  > http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=dce0ca36f2ae348f005735e9acd400d2c0954421
- > 
- > Already fixed in -git1
+> > Hi,
+> > 
+> > __syscall_return in unistd.h is maintained?
+> > 
+> > In the macro the value returned from system call is
+> > compared with the maximum error number defined in a header file 
+> > to know the call is successful or not. However, the maximum error number 
+> > is hard-coded and is not updated.
+> > 
+> 
+> And it's wrong, anyway.  It has long been agreed that the maximum errno 
+> value, for any architecture, is 4095.
 
-My bad, I mixed it up with the similar fix for powernow-k7.
-I'll queue this up tomorrow morning.
+So we should do just:
 
-thanks,
 
-		Dave
--- 
-http://www.codemonkey.org.uk
+   #define GENERIC_ERRNO_MAX 4095
+
+Here my patch is proved to be useful for maintaining __syscall_return:-P
+ 
+Masatake YAMATO

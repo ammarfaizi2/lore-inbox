@@ -1,107 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWFUO0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbWFUOce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751586AbWFUO0A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWFUOZ7
+	id S1751601AbWFUOce (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWFUOcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:25:59 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:61856 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S1751588AbWFUOZr
+	Wed, 21 Jun 2006 10:32:10 -0400
+Received: from wildsau.enemy.org ([193.170.194.34]:48541 "EHLO
+	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1751629AbWFUObv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:25:47 -0400
-From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH 04/21] [MMC] Fix timeout loops in sdhci
-Date: Wed, 21 Jun 2006 16:25:48 +0200
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>
-To: rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060621142547.8857.44115.stgit@poseidon.drzeus.cx>
-In-Reply-To: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
-References: <20060621142323.8857.69197.stgit@poseidon.drzeus.cx>
+	Wed, 21 Jun 2006 10:31:51 -0400
+From: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Message-Id: <200606211425.k5LEPtY6012550@wildsau.enemy.org>
+Subject: Re: gcc-4.1.1 and kernel-2.4.32
+In-Reply-To: <Pine.LNX.4.61.0606211615390.31302@yvahk01.tjqt.qr>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Date: Wed, 21 Jun 2006 16:25:55 +0200 (MET DST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current timeout loop assume that jiffies are updated. This might not be
-the case depending on locks and if the kernel is compiled without
-preemption. Change the system to use a counter and fixed delays.
+> In effect (mainline) no. Linux 2.2 and 2.0 won't be fixed for the same 
+> reason; called deep maintenance. 2.6 has been on the road since Dec 2003, 
+> that's over 2 years. Do away with the old stuff.
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
+we are in the process of switching, which is not unproblematic. on
+the other hand, we have to support existing installations as well.
 
- drivers/mmc/sdhci.c |   29 ++++++++++++++++-------------
- 1 files changed, 16 insertions(+), 13 deletions(-)
+by the way ... "switching is not unproblematic": I just had to examine
+a notebook which had problems with our software: a
+"toshiba portege m400". 2.4 seems to work so far, as does 2.6.16.
+I also tried 2.6.17, but get a strange problem: it simply hangs
+after writing "PCI: probing hardware" (or similar). A closer look
+reveals that it hangs in drivers/pci/probe.c, in pci_read_bases. What's
+exactly going on, I don't know...
 
-diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
-index a6238b2..b68ca02 100644
---- a/drivers/mmc/sdhci.c
-+++ b/drivers/mmc/sdhci.c
-@@ -371,17 +371,17 @@ static void sdhci_finish_data(struct sdh
- static void sdhci_send_command(struct sdhci_host *host, struct mmc_command *cmd)
- {
- 	int flags;
--	u32 present;
--	unsigned long max_jiffies;
-+	unsigned long timeout;
- 
- 	WARN_ON(host->cmd);
- 
- 	DBG("Sending cmd (%x)\n", cmd->opcode);
- 
- 	/* Wait max 10 ms */
--	max_jiffies = jiffies + (HZ + 99)/100;
--	do {
--		if (time_after(jiffies, max_jiffies)) {
-+	timeout = 10;
-+	while (readl(host->ioaddr + SDHCI_PRESENT_STATE) &
-+		(SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT)) {
-+		if (timeout == 0) {
- 			printk(KERN_ERR "%s: Controller never released "
- 				"inhibit bits. Please report this to "
- 				BUGMAIL ".\n", mmc_hostname(host->mmc));
-@@ -390,8 +390,9 @@ static void sdhci_send_command(struct sd
- 			tasklet_schedule(&host->finish_tasklet);
- 			return;
- 		}
--		present = readl(host->ioaddr + SDHCI_PRESENT_STATE);
--	} while (present & (SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT));
-+		timeout--;
-+		mdelay(1);
-+	}
- 
- 	mod_timer(&host->timer, jiffies + 10 * HZ);
- 
-@@ -490,7 +491,7 @@ static void sdhci_set_clock(struct sdhci
- {
- 	int div;
- 	u16 clk;
--	unsigned long max_jiffies;
-+	unsigned long timeout;
- 
- 	if (clock == host->clock)
- 		return;
-@@ -511,17 +512,19 @@ static void sdhci_set_clock(struct sdhci
- 	writew(clk, host->ioaddr + SDHCI_CLOCK_CONTROL);
- 
- 	/* Wait max 10 ms */
--	max_jiffies = jiffies + (HZ + 99)/100;
--	do {
--		if (time_after(jiffies, max_jiffies)) {
-+	timeout = 10;
-+	while (!((clk = readw(host->ioaddr + SDHCI_CLOCK_CONTROL))
-+		& SDHCI_CLOCK_INT_STABLE)) {
-+		if (timeout == 0) {
- 			printk(KERN_ERR "%s: Internal clock never stabilised. "
- 				"Please report this to " BUGMAIL ".\n",
- 				mmc_hostname(host->mmc));
- 			sdhci_dumpregs(host);
- 			return;
- 		}
--		clk = readw(host->ioaddr + SDHCI_CLOCK_CONTROL);
--	} while (!(clk & SDHCI_CLOCK_INT_STABLE));
-+		timeout--;
-+		mdelay(1);
-+	}
- 
- 	clk |= SDHCI_CLOCK_CARD_EN;
- 	writew(clk, host->ioaddr + SDHCI_CLOCK_CONTROL);
+this shows that sometimes the old stuff works better than the new
+stuff ;-)
 
+kind regards,
+h.rosmanith

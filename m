@@ -1,70 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWFUQ4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWFUQ6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWFUQ4u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 12:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWFUQ4u
+	id S1750878AbWFUQ6V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 12:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWFUQ6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 12:56:50 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48135 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932263AbWFUQ4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 12:56:50 -0400
-Date: Wed, 21 Jun 2006 18:56:48 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: ak@suse.de
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] x86_64: remove sys32_ni_syscall()
-Message-ID: <20060621165648.GG9111@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Wed, 21 Jun 2006 12:58:21 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4276 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750814AbWFUQ6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 12:58:20 -0400
+Subject: Memory corruption in 8390.c ? (was Re: Possible leaks in network
+	drivers)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Eric Sesterhenn <snakebyte@gmx.de>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+In-Reply-To: <1150907317.8320.0.camel@alice>
+References: <1150907317.8320.0.camel@alice>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Jun 2006 18:13:02 +0100
+Message-Id: <1150909982.15275.100.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the no longer used sys32_ni_syscall()
+Ar Mer, 2006-06-21 am 18:28 +0200, ysgrifennodd Eric Sesterhenn:
+> of the driver. Where we call skb=skb_padto(skb, ETH_ZLEN),
+> and dont free the skb later when something goes wrong.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+skb_padto() returns either a new buffer or the existing one depending
+upon the space situation. If it returns a new buffer then it frees the
+old one.
 
----
+The sequence is
 
- arch/x86_64/ia32/ia32entry.S |    4 ----
- arch/x86_64/ia32/sys_ia32.c  |   13 -------------
- 2 files changed, 17 deletions(-)
+dev_queue_xmit(skb)
+	->hard_start_xmit(dev, skb)
+	if (0)
+		free skb
+	return
 
---- linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/ia32entry.S.old	2006-06-21 18:51:14.000000000 +0200
-+++ linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/ia32entry.S	2006-06-21 18:51:25.000000000 +0200
-@@ -340,10 +340,6 @@
- 	movq $-ENOSYS,RAX-ARGOFFSET(%rsp)
- 	jmp int_ret_from_sys_call
+Which I think means that the error path for a short packet would double
+free the skb buffer and leak nskb.
+
+
+So these drivers should indeed be checking their status before they
+clone the buffer. At the point they do an skb_padto they must not fail
+if the skb_padto succeeds.
+
+In the case of 8390.c this was broken in 2.6.9 when the efficient 8390
+padding code was replaced by something slower and it turns out broken -
+although nobody realised that last bit until the checker came along.
+
+See: http://linux.derkeiler.com/Mailing-Lists/Kernel/2005-02/4480.html
+
+Although reverting the change was proposed it was not actually done.
+
+
+The following should do the trick:
+
+Signed-off-by: Alan Cox <alan@redhat.com>
+
+--- drivers/net/8390.c~	2006-06-21 17:41:12.006145536 +0100
++++ drivers/net/8390.c	2006-06-21 17:41:12.007145384 +0100
+@@ -275,12 +275,14 @@
+ 	struct ei_device *ei_local = (struct ei_device *) netdev_priv(dev);
+ 	int send_length = skb->len, output_page;
+ 	unsigned long flags;
++	char buf[64];
++	char *data = skb->data;
  
--ni_syscall:
--	movq %rax,%rdi
--	jmp  sys32_ni_syscall			
--
- quiet_ni_syscall:
- 	movq $-ENOSYS,%rax
- 	ret
---- linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/sys_ia32.c.old	2006-06-21 18:51:38.000000000 +0200
-+++ linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/sys_ia32.c	2006-06-21 18:51:43.000000000 +0200
-@@ -508,19 +508,6 @@
- 	return compat_sys_wait4(pid, stat_addr, options, NULL);
- }
+ 	if (skb->len < ETH_ZLEN) {
+-		skb = skb_padto(skb, ETH_ZLEN);
+-		if (skb == NULL)
+-			return 0;
++		memset(buf, 0, ETH_ZLEN);	/* more efficient than doing just the needed bits */
++		memcpy(buf, data, ETH_ZLEN);
+ 		send_length = ETH_ZLEN;
++		data = buf;
+ 	}
  
--int sys32_ni_syscall(int call)
--{ 
--	struct task_struct *me = current;
--	static char lastcomm[sizeof(me->comm)];
--
--	if (strncmp(lastcomm, me->comm, sizeof(lastcomm))) {
--		compat_printk(KERN_INFO "IA32 syscall %d from %s not implemented\n",
--		       call, me->comm);
--		strncpy(lastcomm, me->comm, sizeof(lastcomm));
--	} 
--	return -ENOSYS;	       
--} 
--
- /* 32-bit timeval and related flotsam.  */
- 
- asmlinkage long
+ 	/* Mask interrupts from the ethercard. 
+@@ -347,7 +349,7 @@
+ 	 * trigger the send later, upon receiving a Tx done interrupt.
+ 	 */
+ 	 
+-	ei_block_output(dev, send_length, skb->data, output_page);
++	ei_block_output(dev, send_length, data, output_page);
+ 		
+ 	if (! ei_local->txing) 
+ 	{
+
+
 

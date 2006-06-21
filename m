@@ -1,449 +1,423 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751525AbWFUMi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWFUMk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751525AbWFUMi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 08:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWFUMi7
+	id S1751544AbWFUMk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 08:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWFUMk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 08:38:59 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:11192 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751423AbWFUMi6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 08:38:58 -0400
-Date: Wed, 21 Jun 2006 14:38:40 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: [PATCH] fix and optimize clock source update
-Message-ID: <Pine.LNX.4.64.0606211434020.904@scrub.home>
+	Wed, 21 Jun 2006 08:40:27 -0400
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:57513
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1751535AbWFUMk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 08:40:26 -0400
+Message-ID: <44993E38.1030000@ed-soft.at>
+Date: Wed, 21 Jun 2006 14:40:24 +0200
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/1] New Framebuffer for Intel based Macs [try #2]
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090309060503080300020709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090309060503080300020709
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-This fixes the clock source updates in update_wall_time() to correctly
-track the time coming in via current_tick_length(). Optimize the fast
-paths to be as short as possible to keep the overhead low.
+This patch add a new framebuffer driver for the Intel Based macs.
+This framebuffer is needed when booting from EFI to get something
+out the box  ;)
+Removed unused and untested code in this version of the patch.
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-
----
-
-Andrew, please apply this patch, it's essential so that we can finally
-get the clock source stuff merged. It keeps the overhead added by all
-the patches in a not really great but acceptable range.
-Tested with 2.6.17-rc6-mm2, applies and compiles with 2.6.17-mm1
+Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
 
 
+--------------090309060503080300020709
+Content-Type: text/x-patch;
+ name="imacfb.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="imacfb.patch"
 
- arch/powerpc/kernel/time.c  |    4 -
- include/linux/clocksource.h |  113 ++---------------------------------
- include/linux/timex.h       |    4 -
- kernel/timer.c              |  142 ++++++++++++++++++++++++++++++--------------
- 4 files changed, 113 insertions(+), 150 deletions(-)
-
-Index: linux-2.6-mm/arch/powerpc/kernel/time.c
-===================================================================
---- linux-2.6-mm.orig/arch/powerpc/kernel/time.c	2006-06-21 13:59:35.000000000 +0200
-+++ linux-2.6-mm/arch/powerpc/kernel/time.c	2006-06-21 14:01:22.000000000 +0200
-@@ -102,7 +102,7 @@ EXPORT_SYMBOL(tb_ticks_per_sec);	/* for 
- u64 tb_to_xs;
- unsigned tb_to_us;
- 
--#define TICKLEN_SCALE	(SHIFT_SCALE - 10)
-+#define TICKLEN_SCALE	TICK_LENGTH_SHIFT
- u64 last_tick_len;	/* units are ns / 2^TICKLEN_SCALE */
- u64 ticklen_to_xs;	/* 0.64 fraction */
- 
-@@ -534,7 +534,7 @@ static __inline__ void timer_recalc_offs
- 
- 	if (__USE_RTC())
- 		return;
--	tlen = current_tick_length(SHIFT_SCALE - 10);
-+	tlen = current_tick_length();
- 	offset = cur_tb - do_gtod.varp->tb_orig_stamp;
- 	if (tlen == last_tick_len && offset < 0x80000000u)
- 		return;
-Index: linux-2.6-mm/include/linux/clocksource.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/clocksource.h	2006-06-21 14:00:38.000000000 +0200
-+++ linux-2.6-mm/include/linux/clocksource.h	2006-06-21 14:01:22.000000000 +0200
-@@ -46,8 +46,8 @@ typedef u64 cycle_t;
-  * @shift:		cycle to nanosecond divisor (power of two)
-  * @update_callback:	called when safe to alter clocksource values
-  * @is_continuous:	defines if clocksource is free-running.
-- * @interval_cycles:	Used internally by timekeeping core, please ignore.
-- * @interval_snsecs:	Used internally by timekeeping core, please ignore.
-+ * @cycle_interval:	Used internally by timekeeping core, please ignore.
-+ * @xtime_interval:	Used internally by timekeeping core, please ignore.
-  */
- struct clocksource {
- 	char *name;
-@@ -61,8 +61,9 @@ struct clocksource {
- 	int is_continuous;
- 
- 	/* timekeeping specific data, ignore */
--	cycle_t interval_cycles;
--	u64 interval_snsecs;
-+	cycle_t cycle_last, cycle_interval;
-+	u64 xtime_nsec, xtime_interval;
-+	s64 error;
- };
- 
- /* simplify initialization of mask field */
-@@ -168,107 +169,11 @@ static inline void clocksource_calculate
- 	tmp += c->mult/2;
- 	do_div(tmp, c->mult);
- 
--	c->interval_cycles = (cycle_t)tmp;
--	if(c->interval_cycles == 0)
--		c->interval_cycles = 1;
-+	c->cycle_interval = (cycle_t)tmp;
-+	if (c->cycle_interval == 0)
-+		c->cycle_interval = 1;
- 
--	c->interval_snsecs = (u64)c->interval_cycles * c->mult;
--}
--
--
--/**
-- * error_aproximation - calculates an error adjustment for a given error
-- *
-- * @error:	Error value (unsigned)
-- * @unit:	Adjustment unit
-- *
-- * For a given error value, this function takes the adjustment unit
-- * and uses binary approximation to return a power of two adjustment value.
-- *
-- * This function is only for use by the the make_ntp_adj() function
-- * and you must hold a write on the xtime_lock when calling.
-- */
--static inline int error_aproximation(u64 error, u64 unit)
--{
--	static int saved_adj = 0;
--	u64 adjusted_unit = unit << saved_adj;
--
--	if (error > (adjusted_unit * 2)) {
--		/* large error, so increment the adjustment factor */
--		saved_adj++;
--	} else if (error > adjusted_unit) {
--		/* just right, don't touch it */
--	} else if (saved_adj) {
--		/* small error, so drop the adjustment factor */
--		saved_adj--;
--		return 0;
--	}
--
--	return saved_adj;
--}
--
--
--/**
-- * make_ntp_adj - Adjusts the specified clocksource for a given error
-- *
-- * @clock:		Pointer to clock to be adjusted
-- * @cycles_delta:	Current unacounted cycle delta
-- * @error:		Pointer to current error value
-- *
-- * Returns clock shifted nanosecond adjustment to be applied against
-- * the accumulated time value (ie: xtime).
-- *
-- * If the error value is large enough, this function calulates the
-- * (power of two) adjustment value, and adjusts the clock's mult and
-- * interval_snsecs values accordingly.
-- *
-- * However, since there may be some unaccumulated cycles, to avoid
-- * time inconsistencies we must adjust the accumulation value
-- * accordingly.
-- *
-- * This is not very intuitive, so the following proof should help:
-- * The basic timeofday algorithm:  base + cycle * mult
-- * Thus:
-- *    new_base + cycle * new_mult = old_base + cycle * old_mult
-- *    new_base = old_base + cycle * old_mult - cycle * new_mult
-- *    new_base = old_base + cycle * (old_mult - new_mult)
-- *    new_base - old_base = cycle * (old_mult - new_mult)
-- *    base_delta = cycle * (old_mult - new_mult)
-- *    base_delta = cycle * (mult_delta)
-- *
-- * Where mult_delta is the adjustment value made to mult
-- *
-- */
--static inline s64 make_ntp_adj(struct clocksource *clock,
--				cycles_t cycles_delta, s64* error)
--{
--	s64 ret = 0;
--	if (*error  > ((s64)clock->interval_cycles+1)/2) {
--		/* calculate adjustment value */
--		int adjustment = error_aproximation(*error,
--						clock->interval_cycles);
--		/* adjust clock */
--		clock->mult += 1 << adjustment;
--		clock->interval_snsecs += clock->interval_cycles << adjustment;
--
--		/* adjust the base and error for the adjustment */
--		ret =  -(cycles_delta << adjustment);
--		*error -= clock->interval_cycles << adjustment;
--		/* XXX adj error for cycle_delta offset? */
--	} else if ((-(*error))  > ((s64)clock->interval_cycles+1)/2) {
--		/* calculate adjustment value */
--		int adjustment = error_aproximation(-(*error),
--						clock->interval_cycles);
--		/* adjust clock */
--		clock->mult -= 1 << adjustment;
--		clock->interval_snsecs -= clock->interval_cycles << adjustment;
--
--		/* adjust the base and error for the adjustment */
--		ret =  cycles_delta << adjustment;
--		*error += clock->interval_cycles << adjustment;
--		/* XXX adj error for cycle_delta offset? */
--	}
--	return ret;
-+	c->xtime_interval = (u64)c->cycle_interval * c->mult;
- }
- 
- 
-Index: linux-2.6-mm/include/linux/timex.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/timex.h	2006-06-21 14:00:41.000000000 +0200
-+++ linux-2.6-mm/include/linux/timex.h	2006-06-21 14:01:22.000000000 +0200
-@@ -303,8 +303,10 @@ time_interpolator_reset(void)
- 
- #endif /* !CONFIG_TIME_INTERPOLATION */
- 
-+#define TICK_LENGTH_SHIFT	32
-+
- /* Returns how long ticks are at present, in ns / 2^(SHIFT_SCALE-10). */
--extern u64 current_tick_length(long);
-+extern u64 current_tick_length(void);
- 
- extern int do_adjtimex(struct timex *);
- 
-Index: linux-2.6-mm/kernel/timer.c
-===================================================================
---- linux-2.6-mm.orig/kernel/timer.c	2006-06-21 14:00:44.000000000 +0200
-+++ linux-2.6-mm/kernel/timer.c	2006-06-21 14:30:47.000000000 +0200
-@@ -771,7 +771,7 @@ static void update_ntp_one_tick(void)
-  * specified number of bits to the right of the binary point.
-  * This function has no side-effects.
-  */
--u64 current_tick_length(long shift)
-+u64 current_tick_length(void)
- {
- 	long delta_nsec;
- 	u64 ret;
-@@ -780,14 +780,8 @@ u64 current_tick_length(long shift)
- 	 *    ie: nanosecond value shifted by (SHIFT_SCALE - 10)
- 	 */
- 	delta_nsec = tick_nsec + adjtime_adjustment() * 1000;
--	ret = ((u64) delta_nsec << (SHIFT_SCALE - 10)) + time_adj;
--
--	/* convert from (SHIFT_SCALE - 10) to specified shift scale: */
--	shift = shift - (SHIFT_SCALE - 10);
--	if (shift < 0)
--		ret >>= -shift;
--	else
--		ret <<= shift;
-+	ret = (u64)delta_nsec << TICK_LENGTH_SHIFT;
-+	ret += (s64)time_adj << (TICK_LENGTH_SHIFT - (SHIFT_SCALE - 10));
- 
- 	return ret;
- }
-@@ -795,7 +789,6 @@ u64 current_tick_length(long shift)
- /* XXX - all of this timekeeping code should be later moved to time.c */
- #include <linux/clocksource.h>
- static struct clocksource *clock; /* pointer to current clocksource */
--static cycle_t last_clock_cycle;  /* cycle value at last update_wall_time */
- 
- #ifdef CONFIG_GENERIC_TIME
- /**
-@@ -814,7 +807,7 @@ static inline s64 __get_nsec_offset(void
- 	cycle_now = clocksource_read(clock);
- 
- 	/* calculate the delta since the last update_wall_time: */
--	cycle_delta = (cycle_now - last_clock_cycle) & clock->mask;
-+	cycle_delta = (cycle_now - clock->cycle_last) & clock->mask;
- 
- 	/* convert to nanoseconds: */
- 	ns_offset = cyc2ns(clock, cycle_delta);
-@@ -928,7 +921,7 @@ static int change_clocksource(void)
- 		timespec_add_ns(&xtime, nsec);
- 
- 		clock = new;
--		last_clock_cycle = now;
-+		clock->cycle_last = now;
- 		printk(KERN_INFO "Time: %s clocksource has been installed.\n",
- 					clock->name);
- 		return 1;
-@@ -969,7 +962,7 @@ void __init timekeeping_init(void)
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	clock = clocksource_get_next();
- 	clocksource_calculate_interval(clock, tick_nsec);
--	last_clock_cycle = clocksource_read(clock);
-+	clock->cycle_last = clocksource_read(clock);
- 	ntp_clear();
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- }
-@@ -989,7 +982,7 @@ static int timekeeping_resume(struct sys
- 
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	/* restart the last cycle value */
--	last_clock_cycle = clocksource_read(clock);
-+	clock->cycle_last = clocksource_read(clock);
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	return 0;
- }
-@@ -1016,60 +1009,123 @@ static int __init timekeeping_init_devic
- device_initcall(timekeeping_init_device);
- 
- /*
-+ * If the error is already larger, we look ahead another tick,
-+ * to compensate for late or lost adjustments.
+diff -uNr linux-2.6.17.orig/drivers/video/imacfb.c linux-2.6.17/drivers/video/imacfb.c
+--- linux-2.6.17.orig/drivers/video/imacfb.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17/drivers/video/imacfb.c	2006-06-21 10:31:09.000000000 +0200
+@@ -0,0 +1,343 @@
++/*
++ * framebuffer driver for Intel Based Mac's
++ *
++ * (c) 2006 Edgar Hucek <gimli@dark-green.com>
++ * Original imac driver written by Gerd Knorr <kraxel@goldbach.in-berlin.de>
++ *
 + */
-+static __always_inline int clocksource_bigadjust(int sign, s64 error, s64 interval, s64 offset)
++
++#include <asm/io.h>
++
++#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/fb.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/ioport.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/tty.h>
++
++#include <video/vga.h>
++
++typedef enum _MAC_TYPE {
++	M_I17,
++	M_I20,
++	M_MINI,
++	M_MACBOOK,
++	M_NEW
++} MAC_TYPE;
++
++/* --------------------------------------------------------------------- */
++
++static struct fb_var_screeninfo imacfb_defined __initdata = {
++      	.activate		= FB_ACTIVATE_NOW,
++	.height			= -1,
++	.width			= -1,
++	.right_margin		= 32,
++	.upper_margin		= 16,
++	.lower_margin		= 4,
++	.vsync_len		= 4,
++	.vmode			= FB_VMODE_NONINTERLACED,
++};
++
++static struct fb_fix_screeninfo imacfb_fix __initdata = {
++	.id			= "IMAC VGA",
++	.type			= FB_TYPE_PACKED_PIXELS,
++	.accel			= FB_ACCEL_NONE,
++	.visual			= FB_VISUAL_TRUECOLOR,
++};
++
++static int inverse		= 0;
++static int model		= M_NEW;
++static int manual_height	= 0;
++static int manual_width		= 0;
++
++#define	DEFAULT_FB_MEM	1024*1024*16
++
++/* --------------------------------------------------------------------- */
++
++static int imacfb_setcolreg(unsigned regno, unsigned red, unsigned green,
++			    unsigned blue, unsigned transp,
++			    struct fb_info *info)
 +{
-+	int adj = 0;
++	/*
++	 *  Set a single color register. The values supplied are
++	 *  already rounded down to the hardware's capabilities
++	 *  (according to the entries in the `var' structure). Return
++	 *  != 0 for invalid regno.
++	 */
++	
++	if (regno >= info->cmap.len)
++		return 1;
 +
-+	error += current_tick_length() >> (TICK_LENGTH_SHIFT - clock->shift + 1);
-+	error -= clock->xtime_interval >> 1;
-+
-+	while (1) {
-+		error >>= 1;
-+		if (sign > 0 ? error <= interval : error >= interval) {
-+			error = (error << 1) - interval + offset;
-+			if (sign > 0 ? error > interval : error < interval)
-+				adj++;
-+			return adj;
-+		}
-+		adj++;
++	if (regno < 16) {
++		red   >>= 8;
++		green >>= 8;
++		blue  >>= 8;
++		((u32 *)(info->pseudo_palette))[regno] =
++			(red   << info->var.red.offset)   |
++			(green << info->var.green.offset) |
++			(blue  << info->var.blue.offset);
 +	}
++	return 0;
 +}
 +
-+#define clocksource_adjustcheck(sign, error, interval, offset) ({	\
-+	int adj = sign;							\
-+	error >>= 2;							\
-+	if (unlikely(sign > 0 ? error > interval : error < interval)) {	\
-+		adj = clocksource_bigadjust(sign, error,		\
-+					    interval, offset);		\
-+		interval <<= adj;					\
-+		offset <<= adj;						\
-+		adj = sign << adj;					\
-+	}								\
-+	adj;								\
-+})
++static struct fb_ops imacfb_ops = {
++	.owner		= THIS_MODULE,
++	.fb_setcolreg	= imacfb_setcolreg,
++	.fb_fillrect	= cfb_fillrect,
++	.fb_copyarea	= cfb_copyarea,
++	.fb_imageblit	= cfb_imageblit,
++};
 +
-+/*
-+ * adjust the multiplier to reduce the error value,
-+ * this is optimized for the most common adjustments of -1,0,1,
-+ * for other values we can do a bit more work.
-+ */
-+static void clocksource_adjust(struct clocksource *clock, s64 offset)
++static int __init imacfb_setup(char *options)
 +{
-+	s64 error, interval = clock->cycle_interval;
-+	int adj;
++	char *this_opt;
++	
++	if (!options || !*options)
++		return 0;
++	
++	while ((this_opt = strsep(&options, ",")) != NULL) {
++		if (!*this_opt) continue;
 +
-+	error = clock->error >> (TICK_LENGTH_SHIFT - clock->shift - 1);
-+	if (error > interval) {
-+		adj = clocksource_adjustcheck(1, error, interval, offset);
-+	} else if (error < -interval) {
-+		interval = -interval;
-+		offset = -offset;
-+		adj = clocksource_adjustcheck(-1, error, interval, offset);
-+	} else
-+		goto done;
-+
-+	clock->mult += adj;
-+	clock->xtime_interval += interval;
-+	clock->xtime_nsec -= offset;
-+	clock->error -= (interval - offset) << (TICK_LENGTH_SHIFT - clock->shift);
-+done:
-+	/* store full nanoseconds into xtime */
-+	xtime.tv_nsec = clock->xtime_nsec >> clock->shift;
++		if (! strcmp(this_opt, "inverse"))
++			inverse=1;
++		else if (! strcmp(this_opt, "i17"))
++			model = M_I17;
++		else if (! strcmp(this_opt, "i20"))
++			model = M_I20;
++		else if (! strcmp(this_opt, "mini"))
++			model = M_MINI;
++		else if (! strcmp(this_opt, "macbook"))
++			model = M_MACBOOK;
++		else if (! strncmp(this_opt, "height:", 7))
++			manual_height = simple_strtoul(this_opt+7, NULL, 0);
++		else if (! strncmp(this_opt, "width:", 6))
++			manual_width = simple_strtoul(this_opt+6, NULL, 0);
++	}
++	return 0;
 +}
 +
-+/*
-  * update_wall_time - Uses the current clocksource to increment the wall time
-  *
-  * Called from the timer interrupt, must hold a write on xtime_lock.
-  */
- static void update_wall_time(void)
- {
--	static s64 remainder_snsecs, error;
--	s64 snsecs_per_sec;
--	cycle_t now, offset;
-+	cycle_t offset;
- 
--	snsecs_per_sec = (s64)NSEC_PER_SEC << clock->shift;
--	remainder_snsecs += (s64)xtime.tv_nsec << clock->shift;
-+	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
- 
--	now = clocksource_read(clock);
--	offset = (now - last_clock_cycle)&clock->mask;
-+#ifdef CONFIG_GENERIC_TIME
-+	offset = (clocksource_read(clock) - clock->cycle_last) & clock->mask;
-+#else
-+	offset = clock->cycle_interval;
++static int __init imacfb_probe(struct platform_device *dev)
++{
++	struct fb_info *info;
++	int err;
++	unsigned int size_vmode;
++	unsigned int size_remap;
++	unsigned int size_total;
++
++	screen_info.lfb_depth = 32;
++	screen_info.lfb_size = DEFAULT_FB_MEM / 0x10000;
++	screen_info.pages=1;
++	screen_info.blue_size = 8;
++	screen_info.blue_pos = 0;
++	screen_info.green_size = 8;
++	screen_info.green_pos = 8;
++	screen_info.red_size = 8;
++	screen_info.red_pos = 16;
++	screen_info.rsvd_size = 8;
++	screen_info.rsvd_pos = 24;
++
++	switch(model) {
++		case M_I17:
++			screen_info.lfb_width = 1440;
++			screen_info.lfb_height = 900;
++			screen_info.lfb_linelength = 1472 * 4;
++			screen_info.lfb_base = 0x80010000;
++			break;
++		case M_NEW:
++		case M_I20:
++			screen_info.lfb_width = 1680;
++			screen_info.lfb_height = 1050;
++			screen_info.lfb_linelength = 1728 * 4;
++			screen_info.lfb_base = 0x80010000;
++			break;
++		case M_MINI:
++			screen_info.lfb_width = 1024;
++			screen_info.lfb_height = 768;
++			screen_info.lfb_linelength = 2048 * 4;
++			screen_info.lfb_base = 0x80000000;
++			break;
++		case M_MACBOOK:
++			screen_info.lfb_width = 1280;
++			screen_info.lfb_height = 800;
++			screen_info.lfb_linelength = 2048 * 4;
++			screen_info.lfb_base = 0x80000000;
++			break;
++ 	}
++
++	/* if the user wants to manually specify height/width,
++	   we will override the defaults */
++	/* TODO: eventually get auto-detection working */
++	if(manual_height > 0)
++		screen_info.lfb_height = manual_height;
++	if(manual_width > 0)
++		screen_info.lfb_width = manual_width;
++
++	imacfb_fix.smem_start = screen_info.lfb_base;
++	imacfb_defined.bits_per_pixel = screen_info.lfb_depth;
++	imacfb_defined.xres = screen_info.lfb_width;
++	imacfb_defined.yres = screen_info.lfb_height;
++	imacfb_fix.line_length = screen_info.lfb_linelength;
++
++	/*   size_vmode -- that is the amount of memory needed for the
++	 *                 used video mode, i.e. the minimum amount of
++	 *                 memory we need. */
++	size_vmode = imacfb_defined.yres * imacfb_fix.line_length;
++
++	/*   size_total -- all video memory we have. Used for
++	 *                 entries, ressource allocation and bounds
++	 *                 checking. */
++	size_total = screen_info.lfb_size * 65536;
++	if (size_total < size_vmode)
++		size_total = size_vmode;
++
++	/*   size_remap -- the amount of video memory we are going to
++	 *                 use for imacfb.  With modern cards it is no
++	 *                 option to simply use size_total as that
++	 *                 wastes plenty of kernel address space. */
++	size_remap  = size_vmode * 2;
++	if (size_remap < size_vmode)
++		size_remap = size_vmode;
++	if (size_remap > size_total)
++		size_remap = size_total;
++	imacfb_fix.smem_len = size_remap;
++
++#ifndef __i386__
++	screen_info.imacpm_seg = 0;
 +#endif
- 
- 	/* normally this loop will run just once, however in the
- 	 * case of lost or late ticks, it will accumulate correctly.
- 	 */
--	while (offset > clock->interval_cycles) {
--		/* get the ntp interval in clock shifted nanoseconds */
--		s64 ntp_snsecs	= current_tick_length(clock->shift);
--
-+	while (offset > clock->cycle_interval) {
- 		/* accumulate one interval */
--		remainder_snsecs += clock->interval_snsecs;
--		last_clock_cycle += clock->interval_cycles;
--		offset -= clock->interval_cycles;
-+		clock->xtime_nsec += clock->xtime_interval;
-+		clock->cycle_last += clock->cycle_interval;
-+		offset -= clock->cycle_interval;
 +
-+		if (clock->xtime_nsec >= (u64)NSEC_PER_SEC << clock->shift) {
-+			clock->xtime_nsec -= (u64)NSEC_PER_SEC << clock->shift;
-+			xtime.tv_sec++;
-+			second_overflow();
-+		}
- 
- 		/* interpolator bits */
--		time_interpolator_update(clock->interval_snsecs
-+		time_interpolator_update(clock->xtime_interval
- 						>> clock->shift);
- 		/* increment the NTP state machine */
- 		update_ntp_one_tick();
- 
- 		/* accumulate error between NTP and clock interval */
--		error += (ntp_snsecs - (s64)clock->interval_snsecs);
-+		clock->error += current_tick_length();
-+		clock->error -= clock->xtime_interval << (TICK_LENGTH_SHIFT - clock->shift);
++	if (!request_mem_region(imacfb_fix.smem_start, size_total, "imacfb")) {
++		printk(KERN_WARNING
++		       "imacfb: cannot reserve video memory at 0x%lx\n",
++			imacfb_fix.smem_start);
++		/* We cannot make this fatal. Sometimes this comes from magic
++		   spaces our resource handlers simply don't know about */
 +	}
++
++	info = framebuffer_alloc(sizeof(u32) * 16, &dev->dev);
++	if (!info) {
++		err = -ENOMEM;
++		goto err_release_mem;
++	}
++	info->pseudo_palette = info->par;
++	info->par = NULL;
++
++	info->screen_base = ioremap(imacfb_fix.smem_start, imacfb_fix.smem_len);
++	if (!info->screen_base) {
++		printk(KERN_ERR
++		       "imacfb: abort, cannot ioremap video memory 0x%x @ 0x%lx\n",
++			imacfb_fix.smem_len, imacfb_fix.smem_start);
++		err = -EIO;
++		goto err_unmap;
++	}
++
++	printk(KERN_INFO "imacfb: framebuffer at 0x%lx, mapped to 0x%p, "
++	       "using %dk, total %dk\n",
++	       imacfb_fix.smem_start, info->screen_base,
++	       size_remap/1024, size_total/1024);
++	printk(KERN_INFO "imacfb: mode is %dx%dx%d, linelength=%d, pages=%d\n",
++	       imacfb_defined.xres, imacfb_defined.yres, imacfb_defined.bits_per_pixel, 
++	       imacfb_fix.line_length, screen_info.pages);
++
++	imacfb_defined.xres_virtual = imacfb_defined.xres;
++	imacfb_defined.yres_virtual = imacfb_fix.smem_len / imacfb_fix.line_length;
++	printk(KERN_INFO "imacfb: scrolling: redraw\n");
++	imacfb_defined.yres_virtual = imacfb_defined.yres;
++
++	/* some dummy values for timing to make fbset happy */
++	imacfb_defined.pixclock     = 10000000 / imacfb_defined.xres * 
++					1000 / imacfb_defined.yres;
++	imacfb_defined.left_margin  = (imacfb_defined.xres / 8) & 0xf8;
++	imacfb_defined.hsync_len    = (imacfb_defined.xres / 8) & 0xf8;
++	
++	imacfb_defined.red.offset    = screen_info.red_pos;
++	imacfb_defined.red.length    = screen_info.red_size;
++	imacfb_defined.green.offset  = screen_info.green_pos;
++	imacfb_defined.green.length  = screen_info.green_size;
++	imacfb_defined.blue.offset   = screen_info.blue_pos;
++	imacfb_defined.blue.length   = screen_info.blue_size;
++	imacfb_defined.transp.offset = screen_info.rsvd_pos;
++	imacfb_defined.transp.length = screen_info.rsvd_size;
++
++	printk(KERN_INFO "imacfb: %s: "
++	       "size=%d:%d:%d:%d, shift=%d:%d:%d:%d\n",
++	       "Truecolor",
++	       screen_info.rsvd_size,
++	       screen_info.red_size,
++	       screen_info.green_size,
++	       screen_info.blue_size,
++	       screen_info.rsvd_pos,
++	       screen_info.red_pos,
++	       screen_info.green_pos,
++	       screen_info.blue_pos);
++
++	imacfb_fix.ypanstep  = 0;
++	imacfb_fix.ywrapstep = 0;
++
++	/* request failure does not faze us, as vgacon probably has this
++	 * region already (FIXME) */
++	request_region(0x3c0, 32, "imacfb");
++
++	info->fbops = &imacfb_ops;
++	info->var = imacfb_defined;
++	info->fix = imacfb_fix;
++	info->flags = FBINFO_FLAG_DEFAULT;
++
++	if (fb_alloc_cmap(&info->cmap, 256, 0) < 0) {
++		err = -ENOMEM;
++		goto err_unmap;
++	}
++	if (register_framebuffer(info)<0) {
++		err = -EINVAL;
++		goto err_fb_dealoc;
++	}
++	printk(KERN_INFO "fb%d: %s frame buffer device\n",
++	       info->node, info->fix.id);
++	return 0;
++
++err_fb_dealoc:
++	fb_dealloc_cmap(&info->cmap);
++err_unmap:
++	iounmap(info->screen_base);
++	framebuffer_release(info);
++err_release_mem:
++	release_mem_region(imacfb_fix.smem_start, size_total);
++	return err;
++}
++
++static struct platform_driver imacfb_driver = {
++	.probe	= imacfb_probe,
++	.driver	= {
++		.name	= "imacfb",
++	},
++};
++
++static struct platform_device imacfb_device = {
++	.name	= "imacfb",
++};
++
++static int __init imacfb_init(void)
++{
++	int ret;
++	char *option = NULL;
++
++	/* ignore error return of fb_get_options */
++	fb_get_options("imacfb", &option);
++	imacfb_setup(option);
++	ret = platform_driver_register(&imacfb_driver);
++
++	if (!ret) {
++		ret = platform_device_register(&imacfb_device);
++		if (ret)
++			platform_driver_unregister(&imacfb_driver);
++	}
++	return ret;
++}
++module_init(imacfb_init);
++
++MODULE_LICENSE("GPL");
+diff -uNr linux-2.6.17.orig/drivers/video/Kconfig linux-2.6.17/drivers/video/Kconfig
+--- linux-2.6.17.orig/drivers/video/Kconfig	2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6.17/drivers/video/Kconfig	2006-06-21 10:05:04.000000000 +0200
+@@ -483,6 +483,15 @@
+ 	  You will get a boot time penguin logo at no additional cost. Please
+ 	  read <file:Documentation/fb/vesafb.txt>. If unsure, say Y.
  
--		/* correct the clock when NTP error is too big */
--		remainder_snsecs += make_ntp_adj(clock, offset, &error);
-+	/* correct the clock when NTP error is too big */
-+	clocksource_adjust(clock, offset);
++config FB_IMAC
++	bool "Intel Based Macs FB"
++	depends on (FB = y) && X86
++	select FB_CFB_FILLRECT
++	select FB_CFB_COPYAREA
++	select FB_CFB_IMAGEBLIT
++	help
++	  This is the frame buffer device driver for the Inel Based Mac's
++
+ config VIDEO_SELECT
+ 	bool
+ 	depends on FB_VESA
+diff -uNr linux-2.6.17.orig/drivers/video/Makefile linux-2.6.17/drivers/video/Makefile
+--- linux-2.6.17.orig/drivers/video/Makefile	2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6.17/drivers/video/Makefile	2006-06-21 10:05:04.000000000 +0200
+@@ -97,6 +97,7 @@
  
--		if (remainder_snsecs >= snsecs_per_sec) {
--			remainder_snsecs -= snsecs_per_sec;
--			xtime.tv_sec++;
--			second_overflow();
--		}
--	}
--	/* store full nanoseconds into xtime */
--	xtime.tv_nsec = remainder_snsecs >> clock->shift;
--	remainder_snsecs -= (s64)xtime.tv_nsec << clock->shift;
-+	clock->xtime_nsec -= (s64)xtime.tv_nsec << clock->shift;
+ # Platform or fallback drivers go here
+ obj-$(CONFIG_FB_VESA)             += vesafb.o
++obj-$(CONFIG_FB_IMAC)             += imacfb.o
+ obj-$(CONFIG_FB_VGA16)            += vga16fb.o vgastate.o
+ obj-$(CONFIG_FB_OF)               += offb.o
  
- 	/* check to see if there is a new clocksource to use */
- 	if (change_clocksource()) {
--		error = 0;
--		remainder_snsecs = 0;
-+		clock->error = 0;
-+		clock->xtime_nsec = 0;
-+		xtime.tv_nsec = 0;
- 		clocksource_calculate_interval(clock, tick_nsec);
- 	}
- }
+
+--------------090309060503080300020709--

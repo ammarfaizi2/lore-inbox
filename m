@@ -1,41 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWFUO63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWFUPAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWFUO63 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWFUO62
+	id S932130AbWFUPAe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 11:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWFUPAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:58:28 -0400
-Received: from host-84-9-201-23.bulldogdsl.com ([84.9.201.23]:3387 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932113AbWFUO62
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:58:28 -0400
-Date: Wed, 21 Jun 2006 15:58:02 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: Simon Posnjak <sposnjak@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux on Philips LPC3180
-Message-ID: <20060621145802.GA20263@home.fluff.org>
-References: <725404980606201556w1589a932j9bef9d6a03ef46f5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <725404980606201556w1589a932j9bef9d6a03ef46f5@mail.gmail.com>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 21 Jun 2006 11:00:34 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:32764 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932130AbWFUPAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 11:00:33 -0400
+Date: Thu, 22 Jun 2006 00:01:38 +0900 (JST)
+Message-Id: <20060622.000138.130239297.anemo@mba.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Cc: rpurdie@rpsys.net, akpm@osdl.org, nish.aravamudan@gmail.com,
+       7eggert@gmx.de
+Subject: Re: [PATCH] LED: add LED heartbeat trigger
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060621.013603.132759710.anemo@mba.ocn.ne.jp>
+References: <20060621.013603.132759710.anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 12:56:58AM +0200, Simon Posnjak wrote:
-> Hi,
-> 
-> Is anybody using linux on the new Philips LPC3180
-> (http://www.standardics.philips.com/products/lpc3000/lpc3180/) ARM9
-> based chip?
+Take 2.  Updated by a few comment.  Thanks.
 
-The best place to ask this would be the linux-arm-kernel
-list (see http://www.arm.linux.org.uk/mailinglists/)
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+Add an LED trigger acts like a heart beat.  This can be used as a
+replacement of CONFIG_HEARTBEAT code exists in some arch's timer code.
 
-  'a smiley only costs 4 bytes'
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index 6265062..b0d73b8 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -87,5 +87,14 @@ config LEDS_TRIGGER_IDE_DISK
+ 	  This allows LEDs to be controlled by IDE disk activity.
+ 	  If unsure, say Y.
+ 
++config LEDS_TRIGGER_HEARTBEAT
++	tristate "LED Heartbeat Trigger"
++	depends LEDS_TRIGGERS
++	help
++	  This allows LEDs to be controlled by a CPU load average.
++	  The flash frequency is a hyperbolic function of the 1-minute
++	  load average.
++	  If unsure, say Y.
++
+ endmenu
+ 
+diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+index 40f0426..1dc79b5 100644
+--- a/drivers/leds/Makefile
++++ b/drivers/leds/Makefile
+@@ -15,3 +15,4 @@ obj-$(CONFIG_LEDS_S3C24XX)		+= leds-s3c2
+ # LED Triggers
+ obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
+ obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+= ledtrig-ide-disk.o
++obj-$(CONFIG_LEDS_TRIGGER_HEARTBEAT)	+= ledtrig-heartbeat.o
+diff --git a/drivers/leds/ledtrig-heartbeat.c b/drivers/leds/ledtrig-heartbeat.c
+new file mode 100644
+index 0000000..4bf8cec
+--- /dev/null
++++ b/drivers/leds/ledtrig-heartbeat.c
+@@ -0,0 +1,118 @@
++/*
++ * LED Heartbeat Trigger
++ *
++ * Copyright (C) 2006 Atsushi Nemoto <anemo@mba.ocn.ne.jp>
++ *
++ * Based on Richard Purdie's ledtrig-timer.c and some arch's
++ * CONFIG_HEARTBEAT code.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/timer.h>
++#include <linux/sched.h>
++#include <linux/leds.h>
++#include "leds.h"
++
++struct heartbeat_trig_data {
++	unsigned int phase;
++	unsigned int period;
++	struct timer_list timer;
++};
++
++static void led_heartbeat_function(unsigned long data)
++{
++	struct led_classdev *led_cdev = (struct led_classdev *) data;
++	struct heartbeat_trig_data *heartbeat_data = led_cdev->trigger_data;
++	unsigned long brightness = LED_OFF;
++	unsigned long delay = 0;
++
++	/* acts like an actual heart beat -- ie thump-thump-pause... */
++	switch (heartbeat_data->phase) {
++	case 0:
++		/*
++		 * The hyperbolic function below modifies the
++		 * heartbeat period length in dependency of the
++		 * current (1min) load. It goes through the points
++		 * f(0)=1260, f(1)=860, f(5)=510, f(inf)->300.
++		 */
++		heartbeat_data->period = 300 +
++			(6720 << FSHIFT) / (5 * avenrun[0] + (7 << FSHIFT));
++		heartbeat_data->period =
++			msecs_to_jiffies(heartbeat_data->period);
++		delay = msecs_to_jiffies(70);
++		heartbeat_data->phase++;
++		brightness = LED_FULL;
++		break;
++	case 1:
++		delay = heartbeat_data->period / 4 - msecs_to_jiffies(70);
++		heartbeat_data->phase++;
++		break;
++	case 2:
++		delay = msecs_to_jiffies(70);
++		heartbeat_data->phase++;
++		brightness = LED_FULL;
++		break;
++	default:
++		delay = heartbeat_data->period - heartbeat_data->period / 4 -
++			msecs_to_jiffies(70);
++		heartbeat_data->phase = 0;
++		break;
++	}
++
++	led_set_brightness(led_cdev, brightness);
++	mod_timer(&heartbeat_data->timer, jiffies + delay);
++}
++
++static void heartbeat_trig_activate(struct led_classdev *led_cdev)
++{
++	struct heartbeat_trig_data *heartbeat_data;
++
++	heartbeat_data = kzalloc(sizeof(*heartbeat_data), GFP_KERNEL);
++	if (!heartbeat_data)
++		return;
++
++	led_cdev->trigger_data = heartbeat_data;
++	setup_timer(&heartbeat_data->timer,
++		    led_heartbeat_function, (unsigned long) led_cdev);
++	heartbeat_data->phase = 0;
++	led_heartbeat_function(heartbeat_data->timer.data);
++}
++
++static void heartbeat_trig_deactivate(struct led_classdev *led_cdev)
++{
++	struct heartbeat_trig_data *heartbeat_data = led_cdev->trigger_data;
++
++	if (heartbeat_data) {
++		del_timer_sync(&heartbeat_data->timer);
++		kfree(heartbeat_data);
++	}
++}
++
++static struct led_trigger heartbeat_led_trigger = {
++	.name     = "heartbeat",
++	.activate = heartbeat_trig_activate,
++	.deactivate = heartbeat_trig_deactivate,
++};
++
++static int __init heartbeat_trig_init(void)
++{
++	return led_trigger_register(&heartbeat_led_trigger);
++}
++
++static void __exit heartbeat_trig_exit(void)
++{
++	led_trigger_unregister(&heartbeat_led_trigger);
++}
++
++module_init(heartbeat_trig_init);
++module_exit(heartbeat_trig_exit);
++
++MODULE_AUTHOR("Atsushi Nemoto <anemo@mba.ocn.ne.jp>");
++MODULE_DESCRIPTION("Heartbeat LED trigger");
++MODULE_LICENSE("GPL");

@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWFUOeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751648AbWFUOdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWFUOeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWFUOeD
+	id S1751648AbWFUOdY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751645AbWFUOdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:34:03 -0400
-Received: from mail.gmx.net ([213.165.64.21]:63466 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932167AbWFUOeA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:34:00 -0400
-X-Authenticated: #704063
-Subject: [Patch] Array overrun in drivers/net/tokenring/3c359.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: mikep@linuxtr.net
+	Wed, 21 Jun 2006 10:33:23 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:57321
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751629AbWFUOdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 10:33:17 -0400
+Subject: [PATCH] fix synclink_gt diagnostics error reporting
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 21 Jun 2006 16:33:58 +0200
-Message-Id: <1150900438.20915.6.camel@alice>
+Date: Wed, 21 Jun 2006 09:33:09 -0500
+Message-Id: <1150900389.3708.8.camel@amdx2.microgate.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Fix diagnostics error reporting that was being
+overwritten by incorrect use of return codes from
+individual diagnostic functions.
 
-this was spotted by coverity (#id 502)
-the xl_laa[] array has only 6 entries, since the else
-case uses i-10 as array index to dev->dev_addr[] i guess
-thats what should be done here too
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+--- a/drivers/char/synclink_gt.c	2006-06-21 09:04:11.000000000 -0500
++++ b/drivers/char/synclink_gt.c	2006-06-21 09:24:51.000000000 -0500
+@@ -4671,13 +4671,13 @@ static int loopback_test(struct slgt_inf
+ static int adapter_test(struct slgt_info *info)
+ {
+ 	DBGINFO(("testing %s\n", info->device_name));
+-	if ((info->init_error = register_test(info)) < 0) {
++	if (register_test(info) < 0) {
+ 		printk("register test failure %s addr=%08X\n",
+ 			info->device_name, info->phys_reg_addr);
+-	} else if ((info->init_error = irq_test(info)) < 0) {
++	} else if (irq_test(info) < 0) {
+ 		printk("IRQ test failure %s IRQ=%d\n",
+ 			info->device_name, info->irq_level);
+-	} else if ((info->init_error = loopback_test(info)) < 0) {
++	} else if (loopback_test(info) < 0) {
+ 		printk("loopback test failure %s\n", info->device_name);
+ 	}
+ 	return info->init_error;
 
---- linux-2.6.17-git2/drivers/net/tokenring/3c359.c.orig	2006-06-21 16:31:36.000000000 +0200
-+++ linux-2.6.17-git2/drivers/net/tokenring/3c359.c	2006-06-21 16:31:41.000000000 +0200
-@@ -764,7 +764,7 @@ static int xl_open_hw(struct net_device 
- 	if (xl_priv->xl_laa[0]) {  /* If using a LAA address */
- 		for (i=10;i<16;i++) { 
- 			writel( (MEM_BYTE_WRITE | 0xD0000 | xl_priv->srb) + i, xl_mmio + MMIO_MAC_ACCESS_CMD) ; 
--			writeb(xl_priv->xl_laa[i],xl_mmio + MMIO_MACDATA) ; 
-+			writeb(xl_priv->xl_laa[i-10],xl_mmio + MMIO_MACDATA) ; 
- 		}
- 		memcpy(dev->dev_addr,xl_priv->xl_laa,dev->addr_len) ; 
- 	} else { /* Regular hardware address */ 
 
 

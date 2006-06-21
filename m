@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWFUFbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWFUFbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWFUFbX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 01:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWFUFbX
+	id S1751101AbWFUFbj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 01:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWFUFbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 01:31:23 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:9063 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751085AbWFUFbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 01:31:22 -0400
-Message-ID: <4498D9F6.6020700@oracle.com>
-Date: Tue, 20 Jun 2006 22:32:38 -0700
+	Wed, 21 Jun 2006 01:31:38 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:59345 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751096AbWFUFbh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 01:31:37 -0400
+Message-ID: <4498DA08.1010309@oracle.com>
+Date: Tue, 20 Jun 2006 22:32:56 -0700
 From: Randy Dunlap <randy.dunlap@oracle.com>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: dtor_core@ameritech.net, akpm <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [Ubuntu PATCH] input: allow root to inject unknown scan codes
+To: davej@codemonkey.org.uk, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>
+Subject: [Ubuntu PATCH] cpufreq: fix powernow-k8 load bug
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 X-Brightmail-Tracker: AAAAAQAAAAI=
@@ -26,26 +26,28 @@ X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow root to inject unknown scan codes for input device.
+Fix powernow-k8 doesn't load bug.
+Reference: https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/35145
 
-http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=250bc863956a93a8eab7991b0dc7f040eb5d25cc
+http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=dce0ca36f2ae348f005735e9acd400d2c0954421
+
 
 
 ---
- drivers/input/input.c |    2 +-
+ arch/i386/kernel/cpu/cpufreq/powernow-k8.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2617-pv.orig/drivers/input/input.c
-+++ linux-2617-pv/drivers/input/input.c
-@@ -75,7 +75,7 @@ void input_event(struct input_dev *dev, 
+--- linux-2617-pv.orig/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
++++ linux-2617-pv/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+@@ -1008,7 +1008,7 @@ static int __cpuinit powernowk8_cpu_init
+ 		 * an UP version, and is deprecated by AMD.
+ 		 */
  
- 		case EV_KEY:
- 
--			if (code > KEY_MAX || !test_bit(code, dev->keybit) || !!test_bit(code, dev->key) == value)
-+			if (code > KEY_MAX || !!test_bit(code, dev->key) == value)
- 				return;
- 
- 			if (value == 2)
+-		if ((num_online_cpus() != 1) || (num_possible_cpus() != 1)) {
++		if ((num_online_cpus() != 1)) {
+ 			printk(KERN_ERR PFX "MP systems not supported by PSB BIOS structure\n");
+ 			kfree(data);
+ 			return -ENODEV;
 
 
 

@@ -1,138 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWFUSJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWFUSOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbWFUSJR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 14:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWFUSJR
+	id S1751144AbWFUSOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 14:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWFUSOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 14:09:17 -0400
-Received: from mx2.suse.de ([195.135.220.15]:36495 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751135AbWFUSJQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 14:09:16 -0400
-Date: Wed, 21 Jun 2006 20:08:57 +0200
-From: Nick Piggin <npiggin@suse.de>
+	Wed, 21 Jun 2006 14:14:15 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:50054 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751144AbWFUSOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 14:14:15 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=dxSJaKHCg5zDZbVxgl3UAvA4jJj+FGcQlhESYslGuvsgQcGYrt7fvNPUPIc/7McxJ
+	sSlc8r4/gtq8v5FOdhuGw==
+Message-ID: <44998C4F.8090502@google.com>
+Date: Wed, 21 Jun 2006 11:13:35 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Nate Diller <nate.diller@gmail.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
        linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
        Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
        Christoph Lameter <christoph@lameter.com>,
-       Martin Bligh <mbligh@google.com>, Linus Torvalds <torvalds@osdl.org>,
+       Nick Piggin <npiggin@suse.de>, Linus Torvalds <torvalds@osdl.org>,
        Hans Reiser <reiser@namesys.com>, "E. Gryaznova" <grev@namesys.com>
-Subject: Re: [PATCH] mm/tracking dirty pages: update get_dirty_limits for mmap tracking
-Message-ID: <20060621180857.GA6948@wotan.suse.de>
+Subject: Re: [PATCH] mm/tracking dirty pages: update get_dirty_limits for
+ mmap tracking
 References: <5c49b0ed0606211001s452c080cu3f55103a130b78f1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <5c49b0ed0606211001s452c080cu3f55103a130b78f1@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 10:01:17AM -0700, Nate Diller wrote:
-> Update write throttling calculations now that we can track and
-> throttle dirty mmap'd pages.  A version of this patch has been tested
-> with iozone:
 
-Your changelog doesn't tell much about the "why" side of things,
-and omits the fact that you have upped the dirty ratio to 80.
-
-> 
-> http://namesys.com/intbenchmarks/iozone/06.06.19.tracking.dirty.page-noatime_-B/e3-2.6.16-tr.drt.pgs-rt.40_vs_rt.80.html
-> http://namesys.com/intbenchmarks/iozone/06.06.19.tracking.dirty.page-noatime_-B/r4-2.6.16-tr.drt.pgs-rt.40_vs_rt.80.html
-
-I'm guessing the reason you get all those red numbers when
-iozone files are larger than RAM is because writeout and reclaim
-tend to get worse when there are large amounts of dirty pages
-floating around in memory?
-
-> 
-> Signed-off-by: Nate Diller <nate.diller@gmail.com>
-> 
-> --- linux-2.6.orig/mm/page-writeback.c	2005-10-27 17:02:08.000000000 -0700
-> +++ linux-2.6/mm/page-writeback.c	2006-06-21 08:24:11.000000000 -0700
-> @@ -69,7 +69,7 @@ int dirty_background_ratio = 10;
-> /*
->  * The generator of dirty data starts writeback at this percentage
->  */
 > -int vm_dirty_ratio = 40;
 > +int vm_dirty_ratio = 80;
-> 
-> /*
->  * The interval between `kupdate'-style writebacks, in centiseconds
-> @@ -119,15 +119,14 @@ static void get_writeback_state(struct w
->  * Work out the current dirty-memory clamping and background writeout
->  * thresholds.
->  *
-> - * The main aim here is to lower them aggressively if there is a lot of 
-> mapped
-> - * memory around.  To avoid stressing page reclaim with lots of 
-> unreclaimable
-> - * pages.  It is better to clamp down on writers than to start swapping, 
-> and
-> - * performing lots of scanning.
-> - *
-> - * We only allow 1/2 of the currently-unmapped memory to be dirtied.
-> - *
-> - * We don't permit the clamping level to fall below 5% - that is getting 
-> rather
-> - * excessive.
-> + * We now have dirty memory accounting for mmap'd pages, so we calculate 
-> the
-> + * ratios based on the available memory.  We still have no way of tracking
-> + * how many pages are pinned (eg BSD wired accounting), so we still need 
-> the
-> + * hard clamping, but the default has been raised to 80.
-> + *
-> + * We now allow the ratios to be set to anything, because there is less 
-> risk
-> + * of OOM, and because databases and such will need more flexible tuning,
-> + * now that they are being throttled too.
->  *
->  * We make sure that the background writeout level is below the adjusted
->  * clamping level.
-> @@ -136,9 +135,6 @@ static void
-> get_dirty_limits(struct writeback_state *wbs, long *pbackground, long 
-> *pdirty,
-> 		struct address_space *mapping)
-> {
-> -	int background_ratio;		/* Percentages */
-> -	int dirty_ratio;
-> -	int unmapped_ratio;
-> 	long background;
-> 	long dirty;
-> 	unsigned long available_memory = total_pages;
-> @@ -155,27 +151,16 @@ get_dirty_limits(struct writeback_state
-> 		available_memory -= totalhigh_pages;
-> #endif
-> 
-> -
-> -	unmapped_ratio = 100 - (wbs->nr_mapped * 100) / total_pages;
-> -
-> -	dirty_ratio = vm_dirty_ratio;
-> -	if (dirty_ratio > unmapped_ratio / 2)
-> -		dirty_ratio = unmapped_ratio / 2;
-> -
-> -	if (dirty_ratio < 5)
-> -		dirty_ratio = 5;
-> -
-> -	background_ratio = dirty_background_ratio;
-> -	if (background_ratio >= dirty_ratio)
-> -		background_ratio = dirty_ratio / 2;
-> -
-> -	background = (background_ratio * available_memory) / 100;
-> -	dirty = (dirty_ratio * available_memory) / 100;
-> +	background = (dirty_background_ratio * available_memory) / 100;
-> +	dirty = (vm_dirty_ratio * available_memory) / 100;
-> 	tsk = current;
-> 	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk)) {
-> 		background += background / 4;
-> -		dirty += dirty / 4;
-> +		dirty += dirty / 8;
-> 	}
-> +	if (background > dirty)
-> +		background = dirty;
-> +
-> 	*pbackground = background;
-> 	*pdirty = dirty;
-> }
+
+I don't think you can do that. Because ...
+
+>     unsigned long available_memory = total_pages;
+...
+> +    dirty = (vm_dirty_ratio * available_memory) / 100;
+
+... there are other things in memory besides pagecache. Limiting
+dirty pages to 80% of pagecache might be fine, but not 80%
+of total memory.
+
+dirty = (vm_dirty_ratio * (nr_active + nr_inactive)) / 100
+
+might be more sensible. Frankly the whole thing is a crock
+anyway, because we should be counting easily freeable clean
+pages, not dirty pages, but still.
+
+M.

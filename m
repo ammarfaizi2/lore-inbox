@@ -1,36 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWFUNX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWFUNZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWFUNX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 09:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWFUNX1
+	id S932121AbWFUNZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 09:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWFUNZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 09:23:27 -0400
-Received: from wildsau.enemy.org ([193.170.194.34]:44445 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1751573AbWFUNX0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 09:23:26 -0400
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200606211317.k5LDHYLv012510@wildsau.enemy.org>
-Subject: gcc-4.1.1 and kernel-2.4.32
-To: linux-kernel@vger.kernel.org
-Date: Wed, 21 Jun 2006 15:17:34 +0200 (MET DST)
-CC: Herbert Rosmanith <kernel@wildsau.enemy.org>
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 21 Jun 2006 09:25:27 -0400
+Received: from mail3.uklinux.net ([80.84.72.33]:27778 "EHLO mail3.uklinux.net")
+	by vger.kernel.org with ESMTP id S932121AbWFUNZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 09:25:26 -0400
+Date: Wed, 21 Jun 2006 14:42:36 +0100
+From: John Rigg <lk@sound-man.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rt1 unknown symbol monotonic_clock
+Message-ID: <20060621134236.GA3409@localhost.localdomain>
+References: <20060621100623.GA2960@localhost.localdomain> <20060621110613.GA22322@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621110613.GA22322@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 21, 2006 at 01:06:13PM +0200, Ingo Molnar wrote:
+> 
+> * John Rigg <lk@sound-man.co.uk> wrote:
+> 
+> > Just compiled 2.6.17-rt1 on x86_64 UP system and got the following
+> > message when doing `make modules_install':
+> > WARNING: /lib/modules/2.6.17-rt1/kernel/drivers/char/hangcheck-timer.ko \
+> > needs unknown symbol monotonic_clock
+> 
+> please try -rt2 - does it work any better?
 
-good day,
+I'd try it if I could find it :)
 
-trying to compile 2.4.32 with gcc-4.1.1 (probably any 4.x gcc?) produces
-a lot of errors, (i.e., declaration of symbols of different types and so on).
+In the meantime I tried the patch below (don't know if it's correct but it works
+so far).
 
-I wonder if it is planned to be fixed? No idea who's maintaining it - 
-in case you want to, I could send you diffs to make 2.4.32 compile.
+John
 
-kind regards,
-h.rosmanith
+____________________________________________________________________
 
+diff -uprN linux-2.6.17.orig/arch/x86_64/kernel/time.c linux-2.6.17/arch/x86_64/kernel/time.c
+--- linux-2.6.17.orig/arch/x86_64/kernel/time.c	2006-06-21 14:29:09.000000000 +0100
++++ linux-2.6.17/arch/x86_64/kernel/time.c	2006-06-21 14:30:56.000000000 +0100
+@@ -247,6 +247,15 @@ unsigned long long sched_clock(void)
+ 	return cycles_2_ns(a);
+ }
+ 
++/*
++ * Monotonic_clock - returns # of nanoseconds passed since time_init()
++ */
++unsigned long long monotonic_clock(void)
++{
++	return sched_clock();
++}
++EXPORT_SYMBOL(monotonic_clock);
++
+ static int tsc_unstable;
+ 
+ static inline int check_tsc_unstable(void)

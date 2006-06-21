@@ -1,62 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWFUAN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWFUAOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWFUAN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jun 2006 20:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWFUAN4
+	id S1750825AbWFUAOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jun 2006 20:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWFUAOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jun 2006 20:13:56 -0400
-Received: from web33513.mail.mud.yahoo.com ([68.142.206.162]:42910 "HELO
-	web33513.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932159AbWFUAN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jun 2006 20:13:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=e3oU6fHkpkT+HrSyG5BrZMGfoFwf8JSCL5TuisQiOygE15oWdcsG67MmWZF0eZguz9bRRIZLhme8EWluNbpG98C97ofZjRoy6uFHg2bDC2knWm4XUd8j09PJSLlnGpBKe5Af+iN43q3kHmsgo/S0Xi36PSDqQpy6GYrdeM8Pizc=  ;
-Message-ID: <20060621001355.31529.qmail@web33513.mail.mud.yahoo.com>
-Date: Tue, 20 Jun 2006 17:13:55 -0700 (PDT)
-From: Narendra Hadke <nhadke@yahoo.com>
-Subject: Re: sata_mv driver on 88sx6041 (kernel version 2.6.13)
-To: Mark Lord <lkml@rtr.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4496B47B.7070602@rtr.ca>
+	Tue, 20 Jun 2006 20:14:52 -0400
+Received: from gw.goop.org ([64.81.55.164]:22401 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750825AbWFUAOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jun 2006 20:14:52 -0400
+Message-ID: <44988F7F.2010502@goop.org>
+Date: Tue, 20 Jun 2006 17:14:55 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Christian.Limpach@cl.cam.ac.uk, chrisw@sous-sol.org
+Subject: Re: [PATCH] Implement kasprintf
+References: <44988B5C.9080400@goop.org> <20060620171020.301add23.rdunlap@xenotime.net>
+In-Reply-To: <20060620171020.301add23.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Randy.Dunlap wrote:
+> Why do we want a separate source file for this one function?
+>   
+Because if it shared a file with something else, someone would complain 
+about it bloating code which doesn't use it...  At the moment there are 
+no in-tree users (though I'm sure there's something out there with an 
+open-coded version of this), but we'll be needing it for Xen.
 
-  In the latest driver sata_mv for 88SX6041, the disk
- is detected but I don't see any attachs happening on 
- this disk ie. something like this.
-  Attaching :scsi sda sda1 sda2
-    Did I miss anything in kernel configs?  
-Thanks
-Narendra
+I'm happy to fold it into vsprintf.c though.
 
---- Mark Lord <lkml@rtr.ca> wrote:
-
-> Narendra Hadke wrote:
-> > Hi,
-> > I am using sata_mv driver as exists in kernel
-> 2.6.13,
-> > reached to a stage where after detecting the disk,
-> > control gets struck. Any ideas? 
-> 
-> No surprises there.  The sata_mv driver is horribly
-> buggy
-> in all kernels prior to 2.6.16, and even there it
-> still has
-> some serious bugs.  The 2.6.17 kernel version is
-> MUCH better.
-> 
-> Cheers
-> 
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+    J

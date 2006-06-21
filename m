@@ -1,87 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWFUOLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWFUONM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751011AbWFUOLq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWFUOLq
+	id S1751063AbWFUONM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWFUONM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:11:46 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39395 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750827AbWFUOLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:11:44 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
-       Len Brown <len.brown@intel.com>,
-       Kimball Murray <kimball.murray@gmail.com>,
-       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
-       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
-       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Mark Maule <maule@sgi.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Shaohua Li <shaohua.li@intel.com>,
-       Matthew Wilcox <matthew@wil.cx>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
-       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
-Subject: [PATCH] Decouple IRQ issues (fix i386 compile issues)
-References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com>
-	<20060620173017.A10402@unix-os.sc.intel.com>
-Date: Wed, 21 Jun 2006 08:10:44 -0600
-In-Reply-To: <20060620173017.A10402@unix-os.sc.intel.com> (Rajesh Shah's
-	message of "Tue, 20 Jun 2006 17:30:18 -0700")
-Message-ID: <m1hd2e7g63.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 21 Jun 2006 10:13:12 -0400
+Received: from wr-out-0506.google.com ([64.233.184.233]:50376 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751063AbWFUONK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 10:13:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DYhiYg81uG/073wwjBKOwqempriiBXBHh9P2nX1G85Jnz0FP9QaF+u3zAu2gYenix3EBFkr9+QPuxjTOWCEglCsFCOP1Wd8iZBeJPCOBu03WJYRuBkJ3KuTa+caiqA2ZmEOES+fI2VLi2iYTimato7hqzD/W8PQZpPL3aI1HS98=
+Message-ID: <6bffcb0e0606210713g2e48bb3coa0426873e4be7995@mail.gmail.com>
+Date: Wed, 21 Jun 2006 16:13:10 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Cedric Le Goater" <clg@fr.ibm.com>
+Subject: Re: 2.6.17-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, hpa@zytor.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44994F77.5030301@fr.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060621034857.35cfe36f.akpm@osdl.org>
+	 <6bffcb0e0606210407y781b3d41nef533847f579520b@mail.gmail.com>
+	 <20060621041758.4235dbc6.akpm@osdl.org>
+	 <6bffcb0e0606210429t3e78e88dqd637718e4e22b3f0@mail.gmail.com>
+	 <44994F77.5030301@fr.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajesh Shah <rajesh.shah@intel.com> writes:
+Hi Cedric,
 
-> On Tue, Jun 20, 2006 at 04:24:35PM -0600, Eric W. Biederman wrote:
->> 
->> The primary aim of this patch is to remove maintenances problems caused
->> by the irq infrastructure.  The two big issues I address are an
->> artificially small cap on the number of irqs, and that MSI assumes
->> vector == irq.  My primary focus is on x86_64 but I have touched
->> other architectures where necessary to keep them from breaking.
->> 
-> The MSI portions of this patchset is similar to the MSI cleanup
-> I was working on. I'll drop my patchkit and instead comment on
-> the relevant patches in this kit.
+On 21/06/06, Cedric Le Goater <clg@fr.ibm.com> wrote:
+> Michal Piotrowski wrote:
 >
-> I got a couple of minor compile errors on i386 (kernel/io_apic.c).
-> I fixed them up by hand and the resulting kernel booted and
-> worked with MSI in the limited testing I've done so far.
+> >> > usr/klibc/syscalls/typesize.c:1:23: error: syscommon.h: No such file
+> >> > or directory
+> >>
+> >> That one's probably just a parallel kbuild race.  Type `make' again.
+> >>
+> >
+> > "make O=/dir" is culprit.
+> >
+> > Regards,
+> > Michal
+> >
+>
+> That's how i fixed it.
 
+Problem fixed, thanks.
 
-Somewhere in the final round of cleanups I missed these two
-one liners.  This is what it takes to fix the i386 build.
+> Is that the right way to do it ?
+>
+> Thanks,
+>
+> C.
+>
 
-Eric
+Regards,
+Michal
 
-diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
-index 18a5c2a..3068cde 100644
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@@ -1173,7 +1173,6 @@ next:
-        if (current_vector >= FIRST_SYSTEM_VECTOR) {
-                offset++;
-                if (!(offset%8)) {
--                       spin_unlock_irqrestore(&vector_lock, flags);
-                        return -ENOSPC;
-                }
-                current_vector = FIRST_DEVICE_VECTOR + offset;
-@@ -2460,7 +2459,7 @@ void destroy_irq(unsigned int irq)
- {
-        unsigned long flags;
- 
--       dynmic_irq_cleanup(irq);
-+       dynamic_irq_cleanup(irq);
- 
-        spin_lock_irqsave(&vector_lock, flags);
-        irq_vector[irq] = 0;
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

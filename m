@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbWFUWTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWFUWVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030340AbWFUWTK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 18:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWFUWTK
+	id S1751493AbWFUWVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 18:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWFUWVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 18:19:10 -0400
-Received: from aa003msr.fastwebnet.it ([85.18.95.66]:26329 "EHLO
-	aa003msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1030340AbWFUWTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 18:19:09 -0400
-Date: Thu, 22 Jun 2006 00:18:32 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, pavel@suse.cz,
-       linux-pm@osdl.org
-Subject: Re: swsusp regression [Was: 2.6.17-mm1]
-Message-ID: <20060621221832.GC3798@inferi.kami.home>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, pavel@suse.cz, linux-pm@osdl.org
-References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home>
+	Wed, 21 Jun 2006 18:21:42 -0400
+Received: from cantor.suse.de ([195.135.220.2]:27081 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751493AbWFUWVl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 18:21:41 -0400
+From: Andi Kleen <ak@suse.de>
+To: rohitseth@google.com
+Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
+Date: Thu, 22 Jun 2006 00:21:21 +0200
+User-Agent: KMail/1.9.3
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+References: <200606210329_MC3-1-C305-E008@compuserve.com> <p73zmg6oo5t.fsf@verdi.suse.de> <1150926882.6885.32.camel@galaxy.corp.google.com>
+In-Reply-To: <1150926882.6885.32.camel@galaxy.corp.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060621221445.GB3798@inferi.kami.home>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.17-rc4-mm2-1 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200606220021.21657.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 12:14:45AM +0200, Mattia Dongili wrote:
-[...]
-> rmmod-ing sd_mod usb_storage usbhid uhci_hcd can finally suspend to disk
-> and resume (s2ram).
 
-doh, sorry. I meant "suspend to ram".
+> Can we use similar  mechanism to access pda in vsyscall in x86_64 (by
+> storing the address of pda there).  
 
--- 
-mattia
-:wq!
+
+You mean in the kernel? %gs prefix is a lot faster than this.
+
+Also the limit is only 20bit, not enough for a full address.
+
+For user space it's useful though, but I don't see any immediate uses
+other than cpu number and node number. For most purposes glibc TLS
+(which uses %fs) is probably sufficient.
+
+-Andi

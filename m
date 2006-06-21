@@ -1,66 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWFURKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWFURNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbWFURKu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 13:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWFURKu
+	id S932281AbWFURNk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 13:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWFURNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 13:10:50 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:16438 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S932276AbWFURKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 13:10:49 -0400
-Date: Wed, 21 Jun 2006 10:10:48 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc[56]-mm*: pcmcia "I/O resource not free"
-Message-ID: <20060621171048.GS2038@hexapodia.org>
-References: <20060615162859.GA1520@hexapodia.org> <20060617100327.e752b89a.akpm@osdl.org> <20060620211723.GA28016@hexapodia.org> <20060620150317.746372c5.akpm@osdl.org> <20060621065036.GR2038@hexapodia.org> <20060621004630.bb5eb68a.akpm@osdl.org>
+	Wed, 21 Jun 2006 13:13:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42636 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932277AbWFURNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 13:13:39 -0400
+Subject: Re: [PATCH v3 1/7] AMSO1100 Low Level Driver.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Steve Wise <swise@opengridcomputing.com>
+Cc: rdreier@cisco.com, mshefty@ichips.intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <1150907571.31600.31.camel@stevo-desktop>
+References: <20060620203050.31536.5341.stgit@stevo-desktop>
+	 <20060620203055.31536.15131.stgit@stevo-desktop>
+	 <1150836226.2891.231.camel@laptopd505.fenrus.org>
+	 <1150907571.31600.31.camel@stevo-desktop>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 19:13:33 +0200
+Message-Id: <1150910013.3057.59.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060621004630.bb5eb68a.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 12:46:30AM -0700, Andrew Morton wrote:
-> > [ 2034.060000] pcmcia: registering new device pcmcia0.0
-> > [ 2034.060000] PM: Adding info for pcmcia:0.0
-> > [ 2035.976000] conflict: PCI IO[0->ffff]
-> > [ 2035.976000] hwif_request_region: single-byte request for ide2
-> > [ 2035.976000]  [<c0257386>] hwif_request_region+0xa6/0xb0
-[snip]
-> > [ 2035.976000] ide2: I/O resource 0xF8B0200E-0xF8B0200E not free.
-> > [ 2035.976000] ide2: ports already in use, skipping probe
+>  0;
+> > > +
+> > > +		__raw_writew(0, elem->hw_desc + C2_RXP_STATUS);
+> > > +		__raw_writew(0, elem->hw_desc + C2_RXP_COUNT);
+> > > +		__raw_writew(0, elem->hw_desc + C2_RXP_LEN);
+> > 
+> > you seem to be a fan of the __raw_write() functions... any reason why?
+> > __raw_ is not a magic "go faster" prefix....
+> > 
 > 
-> hm.  It appears to have decided that 0 < 0xF8B0200E < 0xffff, which is
-> clever of it.
+> In this particular case, I believe this is done to avoid a swap of '0'
+> since its not necessary.  
+
+but.. that should writew() and co just autodetect (or do it at compile
+time)...
+(maybe it doesn't and we have an optimization opportunity here ;)
+
+> > Also on a related note, have you checked the driver for the needed PCI
+> > posting flushes?
+> > 
 > 
-> Does it help if you set CONFIG_RESOURCES_32BIT?
+> Um, what's a 'PCI posting flush'?  Can you point me where its
+> described/used so I can see if we need it?  Thanx.
 
-Nope, same conflict with CONFIG_RESOURCES_32BIT set.  You're right, it
-is deciding that 0xF8B0200E conflicts with that range:
+ok pci posting...
 
-conflict: PCI IO[0->ffff] conflicts with ide2[f8b3c00e->f8b3c00e]
+basically, if you use writel() and co, the PCI bridges in the middle are
+allowed (and the more fancy ones do) cache the write, to see if more
+writes follow, so that the bridge can do the writes as a single burst to
+the device, rather than as individual writes. This is of course great...
+... except when you really want the write to hit the device before the
+driver continues with other actions. 
 
-Looking at the code, I don't understand how this could have worked in
--rc6; __request_resource hasn't changed, and it says
+Now the PCI spec is set up such that any traffic in the other direction
+(basically readl() and co) will first flush the write through the system
+before the read is actually sent to the device, so doing a dummy readl()
+is a good way to flush any pending posted writes.
 
-    167         if (end < start)
-    168                 return root;
-    169         if (start < root->start)
-    170                 return root;
-    171         if (end > root->end)
-    172                 return root;
+Where does this matter? 
+it matters most at places such as irq enabling/disabling, IO submission
+and possibly IRQ acking, but also often in eeprom-like read/write logic
+(where you do manual clocking and need to do delays between the
+write()'s). But in general... any place where you do writel() without
+doing any readl() before doing nothing to the card for a long time, or
+where you are waiting for the card to do something (or want it done NOW,
+such as IRQ disabling) you need to issue a (dummy) readl() to flush
+pending writes out to the hardware.
 
-If root-> start == 0 and root->end == 0xffff, we should always hit line
-172, unless sign extension is in effect... and all the variables are
-unsigned long in -rc6, so that doesn't make sense.
 
-Rebooting into -rc6 with some debugging...
+does this explanation make any sense? if not please feel free to ask any
+questions, I know I'm not always very good at explaining things.
 
--andy
+Greetings,
+   Arjan van de Ven
+

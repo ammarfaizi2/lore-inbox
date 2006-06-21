@@ -1,70 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932722AbWFUTlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbWFUTni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932722AbWFUTlT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbWFUTlT
+	id S932719AbWFUTni (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932720AbWFUTni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:41:19 -0400
-Received: from wx-out-0102.google.com ([66.249.82.194]:8064 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932722AbWFUTlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:41:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OuCf58h02hxrxqoF0HZofe4uJPRC+rhP7c26AcJGuqQuIVbqUMNiO2CHsZRJgJcZ7+NcYRl8lNyoZ48qq7kgcZxMhJ3fY79uFsz7tJwtxjpEQVMzqIRW7WhvdZFGnl49kveDVAMr/wl1JNKtQ29kx3e4rvzuAi7bCkvkK/GyDQ8=
-Message-ID: <5c49b0ed0606211241k7d12b8d4q305cbaaada677d09@mail.gmail.com>
-Date: Wed, 21 Jun 2006 12:41:16 -0700
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Theodore Tso" <tytso@mit.edu>, "Christoph Hellwig" <hch@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH 5/8] inode-diet: Eliminate i_blksize and use a per-superblock default
-In-Reply-To: <20060619172014.GD15216@thunk.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jun 2006 15:43:38 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:46277 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932719AbWFUTng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:43:36 -0400
+Date: Wed, 21 Jun 2006 14:42:50 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Sonny Rao <sonny@burdell.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, anton@samba.org
+Subject: Re: Possible bug in do_execve()
+Message-ID: <20060621194250.GD16576@sergelap.austin.ibm.com>
+References: <20060620022506.GA3673@kevlar.burdell.org> <20060621184129.GB16576@sergelap.austin.ibm.com> <20060621185508.GA9234@kevlar.burdell.org> <20060621190910.GC16576@sergelap.austin.ibm.com> <20060621192726.GA10052@kevlar.burdell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060619152003.830437000@candygram.thunk.org>
-	 <20060619153109.817554000@candygram.thunk.org>
-	 <20060619155821.GA27867@infradead.org>
-	 <20060619161651.GS29684@ca-server1.us.oracle.com>
-	 <20060619172014.GD15216@thunk.org>
+In-Reply-To: <20060621192726.GA10052@kevlar.burdell.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/19/06, Theodore Tso <tytso@mit.edu> wrote:
-> On Mon, Jun 19, 2006 at 09:16:51AM -0700, Joel Becker wrote:
-> > On Mon, Jun 19, 2006 at 04:58:21PM +0100, Christoph Hellwig wrote:
-> > > Blease don't add a field to the superblock for the optimal I/O size.
-> > > Any filesystem that wants to override it can do so directly in ->getattr.
-> >
-> >       I don't disagree with you, but the idea of everyone implementing
-> > ->getattr where they just let it work before scares me.  It's a ton of
-> > cut-n-paste error waiting to happen.  Especially if we make something
-> > stale.
-> >       Perhaps add generic_fillattr_blksize()?
->
-> Well, as far as I know the only filesystems today that would need to
-> do something different are xfs, ocfs2, and reiserfs, and IMHO only the
-> first two have any kind of justification for doing it.  Part of the
-> problem is what st_blksize actually means was never well-defined; it
-> was never in POSIX, and in SuSv3 all that is stated is, "A file
-> system-specific preferred I/O block size for this object."  This is
-> why Reiserfs got away with specifying 128 megs (I assume it helped on
-> some benchmark), and why being ill-defined, using such a large value
-> might cause some applications (like /bin/cp) to core dump.
->
-> Given that most filesystems use the generic page cache read/write
-> functions, using PAGE_CACHE_SIZE as the default seems to make a huge
-> amount of sense.  I really wonder how useful setting st_blksize really
-> is, actually, at least in the real-world, as opposed to just for
-> benchmarks.
+Quoting Sonny Rao (sonny@burdell.org):
+> On Wed, Jun 21, 2006 at 02:09:10PM -0500, Serge E. Hallyn wrote:
+> <snip>
+> > > Yeah, I proposed a similar patch to Anton, and it would quiet the
+> > > warning on powerpc, but that's not the point.  It happens that powerpc
+> > > doesn't use 0 as a context id, but that may not be true on another
+> > > architecture.  That's really what I'm concerned about.
+> > 
+> > FWIW, ppc and cris do the NO_CONTEXT check, while others don't
+> > even have a arch-specific 'mm->context.id'.
+> 
+> Good point.  I probably stated that concern too narrowly.  Probably
+> what I should say is: What is the pre-condition for calling
+> destroy_context() ?  Is it that init_new_context() must have
+> succeeded?  Or is it merely that mm.context has been zeroed
+> out?
 
-I assume "128 megs" is a typo, it's 128k, of course.  And certainly it
-would have helped speed things up, not just benchmarks, because for
-modern disks, doing 128k vs 4k takes like 25% more time.  Wu's
-adaptive readahead patches might make this outdated, though, since
-they now support "read 10 pages, seek, read 10 pages, seek, etc" type
-workloads.
+Right, that may be the right question.  If that's the case, then the
+problem is really include/linux/sched.h:__mmdrop() which is what's
+calling destroy_context().  Separating that out becomes a pretty
+big patch affecting at least all mmput() and mmdrop() callers.
 
-NATE
+> Here's destroy context on sparc64:
+> 
+> void destroy_context(struct mm_struct *mm)
+> {
+>         unsigned long flags, i;
+> 
+>         for (i = 0; i < MM_NUM_TSBS; i++)
+>                 tsb_destroy_one(&mm->context.tsb_block[i]);
+> 
+>         spin_lock_irqsave(&ctx_alloc_lock, flags);
+> 
+>         if (CTX_VALID(mm->context)) {
+>                 unsigned long nr = CTX_NRBITS(mm->context);
+>                 mmu_context_bmap[nr>>6] &= ~(1UL << (nr & 63));
+>         }
+> 
+>         spin_unlock_irqrestore(&ctx_alloc_lock, flags);
+> }
+> 
+> It seems to assume that mm->context is valid before doing a check.
+> 
+> Since I don't have a sparc64 box, I can't check to see if this
+> actually breaks things or not.
+
+So we can either go through all arch's and make sure destroy_context is
+safe for invalid context, or split mmput() and destroy_context()...
+
+The former seems easier, but the latter seems more robust in the face of
+future code changes I guess.
+
+-serge

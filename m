@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWFUQQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWFUQWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWFUQQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 12:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWFUQQ3
+	id S932076AbWFUQWL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 12:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWFUQWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 12:16:29 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:484 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932214AbWFUQQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 12:16:28 -0400
-Date: Wed, 21 Jun 2006 18:16:03 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: 7eggert@gmx.de, andi@lisas.de, Andrew Morton <akpm@osdl.org>,
-       gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, hal@lists.freedesktop.org
-Subject: Re: [linux-usb-devel] USB/hal: USB open() broken? (USB CD burner
- underruns, USB HDD hard resets)
-In-Reply-To: <1150887236.15275.37.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0606211802590.3817@be1.lrz>
-References: <6pnj7-32Q-7@gated-at.bofh.it> <6pJWg-34g-5@gated-at.bofh.it> 
- <6pKfL-3sx-29@gated-at.bofh.it> <6pKpl-3Sx-23@gated-at.bofh.it> 
- <6pLll-5iq-15@gated-at.bofh.it>  <E1FsqGX-0001eu-AT@be1.lrz>
- <1150887236.15275.37.camel@localhost.localdomain>
+	Wed, 21 Jun 2006 12:22:11 -0400
+Received: from osa.unixfolk.com ([209.204.179.118]:18602 "EHLO
+	osa.unixfolk.com") by vger.kernel.org with ESMTP id S932076AbWFUQWJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 12:22:09 -0400
+Date: Wed, 21 Jun 2006 09:21:40 -0700 (PDT)
+From: Dave Olson <olson@unixfolk.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Allen Martin <AMartin@nvidia.com>, discuss@x86-64.org,
+       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
+       Greg Lindahl <greg.lindahl@qlogic.com>
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check
+ Hyper-transport capabilitiesKJ
+In-Reply-To: <p73vequomc8.fsf@verdi.suse.de>
+Message-ID: <Pine.LNX.4.61.0606210920170.30013@osa.unixfolk.com>
+References: <DBFABB80F7FD3143A911F9E6CFD477B00E48CF12@hqemmail02.nvidia.com>
+ <p73vequomc8.fsf@verdi.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006, Alan Cox wrote:
-> Ar Mer, 2006-06-21 am 02:07 +0200, ysgrifennodd Bodo Eggert:
+On Wed, 21 Jun 2006, Andi Kleen wrote:
 
-> > This does not work, since O_EXCL does not work:
-> > http://lkml.org/lkml/2006/2/5/137
-> 
-> It works fine. Its an advisory exclusive locking scheme which is
-> precisely what is needed and precisely how some vendors implement their
-> solution.
+| "Allen Martin" <AMartin@nvidia.com> writes:
+| 
+| > > 
+| > > NForce4 PCI Express is an unknown - we'll see how that works.
+| > > 
+| > 
+| > MSI is not officially supported on nForce4 and hasn't been fully tested.
+| 
+| Ok thanks for the information. We should definitely disable it by default
+| then, maybe with an boot option so that the speed-over-stability crowd
+| can enable it (+ possibly an oops taint bit) 
 
-This will be as effective as "/var/lock/please-don't-touch-the-burner",
-and the lock is more portable ...
+Why disable it, when it's clearly working?   Disable it for the
+onboard ethernet, perhaps, but as far as I know, nobody has reported
+any MSI issues on nforce4?   I've been in the vendor position often
+enough to know that "not supported" doesn't mean "known to not work".
 
-> There are good reasons for not having absolute locks, one of which is
-> that you might want to force a reset or a hot unplug of an interface
-> knowing you'll lose the CD its burning (eg because your flight is about
-> to leave)
-
-Killing cdrecord should take care of that lock.
+Dave Olson
+olson@unixfolk.com
+http://www.unixfolk.com/dave

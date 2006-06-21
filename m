@@ -1,106 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWFUVA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWFUVBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWFUVA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWFUVA2
+	id S1030297AbWFUVBq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWFUVBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:00:28 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:52967 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1030281AbWFUVAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:00:24 -0400
-Date: Wed, 21 Jun 2006 23:00:23 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH -mm 4/6] cpu_relax(): smpboot.c
-Message-ID: <20060621210023.GD22516@rhlx01.fht-esslingen.de>
+	Wed, 21 Jun 2006 17:01:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15791 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030297AbWFUVBe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:01:34 -0400
+Date: Wed, 21 Jun 2006 14:01:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <gregkh@suse.de>
+Cc: vgoyal@in.ibm.com, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64bit resources start end value fix
+Message-Id: <20060621140125.c27bc99e.akpm@osdl.org>
+In-Reply-To: <20060621204414.GA30766@suse.de>
+References: <20060621172903.GC9423@in.ibm.com>
+	<20060621132227.ec401f93.akpm@osdl.org>
+	<20060621204120.GA14739@in.ibm.com>
+	<20060621204414.GA30766@suse.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Jun 2006 13:44:15 -0700
+Greg KH <gregkh@suse.de> wrote:
 
-Add cpu_relax() to various smpboot.c init loops.
+> > > Confused.  This patch won't apply.  It will apply with `patch -R', and if
+> > > you do that you'll break iomem_reosurce.end by setting it to
+> > > 0x00000000ffffffff.
+> > > 
+> > > I don't think any additional changes are needed here.
+> > 
+> > Andrew, you don't have to apply this patch. It is supposed to be picked
+> > by Greg.
+> > 
+> > There seems to be some confusion. Just few days back Greg consolidated
+> > and re-organized all the 64bit resources patches and posted on LKML for
+> > review.
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115015916118671&w=2
+> > 
+> > There were few review comments regarding kconfig options.
+> > I reworked the patch and CONFING_RESOURCES_32BIT was changed to
+> > CONFIG_RESOURCES_64BIT.
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=115072559700302&w=2
+> > 
+> > Now Greg's tree and your tree are not exact replica when it comes to 
+> > 64bit resource patches. Hence this patch is supposed to be picked by 
+> > Greg to make sure things are not broken in his tree.
+> 
+> It still breaks things as Andrew pointed out.  .end should not be set to
+> -1.
 
+No, -1 is OK.
 
-Kept mb() since it's said to be required in some postings.
+As it turns out,
 
-Tested on 2.6.17-mm1.
+	unsigned long long x = ~0UL;
 
-Signed-off-by: Andreas Mohr <andi@lisas.de>
+sets `x' to 0xffffffffffffffff which was totally not what I expected.
 
+But -1 works, and the patch I have against your tree is OK.
 
-diff -urN linux-2.6.17-mm1.orig/arch/i386/kernel/smpboot.c linux-2.6.17-mm1.my/arch/i386/kernel/smpboot.c
---- linux-2.6.17-mm1.orig/arch/i386/kernel/smpboot.c	2006-06-21 14:28:15.000000000 +0200
-+++ linux-2.6.17-mm1.my/arch/i386/kernel/smpboot.c	2006-06-21 14:43:24.000000000 +0200
-@@ -251,8 +251,10 @@
- 		/*
- 		 * all APs synchronize but they loop on '== num_cpus'
- 		 */
--		while (atomic_read(&tsc_count_start) != num_booting_cpus()-1)
-+		while (atomic_read(&tsc_count_start) != num_booting_cpus()-1) {
-+			cpu_relax();
- 			mb();
-+		}
- 		atomic_set(&tsc_count_stop, 0);
- 		wmb();
- 		/*
-@@ -270,8 +272,10 @@
- 		/*
- 		 * Wait for all APs to leave the synchronization point:
- 		 */
--		while (atomic_read(&tsc_count_stop) != num_booting_cpus()-1)
-+		while (atomic_read(&tsc_count_stop) != num_booting_cpus()-1) {
-+			cpu_relax();
- 			mb();
-+		}
- 		atomic_set(&tsc_count_start, 0);
- 		wmb();
- 		atomic_inc(&tsc_count_stop);
-@@ -328,19 +332,27 @@
- 	 * this gets called, so we first wait for the BP to
- 	 * finish SMP initialization:
- 	 */
--	while (!atomic_read(&tsc_start_flag)) mb();
-+	while (!atomic_read(&tsc_start_flag)) {
-+		cpu_relax();
-+		mb();
-+	}
- 
- 	for (i = 0; i < NR_LOOPS; i++) {
- 		atomic_inc(&tsc_count_start);
--		while (atomic_read(&tsc_count_start) != num_booting_cpus())
-+		while (atomic_read(&tsc_count_start) != num_booting_cpus()) {
-+			cpu_relax();
- 			mb();
-+		}
- 
- 		rdtscll(tsc_values[smp_processor_id()]);
- 		if (i == NR_LOOPS-1)
- 			write_tsc(0, 0);
- 
- 		atomic_inc(&tsc_count_stop);
--		while (atomic_read(&tsc_count_stop) != num_booting_cpus()) mb();
-+		while (atomic_read(&tsc_count_stop) != num_booting_cpus()) {
-+			cpu_relax();
-+			mb();
-+		}
- 	}
- }
- #undef NR_LOOPS
-@@ -1446,8 +1458,10 @@
- 	per_cpu(cpu_state, cpu) = CPU_UP_PREPARE;
- 	/* Unleash the CPU! */
- 	cpu_set(cpu, smp_commenced_mask);
--	while (!cpu_isset(cpu, cpu_online_map))
-+	while (!cpu_isset(cpu, cpu_online_map)) {
-+		cpu_relax();
- 		mb();
-+	}
- 	return 0;
- }
- 
+Could someone please fix Andy Isaacson <adi@hexapodia.org>'s bug, btw?

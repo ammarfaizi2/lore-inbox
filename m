@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932689AbWFUTdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbWFUTd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932689AbWFUTdk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 15:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWFUTdk
+	id S932692AbWFUTd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 15:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWFUTd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 15:33:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8867 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932689AbWFUTdj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 15:33:39 -0400
-Date: Wed, 21 Jun 2006 20:33:33 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Milan Broz <mbroz@redhat.com>
-Subject: [PATCH 03/15] dm mpath: support ioctls
-Message-ID: <20060621193333.GR4521@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Milan Broz <mbroz@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jun 2006 15:33:57 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:10318 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932693AbWFUTd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 15:33:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S4mifG/xpyRq093Sme4K2+r0YoGWe/9TG7Evn+lghsPIpsLVG7hsZ3W02WMIda8YX83SNYpEtj50CJk7GaoCFOeaArfHewVd0uXqj+CZSEyNsAyZ7Qz9F7cKc2BZfNWSz5hqkJglJkJoH42v0KcQ8PNW1I414i8+uuKFkT0Wkvs=
+Message-ID: <9a8748490606211233j442406f4r48917e934e091020@mail.gmail.com>
+Date: Wed, 21 Jun 2006 21:33:53 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Herbert Rosmanith" <kernel@wildsau.enemy.org>
+Subject: Re: gcc-4.1.1 and kernel-2.4.32
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200606211425.k5LEPtY6012550@wildsau.enemy.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <Pine.LNX.4.61.0606211615390.31302@yvahk01.tjqt.qr>
+	 <200606211425.k5LEPtY6012550@wildsau.enemy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Milan Broz <mbroz@redhat.com>
+On 21/06/06, Herbert Rosmanith <kernel@wildsau.enemy.org> wrote:
+> a notebook which had problems with our software: a
+> "toshiba portege m400". 2.4 seems to work so far, as does 2.6.16.
+> I also tried 2.6.17, but get a strange problem: it simply hangs
+> after writing "PCI: probing hardware" (or similar). A closer look
+> reveals that it hangs in drivers/pci/probe.c, in pci_read_bases. What's
+> exactly going on, I don't know...
 
-When an ioctl is performed on a multipath device
-simply pass it on to the underlying block device
-through current_path. If current path is not yet selected,
-select it.
+May I suggest that you write up a complete bug report for that
+regression (see the REPORTING-BUGS file for details) and send it to
+LKML + Cc: relevant people from MAINTAINERS ?
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
-Signed-off-by: Alasdair G Kergon <agk@redhat.com>
-
-Index: linux-2.6.17/drivers/md/dm-mpath.c
-===================================================================
---- linux-2.6.17.orig/drivers/md/dm-mpath.c	2006-06-21 17:45:15.000000000 +0100
-+++ linux-2.6.17/drivers/md/dm-mpath.c	2006-06-21 18:32:08.000000000 +0100
-@@ -1266,12 +1266,39 @@ error:
- 	return -EINVAL;
- }
- 
-+static int multipath_ioctl(struct dm_target *ti, struct inode *inode,
-+			   struct file *filp, unsigned int cmd,
-+			   unsigned long arg)
-+{
-+	struct multipath *m = (struct multipath *) ti->private;
-+	struct block_device *bdev = NULL;
-+	unsigned long flags;
-+	int r = 0;
-+
-+	spin_lock_irqsave(&m->lock, flags);
-+
-+	if (!m->current_pgpath)
-+		__choose_pgpath(m);
-+
-+	if (m->current_pgpath)
-+		bdev = m->current_pgpath->path.dev->bdev;
-+
-+	if (m->queue_io)
-+		r = -EAGAIN;
-+	else if (!bdev)
-+		r = -EIO;
-+
-+	spin_unlock_irqrestore(&m->lock, flags);
-+
-+	return r ? : blkdev_ioctl(bdev->bd_inode, filp, cmd, arg);
-+}
-+
- /*-----------------------------------------------------------------
-  * Module setup
-  *---------------------------------------------------------------*/
- static struct target_type multipath_target = {
- 	.name = "multipath",
--	.version = {1, 0, 4},
-+	.version = {1, 0, 5},
- 	.module = THIS_MODULE,
- 	.ctr = multipath_ctr,
- 	.dtr = multipath_dtr,
-@@ -1281,6 +1308,7 @@ static struct target_type multipath_targ
- 	.resume = multipath_resume,
- 	.status = multipath_status,
- 	.message = multipath_message,
-+	.ioctl  = multipath_ioctl,
- };
- 
- static int __init dm_multipath_init(void)
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

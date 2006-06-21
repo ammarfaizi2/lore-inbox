@@ -1,47 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWFULLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWFULNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWFULLL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 07:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWFULLL
+	id S1751375AbWFULNi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 07:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWFULNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 07:11:11 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:62685 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751352AbWFULLJ (ORCPT
+	Wed, 21 Jun 2006 07:13:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56516 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751375AbWFULNi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 07:11:09 -0400
-Date: Wed, 21 Jun 2006 13:06:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: John Rigg <lk@sound-man.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rt1 unknown symbol monotonic_clock
-Message-ID: <20060621110613.GA22322@elte.hu>
-References: <20060621100623.GA2960@localhost.localdomain>
+	Wed, 21 Jun 2006 07:13:38 -0400
+Subject: Re: GFS2 and DLM
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Teigland <teigland@redhat.com>,
+       Patrick Caulfield <pcaulfie@redhat.com>,
+       Kevin Anderson <kanderso@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <44980064.6040306@yahoo.com.au>
+References: <1150805833.3856.1356.camel@quoit.chygwyn.com>
+	 <4497EAC6.3050003@yahoo.com.au>
+	 <1150807630.3856.1372.camel@quoit.chygwyn.com>
+	 <44980064.6040306@yahoo.com.au>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Wed, 21 Jun 2006 12:20:54 +0100
+Message-Id: <1150888854.3856.1494.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060621100623.GA2960@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* John Rigg <lk@sound-man.co.uk> wrote:
+On Wed, 2006-06-21 at 00:04 +1000, Nick Piggin wrote:
+> Thanks.
+> 
+> Steven Whitehouse wrote:
+> >  kernel/printk.c                    |    1 
+> >  mm/filemap.c                       |    1 
+> >  mm/readahead.c                     |    1 
+> 
+> These EXPORTs are a bit unfortunate.
+> 
+> BTW. you have one function that calls file_ra_state_init but never appears
+> to use the initialized ra_state.
+> 
+> Why is gfs2_internal_read() called the "external read function" in the
+> changelog?
+> 
+> The internal_read function doesn't look like a great candidate for passing
+> a ra_state to, which invokes all the mechanism expecting a regular file
+> being accessed by a user program.
+> 
+> It seems as though you could explicitly control readahead more optimally,
+> but I don't know what the best way to do that would be. I assume Andrew
+> has had a quick look and doesn't know either.
+> 
+> The part where you needed file_read_actor looks like pretty much a stright
+> cut and paste from __generic_file_aio_read, which indicates that you might
+> be exporting at the wrong level.
+> 
+Having thought about this a bit more and taken some advice, I've changed
+this export (file_read_actor) to _GPL so that all three of the exports
+you mention are now _GPL exports.
 
-> Just compiled 2.6.17-rt1 on x86_64 UP system and got the following
-> message when doing `make modules_install':
-> WARNING: /lib/modules/2.6.17-rt1/kernel/drivers/char/hangcheck-timer.ko \
-> needs unknown symbol monotonic_clock
+The updated tree is at:
 
-please try -rt2 - does it work any better?
+git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6.git
 
-	Ingo
+Let me know if you still feel that there are further issues to look at,
+
+Steve.
+
+

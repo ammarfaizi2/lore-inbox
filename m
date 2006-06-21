@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWFUUHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWFUUIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbWFUUHP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 16:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWFUUHO
+	id S1030217AbWFUUIW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 16:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWFUUIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 16:07:14 -0400
-Received: from mail.gmx.net ([213.165.64.21]:37566 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030199AbWFUUHM (ORCPT
+	Wed, 21 Jun 2006 16:08:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8642 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030217AbWFUUIU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 16:07:12 -0400
-X-Authenticated: #704063
-Subject: [Patch] Ignored return value in drivers/mtd/chips/sharp.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: ds@schleef.org
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 22:07:08 +0200
-Message-Id: <1150920428.24106.1.camel@alice>
+	Wed, 21 Jun 2006 16:08:20 -0400
+Date: Wed, 21 Jun 2006 13:08:02 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: andi@lisas.de
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       zaitcev@redhat.com
+Subject: Re: USB/hal: USB open() broken? (USB CD burner underruns, USB HDD
+ hard resets)
+Message-Id: <20060621130802.004ef1eb.zaitcev@redhat.com>
+In-Reply-To: <20060621164425.GB22736@rhlx01.fht-esslingen.de>
+References: <20060621093348.GA13143@rhlx01.fht-esslingen.de>
+	<Pine.LNX.4.44L0.0606211158030.6700-100000@iolanthe.rowland.org>
+	<20060621164425.GB22736@rhlx01.fht-esslingen.de>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, 21 Jun 2006 18:44:25 +0200, Andreas Mohr <andim2@users.sourceforge.net> wrote:
 
-coverity (id #10) spotted that we never reach the return ret; statement,
-since ret never gets assigned a value except the 0 at
-initialisation. I assume it was meant to hold the result
-of sharp_write_oneword().
+> I'll try to verify this by simply removing all ALLOW_MEDIUM_REMOVAL calls ;)
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Try to burn with ub. It does not implement door locking.
 
---- linux-2.6/drivers/mtd/chips/sharp.c.orig	2006-06-21 22:03:45.000000000 +0200
-+++ linux-2.6/drivers/mtd/chips/sharp.c	2006-06-21 22:04:48.000000000 +0200
-@@ -342,7 +342,8 @@ static int sharp_write(struct mtd_info *
- 			len--;
- 			j++;
- 		}
--		sharp_write_oneword(map, &sharp->chips[chipnum], ofs&~3, tbuf.l);
-+		ret = sharp_write_oneword(map, &sharp->chips[chipnum],
-+						ofs&~3, tbuf.l);
- 		if(ret<0)
- 			return ret;
- 		(*retlen)+=j;
-
-
+-- Pete

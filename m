@@ -1,86 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWFUNtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWFUNtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWFUNtg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 09:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWFUNtg
+	id S1751573AbWFUNtb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 09:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWFUNtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 09:49:36 -0400
-Received: from hera.kernel.org ([140.211.167.34]:32428 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750768AbWFUNte (ORCPT
+	Wed, 21 Jun 2006 09:49:31 -0400
+Received: from mail.gmx.net ([213.165.64.21]:50372 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750768AbWFUNta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 09:49:34 -0400
-Date: Wed, 21 Jun 2006 10:50:15 -0300
-From: Marcelo Tosatti <marcelo@kvack.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Grant Coady <gcoady.lk@gmail.com>, linux-kernel@vger.kernel.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: Linux 2.4.33-rc1
-Message-ID: <20060621135015.GA620@dmt>
-References: <ksib9210010mt9r3gjevi3dhlp4biqf59k@4ax.com> <20060618223736.GA4965@1wt.eu> <dmlb92lmehf2jufjuk8emmh63afqfmg5et@4ax.com> <20060619040152.GB2678@1wt.eu> <fvbc92higiliou420n3ctjfecdl5leb49o@4ax.com> <20060619080651.GA3273@1wt.eu> <20060619220405.GA16251@dmt> <20060619230007.GA6471@1wt.eu> <20060619234506.GA2763@dmt> <20060620222357.GA11862@1wt.eu>
+	Wed, 21 Jun 2006 09:49:30 -0400
+X-Authenticated: #704063
+Subject: [Patch] Missing return in drivers/net/wan/pci200syn.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: khc@pm.waw.pl
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 15:49:27 +0200
+Message-Id: <1150897767.306.1.camel@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060620222357.GA11862@1wt.eu>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Willy,
+hi,
 
-On Wed, Jun 21, 2006 at 12:23:57AM +0200, Willy Tarreau wrote:
-> On Mon, Jun 19, 2006 at 08:45:06PM -0300, Marcelo Tosatti wrote:
-> > > 
-> > > ---- from here ----
-> > > 
-> > > 
-> > > > +		inode = dentry->d_inode;
-> > > > +		if (inode)
-> > > > +			atomic_inc(&inode->i_count);
-> > > >  		error = vfs_unlink(nd.dentry->d_inode, dentry);
-> > > >  	exit2:
-> > > >  		dput(dentry);
-> > > >  	}
-> > > >  	up(&nd.dentry->d_inode->i_sem);
-> > > > +	if (inode)
-> > > > +		iput(inode);
-> > > 
-> > > ---- to here ----
-> > > 
-> > > I believe that nd.dentry->d_inode cannot vanish because it is protected by the
-> > > down(->i_sem) before and the up(->i_sem) after. Am I right or am I missing
-> > > something important ?
-> > 
-> > Indeed it can't, but dentry->d_inode will be set to NULL by
-> > nfs_unlink->nfs_safe_remove->d_delete. Thus the problem.
-> 
-> What puzzles me is how are we supposed to up(&nd.dentry->d_inode->i_sem) if
-> dentry->d_inode can become NULL ? 
+if card->plxbase == NULL we call the cleanup function
+pci200_pci_remove_one() but continue initializing
+the driver and dereferencing the pointer. This
+was found by coverity (bug id #195)
 
-        down(&nd.dentry->d_inode->i_sem);
-        dentry = lookup_hash(&nd.last, nd.dentry);
-        error = vfs_unlink(nd.dentry->d_inode, dentry);
-					       ^^^^^^^
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-It does vfs_unlink(parent, child). The child is killed.
+--- linux-2.6.17-git2/drivers/net/wan/pci200syn.c.orig	2006-06-21 15:45:52.000000000 +0200
++++ linux-2.6.17-git2/drivers/net/wan/pci200syn.c	2006-06-21 15:46:12.000000000 +0200
+@@ -358,6 +358,7 @@ static int __devinit pci200_pci_init_one
+ 	    card->rambase == NULL) {
+ 		printk(KERN_ERR "pci200syn: ioremap() failed\n");
+ 		pci200_pci_remove_one(pdev);
++		return -EFAULT;
+ 	}
+ 
+ 	/* Reset PLX */
 
-> simply by keeping a copy of it ? I thought
-> that the down() protected the whole thing, but may be that's stupid anyway.
 
-It does not protect from last reference going away, which is what
-happens when NFS d_delete's the dentry. dentry_iput() gets called, and
-maybe the last reference to "struct inode" might be gone too.
-
-> I've been running rc1 without this patch for a few hours and during kernel
-> compiles without a problem, so I'm not sure about what to think about the
-> other changes which were apparently harmless too :-/
-
-Use NFS... :)
-
-> Well, if I resume it right, we only need to merge your patch and mine and
-> it *should* be OK.
-> 
-> BTW, I've been reviewing the PaX patch and found *at least* one patch
-> that should be merged (fix for oops). I'll send it separately, and it's
-> queued in -upstream.
-
-Merged, thanks.

@@ -1,148 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWFUGwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWFUG6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWFUGwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 02:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751998AbWFUGwg
+	id S932272AbWFUG6f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 02:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWFUG6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 02:52:36 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:28048 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751221AbWFUGwg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 02:52:36 -0400
-Message-ID: <4498EB1B.1070002@in.ibm.com>
-Date: Wed, 21 Jun 2006 12:15:47 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051205
-X-Accept-Language: en-us, en
+	Wed, 21 Jun 2006 02:58:35 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:31284 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751122AbWFUG6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 02:58:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A1b3dr9xFJR3Cc0lNRzw2n9b0G+zDJl/GFel/DgjjCBh9+eGazhILzuDRf7mY9qL/G3owxcNLfngEUOjaZ6ICX0pJC3tE289vLlSJ+TXz5dyC4r0+haR7KV+b/O6vpegJYBRURKRLnINKQctTWvNmbfxwQsyEEtRXWN/J7hYwV8=
+Message-ID: <81b0412b0606202358l4148be0as54cf2c0e3da93f7f@mail.gmail.com>
+Date: Wed, 21 Jun 2006 08:58:32 +0200
+From: "Alex Riesen" <raa.lkml@gmail.com>
+To: "Arijit Das" <Arijit.Das@synopsys.com>
+Subject: Re: Getting CPU Usage of a running child process
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7EC22963812B4F40AE780CF2F140AFE9596587@IN01WEMBX1.internal.synopsys.com>
 MIME-Version: 1.0
-To: akpm@osdl.org
-Cc: Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.17-rc6-mm2] Fix exit race in per-task-delay-accounting
-References: <20060621055952.6658.49704.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060621055952.6658.49704.sendpatchset@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <AcY92pPSyN42OXgfQIad3rhpQJCOmw==>
+	 <7EC22963812B4F40AE780CF2F140AFE9596587@IN01WEMBX1.internal.synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> Hi, Andrew,
-> 
-> This patch fixes a race in per-task-delay-accounting. This race
-> was reported by Jay Lan. I tested the patch using
-> cerebrus test control system for eight hours with getdelays running on
-> the side (for both push and pull of delay statistics).
-> 
-> It fixed the problem that Jay Lan saw.
-> 
-> Here's an explanation of the race condition
-> 
-> Consider tasks of the same thread group exiting, lets call them T1 and T2
-> 
-> 
-> T1                          T2
-> 
-> CPU0                        CPU1
-> =====                       =====
-> 
-> do_exit()
-> ...                        do_exit()
-> taskstats_exit_send()                ...
->                            taskstats_exit_send()
->                            	fill_tgid()
->                                 delayacct_add_tsk()
-> delayacct_tsk_exit()            ....
->                                 __delayacct_add_tsk()
-> 
-> 
-> While T1 is yet to be removed from the thread group. T1->delays is set to NULL
-> between delayacct_add_tsk() and __delayacct_add_tsk() call.
-> 
-> When T2 looks for threads in the thread group, it finds T1 and tries to
-> collect stats for it. When we get to the spin_lock() in __delayacct_add_tsk(),
-> we find T1->delays is a NULL pointer.
-> 
-> Signed-off-by: Balbir Singh <balbir@in.ibm.com>
-> ---
-> 
->  include/linux/taskstats_kern.h |    1 +
->  kernel/delayacct.c             |    5 ++++-
->  kernel/taskstats.c             |    5 ++++-
->  3 files changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff -puN kernel/taskstats.c~per-task-delay-accounting-fix-exit-race kernel/taskstats.c
-> --- linux-2.6.17-rc6/kernel/taskstats.c~per-task-delay-accounting-fix-exit-race	2006-06-20 13:49:29.000000000 +0530
-> +++ linux-2.6.17-rc6-balbir/kernel/taskstats.c	2006-06-20 13:49:29.000000000 +0530
-> @@ -25,7 +25,7 @@
->  static DEFINE_PER_CPU(__u32, taskstats_seqnum) = { 0 };
->  static int family_registered = 0;
->  kmem_cache_t *taskstats_cache;
-> -static DEFINE_MUTEX(taskstats_exit_mutex);
-> +DEFINE_MUTEX(taskstats_exit_mutex);
->  
->  static struct genl_family family = {
->  	.id		= GENL_ID_GENERATE,
-> @@ -193,6 +193,7 @@ static int taskstats_send_stats(struct s
->  	if (rc < 0)
->  		return rc;
->  
-> +	mutex_lock(&taskstats_exit_mutex);
->  	if (info->attrs[TASKSTATS_CMD_ATTR_PID]) {
->  		u32 pid = nla_get_u32(info->attrs[TASKSTATS_CMD_ATTR_PID]);
->  		rc = fill_pid(pid, NULL, &stats);
-> @@ -218,6 +219,7 @@ static int taskstats_send_stats(struct s
->  		goto err;
->  	}
->  
-> +	mutex_unlock(&taskstats_exit_mutex);
->  	nla_nest_end(rep_skb, na);
->  
->  	return send_reply(rep_skb, info->snd_pid, TASKSTATS_MSG_UNICAST);
-> @@ -226,6 +228,7 @@ nla_put_failure:
->  	return genlmsg_cancel(rep_skb, reply);
->  err:
->  	nlmsg_free(rep_skb);
-> +	mutex_unlock(&taskstats_exit_mutex);
->  	return rc;
->  }
->  
-> diff -puN kernel/delayacct.c~per-task-delay-accounting-fix-exit-race kernel/delayacct.c
-> --- linux-2.6.17-rc6/kernel/delayacct.c~per-task-delay-accounting-fix-exit-race	2006-06-20 13:49:29.000000000 +0530
-> +++ linux-2.6.17-rc6-balbir/kernel/delayacct.c	2006-06-20 13:49:29.000000000 +0530
-> @@ -48,8 +48,11 @@ void __delayacct_tsk_init(struct task_st
->  
->  void __delayacct_tsk_exit(struct task_struct *tsk)
->  {
-> -	kmem_cache_free(delayacct_cache, tsk->delays);
-> +	struct task_delay_info *delays = tsk->delays;
-> +	mutex_lock(&taskstats_exit_mutex);
->  	tsk->delays = NULL;
-> +	mutex_unlock(&taskstats_exit_mutex);
-> +	kmem_cache_free(delayacct_cache, delays);
->  }
->  
->  /*
-> diff -puN include/linux/taskstats_kern.h~per-task-delay-accounting-fix-exit-race include/linux/taskstats_kern.h
-> --- linux-2.6.17-rc6/include/linux/taskstats_kern.h~per-task-delay-accounting-fix-exit-race	2006-06-20 13:49:29.000000000 +0530
-> +++ linux-2.6.17-rc6-balbir/include/linux/taskstats_kern.h	2006-06-20 13:49:29.000000000 +0530
-> @@ -17,6 +17,7 @@ enum {
->  
->  #ifdef CONFIG_TASKSTATS
->  extern kmem_cache_t *taskstats_cache;
-> +extern struct mutex taskstats_exit_mutex;
->  
->  static inline void taskstats_exit_alloc(struct taskstats **ptidstats,
->  					struct taskstats **ptgidstats)
-> _
-> 
+On 3/2/06, Arijit Das <Arijit.Das@synopsys.com> wrote:
+> The times() function gets me the system/user CPU usage of me (invoking
+> process) and all my terminated/waited children.
+>
+> Is there any User Space API/way for me (a process) to get the
+> system/user CPU usage of one of my currently running child process? Am
+> looking for a portable solution...not sure if there is any
 
-The Cc's got messed up (a really odd name lookup happened at the mail
-server).
-
-	Sorry
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+There is a way to get the times for all children:
+getrusage(RUSAGE_CHILDREN, &usage);
+You can double-fork to get the info for a specific subprocess.
+/proc is, as you probably noticed, not portable.

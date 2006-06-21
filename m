@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWFUL3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWFULeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWFUL3n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 07:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWFUL3n
+	id S932083AbWFULeF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 07:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWFULeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 07:29:43 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4737 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751504AbWFUL3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 07:29:41 -0400
-Subject: Re: [PATCH] ide: fix revision comparison in ide_in_drive_list
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kirill Smelkov <kirr@mns.spb.ru>
-Cc: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <200606211017.28987.kirr@mns.spb.ru>
-References: <200606201452.33925.kirr@mns.spb.ru>
-	 <20060620151950.21ad94d6.akpm@osdl.org>
-	 <1150845122.15275.8.camel@localhost.localdomain>
-	 <200606211017.28987.kirr@mns.spb.ru>
-Content-Type: text/plain
+	Wed, 21 Jun 2006 07:34:05 -0400
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:17600 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751332AbWFULeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 07:34:04 -0400
+Message-ID: <44992EAA.6060805@bigpond.net.au>
+Date: Wed, 21 Jun 2006 21:34:02 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: [PATCH 00/11] Task watchers:  Introduction
+References: <1150242721.21787.138.camel@stark>	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>
+In-Reply-To: <1150876292.21787.911.camel@stark>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 21 Jun 2006 12:44:42 +0100
-Message-Id: <1150890282.15275.54.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 21 Jun 2006 11:34:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-06-21 am 10:17 +0400, ysgrifennodd Kirill Smelkov:
-> id->model="TRANSCEND",
-> id->fw_rev="20050811TRANSCEND"
+Matt Helsley wrote:
+> On Wed, 2006-06-21 at 15:41 +1000, Peter Williams wrote:
+>> On a related note, I can't see where the new task's notify field gets 
+>> initialized during fork.
 > 
-> note the trailing in id->fw_rev,
+> It's initialized in kernel/sys.c:notify_per_task_watchers(), which calls
+> RAW_INIT_NOTIFIER_HEAD(&task->notify) in response to WATCH_TASK_INIT.
 
-These are not null terminated strings in the ident block. So if you
-merely print them or test against them you'll break on 8 char long
-firmware names. They may also be space rather than \0 padded if shorter
+I think that's too late.  It needs to be done at the start of 
+notify_watchers() before any other watchers are called for the new task.
 
-Alan
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

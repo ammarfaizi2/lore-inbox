@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWFUV4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWFUV5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbWFUV4r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 17:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWFUV4r
+	id S1030321AbWFUV5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 17:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWFUV5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 17:56:47 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:55534 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030312AbWFUV4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 17:56:46 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=UJ0fFxcSZZ0qdnHsmALODpUTw9zF4lHc00kvc8DrW8Ks5S3748zU0jOBkZx+5tEej
-	qQqJr57JzGR64Xqo9saGg==
-Subject: Re: [RFC, patch] i386: vgetcpu(), take 2
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Andi Kleen <ak@suse.de>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <p73zmg6oo5t.fsf@verdi.suse.de>
-References: <200606210329_MC3-1-C305-E008@compuserve.com>
-	 <p73zmg6oo5t.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 21 Jun 2006 14:54:42 -0700
-Message-Id: <1150926882.6885.32.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jun 2006 17:57:33 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48394 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030328AbWFUV5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 17:57:30 -0400
+Date: Wed, 21 Jun 2006 23:57:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Thomas Kleffel <tk@maintech.de>,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-ide@vger.kernel.org
+Subject: [-mm patch] drivers/ide/legacy/ide-cs.c: make 2 functions static
+Message-ID: <20060621215729.GL9111@stusta.de>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-06-21 at 11:26 +0200, Andi Kleen wrote:
-> Chuck Ebbert <76306.1226@compuserve.com> writes:
-> 
-> > Use a GDT entry's limit field to store per-cpu data for fast access
-> > from userspace, and provide a vsyscall to access the current CPU
-> > number stored there.
-> 
+On Wed, Jun 21, 2006 at 03:48:57AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-rc6-mm2:
+>...
+>  git-pcmcia.patch
+>...
+>  git trees
+>...
 
-Very clever.  
+This patch makes two needlessly global functions static.
+ 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> Just the CPU alone is useless - you want at least the node too in many
-> cases. Best you use the prototype I proposed earlier for x86-64.
-> 
+---
 
-Can we use similar  mechanism to access pda in vsyscall in x86_64 (by
-storing the address of pda there).  That way the useful variables like
-cpunumber, nodenumber can be accessed easily without doing cpuid (and
-without tcache).  The system call can take a flag like GET_CPUNUMBER or
-GET_NODENUMBER or GET_NMICOUNT or if anything new gets added in this
-structure.
+ drivers/ide/legacy/ide-cs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
--rohit
+--- linux-2.6.17-mm1-full/drivers/ide/legacy/ide-cs.c.old	2006-06-21 22:54:20.000000000 +0200
++++ linux-2.6.17-mm1-full/drivers/ide/legacy/ide-cs.c	2006-06-21 22:54:37.000000000 +0200
+@@ -170,11 +170,11 @@
+         return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
+ }
+ 
+-void outb_io(unsigned char value, unsigned long port) {
++static void outb_io(unsigned char value, unsigned long port) {
+ 	outb(value, port);
+ }
+ 
+-void outb_mem(unsigned char value, unsigned long port) {
++static void outb_mem(unsigned char value, unsigned long port) {
+ 	writeb(value, (void __iomem *) port);
+ }
+ 
 

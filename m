@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWFUQy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWFUQ4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWFUQy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 12:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWFUQy5
+	id S932263AbWFUQ4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 12:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWFUQ4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 12:54:57 -0400
-Received: from ns.suse.de ([195.135.220.2]:55446 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932161AbWFUQy4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 12:54:56 -0400
-From: Andi Kleen <ak@suse.de>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: [PATCH] x86_64: Do not use -ffunction-sections for modules
-Date: Wed, 21 Jun 2006 18:54:00 +0200
-User-Agent: KMail/1.9.3
-Cc: Arjan van de Ven <arjan@infradead.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-References: <11509074684035-git-send-email-vsu@altlinux.ru> <200606211841.33220.ak@suse.de> <20060621165126.GB4126@master.mivlgu.local>
-In-Reply-To: <20060621165126.GB4126@master.mivlgu.local>
+	Wed, 21 Jun 2006 12:56:50 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:48135 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932263AbWFUQ4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 12:56:50 -0400
+Date: Wed, 21 Jun 2006 18:56:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: ak@suse.de
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] x86_64: remove sys32_ni_syscall()
+Message-ID: <20060621165648.GG9111@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200606211854.00790.ak@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 June 2006 18:51, Sergey Vlasov wrote:
+This patch removes the no longer used sys32_ni_syscall()
 
-> > On Thursday 01 January 1970 01:00, Sergey Vlasov wrote:
-> > > Currently CONFIG_REORDER uses -ffunction-sections for all code;
-> > > however, creating a separate section for each function is not useful
-> > > for modules and just adds bloat. 
-> > 
-> > You mean the ELF files are larger?
-> 
-> Yes, and all these sections are then reported in sysfs (BTW, what programs
-> really use /sys/module/*/sections/* files?).
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Good question. I also always considered it bloat.
+---
 
-> 
-> > .text/.data size shouldn't > change in theory.
-> 
-> Actually, it does change by a small amount for some reason - even
-> increases by about 100 bytes in some cases;
+ arch/x86_64/ia32/ia32entry.S |    4 ----
+ arch/x86_64/ia32/sys_ia32.c  |   13 -------------
+ 2 files changed, 17 deletions(-)
 
-Ok maybe a few small vs large jumps
+--- linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/ia32entry.S.old	2006-06-21 18:51:14.000000000 +0200
++++ linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/ia32entry.S	2006-06-21 18:51:25.000000000 +0200
+@@ -340,10 +340,6 @@
+ 	movq $-ENOSYS,RAX-ARGOFFSET(%rsp)
+ 	jmp int_ret_from_sys_call
+ 
+-ni_syscall:
+-	movq %rax,%rdi
+-	jmp  sys32_ni_syscall			
+-
+ quiet_ni_syscall:
+ 	movq $-ENOSYS,%rax
+ 	ret
+--- linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/sys_ia32.c.old	2006-06-21 18:51:38.000000000 +0200
++++ linux-2.6.17-mm1-x86_64/arch/x86_64/ia32/sys_ia32.c	2006-06-21 18:51:43.000000000 +0200
+@@ -508,19 +508,6 @@
+ 	return compat_sys_wait4(pid, stat_addr, options, NULL);
+ }
+ 
+-int sys32_ni_syscall(int call)
+-{ 
+-	struct task_struct *me = current;
+-	static char lastcomm[sizeof(me->comm)];
+-
+-	if (strncmp(lastcomm, me->comm, sizeof(lastcomm))) {
+-		compat_printk(KERN_INFO "IA32 syscall %d from %s not implemented\n",
+-		       call, me->comm);
+-		strncpy(lastcomm, me->comm, sizeof(lastcomm));
+-	} 
+-	return -ENOSYS;	       
+-} 
+-
+ /* 32-bit timeval and related flotsam.  */
+ 
+ asmlinkage long
 
-> however, I suppose that the 
-> size reported by /proc/modules and lsmod is more important, and it
-> decreases:
-
-Ok thanks.
-
--Andi

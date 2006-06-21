@@ -1,35 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWFUOLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWFUOLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWFUOLe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 10:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWFUOLe
+	id S1751011AbWFUOLq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 10:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWFUOLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 10:11:34 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:30141 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1750758AbWFUOLd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 10:11:33 -0400
-Date: Wed, 21 Jun 2006 16:11:06 +0200 (MEST)
-Message-Id: <200606211411.k5LEB6aw013557@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org
-Subject: Re: gcc-4.1.1 and kernel-2.4.32
+	Wed, 21 Jun 2006 10:11:46 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39395 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750827AbWFUOLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 10:11:44 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       discuss@x86-64.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>,
+       Len Brown <len.brown@intel.com>,
+       Kimball Murray <kimball.murray@gmail.com>,
+       Brice Goglin <brice@myri.com>, Greg Lindahl <greg.lindahl@qlogic.com>,
+       Dave Olson <olson@unixfolk.com>, Jeff Garzik <jeff@garzik.org>,
+       Greg KH <gregkh@suse.de>, Grant Grundler <iod00d@hp.com>,
+       "bibo,mao" <bibo.mao@intel.com>, Mark Maule <maule@sgi.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Shaohua Li <shaohua.li@intel.com>,
+       Matthew Wilcox <matthew@wil.cx>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Ashok Raj <ashok.raj@intel.com>, Randy Dunlap <rdunlap@xenotime.net>,
+       Roland Dreier <rdreier@cisco.com>, Tony Luck <tony.luck@intel.com>
+Subject: [PATCH] Decouple IRQ issues (fix i386 compile issues)
+References: <m1ac87ea8s.fsf@ebiederm.dsl.xmission.com>
+	<20060620173017.A10402@unix-os.sc.intel.com>
+Date: Wed, 21 Jun 2006 08:10:44 -0600
+In-Reply-To: <20060620173017.A10402@unix-os.sc.intel.com> (Rajesh Shah's
+	message of "Tue, 20 Jun 2006 17:30:18 -0700")
+Message-ID: <m1hd2e7g63.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 15:17:34 +0200 (MET DST), Herbert Rosmanith wrote:
-> trying to compile 2.4.32 with gcc-4.1.1 (probably any 4.x gcc?) produces
-> a lot of errors, (i.e., declaration of symbols of different types and so on).
-> 
-> I wonder if it is planned to be fixed? No idea who's maintaining it - 
-> in case you want to, I could send you diffs to make 2.4.32 compile.
+Rajesh Shah <rajesh.shah@intel.com> writes:
 
-Not reading LKML much, eh? Anyway, it's already being taken care of; see
-<http://marc.theaimsgroup.com/?l=linux-kernel&m=115058555819917&w=2> for
-well-tested patches for 2.4.33-rc1. They probably apply to 2.4.32 as well.
+> On Tue, Jun 20, 2006 at 04:24:35PM -0600, Eric W. Biederman wrote:
+>> 
+>> The primary aim of this patch is to remove maintenances problems caused
+>> by the irq infrastructure.  The two big issues I address are an
+>> artificially small cap on the number of irqs, and that MSI assumes
+>> vector == irq.  My primary focus is on x86_64 but I have touched
+>> other architectures where necessary to keep them from breaking.
+>> 
+> The MSI portions of this patchset is similar to the MSI cleanup
+> I was working on. I'll drop my patchkit and instead comment on
+> the relevant patches in this kit.
+>
+> I got a couple of minor compile errors on i386 (kernel/io_apic.c).
+> I fixed them up by hand and the resulting kernel booted and
+> worked with MSI in the limited testing I've done so far.
 
-The powers that be have decreed that gcc-4 fixes won't be accepted
-into the official 2.4 kernel, which is a pity since they are smaller
-and simpler than the gcc-3.4 fixes which did get included.
 
-/Mikael
+Somewhere in the final round of cleanups I missed these two
+one liners.  This is what it takes to fix the i386 build.
+
+Eric
+
+diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+index 18a5c2a..3068cde 100644
+--- a/arch/i386/kernel/io_apic.c
++++ b/arch/i386/kernel/io_apic.c
+@@ -1173,7 +1173,6 @@ next:
+        if (current_vector >= FIRST_SYSTEM_VECTOR) {
+                offset++;
+                if (!(offset%8)) {
+-                       spin_unlock_irqrestore(&vector_lock, flags);
+                        return -ENOSPC;
+                }
+                current_vector = FIRST_DEVICE_VECTOR + offset;
+@@ -2460,7 +2459,7 @@ void destroy_irq(unsigned int irq)
+ {
+        unsigned long flags;
+ 
+-       dynmic_irq_cleanup(irq);
++       dynamic_irq_cleanup(irq);
+ 
+        spin_lock_irqsave(&vector_lock, flags);
+        irq_vector[irq] = 0;

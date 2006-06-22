@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWFVHEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbWFVHLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751711AbWFVHEh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 03:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWFVHEh
+	id S1751761AbWFVHLV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 03:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbWFVHLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 03:04:37 -0400
-Received: from www.osadl.org ([213.239.205.134]:10460 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751711AbWFVHEg (ORCPT
+	Thu, 22 Jun 2006 03:11:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7814 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751761AbWFVHLV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 03:04:36 -0400
-Subject: Re: Why can't I set the priority of softirq-hrt? (Re: 2.6.17-rt1)
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: Esben Nielsen <nielsen.esben@gogglemail.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0606212341410.10077@localhost.localdomain>
-References: <20060618070641.GA6759@elte.hu>
-	 <Pine.LNX.4.64.0606201656230.11643@localhost.localdomain>
-	 <1150816429.6780.222.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606201725550.11643@localhost.localdomain>
-	 <Pine.LNX.4.58.0606201229310.729@gandalf.stny.rr.com>
-	 <Pine.LNX.4.64.0606201903030.11643@localhost.localdomain>
-	 <1150824092.6780.255.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606202217160.11643@localhost.localdomain>
-	 <Pine.LNX.4.58.0606210418160.29673@gandalf.stny.rr.com>
-	 <Pine.LNX.4.64.0606211204220.10723@localhost.localdomain>
-	 <Pine.LNX.4.64.0606211638560.6572@localhost.localdomain>
-	 <1150907165.25491.4.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606212226291.7939@localhost.localdomain>
-	 <1150922007.25491.24.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0606212341410.10077@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 22 Jun 2006 09:06:12 +0200
-Message-Id: <1150959972.25491.40.camel@localhost.localdomain>
+	Thu, 22 Jun 2006 03:11:21 -0400
+Date: Thu, 22 Jun 2006 00:11:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: alesan@manoweb.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH] cardbus: revert IO window limit
+Message-Id: <20060622001104.9e42fc54.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0606220947250.15059@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0606220947250.15059@sbz-30.cs.Helsinki.FI>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-22 at 00:35 +0100, Esben Nielsen wrote:
-> On Wed, 21 Jun 2006, Thomas Gleixner wrote:
+On Thu, 22 Jun 2006 09:48:05 +0300 (EEST)
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+
+> From: Pekka Enberg <penberg@cs.helsinki.fi>
 > 
-> > On Wed, 2006-06-21 at 22:29 +0100, Esben Nielsen wrote:
-> >>> Find an version against the code in -mm below. Not too much tested yet.
-> >>
-> >> What if setscheduler is called from interrup context as in the hrt timers?
-> >
-> > It simply gets stuff going, nothing else.
-> >
-> What I mean is that we will then do the full priority inheritance boost 
-> with interrupts off.
+> This patch reverts commit 4196c3af25d98204216a5d6c37ad2cb303a1f2bf "cardbus:
+> limit IO windows to 256 bytes" which breaks Alessio Sangalli's machine boot
+> when APM support is enabled. See http://lkml.org/lkml/2006/6/16/33 for
+> description of the problem.
+> 
+> Cc: Alessio Sangalli <alesan@manoweb.com>
+> Cc: Linus Torvalds <torvalds@osdl.org>
+> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+> ---
+> 
+> diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+> index 28ce3a7..657be94 100644
+> --- a/drivers/pci/setup-bus.c
+> +++ b/drivers/pci/setup-bus.c
+> @@ -40,7 +40,7 @@ #define ROUND_UP(x, a)		(((x) + (a) - 1)
+>   * FIXME: IO should be max 256 bytes.  However, since we may
+>   * have a P2P bridge below a cardbus bridge, we need 4K.
+>   */
+> -#define CARDBUS_IO_SIZE		(256)
+> +#define CARDBUS_IO_SIZE		(4*1024)
+>  #define CARDBUS_MEM_SIZE	(32*1024*1024)
+>  
+>  static void __devinit
 
-Only in the case when its called from IRQ context.
+There is something bad happening in there.  Presumably, this patch will
+break the ThinkPad 600x series machines again though.
 
-> Before setscheduler() was O(1), now it is O(<lock depth of what ever lock 
-> the target task might be locked on>).
->
-> This is not a problem for your use of setscheduler() as the task involved 
-> only can be blocked on kernel mutexes, but when the function is used on a 
-> userspace process the lock depth can be deep.
+It'd be nice if this was related to
+http://bugzilla.kernel.org/show_bug.cgi?id=6725, but I guess not.
 
-Damn, I missed that this is still in the irq off section, when called
-from do_sched_setscheduler().
-
-Good catch. I fix that.
-
-	tglx
-
-
+Didn't all this stuff work in 2.4?

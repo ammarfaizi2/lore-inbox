@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWFVSTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbWFVSRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751837AbWFVSTU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 14:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751857AbWFVSTU
+	id S1751519AbWFVSRv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 14:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWFVSRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 14:19:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17101 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751837AbWFVSTT (ORCPT
+	Thu, 22 Jun 2006 14:17:51 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3798 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751519AbWFVSRu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 14:19:19 -0400
-Date: Thu, 22 Jun 2006 14:18:49 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Dave Airlie <airlied@linux.ie>, ak@suse.de
-Subject: Re: intelfb: enable on x86_64
-Message-ID: <20060622181849.GG21582@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Dave Airlie <airlied@linux.ie>, ak@suse.de
-References: <200606200312.k5K3C0uC009812@hera.kernel.org>
-Mime-Version: 1.0
+	Thu, 22 Jun 2006 14:17:50 -0400
+Date: Thu, 22 Jun 2006 20:16:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Dave Jones <davej@redhat.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/SERIOUS] grilling troubled CPUs for fun and profit?
+Message-ID: <20060622181658.GA4193@elf.ucw.cz>
+References: <20060619191543.GA17187@rhlx01.fht-esslingen.de> <Pine.LNX.4.61.0606191542050.4926@chaos.analogic.com> <20060619202354.GD26759@redhat.com> <20060619222528.GC1648@openzaurus.ucw.cz> <Pine.LNX.4.61.0606201156080.2481@yvahk01.tjqt.qr>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200606200312.k5K3C0uC009812@hera.kernel.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.61.0606201156080.2481@yvahk01.tjqt.qr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 20, 2006 at 03:12:00AM +0000, Linux Kernel wrote:
- > commit 0c187addabbaf93512902442b4a90140a21b0ddc
- > tree 40cd618a76474ec9ba2cfde129315c7ebbaf4f9f
- > parent 16109b3f4c1f2635afd32eb6d49348590de2cb25
- > author Dave Airlie <airlied@linux.ie> Thu, 23 Mar 2006 11:20:08 +1100
- > committer Dave Airlie <airlied@linux.ie> Mon, 03 Apr 2006 11:43:28 +1000
- > 
- > intelfb: enable on x86_64
- > 
- > i945G chipsets supports 64-bit.
- > 
- > Signed-off-by: Dave Airlie <airlied@linux.ie>
- > 
- >  drivers/video/Kconfig |    2 +-
- >  1 files changed, 1 insertion(+), 1 deletion(-)
- > 
- > diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
- > index f87c017..190adce 100644
- > --- a/drivers/video/Kconfig
- > +++ b/drivers/video/Kconfig
- > @@ -741,7 +741,7 @@ config FB_I810_I2C
- >  
- >  config FB_INTEL
- >  	tristate "Intel 830M/845G/852GM/855GM/865G support (EXPERIMENTAL)"
- > -	depends on FB && EXPERIMENTAL && PCI && X86_32
- > +	depends on FB && EXPERIMENTAL && PCI && X86
- >  	select AGP
- >  	select AGP_INTEL
- >  	select FB_MODE_HELPERS
+Hi!
 
-This turned into an unpleasant surprise.
-If you select for eg, IOMMU=y and CONFIG_AGP=y, and CONFIG_FB_INTEL=m,
-then CONFIG_AGP gets silently turned into a =m, and the build fails with this..
+> >If it happens to you... you needed a new cpu anyway. Anything non-historical
+> >*has* thermal protection.
+> >
+> >BTW I doubt those old athlons can be saved by cli; hlt . (Someone willing 
+> >to try if old
+> >athlon can run cli; hlt code w/o heatsink?).
+> 
+> K6 run cooler even with the regular kernel HLT (sti/hlt I presume). 
+> Difference to full load can be up to 10 deg, depending on ambient (room) 
+> temperature. In winter (read 2005-12-31) it ran between 28 celsius and 34 
+> celsius. The fan even stopped and I thought it was a fan failure, but 
+> luckily it was just hw-controlled :)
 
-arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_amd64_init'
-arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_bridge'
-arch/x86_64/kernel/pci-gart.c:619: undefined reference to `agp_copy_info'
+Okay, so you've got a point. The patch is useful on k6 in the winter
+:-). (Actually, to show you've got a point, you'd have to stop the fan
+and show that cpu badly overheats under for(;;) conditions).
 
-		Dave
+Yes, we probably want to consolidate various for(;;) loops... and
+maybe it will helpsomeone. If overheating causes reboot instead of
+panic, you probably still loose, as BIOS is close to for(;;)...
+
+									Pavel
 
 -- 
-http://www.codemonkey.org.uk
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

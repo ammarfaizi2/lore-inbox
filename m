@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWFVSdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWFVSd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWFVSdt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 14:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWFVSdt
+	id S1030349AbWFVSd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 14:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWFVSbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 14:33:49 -0400
-Received: from ns1.suse.de ([195.135.220.2]:45962 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161175AbWFVSd0 (ORCPT
+	Thu, 22 Jun 2006 14:31:11 -0400
+Received: from mx1.suse.de ([195.135.220.2]:9098 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030357AbWFVSbE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 14:33:26 -0400
-Date: Thu, 22 Jun 2006 11:30:21 -0700
-From: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] USB patches for 2.6.17
-Message-ID: <20060622183021.GA5857@kroah.com>
-References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606211519550.5498@g5.osdl.org> <20060621225134.GA13618@kroah.com> <Pine.LNX.4.64.0606211814200.5498@g5.osdl.org> <20060622181826.GB22867@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060622181826.GB22867@kroah.com>
-User-Agent: Mutt/1.5.11
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 22 Jun 2006 14:31:04 -0400
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 12/14] [PATCH] drivers/w1/w1.c: fix a compile error
+Reply-To: Greg KH <greg@kroah.com>
+Date: Thu, 22 Jun 2006 11:27:16 -0700
+Message-Id: <11510008791727-git-send-email-greg@kroah.com>
+X-Mailer: git-send-email 1.4.0
+In-Reply-To: <1151000876534-git-send-email-greg@kroah.com>
+References: <20060622182645.GB5668@kroah.com> <11510008381000-git-send-email-greg@kroah.com> <11510008413045-git-send-email-greg@kroah.com> <11510008461301-git-send-email-greg@kroah.com> <11510008522327-git-send-email-greg@kroah.com> <11510008553417-git-send-email-greg@kroah.com> <11510008583492-git-send-email-greg@kroah.com> <11510008623474-git-send-email-greg@kroah.com> <11510008662311-git-send-email-greg@kroah.com> <11510008691087-git-send-email-greg@kroah.com> <1151000872615-git-send-email-greg@kroah.com> <1151000876534-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 22, 2006 at 11:18:26AM -0700, Greg KH wrote:
-> On Wed, Jun 21, 2006 at 06:22:58PM -0700, Linus Torvalds wrote:
-> > And as usual, the diff options work fine with "git log" too, so you can do
-> > 
-> > 	git log -M --stat --summary
-> > 
-> > and it will do the right thing. Look at your ae0dadcf.. commit, for 
-> > example.
-> > 
-> > Btw, the _one_ thing to be careful about is that when you generate a real 
-> > patch with "-M", if that patch actually has a rename, then only "git 
-> > apply" will be able to apply it correctly, and if somebody uses a regular 
-> > "patch" program to apply it, they'll miss out on the rename, of course.
-> > 
-> > Some day maybe the git "extended patch format" is so univerally recognized 
-> > to be superior that everybody understands them, in the meantime you may 
-> > not want to use "-M" to generate patches unless you know the other end 
-> > applies them with git.
-> > 
-> > (Which also explains why "-M" is not the default, of course).
-> 
-> For now I'll leave -M off, as people might want to apply the patches
-> from email.  Although it might cut down on main bandwidth, and they can
-> always refer to the git tree or original patch...  I'll think about that
-> one.
+From: Adrian Bunk <bunk@stusta.de>
 
-I take that back.  I just used -M for the W1 patch series and I think it
-is very helpful as it shows only the lines that change in a rename,
-which can easily get lost in the noise of a longer patch.
+From: Adrian Bunk <bunk@stusta.de>
 
-Very nice stuff, have I mentioned lately how much I love git?
+drivers/w1/w1.c:197: error: static declaration of 'w1_bus_type' follows non-static declaration
+drivers/w1/w1.h:217: error: previous declaration of 'w1_bus_type' was here
 
-thanks,
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/w1/w1.h |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-greg k-h
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index c90a928..f1df534 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -211,7 +211,6 @@ static inline struct w1_master* dev_to_w
+ }
+ 
+ extern struct device_driver w1_master_driver;
+-extern struct bus_type w1_bus_type;
+ extern struct device w1_master_device;
+ extern int w1_max_slave_count;
+ extern int w1_max_slave_ttl;
+-- 
+1.4.0
+

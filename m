@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWFVGHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751657AbWFVGO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbWFVGHt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 02:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWFVGHt
+	id S1751657AbWFVGO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 02:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWFVGO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 02:07:49 -0400
-Received: from mail.gmx.de ([213.165.64.21]:48091 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750817AbWFVGHs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 02:07:48 -0400
-X-Authenticated: #9962044
-From: marvin <marvin24@gmx.de>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: Using libata for ICH5 PATA
-Date: Thu, 22 Jun 2006 08:07:34 +0200
-User-Agent: KMail/1.9.1
-References: <20060622004811.0009937c@werewolf.auna.net> <4499E524.4060206@garzik.org>
-In-Reply-To: <4499E524.4060206@garzik.org>
-Cc: linux-kernel@vger.kernel.org,
-       "J.A. =?utf-8?q?Magall=C3=B3n?=" <jamagallon@ono.com>
+	Thu, 22 Jun 2006 02:14:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58548 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751654AbWFVGO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 02:14:58 -0400
+Date: Wed, 21 Jun 2006 23:14:33 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, ashok.raj@intel.com, pavel@ucw.cz,
+       ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
+Subject: Re: [PATCH] stop on cpu lost
+In-Reply-To: <20060621225609.db34df34.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0606212311570.25441@schroedinger.engr.sgi.com>
+References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060621225609.db34df34.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200606220807.34373.marvin24@gmx.de>
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Thursday 22 June 2006 02:32, vous avez écrit :
-> J.A. Magallón wrote:
-> > What do I need to let libata drive the ICH5 pata ?
->
-> Probably just ATA_ENABLE_PATA at the top of include/linux/libata.h.
+On Wed, 21 Jun 2006, Andrew Morton wrote:
 
-which doesn't work:
+> > Now, when a task loses all of its allowed cpus because of cpu hot removal,
+> > it will be foreced to migrate to not-allowed cpus.
+> > 
+> > In this case, the task is not properly reconfigurated by a user before
+> > cpu-hot-removal. Here, the task (and system) is in a unexpeced wrong state.
+> > This migration is maybe one of realistic workarounds. But sometimes it will be
+> > harmfull.
+> > (stealing other cpu time, making bugs in thread controllers, do some unexpected
+> >  execution...)
+> > 
+> > This patch adds sysctl "sigstop_on_cpu_lost". When sigstop_on_cpu_lost==1,
+> > a task which losts is cpu will be stopped by SIGSTOP.
+> > Depends on system management policy, mis-configurated applications are stopped.
+> > 
+> 
+> Well that's a pretty unpleasant patch, isn't it?
 
-CC [M]  drivers/scsi/ata_piix.o
-drivers/scsi/ata_piix.c:190: error: ‘ich5_pata’ undeclared here (not in a 
-function)
-make[2]: *** [drivers/scsi/ata_piix.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+The cleanest solution is to terminate the process. If the user has 
+configured the process to only run on a certain cpu and the processor then 
+becomes unavailable then the process needs to terminate by default since 
+it has no resource left to run. This is similar to an Out of Memory 
+condition.
 
+We can add this sigstop_on_cpu_lost as an additional measure but it should 
+be off by default. So far we have never had the system stop a process 
+because resources are not available. This would be unexpected system 
+behavior.
 
-marc

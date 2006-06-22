@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWFVO24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbWFVO3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbWFVO24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 10:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161150AbWFVO24
+	id S1161147AbWFVO3L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 10:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWFVO3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 10:28:56 -0400
-Received: from mail.gmx.net ([213.165.64.21]:5062 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1161148AbWFVO2y (ORCPT
+	Thu, 22 Jun 2006 10:29:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49883 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161147AbWFVO3I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 10:28:54 -0400
-X-Authenticated: #704063
-Date: Thu, 22 Jun 2006 16:28:15 +0200
-From: Eric Sesterhenn / Snakebyte <snakebyte@gmx.de>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, snakebyte@gmx.de, gregkh@suse.de
-Subject: Re: [Patch] Off by one in drivers/usb/serial/usb-serial.c
-Message-ID: <20060622142815.GB7503@whiterabbit>
-References: <200606221331.k5MDVua9010794@harpo.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200606221331.k5MDVua9010794@harpo.it.uu.se>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snake-basket.de
-X-Operating-System: Linux/2.6.15-1-686 (i686)
-X-Uptime: 16:27:07 up 4 days, 22:17,  1 user,  load average: 0.02, 0.02, 0.01
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Y-GMX-Trusted: 0
+	Thu, 22 Jun 2006 10:29:08 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <15603.1150978967@warthog.cambridge.redhat.com> 
+References: <15603.1150978967@warthog.cambridge.redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: neilb@suse.de, balbir@in.ibm.com, akpm@osdl.org, aviro@redhat.com,
+       jblunck@suse.de, dev@openvz.org, olh@suse.de,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Fix dcache race during umount 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 22 Jun 2006 15:27:57 +0100
+Message-ID: <11117.1150986477@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mikael Pettersson (mikpe@it.uu.se) wrote:
-> On Wed, 21 Jun 2006 23:28:17 +0200, Eric Sesterhenn wrote:
-> > this fixes coverity id #554. since serial table
-> > is defines as serial_table[SERIAL_TTY_MINORS] we
-> > should make sure we dont acess with an index
-> > of SERIAL_TTY_MINORS.
-> > 
-> > Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-> > 
-> > --- linux-2.6.17-git2/drivers/usb/serial/usb-serial.c.orig	2006-06-21 23:24:07.000000000 +0200
-> > +++ linux-2.6.17-git2/drivers/usb/serial/usb-serial.c	2006-06-21 23:25:12.000000000 +0200
-> > @@ -83,7 +83,7 @@ static struct usb_serial *get_free_seria
-> >  
-> >  		good_spot = 1;
-> >  		for (j = 1; j <= num_ports-1; ++j)
-> > -			if ((i+j >= SERIAL_TTY_MINORS) || (serial_table[i+j])) {
-> > +			if ((i+j >= SERIAL_TTY_MINORS-1)||(serial_table[i+j])) {
-> >  				good_spot = 0;
-> >  				i += j;
-> >  				break;
-> 
-> Where is the access coverity complained about? If it's the serial_table[i+j]
-> quoted above, then the original code is OK since i+j < SERIAL_TTY_MINORS is
-> an invariant in that subexpression.
-> 
-> And the other accesses to serial_table[] in get_free_serial() are also only
-> done when the index is < SERIAL_TTY_MINORS.
+David Howells <dhowells@redhat.com> wrote:
 
-I'll check that again on sunday, when i am back home.
+> I'd like to propose an alternative to your patch to fix the dcache race
+> between unmounting a filesystem and the memory shrinker.
+> 
+> In my patch, generic_shutdown_super() is made to call shrink_dcache_sb()
+> instead of shrink_dcache_anon(), and the latter function is discarded
+> completely since it's no longer used.
 
-Greetings, Eric
+On the other hand, I can make my patch just alter the effect of yours.
+
+David

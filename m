@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbWFVLWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbWFVL2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161064AbWFVLWt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 07:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161069AbWFVLWt
+	id S1161069AbWFVL2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 07:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWFVL2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 07:22:49 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:46727 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1161064AbWFVLWt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 07:22:49 -0400
-Date: Thu, 22 Jun 2006 12:22:46 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: ankur maheshwari <ankur_maheshwari@procsys.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Pete Popov <ppopov@embeddedalley.com>,
-       linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: Re: i2c-algo-ite and i2c-ite planned for removal
-Message-ID: <20060622112246.GB4032@linux-mips.org>
-References: <20060620120836.628ddc79.khali@linux-fr.org> <110701c694f4$f1412fb0$f301a8c0@procsys>
+	Thu, 22 Jun 2006 07:28:24 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:10110 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161069AbWFVL2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 07:28:23 -0400
+Subject: Re: [PATCH] kprobes for s390 architecture
+From: Jan Glauber <jan.glauber@de.ibm.com>
+To: Mike Grundy <grundym@us.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com
+In-Reply-To: <20060621173436.GA7834@localhost.localdomain>
+References: <20060612131552.GA6647@localhost.localdomain>
+	 <1150141217.5495.72.camel@localhost>
+	 <20060621042804.GA20300@localhost.localdomain>
+	 <1150907920.8295.10.camel@localhost>
+	 <20060621173436.GA7834@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 22 Jun 2006 13:28:36 +0200
+Message-Id: <1150975716.6496.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <110701c694f4$f1412fb0$f301a8c0@procsys>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 11:08:34AM +0530, ankur maheshwari wrote:
+On Wed, 2006-06-21 at 10:34 -0700, Mike Grundy wrote:
+> On Wed, Jun 21, 2006 at 06:38:40PM +0200, Martin Schwidefsky wrote:
+> > You misunderstood me here. I'm not talking about storing the same piece
+> > of data to memory on each processor. I'm talking about isolating all
+> > other cpus so that the initiating cpu can store the breakpoint to memory
+> > without running into the danger that another cpu is trying to execute it
+> > at the same time. But probably the store should be atomic in regard to
+> > instruction fetching on the other cpus. It is only two bytes and it
+> > should be aligned.
+> 
+> So maybe something like this:
+> 
+> void smp_replace_instruction(void *info) {
+>         struct ins_replace_args *parms;
+>         parms = (struct ins_replace_args *) info;
+>         *parms->addr = *parms->insn
+> }
+> 
+> void __kprobes arch_arm_kprobe(struct kprobe *p)
+> {
+>         struct ins_replace_args parms;
+>         parms.addr = p->addr;
+>         parms.insn = BREAKPOINT_INSTRUCTION
+> 
+>         preempt_disable();
+>         smp_call_function(smp_replace_instruction, &parms, 0, 1);
+>         preempt_enable();
+> }
 
-> I have used once i2c-adap-ite and i2c-algo-ite for ite-8712 chip and it
-> worked fine for me in MV 2.4.25.
+Preemption disabling is not necessary around smp_call_function(), since
+smp_call_function() takes a spin lock. But smp_call_function() is wrong
+here, it calls the code on all other CPUs but not on our own. Please use
+on_each_cpu() instead.
 
-The fact that is used to work in some vendor kernel is irrelevant.  And
-2.4 hardly indicates anyway.
+Jan
 
-> Its been an year ago, I asked on same forum if some one has used it
-> before but I didn't got any reply.
+---
+Jan Glauber
+IBM Linux Technology Center
+Linux on zSeries Development, Boeblingen
 
-You see how amazingly popular the board was.  On April 2 just after
-2.6.16 was out I announced my intension to remove the board in
-
-  http://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=20060402194822.GA26358%40linux-mips.org
-
-Nobody raised hand to take care of the maintenance of any of these boards,
-thus http://www.linux-mips.org/wiki/ITE-8172G also marks the board as
-to be deleted.
-
-> It's just an info on ite-chip works, to remove it from kernel tree .....
-> decision is up to you : ).
-
-There is more that just that wrong with the board support.  And if the
-fact that it is was broken does not even result bug reports this is
-another indicator the board a board should go.
-
-The usual reminder: patches to fix the issues will be accepted.
-
-  Ralf

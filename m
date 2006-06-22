@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbWFVBXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbWFVBcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030481AbWFVBXF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 21:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030483AbWFVBXF
+	id S1030480AbWFVBcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 21:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030482AbWFVBcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 21:23:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38552 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030481AbWFVBXE (ORCPT
+	Wed, 21 Jun 2006 21:32:25 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:13780 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1030480AbWFVBcY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 21:23:04 -0400
-Date: Wed, 21 Jun 2006 18:22:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <gregkh@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] USB patches for 2.6.17
-In-Reply-To: <20060621225134.GA13618@kroah.com>
-Message-ID: <Pine.LNX.4.64.0606211814200.5498@g5.osdl.org>
-References: <20060621220656.GA10652@kroah.com> <Pine.LNX.4.64.0606211519550.5498@g5.osdl.org>
- <20060621225134.GA13618@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Jun 2006 21:32:24 -0400
+Date: Wed, 21 Jun 2006 18:32:22 -0700
+From: Greg Lindahl <greg.lindahl@qlogic.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Jeff Garzik <jeff@garzik.org>, Dave Olson <olson@unixfolk.com>,
+       Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de, discuss@x86-64.org
+Subject: Re: [discuss] Re: [RFC] Whitelist chipsets supporting MSI and check Hyper-transport capabilitiesKJ
+Message-ID: <20060622013222.GF2614@greglaptop.internal.keyresearch.com>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Jeff Garzik <jeff@garzik.org>, Dave Olson <olson@unixfolk.com>,
+	Brice Goglin <brice@myri.com>, linux-kernel@vger.kernel.org,
+	gregkh@suse.de, discuss@x86-64.org
+References: <DBFABB80F7FD3143A911F9E6CFD477B00E48CF12@hqemmail02.nvidia.com> <p73vequomc8.fsf@verdi.suse.de> <Pine.LNX.4.61.0606210920170.30013@osa.unixfolk.com> <200606211837.30056.ak@suse.de> <20060622012339.GD2614@greglaptop.internal.keyresearch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060622012339.GD2614@greglaptop.internal.keyresearch.com>
+User-Agent: Mutt/1.4.1i
+X-Frumious: Bandersnatch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 21, 2006 at 06:37:30PM +0200, Andi Kleen wrote:
 
+> Because I don't think normal Linux users should be in the hardware validation
+> business. If the vendor says it's not tested we shouldn't enable it by default.
 
-On Wed, 21 Jun 2006, Greg KH wrote:
-> 
-> Ok, but how?  I'm generating the diffstat in my script with:
-> 
-> 	git diff origin..HEAD | diffstat -p1 >> $TMP_FILE
+All you're going to do is piss off all the distros and hardare vendors
+shipping systems with this chip in it. Nvidia is not the only "vendor"
+involved, and is not the only one doing hardware validation. Sun, HP,
+Newisys, and LNXI all have currently shipping Opteron products with a
+CK804.  All 4 are probably going to want your employer's distro to not
+disable MSI.
 
-Btw, with a recent git (ie 1.4.0+), you can just do
-
-	git diff -M --stat origin..HEAD
-
-to do that much more efficiently, and without any external dependency on 
-the "diffstat" program (with rename detection, you really need to do this 
-using git itself, because "diffstat" doesn't understand rename patches 
-being renames).
-
-In fact, in a script, add the "--summary" option too, which gives a 
-summary of file creation/deletion/renames at the end.
-
-And as usual, the diff options work fine with "git log" too, so you can do
-
-	git log -M --stat --summary
-
-and it will do the right thing. Look at your ae0dadcf.. commit, for 
-example.
-
-Btw, the _one_ thing to be careful about is that when you generate a real 
-patch with "-M", if that patch actually has a rename, then only "git 
-apply" will be able to apply it correctly, and if somebody uses a regular 
-"patch" program to apply it, they'll miss out on the rename, of course.
-
-Some day maybe the git "extended patch format" is so univerally recognized 
-to be superior that everybody understands them, in the meantime you may 
-not want to use "-M" to generate patches unless you know the other end 
-applies them with git.
-
-(Which also explains why "-M" is not the default, of course).
-
-		Linus
+-- greg

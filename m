@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161167AbWFVQ0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161164AbWFVQ0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161167AbWFVQ0l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161169AbWFVQ0k
+	id S1161164AbWFVQ0O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030646AbWFVQ0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:26:40 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:10938 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1161167AbWFVQ0j (ORCPT
+	Thu, 22 Jun 2006 12:26:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33699 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030645AbWFVQ0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:26:39 -0400
-Date: Thu, 22 Jun 2006 18:26:31 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: jdike@addtoit.com
-Subject: UML compilation fails on JB_*
-Message-ID: <Pine.LNX.4.61.0606221823040.21525@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1692274460-1150993591=:21525"
+	Thu, 22 Jun 2006 12:26:13 -0400
+Date: Thu, 22 Jun 2006 09:25:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       linux-pm@osdl.org, stern@rowland.harvard.edu
+Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
+Message-Id: <20060622092506.da2a8bf4.akpm@osdl.org>
+In-Reply-To: <20060622160403.GB2539@slug>
+References: <20060621034857.35cfe36f.akpm@osdl.org>
+	<4499BE99.6010508@gmail.com>
+	<20060621221445.GB3798@inferi.kami.home>
+	<20060622061905.GD15834@kroah.com>
+	<20060622004648.f1912e34.akpm@osdl.org>
+	<20060622160403.GB2539@slug>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Thu, 22 Jun 2006 18:04:03 +0200
+Frederik Deweerdt <deweerdt@free.fr> wrote:
 
---1283855629-1692274460-1150993591=:21525
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+> Thu, Jun 22, 2006 at 12:46:48AM -0700, Andrew Morton wrote:
+> > I can bisect it if we're stuck, but that'll require beer or something.
+> 
+> FWIW, my laptop (Dell D610) gave the following results:
+> 2.6.17-mm1: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
+> 2.6.17+origin.patch: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
 
-Hi,
+So it's in mainline already - hence it's some recently-written thing which
+was not tested in rc6-mm2.
 
+> 2.6.17: oops
+> 2.6.17.1: oops
 
+2.6.17 wasn't supposed to oops.  Do you have details on this?
 
-Linux 2.6.17, in void get_thread_regs(union uml_pt_regs *uml_regs, void 
-*buffer):
+> 2.6.17-rc6-mm2: suspends correctly
 
-  CC      arch/um/os-Linux/sys-i386/registers.o
-arch/um/os-Linux/sys-i386/registers.c: In function ■get_thread_regs■:
-arch/um/os-Linux/sys-i386/registers.c:137: error: ■JB_PC■ undeclared (first 
-use
-in this function)
-arch/um/os-Linux/sys-i386/registers.c:137: error: (Each undeclared 
-identifier is reported only once
-arch/um/os-Linux/sys-i386/registers.c:137: error: for each function it 
-appears in.)
-arch/um/os-Linux/sys-i386/registers.c:138: error: ■JB_SP■ undeclared (first 
-use
-in this function)
-arch/um/os-Linux/sys-i386/registers.c:139: error: ■JB_BP■ undeclared (first 
-use
-in this function)
-
-
-I have seen this before (while trying to cross-compile a sparc64-glibc from 
-i586); the reason is that I do not have any header files containing 
-definitions for JB_PC. What additional packages do I need?
-
-
-Jan Engelhardt
--- 
---1283855629-1692274460-1150993591=:21525--
+Good kernel, that.

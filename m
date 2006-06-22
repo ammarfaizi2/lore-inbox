@@ -1,110 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbWFVRCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWFVRC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751575AbWFVRCI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 13:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWFVRCI
+	id S1751572AbWFVRC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 13:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWFVRCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 13:02:08 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:58327 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751441AbWFVRCG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 13:02:06 -0400
-Subject: Re: [RFC][PATCH 03/20] Add vfsmount writer count
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       herbert@13thfloor.at
-In-Reply-To: <20060620212000.GV27946@ftp.linux.org.uk>
-References: <20060616231213.D4C5D6AF@localhost.localdomain>
-	 <20060616231215.09D54036@localhost.localdomain>
-	 <20060618183320.GZ27946@ftp.linux.org.uk>
-	 <1150736536.10515.52.camel@localhost.localdomain>
-	 <20060620212000.GV27946@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Thu, 22 Jun 2006 10:01:48 -0700
-Message-Id: <1150995708.10515.183.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 13:02:25 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:1804 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751526AbWFVRCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 13:02:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=U/mYxiRBfSO8RWYL/h2v0fLvFaoTbT6FjJmZ4SMI7Dqcv5GkCaU5CHQX8ARIeNWf5dp6m5r0fLr8C+0OqqVMzY/J2GxnJkOUpRoix0vNsW24u/TWT9BIAOcKurRbb7BW+HfnI6dN4o3+Ju4YOhXPIXx02qK+OJiqoLn3HX79br8=
+Date: Thu, 22 Jun 2006 19:02:25 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 2/3] rtmutex: Propagate priority settings into PI lock
+ chains
+In-Reply-To: <Pine.LNX.4.58.0606220959490.15236@gandalf.stny.rr.com>
+Message-ID: <Pine.LNX.4.64.0606221853550.10511@localhost.localdomain>
+References: <20060622082758.669511000@cruncher.tec.linutronix.de>
+ <20060622082812.607857000@cruncher.tec.linutronix.de>
+ <Pine.LNX.4.58.0606220959490.15236@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-06-20 at 22:20 +0100, Al Viro wrote:
-> On Mon, Jun 19, 2006 at 10:02:16AM -0700, Dave Hansen wrote:
-> > Very true.  How about this to fix it?
-> > 
-> > --- lxc/fs//open.c~C8.1-fix-faccesat    2006-06-19 09:59:41.000000000 -0700
-> > +++ lxc-dave/fs//open.c 2006-06-19 10:01:25.000000000 -0700
-> > @@ -546,8 +546,12 @@ asmlinkage long sys_faccessat(int dfd, c
-> >            special_file(nd.dentry->d_inode->i_mode))
-> >                 goto out_path_release;
-> > 
-> > -       if(__mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
-> > -               res = -EROFS;
-> > +       res = mnt_want_write(nd.mnt);
-> > +       if (!res) {
-> > +               mnt_drop_write(nd.mnt);
-> > +               if(IS_RDONLY(nd.dentry->d_inode))
-> > +                       res = -EROFS;
-> > +       }
-> 
-> So access() can make remount r/o fail?  Uh-oh...
-
-Good point.  Thanks for catching that.
-
-There are probably two solutions here: rework the atomics to always give
-a consistent view, even during mnt_make_readonly() calls, or keep the
-mnt_make_readonly() side from executing.
-
-We're already protecting this mnt_make_readonly() from races with itself
-with a write on the mnt->mnt_sb->s_umount semaphore.  We should be able
-to use a read lock on the same semaphore to exclude the
-mnt_make_readonly() callers.
-
-Thoughts?
-
-diff -puN include/linux/mount.h~C-D8-actually-add-flags include/linux/mount.h
---- robind/include/linux/mount.h~C-D8-actually-add-flags        2006-06-20 14:11:15.000000000 -0700
-+++ robind-dave/include/linux/mount.h   2006-06-20 16:01:11.000000000 -0700
-@@ -91,6 +91,25 @@ static inline int __mnt_is_readonly(stru
-        return (atomic_read(&mnt->mnt_writers) == 0);
- }
-
-+/*
-+ * This needs to get a consistent look at mnt_writers.
-+ * Without the lock, it can race against mnt_make_readonly()
-+ * and mistake a temporarily decremented mnt_writers
-+ * for a real read-only mount.
-+ *
-+ * Note: this is never suitable if you need to perform any
-+ * write *operations* on the mount, only as a snapshot.
-+ */
-+static inline int mnt_is_readonly(struct vfsmount *mnt)
-+{
-+       int ret;
-+
-+       down_read(&mnt->mnt_sb->s_umount);
-+       ret = __mnt_is_readonly(mnt);
-+       up_read(&mnt->mnt_sb->s_umount);
-+       return ret;
-+}
-+
- static inline int mnt_want_write(struct vfsmount *mnt)
- {
-        int ret = 0;
---- lxc/fs/open.c~C8.1-fix-faccesat     2006-06-22 09:43:01.000000000 -0700
-+++ lxc-dave/fs/open.c  2006-06-22 09:43:01.000000000 -0700
-@@ -546,8 +546,12 @@ asmlinkage long sys_faccessat(int dfd, c
-           special_file(nd.dentry->d_inode->i_mode))
-                goto out_path_release;
-
--       if(__mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
-+       if(mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
-                res = -EROFS;
-
- out_path_release:
-        path_release(&nd);
 
 
--- Dave
+On Thu, 22 Jun 2006, Steven Rostedt wrote:
 
+>
+> I've stated these comments on the -rt thread, but it's more important to
+> repeat them here.
+>
+> On Thu, 22 Jun 2006, Thomas Gleixner wrote:
+>
+>>  /*
+>> + * Recheck the pi chain, in case we got a priority setting
+>> + *
+>> + * Called from sched_setscheduler
+>> + */
+>> +void rt_mutex_adjust_pi(struct task_struct *task)
+>> +{
+>> +	struct rt_mutex_waiter *waiter;
+>> +	unsigned long flags;
+>> +
+>> +	spin_lock_irqsave(&task->pi_lock, flags);
+>> +
+>> +	waiter = task->pi_blocked_on;
+>
+> Good to see you fixed the waiter race that I mentioned in the other
+> thread.  You did it before I mentioned it, but I didn't read this yet ;)
+>
+>> +	if (!waiter || waiter->list_entry.prio == task->prio) {
+>> +		spin_unlock_irqrestore(&task->pi_lock, flags);
+>> +		return;
+>> +	}
+>> +
+>> +	/* gets dropped in rt_mutex_adjust_prio_chain()! */
+>> +	get_task_struct(task);
+>> +	spin_unlock_irqrestore(&task->pi_lock, flags);
+>> +
+>> +	rt_mutex_adjust_prio_chain(task, 0, NULL, NULL, task);
+>
+> The above means that you cant ever call sched_setscheduler from a
+> interrupt handler (or softirq).  The rt_mutex_adjust_prio_chain since that
+> grabs wait_lock which is not for interrupt use.
+
+Worse in RT context: It makes it unhealthy to call from a RT task as it 
+doesn't have predictable runtime unless you know that the target task is 
+not blocked on a deep locking tree.
+
+I know this is very unlikely to happen very often in real life and this 
+thread isn't about preempt-realtime, but I'll say it anyway: Hard realtime 
+is about avoiding surprisingly long execution times - especially those 
+which are  extremely unlikely to happen, but nevertheless are possible, 
+because you are not very likely to see those situations in any tests, and 
+therefore you can suddenly miss deadlines in the field without a clue what 
+is happening.
+
+Esben
+
+>
+>> +}
+>> +
+>> +/*
+>>   * Slow path lock function:
+>>   */
+>>  static int __sched
+>> @@ -633,6 +663,7 @@
+>>  			if (unlikely(ret))
+>>  				break;
+>>  		}
+>> +
+>>  		spin_unlock(&lock->wait_lock);
+>>
+>>  		debug_rt_mutex_print_deadlock(&waiter);
+>
+> [...]
+>
+>>
+>>  extern void set_user_nice(task_t *p, long nice);
+>> Index: linux-2.6.17-mm/kernel/sched.c
+>> ===================================================================
+>> --- linux-2.6.17-mm.orig/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+>> +++ linux-2.6.17-mm/kernel/sched.c	2006-06-22 10:26:11.000000000 +0200
+>
+> Oh and Thomas...
+>
+>  export QUILT_DIFF_OPTS='-p'
+>
+>> @@ -4119,6 +4119,8 @@
+>
+> Can sched_setscheduler be called from interrupt context?
+>
+>>  	__task_rq_unlock(rq);
+>>  	spin_unlock_irqrestore(&p->pi_lock, flags);
+>>
+>> +	rt_mutex_adjust_pi(p);
+>> +
+>>  	return 0;
+>>  }
+>>  EXPORT_SYMBOL_GPL(sched_setscheduler);
+>
+> I haven't found any place that this was called from interrupt context, but
+> with this added, it can not be.  So it should be documented that
+> sched_setscheduler grabs locks that are not to be called from interrupt
+> context.
+>
+> -- Steve
+>
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+>
+> Index: linux-2.6.17-rc4-mm1/kernel/sched.c
+> ===================================================================
+> --- linux-2.6.17-rc4-mm1.orig/kernel/sched.c	2006-06-22 10:13:50.000000000 -0400
+> +++ linux-2.6.17-rc4-mm1/kernel/sched.c	2006-06-22 10:15:09.000000000 -0400
+> @@ -4006,6 +4006,10 @@ static void __setscheduler(struct task_s
+>  * @p: the task in question.
+>  * @policy: new policy.
+>  * @param: structure containing the new RT priority.
+> + *
+> + *  Do not call this from interrupt context.  If RT_MUTEXES is configured
+> + *  then it can grab spin locks that are not protected with interrupts
+> + *  disabled.
+>  */
+> int sched_setscheduler(struct task_struct *p, int policy,
+> 		       struct sched_param *param)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

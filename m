@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWFVRgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751855AbWFVRjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbWFVRgk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 13:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751856AbWFVRgS
+	id S1751855AbWFVRjp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 13:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751856AbWFVRjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 13:36:18 -0400
-Received: from [212.76.84.205] ([212.76.84.205]:53257 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751855AbWFVRgD (ORCPT
+	Thu, 22 Jun 2006 13:39:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52139 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751855AbWFVRjo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 13:36:03 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Incorrect CPU process accounting using CONFIG_HZ=100
-Date: Thu, 22 Jun 2006 20:36:39 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200606211716.01472.a1426z@gawab.com> <Pine.LNX.4.61.0606220741540.25261@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0606220741540.25261@yvahk01.tjqt.qr>
+	Thu, 22 Jun 2006 13:39:44 -0400
+Date: Thu, 22 Jun 2006 13:33:09 -0400 (EDT)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-5.boston.redhat.com
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: make PROT_WRITE imply PROT_READ
+Message-ID: <Pine.LNX.4.64.0606221329270.15442@dhcp83-5.boston.redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200606222036.39908.a1426z@gawab.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> >Setting CONFIG_HZ=100 results in incorrect CPU process accounting.
-> >
-> >This can be seen running top d.1, that shows top, itself, consuming 0ms
-> >CPUtime.
-> >
-> >Will this bug have consequences for sched.c?
->
-> Works for me, somewhat.
-> TIME+ says 0:00.02 after 70 secs. (Ergo: top is not expensive on this
-> CPU.)
 
-That's what I thought for a long time.  But at closer inspection, top d.1 
-slows down other apps by about the same amount of time at 1000Hz and 100Hz, 
-only at 1000Hz it is accounted for whereas at 100Hz it is not.
 
-Thanks!
+Hi,
 
---
-Al
+Currently, if i mmap() a file PROT_WRITE only and then first read from it 
+and then write to it, i get a SEGV. However, if i write to it first and 
+then read from it, i get no SEGV. This seems rather inconsistent.
 
+The current implementation seems to be to make PROT_WRITE imply PROT_READ, 
+however it does not quite work correctly. The patch below resolves this 
+issue, by explicitly setting the PROT_READ flag when PROT_WRITE is 
+requested.
+
+This might appear at first as a possible permissions subversion, as i 
+could get PROT_READ on a file that i only have write permission 
+to...however, the mmap implementation requires that the file be opened 
+with at least read access already. Thus, i don't believe there is any 
+issue with regards to permissions.
+
+Another consequenece of this patch is that it forces PROT_READ even for 
+architectures that might be able to support it, (I know that x86, x86_64 
+and ia64 do not) but i think this is best for portability.
+
+This was originally reported by Doug Chapman.
+
+thanks,
+
+-Jason
+
+
+Signed-off-by: Jason Baron <jbaron@redhat.com>
+
+--- linux-2.6/mm/mmap.c.bak	2006-06-21 17:07:52.000000000 -0400
++++ linux-2.6/mm/mmap.c	2006-06-21 17:22:54.000000000 -0400
+@@ -910,6 +910,13 @@
+ 		if (!(file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC)))
+ 			prot |= PROT_EXEC;
+ 
++	 /* SuSv3: "if the application requests only PROT_WRITE, the 
++	 *          implementation may also allow read access."
++ 	 */
++
++	if (prot & PROT_WRITE)
++		prot |= PROT_READ;
++
+ 	if (!len)
+ 		return -EINVAL;
+ 

@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030617AbWFVGjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWFVGsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030617AbWFVGjb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 02:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030622AbWFVGjb
+	id S1751076AbWFVGsI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 02:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751710AbWFVGsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 02:39:31 -0400
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:22203 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1030617AbWFVGjb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 02:39:31 -0400
-Date: Thu, 22 Jun 2006 02:34:46 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: fs/binfmt_aout.o, Error: suffix or operands invalid for
-  `cmp' [was Re: 2.6.1
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>
-Message-ID: <200606220238_MC3-1-C321-1AC2@compuserve.com>
+	Thu, 22 Jun 2006 02:48:08 -0400
+Received: from sbz-30.cs.helsinki.fi ([128.214.9.98]:59869 "EHLO
+	sbz-30.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751076AbWFVGsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 02:48:07 -0400
+Date: Thu, 22 Jun 2006 09:48:05 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: akpm@osdl.org
+cc: alesan@manoweb.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] cardbus: revert IO window limit
+Message-ID: <Pine.LNX.4.58.0606220947250.15059@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrew Morton wrote:
-In-Reply-To: <4499BDB4.6060503@zytor.com>
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-On Wed, 21 Jun 2006 14:44:20 -0700, H. Peter Anvin wrote:
+This patch reverts commit 4196c3af25d98204216a5d6c37ad2cb303a1f2bf "cardbus:
+limit IO windows to 256 bytes" which breaks Alessio Sangalli's machine boot
+when APM support is enabled. See http://lkml.org/lkml/2006/6/16/33 for
+description of the problem.
 
-> Andrew Morton wrote:
-> > On Wed, 21 Jun 2006 23:16:17 +0200
-> > Mattia Dongili <malattia@linux.it> wrote:
-> > 
-> >> On Wed, Jun 21, 2006 at 01:42:15PM -0700, Andrew Morton wrote:
-> >>> On Wed, 21 Jun 2006 21:39:32 +0200
-> >>> Mattia Dongili <malattia@linux.it> wrote:
-> >>>
-> >>>> Thanks, this is fixed, but I have a new failure:
-> >>>>   CC [M]  fs/xfs/support/move.o
-> >>>>   CC [M]  fs/xfs/support/uuid.o
-> >>>>   LD [M]  fs/xfs/xfs.o
-> >>>>   CC      fs/dnotify.o
-> >>>>   CC      fs/dcookies.o
-> >>>>   LD      fs/built-in.o
-> >>>>   CC [M]  fs/binfmt_aout.o
-> >>>> {standard input}: Assembler messages:
-> >>>> {standard input}:160: Error: suffix or operands invalid for `cmp'
-> >>>> make[1]: *** [fs/binfmt_aout.o] Error 1
-> >>>> make: *** [fs] Error 2
-> >>> what the heck?  Can you do `make fs/binfmt_aout.s' then send the relevant
-> >>> parts of that file?
-> >> I can't really tell which is the relevant part other than line 160 :)
-> >> Full file available here:
-> >> http://oioio.altervista.org/linux/binfmt_aout.s
-> >>
-> > 
-> > It's complaining about this:
-> > 
-> > #APP
-> >         addl %ecx,%eax ; sbbl %edx,%edx; cmpl %eax,$-1073741824; sbbl $0,%edx   # dump.u_dsize, sum, flag,
-> > #NO_APP
-> 
-> The cmpl should have its arguments reversed.  It's quite possible some versions of the 
-> assembler accepts the form given, but they're wrong (and doubly confusing when used as 
-> input to sbb.)
+Cc: Alessio Sangalli <alesan@manoweb.com>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-This was built with gcc 4.0.4 20060507 (prerelease).
-
-I don't normally build a.out support, but I just tried and it compiled
-fine with gcc 4.1.1.  SO this is probably a compiler bug (almost certainly
-given that it generated illegal assembler code.)
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 28ce3a7..657be94 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -40,7 +40,7 @@ #define ROUND_UP(x, a)		(((x) + (a) - 1)
+  * FIXME: IO should be max 256 bytes.  However, since we may
+  * have a P2P bridge below a cardbus bridge, we need 4K.
+  */
+-#define CARDBUS_IO_SIZE		(256)
++#define CARDBUS_IO_SIZE		(4*1024)
+ #define CARDBUS_MEM_SIZE	(32*1024*1024)
+ 
+ static void __devinit

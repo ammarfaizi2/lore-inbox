@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932658AbWFVVbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWFVVbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932658AbWFVVbY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWFVVbX
+	id S932655AbWFVVbW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 17:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbWFVVbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:31:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6585 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932658AbWFVVbX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:31:23 -0400
-Date: Thu, 22 Jun 2006 14:31:02 -0700 (PDT)
+	Thu, 22 Jun 2006 17:31:22 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:14793 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932655AbWFVVbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 17:31:22 -0400
+Date: Thu, 22 Jun 2006 14:31:07 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Jens Axboe <axboe@suse.de>,
-       Dave Miller <davem@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       Hugh Dickins <hugh@veritas.com>, Dave Miller <davem@redhat.com>,
        linux-mm@kvack.org, Christoph Lameter <clameter@sgi.com>,
        Ingo Molnar <mingo@elte.hu>
-Message-Id: <20060622213102.32391.19996.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 0/4] struct file RCU optimizations V2
+Message-Id: <20060622213107.32391.63249.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20060622213102.32391.19996.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060622213102.32391.19996.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 1/4] Create files_init_early()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Optimize RCU handling for struct file by relying on slab RCU handling
+files rcu optimization: Creates files_init_early()
 
-(Thanks for all the feedback on the RFC for this....)
+This moves the creation of the filp cache into fs/file_table.c
 
-Currently we schedule RCU frees for each file we free separately. That has
-several drawbacks against the earlier file handling (in 2.6.5 f.e.), which
-did not require RCU callbacks:
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-1. Excessive number of RCU callbacks can be generated causing long RCU
-   queues that in turn cause long latencies.
-
-2. The cache hot object is not preserved between free and realloc. A close
-   followed by another open is very fast with the RCUless approach because
-   the last freed object is returned by the slab allocator that is
-   still cache hot. RCU free means that the object is not immediately
-   available again. The new object is cache cold and therefore open/close
-   performance tests show a significant degradation with the RCU
-   implementation.
-
-One solution to this problem is to move the RCU freeing into the Slab
-allocator by specifying SLAB_DESTROY_BY_RCU as an option at slab creation
-time. The slab allocator will do RCU frees only when it is necessary
-to dispose of slabs of objects (rare). So with that approach we can cut
-out the RCU overhead significantly.
-
-However, the slab allocator may return the object for another use even
-before the RCU period has expired under SLAB_DESTROY_BY_RCU. This means
-there is the (unlikely) possibility that the object is going to be
-switched under us in sections protected by rcu_read_lock() and
-rcu_read_unlock(). So we need to verify that we have acquired the correct
-object after establishing a stable object reference (incrementing the
-refcounter does that).
-
-I have tested this on IA64 NUMA with aim7.
-
-Patch was first discussed at:
-http://marc.theaimsgroup.com/?t=115048747200002&r=1&w=2
-
-V1->V2:
-- Consolidate common code after finding fget in fget_light.
-- Rename fu_list to its prior name f_list.
-- Do not clear variables in get_empty_filp() that are cleared
-  later by other subsystems.
-- Move the eventpoll initialization into the constructor.
-- Split up the patch into patchset of 4 patches.
-
-The patchset consists of 4 patches against 2.6.17 that are following
-this message.
-
-
+Index: linux-2.6.17/include/linux/fs.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/fs.h	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17/include/linux/fs.h	2006-06-22 13:16:13.317087178 -0700
+@@ -252,6 +252,7 @@ extern void __init inode_init(unsigned l
+ extern void __init inode_init_early(void);
+ extern void __init mnt_init(unsigned long);
+ extern void __init files_init(unsigned long);
++extern void __init files_init_early(void);
+ 
+ struct buffer_head;
+ typedef int (get_block_t)(struct inode *inode, sector_t iblock,
+Index: linux-2.6.17/fs/file_table.c
+===================================================================
+--- linux-2.6.17.orig/fs/file_table.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17/fs/file_table.c	2006-06-22 14:03:54.484771991 -0700
+@@ -35,6 +35,12 @@ __cacheline_aligned_in_smp DEFINE_SPINLO
+ 
+ static struct percpu_counter nr_files __cacheline_aligned_in_smp;
+ 
++void __init files_init_early(void)
++{
++	filp_cachep = kmem_cache_create("filp", sizeof(struct file), 0,
++			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++}
++
+ static inline void file_free_rcu(struct rcu_head *head)
+ {
+ 	struct file *f =  container_of(head, struct file, f_u.fu_rcuhead);
+Index: linux-2.6.17/fs/dcache.c
+===================================================================
+--- linux-2.6.17.orig/fs/dcache.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17/fs/dcache.c	2006-06-22 13:16:13.319040183 -0700
+@@ -1751,9 +1751,7 @@ void __init vfs_caches_init(unsigned lon
+ 	names_cachep = kmem_cache_create("names_cache", PATH_MAX, 0,
+ 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+ 
+-	filp_cachep = kmem_cache_create("filp", sizeof(struct file), 0,
+-			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+-
++	files_init_early();
+ 	dcache_init(mempages);
+ 	inode_init(mempages);
+ 	files_init(mempages);

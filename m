@@ -1,62 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932761AbWFVD4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932756AbWFVDzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932761AbWFVD4c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 23:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWFVD4c
+	id S932756AbWFVDzw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 23:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWFVDzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 23:56:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15552 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751292AbWFVD4b (ORCPT
+	Wed, 21 Jun 2006 23:55:52 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:39893 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751292AbWFVDzv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 23:56:31 -0400
-Date: Wed, 21 Jun 2006 20:56:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: linux-kernel@vger.kernel.org, mbroz@redhat.com
-Subject: Re: [PATCH 02/15] dm linear: support ioctls
-Message-Id: <20060621205619.e7c583bc.akpm@osdl.org>
-In-Reply-To: <20060621193308.GQ4521@agk.surrey.redhat.com>
-References: <20060621193308.GQ4521@agk.surrey.redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 21 Jun 2006 23:55:51 -0400
+Subject: Re: [PATCH 00/11] Task watchers:  Introduction
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
+       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
+In-Reply-To: <4499EE29.9020703@bigpond.net.au>
+References: <1150242721.21787.138.camel@stark>
+	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>
+	 <44992EAA.6060805@bigpond.net.au>  <44993079.40300@bigpond.net.au>
+	 <1150925387.21787.1056.camel@stark>  <4499D097.5030604@bigpond.net.au>
+	 <1150936337.21787.1114.camel@stark>  <4499EE29.9020703@bigpond.net.au>
+Content-Type: text/plain
+Date: Wed, 21 Jun 2006 20:46:05 -0700
+Message-Id: <1150947965.21787.1228.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jun 2006 20:33:08 +0100
-Alasdair G Kergon <agk@redhat.com> wrote:
-
-> From: Milan Broz <mbroz@redhat.com>
+On Thu, 2006-06-22 at 11:11 +1000, Peter Williams wrote:
+> Matt Helsley wrote:
+> > On Thu, 2006-06-22 at 09:04 +1000, Peter Williams wrote:
+> >> Matt Helsley wrote:
+> >>> On Wed, 2006-06-21 at 21:41 +1000, Peter Williams wrote:
+> >>>> Peter Williams wrote:
+> >>>>> Matt Helsley wrote:
+> >>>>>> On Wed, 2006-06-21 at 15:41 +1000, Peter Williams wrote:
+> >>>>>>> On a related note, I can't see where the new task's notify field gets 
+> >>>>>>> initialized during fork.
+> >>>>>> It's initialized in kernel/sys.c:notify_per_task_watchers(), which calls
+> >>>>>> RAW_INIT_NOTIFIER_HEAD(&task->notify) in response to WATCH_TASK_INIT.
+> >>>>> I think that's too late.  It needs to be done at the start of 
+> >>>>> notify_watchers() before any other watchers are called for the new task.
+> >>> 	I don't see why you think it's too late. It needs to be initialized
+> >>> before it's used. Waiting until notify_per_task_watchers() is called
+> >>> with WATCH_TASK_INIT does this.
+> >> I probably didn't understand the code well enough.  I'm still learning 
+> >> how it all hangs together :-).
+> >>
+> >>>> On second thoughts, it would simpler just before the WATCH_TASK_INIT 
+> >>>> call in copy_process() in fork.c.  It can be done unconditionally there.
+> >>>>
+> >>>> Peter
+> >>> 	That would work. It would not simplify the control flow of the code.
+> >>> The branch for WATCH_TASK_INIT in notify_per_task_watchers() is
+> >>> unavoidable; we need to call the parent task's chain in that case since
+> >>> we know the child task's is empty.
+> >>>
+> >>> 	It is also counter to one goal of the patches -- reducing the "clutter"
+> >>> in these paths. Arguably task watchers is the same kind of clutter that
+> >>> existed before. However, it is a means of factoring such clutter into
+> >>> fewer instances (ideally one) of the pattern.
+> >> Maybe a few comments in the code to help reviewers such as me learn how 
+> >> it works more quickly would be worthwhile.
+> > 
+> > Good point. I'll keep this in mind as I consider the multi-chain
+> > approach suggested by Andrew -- I suspect improvments in my commenting
+> > will be even more critical there.
+> > 
+> >> BTW as a former user of PAGG, I think there are ideas in the PAGG 
+> >> implementation that you should look at.  In particular:
+> >>
+> >> 1. The use of an array of function pointers (one for each hook) can cut 
+> >> down on the overhead.  The notifier_block only needs to contain a 
+> >> pointer to the array so there's no increase in the size of that 
+> >> structure.  Within the array a null pointer would mean "don't bother 
+> >> calling".  Only one real array needs to exist even for per task as 
+> >> they're all using the same functions (just separate data).  It removes 
+> >> the need for a switch statement in the client's function as well as 
+> >> saving on unnecessary function calls.
+> > 
+> > 	I don't think having an explicit array of function pointers is likely
+> > to be as fast as a switch statement (or a simple branch) generated by
+> > the compiler.
 > 
-> When an ioctl is performed on a device with a linear target, simply
-> pass it on to the underlying block device.
-> 
-> Note that the ioctl will pass through the filtering in blkdev_ioctl()
-> twice.
->  
-> Signed-off-by: Milan Broz <mbroz@redhat.com>
-> Signed-off-by: Alasdair G Kergon <agk@redhat.com>
-> 
-> Index: linux-2.6.17/drivers/md/dm-linear.c
-> ===================================================================
-> --- linux-2.6.17.orig/drivers/md/dm-linear.c	2006-06-21 17:45:16.000000000 +0100
-> +++ linux-2.6.17/drivers/md/dm-linear.c	2006-06-21 18:32:07.000000000 +0100
-> @@ -96,14 +96,25 @@ static int linear_status(struct dm_targe
->  	return 0;
->  }
->  
-> +static int linear_ioctl(struct dm_target *ti, struct inode *inode,
-> +			struct file *filp, unsigned int cmd,
-> +			unsigned long arg)
-> +{
-> +	struct linear_c *lc = (struct linear_c *) ti->private;
-> +	struct block_device *bdev = lc->dev->bdev;
-> +
-> +	return blkdev_ioctl(bdev->bd_inode, filp, cmd, arg);
-> +}
+> With the array there's no need for any switch or branching.  You know 
+> exactly which function in the array to use in each hook.
 
-but, but..  the blockdev's driver may have decided to use a different ioctl
-handler.
+	I don't forsee enough of a difference to make this worth arguing about.
+You're welcome to benchmark and compare arrays vs. switches/branches on
+a variety of archs, SMP boxen, NUMA boxen, etc. and post the results.
+I'm going to focus on other issues for now.
 
-We should go through file_operations.ioctl/unlocked_ioctl.
+> > 
+> > 	It doesn't save unecessary function calls unless I modify the core
+> > notifier block structure. Otherwise I still need to stuff a generic
+> > function into .notifier_call and from there get the pointer to the array
+> > to make the next call. So it adds more pointer indirection but does not
+> > reduce the number of intermediate function calls.
+> 
+> There comes a point when trying to reuse existing code is less cost 
+> effective than starting over.
+
+Write my own notifier chains just to avoid a function call? I don't
+think that's sufficient justification for implementing my own.
+
+> > 
+> > 	As far as the multi-chain approach is concerned, I'm still leaning
+> > towards registering a single function with a mask describing what it
+> > wants to be notified of.
+> 
+> I think that will be less efficient than the function array.
+
+Well if I don't register with the mask there are other approaches that
+wouldn't require the switch or the array.
+
+> > 
+> >> 2. A helper mechanism to allow a client that's being loaded as a module 
+> >> to visit all existing tasks and do whatever initialization it needs to 
+> >> do.  Without this every client would have to implement such a mechanism 
+> >> themselves (and it's not pretty).
+> > 
+> > 	Interesting idea. It should resemble existing macros. Something like:
+> > 	register_task_watcher(&my_nb, &unnoticed);
+> > 	for_each_unnoticed_task(unnoticed)
+> > 		...
+> 
+> Something like that.  It involved some tricky locking issues and was
+> reasonably complex (which made providing it a good option when compared 
+> to each client implementing its own version).  Rather than trying to do 
+> this from scratch I'd advise getting a copy of the most recent PAGG
+> patches and using that as a model as a fair bit of effort was spent 
+> ironing out all the problems involved.  It's not as easy as it sounds.
+
+	Yes, it does sound quite hairy.
+
+	My feeling is that such code should be largely independent of task
+watchers and I'd like to stay focused. So I have no plans to work on
+something like "for_each_unnoticed_task()" for now.
+
+Cheers,
+	-Matt Helsley
+

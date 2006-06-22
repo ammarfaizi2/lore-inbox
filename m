@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWFVO1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWFVO2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbWFVO1H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 10:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWFVO0w
+	id S1030308AbWFVO2L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 10:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWFVO2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 10:26:52 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:46476 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030277AbWFVO0g
+	Thu, 22 Jun 2006 10:28:11 -0400
+Received: from kurby.webscope.com ([204.141.84.54]:59573 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S1030296AbWFVO2J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 10:26:36 -0400
-Date: Thu, 22 Jun 2006 07:27:10 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Jens Axboe <axboe@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Dave Miller <davem@redhat.com>
-Subject: Re: Move struct file RCU handling into the slab allocator?
-Message-ID: <20060622142710.GB1295@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <Pine.LNX.4.64.0606161246210.16400@schroedinger.engr.sgi.com> <20060617213704.GB5310@us.ibm.com> <Pine.LNX.4.64.0606211517160.22515@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606211517160.22515@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Jun 2006 10:28:09 -0400
+Message-ID: <449AA8A5.8070903@linuxtv.org>
+Date: Thu, 22 Jun 2006 10:26:45 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: predivan@ptt.yu
+CC: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [v4l-dvb-maintainer]  [PATCH][2.6.17]drivers/media/video/bt8xx/bttvp.h
+ has wrong include line
+References: <20060622145850.0cf87d8a.predivan@ptt.yu>
+In-Reply-To: <20060622145850.0cf87d8a.predivan@ptt.yu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 03:36:10PM -0700, Christoph Lameter wrote:
-> On Sat, 17 Jun 2006, Paul E. McKenney wrote:
-> 
-> > Careful performance testing is needed as well, the validity check does
-> > appear to me to be pretty lightweight, but this stuff is a bit sensitive
-> > to performance.
-> 
-> Jens has done some testing with another approach like this and found a 
-> good increase in speed.
+Predrag Ivanovic wrote:
+> Hi.
+> Trivial patch, really.
+> Fixes include line in bttvp.h(btcx-risc.h is in parent dir).
+> ------
+> --- bttvp.h	2006-06-19 16:48:46.000000000 +0200
+> +++ bttvp.h.new	2006-06-19 16:49:54.000000000 +0200
+> @@ -48,7 +48,7 @@
+>  
+>  #include "bt848.h"
+>  #include "bttv.h"
+> -#include "btcx-risc.h"
+> +#include "../btcx-risc.h"
+>  
+>  #ifdef __KERNEL__
+>  
+> -----------
+> Pedja 
+>   
+NACK.
 
-And I would be much more concerned if the change was in the single-threaded
-fastpath in fget_light(), to be sure.  But getting a view of multi-threaded
-performance of this particular patch for a variety of workloads is still
-warranted.
+Please see drivers/media/video/bt8xx/Makefile
 
-> > Some one less than a philistine than I might argue that this should
-> > go back to the original name of f_list.  ;-)
-> 
-> Did that in V2 of the patch.
+You will notice the following line:
 
-Cool!
+EXTRA_CFLAGS += -Idrivers/media/video
 
-> > o	Not sure whether hfs_file_release()s check for zero f_count
-> > 	still works, but am quite concerned.  HFS experts?
-> > 
-> > o	Ditto for hfsplus_file_release().  And for affs_file_release().
-> 
-> That is not a problem since the object has not been returned to the slab 
-> yet so it cannot have been reused.
+This instructs the compiler to find some other required headers in 
+drivers/media/video (such as btcx-risc.h)
 
-Good enough!
+Your patch is unnecessary, and it is bad practice to use ".." inside a 
+header includes path, IMHO at least.
 
-							Thanx, Paul
+In addition, please see the guidelines in 
+Documentation/SubmittingPatches before you send any future patches.  We 
+cannot accept patches into the linux kernel without a proper developer's 
+certificate of origin.
 
->                                    A problem could occur if one could
-> now establish a new reference to the object while it has a zero count. 
-> But if that would be possible then we would be already in trouble.
-> 
-> The RCU check is only used to guarantee that the object is not
-> vanishing from under us while we increase the refcount if it was not 
-> zero. Since it is zero in these cases that will never occur.
-> 
-> In order to generate a wrong alias situation the following needs to 
-> happen:
-> 
-> process 1		process 2:
-> 
-> do table lookup
-> 			free the filp structure (refcount becomes zero)
-> 			modify table
-> 			create a new filp structure (same address)
-> 			increment counter to 1
-> inc_if_nonzero
-> (counter becomes two)
-> 
-> <now we have a wrong reference>
-> 
-> put_filp (reduce refcount)
-> 
-> Table lookup fails->fget fails.
-> 
-> 
+Thank you for the effort, though :-)
+
+Regards,
+
+Michael Krufky
+
+

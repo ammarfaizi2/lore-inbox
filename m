@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbWFVU3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161315AbWFVUdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030401AbWFVU3H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 16:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbWFVU3H
+	id S1161315AbWFVUdW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 16:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161329AbWFVUdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 16:29:07 -0400
-Received: from gateway0.EECS.Berkeley.EDU ([169.229.60.93]:56968 "EHLO
-	gateway0.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S1030399AbWFVU3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 16:29:03 -0400
-Message-ID: <449AFD9E.3070308@eecs.berkeley.edu>
-Date: Thu, 22 Jun 2006 13:29:18 -0700
-From: Jeff Anderson-Lee <jonah@eecs.berkeley.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: petabyte class archival filestore wanted/proposed
-References: <449AC8A0.6020108@eecs.berkeley.edu> <449AF53B.10103@garzik.org>
-In-Reply-To: <449AF53B.10103@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jun 2006 16:33:22 -0400
+Received: from mx2.suse.de ([195.135.220.15]:7120 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161315AbWFVUdV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 16:33:21 -0400
+Date: Thu, 22 Jun 2006 13:29:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Mattia Dongili <malattia@linux.it>, Jiri Slaby <jirislaby@gmail.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-pm@osdl.org, pavel@suse.cz
+Subject: [PATCH] get USB suspend to work again on 2.6.17-mm1
+Message-ID: <20060622202952.GA14135@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Mattai and Jiri, can you try the patch below to see if it fixes the USB
+suspend problem you are seeing with 2.6.17-mm1?
 
-> Jeff Anderson-Lee wrote:
->
->> I'm part of a project at University of California Berkeley that is 
->> trying to put together a predominantly archival file system for 
->> petabyte class data stores using Linux with clusters of commodity 
->> server hardware.  We currently have multiple terabytes of hardware on 
->> top of which we intend to build such a system.  However, our hope is 
->> that the end system would be useful for a wide range of users from 
->> someone with 3 large disk or three disk servers to groups with 3 or 
->> more distributed storage sites.
->>
->> Main Goals/Features:
->>    1) Tapeless: maintain multiple copies on disk (minimize 
->> backup/restore lag)
->>    2) "Mirroring" across remote sites: for disaster recovery (we sit 
->> on top of  the Hayward Fault)
->>    3) Persistent snapshots: as archival copies instead of 
->> backup/restore scanning
->>    4) Copy-On-Write: in support of snapshots/archives
->>    5) Append-mostly log structured file system: make synchronization 
->> of remote mirrors easier (tail the log).
->>    6) Avoid (insofar as possible) single point of failure and 
->> bottlenecks (for scalability)
->>
->> I've looked into the existing file systems I know about, and none of 
->> them seem to fit the bill.
->>
->> Parts of the Open Solaris ZFS file system looks interesting, except 
->> (a) it is not on Linux and (b) seems to mix together too many levels 
->> (volume manager and file system).  I can see how using some of the 
->> concepts and implementing something like it on top of an 
->> append-mostly distributed logical device might work however.  By 
->> splitting the project into two parts ((a) a robust, distributed 
->> logical block device and (b) a flexible file system with snapshots)  
->> it might make it easier to design and build.
->>
->> Before we begin however, it is important to find out:
->>    1) Is there anything sufficiently like this to either (a) use 
->> instead, or (b) start from.
->>    2) Is there community support for insertion in the main kernel 
->> tree (without which it is just another toy project)?
->>    3) Anyone care to join in (a) design, (b) implementation, or (c) 
->> testing?
->
->
-> I would recommend checking out Venti:
-> http://cm.bell-labs.com/sys/doc/venti.html 
+David, we really should not be caring about what the children of a USB
+device is doing here, as who knows what type of "device" might hang off
+of a struct usb_device.  This patch is just a band-aid around this area,
+until Alan's patches fix up everything "properly" :)
 
-Yes, I've seen that and like some of the ideas.  There is no GPL Linux 
-implementation of Venti that I know of.
+thanks,
 
-Jeff Anderson-Lee
+greg k-h
 
+-----------------------------
+Subject: USB: get USB suspend to work again
+
+Yeah, it's a hack, but it is only temporary until Alan's patches
+reworking this area make it in.  We really should not care what devices
+below us are doing, especially when we do not really know what type of
+devices they are.  This patch relies on the fact that the endpoint
+devices do not have a driver assigned to us.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ drivers/usb/core/usb.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- gregkh-2.6.orig/drivers/usb/core/usb.c
++++ gregkh-2.6/drivers/usb/core/usb.c
+@@ -991,6 +991,8 @@ void usb_buffer_unmap_sg (struct usb_dev
+ 
+ static int verify_suspended(struct device *dev, void *unused)
+ {
++	if (dev->driver == NULL)
++		return 0;
+ 	return (dev->power.power_state.event == PM_EVENT_ON) ? -EBUSY : 0;
+ }
+ 

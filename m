@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWFVO0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWFVO1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbWFVO0f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 10:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWFVOZk
+	id S1030294AbWFVO1G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 10:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWFVO0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 10:25:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21208 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751805AbWFVOZR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 10:25:17 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 4/4] XFS: Use the dentry passed to statfs() to limit the scope of the results [try #3]
-Date: Thu, 22 Jun 2006 15:24:08 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: dhowells@redhat.com, viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
-Message-Id: <20060622142408.10982.56925.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060622142358.10982.23148.stgit@warthog.cambridge.redhat.com>
-References: <20060622142358.10982.23148.stgit@warthog.cambridge.redhat.com>
+	Thu, 22 Jun 2006 10:26:53 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24875 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1030294AbWFVO0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 10:26:35 -0400
+Date: Thu, 22 Jun 2006 08:24:29 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: CONFIG_VGACON_SOFT_SCROLLBACK crashes 2.6.17
+In-reply-to: <fa.xi8WlIQLoSpgs6byyFeCFmlTjCE@ifi.uio.no>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Antonio Vargas <windenntw@gmail.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org
+Message-id: <449AA81D.8090007@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.RonUKQ4bRxV1BEEAvvcvwPKcfXM@ifi.uio.no>
+ <fa.xi8WlIQLoSpgs6byyFeCFmlTjCE@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+Antonino A. Daplas wrote:
+>> This would have
+>> different timings on different cpu kinds...
+> 
+> Yes. This is just a debugging patch to help me pinpoint where
+> the problem is.
+> 
+>> maybe a short usleep()?
+> 
+> It can be called in any context, so sleep() will be illegal
+> in certain circumstances.
 
-The attached patch enables XFS to limit the statfs() results to the project
-quota covering the dentry used as a base for call.
+That's what udelay is for :-)
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-
- fs/xfs/linux-2.6/xfs_super.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/fs/xfs/linux-2.6/xfs_super.c b/fs/xfs/linux-2.6/xfs_super.c
-index 4fb0fc6..9bdef9d 100644
---- a/fs/xfs/linux-2.6/xfs_super.c
-+++ b/fs/xfs/linux-2.6/xfs_super.c
-@@ -687,7 +687,8 @@ xfs_fs_statfs(
- 	struct dentry		*dentry,
- 	struct kstatfs		*statp)
- {
--	return -bhv_vfs_statvfs(vfs_from_sb(dentry->d_sb), statp, NULL);
-+	return -bhv_vfs_statvfs(vfs_from_sb(dentry->d_sb), statp,
-+				vn_from_inode(dentry->d_inode));
- }
- 
- STATIC int
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

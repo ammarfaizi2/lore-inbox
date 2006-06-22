@@ -1,39 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWFVPqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWFVPvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWFVPqz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 11:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWFVPqz
+	id S1750834AbWFVPvU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 11:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWFVPvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 11:46:55 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:55955 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030192AbWFVPqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 11:46:54 -0400
-Date: Thu, 22 Jun 2006 08:45:55 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: Nathan Lynch <ntl@pobox.com>, akpm@osdl.org,
-       kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       ashok.raj@intel.com, pavel@ucw.cz, ak@suse.de, nickpiggin@yahoo.com.au,
-       mingo@elte.hu
-Subject: Re: [PATCH] stop on cpu lost
-In-Reply-To: <20060622084513.4717835e.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.64.0606220844430.28341@schroedinger.engr.sgi.com>
-References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com>
- <20060621225609.db34df34.akpm@osdl.org> <20060622150848.GL16029@localdomain>
- <20060622084513.4717835e.rdunlap@xenotime.net>
+	Thu, 22 Jun 2006 11:51:20 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:28686 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750834AbWFVPvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 11:51:20 -0400
+Date: Thu, 22 Jun 2006 11:51:18 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>, <pavel@suse.cz>,
+       <linux-pm@osdl.org>
+Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
+In-Reply-To: <20060622004648.f1912e34.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0606221144190.8121-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006, Randy.Dunlap wrote:
+On Thu, 22 Jun 2006, Andrew Morton wrote:
 
-> Sounds much better than just killing the process.
+> On Wed, 21 Jun 2006 23:19:05 -0700
+> Greg KH <greg@kroah.com> wrote:
+> 
+> > > I have the same problems also with suspend to disk. BTW I can't resume
+> > > from disk since 2.6.17-rc5-mm1, but I'll try to be more precise
+> > > tomorrow, as it seems removing the usb stuff makes it do some more steps
+> > > toward resumimg (eg: with usb modules this laptop immediately reboots
+> > > after reading all pages, without them I can reach "resuming device.."
+> > > stage).
+> > 
+> > Removing uhci-hcd causes all USB devices to be removed from the system.
+> > 
+> > Alan, you've been working in the "generic usb" section lately, any ideas
+> > why we can't suspend that kind of device now?
 
-Right and having active interrupts or devices using that processor should 
-also stop offlining a processor.
+See below...
 
-So just remove everything from a processor before offlining. If you cannot 
-remove all users then the processor cannot be offlined.
+> My laptop has the same problem.
+
+> Shrinking memory... done (0 pages freed)
+> hci_usb 3-1:1.1: no suspend for driver hci_usb?
+> hci_usb 3-1:1.0: no suspend for driver hci_usb?
+>  usbdev3.2_ep00: not suspended
+> usb_generic_suspend(): verify_suspended+0x0/0x3c() returns -16
+> suspend_device(): usb_generic_suspend+0x0/0x134() returns -16
+> Could not suspend device 3-1: error -16
+> hci_usb 3-1:1.0: no resume for driver hci_usb?
+> hci_usb 3-1:1.1: no resume for driver hci_usb?
+> Some devices failed to suspend
+> Restarting tasks... done
+> 
+> 
+> What's a usbdev3.2_ep00?
+
+Evidently the regression was caused by Greg's patch making endpoints into 
+real struct devices.  usbdev3.2_ep00 is the device corresponding to 
+endpoint 0 on device 2 of USB bus 3.
+
+Is it really true that this patch has been sitting in -mm for several
+months (as stated in the cover message to Linus for the new batch of
+changes for 2.6.17 sent in yesterday)?
+
+There are several possible ways to fix this.  One is to add suspend and 
+resume routines to the endpoint-device driver.  Another is to change the 
+code that checks for the children being suspended, to make it check only 
+for child USB devices and not child endpoints.
+
+Alan Stern
 

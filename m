@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933015AbWFWK5C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933014AbWFWK5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933015AbWFWK5C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jun 2006 06:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933013AbWFWK4E
+	id S933014AbWFWK5h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jun 2006 06:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932999AbWFWK5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jun 2006 06:56:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6668 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S933014AbWFWKzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jun 2006 06:55:46 -0400
-Date: Fri, 23 Jun 2006 12:55:46 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Ben Collins <bcollins@ubuntu.com>,
-       Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] drivers/char/agp/nvidia-agp.c: remove unused variable
-Message-ID: <20060623105546.GP9111@stusta.de>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 23 Jun 2006 06:57:06 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26242 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S933020AbWFWK4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jun 2006 06:56:35 -0400
+Date: Thu, 22 Jun 2006 22:38:56 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: davej@codemonkey.org.uk, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>
+Subject: Re: [Ubuntu PATCH] cpufreq: fix powernow-k8 load bug
+Message-ID: <20060622203855.GD2959@openzaurus.ucw.cz>
+References: <4498DA08.1010309@oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060621034857.35cfe36f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <4498DA08.1010309@oracle.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2006 at 03:48:57AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-rc6-mm2:
->...
->  git-agpgart.patch
->...
->  git trees
->...
+Hi!
 
-This patch removes an unused variable.
+> Fix powernow-k8 doesn't load bug.
+> Reference: https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/35145
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=dce0ca36f2ae348f005735e9acd400d2c0954421
+> 
+> 
+> 
+> ---
+>  arch/i386/kernel/cpu/cpufreq/powernow-k8.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- linux-2617-pv.orig/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+> +++ linux-2617-pv/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+> @@ -1008,7 +1008,7 @@ static int __cpuinit powernowk8_cpu_init
+>  		 * an UP version, and is deprecated by AMD.
+>  		 */
+>  
+> -		if ((num_online_cpus() != 1) || (num_possible_cpus() != 1)) {
+> +		if ((num_online_cpus() != 1)) {
+>  			printk(KERN_ERR PFX "MP systems not supported by PSB BIOS structure\n");
+>  			kfree(data);
+>  			return -ENODEV;
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Seems wrong to me... what if I boot, then hotplug second cpu?
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
---- linux-2.6.17-mm1-full/drivers/char/agp/nvidia-agp.c.old	2006-06-22 18:31:18.000000000 +0200
-+++ linux-2.6.17-mm1-full/drivers/char/agp/nvidia-agp.c	2006-06-22 18:31:39.000000000 +0200
-@@ -387,8 +387,6 @@
- 
- static int agp_nvidia_resume(struct pci_dev *pdev)
- {
--	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
--
- 	/* set power state 0 and restore PCI space */
- 	pci_set_power_state (pdev, 0);
- 	pci_restore_state(pdev);

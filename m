@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWFVPhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWFVPm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWFVPhc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 11:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751814AbWFVPhc
+	id S1751825AbWFVPm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 11:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751814AbWFVPm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 11:37:32 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:33750 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751153AbWFVPhb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 11:37:31 -0400
-Message-ID: <449AB908.30002@zytor.com>
-Date: Thu, 22 Jun 2006 08:36:40 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: linux-kernel@vger.kernel.org, mbligh@mbligh.org,
-       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>
-Subject: Re: fs/binfmt_aout.o, Error: suffix or operands invalid for  `cmp'
- [was Re: 2.6.1
-References: <200606220238_MC3-1-C321-1AC2@compuserve.com>
-In-Reply-To: <200606220238_MC3-1-C321-1AC2@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 22 Jun 2006 11:42:28 -0400
+Received: from xenotime.net ([66.160.160.81]:19413 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161159AbWFVPm2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 11:42:28 -0400
+Date: Thu, 22 Jun 2006 08:45:13 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: akpm@osdl.org, kamezawa.hiroyu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, ashok.raj@intel.com, pavel@ucw.cz,
+       clameter@sgi.com, ak@suse.de, nickpiggin@yahoo.com.au, mingo@elte.hu
+Subject: Re: [PATCH] stop on cpu lost
+Message-Id: <20060622084513.4717835e.rdunlap@xenotime.net>
+In-Reply-To: <20060622150848.GL16029@localdomain>
+References: <20060620125159.72b0de15.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060621225609.db34df34.akpm@osdl.org>
+	<20060622150848.GL16029@localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
->>>>
->>> It's complaining about this:
->>>
->>> #APP
->>>         addl %ecx,%eax ; sbbl %edx,%edx; cmpl %eax,$-1073741824; sbbl $0,%edx   # dump.u_dsize, sum, flag,
->>> #NO_APP
->> The cmpl should have its arguments reversed.  It's quite possible some versions of the 
->> assembler accepts the form given, but they're wrong (and doubly confusing when used as 
->> input to sbb.)
-> 
-> This was built with gcc 4.0.4 20060507 (prerelease).
-> 
-> I don't normally build a.out support, but I just tried and it compiled
-> fine with gcc 4.1.1.  SO this is probably a compiler bug (almost certainly
-> given that it generated illegal assembler code.)
-> 
+On Thu, 22 Jun 2006 10:08:48 -0500 Nathan Lynch wrote:
 
-It's not (it's #APP, i.e. inline assembly); rather, it's an illegal 
-constraint.
+> Andrew Morton wrote:
+> > KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> > > 
+> > > Now, when a task loses all of its allowed cpus because of cpu hot removal,
+> > > it will be foreced to migrate to not-allowed cpus.
+> > > 
+> > > In this case, the task is not properly reconfigurated by a user before
+> > > cpu-hot-removal. Here, the task (and system) is in a unexpeced wrong state.
+> > > This migration is maybe one of realistic workarounds. But sometimes it will be
+> > > harmfull.
+> > > (stealing other cpu time, making bugs in thread controllers, do some unexpected
+> > >  execution...)
+> > > 
+> > > This patch adds sysctl "sigstop_on_cpu_lost". When sigstop_on_cpu_lost==1,
+> > > a task which losts is cpu will be stopped by SIGSTOP.
+> > > Depends on system management policy, mis-configurated applications are stopped.
+> > > 
+> > 
+> > Well that's a pretty unpleasant patch, isn't it?
+> > 
+> > But I guess it's policy, and if we cannot think of anything better then we'll
+> > have to do it this way :(
+> 
+> I tend to favor not changing the kernel to handle this case.  We're
+> already making a best effort attempt to handle conflicting directives
+> from the admin.  This is a policy that can be implemented in userspace
+> without much trouble.
+> 
+> If we really want to keep the admin shooting himself in the foot,
+> wouldn't it be preferable to fail the offline operation if there are
+> user tasks exclusively bound to the cpu?
 
-	-hpa
+Sounds much better than just killing the process.
+
+> While we're on the subject, what if there are interrupts bound to the
+> cpu you want to offline?  Should we consider handling that case
+> differently as well?
+
+
+---
+~Randy

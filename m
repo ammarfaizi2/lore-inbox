@@ -1,114 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWFVAju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751540AbWFVApJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbWFVAju (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jun 2006 20:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWFVAju
+	id S1751540AbWFVApJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jun 2006 20:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWFVApJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jun 2006 20:39:50 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:35049 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750719AbWFVAjt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jun 2006 20:39:49 -0400
-Subject: Re: [PATCH 00/11] Task watchers:  Introduction
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
-       Chandra S Seetharaman <sekharan@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>, John T Kohl <jtk@us.ibm.com>,
-       Balbir Singh <balbir@in.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>
-In-Reply-To: <4499D097.5030604@bigpond.net.au>
-References: <1150242721.21787.138.camel@stark>
-	 <4498DC23.2010400@bigpond.net.au> <1150876292.21787.911.camel@stark>
-	 <44992EAA.6060805@bigpond.net.au>  <44993079.40300@bigpond.net.au>
-	 <1150925387.21787.1056.camel@stark>  <4499D097.5030604@bigpond.net.au>
-Content-Type: text/plain
-Date: Wed, 21 Jun 2006 17:32:17 -0700
-Message-Id: <1150936337.21787.1114.camel@stark>
+	Wed, 21 Jun 2006 20:45:09 -0400
+Received: from xenotime.net ([66.160.160.81]:59061 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751540AbWFVApH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jun 2006 20:45:07 -0400
+Date: Wed, 21 Jun 2006 17:47:54 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: sergio@sergiomb.no-ip.org
+Cc: kernel@agotnes.com, akpm@osdl.org, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
+       linux-usb-devel@lists.sourceforge.net, stern@rowland.harvard.edu,
+       cw@f00f.org, vsu@altlinux.ru
+Subject: Re: who I do know if a interrupt is ioapic_edge_type or 
+ ioapic_level_type? [Was Re: [Fwd: Re: [Linux-usb-users] Fwd: Re:
+ 2.6.17-rc6-mm2 - USB issues]]
+Message-Id: <20060621174754.159bb1d0.rdunlap@xenotime.net>
+In-Reply-To: <1150936606.2855.21.camel@localhost.portugal>
+References: <44953B4B.9040108@agotnes.com>
+	<4497DA3F.80302@agotnes.com>
+	<20060620044003.4287426d.akpm@osdl.org>
+	<4499245C.8040207@agotnes.com>
+	<1150936606.2855.21.camel@localhost.portugal>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-06-22 at 09:04 +1000, Peter Williams wrote:
-> Matt Helsley wrote:
-> > On Wed, 2006-06-21 at 21:41 +1000, Peter Williams wrote:
-> >> Peter Williams wrote:
-> >>> Matt Helsley wrote:
-> >>>> On Wed, 2006-06-21 at 15:41 +1000, Peter Williams wrote:
-> >>>>> On a related note, I can't see where the new task's notify field gets 
-> >>>>> initialized during fork.
-> >>>> It's initialized in kernel/sys.c:notify_per_task_watchers(), which calls
-> >>>> RAW_INIT_NOTIFIER_HEAD(&task->notify) in response to WATCH_TASK_INIT.
-> >>> I think that's too late.  It needs to be done at the start of 
-> >>> notify_watchers() before any other watchers are called for the new task.
+On Thu, 22 Jun 2006 01:36:46 +0100 Sergio Monteiro Basto wrote:
+
+> who I do know if a interrupt is ioapic_edge_type or ioapic_edge_type ? 
+
+Do you mean how they are configured in a running kernel?
+
+cat /proc/interrupts ::
+
+           CPU0       CPU1       
+  0:   12412944   12407808    IO-APIC-edge  timer
+  1:     122673     124208    IO-APIC-edge  i8042
+  7:          0          0    IO-APIC-edge  parport0
+  9:          0          0   IO-APIC-level  acpi
+ 12:    1141950    1138138    IO-APIC-edge  i8042
+ 14:    1107749    1109102    IO-APIC-edge  ide0
+ 58:     451498          0         PCI-MSI  eth0
+ 66:     530689     495356         PCI-MSI  libata
+ 74:          0          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb6
+ 82:         31          3   IO-APIC-level  ohci_hcd:usb2, ohci_hcd:usb3, ohci_hcd:usb4, ohci_hcd:usb5
+ 90:        561        492   IO-APIC-level  HDA Intel
+169:          3          0   IO-APIC-level  ohci1394
+177:          0          0   IO-APIC-level  uhci_hcd:usb8
+185:          0          0   IO-APIC-level  uhci_hcd:usb7
+193:          0          0   IO-APIC-level  uhci_hcd:usb9
+
+
+or how they should be configured in case you are not sure?
+See a hardware spec. for that.
+
+
+> On Wed, 2006-06-21 at 20:50 +1000, Johny wrote:
+> > Success :)
 > > 
-> > 	I don't see why you think it's too late. It needs to be initialized
-> > before it's used. Waiting until notify_per_task_watchers() is called
-> > with WATCH_TASK_INIT does this.
-> 
-> I probably didn't understand the code well enough.  I'm still learning 
-> how it all hangs together :-).
-> 
+> > I simply made the change 
+> > manually, based on your and others' inputs (it seemed the simpler
+> > option).
 > > 
-> >> On second thoughts, it would simpler just before the WATCH_TASK_INIT 
-> >> call in copy_process() in fork.c.  It can be done unconditionally there.
-> >>
-> >> Peter
+> > Both kernels now boot, and all USB devices are recognised correctly.
 > > 
-> > 	That would work. It would not simplify the control flow of the code.
-> > The branch for WATCH_TASK_INIT in notify_per_task_watchers() is
-> > unavoidable; we need to call the parent task's chain in that case since
-> > we know the child task's is empty.
+> 
+> > I run in XT_PIC mode for interrupts.
 > > 
-> > 	It is also counter to one goal of the patches -- reducing the "clutter"
-> > in these paths. Arguably task watchers is the same kind of clutter that
-> > existed before. However, it is a means of factoring such clutter into
-> > fewer instances (ideally one) of the pattern.
 > 
-> Maybe a few comments in the code to help reviewers such as me learn how 
-> it works more quickly would be worthwhile.
-
-Good point. I'll keep this in mind as I consider the multi-chain
-approach suggested by Andrew -- I suspect improvments in my commenting
-will be even more critical there.
-
-> BTW as a former user of PAGG, I think there are ideas in the PAGG 
-> implementation that you should look at.  In particular:
+> Hi, thanks for your positive test on "my" theory.
 > 
-> 1. The use of an array of function pointers (one for each hook) can cut 
-> down on the overhead.  The notifier_block only needs to contain a 
-> pointer to the array so there's no increase in the size of that 
-> structure.  Within the array a null pointer would mean "don't bother 
-> calling".  Only one real array needs to exist even for per task as 
-> they're all using the same functions (just separate data).  It removes 
-> the need for a switch statement in the client's function as well as 
-> saving on unnecessary function calls.
+> Here it goes the link that I talked about on last email 
+> http://lkml.org/lkml/2005/8/18/92 (you can read the previous messages on
+> this thread) 
+> 
+> The patch of this link doesn't compile (at least for me), but have a
+> simple idea, which is just quirk the VIA_PCIs if they are in XT_PIC mode
+> and I think that is the way of this quirks should go.
+> 
+> So someone help me out and do a patch that recognize if the interrupt is
+> in XT-PIC mode or not ? 
+> 
+> Thanks,  
+> -- 
+> Sérgio M. B.
+> 
 
-	I don't think having an explicit array of function pointers is likely
-to be as fast as a switch statement (or a simple branch) generated by
-the compiler.
 
-	It doesn't save unecessary function calls unless I modify the core
-notifier block structure. Otherwise I still need to stuff a generic
-function into .notifier_call and from there get the pointer to the array
-to make the next call. So it adds more pointer indirection but does not
-reduce the number of intermediate function calls.
-
-	As far as the multi-chain approach is concerned, I'm still leaning
-towards registering a single function with a mask describing what it
-wants to be notified of.
-
-> 2. A helper mechanism to allow a client that's being loaded as a module 
-> to visit all existing tasks and do whatever initialization it needs to 
-> do.  Without this every client would have to implement such a mechanism 
-> themselves (and it's not pretty).
-
-	Interesting idea. It should resemble existing macros. Something like:
-	register_task_watcher(&my_nb, &unnoticed);
-	for_each_unnoticed_task(unnoticed)
-		...
-
-> Peter
-
+---
+~Randy

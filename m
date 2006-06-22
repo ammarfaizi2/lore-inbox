@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWFVQEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWFVQFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161074AbWFVQEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161076AbWFVQEJ
+	id S1161076AbWFVQFF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbWFVQFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:04:09 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:7786 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161074AbWFVQEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:04:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=QJfdRngMFTrqrFl3jA1js+p/vPdzgYSAAOXpm2ROjoFxPYvrlwLIh4kV4McULi+GA8eqRGjMNc9Qg7CqloTE7zeXxgXvNs8VHIzO3kWypON7o/4M+FNKYa5Fi40tDQwUzQ7w3+dX4B42rWVLdwBux8rDsvWeeJYWF+VwJ3iUiYk=
-Date: Thu, 22 Jun 2006 18:04:03 +0200
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       linux-pm@osdl.org, stern@rowland.harvard.edu
-Subject: Re: [linux-pm] swsusp regression [Was: 2.6.17-mm1]
-Message-ID: <20060622160403.GB2539@slug>
-References: <20060621034857.35cfe36f.akpm@osdl.org> <4499BE99.6010508@gmail.com> <20060621221445.GB3798@inferi.kami.home> <20060622061905.GD15834@kroah.com> <20060622004648.f1912e34.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060622004648.f1912e34.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Thu, 22 Jun 2006 12:05:05 -0400
+Received: from xenotime.net ([66.160.160.81]:29162 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161076AbWFVQFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jun 2006 12:05:04 -0400
+Date: Thu, 22 Jun 2006 09:07:46 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Ivo van Doorn <ivdoorn@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND] CRC ITU-T V.41
+Message-Id: <20060622090746.5233bff5.rdunlap@xenotime.net>
+In-Reply-To: <200606221629.05406.IvDoorn@gmail.com>
+References: <200606221629.05406.IvDoorn@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thu, Jun 22, 2006 at 12:46:48AM -0700, Andrew Morton wrote:
-> I can bisect it if we're stuck, but that'll require beer or something.
+On Thu, 22 Jun 2006 16:29:02 +0200 Ivo van Doorn wrote:
 
-FWIW, my laptop (Dell D610) gave the following results:
-2.6.17-mm1: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
-2.6.17+origin.patch: suspend_device(): usb_generic_suspend+0x0/0x135 [usbcore]() returns -16
-2.6.17: oops
-2.6.17.1: oops
+> diff --git a/lib/crc-itu-t.c b/lib/crc-itu-t.c
+> new file mode 100644
+> index 0000000..15128ae
+> --- /dev/null
+> +++ b/lib/crc-itu-t.c
+> @@ -0,0 +1,69 @@
+> +/*
+> + *      crc-itu-t.c
+> + *
+> + * This source code is licensed under the GNU General Public License,
+> + * Version 2. See the file COPYING for more details.
+> + */
+> +
+> +#include <linux/types.h>
+> +#include <linux/module.h>
+> +#include <linux/crc-itu-t.h>
+> +
+> +/**
+> + * crc_itu_t - Compute the CRC-ITU-T for the data buffer
+> + *
 
-2.6.17-rc6-mm2: suspends correctly
+no blank ('*') line here (above), please.
+kernel-doc doesn't expect that.
 
+> + * @crc: previous CRC value
+> + * @buffer: data pointer
+> + * @len: number of bytes in the buffer
+> + *
+> + * Returns the updated CRC value
+> + */
+> +u16 crc_itu_t(u16 crc, const u8 *buffer, size_t len)
+> +{
+> +	while (len--)
+> +		crc = crc_itu_t_byte(crc, *buffer++);
+> +	return crc;
+> +}
 
-Regards,
-Frederik
+---
+~Randy

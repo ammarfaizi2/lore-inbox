@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWFVQux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWFVQ4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWFVQux (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 12:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWFVQux
+	id S1751157AbWFVQ4G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 12:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWFVQ4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 12:50:53 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:2775 "EHLO calculon.skynet.ie")
-	by vger.kernel.org with ESMTP id S1751226AbWFVQux (ORCPT
+	Thu, 22 Jun 2006 12:56:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30638 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751157AbWFVQ4F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 12:50:53 -0400
-Date: Thu, 22 Jun 2006 17:50:50 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Franck <vagabon.xyz@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-mm1
-In-Reply-To: <20060622161447.GC999@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0606221743040.5869@skynet.skynet.ie>
-References: <20060621034857.35cfe36f.akpm@osdl.org> <449AB01A.5000608@innova-card.com>
- <Pine.LNX.4.64.0606221617420.5869@skynet.skynet.ie> <449ABC3E.5070609@innova-card.com>
- <Pine.LNX.4.64.0606221649070.5869@skynet.skynet.ie>
- <20060622161447.GC999@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 22 Jun 2006 12:56:05 -0400
+Date: Thu, 22 Jun 2006 09:55:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alasdair G Kergon <agk@redhat.com>
+Cc: mbroz@redhat.com, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 01/15] dm: support ioctls on mapped devices
+Message-Id: <20060622095551.b5c6ddce.akpm@osdl.org>
+In-Reply-To: <20060622151721.GT19222@agk.surrey.redhat.com>
+References: <20060621193121.GP4521@agk.surrey.redhat.com>
+	<20060621205206.35ecdbf8.akpm@osdl.org>
+	<449A51A2.4080601@redhat.com>
+	<20060622012957.97697208.akpm@osdl.org>
+	<20060622151721.GT19222@agk.surrey.redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jun 2006, Russell King wrote:
+On Thu, 22 Jun 2006 16:17:21 +0100
+Alasdair G Kergon <agk@redhat.com> wrote:
 
-> On Thu, Jun 22, 2006 at 04:54:06PM +0100, Mel Gorman wrote:
->> On Thu, 22 Jun 2006, Franck Bui-Huu wrote:
->>> It's the default value (see memory_model.h). It means that pfn start
->>> for node 0 is 0, therefore your physical memory address starts at 0.
->>
->> I know, but what I'm getting at is that ARCH_PFN_OFFSET may be unnecessary
->> with flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch applied.
->> ARCH_PFN_OFFSET is used as
->>
->> #define page_to_pfn(page)       ((unsigned long)((page) - mem_map) + \
->>                                  ARCH_PFN_OFFSET)
->>
->> because it knew that the map may not start at PFN 0. With
->> flatmem-relax-requirement-for-memory-to-start-at-pfn-0.patch, the map will
->> start at PFN 0 even if physical memory does not start until later.
->
-> Doesn't that result in a massive array of struct pages if your memory
-> starts a 3GB physical and has 4K pages?
+> On Thu, Jun 22, 2006 at 01:29:57AM -0700, Andrew Morton wrote:
+> > OK.  I do think dm needs to remember /dev/sda's file* to get this right
+> > though.  That's where the ->ioctl methods are.
+> 
+> > Oh dear.  raw_open() doesn't have a file* for the device.
+>  
+> Similar with device-mapper: in normal usage dm only sees major:minor.
+> 
+> Yes, the filp dm passes along is incorrect:
+> 
+> - return blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk, cmd, arg);
+> + return blkdev_driver_ioctl(bdev->bd_inode, NULL, bdev->bd_disk, cmd, arg);
+> 
+> But should unlocked_ioctl become ?
+> 
+> - long (*unlocked_ioctl) (struct file *, unsigned, unsigned long);
+> + long (*unlocked_ioctl) (struct inode *, struct file *, unsigned, unsigned long);
+> 
+> so it can be used for block devices?
 
-No, I should have been clear. The size of the map remains the same but 
-mem_map does not point directly to NODE_DATA(0)->node_mem_map when the PFN 
-of node 0 is not 0. Instead mem_map points to
+Perhaps it should (have).  It's a bit nasty, but we do have at least two
+internal callers who don't have a file*.
 
-NODE_DATA(0)->node_mem_map - NODE_DATA(0)->node_start_pfn
+The alternative would be to cook up a fake file* like blkdev_get() does,
+but we don't want to propagate that practice.
 
-The relevant bit of code is
+Oh well.  I suppose a lock_kernel() won't kill us.
 
- 	map = alloc_remap(pgdat->node_id, size);
- 	if (!map)
- 		map = alloc_bootmem_node(pgdat, size);
- 	pgdat->node_mem_map = map + (pgdat->node_start_pfn - start);
+> See also block/scsi_ioctl.c:201 verify_command()  [scsi_cmd_ioctl]
+>          * file can be NULL from ioctl_by_bdev()...
+> 
+> Or should we be working towards eliminating interfaces that use device numbers?
 
- 	/*
- 	 * With FLATMEM the global mem_map is used.  This is assumed
- 	 * to be based at pfn 0 such that 'pfn = page* - mem_map'
- 	 * is true. Adjust map relative to node_mem_map to
- 	 * maintain this relationship.
- 	 */
- 	map -= pgdat->node_start_pfn;
-
-and later
-
- 	if (pgdat == NODE_DATA(0))
- 		mem_map = map;
-
-So memory is wasted and ARCH_PFN_OFFSET isn't needed in the case where it 
-is working around NODE_DATA(0)->node_start_pfn != 0
-
-> If you have only 32MB in that
-> scenario, and that was correct, you'd gobble 25MB of that just to
-> store that array.  Ouch.
->
-
-It would be a kick in the shins all right if that was the case.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+If possible.  I guess that would require DM to track the devices with
+file*'s or inode*'s or bdev*'s.  Which, I assume, would be non-trivial.

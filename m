@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWFVVyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751541AbWFVWBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWFVVyl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jun 2006 17:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWFVVyl
+	id S1751541AbWFVWBA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jun 2006 18:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWFVWBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jun 2006 17:54:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31141 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932167AbWFVVyk (ORCPT
+	Thu, 22 Jun 2006 18:01:00 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:12303 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1751541AbWFVWBA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jun 2006 17:54:40 -0400
-Date: Thu, 22 Jun 2006 14:57:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Theodore Tso <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org, Jeff Dike <jdike@addtoit.com>
-Subject: Re: 2.6.17-mm1: UML failing w/o SKAS enabled
-Message-Id: <20060622145743.2accfeaf.akpm@osdl.org>
-In-Reply-To: <20060622213443.GA22303@thunk.org>
-References: <20060621034857.35cfe36f.akpm@osdl.org>
-	<20060622213443.GA22303@thunk.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 22 Jun 2006 18:01:00 -0400
+Date: Fri, 23 Jun 2006 00:00:57 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is the x86-64 kernel size limit real?
+Message-ID: <20060622220057.GB52945@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <20060622204627.GA47994@dspnet.fr.eu.org> <e7f2jq$r17$1@terminus.zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e7f2jq$r17$1@terminus.zytor.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso <tytso@mit.edu> wrote:
->
-> When I tried compiling 2.6.17-mm1 without SKAS support, it failed to
-> link:
+On Thu, Jun 22, 2006 at 02:38:02PM -0700, H. Peter Anvin wrote:
+> It turns out x86-64, unlike i386, does still have a hardcoded limit,
+> but the limit in build.c is wrong:
 > 
-> arch/um/sys-i386/built-in.o: In function `__setup_host_supports_tls':tls.c:(.init.text+0x14): undefined reference to `check_host_supports_tls'
-> collect2: ld returned 1 exit status
+> kernel/head.S:
+>         /* 40MB kernel mapping. The kernel code cannot be bigger than that.
+>            When you change this change KERNEL_TEXT_SIZE in page.h too. */
+>         /* (2^48-(2*1024*1024*1024)-((2^39)*511)-((2^30)*510)) = 0 */
 > 
-> This can fixed be addressed with the attached patch,
+> So this should be replaced by KERNEL_TEXT_SIZE in page.h, or better,
+> this should be done dynamically in x86-64 too.
 
---- linux-2.6.17-mm1.orig/arch/um/os-Linux/sys-i386/Makefile	2006-06-17 21:49:35.000000000 -0400
-+++ linux-2.6.17-mm1/arch/um/os-Linux/sys-i386/Makefile	2006-06-22 17:28:59.000000000 -0400
-@@ -3,7 +3,8 @@
- # Licensed under the GPL
- #
- 
--obj-$(CONFIG_MODE_SKAS) = registers.o tls.o
-+obj-$(CONFIG_MODE_SKAS) = registers.o
-+obj-y = tls.o
- 
- USER_OBJS := $(obj-y)
- 
+Interesting.  KERNEL_TEXT_SIZE wouldn't work though, since that's the
+decompressed size while the 4Mb limit is on the compressed size.  As a
+datapoint, though, the uncompressed image is 15.7Mb, for a 4.5Mb
+compressed image.
 
-
-hm, I don't see anything in -mm which could cause this.
-
-> but it the
-> resulting kernel still doesn't boot:
-> 
-> <tytso@candygram>       {/usr/projects/uml/linux-2.6.17-mm1}
-> 35% ./linux
-> Checking that ptrace can change system call numbers...OK
-> Checking syscall emulation patch for ptrace...OK
-> Checking advanced syscall emulation patch for ptrace...OK
-> Checking for tmpfs mount on /dev/shm...OK
-> Checking PROT_EXEC mmap in /dev/shm/...OK
-> UML running in TT mode
-> tracing thread pid = 25812
-> Checking that ptrace can change system call numbers...OK
-> Checking syscall emulation patch for ptrace...OK
-> Checking advanced syscall emulation patch for ptrace...OK
-> 
-> <tytso@candygram>       {/usr/projects/uml/linux-2.6.17-mm1}
-> 36%
-> 
-> If anyone has any suggestions, I'd appreciate them.
-> 
-
-It's not clear what actually happened - did it quietly exit, or what?
-
-I haven't run UML in several years, alas.  I should work out how to do it
-(again).   Links to any uml-for-dummies site would be appreciated ;)
+  OG.
 
